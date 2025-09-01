@@ -1,9 +1,14 @@
-import { expect, Locator } from '@playwright/test';
+import { expect } from "@playwright/test";
 
-import { BasePage } from './base.page';
+import { BasePage } from "./base.page";
 
 export class MetadataEditorPage extends BasePage {
-  async createMetadataField(fieldType: string, displayName: string, key?: string, description?: string): Promise<void> {
+  async createMetadataField(
+    fieldType: string,
+    displayName: string,
+    key?: string,
+    description?: string,
+  ): Promise<void> {
     await this.getByRole("tab", { name: "Meta Data" }).click();
     await this.getByRole("listitem").filter({ hasText: fieldType }).click();
     await this.getByLabel("Display name").fill(displayName);
@@ -23,7 +28,11 @@ export class MetadataEditorPage extends BasePage {
     await this.getByRole("tab", { name: tabName }).click();
   }
 
-  async setMetadataSettings(displayName?: string, key?: string, description?: string): Promise<void> {
+  async setMetadataSettings(
+    displayName?: string,
+    key?: string,
+    description?: string,
+  ): Promise<void> {
     if (displayName) {
       await this.getByLabel("Display name").fill(displayName);
     }
@@ -35,7 +44,11 @@ export class MetadataEditorPage extends BasePage {
     }
   }
 
-  async setValidationOptions(required?: boolean, unique?: boolean, maxLength?: string): Promise<void> {
+  async setValidationOptions(
+    required?: boolean,
+    unique?: boolean,
+    maxLength?: string,
+  ): Promise<void> {
     await this.switchToTab("Validation");
     if (required !== undefined) {
       await this.getByLabel("Make field required").setChecked(required);
@@ -76,11 +89,15 @@ export class MetadataEditorPage extends BasePage {
     await this.getByRole("button", { name: "Cancel" }).click();
   }
 
-  async expectMetadataFieldInList(fieldName: string, key?: string, markers?: string[]): Promise<void> {
+  async expectMetadataFieldInList(
+    fieldName: string,
+    key?: string,
+    markers?: string[],
+  ): Promise<void> {
     let expectedText = key ? `${fieldName}#${key}` : fieldName;
-    if (markers?.includes('required')) expectedText += ' *';
-    if (markers?.includes('unique')) expectedText += '(unique)';
-    
+    if (markers?.includes("required")) expectedText += " *";
+    if (markers?.includes("unique")) expectedText += "(unique)";
+
     await expect(this.getByText(expectedText)).toBeVisible();
   }
 
@@ -104,7 +121,7 @@ export class MetadataEditorPage extends BasePage {
     await expect(this.getByLabel(label)).toBeEmpty();
   }
 
-  async expectValidationError(shouldBeDisabled: boolean = true): Promise<void> {
+  async expectValidationError(shouldBeDisabled?: boolean): Promise<void> {
     if (shouldBeDisabled) {
       await expect(this.getByRole("button", { name: "OK" })).toBeDisabled();
     } else {

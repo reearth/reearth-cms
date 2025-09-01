@@ -1,34 +1,37 @@
-import { expect, Locator } from '@playwright/test';
+import { expect, Locator } from "@playwright/test";
 
-import { getId } from '@reearth-cms/e2e/utils/mock';
+import { getId } from "@reearth-cms/e2e/utils/mock";
 
-import { BasePage } from './base.page';
+import { BasePage } from "./base.page";
 
 export class HomePage extends BasePage {
   private get newProjectButton(): Locator {
-    return this.getByRole('button', { name: 'plus New Project' });
+    return this.getByRole("button", { name: "plus New Project" });
   }
 
   private get searchInput(): Locator {
-    return this.getByPlaceholder('search projects');
+    return this.getByPlaceholder("search projects");
   }
 
   private get searchButton(): Locator {
-    return this.getByRole('button', { name: 'search' });
+    return this.getByRole("button", { name: "search" });
   }
 
   private get clearSearchButton(): Locator {
-    return this.getByRole('button', { name: 'close-circle' });
+    return this.getByRole("button", { name: "close-circle" });
   }
 
-  async createProject(name?: string, description?: string): Promise<{ id: string; description: string }> {
+  async createProject(
+    name?: string,
+    description?: string,
+  ): Promise<{ id: string; description: string }> {
     const projectId = name || getId();
-    const projectDescription = description || 'project description';
+    const projectDescription = description || "project description";
 
     await this.newProjectButton.first().click();
-    await this.getByLabel('Project name').fill(projectId);
-    await this.getByLabel('Project description').fill(projectDescription);
-    await this.getByRole('button', { name: 'OK' }).click();
+    await this.getByLabel("Project name").fill(projectId);
+    await this.getByLabel("Project description").fill(projectDescription);
+    await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
 
     return { id: projectId, description: projectDescription };
@@ -49,7 +52,7 @@ export class HomePage extends BasePage {
   }
 
   getProjectCard(projectName: string): Locator {
-    return this.locator('.ant-card').filter({ hasText: projectName }).first();
+    return this.locator(".ant-card").filter({ hasText: projectName }).first();
   }
 
   async expectProjectVisible(projectName: string, description?: string): Promise<void> {

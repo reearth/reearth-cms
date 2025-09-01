@@ -1,6 +1,6 @@
-import { expect, Locator, Page } from '@playwright/test';
+import { expect, Locator, Page } from "@playwright/test";
 
-import { BasePage } from './base.page';
+import { BasePage } from "./base.page";
 
 export class RequestPage extends BasePage {
   constructor(public page: Page) {
@@ -169,7 +169,9 @@ export class RequestPage extends BasePage {
 
   async expectItemButtonsVisible(modelName: string, count: number): Promise<void> {
     for (let i = 0; i < count; i++) {
-      await expect(this.getByRole("button", { name: `collapsed ${modelName}` }).nth(i)).toBeVisible();
+      await expect(
+        this.getByRole("button", { name: `collapsed ${modelName}` }).nth(i),
+      ).toBeVisible();
     }
   }
 

@@ -1,30 +1,30 @@
-import { expect, Locator } from '@playwright/test';
+import { expect, Locator } from "@playwright/test";
 
-import { BasePage } from './base.page';
+import { BasePage } from "./base.page";
 
 export class ProjectLayoutPage extends BasePage {
   private get header(): Locator {
-    return this.page.locator('.ant-layout-header');
+    return this.page.locator(".ant-layout-header");
   }
 
   private get projectNameInHeader(): Locator {
-    return this.header.locator('p').nth(2);
+    return this.header.locator("p").nth(2);
   }
 
   private get settingsButton(): Locator {
-    return this.getByText('Settings');
+    return this.getByText("Settings");
   }
 
   async navigateToAssets(): Promise<void> {
-    await this.getByRole('menuitem', { name: 'Asset' }).click();
+    await this.getByRole("menuitem", { name: "Asset" }).click();
   }
 
   async navigateToContent(): Promise<void> {
-    await this.getByRole('menuitem', { name: 'Content' }).click();
+    await this.getByRole("menuitem", { name: "Content" }).click();
   }
 
   async navigateToSchema(): Promise<void> {
-    await this.getByRole('menuitem', { name: 'Schema' }).click();
+    await this.getByRole("menuitem", { name: "Schema" }).click();
   }
 
   async navigateToSettings(): Promise<void> {

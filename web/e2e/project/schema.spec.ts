@@ -75,10 +75,7 @@ test("Group CRUD has succeeded", async ({ schemaPage }) => {
   await schemaPage.expectModelHidden(updateGroupName);
 });
 
-test("Group creating from adding field has succeeded", async ({
-  page,
-  schemaPage,
-}) => {
+test("Group creating from adding field has succeeded", async ({ page, schemaPage }) => {
   const groupName = "e2e group name";
   const groupKey = "e2e-group-key";
 
@@ -123,7 +120,6 @@ test("Group reordering has succeeded", async ({ schemaPage }) => {
   await schemaPage.expectGroupInPosition(2, "group3");
 });
 
-// eslint-disable-next-line playwright/expect-expect
 test("Text field CRUD has succeeded", async ({ page, schemaPage }) => {
   await schemaPage.createModelFromSidebar();
   await schemaPage.addTextField();

@@ -20,7 +20,7 @@ test("Workspace CRUD has succeeded", async ({ reearth, workspacePage }) => {
   await workspacePage.deleteWorkspace();
   await workspacePage.navigateToFirstLink();
   await workspacePage.expectWorkspaceHidden("new workspace name");
-  });
+});
 
 test("Workspace Creating from tab has succeeded", async ({ reearth, workspacePage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -28,4 +28,4 @@ test("Workspace Creating from tab has succeeded", async ({ reearth, workspacePag
   await workspacePage.createWorkspaceFromTab("workspace name");
   await workspacePage.expectWorkspaceNameInHeader("workspace name");
   await workspacePage.deleteWorkspace();
-  });
+});

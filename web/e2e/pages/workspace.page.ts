@@ -1,56 +1,56 @@
-import { expect, Locator } from '@playwright/test';
+import { expect, Locator } from "@playwright/test";
 
-import { BasePage } from './base.page';
+import { BasePage } from "./base.page";
 
 export class WorkspacePage extends BasePage {
   private get createWorkspaceButton(): Locator {
-    return this.getByRole('button', { name: 'Create a Workspace' });
+    return this.getByRole("button", { name: "Create a Workspace" });
   }
 
   private get workspaceNameInput(): Locator {
-    return this.getByLabel('Workspace name');
+    return this.getByLabel("Workspace name");
   }
 
   private get workspaceNameUpdateInput(): Locator {
-    return this.getByLabel('Workspace Name');
+    return this.getByLabel("Workspace Name");
   }
 
   private get okButton(): Locator {
-    return this.getByRole('button', { name: 'OK' });
+    return this.getByRole("button", { name: "OK" });
   }
 
   private get saveChangesButton(): Locator {
-    return this.getByRole('button', { name: 'Save changes' });
+    return this.getByRole("button", { name: "Save changes" });
   }
 
   private get removeWorkspaceButton(): Locator {
-    return this.getByRole('button', { name: 'Remove Workspace' });
+    return this.getByRole("button", { name: "Remove Workspace" });
   }
 
   private get workspaceSettingsButton(): Locator {
-    return this.getByText('Workspace', { exact: true });
+    return this.getByText("Workspace", { exact: true });
   }
 
   private get createWorkspaceTab(): Locator {
-    return this.getByText('Create Workspace');
+    return this.getByText("Create Workspace");
   }
 
   private get firstLink(): Locator {
-    return this.locator('a').first();
+    return this.locator("a").first();
   }
 
   private get header(): Locator {
-    return this.locator('header');
+    return this.locator("header");
   }
 
-  async createWorkspace(workspaceName = 'e2e workspace name'): Promise<void> {
+  async createWorkspace(workspaceName = "e2e workspace name"): Promise<void> {
     await this.createWorkspaceButton.click();
     await this.workspaceNameInput.fill(workspaceName);
     await this.okButton.click();
     await this.closeNotification();
   }
 
-  async createWorkspaceFromTab(workspaceName = 'workspace name'): Promise<void> {
+  async createWorkspaceFromTab(workspaceName = "workspace name"): Promise<void> {
     await this.firstLink.click();
     await this.createWorkspaceTab.click();
     await this.workspaceNameInput.fill(workspaceName);

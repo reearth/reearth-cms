@@ -19,7 +19,12 @@ test.afterEach(async ({ projectLayoutPage, projectSettingsPage }) => {
   await projectSettingsPage.deleteProject();
 });
 
-test("Item CRUD and searching has succeeded", async ({ page, fieldEditorPage, contentPage, itemEditorPage }) => {
+test("Item CRUD and searching has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  itemEditorPage,
+}) => {
   // Create text field
   await fieldEditorPage.createField("Text", "text", "text");
   await fieldEditorPage.confirmFieldConfiguration();
@@ -55,7 +60,12 @@ test("Item CRUD and searching has succeeded", async ({ page, fieldEditorPage, co
   expect(true).toBe(true);
 });
 
-test("Publishing and Unpublishing item from edit page has succeeded", async ({ page, fieldEditorPage, contentPage, itemEditorPage }) => {
+test("Publishing and Unpublishing item from edit page has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  itemEditorPage,
+}) => {
   // Create text field
   await fieldEditorPage.createField("Text", "text", "text");
   await fieldEditorPage.confirmFieldConfiguration();
@@ -84,8 +94,13 @@ test("Publishing and Unpublishing item from edit page has succeeded", async ({ p
   expect(true).toBe(true);
 });
 
-test("Publishing and Unpublishing item from table has succeeded", async ({ page, fieldEditorPage, contentPage, itemEditorPage }) => {
-  // Create text field  
+test("Publishing and Unpublishing item from table has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  itemEditorPage,
+}) => {
+  // Create text field
   await fieldEditorPage.createField("Text", "text", "text");
   await fieldEditorPage.confirmFieldConfiguration();
 
@@ -105,7 +120,7 @@ test("Publishing and Unpublishing item from table has succeeded", async ({ page,
   // Unpublish from table
   await contentPage.unpublishItemFromTable();
   await expect(page.getByText("Draft")).toBeVisible();
-  
+
   // Verify status in edit page
   await itemEditorPage.editCellByIndex(0);
   await expect(page.getByText("Draft")).toBeVisible();

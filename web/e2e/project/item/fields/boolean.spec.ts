@@ -1,6 +1,6 @@
+import { test, expect } from "@reearth-cms/e2e/fixtures/test";
 import { createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
-import { test, expect } from "@reearth-cms/e2e/fixtures/test";
 
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -12,7 +12,11 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
-test("Boolean field creating and updating has succeeded", async ({ page, fieldEditorPage, contentPage, itemEditorPage }) => {
+test("Boolean field creating and updating has succeeded", async ({
+  fieldEditorPage,
+  contentPage,
+  itemEditorPage,
+}) => {
   // Create boolean field
   await fieldEditorPage.createField("Boolean", "boolean1", "boolean1", "boolean1 description");
   await fieldEditorPage.confirmFieldConfiguration();
@@ -40,7 +44,12 @@ test("Boolean field creating and updating has succeeded", async ({ page, fieldEd
   expect(true).toBe(true);
 });
 
-test("Boolean field editing has succeeded", async ({ page, fieldEditorPage, contentPage, itemEditorPage }) => {
+test("Boolean field editing has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  itemEditorPage,
+}) => {
   // Create boolean field with default value
   await fieldEditorPage.createField("Boolean", "boolean1", "boolean1", "boolean1 description");
   await fieldEditorPage.setBooleanDefaultValue(true);
@@ -58,14 +67,18 @@ test("Boolean field editing has succeeded", async ({ page, fieldEditorPage, cont
   // Edit field with advanced settings
   await contentPage.navigateToSchemaTab();
   await fieldEditorPage.editField();
-  await fieldEditorPage.setFieldSettings("new boolean1", "new-boolean1", "new boolean1 description");
+  await fieldEditorPage.setFieldSettings(
+    "new boolean1",
+    "new-boolean1",
+    "new boolean1 description",
+  );
   await fieldEditorPage.setSupportMultipleValues(true);
   await fieldEditorPage.expectFieldHidden("Use as title");
-  
+
   await fieldEditorPage.switchToTab("Validation");
   await fieldEditorPage.expectFieldDisabled("Make field required");
   await fieldEditorPage.expectFieldDisabled("Set field as unique");
-  
+
   await fieldEditorPage.switchToTab("Default value");
   await expect(page.getByRole("switch").nth(0)).toHaveAttribute("aria-checked", "true");
   await page.getByRole("button", { name: "plus New" }).click();
@@ -74,14 +87,14 @@ test("Boolean field editing has succeeded", async ({ page, fieldEditorPage, cont
   await expect(page.getByRole("switch").nth(0)).toHaveAttribute("aria-checked", "false");
   await expect(page.getByRole("switch").nth(1)).toHaveAttribute("aria-checked", "true");
   await fieldEditorPage.confirmFieldConfiguration();
-  
+
   await fieldEditorPage.expectFieldInList("new boolean1", "new-boolean1");
 
   // Test updated field in content
   await contentPage.navigateToContentTab();
   await expect(page.locator("thead")).toContainText("new boolean1");
   await expect(page.getByRole("switch", { name: "check" })).toBeVisible();
-  
+
   await contentPage.createNewItem();
   await expect(page.getByRole("switch").nth(0)).toHaveAttribute("aria-checked", "false");
   await expect(page.getByRole("switch").nth(1)).toHaveAttribute("aria-checked", "true");
@@ -90,7 +103,7 @@ test("Boolean field editing has succeeded", async ({ page, fieldEditorPage, cont
   await page.getByRole("button", { name: "arrow-up" }).nth(2).click();
   await itemEditorPage.saveItem();
   await itemEditorPage.goBack();
-  
+
   await itemEditorPage.clickMultipleValueButton(3);
   await itemEditorPage.expectTooltipContains("new boolean1");
   await expect(page.getByRole("switch").nth(1)).toHaveAttribute("aria-checked", "false");

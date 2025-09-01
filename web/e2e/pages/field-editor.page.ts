@@ -1,42 +1,42 @@
-import { expect, Locator } from '@playwright/test';
+import { expect, Locator } from "@playwright/test";
 
-import { BasePage } from './base.page';
+import { BasePage } from "./base.page";
 
 export class FieldEditorPage extends BasePage {
   private get fieldTypeDropdown(): Locator {
-    return this.locator('.ant-select-selector').first();
+    return this.locator(".ant-select-selector").first();
   }
 
   private get fieldNameInput(): Locator {
-    return this.getByLabel('Field Name').or(this.getByLabel('Display Name'));
+    return this.getByLabel("Field Name").or(this.getByLabel("Display Name"));
   }
 
   private get fieldKeyInput(): Locator {
-    return this.getByLabel('Field Key');
+    return this.getByLabel("Field Key");
   }
 
   private get saveButton(): Locator {
-    return this.getByRole('button', { name: 'Save' });
+    return this.getByRole("button", { name: "Save" });
   }
 
   private get requiredCheckbox(): Locator {
-    return this.getByRole('checkbox', { name: 'Required' });
+    return this.getByRole("checkbox", { name: "Required" });
   }
 
   private get uniqueCheckbox(): Locator {
-    return this.getByRole('checkbox', { name: 'Unique' });
+    return this.getByRole("checkbox", { name: "Unique" });
   }
 
   private get multipleCheckbox(): Locator {
-    return this.getByRole('checkbox', { name: 'Multiple values' });
+    return this.getByRole("checkbox", { name: "Multiple values" });
   }
 
   private get deleteButton(): Locator {
-    return this.getByRole('button', { name: 'Delete' });
+    return this.getByRole("button", { name: "Delete" });
   }
 
   private get confirmDeleteButton(): Locator {
-    return this.getByRole('button', { name: 'OK' });
+    return this.getByRole("button", { name: "OK" });
   }
 
   async selectFieldType(fieldType: string): Promise<void> {
@@ -76,39 +76,39 @@ export class FieldEditorPage extends BasePage {
 
   // Field type specific methods
   async setTextFieldMaxLength(maxLength: string): Promise<void> {
-    await this.getByLabel('Max Length').fill(maxLength);
+    await this.getByLabel("Max Length").fill(maxLength);
   }
 
   async setNumberFieldRange(min?: string, max?: string): Promise<void> {
     if (min) {
-      await this.getByLabel('Min').fill(min);
+      await this.getByLabel("Min").fill(min);
     }
     if (max) {
-      await this.getByLabel('Max').fill(max);
+      await this.getByLabel("Max").fill(max);
     }
   }
 
   async addSelectOption(value: string, label: string): Promise<void> {
-    await this.getByRole('button', { name: 'plus Add' }).click();
-    await this.getByLabel('Value').last().fill(value);
-    await this.getByLabel('Label').last().fill(label);
+    await this.getByRole("button", { name: "plus Add" }).click();
+    await this.getByLabel("Value").last().fill(value);
+    await this.getByLabel("Label").last().fill(label);
   }
 
   async selectAssetType(assetType: string): Promise<void> {
-    await this.locator('.ant-select-selector').click();
+    await this.locator(".ant-select-selector").click();
     await this.getByText(assetType).click();
   }
 
   async selectReferenceModel(modelName: string): Promise<void> {
-    await this.locator('.ant-select-selector').click();
+    await this.locator(".ant-select-selector").click();
     await this.getByText(modelName).click();
   }
 
   // Boolean field specific methods
   async setBooleanFieldValues(trueValue: string, falseValue: string): Promise<void> {
-    const trueInput = this.getByLabel('Default value when true');
-    const falseInput = this.getByLabel('Default value when false');
-    
+    const trueInput = this.getByLabel("Default value when true");
+    const falseInput = this.getByLabel("Default value when false");
+
     await trueInput.clear();
     await trueInput.fill(trueValue);
     await falseInput.clear();
@@ -124,12 +124,19 @@ export class FieldEditorPage extends BasePage {
   }
 
   // Field creation workflow methods
-  async createField(fieldType: string, displayName: string, key?: string, description?: string): Promise<void> {
+  async createField(
+    fieldType: string,
+    displayName: string,
+    key?: string,
+    description?: string,
+  ): Promise<void> {
     await this.locator("li").filter({ hasText: fieldType }).locator("div").first().click();
     await this.getByLabel("Display name").click();
     await this.getByLabel("Display name").fill(displayName);
     await this.getByLabel("Settings").locator("#key").click();
-    await this.getByLabel("Settings").locator("#key").fill(key || displayName);
+    await this.getByLabel("Settings")
+      .locator("#key")
+      .fill(key || displayName);
     if (description) {
       await this.getByLabel("Settings").locator("#description").click();
       await this.getByLabel("Settings").locator("#description").fill(description);
@@ -158,7 +165,13 @@ export class FieldEditorPage extends BasePage {
     }
   }
 
-  async setValidationOptions(required?: boolean, unique?: boolean, maxLength?: string, minValue?: string, maxValue?: string): Promise<void> {
+  async setValidationOptions(
+    required?: boolean,
+    unique?: boolean,
+    maxLength?: string,
+    minValue?: string,
+    maxValue?: string,
+  ): Promise<void> {
     await this.switchToTab("Validation");
     if (required !== undefined) {
       await this.getByLabel("Make field required").setChecked(required);
@@ -193,10 +206,11 @@ export class FieldEditorPage extends BasePage {
     }
   }
 
-  async reorderDefaultValues(fromIndex: number, direction: 'up' | 'down'): Promise<void> {
-    const button = direction === 'up' 
-      ? this.getByRole("button", { name: "arrow-up" })
-      : this.getByRole("button", { name: "arrow-down" });
+  async reorderDefaultValues(fromIndex: number, direction: "up" | "down"): Promise<void> {
+    const button =
+      direction === "up"
+        ? this.getByRole("button", { name: "arrow-up" })
+        : this.getByRole("button", { name: "arrow-down" });
     await button.nth(fromIndex).click();
   }
 
@@ -224,9 +238,9 @@ export class FieldEditorPage extends BasePage {
 
   async expectFieldInList(fieldName: string, key?: string, markers?: string[]): Promise<void> {
     let expectedText = key ? `${fieldName}#${key}` : fieldName;
-    if (markers?.includes('required')) expectedText += ' *';
-    if (markers?.includes('unique')) expectedText += '(unique)';
-    
+    if (markers?.includes("required")) expectedText += " *";
+    if (markers?.includes("unique")) expectedText += "(unique)";
+
     await expect(this.getByText(expectedText)).toBeVisible();
   }
 
@@ -255,7 +269,9 @@ export class FieldEditorPage extends BasePage {
   }
 
   async expectFieldDisabled(label: string): Promise<void> {
-    await expect(this.locator("label").filter({ hasText: label }).locator("span").nth(1)).toBeDisabled();
+    await expect(
+      this.locator("label").filter({ hasText: label }).locator("span").nth(1),
+    ).toBeDisabled();
   }
 
   async expectFieldEmpty(label: string): Promise<void> {
@@ -263,11 +279,11 @@ export class FieldEditorPage extends BasePage {
   }
 
   async createTitleField(titleFieldName: string, defaultValue: string): Promise<void> {
-    await this.getByLabel('Display name').fill(titleFieldName);
-    await this.getByLabel('Use as title').check();
-    await this.getByRole('tab', { name: 'Default value' }).click();
-    await this.getByLabel('Set default value').fill(defaultValue);
-    await this.getByRole('button', { name: 'OK' }).click();
+    await this.getByLabel("Display name").fill(titleFieldName);
+    await this.getByLabel("Use as title").check();
+    await this.getByRole("tab", { name: "Default value" }).click();
+    await this.getByLabel("Set default value").fill(defaultValue);
+    await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
   }
 }

@@ -13,7 +13,12 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
-test("Text metadata creating and updating has succeeded", async ({ page, metadataEditorPage, contentPage, itemEditorPage }) => {
+test("Text metadata creating and updating has succeeded", async ({
+  page,
+  metadataEditorPage,
+  contentPage,
+  itemEditorPage,
+}) => {
   // Create metadata field
   await metadataEditorPage.createMetadataField("Text", "text1", "text1", "text1 description");
   await metadataEditorPage.expectMetadataFieldInList("text1", "text1");
@@ -49,7 +54,7 @@ test("Text metadata creating and updating has succeeded", async ({ page, metadat
 
   await itemEditorPage.goBack();
   await expect(page.getByRole("textbox")).toHaveValue("text1");
-  
+
   // Test inline editing
   await page.getByRole("textbox").fill("new text1");
   await page.locator(".ant-table-body").click();

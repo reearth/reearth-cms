@@ -1,5 +1,5 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { test,expect } from "@reearth-cms/e2e/fixtures/test";
+import { test, expect } from "@reearth-cms/e2e/fixtures/test";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
 
 import { config } from "../utils/config";
@@ -26,19 +26,19 @@ test("Tiles CRUD has succeeded", async ({ page, settingsPage }) => {
   // Add Labelled tile option
   await settingsPage.addTilesOption("Labelled");
   await settingsPage.saveTileSettings();
-  
+
   // Verify and edit tile option
   await settingsPage.editTileOption(-1); // Edit last option
   await expect(page.getByText("Labelled", { exact: true })).toBeVisible();
-  
+
   // Configure tile URL
   await settingsPage.configureTileUrl("url", "http://url.com", "http://image.com");
   await settingsPage.saveTileSettings();
-  
+
   // Verify tile configuration
   await settingsPage.expectTileVisible("url");
   await settingsPage.expectTileImageSrc("http://image.com");
-  
+
   // Verify edit form values
   await settingsPage.editTileOption(-1);
   await expect(page.locator("form")).toContainText("URL");
@@ -46,7 +46,7 @@ test("Tiles CRUD has succeeded", async ({ page, settingsPage }) => {
   await expect(page.getByLabel("URL", { exact: true })).toHaveValue("http://url.com");
   await expect(page.getByLabel("Image URL")).toHaveValue("http://image.com");
   await page.getByLabel("Close", { exact: true }).first().click();
-  
+
   // Delete tile option
   await settingsPage.deleteTileOption(-1);
   await settingsPage.saveTileSettings();

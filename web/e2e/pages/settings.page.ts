@@ -1,61 +1,61 @@
-import { expect, Locator } from '@playwright/test';
+import { expect, Locator } from "@playwright/test";
 
-import { BasePage } from './base.page';
+import { BasePage } from "./base.page";
 
 export class SettingsPage extends BasePage {
   private get generalTab(): Locator {
-    return this.getByText('General');
+    return this.getByText("General");
   }
 
   private get integrationsTab(): Locator {
-    return this.getByText('Integrations');
+    return this.getByText("Integrations");
   }
 
   private get membersTab(): Locator {
-    return this.getByText('Members');
+    return this.getByText("Members");
   }
 
   private get saveChangesButton(): Locator {
-    return this.getByRole('button', { name: 'Save changes' });
+    return this.getByRole("button", { name: "Save changes" });
   }
 
   // General settings
   private get languageSelect(): Locator {
-    return this.locator('.ant-select-selector').first();
+    return this.locator(".ant-select-selector").first();
   }
 
   // Member settings
   private get inviteButton(): Locator {
-    return this.getByRole('button', { name: 'Invite' });
+    return this.getByRole("button", { name: "Invite" });
   }
 
   private get emailInput(): Locator {
-    return this.getByLabel('Email');
+    return this.getByLabel("Email");
   }
 
   private get roleSelect(): Locator {
-    return this.locator('.ant-select-selector');
+    return this.locator(".ant-select-selector");
   }
 
   // Integration settings
   private get webhookUrlInput(): Locator {
-    return this.getByLabel('Webhook URL');
+    return this.getByLabel("Webhook URL");
   }
 
   private get secretInput(): Locator {
-    return this.getByLabel('Secret');
+    return this.getByLabel("Secret");
   }
 
   private get activeCheckbox(): Locator {
-    return this.getByRole('checkbox', { name: 'Active' });
+    return this.getByRole("checkbox", { name: "Active" });
   }
 
   private get testButton(): Locator {
-    return this.getByRole('button', { name: 'Test' });
+    return this.getByRole("button", { name: "Test" });
   }
 
   private get deleteButton(): Locator {
-    return this.getByRole('button', { name: 'delete' });
+    return this.getByRole("button", { name: "delete" });
   }
 
   async navigateToGeneral(): Promise<void> {
@@ -82,32 +82,32 @@ export class SettingsPage extends BasePage {
   }
 
   // Member management methods
-  async inviteMember(email: string, role = 'Reader'): Promise<void> {
+  async inviteMember(email: string, role = "Reader"): Promise<void> {
     await this.inviteButton.click();
     await this.emailInput.fill(email);
     await this.roleSelect.click();
     await this.getByText(role).click();
-    await this.getByRole('button', { name: 'OK' }).click();
+    await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
   }
 
   async removeMember(memberEmail: string): Promise<void> {
-    const memberRow = this.getByText(memberEmail).locator('..').locator('..');
-    await memberRow.getByRole('button', { name: 'delete' }).click();
-    await this.getByRole('button', { name: 'OK' }).click();
+    const memberRow = this.getByText(memberEmail).locator("..").locator("..");
+    await memberRow.getByRole("button", { name: "delete" }).click();
+    await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
   }
 
   async changeMemberRole(memberEmail: string, newRole: string): Promise<void> {
-    const memberRow = this.getByText(memberEmail).locator('..').locator('..');
-    await memberRow.locator('.ant-select-selector').click();
+    const memberRow = this.getByText(memberEmail).locator("..").locator("..");
+    await memberRow.locator(".ant-select-selector").click();
     await this.getByText(newRole).click();
     await this.saveChanges();
   }
 
   // Integration methods
   async createWebhook(url: string, secret?: string): Promise<void> {
-    await this.getByRole('button', { name: 'plus Create' }).click();
+    await this.getByRole("button", { name: "plus Create" }).click();
     await this.webhookUrlInput.fill(url);
     if (secret) {
       await this.secretInput.fill(secret);
@@ -123,7 +123,7 @@ export class SettingsPage extends BasePage {
 
   async deleteIntegration(): Promise<void> {
     await this.deleteButton.click();
-    await this.getByRole('button', { name: 'OK' }).click();
+    await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
   }
 
@@ -132,7 +132,7 @@ export class SettingsPage extends BasePage {
   }
 
   async expectMemberNotVisible(email: string): Promise<void> {
-    await expect(this.getByText(email)).not.toBeVisible();
+    await expect(this.getByText(email)).toBeHidden();
   }
 
   async expectLanguageSelected(language: string): Promise<void> {
@@ -143,14 +143,20 @@ export class SettingsPage extends BasePage {
   async addTilesOption(optionType = "Default"): Promise<void> {
     await this.getByRole("button", { name: "plus Add new Tiles option" }).click();
     if (optionType !== "Default") {
-      await this.locator("div").filter({ hasText: /^Default$/ }).nth(4).click();
+      await this.locator("div")
+        .filter({ hasText: /^Default$/ })
+        .nth(4)
+        .click();
       await this.getByTitle(optionType).click();
     }
     await this.getByRole("button", { name: "OK" }).click();
   }
 
   async configureTileUrl(name: string, url: string, imageUrl?: string): Promise<void> {
-    await this.locator("div").filter({ hasText: /^Labelled$/ }).nth(4).click();
+    await this.locator("div")
+      .filter({ hasText: /^Labelled$/ })
+      .nth(4)
+      .click();
     await this.getByTitle("URL").locator("div").click();
     await this.getByLabel("Name").fill(name);
     await this.getByRole("textbox", { name: "URL :", exact: true }).fill(url);
@@ -161,11 +167,15 @@ export class SettingsPage extends BasePage {
   }
 
   async editTileOption(index = 0): Promise<void> {
-    await this.locator(`div:nth-child(${index + 1}) > .ant-card-actions > li:nth-child(2) > span > .anticon`).click();
+    await this.locator(
+      `div:nth-child(${index + 1}) > .ant-card-actions > li:nth-child(2) > span > .anticon`,
+    ).click();
   }
 
   async deleteTileOption(index = 0): Promise<void> {
-    await this.locator(`div:nth-child(${index + 1}) > .ant-card-actions > li:nth-child(1) > span > .anticon`).click();
+    await this.locator(
+      `div:nth-child(${index + 1}) > .ant-card-actions > li:nth-child(1) > span > .anticon`,
+    ).click();
   }
 
   async saveTileSettings(): Promise<void> {
@@ -201,14 +211,26 @@ export class SettingsPage extends BasePage {
   async addTerrainOption(optionType = "Cesium World Terrain"): Promise<void> {
     await this.getByRole("button", { name: "plus Add new Terrain option" }).click();
     if (optionType !== "Cesium World Terrain") {
-      await this.locator("div").filter({ hasText: /^Cesium World Terrain$/ }).nth(4).click();
+      await this.locator("div")
+        .filter({ hasText: /^Cesium World Terrain$/ })
+        .nth(4)
+        .click();
       await this.getByTitle(optionType).click();
     }
     await this.getByRole("button", { name: "OK" }).click();
   }
 
-  async configureTerrainCesiumIon(name: string, assetId: string, accessToken: string, terrainUrl?: string, imageUrl?: string): Promise<void> {
-    await this.locator("div").filter({ hasText: /^ArcGIS Terrain$/ }).nth(4).click();
+  async configureTerrainCesiumIon(
+    name: string,
+    assetId: string,
+    accessToken: string,
+    terrainUrl?: string,
+    imageUrl?: string,
+  ): Promise<void> {
+    await this.locator("div")
+      .filter({ hasText: /^ArcGIS Terrain$/ })
+      .nth(4)
+      .click();
     await this.getByTitle("Cesium Ion").click();
     await this.getByLabel("Name").fill(name);
     await this.getByLabel("Terrain Cesium Ion asset ID").fill(assetId);
@@ -253,7 +275,9 @@ export class SettingsPage extends BasePage {
 
   // Card reordering methods
   async reorderCards(fromIndex: number, toIndex: number): Promise<void> {
-    await this.locator(".ant-card").nth(fromIndex).locator(".grabbable")
+    await this.locator(".ant-card")
+      .nth(fromIndex)
+      .locator(".grabbable")
       .dragTo(this.locator(".ant-card").nth(toIndex));
   }
 

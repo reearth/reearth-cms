@@ -1,36 +1,36 @@
-import { expect, Locator } from '@playwright/test';
+import { expect, Locator } from "@playwright/test";
 
-import { BasePage } from './base.page';
+import { BasePage } from "./base.page";
 
 export class CommentsPage extends BasePage {
   private get commentInput(): Locator {
-    return this.getByLabel('Comment').or(this.locator('textarea[placeholder*="comment"]'));
+    return this.getByLabel("Comment").or(this.locator('textarea[placeholder*="comment"]'));
   }
 
   private get submitCommentButton(): Locator {
-    return this.getByRole('button', { name: 'Submit' }).or(
-      this.getByRole('button', { name: 'Add Comment' })
+    return this.getByRole("button", { name: "Submit" }).or(
+      this.getByRole("button", { name: "Add Comment" }),
     );
   }
 
   private get editButton(): Locator {
-    return this.getByRole('button', { name: 'edit' });
+    return this.getByRole("button", { name: "edit" });
   }
 
   private get deleteButton(): Locator {
-    return this.getByRole('button', { name: 'delete' });
+    return this.getByRole("button", { name: "delete" });
   }
 
   private get updateButton(): Locator {
-    return this.getByRole('button', { name: 'Update' });
+    return this.getByRole("button", { name: "Update" });
   }
 
   private get confirmDeleteButton(): Locator {
-    return this.getByRole('button', { name: 'OK' });
+    return this.getByRole("button", { name: "OK" });
   }
 
   private get commentsList(): Locator {
-    return this.locator('.ant-comment').or(this.locator('[data-testid*="comment"]'));
+    return this.locator(".ant-comment").or(this.locator('[data-testid*="comment"]'));
   }
 
   async addComment(commentText: string): Promise<void> {
@@ -58,7 +58,7 @@ export class CommentsPage extends BasePage {
   }
 
   async expectCommentHidden(commentText: string): Promise<void> {
-    await expect(this.getByText(commentText)).not.toBeVisible();
+    await expect(this.getByText(commentText)).toBeHidden();
   }
 
   async expectCommentCount(count: number): Promise<void> {
