@@ -50,6 +50,7 @@ func ToMe(u *user.User) *Me {
 		Auths: util.Map(u.Auths(), func(a user.Auth) string {
 			return a.Provider
 		}),
+		ProfilePictureURL: lo.ToPtr(u.Metadata().PhotoURL()),
 	}
 }
 
