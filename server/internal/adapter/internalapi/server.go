@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io"
 	"net/url"
-	"path"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/internalapi/internalapimodel"
@@ -35,7 +34,7 @@ type server struct {
 func NewServer(webHost, serverHost string) pb.ReEarthCMSServer {
 	return &server{
 		webBaseUrl:  lo.Must(url.Parse(webHost)),
-		pApiBaseUrl: lo.Must(url.Parse(serverHost)).JoinPath("p"),
+		pApiBaseUrl: lo.Must(url.Parse(serverHost)).JoinPath("api", "p"),
 	}
 }
 
@@ -462,6 +461,6 @@ func (s server) GetModelGeoJSONExportURL(ctx context.Context, req *pb.ExportRequ
 	}
 
 	return &pb.ExportURLResponse{
-		Url: path.Join(g.File.GetBaseURL(), m.ID().String()+".geojson"),
+		Url: lo.Must(url.JoinPath(g.File.GetBaseURL(), m.ID().String()+".geojson")),
 	}, nil
 }

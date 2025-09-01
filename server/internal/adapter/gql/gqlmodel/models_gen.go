@@ -1621,6 +1621,7 @@ type WebhookTriggerInput struct {
 type Workspace struct {
 	ID       ID                `json:"id"`
 	Name     string            `json:"name"`
+	Alias    *string           `json:"alias,omitempty"`
 	Members  []WorkspaceMember `json:"members"`
 	Personal bool              `json:"personal"`
 }
