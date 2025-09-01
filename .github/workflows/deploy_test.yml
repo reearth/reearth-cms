@@ -24,12 +24,12 @@ jobs:
       id-token: write # To authenticate with Google Cloud using OIDC
     steps:
       - uses: actions/checkout@v4
-      - uses: google-github-actions/auth@v2
+      - uses: google-github-actions/auth@v3
         with:
           service_account: ${{ secrets.GC_SA_EMAIL }}
           workload_identity_provider: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@v3
       - name: Configure docker
         run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
       - name: docker push
@@ -60,12 +60,12 @@ jobs:
       id-token: write # To authenticate with Google Cloud using OIDC
     steps:
       - uses: actions/checkout@v4
-      - uses: google-github-actions/auth@v2
+      - uses: google-github-actions/auth@v3
         with:
           service_account: ${{ secrets.GC_SA_EMAIL }}
           workload_identity_provider: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@v3
       - name: Configure docker
         run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
       - name: docker push
@@ -90,12 +90,12 @@ jobs:
       id-token: write # To authenticate with Google Cloud using OIDC
     steps:
       - uses: actions/checkout@v4
-      - uses: google-github-actions/auth@v2
+      - uses: google-github-actions/auth@v3
         with:
           service_account: ${{ secrets.GC_SA_EMAIL }}
           workload_identity_provider: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@v3
       - name: Configure docker
         run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
       - name: docker push

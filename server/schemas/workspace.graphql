@@ -1,6 +1,7 @@
 type Workspace implements Node {
     id: ID!
     name: String!
+    alias: String
     members: [WorkspaceMember!]!
     personal: Boolean!
 }
