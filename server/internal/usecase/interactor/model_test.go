@@ -227,16 +227,22 @@ func TestModel_Create(t *testing.T) {
 	mockTime := time.Now()
 	// mId := id.NewModelID()
 	// sId := id.NewSchemaID()
-	// wid1 := accountdomain.NewWorkspaceID()
+	wid1 := accountdomain.NewWorkspaceID()
 	// wid2 := accountdomain.NewWorkspaceID()
 	//
-	// pid1 := id.NewProjectID()
-	// p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mockTime).MustBuild()
+	pid1 := id.NewProjectID()
+	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mockTime).MustBuild()
 	//
 	// pid2 := id.NewProjectID()
 	// p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mockTime).MustBuild()
 	//
-	// u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	op := &usecase.Operator{
+		OwningProjects: []id.ProjectID{pid1},
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(u.ID()),
+		},
+	}
 	// op := &usecase.Operator{
 	// 	User:               u.ID(),
 	// 	ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
@@ -252,13 +258,15 @@ func TestModel_Create(t *testing.T) {
 		model   model.List
 		project project.List
 	}
+
 	tests := []struct {
-		name    string
-		seeds   seeds
-		args    args
-		want    *model.Model
-		mockErr bool
-		wantErr error
+		name            string
+		seeds           seeds
+		args            args
+		setupPolicyMock func(*gatewaymock.MockPolicyChecker)
+		want            *model.Model
+		mockErr         bool
+		wantErr         error
 	}{
 		// TODO: fix
 		// {
@@ -281,7 +289,84 @@ func TestModel_Create(t *testing.T) {
 		// 	mockErr: false,
 		// 	wantErr: nil,
 		// },
+		{
+			name: "policy checker allows creation",
+			seeds: seeds{
+				model:   model.List{},
+				project: project.List{p1},
+			},
+			args: args{
+				param: interfaces.CreateModelParam{
+					ProjectId:   pid1,
+					Name:        lo.ToPtr("test-model"),
+					Description: lo.ToPtr("test description"),
+					Key:         lo.ToPtr("testkey"),
+				},
+				operator: op,
+			},
+			setupPolicyMock: func(mockPC *gatewaymock.MockPolicyChecker) {
+				mockPC.EXPECT().CheckPolicy(gomock.Any(), gateway.PolicyCheckRequest{
+					WorkspaceID: wid1,
+					CheckType:   gateway.PolicyCheckModelCountPerProject,
+					Value:       int64(0),
+				}).Return(&gateway.PolicyCheckResponse{
+					Allowed: true,
+				}, nil)
+			},
+			wantErr: nil,
+		},
+		{
+			name: "policy checker denies creation - limit exceeded",
+			seeds: seeds{
+				model:   model.List{},
+				project: project.List{p1},
+			},
+			args: args{
+				param: interfaces.CreateModelParam{
+					ProjectId:   pid1,
+					Name:        lo.ToPtr("test-model"),
+					Description: lo.ToPtr("test description"),
+					Key:         lo.ToPtr("testkey"),
+				},
+				operator: op,
+			},
+			setupPolicyMock: func(mockPC *gatewaymock.MockPolicyChecker) {
+				mockPC.EXPECT().CheckPolicy(gomock.Any(), gateway.PolicyCheckRequest{
+					WorkspaceID: wid1,
+					CheckType:   gateway.PolicyCheckModelCountPerProject,
+					Value:       int64(0),
+				}).Return(&gateway.PolicyCheckResponse{
+					Allowed: false,
+				}, nil)
+			},
+			wantErr: interfaces.ErrModelCountPerProjectExceeded,
+		},
+		{
+			name: "policy checker error",
+			seeds: seeds{
+				model:   model.List{},
+				project: project.List{p1},
+			},
+			args: args{
+				param: interfaces.CreateModelParam{
+					ProjectId:   pid1,
+					Name:        lo.ToPtr("test-model"),
+					Description: lo.ToPtr("test description"),
+					Key:         lo.ToPtr("testkey"),
+				},
+				operator: op,
+			},
+			setupPolicyMock: func(mockPC *gatewaymock.MockPolicyChecker) {
+				mockPC.EXPECT().CheckPolicy(gomock.Any(), gateway.PolicyCheckRequest{
+					WorkspaceID: wid1,
+					CheckType:   gateway.PolicyCheckModelCountPerProject,
+					Value:       int64(0),
+				}).Return(nil, errors.New("policy check service error"))
+			},
+			wantErr: errors.New("policy check service error"),
+		},
 	}
+
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
@@ -289,6 +374,16 @@ func TestModel_Create(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockPolicyChecker := gatewaymock.NewMockPolicyChecker(mockCtrl)
+			gw := &gateway.Container{PolicyChecker: mockPolicyChecker}
+
+			if tt.setupPolicyMock != nil {
+				tt.setupPolicyMock(mockPolicyChecker)
+			}
+
 			if tt.mockErr {
 				memory.SetModelError(db.Model, tt.wantErr)
 			}
@@ -301,7 +396,8 @@ func TestModel_Create(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			u := NewModel(db, nil)
+
+			u := NewModel(db, gw)
 
 			got, err := u.Create(ctx, tt.args.param, tt.args.operator)
 			if tt.wantErr != nil {
@@ -310,7 +406,11 @@ func TestModel_Create(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tt.want, got)
+			if tt.want != nil {
+				assert.Equal(t, tt.want, got)
+			} else {
+				assert.NotNil(t, got)
+			}
 		})
 	}
 }
