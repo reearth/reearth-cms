@@ -1,7 +1,10 @@
-import { test, expect } from "@reearth-cms/e2e/fixtures/test";
-import { getId } from "@reearth-cms/e2e/utils/mock";
+import { Page } from "@playwright/test";
+
+import { closeNotification } from "@reearth-cms/e2e/common/notification";
+import { expect, test } from "@reearth-cms/e2e/utils";
 
 import { crudComment } from "../utils/comment";
+import { createProject, deleteProject } from "../utils/project";
 
 const jsonName = "tileset.json";
 const jsonUrl = `https://assets.cms.plateau.reearth.io/assets/11/6d05db-ed47-4f88-b565-9eb385b1ebb0/13100_tokyo23-ku_2022_3dtiles%20_1_1_op_bldg_13101_chiyoda-ku_lod1/${jsonName}`;
@@ -9,40 +12,59 @@ const jsonUrl = `https://assets.cms.plateau.reearth.io/assets/11/6d05db-ed47-4f8
 const pngName = "road_plan2.png";
 const pngUrl = `https://assets.cms.plateau.reearth.io/assets/33/e999c4-7859-446b-ab3c-86625b3c760e/${pngName}`;
 
-test.beforeEach(async ({ reearth, homePage, projectLayoutPage }) => {
+const upload = async (page: Page, url: string) => {
+  await page.getByRole("button", { name: "upload Upload Asset" }).click();
+  await page.getByRole("tab", { name: "URL" }).click();
+  await page.getByPlaceholder("Please input a valid URL").click();
+  await page.getByPlaceholder("Please input a valid URL").fill(url);
+  await page.getByRole("button", { name: "Upload", exact: true }).click();
+  await closeNotification(page);
+};
+
+test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await homePage.createProject(getId());
-  await projectLayoutPage.navigateToAssets();
+  await createProject(page);
+  await page.getByRole("menuitem", { name: "Asset" }).click();
 });
 
-test.afterEach(async ({ projectLayoutPage, projectSettingsPage }) => {
-  await projectLayoutPage.navigateToSettings();
-  await projectSettingsPage.deleteProject();
+test.afterEach(async ({ page }) => {
+  await deleteProject(page);
 });
 
 test.describe.parallel("Json file tests", () => {
-  test.beforeEach(async ({ assetsPage }) => {
-    await assetsPage.uploadFromUrl(jsonUrl);
+  test.beforeEach(async ({ page }) => {
+    await upload(page, jsonUrl);
   });
 
-  test("Asset CRUD and Searching has succeeded", async ({ assetsPage }) => {
-    await assetsPage.expectAssetVisible(jsonName);
-    await assetsPage.searchAssets("no asset");
-    await assetsPage.expectAssetHidden(jsonName);
-    await assetsPage.clearSearch();
-    await assetsPage.expectAssetVisible(jsonName);
-    await assetsPage.openAssetDetails(jsonName);
-    await expect(assetsPage.getByText(`Asset / ${jsonName}`)).toBeVisible();
-    await assetsPage.goBack();
-    await assetsPage.selectAsset(jsonName);
-    await assetsPage.deleteSelectedAssets();
-    await assetsPage.expectAssetHidden(jsonName);
+  test("Asset CRUD and Searching has succeeded", async ({ page }) => {
+    await expect(page.getByText(jsonName)).toBeVisible();
+    await page.getByPlaceholder("input search text").click();
+    await page.getByPlaceholder("input search text").fill("no asset");
+    await page.getByRole("button", { name: "search" }).click();
+    await expect(page.getByText(jsonName)).toBeHidden();
+    await page.getByPlaceholder("input search text").click();
+    await page.getByPlaceholder("input search text").fill("");
+    await page.getByRole("button", { name: "search" }).click();
+    await expect(page.getByText(jsonName)).toBeVisible();
+    await page.getByLabel("edit").locator("svg").click();
+    await expect(page.getByText(`Asset / ${jsonName}`)).toBeVisible();
+    await page.getByLabel("Back").click();
+    await page.getByLabel("", { exact: true }).check();
+    await page.getByText("Delete").click();
+    await expect(page.getByText(jsonName)).toBeHidden();
+    await closeNotification(page);
   });
 
-  test("Previewing json file by full screen has succeeded", async ({ assetsPage, page }) => {
-    await assetsPage.openAssetDetails(jsonName);
-    await assetsPage.changeAssetType("GEOJSON/KML/CZML");
-
+  test("Previewing json file by full screen has succeeded", async ({ page }) => {
+    await page.getByLabel("edit").locator("svg").click();
+    await page
+      .locator("div")
+      .filter({ hasText: /^Unknown Type$/ })
+      .nth(1)
+      .click();
+    await page.getByText("GEOJSON/KML/CZML").click();
+    await page.getByRole("button", { name: "Save" }).click();
+    await closeNotification(page);
     const viewportSizeGet = () => {
       const viewportSize = page.viewportSize();
       expect(viewportSize).toBeTruthy();
@@ -52,46 +74,55 @@ test.describe.parallel("Json file tests", () => {
       };
     };
     const { width, height } = viewportSizeGet();
-    await assetsPage.expectCanvasNotFullscreen(width);
-    await expect(assetsPage.getCanvas()).not.toHaveAttribute("height", height);
-    await assetsPage.openFullscreenPreview();
-    await assetsPage.expectCanvasFullscreen(width, height);
-    await assetsPage.closeFullscreenPreview();
+    const canvas = page.locator("canvas");
+    await expect(canvas).not.toHaveAttribute("width", width);
+    await expect(canvas).not.toHaveAttribute("height", height);
+    await page.getByRole("button", { name: "fullscreen" }).click();
+    await expect(canvas).toHaveAttribute("width", width);
+    await expect(canvas).toHaveAttribute("height", height);
+    await page.goBack();
   });
 
-  test("Downloading asset has succeeded", async ({ assetsPage }) => {
-    await assetsPage.selectAsset(jsonName);
-    const download = await assetsPage.downloadSelectedAssets();
+  test("Downloading asset has succeeded", async ({ page }) => {
+    await page.getByLabel("", { exact: true }).check();
+    const downloadPromise = page.waitForEvent("download");
+    await page.getByRole("button", { name: "download Download" }).click();
+    const download = await downloadPromise;
     expect(download.suggestedFilename()).toEqual(jsonName);
+    await closeNotification(page);
 
-    await assetsPage.openAssetDetails(jsonName);
-    const download1 = await assetsPage.downloadAssetFromDetails();
+    await page.getByLabel("edit").locator("svg").click();
+    const download1Promise = page.waitForEvent("download");
+    await page.getByRole("button", { name: "download Download" }).click();
+    const download1 = await download1Promise;
     expect(download1.suggestedFilename()).toEqual(jsonName);
+    await closeNotification(page);
 
-    await assetsPage.goBack();
-    await assetsPage.selectAsset(jsonName);
-    await assetsPage.deleteSelectedAssets();
+    await page.getByLabel("Back").click();
+    await page.getByLabel("", { exact: true }).check();
+    await page.getByText("Delete").click();
+    await closeNotification(page);
   });
 
   // eslint-disable-next-line playwright/expect-expect
-  test("Comment CRUD on edit page has succeeded", async ({ assetsPage, page }) => {
-    await assetsPage.openAssetDetails(jsonName);
-    await assetsPage.openCommentPanel();
+  test("Comment CRUD on edit page has succeeded", async ({ page }) => {
+    await page.getByRole("cell", { name: "edit" }).locator("svg").click();
+    await page.getByLabel("comment").click();
     await crudComment(page);
   });
 
   // eslint-disable-next-line playwright/expect-expect
-  test("Comment CRUD on Asset page has succeeded", async ({ assetsPage, page }) => {
-    await assetsPage.clickCommentsCount();
+  test("Comment CRUD on Asset page has succeeded", async ({ page }) => {
+    await page.getByRole("button", { name: "0" }).click();
     await crudComment(page);
   });
 });
 
-test("Previewing png file on modal has succeeded", async ({ assetsPage }) => {
-  await assetsPage.uploadFromUrl(pngUrl);
-  await assetsPage.openAssetDetails(pngName);
-  await assetsPage.expectAssetType("PNG/JPEG/TIFF/GIF");
-  await assetsPage.openFullscreenPreview();
-  await expect(assetsPage.getByRole("img", { name: "asset-preview" })).toBeVisible();
-  await assetsPage.getByRole("button", { name: "close" }).click();
+test("Previewing png file on modal has succeeded", async ({ page }) => {
+  await upload(page, pngUrl);
+  await page.getByLabel("edit").locator("svg").click();
+  await expect(page.getByText("Asset TypePNG/JPEG/TIFF/GIF")).toBeVisible();
+  await page.getByRole("button", { name: "fullscreen" }).click();
+  await expect(page.getByRole("img", { name: "asset-preview" })).toBeVisible();
+  await page.getByRole("button", { name: "close" }).click();
 });
