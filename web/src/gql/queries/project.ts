@@ -8,6 +8,8 @@ export const GET_PROJECT = gql`
         name
         description
         alias
+        license
+        readme
         accessibility {
           visibility
           publication {
@@ -32,13 +34,17 @@ export const GET_PROJECT = gql`
 `;
 
 export const GET_PROJECTS = gql`
-  query GetProjects($workspaceId: ID!, $pagination: Pagination) {
-    projects(workspaceId: $workspaceId, pagination: $pagination) {
+  query GetProjects($workspaceId: ID!, $keyword: String, $sort: Sort, $pagination: Pagination) {
+    projects(workspaceId: $workspaceId, keyword: $keyword, sort: $sort, pagination: $pagination) {
       nodes {
         id
         name
         description
         alias
+        license
+        readme
+        createdAt
+        updatedAt
         accessibility {
           visibility
           publication {
@@ -71,12 +77,23 @@ export const CHECK_PROJECT_ALIAS = gql`
   }
 `;
 
+export const CHECK_PROJECT_LIMITS = gql`
+  query CheckProjectLimits($workspaceId: ID!) {
+    checkWorkspaceProjectLimits(workspaceId: $workspaceId) {
+      publicProjectsAllowed
+      privateProjectsAllowed
+    }
+  }
+`;
+
 export const CREATE_PROJECT = gql`
   mutation CreateProject(
     $workspaceId: ID!
     $name: String!
     $description: String!
     $alias: String!
+    $license: String
+    $visibility: ProjectVisibility
     $requestRoles: [Role!]
   ) {
     createProject(
@@ -85,6 +102,8 @@ export const CREATE_PROJECT = gql`
         name: $name
         description: $description
         alias: $alias
+        license: $license
+        visibility: $visibility
         requestRoles: $requestRoles
       }
     ) {
@@ -93,6 +112,7 @@ export const CREATE_PROJECT = gql`
         name
         description
         alias
+        license
         accessibility {
           visibility
           publication {
@@ -130,6 +150,8 @@ export const UPDATE_PROJECT = gql`
     $name: String
     $description: String
     $alias: String
+    $license: String
+    $readme: String
     $accessibility: UpdateProjectAccessibilityInput
     $requestRoles: [Role!]
   ) {
@@ -139,6 +161,8 @@ export const UPDATE_PROJECT = gql`
         name: $name
         description: $description
         alias: $alias
+        license: $license
+        readme: $readme
         accessibility: $accessibility
         requestRoles: $requestRoles
       }
@@ -148,6 +172,8 @@ export const UPDATE_PROJECT = gql`
         name
         description
         alias
+        license
+        readme
         accessibility {
           visibility
           publication {
@@ -196,10 +222,6 @@ export const CREATE_API_KEY = gql`
           publicAssets
         }
       }
-      public {
-        publicModels
-        publicAssets
-      }
     }
   }
 `;
@@ -231,10 +253,6 @@ export const UPDATE_API_KEY = gql`
           publicAssets
         }
       }
-      public {
-        publicModels
-        publicAssets
-      }
     }
   }
 `;
@@ -259,10 +277,6 @@ export const REGENERATE_API_KEY = gql`
           publicModels
           publicAssets
         }
-      }
-      public {
-        publicModels
-        publicAssets
       }
     }
   }

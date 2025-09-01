@@ -7,11 +7,24 @@ export type Project = {
   name: string;
   description: string;
   alias: string;
+  readme: string;
+  license: string;
   requestRoles: Role[];
   accessibility?: ProjectAccessibility;
 };
 
-export type ProjectListItem = Pick<Project, "id" | "name" | "description">;
+export type UpdateProjectInput = {
+  projectId: string;
+  name?: string;
+  description?: string;
+  alias?: string;
+  readme?: string;
+  license?: string;
+  requestRoles?: Role[];
+  accessibility?: ProjectAccessibility;
+};
+
+export type ProjectListItem = Pick<Project, "id" | "name" | "description"> & { accessibility?: ProjectAccessibility };
 
 export type UserMember = {
   userId: string;
@@ -29,6 +42,7 @@ export type MemberInput = {
 export type Workspace = {
   id: string;
   name: string;
+  alias?: string;
   personal?: boolean;
   members?: Member[];
 };
@@ -90,4 +104,11 @@ export type CesiumResourceProps = {
   image: string;
   cesiumIonAssetId: string;
   cesiumIonAccessToken: string;
+};
+
+export type SortBy = "createdAt" | "updatedAt" | "name";
+
+export type SortOption = {
+  key: SortBy;
+  label: string;
 };
