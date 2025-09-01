@@ -55,9 +55,9 @@ type ExportModelToAssetsParam struct {
 }
 
 var (
-	ErrCreateAssetFailed            error = rerror.NewE(i18n.T("failed to create asset"))
-	ErrFileNotIncluded              error = rerror.NewE(i18n.T("file not included"))
-	ErrUnsupportedExportFormat      error = rerror.NewE(i18n.T("unsupported export format"))
+	ErrCreateAssetFailed                   error = rerror.NewE(i18n.T("failed to create asset"))
+	ErrFileNotIncluded                     error = rerror.NewE(i18n.T("file not included"))
+	ErrUnsupportedExportFormat             error = rerror.NewE(i18n.T("unsupported export format"))
 	ErrDataTransferUploadSizeLimitExceeded error = rerror.NewE(i18n.T("data transfer upload size limit exceeded"))
 	ErrAssetUploadSizeLimitExceeded        error = rerror.NewE(i18n.T("asset upload size limit exceeded"))
 )
