@@ -12,7 +12,7 @@ export type Config = {
   editorUrl: string;
   multiTenant?: Record<string, AuthInfo>;
   disableWorkspaceUi?: string | boolean;
-  dashboardProfileUrl?: string;
+  dashboardBaseUrl?: string;
 } & AuthInfo;
 
 const env = import.meta.env;
@@ -36,7 +36,7 @@ export const defaultConfig: Config = {
     firebaseAppId: env.REEARTH_CMS_FIREBASE_APP_ID,
   },
   disableWorkspaceUi: env.REEARTH_CMS_DISABLE_WORKSPACE_UI,
-  dashboardProfileUrl: env.REEARTH_CMS_DASHBOARD_PROFILE_URL,
+  dashboardBaseUrl: env.REEARTH_CMS_DASHBOARD_BASE_URL,
 };
 
 export default async function loadConfig() {

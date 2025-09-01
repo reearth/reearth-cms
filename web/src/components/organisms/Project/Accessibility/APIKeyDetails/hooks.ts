@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -170,6 +170,11 @@ export default () => {
     });
   }, [location.state, navigate, projectId, workspaceId]);
 
+  const topRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    topRef.current?.scrollIntoView();
+  }, []);
+
   return {
     apiUrl,
     keyId,
@@ -184,6 +189,7 @@ export default () => {
     keyModels: models,
     updateLoading,
     regenerateLoading,
+    topRef,
     handleAPIKeyCreate,
     handleAPIKeyUpdate,
     handleAPIKeyRegenerate,

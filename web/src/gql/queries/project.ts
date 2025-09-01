@@ -222,10 +222,6 @@ export const CREATE_API_KEY = gql`
           publicAssets
         }
       }
-      public {
-        publicModels
-        publicAssets
-      }
     }
   }
 `;
@@ -257,10 +253,6 @@ export const UPDATE_API_KEY = gql`
           publicAssets
         }
       }
-      public {
-        publicModels
-        publicAssets
-      }
     }
   }
 `;
@@ -285,10 +277,6 @@ export const REGENERATE_API_KEY = gql`
           publicModels
           publicAssets
         }
-      }
-      public {
-        publicModels
-        publicAssets
       }
     }
   }
