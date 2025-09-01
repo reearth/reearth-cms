@@ -34,7 +34,7 @@ type server struct {
 func NewServer(webHost, serverHost string) pb.ReEarthCMSServer {
 	return &server{
 		webBaseUrl:  lo.Must(url.Parse(webHost)),
-		pApiBaseUrl: lo.Must(url.Parse(serverHost)).JoinPath("p"),
+		pApiBaseUrl: lo.Must(url.Parse(serverHost)).JoinPath("api", "p"),
 	}
 }
 
