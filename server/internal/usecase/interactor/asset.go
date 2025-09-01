@@ -175,13 +175,35 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		var size int64
 		file = inp.File
 
+		visibility := project.VisibilityPublic
+		if prj.Accessibility() != nil && prj.Accessibility().Visibility() != "" {
+			visibility = prj.Accessibility().Visibility()
+		}
+
+		var checkType gateway.PolicyCheckType
+		if visibility == project.VisibilityPublic {
+			checkType = gateway.PolicyCheckPublicDataTransferUpload
+		} else {
+			checkType = gateway.PolicyCheckPrivateDataTransferUpload
+		}
+
 		if i.gateways != nil && i.gateways.PolicyChecker != nil {
 			policyReq := gateway.PolicyCheckRequest{
 				WorkspaceID: prj.Workspace(),
-				CheckType:   gateway.PolicyCheckUploadAssetsSize,
+				CheckType:   checkType,
 				Value:       file.Size,
 			}
 			policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+			if err != nil {
+				return nil, nil, rerror.NewE(i18n.T("policy check failed"))
+			}
+			if !policyResp.Allowed {
+				return nil, nil, interfaces.ErrDataTransferUploadSizeLimitExceeded
+			}
+
+			policyReq.CheckType = gateway.PolicyCheckUploadAssetsSize
+
+			policyResp, err = i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
 			if err != nil {
 				return nil, nil, rerror.NewE(i18n.T("policy check failed"))
 			}
@@ -495,13 +517,35 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 	param.Project = prj.ID().String()
 	param.Public = prj.Accessibility() == nil || prj.Accessibility().Visibility() == project.VisibilityPublic
 
+	visibility := project.VisibilityPublic
+	if prj.Accessibility() != nil && prj.Accessibility().Visibility() != "" {
+		visibility = prj.Accessibility().Visibility()
+	}
+
+	var checkType gateway.PolicyCheckType
+	if visibility == project.VisibilityPublic {
+		checkType = gateway.PolicyCheckPublicDataTransferUpload
+	} else {
+		checkType = gateway.PolicyCheckPrivateDataTransferUpload
+	}
+
 	if i.gateways != nil && i.gateways.PolicyChecker != nil {
 		policyReq := gateway.PolicyCheckRequest{
 			WorkspaceID: prj.Workspace(),
-			CheckType:   gateway.PolicyCheckUploadAssetsSize,
+			CheckType:   checkType,
 			Value:       param.ContentLength,
 		}
 		policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+		if err != nil {
+			return nil, rerror.NewE(i18n.T("policy check failed"))
+		}
+		if !policyResp.Allowed {
+			return nil, interfaces.ErrDataTransferUploadSizeLimitExceeded
+		}
+
+		policyReq.CheckType = gateway.PolicyCheckUploadAssetsSize
+
+		policyResp, err = i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
 		if err != nil {
 			return nil, rerror.NewE(i18n.T("policy check failed"))
 		}

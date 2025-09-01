@@ -75,8 +75,8 @@ func TestAsset_Create_WithPolicyCheck(t *testing.T) {
 			name:          "denied upload - size limit exceeded",
 			fileSize:      1024 * 1024 * 1024, // 1GB
 			policyAllowed: false,
-			policyMessage: "Upload size limit exceeded",
-			wantErr:       interfaces.ErrAssetUploadSizeLimitExceeded,
+			policyMessage: "Data transfer size limit exceeded",
+			wantErr:       interfaces.ErrDataTransferUploadSizeLimitExceeded,
 		},
 	}
 
@@ -248,6 +248,6 @@ func TestAsset_Create_WithHTTPPolicyChecker(t *testing.T) {
 		},
 	}, op)
 
-	assert.ErrorIs(t, err, interfaces.ErrAssetUploadSizeLimitExceeded)
+	assert.ErrorIs(t, err, interfaces.ErrDataTransferUploadSizeLimitExceeded)
 	assert.True(t, httpCalled, "HTTP endpoint should have been called")
 }
