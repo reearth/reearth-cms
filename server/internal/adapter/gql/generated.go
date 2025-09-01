@@ -392,17 +392,18 @@ type ComplexityRoot struct {
 	}
 
 	Me struct {
-		Auths         func(childComplexity int) int
-		Email         func(childComplexity int) int
-		Host          func(childComplexity int) int
-		ID            func(childComplexity int) int
-		Integrations  func(childComplexity int) int
-		Lang          func(childComplexity int) int
-		MyWorkspace   func(childComplexity int) int
-		MyWorkspaceID func(childComplexity int) int
-		Name          func(childComplexity int) int
-		Theme         func(childComplexity int) int
-		Workspaces    func(childComplexity int) int
+		Auths             func(childComplexity int) int
+		Email             func(childComplexity int) int
+		Host              func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Integrations      func(childComplexity int) int
+		Lang              func(childComplexity int) int
+		MyWorkspace       func(childComplexity int) int
+		MyWorkspaceID     func(childComplexity int) int
+		Name              func(childComplexity int) int
+		ProfilePictureURL func(childComplexity int) int
+		Theme             func(childComplexity int) int
+		Workspaces        func(childComplexity int) int
 	}
 
 	Model struct {
@@ -2368,6 +2369,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Me.Name(childComplexity), true
+
+	case "Me.profilePictureUrl":
+		if e.complexity.Me.ProfilePictureURL == nil {
+			break
+		}
+
+		return e.complexity.Me.ProfilePictureURL(childComplexity), true
 
 	case "Me.theme":
 		if e.complexity.Me.Theme == nil {
@@ -7131,6 +7139,7 @@ type Me {
   lang: Lang!
   theme: Theme!
   host: String
+  profilePictureUrl: String
   myWorkspaceId: ID!
   auths: [String!]!
   workspaces: [Workspace!]!
@@ -17099,6 +17108,47 @@ func (ec *executionContext) fieldContext_Me_host(_ context.Context, field graphq
 	return fc, nil
 }
 
+func (ec *executionContext) _Me_profilePictureUrl(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Me) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Me_profilePictureUrl(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProfilePictureURL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Me_profilePictureUrl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Me",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Me_myWorkspaceId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Me) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Me_myWorkspaceId(ctx, field)
 	if err != nil {
@@ -25558,6 +25608,8 @@ func (ec *executionContext) fieldContext_Query_me(_ context.Context, field graph
 				return ec.fieldContext_Me_theme(ctx, field)
 			case "host":
 				return ec.fieldContext_Me_host(ctx, field)
+			case "profilePictureUrl":
+				return ec.fieldContext_Me_profilePictureUrl(ctx, field)
 			case "myWorkspaceId":
 				return ec.fieldContext_Me_myWorkspaceId(ctx, field)
 			case "auths":
@@ -31331,6 +31383,8 @@ func (ec *executionContext) fieldContext_UpdateMePayload_me(_ context.Context, f
 				return ec.fieldContext_Me_theme(ctx, field)
 			case "host":
 				return ec.fieldContext_Me_host(ctx, field)
+			case "profilePictureUrl":
+				return ec.fieldContext_Me_profilePictureUrl(ctx, field)
 			case "myWorkspaceId":
 				return ec.fieldContext_Me_myWorkspaceId(ctx, field)
 			case "auths":
@@ -45477,6 +45531,8 @@ func (ec *executionContext) _Me(ctx context.Context, sel ast.SelectionSet, obj *
 			}
 		case "host":
 			out.Values[i] = ec._Me_host(ctx, field, obj)
+		case "profilePictureUrl":
+			out.Values[i] = ec._Me_profilePictureUrl(ctx, field, obj)
 		case "myWorkspaceId":
 			out.Values[i] = ec._Me_myWorkspaceId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

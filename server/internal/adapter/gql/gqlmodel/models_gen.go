@@ -692,17 +692,18 @@ type KeyAvailability struct {
 }
 
 type Me struct {
-	ID            ID             `json:"id"`
-	Name          string         `json:"name"`
-	Email         string         `json:"email"`
-	Lang          language.Tag   `json:"lang"`
-	Theme         Theme          `json:"theme"`
-	Host          *string        `json:"host,omitempty"`
-	MyWorkspaceID ID             `json:"myWorkspaceId"`
-	Auths         []string       `json:"auths"`
-	Workspaces    []*Workspace   `json:"workspaces"`
-	MyWorkspace   *Workspace     `json:"myWorkspace,omitempty"`
-	Integrations  []*Integration `json:"integrations"`
+	ID                ID             `json:"id"`
+	Name              string         `json:"name"`
+	Email             string         `json:"email"`
+	Lang              language.Tag   `json:"lang"`
+	Theme             Theme          `json:"theme"`
+	Host              *string        `json:"host,omitempty"`
+	ProfilePictureURL *string        `json:"profilePictureUrl,omitempty"`
+	MyWorkspaceID     ID             `json:"myWorkspaceId"`
+	Auths             []string       `json:"auths"`
+	Workspaces        []*Workspace   `json:"workspaces"`
+	MyWorkspace       *Workspace     `json:"myWorkspace,omitempty"`
+	Integrations      []*Integration `json:"integrations"`
 }
 
 type MemberInput struct {
