@@ -17,8 +17,8 @@ export type Reearth = {
 export const test = base.extend<{
   reearth: Reearth;
 }>({
-  reearth: async ({ page, request }, use) => {
-    use({
+  reearth: async ({ page, request }, _use) => {
+    _use({
       ...config,
       token: getAccessToken(),
       async goto(url, options) {
