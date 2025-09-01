@@ -1,7 +1,10 @@
+/* eslint-disable playwright/expect-expect */
 import { expect } from "@playwright/test";
 
 import { test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/utils/mock";
+
+import { handleFieldForm } from "./utils/field";
 
 test.beforeEach(async ({ reearth, homePage, projectLayoutPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -72,7 +75,10 @@ test("Group CRUD has succeeded", async ({ schemaPage }) => {
   await schemaPage.expectModelHidden(updateGroupName);
 });
 
-test("Group creating from adding field has succeeded", async ({ schemaPage, fieldEditorPage }) => {
+test("Group creating from adding field has succeeded", async ({
+  page,
+  schemaPage,
+}) => {
   const groupName = "e2e group name";
   const groupKey = "e2e-group-key";
 
@@ -93,7 +99,7 @@ test("Group creating from adding field has succeeded", async ({ schemaPage, fiel
   await schemaPage.expectGroupFieldHidden();
 
   await schemaPage.addTextField();
-  await fieldEditorPage.handleFieldForm("text");
+  await handleFieldForm(page, "text");
   await schemaPage.clickModelInSidebar("e2e model name");
   await schemaPage.clickCreateGroupField();
   await schemaPage.expectCreateGroupFieldDialog();
@@ -118,22 +124,22 @@ test("Group reordering has succeeded", async ({ schemaPage }) => {
 });
 
 // eslint-disable-next-line playwright/expect-expect
-test("Text field CRUD has succeeded", async ({ schemaPage, fieldEditorPage }) => {
+test("Text field CRUD has succeeded", async ({ page, schemaPage }) => {
   await schemaPage.createModelFromSidebar();
   await schemaPage.addTextField();
-  await fieldEditorPage.handleFieldForm("text");
+  await handleFieldForm(page, "text");
   await schemaPage.clickFieldEdit();
-  await fieldEditorPage.handleFieldForm("new text", "new-text");
+  await handleFieldForm(page, "new text", "new-text");
   await schemaPage.deleteField();
   await schemaPage.expectFieldHidden("new text", "new-text");
 });
 
-test("Schema reordering has succeeded", async ({ schemaPage, fieldEditorPage }) => {
+test("Schema reordering has succeeded", async ({ page, schemaPage }) => {
   await schemaPage.createModelFromSidebar();
   await schemaPage.addTextField();
-  await fieldEditorPage.handleFieldForm("text1");
+  await handleFieldForm(page, "text1");
   await schemaPage.addTextField();
-  await fieldEditorPage.handleFieldForm("text2");
+  await handleFieldForm(page, "text2");
 
   await schemaPage.expectFieldInPosition(0, "text1", "text1");
   await schemaPage.expectFieldInPosition(1, "text2", "text2");

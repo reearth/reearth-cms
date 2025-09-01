@@ -230,7 +230,7 @@ export class FieldEditorPage extends BasePage {
     await expect(this.getByText(expectedText)).toBeVisible();
   }
 
-  async expectValidationError(shouldBeDisabled: boolean = true): Promise<void> {
+  async expectValidationError(shouldBeDisabled?: boolean): Promise<void> {
     if (shouldBeDisabled) {
       await expect(this.getByRole("button", { name: "OK" })).toBeDisabled();
     } else {

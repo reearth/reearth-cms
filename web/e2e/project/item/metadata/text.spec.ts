@@ -1,6 +1,7 @@
+import { closeNotification } from "@reearth-cms/e2e/common/notification";
+import { test, expect } from "@reearth-cms/e2e/fixtures/test";
 import { createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
-import { test, expect } from "@reearth-cms/e2e/fixtures/test";
 
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });

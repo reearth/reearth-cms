@@ -7,7 +7,7 @@ import { getId } from "@reearth-cms/e2e/utils/mock";
 
 import { handleFieldForm } from "../utils/field";
 
-test.beforeEach(async ({ reearth, homePage, projectLayoutPage, schemaPage, fieldEditorPage }) => {
+test.beforeEach(async ({ reearth, homePage, projectLayoutPage, schemaPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await homePage.createProject(getId());
   await projectLayoutPage.navigateToSchema();

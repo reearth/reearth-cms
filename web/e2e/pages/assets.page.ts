@@ -83,7 +83,7 @@ export class AssetsPage extends BasePage {
     await this.searchButton.click();
   }
 
-  async openAssetDetails(assetName: string): Promise<void> {
+  async openAssetDetails(): Promise<void> {
     await this.getByLabel('edit').locator('svg').click();
   }
 
@@ -118,7 +118,7 @@ export class AssetsPage extends BasePage {
     await this.getByLabel('Back').click();
   }
 
-  async selectAsset(assetName: string): Promise<void> {
+  async selectAsset(): Promise<void> {
     await this.getByLabel('', { exact: true }).check();
   }
 

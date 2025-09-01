@@ -7,7 +7,7 @@ type Role = "alert"|"alertdialog"|"application"|"article"|"banner"|"blockquote"|
 export abstract class BasePage {
   constructor(protected page: Page) {}
 
-  async goto(url: string, options?: { waitUntil?: 'domcontentloaded' | 'load' | 'networkidle' }) {
+  async goto(url: string, options?: { waitUntil?: "domcontentloaded" | "load" | "networkidle" }) {
     await this.page.goto(url, options);
   }
 
@@ -19,12 +19,23 @@ export abstract class BasePage {
     return this.page.getByText(text, options);
   }
 
+  getByTitle(text: string | RegExp, options?: { exact?: boolean }): Locator {
+    return this.page.getByTitle(text, options);
+  }
+
   getByRole(role: Role, options?: { name?: string | RegExp; exact?: boolean }): Locator {
     return this.page.getByRole(role, options);
   }
 
-  getByLabel(label: string): Locator {
-    return this.page.getByLabel(label);
+  getByLabel(
+    text: string | RegExp,
+    options?:
+      | {
+          exact?: boolean | undefined;
+        }
+      | undefined,
+  ): Locator {
+    return this.page.getByLabel(text, options);
   }
 
   getByPlaceholder(placeholder: string): Locator {

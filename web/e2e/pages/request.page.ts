@@ -95,7 +95,7 @@ export class RequestPage extends BasePage {
     await this.backButton.click();
   }
 
-  async filterByState(stateName: string, include: boolean = true): Promise<void> {
+  async filterByState(stateName: string, include: boolean): Promise<void> {
     await this.stateFilterButton.click();
     const stateMenuItem = this.getByRole("menuitem", { name: stateName });
     if (include) {
