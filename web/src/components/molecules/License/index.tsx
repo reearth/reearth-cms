@@ -85,4 +85,31 @@ const StyledContainer = styled.div`
   border-radius: 4px;
   height: 700px;
   overflow-y: auto;
+  font-family: inherit !important;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  ul,
+  ol,
+  li,
+  blockquote,
+  table,
+  thead,
+  tbody,
+  pre,
+  code,
+  tr,
+  td,
+  th,
+  em,
+  strong,
+  a,
+  del {
+    font-family: inherit !important;
+  }
 `;

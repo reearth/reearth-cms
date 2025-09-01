@@ -15,7 +15,8 @@ async function createModel(page: Page, name = modelName, key?: string) {
 }
 
 export async function createModelFromOverview(page: Page, name = modelName, key?: string) {
-  await expect(page.getByRole("heading")).toBeVisible();
+  const titleEl = page.locator(".ant-page-header-heading-title");
+  await expect(titleEl).toHaveText("Models");
   await page.getByRole("button", { name: "plus New Model" }).first().click();
   await createModel(page, name, key);
 }

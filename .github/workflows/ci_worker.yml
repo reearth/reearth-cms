@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: go setup
         uses: actions/setup-go@v5
         with:
@@ -41,7 +41,7 @@ jobs:
           - 27017:27017
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: go setup
         uses: actions/setup-go@v5
         with:
