@@ -242,7 +242,7 @@ func (i *Project) Delete(ctx context.Context, projectID id.ProjectID, op *usecas
 	}
 	return Run0(ctx, op, i.repos, Usecase().WithWritableWorkspaces(proj.Workspace()).Transaction(),
 		func(ctx context.Context) error {
-			if !op.IsOwningWorkspace(proj.Workspace()) {
+			if !op.IsWritableWorkspace(proj.Workspace()) {
 				return interfaces.ErrOperationDenied
 			}
 			if err := i.repos.Project.Remove(ctx, projectID); err != nil {
