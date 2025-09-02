@@ -1,7 +1,8 @@
-import { ApolloProvider, ApolloClient, ApolloLink, InMemoryCache } from "@apollo/client";
+import { ApolloProvider, ApolloClient, ApolloLink, InMemoryCache, HttpLink } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
 import createUploadLink from "apollo-upload-client/createUploadLink.mjs";
+import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
 
 import { useAuth } from "@reearth-cms/auth";
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -9,6 +10,12 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 type Props = {
   children?: React.ReactNode;
 };
+
+if (process.env.NODE_ENV === "development") {
+  // Adds messages only in a dev environment
+  loadDevMessages();
+  loadErrorMessages();
+}
 
 const Provider: React.FC<Props> = ({ children }) => {
   const endpoint = window.REEARTH_CONFIG?.api
@@ -48,11 +55,12 @@ const Provider: React.FC<Props> = ({ children }) => {
     },
   });
 
+  const httpLink = new HttpLink({ uri: endpoint, credentials: "includes" });
+
   const client = new ApolloClient({
-    uri: endpoint,
-    link: ApolloLink.from([errorLink, authLink, uploadLink]),
+    link: ApolloLink.from([errorLink, authLink, uploadLink, httpLink]),
     cache,
-    connectToDevTools: process.env.NODE_ENV === "development",
+    devtools: { enabled: process.env.NODE_ENV === "development" },
   });
 
   return <ApolloProvider client={client}>{children}</ApolloProvider>;
