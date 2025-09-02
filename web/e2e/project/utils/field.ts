@@ -1,5 +1,5 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { Page , expect } from "@reearth-cms/e2e/fixtures/test";
+import { Page, expect } from "@reearth-cms/e2e/fixtures/test";
 
 export async function handleFieldForm(page: Page, name: string, key = name) {
   await page.getByLabel("Display name").click();
