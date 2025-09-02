@@ -1,6 +1,4 @@
-import { expect } from "@playwright/test";
-
-import { test } from "@reearth-cms/e2e/fixtures/test";
+import { test,expect } from "@reearth-cms/e2e/fixtures/test";
 
 test.afterEach(async ({ projectSettingsPage, projectLayoutPage }) => {
   await projectLayoutPage.navigateToSettings();

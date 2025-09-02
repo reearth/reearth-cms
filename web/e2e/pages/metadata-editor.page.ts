@@ -1,4 +1,4 @@
-import { expect } from "@playwright/test";
+import { expect } from "@reearth-cms/e2e/fixtures/test";
 
 import { BasePage } from "./base.page";
 

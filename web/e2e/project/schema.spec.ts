@@ -1,7 +1,5 @@
 /* eslint-disable playwright/expect-expect */
-import { expect } from "@playwright/test";
-
-import { test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/utils/mock";
 
 import { handleFieldForm } from "./utils/field";

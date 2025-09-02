@@ -1,5 +1,4 @@
-import { expect, Locator } from "@playwright/test";
-
+import { expect, Locator } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/utils/mock";
 
 import { BasePage } from "./base.page";
