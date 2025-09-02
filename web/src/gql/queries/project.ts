@@ -64,6 +64,7 @@ export const GET_PROJECTS = gql`
         }
         requestRoles
       }
+      totalCount
     }
   }
 `;

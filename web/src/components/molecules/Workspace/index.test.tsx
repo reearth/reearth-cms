@@ -9,6 +9,9 @@ const coverImageUrl = undefined;
 const projects: Project[] = [];
 const loading = false;
 const hasCreateRight = true;
+const page = 1;
+const pageSize = 10;
+const totalCount = 0;
 
 test("Workspace wrapper works successfully", () => {
   render(
@@ -17,12 +20,16 @@ test("Workspace wrapper works successfully", () => {
       projects={projects}
       loading={loading}
       hasCreateRight={hasCreateRight}
+      page={page}
+      pageSize={pageSize}
+      totalCount={totalCount}
       onProjectSearch={vi.fn()}
       onProjectSort={vi.fn()}
       onProjectNavigation={vi.fn()}
       onProjectCreate={vi.fn()}
       onWorkspaceCreate={vi.fn()}
       onProjectAliasCheck={vi.fn()}
+      onPageChange={vi.fn()}
     />,
   );
   expect(screen.getByText(/Welcome/)).toBeVisible();
