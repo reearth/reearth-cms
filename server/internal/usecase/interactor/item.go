@@ -1,10 +1,14 @@
 package interactor
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -18,6 +22,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/reearth/reearthx/util"
@@ -904,6 +909,196 @@ func (i Item) ItemsAsGeoJSON(ctx context.Context, sp *schema.Package, page *int,
 	}, nil
 }
 
+func (i Item) ImportFromAsset(ctx context.Context, param interfaces.ImportFromAssetParam, operator *usecase.Operator) (interfaces.ImportFromAssetResponse, error) {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
+		return interfaces.ImportFromAssetResponse{}, interfaces.ErrInvalidOperator
+	}
+
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (interfaces.ImportFromAssetResponse, error) {
+		asset, err := i.repos.Asset.FindByID(ctx, param.AssetID)
+		if err != nil {
+			return interfaces.ImportFromAssetResponse{}, err
+		}
+
+		assetFile, err := i.repos.AssetFile.FindByID(ctx, param.AssetID)
+		if err != nil {
+			return interfaces.ImportFromAssetResponse{}, err
+		}
+
+		isJSON, isGeoJSON := detectJSONFileType(strings.ToLower(assetFile.ContentType()), assetFile.Name())
+
+		if !isJSON && !isGeoJSON {
+			return interfaces.ImportFromAssetResponse{}, interfaces.ErrUnsupportedFileFormat
+		}
+
+		model, err := i.repos.Model.FindByID(ctx, param.ModelID)
+		if err != nil {
+			return interfaces.ImportFromAssetResponse{}, err
+		}
+
+		modelSchema, err := i.repos.Schema.FindByID(ctx, model.Schema())
+		if err != nil {
+			return interfaces.ImportFromAssetResponse{}, err
+		}
+
+		if !operator.IsWritableWorkspace(modelSchema.Workspace()) {
+			return interfaces.ImportFromAssetResponse{}, interfaces.ErrOperationDenied
+		}
+
+		fileContent, _, err := i.gateways.File.ReadAsset(ctx, asset.UUID(), asset.FileName(), nil)
+		if err != nil {
+			return interfaces.ImportFromAssetResponse{}, err
+		}
+		defer func() {
+			if closeErr := fileContent.Close(); closeErr != nil {
+				log.Errorf("failed to close file content: %v", closeErr)
+			}
+		}()
+
+		// Read all content first to process it
+		contentBytes, err := io.ReadAll(fileContent)
+		if err != nil {
+			return interfaces.ImportFromAssetResponse{}, err
+		}
+
+		// Check if the file format is supported
+		if !isJSON && !isGeoJSON {
+			return interfaces.ImportFromAssetResponse{}, fmt.Errorf("unsupported file format")
+		}
+
+		// Determine format for the import system
+		format := interfaces.ImportFormatTypeJSON
+		if isGeoJSON {
+			format = interfaces.ImportFormatTypeGeoJSON
+		}
+
+		// Handle both JSON and GeoJSON formats with field name sanitization
+		var processedContent io.Reader
+		if isJSON || isGeoJSON {
+			// Parse as JSON/GeoJSON and sanitize field names
+			var jsonData interface{}
+			if err := json.Unmarshal(contentBytes, &jsonData); err == nil {
+				var dataToProcess interface{}
+
+				if !isGeoJSON {
+					// For regular JSON, try to extract "items" property
+					if jsonObj, ok := jsonData.(map[string]interface{}); ok {
+						if items, ok := jsonObj["items"]; ok {
+							// Extract the items array
+							dataToProcess = items
+						} else {
+							// No "items" property, use the whole object
+							dataToProcess = jsonData
+						}
+					} else {
+						// Direct array or other format
+						dataToProcess = jsonData
+					}
+				} else {
+					// For GeoJSON, process the entire structure
+					dataToProcess = jsonData
+				}
+
+				// Sanitize field names in the data (works for both JSON and GeoJSON)
+				sanitizedData := sanitizeFieldNames(dataToProcess)
+
+				// Re-serialize the sanitized data
+				dataBytes, err := json.Marshal(sanitizedData)
+				if err != nil {
+					return interfaces.ImportFromAssetResponse{}, err
+				}
+
+				processedContent = bytes.NewReader(dataBytes)
+			} else {
+				// Not valid JSON, use original content
+				processedContent = bytes.NewReader(contentBytes)
+			}
+		} else {
+			// For other formats, use original content
+			processedContent = bytes.NewReader(contentBytes)
+		}
+
+		// Create schema package for import
+		// Get group schemas
+		groups, err := i.repos.Group.FindByIDs(ctx, modelSchema.Groups())
+		if err != nil {
+			return interfaces.ImportFromAssetResponse{}, err
+		}
+
+		// Get group and referenced schema IDs
+		groupSchemaIDs := groups.SchemaIDs()
+		referencedSchemaIDs := modelSchema.ReferencedSchemas()
+		allSchemaIDs := groupSchemaIDs.Add(referencedSchemaIDs...)
+
+		// Fetch all related schemas
+		schemaList, err := i.repos.Schema.FindByIDs(ctx, allSchemaIDs)
+		if err != nil {
+			return interfaces.ImportFromAssetResponse{}, err
+		}
+
+		// Build group schema map
+		groupSchemaMap := make(map[id.GroupID]*schema.Schema)
+		for _, g := range groups {
+			if s := schemaList.Schema(lo.ToPtr(g.Schema())); s != nil {
+				groupSchemaMap[g.ID()] = s
+			}
+		}
+
+		// Build referenced schema list
+		var referencedSchemas schema.List
+		for _, sID := range referencedSchemaIDs {
+			if s := schemaList.Schema(&sID); s != nil {
+				referencedSchemas = append(referencedSchemas, s)
+			}
+		}
+
+		// Get metadata schema if exists
+		var metaSchema *schema.Schema
+		if model.Metadata() != nil {
+			metaSchema, err = i.repos.Schema.FindByID(ctx, *model.Metadata())
+			if err != nil {
+				return interfaces.ImportFromAssetResponse{}, err
+			}
+		}
+
+		schemaPackage := schema.NewPackage(modelSchema, metaSchema, groupSchemaMap, referencedSchemas)
+
+		// Try to find geometry field in the schema
+		var geoField *string
+		if modelSchema != nil {
+			for _, field := range modelSchema.Fields() {
+				if field != nil && field.Type().IsGeometryFieldType() {
+					// Use the field key as the geo field identifier
+					geoField = lo.ToPtr(field.Key().String())
+					break // Use the first geometry field found
+				}
+			}
+		}
+
+		// Use the existing import logic from item_import.go
+		importParam := interfaces.ImportItemsParam{
+			ModelID:      param.ModelID,
+			SP:           *schemaPackage,
+			Reader:       processedContent,
+			Format:       format,
+			Strategy:     interfaces.ImportStrategyTypeInsert,
+			MutateSchema: false, // Use existing schema fields, don't create new ones
+			GeoField:     geoField,
+		}
+
+		importResult, err := i.Import(ctx, importParam, operator)
+		if err != nil {
+			return interfaces.ImportFromAssetResponse{}, err
+		}
+
+		return interfaces.ImportFromAssetResponse{
+			Total:      importResult.Total,
+			Successful: importResult.Inserted + importResult.Updated,
+			Failed:     importResult.Ignored,
+		}, nil
+	})
+}
+
 func fromPagination(page, perPage *int) *usecasex.Pagination {
 	p := int64(1)
 	if page != nil && *page > 0 {
@@ -925,4 +1120,53 @@ func fromPagination(page, perPage *int) *usecasex.Pagination {
 		Offset: (p - 1) * pp,
 		Limit:  pp,
 	}.Wrap()
+}
+
+func detectJSONFileType(contentType, assetFileName string) (bool, bool) {
+	isJSON := contentType == "application/json" || strings.HasSuffix(assetFileName, ".json")
+	isGeoJSON := contentType == "application/geo+json" || strings.HasSuffix(assetFileName, ".geojson")
+	return isJSON, isGeoJSON
+}
+
+// sanitizeFieldNames converts field names to be compatible with the key validation rules
+// Replaces spaces and invalid characters with hyphens to match existing schema conventions
+func sanitizeFieldNames(data interface{}) interface{} {
+	// Regex to match valid key pattern: only alphanumeric, underscore, and hyphen
+	validKeyRegex := regexp.MustCompile(`[^a-zA-Z0-9_-]`)
+
+	switch v := data.(type) {
+	case []interface{}:
+		// Handle array of objects
+		result := make([]interface{}, len(v))
+		for i, item := range v {
+			result[i] = sanitizeFieldNames(item)
+		}
+		return result
+
+	case map[string]interface{}:
+		// Handle object - sanitize field names
+		result := make(map[string]interface{})
+		for key, value := range v {
+			// Sanitize the key: replace invalid characters with hyphens (to match schema convention)
+			sanitizedKey := validKeyRegex.ReplaceAllString(key, "-")
+
+			// Remove leading/trailing hyphens and limit length to 32 chars
+			sanitizedKey = strings.Trim(sanitizedKey, "-")
+			if len(sanitizedKey) > 32 {
+				sanitizedKey = sanitizedKey[:32]
+			}
+
+			// Ensure key is not empty after sanitization
+			if sanitizedKey == "" {
+				sanitizedKey = "field"
+			}
+
+			result[sanitizedKey] = sanitizeFieldNames(value)
+		}
+		return result
+
+	default:
+		// For primitive values, return as is
+		return data
+	}
 }
