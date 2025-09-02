@@ -76,7 +76,7 @@ func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectPara
 		}
 	}
 
-	return Run1(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(param.WorkspaceID).Transaction(),
+	return Run1(ctx, op, i.repos, Usecase().WithWritableWorkspaces(param.WorkspaceID).Transaction(),
 		func(ctx context.Context) (_ *project.Project, err error) {
 			pb := project.New().
 				NewID().
@@ -163,7 +163,7 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 		}
 	}
 
-	return Run1(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(p.Workspace()).Transaction(),
+	return Run1(ctx, op, i.repos, Usecase().WithWritableWorkspaces(p.Workspace()).Transaction(),
 		func(ctx context.Context) (_ *project.Project, err error) {
 			if param.Name != nil {
 				p.UpdateName(*param.Name)
@@ -192,6 +192,9 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 			}
 
 			if param.Accessibility != nil {
+				if !op.IsMaintainingWorkspace(p.Workspace()) {
+					return nil, interfaces.ErrOperationDenied
+				}
 				accessibility := p.Accessibility()
 				if accessibility == nil {
 					accessibility = project.NewPublicAccessibility()
@@ -237,9 +240,9 @@ func (i *Project) Delete(ctx context.Context, projectID id.ProjectID, op *usecas
 	if err != nil {
 		return err
 	}
-	return Run0(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(proj.Workspace()).Transaction(),
+	return Run0(ctx, op, i.repos, Usecase().WithWritableWorkspaces(proj.Workspace()).Transaction(),
 		func(ctx context.Context) error {
-			if !op.IsOwningWorkspace(proj.Workspace()) {
+			if !op.IsWritableWorkspace(proj.Workspace()) {
 				return interfaces.ErrOperationDenied
 			}
 			if err := i.repos.Project.Remove(ctx, projectID); err != nil {
