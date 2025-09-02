@@ -283,7 +283,7 @@ func (r *mutationResolver) ImportAssetToItems(ctx context.Context, input gqlmode
 		return nil, fmt.Errorf("invalid model ID: %w", err)
 	}
 
-	res, err := usecases(ctx).Item.ImportAssetToItems(ctx, interfaces.ImportAssetToItemsParam{
+	res, err := usecases(ctx).Item.ImportFromAsset(ctx, interfaces.ImportFromAssetParam{
 		AssetID: assetID,
 		ModelID: modelID,
 	}, getOperator(ctx))

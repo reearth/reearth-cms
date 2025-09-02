@@ -117,12 +117,12 @@ type ImportItemsResponse struct {
 	NewFields schema.FieldList
 }
 
-type ImportAssetToItemsParam struct {
+type ImportFromAssetParam struct {
 	AssetID id.AssetID
 	ModelID id.ModelID
 }
 
-type ImportAssetToItemsResponse struct {
+type ImportFromAssetResponse struct {
 	Total      int
 	Successful int
 	Failed     int
@@ -157,7 +157,7 @@ type Item interface {
 	Publish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 	Unpublish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 	Import(context.Context, ImportItemsParam, *usecase.Operator) (ImportItemsResponse, error)
-	ImportAssetToItems(context.Context, ImportAssetToItemsParam, *usecase.Operator) (ImportAssetToItemsResponse, error)
+	ImportFromAsset(context.Context, ImportFromAssetParam, *usecase.Operator) (ImportFromAssetResponse, error)
 	TriggerImportJob(context.Context, id.AssetID, id.ModelID, string, string, string, bool, *usecase.Operator) error
 	// ItemsAsCSV exports items data in content to csv file by schema package.
 	ItemsAsCSV(context.Context, *schema.Package, *int, *int, *usecase.Operator) (ExportItemsToCSVResponse, error)

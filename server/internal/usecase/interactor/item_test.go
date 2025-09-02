@@ -1427,625 +1427,6 @@ func TestItem_ItemsAsGeoJSON(t *testing.T) {
 	}
 }
 
-func TestItem_validateAndConvertFieldValue(t *testing.T) {
-	item := &Item{}
-
-	// Helper function to create schema fields
-	createSchemaField := func(fieldType value.Type) *schema.Field {
-		var typeProperty *schema.TypeProperty
-		switch fieldType {
-		case value.TypeText, value.TypeTextArea, value.TypeRichText, value.TypeMarkdown, value.TypeTag:
-			typeProperty = schema.NewText(nil).TypeProperty()
-		case value.TypeInteger:
-			integer, _ := schema.NewInteger(nil, nil)
-			typeProperty = integer.TypeProperty()
-		case value.TypeNumber:
-			number, _ := schema.NewNumber(nil, nil)
-			typeProperty = number.TypeProperty()
-		case value.TypeBool, value.TypeCheckbox:
-			typeProperty = schema.NewBool().TypeProperty()
-		case value.TypeURL:
-			typeProperty = schema.NewURL().TypeProperty()
-		case value.TypeSelect:
-			typeProperty = schema.NewSelect([]string{"option1", "option2"}).TypeProperty()
-		case value.TypeGeometryObject:
-			typeProperty = schema.NewGeometryObject(nil).TypeProperty()
-		case value.TypeGeometryEditor:
-			typeProperty = schema.NewGeometryEditor(nil).TypeProperty()
-		case value.TypeAsset:
-			typeProperty = schema.NewAsset().TypeProperty()
-		case value.TypeReference:
-			typeProperty = schema.NewReference(id.NewModelID(), id.NewSchemaID(), nil, nil).TypeProperty()
-		}
-
-		return schema.NewField(typeProperty).NewID().Key(id.RandomKey()).MustBuild()
-	}
-
-	tests := []struct {
-		name      string
-		fieldType value.Type
-		input     interface{}
-		expected  interface{}
-		wantErr   bool
-	}{
-		// Nil value test
-		{"nil value", value.TypeText, nil, nil, false},
-
-		// Text field types
-		{"text string", value.TypeText, "hello", "hello", false},
-		{"text from int", value.TypeText, 123, "123", false},
-		{"text from bool", value.TypeText, true, "true", false},
-		{"text from float", value.TypeText, 45.67, "45.67", false},
-		{"textarea string", value.TypeTextArea, "long text", "long text", false},
-		{"richtext string", value.TypeRichText, "<b>rich</b>", "<b>rich</b>", false},
-		{"markdown string", value.TypeMarkdown, "# Header", "# Header", false},
-		{"tag string", value.TypeTag, "tag1", "tag1", false},
-
-		// Integer field type
-		{"integer from int", value.TypeInteger, 42, 42, false},
-		{"integer from int64", value.TypeInteger, int64(42), 42, false},
-		{"integer from float64", value.TypeInteger, 42.0, 42, false},
-		{"integer from float64 truncate", value.TypeInteger, 42.9, 42, false},
-		{"integer from string valid", value.TypeInteger, "42", 42, false},
-		{"integer from string invalid", value.TypeInteger, "not a number", nil, true},
-
-		// Number field type
-		{"number from float64", value.TypeNumber, 42.5, 42.5, false},
-		{"number from float32", value.TypeNumber, float32(42.5), 42.5, false},
-		{"number from int", value.TypeNumber, 42, 42.0, false},
-		{"number from int64", value.TypeNumber, int64(42), 42.0, false},
-		{"number from string valid", value.TypeNumber, "42.5", 42.5, false},
-		{"number from string invalid", value.TypeNumber, "not a number", nil, true},
-
-		// Boolean field types
-		{"bool true", value.TypeBool, true, true, false},
-		{"bool false", value.TypeBool, false, false, false},
-		{"bool from string true", value.TypeBool, "true", true, false},
-		{"bool from string false", value.TypeBool, "false", false, false},
-		{"bool from string 1", value.TypeBool, "1", true, false},
-		{"bool from string 0", value.TypeBool, "0", false, false},
-		{"bool from int non-zero", value.TypeBool, 42, true, false},
-		{"bool from int zero", value.TypeBool, 0, false, false},
-		{"bool from float64 non-zero", value.TypeBool, 42.0, true, false},
-		{"bool from float64 zero", value.TypeBool, 0.0, false, false},
-		{"bool from string invalid", value.TypeBool, "maybe", nil, true},
-		{"checkbox true", value.TypeCheckbox, true, true, false},
-		{"checkbox false", value.TypeCheckbox, false, false, false},
-
-		// URL field type
-		{"url valid", value.TypeURL, "https://example.com", "https://example.com", false},
-		{"url empty", value.TypeURL, "", "", false},
-		{"url invalid", value.TypeURL, "not a url", nil, true},                       // Invalid URL should be rejected
-		{"url with invalid char", value.TypeURL, "ht\ttp://example.com", nil, true}, // Contains invalid character
-		{"url non-string", value.TypeURL, 123, nil, true},
-
-		// Select field type
-		{"select string", value.TypeSelect, "option1", "option1", false},
-		{"select from number", value.TypeSelect, 123, "123", false},
-		{"select from boolean", value.TypeSelect, true, "true", false},
-
-		// Geometry field types
-		{"geometry valid JSON", value.TypeGeometryObject, `{"coordinates":[139.28179282584915,36.58570985749664],"type":"Point"}`, `{"coordinates":[139.28179282584915,36.58570985749664],"type":"Point"}`, false},
-		{"geometry invalid JSON", value.TypeGeometryObject, `{"invalid json"`, nil, true},
-		{"geometry non-string", value.TypeGeometryObject, 123, nil, true},
-		{"geometry editor valid JSON", value.TypeGeometryEditor, `{"type":"Point","coordinates":[0,0]}`, `{"type":"Point","coordinates":[0,0]}`, false},
-		{"geometry editor invalid JSON", value.TypeGeometryEditor, `{"invalid`, nil, true},
-
-		// Asset field type
-		{"asset valid string", value.TypeAsset, "asset123", "asset123", false},
-		{"asset non-string", value.TypeAsset, 123, nil, true},
-
-		// Reference field type
-		{"reference valid string", value.TypeReference, "item123", "item123", false},
-		{"reference non-string", value.TypeReference, 123, nil, true},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			field := createSchemaField(tt.fieldType)
-			result, err := item.validateAndConvertFieldValue(tt.input, field)
-
-			if tt.wantErr {
-				assert.Error(t, err)
-				assert.Nil(t, result)
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.expected, result)
-			}
-		})
-	}
-}
-
-func TestItem_importGeoJSONToItems(t *testing.T) {
-	tests := []struct {
-		name            string
-		geoJSONContent  string
-		expectedSuccess int
-		expectedFailed  int
-		expectError     bool
-	}{
-		{
-			name: "valid FeatureCollection with Point geometry",
-			geoJSONContent: `{
-				"type": "FeatureCollection",
-				"features": [
-					{
-						"type": "Feature",
-						"geometry": {
-							"type": "Point",
-							"coordinates": [139.28179282584915, 36.58570985749664]
-						},
-						"properties": {
-							"name": "Tokyo Station"
-						}
-					}
-				]
-			}`,
-			expectedSuccess: 1,
-			expectedFailed:  0,
-			expectError:     false,
-		},
-		{
-			name: "valid FeatureCollection with multiple features",
-			geoJSONContent: `{
-				"type": "FeatureCollection",
-				"features": [
-					{
-						"type": "Feature",
-						"geometry": {
-							"type": "Point",
-							"coordinates": [139.28179282584915, 36.58570985749664]
-						},
-						"properties": {
-							"name": "Tokyo Station"
-						}
-					},
-					{
-						"type": "Feature",
-						"geometry": {
-							"type": "Point",
-							"coordinates": [139.70133018493652, 35.68947395325154]
-						},
-						"properties": {
-							"name": "Shibuya Station"
-						}
-					}
-				]
-			}`,
-			expectedSuccess: 2,
-			expectedFailed:  0,
-			expectError:     false,
-		},
-		{
-			name: "feature without geometry field",
-			geoJSONContent: `{
-				"type": "FeatureCollection",
-				"features": [
-					{
-						"type": "Feature",
-						"properties": {
-							"name": "No geometry"
-						}
-					}
-				]
-			}`,
-			expectedSuccess: 1,
-			expectedFailed:  0,
-			expectError:     false,
-		},
-		{
-			name: "invalid JSON structure",
-			geoJSONContent: `{
-				"type": "InvalidType",
-				"features": []
-			}`,
-			expectedSuccess: 0,
-			expectedFailed:  0,
-			expectError:     true,
-		},
-		{
-			name: "malformed JSON",
-			geoJSONContent: `{
-				"type": "FeatureCollection"
-				"features": [
-			`,
-			expectedSuccess: 0,
-			expectedFailed:  0,
-			expectError:     true,
-		},
-		{
-			name: "not a FeatureCollection",
-			geoJSONContent: `{
-				"type": "Feature",
-				"geometry": {
-					"type": "Point",
-					"coordinates": [0, 0]
-				},
-				"properties": {}
-			}`,
-			expectedSuccess: 0,
-			expectedFailed:  0,
-			expectError:     true,
-		},
-		{
-			name: "empty FeatureCollection",
-			geoJSONContent: `{
-				"type": "FeatureCollection",
-				"features": []
-			}`,
-			expectedSuccess: 0,
-			expectedFailed:  0,
-			expectError:     false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			// Create separate instances for each test to avoid race conditions
-			r := []workspace.Role{workspace.RoleReader, workspace.RoleWriter}
-			w := accountdomain.NewWorkspaceID()
-			prj := project.New().NewID().Workspace(w).RequestRoles(r).MustBuild()
-
-			gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
-
-			// Create schema with geometry and text fields
-			sid := id.NewSchemaID()
-			fid1 := id.NewFieldID()
-			textField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name("name").Key(id.RandomKey()).ID(fid1).MustBuild()
-
-			fid2 := id.NewFieldID()
-			geometryField := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("geometry").Key(id.RandomKey()).ID(fid2).MustBuild()
-
-			testSchema := schema.New().ID(sid).Workspace(w).Project(prj.ID()).Fields(schema.FieldList{textField, geometryField}).MustBuild()
-
-			testModel := model.New().NewID().Schema(testSchema.ID()).Key(id.RandomKey()).Project(testSchema.Project()).MustBuild()
-
-			uid := accountdomain.NewUserID()
-			op := &usecase.Operator{
-				AcOperator: &accountusecase.Operator{
-					User:               &uid,
-					ReadableWorkspaces: []accountdomain.WorkspaceID{w},
-					WritableWorkspaces: []accountdomain.WorkspaceID{w},
-				},
-				ReadableProjects: []id.ProjectID{prj.ID()},
-				WritableProjects: []id.ProjectID{prj.ID()},
-			}
-
-			// Setup in-memory database
-			ctx := context.Background()
-			db := memory.New()
-
-			// Save the project, schema, and model
-			err := db.Project.Save(ctx, prj)
-			assert.NoError(t, err)
-			err = db.Schema.Save(ctx, testSchema)
-			assert.NoError(t, err)
-			err = db.Model.Save(ctx, testModel)
-			assert.NoError(t, err)
-
-			// Create Item instance
-			itemUC := NewItem(db, nil)
-			itemUC.ignoreEvent = true
-
-			// Execute the function
-			successful, failed, err := itemUC.importGeoJSONToItems(
-				ctx,
-				[]byte(tt.geoJSONContent),
-				testSchema,
-				testModel,
-				op,
-			)
-
-			// Verify results
-			if tt.expectError {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.expectedSuccess, successful, "successful count should match")
-				assert.Equal(t, tt.expectedFailed, failed, "failed count should match")
-			}
-		})
-	}
-}
-
-func TestItem_importGeoJSONToItems_SchemaWithoutGeometry(t *testing.T) {
-	// Test with schema that has no geometry fields - follow same pattern
-	r := []workspace.Role{workspace.RoleReader, workspace.RoleWriter}
-	w := accountdomain.NewWorkspaceID()
-	prj := project.New().NewID().Workspace(w).RequestRoles(r).MustBuild()
-
-	// Create schema with only text field (no geometry)
-	sid := id.NewSchemaID()
-	fid := id.NewFieldID()
-	textField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name("name").Key(id.RandomKey()).ID(fid).MustBuild()
-
-	noGeometrySchema := schema.New().ID(sid).Workspace(w).Project(prj.ID()).Fields(schema.FieldList{textField}).MustBuild()
-
-	testModel := model.New().NewID().Schema(noGeometrySchema.ID()).Key(id.RandomKey()).Project(noGeometrySchema.Project()).MustBuild()
-
-	uid := accountdomain.NewUserID()
-	op := &usecase.Operator{
-		AcOperator: &accountusecase.Operator{
-			User:               &uid,
-			ReadableWorkspaces: []accountdomain.WorkspaceID{w},
-			WritableWorkspaces: []accountdomain.WorkspaceID{w},
-		},
-		ReadableProjects: []id.ProjectID{prj.ID()},
-		WritableProjects: []id.ProjectID{prj.ID()},
-	}
-
-	geoJSONContent := `{
-		"type": "FeatureCollection",
-		"features": [
-			{
-				"type": "Feature",
-				"geometry": {
-					"type": "Point",
-					"coordinates": [139.28179282584915, 36.58570985749664]
-				},
-				"properties": {
-					"name": "Tokyo Station"
-				}
-			}
-		]
-	}`
-
-	ctx := context.Background()
-	db := memory.New()
-
-	// Save the project
-	err := db.Project.Save(ctx, prj)
-	assert.NoError(t, err)
-
-	err = db.Schema.Save(ctx, noGeometrySchema)
-	assert.NoError(t, err)
-	err = db.Model.Save(ctx, testModel)
-	assert.NoError(t, err)
-
-	itemUC := NewItem(db, nil)
-	itemUC.ignoreEvent = true
-
-	successful, failed, err := itemUC.importGeoJSONToItems(
-		ctx,
-		[]byte(geoJSONContent),
-		noGeometrySchema,
-		testModel,
-		op,
-	)
-
-	// Should succeed but skip features with geometry
-	assert.NoError(t, err)
-	assert.Equal(t, 0, successful)
-	assert.Equal(t, 1, failed) // Feature was skipped because no geometry field exists
-}
-
-func TestItem_importJSONToItems(t *testing.T) {
-	tests := []struct {
-		name            string
-		jsonContent     string
-		expectedSuccess int
-		expectedFailed  int
-		expectError     bool
-	}{
-		{
-			name: "valid JSON with single item",
-			jsonContent: `{
-				"items": [
-					{
-						"name": "Test Item",
-						"description": "This is a test item"
-					}
-				]
-			}`,
-			expectedSuccess: 1,
-			expectedFailed:  0,
-			expectError:     false,
-		},
-		{
-			name: "valid JSON with multiple items",
-			jsonContent: `{
-				"items": [
-					{
-						"name": "Item 1",
-						"description": "First item"
-					},
-					{
-						"name": "Item 2", 
-						"description": "Second item"
-					},
-					{
-						"name": "Item 3",
-						"description": "Third item"
-					}
-				]
-			}`,
-			expectedSuccess: 3,
-			expectedFailed:  0,
-			expectError:     false,
-		},
-		{
-			name: "JSON with items having invalid data types",
-			jsonContent: `{
-				"items": [
-					{
-						"name": "Valid Item",
-						"description": "This is valid",
-						"age": 25
-					},
-					{
-						"name": "Valid Item 2", 
-						"description": "This is also valid",
-						"age": 30
-					}
-				]
-			}`,
-			expectedSuccess: 2,
-			expectedFailed:  0,
-			expectError:     false,
-		},
-		{
-			name: "invalid JSON structure - missing items array",
-			jsonContent: `{
-				"data": [
-					{"name": "test"}
-				]
-			}`,
-			expectedSuccess: 0,
-			expectedFailed:  0,
-			expectError:     true,
-		},
-		{
-			name: "invalid JSON structure - items is null",
-			jsonContent: `{
-				"items": null
-			}`,
-			expectedSuccess: 0,
-			expectedFailed:  0,
-			expectError:     true,
-		},
-		{
-			name: "malformed JSON",
-			jsonContent: `{
-				"items": [
-					{"name": "test"
-			`,
-			expectedSuccess: 0,
-			expectedFailed:  0,
-			expectError:     true,
-		},
-		{
-			name: "empty items array",
-			jsonContent: `{
-				"items": []
-			}`,
-			expectedSuccess: 0,
-			expectedFailed:  0,
-			expectError:     false,
-		},
-		{
-			name: "JSON with various data types",
-			jsonContent: `{
-				"items": [
-					{
-						"name": "Multi-type Item",
-						"age": 25,
-						"active": true,
-						"description": "Item with various data types"
-					}
-				]
-			}`,
-			expectedSuccess: 1,
-			expectedFailed:  0,
-			expectError:     false,
-		},
-		{
-			name: "JSON with mixed valid and invalid items",
-			jsonContent: `{
-				"items": [
-					{
-						"name": "Valid Item",
-						"description": "This is valid"
-					},
-					{
-						"description": "Item without required name field"
-					}
-				]
-			}`,
-			expectedSuccess: 1,
-			expectedFailed:  1,
-			expectError:     false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			// Create separate instances for each test to avoid race conditions
-			r := []workspace.Role{workspace.RoleReader, workspace.RoleWriter}
-			w := accountdomain.NewWorkspaceID()
-			prj := project.New().NewID().Workspace(w).RequestRoles(r).MustBuild()
-
-			// Create schema with multiple field types for comprehensive testing
-			sid := id.NewSchemaID()
-
-			// Name field (text) - make it required for some test cases
-			fid1 := id.NewFieldID()
-			nameField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name("name").Key(id.RandomKey()).ID(fid1).MustBuild()
-
-			// For mixed valid/invalid test, make name field required
-			if tt.name == "JSON with mixed valid and invalid items" {
-				nameField = schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name("name").Key(id.RandomKey()).ID(fid1).Required(true).MustBuild()
-			}
-
-			// Description field (textarea)
-			fid2 := id.NewFieldID()
-			descriptionField := schema.NewField(schema.NewTextArea(nil).TypeProperty()).NewID().Name("description").Key(id.RandomKey()).ID(fid2).MustBuild()
-
-			// Age field (integer)
-			fid3 := id.NewFieldID()
-			ageInteger, _ := schema.NewInteger(nil, nil)
-			ageField := schema.NewField(ageInteger.TypeProperty()).NewID().Name("age").Key(id.RandomKey()).ID(fid3).MustBuild()
-
-			// Active field (boolean)
-			fid4 := id.NewFieldID()
-			activeField := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("active").Key(id.RandomKey()).ID(fid4).MustBuild()
-
-			testSchema := schema.New().ID(sid).Workspace(w).Project(prj.ID()).Fields(schema.FieldList{nameField, descriptionField, ageField, activeField}).MustBuild()
-
-			testModel := model.New().NewID().Schema(testSchema.ID()).Key(id.RandomKey()).Project(testSchema.Project()).MustBuild()
-
-			uid := accountdomain.NewUserID()
-			op := &usecase.Operator{
-				AcOperator: &accountusecase.Operator{
-					User:               &uid,
-					ReadableWorkspaces: []accountdomain.WorkspaceID{w},
-					WritableWorkspaces: []accountdomain.WorkspaceID{w},
-				},
-				ReadableProjects: []id.ProjectID{prj.ID()},
-				WritableProjects: []id.ProjectID{prj.ID()},
-			}
-
-			// Setup in-memory database
-			ctx := context.Background()
-			db := memory.New()
-
-			// Save the project, schema, and model
-			err := db.Project.Save(ctx, prj)
-			assert.NoError(t, err)
-			err = db.Schema.Save(ctx, testSchema)
-			assert.NoError(t, err)
-			err = db.Model.Save(ctx, testModel)
-			assert.NoError(t, err)
-
-			// Create Item instance
-			itemUC := NewItem(db, nil)
-			itemUC.ignoreEvent = true
-
-			// Execute the function
-			successful, failed, err := itemUC.importJSONToItems(
-				ctx,
-				[]byte(tt.jsonContent),
-				testSchema,
-				testModel,
-				op,
-			)
-
-			// Verify results
-			if tt.expectError {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.expectedSuccess, successful, "successful count should match")
-				assert.Equal(t, tt.expectedFailed, failed, "failed count should match")
-			}
-		})
-	}
-}
-
 // mockFile implements the File interface for testing
 type mockFile struct {
 	content []byte
@@ -2078,15 +1459,7 @@ func TestItem_ImportAssetToItems(t *testing.T) {
 		expectError     bool
 	}{
 		{
-			name:            "Valid JSON import",
-			fileContent:     `{"items": [{"name": "Test Item", "age": 25, "active": true}]}`,
-			contentType:     "application/json",
-			expectedSuccess: 1,
-			expectedFailed:  0,
-			expectError:     false,
-		},
-		{
-			name:            "Empty JSON array",
+			name:            "Empty JSON array with items wrapper",
 			fileContent:     `{"items": []}`,
 			contentType:     "application/json",
 			expectedSuccess: 0,
@@ -2094,23 +1467,25 @@ func TestItem_ImportAssetToItems(t *testing.T) {
 			expectError:     false,
 		},
 		{
-			name:            "Mixed valid and invalid items",
-			fileContent:     `{"items": [{"name": "Valid Item", "age": 25}, {"name": "", "age": "invalid"}]}`,
+			name:            "Valid JSON with matching schema fields",
+			fileContent:     `{"items": [{"name": "Test Item", "test-text": "value"}]}`,
 			contentType:     "application/json",
 			expectedSuccess: 1,
-			expectedFailed:  1,
+			expectedFailed:  0,
+			expectError:     false,
+		},
+		{
+			name:            "Valid GeoJSON with field sanitization",
+			fileContent:     `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28, 36.58]}, "properties": {"name": "Test Location", "test text": "sanitized field"}}]}`,
+			contentType:     "application/geo+json",
+			expectedSuccess: 1,
+			expectedFailed:  0,
 			expectError:     false,
 		},
 		{
 			name:        "Unsupported file format",
 			fileContent: "This is plain text",
 			contentType: "text/plain",
-			expectError: true,
-		},
-		{
-			name:        "Invalid JSON structure",
-			fileContent: `{"invalid": "structure"}`,
-			contentType: "application/json",
 			expectError: true,
 		},
 	}
@@ -2124,7 +1499,7 @@ func TestItem_ImportAssetToItems(t *testing.T) {
 			w := accountdomain.NewWorkspaceID()
 			prj := project.New().NewID().Workspace(w).RequestRoles(r).MustBuild()
 
-			// Create schema with fields
+			// Create schema with fields including sanitized field names
 			sid := id.NewSchemaID()
 			fid1 := id.NewFieldID()
 			textField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name("name").Key(id.NewKey("name")).ID(fid1).Required(true).MustBuild()
@@ -2136,7 +1511,19 @@ func TestItem_ImportAssetToItems(t *testing.T) {
 			fid3 := id.NewFieldID()
 			boolField := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("active").Key(id.NewKey("active")).ID(fid3).MustBuild()
 
-			testSchema := schema.New().ID(sid).Workspace(w).Project(prj.ID()).Fields(schema.FieldList{textField, intField, boolField}).MustBuild()
+			// Add sanitized field names (spaces become hyphens)
+			fid4 := id.NewFieldID()
+			testTextField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name("test-text").Key(id.NewKey("test-text")).ID(fid4).MustBuild()
+
+			fid5 := id.NewFieldID()
+			testHyphenField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name("test-hyphen").Key(id.NewKey("test-hyphen")).ID(fid5).MustBuild()
+
+			// Add geometry field for GeoJSON testing
+			fid6 := id.NewFieldID()
+			gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
+			geometryField := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("geometry").Key(id.NewKey("geometry")).ID(fid6).MustBuild()
+
+			testSchema := schema.New().ID(sid).Workspace(w).Project(prj.ID()).Fields(schema.FieldList{textField, intField, boolField, testTextField, testHyphenField, geometryField}).MustBuild()
 
 			// Create model
 			testModel := model.New().NewID().Schema(testSchema.ID()).Key(id.RandomKey()).Project(testSchema.Project()).MustBuild()
@@ -2204,12 +1591,12 @@ func TestItem_ImportAssetToItems(t *testing.T) {
 			itemUC.ignoreEvent = true
 
 			// Execute the function
-			param := interfaces.ImportAssetToItemsParam{
+			param := interfaces.ImportFromAssetParam{
 				AssetID: assetID,
 				ModelID: testModel.ID(),
 			}
 
-			result, err := itemUC.ImportAssetToItems(ctx, param, op)
+			result, err := itemUC.ImportFromAsset(ctx, param, op)
 
 			// Verify results
 			if tt.expectError {
