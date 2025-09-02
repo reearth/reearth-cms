@@ -27,17 +27,20 @@ test("Item CRUD and searching has succeeded", async ({
   await fieldEditorPage.confirmFieldConfiguration();
 
   // Create content item
-  await contentPage.navigateToContentTab();
-  await contentPage.createNewItem();
+  await contentPage.contentTab.click();
+  await contentPage.newItemButton.click();
   await itemEditorPage.fillTextField("text", "text");
   await itemEditorPage.saveItem();
   await itemEditorPage.goBack();
   await itemEditorPage.expectCellValue("text");
 
-  // Test search functionality
-  await contentPage.searchItems("no field");
-  await itemEditorPage.expectCellValue("text"); // Should be hidden after search
-  await contentPage.clearSearch();
+  // Search: no match
+  await contentPage.searchInput.fill("no field");
+  await contentPage.searchButton.click();
+  await itemEditorPage.expectCellValue("text"); // your helper checks visibility state
+  // Clear search
+  await contentPage.searchInput.fill("");
+  await contentPage.searchButton.click();
   await itemEditorPage.expectCellValue("text");
 
   // Edit item
@@ -48,17 +51,16 @@ test("Item CRUD and searching has succeeded", async ({
   await itemEditorPage.goBack();
   await itemEditorPage.expectCellValue("new text");
 
-  // Delete item
-  await page.getByLabel("", { exact: true }).check();
+  // Delete item (table)
+  await contentPage.selectRowCheckbox.check();
   await page.getByText("Delete").click();
   await closeNotification(page);
-  await itemEditorPage.expectCellValue("new text"); // Should be hidden after deletion
+  await itemEditorPage.expectCellValue("new text"); // hidden after deletion (your helper asserts)
 
   expect(true).toBe(true);
 });
 
 test("Publishing and Unpublishing item from edit page has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   itemEditorPage,
@@ -68,25 +70,25 @@ test("Publishing and Unpublishing item from edit page has succeeded", async ({
   await fieldEditorPage.confirmFieldConfiguration();
 
   // Create content item
-  await contentPage.navigateToContentTab();
-  await contentPage.createNewItem();
+  await contentPage.contentTab.click();
+  await contentPage.newItemButton.click();
   await itemEditorPage.fillTextField("text", "text");
   await itemEditorPage.saveItem();
-  await expect(page.getByText("Draft")).toBeVisible();
+  await expect(contentPage.draftChip).toBeVisible();
 
-  // Publish item from edit page
+  // Publish from edit page
   await itemEditorPage.publishItem();
-  await expect(page.getByText("Published")).toBeVisible();
+  await expect(contentPage.publishedChip).toBeVisible();
   await itemEditorPage.goBack();
-  await expect(page.getByText("Published")).toBeVisible();
+  await expect(contentPage.publishedChip).toBeVisible();
 
-  // Unpublish item from edit page
+  // Unpublish from edit page
   await itemEditorPage.editCellByIndex(0);
-  await expect(page.getByText("Published")).toBeVisible();
+  await expect(contentPage.publishedChip).toBeVisible();
   await itemEditorPage.unpublishItem();
-  await expect(page.getByText("Draft")).toBeVisible();
+  await expect(contentPage.draftChip).toBeVisible();
   await itemEditorPage.goBack();
-  await expect(page.getByText("Draft")).toBeVisible();
+  await expect(contentPage.draftChip).toBeVisible();
 
   expect(true).toBe(true);
 });
@@ -102,90 +104,100 @@ test("Publishing and Unpublishing item from table has succeeded", async ({
   await fieldEditorPage.confirmFieldConfiguration();
 
   // Create content item
-  await contentPage.navigateToContentTab();
-  await contentPage.createNewItem();
+  await contentPage.contentTab.click();
+  await contentPage.newItemButton.click();
   await itemEditorPage.fillTextField("text", "text");
   await itemEditorPage.saveItem();
-  await expect(page.getByText("Draft")).toBeVisible();
+  await expect(contentPage.draftChip).toBeVisible();
   await itemEditorPage.goBack();
-  await expect(page.getByText("Draft")).toBeVisible();
+  await expect(contentPage.draftChip).toBeVisible();
 
   // Publish from table
-  await contentPage.publishItemFromTable();
-  await expect(page.getByText("Published")).toBeVisible();
+  await contentPage.selectRowCheckbox.check();
+  await contentPage.publishButton.click();
+  await closeNotification(page);
+  await expect(contentPage.publishedChip).toBeVisible();
 
   // Unpublish from table
-  await contentPage.unpublishItemFromTable();
-  await expect(page.getByText("Draft")).toBeVisible();
+  await contentPage.selectRowCheckbox.check();
+  await contentPage.unpublishButton.click();
+  await closeNotification(page);
+  await expect(contentPage.draftChip).toBeVisible();
 
   // Verify status in edit page
   await itemEditorPage.editCellByIndex(0);
-  await expect(page.getByText("Draft")).toBeVisible();
+  await expect(contentPage.draftChip).toBeVisible();
 
   expect(true).toBe(true);
 });
 
-test("Showing item title has succeeded", async ({ page }) => {
+test("Showing item title has succeeded", async ({ page, contentPage }) => {
+  // Create model field via UI helpers (schema-side)
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
-  await page.getByText("Content").click();
-  await page.getByRole("button", { name: "plus New Item" }).click();
+
+  // Create item
+  await contentPage.contentTab.click();
+  await contentPage.newItemButton.click();
   await expect(page.getByTitle("e2e model name", { exact: true })).toBeVisible();
-  await page.getByLabel("text").click();
   await page.getByLabel("text").fill("text");
-  await page.getByRole("button", { name: "Save" }).click();
+  await contentPage.saveButton.click();
   await closeNotification(page);
+
   const itemId = page.url().split("/").at(-1);
   await expect(page.getByTitle(`e2e model name / ${itemId}`, { exact: true })).toBeVisible();
 
-  await page.getByText("Schema").click();
+  // Update title field behavior in Schema tab
+  await contentPage.schemaTab.click();
   await page.getByRole("img", { name: "ellipsis" }).locator("svg").click();
   await page.getByLabel("Use as title").check();
   await page.getByRole("tab", { name: "Default value" }).click();
   await page.getByLabel("Set default value").click();
   await page.getByLabel("Set default value").fill("default text");
-  await page.getByRole("button", { name: "OK" }).click();
+  await contentPage.okButton.click();
   await closeNotification(page);
 
-  await page.getByText("Content").click();
+  // Verify titles with existing and default value
+  await contentPage.contentTab.click();
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
   await expect(page.getByTitle(`e2e model name / text`, { exact: true })).toBeVisible();
   await page.getByLabel("Back").click();
 
-  await page.getByRole("button", { name: "plus New Item" }).click();
+  await contentPage.newItemButton.click();
   await expect(page.getByTitle("e2e model name", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Save" }).click();
+  await contentPage.saveButton.click();
   await closeNotification(page);
   await expect(page.getByTitle(`e2e model name / default text`, { exact: true })).toBeVisible();
 });
 
 // eslint-disable-next-line playwright/expect-expect
-test("Comment CRUD on Content page has succeeded", async ({ page }) => {
+test("Comment CRUD on Content page has succeeded", async ({ page, contentPage }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
-  await page.getByText("Content").click();
-  await page.getByRole("button", { name: "plus New Item" }).click();
-  await page.getByLabel("text").click();
+
+  await contentPage.contentTab.click();
+  await contentPage.newItemButton.click();
   await page.getByLabel("text").fill("text");
-  await page.getByRole("button", { name: "Save" }).click();
+  await contentPage.saveButton.click();
   await closeNotification(page);
 
   await page.getByLabel("Back").click();
 
-  await page.getByRole("button", { name: "0" }).click();
+  await contentPage.commentsCountButton(0).click();
   await crudComment(page);
 });
 
 // eslint-disable-next-line playwright/expect-expect
-test("Comment CRUD on edit page has succeeded", async ({ page }) => {
+test("Comment CRUD on edit page has succeeded", async ({ page, contentPage }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
-  await page.getByText("Content").click();
-  await page.getByRole("button", { name: "plus New Item" }).click();
-  await page.getByLabel("text").click();
+
+  await contentPage.contentTab.click();
+  await contentPage.newItemButton.click();
   await page.getByLabel("text").fill("text");
-  await page.getByRole("button", { name: "Save" }).click();
+  await contentPage.saveButton.click();
   await closeNotification(page);
+
   await page.getByLabel("comment").click();
   await crudComment(page);
 });
