@@ -20,7 +20,7 @@ require (
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/oklog/ulid v1.3.1
 	github.com/reearth/reearth-cms/server v0.0.0-20250731070534-e98d640b23fe
-	github.com/reearth/reearthx v0.0.0-20250731060631-7ef9d9421c39
+	github.com/reearth/reearthx v0.0.0-20250902054511-28f00cbbfc26
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
 	github.com/samber/lo v1.51.0
 	github.com/spf13/afero v1.14.0
@@ -87,6 +87,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
+	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.5.0 // indirect
 	github.com/ulikunitz/xz v0.5.12 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
@@ -110,16 +111,16 @@ require (
 	go.uber.org/zap v1.27.0 // indirect
 	go4.org v0.0.0-20230225012048-214862532bf5 // indirect
 	golang.org/x/crypto v0.40.0 // indirect
-	golang.org/x/exp v0.0.0-20250531010427-b6e5de432a8b // indirect
+	golang.org/x/exp v0.0.0-20250718183923-645b1fa84792 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
 	golang.org/x/sync v0.16.0 // indirect
 	golang.org/x/sys v0.34.0 // indirect
 	golang.org/x/text v0.27.0 // indirect
 	golang.org/x/time v0.12.0 // indirect
-	google.golang.org/api v0.243.0 // indirect
+	google.golang.org/api v0.244.0 // indirect
 	google.golang.org/genproto v0.0.0-20250603155806-513f23925822 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250721164621-a45f3dfb1074 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250721164621-a45f3dfb1074 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250728155136-f173205681a0 // indirect
 	google.golang.org/grpc v1.74.2 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
