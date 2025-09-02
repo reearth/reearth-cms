@@ -191,16 +191,10 @@ func (r *mutationResolver) ExportModelToAsset(ctx context.Context, input gqlmode
 		return nil, err
 	}
 
-	// Find the model first
-	model, err := usecases(ctx).Model.FindByID(ctx, mid, getOperator(ctx))
-	if err != nil {
-		return nil, err
-	}
-
 	format := gqlmodel.MapFormat(input.Format)
 
 	params := interfaces.ExportModelToAssetsParam{
-		Model:      model,
+		Model:      mid,
 		Format:     format,
 		Pagination: input.Pagination.Into(),
 	}

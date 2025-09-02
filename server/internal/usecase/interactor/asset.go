@@ -873,11 +873,7 @@ func (i *Asset) ExportModelToAssets(ctx context.Context, inp interfaces.ExportMo
 		return nil, interfaces.ErrInvalidOperator
 	}
 
-	if inp.Model == nil {
-		return nil, rerror.NewE(i18n.T("model is required"))
-	}
-
-	m, err := i.repos.Model.FindByID(ctx, inp.Model.ID())
+	m, err := i.repos.Model.FindByID(ctx, inp.Model)
 	if err != nil {
 		return nil, err
 	}
@@ -892,7 +888,7 @@ func (i *Asset) ExportModelToAssets(ctx context.Context, inp interfaces.ExportMo
 	}
 
 	// Generate content based on format using streaming approach
-	filename := asset.GenerateExportFilename(inp.Model.Key().String(), string(inp.Format))
+	filename := asset.GenerateExportFilename(m.Key().String(), string(inp.Format))
 	contentType := asset.ContentTypeForFormat(string(inp.Format))
 
 	// Validate supported format
@@ -914,11 +910,11 @@ func (i *Asset) ExportModelToAssets(ctx context.Context, inp interfaces.ExportMo
 		var err error
 		switch inp.Format {
 		case interfaces.ExportFormatJSON:
-			err = i.generateJSONContentStreaming(ctx, inp.Model, s, inp.Pagination, pw)
+			err = i.generateJSONContentStreaming(ctx, m, s, inp.Pagination, pw)
 		case interfaces.ExportFormatGeoJSON:
-			err = i.generateGeoJSONContentStreaming(ctx, inp.Model.ID(), s, inp.Pagination, pw)
+			err = i.generateGeoJSONContentStreaming(ctx, inp.Model, s, inp.Pagination, pw)
 		case interfaces.ExportFormatCSV:
-			err = i.generateCSVContentStreaming(ctx, inp.Model.ID(), s, inp.Pagination, pw)
+			err = i.generateCSVContentStreaming(ctx, inp.Model, s, inp.Pagination, pw)
 		}
 
 		if err != nil {

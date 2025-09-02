@@ -8,7 +8,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/rerror"
@@ -49,7 +48,7 @@ type CreateAssetUploadParam struct {
 }
 
 type ExportModelToAssetsParam struct {
-	Model      *model.Model
+	Model      id.ModelID
 	Format     ExportFormat
 	Pagination *usecasex.Pagination
 }

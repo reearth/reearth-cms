@@ -1625,6 +1625,7 @@ func TestAsset_ExportModelToAssets(t *testing.T) {
 			modelID:    jsonModelID,
 			args: args{
 				param: interfaces.ExportModelToAssetsParam{
+					Model:  jsonModelID,
 					Format: interfaces.ExportFormatJSON,
 					Pagination: &usecasex.Pagination{
 						Cursor: &usecasex.CursorPagination{
@@ -1635,7 +1636,7 @@ func TestAsset_ExportModelToAssets(t *testing.T) {
 				operator: &usecase.Operator{
 					AcOperator: &accountusecase.Operator{
 						User:             &uid,
-						OwningWorkspaces: []accountdomain.WorkspaceID{wid},
+						WritableWorkspaces: []accountdomain.WorkspaceID{wid},
 					},
 				},
 			},
@@ -1654,13 +1655,14 @@ func TestAsset_ExportModelToAssets(t *testing.T) {
 			modelID:    geoJSONModelID,
 			args: args{
 				param: interfaces.ExportModelToAssetsParam{
+					Model:      geoJSONModelID,
 					Format:     interfaces.ExportFormatGeoJSON,
 					Pagination: nil, // Test without pagination
 				},
 				operator: &usecase.Operator{
 					AcOperator: &accountusecase.Operator{
 						User:             &uid,
-						OwningWorkspaces: []accountdomain.WorkspaceID{wid},
+						WritableWorkspaces: []accountdomain.WorkspaceID{wid},
 					},
 				},
 			},
@@ -1691,13 +1693,14 @@ func TestAsset_ExportModelToAssets(t *testing.T) {
 			batchSize:  3,
 			args: args{
 				param: interfaces.ExportModelToAssetsParam{
+					Model:      geoJSONModelID,
 					Format:     interfaces.ExportFormatGeoJSON,
 					Pagination: nil,
 				},
 				operator: &usecase.Operator{
 					AcOperator: &accountusecase.Operator{
 						User:             &uid,
-						OwningWorkspaces: []accountdomain.WorkspaceID{wid},
+						WritableWorkspaces: []accountdomain.WorkspaceID{wid},
 					},
 				},
 			},
@@ -1716,6 +1719,7 @@ func TestAsset_ExportModelToAssets(t *testing.T) {
 			modelID:    csvModelID,
 			args: args{
 				param: interfaces.ExportModelToAssetsParam{
+					Model:  csvModelID,
 					Format: interfaces.ExportFormatCSV,
 					Pagination: &usecasex.Pagination{
 						Cursor: &usecasex.CursorPagination{
@@ -1726,7 +1730,7 @@ func TestAsset_ExportModelToAssets(t *testing.T) {
 				operator: &usecase.Operator{
 					AcOperator: &accountusecase.Operator{
 						User:             &uid,
-						OwningWorkspaces: []accountdomain.WorkspaceID{wid},
+						WritableWorkspaces: []accountdomain.WorkspaceID{wid},
 					},
 				},
 			},
@@ -1745,6 +1749,7 @@ func TestAsset_ExportModelToAssets(t *testing.T) {
 			modelID:    jsonModelID,
 			args: args{
 				param: interfaces.ExportModelToAssetsParam{
+					Model:  jsonModelID,
 					Format: interfaces.ExportFormatJSON,
 				},
 				operator: &usecase.Operator{
@@ -1755,32 +1760,13 @@ func TestAsset_ExportModelToAssets(t *testing.T) {
 			wantErr: interfaces.ErrInvalidOperator,
 		},
 		{
-			name:       "Missing model error",
-			seedItems:  jsonItems,
-			seedSchema: testSchema,
-			modelID:    jsonModelID,
-			args: args{
-				param: interfaces.ExportModelToAssetsParam{
-					Model:  nil, // Missing model
-					Format: interfaces.ExportFormatJSON,
-				},
-				operator: &usecase.Operator{
-					AcOperator: &accountusecase.Operator{
-						User:             &uid,
-						OwningWorkspaces: []accountdomain.WorkspaceID{wid},
-					},
-				},
-			},
-			want:       nil,
-			wantErrMsg: "model is required",
-		},
-		{
 			name:       "Operation denied - no write permission",
 			seedItems:  jsonItems,
 			seedSchema: testSchema,
 			modelID:    jsonModelID,
 			args: args{
 				param: interfaces.ExportModelToAssetsParam{
+					Model:  jsonModelID,
 					Format: interfaces.ExportFormatJSON,
 				},
 				operator: &usecase.Operator{
@@ -1800,12 +1786,13 @@ func TestAsset_ExportModelToAssets(t *testing.T) {
 			modelID:    jsonModelID,
 			args: args{
 				param: interfaces.ExportModelToAssetsParam{
+					Model:  jsonModelID,
 					Format: interfaces.ExportFormat("INVALID"), // Invalid format
 				},
 				operator: &usecase.Operator{
 					AcOperator: &accountusecase.Operator{
 						User:             &uid,
-						OwningWorkspaces: []accountdomain.WorkspaceID{wid},
+						WritableWorkspaces: []accountdomain.WorkspaceID{wid},
 					},
 				},
 			},
@@ -1846,12 +1833,6 @@ func TestAsset_ExportModelToAssets(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			// Set the model in the param (needs to be set after model creation)
-			// Only set if not testing missing model error
-			if tc.wantErrMsg != "model is required" {
-				tc.args.param.Model = testModel
-			}
-
 			// Create asset use case with file gateway
 			g := &gateway.Container{
 				File: lo.Must(fs.NewFile(afero.NewMemMapFs(), "", false)),
@@ -1860,6 +1841,9 @@ func TestAsset_ExportModelToAssets(t *testing.T) {
 			// Configure batch size for specific test cases
 			config := ContainerConfig{
 				ExportModelToAssetBatchSize: tc.batchSize,
+			}
+			if tc.batchSize == 0 {
+				config.ExportModelToAssetBatchSize = defaultFetchBatchSize
 			}
 
 			assetUC := NewAsset(db, g, config)
