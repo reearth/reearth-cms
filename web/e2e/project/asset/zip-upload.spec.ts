@@ -1,7 +1,8 @@
 import path from "path";
 import { fileURLToPath } from "url";
 
-import { expect , test } from "@reearth-cms/e2e/fixtures/test";
+import { closeNotification } from "@reearth-cms/e2e/common/notification";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/utils/mock";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -15,7 +16,7 @@ test.beforeEach(async ({ reearth, homePage, projectLayoutPage, assetsPage }) => 
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await homePage.createProject(getId());
   await projectLayoutPage.navigateToAssets();
-  await expect(assetsPage.getRowByText(/.*/).first()).toBeVisible();
+  await expect(assetsPage.rowByText(/.*/).first()).toBeVisible();
 });
 
 test.afterEach(async ({ projectLayoutPage, projectSettingsPage }) => {
@@ -24,39 +25,42 @@ test.afterEach(async ({ projectLayoutPage, projectSettingsPage }) => {
 });
 
 test.describe("Zip Upload Tests", () => {
-  test("Uploading and auto-unzipping ZIP file from URL tab succeeds", async ({ assetsPage }) => {
-    const before = await assetsPage.countRows();
+  test("Uploading and auto-unzipping ZIP file from URL tab succeeds", async ({
+    page,
+    assetsPage,
+  }) => {
+    const before = await assetsPage.assetRows.count();
 
-    await assetsPage.openUploadDialog();
-    await assetsPage.selectTab("URL");
-    await assetsPage.getByPlaceholder("Please input a valid URL").fill(zipUrl);
-    await assetsPage.toggleAutoUnzip(true);
-    await assetsPage.getByRole("button", { name: "Upload", exact: true }).click();
+    await assetsPage.uploadButton.click();
+    await assetsPage.urlTab.click();
+    await assetsPage.urlInput.fill(zipUrl);
+    await assetsPage.autoUnzipCheckbox.setChecked(true);
+    await assetsPage.submitUploadButton.click();
 
-    await assetsPage.expectToast("Successfully added asset!");
+    await closeNotification(page);
 
-    const after = await assetsPage.countRows();
+    const after = await assetsPage.assetRows.count();
     expect(after).toBeGreaterThan(before);
 
     expect(
-      await assetsPage.getRowByText(/plateau\.reearth\.io|UseDistrict|\.zip/i).count(),
+      await assetsPage.rowByText(/plateau\.reearth\.io|UseDistrict|\.zip/i).count(),
     ).toBeGreaterThan(0);
   });
 
-  test("Uploading and auto-unzipping ZIP via Local tab succeeds", async ({ assetsPage }) => {
-    const before = await assetsPage.countRows();
+  test("Uploading and auto-unzipping ZIP via Local tab succeeds", async ({ page, assetsPage }) => {
+    const before = await assetsPage.assetRows.count();
 
-    await assetsPage.openUploadDialog();
-    await assetsPage.selectTab("Local");
-    await assetsPage.locator(".ant-upload input[type='file']").setInputFiles(localZipPath);
-    await assetsPage.toggleAutoUnzip(true);
-    await assetsPage.getByRole("button", { name: "Upload", exact: true }).click();
+    await assetsPage.uploadButton.click();
+    await assetsPage.localTab.click();
+    await assetsPage.fileInput.setInputFiles(localZipPath);
+    await assetsPage.autoUnzipCheckbox.setChecked(true);
+    await assetsPage.submitUploadButton.click();
 
-    await assetsPage.expectToast("Successfully added one or more assets!");
+    await closeNotification(page);
 
-    const after = await assetsPage.countRows();
+    const after = await assetsPage.assetRows.count();
     expect(after).toBeGreaterThan(before);
 
-    expect(await assetsPage.getRowByText(/test\.zip|test/i).count()).toBeGreaterThan(0);
+    expect(await assetsPage.rowByText(/test\.zip|test/i).count()).toBeGreaterThan(0);
   });
 });
