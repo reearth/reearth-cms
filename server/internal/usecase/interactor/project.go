@@ -134,31 +134,30 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 	}
 
 	visibility := p.Accessibility().Visibility()
-	var updatedVisibility project.Visibility
 	if param.Accessibility != nil && param.Accessibility.Visibility != nil {
-		updatedVisibility = *param.Accessibility.Visibility
-	}
-	if visibility != updatedVisibility {
-		var checkType gateway.PolicyCheckType
-		if updatedVisibility == project.VisibilityPublic {
-			checkType = gateway.PolicyCheckGeneralPublicProjectCreation
-		} else {
-			checkType = gateway.PolicyCheckGeneralPrivateProjectCreation
-		}
-
-		if i.gateways != nil && i.gateways.PolicyChecker != nil {
-			policyReq := gateway.PolicyCheckRequest{
-				WorkspaceID: p.Workspace(),
-				CheckType:   checkType,
-				Value:       1,
+		updatedVisibility := *param.Accessibility.Visibility
+		if visibility != updatedVisibility {
+			var checkType gateway.PolicyCheckType
+			if updatedVisibility == project.VisibilityPublic {
+				checkType = gateway.PolicyCheckGeneralPublicProjectCreation
+			} else {
+				checkType = gateway.PolicyCheckGeneralPrivateProjectCreation
 			}
 
-			policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
-			if err != nil {
-				return nil, err
-			}
-			if !policyResp.Allowed {
-				return nil, interfaces.ErrProjectCreationLimitExceeded
+			if i.gateways != nil && i.gateways.PolicyChecker != nil {
+				policyReq := gateway.PolicyCheckRequest{
+					WorkspaceID: p.Workspace(),
+					CheckType:   checkType,
+					Value:       1,
+				}
+
+				policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+				if err != nil {
+					return nil, err
+				}
+				if !policyResp.Allowed {
+					return nil, interfaces.ErrProjectCreationLimitExceeded
+				}
 			}
 		}
 	}
