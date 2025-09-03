@@ -182,7 +182,7 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 						return nil, err
 					}
 
-					accessibility.SetVisibility(*param.Accessibility.Visibility)
+					accessibility.SetVisibility(*newVisibility)
 				}
 				if param.Accessibility.Publication != nil && accessibility.Visibility() == project.VisibilityPrivate {
 					accessibility.SetPublication(project.NewPublicationSettings(param.Accessibility.Publication.PublicModels, param.Accessibility.Publication.PublicAssets))
