@@ -133,36 +133,6 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 		return nil, err
 	}
 
-	visibility := p.Accessibility().Visibility()
-	var updatedVisibility project.Visibility
-	if param.Accessibility != nil && param.Accessibility.Visibility != nil {
-		updatedVisibility = *param.Accessibility.Visibility
-	}
-	if visibility != updatedVisibility {
-		var checkType gateway.PolicyCheckType
-		if updatedVisibility == project.VisibilityPublic {
-			checkType = gateway.PolicyCheckGeneralPublicProjectCreation
-		} else {
-			checkType = gateway.PolicyCheckGeneralPrivateProjectCreation
-		}
-
-		if i.gateways != nil && i.gateways.PolicyChecker != nil {
-			policyReq := gateway.PolicyCheckRequest{
-				WorkspaceID: p.Workspace(),
-				CheckType:   checkType,
-				Value:       1,
-			}
-
-			policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
-			if err != nil {
-				return nil, err
-			}
-			if !policyResp.Allowed {
-				return nil, interfaces.ErrProjectCreationLimitExceeded
-			}
-		}
-	}
-
 	return Run1(ctx, op, i.repos, Usecase().WithWritableWorkspaces(p.Workspace()).Transaction(),
 		func(ctx context.Context) (_ *project.Project, err error) {
 			if param.Name != nil {
@@ -200,7 +170,18 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 					accessibility = project.NewPublicAccessibility()
 				}
 
-				if param.Accessibility.Visibility != nil {
+				newVisibility := param.Accessibility.Visibility
+				if newVisibility != nil && accessibility.Visibility() != *newVisibility {
+					checkType := gateway.PolicyCheckGeneralPrivateProjectCreation
+					if *newVisibility == project.VisibilityPublic {
+						checkType = gateway.PolicyCheckGeneralPublicProjectCreation
+					}
+
+					err := i.ensurePolicy(ctx, p.Workspace(), checkType, 1)
+					if err != nil {
+						return nil, err
+					}
+
 					accessibility.SetVisibility(*param.Accessibility.Visibility)
 				}
 				if param.Accessibility.Publication != nil && accessibility.Visibility() == project.VisibilityPrivate {
@@ -219,6 +200,28 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 
 			return p, nil
 		})
+}
+
+func (i *Project) ensurePolicy(ctx context.Context, wID workspace.ID, checkType gateway.PolicyCheckType, value int64) error {
+	if i.gateways == nil || i.gateways.PolicyChecker == nil {
+		return nil
+	}
+
+	policyReq := gateway.PolicyCheckRequest{
+		WorkspaceID: wID,
+		CheckType:   checkType,
+		Value:       value,
+	}
+
+	policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+	if err != nil {
+		return err
+	}
+	if !policyResp.Allowed {
+		return interfaces.ErrProjectCreationLimitExceeded
+	}
+
+	return nil
 }
 
 func (i *Project) CheckAlias(ctx context.Context, alias string) (bool, error) {
