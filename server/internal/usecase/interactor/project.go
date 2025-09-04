@@ -133,6 +133,26 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 		return nil, err
 	}
 
+	if param.Accessibility != nil && param.Accessibility.Visibility != nil {
+		newVisibility := *param.Accessibility.Visibility
+		OldVisibility := project.VisibilityPublic
+		if p.Accessibility() != nil {
+			OldVisibility = p.Accessibility().Visibility()
+		}
+
+		if OldVisibility != newVisibility {
+			checkType := gateway.PolicyCheckGeneralPublicProjectCreation
+			if newVisibility == project.VisibilityPrivate {
+				checkType = gateway.PolicyCheckGeneralPrivateProjectCreation
+			}
+
+			err := i.ensurePolicy(ctx, p.Workspace(), checkType, 1)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
 	return Run1(ctx, op, i.repos, Usecase().WithWritableWorkspaces(p.Workspace()).Transaction(),
 		func(ctx context.Context) (_ *project.Project, err error) {
 			if param.Name != nil {
@@ -170,19 +190,8 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 					accessibility = project.NewPublicAccessibility()
 				}
 
-				newVisibility := param.Accessibility.Visibility
-				if newVisibility != nil && accessibility.Visibility() != *newVisibility {
-					checkType := gateway.PolicyCheckGeneralPrivateProjectCreation
-					if *newVisibility == project.VisibilityPublic {
-						checkType = gateway.PolicyCheckGeneralPublicProjectCreation
-					}
-
-					err := i.ensurePolicy(ctx, p.Workspace(), checkType, 1)
-					if err != nil {
-						return nil, err
-					}
-
-					accessibility.SetVisibility(*newVisibility)
+				if param.Accessibility.Visibility != nil {
+					accessibility.SetVisibility(*param.Accessibility.Visibility)
 				}
 				if param.Accessibility.Publication != nil && accessibility.Visibility() == project.VisibilityPrivate {
 					accessibility.SetPublication(project.NewPublicationSettings(param.Accessibility.Publication.PublicModels, param.Accessibility.Publication.PublicAssets))
