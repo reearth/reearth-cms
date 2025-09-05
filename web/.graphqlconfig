@@ -7,7 +7,7 @@
     ],
     "extensions": {
         "endpoints": {
-            "dev": "http://localhost:8080/api/graphql"
+            "dev": "http://localhost:8080/gql"
         }
     }
 }

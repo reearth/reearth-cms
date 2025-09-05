@@ -53,7 +53,7 @@ func createRequest(e *httpexpect.Expect, projectId, title string, description, s
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -115,7 +115,7 @@ func updateRequest(e *httpexpect.Expect, requestId, title string, description, s
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -143,7 +143,7 @@ func approveRequest(e *httpexpect.Expect, requestId string) *httpexpect.Value {
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -170,7 +170,7 @@ func closeAllRequests(e *httpexpect.Expect, projectId string, requestsId []strin
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -329,7 +329,7 @@ func TestRequestFlow(t *testing.T) {
 	ver2 := i1.Path("$.data.updateItem.item.version").Raw().(string)
 
 	// check public item: should return no results
-	res := e.GET("/api/p/{project}/{model}", "test-1", "test-1").
+	res := e.GET("/p/{project}/{model}", "test-1", "test-1").
 		Expect().
 		Status(http.StatusOK).
 		JSON()
@@ -365,7 +365,7 @@ func TestRequestFlow(t *testing.T) {
 	itm.Path("$.data.node").Object().Value("status").IsEqual("PUBLIC_DRAFT")
 
 	// check public item: should return version 2
-	res = e.GET("/api/p/{project}/{model}", "test-1", "test-1").
+	res = e.GET("/p/{project}/{model}", "test-1", "test-1").
 		Expect().
 		Status(http.StatusOK).
 		JSON()
@@ -405,7 +405,7 @@ func TestRequestFlow(t *testing.T) {
 	itm.Path("$.data.node").Object().Value("status").IsEqual("PUBLIC")
 
 	// check public item: should return version 3
-	res = e.GET("/api/p/{project}/{model}", "test-1", "test-1").
+	res = e.GET("/p/{project}/{model}", "test-1", "test-1").
 		Expect().
 		Status(http.StatusOK).
 		JSON()

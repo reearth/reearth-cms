@@ -34,7 +34,7 @@ func createField(e *httpexpect.Expect, mID, title, desc, key string, multiple, u
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -74,7 +74,7 @@ func createFields(e *httpexpect.Expect, fields []map[string]any) *httpexpect.Val
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -112,7 +112,7 @@ func createMetaField(e *httpexpect.Expect, mID, title, desc, key string, multipl
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -151,7 +151,7 @@ func updateField(e *httpexpect.Expect, mID, fID, title, desc, key string, multip
 		},
 	}
 
-	res := e.POST("/api/graphql").
+	res := e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -183,7 +183,7 @@ func guessSchemaFields(e *httpexpect.Expect, assetId, modelId string) *httpexpec
 		},
 	}
 
-	return e.POST("/api/graphql").
+	return e.POST("/gql").
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").

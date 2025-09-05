@@ -18,7 +18,7 @@ export type Config = {
 const env = import.meta.env;
 
 export const defaultConfig: Config = {
-  api: env.REEARTH_CMS_API || "/api",
+  api: env.REEARTH_CMS_API || "",
   auth0Audience: env.REEARTH_CMS_AUTH0_AUDIENCE,
   auth0Domain: env.REEARTH_CMS_AUTH0_DOMAIN,
   auth0ClientId: env.REEARTH_CMS_AUTH0_CLIENT_ID,
