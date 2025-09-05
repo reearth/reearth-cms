@@ -16,7 +16,7 @@ import HeaderDropdown from "./Dropdown";
 
 type Props = {
   username: string;
-  profilePictureUrl: string;
+  profilePictureUrl?: string;
   personalWorkspace?: Workspace;
   currentWorkspace?: Workspace;
   workspaces?: Workspace[];
