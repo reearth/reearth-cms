@@ -12,7 +12,9 @@ type Props = {
 
 const UserAvatar: React.FC<Props> = ({ username, shadow, profilePictureUrl, ...props }) => {
   const anonymous = username === "Anonymous";
-  return (
+  return profilePictureUrl ? (
+    <Avatar src={profilePictureUrl} alt="User avatar" {...props} />
+  ) : (
     <UserAvatarWrapper shadow={shadow} anonymous={anonymous} src={profilePictureUrl} {...props}>
       {anonymous ? <Icon icon="user" /> : username?.charAt(0)}
     </UserAvatarWrapper>
