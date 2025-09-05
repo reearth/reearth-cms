@@ -12,7 +12,6 @@ import {
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
-import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
 import { useT, Trans } from "@reearth-cms/i18n";
@@ -78,12 +77,7 @@ const IntegrationTable: React.FC<Props> = ({
         key: "creator",
         width: 250,
         minWidth: 100,
-        render: (_, item) => (
-          <Space>
-            <UserAvatar username={item.createdBy?.name} size="small" />
-            {item.createdBy?.name}
-          </Space>
-        ),
+        render: (_, item) => <div>{item.createdBy?.name}</div>,
       },
       {
         key: "action",

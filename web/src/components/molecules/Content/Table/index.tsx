@@ -24,7 +24,6 @@ import {
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import Status from "@reearth-cms/components/molecules/Content/Status";
@@ -217,7 +216,6 @@ const ContentTable: React.FC<Props> = ({
         sortOrder: sortOrderGet("CREATION_USER"),
         render: (_, item) => (
           <Space>
-            <UserAvatar username={item.createdBy.name} size={"small"} />
             {item.createdBy.name}
           </Space>
         ),
@@ -251,7 +249,6 @@ const ContentTable: React.FC<Props> = ({
         render: (_, item) =>
           item.updatedBy ? (
             <Space>
-              <UserAvatar username={item.updatedBy} size={"small"} />
               {item.updatedBy}
             </Space>
           ) : (

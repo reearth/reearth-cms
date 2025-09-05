@@ -10,10 +10,8 @@ import {
   OptionConfig,
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
-import Space from "@reearth-cms/components/atoms/Space";
 import { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
-import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
@@ -181,12 +179,7 @@ const LinkAssetModal: React.FC<Props> = ({
         ellipsis: true,
         width: 100,
         minWidth: 100,
-        render: (_, item) => (
-          <Space>
-            <UserAvatar username={item.createdBy.name} size="small" />
-            {item.createdBy.name}
-          </Space>
-        ),
+        render: (_, item) => <div>{item.createdBy.name}</div>,
       },
     ],
     [linkedAsset?.id, onLinkClick, t],

@@ -99,6 +99,7 @@ URL: ''
 Please input the URL of the asset!: アセットのURLを入力してください!
 Please input a valid URL: 有効なURLを入力してください
 Could not display svg: svgを表示できませんでした。
+Myself: 自分
 Comment: コメント
 Comments: コメント
 No comments.: コメントはありません。
@@ -254,7 +255,6 @@ Are you sure to remove this member?: 本当にメンバーをこのワークス�
 Remove this member from workspace means this member will not view any content of this workspace.: メンバーをワークスペースから削除すると、そのメンバーはワークスペース内のいかなるコンテンツも閲覧することができなくなります。
 Are you sure to leave this workspace?: 本当にこのワークスペースを離れてもよろしいですか？
 Leave this workspace means you will not view any content of this workspace.: ワークスペースを離れると、ワークスペース内のいかなるコンテンツも閲覧することができなくなります。
-Thumbnail: サムネイル
 Email: メールアドレス
 Action: 操作
 Change Role?: ロールを変更

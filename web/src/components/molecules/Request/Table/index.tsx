@@ -14,7 +14,6 @@ import {
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
-import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
@@ -143,7 +142,6 @@ const RequestListTable: React.FC<Props> = ({
         key: "createdBy",
         render: (_, request) => (
           <Space>
-            <UserAvatar username={request.createdBy?.name} size={"small"} />
             {request.createdBy?.name}
           </Space>
         ),
@@ -165,13 +163,6 @@ const RequestListTable: React.FC<Props> = ({
         key: "reviewers",
         render: (_, request) => (
           <Space>
-            <div>
-              {request.reviewers
-                .filter((_, index) => index < 3)
-                .map(reviewer => (
-                  <StyledUserAvatar key={reviewer.name} username={reviewer.name} size={"small"} />
-                ))}
-            </div>
             {request.reviewers.map(reviewer => reviewer.name).join(", ")}
           </Space>
         ),
@@ -306,16 +297,4 @@ export default RequestListTable;
 
 const CommentsButton = styled(Button)`
   padding: 0;
-`;
-
-const StyledUserAvatar = styled(UserAvatar)`
-  :nth-child(1) {
-    z-index: 2;
-  }
-  :nth-child(2) {
-    z-index: 1;
-  }
-  :nth-child(n + 2) {
-    margin-left: -18px;
-  }
 `;
