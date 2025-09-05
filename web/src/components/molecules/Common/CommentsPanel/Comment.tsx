@@ -10,8 +10,8 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Comment as CommentType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
-import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { useT } from "@reearth-cms/i18n";
+import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 type Props = {
   userId: string;
