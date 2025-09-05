@@ -1,6 +1,5 @@
-import { Page } from "@playwright/test";
-
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
+import { Page } from "@reearth-cms/e2e/fixtures/test";
 
 export const requestTitle = "requestTitle";
 

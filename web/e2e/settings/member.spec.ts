@@ -1,5 +1,5 @@
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { createWorkspace, deleteWorkspace } from "@reearth-cms/e2e/project/utils/workspace";
-import { expect, test } from "@reearth-cms/e2e/utils";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
 
 import { config } from "../utils/config";

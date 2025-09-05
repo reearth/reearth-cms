@@ -1,5 +1,5 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { expect, test } from "@reearth-cms/e2e/utils";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 
 let originalUsername: string;
 let originalEmail: string;

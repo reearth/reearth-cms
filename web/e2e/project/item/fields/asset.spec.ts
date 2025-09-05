@@ -1,7 +1,7 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
-import { expect, test } from "@reearth-cms/e2e/utils";
 import { isCesiumViewerReady } from "@reearth-cms/e2e/utils/viewer";
 
 const uploadFileUrl_1 =
