@@ -15,7 +15,7 @@ const UserAvatar: React.FC<Props> = ({ username, shadow, profilePictureUrl, ...p
   return profilePictureUrl ? (
     <Avatar src={profilePictureUrl} alt="User avatar" {...props} />
   ) : (
-    <UserAvatarWrapper shadow={shadow} anonymous={anonymous} src={profilePictureUrl} {...props}>
+    <UserAvatarWrapper shadow={shadow} anonymous={anonymous} {...props}>
       {anonymous ? <Icon icon="user" /> : username?.charAt(0)}
     </UserAvatarWrapper>
   );
