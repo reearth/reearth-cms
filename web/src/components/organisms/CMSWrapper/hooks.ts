@@ -51,8 +51,8 @@ export default () => {
 
   const username = useMemo(() => data?.me?.name || "", [data?.me?.name]);
 
-  const profilePictureUrl = useMemo<string>(
-    () => data?.me?.profilePictureUrl || "",
+  const profilePictureUrl = useMemo(
+    () => data?.me?.profilePictureUrl ?? undefined,
     [data?.me?.profilePictureUrl],
   );
 
