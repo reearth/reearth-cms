@@ -554,6 +554,45 @@ func TestProject_Update(t *testing.T) {
 			wantErr:        errors.New("test"),
 			mockProjectErr: true,
 		},
+		{
+			name: "update readme",
+			seeds: project.List{p1, p2},
+			args: args{
+				upp: interfaces.UpdateProjectParam{
+					ID:      p1.ID(),
+					Readme:  lo.ToPtr("new readme"),
+				},
+				operator: op,
+			},
+			wantErr: nil,
+			want: project.New().
+				ID(pid1).
+				Workspace(wid1).
+				RequestRoles(r1).
+				Readme("new readme").
+				UpdatedAt(mocktime).
+				MustBuild(),
+		},
+		{
+			name: "update readme on limited plan",
+			seeds: project.List{p1, p2},
+			args: args{
+				upp: interfaces.UpdateProjectParam{
+					ID:      p1.ID(),
+					Readme:  lo.ToPtr("new readme"),
+				},
+				operator: op,
+			},
+			policyChecker: &mockPolicyChecker{allowed: false},
+			wantErr: nil,
+			want: project.New().
+				ID(pid1).
+				Workspace(wid1).
+				RequestRoles(r1).
+				Readme("new readme").
+				UpdatedAt(mocktime).
+				MustBuild(),
+		},
 	}
 
 	for _, tc := range tests {
