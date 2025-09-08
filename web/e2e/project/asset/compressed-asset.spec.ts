@@ -2,7 +2,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { test, expect } from "@reearth-cms/e2e/fixtures/test";
 
 import { createProject, deleteProject } from "../utils/project";
 
@@ -25,37 +25,34 @@ test.afterEach(async ({ page }) => {
 });
 
 test.describe("Zip Upload Tests", () => {
-  test("Uploading and auto-unzipping ZIP file from URL tab succeeds", async ({
-    page,
-    assetsPage,
-  }) => {
-    await assetsPage.uploadButton.click();
-    await assetsPage.urlTab.click();
-    await assetsPage.urlInput.fill(zipUrl);
-
-    await assetsPage.autoUnzipCheckbox.setChecked(true);
-    await expect(assetsPage.autoUnzipCheckbox).toBeChecked();
-
-    await assetsPage.submitUploadButton.click();
-
-    await expect(page.locator(".ant-notification-notice").last()).toBeVisible();
+  test("Uploading and auto-unzipping ZIP file from URL tab succeeds", async ({ page }) => {
+    await page.getByRole("button", { name: "upload Upload Asset" }).click();
+    await page.getByRole("tab", { name: "URL" }).click();
+    const urlInput = page.getByPlaceholder("Please input a valid URL");
+    await urlInput.fill(zipUrl);
+    const autoUnzipCheckbox = page.getByRole("checkbox", { name: "Auto Unzip" });
+    await autoUnzipCheckbox.setChecked(true);
+    await expect(autoUnzipCheckbox).toBeChecked();
+    await page.getByRole("button", { name: "Upload", exact: true }).click();
+    await expect(page.locator(".ant-notification-notice").last()).toContainText(
+      "Successfully added asset!",
+    );
     await closeNotification(page);
   });
 
-  test("Uploading and auto-unzipping ZIP file via Local tab succeeds", async ({
-    page,
-    assetsPage,
-  }) => {
-    await assetsPage.uploadButton.click();
-    await assetsPage.localTab.click();
-    await assetsPage.fileInput.setInputFiles(localZipPath);
+  test("Uploading and auto-unzipping ZIP file via Local tab succeeds", async ({ page }) => {
+    await page.getByRole("button", { name: "upload Upload Asset" }).click();
+    await page.getByRole("tab", { name: "Local" }).click();
+    const uploadInput = page.locator(".ant-upload input[type='file']");
+    await uploadInput.setInputFiles(localZipPath);
+    const autoUnzipCheckbox = page.getByRole("checkbox", { name: "Auto Unzip" });
+    await autoUnzipCheckbox.setChecked(true);
+    await expect(autoUnzipCheckbox).toBeChecked();
+    await page.getByRole("button", { name: "Upload", exact: true }).click();
+    await expect(page.locator(".ant-notification-notice").last()).toContainText(
+      "Successfully added one or more assets!",
+    );
 
-    await assetsPage.autoUnzipCheckbox.setChecked(true);
-    await expect(assetsPage.autoUnzipCheckbox).toBeChecked();
-
-    await assetsPage.submitUploadButton.click();
-
-    await expect(page.locator(".ant-notification-notice").last()).toBeVisible();
     await closeNotification(page);
   });
 });
