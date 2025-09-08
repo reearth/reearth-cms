@@ -1,7 +1,5 @@
-import { Page } from "@playwright/test";
-
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { test, expect } from "@reearth-cms/e2e/fixtures/test";
+import { Page, test, expect } from "@reearth-cms/e2e/fixtures/test";
 
 import { crudComment } from "../utils/comment";
 import { createProject, deleteProject } from "../utils/project";
