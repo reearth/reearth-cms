@@ -125,7 +125,7 @@ Project name: プロジェクト名
 Please input the name of project!: プロジェクト名を入力してください
 Project alias: プロジェクトエイリアス
 Used to create the project URL. Must be unique and at least 5 characters long, only lowercase letters, numbers, and hyphens are allowed.: プロジェクトURLの作成に使用されます。一意である必要があり、5文字以上の小文字の英字、数字、ハイフンのみを使用できます。
-Project alias is not valid: 無効なプロジェクトのエイリアスです
+Project alias is already taken: プロジェクトのエイリアスは既に使用されています
 Project visibility: プロジェクトの公開範囲
 Public projects are visible to everyone. Private projects are only accessible to workspace members.: 公開プロジェクトは誰でも閲覧可能です。非公開プロジェクトはワークスペースのメンバーのみがアクセスできます。
 Please choose the visibility settings of the project!: プロジェクトの公開範囲を選択してください！

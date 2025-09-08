@@ -159,7 +159,7 @@ const ProjectCreationModal: React.FC<Props> = ({
           )}
           rules={[
             {
-              message: t("Project alias is not valid"),
+              message: t("Project alias is already taken"),
               required: true,
               validator: async (_, value) => {
                 await aliasValidate(value);

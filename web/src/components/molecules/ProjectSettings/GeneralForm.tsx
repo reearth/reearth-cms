@@ -122,7 +122,7 @@ const GeneralForm: React.FC<Props> = ({
         rules={[
           {
             required: true,
-            message: t("Project alias is not valid"),
+            message: t("Project alias is already taken"),
             validator: async (_, value) => {
               await aliasValidate(value);
             },
