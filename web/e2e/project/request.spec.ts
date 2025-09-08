@@ -39,17 +39,18 @@ test("Request creating, searching, updating reviewer, and approving has succeede
 }) => {
   // Navigate to requests and verify initial state
   await requestPage.navigateToRequests();
-  await requestPage.expectRequestVisible(requestTitle);
-  await requestPage.expectRequestState("WAITING");
+  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
+  await expect(requestPage.locator("tbody").getByText("WAITING")).toBeVisible();
 
   // Test search functionality
   await requestPage.searchRequests("no request");
-  await requestPage.expectRequestHidden(requestTitle);
-  await requestPage.expectRequestStateHidden("WAITING");
+  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toBeHidden();
+
+  await expect(requestPage.locator("tbody").getByText("WAITING")).toBeHidden();
 
   await requestPage.clearSearch();
-  await requestPage.expectRequestVisible(requestTitle);
-  await requestPage.expectRequestState("WAITING");
+  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
+  await expect(requestPage.locator("tbody").getByText("WAITING")).toBeVisible();
 
   // Edit request and assign reviewer
   await requestPage.editRequest();
@@ -58,19 +59,17 @@ test("Request creating, searching, updating reviewer, and approving has succeede
   await requestPage.goBack();
 
   // Verify approval and filter
-  await requestPage.expectRequestHidden(requestTitle);
+  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toBeHidden();
   await requestPage.filterByState("WAITING", false);
-  await requestPage.expectRequestVisible(requestTitle);
-  await requestPage.expectRequestState("APPROVED");
-
-  expect(true).toBe(true);
+  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
+  await expect(requestPage.locator("tbody").getByText("APPROVED")).toBeVisible();
 });
 
 test("Request closing and reopening has succeeded", async ({ requestPage }) => {
   // Navigate and verify initial state
   await requestPage.navigateToRequests();
-  await requestPage.expectRequestVisible(requestTitle);
-  await requestPage.expectRequestState("WAITING");
+  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
+  await expect(requestPage.locator("tbody").getByText("WAITING")).toBeVisible();
 
   // Close request
   await requestPage.editRequest();
@@ -78,23 +77,27 @@ test("Request closing and reopening has succeeded", async ({ requestPage }) => {
   await requestPage.goBack();
 
   // Verify request is hidden after close
-  await requestPage.expectRequestHidden(requestTitle);
-  await requestPage.expectRequestStateHidden("WAITING");
+  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toBeHidden();
+  await expect(requestPage.locator("tbody").getByText("WAITING")).toBeHidden();
 
   // Filter to show closed requests
   await requestPage.filterByState("WAITING", false);
-  await requestPage.expectRequestState("CLOSED");
+  await expect(requestPage.locator("tbody").getByText("CLOSED")).toBeVisible();
 
   // Reopen request
   await requestPage.editRequest();
-  await requestPage.expectStateText("CLOSED");
-  await requestPage.expectStateText("Closed");
+  await expect(requestPage.getByText("CLOSED", { exact: true })).toBeVisible();
+
+  await expect(requestPage.getByText("Closed", { exact: true })).toBeVisible();
+
   await requestPage.reopenRequest();
   await requestPage.goBack();
 
   // Verify request is reopened
-  await requestPage.expectRequestVisible(requestTitle);
-  await requestPage.expectRequestState("WAITING");
+  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
+  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toHaveText(
+    "WAITING",
+  );
 
   // Bulk close request
   await requestPage.selectRequestItem();
@@ -102,33 +105,31 @@ test("Request closing and reopening has succeeded", async ({ requestPage }) => {
 
   // Verify bulk close worked
   await requestPage.filterByState("WAITING", false);
-  await requestPage.expectRequestState("CLOSED");
+  await expect(requestPage.locator("tbody").getByText("CLOSED")).toBeVisible();
   await requestPage.editRequest();
-  await requestPage.expectStateText("CLOSED");
-
-  expect(true).toBe(true);
+  await expect(requestPage.getByText("CLOSED", { exact: true })).toBeVisible();
 });
 
 test("Comment CRUD on edit page has succeeded", async ({ requestPage }) => {
   // Navigate and edit request
   await requestPage.navigateToRequests();
-  await requestPage.expectRequestVisible(requestTitle);
-  await requestPage.expectRequestState("WAITING");
+  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
+  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toHaveText(
+    "WAITING",
+  );
   await requestPage.editRequest();
 
   // Add comment
   await requestPage.addComment("comment");
-  await requestPage.expectCommentVisible("comment");
+  await expect(requestPage.getByText("comment", { exact: true })).toBeVisible();
 
   // Edit comment
   await requestPage.editComment("new comment");
-  await requestPage.expectCommentVisible("new comment");
+  await expect(requestPage.getByText("new comment", { exact: true })).toBeVisible();
 
   // Delete comment
   await requestPage.deleteComment();
-  await requestPage.expectCommentHidden("new comment");
-
-  expect(true).toBe(true);
+  await expect(requestPage.getByText("new comment")).toBeHidden();
 });
 
 // eslint-disable-next-line playwright/expect-expect

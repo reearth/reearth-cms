@@ -36,8 +36,9 @@ test("Tiles CRUD has succeeded", async ({ page, settingsPage }) => {
   await settingsPage.saveTileSettings();
 
   // Verify tile configuration
-  await settingsPage.expectTileVisible("url");
-  await settingsPage.expectTileImageSrc("http://image.com");
+  await expect(settingsPage.getByText("url", { exact: true })).toBeVisible();
+  const targetImageEl = settingsPage.locator(".ant-card-body .ant-card-meta-avatar > img");
+  await expect(targetImageEl).toHaveAttribute("src", "http://image.com");
 
   // Verify edit form values
   await settingsPage.editTileOption(-1);
@@ -50,9 +51,7 @@ test("Tiles CRUD has succeeded", async ({ page, settingsPage }) => {
   // Delete tile option
   await settingsPage.deleteTileOption(-1);
   await settingsPage.saveTileSettings();
-  await settingsPage.expectTileHidden("url");
-
-  expect(true).toBe(true);
+  await expect(settingsPage.getByText("url", { exact: true })).toBeHidden();
 });
 
 test("Terrain on/off and CRUD has succeeded", async ({ page }) => {

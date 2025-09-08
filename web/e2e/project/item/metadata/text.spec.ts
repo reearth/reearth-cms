@@ -70,8 +70,6 @@ test("Text metadata creating and updating has succeeded", async ({
 
   await itemEditorPage.goBack();
   await expect(page.getByRole("textbox")).toHaveValue("text1");
-
-  expect(true).toBe(true);
 });
 
 test("Text metadata editing has succeeded", async ({ page }) => {

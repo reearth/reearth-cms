@@ -1,60 +1,60 @@
-import { expect, Locator } from "@reearth-cms/e2e/fixtures/test";
+import { Locator } from "@reearth-cms/e2e/fixtures/test";
 
 import { BasePage } from "./base.page";
 
 export class SettingsPage extends BasePage {
-  private get generalTab(): Locator {
+  get generalTab(): Locator {
     return this.getByText("General");
   }
 
-  private get integrationsTab(): Locator {
+  get integrationsTab(): Locator {
     return this.getByText("Integrations");
   }
 
-  private get membersTab(): Locator {
+  get membersTab(): Locator {
     return this.getByText("Members");
   }
 
-  private get saveChangesButton(): Locator {
+  get saveChangesButton(): Locator {
     return this.getByRole("button", { name: "Save changes" });
   }
 
   // General settings
-  private get languageSelect(): Locator {
+  get languageSelect(): Locator {
     return this.locator(".ant-select-selector").first();
   }
 
   // Member settings
-  private get inviteButton(): Locator {
+  get inviteButton(): Locator {
     return this.getByRole("button", { name: "Invite" });
   }
 
-  private get emailInput(): Locator {
+  get emailInput(): Locator {
     return this.getByLabel("Email");
   }
 
-  private get roleSelect(): Locator {
+  get roleSelect(): Locator {
     return this.locator(".ant-select-selector");
   }
 
   // Integration settings
-  private get webhookUrlInput(): Locator {
+  get webhookUrlInput(): Locator {
     return this.getByLabel("Webhook URL");
   }
 
-  private get secretInput(): Locator {
+  get secretInput(): Locator {
     return this.getByLabel("Secret");
   }
 
-  private get activeCheckbox(): Locator {
+  get activeCheckbox(): Locator {
     return this.getByRole("checkbox", { name: "Active" });
   }
 
-  private get testButton(): Locator {
+  get testButton(): Locator {
     return this.getByRole("button", { name: "Test" });
   }
 
-  private get deleteButton(): Locator {
+  get deleteButton(): Locator {
     return this.getByRole("button", { name: "delete" });
   }
 
@@ -127,18 +127,6 @@ export class SettingsPage extends BasePage {
     await this.closeNotification();
   }
 
-  async expectMemberVisible(email: string): Promise<void> {
-    await expect(this.getByText(email)).toBeVisible();
-  }
-
-  async expectMemberNotVisible(email: string): Promise<void> {
-    await expect(this.getByText(email)).toBeHidden();
-  }
-
-  async expectLanguageSelected(language: string): Promise<void> {
-    await expect(this.languageSelect).toContainText(language);
-  }
-
   // Tiles management methods
   async addTilesOption(optionType = "Default"): Promise<void> {
     await this.getByRole("button", { name: "plus Add new Tiles option" }).click();
@@ -183,31 +171,7 @@ export class SettingsPage extends BasePage {
     await this.closeNotification();
   }
 
-  async expectTileVisible(name: string): Promise<void> {
-    await expect(this.getByText(name, { exact: true })).toBeVisible();
-  }
-
-  async expectTileHidden(name: string): Promise<void> {
-    await expect(this.getByText(name, { exact: true })).toBeHidden();
-  }
-
-  async expectTileImageSrc(src: string): Promise<void> {
-    const targetImageEl = this.locator(".ant-card-body .ant-card-meta-avatar > img");
-    await expect(targetImageEl).toHaveAttribute("src", src);
-  }
-
   // Terrain management methods
-  async toggleTerrain(enabled: boolean): Promise<void> {
-    const terrainSwitch = this.getByRole("switch");
-    if (enabled) {
-      await terrainSwitch.click();
-      await expect(terrainSwitch).toHaveAttribute("aria-checked", "true");
-    } else {
-      await terrainSwitch.click();
-      await expect(terrainSwitch).toHaveAttribute("aria-checked", "false");
-    }
-  }
-
   async addTerrainOption(optionType = "Cesium World Terrain"): Promise<void> {
     await this.getByRole("button", { name: "plus Add new Terrain option" }).click();
     if (optionType !== "Cesium World Terrain") {
@@ -257,34 +221,12 @@ export class SettingsPage extends BasePage {
     await this.closeNotification();
   }
 
-  async expectTerrainButtonVisible(): Promise<void> {
-    await expect(this.getByRole("button", { name: "plus Add new Terrain option" })).toBeVisible();
-  }
-
-  async expectTerrainButtonHidden(): Promise<void> {
-    await expect(this.getByRole("button", { name: "plus Add new Terrain option" })).toBeHidden();
-  }
-
-  async expectTerrainName(name: string): Promise<void> {
-    await expect(this.getByText(name, { exact: true })).toBeVisible();
-  }
-
-  async expectTerrainNameHidden(name: string): Promise<void> {
-    await expect(this.getByText(name, { exact: true })).toBeHidden();
-  }
-
   // Card reordering methods
   async reorderCards(fromIndex: number, toIndex: number): Promise<void> {
     await this.locator(".ant-card")
       .nth(fromIndex)
       .locator(".grabbable")
       .dragTo(this.locator(".ant-card").nth(toIndex));
-  }
-
-  async expectCardOrder(expectedTexts: string[]): Promise<void> {
-    for (let i = 0; i < expectedTexts.length; i++) {
-      await expect(this.locator(".ant-card").nth(i)).toHaveText(expectedTexts[i]);
-    }
   }
 
   async navigateHome(): Promise<void> {

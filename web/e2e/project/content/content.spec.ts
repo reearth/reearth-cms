@@ -2,13 +2,14 @@ import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { crudComment } from "@reearth-cms/e2e/project/utils/comment";
 import { handleFieldForm } from "@reearth-cms/e2e/project/utils/field";
+import { createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { getId } from "@reearth-cms/e2e/utils/mock";
 
-test.beforeEach(async ({ reearth, homePage, projectLayoutPage, schemaPage }) => {
+test.beforeEach(async ({ reearth, page, homePage, projectLayoutPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await homePage.createProject(getId());
   await projectLayoutPage.navigateToSchema();
-  await schemaPage.createModelFromOverview();
+  await createModelFromOverview(page);
 });
 
 test.afterEach(async ({ projectLayoutPage, projectSettingsPage }) => {
@@ -56,8 +57,6 @@ test("Item CRUD and searching has succeeded", async ({
   await page.getByText("Delete").click();
   await closeNotification(page);
   await itemEditorPage.expectCellValue("new text"); // hidden after deletion (your helper asserts)
-
-  expect(true).toBe(true);
 });
 
 test("Publishing and Unpublishing item from edit page has succeeded", async ({
@@ -89,8 +88,6 @@ test("Publishing and Unpublishing item from edit page has succeeded", async ({
   await expect(contentPage.draftChip).toBeVisible();
   await itemEditorPage.goBack();
   await expect(contentPage.draftChip).toBeVisible();
-
-  expect(true).toBe(true);
 });
 
 test("Publishing and Unpublishing item from table has succeeded", async ({
@@ -127,8 +124,6 @@ test("Publishing and Unpublishing item from table has succeeded", async ({
   // Verify status in edit page
   await itemEditorPage.editCellByIndex(0);
   await expect(contentPage.draftChip).toBeVisible();
-
-  expect(true).toBe(true);
 });
 
 test("Showing item title has succeeded", async ({ page, contentPage }) => {

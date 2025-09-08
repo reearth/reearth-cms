@@ -1,4 +1,4 @@
-import { expect, Locator, Page } from "@reearth-cms/e2e/fixtures/test";
+import { Locator, Page } from "@reearth-cms/e2e/fixtures/test";
 
 import { BasePage } from "./base.page";
 
@@ -136,46 +136,5 @@ export class RequestPage extends BasePage {
   async bulkCloseRequests(): Promise<void> {
     await this.getByText("Close").click();
     await this.closeNotification();
-  }
-
-  async expectRequestVisible(requestTitle: string): Promise<void> {
-    await expect(this.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
-  }
-
-  async expectRequestHidden(requestTitle: string): Promise<void> {
-    await expect(this.locator("tbody").getByText(requestTitle, { exact: true })).toBeHidden();
-  }
-
-  async expectRequestState(state: string): Promise<void> {
-    await expect(this.locator("tbody").getByText(state)).toBeVisible();
-  }
-
-  async expectRequestStateHidden(state: string): Promise<void> {
-    await expect(this.locator("tbody").getByText(state)).toBeHidden();
-  }
-
-  async expectCommentVisible(comment: string): Promise<void> {
-    await expect(this.getByText(comment, { exact: true })).toBeVisible();
-  }
-
-  async expectCommentHidden(comment: string): Promise<void> {
-    await expect(this.getByText(comment)).toBeHidden();
-  }
-
-  async expectRequestTitle(title: string): Promise<void> {
-    await expect(this.getByText(`Request / ${title}`)).toBeVisible();
-    await expect(this.getByRole("heading", { name: title })).toBeVisible();
-  }
-
-  async expectItemButtonsVisible(modelName: string, count: number): Promise<void> {
-    for (let i = 0; i < count; i++) {
-      await expect(
-        this.getByRole("button", { name: `collapsed ${modelName}` }).nth(i),
-      ).toBeVisible();
-    }
-  }
-
-  async expectStateText(state: string): Promise<void> {
-    await expect(this.getByText(state, { exact: true })).toBeVisible();
   }
 }

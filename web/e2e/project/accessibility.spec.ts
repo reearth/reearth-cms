@@ -16,6 +16,4 @@ test("Update settings on Accessibility page has succeeded", async ({ projectSett
   await projectSettingsPage.expectAccessibilityPageVisible();
   await projectSettingsPage.expectNewKeyButtonDisabled();
   await projectSettingsPage.expectChangeVisibilityButtonEnabled();
-
-  expect(true).toBe(true);
 });

@@ -40,8 +40,6 @@ test("Boolean field creating and updating has succeeded", async ({
   await itemEditorPage.saveItem();
   await itemEditorPage.goBack();
   await itemEditorPage.expectBooleanState("", false);
-
-  expect(true).toBe(true);
 });
 
 test("Boolean field editing has succeeded", async ({
@@ -109,6 +107,4 @@ test("Boolean field editing has succeeded", async ({
   await expect(page.getByRole("switch").nth(1)).toHaveAttribute("aria-checked", "false");
   await expect(page.getByRole("switch").nth(2)).toHaveAttribute("aria-checked", "false");
   await expect(page.getByRole("switch").nth(3)).toHaveAttribute("aria-checked", "true");
-
-  expect(true).toBe(true);
 });

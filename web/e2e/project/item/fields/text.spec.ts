@@ -63,6 +63,4 @@ test("Text field editing has succeeded", async ({
 
   await itemEditorPage.clickMultipleValueButton(2);
   await expect(page.getByRole("main")).toContainText("new text1text2text1");
-
-  expect(true).toBe(true);
 });

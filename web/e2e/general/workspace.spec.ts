@@ -1,5 +1,4 @@
-/* eslint-disable playwright/expect-expect */
-import { test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
 
 import { config } from "../utils/config";
@@ -16,16 +15,16 @@ test("Workspace CRUD has succeeded", async ({ reearth, workspacePage }) => {
 
   await workspacePage.createWorkspace("workspace name");
   await workspacePage.updateWorkspaceName("new workspace name");
-  await workspacePage.expectWorkspaceNameInHeader("new workspace name");
+  await expect(workspacePage.header).toContainText("new workspace name");
   await workspacePage.deleteWorkspace();
   await workspacePage.navigateToFirstLink();
-  await workspacePage.expectWorkspaceHidden("new workspace name");
+  await expect(workspacePage.getByText("new workspace name")).toBeHidden();
 });
 
 test("Workspace Creating from tab has succeeded", async ({ reearth, workspacePage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
 
   await workspacePage.createWorkspaceFromTab("workspace name");
-  await workspacePage.expectWorkspaceNameInHeader("workspace name");
+  await expect(workspacePage.header).toContainText("workspace name");
   await workspacePage.deleteWorkspace();
 });
