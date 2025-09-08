@@ -2,8 +2,6 @@ module github.com/reearth/reearth-cms/server
 
 go 1.24.4
 
-replace github.com/reearth/reearthx => ../../reearthx
-
 require (
 	cloud.google.com/go/pubsub/v2 v2.0.0
 	cloud.google.com/go/storage v1.56.0
@@ -32,7 +30,7 @@ require (
 	github.com/oapi-codegen/runtime v1.1.2
 	github.com/paulmach/go.geojson v1.5.0
 	github.com/ravilushqa/otelgqlgen v0.18.0
-	github.com/reearth/reearthx v0.0.0-20250902054511-28f00cbbfc26
+	github.com/reearth/reearthx v0.0.0-20250908061922-2fc7416a24a4
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
 	github.com/samber/lo v1.51.0
 	github.com/sendgrid/sendgrid-go v3.16.1+incompatible
