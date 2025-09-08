@@ -1,9 +1,9 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { crudComment } from "@reearth-cms/e2e/project/utils/comment";
 import { handleFieldForm } from "@reearth-cms/e2e/project/utils/field";
 import { createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
-import { expect, test } from "@reearth-cms/e2e/utils";
 
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
