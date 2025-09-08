@@ -1,4 +1,4 @@
-import { test, expect } from "@reearth-cms/e2e/fixtures/test";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 
 import { createProject, deleteProject } from "./utils/project";
 
