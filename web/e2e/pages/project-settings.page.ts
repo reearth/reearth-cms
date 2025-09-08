@@ -1,4 +1,4 @@
-import { expect, Locator } from "@reearth-cms/e2e/fixtures/test";
+import { Locator } from "@reearth-cms/e2e/fixtures/test";
 
 import { BasePage } from "./base.page";
 
@@ -37,12 +37,6 @@ export class ProjectSettingsPage extends BasePage {
     await this.closeNotification();
   }
 
-  async expectProjectSettingsTitle(projectName: string): Promise<void> {
-    await expect(
-      this.getByRole("heading", { name: `Project Settings / ${projectName}` }),
-    ).toBeVisible();
-  }
-
   getMemberRow(role: string): Locator {
     return this.getByRole("row", { name: role });
   }
@@ -56,19 +50,5 @@ export class ProjectSettingsPage extends BasePage {
   // Accessibility settings methods
   async navigateToAccessibility(): Promise<void> {
     await this.getByText("Accessibility").click();
-  }
-
-  async expectAccessibilityPageVisible(): Promise<void> {
-    await expect(this.getByText("Accessibility").first()).toBeVisible();
-    await expect(this.getByText("Access API").first()).toBeVisible();
-    await expect(this.getByText("API Key").first()).toBeVisible();
-  }
-
-  async expectNewKeyButtonDisabled(): Promise<void> {
-    await expect(this.getByRole("button", { name: "New Key" })).toBeDisabled();
-  }
-
-  async expectChangeVisibilityButtonEnabled(): Promise<void> {
-    await expect(this.getByRole("button", { name: "Change project visibility" })).toBeEnabled();
   }
 }

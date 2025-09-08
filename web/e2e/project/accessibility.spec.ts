@@ -13,7 +13,10 @@ test.afterEach(async ({ page }) => {
 
 test("Update settings on Accessibility page has succeeded", async ({ projectSettingsPage }) => {
   await projectSettingsPage.navigateToAccessibility();
-  await projectSettingsPage.expectAccessibilityPageVisible();
-  await projectSettingsPage.expectNewKeyButtonDisabled();
-  await projectSettingsPage.expectChangeVisibilityButtonEnabled();
+  await expect(projectSettingsPage.getByText("Accessibility").first()).toBeVisible();
+  await expect(projectSettingsPage.getByText("Access API").first()).toBeVisible();
+  await expect(projectSettingsPage.getByText("API Key").first()).toBeVisible();
+
+  await expect(projectSettingsPage.getByRole("button", { name: "New Key" })).toBeDisabled();
+  await expect(projectSettingsPage.getByRole("button", { name: "Change project visibility" })).toBeEnabled();
 });

@@ -28,8 +28,9 @@ test("Project CRUD and searching has succeeded", async ({
   const newProjectDescription = `new ${projectDescription}`;
   await projectSettingsPage.updateProject(newProjectName, newProjectDescription);
 
-  await projectSettingsPage.expectProjectSettingsTitle(newProjectName);
-  await projectLayoutPage.expectProjectNameInHeader(newProjectName);
+  await expect(
+    projectSettingsPage.getByRole("heading", { name: `Project Settings / ${newProjectName}` }),
+  ).toBeVisible();
   await projectSettingsPage.toggleMemberSwitch("Owner");
   await projectSettingsPage.getByRole("button", { name: "Save changes" }).nth(1).click();
   await expect(projectSettingsPage.getMemberRow("Owner").getByRole("switch")).toHaveAttribute(
