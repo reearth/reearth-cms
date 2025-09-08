@@ -3,12 +3,11 @@ import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { crudComment } from "@reearth-cms/e2e/project/utils/comment";
 import { handleFieldForm } from "@reearth-cms/e2e/project/utils/field";
 import { createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
-import { deleteProject } from "@reearth-cms/e2e/project/utils/project";
-import { getId } from "@reearth-cms/e2e/utils/mock";
+import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 
-test.beforeEach(async ({ reearth, page, homePage }) => {
+test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await homePage.createProject(getId());
+  await createProject(page);
   await createModelFromOverview(page);
 });
 

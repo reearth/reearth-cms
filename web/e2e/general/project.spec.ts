@@ -1,5 +1,6 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { test, expect } from "@reearth-cms/e2e/fixtures/test";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { getId } from "@reearth-cms/e2e/utils/mock";
 
 test.afterEach(async ({ page }) => {
   await page.getByText("Settings").click();
@@ -11,21 +12,26 @@ test.afterEach(async ({ page }) => {
   await expect(page.getByText("new project name", { exact: true })).toBeHidden();
 });
 
-test("Project CRUD and searching has succeeded", async ({
-  reearth,
-  page,
-  homePage,
-}) => {
+test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
+  const newProjectButton = page.getByRole("button", { name: "plus New Project" }).last();
+  await newProjectButton.click();
+  const projectName = getId();
+  const projectDescription = "project description";
+  await page.getByLabel("Project name").fill(projectName);
+  await page.getByLabel("Project description").fill(projectDescription);
+  await page.getByRole("button", { name: "OK" }).click();
+  await closeNotification(page);
 
-  const { id: projectName, description: projectDescription } = await homePage.createProject();
-
-  await homePage.expectProjectVisible(projectName, projectDescription);
-  await homePage.searchProjects("no project");
-  await homePage.expectProjectHidden(projectName);
-  await homePage.clearSearch();
-  await homePage.expectProjectVisible(projectName);
-  await homePage.openProject(projectName);
+  const projectCard = page.locator(".ant-card").filter({ hasText: projectName }).first();
+  await expect(projectCard).toBeVisible();
+  await expect(projectCard.getByText(projectDescription)).toBeVisible();
+  await page.getByPlaceholder("search projects").fill("no project");
+  await page.getByRole("button", { name: "search" }).click();
+  await expect(projectCard).toBeHidden();
+  await page.getByRole("button", { name: "close-circle" }).click();
+  await expect(projectCard).toBeVisible();
+  await projectCard.click();
   await expect(page.getByRole("banner")).toContainText(projectName);
 
   await page.getByText("Settings").click();

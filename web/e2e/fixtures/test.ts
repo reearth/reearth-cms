@@ -1,11 +1,6 @@
 import { test as base, type Page } from "@playwright/test";
 
-import { HomePage } from "../pages/home.page";
 import { config, getAccessToken, type Config } from "../utils/config";
-
-export type PageObjects = {
-  homePage: HomePage;
-};
 
 export type Reearth = {
   goto: Page["goto"];
@@ -17,7 +12,7 @@ export type Reearth = {
   ) => Promise<T>;
 } & Config;
 
-type Fixtures = { reearth: Reearth } & PageObjects;
+type Fixtures = { reearth: Reearth };
 
 export const test = base.extend<Fixtures>({
   reearth: async ({ page, request }, use) => {
@@ -52,10 +47,6 @@ export const test = base.extend<Fixtures>({
         return body;
       },
     });
-  },
-
-  homePage: async ({ page }, use) => {
-    await use(new HomePage(page));
   },
 });
 
