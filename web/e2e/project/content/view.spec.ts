@@ -1,5 +1,5 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { type Page, expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { type Page, expect, test } from "@reearth-cms/e2e/fixtures/test"; // here
 import { ContentPage } from "@reearth-cms/e2e/pages/content.page";
 import { handleFieldForm } from "@reearth-cms/e2e/project/utils/field";
 import { modelName, createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
