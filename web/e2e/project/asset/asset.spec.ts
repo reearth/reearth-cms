@@ -1,6 +1,5 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { type Page, expect, test } from "@reearth-cms/e2e/fixtures/test";
-import { AssetsPage } from "@reearth-cms/e2e/pages/assets.page";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 
 import { crudComment } from "../utils/comment";
 import { createProject, deleteProject } from "../utils/project";
@@ -10,20 +9,6 @@ const jsonUrl = `https://assets.cms.plateau.reearth.io/assets/11/6d05db-ed47-4f8
 
 const pngName = "road_plan2.png";
 const pngUrl = `https://assets.cms.plateau.reearth.io/assets/33/e999c4-7859-446b-ab3c-86625b3c760e/${pngName}`;
-
-async function uploadViaUrl(
-  page: Page,
-  assetsPage: AssetsPage,
-  url: string,
-  { autoUnzip = false } = {},
-) {
-  await assetsPage.uploadButton.click();
-  await assetsPage.urlTab.click();
-  await assetsPage.urlInput.fill(url);
-  if (autoUnzip) await assetsPage.autoUnzipCheckbox.setChecked(true);
-  await assetsPage.submitUploadButton.click();
-  await closeNotification(page);
-}
 
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -37,7 +22,7 @@ test.afterEach(async ({ page }) => {
 
 test.describe.parallel("Json file tests", () => {
   test.beforeEach(async ({ page, assetsPage }) => {
-    await uploadViaUrl(page, assetsPage, jsonUrl);
+    await assetsPage.uploadViaUrl(page, jsonUrl);
   });
 
   test("Asset CRUD and Searching has succeeded", async ({ page, assetsPage }) => {
@@ -63,7 +48,6 @@ test.describe.parallel("Json file tests", () => {
     // select + delete
     await assetsPage.selectAssetCheckbox.check();
     await assetsPage.deleteButton.click();
-
     await expect(assetsPage.rowByText(jsonName)).toBeHidden();
     await closeNotification(page);
   });
@@ -135,7 +119,7 @@ test.describe.parallel("Json file tests", () => {
 });
 
 test("Previewing png file on modal has succeeded", async ({ page, assetsPage }) => {
-  await uploadViaUrl(page, assetsPage, pngUrl);
+  await assetsPage.uploadViaUrl(page, pngUrl);
 
   await assetsPage.editIconButton.click();
   await expect(page.getByText("Asset TypePNG/JPEG/TIFF/GIF")).toBeVisible();

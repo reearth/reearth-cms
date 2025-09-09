@@ -1,5 +1,7 @@
 // e2e/pages/assets.page.ts
-import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { type Page, type Locator } from "@reearth-cms/e2e/fixtures/test";
+
+import { closeNotification } from "../common/notification";
 
 import { BasePage } from "./base.page";
 
@@ -94,5 +96,14 @@ export class AssetsPage extends BasePage {
   }
   commentsCountButton(count: number | string = 0): Locator {
     return this.getByRole("button", { name: String(count) });
+  }
+
+  async uploadViaUrl(page: Page, url: string, autoUnzip = false): Promise<void> {
+    await this.uploadButton.click();
+    await this.urlTab.click();
+    await this.urlInput.fill(url);
+    if (autoUnzip) await this.autoUnzipCheckbox.setChecked(true);
+    await this.submitUploadButton.click();
+    await closeNotification(page);
   }
 }
