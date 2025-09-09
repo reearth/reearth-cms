@@ -3,23 +3,23 @@ import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { BasePage } from "./base.page";
 
 export class ProjectSettingsPage extends BasePage {
-  private get nameInput(): Locator {
+  get nameInput(): Locator {
     return this.getByLabel("Name");
   }
 
-  private get descriptionInput(): Locator {
+  get descriptionInput(): Locator {
     return this.getByLabel("Description");
   }
 
-  private get saveButton(): Locator {
+  get saveButton(): Locator {
     return this.locator("form").getByRole("button", { name: "Save changes" });
   }
 
-  private get deleteButton(): Locator {
+  get deleteButton(): Locator {
     return this.getByRole("button", { name: "Delete Project" });
   }
 
-  private get confirmDeleteButton(): Locator {
+  get confirmDeleteButton(): Locator {
     return this.getByRole("button", { name: "OK" });
   }
 

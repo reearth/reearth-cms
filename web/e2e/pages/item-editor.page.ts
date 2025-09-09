@@ -3,23 +3,23 @@ import { expect, type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { BasePage } from "./base.page";
 
 export class ItemEditorPage extends BasePage {
-  private get saveButton(): Locator {
+  get saveButton(): Locator {
     return this.getByRole("button", { name: "Save" });
   }
 
-  private get publishButton(): Locator {
+  get publishButton(): Locator {
     return this.getByRole("button", { name: "Publish" });
   }
 
-  private get unpublishButton(): Locator {
+  get unpublishButton(): Locator {
     return this.getByRole("button", { name: "Unpublish" });
   }
 
-  private get backButton(): Locator {
+  get backButton(): Locator {
     return this.getByLabel("Back");
   }
 
-  private get metadataTab(): Locator {
+  get metadataTab(): Locator {
     return this.getByText("Metadata");
   }
 

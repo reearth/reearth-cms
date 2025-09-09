@@ -3,39 +3,39 @@ import { expect, type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { BasePage } from "./base.page";
 
 export class FieldEditorPage extends BasePage {
-  private get fieldTypeDropdown(): Locator {
+  get fieldTypeDropdown(): Locator {
     return this.locator(".ant-select-selector").first();
   }
 
-  private get fieldNameInput(): Locator {
+  get fieldNameInput(): Locator {
     return this.getByLabel("Field Name").or(this.getByLabel("Display Name"));
   }
 
-  private get fieldKeyInput(): Locator {
+  get fieldKeyInput(): Locator {
     return this.getByLabel("Field Key");
   }
 
-  private get saveButton(): Locator {
+  get saveButton(): Locator {
     return this.getByRole("button", { name: "Save" });
   }
 
-  private get requiredCheckbox(): Locator {
+  get requiredCheckbox(): Locator {
     return this.getByRole("checkbox", { name: "Required" });
   }
 
-  private get uniqueCheckbox(): Locator {
+  get uniqueCheckbox(): Locator {
     return this.getByRole("checkbox", { name: "Unique" });
   }
 
-  private get multipleCheckbox(): Locator {
+  get multipleCheckbox(): Locator {
     return this.getByRole("checkbox", { name: "Multiple values" });
   }
 
-  private get deleteButton(): Locator {
+  get deleteButton(): Locator {
     return this.getByRole("button", { name: "Delete" });
   }
 
-  private get confirmDeleteButton(): Locator {
+  get confirmDeleteButton(): Locator {
     return this.getByRole("button", { name: "OK" });
   }
 

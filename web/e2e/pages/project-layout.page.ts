@@ -3,15 +3,15 @@ import { expect, type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { BasePage } from "./base.page";
 
 export class ProjectLayoutPage extends BasePage {
-  private get header(): Locator {
+  get header(): Locator {
     return this.page.locator(".ant-layout-header");
   }
 
-  private get projectNameInHeader(): Locator {
+  get projectNameInHeader(): Locator {
     return this.header.locator("p").nth(2);
   }
 
-  private get settingsButton(): Locator {
+  get settingsButton(): Locator {
     return this.getByText("Settings");
   }
 

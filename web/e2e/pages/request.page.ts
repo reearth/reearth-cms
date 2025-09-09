@@ -6,47 +6,47 @@ export class RequestPage extends BasePage {
   constructor(public page: Page) {
     super(page);
   }
-  private get requestTab(): Locator {
+  get requestTab(): Locator {
     return this.getByText("Request", { exact: true });
   }
 
-  private get searchInput(): Locator {
+  get searchInput(): Locator {
     return this.getByPlaceholder("input search text");
   }
 
-  private get searchButton(): Locator {
+  get searchButton(): Locator {
     return this.getByRole("button", { name: "search" });
   }
 
-  private get stateFilterButton(): Locator {
+  get stateFilterButton(): Locator {
     return this.getByRole("columnheader", { name: "State filter" }).getByRole("button");
   }
 
-  private get assignToButton(): Locator {
+  get assignToButton(): Locator {
     return this.getByRole("button", { name: "Assign to" });
   }
 
-  private get approveButton(): Locator {
+  get approveButton(): Locator {
     return this.getByRole("button", { name: "Approve" });
   }
 
-  private get closeButton(): Locator {
+  get closeButton(): Locator {
     return this.getByRole("button", { name: "Close" });
   }
 
-  private get reopenButton(): Locator {
+  get reopenButton(): Locator {
     return this.getByRole("button", { name: "Reopen" });
   }
 
-  private get commentTextbox(): Locator {
+  get commentTextbox(): Locator {
     return this.getByRole("textbox");
   }
 
-  private get commentButton(): Locator {
+  get commentButton(): Locator {
     return this.getByRole("button", { name: "Comment" });
   }
 
-  private get backButton(): Locator {
+  get backButton(): Locator {
     return this.getByLabel("back");
   }
 

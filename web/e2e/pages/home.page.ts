@@ -4,19 +4,19 @@ import { getId } from "@reearth-cms/e2e/utils/mock";
 import { BasePage } from "./base.page";
 
 export class HomePage extends BasePage {
-  private get newProjectButton(): Locator {
+  get newProjectButton(): Locator {
     return this.getByRole("button", { name: "plus New Project" });
   }
 
-  private get searchInput(): Locator {
+  get searchInput(): Locator {
     return this.getByPlaceholder("search projects");
   }
 
-  private get searchButton(): Locator {
+  get searchButton(): Locator {
     return this.getByRole("button", { name: "search" });
   }
 
-  private get clearSearchButton(): Locator {
+  get clearSearchButton(): Locator {
     return this.getByRole("button", { name: "close-circle" });
   }
 
