@@ -10,7 +10,7 @@ export async function createWorkspace(page: Page) {
 }
 
 export async function deleteWorkspace(page: Page) {
-  await page.getByText("Workspace", { exact: true }).click();
+  await page.getByText("Workspace Settings", { exact: true }).click();
   await page.getByRole("button", { name: "Remove Workspace" }).click();
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
