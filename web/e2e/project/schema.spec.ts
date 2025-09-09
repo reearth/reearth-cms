@@ -1,5 +1,5 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { Page, expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { type Page, expect, test } from "@reearth-cms/e2e/fixtures/test";
 
 import { handleFieldForm } from "./utils/field";
 import { createGroup, updateGroup, deleteGroup } from "./utils/group";
