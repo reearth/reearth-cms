@@ -1,4 +1,4 @@
-import { expect, test } from "@reearth-cms/e2e/utils";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 
 test("Logout has succeeded", async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });

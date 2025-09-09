@@ -133,32 +133,22 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 		return nil, err
 	}
 
-	visibility := p.Accessibility().Visibility()
-	var updatedVisibility project.Visibility
 	if param.Accessibility != nil && param.Accessibility.Visibility != nil {
-		updatedVisibility = *param.Accessibility.Visibility
-	}
-	if visibility != updatedVisibility {
-		var checkType gateway.PolicyCheckType
-		if updatedVisibility == project.VisibilityPublic {
-			checkType = gateway.PolicyCheckGeneralPublicProjectCreation
-		} else {
-			checkType = gateway.PolicyCheckGeneralPrivateProjectCreation
+		newVisibility := *param.Accessibility.Visibility
+		OldVisibility := project.VisibilityPublic
+		if p.Accessibility() != nil {
+			OldVisibility = p.Accessibility().Visibility()
 		}
 
-		if i.gateways != nil && i.gateways.PolicyChecker != nil {
-			policyReq := gateway.PolicyCheckRequest{
-				WorkspaceID: p.Workspace(),
-				CheckType:   checkType,
-				Value:       1,
+		if OldVisibility != newVisibility {
+			checkType := gateway.PolicyCheckGeneralPublicProjectCreation
+			if newVisibility == project.VisibilityPrivate {
+				checkType = gateway.PolicyCheckGeneralPrivateProjectCreation
 			}
 
-			policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+			err := i.ensurePolicy(ctx, p.Workspace(), checkType, 1)
 			if err != nil {
 				return nil, err
-			}
-			if !policyResp.Allowed {
-				return nil, interfaces.ErrProjectCreationLimitExceeded
 			}
 		}
 	}
@@ -219,6 +209,28 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 
 			return p, nil
 		})
+}
+
+func (i *Project) ensurePolicy(ctx context.Context, wID workspace.ID, checkType gateway.PolicyCheckType, value int64) error {
+	if i.gateways == nil || i.gateways.PolicyChecker == nil {
+		return nil
+	}
+
+	policyReq := gateway.PolicyCheckRequest{
+		WorkspaceID: wID,
+		CheckType:   checkType,
+		Value:       value,
+	}
+
+	policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+	if err != nil {
+		return err
+	}
+	if !policyResp.Allowed {
+		return interfaces.ErrProjectCreationLimitExceeded
+	}
+
+	return nil
 }
 
 func (i *Project) CheckAlias(ctx context.Context, alias string) (bool, error) {
