@@ -1,3 +1,4 @@
+/* eslint-disable playwright/no-skipped-test */
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -14,13 +15,17 @@ const localZipPath = path.resolve(__dirname, "./mock-assets/test.zip");
 const zipName = "20214_chino-shi_2022_mvt_1_op_urf_UseDistrict.zip";
 const zipUrl = `https://assets.cms.plateau.reearth.io/assets/ff/5caafa-1c09-46b7-868e-9f4b62f59c68/${zipName}`;
 
+const isCI = !!process.env.CI;
+
 test.beforeEach(async ({ reearth, page }) => {
+  test.skip(!isCI, "This test runs only in CI environment");
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
   await page.getByRole("menuitem", { name: "Asset" }).click();
 });
 
 test.afterEach(async ({ page }) => {
+  test.skip(!isCI, "This test runs only in CI environment");
   await deleteProject(page);
 });
 
