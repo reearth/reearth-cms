@@ -1,3 +1,4 @@
+/* eslint-disable playwright/no-skipped-test */
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
@@ -9,7 +10,6 @@ const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 test.beforeEach(async ({ reearth, workspacePage }) => {
   // eslint-disable-next-line playwright/no-skipped-test
   test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
-
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await workspacePage.createWorkspace();
   await workspacePage.getByText("Settings").click();
@@ -138,7 +138,7 @@ test("Tiles reordering has succeeded", async ({ page }) => {
   await closeNotification(page);
 
   await page.getByText("Home").click();
-  await page.getByText("Settings").click();
+  await page.getByText("Settings").first().click();
   await expect(page.locator(".ant-card").nth(0)).toHaveText("LABELLED");
   await expect(page.locator(".ant-card").nth(1)).toHaveText("DEFAULT");
 });
@@ -174,7 +174,7 @@ test("Terrain reordering has succeeded", async ({ page }) => {
   await closeNotification(page);
 
   await page.getByText("Home").click();
-  await page.getByText("Settings").click();
+  await page.getByText("Settings").first().click();
   await expect(page.locator(".ant-card").nth(0)).toHaveText("ARC_GIS_TERRAIN");
   await expect(page.locator(".ant-card").nth(1)).toHaveText("CESIUM_WORLD_TERRAIN");
 });
