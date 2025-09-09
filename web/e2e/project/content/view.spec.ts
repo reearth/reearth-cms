@@ -1,11 +1,9 @@
-import { Page } from "@playwright/test";
-
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
+import { Page, expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { handleFieldForm } from "@reearth-cms/e2e/project/utils/field";
 import { modelName, createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
 import { createWorkspace, deleteWorkspace } from "@reearth-cms/e2e/project/utils/workspace";
-import { expect, test } from "@reearth-cms/e2e/utils";
 
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });

@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 
 import { baseURL, authFile } from "../playwright.config";
 
