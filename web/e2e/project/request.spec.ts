@@ -1,8 +1,8 @@
 /* eslint-disable playwright/no-skipped-test */
+import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
 
-import { closeNotification } from "../common/notification";
 import { config } from "../utils/config";
 
 import { crudComment } from "./utils/comment";
@@ -32,108 +32,100 @@ test.afterEach(async ({ page }) => {
 });
 
 test("Request creating, searching, updating reviewer, and approving has succeeded", async ({
-  requestPage,
+  page,
 }) => {
-  // Navigate to requests and verify initial state
-  await requestPage.navigateToRequests();
-  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
-  await expect(requestPage.locator("tbody").getByText("WAITING")).toBeVisible();
+  await page.getByText("Request", { exact: true }).click();
+  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
+  await expect(page.locator("tbody").getByText("WAITING")).toBeVisible();
+  await page.getByPlaceholder("input search text").click();
+  await page.getByPlaceholder("input search text").fill("no request");
+  await page.getByRole("button", { name: "search" }).click();
+  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeHidden();
+  await expect(page.locator("tbody").getByText("WAITING")).toBeHidden();
+  await page.getByPlaceholder("input search text").fill("");
+  await page.getByRole("button", { name: "search" }).click();
+  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
+  await expect(page.locator("tbody").getByText("WAITING")).toBeVisible();
 
-  // Test search functionality
-  await requestPage.searchRequests("no request");
-  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toBeHidden();
-
-  await expect(requestPage.locator("tbody").getByText("WAITING")).toBeHidden();
-
-  await requestPage.clearSearch();
-  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
-  await expect(requestPage.locator("tbody").getByText("WAITING")).toBeVisible();
-
-  // Edit request and assign reviewer
-  await requestPage.editRequest();
-  await requestPage.assignReviewer();
-  await requestPage.approveRequest();
-  await requestPage.goBack();
-
-  // Verify approval and filter
-  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toBeHidden();
-  await requestPage.filterByState("WAITING", false);
-  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
-  await expect(requestPage.locator("tbody").getByText("APPROVED")).toBeVisible();
+  await page.getByLabel("edit").locator("svg").click();
+  await page.getByRole("button", { name: "Assign to" }).click();
+  await page.getByLabel("close-circle").locator("svg").click();
+  await page.locator(".ant-select-selection-overflow").click();
+  await page.locator(".ant-select-item").click();
+  await page.getByRole("heading", { name: "Reviewer" }).click();
+  await page.getByRole("button", { name: "Approve" }).click();
+  await closeNotification(page);
+  await page.getByLabel("back").click();
+  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeHidden();
+  await page.getByRole("columnheader", { name: "State filter" }).getByRole("button").click();
+  await page.getByRole("menuitem", { name: "WAITING" }).getByLabel("").uncheck();
+  await page.getByRole("button", { name: "OK" }).click();
+  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
+  await expect(page.locator("tbody").getByText("APPROVED")).toBeVisible();
 });
 
-test("Request closing and reopening has succeeded", async ({ requestPage }) => {
-  // Navigate and verify initial state
-  await requestPage.navigateToRequests();
-  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
-  await expect(requestPage.locator("tbody").getByText("WAITING")).toBeVisible();
+test("Request closing and reopening has succeeded", async ({ page }) => {
+  await page.getByText("Request", { exact: true }).click();
+  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
+  await expect(page.locator("tbody").getByText("WAITING")).toBeVisible();
+  await page.getByLabel("edit").locator("svg").click();
 
-  // Close request
-  await requestPage.editRequest();
-  await requestPage.closeRequest();
-  await requestPage.goBack();
+  await page.getByRole("button", { name: "Close" }).click();
+  await closeNotification(page);
+  await page.getByLabel("back").click();
+  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeHidden();
+  await expect(page.locator("tbody").getByText("WAITING")).toBeHidden();
 
-  // Verify request is hidden after close
-  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toBeHidden();
-  await expect(requestPage.locator("tbody").getByText("WAITING")).toBeHidden();
-
-  // Filter to show closed requests
-  await requestPage.filterByState("WAITING", false);
-  await expect(requestPage.locator("tbody").getByText("CLOSED")).toBeVisible();
-
-  // Reopen request
-  await requestPage.editRequest();
-  await expect(requestPage.getByText("CLOSED", { exact: true })).toBeVisible();
-
-  await expect(requestPage.getByText("Closed", { exact: true })).toBeVisible();
-
-  await requestPage.reopenRequest();
-  await requestPage.goBack();
-
-  // Verify request is reopened
-  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
-  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toHaveText(
-    "WAITING",
-  );
-
-  // Bulk close request
-  await requestPage.selectRequestItem();
-  await requestPage.bulkCloseRequests();
-
-  // Verify bulk close worked
-  await requestPage.filterByState("WAITING", false);
-  await expect(requestPage.locator("tbody").getByText("CLOSED")).toBeVisible();
-  await requestPage.editRequest();
-  await expect(requestPage.getByText("CLOSED", { exact: true })).toBeVisible();
+  await page.getByRole("columnheader", { name: "State filter" }).getByRole("button").click();
+  await page.getByRole("menuitem", { name: "WAITING" }).getByLabel("").uncheck();
+  await page.getByRole("button", { name: "OK" }).click();
+  await expect(page.locator("tbody").getByText("CLOSED")).toBeVisible();
+  await page.getByLabel("edit").locator("svg").click();
+  await expect(page.getByText("CLOSED", { exact: true })).toBeVisible();
+  await expect(page.getByText("Closed", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Reopen" }).click();
+  await closeNotification(page);
+  await page.getByLabel("Back").click();
+  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
+  await expect(page.locator("tbody").getByText("WAITING")).toBeVisible();
+  await page.getByLabel("", { exact: true }).check();
+  await page.getByText("Close").click();
+  await closeNotification(page);
+  await page.getByRole("columnheader", { name: "State filter" }).getByRole("button").click();
+  await page.getByRole("menuitem", { name: "WAITING" }).getByLabel("").uncheck();
+  await page.getByRole("button", { name: "OK" }).click();
+  await expect(page.locator("tbody").getByText("CLOSED")).toBeVisible();
+  await page.getByLabel("edit").locator("svg").click();
+  await expect(page.getByText("CLOSED", { exact: true })).toBeVisible();
 });
 
-test("Comment CRUD on edit page has succeeded", async ({ requestPage }) => {
-  // Navigate and edit request
-  await requestPage.navigateToRequests();
-  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
-  await expect(requestPage.locator("tbody").getByText(requestTitle, { exact: true })).toHaveText(
-    "WAITING",
-  );
-  await requestPage.editRequest();
+test("Comment CRUD on edit page has succeeded", async ({ page }) => {
+  await page.getByText("Request", { exact: true }).click();
+  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
+  await expect(page.locator("tbody").getByText("WAITING")).toBeVisible();
+  await page.getByLabel("edit").locator("svg").click();
 
-  // Add comment
-  await requestPage.addComment("comment");
-  await expect(requestPage.getByText("comment", { exact: true })).toBeVisible();
-
-  // Edit comment
-  await requestPage.editComment("new comment");
-  await expect(requestPage.getByText("new comment", { exact: true })).toBeVisible();
-
-  // Delete comment
-  await requestPage.deleteComment();
-  await expect(requestPage.getByText("new comment")).toBeHidden();
+  await page.getByRole("textbox").click();
+  await page.getByRole("textbox").fill("comment");
+  await page.getByRole("button", { name: "Comment" }).click();
+  await closeNotification(page);
+  await expect(page.getByText("comment", { exact: true })).toBeVisible();
+  await page.getByLabel("edit").locator("svg").click();
+  await page.getByRole("textbox").filter({ hasText: "comment" }).click();
+  await page.getByRole("textbox").filter({ hasText: "comment" }).fill("new comment");
+  await page.getByRole("button", { name: "check" }).click();
+  await closeNotification(page);
+  await expect(page.getByText("new comment")).toBeVisible();
+  await page.getByRole("button", { name: "delete" }).click();
+  await closeNotification(page);
+  await expect(page.getByText("new comment")).toBeHidden();
 });
 
 // eslint-disable-next-line playwright/expect-expect
-test("Comment CRUD on Request page has succeeded", async ({ requestPage }) => {
-  await requestPage.navigateToRequests();
-  await requestPage.clickCommentsButton();
-  await crudComment(requestPage.page);
+test("Comment CRUD on Request page has succeeded", async ({ page }) => {
+  await page.getByText("Request", { exact: true }).click();
+  await page.getByRole("button", { name: "0" }).click();
+  await crudComment(page);
 });
 
 test("Creating a new request and adding to request has succeeded", async ({ page }) => {

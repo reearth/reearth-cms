@@ -11,12 +11,11 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
-test("Update settings on Accessibility page has succeeded", async ({ projectSettingsPage }) => {
-  await projectSettingsPage.navigateToAccessibility();
-  await expect(projectSettingsPage.getByText("Accessibility").first()).toBeVisible();
-  await expect(projectSettingsPage.getByText("Access API").first()).toBeVisible();
-  await expect(projectSettingsPage.getByText("API Key").first()).toBeVisible();
-
-  await expect(projectSettingsPage.getByRole("button", { name: "New Key" })).toBeDisabled();
-  await expect(projectSettingsPage.getByRole("button", { name: "Change project visibility" })).toBeEnabled();
+test("Update settings on Accessibility page has succeeded", async ({ page }) => {
+  await page.getByText("Accessibility").click();
+  await expect(page.getByText("Accessibility").first()).toBeVisible();
+  await expect(page.getByText("Access API").first()).toBeVisible();
+  await expect(page.getByText("API Key").first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "New Key" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Change project visibility" })).toBeEnabled();
 });
