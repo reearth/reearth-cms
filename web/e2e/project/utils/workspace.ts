@@ -1,5 +1,5 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { Page } from "@reearth-cms/e2e/fixtures/test";
+import { type Page } from "@reearth-cms/e2e/fixtures/test";
 
 export async function createWorkspace(page: Page) {
   await page.getByRole("button", { name: "Create a Workspace" }).click();

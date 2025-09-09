@@ -1,5 +1,5 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { Page, Locator } from "@reearth-cms/e2e/fixtures/test";
+import { type Page, type Locator } from "@reearth-cms/e2e/fixtures/test";
 
 type Role =
   | "alert"

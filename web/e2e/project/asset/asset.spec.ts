@@ -1,5 +1,5 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { Page, expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { type Page, expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { AssetsPage } from "@reearth-cms/e2e/pages/assets.page";
 
 import { crudComment } from "../utils/comment";

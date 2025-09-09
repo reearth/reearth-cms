@@ -1,5 +1,5 @@
 // e2e/pages/assets.page.ts
-import { Locator } from "@reearth-cms/e2e/fixtures/test";
+import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 
 import { BasePage } from "./base.page";
 
