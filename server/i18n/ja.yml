@@ -16,6 +16,7 @@ comment already exist in this thread: コメントは既にこのスレッドに
 comment does not exist in this thread: コメントはこのスレッドに存在しません。
 comment not found: コメントが見つかりませんでした。
 createdBy is required: createdByは必須です。
+data transfer upload size limit exceeded: ""
 data type mismatch: データ型が一致しません。
 duplicated item: アイテムが重複しています。
 duplicated key: キーが重複しています。
@@ -91,6 +92,7 @@ reference field direction can not be changed: 参照フィールドの方向は�
 reference field model can not be changed: 参照フィールドのモデルは変更できません
 referenced field key exists: 参照フィールドのキーがすでに存在します
 reviewer should be owner or maintainer: レビュワーはオーナーもしくはメインテイナーである必要があります。
+the number of models in a project has exceeded the limit: プロジェクト内のモデル数が上限を超えています。
 thread is required: スレッドは必須です。
 title cannot be empty: タイトルは必須です。
 unauthorized: 未認証

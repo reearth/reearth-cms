@@ -59,7 +59,9 @@ func handleAssetIsPrivate(c echo.Context) error {
 	isPrivate := proj.Accessibility() != nil && proj.Accessibility().Visibility() == project.VisibilityPrivate
 	
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"isPrivate": isPrivate,
+		"isPrivate":   isPrivate,
+		"workspaceId": proj.Workspace().String(),
+		"projectId":   proj.ID().String(),
 	})
 }
 

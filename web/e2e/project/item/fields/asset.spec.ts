@@ -1,7 +1,8 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
-import { expect, test } from "@reearth-cms/e2e/utils";
+import { isCesiumViewerReady } from "@reearth-cms/e2e/utils/viewer";
 
 const uploadFileUrl_1 =
   "https://assets.cms.plateau.reearth.io/assets/11/6d05db-ed47-4f88-b565-9eb385b1ebb0/13100_tokyo23-ku_2022_3dtiles%20_1_1_op_bldg_13101_chiyoda-ku_lod1/tileset.json";
@@ -68,6 +69,42 @@ test("Asset field creating and updating has succeeded", async ({ page }) => {
   await closeNotification(page);
   await page.getByLabel("Back").click();
   await expect(page.getByText(uploadFileName_2)).toBeVisible();
+});
+
+test("Previewing JSON file from content page into new tab succeeded", async ({ page, context }) => {
+  await page.locator("li").filter({ hasText: "Asset" }).locator("div").first().click();
+  await page.getByLabel("Display name").fill("asset1");
+  await page.getByLabel("Settings").locator("#key").fill("asset1");
+  await page.getByLabel("Settings").locator("#description").fill("asset1 description");
+  await page.getByRole("button", { name: "OK" }).click();
+  await closeNotification(page);
+  await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText("asset1#asset1");
+
+  await page.getByText("Content").click();
+  await page.getByRole("button", { name: "plus New Item" }).click();
+  await expect(page.locator("label")).toContainText("asset1");
+  await expect(page.getByRole("main")).toContainText("asset1 description");
+
+  await page.getByRole("button", { name: "Asset" }).click();
+  await page.getByRole("button", { name: "upload Upload Asset" }).click();
+  await page.getByRole("tab", { name: "URL" }).click();
+  await page.getByPlaceholder("Please input a valid URL").fill(uploadFileUrl_2);
+  await page.getByRole("button", { name: "Upload and Link" }).click();
+  await closeNotification(page);
+  await expect(page.getByRole("button", { name: `folder ${uploadFileName_2}` })).toBeVisible();
+  await expect(page.getByRole("button", { name: uploadFileName_2, exact: true })).toBeVisible();
+
+  await page.getByRole("button", { name: "Save" }).click();
+  await closeNotification(page);
+
+  const [viewerPage] = await Promise.all([
+    context.waitForEvent("page"),
+    page.getByRole("button", { name: uploadFileName_2 }).last().click(),
+  ]);
+  await viewerPage.waitForLoadState("domcontentloaded");
+
+  const isViewerReady = await isCesiumViewerReady(viewerPage);
+  expect(isViewerReady).toBe(true);
 });
 
 test("Asset field editing has succeeded", async ({ page }) => {

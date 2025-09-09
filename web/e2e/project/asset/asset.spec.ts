@@ -1,10 +1,8 @@
-import { Page } from "@playwright/test";
-
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { expect, test } from "@reearth-cms/e2e/utils";
+import { Page, expect, test } from "@reearth-cms/e2e/fixtures/test";
 
-import { crudComment } from "./utils/comment";
-import { createProject, deleteProject } from "./utils/project";
+import { crudComment } from "../utils/comment";
+import { createProject, deleteProject } from "../utils/project";
 
 const jsonName = "tileset.json";
 const jsonUrl = `https://assets.cms.plateau.reearth.io/assets/11/6d05db-ed47-4f88-b565-9eb385b1ebb0/13100_tokyo23-ku_2022_3dtiles%20_1_1_op_bldg_13101_chiyoda-ku_lod1/${jsonName}`;
