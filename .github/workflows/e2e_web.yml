@@ -37,13 +37,13 @@ jobs:
       run:
         working-directory: web
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: reearth/reearth-cms
           ref: ${{ inputs.branch || 'main' }}
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: '22.x'
           cache: yarn
           cache-dependency-path: "**/yarn.lock"
       - name: Install dependencies
