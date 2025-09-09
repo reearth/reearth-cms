@@ -13,62 +13,58 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
-test("Text metadata creating and updating has succeeded", async ({
-  page,
-  metadataEditorPage,
-  contentPage,
-  itemEditorPage,
-}) => {
-  // Create metadata field
-  await metadataEditorPage.createMetadataField("Text", "text1", "text1", "text1 description");
-  await metadataEditorPage.expectMetadataFieldInList("text1", "text1");
+test("Text metadata creating and updating has succeeded", async ({ page }) => {
+  await page.getByRole("tab", { name: "Meta Data" }).click();
+  await page.getByRole("listitem").filter({ hasText: "Text" }).click();
+  await page.getByLabel("Display name").fill("text1");
+  await page.getByLabel("Field Key").fill("text1");
+  await page.getByLabel("Description").fill("text1 description");
+  await page.getByRole("button", { name: "OK" }).click();
+  await closeNotification(page);
+  await expect(page.getByText("text1#text1")).toBeVisible();
 
-  // Verify metadata configuration
-  await metadataEditorPage.editMetadataField();
-  await metadataEditorPage.expectFieldValue("Display name", "text1");
-  await metadataEditorPage.expectFieldValue("Field Key", "text1");
-  await metadataEditorPage.expectFieldValue("Description", "text1 description");
-  await metadataEditorPage.expectFieldChecked("Support multiple values", false);
-  await metadataEditorPage.expectFieldHidden("Use as title");
+  await page.getByRole("button", { name: "ellipsis" }).click();
+  await expect(page.getByLabel("Display name")).toHaveValue("text1");
+  await expect(page.getByLabel("Field Key")).toHaveValue("text1");
+  await expect(page.getByLabel("Description")).toHaveValue("text1 description");
+  await expect(page.getByLabel("Support multiple values")).not.toBeChecked();
+  await expect(page.getByLabel("Use as title")).toBeHidden();
 
-  await metadataEditorPage.switchToTab("Validation");
-  await metadataEditorPage.expectFieldEmpty("Set maximum length");
-  await metadataEditorPage.expectFieldChecked("Make field required", false);
-  await metadataEditorPage.expectFieldChecked("Set field as unique", false);
+  await page.getByRole("tab", { name: "Validation" }).click();
+  await expect(page.getByLabel("Set maximum length")).toBeEmpty();
+  await expect(page.getByLabel("Make field required")).not.toBeChecked();
+  await expect(page.getByLabel("Set field as unique")).not.toBeChecked();
 
-  await metadataEditorPage.switchToTab("Default value");
-  await metadataEditorPage.expectFieldEmpty("Set default value");
+  await page.getByRole("tab", { name: "Default value" }).click();
+  await expect(page.getByLabel("Set default value")).toBeEmpty();
 
-  await metadataEditorPage.cancelMetadataConfiguration();
-
-  // Test content creation
+  await page.getByRole("button", { name: "Cancel" }).click();
   await page.getByRole("menuitem", { name: "Content" }).click();
-  await contentPage.createNewItem();
-  await itemEditorPage.expectFieldVisible("text1");
+  await page.getByRole("button", { name: "plus New Item" }).click();
+  await expect(page.getByLabel("text1")).toBeVisible();
   await expect(page.getByText("text1 description")).toBeVisible();
 
-  await itemEditorPage.fillTextField("text1", "text1");
-  await itemEditorPage.saveItem();
+  await page.getByLabel("text1").fill("text1");
+  await page.getByRole("button", { name: "Save" }).click();
+  await closeNotification(page);
   await expect(page.getByRole("heading", { name: "Item Information" })).toBeVisible();
-  await itemEditorPage.expectFieldValue("text1", "text1");
+  await expect(page.getByLabel("text1")).toHaveValue("text1");
 
-  await itemEditorPage.goBack();
+  await page.getByRole("button", { name: "Back" }).click();
   await expect(page.getByRole("textbox")).toHaveValue("text1");
-
-  // Test inline editing
   await page.getByRole("textbox").fill("new text1");
   await page.locator(".ant-table-body").click();
-  await itemEditorPage.closeNotification();
+  await closeNotification(page);
   await expect(page.getByRole("textbox")).toHaveValue("new text1");
 
   await page.getByRole("cell").getByLabel("edit").locator("svg").click();
-  await itemEditorPage.expectFieldValue("text1", "new text1");
+  await expect(page.getByLabel("text1")).toHaveValue("new text1");
 
-  await itemEditorPage.fillTextField("text1", "text1");
-  await itemEditorPage.closeNotification();
-  await itemEditorPage.expectFieldValue("text1", "text1");
+  await page.getByLabel("text1").fill("text1");
+  await closeNotification(page);
+  await expect(page.getByLabel("text1")).toHaveValue("text1");
 
-  await itemEditorPage.goBack();
+  await page.getByRole("button", { name: "Back" }).click();
   await expect(page.getByRole("textbox")).toHaveValue("text1");
 });
 
