@@ -1,5 +1,5 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { Page, expect } from "@reearth-cms/e2e/fixtures/test";
+import { type Page, expect } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/utils/mock";
 
 export async function createProject(page: Page) {
