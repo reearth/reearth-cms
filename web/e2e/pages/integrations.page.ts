@@ -157,10 +157,6 @@ export class IntegrationsPage extends BasePage {
     return this.getByText("Remove");
   }
 
-  get dialogElement(): Locator {
-    return this.getByRole("dialog");
-  }
-
   // Dynamic locators for integration-specific content
   integrationTextById(id: string): Locator {
     return this.getByText(id, { exact: true }).first();

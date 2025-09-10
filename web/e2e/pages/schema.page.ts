@@ -10,11 +10,11 @@ export class SchemaPage extends BasePage {
   }
 
   // Model actions
-  get addModelButton(): Locator {
-    return this.getByRole("button", { name: "Create Model" });
-  }
   get plusAddButton(): Locator {
     return this.getByRole("button", { name: "plus Add" });
+  }
+  get firstPlusAddButton(): Locator {
+    return this.getByRole("button", { name: "plus Add" }).first();
   }
   get modelNameInput(): Locator {
     return this.locator("#name");
@@ -62,9 +62,6 @@ export class SchemaPage extends BasePage {
   get fieldEditButton(): Locator {
     return this.getByRole("img", { name: "ellipsis" }).locator("svg");
   }
-  get deleteFieldButton(): Locator {
-    return this.getByLabel("delete").locator("svg");
-  }
   get fieldsContainer(): Locator {
     return this.getByLabel("Fields");
   }
@@ -73,23 +70,6 @@ export class SchemaPage extends BasePage {
   }
   get grabbableItems(): Locator {
     return this.getByLabel("Fields").locator(".grabbable");
-  }
-
-  // Field form elements
-  get fieldNameInput(): Locator {
-    return this.locator("#displayName");
-  }
-  get fieldKeyInput(): Locator {
-    return this.locator("#key");
-  }
-  get useAsTitleCheckbox(): Locator {
-    return this.getByLabel("Use as title");
-  }
-  get defaultValueTab(): Locator {
-    return this.getByRole("tab", { name: "Default value" });
-  }
-  get setDefaultValueInput(): Locator {
-    return this.getByLabel("Set default value");
   }
 
   // Group field specific
@@ -103,12 +83,6 @@ export class SchemaPage extends BasePage {
   // Common buttons
   get okButton(): Locator {
     return this.getByRole("button", { name: "OK" });
-  }
-  get cancelButton(): Locator {
-    return this.getByRole("button", { name: "Cancel" });
-  }
-  get saveButton(): Locator {
-    return this.getByRole("button", { name: "Save" });
   }
 
   // Content sections
@@ -125,13 +99,9 @@ export class SchemaPage extends BasePage {
     return this.getByText(modelName);
   }
 
-  // Field list items
-  fieldListItem(fieldText: string): Locator {
-    return this.locator("li").filter({ hasText: fieldText });
-  }
-
-  ellipsisIcon(): Locator {
-    return this.locator("li").locator("svg").nth(3);
+  // Field list item
+  fieldEllipsisIcon(fieldText: string): Locator {
+    return this.locator("li").filter({ hasText: fieldText }).locator("svg").nth(3);
   }
 
   // Group field specific methods
@@ -142,6 +112,14 @@ export class SchemaPage extends BasePage {
   // Dynamic text selection
   textByExact(text: string): Locator {
     return this.getByText(text, { exact: true });
+  }
+
+  firstTextByExact(text: string): Locator {
+    return this.getByText(text, { exact: true }).first();
+  }
+
+  lastTextByExact(text: string): Locator {
+    return this.getByText(text, { exact: true }).last();
   }
 
   // Schema tab for filtered navigation
@@ -186,16 +164,6 @@ export class SchemaPage extends BasePage {
 
   get contentText(): Locator {
     return this.getByText("Content");
-  }
-
-  // Field type list items
-  fieldTypeListItem(type: string): Locator {
-    return this.locator("li").filter({ hasText: type }).locator("div").first();
-  }
-
-  // Field editing elements
-  get ellipsisMenuIcon(): Locator {
-    return this.getByRole("img", { name: "ellipsis" }).locator("svg");
   }
 
   // Field text display

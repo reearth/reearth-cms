@@ -102,10 +102,6 @@ export class MetadataEditorPage extends BasePage {
     return this.locator("p").filter({ hasText: text });
   }
 
-  uniqueFieldIndicator(fieldName: string): Locator {
-    return this.locator("p").filter({ hasText: `${fieldName}(unique)` });
-  }
-
   referenceText(text: string): Locator {
     return this.locator("#root").getByText(text);
   }

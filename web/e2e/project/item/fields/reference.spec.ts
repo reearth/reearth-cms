@@ -21,7 +21,7 @@ test("One-way reference field creating and updating has succeeded", async ({
   metadataEditorPage,
 }) => {
   test.slow();
-  await schemaPage.plusAddButton.first().click();
+  await schemaPage.firstPlusAddButton.click();
   await schemaPage.modelNameInput.fill("ref model");
   await schemaPage.modelKeyInput.fill("ref-model");
   await schemaPage.okButton.click();
@@ -83,8 +83,8 @@ test("One-way reference field creating and updating has succeeded", async ({
   await schemaPage.fieldEditButton.click();
   await expect(metadataEditorPage.modelOption("ref model #ref-model")).toBeVisible();
   await expect(metadataEditorPage.selectModelToReferenceLabel).toBeDisabled();
-  await expect(metadataEditorPage.oneWayReferenceCheckbox.locator("span").first()).toBeDisabled();
-  await expect(metadataEditorPage.twoWayReferenceCheckbox.locator("span").first()).toBeDisabled();
+  await expect(metadataEditorPage.oneWayReferenceCheckbox).toBeDisabled();
+  await expect(metadataEditorPage.twoWayReferenceCheckbox).toBeDisabled();
   await expect(metadataEditorPage.nextButton).toBeEnabled();
   await metadataEditorPage.nextButton.click();
   await expect(metadataEditorPage.confirmButton).toBeDisabled();
@@ -222,11 +222,11 @@ test("Two-way reference field editing has succeeded", async ({
   await closeNotification(page);
 
   await expect(schemaPage.fieldsContainer).toContainText("ref1 *#ref1");
-  await schemaPage.ellipsisIcon().click();
+  await schemaPage.fieldEllipsisIcon("ref1 *#ref1").click();
   await expect(metadataEditorPage.modelOption("ref model #ref-model")).toBeVisible();
   await expect(metadataEditorPage.selectModelToReferenceLabel).toBeDisabled();
-  await expect(metadataEditorPage.oneWayReferenceCheckbox.locator("span").first()).toBeDisabled();
-  await expect(metadataEditorPage.twoWayReferenceCheckbox.locator("span").first()).toBeDisabled();
+  await expect(metadataEditorPage.oneWayReferenceCheckbox).toBeDisabled();
+  await expect(metadataEditorPage.twoWayReferenceCheckbox).toBeDisabled();
   await expect(metadataEditorPage.nextButton).toBeEnabled();
   await metadataEditorPage.nextButton.click();
   await expect(metadataEditorPage.nextButton).toBeEnabled();

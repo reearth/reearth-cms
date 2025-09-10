@@ -5,10 +5,6 @@ import { BasePage } from "./base.page";
 
 export class ContentPage extends BasePage {
   // Navigation
-  get contentMenuItem(): Locator {
-    return this.getByText("Content");
-  }
-
   get contentText(): Locator {
     return this.getByText("Content");
   }
@@ -199,9 +195,6 @@ export class ContentPage extends BasePage {
   tab(index: number): Locator {
     return this.getByRole("tab").nth(index);
   }
-  viewTab(viewName: string): Locator {
-    return this.getByText(viewName);
-  }
   viewTabWithMore(viewName: string): Locator {
     return this.getByRole("tab", { name: `${viewName} more` });
   }
@@ -289,10 +282,6 @@ export class ContentPage extends BasePage {
   }
 
   // Asset field specific
-  get cssAssetContainer(): Locator {
-    return this.locator(".css-7g0azd");
-  }
-
   cssAssetByIndex(index: number): Locator {
     return this.locator(".css-7g0azd").nth(index);
   }
@@ -355,10 +344,6 @@ export class ContentPage extends BasePage {
   }
 
   // Boolean/Switch field specific
-  switchByName(name: string): Locator {
-    return this.getByRole("switch", { name });
-  }
-
   switchByIndex(index: number): Locator {
     return this.getByRole("switch").nth(index);
   }
@@ -377,10 +362,6 @@ export class ContentPage extends BasePage {
   }
 
   // Tooltip switch elements
-  get tooltipSwitches(): Locator {
-    return this.getByRole("tooltip").getByRole("switch");
-  }
-
   tooltipSwitchByIndex(index: number): Locator {
     return this.getByRole("tooltip").getByRole("switch").nth(index);
   }
@@ -390,50 +371,22 @@ export class ContentPage extends BasePage {
     return this.getByRole("checkbox").nth(index);
   }
 
-  get allCheckboxes(): Locator {
-    return this.getByRole("checkbox");
-  }
-
-  get lastCheckbox(): Locator {
-    return this.getByRole("checkbox").last();
-  }
-
   // Cell checkbox elements
-  get cellCheckboxes(): Locator {
-    return this.getByRole("cell").getByRole("checkbox");
-  }
-
   get lastCellCheckbox(): Locator {
     return this.getByRole("cell").getByRole("checkbox").last();
   }
 
   // Tooltip checkbox elements
-  get tooltipCheckboxes(): Locator {
-    return this.getByRole("tooltip").getByRole("checkbox");
-  }
-
   tooltipCheckboxByIndex(index: number): Locator {
     return this.getByRole("tooltip").getByRole("checkbox").nth(index);
   }
 
   // Table column selection
-  tableColumn(childIndex: number): Locator {
-    return this.locator(`.ant-table-row > td:nth-child(${childIndex})`);
-  }
-
   tableColumnButton(childIndex: number): Locator {
     return this.locator(`.ant-table-row > td:nth-child(${childIndex})`).getByRole("button");
   }
 
   // Multi-value text containers
-  get textContainers(): Locator {
-    return this.locator(".css-1ago99h");
-  }
-
-  textContainerByIndex(index: number): Locator {
-    return this.locator(".css-1ago99h").nth(index);
-  }
-
   get firstTextContainer(): Locator {
     return this.locator("div:nth-child(1) > .css-1ago99h");
   }
@@ -467,14 +420,6 @@ export class ContentPage extends BasePage {
     return this.getByRole("spinbutton").nth(index);
   }
 
-  get firstSpinbutton(): Locator {
-    return this.getByRole("spinbutton").first();
-  }
-
-  get allSpinbuttons(): Locator {
-    return this.getByRole("spinbutton");
-  }
-
   // Table elements
   get tableBody(): Locator {
     return this.locator("tbody");
@@ -492,11 +437,6 @@ export class ContentPage extends BasePage {
   // Date placeholder
   get selectDatePlaceholder(): Locator {
     return this.getByPlaceholder("Select date");
-  }
-
-  // Placeholder by index for date fields
-  selectDatePlaceholderByIndex(index: number): Locator {
-    return this.getByPlaceholder("Select date").nth(index);
   }
 
   // Label elements
@@ -528,10 +468,6 @@ export class ContentPage extends BasePage {
   }
 
   // Table column selection
-  nthTableColumn(index: number): Locator {
-    return this.locator(`.ant-table-row > td:nth-child(${index})`);
-  }
-
   nthTableColumnButton(index: number): Locator {
     return this.locator(`.ant-table-row > td:nth-child(${index})`).getByRole("button");
   }
@@ -592,11 +528,6 @@ export class ContentPage extends BasePage {
 
   get restoreButtonAlertFirst(): Locator {
     return this.getByRole("alert").getByRole("button", { name: "Restore" }).first();
-  }
-
-  // Alert element
-  get alertElement(): Locator {
-    return this.getByRole("alert");
   }
 
   // Dynamic text matching with regex

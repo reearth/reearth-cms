@@ -72,11 +72,6 @@ export class FieldEditorPage extends BasePage {
     return this.getByLabel("Description");
   }
 
-  // Group field specific
-  get groupSelectTrigger(): Locator {
-    return this.locator(".ant-select-selector");
-  }
-
   // Default value specific
   get plusNewButton(): Locator {
     return this.getByRole("button", { name: "plus New" });
@@ -128,6 +123,10 @@ export class FieldEditorPage extends BasePage {
 
   get antSelectSelectionItem(): Locator {
     return this.locator(".ant-select-selection-item");
+  }
+
+  get antSelectSelector(): Locator {
+    return this.locator(".ant-select-selector");
   }
 
   get updateOptionLabel(): Locator {
@@ -195,10 +194,6 @@ export class FieldEditorPage extends BasePage {
     return this.getByLabel("Description");
   }
 
-  get settingsTabPanel(): Locator {
-    return this.getByRole("tabpanel", { name: "settings" });
-  }
-
   get tagFilterDiv(): Locator {
     return this.getByRole("tabpanel", { name: "settings" })
       .locator("div")
@@ -241,10 +236,6 @@ export class FieldEditorPage extends BasePage {
     return this.getByRole("switch").first();
   }
 
-  get allSwitches(): Locator {
-    return this.getByRole("switch");
-  }
-
   // Checkbox field specific
   get setDefaultValueCheckbox(): Locator {
     return this.getByLabel("Set default value");
@@ -259,10 +250,6 @@ export class FieldEditorPage extends BasePage {
     return this.getByRole("checkbox").first();
   }
 
-  get allCheckboxes(): Locator {
-    return this.getByRole("checkbox");
-  }
-
   // Markdown/Text field specific
   get defaultValueTextInput(): Locator {
     return this.getByLabel("Set default value");
@@ -274,14 +261,6 @@ export class FieldEditorPage extends BasePage {
   }
 
   // Multi-value text fields
-  get textContainers(): Locator {
-    return this.locator(".css-1ago99h");
-  }
-
-  textContainerByIndex(index: number): Locator {
-    return this.locator(".css-1ago99h").nth(index);
-  }
-
   get firstTextContainer(): Locator {
     return this.locator("div:nth-child(1) > .css-1ago99h");
   }
@@ -291,16 +270,8 @@ export class FieldEditorPage extends BasePage {
   }
 
   // Field ordering controls
-  get arrowUpButtons(): Locator {
-    return this.getByRole("button", { name: "arrow-up" });
-  }
-
   arrowUpButtonByIndex(index: number): Locator {
     return this.getByRole("button", { name: "arrow-up" }).nth(index);
-  }
-
-  get arrowDownButtons(): Locator {
-    return this.getByRole("button", { name: "arrow-down" });
   }
 
   get firstArrowDownButton(): Locator {
@@ -313,10 +284,6 @@ export class FieldEditorPage extends BasePage {
   }
 
   // Default value input by ID
-  get defaultValueIdInput(): Locator {
-    return this.locator("#defaultValue");
-  }
-
   defaultValueInputByIndex(index: number): Locator {
     return this.locator("#defaultValue").nth(index);
   }
@@ -324,11 +291,6 @@ export class FieldEditorPage extends BasePage {
   // Title helpers
   titleByText(title: string, exact = false): Locator {
     return this.getByTitle(title, { exact });
-  }
-
-  // Fields container
-  get fieldsContainer(): Locator {
-    return this.getByLabel("Fields");
   }
 
   // Fields container paragraph
@@ -373,9 +335,6 @@ export class FieldEditorPage extends BasePage {
   }
 
   // Button variations
-  get x2Button(): Locator {
-    return this.getByRole("button", { name: "x2" });
-  }
   get x3Button(): Locator {
     return this.getByRole("button", { name: "x3" });
   }
@@ -391,32 +350,13 @@ export class FieldEditorPage extends BasePage {
     return this.getByRole("tooltip").getByRole("textbox");
   }
 
-  // Date-specific locators
-  get closeDateButton(): Locator {
-    return this.getByRole("button", { name: "close-circle" });
-  }
-
   // Title selection helpers
-  titleOption(date: string): Locator {
-    return this.getByTitle(date);
-  }
-
   titleDiv(date: string): Locator {
     return this.getByTitle(date).locator("div");
   }
 
-  // Textarea specific elements
-  get textareaElement(): Locator {
-    return this.getByRole("textbox");
-  }
-
-  // Plus new item button
-  get plusNewItemButton(): Locator {
-    return this.getByRole("button", { name: "plus New Item" });
-  }
-
   // Field type list item helper
-  fieldTypeListItem(type: string): Locator {
+  fieldTypeListItem(type: string | RegExp): Locator {
     return this.locator("li").filter({ hasText: type }).locator("div").first();
   }
 
@@ -428,30 +368,6 @@ export class FieldEditorPage extends BasePage {
   // Geometry field specific
   get pointCheckbox(): Locator {
     return this.getByLabel("Point", { exact: true });
-  }
-
-  get lineStringCheckbox(): Locator {
-    return this.getByLabel("LineString", { exact: true });
-  }
-
-  get polygonCheckbox(): Locator {
-    return this.getByLabel("Polygon", { exact: true });
-  }
-
-  get multiPointCheckbox(): Locator {
-    return this.getByLabel("MultiPoint", { exact: true });
-  }
-
-  get multiLineStringCheckbox(): Locator {
-    return this.getByLabel("MultiLineString", { exact: true });
-  }
-
-  get multiPolygonCheckbox(): Locator {
-    return this.getByLabel("MultiPolygon", { exact: true });
-  }
-
-  get geometryCollectionCheckbox(): Locator {
-    return this.getByLabel("GeometryCollection", { exact: true });
   }
 
   // Code editor elements

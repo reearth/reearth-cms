@@ -73,20 +73,11 @@ export class SettingsPage extends BasePage {
   }
 
   // Card elements
-  get cards(): Locator {
-    return this.locator(".ant-card");
-  }
   cardByIndex(index: number): Locator {
     return this.locator(".ant-card").nth(index);
   }
-  get cardBodies(): Locator {
-    return this.locator(".ant-card-body");
-  }
   get cardMetaAvatarImage(): Locator {
     return this.locator(".ant-card-body .ant-card-meta-avatar > img");
-  }
-  get grabbableElements(): Locator {
-    return this.locator(".grabbable");
   }
   grabbableInCard(cardIndex: number): Locator {
     return this.cardByIndex(cardIndex).locator(".grabbable");

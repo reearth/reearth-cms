@@ -5,9 +5,6 @@ import { BasePage } from "./base.page";
 
 export class ProjectPage extends BasePage {
   // Navigation menu items
-  get overviewMenuItem(): Locator {
-    return this.getByRole("menuitem", { name: "Overview" });
-  }
   get schemaMenuItem(): Locator {
     return this.getByRole("menuitem", { name: "Schema" });
   }
@@ -17,33 +14,10 @@ export class ProjectPage extends BasePage {
   get assetMenuItem(): Locator {
     return this.getByRole("menuitem", { name: "Asset" });
   }
-  get requestMenuItem(): Locator {
-    return this.getByRole("menuitem", { name: "Request" });
-  }
-
-  // Project creation and management
-  get createProjectButton(): Locator {
-    return this.getByRole("button", { name: "Create new project" });
-  }
-  get projectNameInput(): Locator {
-    return this.getByLabel("Project name");
-  }
-  get projectDescriptionInput(): Locator {
-    return this.getByLabel("Project description");
-  }
-  get projectKeyInput(): Locator {
-    return this.getByLabel("Project key");
-  }
 
   // Common buttons
   get okButton(): Locator {
     return this.getByRole("button", { name: "OK" });
-  }
-  get cancelButton(): Locator {
-    return this.getByRole("button", { name: "Cancel" });
-  }
-  get saveButton(): Locator {
-    return this.getByRole("button", { name: "Save" });
   }
 
   // Overview page - Model management

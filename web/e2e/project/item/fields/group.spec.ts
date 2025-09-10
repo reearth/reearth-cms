@@ -22,11 +22,11 @@ test("Group field creating and updating has succeeded", async ({
 }) => {
   test.slow();
   await expect(schemaPage.textByExact("Reference")).toBeVisible();
-  await expect(schemaPage.textByExact("Group")).toBeVisible();
+  await expect(schemaPage.firstTextByExact("Group")).toBeVisible();
 
   await createGroup(page);
   await expect(schemaPage.textByExact("Reference")).toBeHidden();
-  await expect(schemaPage.textByExact("Group")).toBeHidden();
+  await expect(schemaPage.firstTextByExact("Group")).toBeHidden();
   await fieldEditorPage.fieldTypeButton("Text").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("text1");
@@ -39,14 +39,14 @@ test("Group field creating and updating has succeeded", async ({
   await expect(schemaPage.groupNameByText("text1#text1")).toBeVisible();
 
   await schemaPage.modelByText("e2e model name").click();
-  await schemaPage.textByExact("Group").click();
+  await schemaPage.lastTextByExact("Group").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("group1");
   await fieldEditorPage.settingsKeyInput.click();
   await fieldEditorPage.settingsKeyInput.fill("group1");
   await fieldEditorPage.settingsDescriptionInput.click();
   await fieldEditorPage.settingsDescriptionInput.fill("group1 description");
-  await fieldEditorPage.groupSelectTrigger.click();
+  await fieldEditorPage.antSelectSelector.click();
   await schemaPage.groupNameByText("e2e group name #e2e-group-name").click();
   await expect(fieldEditorPage.getByLabel("Settings")).toContainText(
     "e2e group name #e2e-group-name",
@@ -154,11 +154,11 @@ test("Group field editing has succeeded", async ({
 }) => {
   test.slow();
   await expect(schemaPage.textByExact("Reference")).toBeVisible();
-  await expect(schemaPage.textByExact("Group")).toBeVisible();
+  await expect(schemaPage.firstTextByExact("Group")).toBeVisible();
 
   await createGroup(page);
   await expect(schemaPage.textByExact("Reference")).toBeHidden();
-  await expect(schemaPage.textByExact("Group")).toBeHidden();
+  await expect(schemaPage.firstTextByExact("Group")).toBeHidden();
   await schemaPage.fieldTypeButton("Text").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("text1");
@@ -171,14 +171,14 @@ test("Group field editing has succeeded", async ({
   await expect(schemaPage.groupNameByText("text1#text1")).toBeVisible();
 
   await schemaPage.modelByText("e2e model name").click();
-  await schemaPage.textByExact("Group").click();
+  await schemaPage.lastTextByExact("Group").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("group1");
   await fieldEditorPage.settingsKeyInput.click();
   await fieldEditorPage.settingsKeyInput.fill("group1");
   await fieldEditorPage.settingsDescriptionInput.click();
   await fieldEditorPage.settingsDescriptionInput.fill("group1 description");
-  await fieldEditorPage.groupSelectTrigger.click();
+  await fieldEditorPage.antSelectSelector.click();
   await schemaPage.groupNameByText("e2e group name #e2e-group-name").click();
   await expect(fieldEditorPage.getByLabel("Settings")).toContainText(
     "e2e group name #e2e-group-name",

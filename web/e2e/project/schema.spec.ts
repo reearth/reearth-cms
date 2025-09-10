@@ -116,7 +116,7 @@ test("Group creating from adding field has succeeded", async ({
   await fieldEditorPage.fieldTypeListItem("Text").click();
   await handleFieldForm(page, "text");
   await schemaPage.modelByText("e2e model name").click();
-  await schemaPage.textByExact("Group").click();
+  await schemaPage.lastTextByExact("Group").click();
   await expect(schemaPage.createGroupFieldButton).toBeVisible();
   await schemaPage.groupSelectTrigger.click();
   await expect(schemaPage.groupNameByText("e2e group name #e2e-group-key")).toBeVisible();
@@ -150,9 +150,9 @@ test("Text field CRUD has succeeded", async ({ page, fieldEditorPage, schemaPage
 
 test("Schema reordering has succeeded", async ({ page, schemaPage, fieldEditorPage }) => {
   await createModelFromSidebar(page);
-  await fieldEditorPage.fieldTypeListItem("Text").click();
+  await fieldEditorPage.fieldTypeListItem(/Text/).click();
   await handleFieldForm(page, "text1");
-  await fieldEditorPage.fieldTypeListItem("Text").click();
+  await fieldEditorPage.fieldTypeListItem(/Text/).click();
   await handleFieldForm(page, "text2");
   await expect(schemaPage.draggableItems.nth(0)).toContainText("text1#text1");
   await expect(schemaPage.draggableItems.nth(1)).toContainText("text2#text2");

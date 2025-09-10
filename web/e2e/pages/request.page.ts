@@ -18,15 +18,6 @@ export class RequestPage extends BasePage {
   }
 
   // Table elements
-  get tableBody(): Locator {
-    return this.locator("tbody");
-  }
-  get tableRows(): Locator {
-    return this.locator(".ant-table-tbody .ant-table-row");
-  }
-  cellByText(text: string, exact = false): Locator {
-    return this.getByRole("cell", { name: text, exact });
-  }
   tableBodyTextByText(text: string, exact = false): Locator {
     return this.locator("tbody").getByText(text, { exact });
   }

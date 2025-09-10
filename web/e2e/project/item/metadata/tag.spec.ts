@@ -144,7 +144,7 @@ test("Tag metadata editing has succeeded", async ({
   await fieldEditorPage.uniqueFieldCheckbox.check();
   await fieldEditorPage.defaultValueTab.click();
   await expect(fieldEditorPage.defaultValueExactLabel.getByText(tag1)).toBeVisible();
-  await fieldEditorPage.antSelectSelectionItem.click();
+  await fieldEditorPage.antSelectSelector.click();
   await expect(fieldEditorPage.tagOptionText(tag1).last()).toBeVisible();
   await fieldEditorPage.tagOptionText(tag2).last().click();
   await fieldEditorPage.tagOptionText(tag3).last().click();
@@ -159,10 +159,10 @@ test("Tag metadata editing has succeeded", async ({
   await expect(fieldEditorPage.defaultValueExactLabel.getByText(tag2)).toBeVisible();
   await expect(fieldEditorPage.defaultValueExactLabel.getByText(tag3)).toBeVisible();
 
-  await fieldEditorPage.antSelectSelectionItem.click();
+  await fieldEditorPage.antSelectSelector.click();
   await expect(fieldEditorPage.tagOptionText(tag1).last()).toBeHidden();
 
-  await fieldEditorPage.antSelectSelectionItem.click();
+  await fieldEditorPage.antSelectSelector.click();
   await fieldEditorPage.okButton.click();
   await closeNotification(page);
   await expect(contentPage.optionTextByName(`${newFieldName} *#${newKey}(unique)`)).toBeVisible();
@@ -193,7 +193,7 @@ test("Tag metadata editing has succeeded", async ({
   await contentPage.closeCircleLabel.locator("svg").hover();
   await contentPage.closeCircleLabel.locator("svg").click();
   await expect(contentPage.pleaseInputFieldText).toBeVisible();
-  await fieldEditorPage.antSelectSelectionItem.click();
+  await fieldEditorPage.antSelectSelector.click();
   await fieldEditorPage.tagOptionText(tag2).click();
   await closeNotification(page);
   await contentPage.backButton.click();
