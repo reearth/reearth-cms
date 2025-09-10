@@ -13,7 +13,12 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
-test("Option field creating and updating has succeeded", async ({ page, fieldEditorPage, projectPage, contentPage, schemaPage }) => {
+test("Option field creating and updating has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   await fieldEditorPage.fieldTypeButton("Option").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("option1");
@@ -61,7 +66,12 @@ test("Option field creating and updating has succeeded", async ({ page, fieldEdi
   await expect(contentPage.optionTextByName("second")).toBeVisible();
 });
 
-test("Option field editing has succeeded", async ({ page, fieldEditorPage, contentPage, schemaPage }) => {
+test("Option field editing has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   await schemaPage.fieldTypeButton("Option").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("option1");

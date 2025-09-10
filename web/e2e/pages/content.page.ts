@@ -8,7 +8,7 @@ export class ContentPage extends BasePage {
   get contentMenuItem(): Locator {
     return this.getByText("Content");
   }
-  
+
   get contentText(): Locator {
     return this.getByText("Content");
   }
@@ -80,7 +80,7 @@ export class ContentPage extends BasePage {
   fieldInput(fieldName: string): Locator {
     return this.getByLabel(fieldName);
   }
-  
+
   // Field description text
   fieldDescriptionText(description: string): Locator {
     return this.getByText(description);
@@ -96,12 +96,12 @@ export class ContentPage extends BasePage {
   cellEditButtonByIndex(index: number): Locator {
     return this.getByRole("cell").getByLabel("edit").locator("svg").nth(index);
   }
-  
+
   // Link elements
   linkByName(name: string): Locator {
     return this.getByRole("link", { name });
   }
-  
+
   // Tooltip interactions
   get tooltipEditButton(): Locator {
     return this.getByRole("tooltip", { name: "edit" }).locator("svg");
@@ -213,90 +213,90 @@ export class ContentPage extends BasePage {
   viewByName(viewName: string): Locator {
     return this.getByText(viewName);
   }
-  
+
   // Table headers and structure
   get tableBodyRows(): Locator {
     return this.locator("tbody > tr.ant-table-row");
   }
-  
+
   // Root element reference
   get rootElement(): Locator {
     return this.locator("#root");
   }
-  
+
   // Cell selection by text and exact matching
   cellByTextExact(text: string): Locator {
     return this.getByRole("cell", { name: text, exact: true });
   }
-  
+
   cellSpanByText(text: string): Locator {
     return this.getByRole("cell", { name: text }).locator("span").first();
   }
-  
+
   // Model navigation
   modelLinkByText(modelName: string): Locator {
     return this.getByText(modelName);
   }
-  
+
   // Group field related elements
   get mainRole(): Locator {
     return this.getByRole("main");
   }
-  
+
   get firstLabel(): Locator {
     return this.locator("label").first();
   }
-  
+
   get textBoxes(): Locator {
     return this.getByRole("textbox");
   }
-  
+
   get firstTextbox(): Locator {
     return this.getByRole("textbox").first();
   }
-  
+
   get lastTextbox(): Locator {
     return this.getByRole("textbox").last();
   }
-  
+
   textBoxByIndex(index: number): Locator {
     return this.getByRole("textbox").nth(index);
   }
-  
+
   // Filtered div locators for complex elements
   divFilterByText(text: RegExp): Locator {
     return this.locator("div").filter({ hasText: text });
   }
-  
+
   // Character count indicators
   get characterCountText(): Locator {
     return this.getByText("/ 5");
   }
-  
+
   // Option field specific
   get closeCircleLabel(): Locator {
     return this.getByLabel("close-circle");
   }
-  
+
   // Dynamic option text methods
   optionTextByName(optionName: string, exact = true): Locator {
     return this.getByText(optionName, { exact });
   }
-  
+
   // Complex cell selection
   cellByComplexName(name: string): Locator {
     return this.getByRole("cell", { name });
   }
-  
+
   // Asset field specific
   get cssAssetContainer(): Locator {
     return this.locator(".css-7g0azd");
   }
-  
+
   cssAssetByIndex(index: number): Locator {
     return this.locator(".css-7g0azd").nth(index);
   }
-  
+
   get tooltip(): Locator {
     return this.getByRole("tooltip");
   }
@@ -304,48 +304,48 @@ export class ContentPage extends BasePage {
   get x2Button(): Locator {
     return this.getByRole("button", { name: "x2" });
   }
-  
+
   // Table row controls for assets
   get antTableRowTd(): Locator {
     return this.locator(".ant-table-row > td");
   }
-  
+
   // Tag metadata specific
   get itemInformationHeading(): Locator {
     return this.getByRole("heading", { name: "Item Information" });
   }
-  
+
   get tabPanel(): Locator {
     return this.getByRole("tabpanel");
   }
-  
+
   // Column header with edit functionality
   columnHeaderWithEdit(fieldName: string): Locator {
     return this.getByRole("columnheader", { name: `${fieldName} edit` });
   }
-  
+
   // Cell by tag name with multiple values
   cellByTagNames(tagNames: string): Locator {
     return this.getByRole("cell", { name: tagNames });
   }
-  
+
   // Text metadata specific
   get antTableBody(): Locator {
     return this.locator(".ant-table-body");
   }
-  
+
   get tooltipTextboxes(): Locator {
     return this.getByRole("tooltip").getByRole("textbox");
   }
-  
+
   tooltipTextByName(text: string): Locator {
     return this.getByRole("tooltip").getByText(text);
   }
-  
+
   get x3Button(): Locator {
     return this.getByRole("button", { name: "x3" });
   }
-  
+
   // Back button variations
   get backButtonRole(): Locator {
     return this.getByRole("button", { name: "Back" });
@@ -358,20 +358,20 @@ export class ContentPage extends BasePage {
   switchByName(name: string): Locator {
     return this.getByRole("switch", { name });
   }
-  
+
   switchByIndex(index: number): Locator {
     return this.getByRole("switch").nth(index);
   }
-  
+
   get allSwitches(): Locator {
     return this.getByRole("switch");
   }
-  
+
   // Switch states
   get checkSwitch(): Locator {
     return this.getByRole("switch", { name: "check" });
   }
-  
+
   get closeSwitch(): Locator {
     return this.getByRole("switch", { name: "close" });
   }
@@ -380,7 +380,7 @@ export class ContentPage extends BasePage {
   get tooltipSwitches(): Locator {
     return this.getByRole("tooltip").getByRole("switch");
   }
-  
+
   tooltipSwitchByIndex(index: number): Locator {
     return this.getByRole("tooltip").getByRole("switch").nth(index);
   }
@@ -389,11 +389,11 @@ export class ContentPage extends BasePage {
   checkboxByIndex(index: number): Locator {
     return this.getByRole("checkbox").nth(index);
   }
-  
+
   get allCheckboxes(): Locator {
     return this.getByRole("checkbox");
   }
-  
+
   get lastCheckbox(): Locator {
     return this.getByRole("checkbox").last();
   }
@@ -402,7 +402,7 @@ export class ContentPage extends BasePage {
   get cellCheckboxes(): Locator {
     return this.getByRole("cell").getByRole("checkbox");
   }
-  
+
   get lastCellCheckbox(): Locator {
     return this.getByRole("cell").getByRole("checkbox").last();
   }
@@ -411,7 +411,7 @@ export class ContentPage extends BasePage {
   get tooltipCheckboxes(): Locator {
     return this.getByRole("tooltip").getByRole("checkbox");
   }
-  
+
   tooltipCheckboxByIndex(index: number): Locator {
     return this.getByRole("tooltip").getByRole("checkbox").nth(index);
   }

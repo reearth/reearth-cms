@@ -42,7 +42,10 @@ test("Model CRUD on Overview page has succeeded", async ({ page, schemaPage, pro
   await expect(projectPage.noModelsYetText).toBeVisible();
 });
 
-test("Creating Model by using the button on placeholder has succeeded", async ({ page, projectPage }) => {
+test("Creating Model by using the button on placeholder has succeeded", async ({
+  page,
+  projectPage,
+}) => {
   await projectPage.newModelButtonLast.click();
   await expect(projectPage.dialogNewModelText).toBeVisible();
   await projectPage.modelNameInput.fill("model name");

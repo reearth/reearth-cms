@@ -17,7 +17,9 @@ export class SettingsPage extends BasePage {
     return this.getByRole("button", { name: "plus Add new Tiles option" });
   }
   get defaultTileOption(): Locator {
-    return this.locator("div").filter({ hasText: /^Default$/ }).nth(4);
+    return this.locator("div")
+      .filter({ hasText: /^Default$/ })
+      .nth(4);
   }
   get labelledTileOption(): Locator {
     return this.getByTitle("Labelled");
@@ -34,10 +36,14 @@ export class SettingsPage extends BasePage {
     return this.getByRole("button", { name: "plus Add new Terrain option" });
   }
   get cesiumWorldTerrainDiv(): Locator {
-    return this.locator("div").filter({ hasText: /^Cesium World Terrain$/ }).nth(4);
+    return this.locator("div")
+      .filter({ hasText: /^Cesium World Terrain$/ })
+      .nth(4);
   }
   get cesiumWorldTerrainOption(): Locator {
-    return this.locator("div").filter({ hasText: /^Cesium World Terrain$/ }).nth(4);
+    return this.locator("div")
+      .filter({ hasText: /^Cesium World Terrain$/ })
+      .nth(4);
   }
   get arcGisTerrainOption(): Locator {
     return this.getByTitle("ArcGIS Terrain");
@@ -113,12 +119,12 @@ export class SettingsPage extends BasePage {
   get formElement(): Locator {
     return this.locator("form");
   }
-  
+
   // Text elements
   textByName(text: string, exact = false): Locator {
     return this.getByText(text, { exact });
   }
-  
+
   // URL input (different from general textbox)
   get urlTextbox(): Locator {
     return this.getByLabel("URL", { exact: true });

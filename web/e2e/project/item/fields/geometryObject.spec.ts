@@ -13,7 +13,11 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
-test("GeometryObject field creating and updating has succeeded", async ({ page, fieldEditorPage, contentPage }) => {
+test("GeometryObject field creating and updating has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+}) => {
   await fieldEditorPage.fieldTypeButton("Geometry Object").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("geometryObject1");
@@ -36,9 +40,7 @@ test("GeometryObject field creating and updating has succeeded", async ({ page, 
   await closeNotification(page);
   await contentPage.backButton.click();
   await contentPage.nthTableColumnButton(9).click();
-  await expect(contentPage.tooltip).toContainText(
-    '{ "type": "Point", "coordinates": [0, 0] }',
-  );
+  await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [0, 0] }');
 
   await contentPage.editButton.click();
   await contentPage.antRowButton(1).click();
@@ -48,12 +50,15 @@ test("GeometryObject field creating and updating has succeeded", async ({ page, 
   await closeNotification(page);
   await contentPage.backButton.click();
   await contentPage.nthTableColumnButton(9).click();
-  await expect(contentPage.tooltip).toContainText(
-    '{ "type": "Point", "coordinates": [1, 0] }',
-  );
+  await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [1, 0] }');
 });
 
-test("GeometryObject field editing has succeeded", async ({ page, fieldEditorPage, contentPage, schemaPage }) => {
+test("GeometryObject field editing has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   await fieldEditorPage.fieldTypeListItem("Geometry Object").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("geometryObject1");
@@ -76,9 +81,7 @@ test("GeometryObject field editing has succeeded", async ({ page, fieldEditorPag
   await closeNotification(page);
   await contentPage.backButton.click();
   await contentPage.nthTableColumnButton(9).click();
-  await expect(contentPage.tooltip).toContainText(
-    '{ "type": "Point", "coordinates": [0, 0] }',
-  );
+  await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [0, 0] }');
   await schemaPage.schemaText.click();
   await fieldEditorPage.ellipsisMenuButton.click();
   await fieldEditorPage.displayNameInput.click();
@@ -108,13 +111,13 @@ test("GeometryObject field editing has succeeded", async ({ page, fieldEditorPag
   );
   await fieldEditorPage.okButton.click();
   await closeNotification(page);
-  await expect(schemaPage.uniqueFieldText("new geometryObject1", "new-geometryobject1")).toBeVisible();
+  await expect(
+    schemaPage.uniqueFieldText("new geometryObject1", "new-geometryobject1"),
+  ).toBeVisible();
   await contentPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("new geometryObject1");
   await contentPage.nthTableColumnButton(9).click();
-  await expect(contentPage.tooltip).toContainText(
-    '{ "type": "Point", "coordinates": [0, 0] }',
-  );
+  await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [0, 0] }');
   await contentPage.newItemButton.click();
   await expect(contentPage.viewLinesEditor.nth(0)).toContainText(
     '{  "type": "Point",  "coordinates": [1, 0]}',

@@ -13,7 +13,12 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
-test("Text metadata creating and updating has succeeded", async ({ page, fieldEditorPage, contentPage, schemaPage }) => {
+test("Text metadata creating and updating has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   await schemaPage.metaDataTab.click();
   await fieldEditorPage.fieldTypeButton("Text").click();
   await fieldEditorPage.displayNameInput.fill("text1");
@@ -68,7 +73,12 @@ test("Text metadata creating and updating has succeeded", async ({ page, fieldEd
   await expect(contentPage.textBoxes).toHaveValue("text1");
 });
 
-test("Text metadata editing has succeeded", async ({ page, fieldEditorPage, contentPage, schemaPage }) => {
+test("Text metadata editing has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   test.slow();
   await schemaPage.metaDataTab.click();
   await schemaPage.textListItem.click();

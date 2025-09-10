@@ -20,7 +20,7 @@ export class ProjectPage extends BasePage {
   get requestMenuItem(): Locator {
     return this.getByRole("menuitem", { name: "Request" });
   }
-  
+
   // Project creation and management
   get createProjectButton(): Locator {
     return this.getByRole("button", { name: "Create new project" });

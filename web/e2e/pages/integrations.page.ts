@@ -136,7 +136,9 @@ export class IntegrationsPage extends BasePage {
   }
 
   get readerRoleOption(): Locator {
-    return this.locator("div").filter({ hasText: /^Reader$/ }).nth(4);
+    return this.locator("div")
+      .filter({ hasText: /^Reader$/ })
+      .nth(4);
   }
 
   get writerRoleOption(): Locator {

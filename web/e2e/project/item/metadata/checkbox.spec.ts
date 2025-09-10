@@ -13,7 +13,12 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
-test("Checkbox metadata creating and updating has succeeded", async ({ page, fieldEditorPage, projectPage, contentPage, schemaPage }) => {
+test("Checkbox metadata creating and updating has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   await schemaPage.metaDataTab.click();
   await schemaPage.checkBoxListItem.click();
   await fieldEditorPage.displayNameInput.fill("checkbox1");
@@ -64,7 +69,12 @@ test("Checkbox metadata creating and updating has succeeded", async ({ page, fie
   await expect(contentPage.lastCellCheckbox).not.toBeChecked();
 });
 
-test("Checkbox metadata editing has succeeded", async ({ page, fieldEditorPage, contentPage, schemaPage }) => {
+test("Checkbox metadata editing has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   await schemaPage.metaDataTab.click();
   await schemaPage.checkBoxListItem.click();
   await fieldEditorPage.displayNameInput.fill("checkbox1");

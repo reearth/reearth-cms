@@ -1,12 +1,21 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { type Page, expect, test } from "@reearth-cms/e2e/fixtures/test";
 
+import { FieldEditorPage } from "../pages/field-editor.page";
+import { SchemaPage } from "../pages/schema.page";
+
 import { handleFieldForm } from "./utils/field";
 import { createGroup, updateGroup, deleteGroup } from "./utils/group";
 import { createModelFromSidebar, updateModel, deleteModel } from "./utils/model";
 import { createProject, deleteProject } from "./utils/project";
 
-async function deleteField(page: Page, name: string, key = name, fieldEditorPage: any, schemaPage: any) {
+async function deleteField(
+  page: Page,
+  name: string,
+  key = name,
+  fieldEditorPage: FieldEditorPage,
+  schemaPage: SchemaPage,
+) {
   await fieldEditorPage.deleteFieldButton.click();
   await fieldEditorPage.okButton.click();
   await closeNotification(page);
@@ -52,8 +61,7 @@ test("Model reordering has succeeded", async ({ page, schemaPage }) => {
   await expect(schemaPage.modelMenuItems().nth(0)).toContainText(modelName1);
   await expect(schemaPage.modelMenuItems().nth(1)).toContainText(modelName2);
 
-  await schemaPage.modelMenuItem(modelName2)
-    .dragTo(schemaPage.modelMenuItem(modelName1));
+  await schemaPage.modelMenuItem(modelName2).dragTo(schemaPage.modelMenuItem(modelName1));
   await closeNotification(page);
   await expect(schemaPage.modelMenuItems().nth(0)).toContainText(modelName2);
   await expect(schemaPage.modelMenuItems().nth(1)).toContainText(modelName1);
@@ -83,7 +91,11 @@ test("Group CRUD has succeeded", async ({ page, schemaPage, fieldEditorPage }) =
   await expect(fieldEditorPage.titleByText(updateGroupName)).toBeHidden();
 });
 
-test("Group creating from adding field has succeeded", async ({ page, schemaPage, fieldEditorPage }) => {
+test("Group creating from adding field has succeeded", async ({
+  page,
+  schemaPage,
+  fieldEditorPage,
+}) => {
   await createModelFromSidebar(page);
   await fieldEditorPage.fieldTypeListItem("Group").click();
   await schemaPage.addGroupButton.click();

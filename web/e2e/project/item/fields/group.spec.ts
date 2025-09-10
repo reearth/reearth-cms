@@ -14,7 +14,12 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
-test("Group field creating and updating has succeeded", async ({ page, fieldEditorPage, contentPage, schemaPage }) => {
+test("Group field creating and updating has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   test.slow();
   await expect(schemaPage.textByExact("Reference")).toBeVisible();
   await expect(schemaPage.textByExact("Group")).toBeVisible();
@@ -43,7 +48,9 @@ test("Group field creating and updating has succeeded", async ({ page, fieldEdit
   await fieldEditorPage.settingsDescriptionInput.fill("group1 description");
   await fieldEditorPage.groupSelectTrigger.click();
   await schemaPage.groupNameByText("e2e group name #e2e-group-name").click();
-  await expect(fieldEditorPage.getByLabel("Settings")).toContainText("e2e group name #e2e-group-name");
+  await expect(fieldEditorPage.getByLabel("Settings")).toContainText(
+    "e2e group name #e2e-group-name",
+  );
   await fieldEditorPage.validationTab.click();
   await expect(fieldEditorPage.makeFieldRequiredLabel.locator("span").nth(1)).toBeDisabled();
   await expect(fieldEditorPage.setFieldAsUniqueLabel.locator("span").nth(1)).toBeDisabled();
@@ -115,8 +122,14 @@ test("Group field creating and updating has succeeded", async ({ page, fieldEdit
   await contentPage.newItemButton.click();
   await expect(contentPage.textBoxes).toHaveValue("text1");
   await fieldEditorPage.plusNewButton.click();
-  await contentPage.divFilterByText(/^0 \/ 5$/).getByRole("textbox").click();
-  await contentPage.divFilterByText(/^0 \/ 5$/).getByRole("textbox").fill("text2");
+  await contentPage
+    .divFilterByText(/^0 \/ 5$/)
+    .getByRole("textbox")
+    .click();
+  await contentPage
+    .divFilterByText(/^0 \/ 5$/)
+    .getByRole("textbox")
+    .fill("text2");
   await fieldEditorPage.plusNewButton.click();
   await contentPage.saveButton.click();
   await closeNotification(page);
@@ -133,7 +146,12 @@ test("Group field creating and updating has succeeded", async ({ page, fieldEdit
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("text1");
 });
 
-test("Group field editing has succeeded", async ({ page, fieldEditorPage, contentPage, schemaPage }) => {
+test("Group field editing has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   test.slow();
   await expect(schemaPage.textByExact("Reference")).toBeVisible();
   await expect(schemaPage.textByExact("Group")).toBeVisible();
@@ -162,7 +180,9 @@ test("Group field editing has succeeded", async ({ page, fieldEditorPage, conten
   await fieldEditorPage.settingsDescriptionInput.fill("group1 description");
   await fieldEditorPage.groupSelectTrigger.click();
   await schemaPage.groupNameByText("e2e group name #e2e-group-name").click();
-  await expect(fieldEditorPage.getByLabel("Settings")).toContainText("e2e group name #e2e-group-name");
+  await expect(fieldEditorPage.getByLabel("Settings")).toContainText(
+    "e2e group name #e2e-group-name",
+  );
   await fieldEditorPage.validationTab.click();
   await expect(fieldEditorPage.makeFieldRequiredLabel.locator("span").nth(1)).toBeDisabled();
   await expect(fieldEditorPage.setFieldAsUniqueLabel.locator("span").nth(1)).toBeDisabled();
@@ -203,14 +223,24 @@ test("Group field editing has succeeded", async ({ page, fieldEditorPage, conten
   await expect(contentPage.fieldInput("text1")).toHaveValue("text1");
   await fieldEditorPage.plusNewButton.click();
   await expect(contentPage.mainRole).toContainText("new group1 (2)");
-  await contentPage.divFilterByText(/^0text1 description$/).getByLabel("text1").click();
-  await contentPage.divFilterByText(/^0text1 description$/).getByLabel("text1").fill("text1-2");
+  await contentPage
+    .divFilterByText(/^0text1 description$/)
+    .getByLabel("text1")
+    .click();
+  await contentPage
+    .divFilterByText(/^0text1 description$/)
+    .getByLabel("text1")
+    .fill("text1-2");
   await contentPage.saveButton.click();
   await closeNotification(page);
   await contentPage.backButton.click();
   await contentPage.editButton.click();
-  await expect(contentPage.divFilterByText(/^5text1 description$/).getByLabel("text1")).toHaveValue("text1");
-  await expect(contentPage.divFilterByText(/^7text1 description$/).getByLabel("text1")).toHaveValue("text1-2");
+  await expect(contentPage.divFilterByText(/^5text1 description$/).getByLabel("text1")).toHaveValue(
+    "text1",
+  );
+  await expect(contentPage.divFilterByText(/^7text1 description$/).getByLabel("text1")).toHaveValue(
+    "text1-2",
+  );
   await contentPage.backButton.click();
   await contentPage.newItemButton.click();
   await fieldEditorPage.plusNewButton.click();

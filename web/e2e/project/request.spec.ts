@@ -129,7 +129,10 @@ test("Comment CRUD on Request page has succeeded", async ({ page, requestPage })
   await crudComment(page);
 });
 
-test("Creating a new request and adding to request has succeeded", async ({ page, requestPage }) => {
+test("Creating a new request and adding to request has succeeded", async ({
+  page,
+  requestPage,
+}) => {
   await requestPage.backButtonCapitalized.click();
   await requestPage.newItemButton.click();
   await requestPage.saveButton.click();
@@ -168,7 +171,5 @@ test("Navigating between item and request has succeeded", async ({ page, request
   await closeNotification(page);
   await requestPage.versionHistoryTab.click();
   await requestPage.requestTitleLink(requestTitle).click();
-  await expect(
-    requestPage.collapsedModelItemButton(modelName, itemId),
-  ).toBeVisible();
+  await expect(requestPage.collapsedModelItemButton(modelName, itemId)).toBeVisible();
 });

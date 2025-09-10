@@ -13,7 +13,12 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
-test("Textarea field editing has succeeded", async ({ page, fieldEditorPage, contentPage, schemaPage }) => {
+test("Textarea field editing has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   await fieldEditorPage.fieldTypeButton("TextArea").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("text1");
@@ -31,9 +36,7 @@ test("Textarea field editing has succeeded", async ({ page, fieldEditorPage, con
   await expect(fieldEditorPage.displayNameInput).toBeVisible();
   await expect(fieldEditorPage.displayNameInput).toHaveValue("text1");
   await expect(fieldEditorPage.settingsKeyInput).toHaveValue("text1");
-  await expect(fieldEditorPage.settingsDescriptionInput).toHaveValue(
-    "text1 description",
-  );
+  await expect(fieldEditorPage.settingsDescriptionInput).toHaveValue("text1 description");
   await expect(fieldEditorPage.supportMultipleValuesCheckbox).not.toBeChecked();
   await expect(fieldEditorPage.useAsTitleCheckbox).not.toBeChecked();
   await fieldEditorPage.validationTab.click();

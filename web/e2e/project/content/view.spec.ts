@@ -1,5 +1,6 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { type Page, expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { ContentPage } from "@reearth-cms/e2e/pages/content.page";
 import { handleFieldForm } from "@reearth-cms/e2e/project/utils/field";
 import { modelName, createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
@@ -17,7 +18,7 @@ test.afterEach(async ({ page }) => {
   await deleteWorkspace(page);
 });
 
-async function itemAdd(page: Page, data: string, contentPage: any) {
+async function itemAdd(page: Page, data: string, contentPage: ContentPage) {
   await contentPage.newItemButton.click();
   await contentPage.fieldInput("text").click();
   await contentPage.fieldInput("text").fill(data);
@@ -117,9 +118,7 @@ test("View CRUD has succeeded", async ({ page, fieldEditorPage, projectPage, con
   await expect(contentPage.tableRow(1)).toContainText("text2");
   await expect(contentPage.statusColumnHeader).toBeHidden();
   await contentPage.settingsButton.click();
-  await expect(contentPage.statusCheckbox).not.toHaveClass(
-    /ant-tree-checkbox-checked/,
-  );
+  await expect(contentPage.statusCheckbox).not.toHaveClass(/ant-tree-checkbox-checked/);
   await contentPage.settingsButton.click();
 
   await contentPage.viewByName("new view1").click();

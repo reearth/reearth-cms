@@ -115,26 +115,26 @@ export class SchemaPage extends BasePage {
   get fieldsMetaDataText(): Locator {
     return this.getByText("FieldsMeta Data");
   }
-  
+
   get metaDataTab(): Locator {
     return this.getByRole("tab", { name: "Meta Data" });
   }
-  
+
   // Dynamic methods for model names
   modelByText(modelName: string): Locator {
     return this.getByText(modelName);
   }
-  
+
   // Field list items
   fieldListItem(fieldText: string): Locator {
     return this.locator("li").filter({ hasText: fieldText });
   }
-  
+
   ellipsisIcon(): Locator {
     return this.locator("li").locator("svg").nth(3);
   }
-  
-  // Group field specific methods  
+
+  // Group field specific methods
   groupNameByText(groupName: string): Locator {
     return this.getByText(groupName);
   }
@@ -143,22 +143,22 @@ export class SchemaPage extends BasePage {
   textByExact(text: string): Locator {
     return this.getByText(text, { exact: true });
   }
-  
+
   // Schema tab for filtered navigation
   get schemaSpanText(): Locator {
     return this.locator("span").filter({ hasText: "Schema" });
   }
-  
+
   // Tag metadata specific
   get tagListItem(): Locator {
     return this.getByRole("listitem").filter({ hasText: "Tag" });
   }
-  
+
   // Menu items
   menuItemByName(itemName: string): Locator {
     return this.getByRole("menuitem", { name: itemName });
   }
-  
+
   // Text metadata specific
   get textListItem(): Locator {
     return this.getByRole("listitem").filter({ hasText: "Text" });

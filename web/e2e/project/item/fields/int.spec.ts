@@ -13,7 +13,13 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
-test("Int field creating and updating has succeeded", async ({ page, fieldEditorPage, projectPage, contentPage, schemaPage }) => {
+test("Int field creating and updating has succeeded", async ({
+  page,
+  fieldEditorPage,
+  projectPage,
+  contentPage,
+  schemaPage,
+}) => {
   await fieldEditorPage.fieldTypeButton("Int").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("int1");
@@ -47,7 +53,12 @@ test("Int field creating and updating has succeeded", async ({ page, fieldEditor
   await expect(contentPage.cellByTextExact("2")).toBeVisible();
 });
 
-test("Int field editing has succeeded", async ({ page, fieldEditorPage, contentPage, schemaPage }) => {
+test("Int field editing has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   await fieldEditorPage.fieldTypeListItem("Int").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("int1");

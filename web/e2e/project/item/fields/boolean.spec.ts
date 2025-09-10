@@ -13,7 +13,11 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
-test("Boolean field creating and updating has succeeded", async ({ page, fieldEditorPage, contentPage }) => {
+test("Boolean field creating and updating has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+}) => {
   await fieldEditorPage.fieldTypeButton("Boolean").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("boolean1");
@@ -44,7 +48,12 @@ test("Boolean field creating and updating has succeeded", async ({ page, fieldEd
   await expect(contentPage.allSwitches).toHaveAttribute("aria-checked", "false");
 });
 
-test("Boolean field editing has succeeded", async ({ page, fieldEditorPage, contentPage, schemaPage }) => {
+test("Boolean field editing has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   await fieldEditorPage.fieldTypeListItem("Boolean").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("boolean1");

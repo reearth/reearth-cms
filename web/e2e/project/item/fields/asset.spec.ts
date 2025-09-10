@@ -21,7 +21,12 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
-test("Asset field creating and updating has succeeded", async ({ page, fieldEditorPage, contentPage, schemaPage }) => {
+test("Asset field creating and updating has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   await fieldEditorPage.fieldTypeButton("Asset").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("asset1");
@@ -71,7 +76,13 @@ test("Asset field creating and updating has succeeded", async ({ page, fieldEdit
   await expect(contentPage.optionTextByName(uploadFileName_2)).toBeVisible();
 });
 
-test("Previewing JSON file from content page into new tab succeeded", async ({ page, context, fieldEditorPage, contentPage, schemaPage }) => {
+test("Previewing JSON file from content page into new tab succeeded", async ({
+  page,
+  context,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   await fieldEditorPage.fieldTypeButton("Asset").click();
   await fieldEditorPage.displayNameInput.fill("asset1");
   await fieldEditorPage.settingsKeyInput.fill("asset1");
@@ -107,7 +118,12 @@ test("Previewing JSON file from content page into new tab succeeded", async ({ p
   expect(isViewerReady).toBe(true);
 });
 
-test("Asset field editing has succeeded", async ({ page, fieldEditorPage, contentPage, schemaPage }) => {
+test("Asset field editing has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   test.slow();
   await fieldEditorPage.fieldTypeButton("Asset").click();
   await fieldEditorPage.displayNameInput.click();

@@ -13,7 +13,11 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
-test("Date metadata creating and updating has succeeded", async ({ page, fieldEditorPage, projectPage, contentPage, schemaPage }) => {
+test("Date metadata creating and updating has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+}) => {
   await fieldEditorPage.metaDataTab.click();
   await fieldEditorPage.fieldTypeListItem("Date").click();
   await fieldEditorPage.displayNameInput.fill("date1");

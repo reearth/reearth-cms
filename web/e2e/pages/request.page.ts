@@ -148,7 +148,7 @@ export class RequestPage extends BasePage {
   modelPathText(modelName: string, itemId: string): Locator {
     return this.getByText(`${modelName} / ${itemId}`);
   }
-  collapsedModelButton(modelName: string, index: number = 0): Locator {
+  collapsedModelButton(modelName: string, index = 0): Locator {
     return this.getByRole("button", { name: `collapsed ${modelName}` }).nth(index);
   }
   collapsedModelItemButton(modelName: string, itemId: string): Locator {

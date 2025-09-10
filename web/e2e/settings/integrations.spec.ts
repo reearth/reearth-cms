@@ -8,14 +8,18 @@ test.beforeEach(() => {
   id = getId();
 });
 
-test.afterEach(async ({ page, integrationsPage }) => {
+test.afterEach(async ({ integrationsPage }) => {
   await integrationsPage.myIntegrationsMenuItem.click();
   await integrationsPage.integrationTextById(id).click();
   await integrationsPage.removeIntegrationButton.click();
   await integrationsPage.okButton.click();
 });
 
-test("Integration CRUD and searching has succeeded", async ({ reearth, page, integrationsPage }) => {
+test("Integration CRUD and searching has succeeded", async ({
+  reearth,
+  page,
+  integrationsPage,
+}) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await integrationsPage.myIntegrationsMenuItem.click();
 

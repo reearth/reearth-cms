@@ -30,7 +30,10 @@ test.afterEach(async ({ page }) => {
 });
 
 test.describe("Zip Upload Tests", () => {
-  test("Uploading and auto-unzipping ZIP file from URL tab succeeds", async ({ page, assetsPage }) => {
+  test("Uploading and auto-unzipping ZIP file from URL tab succeeds", async ({
+    page,
+    assetsPage,
+  }) => {
     await assetsPage.uploadButton.click();
     await assetsPage.urlTab.click();
     const urlInput = assetsPage.urlInput;
@@ -39,13 +42,14 @@ test.describe("Zip Upload Tests", () => {
     await autoUnzipCheckbox.setChecked(true);
     await expect(autoUnzipCheckbox).toBeChecked();
     await assetsPage.submitUploadButton.click();
-    await expect(assetsPage.lastNotification).toContainText(
-      "Successfully added asset!",
-    );
+    await expect(assetsPage.lastNotification).toContainText("Successfully added asset!");
     await closeNotification(page);
   });
 
-  test("Uploading and auto-unzipping ZIP file via Local tab succeeds", async ({ page, assetsPage }) => {
+  test("Uploading and auto-unzipping ZIP file via Local tab succeeds", async ({
+    page,
+    assetsPage,
+  }) => {
     await assetsPage.uploadButton.click();
     await assetsPage.localTab.click();
     const uploadInput = assetsPage.fileInput;

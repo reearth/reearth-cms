@@ -18,7 +18,12 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
-test("Tag metadata creating and updating has succeeded", async ({ page, fieldEditorPage, projectPage, contentPage, schemaPage }) => {
+test("Tag metadata creating and updating has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   await schemaPage.metaDataTab.click();
   await schemaPage.tagListItem.click();
   await fieldEditorPage.displayNameInput.fill(fieldName);
@@ -88,7 +93,12 @@ test("Tag metadata creating and updating has succeeded", async ({ page, fieldEdi
   await expect(contentPage.cellByText(tag1)).toBeVisible();
 });
 
-test("Tag metadata editing has succeeded", async ({ page, fieldEditorPage, contentPage, schemaPage }) => {
+test("Tag metadata editing has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   const newFieldName = `new ${fieldName}`;
   const newKey = `new-${fieldName}`;
   const newDescription = `new ${description}`;

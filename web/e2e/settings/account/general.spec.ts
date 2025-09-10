@@ -4,7 +4,7 @@ import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 let originalUsername: string;
 let originalEmail: string;
 
-test.beforeEach(async ({ reearth, page, settingsPage }) => {
+test.beforeEach(async ({ reearth, settingsPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await settingsPage.textByName("Account").click();
   originalUsername = await settingsPage.accountNameInput.inputValue();

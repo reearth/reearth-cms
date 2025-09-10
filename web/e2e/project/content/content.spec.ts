@@ -15,7 +15,12 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
-test("Item CRUD and searching has succeeded", async ({ page, contentPage, fieldEditorPage, projectPage }) => {
+test("Item CRUD and searching has succeeded", async ({
+  page,
+  contentPage,
+  fieldEditorPage,
+  projectPage,
+}) => {
   await fieldEditorPage.fieldTypeButton("Text").click();
   await handleFieldForm(page, "text");
   await projectPage.contentMenuItem.click();
@@ -49,7 +54,11 @@ test("Item CRUD and searching has succeeded", async ({ page, contentPage, fieldE
   await expect(contentPage.cellByText("new text")).toBeHidden();
 });
 
-test("Publishing and Unpublishing item from edit page has succeeded", async ({ page, contentPage, fieldEditorPage }) => {
+test("Publishing and Unpublishing item from edit page has succeeded", async ({
+  page,
+  contentPage,
+  fieldEditorPage,
+}) => {
   await fieldEditorPage.fieldTypeListItem("Text").click();
   await handleFieldForm(page, "text");
   await contentPage.contentTextFirst.click();
@@ -74,7 +83,11 @@ test("Publishing and Unpublishing item from edit page has succeeded", async ({ p
   await expect(contentPage.draftStatus).toBeVisible();
 });
 
-test("Publishing and Unpublishing item from table has succeeded", async ({ page, contentPage, fieldEditorPage }) => {
+test("Publishing and Unpublishing item from table has succeeded", async ({
+  page,
+  contentPage,
+  fieldEditorPage,
+}) => {
   await fieldEditorPage.fieldTypeListItem("Text").click();
   await handleFieldForm(page, "text");
   await contentPage.contentTextFirst.click();
@@ -98,7 +111,12 @@ test("Publishing and Unpublishing item from table has succeeded", async ({ page,
   await expect(contentPage.draftStatus).toBeVisible();
 });
 
-test("Showing item title has succeeded", async ({ page, contentPage, fieldEditorPage, schemaPage }) => {
+test("Showing item title has succeeded", async ({
+  page,
+  contentPage,
+  fieldEditorPage,
+  schemaPage,
+}) => {
   await fieldEditorPage.fieldTypeListItem("Text").click();
   await handleFieldForm(page, "text");
   await contentPage.contentText.click();
@@ -133,7 +151,11 @@ test("Showing item title has succeeded", async ({ page, contentPage, fieldEditor
 });
 
 // eslint-disable-next-line playwright/expect-expect
-test("Comment CRUD on Content page has succeeded", async ({ page, contentPage, fieldEditorPage }) => {
+test("Comment CRUD on Content page has succeeded", async ({
+  page,
+  contentPage,
+  fieldEditorPage,
+}) => {
   await fieldEditorPage.fieldTypeListItem("Text").click();
   await handleFieldForm(page, "text");
   await contentPage.contentText.click();

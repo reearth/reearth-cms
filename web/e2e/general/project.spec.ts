@@ -12,7 +12,12 @@ test.afterEach(async ({ page, projectPage, workspacePage }) => {
   await expect(workspacePage.projectTextByName("new project name", true)).toBeHidden();
 });
 
-test("Project CRUD and searching has succeeded", async ({ reearth, page, workspacePage, projectPage }) => {
+test("Project CRUD and searching has succeeded", async ({
+  reearth,
+  page,
+  workspacePage,
+  projectPage,
+}) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   const newProjectButton = workspacePage.newProjectButtonLast;
   await newProjectButton.click();

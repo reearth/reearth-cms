@@ -14,7 +14,7 @@ export class FieldEditorPage extends BasePage {
   get settingsDescriptionInput(): Locator {
     return this.getByLabel("Settings").locator("#description");
   }
-  
+
   // Tabs
   get defaultValueTab(): Locator {
     return this.getByRole("tab", { name: "Default value" });
@@ -71,17 +71,17 @@ export class FieldEditorPage extends BasePage {
   get descriptionRequiredInput(): Locator {
     return this.getByLabel("Description");
   }
-  
+
   // Group field specific
   get groupSelectTrigger(): Locator {
     return this.locator(".ant-select-selector");
   }
-  
+
   // Default value specific
   get plusNewButton(): Locator {
     return this.getByRole("button", { name: "plus New" });
   }
-  
+
   // Textbox helpers
   textboxByIndex(index: number): Locator {
     return this.getByRole("textbox").nth(index);
@@ -90,20 +90,20 @@ export class FieldEditorPage extends BasePage {
   get firstTextbox(): Locator {
     return this.getByRole("textbox").first();
   }
-  
+
   get defaultValueInput(): Locator {
     return this.locator("#defaultValue");
   }
-  
+
   // Validation labels
   get makeFieldRequiredLabel(): Locator {
     return this.locator("label").filter({ hasText: "Make field required" });
   }
-  
+
   get setFieldAsUniqueLabel(): Locator {
     return this.locator("label").filter({ hasText: "Set field as unique" });
   }
-  
+
   // Multiple value controls
   get arrowDownButton(): Locator {
     return this.getByRole("button", { name: "arrow-down" });
@@ -113,29 +113,29 @@ export class FieldEditorPage extends BasePage {
   get valuesInput(): Locator {
     return this.locator("#values");
   }
-  
+
   get deleteButton(): Locator {
     return this.getByRole("button", { name: "delete" });
   }
-  
+
   get settingsTab(): Locator {
     return this.getByRole("tab", { name: "Settings" });
   }
-  
+
   get setOptionsLabel(): Locator {
     return this.getByLabel("Set Options");
   }
-  
+
   get antSelectSelectionItem(): Locator {
     return this.locator(".ant-select-selection-item");
   }
-  
+
   get updateOptionLabel(): Locator {
     return this.getByLabel("Update Option");
   }
-  
+
   // Dynamic methods for options
-  
+
   optionDiv(optionText: string): Locator {
     return this.getByTitle(optionText).locator("div");
   }
@@ -144,48 +144,48 @@ export class FieldEditorPage extends BasePage {
   get assetButton(): Locator {
     return this.getByRole("button", { name: "Asset" });
   }
-  
+
   get uploadAssetButton(): Locator {
     return this.getByRole("button", { name: "upload Upload Asset" });
   }
-  
+
   get urlTab(): Locator {
     return this.getByRole("tab", { name: "URL" });
   }
-  
+
   get urlInput(): Locator {
     return this.getByPlaceholder("Please input a valid URL");
   }
-  
+
   get uploadAndLinkButton(): Locator {
     return this.getByRole("button", { name: "Upload and Link" });
   }
-  
+
   get searchInput(): Locator {
     return this.getByPlaceholder("input search text");
   }
-  
+
   get searchButton(): Locator {
     return this.getByRole("button", { name: "search" });
   }
-  
+
   get antTableRow(): Locator {
     return this.locator(".ant-table-row");
   }
-  
+
   get arrowUpButton(): Locator {
     return this.getByRole("button", { name: "arrow-up" });
   }
-  
+
   get defaultValueLabel(): Locator {
     return this.getByLabel("Default value");
   }
-  
+
   // Dynamic asset button methods
   folderButton(filename: string): Locator {
     return this.getByRole("button", { name: `folder ${filename}` });
   }
-  
+
   filenameButton(filename: string): Locator {
     return this.getByRole("button", { name: filename, exact: true });
   }
@@ -194,27 +194,29 @@ export class FieldEditorPage extends BasePage {
   get fieldDescriptionInput(): Locator {
     return this.getByLabel("Description");
   }
-  
+
   get settingsTabPanel(): Locator {
     return this.getByRole("tabpanel", { name: "settings" });
   }
-  
+
   get tagFilterDiv(): Locator {
-    return this.getByRole("tabpanel", { name: "settings" }).locator("div").filter({ hasText: /^Tag$/ });
+    return this.getByRole("tabpanel", { name: "settings" })
+      .locator("div")
+      .filter({ hasText: /^Tag$/ });
   }
-  
+
   get lastTextbox(): Locator {
     return this.getByRole("textbox").last();
   }
-  
+
   get defaultValueExactLabel(): Locator {
     return this.getByLabel("Default value", { exact: true });
   }
-  
+
   get updateTagLabel(): Locator {
     return this.getByLabel("Update Tag");
   }
-  
+
   // Dynamic tag selection methods
   tagOptionText(tagName: string): Locator {
     return this.getByText(tagName);
@@ -229,16 +231,16 @@ export class FieldEditorPage extends BasePage {
   get setDefaultValueSwitch(): Locator {
     return this.getByLabel("Set default value");
   }
-  
+
   // Switch elements by index
   switchByIndex(index: number): Locator {
     return this.getByRole("switch").nth(index);
   }
-  
+
   get firstSwitch(): Locator {
     return this.getByRole("switch").first();
   }
-  
+
   get allSwitches(): Locator {
     return this.getByRole("switch");
   }
@@ -247,16 +249,16 @@ export class FieldEditorPage extends BasePage {
   get setDefaultValueCheckbox(): Locator {
     return this.getByLabel("Set default value");
   }
-  
+
   // Checkbox elements by index
   checkboxByIndex(index: number): Locator {
     return this.getByRole("checkbox").nth(index);
   }
-  
+
   get firstCheckbox(): Locator {
     return this.getByRole("checkbox").first();
   }
-  
+
   get allCheckboxes(): Locator {
     return this.getByRole("checkbox");
   }
@@ -341,27 +343,27 @@ export class FieldEditorPage extends BasePage {
   get ellipsisButton(): Locator {
     return this.getByRole("button", { name: "ellipsis" });
   }
-  
+
   // Schema navigation
   get metaDataTab(): Locator {
     return this.getByRole("tab", { name: "Meta Data" });
   }
-  
+
   // Menu items
   menuItemByName(name: string): Locator {
     return this.getByRole("menuitem", { name });
   }
-  
+
   // Dynamic field labeling
   fieldText(fieldName: string, key: string): Locator {
     return this.getByText(`${fieldName}#${key}`);
   }
-  
-  // Column headers  
+
+  // Column headers
   columnHeaderWithEdit(fieldName: string): Locator {
     return this.getByRole("columnheader", { name: `${fieldName} edit` });
   }
-  
+
   // Unique field indicators
   uniqueFieldText(fieldName: string, key: string): Locator {
     return this.getByText(`${fieldName} *#${key}(unique)`);
@@ -369,7 +371,7 @@ export class FieldEditorPage extends BasePage {
   uniqueFieldLabel(fieldName: string): Locator {
     return this.getByText(`${fieldName}(unique)`);
   }
-  
+
   // Button variations
   get x2Button(): Locator {
     return this.getByRole("button", { name: "x2" });
@@ -377,7 +379,7 @@ export class FieldEditorPage extends BasePage {
   get x3Button(): Locator {
     return this.getByRole("button", { name: "x3" });
   }
-  
+
   // Tooltip elements
   get tooltip(): Locator {
     return this.getByRole("tooltip");

@@ -29,7 +29,11 @@ test("Tiles CRUD has succeeded", async ({ page, settingsPage }) => {
   await closeNotification(page);
   await settingsPage.editCardButton.click();
   await expect(settingsPage.textByName("Labelled", true)).toBeVisible();
-  await settingsPage.locator("div").filter({ hasText: /^Labelled$/ }).nth(4).click();
+  await settingsPage
+    .locator("div")
+    .filter({ hasText: /^Labelled$/ })
+    .nth(4)
+    .click();
   await settingsPage.urlTileOption.click();
   await settingsPage.nameInput.click();
   await settingsPage.nameInput.fill("url");
@@ -68,7 +72,11 @@ test("Terrain on/off and CRUD has succeeded", async ({ page, settingsPage }) => 
   await closeNotification(page);
   await settingsPage.editIconButton.click();
   await expect(settingsPage.formElement).toContainText("ArcGIS Terrain");
-  await settingsPage.locator("div").filter({ hasText: /^ArcGIS Terrain$/ }).nth(4).click();
+  await settingsPage
+    .locator("div")
+    .filter({ hasText: /^ArcGIS Terrain$/ })
+    .nth(4)
+    .click();
   await settingsPage.cesiumIonOption.click();
   await settingsPage.nameInput.click();
   await settingsPage.nameInput.fill("name");

@@ -13,7 +13,12 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
-test("Boolean metadata creating and updating has succeeded", async ({ page, fieldEditorPage, projectPage, contentPage, schemaPage }) => {
+test("Boolean metadata creating and updating has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   await schemaPage.metaDataTab.click();
   await schemaPage.booleanListItem.click();
   await fieldEditorPage.displayNameInput.fill("boolean1");
@@ -64,7 +69,12 @@ test("Boolean metadata creating and updating has succeeded", async ({ page, fiel
   await expect(contentPage.closeSwitch).toBeVisible();
 });
 
-test("Boolean metadata editing has succeeded", async ({ page, fieldEditorPage, contentPage, schemaPage }) => {
+test("Boolean metadata editing has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   await schemaPage.metaDataTab.click();
   await schemaPage.booleanListItem.click();
   await fieldEditorPage.displayNameInput.fill("boolean1");
@@ -118,14 +128,8 @@ test("Boolean metadata editing has succeeded", async ({ page, fieldEditorPage, c
 
   await contentPage.backButtonRole.click();
   await contentPage.x2Button.click();
-  await expect(contentPage.tooltipSwitchByIndex(0)).toHaveAttribute(
-    "aria-checked",
-    "true",
-  );
-  await expect(contentPage.tooltipSwitchByIndex(1)).toHaveAttribute(
-    "aria-checked",
-    "true",
-  );
+  await expect(contentPage.tooltipSwitchByIndex(0)).toHaveAttribute("aria-checked", "true");
+  await expect(contentPage.tooltipSwitchByIndex(1)).toHaveAttribute("aria-checked", "true");
 
   await contentPage.tooltipSwitchByIndex(0).click();
   await closeNotification(page);
@@ -140,16 +144,7 @@ test("Boolean metadata editing has succeeded", async ({ page, fieldEditorPage, c
 
   await contentPage.backButtonLabel.click();
   await contentPage.x3Button.click();
-  await expect(contentPage.tooltipSwitchByIndex(0)).toHaveAttribute(
-    "aria-checked",
-    "false",
-  );
-  await expect(contentPage.tooltipSwitchByIndex(1)).toHaveAttribute(
-    "aria-checked",
-    "true",
-  );
-  await expect(contentPage.tooltipSwitchByIndex(2)).toHaveAttribute(
-    "aria-checked",
-    "false",
-  );
+  await expect(contentPage.tooltipSwitchByIndex(0)).toHaveAttribute("aria-checked", "false");
+  await expect(contentPage.tooltipSwitchByIndex(1)).toHaveAttribute("aria-checked", "true");
+  await expect(contentPage.tooltipSwitchByIndex(2)).toHaveAttribute("aria-checked", "false");
 });
