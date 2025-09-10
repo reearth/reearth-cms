@@ -11,15 +11,18 @@ import {
   fromGraphQLWorkspace,
 } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
-  useGetMeQuery,
-  useAddIntegrationToWorkspaceMutation,
   Role as GQLRole,
-  useUpdateIntegrationOfWorkspaceMutation,
-  useRemoveIntegrationFromWorkspaceMutation,
   Workspace as GQLWorkspace,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useUserRights } from "@reearth-cms/state";
+import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
+import { useMutation, useQuery } from "@apollo/client/react";
+import {
+  AddIntegrationToWorkspaceDocument,
+  RemoveIntegrationFromWorkspaceDocument,
+  UpdateIntegrationOfWorkspaceDocument,
+} from "@reearth-cms/gql/__generated__/workspace.generated";
 
 export default (workspaceId?: string) => {
   const [selectedIntegration, setSelectedIntegration] = useState<WorkspaceIntegration>();
@@ -27,7 +30,7 @@ export default (workspaceId?: string) => {
   const [searchTerm, setSearchTerm] = useState<string>();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const { data, refetch, loading } = useGetMeQuery({
+  const { data, refetch, loading } = useQuery(GetMeDocument, {
     fetchPolicy: "cache-and-network",
     notifyOnNetworkStatusChange: true,
   });
@@ -85,8 +88,9 @@ export default (workspaceId?: string) => {
     [data?.me?.integrations, workspaceIntegrations],
   );
 
-  const [addIntegrationToWorkspaceMutation, { loading: addLoading }] =
-    useAddIntegrationToWorkspaceMutation();
+  const [addIntegrationToWorkspaceMutation, { loading: addLoading }] = useMutation(
+    AddIntegrationToWorkspaceDocument,
+  );
 
   const handleIntegrationConnect = useCallback(
     async (integrationId: string) => {
@@ -98,7 +102,7 @@ export default (workspaceId?: string) => {
           role: GQLRole.Reader,
         },
       });
-      if (integrationResponse.errors || !integrationResponse.data?.addIntegrationToWorkspace) {
+      if (integrationResponse.error || !integrationResponse.data?.addIntegrationToWorkspace) {
         Notification.error({ message: t("Failed to connect integration.") });
         throw new Error();
       }
@@ -108,8 +112,9 @@ export default (workspaceId?: string) => {
     [addIntegrationToWorkspaceMutation, workspaceId, refetch, t],
   );
 
-  const [updateIntegrationToWorkspaceMutation, { loading: updateLoading }] =
-    useUpdateIntegrationOfWorkspaceMutation();
+  const [updateIntegrationToWorkspaceMutation, { loading: updateLoading }] = useMutation(
+    UpdateIntegrationOfWorkspaceDocument,
+  );
 
   const handleUpdateIntegration = useCallback(
     async (role: Role) => {
@@ -121,7 +126,7 @@ export default (workspaceId?: string) => {
           role: role as GQLRole,
         },
       });
-      if (integration.errors || !integration.data?.updateIntegrationOfWorkspace) {
+      if (integration.error || !integration.data?.updateIntegrationOfWorkspace) {
         Notification.error({ message: t("Failed to update workspace integration.") });
         throw new Error();
       }
@@ -132,8 +137,9 @@ export default (workspaceId?: string) => {
     [updateIntegrationToWorkspaceMutation, selectedIntegration, workspaceId, refetch, t],
   );
 
-  const [removeIntegrationFromWorkspaceMutation, { loading: deleteLoading }] =
-    useRemoveIntegrationFromWorkspaceMutation();
+  const [removeIntegrationFromWorkspaceMutation, { loading: deleteLoading }] = useMutation(
+    RemoveIntegrationFromWorkspaceDocument,
+  );
 
   const handleIntegrationRemove = useCallback(
     async (integrationIds: string[]) => {
@@ -145,7 +151,7 @@ export default (workspaceId?: string) => {
               variables: { workspaceId, integrationId },
               refetchQueries: ["GetMe"],
             });
-            if (result.errors) {
+            if (result.error) {
               throw new Error();
             }
           }),

@@ -8,13 +8,16 @@ import {
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLWorkspaceSettings } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
-  useGetWorkspaceSettingsQuery,
-  useUpdateWorkspaceSettingsMutation,
   ResourceInput,
   WorkspaceSettings as GQLWorkspaceSettings,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace, useUserRights } from "@reearth-cms/state";
+import {
+  GetWorkspaceSettingsDocument,
+  UpdateWorkspaceSettingsDocument,
+} from "@reearth-cms/gql/__generated__/workspace.generated";
+import { useMutation, useQuery } from "@apollo/client/react";
 
 export default () => {
   const t = useT();
@@ -22,7 +25,7 @@ export default () => {
   const [currentWorkspace] = useWorkspace();
   const [userRights] = useUserRights();
   const workspaceId = currentWorkspace?.id;
-  const { data, refetch, loading } = useGetWorkspaceSettingsQuery({
+  const { data, refetch, loading } = useQuery(GetWorkspaceSettingsDocument, {
     variables: { workspaceId: workspaceId ?? "" },
   });
 
@@ -45,8 +48,9 @@ export default () => {
       : defaultSettings;
   }, [data?.node, defaultSettings]);
 
-  const [updateWorkspaceMutation, { loading: updateLoading }] =
-    useUpdateWorkspaceSettingsMutation();
+  const [updateWorkspaceMutation, { loading: updateLoading }] = useMutation(
+    UpdateWorkspaceSettingsDocument,
+  );
 
   const handleWorkspaceSettingsUpdate = useCallback(
     async (tiles: TileInput[], terrains: TerrainInput[], isEnable?: boolean) => {
@@ -66,7 +70,7 @@ export default () => {
         },
       });
 
-      if (res.errors) {
+      if (res.error) {
         Notification.error({ message: t("Failed to update workspace.") });
       } else {
         Notification.success({ message: t("Successfully updated workspace!") });
