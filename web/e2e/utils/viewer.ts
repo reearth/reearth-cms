@@ -1,4 +1,4 @@
-import { Page } from "@reearth-cms/e2e/fixtures/test";
+import { type Page } from "@reearth-cms/e2e/fixtures/test";
 
 export async function isCesiumViewerReady(
   page: Page,
