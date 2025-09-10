@@ -4,7 +4,6 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/samber/lo"
-	"golang.org/x/text/language"
 
 	"github.com/reearth/reearthx/util"
 )
@@ -39,34 +38,19 @@ func ToMe(u *user.User) *Me {
 	if u == nil {
 		return nil
 	}
-	var lang language.Tag
-	var theme Theme
-	var photoURL string
-
-	if metadata := u.Metadata(); metadata != nil {
-		lang = metadata.Lang()
-		theme = Theme(metadata.Theme())
-		if metadata.PhotoURL() != "" {
-			photoURL = metadata.PhotoURL()
-		}
-	} else {
-		// Default values when metadata is nil
-		lang = language.English // or language.Und for undefined
-		theme = Theme("")
-	}
 
 	return &Me{
 		ID:            IDFrom(u.ID()),
 		Name:          u.Name(),
 		Email:         u.Email(),
-		Lang:          lang,
+		Lang:          u.Metadata().Lang(),
 		Host:          lo.EmptyableToPtr(u.Host()),
-		Theme:         theme,
+		Theme:         Theme(u.Metadata().Theme()),
 		MyWorkspaceID: IDFrom(u.Workspace()),
 		Auths: util.Map(u.Auths(), func(a user.Auth) string {
 			return a.Provider
 		}),
-		ProfilePictureURL: lo.ToPtr(photoURL),
+		ProfilePictureURL: lo.ToPtr(u.Metadata().PhotoURL()),
 	}
 }
 

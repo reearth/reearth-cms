@@ -188,13 +188,9 @@ func generateUserOperator(ctx context.Context, appCtx *ApplicationContext, u *us
 		return nil, err
 	}
 
-	lang := defaultLang
-	if metadata := u.Metadata(); metadata != nil {
-		langVal := metadata.Lang()
-		langStr := langVal.String()
-		if langStr != "" && langStr != "und" {
-			lang = langStr
-		}
+	lang := u.Metadata().Lang().String()
+	if lang == "" || lang == "und" {
+		lang = defaultLang
 	}
 
 	acop := &accountusecase.Operator{
