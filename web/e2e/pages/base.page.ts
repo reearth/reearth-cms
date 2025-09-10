@@ -108,6 +108,10 @@ export abstract class BasePage {
     return this.page.getByRole(role, options);
   }
 
+  getByTestId(testId: string | RegExp): Locator {
+    return this.page.getByTestId(testId);
+  }
+
   getByLabel(
     text: string | RegExp,
     options?:

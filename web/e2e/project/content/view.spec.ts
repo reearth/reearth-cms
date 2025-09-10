@@ -17,173 +17,160 @@ test.afterEach(async ({ page }) => {
   await deleteWorkspace(page);
 });
 
-async function itemAdd(page: Page, data: string) {
-  await page.getByRole("button", { name: "plus New Item" }).click();
-  await page.getByLabel("text").click();
-  await page.getByLabel("text").fill(data);
-  await page.getByRole("button", { name: "Save" }).click();
+async function itemAdd(page: Page, data: string, contentPage: any) {
+  await contentPage.newItemButton.click();
+  await contentPage.fieldInput("text").click();
+  await contentPage.fieldInput("text").fill(data);
+  await contentPage.saveButton.click();
   await closeNotification(page);
-  await page.getByLabel("Back").click();
+  await contentPage.backButton.click();
 }
 
-test("View CRUD has succeeded", async ({ page }) => {
+test("View CRUD has succeeded", async ({ page, fieldEditorPage, projectPage, contentPage }) => {
   test.slow();
-  await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
+  await fieldEditorPage.fieldTypeButton("Text").click();
   await handleFieldForm(page, "text");
-  await page.getByText("Content").click();
-  await itemAdd(page, "text1");
-  await itemAdd(page, "text2");
-  await itemAdd(page, "sample1");
-  await itemAdd(page, "sample2");
-  await page.getByRole("button", { name: "Save as new view" }).click();
-  await page.getByLabel("View Name").fill("view1");
-  await page.getByRole("button", { name: "OK" }).click();
+  await projectPage.contentMenuItem.click();
+  await itemAdd(page, "text1", contentPage);
+  await itemAdd(page, "text2", contentPage);
+  await itemAdd(page, "sample1", contentPage);
+  await itemAdd(page, "sample2", contentPage);
+  await contentPage.saveAsNewViewButton.click();
+  await contentPage.viewNameInput.fill("view1");
+  await contentPage.okButton.click();
   await closeNotification(page);
-  await expect(page.getByText("view1")).toBeVisible();
-  await expect(page.getByRole("tab").nth(0)).toHaveAttribute("aria-selected", "true");
+  await expect(contentPage.viewByName("view1")).toBeVisible();
+  await expect(contentPage.tab(0)).toHaveAttribute("aria-selected", "true");
 
-  await page.getByLabel("more").locator("svg").click();
-  await page.getByText("Rename").click();
-  await page.getByLabel("View Name").click();
-  await page.getByLabel("View Name").fill("new view1");
-  await page.getByRole("button", { name: "OK" }).click();
+  await contentPage.moreButton.click();
+  await contentPage.renameViewButton.click();
+  await contentPage.viewNameInput.click();
+  await contentPage.viewNameInput.fill("new view1");
+  await contentPage.okButton.click();
   await closeNotification(page);
-  await expect(page.getByText("new view1")).toBeVisible();
-  await page.getByLabel("more").locator("svg").click();
-  await page.getByText("Remove View").click();
-  await page.getByRole("button", { name: "Remove" }).click();
+  await expect(contentPage.viewByName("new view1")).toBeVisible();
+  await contentPage.moreButton.click();
+  await contentPage.removeViewButton.click();
+  await contentPage.removeButton.click();
   await closeNotification(page, false);
-  await page.getByRole("button", { name: "Cancel" }).click();
+  await contentPage.cancelButton.click();
 
-  await page.getByText("text", { exact: true }).click();
-  await expect(
-    page.getByRole("columnheader", { name: "text" }).locator("div").locator(".anticon-caret-up"),
-  ).toHaveClass(/active/);
-  await expect(page.locator(".ant-table-row").nth(0)).toContainText("sample1");
-  await expect(page.locator(".ant-table-row").nth(1)).toContainText("sample2");
+  await contentPage.textColumnHeader().click();
+  await expect(contentPage.sortUpIcon).toHaveClass(/active/);
+  await expect(contentPage.tableRow(0)).toContainText("sample1");
+  await expect(contentPage.tableRow(1)).toContainText("sample2");
 
-  await page.getByRole("button", { name: "plus Filter" }).click();
-  await page.getByRole("menuitem", { name: "text" }).click();
-  await expect(page.getByRole("button", { name: "text close" })).toBeVisible();
-  await page.getByText("is").first().click();
-  await page.getByText("contains", { exact: true }).click();
-  await page.getByPlaceholder("Enter the value").click();
-  await page.getByPlaceholder("Enter the value").fill("text");
-  await page.getByRole("button", { name: "Confirm" }).click();
+  await contentPage.addFilterButton.click();
+  await contentPage.filterMenuItem("text").click();
+  await expect(contentPage.filterCloseButton("text")).toBeVisible();
+  await contentPage.isDropdown.click();
+  await contentPage.containsOption.click();
+  await contentPage.filterValueInput.click();
+  await contentPage.filterValueInput.fill("text");
+  await contentPage.confirmButton.click();
 
-  await page.getByRole("main").getByLabel("setting").locator("svg").click();
-  await expect(page.getByRole("columnheader", { name: "Status" })).toBeVisible();
-  await page.locator(".ant-tree-checkbox").first().click();
-  await expect(page.getByRole("columnheader", { name: "Status" })).toBeHidden();
+  await contentPage.settingsButton.click();
+  await expect(contentPage.statusColumnHeader).toBeVisible();
+  await contentPage.statusCheckbox.click();
+  await expect(contentPage.statusColumnHeader).toBeHidden();
 
-  await page.getByRole("button", { name: "Save as new view" }).click();
-  await page.getByLabel("View Name").click();
-  await page.getByLabel("View Name").fill("view2");
-  await page.getByRole("button", { name: "OK" }).click();
+  await contentPage.saveAsNewViewButton.click();
+  await contentPage.viewNameInput.click();
+  await contentPage.viewNameInput.fill("view2");
+  await contentPage.okButton.click();
   await closeNotification(page);
-  await expect(page.getByRole("tab").nth(0)).toHaveAttribute("aria-selected", "false");
-  await expect(page.getByRole("tab").nth(1)).toHaveAttribute("aria-selected", "true");
-  await expect(
-    page.getByRole("columnheader", { name: "text" }).locator("div").locator(".anticon-caret-up"),
-  ).toHaveClass(/active/);
-  await expect(page.locator(".ant-table-row").nth(0)).toContainText("text1");
-  await expect(page.locator(".ant-table-row").nth(1)).toContainText("text2");
+  await expect(contentPage.tab(0)).toHaveAttribute("aria-selected", "false");
+  await expect(contentPage.tab(1)).toHaveAttribute("aria-selected", "true");
+  await expect(contentPage.sortUpIcon).toHaveClass(/active/);
+  await expect(contentPage.tableRow(0)).toContainText("text1");
+  await expect(contentPage.tableRow(1)).toContainText("text2");
 
-  await page.getByText("new view1").click();
-  await expect(page.getByRole("tab").nth(0)).toHaveAttribute("aria-selected", "true");
-  await expect(page.getByRole("tab").nth(1)).toHaveAttribute("aria-selected", "false");
-  await expect(
-    page.getByRole("columnheader", { name: "text" }).locator("div").locator(".anticon-caret-up"),
-  ).not.toHaveClass(/active/);
-  await expect(page.getByRole("button", { name: "text close" })).toBeHidden();
-  await expect(page.locator(".ant-table-row").nth(0)).toContainText("sample2");
-  await expect(page.locator(".ant-table-row").nth(1)).toContainText("sample1");
-  await expect(page.getByRole("columnheader", { name: "Status" })).toBeVisible();
+  await contentPage.viewByName("new view1").click();
+  await expect(contentPage.tab(0)).toHaveAttribute("aria-selected", "true");
+  await expect(contentPage.tab(1)).toHaveAttribute("aria-selected", "false");
+  await expect(contentPage.sortUpIcon).not.toHaveClass(/active/);
+  await expect(contentPage.filterCloseButton("text")).toBeHidden();
+  await expect(contentPage.tableRow(0)).toContainText("sample2");
+  await expect(contentPage.tableRow(1)).toContainText("sample1");
+  await expect(contentPage.statusColumnHeader).toBeVisible();
 
-  await page.getByText("text", { exact: true }).first().click();
-  await page.getByText("text", { exact: true }).first().click();
-  await expect(page.locator(".ant-table-row").nth(0)).toContainText("text2");
-  await page.getByRole("button", { name: "plus Filter" }).click();
-  await page.getByRole("menuitem", { name: "text" }).click();
-  await expect(page.getByRole("button", { name: "text close" })).toBeVisible();
-  await page.getByText("is", { exact: true }).first().click();
-  await page.getByText("end with", { exact: true }).click();
-  await page.getByPlaceholder("Enter the value").click();
-  await page.getByPlaceholder("Enter the value").fill("1");
-  await page.getByRole("button", { name: "Confirm" }).click();
+  await contentPage.textColumnHeader().first().click();
+  await contentPage.textColumnHeader().first().click();
+  await expect(contentPage.tableRow(0)).toContainText("text2");
+  await contentPage.addFilterButton.click();
+  await contentPage.filterMenuItem("text").click();
+  await expect(contentPage.filterCloseButton("text")).toBeVisible();
+  await contentPage.isDropdown.click();
+  await contentPage.endWithOption.click();
+  await contentPage.filterValueInput.click();
+  await contentPage.filterValueInput.fill("1");
+  await contentPage.confirmButton.click();
 
-  await page.getByRole("tab", { name: "new view1 more" }).locator("svg").click();
-  await page.getByText("Update View").click();
+  await contentPage.viewTabWithMore("new view1").locator("svg").click();
+  await contentPage.updateViewButton.click();
   await closeNotification(page);
 
-  await page.getByText("view2").click();
-  await expect(
-    page.getByRole("columnheader", { name: "text" }).locator("div").locator(".anticon-caret-up"),
-  ).toHaveClass(/active/);
-  await expect(page.getByRole("button", { name: "text close" })).toBeVisible();
-  await expect(page.locator(".ant-table-row").nth(0)).toContainText("text1");
-  await expect(page.locator(".ant-table-row").nth(1)).toContainText("text2");
-  await expect(page.getByRole("columnheader", { name: "Status" })).toBeHidden();
-  await page.getByRole("main").getByLabel("setting").locator("svg").click();
-  await expect(page.locator(".ant-tree-checkbox").first()).not.toHaveClass(
+  await contentPage.viewByName("view2").click();
+  await expect(contentPage.sortUpIcon).toHaveClass(/active/);
+  await expect(contentPage.filterCloseButton("text")).toBeVisible();
+  await expect(contentPage.tableRow(0)).toContainText("text1");
+  await expect(contentPage.tableRow(1)).toContainText("text2");
+  await expect(contentPage.statusColumnHeader).toBeHidden();
+  await contentPage.settingsButton.click();
+  await expect(contentPage.statusCheckbox).not.toHaveClass(
     /ant-tree-checkbox-checked/,
   );
-  await page.getByRole("main").getByLabel("setting").locator("svg").click();
+  await contentPage.settingsButton.click();
 
-  await page.getByText("new view1").click();
-  await expect(
-    page.getByRole("columnheader", { name: "text" }).locator("div").locator(".anticon-caret-down"),
-  ).toHaveClass(/active/);
-  await expect(page.locator(".ant-table-row").nth(0)).toContainText("text1");
-  await expect(page.locator(".ant-table-row").nth(1)).toContainText("sample1");
+  await contentPage.viewByName("new view1").click();
+  await expect(contentPage.sortDownIcon).toHaveClass(/active/);
+  await expect(contentPage.tableRow(0)).toContainText("text1");
+  await expect(contentPage.tableRow(1)).toContainText("sample1");
 
-  await page.getByRole("tab", { name: "new view1 more" }).click();
-  await page.getByRole("tab", { name: "new view1 more" }).locator("svg").click();
-  await page.getByText("Remove View").click();
-  await page.getByRole("button", { name: "Remove" }).click();
+  await contentPage.viewTabWithMore("new view1").click();
+  await contentPage.viewTabWithMore("new view1").locator("svg").click();
+  await contentPage.removeViewButton.click();
+  await contentPage.removeButton.click();
   await closeNotification(page);
-  await expect(page.getByText("new view1")).toBeHidden();
-  await expect(page.getByText("view2")).toBeVisible();
-  await expect(page.getByRole("tab").nth(0)).toHaveAttribute("aria-selected", "true");
-  await expect(
-    page.getByRole("columnheader", { name: "text" }).locator("div").locator(".anticon-caret-up"),
-  ).toHaveClass(/active/);
-  await expect(page.locator(".ant-table-row").nth(0)).toContainText("text1");
-  await expect(page.locator(".ant-table-row").nth(1)).toContainText("text2");
+  await expect(contentPage.viewByName("new view1")).toBeHidden();
+  await expect(contentPage.viewByName("view2")).toBeVisible();
+  await expect(contentPage.tab(0)).toHaveAttribute("aria-selected", "true");
+  await expect(contentPage.sortUpIcon).toHaveClass(/active/);
+  await expect(contentPage.tableRow(0)).toContainText("text1");
+  await expect(contentPage.tableRow(1)).toContainText("text2");
 });
 
-test("View reordering has succeeded", async ({ page }) => {
-  await page.getByText("Content").click();
-  await page.getByRole("menuitem", { name: modelName }).click();
+test("View reordering has succeeded", async ({ page, projectPage, contentPage }) => {
+  await projectPage.contentMenuItem.click();
+  await projectPage.modelMenuItemClick(modelName).click();
 
-  await page.getByRole("button", { name: "Save as new view" }).click();
-  await page.getByLabel("View Name").fill("view1");
-  await page.getByRole("button", { name: "OK" }).click();
+  await contentPage.saveAsNewViewButton.click();
+  await contentPage.viewNameInput.fill("view1");
+  await contentPage.okButton.click();
   await closeNotification(page);
 
-  await page.getByRole("button", { name: "Save as new view" }).click();
-  await page.getByLabel("View Name").fill("view2");
-  await page.getByRole("button", { name: "OK" }).click();
+  await contentPage.saveAsNewViewButton.click();
+  await contentPage.viewNameInput.fill("view2");
+  await contentPage.okButton.click();
   await closeNotification(page);
 
-  await expect(page.getByRole("tablist").getByRole("tab").nth(0)).toContainText("view1");
-  await expect(page.getByRole("tablist").getByRole("tab").nth(1)).toContainText("view2");
-  await page
-    .getByRole("tablist")
+  await expect(contentPage.tabList.getByRole("tab").nth(0)).toContainText("view1");
+  await expect(contentPage.tabList.getByRole("tab").nth(1)).toContainText("view2");
+  await contentPage.tabList
     .getByRole("tab")
     .nth(0)
-    .dragTo(page.getByRole("tablist").getByRole("tab").nth(1));
+    .dragTo(contentPage.tabList.getByRole("tab").nth(1));
   await closeNotification(page);
 
-  await expect(page.getByRole("tablist").getByRole("tab").nth(0)).toContainText("view2");
-  await expect(page.getByRole("tablist").getByRole("tab").nth(1)).toContainText("view1");
+  await expect(contentPage.tabList.getByRole("tab").nth(0)).toContainText("view2");
+  await expect(contentPage.tabList.getByRole("tab").nth(1)).toContainText("view1");
 
-  await page.getByRole("button", { name: "Save as new view" }).click();
-  await page.getByLabel("View Name").fill("view3");
-  await page.getByRole("button", { name: "OK" }).click();
+  await contentPage.saveAsNewViewButton.click();
+  await contentPage.viewNameInput.fill("view3");
+  await contentPage.okButton.click();
   await closeNotification(page);
 
-  await expect(page.getByRole("tablist").getByRole("tab").nth(0)).toContainText("view2");
-  await expect(page.getByRole("tablist").getByRole("tab").nth(1)).toContainText("view1");
-  await expect(page.getByRole("tablist").getByRole("tab").nth(2)).toContainText("view3");
+  await expect(contentPage.tabList.getByRole("tab").nth(0)).toContainText("view2");
+  await expect(contentPage.tabList.getByRole("tab").nth(1)).toContainText("view1");
+  await expect(contentPage.tabList.getByRole("tab").nth(2)).toContainText("view3");
 });

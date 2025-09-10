@@ -13,141 +13,129 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
-test("GeometryObject field creating and updating has succeeded", async ({ page }) => {
-  await page.locator("li").filter({ hasText: "Geometry Object" }).locator("div").first().click();
-  await page.getByLabel("Display name").click();
-  await page.getByLabel("Display name").fill("geometryObject1");
-  await page.getByLabel("Settings").locator("#description").click();
-  await page.getByLabel("Settings").locator("#description").fill("geometryObject1 description");
-  await page.getByLabel("Point", { exact: true }).check();
-  await page.getByRole("button", { name: "OK" }).click();
+test("GeometryObject field creating and updating has succeeded", async ({ page, fieldEditorPage, contentPage }) => {
+  await fieldEditorPage.fieldTypeButton("Geometry Object").click();
+  await fieldEditorPage.displayNameInput.click();
+  await fieldEditorPage.displayNameInput.fill("geometryObject1");
+  await fieldEditorPage.settingsDescriptionInput.click();
+  await fieldEditorPage.settingsDescriptionInput.fill("geometryObject1 description");
+  await fieldEditorPage.pointCheckbox.check();
+  await fieldEditorPage.okButton.click();
   await closeNotification(page);
 
-  await expect(page.getByLabel("Fields").getByRole("paragraph")).toContainText(
+  await expect(fieldEditorPage.fieldsContainerParagraph).toContainText(
     "geometryObject1#geometryobject1",
   );
-  await page.getByText("Content").click();
-  await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.locator("label")).toContainText("geometryObject1");
-  await expect(page.getByRole("main")).toContainText("geometryObject1 description");
-  await page.locator(".view-lines").click();
-  await page
-    .getByLabel("Editor content;Press Alt+F1")
-    .fill('{\n"type": "Point",\n"coordinates": [0, 0]');
-  await page.getByRole("button", { name: "Save" }).click();
+  await contentPage.contentText.click();
+  await contentPage.newItemButton.click();
+  await expect(contentPage.labelElement()).toContainText("geometryObject1");
+  await expect(contentPage.mainElement).toContainText("geometryObject1 description");
+  await contentPage.viewLinesEditor.click();
+  await contentPage.editorContent.fill('{\n"type": "Point",\n"coordinates": [0, 0]');
+  await contentPage.saveButton.click();
   await closeNotification(page);
-  await page.getByLabel("Back").click();
-  await page.locator(".ant-table-row > td:nth-child(9)").getByRole("button").click();
-  await expect(page.getByRole("tooltip")).toContainText(
+  await contentPage.backButton.click();
+  await contentPage.nthTableColumnButton(9).click();
+  await expect(contentPage.tooltip).toContainText(
     '{ "type": "Point", "coordinates": [0, 0] }',
   );
 
-  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
-  await page.locator(".ant-row").getByRole("button").nth(1).click();
-  await page.locator(".view-lines").click();
-  await page
-    .getByLabel("Editor content;Press Alt+F1")
-    .fill('{\n"type": "Point",\n"coordinates": [1, 0]');
-  await page.getByRole("button", { name: "Save" }).click();
+  await contentPage.editButton.click();
+  await contentPage.antRowButton(1).click();
+  await contentPage.viewLinesEditor.click();
+  await contentPage.editorContent.fill('{\n"type": "Point",\n"coordinates": [1, 0]');
+  await contentPage.saveButton.click();
   await closeNotification(page);
-  await page.getByLabel("Back").click();
-  await page.locator(".ant-table-row > td:nth-child(9)").getByRole("button").click();
-  await expect(page.getByRole("tooltip")).toContainText(
+  await contentPage.backButton.click();
+  await contentPage.nthTableColumnButton(9).click();
+  await expect(contentPage.tooltip).toContainText(
     '{ "type": "Point", "coordinates": [1, 0] }',
   );
 });
 
-test("GeometryObject field editing has succeeded", async ({ page }) => {
-  await page.locator("li").filter({ hasText: "Geometry Object" }).locator("div").first().click();
-  await page.getByLabel("Display name").click();
-  await page.getByLabel("Display name").fill("geometryObject1");
-  await page.getByLabel("Settings").locator("#description").click();
-  await page.getByLabel("Settings").locator("#description").fill("geometryObject1 description");
-  await page.getByLabel("Point", { exact: true }).check();
-  await page.getByRole("tab", { name: "Default value" }).click();
-  await page.locator(".view-lines").click();
-  await page
-    .getByLabel("Editor content;Press Alt+F1")
-    .fill('{\n"type": "Point",\n"coordinates": [0, 0]');
-  await page.getByRole("button", { name: "OK" }).click();
+test("GeometryObject field editing has succeeded", async ({ page, fieldEditorPage, contentPage, schemaPage }) => {
+  await fieldEditorPage.fieldTypeListItem("Geometry Object").click();
+  await fieldEditorPage.displayNameInput.click();
+  await fieldEditorPage.displayNameInput.fill("geometryObject1");
+  await fieldEditorPage.settingsDescriptionInput.click();
+  await fieldEditorPage.settingsDescriptionInput.fill("geometryObject1 description");
+  await fieldEditorPage.pointCheckbox.check();
+  await fieldEditorPage.defaultValueTab.click();
+  await fieldEditorPage.viewLinesEditor.click();
+  await fieldEditorPage.editorContent.fill('{\n"type": "Point",\n"coordinates": [0, 0]');
+  await fieldEditorPage.okButton.click();
   await closeNotification(page);
-  await page.getByText("Content").click();
-  await expect(page.locator("thead")).toContainText("geometryObject1");
-  await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.locator(".view-lines")).toContainText(
+  await contentPage.contentText.click();
+  await expect(contentPage.tableHead).toContainText("geometryObject1");
+  await contentPage.newItemButton.click();
+  await expect(contentPage.viewLinesEditor).toContainText(
     '{    "type":     "Point",    "coordinates":     [0, 0]}',
   );
 
-  await page.getByRole("button", { name: "Save" }).click();
+  await contentPage.saveButton.click();
   await closeNotification(page);
-  await page.getByLabel("Back").click();
-  await page.locator(".ant-table-row > td:nth-child(9)").getByRole("button").click();
-  await expect(page.getByRole("tooltip")).toContainText(
+  await contentPage.backButton.click();
+  await contentPage.nthTableColumnButton(9).click();
+  await expect(contentPage.tooltip).toContainText(
     '{ "type": "Point", "coordinates": [0, 0] }',
   );
-  await page.getByText("Schema").click();
-  await page.getByRole("img", { name: "ellipsis" }).locator("svg").click();
-  await page.getByLabel("Display name").click();
-  await page.getByLabel("Display name").fill("new geometryObject1");
-  await page.getByLabel("Field Key").click();
-  await page.getByLabel("Field Key").fill("new-geometryobject1");
-  await page.getByLabel("Description(optional)").click();
-  await page.getByLabel("Description(optional)").fill("new geometryObject1 description");
-  await page.getByLabel("Support multiple values").check();
-  await expect(page.getByLabel("Use as title")).toBeHidden();
-  await page.getByRole("tab", { name: "Validation" }).click();
-  await page.getByLabel("Make field required").check();
-  await page.getByLabel("Set field as unique").check();
-  await page.getByRole("tab", { name: "Default value" }).click();
-  await expect(page.locator(".view-lines").nth(0)).toContainText(
+  await schemaPage.schemaText.click();
+  await fieldEditorPage.ellipsisMenuButton.click();
+  await fieldEditorPage.displayNameInput.click();
+  await fieldEditorPage.displayNameInput.fill("new geometryObject1");
+  await fieldEditorPage.fieldKeyInput.click();
+  await fieldEditorPage.fieldKeyInput.fill("new-geometryobject1");
+  await fieldEditorPage.descriptionOptionalInput.click();
+  await fieldEditorPage.descriptionOptionalInput.fill("new geometryObject1 description");
+  await fieldEditorPage.supportMultipleValuesCheckbox.check();
+  await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
+  await fieldEditorPage.validationTab.click();
+  await fieldEditorPage.requiredFieldCheckbox.check();
+  await fieldEditorPage.uniqueFieldCheckbox.check();
+  await fieldEditorPage.defaultValueTab.click();
+  await expect(fieldEditorPage.viewLinesEditor.nth(0)).toContainText(
     '{  "type": "Point",  "coordinates": [0, 0]}',
   );
 
-  await page.getByRole("button", { name: "plus New" }).click();
-  await page
-    .getByLabel("Editor content;Press Alt+F1")
-    .nth(1)
-    .fill('{\n"type": "Point",\n"coordinates": [1, 0]');
-  await page.getByRole("button", { name: "arrow-down" }).first().click();
-  await expect(page.locator(".view-lines").nth(0)).toContainText(
+  await fieldEditorPage.plusNewButton.click();
+  await fieldEditorPage.editorContent.nth(1).fill('{\n"type": "Point",\n"coordinates": [1, 0]');
+  await fieldEditorPage.firstArrowDownButton.click();
+  await expect(fieldEditorPage.viewLinesEditor.nth(0)).toContainText(
     '{  "type": "Point",  "coordinates": [1, 0]}',
   );
-  await expect(page.locator(".view-lines").nth(1)).toContainText(
+  await expect(fieldEditorPage.viewLinesEditor.nth(1)).toContainText(
     '{  "type": "Point",  "coordinates": [0, 0]}',
   );
-  await page.getByRole("button", { name: "OK" }).click();
+  await fieldEditorPage.okButton.click();
   await closeNotification(page);
-  await expect(page.getByText("new geometryObject1 *#new-geometryobject1(unique)")).toBeVisible();
-  await page.getByText("Content").click();
-  await expect(page.locator("thead")).toContainText("new geometryObject1");
-  await page.locator(".ant-table-row > td:nth-child(9)").getByRole("button").click();
-  await expect(page.getByRole("tooltip")).toContainText(
+  await expect(schemaPage.uniqueFieldText("new geometryObject1", "new-geometryobject1")).toBeVisible();
+  await contentPage.contentText.click();
+  await expect(contentPage.tableHead).toContainText("new geometryObject1");
+  await contentPage.nthTableColumnButton(9).click();
+  await expect(contentPage.tooltip).toContainText(
     '{ "type": "Point", "coordinates": [0, 0] }',
   );
-  await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.locator(".view-lines").nth(0)).toContainText(
+  await contentPage.newItemButton.click();
+  await expect(contentPage.viewLinesEditor.nth(0)).toContainText(
     '{  "type": "Point",  "coordinates": [1, 0]}',
   );
-  await expect(page.locator(".view-lines").nth(1)).toContainText(
+  await expect(contentPage.viewLinesEditor.nth(1)).toContainText(
     '{  "type": "Point",  "coordinates": [0, 0]}',
   );
-  await page.getByRole("button", { name: "plus New" }).click();
-  await page
-    .getByLabel("Editor content;Press Alt+F1")
-    .nth(2)
-    .fill('{\n"type": "Point",\n"coordinates": [2, 0]');
-  await page.getByRole("button", { name: "arrow-up" }).nth(2).click();
-  await page.getByRole("button", { name: "Save" }).click();
+  await fieldEditorPage.plusNewButton.click();
+  await contentPage.editorContent.nth(2).fill('{\n"type": "Point",\n"coordinates": [2, 0]');
+  await fieldEditorPage.arrowUpButtonByIndex(2).click();
+  await contentPage.saveButton.click();
   await closeNotification(page);
-  await page.getByLabel("Back").click();
-  await page.getByRole("button", { name: "x3" }).click();
-  await expect(page.getByRole("tooltip").locator("p").nth(0)).toContainText(
+  await contentPage.backButton.click();
+  await contentPage.x3Button.click();
+  await expect(contentPage.tooltipParagraphByIndex(0)).toContainText(
     '{ "type": "Point", "coordinates": [1, 0] }',
   );
-  await expect(page.getByRole("tooltip").locator("p").nth(1)).toContainText(
+  await expect(contentPage.tooltipParagraphByIndex(1)).toContainText(
     '{ "type": "Point", "coordinates": [2, 0] }',
   );
-  await expect(page.getByRole("tooltip").locator("p").nth(2)).toContainText(
+  await expect(contentPage.tooltipParagraphByIndex(2)).toContainText(
     '{ "type": "Point", "coordinates": [0, 0] }',
   );
 });

@@ -18,13 +18,13 @@ test.afterEach(async ({ page }) => {
   await deleteWorkspace(page);
 });
 
-test("Searching current members has succeeded", async ({ page }) => {
-  await page.getByText("Member").click();
-  await expect(page.getByRole("cell", { name: "OWNER" })).toBeVisible();
-  await page.getByPlaceholder("input search text").click();
-  await page.getByPlaceholder("input search text").fill("no member");
-  await page.getByRole("button", { name: "search" }).click();
-  await expect(page.getByRole("cell", { name: "OWNER" })).toBeHidden();
-  await page.getByRole("button", { name: "close-circle" }).click();
-  await expect(page.getByRole("cell", { name: "OWNER" })).toBeVisible();
+test("Searching current members has succeeded", async ({ page, memberPage }) => {
+  await memberPage.memberMenuItem.click();
+  await expect(memberPage.cellByText("OWNER")).toBeVisible();
+  await memberPage.searchInput.click();
+  await memberPage.searchInput.fill("no member");
+  await memberPage.searchButton.click();
+  await expect(memberPage.cellByText("OWNER")).toBeHidden();
+  await memberPage.clearSearchButton.click();
+  await expect(memberPage.cellByText("OWNER")).toBeVisible();
 });

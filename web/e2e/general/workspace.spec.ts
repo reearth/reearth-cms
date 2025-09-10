@@ -11,41 +11,41 @@ test.beforeEach(async () => {
   test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
 });
 
-test("Workspace CRUD has succeeded", async ({ reearth, page }) => {
+test("Workspace CRUD has succeeded", async ({ reearth, page, workspacePage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: "Create a Workspace" }).click();
-  await page.getByLabel("Workspace name").click();
-  await page.getByLabel("Workspace name").fill("workspace name");
-  await page.getByRole("button", { name: "OK" }).click();
+  await workspacePage.createWorkspaceButton.click();
+  await workspacePage.workspaceNameInput.click();
+  await workspacePage.workspaceNameInput.fill("workspace name");
+  await workspacePage.okButton.click();
   await closeNotification(page);
 
-  await page.getByText("Workspace Settings", { exact: true }).click();
-  await page.getByLabel("Workspace Name").click();
-  await page.getByLabel("Workspace Name").fill("new workspace name");
-  await page.getByRole("button", { name: "Save changes" }).click();
+  await workspacePage.workspaceSettingsButton.click();
+  await workspacePage.workspaceNameSettingsInput.click();
+  await workspacePage.workspaceNameSettingsInput.fill("new workspace name");
+  await workspacePage.saveChangesButton.click();
   await closeNotification(page);
 
-  await expect(page.locator("header")).toContainText("new workspace name");
-  await page.getByRole("button", { name: "Remove Workspace" }).click();
-  await page.getByRole("button", { name: "OK" }).click();
+  await expect(workspacePage.header).toContainText("new workspace name");
+  await workspacePage.removeWorkspaceButton.click();
+  await workspacePage.okButton.click();
   await closeNotification(page);
 
-  await page.locator("a").first().click();
-  await expect(page.getByText("new workspace name")).toBeHidden();
+  await workspacePage.firstWorkspaceLink.click();
+  await expect(workspacePage.workspaceTextByName("new workspace name")).toBeHidden();
 });
 
-test("Workspace Creating from tab has succeeded", async ({ reearth, page }) => {
+test("Workspace Creating from tab has succeeded", async ({ reearth, page, workspacePage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await page.locator("a").first().click();
-  await page.getByText("Create Workspace").click();
-  await page.getByLabel("Workspace name").click();
-  await page.getByLabel("Workspace name").fill("workspace name");
-  await page.getByRole("button", { name: "OK" }).click();
+  await workspacePage.firstWorkspaceLink.click();
+  await workspacePage.createWorkspaceTabButton.click();
+  await workspacePage.workspaceNameInput.click();
+  await workspacePage.workspaceNameInput.fill("workspace name");
+  await workspacePage.okButton.click();
   await closeNotification(page);
-  await expect(page.locator("header")).toContainText("workspace name");
+  await expect(workspacePage.header).toContainText("workspace name");
 
-  await page.getByText("Workspace Settings", { exact: true }).click();
-  await page.getByRole("button", { name: "Remove Workspace" }).click();
-  await page.getByRole("button", { name: "OK" }).click();
+  await workspacePage.workspaceSettingsButton.click();
+  await workspacePage.removeWorkspaceButton.click();
+  await workspacePage.okButton.click();
   await closeNotification(page);
 });

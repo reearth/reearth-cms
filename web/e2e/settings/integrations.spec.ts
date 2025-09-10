@@ -8,58 +8,54 @@ test.beforeEach(() => {
   id = getId();
 });
 
-test.afterEach(async ({ page }) => {
-  await page.getByText("My Integrations").click();
-  await page.getByText(id).first().click();
-  await page.getByRole("button", { name: "Remove Integration" }).click();
-  await page.getByRole("button", { name: "OK" }).click();
+test.afterEach(async ({ page, integrationsPage }) => {
+  await integrationsPage.myIntegrationsMenuItem.click();
+  await integrationsPage.integrationTextById(id).click();
+  await integrationsPage.removeIntegrationButton.click();
+  await integrationsPage.okButton.click();
 });
 
-test("Integration CRUD and searching has succeeded", async ({ reearth, page }) => {
+test("Integration CRUD and searching has succeeded", async ({ reearth, page, integrationsPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await page.getByText("My Integrations").click();
+  await integrationsPage.myIntegrationsMenuItem.click();
 
-  await page.getByRole("button", { name: "plus Create new integration" }).click();
-  await page.getByLabel("Integration Name").click();
-  await page.getByLabel("Integration Name").fill(id);
-  await page.getByLabel("Description").click();
-  await page.getByLabel("Description").fill("e2e integration description");
-  await page.getByRole("button", { name: "Create", exact: true }).click();
+  await integrationsPage.createIntegrationButton.click();
+  await integrationsPage.integrationNameInput.click();
+  await integrationsPage.integrationNameInput.fill(id);
+  await integrationsPage.descriptionInput.click();
+  await integrationsPage.descriptionInput.fill("e2e integration description");
+  await integrationsPage.createButton.click();
   await closeNotification(page);
-  await page.getByText("Integrations", { exact: true }).click();
-  await page.getByRole("button", { name: "api Connect Integration" }).first().click();
-  await page.getByText(id, { exact: true }).first().click();
-  await page.getByRole("button", { name: "Connect", exact: true }).click();
+  await integrationsPage.integrationsMenuItem.click();
+  await integrationsPage.connectIntegrationButton.click();
+  await integrationsPage.integrationTextById(id).click();
+  await integrationsPage.connectButton.click();
   await closeNotification(page);
-  await expect(page.getByRole("cell", { name: id, exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "api Connect Integration" }).first().click();
-  await expect(page.getByRole("dialog").getByText(id, { exact: true })).toBeHidden();
-  await page.getByRole("button", { name: "Cancel", exact: true }).click();
-  await page.getByPlaceholder("input search text").click();
-  await page.getByPlaceholder("input search text").fill(id);
-  await page.getByRole("button", { name: "search" }).click();
-  await page.getByRole("cell", { name: "setting" }).locator("svg").click();
-  await page
-    .locator("div")
-    .filter({ hasText: /^Reader$/ })
-    .nth(4)
-    .click();
-  await page.getByTitle("Writer").click();
-  await page.getByRole("button", { name: "Save" }).click();
+  await expect(integrationsPage.integrationCellById(id)).toBeVisible();
+  await integrationsPage.connectIntegrationButton.click();
+  await expect(integrationsPage.dialogIntegrationTextById(id)).toBeHidden();
+  await integrationsPage.cancelButton.click();
+  await integrationsPage.searchInput.click();
+  await integrationsPage.searchInput.fill(id);
+  await integrationsPage.searchButton.click();
+  await integrationsPage.settingSvgButton.click();
+  await integrationsPage.readerRoleOption.click();
+  await integrationsPage.writerRoleOption.click();
+  await integrationsPage.saveButton.click();
   await closeNotification(page);
-  await expect(page.getByRole("cell", { name: "WRITER" })).toBeVisible();
-  await page.getByPlaceholder("input search text").click();
-  await page.getByPlaceholder("input search text").fill("no integration");
-  await page.getByRole("button", { name: "search" }).click();
-  await expect(page.getByRole("cell", { name: id, exact: true })).toBeHidden();
-  await page.getByPlaceholder("input search text").click();
-  await page.getByPlaceholder("input search text").fill(id);
-  await page.getByRole("button", { name: "search" }).click();
-  await expect(page.getByRole("cell", { name: id, exact: true })).toBeVisible();
-  await page.getByLabel("", { exact: true }).check();
-  await page.getByText("Remove").click();
+  await expect(integrationsPage.writerCell).toBeVisible();
+  await integrationsPage.searchInput.click();
+  await integrationsPage.searchInput.fill("no integration");
+  await integrationsPage.searchButton.click();
+  await expect(integrationsPage.integrationCellById(id)).toBeHidden();
+  await integrationsPage.searchInput.click();
+  await integrationsPage.searchInput.fill(id);
+  await integrationsPage.searchButton.click();
+  await expect(integrationsPage.integrationCellById(id)).toBeVisible();
+  await integrationsPage.selectAllCheckbox.check();
+  await integrationsPage.removeText.click();
   await closeNotification(page);
-  await page.getByRole("button", { name: "api Connect Integration" }).first().click();
-  await expect(page.getByRole("dialog").getByText(id, { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Cancel", exact: true }).click();
+  await integrationsPage.connectIntegrationButton.click();
+  await expect(integrationsPage.dialogIntegrationTextById(id)).toBeVisible();
+  await integrationsPage.cancelButton.click();
 });

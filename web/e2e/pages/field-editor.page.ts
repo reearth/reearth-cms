@@ -1,289 +1,468 @@
-import { expect, type Locator } from "@reearth-cms/e2e/fixtures/test";
+// e2e/pages/field-editor.page.ts
+import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 
 import { BasePage } from "./base.page";
 
 export class FieldEditorPage extends BasePage {
-  get fieldTypeDropdown(): Locator {
-    return this.locator(".ant-select-selector").first();
+  // Field form elements
+  get displayNameInput(): Locator {
+    return this.getByLabel("Display name");
+  }
+  get settingsKeyInput(): Locator {
+    return this.getByLabel("Settings").locator("#key");
+  }
+  get settingsDescriptionInput(): Locator {
+    return this.getByLabel("Settings").locator("#description");
+  }
+  
+  // Tabs
+  get defaultValueTab(): Locator {
+    return this.getByRole("tab", { name: "Default value" });
+  }
+  get validationTab(): Locator {
+    return this.getByRole("tab", { name: "Validation" });
   }
 
-  get fieldNameInput(): Locator {
-    return this.getByLabel("Field Name").or(this.getByLabel("Display Name"));
+  // Default value tab
+  get setDefaultValueInput(): Locator {
+    return this.getByLabel("Set default value");
   }
 
+  // Validation tab
+  get maxLengthInput(): Locator {
+    return this.getByLabel("Set maximum length");
+  }
+  get requiredFieldCheckbox(): Locator {
+    return this.getByLabel("Make field required");
+  }
+  get uniqueFieldCheckbox(): Locator {
+    return this.getByLabel("Set field as unique");
+  }
+  get minValueInput(): Locator {
+    return this.getByLabel("Set minimum value");
+  }
+  get maxValueInput(): Locator {
+    return this.getByLabel("Set maximum value");
+  }
+
+  // Field options
+  get supportMultipleValuesCheckbox(): Locator {
+    return this.getByLabel("Support multiple values");
+  }
+  get useAsTitleCheckbox(): Locator {
+    return this.getByLabel("Use as title");
+  }
+
+  // Form buttons
+  get okButton(): Locator {
+    return this.getByRole("button", { name: "OK" });
+  }
+  get cancelButton(): Locator {
+    return this.getByRole("button", { name: "Cancel" });
+  }
+
+  // Additional field settings
   get fieldKeyInput(): Locator {
     return this.getByLabel("Field Key");
   }
-
-  get saveButton(): Locator {
-    return this.getByRole("button", { name: "Save" });
+  get descriptionInput(): Locator {
+    return this.getByLabel("Description(optional)");
+  }
+  get descriptionRequiredInput(): Locator {
+    return this.getByLabel("Description");
+  }
+  
+  // Group field specific
+  get groupSelectTrigger(): Locator {
+    return this.locator(".ant-select-selector");
+  }
+  
+  // Default value specific
+  get plusNewButton(): Locator {
+    return this.getByRole("button", { name: "plus New" });
+  }
+  
+  // Textbox helpers
+  textboxByIndex(index: number): Locator {
+    return this.getByRole("textbox").nth(index);
   }
 
-  get requiredCheckbox(): Locator {
-    return this.getByRole("checkbox", { name: "Required" });
+  get firstTextbox(): Locator {
+    return this.getByRole("textbox").first();
+  }
+  
+  get defaultValueInput(): Locator {
+    return this.locator("#defaultValue");
+  }
+  
+  // Validation labels
+  get makeFieldRequiredLabel(): Locator {
+    return this.locator("label").filter({ hasText: "Make field required" });
+  }
+  
+  get setFieldAsUniqueLabel(): Locator {
+    return this.locator("label").filter({ hasText: "Set field as unique" });
+  }
+  
+  // Multiple value controls
+  get arrowDownButton(): Locator {
+    return this.getByRole("button", { name: "arrow-down" });
   }
 
-  get uniqueCheckbox(): Locator {
-    return this.getByRole("checkbox", { name: "Unique" });
+  // Option field specific
+  get valuesInput(): Locator {
+    return this.locator("#values");
   }
-
-  get multipleCheckbox(): Locator {
-    return this.getByRole("checkbox", { name: "Multiple values" });
-  }
-
+  
   get deleteButton(): Locator {
-    return this.getByRole("button", { name: "Delete" });
+    return this.getByRole("button", { name: "delete" });
+  }
+  
+  get settingsTab(): Locator {
+    return this.getByRole("tab", { name: "Settings" });
+  }
+  
+  get setOptionsLabel(): Locator {
+    return this.getByLabel("Set Options");
+  }
+  
+  get antSelectSelectionItem(): Locator {
+    return this.locator(".ant-select-selection-item");
+  }
+  
+  get updateOptionLabel(): Locator {
+    return this.getByLabel("Update Option");
+  }
+  
+  // Dynamic methods for options
+  
+  optionDiv(optionText: string): Locator {
+    return this.getByTitle(optionText).locator("div");
   }
 
-  get confirmDeleteButton(): Locator {
-    return this.getByRole("button", { name: "OK" });
+  // Asset field specific
+  get assetButton(): Locator {
+    return this.getByRole("button", { name: "Asset" });
+  }
+  
+  get uploadAssetButton(): Locator {
+    return this.getByRole("button", { name: "upload Upload Asset" });
+  }
+  
+  get urlTab(): Locator {
+    return this.getByRole("tab", { name: "URL" });
+  }
+  
+  get urlInput(): Locator {
+    return this.getByPlaceholder("Please input a valid URL");
+  }
+  
+  get uploadAndLinkButton(): Locator {
+    return this.getByRole("button", { name: "Upload and Link" });
+  }
+  
+  get searchInput(): Locator {
+    return this.getByPlaceholder("input search text");
+  }
+  
+  get searchButton(): Locator {
+    return this.getByRole("button", { name: "search" });
+  }
+  
+  get antTableRow(): Locator {
+    return this.locator(".ant-table-row");
+  }
+  
+  get arrowUpButton(): Locator {
+    return this.getByRole("button", { name: "arrow-up" });
+  }
+  
+  get defaultValueLabel(): Locator {
+    return this.getByLabel("Default value");
+  }
+  
+  // Dynamic asset button methods
+  folderButton(filename: string): Locator {
+    return this.getByRole("button", { name: `folder ${filename}` });
+  }
+  
+  filenameButton(filename: string): Locator {
+    return this.getByRole("button", { name: filename, exact: true });
   }
 
-  async selectFieldType(fieldType: string): Promise<void> {
-    await this.fieldTypeDropdown.click();
-    await this.getByText(fieldType, { exact: true }).click();
+  // Tag metadata specific
+  get fieldDescriptionInput(): Locator {
+    return this.getByLabel("Description");
+  }
+  
+  get settingsTabPanel(): Locator {
+    return this.getByRole("tabpanel", { name: "settings" });
+  }
+  
+  get tagFilterDiv(): Locator {
+    return this.getByRole("tabpanel", { name: "settings" }).locator("div").filter({ hasText: /^Tag$/ });
+  }
+  
+  get lastTextbox(): Locator {
+    return this.getByRole("textbox").last();
+  }
+  
+  get defaultValueExactLabel(): Locator {
+    return this.getByLabel("Default value", { exact: true });
+  }
+  
+  get updateTagLabel(): Locator {
+    return this.getByLabel("Update Tag");
+  }
+  
+  // Dynamic tag selection methods
+  tagOptionText(tagName: string): Locator {
+    return this.getByText(tagName);
   }
 
-  async fillFieldBasicInfo(name: string, key?: string): Promise<void> {
-    await this.fieldNameInput.fill(name);
-    if (key) {
-      await this.fieldKeyInput.fill(key);
+  // Field type selection
+  fieldTypeButton(type: string): Locator {
+    return this.locator("li").filter({ hasText: type }).locator("div").first();
+  }
+
+  // Boolean field specific
+  get setDefaultValueSwitch(): Locator {
+    return this.getByLabel("Set default value");
+  }
+  
+  // Switch elements by index
+  switchByIndex(index: number): Locator {
+    return this.getByRole("switch").nth(index);
+  }
+  
+  get firstSwitch(): Locator {
+    return this.getByRole("switch").first();
+  }
+  
+  get allSwitches(): Locator {
+    return this.getByRole("switch");
+  }
+
+  // Checkbox field specific
+  get setDefaultValueCheckbox(): Locator {
+    return this.getByLabel("Set default value");
+  }
+  
+  // Checkbox elements by index
+  checkboxByIndex(index: number): Locator {
+    return this.getByRole("checkbox").nth(index);
+  }
+  
+  get firstCheckbox(): Locator {
+    return this.getByRole("checkbox").first();
+  }
+  
+  get allCheckboxes(): Locator {
+    return this.getByRole("checkbox");
+  }
+
+  // Markdown/Text field specific
+  get defaultValueTextInput(): Locator {
+    return this.getByLabel("Set default value");
+  }
+
+  // Column layout specific
+  get lastColumn(): Locator {
+    return this.locator(".ant-col").last();
+  }
+
+  // Multi-value text fields
+  get textContainers(): Locator {
+    return this.locator(".css-1ago99h");
+  }
+
+  textContainerByIndex(index: number): Locator {
+    return this.locator(".css-1ago99h").nth(index);
+  }
+
+  get firstTextContainer(): Locator {
+    return this.locator("div:nth-child(1) > .css-1ago99h");
+  }
+
+  get secondTextContainer(): Locator {
+    return this.locator("div:nth-child(2) > .css-1ago99h");
+  }
+
+  // Field ordering controls
+  get arrowUpButtons(): Locator {
+    return this.getByRole("button", { name: "arrow-up" });
+  }
+
+  arrowUpButtonByIndex(index: number): Locator {
+    return this.getByRole("button", { name: "arrow-up" }).nth(index);
+  }
+
+  get arrowDownButtons(): Locator {
+    return this.getByRole("button", { name: "arrow-down" });
+  }
+
+  get firstArrowDownButton(): Locator {
+    return this.getByRole("button", { name: "arrow-down" }).first();
+  }
+
+  // Description input field
+  get descriptionOptionalInput(): Locator {
+    return this.getByLabel("Description(optional)");
+  }
+
+  // Default value input by ID
+  get defaultValueIdInput(): Locator {
+    return this.locator("#defaultValue");
+  }
+
+  defaultValueInputByIndex(index: number): Locator {
+    return this.locator("#defaultValue").nth(index);
+  }
+
+  // Title helpers
+  titleByText(title: string, exact = false): Locator {
+    return this.getByTitle(title, { exact });
+  }
+
+  // Fields container
+  get fieldsContainer(): Locator {
+    return this.getByLabel("Fields");
+  }
+
+  // Fields container paragraph
+  get fieldsContainerParagraph(): Locator {
+    return this.getByLabel("Fields").getByRole("paragraph");
+  }
+
+  // Field management
+  get ellipsisMenuButton(): Locator {
+    return this.getByRole("img", { name: "ellipsis" }).locator("svg");
+  }
+  get ellipsisButton(): Locator {
+    return this.getByRole("button", { name: "ellipsis" });
+  }
+  
+  // Schema navigation
+  get metaDataTab(): Locator {
+    return this.getByRole("tab", { name: "Meta Data" });
+  }
+  
+  // Menu items
+  menuItemByName(name: string): Locator {
+    return this.getByRole("menuitem", { name });
+  }
+  
+  // Dynamic field labeling
+  fieldText(fieldName: string, key: string): Locator {
+    return this.getByText(`${fieldName}#${key}`);
+  }
+  
+  // Column headers  
+  columnHeaderWithEdit(fieldName: string): Locator {
+    return this.getByRole("columnheader", { name: `${fieldName} edit` });
+  }
+  
+  // Unique field indicators
+  uniqueFieldText(fieldName: string, key: string): Locator {
+    return this.getByText(`${fieldName} *#${key}(unique)`);
+  }
+  uniqueFieldLabel(fieldName: string): Locator {
+    return this.getByText(`${fieldName}(unique)`);
+  }
+  
+  // Button variations
+  get x2Button(): Locator {
+    return this.getByRole("button", { name: "x2" });
+  }
+  get x3Button(): Locator {
+    return this.getByRole("button", { name: "x3" });
+  }
+  
+  // Tooltip elements
+  get tooltip(): Locator {
+    return this.getByRole("tooltip");
+  }
+  tooltipTextbox(index?: number): Locator {
+    if (typeof index === "number") {
+      return this.getByRole("tooltip").getByRole("textbox").nth(index);
     }
+    return this.getByRole("tooltip").getByRole("textbox");
   }
 
-  async setRequired(required = true): Promise<void> {
-    await this.requiredCheckbox.setChecked(required);
+  // Date-specific locators
+  get closeDateButton(): Locator {
+    return this.getByRole("button", { name: "close-circle" });
   }
 
-  async setUnique(unique = true): Promise<void> {
-    await this.uniqueCheckbox.setChecked(unique);
+  // Title selection helpers
+  titleOption(date: string): Locator {
+    return this.getByTitle(date);
   }
 
-  async setMultiple(multiple = true): Promise<void> {
-    await this.multipleCheckbox.setChecked(multiple);
+  titleDiv(date: string): Locator {
+    return this.getByTitle(date).locator("div");
   }
 
-  async saveField(): Promise<void> {
-    await this.saveButton.click();
-    await this.closeNotification();
+  // Textarea specific elements
+  get textareaElement(): Locator {
+    return this.getByRole("textbox");
   }
 
-  async deleteField(): Promise<void> {
-    await this.deleteButton.click();
-    await this.confirmDeleteButton.click();
-    await this.closeNotification();
+  // Plus new item button
+  get plusNewItemButton(): Locator {
+    return this.getByRole("button", { name: "plus New Item" });
   }
 
-  // Field type specific methods
-  async setTextFieldMaxLength(maxLength: string): Promise<void> {
-    await this.getByLabel("Max Length").fill(maxLength);
+  // Field type list item helper
+  fieldTypeListItem(type: string): Locator {
+    return this.locator("li").filter({ hasText: type }).locator("div").first();
   }
 
-  async setNumberFieldRange(min?: string, max?: string): Promise<void> {
-    if (min) {
-      await this.getByLabel("Min").fill(min);
-    }
-    if (max) {
-      await this.getByLabel("Max").fill(max);
-    }
+  // Select date placeholder
+  get selectDatePlaceholder(): Locator {
+    return this.getByPlaceholder("Select date");
   }
 
-  async addSelectOption(value: string, label: string): Promise<void> {
-    await this.getByRole("button", { name: "plus Add" }).click();
-    await this.getByLabel("Value").last().fill(value);
-    await this.getByLabel("Label").last().fill(label);
+  // Geometry field specific
+  get pointCheckbox(): Locator {
+    return this.getByLabel("Point", { exact: true });
   }
 
-  async selectAssetType(assetType: string): Promise<void> {
-    await this.locator(".ant-select-selector").click();
-    await this.getByText(assetType).click();
+  get lineStringCheckbox(): Locator {
+    return this.getByLabel("LineString", { exact: true });
   }
 
-  async selectReferenceModel(modelName: string): Promise<void> {
-    await this.locator(".ant-select-selector").click();
-    await this.getByText(modelName).click();
+  get polygonCheckbox(): Locator {
+    return this.getByLabel("Polygon", { exact: true });
   }
 
-  // Boolean field specific methods
-  async setBooleanFieldValues(trueValue: string, falseValue: string): Promise<void> {
-    const trueInput = this.getByLabel("Default value when true");
-    const falseInput = this.getByLabel("Default value when false");
-
-    await trueInput.clear();
-    await trueInput.fill(trueValue);
-    await falseInput.clear();
-    await falseInput.fill(falseValue);
+  get multiPointCheckbox(): Locator {
+    return this.getByLabel("MultiPoint", { exact: true });
   }
 
-  async expectFieldExists(fieldName: string): Promise<void> {
-    await expect(this.getByText(fieldName)).toBeVisible();
+  get multiLineStringCheckbox(): Locator {
+    return this.getByLabel("MultiLineString", { exact: true });
   }
 
-  async expectFieldNotExists(fieldName: string): Promise<void> {
-    await expect(this.getByText(fieldName)).toBeHidden();
+  get multiPolygonCheckbox(): Locator {
+    return this.getByLabel("MultiPolygon", { exact: true });
   }
 
-  // Field creation workflow methods
-  async createField(
-    fieldType: string,
-    displayName: string,
-    key?: string,
-    description?: string,
-  ): Promise<void> {
-    await this.locator("li").filter({ hasText: fieldType }).locator("div").first().click();
-    await this.getByLabel("Display name").click();
-    await this.getByLabel("Display name").fill(displayName);
-    await this.getByLabel("Settings").locator("#key").click();
-    await this.getByLabel("Settings")
-      .locator("#key")
-      .fill(key || displayName);
-    if (description) {
-      await this.getByLabel("Settings").locator("#description").click();
-      await this.getByLabel("Settings").locator("#description").fill(description);
-    }
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
+  get geometryCollectionCheckbox(): Locator {
+    return this.getByLabel("GeometryCollection", { exact: true });
   }
 
-  async editField(): Promise<void> {
-    await this.getByRole("img", { name: "ellipsis" }).locator("svg").click();
+  // Code editor elements
+  get viewLinesEditor(): Locator {
+    return this.locator(".view-lines");
   }
 
-  async switchToTab(tabName: string): Promise<void> {
-    await this.getByRole("tab", { name: tabName }).click();
+  get editorContent(): Locator {
+    return this.getByLabel("Editor content;Press Alt+F1");
   }
 
-  async setFieldSettings(displayName?: string, key?: string, description?: string): Promise<void> {
-    if (displayName) {
-      await this.getByLabel("Display name").fill(displayName);
-    }
-    if (key) {
-      await this.getByLabel("Field Key").fill(key);
-    }
-    if (description) {
-      await this.getByLabel("Description(optional)").fill(description);
-    }
-  }
-
-  async setValidationOptions(
-    required?: boolean,
-    unique?: boolean,
-    maxLength?: string,
-    minValue?: string,
-    maxValue?: string,
-  ): Promise<void> {
-    await this.switchToTab("Validation");
-    if (required !== undefined) {
-      await this.getByLabel("Make field required").setChecked(required);
-    }
-    if (unique !== undefined) {
-      await this.getByLabel("Set field as unique").setChecked(unique);
-    }
-    if (maxLength) {
-      await this.getByLabel("Set maximum length").fill(maxLength);
-    }
-    if (minValue) {
-      await this.getByLabel("Set minimum value").fill(minValue);
-    }
-    if (maxValue) {
-      await this.getByLabel("Set maximum value").fill(maxValue);
-    }
-  }
-
-  async setDefaultValue(value: string): Promise<void> {
-    await this.switchToTab("Default value");
-    await this.getByLabel("Set default value").click();
-    await this.getByLabel("Set default value").fill(value);
-  }
-
-  async setMultipleValues(values: string[]): Promise<void> {
-    await this.switchToTab("Default value");
-    for (let i = 0; i < values.length; i++) {
-      if (i > 0) {
-        await this.getByRole("button", { name: "plus New" }).click();
-      }
-      await this.locator("#defaultValue").nth(i).fill(values[i]);
-    }
-  }
-
-  async reorderDefaultValues(fromIndex: number, direction: "up" | "down"): Promise<void> {
-    const button =
-      direction === "up"
-        ? this.getByRole("button", { name: "arrow-up" })
-        : this.getByRole("button", { name: "arrow-down" });
-    await button.nth(fromIndex).click();
-  }
-
-  async setSupportMultipleValues(enabled: boolean): Promise<void> {
-    await this.getByLabel("Support multiple values").setChecked(enabled);
-  }
-
-  async setUseAsTitle(enabled: boolean): Promise<void> {
-    await this.getByLabel("Use as title").setChecked(enabled);
-  }
-
-  async setBooleanDefaultValue(enabled: boolean): Promise<void> {
-    await this.switchToTab("Default value");
-    await this.getByLabel("Set default value").setChecked(enabled);
-  }
-
-  async confirmFieldConfiguration(): Promise<void> {
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
-  }
-
-  async cancelFieldConfiguration(): Promise<void> {
-    await this.getByRole("button", { name: "Cancel" }).click();
-  }
-
-  async expectFieldInList(fieldName: string, key?: string, markers?: string[]): Promise<void> {
-    let expectedText = key ? `${fieldName}#${key}` : fieldName;
-    if (markers?.includes("required")) expectedText += " *";
-    if (markers?.includes("unique")) expectedText += "(unique)";
-
-    await expect(this.getByText(expectedText)).toBeVisible();
-  }
-
-  async expectValidationError(shouldBeDisabled?: boolean): Promise<void> {
-    if (shouldBeDisabled) {
-      await expect(this.getByRole("button", { name: "OK" })).toBeDisabled();
-    } else {
-      await expect(this.getByRole("button", { name: "OK" })).toBeEnabled();
-    }
-  }
-
-  async expectFieldValue(label: string, expectedValue: string): Promise<void> {
-    await expect(this.getByLabel(label)).toHaveValue(expectedValue);
-  }
-
-  async expectFieldChecked(label: string, checked: boolean): Promise<void> {
-    if (checked) {
-      await expect(this.getByLabel(label)).toBeChecked();
-    } else {
-      await expect(this.getByLabel(label)).not.toBeChecked();
-    }
-  }
-
-  async expectFieldHidden(label: string): Promise<void> {
-    await expect(this.getByLabel(label)).toBeHidden();
-  }
-
-  async expectFieldDisabled(label: string): Promise<void> {
-    await expect(
-      this.locator("label").filter({ hasText: label }).locator("span").nth(1),
-    ).toBeDisabled();
-  }
-
-  async expectFieldEmpty(label: string): Promise<void> {
-    await expect(this.getByLabel(label)).toBeEmpty();
-  }
-
-  async createTitleField(titleFieldName: string, defaultValue: string): Promise<void> {
-    await this.getByLabel("Display name").fill(titleFieldName);
-    await this.getByLabel("Use as title").check();
-    await this.getByRole("tab", { name: "Default value" }).click();
-    await this.getByLabel("Set default value").fill(defaultValue);
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
+  // Delete field button
+  get deleteFieldButton(): Locator {
+    return this.getByLabel("delete").locator("svg");
   }
 }

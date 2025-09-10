@@ -1,239 +1,175 @@
+// e2e/pages/settings.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 
 import { BasePage } from "./base.page";
 
 export class SettingsPage extends BasePage {
-  get generalTab(): Locator {
-    return this.getByText("General");
+  // Navigation
+  get settingsMenuItem(): Locator {
+    return this.getByText("Settings").first();
+  }
+  get homeMenuItem(): Locator {
+    return this.getByText("Home");
   }
 
-  get integrationsTab(): Locator {
-    return this.getByText("Integrations");
+  // Tiles management
+  get addNewTilesButton(): Locator {
+    return this.getByRole("button", { name: "plus Add new Tiles option" });
+  }
+  get defaultTileOption(): Locator {
+    return this.locator("div").filter({ hasText: /^Default$/ }).nth(4);
+  }
+  get labelledTileOption(): Locator {
+    return this.getByTitle("Labelled");
+  }
+  get urlTileOption(): Locator {
+    return this.getByTitle("URL").locator("div");
   }
 
-  get membersTab(): Locator {
-    return this.getByText("Members");
+  // Terrain management
+  get terrainSwitch(): Locator {
+    return this.getByRole("switch");
+  }
+  get addTerrainButton(): Locator {
+    return this.getByRole("button", { name: "plus Add new Terrain option" });
+  }
+  get cesiumWorldTerrainDiv(): Locator {
+    return this.locator("div").filter({ hasText: /^Cesium World Terrain$/ }).nth(4);
+  }
+  get cesiumWorldTerrainOption(): Locator {
+    return this.locator("div").filter({ hasText: /^Cesium World Terrain$/ }).nth(4);
+  }
+  get arcGisTerrainOption(): Locator {
+    return this.getByTitle("ArcGIS Terrain");
+  }
+  get cesiumIonOption(): Locator {
+    return this.getByTitle("Cesium Ion");
   }
 
-  get saveChangesButton(): Locator {
-    return this.getByRole("button", { name: "Save changes" });
+  // Form inputs
+  get nameInput(): Locator {
+    return this.getByLabel("Name");
+  }
+  get urlInput(): Locator {
+    return this.getByRole("textbox", { name: "URL :", exact: true });
+  }
+  get imageUrlInput(): Locator {
+    return this.getByLabel("Image URL");
+  }
+  get terrainAssetIdInput(): Locator {
+    return this.getByLabel("Terrain Cesium Ion asset ID");
+  }
+  get terrainAccessTokenInput(): Locator {
+    return this.getByLabel("Terrain Cesium Ion access");
+  }
+  get terrainUrlInput(): Locator {
+    return this.getByLabel("Terrain URL");
   }
 
-  // General settings
-  get languageSelect(): Locator {
-    return this.locator(".ant-select-selector").first();
+  // Card elements
+  get cards(): Locator {
+    return this.locator(".ant-card");
+  }
+  cardByIndex(index: number): Locator {
+    return this.locator(".ant-card").nth(index);
+  }
+  get cardBodies(): Locator {
+    return this.locator(".ant-card-body");
+  }
+  get cardMetaAvatarImage(): Locator {
+    return this.locator(".ant-card-body .ant-card-meta-avatar > img");
+  }
+  get grabbableElements(): Locator {
+    return this.locator(".grabbable");
+  }
+  grabbableInCard(cardIndex: number): Locator {
+    return this.cardByIndex(cardIndex).locator(".grabbable");
   }
 
-  // Member settings
-  get inviteButton(): Locator {
-    return this.getByRole("button", { name: "Invite" });
+  // Action buttons in cards
+  get editCardButton(): Locator {
+    return this.locator("div:last-child > .ant-card-actions > li:nth-child(2) > span > .anticon");
+  }
+  get deleteCardButton(): Locator {
+    return this.locator("div:last-child > .ant-card-actions > li:nth-child(1) > span > .anticon");
+  }
+  get editIconButton(): Locator {
+    return this.getByLabel("edit").locator("svg");
+  }
+  get deleteIconButton(): Locator {
+    return this.getByLabel("delete").locator("svg");
   }
 
-  get emailInput(): Locator {
-    return this.getByLabel("Email");
+  // Common form elements
+  get closeButton(): Locator {
+    return this.getByLabel("Close", { exact: true }).first();
+  }
+  get okButton(): Locator {
+    return this.getByRole("button", { name: "OK" });
+  }
+  get saveButton(): Locator {
+    return this.getByRole("button", { name: "Save" });
+  }
+  get formElement(): Locator {
+    return this.locator("form");
+  }
+  
+  // Text elements
+  textByName(text: string, exact = false): Locator {
+    return this.getByText(text, { exact });
+  }
+  
+  // URL input (different from general textbox)
+  get urlTextbox(): Locator {
+    return this.getByLabel("URL", { exact: true });
   }
 
-  get roleSelect(): Locator {
-    return this.locator(".ant-select-selector");
+  // Account and Language settings
+  get accountText(): Locator {
+    return this.getByText(/Account|アカウント/);
+  }
+  get currentLanguageText(): Locator {
+    return this.getByText(/Auto|自動|English|日本語/);
+  }
+  get languageOptionJapanese(): Locator {
+    return this.getByTitle("日本語").last();
+  }
+  get languageOptionEnglish(): Locator {
+    return this.getByTitle("English").last();
+  }
+  languageOptionByTitle(title: string): Locator {
+    return this.getByTitle(title).last();
+  }
+  get formSaveButton(): Locator {
+    return this.locator("form").getByRole("button").nth(1);
+  }
+  get rootElement(): Locator {
+    return this.locator("#root");
+  }
+  get japaneseFirstText(): Locator {
+    return this.getByText("日本語").first();
+  }
+  get englishFirstText(): Locator {
+    return this.getByText("English").first();
   }
 
-  // Integration settings
-  get webhookUrlInput(): Locator {
-    return this.getByLabel("Webhook URL");
+  // Account management
+  get accountNameInput(): Locator {
+    return this.getByLabel(/Account Name|アカウント名/);
   }
-
-  get secretInput(): Locator {
-    return this.getByLabel("Secret");
+  get yourEmailInput(): Locator {
+    return this.getByLabel(/Your Email|メールアドレス/);
   }
-
-  get activeCheckbox(): Locator {
-    return this.getByRole("checkbox", { name: "Active" });
+  get accountNameInputExact(): Locator {
+    return this.getByLabel("Account Name");
   }
-
-  get testButton(): Locator {
-    return this.getByRole("button", { name: "Test" });
+  get yourEmailInputExact(): Locator {
+    return this.getByLabel("Your Email");
   }
-
-  get deleteButton(): Locator {
-    return this.getByRole("button", { name: "delete" });
+  get formSubmitButton(): Locator {
+    return this.locator("form").getByRole("button").first();
   }
-
-  async navigateToGeneral(): Promise<void> {
-    await this.generalTab.click();
-  }
-
-  async navigateToIntegrations(): Promise<void> {
-    await this.integrationsTab.click();
-  }
-
-  async navigateToMembers(): Promise<void> {
-    await this.membersTab.click();
-  }
-
-  async saveChanges(): Promise<void> {
-    await this.saveChangesButton.click();
-    await this.closeNotification();
-  }
-
-  // General settings methods
-  async changeLanguage(language: string): Promise<void> {
-    await this.languageSelect.click();
-    await this.getByText(language).click();
-  }
-
-  // Member management methods
-  async inviteMember(email: string, role = "Reader"): Promise<void> {
-    await this.inviteButton.click();
-    await this.emailInput.fill(email);
-    await this.roleSelect.click();
-    await this.getByText(role).click();
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
-  }
-
-  async removeMember(memberEmail: string): Promise<void> {
-    const memberRow = this.getByText(memberEmail).locator("..").locator("..");
-    await memberRow.getByRole("button", { name: "delete" }).click();
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
-  }
-
-  async changeMemberRole(memberEmail: string, newRole: string): Promise<void> {
-    const memberRow = this.getByText(memberEmail).locator("..").locator("..");
-    await memberRow.locator(".ant-select-selector").click();
-    await this.getByText(newRole).click();
-    await this.saveChanges();
-  }
-
-  // Integration methods
-  async createWebhook(url: string, secret?: string): Promise<void> {
-    await this.getByRole("button", { name: "plus Create" }).click();
-    await this.webhookUrlInput.fill(url);
-    if (secret) {
-      await this.secretInput.fill(secret);
-    }
-    await this.activeCheckbox.check();
-    await this.saveChanges();
-  }
-
-  async testWebhook(): Promise<void> {
-    await this.testButton.click();
-    await this.closeNotification();
-  }
-
-  async deleteIntegration(): Promise<void> {
-    await this.deleteButton.click();
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
-  }
-
-  // Tiles management methods
-  async addTilesOption(optionType = "Default"): Promise<void> {
-    await this.getByRole("button", { name: "plus Add new Tiles option" }).click();
-    if (optionType !== "Default") {
-      await this.locator("div")
-        .filter({ hasText: /^Default$/ })
-        .nth(4)
-        .click();
-      await this.getByTitle(optionType).click();
-    }
-    await this.getByRole("button", { name: "OK" }).click();
-  }
-
-  async configureTileUrl(name: string, url: string, imageUrl?: string): Promise<void> {
-    await this.locator("div")
-      .filter({ hasText: /^Labelled$/ })
-      .nth(4)
-      .click();
-    await this.getByTitle("URL").locator("div").click();
-    await this.getByLabel("Name").fill(name);
-    await this.getByRole("textbox", { name: "URL :", exact: true }).fill(url);
-    if (imageUrl) {
-      await this.getByLabel("Image URL").fill(imageUrl);
-    }
-    await this.getByRole("button", { name: "OK" }).click();
-  }
-
-  async editTileOption(index = 0): Promise<void> {
-    await this.locator(
-      `div:nth-child(${index + 1}) > .ant-card-actions > li:nth-child(2) > span > .anticon`,
-    ).click();
-  }
-
-  async deleteTileOption(index = 0): Promise<void> {
-    await this.locator(
-      `div:nth-child(${index + 1}) > .ant-card-actions > li:nth-child(1) > span > .anticon`,
-    ).click();
-  }
-
-  async saveTileSettings(): Promise<void> {
-    await this.getByRole("button", { name: "Save" }).click();
-    await this.closeNotification();
-  }
-
-  // Terrain management methods
-  async addTerrainOption(optionType = "Cesium World Terrain"): Promise<void> {
-    await this.getByRole("button", { name: "plus Add new Terrain option" }).click();
-    if (optionType !== "Cesium World Terrain") {
-      await this.locator("div")
-        .filter({ hasText: /^Cesium World Terrain$/ })
-        .nth(4)
-        .click();
-      await this.getByTitle(optionType).click();
-    }
-    await this.getByRole("button", { name: "OK" }).click();
-  }
-
-  async configureTerrainCesiumIon(
-    name: string,
-    assetId: string,
-    accessToken: string,
-    terrainUrl?: string,
-    imageUrl?: string,
-  ): Promise<void> {
-    await this.locator("div")
-      .filter({ hasText: /^ArcGIS Terrain$/ })
-      .nth(4)
-      .click();
-    await this.getByTitle("Cesium Ion").click();
-    await this.getByLabel("Name").fill(name);
-    await this.getByLabel("Terrain Cesium Ion asset ID").fill(assetId);
-    await this.getByLabel("Terrain Cesium Ion access").fill(accessToken);
-    if (terrainUrl) {
-      await this.getByLabel("Terrain URL").fill(terrainUrl);
-    }
-    if (imageUrl) {
-      await this.getByLabel("Image URL").fill(imageUrl);
-    }
-    await this.getByRole("button", { name: "OK" }).click();
-  }
-
-  async editTerrainOption(): Promise<void> {
-    await this.getByLabel("edit").locator("svg").click();
-  }
-
-  async deleteTerrainOption(): Promise<void> {
-    await this.getByLabel("delete").locator("svg").click();
-  }
-
-  async saveTerrainSettings(): Promise<void> {
-    await this.getByRole("button", { name: "Save" }).click();
-    await this.closeNotification();
-  }
-
-  // Card reordering methods
-  async reorderCards(fromIndex: number, toIndex: number): Promise<void> {
-    await this.locator(".ant-card")
-      .nth(fromIndex)
-      .locator(".grabbable")
-      .dragTo(this.locator(".ant-card").nth(toIndex));
-  }
-
-  async navigateHome(): Promise<void> {
-    await this.getByText("Home").click();
-  }
-
-  async navigateBackToSettings(): Promise<void> {
-    await this.getByText("Settings").click();
+  get headerElement(): Locator {
+    return this.locator("header");
   }
 }

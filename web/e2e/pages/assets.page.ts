@@ -98,6 +98,19 @@ export class AssetsPage extends BasePage {
     return this.getByRole("button", { name: String(count) });
   }
 
+  // Notifications
+  get lastNotification(): Locator {
+    return this.locator(".ant-notification-notice").last();
+  }
+
+  // Asset detail page locators
+  assetDetailHeading(assetName: string): Locator {
+    return this.getByText(`Asset / ${assetName}`);
+  }
+  get assetTypeText(): Locator {
+    return this.getByText("Asset TypePNG/JPEG/TIFF/GIF");
+  }
+
   async uploadViaUrl(page: Page, url: string, autoUnzip = false): Promise<void> {
     await this.uploadButton.click();
     await this.urlTab.click();

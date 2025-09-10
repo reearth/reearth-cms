@@ -33,141 +33,142 @@ test.afterEach(async ({ page }) => {
 
 test("Request creating, searching, updating reviewer, and approving has succeeded", async ({
   page,
+  requestPage,
 }) => {
-  await page.getByText("Request", { exact: true }).click();
-  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
-  await expect(page.locator("tbody").getByText("WAITING")).toBeVisible();
-  await page.getByPlaceholder("input search text").click();
-  await page.getByPlaceholder("input search text").fill("no request");
-  await page.getByRole("button", { name: "search" }).click();
-  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeHidden();
-  await expect(page.locator("tbody").getByText("WAITING")).toBeHidden();
-  await page.getByPlaceholder("input search text").fill("");
-  await page.getByRole("button", { name: "search" }).click();
-  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
-  await expect(page.locator("tbody").getByText("WAITING")).toBeVisible();
+  await requestPage.requestMenuItem.click();
+  await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
+  await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
+  await requestPage.searchInput.click();
+  await requestPage.searchInput.fill("no request");
+  await requestPage.searchButton.click();
+  await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeHidden();
+  await expect(requestPage.tableBodyTextByText("WAITING")).toBeHidden();
+  await requestPage.searchInput.fill("");
+  await requestPage.searchButton.click();
+  await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
+  await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
 
-  await page.getByLabel("edit").locator("svg").click();
-  await page.getByRole("button", { name: "Assign to" }).click();
-  await page.getByLabel("close-circle").locator("svg").click();
-  await page.locator(".ant-select-selection-overflow").click();
-  await page.locator(".ant-select-item").click();
-  await page.getByRole("heading", { name: "Reviewer" }).click();
-  await page.getByRole("button", { name: "Approve" }).click();
+  await requestPage.editButton.click();
+  await requestPage.assignToButton.click();
+  await requestPage.closeCircleButton.click();
+  await requestPage.selectOverflow.click();
+  await requestPage.selectItem.click();
+  await requestPage.reviewerHeading.click();
+  await requestPage.approveButton.click();
   await closeNotification(page);
-  await page.getByLabel("back").click();
-  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeHidden();
-  await page.getByRole("columnheader", { name: "State filter" }).getByRole("button").click();
-  await page.getByRole("menuitem", { name: "WAITING" }).getByLabel("").uncheck();
-  await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
-  await expect(page.locator("tbody").getByText("APPROVED")).toBeVisible();
+  await requestPage.backButton.click();
+  await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeHidden();
+  await requestPage.stateFilterButton.click();
+  await requestPage.waitingMenuItem().uncheck();
+  await requestPage.okButton.click();
+  await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
+  await expect(requestPage.tableBodyTextByText("APPROVED")).toBeVisible();
 });
 
-test("Request closing and reopening has succeeded", async ({ page }) => {
-  await page.getByText("Request", { exact: true }).click();
-  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
-  await expect(page.locator("tbody").getByText("WAITING")).toBeVisible();
-  await page.getByLabel("edit").locator("svg").click();
+test("Request closing and reopening has succeeded", async ({ page, requestPage }) => {
+  await requestPage.requestMenuItem.click();
+  await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
+  await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
+  await requestPage.editButton.click();
 
-  await page.getByRole("button", { name: "Close" }).click();
+  await requestPage.closeButton.click();
   await closeNotification(page);
-  await page.getByLabel("back").click();
-  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeHidden();
-  await expect(page.locator("tbody").getByText("WAITING")).toBeHidden();
+  await requestPage.backButton.click();
+  await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeHidden();
+  await expect(requestPage.tableBodyTextByText("WAITING")).toBeHidden();
 
-  await page.getByRole("columnheader", { name: "State filter" }).getByRole("button").click();
-  await page.getByRole("menuitem", { name: "WAITING" }).getByLabel("").uncheck();
-  await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.locator("tbody").getByText("CLOSED")).toBeVisible();
-  await page.getByLabel("edit").locator("svg").click();
-  await expect(page.getByText("CLOSED", { exact: true })).toBeVisible();
-  await expect(page.getByText("Closed", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Reopen" }).click();
+  await requestPage.stateFilterButton.click();
+  await requestPage.waitingMenuItem().uncheck();
+  await requestPage.okButton.click();
+  await expect(requestPage.tableBodyTextByText("CLOSED")).toBeVisible();
+  await requestPage.editButton.click();
+  await expect(requestPage.statusText("CLOSED")).toBeVisible();
+  await expect(requestPage.statusText("Closed")).toBeVisible();
+  await requestPage.reopenButton.click();
   await closeNotification(page);
-  await page.getByLabel("Back").click();
-  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
-  await expect(page.locator("tbody").getByText("WAITING")).toBeVisible();
-  await page.getByLabel("", { exact: true }).check();
-  await page.getByText("Close").click();
+  await requestPage.backButtonCapitalized.click();
+  await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
+  await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
+  await requestPage.selectCheckbox.check();
+  await requestPage.closeTextButton.click();
   await closeNotification(page);
-  await page.getByRole("columnheader", { name: "State filter" }).getByRole("button").click();
-  await page.getByRole("menuitem", { name: "WAITING" }).getByLabel("").uncheck();
-  await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.locator("tbody").getByText("CLOSED")).toBeVisible();
-  await page.getByLabel("edit").locator("svg").click();
-  await expect(page.getByText("CLOSED", { exact: true })).toBeVisible();
+  await requestPage.stateFilterButton.click();
+  await requestPage.waitingMenuItem().uncheck();
+  await requestPage.okButton.click();
+  await expect(requestPage.tableBodyTextByText("CLOSED")).toBeVisible();
+  await requestPage.editButton.click();
+  await expect(requestPage.statusText("CLOSED")).toBeVisible();
 });
 
-test("Comment CRUD on edit page has succeeded", async ({ page }) => {
-  await page.getByText("Request", { exact: true }).click();
-  await expect(page.locator("tbody").getByText(requestTitle, { exact: true })).toBeVisible();
-  await expect(page.locator("tbody").getByText("WAITING")).toBeVisible();
-  await page.getByLabel("edit").locator("svg").click();
+test("Comment CRUD on edit page has succeeded", async ({ page, requestPage }) => {
+  await requestPage.requestMenuItem.click();
+  await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
+  await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
+  await requestPage.editButton.click();
 
-  await page.getByRole("textbox").click();
-  await page.getByRole("textbox").fill("comment");
-  await page.getByRole("button", { name: "Comment" }).click();
+  await requestPage.commentTextbox.click();
+  await requestPage.commentTextbox.fill("comment");
+  await requestPage.commentButton.click();
   await closeNotification(page);
-  await expect(page.getByText("comment", { exact: true })).toBeVisible();
-  await page.getByLabel("edit").locator("svg").click();
-  await page.getByRole("textbox").filter({ hasText: "comment" }).click();
-  await page.getByRole("textbox").filter({ hasText: "comment" }).fill("new comment");
-  await page.getByRole("button", { name: "check" }).click();
+  await expect(requestPage.statusText("comment")).toBeVisible();
+  await requestPage.editButton.click();
+  await requestPage.commentTextboxWithText("comment").click();
+  await requestPage.commentTextboxWithText("comment").fill("new comment");
+  await requestPage.checkButton.click();
   await closeNotification(page);
-  await expect(page.getByText("new comment")).toBeVisible();
-  await page.getByRole("button", { name: "delete" }).click();
+  await expect(requestPage.getByText("new comment")).toBeVisible();
+  await requestPage.deleteButton.click();
   await closeNotification(page);
-  await expect(page.getByText("new comment")).toBeHidden();
+  await expect(requestPage.getByText("new comment")).toBeHidden();
 });
 
 // eslint-disable-next-line playwright/expect-expect
-test("Comment CRUD on Request page has succeeded", async ({ page }) => {
-  await page.getByText("Request", { exact: true }).click();
-  await page.getByRole("button", { name: "0" }).click();
+test("Comment CRUD on Request page has succeeded", async ({ page, requestPage }) => {
+  await requestPage.requestMenuItem.click();
+  await requestPage.commentsCountButton("0").click();
   await crudComment(page);
 });
 
-test("Creating a new request and adding to request has succeeded", async ({ page }) => {
-  await page.getByLabel("Back").click();
-  await page.getByRole("button", { name: "plus New Item" }).click();
-  await page.getByRole("button", { name: "Save" }).click();
+test("Creating a new request and adding to request has succeeded", async ({ page, requestPage }) => {
+  await requestPage.backButtonCapitalized.click();
+  await requestPage.newItemButton.click();
+  await requestPage.saveButton.click();
   await closeNotification(page);
-  await page.getByRole("button", { name: "ellipsis" }).click();
-  await page.getByText("Add to Request").click();
-  await page.getByLabel("", { exact: true }).check();
-  await page.getByRole("button", { name: "OK" }).click();
+  await requestPage.ellipsisButton.click();
+  await requestPage.addToRequestButton.click();
+  await requestPage.selectCheckbox.check();
+  await requestPage.okButton.click();
   await closeNotification(page);
-  await page.getByText("Request", { exact: true }).click();
-  await page.getByLabel("edit").locator("svg").click();
-  await expect(page.getByRole("button", { name: "collapsed e2e model name" }).nth(0)).toBeVisible();
-  await expect(page.getByRole("button", { name: "collapsed e2e model name" }).nth(1)).toBeVisible();
+  await requestPage.requestMenuItem.click();
+  await requestPage.editButton.click();
+  await expect(requestPage.collapsedModelButton("e2e model name", 0)).toBeVisible();
+  await expect(requestPage.collapsedModelButton("e2e model name", 1)).toBeVisible();
 });
 
-test("Navigating between item and request has succeeded", async ({ page }) => {
-  await page.getByRole("tab", { name: "Version History" }).click();
-  await page.getByRole("link", { name: requestTitle }).click();
-  await expect(page.getByText(`Request / ${requestTitle}`)).toBeVisible();
-  await expect(page.getByRole("heading", { name: requestTitle })).toBeVisible();
-  await page.getByRole("button", { name: "Approve" }).click();
+test("Navigating between item and request has succeeded", async ({ page, requestPage }) => {
+  await requestPage.versionHistoryTab.click();
+  await requestPage.requestTitleLink(requestTitle).click();
+  await expect(requestPage.requestPageTitle(requestTitle)).toBeVisible();
+  await expect(requestPage.requestHeading(requestTitle)).toBeVisible();
+  await requestPage.approveButton.click();
   await closeNotification(page);
-  await page.getByRole("button", { name: itemTitle }).last().click();
-  await expect(page.getByLabel(`${titleFieldName}Title`)).toHaveValue(itemTitle);
-  await page.getByLabel(`${titleFieldName}Title`).click();
-  await page.getByLabel(`${titleFieldName}Title`).clear();
-  await page.getByRole("button", { name: "Save" }).click();
+  await requestPage.itemTitleButton(itemTitle).click();
+  await expect(requestPage.titleFieldInput(titleFieldName, "Title")).toHaveValue(itemTitle);
+  await requestPage.titleFieldInput(titleFieldName, "Title").click();
+  await requestPage.titleFieldInput(titleFieldName, "Title").clear();
+  await requestPage.saveButton.click();
   await closeNotification(page);
-  const itemId = page.url().split("/").at(-1);
-  await expect(page.getByText(`${modelName} / ${itemId}`)).toBeVisible();
+  const itemId = page.url().split("/").at(-1) as string;
+  await expect(requestPage.modelPathText(modelName, itemId)).toBeVisible();
   const newRequestTitle = "newRequestTitle";
   await createRequest(page, newRequestTitle);
-  await page.getByLabel(`${titleFieldName}Title`).click();
-  await page.getByLabel(`${titleFieldName}Title`).fill("newItemTitle");
-  await page.getByRole("button", { name: "Save" }).click();
+  await requestPage.titleFieldInput(titleFieldName, "Title").click();
+  await requestPage.titleFieldInput(titleFieldName, "Title").fill("newItemTitle");
+  await requestPage.saveButton.click();
   await closeNotification(page);
-  await page.getByRole("tab", { name: "Version History" }).click();
-  await page.getByRole("link", { name: requestTitle }).click();
+  await requestPage.versionHistoryTab.click();
+  await requestPage.requestTitleLink(requestTitle).click();
   await expect(
-    page.getByRole("button", { name: `collapsed ${modelName} / ${itemId}` }),
+    requestPage.collapsedModelItemButton(modelName, itemId),
   ).toBeVisible();
 });

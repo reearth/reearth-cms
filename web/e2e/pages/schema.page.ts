@@ -1,118 +1,210 @@
+// e2e/pages/schema.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 
 import { BasePage } from "./base.page";
 
-export const DEFAULT_MODEL_NAME = "e2e model name";
-
 export class SchemaPage extends BasePage {
-  get pageTitle(): Locator {
-    return this.locator(".ant-page-header-heading-title");
+  // Navigation
+  get schemaMenuItem(): Locator {
+    return this.getByRole("menuitem", { name: "Schema" });
   }
 
-  get mainMenu(): Locator {
-    return this.getByRole("main").getByRole("menu").first();
-  }
-  get lastMenu(): Locator {
-    return this.getByRole("main").getByRole("menu").last();
-  }
-
-  get newModelButton(): Locator {
-    return this.getByRole("button", { name: "plus New Model" });
-  }
-
+  // Model actions
   get addModelButton(): Locator {
+    return this.getByRole("button", { name: "Create Model" });
+  }
+  get plusAddButton(): Locator {
     return this.getByRole("button", { name: "plus Add" });
   }
-
   get modelNameInput(): Locator {
+    return this.locator("#name");
+  }
+  get modelKeyInput(): Locator {
+    return this.locator("#key");
+  }
+  get modelNameLabel(): Locator {
     return this.getByLabel("Model name");
   }
-
-  get modelKeyInput(): Locator {
+  get modelKeyLabel(): Locator {
     return this.getByLabel("Model key");
   }
-
-  get okButton(): Locator {
-    return this.getByRole("button", { name: "OK" });
+  modelMenuItem(name: string): Locator {
+    return this.getByRole("menuitem", { name });
+  }
+  modelMenuItems(): Locator {
+    return this.getByRole("main").getByRole("menuitem");
   }
 
-  get cancelButton(): Locator {
-    return this.getByRole("button", { name: "Cancel" });
-  }
-
-  get moreButton(): Locator {
-    return this.getByRole("button", { name: "more" });
-  }
-
-  get editMenuItem(): Locator {
-    return this.getByText("Edit", { exact: true });
-  }
-  get deleteMenuItem(): Locator {
-    return this.getByText("Delete");
-  }
-
-  get deleteModelConfirmButton(): Locator {
-    return this.getByRole("button", { name: "Delete Model" });
-  }
-
-  get updateModelDialog(): Locator {
-    return this.getByLabel("Update Model");
-  }
-
-  get titleArea(): Locator {
-    return this.getByTitle(/.*/);
-  }
-
-  get keyBadgeArea(): Locator {
-    return this.getByText(/#.+/);
-  }
-
-  get paletteListItems(): Locator {
-    return this.locator("li");
-  }
-
-  get fieldsContainer(): Locator {
-    return this.getByLabel("Fields");
-  }
-
-  get fieldRowEllipsis(): Locator {
-    return this.getByRole("img", { name: "ellipsis" }).locator("svg");
-  }
-  get fieldDeleteIcon(): Locator {
-    return this.getByLabel("delete").locator("svg");
-  }
-
-  get createGroupFromFieldButton(): Locator {
+  // Group actions
+  get addGroupButton(): Locator {
     return this.getByRole("button", { name: "Create Group" });
   }
   get newGroupDialog(): Locator {
     return this.getByLabel("New Group");
   }
+  get groupNameInput(): Locator {
+    return this.getByLabel("New Group").locator("#name");
+  }
+  get groupKeyInput(): Locator {
+    return this.getByLabel("New Group").locator("#key");
+  }
+  groupMenuItem(name: string): Locator {
+    return this.getByRole("menuitem", { name });
+  }
+  get groupMenuItems(): Locator {
+    return this.getByRole("main").getByRole("menu").last().getByRole("menuitem");
+  }
 
-  get createGroupFieldDialogTitle(): Locator {
+  // Field actions
+  fieldTypeButton(type: string): Locator {
+    return this.locator("li").filter({ hasText: type }).locator("div").first();
+  }
+  get fieldEditButton(): Locator {
+    return this.getByRole("img", { name: "ellipsis" }).locator("svg");
+  }
+  get deleteFieldButton(): Locator {
+    return this.getByLabel("delete").locator("svg");
+  }
+  get fieldsContainer(): Locator {
+    return this.getByLabel("Fields");
+  }
+  get draggableItems(): Locator {
+    return this.getByLabel("Fields").locator(".draggable-item");
+  }
+  get grabbableItems(): Locator {
+    return this.getByLabel("Fields").locator(".grabbable");
+  }
+
+  // Field form elements
+  get fieldNameInput(): Locator {
+    return this.locator("#displayName");
+  }
+  get fieldKeyInput(): Locator {
+    return this.locator("#key");
+  }
+  get useAsTitleCheckbox(): Locator {
+    return this.getByLabel("Use as title");
+  }
+  get defaultValueTab(): Locator {
+    return this.getByRole("tab", { name: "Default value" });
+  }
+  get setDefaultValueInput(): Locator {
+    return this.getByLabel("Set default value");
+  }
+
+  // Group field specific
+  get createGroupFieldButton(): Locator {
     return this.getByText("Create Group Field");
   }
   get groupSelectTrigger(): Locator {
     return this.locator(".ant-select-selector");
   }
 
-  get addGroupButton(): Locator {
-    return this.getByRole("button", { name: "plus Add Group" });
+  // Common buttons
+  get okButton(): Locator {
+    return this.getByRole("button", { name: "OK" });
+  }
+  get cancelButton(): Locator {
+    return this.getByRole("button", { name: "Cancel" });
+  }
+  get saveButton(): Locator {
+    return this.getByRole("button", { name: "Save" });
   }
 
-  get groupNameInput(): Locator {
-    return this.getByLabel("Group name");
-  }
-
-  get groupKeyInput(): Locator {
-    return this.getByLabel("Group key");
-  }
-
-  get deleteGroupConfirmButton(): Locator {
-    return this.getByRole("button", { name: "Delete Group" });
-  }
-
+  // Content sections
   get fieldsMetaDataText(): Locator {
     return this.getByText("FieldsMeta Data");
+  }
+  
+  get metaDataTab(): Locator {
+    return this.getByRole("tab", { name: "Meta Data" });
+  }
+  
+  // Dynamic methods for model names
+  modelByText(modelName: string): Locator {
+    return this.getByText(modelName);
+  }
+  
+  // Field list items
+  fieldListItem(fieldText: string): Locator {
+    return this.locator("li").filter({ hasText: fieldText });
+  }
+  
+  ellipsisIcon(): Locator {
+    return this.locator("li").locator("svg").nth(3);
+  }
+  
+  // Group field specific methods  
+  groupNameByText(groupName: string): Locator {
+    return this.getByText(groupName);
+  }
+
+  // Dynamic text selection
+  textByExact(text: string): Locator {
+    return this.getByText(text, { exact: true });
+  }
+  
+  // Schema tab for filtered navigation
+  get schemaSpanText(): Locator {
+    return this.locator("span").filter({ hasText: "Schema" });
+  }
+  
+  // Tag metadata specific
+  get tagListItem(): Locator {
+    return this.getByRole("listitem").filter({ hasText: "Tag" });
+  }
+  
+  // Menu items
+  menuItemByName(itemName: string): Locator {
+    return this.getByRole("menuitem", { name: itemName });
+  }
+  
+  // Text metadata specific
+  get textListItem(): Locator {
+    return this.getByRole("listitem").filter({ hasText: "Text" });
+  }
+
+  // Navigation menu items
+  get contentMenuItem(): Locator {
+    return this.getByRole("menuitem", { name: "Content" });
+  }
+
+  // Boolean metadata specific
+  get booleanListItem(): Locator {
+    return this.getByRole("listitem").filter({ hasText: "Boolean" });
+  }
+
+  // Checkbox metadata specific
+  get checkBoxListItem(): Locator {
+    return this.getByRole("listitem").filter({ hasText: "Check Box" });
+  }
+
+  // Navigation elements
+  get schemaText(): Locator {
+    return this.getByText("Schema");
+  }
+
+  get contentText(): Locator {
+    return this.getByText("Content");
+  }
+
+  // Field type list items
+  fieldTypeListItem(type: string): Locator {
+    return this.locator("li").filter({ hasText: type }).locator("div").first();
+  }
+
+  // Field editing elements
+  get ellipsisMenuIcon(): Locator {
+    return this.getByRole("img", { name: "ellipsis" }).locator("svg");
+  }
+
+  // Field text display
+  fieldText(fieldName: string, key: string): Locator {
+    return this.getByText(`${fieldName}#${key}`);
+  }
+
+  // Unique field text display
+  uniqueFieldText(fieldName: string, key: string): Locator {
+    return this.getByText(`${fieldName} *#${key}(unique)`);
   }
 }

@@ -1,78 +1,80 @@
+// e2e/pages/workspace.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 
 import { BasePage } from "./base.page";
 
 export class WorkspacePage extends BasePage {
+  // Workspace creation
   get createWorkspaceButton(): Locator {
     return this.getByRole("button", { name: "Create a Workspace" });
   }
-
   get workspaceNameInput(): Locator {
     return this.getByLabel("Workspace name");
   }
+  get createWorkspaceTabButton(): Locator {
+    return this.getByText("Create Workspace");
+  }
 
-  get workspaceNameUpdateInput(): Locator {
+  // Workspace settings
+  get workspaceSettingsButton(): Locator {
+    return this.getByText("Workspace Settings", { exact: true });
+  }
+  get workspaceNameSettingsInput(): Locator {
     return this.getByLabel("Workspace Name");
   }
-
-  get okButton(): Locator {
-    return this.getByRole("button", { name: "OK" });
-  }
-
   get saveChangesButton(): Locator {
     return this.getByRole("button", { name: "Save changes" });
   }
-
   get removeWorkspaceButton(): Locator {
     return this.getByRole("button", { name: "Remove Workspace" });
   }
 
-  get workspaceSettingsButton(): Locator {
-    return this.getByText("Workspace", { exact: true });
+  // Common buttons
+  get okButton(): Locator {
+    return this.getByRole("button", { name: "OK" });
   }
 
-  get createWorkspaceTab(): Locator {
-    return this.getByText("Create Workspace");
-  }
-
-  get firstLink(): Locator {
-    return this.locator("a").first();
-  }
-
+  // Header and navigation
   get header(): Locator {
     return this.locator("header");
   }
-
-  async createWorkspace(workspaceName = "e2e workspace name"): Promise<void> {
-    await this.createWorkspaceButton.click();
-    await this.workspaceNameInput.fill(workspaceName);
-    await this.okButton.click();
-    await this.closeNotification();
+  get firstWorkspaceLink(): Locator {
+    return this.locator("a").first();
   }
 
-  async createWorkspaceFromTab(workspaceName = "workspace name"): Promise<void> {
-    await this.firstLink.click();
-    await this.createWorkspaceTab.click();
-    await this.workspaceNameInput.fill(workspaceName);
-    await this.okButton.click();
-    await this.closeNotification();
+  // Project management from workspace level
+  get newProjectButtonLast(): Locator {
+    return this.getByRole("button", { name: "plus New Project" }).last();
+  }
+  get projectNameInput(): Locator {
+    return this.getByLabel("Project name");
+  }
+  get projectDescriptionInput(): Locator {
+    return this.getByLabel("Project description");
+  }
+  get searchProjectsInput(): Locator {
+    return this.getByPlaceholder("search projects");
+  }
+  get searchButton(): Locator {
+    return this.getByRole("button", { name: "search" });
+  }
+  get clearSearchButton(): Locator {
+    return this.getByRole("button", { name: "close-circle" });
+  }
+  get banner(): Locator {
+    return this.getByRole("banner");
   }
 
-  async updateWorkspaceName(newName: string): Promise<void> {
-    await this.workspaceSettingsButton.click();
-    await this.workspaceNameUpdateInput.fill(newName);
-    await this.saveChangesButton.click();
-    await this.closeNotification();
+  // Dynamic project card locators
+  projectCardByName(projectName: string): Locator {
+    return this.locator(".ant-card").filter({ hasText: projectName }).first();
+  }
+  projectTextByName(projectName: string, exact = false): Locator {
+    return this.getByText(projectName, { exact });
   }
 
-  async deleteWorkspace(): Promise<void> {
-    await this.workspaceSettingsButton.click();
-    await this.removeWorkspaceButton.click();
-    await this.okButton.click();
-    await this.closeNotification();
-  }
-
-  async navigateToFirstLink(): Promise<void> {
-    await this.firstLink.click();
+  // Dynamic workspace text locators
+  workspaceTextByName(workspaceName: string): Locator {
+    return this.getByText(workspaceName);
   }
 }

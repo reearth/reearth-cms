@@ -8,11 +8,11 @@ import { config } from "../utils/config";
 
 const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 
-test.beforeEach(async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page, settingsPage }) => {
   test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createWorkspace(page);
-  await page.getByText("Settings").first().click();
+  await settingsPage.settingsMenuItem.click();
 });
 
 test.afterEach(async ({ page }) => {
@@ -20,176 +20,138 @@ test.afterEach(async ({ page }) => {
   await deleteWorkspace(page);
 });
 
-test("Tiles CRUD has succeeded", async ({ page }) => {
-  await page.getByRole("button", { name: "plus Add new Tiles option" }).click();
-  await page
-    .locator("div")
-    .filter({ hasText: /^Default$/ })
-    .nth(4)
-    .click();
-  await page.getByTitle("Labelled").click();
-  await page.getByRole("button", { name: "OK" }).click();
-  await page.getByRole("button", { name: "Save" }).click();
+test("Tiles CRUD has succeeded", async ({ page, settingsPage }) => {
+  await settingsPage.addNewTilesButton.click();
+  await settingsPage.defaultTileOption.click();
+  await settingsPage.labelledTileOption.click();
+  await settingsPage.okButton.click();
+  await settingsPage.saveButton.click();
   await closeNotification(page);
-  await page
-    .locator("div:last-child > .ant-card-actions > li:nth-child(2) > span > .anticon")
-    .click();
-  await expect(page.getByText("Labelled", { exact: true })).toBeVisible();
-  await page
-    .locator("div")
-    .filter({ hasText: /^Labelled$/ })
-    .nth(4)
-    .click();
-  await page.getByTitle("URL").locator("div").click();
-  await page.getByLabel("Name").click();
-  await page.getByLabel("Name").fill("url");
-  await page.getByRole("textbox", { name: "URL :", exact: true }).click();
-  await page.getByRole("textbox", { name: "URL :", exact: true }).fill("http://url.com");
-  await page.getByLabel("Image URL").click();
-  await page.getByLabel("Image URL").fill("http://image.com");
-  await page.getByRole("button", { name: "OK" }).click();
-  await page.getByRole("button", { name: "Save" }).click();
+  await settingsPage.editCardButton.click();
+  await expect(settingsPage.textByName("Labelled", true)).toBeVisible();
+  await settingsPage.locator("div").filter({ hasText: /^Labelled$/ }).nth(4).click();
+  await settingsPage.urlTileOption.click();
+  await settingsPage.nameInput.click();
+  await settingsPage.nameInput.fill("url");
+  await settingsPage.urlInput.click();
+  await settingsPage.urlInput.fill("http://url.com");
+  await settingsPage.imageUrlInput.click();
+  await settingsPage.imageUrlInput.fill("http://image.com");
+  await settingsPage.okButton.click();
+  await settingsPage.saveButton.click();
   await closeNotification(page);
-  await expect(page.getByText("url", { exact: true })).toBeVisible();
-  const targetImageEl = page.locator(".ant-card-body .ant-card-meta-avatar > img");
+  await expect(settingsPage.textByName("url", true)).toBeVisible();
+  const targetImageEl = settingsPage.cardMetaAvatarImage;
   await expect(targetImageEl).toHaveAttribute("src", "http://image.com");
-  await page
-    .locator("div:last-child > .ant-card-actions > li:nth-child(2) > span > .anticon")
-    .click();
-  await expect(page.locator("form")).toContainText("URL");
-  await expect(page.getByLabel("Name")).toHaveValue("url");
-  await expect(page.getByLabel("URL", { exact: true })).toHaveValue("http://url.com");
-  await expect(page.getByLabel("Image URL")).toHaveValue("http://image.com");
-  await page.getByLabel("Close", { exact: true }).first().click();
-  await page
-    .locator("div:last-child > .ant-card-actions > li:nth-child(1) > span > .anticon")
-    .click();
-  await page.getByRole("button", { name: "Save" }).click();
+  await settingsPage.editCardButton.click();
+  await expect(settingsPage.formElement).toContainText("URL");
+  await expect(settingsPage.nameInput).toHaveValue("url");
+  await expect(settingsPage.urlTextbox).toHaveValue("http://url.com");
+  await expect(settingsPage.imageUrlInput).toHaveValue("http://image.com");
+  await settingsPage.closeButton.click();
+  await settingsPage.deleteCardButton.click();
+  await settingsPage.saveButton.click();
   await closeNotification(page);
-  await expect(page.getByText("url", { exact: true })).toBeHidden();
+  await expect(settingsPage.textByName("url", true)).toBeHidden();
 });
 
-test("Terrain on/off and CRUD has succeeded", async ({ page }) => {
-  await expect(page.getByRole("switch")).toBeEnabled();
-  await page.getByRole("switch").click();
-  await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "true");
-  await expect(page.getByRole("button", { name: "plus Add new Terrain option" })).toBeVisible();
-  await page.getByRole("button", { name: "plus Add new Terrain option" }).click();
-  await page
-    .locator("div")
-    .filter({ hasText: /^Cesium World Terrain$/ })
-    .nth(4)
-    .click();
-  await page.getByTitle("ArcGIS Terrain").click();
-  await page.getByRole("button", { name: "OK" }).click();
-  await page.getByRole("button", { name: "Save" }).click();
+test("Terrain on/off and CRUD has succeeded", async ({ page, settingsPage }) => {
+  await expect(settingsPage.terrainSwitch).toBeEnabled();
+  await settingsPage.terrainSwitch.click();
+  await expect(settingsPage.terrainSwitch).toHaveAttribute("aria-checked", "true");
+  await expect(settingsPage.addTerrainButton).toBeVisible();
+  await settingsPage.addTerrainButton.click();
+  await settingsPage.cesiumWorldTerrainOption.click();
+  await settingsPage.arcGisTerrainOption.click();
+  await settingsPage.okButton.click();
+  await settingsPage.saveButton.click();
   await closeNotification(page);
-  await page.getByLabel("edit").locator("svg").click();
-  await expect(page.locator("form")).toContainText("ArcGIS Terrain");
-  await page
-    .locator("div")
-    .filter({ hasText: /^ArcGIS Terrain$/ })
-    .nth(4)
-    .click();
-  await page.getByTitle("Cesium Ion").click();
-  await page.getByLabel("Name").click();
-  await page.getByLabel("Name").fill("name");
-  await page.getByLabel("Terrain Cesium Ion asset ID").click();
-  await page.getByLabel("Terrain Cesium Ion asset ID").fill("id");
-  await page.getByLabel("Terrain Cesium Ion access").click();
-  await page.getByLabel("Terrain Cesium Ion access").fill("token");
-  await page.getByLabel("Terrain URL").click();
-  await page.getByLabel("Terrain URL").fill("http://terrain.com");
-  await page.getByLabel("Image URL").click();
-  await page.getByLabel("Image URL").fill("http://image.com");
-  await page.getByRole("button", { name: "OK" }).click();
-  await page.getByRole("button", { name: "Save" }).click();
+  await settingsPage.editIconButton.click();
+  await expect(settingsPage.formElement).toContainText("ArcGIS Terrain");
+  await settingsPage.locator("div").filter({ hasText: /^ArcGIS Terrain$/ }).nth(4).click();
+  await settingsPage.cesiumIonOption.click();
+  await settingsPage.nameInput.click();
+  await settingsPage.nameInput.fill("name");
+  await settingsPage.terrainAssetIdInput.click();
+  await settingsPage.terrainAssetIdInput.fill("id");
+  await settingsPage.terrainAccessTokenInput.click();
+  await settingsPage.terrainAccessTokenInput.fill("token");
+  await settingsPage.terrainUrlInput.click();
+  await settingsPage.terrainUrlInput.fill("http://terrain.com");
+  await settingsPage.imageUrlInput.click();
+  await settingsPage.imageUrlInput.fill("http://image.com");
+  await settingsPage.okButton.click();
+  await settingsPage.saveButton.click();
   await closeNotification(page);
-  await expect(page.getByText("name", { exact: true })).toBeVisible();
-  await page.getByLabel("edit").locator("svg").click();
-  await expect(page.locator("form")).toContainText("Cesium Ion");
-  await expect(page.getByLabel("Name")).toHaveValue("name");
-  await expect(page.getByLabel("Terrain Cesium Ion asset ID")).toHaveValue("id");
-  await expect(page.getByLabel("Terrain Cesium Ion access")).toHaveValue("token");
-  await expect(page.getByLabel("Terrain URL")).toHaveValue("http://terrain.com");
-  await expect(page.getByLabel("Image URL")).toHaveValue("http://image.com");
-  await page.getByLabel("Close", { exact: true }).first().click();
-  await page.getByLabel("delete").locator("svg").click();
-  await page.getByRole("button", { name: "Save" }).click();
+  await expect(settingsPage.textByName("name", true)).toBeVisible();
+  await settingsPage.editIconButton.click();
+  await expect(settingsPage.formElement).toContainText("Cesium Ion");
+  await expect(settingsPage.nameInput).toHaveValue("name");
+  await expect(settingsPage.terrainAssetIdInput).toHaveValue("id");
+  await expect(settingsPage.terrainAccessTokenInput).toHaveValue("token");
+  await expect(settingsPage.terrainUrlInput).toHaveValue("http://terrain.com");
+  await expect(settingsPage.imageUrlInput).toHaveValue("http://image.com");
+  await settingsPage.closeButton.click();
+  await settingsPage.deleteIconButton.click();
+  await settingsPage.saveButton.click();
   await closeNotification(page);
-  await expect(page.getByText("name", { exact: true })).toBeHidden();
+  await expect(settingsPage.textByName("name", true)).toBeHidden();
 
-  await page.getByRole("switch").click();
-  await page.getByRole("button", { name: "Save" }).click();
+  await settingsPage.terrainSwitch.click();
+  await settingsPage.saveButton.click();
   await closeNotification(page);
-  await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "false");
-  await expect(page.getByRole("button", { name: "plus Add new Terrain option" })).toBeHidden();
+  await expect(settingsPage.terrainSwitch).toHaveAttribute("aria-checked", "false");
+  await expect(settingsPage.addTerrainButton).toBeHidden();
 });
 
-test("Tiles reordering has succeeded", async ({ page }) => {
-  await page.getByRole("button", { name: "plus Add new Tiles option" }).click();
-  await page.getByRole("button", { name: "OK" }).click();
-  await page.getByRole("button", { name: "plus Add new Tiles option" }).click();
-  await page
-    .locator("div")
-    .filter({ hasText: /^Default$/ })
-    .nth(4)
-    .click();
-  await page.getByTitle("Labelled").click();
-  await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.locator(".ant-card").nth(0)).toHaveText("DEFAULT");
-  await expect(page.locator(".ant-card").nth(1)).toHaveText("LABELLED");
-  await page.getByRole("button", { name: "Save" }).click();
+test("Tiles reordering has succeeded", async ({ page, settingsPage }) => {
+  await settingsPage.addNewTilesButton.click();
+  await settingsPage.okButton.click();
+  await settingsPage.addNewTilesButton.click();
+  await settingsPage.defaultTileOption.click();
+  await settingsPage.labelledTileOption.click();
+  await settingsPage.okButton.click();
+  await expect(settingsPage.cardByIndex(0)).toHaveText("DEFAULT");
+  await expect(settingsPage.cardByIndex(1)).toHaveText("LABELLED");
+  await settingsPage.saveButton.click();
   await closeNotification(page);
 
-  await page
-    .locator(".ant-card")
-    .nth(0)
-    .locator(".grabbable")
-    .dragTo(page.locator(".ant-card").nth(1));
-  await expect(page.locator(".ant-card").nth(0)).toHaveText("LABELLED");
-  await expect(page.locator(".ant-card").nth(1)).toHaveText("DEFAULT");
-  await page.getByRole("button", { name: "Save" }).click();
+  await settingsPage.grabbableInCard(0).dragTo(settingsPage.cardByIndex(1));
+  await expect(settingsPage.cardByIndex(0)).toHaveText("LABELLED");
+  await expect(settingsPage.cardByIndex(1)).toHaveText("DEFAULT");
+  await settingsPage.saveButton.click();
   await closeNotification(page);
 
-  await page.getByText("Home").click();
-  await page.getByText("Settings").first().click();
-  await expect(page.locator(".ant-card").nth(0)).toHaveText("LABELLED");
-  await expect(page.locator(".ant-card").nth(1)).toHaveText("DEFAULT");
+  await settingsPage.homeMenuItem.click();
+  await settingsPage.settingsMenuItem.click();
+  await expect(settingsPage.cardByIndex(0)).toHaveText("LABELLED");
+  await expect(settingsPage.cardByIndex(1)).toHaveText("DEFAULT");
 });
 
-test("Terrain reordering has succeeded", async ({ page }) => {
-  await expect(page.getByRole("switch")).toBeEnabled();
-  await page.getByRole("switch").click();
-  await expect(page.getByRole("switch")).toHaveAttribute("aria-checked", "true");
-  await expect(page.getByRole("button", { name: "plus Add new Terrain option" })).toBeVisible();
-  await page.getByRole("button", { name: "plus Add new Terrain option" }).click();
-  await page.getByRole("button", { name: "OK" }).click();
-  await page.getByRole("button", { name: "plus Add new Terrain option" }).click();
-  await page
-    .locator("div")
-    .filter({ hasText: /^Cesium World Terrain$/ })
-    .nth(4)
-    .click();
-  await page.getByTitle("ArcGIS Terrain").click();
-  await page.getByRole("button", { name: "OK" }).click();
-  await expect(page.locator(".ant-card").nth(0)).toHaveText("CESIUM_WORLD_TERRAIN");
-  await expect(page.locator(".ant-card").nth(1)).toHaveText("ARC_GIS_TERRAIN");
-  await page.getByRole("button", { name: "Save" }).click();
+test("Terrain reordering has succeeded", async ({ page, settingsPage }) => {
+  await expect(settingsPage.terrainSwitch).toBeEnabled();
+  await settingsPage.terrainSwitch.click();
+  await expect(settingsPage.terrainSwitch).toHaveAttribute("aria-checked", "true");
+  await expect(settingsPage.addTerrainButton).toBeVisible();
+  await settingsPage.addTerrainButton.click();
+  await settingsPage.okButton.click();
+  await settingsPage.addTerrainButton.click();
+  await settingsPage.cesiumWorldTerrainDiv.click();
+  await settingsPage.arcGisTerrainOption.click();
+  await settingsPage.okButton.click();
+  await expect(settingsPage.cardByIndex(0)).toHaveText("CESIUM_WORLD_TERRAIN");
+  await expect(settingsPage.cardByIndex(1)).toHaveText("ARC_GIS_TERRAIN");
+  await settingsPage.saveButton.click();
   await closeNotification(page);
 
-  await page
-    .locator(".ant-card")
-    .nth(0)
-    .locator(".grabbable")
-    .dragTo(page.locator(".ant-card").nth(1));
-  await expect(page.locator(".ant-card").nth(0)).toHaveText("ARC_GIS_TERRAIN");
-  await expect(page.locator(".ant-card").nth(1)).toHaveText("CESIUM_WORLD_TERRAIN");
-  await page.getByRole("button", { name: "Save" }).click();
+  await settingsPage.grabbableInCard(0).dragTo(settingsPage.cardByIndex(1));
+  await expect(settingsPage.cardByIndex(0)).toHaveText("ARC_GIS_TERRAIN");
+  await expect(settingsPage.cardByIndex(1)).toHaveText("CESIUM_WORLD_TERRAIN");
+  await settingsPage.saveButton.click();
   await closeNotification(page);
 
-  await page.getByText("Home").click();
-  await page.getByText("Settings").first().click();
-  await expect(page.locator(".ant-card").nth(0)).toHaveText("ARC_GIS_TERRAIN");
-  await expect(page.locator(".ant-card").nth(1)).toHaveText("CESIUM_WORLD_TERRAIN");
+  await settingsPage.homeMenuItem.click();
+  await settingsPage.settingsMenuItem.click();
+  await expect(settingsPage.cardByIndex(0)).toHaveText("ARC_GIS_TERRAIN");
+  await expect(settingsPage.cardByIndex(1)).toHaveText("CESIUM_WORLD_TERRAIN");
 });

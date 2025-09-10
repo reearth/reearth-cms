@@ -1,3 +1,4 @@
+/* eslint-disable playwright/expect-expect */
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 
@@ -10,10 +11,10 @@ const jsonUrl = `https://assets.cms.plateau.reearth.io/assets/11/6d05db-ed47-4f8
 const pngName = "road_plan2.png";
 const pngUrl = `https://assets.cms.plateau.reearth.io/assets/33/e999c4-7859-446b-ab3c-86625b3c760e/${pngName}`;
 
-test.beforeEach(async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createProject(page);
-  await page.getByRole("menuitem", { name: "Asset" }).click();
+  await projectPage.assetMenuItem.click();
 });
 
 test.afterEach(async ({ page }) => {
@@ -40,7 +41,7 @@ test.describe.parallel("Json file tests", () => {
 
     // open details
     await assetsPage.editIconButton.click();
-    await expect(page.getByText(`Asset / ${jsonName}`)).toBeVisible();
+    await expect(assetsPage.assetDetailHeading(jsonName)).toBeVisible();
 
     // back to list
     await assetsPage.backButton.click();
@@ -104,14 +105,12 @@ test.describe.parallel("Json file tests", () => {
     await closeNotification(page);
   });
 
-  // eslint-disable-next-line playwright/expect-expect
   test("Comment CRUD on edit page has succeeded", async ({ page, assetsPage }) => {
     await assetsPage.editIconButton.click();
     await assetsPage.commentButton.click();
     await crudComment(page);
   });
 
-  // eslint-disable-next-line playwright/expect-expect
   test("Comment CRUD on Asset page has succeeded", async ({ page, assetsPage }) => {
     await assetsPage.commentsCountButton(0).click();
     await crudComment(page);
@@ -122,7 +121,7 @@ test("Previewing png file on modal has succeeded", async ({ page, assetsPage }) 
   await assetsPage.uploadViaUrl(page, pngUrl);
 
   await assetsPage.editIconButton.click();
-  await expect(page.getByText("Asset TypePNG/JPEG/TIFF/GIF")).toBeVisible();
+  await expect(assetsPage.assetTypeText).toBeVisible();
 
   await assetsPage.fullscreenButton.click();
   await expect(assetsPage.imagePreview).toBeVisible();

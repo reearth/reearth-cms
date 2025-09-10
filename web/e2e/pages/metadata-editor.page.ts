@@ -1,131 +1,121 @@
-import { expect } from "@reearth-cms/e2e/fixtures/test";
+// e2e/pages/metadata-editor.page.ts
+import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 
 import { BasePage } from "./base.page";
 
 export class MetadataEditorPage extends BasePage {
-  async createMetadataField(
-    fieldType: string,
-    displayName: string,
-    key?: string,
-    description?: string,
-  ): Promise<void> {
-    await this.getByRole("tab", { name: "Meta Data" }).click();
-    await this.getByRole("listitem").filter({ hasText: fieldType }).click();
-    await this.getByLabel("Display name").fill(displayName);
-    await this.getByLabel("Field Key").fill(key || displayName);
-    if (description) {
-      await this.getByLabel("Description").fill(description);
-    }
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
+  // Reference field specific elements
+  get selectModelToReferenceLabel(): Locator {
+    return this.getByLabel("Select the model to reference");
   }
-
-  async editMetadataField(): Promise<void> {
-    await this.getByRole("button", { name: "ellipsis" }).click();
+  
+  get createReferenceFieldLabel(): Locator {
+    return this.getByLabel("Create Reference Field");
   }
-
-  async switchToTab(tabName: string): Promise<void> {
-    await this.getByRole("tab", { name: tabName }).click();
+  
+  get oneWayReferenceCheckbox(): Locator {
+    return this.getByLabel("One-way reference");
   }
-
-  async setMetadataSettings(
-    displayName?: string,
-    key?: string,
-    description?: string,
-  ): Promise<void> {
-    if (displayName) {
-      await this.getByLabel("Display name").fill(displayName);
-    }
-    if (key) {
-      await this.getByLabel("Field Key").fill(key);
-    }
-    if (description) {
-      await this.getByLabel("Description").fill(description);
-    }
+  
+  get twoWayReferenceCheckbox(): Locator {
+    return this.getByLabel("Two-way reference");
   }
-
-  async setValidationOptions(
-    required?: boolean,
-    unique?: boolean,
-    maxLength?: string,
-  ): Promise<void> {
-    await this.switchToTab("Validation");
-    if (required !== undefined) {
-      await this.getByLabel("Make field required").setChecked(required);
-    }
-    if (unique !== undefined) {
-      await this.getByLabel("Set field as unique").setChecked(unique);
-    }
-    if (maxLength) {
-      await this.getByLabel("Set maximum length").fill(maxLength);
-    }
+  
+  get nextButton(): Locator {
+    return this.getByRole("button", { name: "Next" });
   }
-
-  async setDefaultValue(value: string): Promise<void> {
-    await this.switchToTab("Default value");
-    await this.getByLabel("Set default value").fill(value);
+  
+  get confirmButton(): Locator {
+    return this.getByRole("button", { name: "Confirm" });
   }
-
-  async setSupportMultipleValues(enabled: boolean): Promise<void> {
-    await this.getByLabel("Support multiple values").setChecked(enabled);
+  
+  get previousButton(): Locator {
+    return this.getByRole("button", { name: "Previous" });
   }
-
-  async setMultipleValues(values: string[]): Promise<void> {
-    await this.switchToTab("Default value");
-    for (let i = 0; i < values.length; i++) {
-      if (i > 0) {
-        await this.getByRole("button", { name: "plus New" }).click();
-      }
-      await this.getByRole("textbox").nth(i).fill(values[i]);
-    }
+  
+  get displayNameInput(): Locator {
+    return this.getByLabel("Display name");
   }
-
-  async confirmMetadataConfiguration(): Promise<void> {
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
+  
+  get fieldKeyInput(): Locator {
+    return this.getByLabel("Field Key");
   }
-
-  async cancelMetadataConfiguration(): Promise<void> {
-    await this.getByRole("button", { name: "Cancel" }).click();
+  
+  get descriptionInput(): Locator {
+    return this.getByLabel("Description(optional)");
   }
-
-  async expectMetadataFieldInList(
-    fieldName: string,
-    key?: string,
-    markers?: string[],
-  ): Promise<void> {
-    let expectedText = key ? `${fieldName}#${key}` : fieldName;
-    if (markers?.includes("required")) expectedText += " *";
-    if (markers?.includes("unique")) expectedText += "(unique)";
-
-    await expect(this.getByText(expectedText)).toBeVisible();
+  
+  get supportMultipleValuesCheckbox(): Locator {
+    return this.locator("label").filter({ hasText: "Support multiple values" }).locator("span").nth(1);
   }
-
-  async expectFieldValue(label: string, expectedValue: string): Promise<void> {
-    await expect(this.getByLabel(label)).toHaveValue(expectedValue);
+  
+  get useAsTitleCheckbox(): Locator {
+    return this.getByLabel("Use as title");
   }
-
-  async expectFieldChecked(label: string, checked: boolean): Promise<void> {
-    if (checked) {
-      await expect(this.getByLabel(label)).toBeChecked();
-    } else {
-      await expect(this.getByLabel(label)).not.toBeChecked();
-    }
+  
+  get validationTab(): Locator {
+    return this.getByRole("tab", { name: "Validation" });
   }
-
-  async expectFieldHidden(label: string): Promise<void> {
-    await expect(this.getByLabel(label)).toBeHidden();
+  
+  get makeFieldRequiredCheckbox(): Locator {
+    return this.getByLabel("Make field required");
   }
-
-  async expectFieldEmpty(label: string): Promise<void> {
-    await expect(this.getByLabel(label)).toBeEmpty();
+  
+  get setFieldAsUniqueCheckbox(): Locator {
+    return this.getByLabel("Set field as unique");
   }
-
-  async expectValidationError(shouldBeDisabled?: boolean): Promise<void> {
-    if (shouldBeDisabled) {
-      await expect(this.getByRole("button", { name: "OK" })).toBeDisabled();
-    } else {
-      await expect(this.getByRole("button", { name: "OK" })).toBeEnabled();
-    }
+  
+  get closeButton(): Locator {
+    return this.getByLabel("Close", { exact: true });
+  }
+  
+  // Item reference modal elements
+  get referToItemButton(): Locator {
+    return this.getByRole("button", { name: "Refer to item" });
+  }
+  
+  get replaceItemButton(): Locator {
+    return this.getByRole("button", { name: "Replace item" });
+  }
+  
+  get searchInput(): Locator {
+    return this.getByPlaceholder("input search text");
+  }
+  
+  get searchButton(): Locator {
+    return this.getByRole("button", { name: "search" });
+  }
+  
+  get okButton(): Locator {
+    return this.getByRole("button", { name: "OK" });
+  }
+  
+  // Dynamic selectors
+  modelOption(modelText: string): Locator {
+    return this.getByText(modelText, { exact: false });
+  }
+  
+  fieldParagraph(text: string): Locator {
+    return this.locator("p").filter({ hasText: text });
+  }
+  
+  uniqueFieldIndicator(fieldName: string): Locator {
+    return this.locator("p").filter({ hasText: `${fieldName}(unique)` });
+  }
+  
+  referenceText(text: string): Locator {
+    return this.locator("#root").getByText(text);
+  }
+  
+  tableRows(): Locator {
+    return this.locator("tbody > tr:visible");
+  }
+  
+  rowButton(index: number): Locator {
+    return this.getByRole("row").getByRole("button").nth(index);
+  }
+  
+  clearReferenceButton(): Locator {
+    return this.getByRole("button").nth(3);
   }
 }

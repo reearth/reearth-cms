@@ -1,47 +1,30 @@
+// e2e/pages/content.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 
 import { BasePage } from "./base.page";
 
-export const DEFAULT_REQUEST_TITLE = "requestTitle";
-
 export class ContentPage extends BasePage {
-  get contentTab(): Locator {
+  // Navigation
+  get contentMenuItem(): Locator {
     return this.getByText("Content");
   }
-  get schemaTab(): Locator {
-    return this.getByText("Schema");
-  }
-  get versionHistoryTab(): Locator {
-    return this.getByRole("tab", { name: "Version History" });
+  
+  get contentText(): Locator {
+    return this.getByText("Content");
   }
 
-  tabByName(name: string): Locator {
-    return this.getByText(name, { exact: true });
-  }
-
-  modelMenuItem(name: string): Locator {
-    return this.getByRole("menuitem", { name });
-  }
-
+  // Item creation and editing
   get newItemButton(): Locator {
     return this.getByRole("button", { name: "plus New Item" });
   }
   get saveButton(): Locator {
     return this.getByRole("button", { name: "Save" });
   }
-  get publishButton(): Locator {
-    return this.getByRole("button", { name: "Publish" });
-  }
-  get unpublishButton(): Locator {
-    return this.getByRole("button", { name: "Unpublish" });
-  }
-  get ellipsisButton(): Locator {
-    return this.getByRole("button", { name: "ellipsis" });
-  }
   get backButton(): Locator {
     return this.getByLabel("Back");
   }
 
+  // Search
   get searchInput(): Locator {
     return this.getByPlaceholder("input search text");
   }
@@ -49,97 +32,87 @@ export class ContentPage extends BasePage {
     return this.getByRole("button", { name: "search" });
   }
 
-  get tableRows(): Locator {
-    return this.locator(".ant-table-tbody .ant-table-row");
-  }
-  rowByText(text: string | RegExp): Locator {
-    return this.tableRows.filter({ hasText: text });
-  }
-  get selectRowCheckbox(): Locator {
+  // Table actions
+  get selectAllCheckbox(): Locator {
     return this.getByLabel("", { exact: true });
   }
-
-  columnHeader(field: string): Locator {
-    return this.getByRole("columnheader", { name: field });
+  get editButton(): Locator {
+    return this.getByRole("cell").getByLabel("edit").locator("svg");
   }
-  sortCaretUp(field: string): Locator {
-    return this.columnHeader(field).locator("div").locator(".anticon-caret-up");
-  }
-  sortCaretDown(field: string): Locator {
-    return this.columnHeader(field).locator("div").locator(".anticon-caret-down");
+  get deleteButton(): Locator {
+    return this.getByText("Delete");
   }
 
-  get columnSettingsButton(): Locator {
-    return this.page.getByRole("main").getByLabel("setting").locator("svg");
+  // Publishing
+  get publishButton(): Locator {
+    return this.getByRole("button", { name: "Publish" });
   }
-  get statusColumnHeader(): Locator {
-    return this.getByRole("columnheader", { name: "Status" });
+  get unpublishButton(): Locator {
+    return this.getByText("Unpublish");
   }
-  get firstColumnTreeCheckbox(): Locator {
-    return this.locator(".ant-tree-checkbox").first();
+  get publishFromTableButton(): Locator {
+    return this.getByText("Publish", { exact: true });
+  }
+  get yesButton(): Locator {
+    return this.getByRole("button", { name: "Yes" });
+  }
+  get ellipsisMenuButton(): Locator {
+    return this.getByRole("button", { name: "ellipsis" });
   }
 
-  get publishedChip(): Locator {
-    return this.getByText("Published");
-  }
-  get draftChip(): Locator {
+  // Status indicators
+  get draftStatus(): Locator {
     return this.getByText("Draft");
   }
+  get publishedStatus(): Locator {
+    return this.getByText("Published");
+  }
 
+  // Comments
+  get commentButton(): Locator {
+    return this.getByLabel("comment");
+  }
   commentsCountButton(count: number | string = 0): Locator {
     return this.getByRole("button", { name: String(count) });
   }
 
-  get requestStatus(): Locator {
-    return this.page.getByTestId("requestStatus").locator("span");
+  // Dynamic field input
+  fieldInput(fieldName: string): Locator {
+    return this.getByLabel(fieldName);
   }
-  tooltipByName(name: string): Locator {
-    return this.getByRole("tooltip", { name });
-  }
-  requestLinkByTitle(requestTitle: string): Locator {
-    return this.getByRole("link", { name: `pull-request ${requestTitle}` });
-  }
-  get approveButton(): Locator {
-    return this.getByRole("button", { name: "Approve" });
-  }
-  versionTimestamp(regex: RegExp): Locator {
-    return this.getByText(regex);
-  }
-  get currentChip(): Locator {
-    return this.getByText("current", { exact: true });
-  }
-  get backIconButton(): Locator {
-    return this.getByRole("button", { name: "back" });
-  }
-  itemIdButton(id: string): Locator {
-    return this.getByRole("button", { name: id, exact: true });
-  }
-  get restoreButton(): Locator {
-    return this.getByRole("button", { name: "Restore" });
-  }
-  get confirmRestoreButtonInAlert(): Locator {
-    return this.page.getByRole("alert").getByRole("button", { name: "Restore" });
-  }
-  get mainRestoreButton(): Locator {
-    return this.page.getByRole("main").getByRole("button", { name: "Restore" });
+  
+  // Field description text
+  fieldDescriptionText(description: string): Locator {
+    return this.getByText(description);
   }
 
-  get newRequestMenuItem(): Locator {
-    return this.getByRole("menuitem", { name: "New Request" });
+  // Table cells
+  cellByText(text: string, exact = false): Locator {
+    return this.getByRole("cell", { name: text, exact });
   }
-  get requestTitleInput(): Locator {
-    return this.getByLabel("Title").last();
+  get cellEditButton(): Locator {
+    return this.getByRole("cell").getByLabel("edit").locator("svg");
   }
-  get requestDescriptionInput(): Locator {
-    return this.getByLabel("Description");
+  cellEditButtonByIndex(index: number): Locator {
+    return this.getByRole("cell").getByLabel("edit").locator("svg").nth(index);
   }
-  get requestSelect(): Locator {
-    return this.locator(".ant-select-selector");
+  
+  // Link elements
+  linkByName(name: string): Locator {
+    return this.getByRole("link", { name });
   }
-  get requestFirstSelectItem(): Locator {
-    return this.locator(".ant-select-item").first();
+  
+  // Tooltip interactions
+  get tooltipEditButton(): Locator {
+    return this.getByRole("tooltip", { name: "edit" }).locator("svg");
   }
 
+  // Table body element
+  get tableBodyElement(): Locator {
+    return this.locator(".ant-table-body");
+  }
+
+  // Views management
   get saveAsNewViewButton(): Locator {
     return this.getByRole("button", { name: "Save as new view" });
   }
@@ -149,58 +122,495 @@ export class ContentPage extends BasePage {
   get okButton(): Locator {
     return this.getByRole("button", { name: "OK" });
   }
-  get removeButton(): Locator {
-    return this.getByRole("button", { name: "Remove" });
-  }
   get cancelButton(): Locator {
     return this.getByRole("button", { name: "Cancel" });
   }
-
-  get tabsList(): Locator {
-    return this.getByRole("tablist");
-  }
-  tabNth(n: number): Locator {
-    return this.tabsList.getByRole("tab").nth(n);
-  }
-  tabMore(name: string): Locator {
-    return this.getByRole("tab", { name: `${name} more` });
-  }
-  tabMoreIcon(name: string): Locator {
-    return this.tabMore(name).locator("svg");
-  }
-
-  get viewMoreIcon(): Locator {
+  get moreButton(): Locator {
     return this.getByLabel("more").locator("svg");
   }
-  get viewRenameMenuItem(): Locator {
+  get renameViewButton(): Locator {
     return this.getByText("Rename");
   }
-  get viewRemoveMenuItem(): Locator {
+  get removeViewButton(): Locator {
     return this.getByText("Remove View");
   }
-  get updateViewMenuItem(): Locator {
+  get removeButton(): Locator {
+    return this.getByRole("button", { name: "Remove" });
+  }
+  get updateViewButton(): Locator {
     return this.getByText("Update View");
   }
 
+  // Table sorting and filtering
+  textColumnHeader(): Locator {
+    return this.getByText("text", { exact: true });
+  }
+  get columnHeaderText(): Locator {
+    return this.getByRole("columnheader", { name: "text" });
+  }
+  get sortUpIcon(): Locator {
+    return this.columnHeaderText.locator("div").locator(".anticon-caret-up");
+  }
+  get sortDownIcon(): Locator {
+    return this.columnHeaderText.locator("div").locator(".anticon-caret-down");
+  }
+  tableRow(index: number): Locator {
+    return this.locator(".ant-table-row").nth(index);
+  }
+  get statusColumnHeader(): Locator {
+    return this.getByRole("columnheader", { name: "Status" });
+  }
+
+  // Filtering
   get addFilterButton(): Locator {
     return this.getByRole("button", { name: "plus Filter" });
   }
-  filterFieldMenuItem(field: string): Locator {
-    return this.getByRole("menuitem", { name: field });
+  filterMenuItem(fieldName: string): Locator {
+    return this.getByRole("menuitem", { name: fieldName });
   }
-  filterChipCloseButton(field: string): Locator {
-    return this.getByRole("button", { name: `${field} close` });
+  filterCloseButton(fieldName: string): Locator {
+    return this.getByRole("button", { name: `${fieldName} close` });
   }
-  get firstConditionDropdown(): Locator {
-    return this.getByText("is").first();
+  get isDropdown(): Locator {
+    return this.getByText("is", { exact: true }).first();
   }
-  conditionOption(name: string): Locator {
-    return this.getByText(name, { exact: true });
+  get containsOption(): Locator {
+    return this.getByText("contains", { exact: true });
+  }
+  get endWithOption(): Locator {
+    return this.getByText("end with", { exact: true });
   }
   get filterValueInput(): Locator {
     return this.getByPlaceholder("Enter the value");
   }
-  get filterConfirmButton(): Locator {
+  get confirmButton(): Locator {
     return this.getByRole("button", { name: "Confirm" });
+  }
+
+  // Settings
+  get settingsButton(): Locator {
+    return this.getByRole("main").getByLabel("setting").locator("svg");
+  }
+  get statusCheckbox(): Locator {
+    return this.locator(".ant-tree-checkbox").first();
+  }
+
+  // Tabs and views
+  tab(index: number): Locator {
+    return this.getByRole("tab").nth(index);
+  }
+  viewTab(viewName: string): Locator {
+    return this.getByText(viewName);
+  }
+  viewTabWithMore(viewName: string): Locator {
+    return this.getByRole("tab", { name: `${viewName} more` });
+  }
+  get tabList(): Locator {
+    return this.getByRole("tablist");
+  }
+
+  // Dynamic methods
+  viewByName(viewName: string): Locator {
+    return this.getByText(viewName);
+  }
+  
+  // Table headers and structure
+  get tableBodyRows(): Locator {
+    return this.locator("tbody > tr.ant-table-row");
+  }
+  
+  // Root element reference
+  get rootElement(): Locator {
+    return this.locator("#root");
+  }
+  
+  // Cell selection by text and exact matching
+  cellByTextExact(text: string): Locator {
+    return this.getByRole("cell", { name: text, exact: true });
+  }
+  
+  cellSpanByText(text: string): Locator {
+    return this.getByRole("cell", { name: text }).locator("span").first();
+  }
+  
+  // Model navigation
+  modelLinkByText(modelName: string): Locator {
+    return this.getByText(modelName);
+  }
+  
+  // Group field related elements
+  get mainRole(): Locator {
+    return this.getByRole("main");
+  }
+  
+  get firstLabel(): Locator {
+    return this.locator("label").first();
+  }
+  
+  get textBoxes(): Locator {
+    return this.getByRole("textbox");
+  }
+  
+  get firstTextbox(): Locator {
+    return this.getByRole("textbox").first();
+  }
+  
+  get lastTextbox(): Locator {
+    return this.getByRole("textbox").last();
+  }
+  
+  textBoxByIndex(index: number): Locator {
+    return this.getByRole("textbox").nth(index);
+  }
+  
+  // Filtered div locators for complex elements
+  divFilterByText(text: RegExp): Locator {
+    return this.locator("div").filter({ hasText: text });
+  }
+  
+  // Character count indicators
+  get characterCountText(): Locator {
+    return this.getByText("/ 5");
+  }
+  
+  // Option field specific
+  get closeCircleLabel(): Locator {
+    return this.getByLabel("close-circle");
+  }
+  
+  // Dynamic option text methods
+  optionTextByName(optionName: string, exact = true): Locator {
+    return this.getByText(optionName, { exact });
+  }
+  
+  // Complex cell selection
+  cellByComplexName(name: string): Locator {
+    return this.getByRole("cell", { name });
+  }
+  
+  // Asset field specific
+  get cssAssetContainer(): Locator {
+    return this.locator(".css-7g0azd");
+  }
+  
+  cssAssetByIndex(index: number): Locator {
+    return this.locator(".css-7g0azd").nth(index);
+  }
+  
+  get tooltip(): Locator {
+    return this.getByRole("tooltip");
+  }
+
+  get x2Button(): Locator {
+    return this.getByRole("button", { name: "x2" });
+  }
+  
+  // Table row controls for assets
+  get antTableRowTd(): Locator {
+    return this.locator(".ant-table-row > td");
+  }
+  
+  // Tag metadata specific
+  get itemInformationHeading(): Locator {
+    return this.getByRole("heading", { name: "Item Information" });
+  }
+  
+  get tabPanel(): Locator {
+    return this.getByRole("tabpanel");
+  }
+  
+  // Column header with edit functionality
+  columnHeaderWithEdit(fieldName: string): Locator {
+    return this.getByRole("columnheader", { name: `${fieldName} edit` });
+  }
+  
+  // Cell by tag name with multiple values
+  cellByTagNames(tagNames: string): Locator {
+    return this.getByRole("cell", { name: tagNames });
+  }
+  
+  // Text metadata specific
+  get antTableBody(): Locator {
+    return this.locator(".ant-table-body");
+  }
+  
+  get tooltipTextboxes(): Locator {
+    return this.getByRole("tooltip").getByRole("textbox");
+  }
+  
+  tooltipTextByName(text: string): Locator {
+    return this.getByRole("tooltip").getByText(text);
+  }
+  
+  get x3Button(): Locator {
+    return this.getByRole("button", { name: "x3" });
+  }
+  
+  // Back button variations
+  get backButtonRole(): Locator {
+    return this.getByRole("button", { name: "Back" });
+  }
+  get backButtonLabel(): Locator {
+    return this.getByLabel("Back");
+  }
+
+  // Boolean/Switch field specific
+  switchByName(name: string): Locator {
+    return this.getByRole("switch", { name });
+  }
+  
+  switchByIndex(index: number): Locator {
+    return this.getByRole("switch").nth(index);
+  }
+  
+  get allSwitches(): Locator {
+    return this.getByRole("switch");
+  }
+  
+  // Switch states
+  get checkSwitch(): Locator {
+    return this.getByRole("switch", { name: "check" });
+  }
+  
+  get closeSwitch(): Locator {
+    return this.getByRole("switch", { name: "close" });
+  }
+
+  // Tooltip switch elements
+  get tooltipSwitches(): Locator {
+    return this.getByRole("tooltip").getByRole("switch");
+  }
+  
+  tooltipSwitchByIndex(index: number): Locator {
+    return this.getByRole("tooltip").getByRole("switch").nth(index);
+  }
+
+  // Checkbox field specific
+  checkboxByIndex(index: number): Locator {
+    return this.getByRole("checkbox").nth(index);
+  }
+  
+  get allCheckboxes(): Locator {
+    return this.getByRole("checkbox");
+  }
+  
+  get lastCheckbox(): Locator {
+    return this.getByRole("checkbox").last();
+  }
+
+  // Cell checkbox elements
+  get cellCheckboxes(): Locator {
+    return this.getByRole("cell").getByRole("checkbox");
+  }
+  
+  get lastCellCheckbox(): Locator {
+    return this.getByRole("cell").getByRole("checkbox").last();
+  }
+
+  // Tooltip checkbox elements
+  get tooltipCheckboxes(): Locator {
+    return this.getByRole("tooltip").getByRole("checkbox");
+  }
+  
+  tooltipCheckboxByIndex(index: number): Locator {
+    return this.getByRole("tooltip").getByRole("checkbox").nth(index);
+  }
+
+  // Table column selection
+  tableColumn(childIndex: number): Locator {
+    return this.locator(`.ant-table-row > td:nth-child(${childIndex})`);
+  }
+
+  tableColumnButton(childIndex: number): Locator {
+    return this.locator(`.ant-table-row > td:nth-child(${childIndex})`).getByRole("button");
+  }
+
+  // Multi-value text containers
+  get textContainers(): Locator {
+    return this.locator(".css-1ago99h");
+  }
+
+  textContainerByIndex(index: number): Locator {
+    return this.locator(".css-1ago99h").nth(index);
+  }
+
+  get firstTextContainer(): Locator {
+    return this.locator("div:nth-child(1) > .css-1ago99h");
+  }
+
+  get secondTextContainer(): Locator {
+    return this.locator("div:nth-child(2) > .css-1ago99h");
+  }
+
+  // Required field validation
+  get pleaseInputFieldText(): Locator {
+    return this.getByText("Please input field!");
+  }
+
+  // Cell selection with nth
+  cellByIndex(index: number): Locator {
+    return this.getByRole("cell", { name: "edit" }).nth(index);
+  }
+
+  // Navigation helpers
+  get contentTextFirst(): Locator {
+    return this.getByText("Content").first();
+  }
+
+  // Title helpers
+  titleByText(title: string, exact = false): Locator {
+    return this.getByTitle(title, { exact });
+  }
+
+  // Spinbutton elements (for numeric fields)
+  spinbuttonByIndex(index: number): Locator {
+    return this.getByRole("spinbutton").nth(index);
+  }
+
+  get firstSpinbutton(): Locator {
+    return this.getByRole("spinbutton").first();
+  }
+
+  get allSpinbuttons(): Locator {
+    return this.getByRole("spinbutton");
+  }
+
+  // Table elements
+  get tableBody(): Locator {
+    return this.locator("tbody");
+  }
+
+  get tableHead(): Locator {
+    return this.locator("thead");
+  }
+
+  // Close circle button for clearing values
+  get closeDateButton(): Locator {
+    return this.getByRole("button", { name: "close-circle" });
+  }
+
+  // Date placeholder
+  get selectDatePlaceholder(): Locator {
+    return this.getByPlaceholder("Select date");
+  }
+
+  // Placeholder by index for date fields
+  selectDatePlaceholderByIndex(index: number): Locator {
+    return this.getByPlaceholder("Select date").nth(index);
+  }
+
+  // Label elements
+  labelElement(): Locator {
+    return this.locator("label");
+  }
+
+  // Main element
+  get mainElement(): Locator {
+    return this.getByRole("main");
+  }
+
+  // Tooltip paragraph elements
+  get tooltipParagraphs(): Locator {
+    return this.getByRole("tooltip").locator("p");
+  }
+
+  tooltipParagraphByIndex(index: number): Locator {
+    return this.getByRole("tooltip").locator("p").nth(index);
+  }
+
+  // Geometry field specific elements
+  get viewLinesEditor(): Locator {
+    return this.locator(".view-lines");
+  }
+
+  get editorContent(): Locator {
+    return this.getByLabel("Editor content;Press Alt+F1");
+  }
+
+  // Table column selection
+  nthTableColumn(index: number): Locator {
+    return this.locator(`.ant-table-row > td:nth-child(${index})`);
+  }
+
+  nthTableColumnButton(index: number): Locator {
+    return this.locator(`.ant-table-row > td:nth-child(${index})`).getByRole("button");
+  }
+
+  // Ant row button by index
+  antRowButton(index: number): Locator {
+    return this.locator(".ant-row").getByRole("button").nth(index);
+  }
+
+  // Unique field label
+  uniqueFieldLabel(fieldName: string): Locator {
+    return this.getByText(`${fieldName}(unique)`);
+  }
+
+  // Version history elements
+  get versionHistoryTab(): Locator {
+    return this.getByRole("tab", { name: "Version History" });
+  }
+
+  get requestStatusElement(): Locator {
+    return this.getByTestId("requestStatus").locator("span");
+  }
+
+  get currentVersionText(): Locator {
+    return this.getByText("current");
+  }
+
+  get currentVersionTextExact(): Locator {
+    return this.getByText("current", { exact: true });
+  }
+
+  // Request elements
+  requestLink(title: string): Locator {
+    return this.getByRole("link", { name: `pull-request ${title}` });
+  }
+
+  get approveButton(): Locator {
+    return this.getByRole("button", { name: "Approve" });
+  }
+
+  // Back button for version details
+  get backButtonLast(): Locator {
+    return this.getByRole("button", { name: "back" }).last();
+  }
+
+  // Restore button
+  get restoreButton(): Locator {
+    return this.getByRole("button", { name: "Restore" });
+  }
+
+  get restoreButtonMain(): Locator {
+    return this.getByRole("main").getByRole("button", { name: "Restore" });
+  }
+
+  get restoreButtonAlert(): Locator {
+    return this.getByRole("alert").getByRole("button", { name: "Restore" });
+  }
+
+  get restoreButtonAlertFirst(): Locator {
+    return this.getByRole("alert").getByRole("button", { name: "Restore" }).first();
+  }
+
+  // Alert element
+  get alertElement(): Locator {
+    return this.getByRole("alert");
+  }
+
+  // Dynamic text matching with regex
+  textByRegex(regex: RegExp): Locator {
+    return this.getByText(regex);
+  }
+
+  // Tooltip with specific name
+  tooltipByName(name: string): Locator {
+    return this.getByRole("tooltip", { name });
+  }
+
+  // Item ID button
+  itemIdButton(itemId: string): Locator {
+    return this.getByRole("button", { name: itemId, exact: true });
   }
 }

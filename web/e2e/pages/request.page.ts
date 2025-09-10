@@ -1,140 +1,157 @@
-import { Locator, Page } from "@reearth-cms/e2e/fixtures/test";
+// e2e/pages/request.page.ts
+import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 
 import { BasePage } from "./base.page";
 
 export class RequestPage extends BasePage {
-  constructor(public page: Page) {
-    super(page);
-  }
-  get requestTab(): Locator {
+  // Navigation
+  get requestMenuItem(): Locator {
     return this.getByText("Request", { exact: true });
   }
 
+  // Request management
   get searchInput(): Locator {
     return this.getByPlaceholder("input search text");
   }
-
   get searchButton(): Locator {
     return this.getByRole("button", { name: "search" });
   }
 
-  get stateFilterButton(): Locator {
-    return this.getByRole("columnheader", { name: "State filter" }).getByRole("button");
+  // Table elements
+  get tableBody(): Locator {
+    return this.locator("tbody");
+  }
+  get tableRows(): Locator {
+    return this.locator(".ant-table-tbody .ant-table-row");
+  }
+  cellByText(text: string, exact = false): Locator {
+    return this.getByRole("cell", { name: text, exact });
+  }
+  tableBodyTextByText(text: string, exact = false): Locator {
+    return this.locator("tbody").getByText(text, { exact });
   }
 
+  // Edit buttons
+  get editButton(): Locator {
+    return this.getByLabel("edit").locator("svg");
+  }
+  get backButton(): Locator {
+    return this.getByLabel("back");
+  }
+  get backButtonCapitalized(): Locator {
+    return this.getByLabel("Back");
+  }
+
+  // Request actions
   get assignToButton(): Locator {
     return this.getByRole("button", { name: "Assign to" });
   }
-
   get approveButton(): Locator {
     return this.getByRole("button", { name: "Approve" });
   }
-
   get closeButton(): Locator {
     return this.getByRole("button", { name: "Close" });
   }
-
   get reopenButton(): Locator {
     return this.getByRole("button", { name: "Reopen" });
   }
 
+  // Selection controls
+  get closeCircleButton(): Locator {
+    return this.getByLabel("close-circle").locator("svg");
+  }
+  get selectOverflow(): Locator {
+    return this.locator(".ant-select-selection-overflow");
+  }
+  get selectItem(): Locator {
+    return this.locator(".ant-select-item");
+  }
+  get reviewerHeading(): Locator {
+    return this.getByRole("heading", { name: "Reviewer" });
+  }
+
+  // Filter controls
+  get stateFilterButton(): Locator {
+    return this.getByRole("columnheader", { name: "State filter" }).getByRole("button");
+  }
+  waitingMenuItem(): Locator {
+    return this.getByRole("menuitem", { name: "WAITING" }).getByLabel("");
+  }
+  get okButton(): Locator {
+    return this.getByRole("button", { name: "OK" });
+  }
+
+  // Status text
+  statusText(status: string): Locator {
+    return this.getByText(status, { exact: true });
+  }
+
+  // Comments
   get commentTextbox(): Locator {
     return this.getByRole("textbox");
   }
-
+  commentTextboxWithText(text: string): Locator {
+    return this.getByRole("textbox").filter({ hasText: text });
+  }
   get commentButton(): Locator {
     return this.getByRole("button", { name: "Comment" });
   }
-
-  get backButton(): Locator {
-    return this.getByLabel("back");
+  get checkButton(): Locator {
+    return this.getByRole("button", { name: "check" });
+  }
+  get deleteButton(): Locator {
+    return this.getByRole("button", { name: "delete" });
+  }
+  commentsCountButton(count: number | string = 0): Locator {
+    return this.getByRole("button", { name: String(count) });
   }
 
-  async navigateToRequests(): Promise<void> {
-    await this.requestTab.click();
+  // Item management
+  get newItemButton(): Locator {
+    return this.getByRole("button", { name: "plus New Item" });
+  }
+  get saveButton(): Locator {
+    return this.getByRole("button", { name: "Save" });
+  }
+  get ellipsisButton(): Locator {
+    return this.getByRole("button", { name: "ellipsis" });
+  }
+  get addToRequestButton(): Locator {
+    return this.getByText("Add to Request");
+  }
+  get selectCheckbox(): Locator {
+    return this.getByLabel("", { exact: true });
+  }
+  get closeTextButton(): Locator {
+    return this.getByText("Close");
   }
 
-  async searchRequests(searchTerm: string): Promise<void> {
-    await this.searchInput.fill(searchTerm);
-    await this.searchButton.click();
+  // Version history and navigation
+  get versionHistoryTab(): Locator {
+    return this.getByRole("tab", { name: "Version History" });
   }
-
-  async clearSearch(): Promise<void> {
-    await this.searchInput.fill("");
-    await this.searchButton.click();
+  requestTitleLink(title: string): Locator {
+    return this.getByRole("link", { name: title });
   }
-
-  async editRequest(): Promise<void> {
-    await this.getByLabel("edit").locator("svg").click();
+  requestPageTitle(title: string): Locator {
+    return this.getByText(`Request / ${title}`);
   }
-
-  async assignReviewer(): Promise<void> {
-    await this.assignToButton.click();
-    await this.getByLabel("close-circle").locator("svg").click();
-    await this.locator(".ant-select-selection-overflow").click();
-    await this.locator(".ant-select-item").click();
-    await this.getByRole("heading", { name: "Reviewer" }).click();
+  requestHeading(title: string): Locator {
+    return this.getByRole("heading", { name: title });
   }
-
-  async approveRequest(): Promise<void> {
-    await this.approveButton.click();
-    await this.closeNotification();
+  itemTitleButton(title: string): Locator {
+    return this.getByRole("button", { name: title }).last();
   }
-
-  async closeRequest(): Promise<void> {
-    await this.closeButton.click();
-    await this.closeNotification();
+  titleFieldInput(fieldName: string, title: string): Locator {
+    return this.getByLabel(`${fieldName}${title}`);
   }
-
-  async reopenRequest(): Promise<void> {
-    await this.reopenButton.click();
-    await this.closeNotification();
+  modelPathText(modelName: string, itemId: string): Locator {
+    return this.getByText(`${modelName} / ${itemId}`);
   }
-
-  async goBack(): Promise<void> {
-    await this.backButton.click();
+  collapsedModelButton(modelName: string, index: number = 0): Locator {
+    return this.getByRole("button", { name: `collapsed ${modelName}` }).nth(index);
   }
-
-  async filterByState(stateName: string, include: boolean): Promise<void> {
-    await this.stateFilterButton.click();
-    const stateMenuItem = this.getByRole("menuitem", { name: stateName });
-    if (include) {
-      await stateMenuItem.getByLabel("").check();
-    } else {
-      await stateMenuItem.getByLabel("").uncheck();
-    }
-    await this.getByRole("button", { name: "OK" }).click();
-  }
-
-  async addComment(commentText: string): Promise<void> {
-    await this.commentTextbox.fill(commentText);
-    await this.commentButton.click();
-    await this.closeNotification();
-  }
-
-  async editComment(newCommentText: string): Promise<void> {
-    await this.getByLabel("edit").locator("svg").click();
-    const commentTextbox = this.commentTextbox.filter({ hasText: /.+/ });
-    await commentTextbox.fill(newCommentText);
-    await this.getByRole("button", { name: "check" }).click();
-    await this.closeNotification();
-  }
-
-  async deleteComment(): Promise<void> {
-    await this.getByRole("button", { name: "delete" }).click();
-    await this.closeNotification();
-  }
-
-  async clickCommentsButton(): Promise<void> {
-    await this.getByRole("button", { name: "0" }).click();
-  }
-
-  async selectRequestItem(): Promise<void> {
-    await this.getByLabel("", { exact: true }).check();
-  }
-
-  async bulkCloseRequests(): Promise<void> {
-    await this.getByText("Close").click();
-    await this.closeNotification();
+  collapsedModelItemButton(modelName: string, itemId: string): Locator {
+    return this.getByRole("button", { name: `collapsed ${modelName} / ${itemId}` });
   }
 }

@@ -13,148 +13,145 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
-test("Url metadata creating and updating has succeeded", async ({ page }) => {
-  await page.getByRole("tab", { name: "Meta Data" }).click();
-  await page.getByRole("listitem").filter({ hasText: "URL" }).click();
-  await page.getByLabel("Display name").fill("url1");
-  await page.getByLabel("Field Key").fill("url1");
-  await page.getByLabel("Description").fill("url1 description");
-  await page.getByRole("button", { name: "OK" }).click();
+test("Url metadata creating and updating has succeeded", async ({ page, fieldEditorPage, projectPage, contentPage, schemaPage }) => {
+  await fieldEditorPage.metaDataTab.click();
+  await fieldEditorPage.fieldTypeListItem("URL").click();
+  await fieldEditorPage.displayNameInput.fill("url1");
+  await fieldEditorPage.fieldKeyInput.fill("url1");
+  await fieldEditorPage.descriptionRequiredInput.fill("url1 description");
+  await fieldEditorPage.okButton.click();
   await closeNotification(page);
-  await expect(page.getByText("url1#url1")).toBeVisible();
+  await expect(fieldEditorPage.fieldText("url1", "url1")).toBeVisible();
 
-  const ellipsisButton = page.getByRole("button", { name: "ellipsis" }).first();
-  await ellipsisButton.click();
-  await expect(page.getByLabel("Display name")).toHaveValue("url1");
-  await expect(page.getByLabel("Field Key")).toHaveValue("url1");
-  await expect(page.getByLabel("Description")).toHaveValue("url1 description");
-  await expect(page.getByLabel("Support multiple values")).not.toBeChecked();
-  await expect(page.getByLabel("Use as title")).toBeHidden();
+  await fieldEditorPage.ellipsisButton.click();
+  await expect(fieldEditorPage.displayNameInput).toHaveValue("url1");
+  await expect(fieldEditorPage.fieldKeyInput).toHaveValue("url1");
+  await expect(fieldEditorPage.descriptionRequiredInput).toHaveValue("url1 description");
+  await expect(fieldEditorPage.supportMultipleValuesCheckbox).not.toBeChecked();
+  await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
 
-  await page.getByRole("tab", { name: "Validation" }).click();
-  await expect(page.getByLabel("Make field required")).not.toBeChecked();
-  await expect(page.getByLabel("Set field as unique")).not.toBeChecked();
+  await fieldEditorPage.validationTab.click();
+  await expect(fieldEditorPage.requiredFieldCheckbox).not.toBeChecked();
+  await expect(fieldEditorPage.uniqueFieldCheckbox).not.toBeChecked();
 
-  await page.getByRole("tab", { name: "Default value" }).click();
-  await expect(page.getByLabel("Set default value")).toBeEmpty();
+  await fieldEditorPage.defaultValueTab.click();
+  await expect(fieldEditorPage.setDefaultValueInput).toBeEmpty();
 
-  await page.getByRole("button", { name: "Cancel" }).click();
-  await page.getByRole("menuitem", { name: "Content" }).click();
-  const newItemButton = page.getByRole("button", { name: "plus New Item" });
-  await newItemButton.click();
-  await expect(page.getByLabel("url1")).toBeVisible();
-  await expect(page.getByText("url1 description")).toBeVisible();
+  await fieldEditorPage.cancelButton.click();
+  await fieldEditorPage.menuItemByName("Content").click();
+  await contentPage.newItemButton.click();
+  await expect(contentPage.fieldInput("url1")).toBeVisible();
+  await expect(contentPage.fieldDescriptionText("url1 description")).toBeVisible();
 
-  await page.getByLabel("url1").fill("http://test1.com");
-  await page.getByRole("button", { name: "Save" }).click();
+  await contentPage.fieldInput("url1").fill("http://test1.com");
+  await contentPage.saveButton.click();
   await closeNotification(page);
-  await expect(page.getByRole("heading", { name: "Item Information" })).toBeVisible();
-  await expect(page.getByLabel("url1")).toHaveValue("http://test1.com");
+  await expect(contentPage.itemInformationHeading).toBeVisible();
+  await expect(contentPage.fieldInput("url1")).toHaveValue("http://test1.com");
 
-  await page.getByRole("button", { name: "Back" }).click();
-  const urlLink = page.getByRole("link", { name: "http://test1.com" });
+  await contentPage.backButtonRole.click();
+  const urlLink = contentPage.linkByName("http://test1.com");
   await expect(urlLink).toBeVisible();
   await urlLink.hover();
-  const editButton = page.getByRole("tooltip", { name: "edit" }).locator("svg");
+  const editButton = contentPage.tooltipEditButton;
   await editButton.waitFor({ state: "visible" });
   await editButton.click();
-  await page.getByRole("textbox").fill("http://test2.com");
-  await page.locator(".ant-table-body").click();
+  await contentPage.textBoxes.fill("http://test2.com");
+  await contentPage.tableBodyElement.click();
   await closeNotification(page);
-  await expect(page.getByRole("link", { name: "http://test2.com" })).toBeVisible();
+  await expect(contentPage.linkByName("http://test2.com")).toBeVisible();
 
-  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
-  await expect(page.getByLabel("url1")).toHaveValue("http://test2.com");
+  await contentPage.cellEditButton.click();
+  await expect(contentPage.fieldInput("url1")).toHaveValue("http://test2.com");
 
-  await page.getByLabel("url1").fill("http://test3.com");
+  await contentPage.fieldInput("url1").fill("http://test3.com");
   await closeNotification(page);
-  await expect(page.getByLabel("url1")).toHaveValue("http://test3.com");
+  await expect(contentPage.fieldInput("url1")).toHaveValue("http://test3.com");
 
-  await page.getByRole("button", { name: "Back" }).click();
-  await expect(page.getByRole("link", { name: "http://test3.com" })).toBeVisible();
+  await contentPage.backButtonRole.click();
+  await expect(contentPage.linkByName("http://test3.com")).toBeVisible();
 });
 
-test("Url metadata editing has succeeded", async ({ page }) => {
+test("Url metadata editing has succeeded", async ({ page, fieldEditorPage, contentPage }) => {
   test.slow();
-  await page.getByRole("tab", { name: "Meta Data" }).click();
-  await page.getByRole("listitem").filter({ hasText: "URL" }).click();
-  await page.getByLabel("Display name").fill("url1");
-  await page.getByLabel("Field Key").fill("url1");
-  await page.getByLabel("Description").fill("url1 description");
-  await page.getByRole("tab", { name: "Default value" }).click();
-  await page.getByLabel("Set default value").fill("http://default1.com");
-  await page.getByRole("button", { name: "OK" }).click();
+  await fieldEditorPage.metaDataTab.click();
+  await fieldEditorPage.fieldTypeListItem("URL").click();
+  await fieldEditorPage.displayNameInput.fill("url1");
+  await fieldEditorPage.fieldKeyInput.fill("url1");
+  await fieldEditorPage.descriptionRequiredInput.fill("url1 description");
+  await fieldEditorPage.defaultValueTab.click();
+  await fieldEditorPage.setDefaultValueInput.fill("http://default1.com");
+  await fieldEditorPage.okButton.click();
   await closeNotification(page);
 
-  await page.getByRole("menuitem", { name: "Content" }).click();
-  await expect(page.getByRole("columnheader", { name: "url1 edit" })).toBeVisible();
+  await fieldEditorPage.menuItemByName("Content").click();
+  await expect(fieldEditorPage.columnHeaderWithEdit("url1")).toBeVisible();
 
-  await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.getByLabel("url1")).toHaveValue("http://default1.com");
+  await contentPage.newItemButton.click();
+  await expect(contentPage.fieldInput("url1")).toHaveValue("http://default1.com");
 
-  await page.getByRole("button", { name: "Save" }).click();
+  await contentPage.saveButton.click();
   await closeNotification(page);
-  await page.getByRole("button", { name: "Back" }).click();
-  await page.getByRole("menuitem", { name: "Schema" }).click();
-  await page.getByRole("tab", { name: "Meta Data" }).click();
-  const ellipsisButton = page.getByRole("button", { name: "ellipsis" }).first();
-  await ellipsisButton.click();
-  await page.getByLabel("Display name").fill("new url1");
-  await page.getByLabel("Field Key").fill("new-url1");
-  await page.getByLabel("Description").fill("new url1 description");
-  await page.getByLabel("Support multiple values").check();
-  await page.getByRole("tab", { name: "Validation" }).click();
-  await page.getByLabel("Make field required").check();
-  await page.getByLabel("Set field as unique").check();
-  await page.getByRole("tab", { name: "Default value" }).click();
-  await expect(page.getByRole("textbox")).toHaveValue("http://default1.com");
+  await contentPage.backButtonRole.click();
+  await fieldEditorPage.menuItemByName("Schema").click();
+  await fieldEditorPage.metaDataTab.click();
+  await fieldEditorPage.ellipsisButton.click();
+  await fieldEditorPage.displayNameInput.fill("new url1");
+  await fieldEditorPage.fieldKeyInput.fill("new-url1");
+  await fieldEditorPage.descriptionRequiredInput.fill("new url1 description");
+  await fieldEditorPage.supportMultipleValuesCheckbox.check();
+  await fieldEditorPage.validationTab.click();
+  await fieldEditorPage.requiredFieldCheckbox.check();
+  await fieldEditorPage.uniqueFieldCheckbox.check();
+  await fieldEditorPage.defaultValueTab.click();
+  await expect(fieldEditorPage.firstTextbox).toHaveValue("http://default1.com");
 
-  await page.getByRole("button", { name: "plus New" }).click();
-  await page.getByRole("textbox").nth(1).fill("http://default2.com");
-  await page.getByRole("button", { name: "OK" }).click();
+  await fieldEditorPage.plusNewButton.click();
+  await fieldEditorPage.textboxByIndex(1).fill("http://default2.com");
+  await fieldEditorPage.okButton.click();
   await closeNotification(page);
-  await expect(page.getByText("new url1 *#new-url1(unique)")).toBeVisible();
+  await expect(fieldEditorPage.uniqueFieldText("new url1", "new-url1")).toBeVisible();
 
-  await page.getByRole("menuitem", { name: "Content" }).click();
-  await expect(page.getByRole("columnheader", { name: "new url1 edit" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "http://default1.com" })).toBeVisible();
+  await fieldEditorPage.menuItemByName("Content").click();
+  await expect(fieldEditorPage.columnHeaderWithEdit("new url1")).toBeVisible();
+  await expect(contentPage.linkByName("http://default1.com")).toBeVisible();
 
-  await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.getByText("new url1(unique)")).toBeVisible();
-  await expect(page.getByText("new url1 description")).toBeVisible();
-  await expect(page.getByRole("textbox").nth(0)).toHaveValue("http://default1.com");
-  await expect(page.getByRole("textbox").nth(1)).toHaveValue("http://default2.com");
+  await contentPage.newItemButton.click();
+  await expect(fieldEditorPage.uniqueFieldLabel("new url1")).toBeVisible();
+  await expect(contentPage.fieldDescriptionText("new url1 description")).toBeVisible();
+  await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://default1.com");
+  await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://default2.com");
 
-  await page.getByRole("button", { name: "Save" }).click();
+  await contentPage.saveButton.click();
   await closeNotification(page);
-  await expect(page.getByRole("textbox").nth(0)).toHaveValue("http://default1.com");
-  await expect(page.getByRole("textbox").nth(1)).toHaveValue("http://default2.com");
-  await page.getByRole("button", { name: "Back" }).click();
-  await page.getByRole("button", { name: "x2" }).click();
-  const tooltipLinks = page.getByRole("tooltip").getByRole("link");
+  await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://default1.com");
+  await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://default2.com");
+  await contentPage.backButtonRole.click();
+  await contentPage.x2Button.click();
+  const tooltipLinks = fieldEditorPage.tooltip.getByRole("link");
   await expect(tooltipLinks.nth(0)).toContainText("http://default1.com");
   await expect(tooltipLinks.nth(1)).toContainText("http://default2.com");
-  const urlLink = page.getByRole("link", { name: "http://default2.com" });
+  const urlLink = contentPage.linkByName("http://default2.com");
   await urlLink.hover();
-  const editButton = page.getByRole("tooltip", { name: "edit" }).locator("svg");
+  const editButton = contentPage.tooltipEditButton;
   await editButton.waitFor({ state: "visible" });
   await editButton.click();
-  await page.getByRole("textbox").fill("http://new-default2.com");
-  await page.getByRole("tooltip").getByText("new url1").click();
+  await contentPage.textBoxes.fill("http://new-default2.com");
+  await contentPage.tooltipTextByName("new url1").click();
   await closeNotification(page);
-  await page.getByRole("cell").getByLabel("edit").locator("svg").first().click();
-  await expect(page.getByRole("textbox").nth(0)).toHaveValue("http://default1.com");
-  await expect(page.getByRole("textbox").nth(1)).toHaveValue("http://new-default2.com");
-  await page.getByRole("button", { name: "plus New" }).click();
-  await page.getByRole("textbox").last().fill("http://default3.com");
+  await contentPage.cellEditButtonByIndex(0).click();
+  await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://default1.com");
+  await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://new-default2.com");
+  await fieldEditorPage.plusNewButton.click();
+  await fieldEditorPage.lastTextbox.fill("http://default3.com");
   await closeNotification(page);
-  await expect(page.getByRole("textbox").nth(0)).toHaveValue("http://default1.com");
-  await expect(page.getByRole("textbox").nth(1)).toHaveValue("http://new-default2.com");
-  await expect(page.getByRole("textbox").nth(2)).toHaveValue("http://default3.com");
+  await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://default1.com");
+  await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://new-default2.com");
+  await expect(contentPage.textBoxByIndex(2)).toHaveValue("http://default3.com");
 
-  await page.getByRole("button", { name: "Back" }).click();
-  await page.getByRole("button", { name: "x3" }).click();
-  const updatedTooltipLinks = page.getByRole("tooltip").getByRole("link");
+  await contentPage.backButtonRole.click();
+  await fieldEditorPage.x3Button.click();
+  const updatedTooltipLinks = fieldEditorPage.tooltip.getByRole("link");
   await expect(updatedTooltipLinks.nth(0)).toContainText("http://default1.com");
   await expect(updatedTooltipLinks.nth(1)).toContainText("http://new-default2.com");
   await expect(updatedTooltipLinks.nth(2)).toContainText("http://default3.com");

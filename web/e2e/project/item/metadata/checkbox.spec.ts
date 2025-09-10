@@ -13,128 +13,128 @@ test.afterEach(async ({ page }) => {
   await deleteProject(page);
 });
 
-test("Checkbox metadata creating and updating has succeeded", async ({ page }) => {
-  await page.getByRole("tab", { name: "Meta Data" }).click();
-  await page.getByRole("listitem").filter({ hasText: "Check Box" }).click();
-  await page.getByLabel("Display name").fill("checkbox1");
-  await page.getByLabel("Field Key").fill("checkbox1");
-  await page.getByLabel("Description").fill("checkbox1 description");
-  await page.getByRole("button", { name: "OK" }).click();
+test("Checkbox metadata creating and updating has succeeded", async ({ page, fieldEditorPage, projectPage, contentPage, schemaPage }) => {
+  await schemaPage.metaDataTab.click();
+  await schemaPage.checkBoxListItem.click();
+  await fieldEditorPage.displayNameInput.fill("checkbox1");
+  await fieldEditorPage.fieldKeyInput.fill("checkbox1");
+  await fieldEditorPage.fieldDescriptionInput.fill("checkbox1 description");
+  await fieldEditorPage.okButton.click();
   await closeNotification(page);
-  await expect(page.getByText("checkbox1#checkbox1")).toBeVisible();
+  await expect(fieldEditorPage.fieldText("checkbox1", "checkbox1")).toBeVisible();
 
-  await page.getByRole("button", { name: "ellipsis" }).click();
-  await expect(page.getByLabel("Display name")).toHaveValue("checkbox1");
-  await expect(page.getByLabel("Field Key")).toHaveValue("checkbox1");
-  await expect(page.getByLabel("Description")).toHaveValue("checkbox1 description");
-  await expect(page.getByLabel("Support multiple values")).not.toBeChecked();
-  await expect(page.getByLabel("Use as title")).toBeHidden();
+  await fieldEditorPage.ellipsisButton.click();
+  await expect(fieldEditorPage.displayNameInput).toHaveValue("checkbox1");
+  await expect(fieldEditorPage.fieldKeyInput).toHaveValue("checkbox1");
+  await expect(fieldEditorPage.fieldDescriptionInput).toHaveValue("checkbox1 description");
+  await expect(fieldEditorPage.supportMultipleValuesCheckbox).not.toBeChecked();
+  await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
 
-  await page.getByRole("tab", { name: "Validation" }).click();
-  await expect(page.getByLabel("Make field required")).toBeDisabled();
-  await expect(page.getByLabel("Set field as unique")).toBeDisabled();
+  await fieldEditorPage.validationTab.click();
+  await expect(fieldEditorPage.requiredFieldCheckbox).toBeDisabled();
+  await expect(fieldEditorPage.uniqueFieldCheckbox).toBeDisabled();
 
-  await page.getByRole("tab", { name: "Default value" }).click();
-  await expect(page.getByLabel("Set default value")).not.toBeChecked();
+  await fieldEditorPage.defaultValueTab.click();
+  await expect(fieldEditorPage.setDefaultValueCheckbox).not.toBeChecked();
 
-  await page.getByRole("button", { name: "Cancel" }).click();
-  await page.getByRole("menuitem", { name: "Content" }).click();
-  await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.getByLabel("checkbox1")).toBeVisible();
-  await expect(page.getByText("checkbox1 description")).toBeVisible();
+  await fieldEditorPage.cancelButton.click();
+  await schemaPage.contentMenuItem.click();
+  await contentPage.newItemButton.click();
+  await expect(contentPage.fieldInput("checkbox1")).toBeVisible();
+  await expect(contentPage.fieldDescriptionText("checkbox1 description")).toBeVisible();
 
-  await page.getByRole("button", { name: "Save" }).click();
+  await contentPage.saveButton.click();
   await closeNotification(page);
-  await expect(page.getByRole("heading", { name: "Item Information" })).toBeVisible();
-  await expect(page.getByLabel("checkbox1")).not.toBeChecked();
+  await expect(contentPage.itemInformationHeading).toBeVisible();
+  await expect(contentPage.fieldInput("checkbox1")).not.toBeChecked();
 
-  await page.getByRole("button", { name: "Back" }).click();
-  await page.getByRole("cell").getByRole("checkbox").last().check();
+  await contentPage.backButtonRole.click();
+  await contentPage.lastCellCheckbox.check();
   await closeNotification(page);
-  await expect(page.getByRole("cell").getByRole("checkbox").last()).toBeChecked();
+  await expect(contentPage.lastCellCheckbox).toBeChecked();
 
-  await page.getByRole("cell").getByLabel("edit").locator("svg").click();
-  await expect(page.getByLabel("checkbox1")).toBeChecked();
+  await contentPage.cellEditButton.click();
+  await expect(contentPage.fieldInput("checkbox1")).toBeChecked();
 
-  await page.getByLabel("checkbox1").uncheck();
+  await contentPage.fieldInput("checkbox1").uncheck();
   await closeNotification(page);
-  await expect(page.getByLabel("checkbox1")).not.toBeChecked();
+  await expect(contentPage.fieldInput("checkbox1")).not.toBeChecked();
 
-  await page.getByRole("button", { name: "Back" }).click();
-  await expect(page.getByRole("cell").getByRole("checkbox").last()).not.toBeChecked();
+  await contentPage.backButtonRole.click();
+  await expect(contentPage.lastCellCheckbox).not.toBeChecked();
 });
 
-test("Checkbox metadata editing has succeeded", async ({ page }) => {
-  await page.getByRole("tab", { name: "Meta Data" }).click();
-  await page.getByRole("listitem").filter({ hasText: "Check Box" }).click();
-  await page.getByLabel("Display name").fill("checkbox1");
-  await page.getByLabel("Field Key").fill("checkbox1");
-  await page.getByLabel("Description").fill("checkbox1 description");
-  await page.getByRole("tab", { name: "Default value" }).click();
-  await page.getByLabel("Set default value").check();
-  await page.getByRole("button", { name: "OK" }).click();
+test("Checkbox metadata editing has succeeded", async ({ page, fieldEditorPage, contentPage, schemaPage }) => {
+  await schemaPage.metaDataTab.click();
+  await schemaPage.checkBoxListItem.click();
+  await fieldEditorPage.displayNameInput.fill("checkbox1");
+  await fieldEditorPage.fieldKeyInput.fill("checkbox1");
+  await fieldEditorPage.fieldDescriptionInput.fill("checkbox1 description");
+  await fieldEditorPage.defaultValueTab.click();
+  await fieldEditorPage.setDefaultValueCheckbox.check();
+  await fieldEditorPage.okButton.click();
   await closeNotification(page);
 
-  await page.getByRole("menuitem", { name: "Content" }).click();
-  await expect(page.getByRole("columnheader", { name: "checkbox1 edit" })).toBeVisible();
+  await schemaPage.contentMenuItem.click();
+  await expect(contentPage.columnHeaderWithEdit("checkbox1")).toBeVisible();
 
-  await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.getByLabel("checkbox1")).toBeChecked();
+  await contentPage.newItemButton.click();
+  await expect(contentPage.fieldInput("checkbox1")).toBeChecked();
 
-  await page.getByRole("button", { name: "Save" }).click();
+  await contentPage.saveButton.click();
   await closeNotification(page);
-  await page.getByRole("menuitem", { name: "Schema" }).click();
-  await page.getByRole("tab", { name: "Meta Data" }).click();
-  await page.getByRole("button", { name: "ellipsis" }).click();
-  await page.getByLabel("Display name").fill("new checkbox1");
-  await page.getByLabel("Field Key").fill("new-checkbox1");
-  await page.getByLabel("Description").fill("new checkbox1 description");
-  await page.getByLabel("Support multiple values").check();
-  await page.getByRole("tab", { name: "Default value" }).click();
-  await expect(page.getByRole("checkbox")).toBeChecked();
+  await schemaPage.schemaMenuItem.click();
+  await schemaPage.metaDataTab.click();
+  await fieldEditorPage.ellipsisButton.click();
+  await fieldEditorPage.displayNameInput.fill("new checkbox1");
+  await fieldEditorPage.fieldKeyInput.fill("new-checkbox1");
+  await fieldEditorPage.fieldDescriptionInput.fill("new checkbox1 description");
+  await fieldEditorPage.supportMultipleValuesCheckbox.check();
+  await fieldEditorPage.defaultValueTab.click();
+  await expect(fieldEditorPage.firstCheckbox).toBeChecked();
 
-  await page.getByRole("button", { name: "plus New" }).click();
-  await expect(page.getByRole("checkbox").nth(1)).not.toBeChecked();
-  await page.getByRole("checkbox").nth(1).check();
-  await page.getByRole("button", { name: "OK" }).click();
+  await fieldEditorPage.plusNewButton.click();
+  await expect(fieldEditorPage.checkboxByIndex(1)).not.toBeChecked();
+  await fieldEditorPage.checkboxByIndex(1).check();
+  await fieldEditorPage.okButton.click();
   await closeNotification(page);
-  await expect(page.getByText("new checkbox1")).toBeVisible();
-  await expect(page.getByText("#new-checkbox1")).toBeVisible();
+  await expect(schemaPage.getByText("new checkbox1")).toBeVisible();
+  await expect(schemaPage.getByText("#new-checkbox1")).toBeVisible();
 
-  await page.getByRole("menuitem", { name: "Content" }).click();
-  await expect(page.getByRole("columnheader", { name: "new checkbox1 edit" })).toBeVisible();
-  await expect(page.getByRole("cell").getByRole("checkbox").last()).toBeChecked();
+  await schemaPage.contentMenuItem.click();
+  await expect(contentPage.columnHeaderWithEdit("new checkbox1")).toBeVisible();
+  await expect(contentPage.lastCellCheckbox).toBeChecked();
 
-  await page.getByRole("button", { name: "plus New Item" }).click();
-  await expect(page.getByText("new checkbox1", { exact: true })).toBeVisible();
-  await expect(page.getByText("new checkbox1 description")).toBeVisible();
-  await expect(page.getByRole("checkbox").nth(0)).toBeChecked();
-  await expect(page.getByRole("checkbox").nth(1)).toBeChecked();
+  await contentPage.newItemButton.click();
+  await expect(contentPage.getByText("new checkbox1", { exact: true })).toBeVisible();
+  await expect(contentPage.fieldDescriptionText("new checkbox1 description")).toBeVisible();
+  await expect(contentPage.checkboxByIndex(0)).toBeChecked();
+  await expect(contentPage.checkboxByIndex(1)).toBeChecked();
 
-  await page.getByRole("button", { name: "Save" }).click();
+  await contentPage.saveButton.click();
   await closeNotification(page);
-  await expect(page.getByRole("checkbox").nth(0)).toBeChecked();
-  await expect(page.getByRole("checkbox").nth(1)).toBeChecked();
+  await expect(contentPage.checkboxByIndex(0)).toBeChecked();
+  await expect(contentPage.checkboxByIndex(1)).toBeChecked();
 
-  await page.getByRole("button", { name: "Back" }).click();
-  await page.getByRole("button", { name: "x2" }).click();
-  await expect(page.getByRole("tooltip").getByRole("checkbox").nth(0)).toBeChecked();
-  await expect(page.getByRole("tooltip").getByRole("checkbox").nth(1)).toBeChecked();
+  await contentPage.backButtonRole.click();
+  await contentPage.x2Button.click();
+  await expect(contentPage.tooltipCheckboxByIndex(0)).toBeChecked();
+  await expect(contentPage.tooltipCheckboxByIndex(1)).toBeChecked();
 
-  await page.getByRole("tooltip").getByRole("checkbox").nth(0).uncheck();
+  await contentPage.tooltipCheckboxByIndex(0).uncheck();
   await closeNotification(page);
-  await page.getByRole("cell").getByLabel("edit").locator("svg").first().click();
-  await expect(page.getByRole("checkbox").nth(0)).not.toBeChecked();
-  await expect(page.getByRole("checkbox").nth(1)).toBeChecked();
-  await page.getByRole("button", { name: "plus New" }).click();
+  await contentPage.cellEditButtonByIndex(0).click();
+  await expect(contentPage.checkboxByIndex(0)).not.toBeChecked();
+  await expect(contentPage.checkboxByIndex(1)).toBeChecked();
+  await fieldEditorPage.plusNewButton.click();
   await closeNotification(page);
-  await expect(page.getByRole("checkbox").nth(0)).not.toBeChecked();
-  await expect(page.getByRole("checkbox").nth(1)).toBeChecked();
-  await expect(page.getByRole("checkbox").nth(2)).not.toBeChecked();
+  await expect(contentPage.checkboxByIndex(0)).not.toBeChecked();
+  await expect(contentPage.checkboxByIndex(1)).toBeChecked();
+  await expect(contentPage.checkboxByIndex(2)).not.toBeChecked();
 
-  await page.getByLabel("Back").click();
-  await page.getByRole("button", { name: "x3" }).click();
-  await expect(page.getByRole("tooltip").getByRole("checkbox").nth(0)).not.toBeChecked();
-  await expect(page.getByRole("tooltip").getByRole("checkbox").nth(1)).toBeChecked();
-  await expect(page.getByRole("tooltip").getByRole("checkbox").nth(2)).not.toBeChecked();
+  await contentPage.backButtonLabel.click();
+  await contentPage.x3Button.click();
+  await expect(contentPage.tooltipCheckboxByIndex(0)).not.toBeChecked();
+  await expect(contentPage.tooltipCheckboxByIndex(1)).toBeChecked();
+  await expect(contentPage.tooltipCheckboxByIndex(2)).not.toBeChecked();
 });
