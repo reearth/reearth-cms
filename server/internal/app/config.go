@@ -77,6 +77,9 @@ type Config struct {
 
 	// Policy Checker Configuration
 	Policy_Checker PolicyCheckerConfig `pp:",omitempty"`
+
+	// Account API Configuration
+	Account_Api AccountAPIConfig `pp:",omitempty"`
 }
 
 type HealthCheckConfig struct {
@@ -89,6 +92,11 @@ type PolicyCheckerConfig struct {
 	Endpoint string
 	Token    string
 	Timeout  int `default:"30"`
+}
+
+type AccountAPIConfig struct {
+	Endpoint string `pp:",omitempty"`
+	Token    string `pp:",omitempty"`
 }
 
 type ServerConfig struct {
@@ -386,6 +394,7 @@ func (c *Config) secrets() []string {
 		c.HealthCheck.Username,
 		c.HealthCheck.Password,
 		c.Policy_Checker.Token,
+		c.Account_Api.Token,
 	}
 	for _, d := range c.DB_Users {
 		s = append(s, d.URI)

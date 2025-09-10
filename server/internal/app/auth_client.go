@@ -33,6 +33,11 @@ func authMiddleware(appCtx *ApplicationContext) echo.MiddlewareFunc {
 			req := c.Request()
 			ctx := req.Context()
 
+			// Capture the Authorization header for token forwarding to external APIs
+			if authHeader := req.Header.Get("Authorization"); authHeader != "" {
+				ctx = adapter.AttachAuthHeader(ctx, authHeader)
+			}
+
 			ctx, err = attachUserOperator(ctx, req, appCtx)
 			if err != nil {
 				return err
@@ -183,9 +188,13 @@ func generateUserOperator(ctx context.Context, appCtx *ApplicationContext, u *us
 		return nil, err
 	}
 
-	lang := u.Metadata().Lang().String()
-	if lang == "" || lang == "und" {
-		lang = defaultLang
+	lang := defaultLang
+	if metadata := u.Metadata(); metadata != nil {
+		langVal := metadata.Lang()
+		langStr := langVal.String()
+		if langStr != "" && langStr != "und" {
+			lang = langStr
+		}
 	}
 
 	acop := &accountusecase.Operator{
