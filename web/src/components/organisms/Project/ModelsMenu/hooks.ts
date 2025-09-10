@@ -7,20 +7,25 @@ import { Group, ModelFormValues } from "@reearth-cms/components/molecules/Schema
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import {
-  useGetModelsQuery,
-  useGetModelQuery,
-  useGetGroupsQuery,
-  useCreateModelMutation,
-  useUpdateModelsOrderMutation,
-  useCreateGroupMutation,
-  useUpdateGroupsOrderMutation,
-  useCheckModelKeyAvailabilityLazyQuery,
-  useCheckGroupKeyAvailabilityLazyQuery,
   Model as GQLModel,
   Group as GQLGroup,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useWorkspace, useProject, useUserRights } from "@reearth-cms/state";
+import {
+  CheckModelKeyAvailabilityDocument,
+  CreateModelDocument,
+  GetModelDocument,
+  GetModelsDocument,
+  UpdateModelsOrderDocument,
+} from "@reearth-cms/gql/__generated__/model.generated";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
+import {
+  CheckGroupKeyAvailabilityDocument,
+  CreateGroupDocument,
+  GetGroupsDocument,
+  UpdateGroupsOrderDocument,
+} from "@reearth-cms/gql/__generated__/group.generated";
 
 type Params = {
   modelId?: string;
@@ -40,7 +45,7 @@ export default ({ modelId }: Params) => {
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
   const [modelModalShown, setModelModalShown] = useState(false);
 
-  const [CheckModelKeyAvailability] = useCheckModelKeyAvailabilityLazyQuery({
+  const [CheckModelKeyAvailability] = useLazyQuery(CheckModelKeyAvailabilityDocument, {
     fetchPolicy: "no-cache",
   });
 
@@ -54,7 +59,7 @@ export default ({ modelId }: Params) => {
     [projectId, CheckModelKeyAvailability],
   );
 
-  const { data } = useGetModelsQuery({
+  const { data } = useQuery(GetModelsDocument, {
     variables: { projectId: projectId ?? "", pagination: { first: 100 } },
     skip: !projectId,
   });
@@ -65,7 +70,7 @@ export default ({ modelId }: Params) => {
       .filter((model): model is Model => !!model);
   }, [data?.models.nodes]);
 
-  const { data: modelData } = useGetModelQuery({
+  const { data: modelData } = useQuery(GetModelDocument, {
     fetchPolicy: "cache-and-network",
     variables: { id: modelId ?? "" },
     skip: !modelId,
@@ -80,7 +85,7 @@ export default ({ modelId }: Params) => {
     setCurrentModel(model ?? undefined);
   }, [model, setCurrentModel]);
 
-  const [createNewModel] = useCreateModelMutation({
+  const [createNewModel] = useMutation(CreateModelDocument, {
     refetchQueries: ["GetModels"],
   });
 
@@ -95,7 +100,7 @@ export default ({ modelId }: Params) => {
           key: data.key,
         },
       });
-      if (model.errors || !model.data?.createModel) {
+      if (model.error || !model.data?.createModel) {
         Notification.error({ message: t("Failed to create model.") });
         return;
       }
@@ -108,7 +113,7 @@ export default ({ modelId }: Params) => {
     [currentWorkspace?.id, projectId, createNewModel, navigate, t],
   );
 
-  const [updateModelsOrder] = useUpdateModelsOrderMutation({
+  const [updateModelsOrder] = useMutation(UpdateModelsOrderDocument, {
     refetchQueries: ["GetModels"],
   });
 
@@ -120,7 +125,7 @@ export default ({ modelId }: Params) => {
           modelIds,
         },
       });
-      if (model.errors) {
+      if (model.error) {
         Notification.error({ message: t("Failed to update models order.") });
         return;
       }
@@ -135,7 +140,7 @@ export default ({ modelId }: Params) => {
   // Group hooks
   const [groupModalShown, setGroupModalShown] = useState(false);
 
-  const { data: groupData } = useGetGroupsQuery({
+  const { data: groupData } = useQuery(GetGroupsDocument, {
     variables: { projectId: projectId ?? "" },
     skip: !projectId,
   });
@@ -149,7 +154,7 @@ export default ({ modelId }: Params) => {
   const handleGroupModalClose = useCallback(() => setGroupModalShown(false), []);
   const handleGroupModalOpen = useCallback(() => setGroupModalShown(true), []);
 
-  const [CheckGroupKeyAvailability] = useCheckGroupKeyAvailabilityLazyQuery({
+  const [CheckGroupKeyAvailability] = useLazyQuery(CheckGroupKeyAvailabilityDocument, {
     fetchPolicy: "no-cache",
   });
 
@@ -163,7 +168,7 @@ export default ({ modelId }: Params) => {
     [projectId, CheckGroupKeyAvailability],
   );
 
-  const [createNewGroup] = useCreateGroupMutation({
+  const [createNewGroup] = useMutation(CreateGroupDocument, {
     refetchQueries: ["GetGroups"],
   });
 
@@ -178,7 +183,7 @@ export default ({ modelId }: Params) => {
           key: data.key,
         },
       });
-      if (group.errors || !group.data?.createGroup) {
+      if (group.error || !group.data?.createGroup) {
         Notification.error({ message: t("Failed to create group.") });
         return;
       }
@@ -191,7 +196,7 @@ export default ({ modelId }: Params) => {
     [currentWorkspace?.id, projectId, createNewGroup, navigate, t],
   );
 
-  const [updateGroupsOrder] = useUpdateGroupsOrderMutation({
+  const [updateGroupsOrder] = useMutation(UpdateGroupsOrderDocument, {
     refetchQueries: ["GetGroups"],
   });
 
@@ -202,7 +207,7 @@ export default ({ modelId }: Params) => {
           groupIds,
         },
       });
-      if (group.errors) {
+      if (group.error) {
         Notification.error({ message: t("Failed to update groups order.") });
         return;
       }
