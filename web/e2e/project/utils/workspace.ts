@@ -1,5 +1,5 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { Page } from "@reearth-cms/e2e/fixtures/test";
+import { type Page } from "@reearth-cms/e2e/fixtures/test";
 
 export async function createWorkspace(page: Page) {
   await page.getByRole("button", { name: "Create a Workspace" }).click();
@@ -10,7 +10,7 @@ export async function createWorkspace(page: Page) {
 }
 
 export async function deleteWorkspace(page: Page) {
-  await page.getByText("Workspace", { exact: true }).click();
+  await page.getByText("Workspace Settings", { exact: true }).click();
   await page.getByRole("button", { name: "Remove Workspace" }).click();
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
