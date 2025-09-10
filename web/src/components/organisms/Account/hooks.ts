@@ -3,15 +3,16 @@ import { useCallback, useMemo } from "react";
 import { useAuth } from "@reearth-cms/auth";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import {
-  useDeleteMeMutation,
-  useGetMeQuery,
-  useUpdateMeMutation,
-} from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
+import {
+  DeleteMeDocument,
+  GetMeDocument,
+  UpdateMeDocument,
+} from "@reearth-cms/gql/__generated__/user.generated";
+import { useMutation, useQuery } from "@apollo/client/react";
 
 export default () => {
-  const { data, loading } = useGetMeQuery();
+  const { data, loading } = useQuery(GetMeDocument);
   const t = useT();
   const { logout } = useAuth();
 
@@ -26,16 +27,16 @@ export default () => {
       : undefined;
   }, [data]);
 
-  const [updateMeMutation] = useUpdateMeMutation({
+  const [updateMeMutation] = useMutation(UpdateMeDocument, {
     refetchQueries: ["GetMe"],
   });
-  const [deleteMeMutation] = useDeleteMeMutation();
+  const [deleteMeMutation] = useMutation(DeleteMeDocument);
 
   const handleUserUpdate = useCallback(
     async (name: string, email: string) => {
       if (!name || !email) return;
       const user = await updateMeMutation({ variables: { name, email } });
-      if (user.errors) {
+      if (user.error) {
         Notification.error({ message: t("Failed to update user.") });
         return;
       }
@@ -48,7 +49,7 @@ export default () => {
     async (lang: string) => {
       if (!lang) return;
       const res = await updateMeMutation({ variables: { lang } });
-      if (res.errors) {
+      if (res.error) {
         Notification.error({ message: t("Failed to update language.") });
         return;
       } else {
@@ -61,7 +62,7 @@ export default () => {
   const handleUserDelete = useCallback(async () => {
     if (!me) return;
     const user = await deleteMeMutation({ variables: { userId: me.id } });
-    if (user.errors) {
+    if (user.error) {
       Notification.error({ message: t("Failed to delete user.") });
     } else {
       Notification.success({ message: t("Successfully deleted user!") });

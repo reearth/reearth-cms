@@ -1,5 +1,5 @@
 import { GroupField, Group } from "@reearth-cms/components/molecules/Schema/types";
-import { Maybe, Group as GQLGroup } from "@reearth-cms/gql/graphql-client-api";
+import { Maybe, Group as GQLGroup } from "@reearth-cms/gql/__generated__/graphql.generated";
 
 export const fromGraphQLGroup = (group: Maybe<GQLGroup>): Group | undefined => {
   if (!group) return;

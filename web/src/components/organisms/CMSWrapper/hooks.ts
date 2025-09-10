@@ -10,13 +10,10 @@ import {
   fromGraphQLWorkspace,
 } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
-  useCreateWorkspaceMutation,
-  useGetMeQuery,
-  useGetProjectQuery,
   WorkspaceMember,
   Workspace as GQLWorkspace,
   Project as GQLProject,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import {
   useWorkspace,
@@ -28,6 +25,10 @@ import {
 import { joinPaths, splitPathname } from "@reearth-cms/utils/path";
 
 import { userRightsGet } from "./utils";
+import { useMutation, useQuery } from "@apollo/client/react";
+import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
+import { CreateWorkspaceDocument } from "@reearth-cms/gql/__generated__/workspace.generated";
+import { GetProjectDocument } from "@reearth-cms/gql/__generated__/project.generated";
 
 export default () => {
   const t = useT();
@@ -45,7 +46,7 @@ export default () => {
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
-  const { data, refetch } = useGetMeQuery();
+  const { data, refetch } = useQuery(GetMeDocument);
 
   const [, secondaryRoute, subRoute] = useMemo(() => splitPathname(pathname), [pathname]);
 
@@ -117,7 +118,7 @@ export default () => {
     }
   }, [currentUserId, currentWorkspace, data?.me?.id, setUserRights]);
 
-  const [createWorkspaceMutation] = useCreateWorkspaceMutation();
+  const [createWorkspaceMutation] = useMutation(CreateWorkspaceDocument);
   const handleWorkspaceCreate = useCallback(
     async (data: { name: string }) => {
       const results = await createWorkspaceMutation({
@@ -149,7 +150,7 @@ export default () => {
     }
   }, [dashboardBaseUrl, navigate, personalWorkspace?.id]);
 
-  const { data: projectData } = useGetProjectQuery({
+  const { data: projectData } = useQuery(GetProjectDocument, {
     variables: { projectId: projectId ?? "" },
     skip: !projectId,
   });

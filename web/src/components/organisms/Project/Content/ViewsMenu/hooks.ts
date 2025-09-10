@@ -7,14 +7,15 @@ import {
   toGraphItemSort,
   toGraphConditionInput,
 } from "@reearth-cms/components/organisms/DataConverters/table";
-import {
-  useCreateViewMutation,
-  useDeleteViewMutation,
-  useUpdateViewMutation,
-  useUpdateViewsOrderMutation,
-} from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useModel, useUserRights } from "@reearth-cms/state";
+import {
+  CreateViewDocument,
+  DeleteViewDocument,
+  UpdateViewDocument,
+  UpdateViewsOrderDocument,
+} from "@reearth-cms/gql/__generated__/view.generated";
+import { useMutation } from "@apollo/client/react";
 
 type Params = {
   currentView: CurrentView;
@@ -48,7 +49,7 @@ export default ({ currentView, onViewChange }: Params) => {
     setViewModalShown(false);
   }, [setViewModalShown]);
 
-  const [createNewView, { loading: createLoading }] = useCreateViewMutation({
+  const [createNewView, { loading: createLoading }] = useMutation(CreateViewDocument, {
     refetchQueries: ["GetViews"],
   });
 
@@ -64,7 +65,7 @@ export default ({ currentView, onViewChange }: Params) => {
           filter: toGraphConditionInput(currentView.filter),
         },
       });
-      if (view.errors || !view.data?.createView) {
+      if (view.error || !view.data?.createView) {
         Notification.error({ message: t("Failed to create view.") });
         return;
       }
@@ -84,7 +85,7 @@ export default ({ currentView, onViewChange }: Params) => {
     ],
   );
 
-  const [updateNewView, { loading: updateLoading }] = useUpdateViewMutation({
+  const [updateNewView, { loading: updateLoading }] = useMutation(UpdateViewDocument, {
     refetchQueries: ["GetViews"],
   });
 
@@ -99,7 +100,7 @@ export default ({ currentView, onViewChange }: Params) => {
           filter: toGraphConditionInput(currentView.filter),
         },
       });
-      if (view.errors || !view.data?.updateView) {
+      if (view.error || !view.data?.updateView) {
         Notification.error({ message: t("Failed to update view.") });
         return;
       }
@@ -120,7 +121,7 @@ export default ({ currentView, onViewChange }: Params) => {
           filter: toGraphConditionInput(currentView.filter),
         },
       });
-      if (view.errors || !view.data?.updateView) {
+      if (view.error || !view.data?.updateView) {
         Notification.error({ message: t("Failed to rename view.") });
         return;
       }
@@ -130,14 +131,14 @@ export default ({ currentView, onViewChange }: Params) => {
     [handleViewModalReset, t, updateNewView, currentView],
   );
 
-  const [deleteView] = useDeleteViewMutation({
+  const [deleteView] = useMutation(DeleteViewDocument, {
     refetchQueries: ["GetViews"],
   });
 
   const handleViewDelete = useCallback(
     async (viewId: string) => {
       const res = await deleteView({ variables: { viewId } });
-      if (res.errors || !res.data?.deleteView) {
+      if (res.error || !res.data?.deleteView) {
         Notification.error({ message: t("Failed to delete view.") });
       } else {
         Notification.success({ message: t("Successfully deleted view!") });
@@ -147,7 +148,7 @@ export default ({ currentView, onViewChange }: Params) => {
     [deleteView, onViewChange, t],
   );
 
-  const [updateViewsOrder] = useUpdateViewsOrderMutation({
+  const [updateViewsOrder] = useMutation(UpdateViewsOrderDocument, {
     refetchQueries: ["GetViews"],
   });
 
@@ -158,7 +159,7 @@ export default ({ currentView, onViewChange }: Params) => {
           viewIds,
         },
       });
-      if (view.errors) {
+      if (view.error) {
         Notification.error({ message: t("Failed to update views order.") });
         return;
       }
