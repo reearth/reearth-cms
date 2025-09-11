@@ -1,3 +1,4 @@
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import fileDownload from "js-file-download";
 import { useState, useCallback, Key, useMemo, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
@@ -14,6 +15,15 @@ import {
 } from "@reearth-cms/components/organisms/Project/Schema/helpers";
 import { useAuthHeader } from "@reearth-cms/gql";
 import {
+  CreateAssetDocument,
+  CreateAssetUploadDocument,
+  DeleteAssetDocument,
+  GetAssetDocument,
+  GetAssetsDocument,
+  GetAssetsItemsDocument,
+  GuessSchemaFieldsDocument,
+} from "@reearth-cms/gql/__generated__/assets.generated";
+import {
   Asset as GQLAsset,
   SortDirection as GQLSortDirection,
   AssetSortType as GQLSortType,
@@ -23,16 +33,6 @@ import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
 
 import { uploadFiles } from "./upload";
-import {
-  CreateAssetDocument,
-  CreateAssetUploadDocument,
-  DeleteAssetDocument,
-  GetAssetDocument,
-  GetAssetsDocument,
-  GetAssetsItemsDocument,
-  GuessSchemaFieldsDocument,
-} from "@reearth-cms/gql/__generated__/assets.generated";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 
 type UploadType = "local" | "url";
 
@@ -115,23 +115,26 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     [getAsset],
   );
 
-  const params = {
-    fetchPolicy: "cache-and-network" as const,
-    variables: {
-      projectId: projectId ?? "",
-      pagination: { first: pageSize, offset: (page - 1) * pageSize },
-      sort: sort
-        ? {
-            sortBy: sort.type as GQLSortType,
-            direction: sort.direction as GQLSortDirection,
-          }
-        : { sortBy: "DATE" as GQLSortType, direction: "DESC" as GQLSortDirection },
-      keyword: searchTerm,
-      contentTypes: contentTypes,
-    },
-    notifyOnNetworkStatusChange: true,
-    skip: !projectId,
-  };
+  const params = useMemo(
+    () => ({
+      fetchPolicy: "cache-and-network" as const,
+      variables: {
+        projectId: projectId ?? "",
+        pagination: { first: pageSize, offset: (page - 1) * pageSize },
+        sort: sort
+          ? {
+              sortBy: sort.type as GQLSortType,
+              direction: sort.direction as GQLSortDirection,
+            }
+          : { sortBy: "DATE" as GQLSortType, direction: "DESC" as GQLSortDirection },
+        keyword: searchTerm,
+        contentTypes: contentTypes,
+      },
+      notifyOnNetworkStatusChange: true,
+      skip: !projectId,
+    }),
+    [contentTypes, page, pageSize, projectId, searchTerm, sort],
+  );
 
   const [getAssets, { data, refetch, loading }] = isItemsRequired
     ? useLazyQuery(GetAssetsItemsDocument)
@@ -141,7 +144,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     if (isItemsRequired) {
       getAssets(params);
     }
-  }, [getAssets, isItemsRequired]);
+  }, [getAssets, isItemsRequired, params]);
 
   const {
     data: guessSchemaFieldsData,
@@ -368,7 +371,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
 
   const handleAssetsGet = useCallback(() => {
     getAssets(params);
-  }, [getAssets]);
+  }, [getAssets, params]);
 
   const handleAssetsReload = useCallback(() => {
     refetch();

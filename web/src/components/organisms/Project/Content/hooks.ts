@@ -1,3 +1,4 @@
+import { useLazyQuery, useMutation } from "@apollo/client/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -7,17 +8,16 @@ import {
   RequestState as GQLRequestState,
   Request as GQLRequest,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
-import { useT } from "@reearth-cms/i18n";
-import { useModel, useProject, useWorkspace, useUserId, useUserRights } from "@reearth-cms/state";
-import {
-  GetModalRequestsDocument,
-  UpdateRequestDocument,
-} from "@reearth-cms/gql/__generated__/requests.generated";
-import { useLazyQuery, useMutation } from "@apollo/client/react";
 import {
   PublishItemDocument,
   UnpublishItemDocument,
 } from "@reearth-cms/gql/__generated__/item.generated";
+import {
+  GetModalRequestsDocument,
+  UpdateRequestDocument,
+} from "@reearth-cms/gql/__generated__/requests.generated";
+import { useT } from "@reearth-cms/i18n";
+import { useModel, useProject, useWorkspace, useUserId, useUserRights } from "@reearth-cms/state";
 
 export default () => {
   const [currentModel] = useModel();
@@ -153,7 +153,15 @@ export default () => {
         createdBy: userRights?.request.update === null ? userId : undefined,
       },
     });
-  }, [getModalRequests]);
+  }, [
+    currentProject?.id,
+    getModalRequests,
+    page,
+    pageSize,
+    searchTerm,
+    userId,
+    userRights?.request.update,
+  ]);
 
   const handleRequestTableChange = useCallback((page: number, pageSize: number) => {
     setPage(page);
