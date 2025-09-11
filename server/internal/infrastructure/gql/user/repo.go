@@ -8,11 +8,22 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/user"
 )
 
+// GraphQLClient interface for testability
+type GraphQLClient interface {
+	Query(ctx context.Context, q any, variables map[string]any, options ...graphql.Option) error
+	Mutate(ctx context.Context, m any, variables map[string]any, options ...graphql.Option) error
+}
+
 type UserRepo struct {
-	client *graphql.Client
+	client GraphQLClient
 }
 
 func NewRepo(client *graphql.Client) *UserRepo {
+	return &UserRepo{client: client}
+}
+
+// NewRepoWithClient creates a new UserRepo with the given GraphQLClient interface
+func NewRepoWithClient(client GraphQLClient) *UserRepo {
 	return &UserRepo{client: client}
 }
 
