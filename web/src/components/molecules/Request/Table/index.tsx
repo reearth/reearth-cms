@@ -140,11 +140,7 @@ const RequestListTable: React.FC<Props> = ({
         title: t("Created By"),
         dataIndex: "createdBy.name",
         key: "createdBy",
-        render: (_, request) => (
-          <Space>
-            {request.createdBy?.name}
-          </Space>
-        ),
+        render: (_, request) => request.createdBy?.name,
         valueEnum: {
           all: { text: "All", status: "Default" },
           createdByMe: {
@@ -161,11 +157,7 @@ const RequestListTable: React.FC<Props> = ({
         title: t("Reviewers"),
         dataIndex: "reviewers.name",
         key: "reviewers",
-        render: (_, request) => (
-          <Space>
-            {request.reviewers.map(reviewer => reviewer.name).join(", ")}
-          </Space>
-        ),
+        render: (_, request) => request.reviewers.map(reviewer => reviewer.name).join(", "),
         valueEnum: {
           all: { text: "All", status: "Default" },
           reviewedByMe: {

@@ -179,7 +179,7 @@ const LinkAssetModal: React.FC<Props> = ({
         ellipsis: true,
         width: 100,
         minWidth: 100,
-        render: (_, item) => <div>{item.createdBy.name}</div>,
+        render: (_, item) => item.createdBy.name,
       },
     ],
     [linkedAsset?.id, onLinkClick, t],

@@ -102,7 +102,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
         ellipsis: true,
         width: 100,
         minWidth: 100,
-        render: (_, request) => <div>{request.createdBy?.name}</div>,
+        render: (_, request) => request.createdBy?.name,
       },
       {
         title: t("Reviewers"),
@@ -111,9 +111,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
         ellipsis: true,
         width: 130,
         minWidth: 130,
-        render: (_, request) => (
-          <div>{request.reviewers.map(reviewer => reviewer.name).join(", ")}</div>
-        ),
+        render: (_, request) => request.reviewers.map(reviewer => reviewer.name).join(", "),
       },
       {
         title: t("Created At"),

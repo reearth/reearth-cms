@@ -214,11 +214,7 @@ const ContentTable: React.FC<Props> = ({
         fieldType: "CREATION_USER",
         key: "CREATION_USER",
         sortOrder: sortOrderGet("CREATION_USER"),
-        render: (_, item) => (
-          <Space>
-            {item.createdBy.name}
-          </Space>
-        ),
+        render: (_, item) => item.createdBy.name,
         sorter: true,
         defaultSortOrder: sortOrderGet("CREATION_USER"),
         width: 148,
@@ -246,14 +242,7 @@ const ContentTable: React.FC<Props> = ({
         fieldType: "MODIFICATION_USER",
         key: "MODIFICATION_USER",
         sortOrder: sortOrderGet("MODIFICATION_USER"),
-        render: (_, item) =>
-          item.updatedBy ? (
-            <Space>
-              {item.updatedBy}
-            </Space>
-          ) : (
-            "-"
-          ),
+        render: (_, item) => (item.updatedBy ? item.updatedBy : "-"),
         sorter: true,
         defaultSortOrder: sortOrderGet("MODIFICATION_USER"),
         width: 148,

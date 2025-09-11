@@ -77,7 +77,7 @@ const IntegrationTable: React.FC<Props> = ({
         key: "creator",
         width: 250,
         minWidth: 100,
-        render: (_, item) => <div>{item.createdBy?.name}</div>,
+        render: (_, item) => item.createdBy?.name,
       },
       {
         key: "action",
