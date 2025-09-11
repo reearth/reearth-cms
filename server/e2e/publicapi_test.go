@@ -751,7 +751,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 	lo.Must0(r.Model.Save(ctx, p1m3))
 
 	/// Project 1 Model 4
-	p1s4 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{}).MustBuild()
+	p1s4 := p1s3.Clone()
 	lo.Must0(r.Schema.Save(ctx, p1s4))
 
 	p1m4 := model.New().ID(pApiP1M4Id).Project(p1.ID()).Schema(p1s4.ID()).Key(id.NewKey(pApiP1M4Key)).MustBuild()
@@ -836,12 +836,12 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 	p1m3i1 := item.New().
 		ID(pApiP1M3I1Id).
 		Model(p1m3.ID()).
-		Schema(p1s2.ID()).
-		Project(pApiP1Id).
+		Schema(p1s3.ID()).
+		Project(p1.ID()).
 		Thread(id.NewThreadID().Ref()).
 		User(uid).
 		Fields([]*item.Field{
-			item.NewField(p1s1.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple(), nil),
+			item.NewField(p1s3.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple(), nil),
 		}).MustBuild()
 
 	p1m4i8ig1 := id.NewItemGroupID()
@@ -849,7 +849,7 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 	p1m4i1 := item.New().
 		ID(pApiP1M4I1Id).
 		Model(p1m4.ID()).
-		Schema(p1s3.ID()).
+		Schema(p1s4.ID()).
 		Project(p1.ID()).
 		Thread(id.NewThreadID().Ref()).
 		IsMetadata(false).
