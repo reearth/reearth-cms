@@ -8,7 +8,7 @@ import {
 } from "@apollo/client";
 import { SetContextLink } from "@apollo/client/link/context";
 import { ErrorLink } from "@apollo/client/link/error";
-import createUploadLink from "apollo-upload-client/createUploadLink.mjs";
+import UploadHttpLink from "apollo-upload-client/UploadHttpLink.mjs";
 import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
 
 import { useAuth } from "@reearth-cms/auth";
@@ -43,9 +43,7 @@ const Provider: React.FC<Props> = ({ children }) => {
     };
   });
 
-  const uploadLink = createUploadLink({
-    uri: endpoint,
-  }) as unknown as ApolloLink;
+  const uploadLink = new UploadHttpLink({ uri: endpoint });
 
   const errorLink = new ErrorLink(({ error, operation }) => {
     if (!error) return;
