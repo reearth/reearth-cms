@@ -1,3 +1,4 @@
+import { useMutation } from "@apollo/client/react";
 import { useCallback, useMemo } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -5,16 +6,15 @@ import {
   RefetchQueries,
   ResourceType,
 } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
-import { ResourceType as GQLResourceType } from "@reearth-cms/gql/__generated__/graphql.generated";
-import { useT } from "@reearth-cms/i18n";
-import { useWorkspaceId, useUserRights, useUserId } from "@reearth-cms/state";
-import { CreateThreadWithCommentDocument } from "@reearth-cms/gql/__generated__/thread.generated";
-import { useMutation } from "@apollo/client/react";
 import {
   AddCommentDocument,
   DeleteCommentDocument,
   UpdateCommentDocument,
 } from "@reearth-cms/gql/__generated__/comment.generated";
+import { ResourceType as GQLResourceType } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { CreateThreadWithCommentDocument } from "@reearth-cms/gql/__generated__/thread.generated";
+import { useT } from "@reearth-cms/i18n";
+import { useWorkspaceId, useUserRights, useUserId } from "@reearth-cms/state";
 
 type Params = {
   resourceId?: string;

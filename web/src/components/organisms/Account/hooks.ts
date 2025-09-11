@@ -1,15 +1,15 @@
+import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo } from "react";
 
 import { useAuth } from "@reearth-cms/auth";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
-import { useT } from "@reearth-cms/i18n";
 import {
   DeleteMeDocument,
   GetMeDocument,
   UpdateMeDocument,
 } from "@reearth-cms/gql/__generated__/user.generated";
-import { useMutation, useQuery } from "@apollo/client/react";
+import { useT } from "@reearth-cms/i18n";
 
 export default () => {
   const { data, loading } = useQuery(GetMeDocument);
