@@ -39,6 +39,5 @@ var IntegrationIDListFrom = id.IntegrationIDListFrom
 var IDFromRef = id.WorkspaceIDFromRef
 var UserIDFromRef = id.UserIDFromRef
 var ProjectIDFromRef = id.ProjectIDFromRef
-var integrationIDFromRef = id.IntegrationIDFromRef
 
 var ErrInvalidID = id.ErrInvalidID
