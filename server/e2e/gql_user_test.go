@@ -194,7 +194,7 @@ func TestMe(t *testing.T) {
 		var gqlReq struct {
 			Query string `json:"query"`
 		}
-		json.NewDecoder(r.Body).Decode(&gqlReq)
+		_ = json.NewDecoder(r.Body).Decode(&gqlReq)
 		
 		// Check for Authorization header (JWT token forwarding)
 		authHeader := r.Header.Get("Authorization")
@@ -275,7 +275,7 @@ func TestMe(t *testing.T) {
 		}
 		
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		_ = json.NewEncoder(w).Encode(response)
 	}))
 	defer mockServer.Close()
 
@@ -301,6 +301,7 @@ func TestMe(t *testing.T) {
 	o := e.POST("/api/graphql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("me").Object()
 	o.Value("id").String().IsEqual(uId1.String())
 	o.Value("name").String().IsEqual("e2e")
@@ -314,6 +315,7 @@ func TestMe(t *testing.T) {
 	o = e.POST("/api/graphql").
 		WithHeader("authorization", "Bearer test2").
 		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId2.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("me").Object()
 	o.Value("id").String().IsEqual(uId2.String())
 	o.Value("name").String().IsEqual("e2e2")
