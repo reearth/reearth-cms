@@ -1,3 +1,4 @@
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo, useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
@@ -23,21 +24,6 @@ import {
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
-import { useT } from "@reearth-cms/i18n";
-import { useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
-import { newID } from "@reearth-cms/utils/id";
-
-import { dateConvert } from "./utils";
-import { GetModelDocument } from "@reearth-cms/gql/__generated__/model.generated";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
-import {
-  CreateItemDocument,
-  GetItemDocument,
-  IsItemReferencedDocument,
-  SearchItemDocument,
-  UpdateItemDocument,
-  VersionsByItemDocument,
-} from "@reearth-cms/gql/__generated__/item.generated";
 import {
   Item as GQLItem,
   Model as GQLModel,
@@ -48,9 +34,23 @@ import {
   ItemFieldInput,
   StringOperator,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
-import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
 import { GetGroupDocument } from "@reearth-cms/gql/__generated__/group.generated";
+import {
+  CreateItemDocument,
+  GetItemDocument,
+  IsItemReferencedDocument,
+  SearchItemDocument,
+  UpdateItemDocument,
+  VersionsByItemDocument,
+} from "@reearth-cms/gql/__generated__/item.generated";
+import { GetModelDocument } from "@reearth-cms/gql/__generated__/model.generated";
 import { CreateRequestDocument } from "@reearth-cms/gql/__generated__/requests.generated";
+import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
+import { useT } from "@reearth-cms/i18n";
+import { useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
+import { newID } from "@reearth-cms/utils/id";
+
+import { dateConvert } from "./utils";
 
 export default () => {
   const {
@@ -112,7 +112,6 @@ export default () => {
 
   const [getModel] = useLazyQuery(GetModelDocument, {
     fetchPolicy: "cache-and-network",
-    // onCompleted: data => setReferenceModel(fromGraphQLModel(data?.node as GQLModel)),
   });
   const {
     data: itemsData,
@@ -568,10 +567,9 @@ export default () => {
           variables: { id: modelId },
         }).retain();
         setReferenceModel(fromGraphQLModel(data?.node as GQLModel));
-      } catch (error) {}
-      // getModel({
-      //   variables: { id: modelId },
-      // });
+      } catch (error) {
+        Notification.error({ message: String(error) });
+      }
 
       titleId.current = titleFieldId;
       handleSearchTerm();

@@ -1,3 +1,4 @@
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { Modal } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -17,21 +18,18 @@ import type { FormValues, ModelFormValues } from "@reearth-cms/components/molecu
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import {
+  CreateFieldDocument,
+  CreateFieldsDocument,
+  DeleteFieldDocument,
+  UpdateFieldDocument,
+  UpdateFieldsDocument,
+} from "@reearth-cms/gql/__generated__/field.generated";
+import {
   Model as GQLModel,
   Group as GQLGroup,
   SchemaFieldType,
   SchemaFieldTypePropertyInput,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
-import { useT } from "@reearth-cms/i18n";
-import { useModel, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
-import {
-  CheckModelKeyAvailabilityDocument,
-  DeleteModelDocument,
-  GetModelDocument,
-  GetModelsDocument,
-  UpdateModelDocument,
-} from "@reearth-cms/gql/__generated__/model.generated";
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import {
   CheckGroupKeyAvailabilityDocument,
   CreateGroupDocument,
@@ -42,12 +40,14 @@ import {
   UpdateGroupDocument,
 } from "@reearth-cms/gql/__generated__/group.generated";
 import {
-  CreateFieldDocument,
-  CreateFieldsDocument,
-  DeleteFieldDocument,
-  UpdateFieldDocument,
-  UpdateFieldsDocument,
-} from "@reearth-cms/gql/__generated__/field.generated";
+  CheckModelKeyAvailabilityDocument,
+  DeleteModelDocument,
+  GetModelDocument,
+  GetModelsDocument,
+  UpdateModelDocument,
+} from "@reearth-cms/gql/__generated__/model.generated";
+import { useT } from "@reearth-cms/i18n";
+import { useModel, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();

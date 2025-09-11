@@ -1,11 +1,11 @@
+import { useQuery } from "@apollo/client/react";
 import { ReactNode, useEffect } from "react";
 import { I18nextProvider } from "react-i18next";
 
 import { useAuth } from "@reearth-cms/auth";
+import { GetLanguageDocument } from "@reearth-cms/gql/__generated__/user.generated";
 
 import i18n from "./i18n";
-import { GetLanguageDocument } from "@reearth-cms/gql/__generated__/user.generated";
-import { useQuery } from "@apollo/client/react";
 
 export default function Provider({ children }: { children?: ReactNode }) {
   const { isAuthenticated } = useAuth();

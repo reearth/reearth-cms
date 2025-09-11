@@ -1,6 +1,6 @@
 import { type CodegenConfig } from "@graphql-codegen/cli";
 
-const GENERATED: string = "generated";
+const GENERATED = "generated";
 
 // Apollo client migration guide:
 // 1. https://www.apollographql.com/docs/react/migrating/apollo-client-4-migration

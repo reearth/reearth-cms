@@ -1,3 +1,4 @@
+import { useMutation } from "@apollo/client/react";
 import { useCallback, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -8,18 +9,17 @@ import {
   NewWebhook,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import integrationHooks from "@reearth-cms/components/organisms/Settings/MyIntegrations/hooks";
-import { useT } from "@reearth-cms/i18n";
 import {
   DeleteIntegrationDocument,
   RegenerateIntegrationTokenDocument,
   UpdateIntegrationDocument,
 } from "@reearth-cms/gql/__generated__/integration.generated";
-import { useMutation } from "@apollo/client/react";
 import {
   CreateWebhookDocument,
   DeleteWebhookDocument,
   UpdateWebhookDocument,
 } from "@reearth-cms/gql/__generated__/webhook.generated";
+import { useT } from "@reearth-cms/i18n";
 
 export default () => {
   const { workspaceId, integrationId } = useParams();
