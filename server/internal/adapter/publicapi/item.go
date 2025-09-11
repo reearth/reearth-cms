@@ -134,7 +134,7 @@ func getReferencedItemsMap(ctx context.Context, itemL item.List, prp bool) map[i
 	}
 
 	refItemsIDs := item.IDList{}
-	ff(itemL, func(_, riid id.ItemID) {
+	refItemsFn(itemL, func(_, riid id.ItemID) {
 		refItemsIDs = refItemsIDs.AddUniq(riid)
 	})
 
@@ -146,7 +146,7 @@ func getReferencedItemsMap(ctx context.Context, itemL item.List, prp bool) map[i
 
 	spMap := map[id.ModelID]*schema.Package{}
 	res := map[id.ItemID][]Item{}
-	ff(itemL, func(iid, riid id.ItemID) {
+	refItemsFn(itemL, func(iid, riid id.ItemID) {
 		ii, ok := refItemMap[iid]
 		if !ok || ii == nil {
 			return
@@ -163,7 +163,7 @@ func getReferencedItemsMap(ctx context.Context, itemL item.List, prp bool) map[i
 	return res
 }
 
-func ff(il item.List, fn func(id.ItemID, id.ItemID)) {
+func refItemsFn(il item.List, fn func(id.ItemID, id.ItemID)) {
 	for _, i := range il {
 		for _, f := range i.Fields().FieldsByType(value.TypeReference) {
 			for _, v := range f.Value().Values() {
