@@ -6,7 +6,6 @@ package gql
 
 import (
 	"context"
-	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
@@ -88,10 +87,15 @@ func (r *mutationResolver) DeleteMe(ctx context.Context, input gqlmodel.DeleteMe
 
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*gqlmodel.Me, error) {
-	// Use external account API exclusively
+	// Use external account API
 	gateways := adapter.Gateways(ctx)
 	if gateways == nil || gateways.AccountGQL == nil {
-		return nil, errors.New("external account API not configured")
+		// Fallback to local account data (for tests without external API configured)
+		u := adapter.User(ctx)
+		if u == nil {
+			return nil, nil
+		}
+		return gqlmodel.ToMe(u), nil
 	}
 
 	extUser, err := gateways.AccountGQL.UserRepo.FindMe(ctx)

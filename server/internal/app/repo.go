@@ -161,7 +161,7 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 
 	// Account API - External GraphQL client for additional account operations
 	if conf.Account_Api.Endpoint != "" {
-		var transport http.RoundTripper = http.DefaultTransport
+		transport := http.DefaultTransport
 		
 		if conf.Account_Api.Token != "" {
 			// Use static token for service-to-service authentication

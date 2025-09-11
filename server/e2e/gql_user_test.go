@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/internal/app"
@@ -187,7 +188,106 @@ func TestDeleteMe(t *testing.T) {
 }
 
 func TestMe(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+	// Create mock external account API server
+	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Parse the GraphQL request
+		var gqlReq struct {
+			Query string `json:"query"`
+		}
+		json.NewDecoder(r.Body).Decode(&gqlReq)
+		
+		// Check for Authorization header (JWT token forwarding)
+		authHeader := r.Header.Get("Authorization")
+		
+		var response map[string]interface{}
+		
+		// Mock different users based on auth header or default to user1
+		if authHeader == "Bearer test" {
+			// Default to first user for "Bearer test" 
+			response = map[string]interface{}{
+				"data": map[string]interface{}{
+					"me": map[string]interface{}{
+						"id":               uId1.String(),
+						"name":             "e2e",
+						"email":            "e2e@e2e.com",
+						"host":             nil,
+						"myWorkspaceId":    wId.String(),
+						"auths":            []string{"reearth"},
+						"metadata": map[string]interface{}{
+							"lang":       "en",
+							"theme":      "DARK",
+							"photoURL":   "",
+						},
+						"myWorkspace": map[string]interface{}{
+							"id":       wId.String(),
+							"name":     "e2e",
+							"alias":    "e2e",
+							"personal": false,
+							"member":   nil,
+						},
+						"workspaces": []map[string]interface{}{
+							{
+								"id":       wId.String(),
+								"name":     "e2e",
+								"alias":    "e2e",
+								"personal": false,
+								"member":   nil,
+							},
+						},
+					},
+				},
+			}
+		} else {
+			// For other auth scenarios or user2
+			response = map[string]interface{}{
+				"data": map[string]interface{}{
+					"me": map[string]interface{}{
+						"id":               uId2.String(),
+						"name":             "e2e2",
+						"email":            "e2e2@e2e.com",
+						"host":             nil,
+						"myWorkspaceId":    wId2.String(),
+						"auths":            []string{},
+						"metadata": map[string]interface{}{
+							"lang":       "ja",
+							"theme":      "DEFAULT",
+							"photoURL":   "",
+						},
+						"myWorkspace": map[string]interface{}{
+							"id":       wId2.String(),
+							"name":     "e2e2",
+							"alias":    "e2e2",
+							"personal": false,
+							"member":   nil,
+						},
+						"workspaces": []map[string]interface{}{
+							{
+								"id":       wId2.String(),
+								"name":     "e2e2",
+								"alias":    "e2e2",
+								"personal": false,
+								"member":   nil,
+							},
+						},
+					},
+				},
+			}
+		}
+		
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+	}))
+	defer mockServer.Close()
+
+	// Configure app to use mock external API
+	cfg := &app.Config{
+		Account_Api: app.AccountAPIConfig{
+			Endpoint: mockServer.URL + "/graphql",
+			// No token needed for mock
+		},
+	}
+
+	e := StartServer(t, cfg, true, baseSeederUser)
 	query := ` { me{ id name email lang theme myWorkspaceId profilePictureUrl } }`
 	request := GraphQLRequest{
 		Query: query,
@@ -196,10 +296,11 @@ func TestMe(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
+	
+	// Test user 1
 	o := e.POST("/api/graphql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("me").Object()
 	o.Value("id").String().IsEqual(uId1.String())
 	o.Value("name").String().IsEqual("e2e")
@@ -209,10 +310,10 @@ func TestMe(t *testing.T) {
 	o.Value("myWorkspaceId").String().IsEqual(wId.String())
 	o.Value("profilePictureUrl").String().IsEqual("")
 
+	// Test user 2 - different auth header
 	o = e.POST("/api/graphql").
-		WithHeader("authorization", "Bearer test").
+		WithHeader("authorization", "Bearer test2").
 		WithHeader("Content-Type", "application/json").
-		WithHeader("X-Reearth-Debug-User", uId2.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("me").Object()
 	o.Value("id").String().IsEqual(uId2.String())
 	o.Value("name").String().IsEqual("e2e2")

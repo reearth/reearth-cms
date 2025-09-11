@@ -28,7 +28,7 @@ func ToWorkspaceFromValue(ws workspace.Workspace) *Workspace {
 
 	// Convert single member to WorkspaceMember slice
 	// Following the pattern from existing ToWorkspace function but adapted for our custom workspace
-	var members []WorkspaceMember = []WorkspaceMember{} // Initialize as empty slice
+	members := []WorkspaceMember{} // Initialize as empty slice
 	if member := ws.Member(); member != nil {
 		members = convertMemberToWorkspaceMembers(member)
 	}
