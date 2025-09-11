@@ -134,46 +134,45 @@ func getReferencedItemsMap(ctx context.Context, itemL item.List, prp bool) map[i
 	}
 
 	refItemsIDs := item.IDList{}
-	for _, i := range itemL {
-		for _, f := range i.Fields().FieldsByType(value.TypeReference) {
-			for _, v := range f.Value().Values() {
-				iid, ok := v.Value().(id.ItemID)
-				if !ok {
-					continue
-				}
-				refItemsIDs = refItemsIDs.AddUniq(iid)
-			}
-		}
-	}
+	ff(itemL, func(_, riid id.ItemID) {
+		refItemsIDs = refItemsIDs.AddUniq(riid)
+	})
 
 	refItemL, err := uc.Item.FindByIDs(ctx, refItemsIDs, op)
 	if err != nil {
 		return map[id.ItemID][]Item{}
 	}
+	refItemMap := refItemL.ToMap()
 
 	spMap := map[id.ModelID]*schema.Package{}
 	res := map[id.ItemID][]Item{}
-	for _, i := range itemL {
+	ff(itemL, func(iid, riid id.ItemID) {
+		ii, ok := refItemMap[iid]
+		if !ok || ii == nil {
+			return
+		}
+		if _, ok := spMap[ii.Value().Model()]; !ok {
+			sp, err := uc.Schema.FindByModel(ctx, ii.Value().Model(), op)
+			if err != nil {
+				return
+			}
+			spMap[ii.Value().Model()] = sp
+		}
+		res[iid] = append(res[iid], NewItem(ii.Value(), spMap[ii.Value().Model()], nil, nil))
+	})
+	return res
+}
+
+func ff(il item.List, fn func(id.ItemID, id.ItemID)) {
+	for _, i := range il {
 		for _, f := range i.Fields().FieldsByType(value.TypeReference) {
 			for _, v := range f.Value().Values() {
-				iid, ok := v.Value().(id.ItemID)
+				refItemId, ok := v.Value().(id.ItemID)
 				if !ok {
 					continue
 				}
-				ii, ok := lo.Find(refItemL, func(ri item.Versioned) bool { return ri.Value().ID() == iid })
-				if !ok || ii == nil {
-					continue
-				}
-				if _, ok := spMap[ii.Value().Model()]; !ok {
-					sp, err := uc.Schema.FindByModel(ctx, ii.Value().Model(), op)
-					if err != nil {
-						continue
-					}
-					spMap[ii.Value().Model()] = sp
-				}
-				res[i.ID()] = append(res[i.ID()], NewItem(ii.Value(), spMap[ii.Value().Model()], nil, nil))
+				fn(i.ID(), refItemId)
 			}
 		}
 	}
-	return res
 }
