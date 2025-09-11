@@ -1,12 +1,7 @@
 package user
 
-import "github.com/hasura/go-graphql-client"
+import "github.com/reearth/reearth-cms/server/internal/infrastructure/gql/gqlmodel"
 
-// Ultra-simplified query structure for external API testing
 type findMeQuery struct {
-	Me struct {
-		ID    graphql.ID     `graphql:"id"`
-		Name  graphql.String `graphql:"name"`
-		Email graphql.String `graphql:"email"`
-	} `graphql:"me"`
+	Me gqlmodel.Me `graphql:"me"`
 }

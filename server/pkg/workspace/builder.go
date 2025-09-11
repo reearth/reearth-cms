@@ -45,6 +45,11 @@ func (b *Builder) Metadata(metadata Metadata) *Builder {
 	return b
 }
 
+func (b *Builder) Member(member Member) *Builder {
+	b.a.member = member
+	return b
+}
+
 func (b *Builder) Personal(personal bool) *Builder {
 	b.a.personal = personal
 	return b

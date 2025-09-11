@@ -6,23 +6,33 @@ package gql
 
 import (
 	"context"
+	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountusecase/accountinterfaces"
-	"github.com/reearth/reearthx/log"
 	"github.com/samber/lo"
 )
 
 // Workspaces is the resolver for the workspaces field.
 func (r *meResolver) Workspaces(ctx context.Context, obj *gqlmodel.Me) ([]*gqlmodel.Workspace, error) {
+	// If Workspaces is already set in the struct (from external API), use it
+	if obj.Workspaces != nil {
+		return obj.Workspaces, nil
+	}
+	// Fallback to dataloader for backward compatibility
 	return loaders(ctx).Workspace.FindByUser(ctx, obj.ID)
 }
 
 // MyWorkspace is the resolver for the myWorkspace field.
 func (r *meResolver) MyWorkspace(ctx context.Context, obj *gqlmodel.Me) (*gqlmodel.Workspace, error) {
+	// If MyWorkspace is already set in the struct (from external API), use it
+	if obj.MyWorkspace != nil {
+		return obj.MyWorkspace, nil
+	}
+	// Fallback to dataloader for backward compatibility
 	return dataloaders(ctx).Workspace.Load(obj.MyWorkspaceID)
 }
 
@@ -78,36 +88,45 @@ func (r *mutationResolver) DeleteMe(ctx context.Context, input gqlmodel.DeleteMe
 
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*gqlmodel.Me, error) {
-	// Try external account API first if configured
+	// Use external account API exclusively
 	gateways := adapter.Gateways(ctx)
-	if gateways != nil && gateways.AccountGQL != nil {
-		extUser, err := gateways.AccountGQL.UserRepo.FindMe(ctx)
-		if err != nil {
-			log.Warnf("External account API failed, falling back to local user: %v", err)
-		} else if extUser != nil {
-			// Convert external user data to GraphQL model
-			// Use default values for fields not available from external API
-			photoURL := ""
-			return &gqlmodel.Me{
-				ID:                gqlmodel.IDFrom(extUser.ID()),
-				Name:              extUser.Name(),
-				Email:             extUser.Email(),
-				Lang:              extUser.Metadata().Lang(),
-				Theme:             gqlmodel.Theme(extUser.Metadata().Theme()),
-				Host:              extUser.Host(),
-				MyWorkspaceID:     gqlmodel.ID(extUser.MyWorkspaceID()),
-				Auths:             extUser.Auths(),
-				ProfilePictureURL: &photoURL,
-			}, nil
-		}
+	if gateways == nil || gateways.AccountGQL == nil {
+		return nil, errors.New("external account API not configured")
 	}
 
-	// Fall back to local user context
-	u := getUser(ctx)
-	if u == nil {
+	extUser, err := gateways.AccountGQL.UserRepo.FindMe(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if extUser == nil {
 		return nil, nil
 	}
-	return gqlmodel.ToMe(u), nil
+
+	// Convert external user data to GraphQL model
+	photoURL := extUser.Metadata().PhotoURL()
+
+	// Convert MyWorkspace from our custom type to gqlmodel
+	var myWorkspace *gqlmodel.Workspace
+	if myWs := extUser.MyWorkspace(); !myWs.ID().IsEmpty() {
+		myWorkspace = gqlmodel.ToWorkspaceFromValue(myWs)
+	}
+	// Convert workspaces list
+	workspaces := gqlmodel.ToWorkspaces(extUser.Workspaces())
+
+	return &gqlmodel.Me{
+		ID:                gqlmodel.IDFrom(extUser.ID()),
+		Name:              extUser.Name(),
+		Email:             extUser.Email(),
+		Lang:              extUser.Metadata().Lang(),
+		Theme:             gqlmodel.Theme(extUser.Metadata().Theme()),
+		Host:              extUser.Host(),
+		MyWorkspaceID:     gqlmodel.ID(extUser.MyWorkspaceID()),
+		Auths:             extUser.Auths(),
+		ProfilePictureURL: &photoURL,
+		MyWorkspace:       myWorkspace,
+		Workspaces:        workspaces,
+	}, nil
 }
 
 // UserSearch is the resolver for the userSearch field.

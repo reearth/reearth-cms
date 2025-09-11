@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/hasura/go-graphql-client"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/gql/util"
 	"github.com/reearth/reearth-cms/server/pkg/user"
-	"github.com/reearth/reearthx/log"
 )
 
 type UserRepo struct {
@@ -17,27 +17,9 @@ func NewRepo(client *graphql.Client) *UserRepo {
 }
 
 func (r *UserRepo) FindMe(ctx context.Context) (*user.User, error) {
-	// First, try a simple introspection query to test basic connectivity
-	var introspectionQuery struct {
-		Typename string `graphql:"__typename"`
-	}
-	
-	log.Infof("External API: Testing basic connectivity with introspection query")
-	if err := r.client.Query(ctx, &introspectionQuery, nil); err != nil {
-		log.Errorf("External API: Basic connectivity failed - %v", err)
-		log.Errorf("This likely means: 1) Wrong endpoint, 2) Authentication required, 3) Not a GraphQL API")
-		return nil, err
-	}
-	log.Infof("External API: Basic connectivity successful")
-
 	var query findMeQuery
-	// Log the query structure for debugging
-	log.Infof("External API: Making GraphQL query for 'me' with fields: id, name, email")
 
 	if err := r.client.Query(ctx, &query, nil); err != nil {
-		// Log more details about the GraphQL query failure
-		log.Errorf("External GraphQL query failed - Error: %v", err)
-		log.Errorf("This suggests the external API might: 1) Require authentication, 2) Have different field names, 3) Not support the 'me' query")
 		return nil, err
 	}
 
@@ -47,16 +29,29 @@ func (r *UserRepo) FindMe(ctx context.Context) (*user.User, error) {
 		return nil, err
 	}
 
-	// Build the user using the domain builder with simplified data
-	// Use default/empty values for fields not available from external API
+	// Build the user using the domain builder
 	builder := user.New().
 		ID(id).
 		Name(string(query.Me.Name)).
-		Alias("").  // Not available from external API
+		Alias(string(query.Me.Alias)).
 		Email(string(query.Me.Email)).
-		Metadata(user.NewMetadata().MustBuild()). // Empty metadata
-		MyWorkspaceID("").
-		Auths([]string{}) // Not available from external API
+		Metadata(util.ToUserMetadata(query.Me.Metadata)).
+		Host(string(query.Me.Host)).
+		MyWorkspaceID(string(query.Me.MyWorkspaceID)).
+		Auths(util.ToStringSlice(query.Me.Auths)).
+		Workspaces(util.ToWorkspaces(query.Me.Workspaces))
+
+	// Handle MyWorkspace if it exists in the workspaces list
+	if len(query.Me.Workspaces) > 0 {
+		for _, ws := range query.Me.Workspaces {
+			if string(ws.ID) == string(query.Me.MyWorkspaceID) {
+				if myWorkspace := util.ToWorkspace(ws); myWorkspace != nil {
+					builder = builder.MyWorkspace(*myWorkspace)
+				}
+				break
+			}
+		}
+	}
 
 	return builder.MustBuild(), nil
 }

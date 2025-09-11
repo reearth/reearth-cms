@@ -52,9 +52,6 @@ func (t *forwardAuthTransport) RoundTrip(req *http.Request) (*http.Response, err
 	// Try to get the authorization header from various sources in the context
 	if authHeader := getAuthHeaderFromContext(req.Context()); authHeader != "" {
 		newReq.Header.Set("Authorization", authHeader)
-		log.Infof("External API: Forwarding user's Auth0 token")
-	} else {
-		log.Warnf("External API: No authorization token found in context")
 	}
 	
 	return t.transport.RoundTrip(newReq)
@@ -62,18 +59,7 @@ func (t *forwardAuthTransport) RoundTrip(req *http.Request) (*http.Response, err
 
 // Helper function to extract authorization header from context
 func getAuthHeaderFromContext(ctx context.Context) string {
-	// Get the authorization header that was stored during authentication
-	if authHeader := adapter.GetAuthHeader(ctx); authHeader != "" {
-		log.Infof("External API: Found authorization header for token forwarding")
-		return authHeader
-	}
-	
-	// Fallback: check if we have auth info (for debugging)
-	if ai := adapter.GetAuthInfo(ctx); ai != nil {
-		log.Infof("External API: Found user auth info with subject: %s, but no raw token", ai.Sub)
-	}
-	
-	return ""
+	return adapter.GetAuthHeader(ctx)
 }
 
 func initAccountDB(client *mongo.Client, txAvailable bool, ctx context.Context, conf *Config) *accountrepo.Container {

@@ -6,6 +6,7 @@ type Workspace struct {
 	alias    string
 	metadata Metadata
 	personal bool
+	member   Member
 }
 
 type WorkspaceList []Workspace
@@ -28,4 +29,8 @@ func (w *Workspace) Metadata() Metadata {
 
 func (w *Workspace) Personal() bool {
 	return w.personal
+}
+
+func (w *Workspace) Member() Member {
+	return w.member
 }
