@@ -16,25 +16,25 @@ func TestPublicAPI_Export(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		IsEqual(map[string]interface{}{
+		IsEqual(map[string]any{
 			"type": "FeatureCollection",
-			"features": []map[string]interface{}{
+			"features": []map[string]any{
 				{
 					"type": "Feature",
 					"id":   pApiP1M4I1Id.String(),
-					"geometry": map[string]interface{}{
+					"geometry": map[string]any{
 						"type": "Point",
-						"coordinates": []interface{}{
+						"coordinates": []any{
 							102,
 							0.5,
 						},
 					},
-					"properties": map[string]interface{}{
-						pApiP1S3F1Key: map[string]interface{}{
+					"properties": map[string]any{
+						pApiP1S3F1Key: map[string]any{
 							"text": "aaa",
 						},
-						pApiP1S3F2Key: []interface{}{
-							map[string]interface{}{
+						pApiP1S3F2Key: []any{
+							map[string]any{
 								"text2": "bbb",
 							},
 						},
