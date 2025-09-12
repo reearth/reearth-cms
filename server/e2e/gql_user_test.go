@@ -187,7 +187,6 @@ func TestDeleteMe(t *testing.T) {
 }
 
 func TestMe(t *testing.T) {
-
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 	query := ` { me{ id name email lang theme myWorkspaceId profilePictureUrl } }`
 	request := GraphQLRequest{
@@ -197,8 +196,6 @@ func TestMe(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
-
-	// Test user 1
 	o := e.POST("/api/graphql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
@@ -212,7 +209,6 @@ func TestMe(t *testing.T) {
 	o.Value("myWorkspaceId").String().IsEqual(wId.String())
 	o.Value("profilePictureUrl").String().IsEqual("")
 
-	// Test user 2 - different auth header
 	o = e.POST("/api/graphql").
 		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
