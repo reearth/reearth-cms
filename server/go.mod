@@ -18,7 +18,6 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/goombaio/namegenerator v0.0.0-20181006234301-989e774b106e
 	github.com/hallazzang/echo-compose v1.0.1
-	github.com/hasura/go-graphql-client v0.14.4
 	github.com/hellofresh/health-go/v5 v5.5.5
 	github.com/iancoleman/orderedmap v0.3.0
 	github.com/jarcoal/httpmock v1.4.0
@@ -89,7 +88,6 @@ require (
 	github.com/aws/smithy-go v1.22.5 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cncf/xds/go v0.0.0-20250501225837-2ac532fd4443 // indirect
-	github.com/coder/websocket v1.8.13 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.7 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dprotaso/go-yit v0.0.0-20250513224043-18a80f8f6df4 // indirect
@@ -147,7 +145,6 @@ require (
 	github.com/speakeasy-api/jsonpath v0.6.2 // indirect
 	github.com/speakeasy-api/openapi-overlay v0.10.2 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.5.0 // indirect
-	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/uber/jaeger-client-go v2.30.0+incompatible // indirect
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	github.com/urfave/cli/v2 v2.27.7 // indirect
