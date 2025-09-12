@@ -51,6 +51,11 @@ export default () => {
 
   const username = useMemo(() => data?.me?.name || "", [data?.me?.name]);
 
+  const profilePictureUrl = useMemo(
+    () => data?.me?.profilePictureUrl ?? undefined,
+    [data?.me?.profilePictureUrl],
+  );
+
   setCurrentUserId(data?.me?.id);
 
   const handleCollapse = useCallback((collapse: boolean) => {
@@ -138,11 +143,7 @@ export default () => {
 
   const handleNavigateToSettings = useCallback(() => {
     if (dashboardBaseUrl) {
-      window.open(
-        joinPaths(dashboardBaseUrl, "settings/profile"),
-        "_blank",
-        "noopener,noreferrer",
-      );
+      window.open(joinPaths(dashboardBaseUrl, "settings/profile"), "_blank", "noopener,noreferrer");
     } else {
       navigate(`/workspace/${personalWorkspace?.id}/account`);
     }
@@ -219,6 +220,7 @@ export default () => {
 
   return {
     username,
+    profilePictureUrl,
     personalWorkspace,
     workspaces,
     currentWorkspace,

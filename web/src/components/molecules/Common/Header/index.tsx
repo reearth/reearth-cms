@@ -16,6 +16,7 @@ import HeaderDropdown from "./Dropdown";
 
 type Props = {
   username: string;
+  profilePictureUrl?: string;
   personalWorkspace?: Workspace;
   currentWorkspace?: Workspace;
   workspaces?: Workspace[];
@@ -29,6 +30,7 @@ type Props = {
 
 const HeaderMolecule: React.FC<Props> = ({
   username,
+  profilePictureUrl,
   personalWorkspace,
   currentWorkspace,
   workspaces,
@@ -69,7 +71,13 @@ const HeaderMolecule: React.FC<Props> = ({
               </Tooltip>
             ),
             key: workspace.id,
-            icon: <UserAvatar username={workspace.name} size="small" />,
+            icon: (
+              <UserAvatar
+                profilePictureUrl={profilePictureUrl}
+                username={workspace.name}
+                size="small"
+              />
+            ),
             style: { paddingLeft: 0, paddingRight: 0 },
             onClick: () => onWorkspaceNavigation(workspace.id),
           })),
@@ -108,6 +116,7 @@ const HeaderMolecule: React.FC<Props> = ({
   }, [
     t,
     workspaces,
+    profilePictureUrl,
     disableWorkspaceUi,
     personalWorkspace?.id,
     onWorkspaceNavigation,
@@ -141,6 +150,7 @@ const HeaderMolecule: React.FC<Props> = ({
       )}
       <WorkspaceDropdown
         name={currentWorkspace?.name}
+        profilePictureUrl={profilePictureUrl}
         items={WorkspacesItems}
         personal={currentIsPersonal}
         showName={true}
@@ -159,6 +169,7 @@ const HeaderMolecule: React.FC<Props> = ({
       </CurrentProject>
       <AccountDropdown
         name={username}
+        profilePictureUrl={profilePictureUrl}
         items={AccountItems}
         personal={true}
         showName={false}
