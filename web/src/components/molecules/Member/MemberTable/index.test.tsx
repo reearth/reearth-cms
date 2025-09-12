@@ -153,7 +153,6 @@ describe("Member table", () => {
     const { user, role } = workspaceUserMembers[0];
 
     expect(screen.getByText("Name")).toBeInTheDocument();
-    expect(screen.getByText("Thumbnail")).toBeInTheDocument();
     expect(screen.getByText("Email")).toBeInTheDocument();
     expect(screen.getByText("Role")).toBeInTheDocument();
     expect(screen.getByText("Action")).toBeInTheDocument();

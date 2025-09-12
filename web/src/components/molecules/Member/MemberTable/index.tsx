@@ -9,7 +9,6 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { ListToolBarProps, TableRowSelection } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
-import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { User } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
@@ -70,7 +69,6 @@ const MemberTable: React.FC<Props> = ({
             <RemoveUsers>
               {users.map(user => (
                 <RemoveUser key={user.id}>
-                  <UserAvatar username={user.name} />
                   <UserInfoWrapper>
                     <UserInfo>{user.name}</UserInfo>
                     <Email>{user.email}</Email>
@@ -120,13 +118,6 @@ const MemberTable: React.FC<Props> = ({
         minWidth: 256,
       },
       {
-        title: t("Thumbnail"),
-        dataIndex: "thumbnail",
-        key: "thumbnail",
-        width: 128,
-        minWidth: 128,
-      },
-      {
         title: t("Email"),
         dataIndex: "email",
         key: "email",
@@ -156,7 +147,6 @@ const MemberTable: React.FC<Props> = ({
       workspaceUserMembers?.map(member => ({
         id: member.userId,
         name: member.user.name,
-        thumbnail: <UserAvatar username={member.user.name} />,
         email: member.user.email,
         role: t(member.role),
         action: (
