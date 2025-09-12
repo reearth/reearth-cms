@@ -8,7 +8,7 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
-import { validateKey, aliasRegex } from "@reearth-cms/utils/regex";
+import { aliasRegex } from "@reearth-cms/utils/regex";
 
 import { Project } from "../Workspace/types";
 

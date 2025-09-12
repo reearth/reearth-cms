@@ -13,8 +13,8 @@ import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Commo
 import { license_options, getLicenseContent } from "@reearth-cms/data/license";
 import { ProjectVisibility } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { aliasRegex, MAX_KEY_LENGTH, validateKey } from "@reearth-cms/utils/regex";
 import { Constant } from "@reearth-cms/utils/constant";
+import { aliasRegex } from "@reearth-cms/utils/regex";
 
 export type FormValues = {
   name: string;
