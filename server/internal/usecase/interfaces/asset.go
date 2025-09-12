@@ -16,6 +16,14 @@ import (
 
 type AssetFilterType string
 
+type ExportFormat string
+
+const (
+	ExportFormatJSON    ExportFormat = "json"
+	ExportFormatGeoJSON ExportFormat = "geojson"
+	ExportFormatCSV     ExportFormat = "csv"
+)
+
 type CreateAssetParam struct {
 	ProjectID         idx.ID[id.Project]
 	File              *file.File
@@ -39,9 +47,16 @@ type CreateAssetUploadParam struct {
 	Cursor string
 }
 
+type ExportModelToAssetsParam struct {
+	Model      id.ModelID
+	Format     ExportFormat
+	Pagination *usecasex.Pagination
+}
+
 var (
 	ErrCreateAssetFailed                   error = rerror.NewE(i18n.T("failed to create asset"))
 	ErrFileNotIncluded                     error = rerror.NewE(i18n.T("file not included"))
+	ErrUnsupportedExportFormat             error = rerror.NewE(i18n.T("unsupported export format"))
 	ErrDataTransferUploadSizeLimitExceeded error = rerror.NewE(i18n.T("data transfer upload size limit exceeded"))
 	ErrAssetUploadSizeLimitExceeded        error = rerror.NewE(i18n.T("asset upload size limit exceeded"))
 )
@@ -79,4 +94,5 @@ type Asset interface {
 	Unpublish(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
 	CreateUpload(context.Context, CreateAssetUploadParam, *usecase.Operator) (*AssetUpload, error)
 	RetryDecompression(context.Context, string) error
+	ExportModelToAssets(context.Context, ExportModelToAssetsParam, *usecase.Operator) (*asset.Asset, error)
 }

@@ -184,6 +184,31 @@ func (r *mutationResolver) CreateAssetUpload(ctx context.Context, input gqlmodel
 	}, nil
 }
 
+// ExportModelToAsset is the resolver for the exportModelToAsset field.
+func (r *mutationResolver) ExportModelToAsset(ctx context.Context, input gqlmodel.ExportModelToAssetInput) (*gqlmodel.ExportModelToAssetPayload, error) {
+	mid, err := gqlmodel.ToID[id.Model](input.ModelID)
+	if err != nil {
+		return nil, err
+	}
+
+	format := gqlmodel.MapFormat(input.Format)
+
+	params := interfaces.ExportModelToAssetsParam{
+		Model:      mid,
+		Format:     format,
+		Pagination: input.Pagination.Into(),
+	}
+
+	asset, err := usecases(ctx).Asset.ExportModelToAssets(ctx, params, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.ExportModelToAssetPayload{
+		Asset: gqlmodel.ToAsset(asset),
+	}, nil
+}
+
 // AssetFile is the resolver for the assetFile field.
 func (r *queryResolver) AssetFile(ctx context.Context, assetID gqlmodel.ID) (*gqlmodel.AssetFile, error) {
 	id, err := id.AssetIDFrom(string(assetID))
