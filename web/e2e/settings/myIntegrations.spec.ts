@@ -1,85 +1,85 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 
-test.beforeEach(async ({ reearth, page }) => {
+test.beforeEach(async ({ reearth, page, integrationsPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await page.getByText("My Integrations").click();
-  await page.getByRole("button", { name: "plus Create new integration" }).click();
+  await integrationsPage.myIntegrationsMenuItem.click();
+  await integrationsPage.createIntegrationButton.click();
 
-  await page.getByLabel("Integration Name").click();
-  await page.getByLabel("Integration Name").fill("name");
-  await page.getByLabel("Description").click();
-  await page.getByLabel("Description").fill("description");
-  await page.getByRole("button", { name: "Create", exact: true }).click();
+  await integrationsPage.integrationNameInput.click();
+  await integrationsPage.integrationNameInput.fill("name");
+  await integrationsPage.descriptionInput.click();
+  await integrationsPage.descriptionInput.fill("description");
+  await integrationsPage.createButton.click();
   await closeNotification(page);
 
-  await page.getByText("namedescription", { exact: true }).last().click();
+  await integrationsPage.integrationTextByName("name", "description").last().click();
 });
 
-test("MyIntegration CRUD has succeeded", async ({ page }) => {
-  await page.getByLabel("Integration Name").click();
-  await page.getByLabel("Integration Name").fill("newName");
-  await page.getByLabel("Description").click();
-  await page.getByLabel("Description").fill("newDescription");
-  await page.getByRole("button", { name: "Save" }).click();
+test("MyIntegration CRUD has succeeded", async ({ page, integrationsPage }) => {
+  await integrationsPage.integrationNameInput.click();
+  await integrationsPage.integrationNameInput.fill("newName");
+  await integrationsPage.descriptionInput.click();
+  await integrationsPage.descriptionInput.fill("newDescription");
+  await integrationsPage.saveButton.click();
   await closeNotification(page);
 
-  await expect(page.locator("#root")).toContainText("newName");
-  await page.getByLabel("Back").click();
-  await expect(page.getByRole("main")).toContainText("newNamenewDescription");
-  await page.getByText("newNamenewDescription").click();
-  await page.getByRole("button", { name: "Remove Integration" }).click();
-  await page.getByRole("button", { name: "OK" }).click();
+  await expect(integrationsPage.rootElement).toContainText("newName");
+  await integrationsPage.backButton.click();
+  await expect(integrationsPage.mainElement).toContainText("newNamenewDescription");
+  await integrationsPage.integrationLinkByText("newNamenewDescription").click();
+  await integrationsPage.removeIntegrationButton.click();
+  await integrationsPage.okButton.click();
   await closeNotification(page);
-  await expect(page.getByRole("main")).not.toContainText("newNamenewDescription");
+  await expect(integrationsPage.mainElement).not.toContainText("newNamenewDescription");
 });
 
-test("Webhook CRUD has succeeded", async ({ page }) => {
-  await page.getByRole("tab", { name: "Webhook" }).click();
-  await page.getByRole("button", { name: "plus new webhook" }).first().click();
-  await page.getByRole("tabpanel").getByLabel("Name").click();
-  await page.getByRole("tabpanel").getByLabel("Name").fill("webhook name");
-  await page.getByLabel("Url").click();
-  await page.getByLabel("Url").fill("http://test.com");
-  await page.getByLabel("Secret").click();
-  await page.getByLabel("Secret").fill("secret");
-  await page.getByRole("button", { name: "Save" }).click();
+test("Webhook CRUD has succeeded", async ({ page, integrationsPage }) => {
+  await integrationsPage.webhookTab.click();
+  await integrationsPage.newWebhookButton.click();
+  await integrationsPage.webhookNameInput.click();
+  await integrationsPage.webhookNameInput.fill("webhook name");
+  await integrationsPage.urlInput.click();
+  await integrationsPage.urlInput.fill("http://test.com");
+  await integrationsPage.secretInput.click();
+  await integrationsPage.secretInput.fill("secret");
+  await integrationsPage.saveButton.click();
   await closeNotification(page);
-  await page.getByRole("button", { name: "arrow-left" }).click();
-  await expect(page.getByRole("tabpanel")).toContainText("webhook name");
-  await expect(page.getByRole("tabpanel")).toContainText("http://test.com");
+  await integrationsPage.arrowLeftButton.click();
+  await expect(integrationsPage.tabPanel).toContainText("webhook name");
+  await expect(integrationsPage.tabPanel).toContainText("http://test.com");
 
-  await page.getByRole("button", { name: "setting" }).click();
-  await page.getByRole("tabpanel").getByLabel("Name").click();
-  await page.getByRole("tabpanel").getByLabel("Name").fill("new webhook name");
-  await page.getByLabel("Url").click();
-  await page.getByLabel("Url").fill("http://new.com");
-  await page.getByLabel("Secret").click();
-  await page.getByLabel("Secret").fill("new secret");
-  await page.getByLabel("Create").check();
-  await expect(page.getByLabel("Create")).toBeChecked();
-  await page.getByLabel("Upload").check();
-  await expect(page.getByLabel("Upload")).toBeChecked();
-  await page.getByRole("button", { name: "Save" }).click();
+  await integrationsPage.settingButton.click();
+  await integrationsPage.tabpanelNameInput.click();
+  await integrationsPage.tabpanelNameInput.fill("new webhook name");
+  await integrationsPage.urlInput.click();
+  await integrationsPage.urlInput.fill("http://new.com");
+  await integrationsPage.secretInput.click();
+  await integrationsPage.secretInput.fill("new secret");
+  await integrationsPage.createCheckbox.check();
+  await expect(integrationsPage.createCheckbox).toBeChecked();
+  await integrationsPage.uploadCheckbox.check();
+  await expect(integrationsPage.uploadCheckbox).toBeChecked();
+  await integrationsPage.saveButton.click();
   await closeNotification(page);
-  await page.getByRole("button", { name: "arrow-left" }).click();
-  await expect(page.getByRole("tabpanel")).toContainText("new webhook name");
-  await expect(page.getByRole("tabpanel")).toContainText("http://new.com");
+  await integrationsPage.arrowLeftButton.click();
+  await expect(integrationsPage.tabPanel).toContainText("new webhook name");
+  await expect(integrationsPage.tabPanel).toContainText("http://new.com");
 
-  await page.getByRole("button", { name: "setting" }).click();
-  await expect(page.getByLabel("Secret")).toHaveValue("new secret");
-  await expect(page.getByLabel("Create")).toBeChecked();
-  await expect(page.getByLabel("Upload")).toBeChecked();
-  await page.getByRole("button", { name: "arrow-left" }).click();
-  await page.getByRole("switch", { name: "OFF" }).click();
-  await expect(page.getByRole("switch")).toContainText("ON");
+  await integrationsPage.settingButton.click();
+  await expect(integrationsPage.secretInput).toHaveValue("new secret");
+  await expect(integrationsPage.createCheckbox).toBeChecked();
+  await expect(integrationsPage.uploadCheckbox).toBeChecked();
+  await integrationsPage.arrowLeftButton.click();
+  await integrationsPage.webhookSwitch.click();
+  await expect(integrationsPage.webhookSwitchElement).toContainText("ON");
   await closeNotification(page);
-  await page.getByRole("button", { name: "delete" }).click();
+  await integrationsPage.deleteWebhookButton.click();
   await closeNotification(page);
-  await expect(page.getByLabel("Webhook")).not.toContainText("new webhook name");
+  await expect(integrationsPage.webhookLabel).not.toContainText("new webhook name");
 
-  await page.getByRole("tab", { name: "General" }).click();
-  await page.getByRole("button", { name: "Remove Integration" }).click();
-  await page.getByRole("button", { name: "OK" }).click();
+  await integrationsPage.generalTab.click();
+  await integrationsPage.removeIntegrationButton.click();
+  await integrationsPage.okButton.click();
   await closeNotification(page);
 });
