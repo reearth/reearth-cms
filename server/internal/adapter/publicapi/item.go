@@ -97,10 +97,7 @@ func getReferencedItems(ctx context.Context, i *item.Item, prp bool) []Item {
 	}
 
 	var vi []Item
-	for _, f := range i.Fields() {
-		if f.Type() != value.TypeReference {
-			continue
-		}
+	for _, f := range i.Fields().FieldsByType(value.TypeReference) {
 		for _, v := range f.Value().Values() {
 			iid, ok := v.Value().(id.ItemID)
 			if !ok {
@@ -126,4 +123,56 @@ func getReferencedItems(ctx context.Context, i *item.Item, prp bool) []Item {
 	}
 
 	return vi
+}
+
+func getReferencedItemsMap(ctx context.Context, itemL item.List, prp bool) map[id.ItemID][]Item {
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
+
+	if itemL == nil {
+		return map[id.ItemID][]Item{}
+	}
+
+	refItemsIDs := item.IDList{}
+	refItemsFn(itemL, func(_, riid id.ItemID) {
+		refItemsIDs = refItemsIDs.AddUniq(riid)
+	})
+
+	refItemL, err := uc.Item.FindByIDs(ctx, refItemsIDs, op)
+	if err != nil {
+		return map[id.ItemID][]Item{}
+	}
+	refItemMap := refItemL.ToMap()
+
+	spMap := map[id.ModelID]*schema.Package{}
+	res := map[id.ItemID][]Item{}
+	refItemsFn(itemL, func(iid, riid id.ItemID) {
+		ii, ok := refItemMap[riid]
+		if !ok || ii == nil {
+			return
+		}
+		if _, ok := spMap[ii.Value().Model()]; !ok {
+			sp, err := uc.Schema.FindByModel(ctx, ii.Value().Model(), op)
+			if err != nil {
+				return
+			}
+			spMap[ii.Value().Model()] = sp
+		}
+		res[iid] = append(res[iid], NewItem(ii.Value(), spMap[ii.Value().Model()], nil, nil))
+	})
+	return res
+}
+
+func refItemsFn(il item.List, fn func(id.ItemID, id.ItemID)) {
+	for _, i := range il {
+		for _, f := range i.Fields().FieldsByType(value.TypeReference) {
+			for _, v := range f.Value().Values() {
+				refItemId, ok := v.Value().(id.ItemID)
+				if !ok {
+					continue
+				}
+				fn(i.ID(), refItemId)
+			}
+		}
+	}
 }
