@@ -124,7 +124,9 @@ OK: ''
 Project name: プロジェクト名
 Please input the name of project!: プロジェクト名を入力してください
 Project alias: プロジェクトエイリアス
-Used to create the project URL. Must be unique and at least 5 characters long, only lowercase letters, numbers, and hyphens are allowed.: プロジェクトURLの作成に使用されます。一意である必要があり、5文字以上の小文字の英字、数字、ハイフンのみを使用できます。
+Used to create the project URL. Must be unique and at least {{min}} characters long, only lowercase letters, numbers, and hyphens are allowed.: プロジェクトURLの作成に使用されます。一意である必要があり、{{min}}文字以上の小文字の英字、数字、ハイフンのみを使用できます
+Your alias must be between {{min}} and {{max}} characters long.: エイリアスは{{min}}文字以上、{{max}}文字以内で入力してください
+Alias is invalid. Please use lowercase alphanumeric, hyphen, underscore, and dot characters only.: エイリアスが無効です。小文字の英数字、ハイフン、アンダースコア、ドットのみを使用してください。
 Project alias is already taken: プロジェクトのエイリアスは既に使用されています
 Project visibility: プロジェクトの公開範囲
 Public projects are visible to everyone. Private projects are only accessible to workspace members.: 公開プロジェクトは誰でも閲覧可能です。非公開プロジェクトはワークスペースのメンバーのみがアクセスできます。

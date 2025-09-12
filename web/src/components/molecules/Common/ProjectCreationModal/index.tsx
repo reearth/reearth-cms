@@ -13,7 +13,8 @@ import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Commo
 import { license_options, getLicenseContent } from "@reearth-cms/data/license";
 import { ProjectVisibility } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { MAX_KEY_LENGTH, validateKey } from "@reearth-cms/utils/regex";
+import { aliasRegex, MAX_KEY_LENGTH, validateKey } from "@reearth-cms/utils/regex";
+import { Constant } from "@reearth-cms/utils/constant";
 
 export type FormValues = {
   name: string;
@@ -116,7 +117,7 @@ const ProjectCreationModal: React.FC<Props> = ({
     async (value: string) => {
       if (prevAlias.current?.alias === value) {
         return prevAlias.current?.isSuccess ? Promise.resolve() : Promise.reject();
-      } else if (value.length >= 5 && validateKey(value) && (await onProjectAliasCheck(value))) {
+      } else if (await onProjectAliasCheck(value)) {
         prevAlias.current = { alias: value, isSuccess: true };
         return Promise.resolve();
       } else {
@@ -155,18 +156,37 @@ const ProjectCreationModal: React.FC<Props> = ({
           name="alias"
           label={t("Project alias")}
           extra={t(
-            "Used to create the project URL. Must be unique and at least 5 characters long, only lowercase letters, numbers, and hyphens are allowed.",
+            "Used to create the project URL. Must be unique and at least {{min}} characters long, only lowercase letters, numbers, and hyphens are allowed.",
+            { min: Constant.PROJECT_ALIAS.MIN_LENGTH },
           )}
           rules={[
             {
+              max: Constant.PROJECT_ALIAS.MAX_LENGTH,
+              min: Constant.PROJECT_ALIAS.MIN_LENGTH,
+              message: t(`Your alias must be between {{min}} and {{max}} characters long.`, {
+                min: Constant.PROJECT_ALIAS.MIN_LENGTH,
+                max: Constant.PROJECT_ALIAS.MAX_LENGTH,
+              }),
+              required: true,
+            },
+            {
+              message: t(
+                "Alias is invalid. Please use lowercase alphanumeric, hyphen, underscore, and dot characters only.",
+              ),
+              pattern: aliasRegex,
+              required: true,
+            },
+            {
               message: t("Project alias is already taken"),
               required: true,
-              validator: async (_, value) => {
-                await aliasValidate(value);
-              },
+              validator: async (_, value) => await aliasValidate(value),
             },
           ]}>
-          <Input onChange={handleAliasChange} showCount maxLength={MAX_KEY_LENGTH} />
+          <Input
+            onChange={handleAliasChange}
+            showCount
+            maxLength={Constant.PROJECT_ALIAS.MAX_LENGTH}
+          />
         </Form.Item>
         <Form.Item
           name="visibility"

@@ -7,7 +7,8 @@ import Input from "@reearth-cms/components/atoms/Input";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import { useT } from "@reearth-cms/i18n";
-import { validateKey, MAX_KEY_LENGTH } from "@reearth-cms/utils/regex";
+import { Constant } from "@reearth-cms/utils/constant";
+import { validateKey, aliasRegex } from "@reearth-cms/utils/regex";
 
 import { Project } from "../Workspace/types";
 
@@ -82,7 +83,7 @@ const GeneralForm: React.FC<Props> = ({
         return Promise.resolve();
       } else if (prevAlias.current?.alias === value) {
         return prevAlias.current?.isSuccess ? Promise.resolve() : Promise.reject();
-      } else if (value.length >= 5 && validateKey(value) && (await onProjectAliasCheck(value))) {
+      } else if (await onProjectAliasCheck(value)) {
         prevAlias.current = { alias: value, isSuccess: true };
         return Promise.resolve();
       } else {
@@ -121,18 +122,32 @@ const GeneralForm: React.FC<Props> = ({
         extra={t("A simpler way to access to the project.")}
         rules={[
           {
+            max: Constant.PROJECT_ALIAS.MAX_LENGTH,
+            min: Constant.PROJECT_ALIAS.MIN_LENGTH,
+            message: t(`Your alias must be between {{min}} and {{max}} characters long.`, {
+              min: Constant.PROJECT_ALIAS.MIN_LENGTH,
+              max: Constant.PROJECT_ALIAS.MAX_LENGTH,
+            }),
             required: true,
+          },
+          {
+            message: t(
+              "Alias is invalid. Please use lowercase alphanumeric, hyphen, underscore, and dot characters only.",
+            ),
+            pattern: aliasRegex,
+            required: true,
+          },
+          {
             message: t("Project alias is already taken"),
-            validator: async (_, value) => {
-              await aliasValidate(value);
-            },
+            required: true,
+            validator: async (_, value) => await aliasValidate(value),
           },
         ]}>
         <Input
           disabled={!hasUpdateRight}
           onChange={handleAliasChange}
           showCount
-          maxLength={MAX_KEY_LENGTH}
+          maxLength={Constant.PROJECT_ALIAS.MAX_LENGTH}
         />
       </Form.Item>
       <Form.Item
