@@ -17,8 +17,14 @@ func (b *Builder) Build() (*User, error) {
 	if b.u.name == "" {
 		return nil, ErrInvalidName
 	}
-	if b.u.email == "" {
+	if !ValidateEmail(b.u.email) {
 		return nil, ErrInvalidEmail
+	}
+	if !ValidateAlias(b.u.alias) {
+		return nil, ErrInvalidAlias
+	}
+	if !ValidateWorkspace(b.u.myWorkspaceID, b.u.workspaces) {
+		return nil, ErrInvalidWorkspace
 	}
 	return b.u, nil
 }
@@ -66,7 +72,7 @@ func (b *Builder) Host(host string) *Builder {
 	return b
 }
 
-func (b *Builder) MyWorkspaceID(myWorkspaceID string) *Builder {
+func (b *Builder) MyWorkspaceID(myWorkspaceID WorkspaceID) *Builder {
 	b.u.myWorkspaceID = myWorkspaceID
 	return b
 }

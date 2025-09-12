@@ -33,11 +33,6 @@ func authMiddleware(appCtx *ApplicationContext) echo.MiddlewareFunc {
 			req := c.Request()
 			ctx := req.Context()
 
-			// Capture the Authorization header for token forwarding to external APIs
-			if authHeader := req.Header.Get("Authorization"); authHeader != "" {
-				ctx = adapter.AttachAuthHeader(ctx, authHeader)
-			}
-
 			ctx, err = attachUserOperator(ctx, req, appCtx)
 			if err != nil {
 				return err

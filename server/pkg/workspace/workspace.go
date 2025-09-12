@@ -1,5 +1,16 @@
 package workspace
 
+import (
+	"errors"
+	"regexp"
+)
+
+var (
+	ErrInvalidAlias = errors.New("invalid alias")
+	ErrInvalidName  = errors.New("invalid name")
+	aliasRegexp     = regexp.MustCompile("^[a-zA-Z0-9_-]{3,32}$")
+)
+
 type Workspace struct {
 	id       ID
 	name     string
@@ -33,4 +44,12 @@ func (w *Workspace) Personal() bool {
 
 func (w *Workspace) Member() Member {
 	return w.member
+}
+
+// ValidateAlias validates the alias format (alphanumeric, underscore, hyphen, 3-32 chars)
+func ValidateAlias(alias string) bool {
+	if alias == "" {
+		return true // alias is optional
+	}
+	return aliasRegexp.MatchString(alias)
 }

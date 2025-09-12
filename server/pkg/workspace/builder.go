@@ -13,6 +13,15 @@ func New() *Builder {
 }
 
 func (b *Builder) Build() (*Workspace, error) {
+	if b.a.id.IsNil() {
+		return nil, ErrInvalidID
+	}
+	if b.a.name == "" {
+		return nil, ErrInvalidName
+	}
+	if !ValidateAlias(b.a.alias) {
+		return nil, ErrInvalidAlias
+	}
 	return b.a, nil
 }
 

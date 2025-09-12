@@ -7,7 +7,6 @@ package gql
 import (
 	"context"
 
-	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
@@ -17,21 +16,11 @@ import (
 
 // Workspaces is the resolver for the workspaces field.
 func (r *meResolver) Workspaces(ctx context.Context, obj *gqlmodel.Me) ([]*gqlmodel.Workspace, error) {
-	// If Workspaces is already set in the struct (from external API), use it
-	if obj.Workspaces != nil {
-		return obj.Workspaces, nil
-	}
-	// Fallback to dataloader for backward compatibility
 	return loaders(ctx).Workspace.FindByUser(ctx, obj.ID)
 }
 
 // MyWorkspace is the resolver for the myWorkspace field.
 func (r *meResolver) MyWorkspace(ctx context.Context, obj *gqlmodel.Me) (*gqlmodel.Workspace, error) {
-	// If MyWorkspace is already set in the struct (from external API), use it
-	if obj.MyWorkspace != nil {
-		return obj.MyWorkspace, nil
-	}
-	// Fallback to dataloader for backward compatibility
 	return dataloaders(ctx).Workspace.Load(obj.MyWorkspaceID)
 }
 
@@ -87,50 +76,11 @@ func (r *mutationResolver) DeleteMe(ctx context.Context, input gqlmodel.DeleteMe
 
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*gqlmodel.Me, error) {
-	// Use external account API
-	gateways := adapter.Gateways(ctx)
-	if gateways == nil || gateways.AccountGQL == nil {
-		// Fallback to local account data (for tests without external API configured)
-		u := adapter.User(ctx)
-		if u == nil {
-			return nil, nil
-		}
-		return gqlmodel.ToMe(u), nil
-	}
-
-	extUser, err := gateways.AccountGQL.UserRepo.FindMe(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	if extUser == nil {
+	u := getUser(ctx)
+	if u == nil {
 		return nil, nil
 	}
-
-	// Convert external user data to GraphQL model
-	photoURL := extUser.Metadata().PhotoURL()
-
-	// Convert MyWorkspace from our custom type to gqlmodel
-	var myWorkspace *gqlmodel.Workspace
-	if myWs := extUser.MyWorkspace(); !myWs.ID().IsEmpty() {
-		myWorkspace = gqlmodel.ToWorkspaceFromValue(myWs)
-	}
-	// Convert workspaces list
-	workspaces := gqlmodel.ToWorkspaces(extUser.Workspaces())
-
-	return &gqlmodel.Me{
-		ID:                gqlmodel.IDFrom(extUser.ID()),
-		Name:              extUser.Name(),
-		Email:             extUser.Email(),
-		Lang:              extUser.Metadata().Lang(),
-		Theme:             gqlmodel.Theme(extUser.Metadata().Theme()),
-		Host:              extUser.Host(),
-		MyWorkspaceID:     gqlmodel.ID(extUser.MyWorkspaceID()),
-		Auths:             extUser.Auths(),
-		ProfilePictureURL: &photoURL,
-		MyWorkspace:       myWorkspace,
-		Workspaces:        workspaces,
-	}, nil
+	return gqlmodel.ToMe(u), nil
 }
 
 // UserSearch is the resolver for the userSearch field.

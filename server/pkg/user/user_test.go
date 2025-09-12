@@ -18,7 +18,7 @@ func TestUser_Getters(t *testing.T) {
 		lang:        language.English,
 	}
 	host := "example.com"
-	myWorkspaceID := "workspace-123"
+	myWorkspaceID := NewWorkspaceID()
 	auths := []string{"auth1", "auth2"}
 	workspaceList := workspace.WorkspaceList{}
 	myWorkspace := workspace.Workspace{}
@@ -90,7 +90,7 @@ func TestUser_Clone(t *testing.T) {
 		lang:        language.English,
 	}
 	host := "example.com"
-	myWorkspaceID := "workspace-123"
+	myWorkspaceID := NewWorkspaceID()
 	auths := []string{"auth1", "auth2"}
 	workspaceList := workspace.WorkspaceList{}
 	myWorkspace := workspace.Workspace{}
@@ -137,7 +137,7 @@ func TestUser_Clone(t *testing.T) {
 
 				// Should be different instances
 				assert.NotSame(t, original, cloned)
-				
+
 				// Auths should be copied, not shared
 				if len(original.auths) > 0 && len(cloned.auths) > 0 {
 					assert.NotSame(t, &original.auths[0], &cloned.auths[0])
@@ -204,7 +204,7 @@ func TestUser_Clone(t *testing.T) {
 				assert.Equal(t, Metadata{}, cloned.Metadata())
 				assert.Empty(t, cloned.Auths())
 				assert.Nil(t, cloned.Host())
-				assert.Equal(t, "", cloned.MyWorkspaceID())
+				assert.Equal(t, "", cloned.MyWorkspaceID().String())
 			},
 		},
 	}
@@ -236,18 +236,18 @@ func TestUser_Clone_Independence(t *testing.T) {
 	}
 
 	cloned := original.Clone()
-	
+
 	// Modify cloned auths
 	cloned.auths = append(cloned.auths, "auth2")
-	
+
 	// Original should be unchanged
 	assert.Len(t, original.auths, 1)
 	assert.Len(t, cloned.auths, 2)
-	
+
 	// Modify cloned fields
 	cloned.name = "Jane Doe"
 	cloned.email = "jane@example.com"
-	
+
 	// Original should be unchanged
 	assert.Equal(t, "John Doe", original.name)
 	assert.Equal(t, "john@example.com", original.email)
@@ -256,4 +256,200 @@ func TestUser_Clone_Independence(t *testing.T) {
 func TestErrors(t *testing.T) {
 	assert.Equal(t, "invalid name", ErrInvalidName.Error())
 	assert.Equal(t, "invalid email", ErrInvalidEmail.Error())
+}
+
+func TestValidateEmail(t *testing.T) {
+	tests := []struct {
+		name     string
+		email    string
+		expected bool
+	}{
+		{
+			name:     "valid email",
+			email:    "test@example.com",
+			expected: true,
+		},
+		{
+			name:     "valid email with subdomain",
+			email:    "user@mail.example.com",
+			expected: true,
+		},
+		{
+			name:     "valid email with plus sign",
+			email:    "user+tag@example.com",
+			expected: true,
+		},
+		{
+			name:     "valid email with dot",
+			email:    "first.last@example.com",
+			expected: true,
+		},
+		{
+			name:     "valid email with underscore",
+			email:    "user_name@example.com",
+			expected: true,
+		},
+		{
+			name:     "empty email",
+			email:    "",
+			expected: false,
+		},
+		{
+			name:     "invalid email no at sign",
+			email:    "testexample.com",
+			expected: false,
+		},
+		{
+			name:     "invalid email no domain",
+			email:    "test@",
+			expected: false,
+		},
+		{
+			name:     "invalid email multiple at signs",
+			email:    "test@test@example.com",
+			expected: false,
+		},
+		{
+			name:     "invalid email spaces",
+			email:    "test user@example.com",
+			expected: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := ValidateEmail(tt.email)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func TestValidateAlias(t *testing.T) {
+	tests := []struct {
+		name     string
+		alias    string
+		expected bool
+	}{
+		{
+			name:     "valid alias alphanumeric",
+			alias:    "user123",
+			expected: true,
+		},
+		{
+			name:     "valid alias with underscore",
+			alias:    "user_name",
+			expected: true,
+		},
+		{
+			name:     "valid alias with hyphen",
+			alias:    "user-name",
+			expected: true,
+		},
+		{
+			name:     "valid alias mixed",
+			alias:    "user_name-123",
+			expected: true,
+		},
+		{
+			name:     "valid alias minimum length",
+			alias:    "abc",
+			expected: true,
+		},
+		{
+			name:     "valid alias maximum length",
+			alias:    "abcdefghijklmnopqrstuvwxyz123456",
+			expected: true,
+		},
+		{
+			name:     "empty alias (optional)",
+			alias:    "",
+			expected: true,
+		},
+		{
+			name:     "invalid alias too short",
+			alias:    "ab",
+			expected: false,
+		},
+		{
+			name:     "invalid alias too long",
+			alias:    "abcdefghijklmnopqrstuvwxyz1234567",
+			expected: false,
+		},
+		{
+			name:     "invalid alias with space",
+			alias:    "user name",
+			expected: false,
+		},
+		{
+			name:     "invalid alias with special characters",
+			alias:    "user@name",
+			expected: false,
+		},
+		{
+			name:     "invalid alias with dot",
+			alias:    "user.name",
+			expected: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := ValidateAlias(tt.alias)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func TestValidateWorkspace(t *testing.T) {
+	wsId1 := NewWorkspaceID()
+	wsId2 := NewWorkspaceID()
+
+	ws1 := workspace.New().ID(wsId1).Name("workspace1").MustBuild()
+	ws2 := workspace.New().ID(wsId2).Name("workspace2").MustBuild()
+	workspaceList := workspace.WorkspaceList{*ws1, *ws2}
+
+	tests := []struct {
+		name          string
+		myWorkspaceID WorkspaceID
+		workspaces    workspace.WorkspaceList
+		expected      bool
+	}{
+		{
+			name:          "empty workspace ID is valid",
+			myWorkspaceID: WorkspaceID{},
+			workspaces:    workspaceList,
+			expected:      true,
+		},
+		{
+			name:          "workspace ID with empty list is valid",
+			myWorkspaceID: wsId1,
+			workspaces:    workspace.WorkspaceList{},
+			expected:      true,
+		},
+		{
+			name:          "matching workspace ID",
+			myWorkspaceID: wsId1,
+			workspaces:    workspaceList,
+			expected:      true,
+		},
+		{
+			name:          "second matching workspace ID",
+			myWorkspaceID: wsId2,
+			workspaces:    workspaceList,
+			expected:      true,
+		},
+		{
+			name:          "non-matching workspace ID",
+			myWorkspaceID: NewWorkspaceID(),
+			workspaces:    workspaceList,
+			expected:      false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := ValidateWorkspace(tt.myWorkspaceID, tt.workspaces)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
 }

@@ -163,3 +163,105 @@ func TestBuilder_Chaining(t *testing.T) {
 	result := tb.NewID().Name("test").Email("test@example.com")
 	assert.Equal(t, tb, result)
 }
+
+func TestBuilder_Build_ErrorInvalidAlias(t *testing.T) {
+	tb := New()
+	// Invalid alias: too short
+	_, err := tb.NewID().Name("test").Email("test@example.com").Alias("ab").Build()
+	assert.Equal(t, ErrInvalidAlias, err)
+
+	// Invalid alias: contains invalid characters
+	_, err = tb.NewID().Name("test").Email("test@example.com").Alias("user@name").Build()
+	assert.Equal(t, ErrInvalidAlias, err)
+
+	// Invalid alias: too long
+	_, err = tb.NewID().Name("test").Email("test@example.com").Alias("thisaliasistoolongandexceeds32characters").Build()
+	assert.Equal(t, ErrInvalidAlias, err)
+}
+
+func TestBuilder_Build_ValidAlias(t *testing.T) {
+	tb := New()
+	// Valid alias
+	user, err := tb.NewID().Name("test").Email("test@example.com").Alias("valid_alias-123").Build()
+	assert.NoError(t, err)
+	assert.Equal(t, "valid_alias-123", user.Alias())
+
+	// Empty alias should be valid (optional field)
+	user, err = tb.NewID().Name("test2").Email("test2@example.com").Alias("").Build()
+	assert.NoError(t, err)
+	assert.Equal(t, "", user.Alias())
+}
+
+func TestBuilder_Build_ErrorInvalidEmailFormat(t *testing.T) {
+	tb := New()
+	// Invalid email format
+	_, err := tb.NewID().Name("test").Email("invalid-email").Build()
+	assert.Equal(t, ErrInvalidEmail, err)
+
+	// Empty email
+	_, err = tb.NewID().Name("test").Email("").Build()
+	assert.Equal(t, ErrInvalidEmail, err)
+
+	// Email with no domain
+	_, err = tb.NewID().Name("test").Email("user@").Build()
+	assert.Equal(t, ErrInvalidEmail, err)
+}
+
+func TestBuilder_Build_ValidEmail(t *testing.T) {
+	tb := New()
+	// Valid emails
+	validEmails := []string{
+		"test@example.com",
+		"user.name@domain.co.uk",
+		"user+tag@domain.org",
+		"user_name@sub.domain.com",
+	}
+
+	for _, email := range validEmails {
+		user, err := tb.NewID().Name("test").Email(email).Build()
+		assert.NoError(t, err, "Email should be valid: %s", email)
+		assert.Equal(t, email, user.Email())
+	}
+}
+
+func TestBuilder_Build_ErrorInvalidWorkspace(t *testing.T) {
+	tb := New()
+	wsId := NewWorkspaceID()
+	
+	// Create a workspace with different ID
+	ws1 := workspace.New().NewID().Name("workspace1").MustBuild()
+	workspaceList := workspace.WorkspaceList{*ws1}
+
+	// MyWorkspaceID doesn't match any workspace in the list
+	_, err := tb.NewID().Name("test").Email("test@example.com").
+		MyWorkspaceID(wsId).Workspaces(workspaceList).Build()
+	assert.Equal(t, ErrInvalidWorkspace, err)
+}
+
+func TestBuilder_Build_ValidWorkspace(t *testing.T) {
+	wsId := NewWorkspaceID()
+	
+	// Create a workspace with matching ID
+	ws1 := workspace.New().ID(wsId).Name("workspace1").MustBuild()
+	workspaceList := workspace.WorkspaceList{*ws1}
+
+	// MyWorkspaceID matches workspace in the list
+	tb1 := New()
+	user, err := tb1.NewID().Name("test").Email("test@example.com").
+		MyWorkspaceID(wsId).Workspaces(workspaceList).Build()
+	assert.NoError(t, err)
+	assert.Equal(t, wsId, user.MyWorkspaceID())
+
+	// No workspace ID is also valid
+	tb2 := New()
+	user, err = tb2.NewID().Name("test2").Email("test2@example.com").Build()
+	assert.NoError(t, err)
+	assert.True(t, user.MyWorkspaceID().IsEmpty())
+
+	// Workspace ID with empty workspace list is valid
+	tb3 := New()
+	user, err = tb3.NewID().Name("test3").Email("test3@example.com").
+		MyWorkspaceID(wsId).Build()
+	assert.NoError(t, err)
+	assert.Equal(t, wsId, user.MyWorkspaceID())
+}

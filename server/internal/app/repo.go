@@ -2,15 +2,12 @@ package app
 
 import (
 	"context"
-	"net/http"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/auth0"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/aws"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
-	"github.com/reearth/reearth-cms/server/internal/infrastructure/gql"
 	mongorepo "github.com/reearth/reearth-cms/server/internal/infrastructure/mongo"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/policy"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -26,41 +23,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo"
 )
-
-// tokenTransport wraps an http.RoundTripper to add authentication token to requests
-type tokenTransport struct {
-	token     string
-	transport http.RoundTripper
-}
-
-func (t *tokenTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	// Clone the request to avoid modifying the original
-	newReq := req.Clone(req.Context())
-	newReq.Header.Set("Authorization", "Bearer "+t.token)
-	return t.transport.RoundTrip(newReq)
-}
-
-// forwardAuthTransport forwards the Authorization header from the current context
-type forwardAuthTransport struct {
-	transport http.RoundTripper
-}
-
-func (t *forwardAuthTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	// Clone the request to avoid modifying the original
-	newReq := req.Clone(req.Context())
-	
-	// Try to get the authorization header from various sources in the context
-	if authHeader := getAuthHeaderFromContext(req.Context()); authHeader != "" {
-		newReq.Header.Set("Authorization", authHeader)
-	}
-	
-	return t.transport.RoundTrip(newReq)
-}
-
-// Helper function to extract authorization header from context
-func getAuthHeaderFromContext(ctx context.Context) string {
-	return adapter.GetAuthHeader(ctx)
-}
 
 func initAccountDB(client *mongo.Client, txAvailable bool, ctx context.Context, conf *Config) *accountrepo.Container {
 	accountDatabase := conf.DB_Account
@@ -158,31 +120,6 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	auth := auth0.New(conf.Auth0.Domain, conf.Auth0.ClientID, conf.Auth0.ClientSecret)
 	gateways.Authenticator = auth
 	acGateways.Authenticator = auth
-
-	// Account API - External GraphQL client for additional account operations
-	if conf.Account_Api.Endpoint != "" {
-		var transport http.RoundTripper
-		
-		if conf.Account_Api.Token != "" {
-			// Use static token for service-to-service authentication
-			transport = &tokenTransport{
-				token:     conf.Account_Api.Token,
-				transport: http.DefaultTransport,
-			}
-			log.Infof("account api: using static service token")
-		} else {
-			// Use user token forwarding for user-context authentication
-			transport = &forwardAuthTransport{
-				transport: http.DefaultTransport,
-			}
-			log.Infof("account api: using user token forwarding")
-		}
-
-		gateways.AccountGQL = gql.NewClient(conf.Account_Api.Endpoint, transport)
-		log.Infof("account api: external GraphQL API configured: %s", conf.Account_Api.Endpoint)
-	} else {
-		log.Infof("account api: not configured, using default account repositories")
-	}
 
 	// CloudTasks
 	if conf.Task.GCPProject != "" {

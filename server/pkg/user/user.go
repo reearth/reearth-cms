@@ -2,13 +2,18 @@ package user
 
 import (
 	"errors"
+	"net/mail"
+	"regexp"
 
 	"github.com/reearth/reearth-cms/server/pkg/workspace"
 )
 
 var (
-	ErrInvalidName  = errors.New("invalid name")
-	ErrInvalidEmail = errors.New("invalid email")
+	ErrInvalidName      = errors.New("invalid name")
+	ErrInvalidEmail     = errors.New("invalid email")
+	ErrInvalidAlias     = errors.New("invalid alias")
+	ErrInvalidWorkspace = errors.New("invalid workspace")
+	aliasRegexp         = regexp.MustCompile("^[a-zA-Z0-9_-]{3,32}$")
 )
 
 type User struct {
@@ -18,7 +23,7 @@ type User struct {
 	email         string
 	metadata      Metadata
 	host          *string
-	myWorkspaceID string
+	myWorkspaceID WorkspaceID
 	auths         []string
 	workspaces    workspace.WorkspaceList
 	myWorkspace   workspace.Workspace
@@ -48,7 +53,7 @@ func (u *User) Host() *string {
 	return u.host
 }
 
-func (u *User) MyWorkspaceID() string {
+func (u *User) MyWorkspaceID() WorkspaceID {
 	return u.myWorkspaceID
 }
 
@@ -71,7 +76,7 @@ func (u *User) Clone() *User {
 	if u == nil {
 		return nil
 	}
-	
+
 	var clonedAuths []string
 	if u.auths != nil {
 		clonedAuths = append([]string{}, u.auths...)
@@ -89,4 +94,44 @@ func (u *User) Clone() *User {
 		workspaces:    u.workspaces,
 		myWorkspace:   u.myWorkspace,
 	}
+}
+
+// ValidateEmail validates the email address format
+func ValidateEmail(email string) bool {
+	if email == "" {
+		return false
+	}
+	_, err := mail.ParseAddress(email)
+	return err == nil
+}
+
+// ValidateAlias validates the alias format (alphanumeric, underscore, hyphen, 3-32 chars)
+func ValidateAlias(alias string) bool {
+	if alias == "" {
+		return true // alias is optional
+	}
+	return aliasRegexp.MatchString(alias)
+}
+
+// ValidateWorkspace validates that workspace ID and workspaces are consistent
+func ValidateWorkspace(myWorkspaceID WorkspaceID, workspaces workspace.WorkspaceList) bool {
+	// If no workspace ID is set, it's valid (workspace is optional)
+	if myWorkspaceID.IsEmpty() {
+		return true
+	}
+	
+	// If workspace ID is set but no workspaces list, it's still valid
+	if len(workspaces) == 0 {
+		return true
+	}
+	
+	// If both are set, verify that myWorkspaceID exists in workspaces
+	for _, ws := range workspaces {
+		if ws.ID().String() == myWorkspaceID.String() {
+			return true
+		}
+	}
+	
+	// myWorkspaceID doesn't match any workspace in the list
+	return false
 }

@@ -29,7 +29,6 @@ func UsecaseMiddleware(r *repo.Container, g *gateway.Container, ar *accountrepo.
 
 		uc := interactor.New(r2, g, ar2, ag, config)
 		ctx = adapter.AttachUsecases(ctx, &uc)
-		ctx = adapter.AttachGateways(ctx, g)
 		ctx = publicapi.AttachController(ctx, publicapi.NewController(r2.Project, &uc))
 		return ctx
 	})
