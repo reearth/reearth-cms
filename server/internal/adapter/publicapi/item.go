@@ -147,7 +147,7 @@ func getReferencedItemsMap(ctx context.Context, itemL item.List, prp bool) map[i
 	spMap := map[id.ModelID]*schema.Package{}
 	res := map[id.ItemID][]Item{}
 	refItemsFn(itemL, func(iid, riid id.ItemID) {
-		ii, ok := refItemMap[iid]
+		ii, ok := refItemMap[riid]
 		if !ok || ii == nil {
 			return
 		}
