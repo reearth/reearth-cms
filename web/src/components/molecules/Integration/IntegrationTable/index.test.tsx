@@ -77,7 +77,7 @@ describe("Integration table", () => {
       />,
     );
 
-    expect(screen.getByRole("link")).toBeVisible();
+    expect(screen.getByText("how to use Re:Earth CMS")).toBeVisible();
   });
 
   test("Connecting buttons works successfully", async () => {
