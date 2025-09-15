@@ -1,6 +1,6 @@
-import { test, expect } from "vitest";
+import { test, expect, assert } from "vitest";
 
-import { validateKey, validateURL } from "./regex";
+import { aliasRegex, validateKey, validateURL } from "./regex";
 
 test("validateKey function returns true for valid keys", () => {
   expect(validateKey("valid_key")).toBe(true);
@@ -26,4 +26,16 @@ test("validateURL function returns false for invalid URLs", () => {
   expect(validateURL("htp://example.com")).toBe(false);
   expect(validateURL("http://example")).toBe(false);
   expect(validateURL("http://localhost:3000")).toBe(false);
+});
+
+test("validate aliasRegex", () => {
+  // legal cases
+  assert.match("test_project_123", aliasRegex);
+  assert.match("test-project-123", aliasRegex);
+  assert.match("test.project.123", aliasRegex);
+
+  // illegal cases
+  assert.notMatch("test project 123", aliasRegex);
+  assert.notMatch("testProject123", aliasRegex);
+  assert.notMatch("testProject123@#$%^&*()+=", aliasRegex);
 });
