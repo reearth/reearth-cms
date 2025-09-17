@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/log"
@@ -86,9 +87,9 @@ func generateCSV(pw *io.PipeWriter, l item.List, s *schema.Schema) error {
 }
 
 // JSON
-func toJSON(c echo.Context, l item.List, sp *schema.Package, aPublic bool, assets asset.List, refItems item.List, pi *usecasex.PageInfo, p *usecasex.Pagination) error {
+func toJSON(c echo.Context, l item.List, sp *schema.Package, aPublic bool, assets asset.List, refItems map[id.ItemID][]Item, pi *usecasex.PageInfo, p *usecasex.Pagination) error {
 	items, err := util.TryMap(l, func(i *item.Item) (Item, error) {
-		return NewItem(i, sp, assets, nil), nil
+		return NewItem(i, sp, assets, refItems[i.ID()]), nil
 	})
 	if err != nil {
 		return err
