@@ -383,4 +383,79 @@ export class FieldEditorPage extends BasePage {
   get deleteFieldButton(): Locator {
     return this.getByLabel("delete").locator("svg");
   }
+
+    // Reference field specific elements
+  get selectModelToReferenceLabel(): Locator {
+    return this.getByLabel("Select the model to reference");
+  }
+
+  get createReferenceFieldLabel(): Locator {
+    return this.getByLabel("Create Reference Field");
+  }
+
+  get oneWayReferenceCheckbox(): Locator {
+    return this.getByLabel("One-way reference");
+  }
+
+  get twoWayReferenceCheckbox(): Locator {
+    return this.getByLabel("Two-way reference");
+  }
+
+  get nextButton(): Locator {
+    return this.getByRole("button", { name: "Next" });
+  }
+
+  get confirmButton(): Locator {
+    return this.getByRole("button", { name: "Confirm" });
+  }
+
+  get previousButton(): Locator {
+    return this.getByRole("button", { name: "Previous" });
+  }
+
+  get makeFieldRequiredCheckbox(): Locator {
+    return this.getByLabel("Make field required");
+  }
+
+  get setFieldAsUniqueCheckbox(): Locator {
+    return this.getByLabel("Set field as unique");
+  }
+
+  get closeButton(): Locator {
+    return this.getByLabel("Close", { exact: true });
+  }
+
+  // Item reference modal elements
+  get referToItemButton(): Locator {
+    return this.getByRole("button", { name: "Refer to item" });
+  }
+
+  get replaceItemButton(): Locator {
+    return this.getByRole("button", { name: "Replace item" });
+  }
+
+  // Dynamic selectors
+  modelOption(modelText: string): Locator {
+    return this.getByText(modelText, { exact: false });
+  }
+
+  fieldParagraph(text: string): Locator {
+    return this.locator("p").filter({ hasText: text });
+  }
+
+  referenceText(text: string): Locator {
+    return this.locator("#root").getByText(text);
+  }
+
+  tableRows(): Locator {
+    return this.locator("tbody > tr:visible");
+  }
+
+  rowButton(index: number): Locator {
+    return this.getByRole("row").getByRole("button").nth(index);
+  }
+
+  clearReferenceButton(): Locator {
+    return this.getByRole("button").nth(3);
+  }
 }

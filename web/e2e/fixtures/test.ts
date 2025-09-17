@@ -6,7 +6,6 @@ import { ContentPage } from "../pages/content.page";
 import { FieldEditorPage } from "../pages/field-editor.page";
 import { IntegrationsPage } from "../pages/integrations.page";
 import { MemberPage } from "../pages/member.page";
-import { MetadataEditorPage } from "../pages/metadata-editor.page";
 import { ProjectPage } from "../pages/project.page";
 import { RequestPage } from "../pages/request.page";
 import { SchemaPage } from "../pages/schema.page";
@@ -21,7 +20,6 @@ export type PageObjects = {
   fieldEditorPage: FieldEditorPage;
   integrationsPage: IntegrationsPage;
   memberPage: MemberPage;
-  metadataEditorPage: MetadataEditorPage;
   projectPage: ProjectPage;
   requestPage: RequestPage;
   schemaPage: SchemaPage;
@@ -118,10 +116,6 @@ export const test = base.extend<Fixtures>({
 
   integrationsPage: async ({ page }, use) => {
     await use(new IntegrationsPage(page));
-  },
-
-  metadataEditorPage: async ({ page }, use) => {
-    await use(new MetadataEditorPage(page));
   },
 });
 
