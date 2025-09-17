@@ -7,11 +7,14 @@ import Avatar, { AvatarProps } from "../Avatar";
 type Props = {
   username?: string;
   shadow?: boolean;
+  profilePictureUrl?: string;
 } & AvatarProps;
 
-const UserAvatar: React.FC<Props> = ({ username, shadow, ...props }) => {
+const UserAvatar: React.FC<Props> = ({ username, shadow, profilePictureUrl, ...props }) => {
   const anonymous = username === "Anonymous";
-  return (
+  return profilePictureUrl ? (
+    <Avatar src={profilePictureUrl} alt="User avatar" {...props} />
+  ) : (
     <UserAvatarWrapper shadow={shadow} anonymous={anonymous} {...props}>
       {anonymous ? <Icon icon="user" /> : username?.charAt(0)}
     </UserAvatarWrapper>

@@ -11,6 +11,7 @@ import useHooks from "./hooks";
 const CMSWrapper: React.FC = () => {
   const {
     username,
+    profilePictureUrl,
     personalWorkspace,
     workspaces,
     currentWorkspace,
@@ -47,6 +48,7 @@ const CMSWrapper: React.FC = () => {
             currentWorkspace={currentWorkspace}
             currentProject={currentProject}
             username={username}
+            profilePictureUrl={profilePictureUrl}
             logoUrl={logoUrl}
           />
         }
