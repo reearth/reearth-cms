@@ -8,12 +8,21 @@ import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 type Props = {
   items: MenuProps["items"];
   name?: string;
+  profilePictureUrl?: string;
   personal: boolean;
   showName?: boolean;
   showArrow?: boolean;
 };
 
-const Dropdown: React.FC<Props> = ({ items, name, personal, showName, showArrow, ...props }) => {
+const Dropdown: React.FC<Props> = ({
+  items,
+  name,
+  profilePictureUrl,
+  personal,
+  showName,
+  showArrow,
+  ...props
+}) => {
   return (
     <StyledDropdown
       menu={{ items }}
@@ -22,7 +31,12 @@ const Dropdown: React.FC<Props> = ({ items, name, personal, showName, showArrow,
       {...props}>
       <a onClick={e => e.preventDefault()}>
         <Space>
-          <UserAvatar username={name ?? ""} shape={personal ? "circle" : "square"} size={"small"} />
+          <UserAvatar
+            username={name ?? ""}
+            profilePictureUrl={personal ? profilePictureUrl : ""}
+            shape={personal ? "circle" : "square"}
+            size={"small"}
+          />
           {showName && <Text>{name}</Text>}
           {showArrow && <StyledIcon icon="caretDown" />}
         </Space>
