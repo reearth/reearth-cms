@@ -29,6 +29,7 @@ export const GET_ME = gql`
       name
       email
       lang
+      profilePictureUrl
       myWorkspace {
         id
         name

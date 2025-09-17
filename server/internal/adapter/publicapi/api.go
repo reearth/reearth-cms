@@ -99,6 +99,7 @@ func ItemOrAssetList() echo.HandlerFunc {
 			}
 			return err
 		}
+		refItems := getReferencedItemsMap(ctx, items, aPublic)
 
 		switch resType {
 		case "csv":
@@ -106,9 +107,9 @@ func ItemOrAssetList() echo.HandlerFunc {
 		case "geojson":
 			return toGeoJSON(c, items, sp, assets)
 		case "json":
-			return toJSON(c, items, sp, aPublic, assets, nil, pi, p.Pagination)
+			return toJSON(c, items, sp, aPublic, assets, refItems, pi, p.Pagination)
 		default:
-			return toJSON(c, items, sp, aPublic, assets, nil, pi, p.Pagination)
+			return toJSON(c, items, sp, aPublic, assets, refItems, pi, p.Pagination)
 		}
 	}
 }
