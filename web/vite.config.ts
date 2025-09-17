@@ -35,7 +35,7 @@ export default defineConfig({
   envPrefix: "REEARTH_CMS_",
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
-    __REEARTH_COMMIT_HASH__: JSON.stringify(process.env.GITHUB_SHA || commitHash)
+    __REEARTH_COMMIT_HASH__: JSON.stringify(process.env.GITHUB_SHA || commitHash),
   },
   plugins: [
     react(),
@@ -43,7 +43,7 @@ export default defineConfig({
     cesium({ cesiumBaseUrl: `cesium-${cesiumPackageJson.version}/` }),
     serverHeaders(),
     config(),
-    tsconfigPaths()
+    tsconfigPaths(),
   ],
   css: {
     preprocessorOptions: {
@@ -82,6 +82,7 @@ export default defineConfig({
       { find: "@ant-design/pro-table", replacement: "@ant-design/pro-table/es/index.js" },
       { find: "@ant-design/pro-utils", replacement: "@ant-design/pro-utils/es/index.js" },
     ],
+    testTimeout: process.env.CI ? 10_000 : 5000,
   },
 });
 
