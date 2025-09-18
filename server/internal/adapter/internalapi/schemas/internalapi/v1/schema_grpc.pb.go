@@ -19,18 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ReEarthCMS_CreateProject_FullMethodName            = "/reearth.cms.v1.ReEarthCMS/CreateProject"
-	ReEarthCMS_UpdateProject_FullMethodName            = "/reearth.cms.v1.ReEarthCMS/UpdateProject"
-	ReEarthCMS_DeleteProject_FullMethodName            = "/reearth.cms.v1.ReEarthCMS/DeleteProject"
-	ReEarthCMS_CheckAliasAvailability_FullMethodName   = "/reearth.cms.v1.ReEarthCMS/CheckAliasAvailability"
-	ReEarthCMS_GetProject_FullMethodName               = "/reearth.cms.v1.ReEarthCMS/GetProject"
-	ReEarthCMS_ListProjects_FullMethodName             = "/reearth.cms.v1.ReEarthCMS/ListProjects"
-	ReEarthCMS_GetAsset_FullMethodName                 = "/reearth.cms.v1.ReEarthCMS/GetAsset"
-	ReEarthCMS_ListAssets_FullMethodName               = "/reearth.cms.v1.ReEarthCMS/ListAssets"
-	ReEarthCMS_GetModel_FullMethodName                 = "/reearth.cms.v1.ReEarthCMS/GetModel"
-	ReEarthCMS_ListModels_FullMethodName               = "/reearth.cms.v1.ReEarthCMS/ListModels"
-	ReEarthCMS_ListItems_FullMethodName                = "/reearth.cms.v1.ReEarthCMS/ListItems"
-	ReEarthCMS_GetModelGeoJSONExportURL_FullMethodName = "/reearth.cms.v1.ReEarthCMS/GetModelGeoJSONExportURL"
+	ReEarthCMS_CreateProject_FullMethodName          = "/reearth.cms.v1.ReEarthCMS/CreateProject"
+	ReEarthCMS_UpdateProject_FullMethodName          = "/reearth.cms.v1.ReEarthCMS/UpdateProject"
+	ReEarthCMS_DeleteProject_FullMethodName          = "/reearth.cms.v1.ReEarthCMS/DeleteProject"
+	ReEarthCMS_CheckAliasAvailability_FullMethodName = "/reearth.cms.v1.ReEarthCMS/CheckAliasAvailability"
+	ReEarthCMS_GetProject_FullMethodName             = "/reearth.cms.v1.ReEarthCMS/GetProject"
+	ReEarthCMS_ListProjects_FullMethodName           = "/reearth.cms.v1.ReEarthCMS/ListProjects"
+	ReEarthCMS_GetAsset_FullMethodName               = "/reearth.cms.v1.ReEarthCMS/GetAsset"
+	ReEarthCMS_ListAssets_FullMethodName             = "/reearth.cms.v1.ReEarthCMS/ListAssets"
+	ReEarthCMS_GetModel_FullMethodName               = "/reearth.cms.v1.ReEarthCMS/GetModel"
+	ReEarthCMS_ListModels_FullMethodName             = "/reearth.cms.v1.ReEarthCMS/ListModels"
+	ReEarthCMS_ListItems_FullMethodName              = "/reearth.cms.v1.ReEarthCMS/ListItems"
+	ReEarthCMS_GetModelExportURL_FullMethodName      = "/reearth.cms.v1.ReEarthCMS/GetModelExportURL"
 )
 
 // ReEarthCMSClient is the client API for ReEarthCMS service.
@@ -49,7 +49,7 @@ type ReEarthCMSClient interface {
 	GetModel(ctx context.Context, in *ModelRequest, opts ...grpc.CallOption) (*ModelResponse, error)
 	ListModels(ctx context.Context, in *ListModelsRequest, opts ...grpc.CallOption) (*ListModelsResponse, error)
 	ListItems(ctx context.Context, in *ListItemsRequest, opts ...grpc.CallOption) (*ListItemsResponse, error)
-	GetModelGeoJSONExportURL(ctx context.Context, in *ExportRequest, opts ...grpc.CallOption) (*ExportURLResponse, error)
+	GetModelExportURL(ctx context.Context, in *ExportRequest, opts ...grpc.CallOption) (*ExportURLResponse, error)
 }
 
 type reEarthCMSClient struct {
@@ -170,10 +170,10 @@ func (c *reEarthCMSClient) ListItems(ctx context.Context, in *ListItemsRequest, 
 	return out, nil
 }
 
-func (c *reEarthCMSClient) GetModelGeoJSONExportURL(ctx context.Context, in *ExportRequest, opts ...grpc.CallOption) (*ExportURLResponse, error) {
+func (c *reEarthCMSClient) GetModelExportURL(ctx context.Context, in *ExportRequest, opts ...grpc.CallOption) (*ExportURLResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ExportURLResponse)
-	err := c.cc.Invoke(ctx, ReEarthCMS_GetModelGeoJSONExportURL_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, ReEarthCMS_GetModelExportURL_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +196,7 @@ type ReEarthCMSServer interface {
 	GetModel(context.Context, *ModelRequest) (*ModelResponse, error)
 	ListModels(context.Context, *ListModelsRequest) (*ListModelsResponse, error)
 	ListItems(context.Context, *ListItemsRequest) (*ListItemsResponse, error)
-	GetModelGeoJSONExportURL(context.Context, *ExportRequest) (*ExportURLResponse, error)
+	GetModelExportURL(context.Context, *ExportRequest) (*ExportURLResponse, error)
 	mustEmbedUnimplementedReEarthCMSServer()
 }
 
@@ -240,8 +240,8 @@ func (UnimplementedReEarthCMSServer) ListModels(context.Context, *ListModelsRequ
 func (UnimplementedReEarthCMSServer) ListItems(context.Context, *ListItemsRequest) (*ListItemsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListItems not implemented")
 }
-func (UnimplementedReEarthCMSServer) GetModelGeoJSONExportURL(context.Context, *ExportRequest) (*ExportURLResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetModelGeoJSONExportURL not implemented")
+func (UnimplementedReEarthCMSServer) GetModelExportURL(context.Context, *ExportRequest) (*ExportURLResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetModelExportURL not implemented")
 }
 func (UnimplementedReEarthCMSServer) mustEmbedUnimplementedReEarthCMSServer() {}
 func (UnimplementedReEarthCMSServer) testEmbeddedByValue()                    {}
@@ -462,20 +462,20 @@ func _ReEarthCMS_ListItems_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ReEarthCMS_GetModelGeoJSONExportURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ReEarthCMS_GetModelExportURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ExportRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ReEarthCMSServer).GetModelGeoJSONExportURL(ctx, in)
+		return srv.(ReEarthCMSServer).GetModelExportURL(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ReEarthCMS_GetModelGeoJSONExportURL_FullMethodName,
+		FullMethod: ReEarthCMS_GetModelExportURL_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ReEarthCMSServer).GetModelGeoJSONExportURL(ctx, req.(*ExportRequest))
+		return srv.(ReEarthCMSServer).GetModelExportURL(ctx, req.(*ExportRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -532,8 +532,8 @@ var ReEarthCMS_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ReEarthCMS_ListItems_Handler,
 		},
 		{
-			MethodName: "GetModelGeoJSONExportURL",
-			Handler:    _ReEarthCMS_GetModelGeoJSONExportURL_Handler,
+			MethodName: "GetModelExportURL",
+			Handler:    _ReEarthCMS_GetModelExportURL_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
