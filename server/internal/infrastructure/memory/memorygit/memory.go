@@ -79,11 +79,15 @@ func (m *VersionedSyncMap[K, V]) SaveAll(key []K, value []V, parent []*version.V
 	if len(key) != len(value) || (parent != nil && len(key) != len(parent)) {
 		return
 	}
-	if len(key) == 0 {
+	if len(key) == 0 || len(value) == 0 {
 		return
 	}
-	for i := 0; i < len(key); i++ {
-		m.SaveOne(key[i], value[i], parent[i])
+	for i := 0; i < len(key) && i < len(value); i++ {
+		var p *version.VersionOrRef
+		if parent != nil && i < len(parent) {
+			p = parent[i]
+		}
+		m.SaveOne(key[i], value[i], p)
 	}
 }
 
