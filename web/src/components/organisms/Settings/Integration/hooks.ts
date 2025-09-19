@@ -166,10 +166,6 @@ export default (workspaceId?: string) => {
     setPage(1);
   }, []);
 
-  const handleReload = useCallback(() => {
-    refetch();
-  }, [refetch]);
-
   const handleTableChange = useCallback((page: number, pageSize: number) => {
     setPage(page);
     setPageSize(pageSize);
@@ -179,7 +175,6 @@ export default (workspaceId?: string) => {
     loading,
     workspaceIntegrations,
     handleSearchTerm,
-    handleReload,
     setSelectedIntegration,
     deleteLoading,
     handleIntegrationRemove,

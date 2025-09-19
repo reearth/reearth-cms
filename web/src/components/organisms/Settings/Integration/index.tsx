@@ -11,7 +11,6 @@ const Integration: React.FC = () => {
     loading,
     workspaceIntegrations,
     handleSearchTerm,
-    handleReload,
     setSelectedIntegration,
     deleteLoading,
     handleIntegrationRemove,
@@ -34,7 +33,6 @@ const Integration: React.FC = () => {
       loading={loading}
       workspaceIntegrations={workspaceIntegrations}
       onSearchTerm={handleSearchTerm}
-      onReload={handleReload}
       setSelectedIntegration={setSelectedIntegration}
       onIntegrationRemove={handleIntegrationRemove}
       deleteLoading={deleteLoading}
