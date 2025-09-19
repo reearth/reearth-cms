@@ -162,7 +162,7 @@ describe("Member table", () => {
     expect(screen.getByText(role)).toBeVisible();
   });
 
-  test.only("Own checkbox, change role button, and leave button are disabled successfully", async () => {
+  test("Own checkbox, change role button, and leave button are disabled successfully", async () => {
     render(
       <MemberTable
         workspaceUserMembers={workspaceUserMembers}
