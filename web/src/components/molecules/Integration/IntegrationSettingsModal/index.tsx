@@ -67,6 +67,7 @@ const IntegrationSettingsModal: React.FC<Props> = ({
 
   return (
     <Modal
+      forceRender
       afterClose={handleAfterClose}
       title={t("Integration Setting")}
       open={open}

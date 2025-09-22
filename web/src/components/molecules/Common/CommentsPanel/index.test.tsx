@@ -127,6 +127,8 @@ describe("Comments panel", () => {
   test("Comments are visible successfully", async () => {
     const content1 = "content1";
     const content2 = "content2";
+    const id1 = "id1";
+    const id2 = "id2";
 
     render(
       <CommentsPanel
@@ -137,13 +139,13 @@ describe("Comments panel", () => {
         resourceId={resourceId}
         comments={[
           {
-            id: "",
+            id: id1,
             author: { name: "", type: null },
             content: content1,
             createdAt: "",
           },
           {
-            id: "",
+            id: id2,
             author: { name: "", type: null },
             content: content2,
             createdAt: "",
