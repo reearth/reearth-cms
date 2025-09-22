@@ -60,7 +60,8 @@ func NewFile(bucketName, publicBase, cacheControl string, replaceUploadURL bool)
 	var customEndpoint string
 	// Use custom endpoint if AssetBaseURL (publicBase) is configured with a custom domain
 	// This allows GCS client to redirect to the custom asset proxy endpoint
-	if u.Host != "storage.googleapis.com" && u.Host != "" {
+	// Treat as custom endpoint if host is not a standard GCS endpoint
+	if !strings.HasSuffix(u.Host, ".googleapis.com") && u.Host != "" {
 		customEndpoint = u.Scheme + "://" + u.Host
 	}
 
@@ -622,16 +623,16 @@ func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
 	var err error
 
 	if f.customEndpoint != "" {
-		// Use custom endpoint when configured (for proxy setups)
 		client, err = storage.NewClient(ctx, option.WithEndpoint(f.customEndpoint))
 	} else {
-		// Use default GCS endpoint
 		client, err = storage.NewClient(ctx)
 	}
 
 	if err != nil {
+		log.Errorf("gcs: failed to initialize client: %v", err)
 		return nil, err
 	}
+
 	bucket := client.Bucket(f.bucketName)
 	return bucket, nil
 }
