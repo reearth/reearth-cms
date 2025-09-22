@@ -21,7 +21,6 @@ describe("Integration table", () => {
   const pageSize = 10;
   const onTableChange = () => {};
   const loading = false;
-  const onReload = () => {};
   const hasConnectRight = true;
   const hasUpdateRight = true;
   const hasDeleteRight = true;
