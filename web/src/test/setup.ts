@@ -30,7 +30,7 @@ beforeAll(() => {
     if (!elt) {
       // Return a proper mock CSSStyleDeclaration when element is null/undefined
       return new Proxy({} as CSSStyleDeclaration, {
-        get(target, prop) {
+        get(_target, prop) {
           if (prop === "getPropertyValue") {
             return () => "";
           }
@@ -46,7 +46,7 @@ beforeAll(() => {
       // If the original styles are null or undefined, return our proxy instead
       if (!styles) {
         return new Proxy({} as CSSStyleDeclaration, {
-          get(target, prop) {
+          get(_target, prop) {
             if (prop === "getPropertyValue") {
               return () => "";
             }
@@ -61,7 +61,7 @@ beforeAll(() => {
     } catch (_error) {
       // If there's any error, return our proxy mock
       return new Proxy({} as CSSStyleDeclaration, {
-        get(target, prop) {
+        get(_target, prop) {
           if (prop === "getPropertyValue") {
             return () => "";
           }
