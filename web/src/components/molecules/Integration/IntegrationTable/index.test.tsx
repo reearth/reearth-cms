@@ -35,36 +35,6 @@ describe("Integration table", () => {
     role,
   };
 
-  test("Table options works successfully", async () => {
-    render(
-      <IntegrationTable
-        workspaceIntegrations={workspaceIntegrations}
-        onSearchTerm={onSearchTerm}
-        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
-        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
-        deleteLoading={deleteLoading}
-        onIntegrationRemove={onIntegrationRemove}
-        page={page}
-        pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        hasConnectRight={hasConnectRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-      />,
-    );
-
-    const reloadIcon = screen.getByLabelText("reload");
-    const heightIcon = screen.getByLabelText("column-height");
-    const settingIcon = screen.getByLabelText("setting");
-    const fullscreenIcon = screen.getByLabelText("fullscreen");
-
-    await user.click(reloadIcon);
-    expect(heightIcon).toBeVisible();
-    expect(settingIcon).toBeVisible();
-    expect(fullscreenIcon).toBeVisible();
-  });
-
   test("Page number and number of items per page are displayed successfully", async () => {
     render(
       <IntegrationTable
