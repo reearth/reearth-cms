@@ -8,6 +8,7 @@ import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
 
 type RequestOptionsData = {
+  key: string;
   role: string;
   needRequest: Role;
 };
@@ -73,18 +74,22 @@ const RequestOptions: React.FC<Props> = ({
   const dataSource: RequestOptionsData[] = useMemo(
     () => [
       {
+        key: "OWNER",
         role: t("Owner"),
         needRequest: "OWNER",
       },
       {
+        key: "MAINTAINER",
         role: t("Maintainer"),
         needRequest: "MAINTAINER",
       },
       {
+        key: "WRITER",
         role: t("Writer"),
         needRequest: "WRITER",
       },
       {
+        key: "READER",
         role: t("Reader"),
         needRequest: "READER",
       },

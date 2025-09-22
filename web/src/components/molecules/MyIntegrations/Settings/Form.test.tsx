@@ -56,8 +56,8 @@ describe("Integration creation modal", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: "loading Re-generate" })).toBeVisible();
-    expect(screen.getByRole("button", { name: "loading Save" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "loadingRe-generate" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "loadingSave" })).toBeVisible();
   });
 
   test("Visibility of token is toggled successfully", async () => {

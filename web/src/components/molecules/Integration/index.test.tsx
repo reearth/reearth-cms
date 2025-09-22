@@ -9,6 +9,7 @@ describe("Integration wrapper", () => {
 
   const workspaceIntegrations = [
     {
+      id: "integration1",
       name: "name",
       createdBy: { id: "", name: "creatorName", email: "" },
       role: "READER" as const,
@@ -70,8 +71,8 @@ describe("Integration wrapper", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "api Connect Integration" }));
-    await expect.poll(() => screen.getByRole("dialog")).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "apiConnect Integration" }));
+    expect(await screen.findByRole("dialog")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Cancel" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
@@ -102,7 +103,7 @@ describe("Integration wrapper", () => {
     );
 
     await user.click(screen.getByRole("button", { name: "setting" }));
-    await expect.poll(() => screen.getByRole("dialog")).toBeVisible();
+    expect(await screen.findByRole("dialog")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Cancel" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
