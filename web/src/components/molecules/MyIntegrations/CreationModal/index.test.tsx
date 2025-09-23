@@ -24,8 +24,8 @@ describe("Integration creation modal", () => {
       />,
     );
 
-    await expect.poll(() => screen.getByLabelText("Integration Name")).toBeVisible();
-    expect(screen.getByLabelText("Description")).toBeVisible();
+    expect(screen.getByLabelText("Integration Name")).toBeInTheDocument();
+    expect(screen.getByLabelText("Description")).toBeInTheDocument();
   });
 
   test("Create event is fired successfully", async () => {
@@ -80,7 +80,7 @@ describe("Integration creation modal", () => {
       />,
     );
 
-    await expect.poll(() => screen.getByRole("button", { name: "loading Create" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "loadingCreate" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
   });
 });

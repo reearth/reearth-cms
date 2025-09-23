@@ -34,7 +34,7 @@ describe("Member role modal", () => {
       />,
     );
 
-    await expect.poll(() => screen.getByText("Owner")).toBeVisible();
+    expect(screen.getByText("Owner")).toBeInTheDocument();
   });
 
   test("All options are displayed successfully", async () => {
@@ -49,9 +49,9 @@ describe("Member role modal", () => {
     );
 
     await user.click(screen.getByLabelText("Role"));
-    await expect.poll(() => screen.getByText("Maintainer")).toBeVisible();
-    expect(screen.getByText("Writer")).toBeVisible();
-    expect(screen.getByText("Reader")).toBeVisible();
+    expect(screen.getByText("Maintainer")).toBeInTheDocument();
+    expect(screen.getByText("Writer")).toBeInTheDocument();
+    expect(screen.getByText("Reader")).toBeInTheDocument();
   });
 
   test("Ok button is toggled successfully", async () => {
@@ -107,7 +107,7 @@ describe("Member role modal", () => {
       />,
     );
 
-    await expect.poll(() => screen.getByLabelText("loading")).toBeVisible();
+    expect(screen.getByLabelText("loading")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
   });
 

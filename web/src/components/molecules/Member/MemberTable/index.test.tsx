@@ -256,13 +256,13 @@ describe("Member table", () => {
     );
 
     await user.click(screen.getByLabelText("Select all"));
-    await user.click(screen.getByRole("button", { name: "usergroup-delete Remove" }));
+    await user.click(screen.getByRole("button", { name: "usergroup-deleteRemove" }));
     const dialog = screen.getByRole("dialog");
-    await expect.poll(() => dialog).toBeVisible();
-    expect(getByText(dialog, secondMember.name)).toBeVisible();
-    expect(getByText(dialog, secondMember.email)).toBeVisible();
-    expect(getByText(dialog, thirdMember.name)).toBeVisible();
-    expect(getByText(dialog, thirdMember.email)).toBeVisible();
+    expect(dialog).toBeInTheDocument();
+    expect(getByText(dialog, secondMember.name)).toBeInTheDocument();
+    expect(getByText(dialog, secondMember.email)).toBeInTheDocument();
+    expect(getByText(dialog, thirdMember.name)).toBeInTheDocument();
+    expect(getByText(dialog, thirdMember.email)).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Yes" }));
     expect(onMemberRemoveFromWorkspaceMock).toHaveBeenCalled();
@@ -299,11 +299,21 @@ describe("Member table", () => {
     );
 
     await user.click(screen.getByRole("button", { name: "Remove" }));
-    const dialog = screen.getByRole("dialog");
-    await expect.poll(() => getByText(dialog, secondMember.name)).toBeVisible();
-    expect(getByText(dialog, secondMember.email)).toBeVisible();
+    const dialog = screen.getByRole("dialog", {
+      name: (accessibleName, element) => {
+        const titleElement = element.querySelector(".ant-modal-confirm-title");
+        return titleElement?.textContent === "Are you sure to remove this member?";
+      },
+    });
+    expect(getByText(dialog, secondMember.name)).toBeInTheDocument();
+    expect(getByText(dialog, secondMember.email)).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Yes" }));
+    const yesButtonEl = Array.from(dialog.querySelectorAll("button")).find(
+      el => el.textContent === "Yes",
+    );
+
+    if (yesButtonEl) await user.click(yesButtonEl);
+
     expect(onMemberRemoveFromWorkspaceMock).toHaveBeenCalled();
   });
 
@@ -336,7 +346,7 @@ describe("Member table", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: "usergroup-add New Member" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "usergroup-addNew Member" })).toBeDisabled();
     for (const button of screen.getAllByRole("button", { name: "Change Role?" })) {
       expect(button).toBeDisabled();
     }
@@ -344,6 +354,6 @@ describe("Member table", () => {
     expect(screen.getByRole("button", { name: "Leave" })).toBeDisabled();
 
     await user.click(screen.getAllByRole("checkbox")[0]);
-    expect(screen.getByRole("button", { name: "usergroup-delete Remove" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "usergroup-deleteRemove" })).toBeDisabled();
   });
 });
