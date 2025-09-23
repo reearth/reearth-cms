@@ -86,7 +86,8 @@ const MyIntegrationContent: React.FC<Props> = ({
               />
             ),
           },
-        ]}></MyIntegrationTabs>
+        ]}
+      />
     </MyIntegrationWrapper>
   ) : (
     <NotFound />
