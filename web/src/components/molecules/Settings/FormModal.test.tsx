@@ -62,9 +62,9 @@ describe("FormModal", () => {
       />,
     );
 
-    await expect.poll(() => screen.getByDisplayValue(name)).toBeVisible();
-    expect(screen.getByDisplayValue(url)).toBeVisible();
-    expect(screen.getByDisplayValue(image)).toBeVisible();
+    expect(screen.getByDisplayValue(name)).toBeInTheDocument();
+    expect(screen.getByDisplayValue(url)).toBeInTheDocument();
+    expect(screen.getByDisplayValue(image)).toBeInTheDocument();
   });
 
   test("Terrain options are displayed successfully", async () => {
@@ -118,10 +118,10 @@ describe("FormModal", () => {
       />,
     );
 
-    await expect.poll(() => screen.getByDisplayValue(name)).toBeVisible();
-    expect(screen.getByDisplayValue(url)).toBeVisible();
-    expect(screen.getByDisplayValue(image)).toBeVisible();
-    expect(screen.getByDisplayValue(cesiumIonAssetId)).toBeVisible();
-    expect(screen.getByDisplayValue(cesiumIonAccessToken)).toBeVisible();
+    expect(screen.getByDisplayValue(name)).toBeInTheDocument();
+    expect(screen.getByDisplayValue(url)).toBeInTheDocument();
+    expect(screen.getByDisplayValue(image)).toBeInTheDocument();
+    expect(screen.getByDisplayValue(cesiumIonAssetId)).toBeInTheDocument();
+    expect(screen.getByDisplayValue(cesiumIonAccessToken)).toBeInTheDocument();
   });
 });

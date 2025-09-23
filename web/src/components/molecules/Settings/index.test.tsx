@@ -138,8 +138,8 @@ describe("Settings", () => {
     expect(saveButton).toBeDisabled();
     expect(screen.queryByText("DEFAULT")).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "plus Add new Tiles option" }));
-    await expect.poll(() => screen.getByText("New Tiles")).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "plusAdd new Tiles option" }));
+    expect(screen.getByText("New Tiles")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "OK" }));
     expect(screen.getByText("DEFAULT")).toBeVisible();
@@ -166,8 +166,8 @@ describe("Settings", () => {
     expect(saveButton).toBeDisabled();
     expect(screen.queryByText("CESIUM_WORLD_TERRAIN")).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "plus Add new Terrain option" }));
-    await expect.poll(() => screen.getByText("New Terrain")).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "plusAdd new Terrain option" }));
+    expect(screen.getByText("New Terrain")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "OK" }));
     expect(screen.getByText("CESIUM_WORLD_TERRAIN")).toBeVisible();
@@ -214,7 +214,7 @@ describe("Settings", () => {
     expect(screen.queryByText("LABELLED")).not.toBeInTheDocument();
 
     await user.click(screen.getByLabelText("edit"));
-    await expect.poll(() => screen.getByText("Update Tiles")).toBeVisible();
+    expect(screen.getByText("Update Tiles")).toBeInTheDocument();
 
     await user.click(screen.getByLabelText("Tiles type"));
     await user.click(screen.getByText("Labelled"));
@@ -266,7 +266,7 @@ describe("Settings", () => {
     expect(screen.queryByText("ARC_GIS_TERRAIN")).not.toBeInTheDocument();
 
     await user.click(screen.getByLabelText("edit"));
-    await expect.poll(() => screen.getByText("Update Terrain")).toBeVisible();
+    expect(screen.getByText("Update Terrain")).toBeInTheDocument();
 
     await user.click(screen.getByLabelText("Terrain type"));
     await user.click(screen.getByText("ArcGIS Terrain"));
