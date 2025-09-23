@@ -300,7 +300,7 @@ describe("Member table", () => {
 
     await user.click(screen.getByRole("button", { name: "Remove" }));
     const dialog = screen.getByRole("dialog", {
-      name: (accessibleName, element) => {
+      name: (_accessibleName, element) => {
         const titleElement = element.querySelector(".ant-modal-confirm-title");
         return titleElement?.textContent === "Are you sure to remove this member?";
       },
