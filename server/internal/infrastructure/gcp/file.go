@@ -22,6 +22,7 @@ import (
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"google.golang.org/api/iterator"
+	"google.golang.org/api/option"
 )
 
 const (
@@ -38,6 +39,7 @@ type fileRepo struct {
 	cacheControl     string
 	public           bool
 	replaceUploadURL bool
+	customEndpoint   string // Custom GCS endpoint for proxy setups
 }
 
 func NewFile(bucketName, publicBase, cacheControl string, replaceUploadURL bool) (gateway.File, error) {
@@ -55,11 +57,20 @@ func NewFile(bucketName, publicBase, cacheControl string, replaceUploadURL bool)
 		return nil, rerror.NewE(i18n.T("invalid base URL"))
 	}
 
+	var customEndpoint string
+	// Use custom endpoint if AssetBaseURL (publicBase) is configured with a custom domain
+	// This allows GCS client to redirect to the custom asset proxy endpoint
+	// Treat as custom endpoint if host is not a standard GCS endpoint
+	if !strings.HasSuffix(u.Host, ".googleapis.com") && u.Host != "" {
+		customEndpoint = u.Scheme + "://" + u.Host
+	}
+
 	return &fileRepo{
 		bucketName:       bucketName,
 		publicBase:       u,
 		privateBase:      nil,
 		cacheControl:     cacheControl,
+		customEndpoint:   customEndpoint,
 		public:           true,
 		replaceUploadURL: replaceUploadURL,
 	}, nil
@@ -238,14 +249,14 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 		return nil, err
 	}
 	opt := &storage.SignedURLOptions{
-		Scheme: storage.SigningSchemeV4,
+		Scheme:      storage.SigningSchemeV4,
 		Method:      http.MethodPut,
 		Expires:     param.ExpiresAt,
 		ContentType: contentType,
 		QueryParameters: map[string][]string{
 			"reearth-x-workspace": {param.Workspace},
 			"reearth-x-project":   {param.Project},
-			"reearth-x-public": {fmt.Sprintf("%v", param.Public)},
+			"reearth-x-public":    {fmt.Sprintf("%v", param.Public)},
 		},
 	}
 
@@ -608,10 +619,20 @@ func getGCSObjectPathFolder(uuid string) string {
 }
 
 func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
-	client, err := storage.NewClient(ctx)
+	var client *storage.Client
+	var err error
+
+	if f.customEndpoint != "" {
+		client, err = storage.NewClient(ctx, option.WithEndpoint(f.customEndpoint))
+	} else {
+		client, err = storage.NewClient(ctx)
+	}
+
 	if err != nil {
+		log.Errorf("gcs: failed to initialize client: %v", err)
 		return nil, err
 	}
+
 	bucket := client.Bucket(f.bucketName)
 	return bucket, nil
 }
