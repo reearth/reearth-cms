@@ -76,22 +76,57 @@ const GeneralForm: React.FC<Props> = ({
     [form, project.alias, project.description, project.name],
   );
 
-  const prevAlias = useRef<{ alias: string; isSuccess: boolean }>();
+  const prevAliases = useRef<Map<string, boolean>>(new Map());
+
   const aliasValidate = useCallback(
     async (value: string) => {
-      if (project.alias === value) {
-        return Promise.resolve();
-      } else if (prevAlias.current?.alias === value) {
-        return prevAlias.current?.isSuccess ? Promise.resolve() : Promise.reject();
-      } else if (await onProjectAliasCheck(value)) {
-        prevAlias.current = { alias: value, isSuccess: true };
-        return Promise.resolve();
-      } else {
-        prevAlias.current = { alias: value, isSuccess: false };
-        return Promise.reject();
+      // empty value, throw error
+      if (!value) return Promise.reject(t("Required field error", { field: "alias" }));
+
+      // equal original value, then bypass
+      if (project.alias === value) return Promise.resolve();
+
+      // use previous validation
+      if (prevAliases.current.has(value)) {
+        return prevAliases.current.get(value)
+          ? Promise.resolve()
+          : Promise.reject(t("Project alias is already taken"));
       }
+
+      // check length of alias in range
+      if (
+        value.length < Constant.PROJECT_ALIAS.MIN_LENGTH ||
+        value.length > Constant.PROJECT_ALIAS.MAX_LENGTH
+      ) {
+        return Promise.reject(
+          t(`Your alias must be between {{min}} and {{max}} characters long.`, {
+            min: Constant.PROJECT_ALIAS.MIN_LENGTH,
+            max: Constant.PROJECT_ALIAS.MAX_LENGTH,
+          }),
+        );
+      }
+
+      // check illegal characters
+      if (!aliasRegex.test(value)) {
+        return Promise.reject(
+          t(
+            "Alias is invalid. Please use lowercase alphanumeric, hyphen, underscore, and dot characters only.",
+          ),
+        );
+      }
+
+      // duplicate alias
+      const checkResult = await onProjectAliasCheck(value);
+      if (!checkResult) {
+        prevAliases.current.set(value, false);
+        return Promise.reject(t("Project alias is already taken"));
+      }
+
+      prevAliases.current.set(value, true);
+
+      return Promise.resolve();
     },
-    [onProjectAliasCheck, project.alias],
+    [onProjectAliasCheck, project.alias, t],
   );
 
   const handleAliasChange = useCallback(
@@ -120,29 +155,7 @@ const GeneralForm: React.FC<Props> = ({
         name="alias"
         label={t("Alias")}
         extra={t("A simpler way to access to the project.")}
-        rules={[
-          {
-            max: Constant.PROJECT_ALIAS.MAX_LENGTH,
-            min: Constant.PROJECT_ALIAS.MIN_LENGTH,
-            message: t(`Your alias must be between {{min}} and {{max}} characters long.`, {
-              min: Constant.PROJECT_ALIAS.MIN_LENGTH,
-              max: Constant.PROJECT_ALIAS.MAX_LENGTH,
-            }),
-            required: true,
-          },
-          {
-            message: t(
-              "Alias is invalid. Please use lowercase alphanumeric, hyphen, underscore, and dot characters only.",
-            ),
-            pattern: aliasRegex,
-            required: true,
-          },
-          {
-            message: t("Project alias is already taken"),
-            required: true,
-            validator: async (_, value) => await aliasValidate(value),
-          },
-        ]}>
+        rules={[{ validator: async (_, value) => await aliasValidate(value) }]}>
         <Input
           disabled={!hasUpdateRight}
           onChange={handleAliasChange}
