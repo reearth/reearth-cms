@@ -359,7 +359,7 @@ func (s server) ListItems(ctx context.Context, req *pb.ListItemsRequest) (*pb.Li
 	}, nil
 }
 
-func (s server) GetModelGeoJSONExportURL(ctx context.Context, req *pb.ExportRequest) (*pb.ExportURLResponse, error) {
+func (s server) GetModelExportURL(ctx context.Context, req *pb.ExportRequest) (*pb.ExportURLResponse, error) {
 	op, uc, g := adapter.Operator(ctx), adapter.Usecases(ctx), adapter.Gateways(ctx)
 
 	pId, err := project.IDFrom(req.ProjectId)
