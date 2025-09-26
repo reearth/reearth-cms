@@ -34,7 +34,8 @@ test("Tiles CRUD has succeeded", async ({ page }) => {
   await page
     .locator("div:last-child > .ant-card-actions > li:nth-child(2) > span > .anticon")
     .click();
-  await expect(page.getByText("Labelled", { exact: true })).toBeVisible();
+  const selectEl = page.locator(".ant-select-selection-item").first();
+  await expect(selectEl).toHaveText("Labelled");
   await page
     .locator("div")
     .filter({ hasText: /^Labelled$/ })
@@ -43,8 +44,8 @@ test("Tiles CRUD has succeeded", async ({ page }) => {
   await page.getByTitle("URL").locator("div").click();
   await page.getByLabel("Name").click();
   await page.getByLabel("Name").fill("url");
-  await page.getByRole("textbox", { name: "URL :", exact: true }).click();
-  await page.getByRole("textbox", { name: "URL :", exact: true }).fill("http://url.com");
+  await page.getByRole("textbox", { name: "URL", exact: true }).click();
+  await page.getByRole("textbox", { name: "URL", exact: true }).fill("http://url.com");
   await page.getByLabel("Image URL").click();
   await page.getByLabel("Image URL").fill("http://image.com");
   await page.getByRole("button", { name: "OK" }).click();
