@@ -175,6 +175,8 @@ func NewItemFields(fields item.Fields, sfields schema.FieldList, groupFields sch
 						} else {
 							val = geoStr // fallback to string if parsing fails
 						}
+					} else {
+						val = first.Value() // fallback to the original value if not a non-empty string
 					}
 				}
 			}
