@@ -42,7 +42,7 @@ func (c *Controller) GetAsset(ctx context.Context, wAlias, pAlias, iID string) (
 	return NewAsset(a, f), nil
 }
 
-func (c *Controller) GetAssets(ctx context.Context,  wAlias, pAlias string, p ListParam) (ListResult[Asset], error) {
+func (c *Controller) GetAssets(ctx context.Context, wAlias, pAlias string, p ListParam) (ListResult[Asset], error) {
 	prj, _, aPublic, err := c.accessibilityCheck(ctx, wAlias, pAlias, "")
 	if err != nil {
 		return ListResult[Asset]{}, err

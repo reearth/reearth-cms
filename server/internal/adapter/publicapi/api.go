@@ -46,11 +46,11 @@ func ItemOrAsset() echo.HandlerFunc {
 		var res any
 		var err error
 		if mKey == "assets" {
-			res, err = ctrl.GetAsset(ctx, wAlias,pAlias, iID)
+			res, err = ctrl.GetAsset(ctx, wAlias, pAlias, iID)
 		} else if iID == "schema.json" {
-			res, err = ctrl.GetSchemaJSON(ctx, wAlias,pAlias, mKey)
+			res, err = ctrl.GetSchemaJSON(ctx, wAlias, pAlias, mKey)
 		} else {
-			res, err = ctrl.GetItem(ctx, wAlias,pAlias, mKey, iID)
+			res, err = ctrl.GetItem(ctx, wAlias, pAlias, mKey, iID)
 		}
 
 		if err != nil {
@@ -76,7 +76,7 @@ func ItemOrAssetList() echo.HandlerFunc {
 		}
 
 		if mKey == "assets" {
-			res, err := ctrl.GetAssets(ctx, wAlias,pAlias, p)
+			res, err := ctrl.GetAssets(ctx, wAlias, pAlias, p)
 			if err != nil {
 				return err
 			}
@@ -91,7 +91,7 @@ func ItemOrAssetList() echo.HandlerFunc {
 			resType = "json"
 		}
 
-		items, sp, aPublic, assets, pi, err := ctrl.GetPublicItems(ctx, wAlias,pAlias, mKey, p)
+		items, sp, aPublic, assets, pi, err := ctrl.GetPublicItems(ctx, wAlias, pAlias, mKey, p)
 		if err != nil {
 			if errors.Is(err, rerror.ErrNotFound) {
 				return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})

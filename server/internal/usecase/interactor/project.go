@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 )
 
 type Project struct {
@@ -53,7 +54,13 @@ func (i *Project) FindByAliases(ctx context.Context, wAlias string, pAlias strin
 		return nil, err
 	}
 
-	pList, err := i.repos.Project.FindByWorkspace(ctx, w.ID())
+	var cur *usecasex.Cursor
+	pList, _, err := i.repos.Project.FindByWorkspaces(ctx, accountdomain.WorkspaceIDList{w.ID()}, &interfaces.ProjectFilter{
+		Pagination: usecasex.CursorPagination{
+			After: cur,
+			First: lo.ToPtr(int64(1000)),
+		}.Wrap(),
+	})
 	if err != nil {
 		return nil, err
 	}
