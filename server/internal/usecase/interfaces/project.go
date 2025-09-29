@@ -85,6 +85,7 @@ type ProjectLimitsResult struct {
 type Project interface {
 	Fetch(context.Context, []id.ProjectID, *usecase.Operator) (project.List, error)
 	FindByIDOrAlias(context.Context, project.IDOrAlias, *usecase.Operator) (*project.Project, error)
+	FindByAliases(context.Context, string, string, *usecase.Operator) (*project.Project, error)
 	FindByWorkspace(context.Context, accountdomain.WorkspaceID, *ProjectFilter, *usecase.Operator) (project.List, *usecasex.PageInfo, error)
 	FindByWorkspaces(context.Context, accountdomain.WorkspaceIDList, *ProjectFilter, *usecase.Operator) (project.List, *usecasex.PageInfo, error)
 	Create(context.Context, CreateProjectParam, *usecase.Operator) (*project.Project, error)

@@ -16,20 +16,18 @@ import (
 var ErrInvalidProject = rerror.NewE(i18n.T("invalid project"))
 
 type Controller struct {
-	project  repo.Project
 	usecases *interfaces.Container
 }
 
 func NewController(project repo.Project, usecases *interfaces.Container) *Controller {
 	return &Controller{
-		project:  project,
 		usecases: usecases,
 	}
 }
 
-func (c *Controller) accessibilityCheck(ctx context.Context, pKey, mKey string) (p *project.Project, m *model.Model, a bool, err error) {
+func (c *Controller) accessibilityCheck(ctx context.Context, wAlias, pAlias, mKey string) (p *project.Project, m *model.Model, a bool, err error) {
 	keyId := adapter.APIKeyId(ctx)
-	p, err = c.project.FindByIDOrAlias(ctx, project.IDOrAlias(pKey))
+	p, err = c.usecases.Project.FindByAliases(ctx, wAlias, pAlias, nil)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return nil, nil, false, rerror.ErrNotFound

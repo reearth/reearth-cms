@@ -11,8 +11,8 @@ import (
 	"github.com/reearth/reearthx/util"
 )
 
-func (c *Controller) GetAsset(ctx context.Context, prj, i string) (Asset, error) {
-	_, _, aPublic, err := c.accessibilityCheck(ctx, prj, "")
+func (c *Controller) GetAsset(ctx context.Context, wAlias, pAlias, iID string) (Asset, error) {
+	_, _, aPublic, err := c.accessibilityCheck(ctx, wAlias, pAlias, "")
 	if err != nil {
 		return Asset{}, err
 	}
@@ -21,7 +21,7 @@ func (c *Controller) GetAsset(ctx context.Context, prj, i string) (Asset, error)
 		return Asset{}, rerror.ErrNotFound
 	}
 
-	iid, err := id.AssetIDFrom(i)
+	iid, err := id.AssetIDFrom(iID)
 	if err != nil {
 		return Asset{}, rerror.ErrNotFound
 	}
@@ -42,8 +42,8 @@ func (c *Controller) GetAsset(ctx context.Context, prj, i string) (Asset, error)
 	return NewAsset(a, f), nil
 }
 
-func (c *Controller) GetAssets(ctx context.Context, pKey string, p ListParam) (ListResult[Asset], error) {
-	prj, _, aPublic, err := c.accessibilityCheck(ctx, pKey, "")
+func (c *Controller) GetAssets(ctx context.Context,  wAlias, pAlias string, p ListParam) (ListResult[Asset], error) {
+	prj, _, aPublic, err := c.accessibilityCheck(ctx, wAlias, pAlias, "")
 	if err != nil {
 		return ListResult[Asset]{}, err
 	}

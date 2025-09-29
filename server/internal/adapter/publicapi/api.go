@@ -33,8 +33,8 @@ func GetController(ctx context.Context) *Controller {
 }
 
 func Echo(e *echo.Group) {
-	e.GET("/:project/:model", ItemOrAssetList())
-	e.GET("/:project/:model/:item", ItemOrAsset())
+	e.GET("/:workspace-alias/:project-alias/:model-key", ItemOrAssetList())
+	e.GET("/:workspace-alias/:project-alias/:model-key/:item-id", ItemOrAsset())
 }
 
 func ItemOrAsset() echo.HandlerFunc {
@@ -42,15 +42,15 @@ func ItemOrAsset() echo.HandlerFunc {
 		ctx := c.Request().Context()
 		ctrl := GetController(c.Request().Context())
 
-		p, m, i := c.Param("project"), c.Param("model"), c.Param("item")
+		wAlias, pAlias, mKey, iID := c.Param("workspace-alias"), c.Param("project-alias"), c.Param("model-key"), c.Param("item-id")
 		var res any
 		var err error
-		if m == "assets" {
-			res, err = ctrl.GetAsset(ctx, p, i)
-		} else if i == "schema.json" {
-			res, err = ctrl.GetSchemaJSON(ctx, p, m)
+		if mKey == "assets" {
+			res, err = ctrl.GetAsset(ctx, wAlias,pAlias, iID)
+		} else if iID == "schema.json" {
+			res, err = ctrl.GetSchemaJSON(ctx, wAlias,pAlias, mKey)
 		} else {
-			res, err = ctrl.GetItem(ctx, p, m, i)
+			res, err = ctrl.GetItem(ctx, wAlias,pAlias, mKey, iID)
 		}
 
 		if err != nil {
@@ -69,15 +69,14 @@ func ItemOrAssetList() echo.HandlerFunc {
 		ctx := c.Request().Context()
 		ctrl := GetController(ctx)
 
-		mKey := c.Param("model")
-		pKey := c.Param("project")
+		wAlias, pAlias, mKey := c.Param("workspace-alias"), c.Param("project-alias"), c.Param("model-key")
 		p, err := listParamFromEchoContext(c)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, "invalid offset or limit")
 		}
 
 		if mKey == "assets" {
-			res, err := ctrl.GetAssets(ctx, pKey, p)
+			res, err := ctrl.GetAssets(ctx, wAlias,pAlias, p)
 			if err != nil {
 				return err
 			}
@@ -92,7 +91,7 @@ func ItemOrAssetList() echo.HandlerFunc {
 			resType = "json"
 		}
 
-		items, sp, aPublic, assets, pi, err := ctrl.GetPublicItems(ctx, pKey, mKey, p)
+		items, sp, aPublic, assets, pi, err := ctrl.GetPublicItems(ctx, wAlias,pAlias, mKey, p)
 		if err != nil {
 			if errors.Is(err, rerror.ErrNotFound) {
 				return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})

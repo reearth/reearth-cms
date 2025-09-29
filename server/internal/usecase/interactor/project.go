@@ -43,6 +43,30 @@ func (i *Project) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias, _ *
 	return i.repos.Project.FindByIDOrAlias(ctx, id)
 }
 
+func (i *Project) FindByAliases(ctx context.Context, wAlias string, pAlias string, _ *usecase.Operator) (*project.Project, error) {
+	if wAlias == "" || pAlias == "" {
+		return nil, rerror.ErrNotFound
+	}
+
+	w, err := i.repos.Workspace.FindByAlias(ctx, wAlias)
+	if err != nil {
+		return nil, err
+	}
+
+	pList, err := i.repos.Project.FindByWorkspace(ctx, w.ID())
+	if err != nil {
+		return nil, err
+	}
+
+	for _, proj := range pList {
+		if proj.Alias() == pAlias {
+			return proj, nil
+		}
+	}
+
+	return nil, rerror.ErrNotFound
+}
+
 func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectParam, op *usecase.Operator) (_ *project.Project, err error) {
 	if !op.IsUserOrIntegration() {
 		return nil, interfaces.ErrInvalidOperator

@@ -15,17 +15,17 @@ import (
 	"github.com/samber/lo"
 )
 
-func (c *Controller) GetItem(ctx context.Context, prj, mkey, i string) (Item, error) {
-	_, m, aPublic, err := c.accessibilityCheck(ctx, prj, mkey)
+func (c *Controller) GetItem(ctx context.Context, wAlias, pAlias, mKey, iID string) (Item, error) {
+	_, m, aPublic, err := c.accessibilityCheck(ctx, wAlias, pAlias, mKey)
 	if err != nil {
 		return Item{}, err
 	}
 
-	if mkey == "" {
+	if mKey == "" {
 		return Item{}, rerror.ErrNotFound
 	}
 
-	iid, err := id.ItemIDFrom(i)
+	iid, err := id.ItemIDFrom(iID)
 	if err != nil {
 		return Item{}, rerror.ErrNotFound
 	}
@@ -56,8 +56,8 @@ func (c *Controller) GetItem(ctx context.Context, prj, mkey, i string) (Item, er
 	return NewItem(itv, sp, assets, getReferencedItems(ctx, itv, aPublic)), nil
 }
 
-func (c *Controller) GetPublicItems(ctx context.Context, prj, model string, p ListParam) (item.List, *schema.Package, bool, asset.List, *usecasex.PageInfo, error) {
-	_, m, aPublic, err := c.accessibilityCheck(ctx, prj, model)
+func (c *Controller) GetPublicItems(ctx context.Context, wAlias, pAlias, mKey string, p ListParam) (item.List, *schema.Package, bool, asset.List, *usecasex.PageInfo, error) {
+	_, m, aPublic, err := c.accessibilityCheck(ctx, wAlias, pAlias, mKey)
 	if err != nil {
 		return nil, nil, false, nil, nil, err
 	}

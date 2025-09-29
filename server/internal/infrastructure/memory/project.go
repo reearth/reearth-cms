@@ -68,6 +68,18 @@ func (r *Project) FindByWorkspaces(_ context.Context, wids accountdomain.Workspa
 	), nil
 }
 
+func (r *Project) FindByWorkspace(_ context.Context, wid accountdomain.WorkspaceID) (project.List, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	result := r.data.FindAll(func(_ id.ProjectID, v *project.Project) bool {
+		return v.Workspace() == wid && r.f.CanRead(v.Workspace())
+	})
+
+	return project.List(result).SortByID(), nil
+}
+
 func (r *Project) FindByIDs(_ context.Context, ids id.ProjectIDList) (project.List, error) {
 	if r.err != nil {
 		return nil, r.err

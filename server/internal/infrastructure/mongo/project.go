@@ -100,6 +100,13 @@ func (r *ProjectRepo) FindByWorkspaces(ctx context.Context, ids accountdomain.Wo
 	return r.paginate(ctx, filter, s, p)
 }
 
+func (r *ProjectRepo) FindByWorkspace(ctx context.Context, wID accountdomain.WorkspaceID) (project.List, error) {
+	filter := bson.M{
+		"workspace": wID.String(),
+	}
+	return r.find(ctx, filter)
+}
+
 func (r *ProjectRepo) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias) (*project.Project, error) {
 	pid := id.ID()
 	alias := id.Alias()
