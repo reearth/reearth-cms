@@ -244,7 +244,9 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 	if p == "" {
 		return nil, gateway.ErrInvalidFile
 	}
-	bucket, err := f.bucket(ctx)
+
+	// Use signing-capable bucket to ensure signed URLs work with storage.googleapis.com
+	bucket, err := f.bucketWithOptions(ctx, true)
 	if err != nil {
 		return nil, err
 	}
@@ -619,13 +621,19 @@ func getGCSObjectPathFolder(uuid string) string {
 }
 
 func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
+	return f.bucketWithOptions(ctx, false)
+}
+
+func (f *fileRepo) bucketWithOptions(ctx context.Context, forSigning bool) (*storage.BucketHandle, error) {
 	var client *storage.Client
 	var err error
 
-	if f.customEndpoint != "" {
-		client, err = storage.NewClient(ctx, option.WithEndpoint(f.customEndpoint))
-	} else {
+	// For signed URLs, always use standard GCS client to ensure signatures work
+	// with storage.googleapis.com, regardless of custom endpoint configuration
+	if forSigning || f.customEndpoint == "" {
 		client, err = storage.NewClient(ctx)
+	} else {
+		client, err = storage.NewClient(ctx, option.WithEndpoint(f.customEndpoint))
 	}
 
 	if err != nil {
