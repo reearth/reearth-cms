@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-import { useMemo } from "react";
+import { message } from "antd";
+import { useCallback, useMemo } from "react";
 
 import Card from "@reearth-cms/components/atoms/Card";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
@@ -26,23 +27,17 @@ const ModelCard: React.FC<Props> = ({
   onContentNavigate,
   onModelDeletionModalOpen,
   onModelUpdateModalOpen,
-  onModelExportModalOpen,
 }) => {
   const { Meta } = Card;
   const t = useT();
 
-  const MenuItems = useMemo(
+  const OptionsMenuItems = useMemo(
     () => [
       {
         key: "edit",
         label: t("Edit"),
         onClick: () => onModelUpdateModalOpen(model),
         disabled: !hasUpdateRight,
-      },
-      {
-        key: "export",
-        label: t("Export to Asset"),
-        onClick: () => onModelExportModalOpen(model),
       },
       {
         key: "delete",
@@ -52,7 +47,67 @@ const ModelCard: React.FC<Props> = ({
         disabled: !hasDeleteRight,
       },
     ],
-    [t, hasUpdateRight, hasDeleteRight, onModelUpdateModalOpen, model, onModelExportModalOpen, onModelDeletionModalOpen],
+    [t, hasUpdateRight, hasDeleteRight, onModelUpdateModalOpen, model, onModelDeletionModalOpen],
+  );
+
+  const [messageApi, contextHolder] = message.useMessage();
+  const key = "updatable";
+  const handleModelExport = useCallback(
+    (model: Model, exportType: string) => {
+      console.log(model, exportType);
+      messageApi.open({
+        key,
+        type: "loading",
+        content: (
+          <StyledMessage>
+            <StyledMessageTitle>Preparing data export</StyledMessageTitle>
+            <StyledMessageContent>
+              Your file is being prepared. This may take a few seconds.
+            </StyledMessageContent>
+          </StyledMessage>
+        ),
+      });
+      setTimeout(() => {
+        messageApi.open({
+          key,
+          type: "success",
+          content: (
+            <StyledMessage>
+              <StyledMessageTitle>Data export complete</StyledMessageTitle>
+              <StyledMessageContent>Your file has been successfully exported.</StyledMessageContent>
+            </StyledMessage>
+          ),
+          duration: 500,
+        });
+      }, 1000);
+    },
+    [messageApi],
+  );
+
+  const ExportMenuItems = useMemo(
+    () => [
+      {
+        key: "schema",
+        label: t("Export Schema"),
+        onClick: () => handleModelExport(model, "schema"),
+      },
+      {
+        key: "json",
+        label: t("Export as JSON"),
+        onClick: () => handleModelExport(model, "json"),
+      },
+      {
+        key: "csv",
+        label: t("Export as CSV"),
+        onClick: () => handleModelExport(model, "csv"),
+      },
+      {
+        key: "geojson",
+        label: t("Export as GeoJSON"),
+        onClick: () => handleModelExport(model, "geojson"),
+      },
+    ],
+    [t, handleModelExport, model],
   );
 
   return (
@@ -60,7 +115,15 @@ const ModelCard: React.FC<Props> = ({
       actions={[
         <Icon icon="unorderedList" key="schema" onClick={() => onSchemaNavigate(model.id)} />,
         <Icon icon="table" key="content" onClick={() => onContentNavigate(model.id)} />,
-        <Dropdown key="options" menu={{ items: MenuItems }} trigger={["click"]}>
+        <>
+          {contextHolder}
+          <Dropdown key="export" menu={{ items: ExportMenuItems }} trigger={["click"]}>
+            <a onClick={e => e.preventDefault()}>
+              <Icon icon="download" />
+            </a>
+          </Dropdown>
+        </>,
+        <Dropdown key="options" menu={{ items: OptionsMenuItems }} trigger={["click"]}>
           <a onClick={e => e.preventDefault()}>
             <Icon icon="ellipsis" />
           </a>
@@ -86,4 +149,24 @@ const StyledCard = styled(Card)`
     -webkit-box-orient: vertical;
     word-break: break-all;
   }
+  .ant-message-custom-content {
+    font-size: 32px !important;
+  }
+`;
+
+const StyledMessage = styled.div`
+  width: 400px;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+`;
+
+const StyledMessageTitle = styled.h3`
+  width: 350px;
+`;
+
+const StyledMessageContent = styled.p`
+  width: 350px;
 `;
