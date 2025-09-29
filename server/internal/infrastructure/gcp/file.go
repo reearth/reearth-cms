@@ -22,6 +22,7 @@ import (
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"google.golang.org/api/iterator"
+	"google.golang.org/api/option"
 )
 
 const (
@@ -609,13 +610,33 @@ func getGCSObjectPathFolder(uuid string) string {
 }
 
 func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
-	client, err := storage.NewClient(ctx)
+	return f.bucketWithOptions(ctx, false)
+}
+
+func (f *fileRepo) bucketWithOptions(ctx context.Context, forSigning bool) (*storage.BucketHandle, error) {
+	var client *storage.Client
+	var err error
+
+	log.Infof("DEBUG bucketWithOptions: bucketName='%s', customEndpoint='%s', forSigning=%v",
+		f.bucketName, f.customEndpoint, forSigning)
+
+	// For signed URLs, always use standard GCS client to ensure signatures work
+	// with storage.googleapis.com, regardless of custom endpoint configuration
+	if forSigning || f.customEndpoint == "" {
+		log.Infof("DEBUG: Using standard GCS client")
+		client, err = storage.NewClient(ctx)
+	} else {
+		log.Infof("DEBUG: Using custom endpoint client: %s", f.customEndpoint)
+		client, err = storage.NewClient(ctx, option.WithEndpoint(f.customEndpoint))
+	}
+
 	if err != nil {
 		log.Errorf("gcs: failed to initialize client: %v", err)
 		return nil, err
 	}
 
 	bucket := client.Bucket(f.bucketName)
+	log.Infof("DEBUG: Created bucket handle for: '%s'", f.bucketName)
 	return bucket, nil
 }
 
