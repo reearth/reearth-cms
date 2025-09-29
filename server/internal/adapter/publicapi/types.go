@@ -163,8 +163,9 @@ func NewItemFields(fields item.Fields, sfields schema.FieldList, groupFields sch
 						} else {
 							geoValues = append(geoValues, geoStr) // fallback to string if parsing fails
 						}
+					} else {
+						geoValues = append(geoValues, nil) // explicitly handle non-string values
 					}
-				}
 				val = geoValues
 			} else {
 				if first := f.Value().First(); first != nil {
