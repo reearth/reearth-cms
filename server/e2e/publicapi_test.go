@@ -20,10 +20,13 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/samber/lo"
 )
 
 var (
+	pApiW1Id      = id.NewWorkspaceID()
+	pApiW1Alias   = "test-workspace"
 	pApiP1Id      = id.NewProjectID()
 	pApiP1Alias   = "test-project"
 	pApiP1A1Id    = id.NewAssetID()
@@ -68,33 +71,33 @@ func TestPublicAPI_NotFound(t *testing.T) {
 		AssetBaseURL: "https://example.com",
 	}, true, publicAPISeeder)
 
-	e.GET("/api/p/{project}/{model}", "invalid-alias", pApiP1M1Key).
+	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, "invalid-alias", pApiP1M1Key).
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
 		IsEqual(map[string]any{"error": "not found"})
 
 	// private model
-	e.GET("/api/p/{project}/{model}", pApiP2Alias, pApiP2M1Key).
+	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP2Alias, pApiP2M1Key).
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
 		IsEqual(map[string]any{"error": "not found"})
 
 	// private assets
-	e.GET("/api/p/{project}/{model}", pApiP2Alias, "assets").
+	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP2Alias, "assets").
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
 		IsEqual(map[string]any{"error": "not found"})
 
-	e.GET("/api/p/{project}/{model}", pApiP1Alias, "invalid-key").
+	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, "invalid-key").
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
 		IsEqual(map[string]any{"error": "not found"})
 
-	e.GET("/api/p/{project}/{model}/{item}", pApiP1Alias, pApiP1M1Key, id.NewItemID()).
+	e.GET("/api/p/{workspace}/{project}/{model}/{item}", pApiW1Alias, pApiP1Alias, pApiP1M1Key, id.NewItemID()).
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
@@ -107,7 +110,7 @@ func TestPublicAPI_CORS(t *testing.T) {
 		Public_Origins: []string{"https://example.com"},
 	}, true, publicAPISeeder)
 
-	res := e.OPTIONS("/api/p/{project}/{model}/{item}/", pApiP1Alias, pApiP1M1Key, pApiP1M1I1Id).
+	res := e.OPTIONS("/api/p/{workspace}/{project}/{model}/{item}/", pApiW1Alias, pApiP1Alias, pApiP1M1Key, pApiP1M1I1Id).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("Access-Control-Request-Method", "POST").
 		Expect().
@@ -120,7 +123,7 @@ func TestPublicAPI_CORS(t *testing.T) {
 		Public_Origins: []string{"*"},
 	}, true, publicAPISeeder)
 
-	res = e.OPTIONS("/api/p/{project}/{model}/{item}", pApiP1Alias, pApiP1M1Key, pApiP1M1I1Id).
+	res = e.OPTIONS("/api/p/{workspace}/{project}/{model}/{item}", pApiW1Alias, pApiP1Alias, pApiP1M1Key, pApiP1M1I1Id).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("Access-Control-Request-Method", "POST").
 		Expect().
@@ -134,7 +137,7 @@ func TestPublicAPI_Item(t *testing.T) {
 		AssetBaseURL: "https://example.com",
 	}, true, publicAPISeeder)
 
-	e.GET("/api/p/{project}/{model}/{item}", pApiP1Alias, pApiP1M1Key, pApiP1M1I1Id).
+	e.GET("/api/p/{workspace}/{project}/{model}/{item}", pApiW1Alias, pApiP1Alias, pApiP1M1Key, pApiP1M1I1Id).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
@@ -149,7 +152,7 @@ func TestPublicAPI_Item(t *testing.T) {
 		})
 
 	// test reference field
-	e.GET("/api/p/{project}/{model}/{item}", pApiP1Alias, pApiP1M2Key, pApiP1M2I1Id).
+	e.GET("/api/p/{workspace}/{project}/{model}/{item}", pApiW1Alias, pApiP1Alias, pApiP1M2Key, pApiP1M2I1Id).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
@@ -167,7 +170,7 @@ func TestPublicAPI_Item(t *testing.T) {
 			},
 		})
 
-	e.GET("/api/p/{project}/{model}/{item}", pApiP1Alias, "___", pApiP1M1I1Id).
+	e.GET("/api/p/{workspace}/{project}/{model}/{item}", pApiW1Alias, pApiP1Alias, "___", pApiP1M1I1Id).
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
@@ -175,7 +178,7 @@ func TestPublicAPI_Item(t *testing.T) {
 			"error": "not found",
 		})
 
-	e.GET("/api/p/{project}/{model}/{item}", pApiP1Alias, pApiP1M1Key, pApiP1M1I4Id).
+	e.GET("/api/p/{workspace}/{project}/{model}/{item}", pApiW1Alias, pApiP1Alias, pApiP1M1Key, pApiP1M1I4Id).
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
@@ -188,7 +191,7 @@ func TestPublicAPI_Item(t *testing.T) {
 	prj := lo.Must(r.Project.FindByID(ctx, pApiP1Id))
 	prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(id.ModelIDList{pApiP1M1Id}, false), nil))
 	lo.Must0(r.Project.Save(ctx, prj))
-	e.GET("/api/p/{project}/{model}/{item}", pApiP1Alias, pApiP1M1Key, pApiP1M1I1Id).
+	e.GET("/api/p/{workspace}/{project}/{model}/{item}", pApiW1Alias, pApiP1Alias, pApiP1M1Key, pApiP1M1I1Id).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
@@ -201,7 +204,7 @@ func TestPublicAPI_Item(t *testing.T) {
 	prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(id.ModelIDList{}, false), nil))
 	lo.Must0(r.Project.Save(ctx, prj))
 
-	e.GET("/api/p/{project}/{model}/{item}", pApiP1Alias, pApiP1M1Key, pApiP1M1I1Id).
+	e.GET("/api/p/{workspace}/{project}/{model}/{item}", pApiW1Alias, pApiP1Alias, pApiP1M1Key, pApiP1M1I1Id).
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
@@ -215,7 +218,7 @@ func TestPublicAPI_Assets(t *testing.T) {
 		AssetBaseURL: "https://example.com",
 	}, true, publicAPISeeder)
 
-	e.GET("/api/p/{project}/assets", pApiP1Alias).
+	e.GET("/api/p/{workspace}/{project}/assets", pApiW1Alias, pApiP1Alias).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
@@ -239,7 +242,7 @@ func TestPublicAPI_Assets(t *testing.T) {
 			"totalCount": 1,
 		})
 
-	e.GET("/api/p/{project}/assets/{assetid}", pApiP1Alias, pApiP1A1Id).
+	e.GET("/api/p/{workspace}/{project}/assets/{assetid}", pApiW1Alias, pApiP1Alias, pApiP1A1Id).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
@@ -261,7 +264,7 @@ func TestPublicAPI_Model(t *testing.T) {
 	}, true, publicAPISeeder)
 
 	// ok
-	e.GET("/api/p/{project}/{model}", pApiP1Alias, pApiP1M1Key).
+	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
@@ -309,16 +312,16 @@ func TestPublicAPI_Model(t *testing.T) {
 						},
 					},
 					pApiP1S1F5Key: map[string]any{
-					"type":        "Point",
-					"coordinates": []any{102.0, 0.5},
-				},
-					pApiP1S1F6Key: map[string]any{
-					"type": "LineString",
-					"coordinates": []any{
-						[]any{139.65439725962517, 36.34793305387103},
-						[]any{139.61688622815393, 35.910803456352724},
+						"type":        "Point",
+						"coordinates": []any{102.0, 0.5},
 					},
-				},
+					pApiP1S1F6Key: map[string]any{
+						"type": "LineString",
+						"coordinates": []any{
+							[]any{139.65439725962517, 36.34793305387103},
+							[]any{139.61688622815393, 35.910803456352724},
+						},
+					},
 				},
 			},
 			"totalCount": 4,
@@ -329,7 +332,7 @@ func TestPublicAPI_Model(t *testing.T) {
 		})
 
 	// test reference fields
-	e.GET("/api/p/{project}/{model}", pApiP1Alias, pApiP1M2Key).
+	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M2Key).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
@@ -352,7 +355,7 @@ func TestPublicAPI_Model(t *testing.T) {
 		})
 
 	// offset pagination
-	e.GET("/api/p/{project}/{model}", pApiP1Alias, pApiP1M1Key).
+	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
 		WithQuery("limit", "1").
 		WithQuery("offset", "1").
 		Expect().
@@ -373,7 +376,7 @@ func TestPublicAPI_Model(t *testing.T) {
 		})
 
 	// cursor pagination
-	e.GET("/api/p/{project}/{model}", pApiP1Alias, pApiP1M1Key).
+	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
 		WithQuery("start_cursor", pApiP1M1I1Id.String()).
 		WithQuery("page_size", "1").
 		Expect().
@@ -397,7 +400,7 @@ func TestPublicAPI_Model(t *testing.T) {
 	prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(id.ModelIDList{pApiP1M1Id}, false), nil))
 	lo.Must0(r.Project.Save(ctx, prj))
 
-	e.GET("/api/p/{project}/{model}", pApiP1Alias, pApiP1M1Key).
+	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
@@ -436,16 +439,16 @@ func TestPublicAPI_Model(t *testing.T) {
 					//	},
 					//},
 					pApiP1S1F5Key: map[string]any{
-					"type":        "Point",
-					"coordinates": []any{102.0, 0.5},
-				},
-					pApiP1S1F6Key: map[string]any{
-					"type": "LineString",
-					"coordinates": []any{
-						[]any{139.65439725962517, 36.34793305387103},
-						[]any{139.61688622815393, 35.910803456352724},
+						"type":        "Point",
+						"coordinates": []any{102.0, 0.5},
 					},
-				},
+					pApiP1S1F6Key: map[string]any{
+						"type": "LineString",
+						"coordinates": []any{
+							[]any{139.65439725962517, 36.34793305387103},
+							[]any{139.61688622815393, 35.910803456352724},
+						},
+					},
 				},
 			},
 			"totalCount": 4,
@@ -459,7 +462,7 @@ func TestPublicAPI_Model(t *testing.T) {
 	prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(id.ModelIDList{}, false), nil))
 	lo.Must0(r.Project.Save(ctx, prj))
 
-	e.GET("/api/p/{project}/{model}", pApiP1Alias, pApiP1M1Key).
+	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
@@ -474,7 +477,7 @@ func TestPublicAPI_Model(t *testing.T) {
 	lo.Must0(r.Project.Save(ctx, prj))
 
 	// invalid token
-	e.GET("/api/p/{project}/{model}", pApiP1Alias, pApiP1M1Key).
+	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("Authorization", "secret_abc").
 		WithHeader("Content-Type", "application/json").
@@ -486,7 +489,7 @@ func TestPublicAPI_Model(t *testing.T) {
 		})
 
 	// valid token
-	e.GET("/api/p/{project}/{model}", pApiP1Alias, pApiP1M1Key).
+	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("Authorization", apiKey.Key()).
 		WithHeader("Content-Type", "application/json").
@@ -537,16 +540,16 @@ func TestPublicAPI_Model(t *testing.T) {
 						},
 					},
 					pApiP1S1F5Key: map[string]any{
-					"type":        "Point",
-					"coordinates": []any{102.0, 0.5},
-				},
-					pApiP1S1F6Key: map[string]any{
-					"type": "LineString",
-					"coordinates": []any{
-						[]any{139.65439725962517, 36.34793305387103},
-						[]any{139.61688622815393, 35.910803456352724},
+						"type":        "Point",
+						"coordinates": []any{102.0, 0.5},
 					},
-				},
+					pApiP1S1F6Key: map[string]any{
+						"type": "LineString",
+						"coordinates": []any{
+							[]any{139.65439725962517, 36.34793305387103},
+							[]any{139.61688622815393, 35.910803456352724},
+						},
+					},
 				},
 			},
 			"totalCount": 4,
@@ -557,7 +560,7 @@ func TestPublicAPI_Model(t *testing.T) {
 		})
 
 	// different project in the same workspace with the same token
-	e.GET("/api/p/{project}/{model}", pApiP2Alias, pApiP1M2Key).
+	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP2Alias, pApiP1M2Key).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("Authorization", apiKey.Key()).
 		WithHeader("Content-Type", "application/json").
@@ -574,7 +577,7 @@ func TestPublicAPI_Model_GeoJson(t *testing.T) {
 		AssetBaseURL: "https://example.com",
 	}, true, publicAPISeeder)
 
-	e.GET("/api/p/{project}/{model}.geojson", pApiP1Alias, pApiP1M1Key).
+	e.GET("/api/p/{workspace}/{project}/{model}.geojson", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
@@ -616,7 +619,7 @@ func TestPublicAPI_Model_GeoJson(t *testing.T) {
 		})
 
 	// no geometry field
-	e.GET("/api/p/{project}/{model}.geojson", pApiP1Alias, pApiP1M2Key).
+	e.GET("/api/p/{workspace}/{project}/{model}.geojson", pApiW1Alias, pApiP1Alias, pApiP1M2Key).
 		Expect().
 		Status(http.StatusBadRequest).
 		JSON().
@@ -630,7 +633,7 @@ func TestPublicAPI_Model_CSV(t *testing.T) {
 		AssetBaseURL: "https://example.com",
 	}, true, publicAPISeeder)
 
-	e.GET("/api/p/{project}/{model}.csv", pApiP1Alias, pApiP1M1Key).
+	e.GET("/api/p/{workspace}/{project}/{model}.csv", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
 		Expect().
 		Status(http.StatusOK).
 		Body().
@@ -638,7 +641,7 @@ func TestPublicAPI_Model_CSV(t *testing.T) {
 			fmt.Sprintf("%s,0.5,102,eee,,aaa,\n", pApiP1M1I5Id.String()))
 
 	// model does not have point type geometry field
-	e.GET("/api/p/{project}/{model}.csv", pApiP1Alias, pApiP1M2Key).
+	e.GET("/api/p/{workspace}/{project}/{model}.csv", pApiW1Alias, pApiP1Alias, pApiP1M2Key).
 		Expect().
 		Status(http.StatusBadRequest).
 		JSON().
@@ -653,11 +656,11 @@ func TestPublicAPI_Model_Json(t *testing.T) {
 	}, true, publicAPISeeder)
 
 	// schema export json
-	e.GET("/api/p/{project}/{model}/schema.json", pApiP1Alias, id.RandomKey()).
+	e.GET("/api/p/{workspace}/{project}/{model}/schema.json", pApiW1Alias, pApiP1Alias, id.RandomKey()).
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.GET("/api/p/{project}/{model}/schema.json", pApiP1Alias, pApiP1M1Key).
+	e.GET("/api/p/{workspace}/{project}/{model}/schema.json", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
@@ -698,7 +701,13 @@ func TestPublicAPI_Model_Json(t *testing.T) {
 
 func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Container) error {
 	uid := accountdomain.NewUserID()
-	wid := accountdomain.NewWorkspaceID()
+
+	/// Workspace
+	wid := accountdomain.WorkspaceID(pApiW1Id)
+	w := workspace.New().ID(wid).Name("Test Workspace").Alias(pApiW1Alias).Members(map[accountdomain.UserID]workspace.Member{
+		uid: {Role: workspace.RoleOwner, InvitedBy: uid},
+	}).MustBuild()
+	lo.Must0(r.Workspace.Save(ctx, w))
 
 	/// Project 1 (Public Project)
 	p1 := project.New().ID(pApiP1Id).Workspace(wid).Alias(pApiP1Alias).Accessibility(project.NewPublicAccessibility()).MustBuild()
