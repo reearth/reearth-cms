@@ -13,7 +13,6 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
-	"github.com/samber/lo"
 )
 
 type Project struct {
@@ -45,33 +44,11 @@ func (i *Project) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias, _ *
 }
 
 func (i *Project) FindByAliases(ctx context.Context, wAlias string, pAlias string, _ *usecase.Operator) (*project.Project, error) {
-	if wAlias == "" || pAlias == "" {
-		return nil, rerror.ErrNotFound
-	}
-
 	w, err := i.repos.Workspace.FindByAlias(ctx, wAlias)
 	if err != nil {
 		return nil, err
 	}
-
-	var cur *usecasex.Cursor
-	pList, _, err := i.repos.Project.FindByWorkspaces(ctx, accountdomain.WorkspaceIDList{w.ID()}, &interfaces.ProjectFilter{
-		Pagination: usecasex.CursorPagination{
-			After: cur,
-			First: lo.ToPtr(int64(1000)),
-		}.Wrap(),
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	for _, proj := range pList {
-		if proj.Alias() == pAlias {
-			return proj, nil
-		}
-	}
-
-	return nil, rerror.ErrNotFound
+	return i.repos.Project.FindByWorkspace(ctx, w.ID(), project.IDOrAlias(pAlias))
 }
 
 func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectParam, op *usecase.Operator) (_ *project.Project, err error) {

@@ -123,6 +123,30 @@ func (r *ProjectRepo) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias)
 	return r.findOne(ctx, f, o)
 }
 
+func (r *ProjectRepo) FindByWorkspace(ctx context.Context, wID accountdomain.WorkspaceID, idOrAlias project.IDOrAlias) (*project.Project, error) {
+	pid := idOrAlias.ID()
+	alias := idOrAlias.Alias()
+	if wID.IsNil() || (pid.IsNil() && (alias == nil || *alias == "")) {
+		return nil, rerror.ErrNotFound
+	}
+
+	f := bson.M{}
+	o := options.FindOne()
+	f["workspace"] = wID.String()
+	if pid != nil {
+		f["id"] = pid.String()
+	}
+	if alias != nil {
+		f["alias"] = *alias
+		o.SetCollation(&options.Collation{
+			Locale:   "en",
+			Strength: 2,
+		})
+	}
+
+	return r.findOne(ctx, f, o)
+}
+
 func (r *ProjectRepo) IsAliasAvailable(ctx context.Context, alias string) (bool, error) {
 	if alias == "" {
 		return false, nil

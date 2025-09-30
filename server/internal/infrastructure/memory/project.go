@@ -116,6 +116,28 @@ func (r *Project) FindByIDOrAlias(_ context.Context, q project.IDOrAlias) (*proj
 	return nil, rerror.ErrNotFound
 }
 
+
+func (r *Project) FindByWorkspace(ctx context.Context, wID accountdomain.WorkspaceID, idOrAlias project.IDOrAlias) (*project.Project, error) {
+	if r.err != nil {
+		return nil, r.err
+	}
+
+	pid := idOrAlias.ID()
+	alias := idOrAlias.Alias()
+	if wID.IsNil() || (pid.IsNil() && (alias == nil || *alias == "")) {
+		return nil, rerror.ErrNotFound
+	}
+
+	p := r.data.Find(func(k id.ProjectID, v *project.Project) bool {
+		return (pid != nil && k == *pid || alias != nil && v.Alias() == *alias) && v.Workspace() == wID && r.f.CanRead(v.Workspace())
+	})
+
+	if p != nil {
+		return p, nil
+	}
+	return nil, rerror.ErrNotFound
+}
+
 func (r *Project) IsAliasAvailable(_ context.Context, name string) (bool, error) {
 	if r.err != nil {
 		return false, r.err
