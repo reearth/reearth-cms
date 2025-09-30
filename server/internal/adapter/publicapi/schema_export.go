@@ -8,8 +8,8 @@ import (
 	"github.com/samber/lo"
 )
 
-func (c *Controller) GetSchemaJSON(ctx context.Context, pKey, mKey string) (SchemaJSON, error) {
-	_, m, _, err := c.accessibilityCheck(ctx, pKey, mKey)
+func (c *Controller) GetSchemaJSON(ctx context.Context, wAlias, pAlias, mKey string) (SchemaJSON, error) {
+	_, m, _, err := c.accessibilityCheck(ctx, wAlias, pAlias, mKey)
 	if err != nil {
 		return SchemaJSON{}, err
 	}

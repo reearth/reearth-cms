@@ -12,7 +12,7 @@ func TestPublicAPI_Export(t *testing.T) {
 		AssetBaseURL: "https://example.com",
 	}, true, publicAPISeeder)
 
-	e.GET("/api/p/{project}/{model}.geojson", pApiP1Alias, pApiP1M4Key).
+	e.GET("/api/p/{workspace}/{project}/{model}.geojson", pApiW1Alias, pApiP1Alias, pApiP1M4Key).
 		Expect().
 		Status(http.StatusOK).
 		JSON().

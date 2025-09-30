@@ -43,6 +43,14 @@ func (i *Project) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias, _ *
 	return i.repos.Project.FindByIDOrAlias(ctx, id)
 }
 
+func (i *Project) FindByAliases(ctx context.Context, wAlias string, pAlias string, _ *usecase.Operator) (*project.Project, error) {
+	w, err := i.repos.Workspace.FindByAlias(ctx, wAlias)
+	if err != nil {
+		return nil, err
+	}
+	return i.repos.Project.FindByWorkspace(ctx, w.ID(), project.IDOrAlias(pAlias))
+}
+
 func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectParam, op *usecase.Operator) (_ *project.Project, err error) {
 	if !op.IsUserOrIntegration() {
 		return nil, interfaces.ErrInvalidOperator

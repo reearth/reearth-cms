@@ -83,6 +83,7 @@ func baseSeederUser(ctx context.Context, r *repo.Container, _ *gateway.Container
 	wMetadata := workspace.NewMetadata()
 	w := workspace.New().ID(wId).
 		Name("e2e").
+		Alias("test-workspace").
 		Members(map[idx.ID[accountdomain.User]]workspace.Member{
 			uId1: roleOwner,
 			uId4: roleMaintainer,

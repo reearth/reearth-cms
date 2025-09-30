@@ -48,6 +48,15 @@ func (r *ProjectRepo) Init() error {
 		CaseInsensitive: true,
 		Filter:          bson.M{"alias": bson.M{"$type": "string"}},
 	})
+	idx = append(idx, mongox.Index{
+		Name:            "workspace_alias_compound",
+		Key:             bson.D{{Key: "workspace", Value: 1}, {Key: "alias", Value: 1}},
+		CaseInsensitive: true,
+		Filter: bson.M{
+			"alias":     bson.M{"$type": "string"},
+			"workspace": bson.M{"$type": "string"},
+		},
+	})
 	return createIndexes2(context.Background(), r.client, idx...)
 }
 
@@ -108,6 +117,33 @@ func (r *ProjectRepo) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias)
 	}
 
 	f := bson.M{}
+	o := options.FindOne()
+	if pid != nil {
+		f["id"] = pid.String()
+	}
+	if alias != nil {
+		f["alias"] = *alias
+		o.SetCollation(&options.Collation{
+			Locale:   "en",
+			Strength: 2,
+		})
+	}
+
+	return r.findOne(ctx, f, o)
+}
+
+func (r *ProjectRepo) FindByWorkspace(ctx context.Context, wID accountdomain.WorkspaceID, idOrAlias project.IDOrAlias) (*project.Project, error) {
+	if wID.IsNil() {
+		return nil, rerror.ErrNotFound
+	}
+
+	pid := idOrAlias.ID()
+	alias := idOrAlias.Alias()
+	if pid.IsNil() && (alias == nil || *alias == "") {
+		return nil, rerror.ErrNotFound
+	}
+
+	f := bson.M{"workspace": wID.String()}
 	o := options.FindOne()
 	if pid != nil {
 		f["id"] = pid.String()
