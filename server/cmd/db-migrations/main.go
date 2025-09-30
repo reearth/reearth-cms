@@ -49,7 +49,7 @@ func main() {
 	}
 
 	// get db name
-	dbName := os.Getenv("REEARTH_CMS_DB_NAME")
+	dbName := os.Getenv("REEARTH_CMS_DB_CMS")
 	if dbName == "" {
 		dbName = "reearth_cms"
 	}
