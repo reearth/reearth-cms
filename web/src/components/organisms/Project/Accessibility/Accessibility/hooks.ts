@@ -12,7 +12,7 @@ import {
   Model as GQLModel,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useProject, useUserRights } from "@reearth-cms/state";
+import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
 import { shallowEqual } from "@reearth-cms/utils/object";
 
 export default () => {
@@ -20,6 +20,7 @@ export default () => {
   const navigate = useNavigate();
   const { workspaceId, projectId } = useParams();
   const [currentProject] = useProject();
+  const [currentWorkspace] = useWorkspace();
   const [userRights] = useUserRights();
   const hasPublishRight = useMemo(
     () => !!userRights?.project.publish,
@@ -133,8 +134,8 @@ export default () => {
   );
 
   const apiUrl = useMemo(
-    () => `${window.REEARTH_CONFIG?.api}/p/${currentProject?.alias}/`,
-    [currentProject?.alias],
+    () => `${window.REEARTH_CONFIG?.api}/p/${currentWorkspace?.alias}/${currentProject?.alias}/`,
+    [currentProject?.alias, currentWorkspace?.alias],
   );
 
   const handleSettingsPageOpen = () => {
