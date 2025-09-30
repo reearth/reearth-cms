@@ -6,7 +6,6 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/i18n"
@@ -19,7 +18,7 @@ type Controller struct {
 	usecases *interfaces.Container
 }
 
-func NewController(project repo.Project, usecases *interfaces.Container) *Controller {
+func NewController(usecases *interfaces.Container) *Controller {
 	return &Controller{
 		usecases: usecases,
 	}
