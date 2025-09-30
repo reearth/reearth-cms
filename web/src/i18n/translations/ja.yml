@@ -126,9 +126,6 @@ Project name: プロジェクト名
 Please input the name of project!: プロジェクト名を入力してください
 Project alias: プロジェクトエイリアス
 Used to create the project URL. Must be unique and at least {{min}} characters long, only lowercase letters, numbers, and hyphens are allowed.: プロジェクトURLの作成に使用されます。一意である必要があり、{{min}}文字以上の小文字の英字、数字、ハイフンのみを使用できます
-Your alias must be between {{min}} and {{max}} characters long.: エイリアスは{{min}}文字以上、{{max}}文字以内で入力してください
-Alias is invalid. Please use lowercase alphanumeric, hyphen, underscore, and dot characters only.: エイリアスが無効です。小文字の英数字、ハイフン、アンダースコア、ドットのみを使用してください。
-Project alias is already taken: プロジェクトのエイリアスは既に使用されています
 Project visibility: プロジェクトの公開範囲
 Public projects are visible to everyone. Private projects are only accessible to workspace members.: 公開プロジェクトは誰でも閲覧可能です。非公開プロジェクトはワークスペースのメンバーのみがアクセスできます。
 Please choose the visibility settings of the project!: プロジェクトの公開範囲を選択してください！
@@ -321,6 +318,10 @@ Permanently removes your project and all of its contents from Re:Earth CMS. This
 Alias: エイリアス
 A simpler way to access to the project.: プロジェクトにアクセスするためのシンプルな方法です。
 Write something here to describe this record.: このレコードの説明を入力してください。
+'{{field}} field is required!': '{{field}}フィールドは必須項目です!'
+Project alias is already taken: プロジェクトのエイリアスは既に使用されています
+Your alias must be between {{min}} and {{max}} characters long.: エイリアスは{{min}}文字以上、{{max}}文字以内で入力してください
+Alias is invalid. Please use lowercase alphanumeric, hyphen, underscore, and dot characters only.: エイリアスが無効です。小文字の英数字、ハイフン、アンダースコア、ドットのみを使用してください。
 Project Settings: プロジェクト設定
 Need request: リクエストの要否
 If this option is chosen, all new model within the project will default follow it.: このオプションが選択された場合、プロジェクト内のすべての新しいモデルはデフォルトでそれに従います。
@@ -552,7 +553,6 @@ Failed to update item.: アイテムの更新に失敗しました。
 Successfully updated Item!: アイテムの更新に成功しました。
 Failed to create request.: リクエストの作成に失敗しました。
 Successfully created request!: リクエストの作成に成功しました。
-Required field error: '{{field}}フィールドは必須項目です!'
 Maximum length error: '{{field}}フィールドの文字数が最大数を超えています!'
 Failed to delete one or more items.: アイテムの削除に失敗しました。
 One or more items were successfully deleted!: アイテムの削除に成功しました。
