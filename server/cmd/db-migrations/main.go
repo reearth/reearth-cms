@@ -48,10 +48,16 @@ func main() {
 		return
 	}
 
+	// get db name
+	dbName := os.Getenv("REEARTH_CMS_DB_NAME")
+	if dbName == "" {
+		dbName = "reearth_cms"
+	}
+
 	// exec command
 	fmt.Printf("command: '%s' ", *cmd)
 	ctx := context.Background()
-	if err := command(ctx, dbURL, "reearth_cms", *wet); err != nil {
+	if err := command(ctx, dbURL, dbName, *wet); err != nil {
 		fmt.Printf("faild: %s.\n", err)
 		return
 	}
