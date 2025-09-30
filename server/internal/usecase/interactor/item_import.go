@@ -368,8 +368,10 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 				res.ItemUpdated()
 			}
 		}
-		if err := i.repos.Item.SaveAll(ctx, itemsToSave); err != nil {
-			return nil, nil, err
+		if len(itemsToSave) > 0 {
+			if err := i.repos.Item.SaveAll(ctx, itemsToSave); err != nil {
+				return nil, nil, err
+			}
 		}
 		return itemsToSave, itemsEvent, nil
 	}

@@ -9,8 +9,11 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
@@ -1422,4 +1425,253 @@ func TestItem_ItemsAsGeoJSON(t *testing.T) {
 			assert.Equal(t, tt.wantError, err)
 		})
 	}
+}
+
+// mockFile implements the File interface for testing
+type mockFile struct {
+	content []byte
+	err     error
+}
+
+func (m *mockFile) Read(p []byte) (int, error) {
+	if m.err != nil {
+		return 0, m.err
+	}
+	if len(m.content) == 0 {
+		return 0, io.EOF
+	}
+	n := copy(p, m.content)
+	if n == len(m.content) {
+		m.content = nil
+		return n, io.EOF
+	}
+	m.content = m.content[n:]
+	return n, nil
+}
+
+func TestItem_ImportAssetToItems(t *testing.T) {
+	tests := []struct {
+		name            string
+		fileContent     string
+		contentType     string
+		expectedSuccess int
+		expectedFailed  int
+		expectError     bool
+	}{
+		{
+			name:            "Empty JSON array with items wrapper",
+			fileContent:     `{"items": []}`,
+			contentType:     "application/json",
+			expectedSuccess: 0,
+			expectedFailed:  0,
+			expectError:     false,
+		},
+		{
+			name:            "Valid JSON with matching schema fields",
+			fileContent:     `{"items": [{"name": "Test Item", "test-text": "value"}]}`,
+			contentType:     "application/json",
+			expectedSuccess: 1,
+			expectedFailed:  0,
+			expectError:     false,
+		},
+		{
+			name:            "Valid GeoJSON with field sanitization",
+			fileContent:     `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28, 36.58]}, "properties": {"name": "Test Location", "test text": "sanitized field"}}]}`,
+			contentType:     "application/geo+json",
+			expectedSuccess: 1,
+			expectedFailed:  0,
+			expectError:     false,
+		},
+		{
+			name:        "Unsupported file format",
+			fileContent: "This is plain text",
+			contentType: "text/plain",
+			expectError: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var err error
+			// Create separate instances to avoid race conditions
+			r := []workspace.Role{workspace.RoleReader, workspace.RoleWriter}
+			w := accountdomain.NewWorkspaceID()
+			prj := project.New().NewID().Workspace(w).RequestRoles(r).MustBuild()
+
+			// Create schema with fields including sanitized field names
+			sid := id.NewSchemaID()
+			fid1 := id.NewFieldID()
+			textField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name("name").Key(id.NewKey("name")).ID(fid1).Required(true).MustBuild()
+
+			fid2 := id.NewFieldID()
+			newIntField, _ := schema.NewInteger(nil, nil)
+			intField := schema.NewField(newIntField.TypeProperty()).NewID().Name("age").Key(id.NewKey("age")).ID(fid2).MustBuild()
+
+			fid3 := id.NewFieldID()
+			boolField := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("active").Key(id.NewKey("active")).ID(fid3).MustBuild()
+
+			// Add sanitized field names (spaces become hyphens)
+			fid4 := id.NewFieldID()
+			testTextField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name("test-text").Key(id.NewKey("test-text")).ID(fid4).MustBuild()
+
+			fid5 := id.NewFieldID()
+			testHyphenField := schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name("test-hyphen").Key(id.NewKey("test-hyphen")).ID(fid5).MustBuild()
+
+			// Add geometry field for GeoJSON testing
+			fid6 := id.NewFieldID()
+			gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
+			geometryField := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("geometry").Key(id.NewKey("geometry")).ID(fid6).MustBuild()
+
+			testSchema := schema.New().ID(sid).Workspace(w).Project(prj.ID()).Fields(schema.FieldList{textField, intField, boolField, testTextField, testHyphenField, geometryField}).MustBuild()
+
+			// Create model
+			testModel := model.New().NewID().Schema(testSchema.ID()).Key(id.RandomKey()).Project(testSchema.Project()).MustBuild()
+
+			uid := accountdomain.NewUserID()
+			op := &usecase.Operator{
+				AcOperator: &accountusecase.Operator{
+					User:               &uid,
+					ReadableWorkspaces: []accountdomain.WorkspaceID{w},
+					WritableWorkspaces: []accountdomain.WorkspaceID{w},
+				},
+				ReadableProjects: []id.ProjectID{prj.ID()},
+				WritableProjects: []id.ProjectID{prj.ID()},
+			}
+
+			// Setup in-memory database
+			ctx := context.Background()
+			db := memory.New()
+
+			// Save the project, schema, and model
+			err = db.Project.Save(ctx, prj)
+			assert.NoError(t, err)
+			err = db.Schema.Save(ctx, testSchema)
+			assert.NoError(t, err)
+			err = db.Model.Save(ctx, testModel)
+			assert.NoError(t, err)
+
+			// Create asset and asset file
+			assetID := id.NewAssetID()
+			testAsset := asset.New().
+				ID(assetID).
+				Project(prj.ID()).
+				FileName("test.json").
+				Size(uint64(len(tt.fileContent))).
+				UUID("test-uuid").
+				CreatedByUser(uid).
+				MustBuild()
+
+			testAssetFile := asset.NewFile().
+				Name("test.json").
+				Size(uint64(len(tt.fileContent))).
+				ContentType(tt.contentType).
+				Build()
+
+			// Save asset and asset file to database
+			err = db.Asset.Save(ctx, testAsset)
+			assert.NoError(t, err)
+			err = db.AssetFile.Save(ctx, assetID, testAssetFile)
+			assert.NoError(t, err)
+
+			// Create mock file gateway
+			mockFileGW := &gateway.Container{
+				File: &mockFileGateway{
+					files: map[string]*mockFile{
+						"test-uuid": {
+							content: []byte(tt.fileContent),
+							err:     nil,
+						},
+					},
+				},
+			}
+
+			// Create Item instance with mock gateway
+			itemUC := NewItem(db, mockFileGW)
+			itemUC.ignoreEvent = true
+
+			// Execute the function
+			param := interfaces.ImportFromAssetParam{
+				AssetID: assetID,
+				ModelID: testModel.ID(),
+			}
+
+			result, err := itemUC.ImportFromAsset(ctx, param, op)
+
+			// Verify results
+			if tt.expectError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.expectedSuccess, result.Successful, "successful count should match")
+				assert.Equal(t, tt.expectedFailed, result.Failed, "failed count should match")
+				assert.Equal(t, tt.expectedSuccess+tt.expectedFailed, result.Total, "total should equal successful + failed")
+			}
+		})
+	}
+}
+
+// mockFileGateway implements the File gateway interface for testing
+type mockFileGateway struct {
+	files map[string]*mockFile
+}
+
+func (m *mockFileGateway) ReadAsset(ctx context.Context, uuid string, filename string, opts map[string]string) (io.ReadCloser, map[string]string, error) {
+	// Use UUID as the key for our mock
+	if file, exists := m.files[uuid]; exists {
+		return io.NopCloser(file), nil, nil
+	}
+	return nil, nil, errors.New("asset not found")
+}
+
+func (m *mockFileGateway) GetAssetFiles(ctx context.Context, workspaceID string) ([]gateway.FileEntry, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockFileGateway) UploadAsset(ctx context.Context, file *file.File) (string, int64, error) {
+	return "", 0, errors.New("not implemented")
+}
+
+func (m *mockFileGateway) Read(ctx context.Context, key string, opts map[string]string) (io.ReadCloser, map[string]string, error) {
+	return nil, nil, errors.New("not implemented")
+}
+
+func (m *mockFileGateway) Upload(ctx context.Context, file *file.File, key string) (int64, error) {
+	return 0, errors.New("not implemented")
+}
+
+func (m *mockFileGateway) DeleteAsset(ctx context.Context, workspace string, key string) error {
+	return errors.New("not implemented")
+}
+
+func (m *mockFileGateway) DeleteAssets(ctx context.Context, keys []string) error {
+	return errors.New("not implemented")
+}
+
+func (m *mockFileGateway) PublishAsset(ctx context.Context, workspace string, key string) error {
+	return errors.New("not implemented")
+}
+
+func (m *mockFileGateway) UnpublishAsset(ctx context.Context, workspace string, key string) error {
+	return errors.New("not implemented")
+}
+
+func (m *mockFileGateway) GetAccessInfoResolver() asset.AccessInfoResolver {
+	return nil
+}
+
+func (m *mockFileGateway) GetAccessInfo(asset *asset.Asset) *asset.AccessInfo {
+	return nil
+}
+
+func (m *mockFileGateway) GetBaseURL() string {
+	return ""
+}
+
+func (m *mockFileGateway) IssueUploadAssetLink(ctx context.Context, param gateway.IssueUploadAssetParam) (*gateway.UploadAssetLink, error) {
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockFileGateway) UploadedAsset(ctx context.Context, upload *asset.Upload) (*file.File, error) {
+	return nil, errors.New("not implemented")
 }
