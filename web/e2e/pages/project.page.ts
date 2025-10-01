@@ -130,4 +130,30 @@ export class ProjectPage extends BasePage {
   get changeProjectVisibilityButton(): Locator {
     return this.getByRole("button", { name: "Change project visibility" });
   }
+
+  // ========== Action Methods (POM Pattern) ==========
+
+  async createProject(name: string): Promise<void> {
+    await this.getByRole("button", { name: "plus New Project" }).first().click();
+    await this.getByRole("dialog").locator("#name").fill(name);
+    await this.getByRole("button", { name: "OK" }).click();
+    await this.closeNotification();
+  }
+
+  async deleteProject(): Promise<void> {
+    await this.getByText("Settings").first().click();
+    await this.getByRole("button", { name: "Delete Project" }).click();
+    await this.getByRole("button", { name: "OK" }).click();
+    await this.closeNotification();
+  }
+
+  async createModelFromOverview(name = "e2e model name", key?: string): Promise<void> {
+    await this.getByRole("button", { name: "plus New Model" }).first().click();
+    await this.getByLabel("Model name").fill(name);
+    if (key) {
+      await this.getByLabel("Model key").fill(key);
+    }
+    await this.getByRole("button", { name: "OK" }).click();
+    await this.closeNotification();
+  }
 }

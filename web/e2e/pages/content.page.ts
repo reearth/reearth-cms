@@ -544,4 +544,50 @@ export class ContentPage extends BasePage {
   itemIdButton(itemId: string): Locator {
     return this.getByRole("button", { name: itemId, exact: true });
   }
+
+  // ========== Action Methods (POM Pattern) ==========
+
+  async createItem(): Promise<void> {
+    await this.getByText("Content").click();
+    await this.getByRole("button", { name: "plus New Item" }).click();
+    await this.getByRole("button", { name: "Save" }).click();
+    await this.closeNotification();
+  }
+
+  async createRequest(title: string): Promise<void> {
+    await this.getByRole("button", { name: "ellipsis" }).click();
+    await this.getByRole("menuitem", { name: "New Request" }).click();
+    await this.getByLabel("Title").last().click();
+    await this.getByLabel("Title").last().fill(title);
+    await this.page.click(".ant-select-selector");
+    const firstItem = this.page.locator(".ant-select-item").first();
+    await firstItem.click();
+    await this.getByLabel("Description").click();
+    await this.getByRole("button", { name: "OK" }).click();
+    await this.closeNotification();
+  }
+
+  async createComment(content: string): Promise<void> {
+    await this.page.locator("#content").click();
+    await this.page.locator("#content").fill(content);
+    await this.getByRole("button", { name: "Comment" }).click();
+    await this.closeNotification();
+  }
+
+  async updateComment(oldText: string, newText: string): Promise<void> {
+    await this.getByRole("main")
+      .getByRole("complementary")
+      .getByLabel("edit")
+      .locator("svg")
+      .click();
+    await this.page.locator("textarea").filter({ hasText: oldText }).click();
+    await this.page.locator("textarea").filter({ hasText: oldText }).fill(newText);
+    await this.getByLabel("check").locator("svg").first().click();
+    await this.closeNotification();
+  }
+
+  async deleteComment(): Promise<void> {
+    await this.getByLabel("delete").locator("svg").click();
+    await this.closeNotification();
+  }
 }

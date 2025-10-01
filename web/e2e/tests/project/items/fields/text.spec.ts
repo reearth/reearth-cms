@@ -1,0 +1,120 @@
+import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
+
+test.beforeEach(async ({ reearth, projectPage }) => {
+  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+  await projectPage.createProject(getId());
+  await projectPage.createModelFromOverview();
+});
+
+test.afterEach(async ({ projectPage }) => {
+  await projectPage.deleteProject();
+});
+
+test("Text field editing has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
+  await fieldEditorPage.fieldTypeButton("Text").click();
+  await fieldEditorPage.displayNameInput.click();
+  await fieldEditorPage.displayNameInput.fill("text1");
+  await fieldEditorPage.settingsKeyInput.click();
+  await fieldEditorPage.settingsKeyInput.fill("text1");
+  await fieldEditorPage.settingsDescriptionInput.click();
+  await fieldEditorPage.settingsDescriptionInput.fill("text1 description");
+  await fieldEditorPage.defaultValueTab.click();
+  await fieldEditorPage.setDefaultValueInput.click();
+  await fieldEditorPage.setDefaultValueInput.fill("text1 default value");
+  await fieldEditorPage.okButton.click();
+  await closeNotification(page);
+  await expect(fieldEditorPage.fieldText("text1", "text1")).toBeVisible();
+  await fieldEditorPage.ellipsisMenuButton.click();
+  await expect(fieldEditorPage.displayNameInput).toBeVisible();
+  await expect(fieldEditorPage.displayNameInput).toHaveValue("text1");
+  await expect(fieldEditorPage.settingsKeyInput).toHaveValue("text1");
+  await expect(fieldEditorPage.settingsDescriptionInput).toHaveValue("text1 description");
+  await expect(fieldEditorPage.supportMultipleValuesCheckbox).not.toBeChecked();
+  await expect(fieldEditorPage.useAsTitleCheckbox).not.toBeChecked();
+  await fieldEditorPage.validationTab.click();
+  await expect(fieldEditorPage.maxLengthInput).toBeEmpty();
+  await expect(fieldEditorPage.requiredFieldCheckbox).not.toBeChecked();
+  await expect(fieldEditorPage.uniqueFieldCheckbox).not.toBeChecked();
+  await fieldEditorPage.defaultValueTab.click();
+  await expect(fieldEditorPage.defaultValueTextInput).toHaveValue("text1 default value");
+  await fieldEditorPage.cancelButton.click();
+  await schemaPage.contentText.click();
+  await expect(contentPage.tableHead).toContainText("text1");
+  await contentPage.newItemButton.click();
+  await expect(contentPage.firstLabel).toContainText("text1");
+  await contentPage.fieldDescriptionText("text1 description").click();
+  await expect(contentPage.mainRole).toContainText("text1 description");
+  await expect(contentPage.fieldInput("text1")).toHaveValue("text1 default value");
+  await contentPage.saveButton.click();
+  await closeNotification(page);
+  await contentPage.backButtonLabel.click();
+  await expect(contentPage.tableBodyRows).toContainText("text1 default value");
+  await schemaPage.schemaText.click();
+  await fieldEditorPage.ellipsisMenuButton.click();
+  await fieldEditorPage.supportMultipleValuesCheckbox.check();
+  await fieldEditorPage.useAsTitleCheckbox.check();
+  await fieldEditorPage.displayNameInput.click();
+  await fieldEditorPage.displayNameInput.fill("new text1");
+  await fieldEditorPage.fieldKeyInput.click();
+  await fieldEditorPage.fieldKeyInput.fill("new-text1");
+  await fieldEditorPage.descriptionOptionalInput.click();
+  await fieldEditorPage.descriptionOptionalInput.fill("new text1 description");
+  await fieldEditorPage.validationTab.click();
+  await fieldEditorPage.maxLengthInput.click();
+  await fieldEditorPage.maxLengthInput.fill("5");
+  await fieldEditorPage.requiredFieldCheckbox.check();
+  await fieldEditorPage.uniqueFieldCheckbox.check();
+  await fieldEditorPage.defaultValueTab.click();
+  await expect(fieldEditorPage.defaultValueTextInput).toHaveValue("text1 default value");
+  await fieldEditorPage.plusNewButton.click();
+  await fieldEditorPage.defaultValueInputByIndex(1).click();
+  await fieldEditorPage.defaultValueInputByIndex(1).fill("text2");
+  await fieldEditorPage.defaultValueInputByIndex(0).click();
+  await fieldEditorPage.defaultValueInputByIndex(0).fill("text1");
+  await fieldEditorPage.firstArrowDownButton.click();
+  await expect(fieldEditorPage.defaultValueInputByIndex(1)).toHaveValue("text1");
+  await fieldEditorPage.okButton.click();
+  await closeNotification(page);
+  await expect(fieldEditorPage.uniqueFieldText("new text1", "new-text1")).toBeVisible();
+  await schemaPage.contentText.click();
+  await expect(contentPage.tableHead).toContainText("new text1");
+  await expect(contentPage.cellByText("text1 default value")).toBeVisible();
+  await contentPage.newItemButton.click();
+  await expect(fieldEditorPage.uniqueFieldLabel("new text1")).toBeVisible();
+  await contentPage.fieldDescriptionText("new text1 description").click();
+  await expect(contentPage.fieldDescriptionText("new text1 description")).toBeVisible();
+  await expect(contentPage.firstTextbox).toHaveValue("text2");
+  await expect(contentPage.lastTextbox).toHaveValue("text1");
+  await contentPage.saveButton.click();
+  await closeNotification(page);
+  await contentPage.backButtonLabel.click();
+  await contentPage.x2Button.click();
+  await expect(contentPage.mainRole).toContainText("new text1text2text1");
+  await contentPage.cellByIndex(1).click();
+  await expect(fieldEditorPage.uniqueFieldLabel("new text1")).toBeVisible();
+  await fieldEditorPage.deleteButton.first().click();
+  await expect(contentPage.pleaseInputFieldText).toBeVisible();
+  await fieldEditorPage.plusNewButton.click();
+  await expect(contentPage.characterCountText).toBeVisible();
+  await expect(contentPage.saveButton).toBeDisabled();
+  await contentPage.textBoxByIndex(0).click();
+  await contentPage.textBoxByIndex(0).fill("text");
+  await fieldEditorPage.plusNewButton.click();
+  await contentPage.textBoxByIndex(1).click();
+  await contentPage.textBoxByIndex(1).fill("text2");
+  await fieldEditorPage.arrowUpButtonByIndex(1).click();
+  await expect(contentPage.textBoxByIndex(0)).toHaveValue("text2");
+  await expect(contentPage.textBoxByIndex(1)).toHaveValue("text");
+  await contentPage.saveButton.click();
+  await closeNotification(page);
+  await contentPage.backButtonLabel.click();
+  await contentPage.getByRole("button", { name: "x2" }).nth(1).click();
+  await expect(contentPage.mainRole).toContainText("new text1text2text");
+});

@@ -175,4 +175,88 @@ export class SchemaPage extends BasePage {
   uniqueFieldText(fieldName: string, key: string): Locator {
     return this.getByText(`${fieldName} *#${key}(unique)`);
   }
+
+  // ========== Action Methods (POM Pattern) ==========
+
+  // Model CRUD operations
+  async createModel(name: string, key?: string): Promise<void> {
+    await this.getByLabel("Model name").fill(name);
+    if (key) {
+      await this.getByLabel("Model key").fill(key);
+    }
+    await this.getByRole("button", { name: "OK" }).click();
+    await this.closeNotification();
+  }
+
+  async createModelFromSidebar(name = "e2e model name", key?: string): Promise<void> {
+    await this.getByRole("button", { name: "plus Add" }).first().click();
+    await this.createModel(name, key);
+  }
+
+  async updateModel(name: string, key: string): Promise<void> {
+    await this.getByRole("button", { name: "more" }).hover();
+    await this.getByText("Edit", { exact: true }).click();
+    await this.getByLabel("Update Model").locator("#name").fill(name);
+    await this.getByLabel("Update Model").locator("#key").fill(key);
+    await this.getByRole("button", { name: "OK" }).click();
+    await this.closeNotification();
+  }
+
+  async deleteModel(): Promise<void> {
+    await this.getByRole("button", { name: "more" }).hover();
+    await this.getByText("Delete").click();
+    await this.getByRole("button", { name: "Delete Model" }).click();
+    await this.closeNotification();
+  }
+
+  // Group CRUD operations
+  async createGroup(name: string, key?: string): Promise<void> {
+    await this.getByRole("button", { name: "plus Add" }).last().click();
+    await this.getByLabel("Group name").fill(name);
+    if (key) {
+      await this.getByLabel("Group key").fill(key);
+    }
+    await this.getByRole("button", { name: "OK" }).click();
+    await this.closeNotification();
+  }
+
+  async updateGroup(name: string, key?: string): Promise<void> {
+    await this.getByRole("button", { name: "more" }).hover();
+    await this.getByText("Edit", { exact: true }).click();
+    await this.getByLabel("Update Group").locator("#name").fill(name);
+    if (key) {
+      await this.getByLabel("Update Group").locator("#key").fill(key);
+    }
+    await this.getByRole("button", { name: "OK" }).click();
+    await this.closeNotification();
+  }
+
+  async deleteGroup(): Promise<void> {
+    await this.getByRole("button", { name: "more" }).hover();
+    await this.getByText("Delete").click();
+    await this.getByRole("button", { name: "Delete Group" }).click();
+    await this.closeNotification();
+  }
+
+  // Field operations
+  async handleFieldForm(name: string, key = name): Promise<void> {
+    await this.getByLabel("Display name").click();
+    await this.getByLabel("Display name").fill(name);
+    await this.getByLabel("Settings").locator("#key").click();
+    await this.getByLabel("Settings").locator("#key").fill(key);
+    await this.getByRole("button", { name: "OK" }).click();
+    await this.closeNotification();
+  }
+
+  async createTitleField(displayName: string, defaultValue: string): Promise<void> {
+    await this.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
+    await this.getByLabel("Display name").click();
+    await this.getByLabel("Display name").fill(displayName);
+    await this.getByLabel("Use as title").check();
+    await this.getByRole("tab", { name: "Default value" }).click();
+    await this.getByLabel("Set default value").click();
+    await this.getByLabel("Set default value").fill(defaultValue);
+    await this.getByRole("button", { name: "OK" }).click();
+    await this.closeNotification();
+  }
 }

@@ -1,4 +1,4 @@
-import { closeNotification } from "@reearth-cms/e2e/common/notification";
+import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 import { type Page, type Locator } from "@reearth-cms/e2e/fixtures/test";
 
 type Role =
@@ -86,7 +86,11 @@ type Role =
   | "treeitem";
 
 export abstract class BasePage {
-  constructor(protected page: Page) {}
+  protected page: Page;
+
+  constructor(page: Page) {
+    this.page = page;
+  }
 
   async goto(url: string, options?: { waitUntil?: "domcontentloaded" | "load" | "networkidle" }) {
     await this.page.goto(url, options);

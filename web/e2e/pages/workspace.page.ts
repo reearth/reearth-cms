@@ -77,4 +77,21 @@ export class WorkspacePage extends BasePage {
   workspaceTextByName(workspaceName: string): Locator {
     return this.getByText(workspaceName);
   }
+
+  // ========== Action Methods (POM Pattern) ==========
+
+  async createWorkspace(name: string): Promise<void> {
+    await this.getByRole("button", { name: "Create a Workspace" }).click();
+    await this.getByLabel("Workspace name").click();
+    await this.getByLabel("Workspace name").fill(name);
+    await this.getByRole("button", { name: "OK" }).click();
+    await this.closeNotification();
+  }
+
+  async deleteWorkspace(): Promise<void> {
+    await this.getByText("Workspace Settings", { exact: true }).click();
+    await this.getByRole("button", { name: "Remove Workspace" }).click();
+    await this.getByRole("button", { name: "OK" }).click();
+    await this.closeNotification();
+  }
 }

@@ -1,7 +1,7 @@
 // e2e/pages/assets.page.ts
 import { type Page, type Locator } from "@reearth-cms/e2e/fixtures/test";
 
-import { closeNotification } from "../common/notification";
+import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 import { BasePage } from "./base.page";
 

@@ -11,7 +11,7 @@ import { RequestPage } from "../pages/request.page";
 import { SchemaPage } from "../pages/schema.page";
 import { SettingsPage } from "../pages/settings.page";
 import { WorkspacePage } from "../pages/workspace.page";
-import { config, getAccessToken, type Config } from "../utils/config";
+import { config, getAccessToken, type Config } from "../config/config";
 
 export type PageObjects = {
   assetsPage: AssetsPage;
