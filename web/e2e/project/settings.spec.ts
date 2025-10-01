@@ -61,13 +61,13 @@ test.describe("Project General Settings", () => {
 
     const errorEl = page.locator("#alias_help");
 
-    await test.step("Alias Illegal Case 1", async () => {
+    await test.step("Alias illegal case 1", async () => {
       await aliasEl.clear();
       const errorMsg1 = i18next.t("{{field}} field is required!", { field: "alias" });
       await expect(errorEl).toHaveText(errorMsg1);
     });
 
-    await test.step("Alias Illegal Case 2", async () => {
+    await test.step("Alias illegal case 2", async () => {
       await aliasEl.fill("hell");
       const errorMsg2 = i18next.t(
         "Your alias must be between {{min}} and {{max}} characters long.",
@@ -79,7 +79,7 @@ test.describe("Project General Settings", () => {
       await expect(errorEl).toHaveText(errorMsg2);
     });
 
-    await test.step("Alias Illegal Case 3", async () => {
+    await test.step("Alias illegal case 3", async () => {
       await aliasEl.fill("testAlias");
       const errorMsg3 = i18next.t(
         "Alias is invalid. Please use lowercase alphanumeric, hyphen, underscore, and dot characters only.",
@@ -87,7 +87,7 @@ test.describe("Project General Settings", () => {
       await expect(errorEl).toHaveText(errorMsg3);
     });
 
-    await test.step("Alias Illegal Case 4", async () => {
+    await test.step("Alias illegal case 4", async () => {
       await aliasEl.fill("test-alias#");
       const errorMsg4 = i18next.t(
         "Alias is invalid. Please use lowercase alphanumeric, hyphen, underscore, and dot characters only.",
@@ -95,18 +95,18 @@ test.describe("Project General Settings", () => {
       await expect(errorEl).toHaveText(errorMsg4);
     });
 
-    await test.step("Alias Illegal Case 5", async () => {
+    await test.step("Alias illegal case 5", async () => {
       await aliasEl.fill(EXIST_PROJECT_NAME);
       const errorMsg5 = i18next.t("Project alias is already taken");
       await expect(errorEl).toHaveText(errorMsg5);
     });
 
-    await test.step("Alias: Legal case 1", async () => {
+    await test.step("Alias legal case 1", async () => {
       await aliasEl.fill("test-alias-123");
       await expect(errorEl).toBeHidden();
     });
 
-    await test.step("Alias: Legal case 2", async () => {
+    await test.step("Alias legal case 2", async () => {
       await aliasEl.fill("test_alias_123");
       await expect(errorEl).toBeHidden();
     });
