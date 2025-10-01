@@ -308,8 +308,17 @@ func TestPublicAPI_Model(t *testing.T) {
 							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
 						},
 					},
-					pApiP1S1F5Key: "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
-					pApiP1S1F6Key: "{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}",
+					pApiP1S1F5Key: map[string]any{
+					"type":        "Point",
+					"coordinates": []any{102.0, 0.5},
+				},
+					pApiP1S1F6Key: map[string]any{
+					"type": "LineString",
+					"coordinates": []any{
+						[]any{139.65439725962517, 36.34793305387103},
+						[]any{139.61688622815393, 35.910803456352724},
+					},
+				},
 				},
 			},
 			"totalCount": 4,
@@ -426,8 +435,17 @@ func TestPublicAPI_Model(t *testing.T) {
 					//		"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
 					//	},
 					//},
-					pApiP1S1F5Key: "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
-					pApiP1S1F6Key: "{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}",
+					pApiP1S1F5Key: map[string]any{
+					"type":        "Point",
+					"coordinates": []any{102.0, 0.5},
+				},
+					pApiP1S1F6Key: map[string]any{
+					"type": "LineString",
+					"coordinates": []any{
+						[]any{139.65439725962517, 36.34793305387103},
+						[]any{139.61688622815393, 35.910803456352724},
+					},
+				},
 				},
 			},
 			"totalCount": 4,
@@ -518,8 +536,17 @@ func TestPublicAPI_Model(t *testing.T) {
 							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
 						},
 					},
-					pApiP1S1F5Key: "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
-					pApiP1S1F6Key: "{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}",
+					pApiP1S1F5Key: map[string]any{
+					"type":        "Point",
+					"coordinates": []any{102.0, 0.5},
+				},
+					pApiP1S1F6Key: map[string]any{
+					"type": "LineString",
+					"coordinates": []any{
+						[]any{139.65439725962517, 36.34793305387103},
+						[]any{139.61688622815393, 35.910803456352724},
+					},
+				},
 				},
 			},
 			"totalCount": 4,
