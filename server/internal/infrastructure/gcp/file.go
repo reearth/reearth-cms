@@ -22,6 +22,7 @@ import (
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"google.golang.org/api/iterator"
+	"google.golang.org/api/option"
 )
 
 const (
@@ -38,6 +39,7 @@ type fileRepo struct {
 	cacheControl     string
 	public           bool
 	replaceUploadURL bool
+	customEndpoint   string // Custom GCS endpoint for proxy setups
 }
 
 func NewFile(bucketName, publicBase, cacheControl string, replaceUploadURL bool) (gateway.File, error) {
@@ -55,11 +57,20 @@ func NewFile(bucketName, publicBase, cacheControl string, replaceUploadURL bool)
 		return nil, rerror.NewE(i18n.T("invalid base URL"))
 	}
 
+	var customEndpoint string
+	// Use custom endpoint if AssetBaseURL (publicBase) is configured with a custom domain
+	// This allows GCS client to redirect to the custom asset proxy endpoint
+	// Treat as custom endpoint if host is not a standard GCS endpoint
+	if !strings.HasSuffix(u.Host, ".googleapis.com") && u.Host != "" {
+		customEndpoint = u.Scheme + "://" + u.Host
+	}
+
 	return &fileRepo{
 		bucketName:       bucketName,
 		publicBase:       u,
 		privateBase:      nil,
 		cacheControl:     cacheControl,
+		customEndpoint:   customEndpoint,
 		public:           true,
 		replaceUploadURL: replaceUploadURL,
 	}, nil
@@ -233,23 +244,27 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 	if p == "" {
 		return nil, gateway.ErrInvalidFile
 	}
-	bucket, err := f.bucket(ctx)
+
+	// Use signing-capable bucket to ensure signed URLs work with storage.googleapis.com
+	bucket, err := f.bucketWithOptions(ctx, true)
 	if err != nil {
 		return nil, err
 	}
 	opt := &storage.SignedURLOptions{
+		Scheme:      storage.SigningSchemeV4,
 		Method:      http.MethodPut,
 		Expires:     param.ExpiresAt,
 		ContentType: contentType,
+		QueryParameters: map[string][]string{
+			"reearth-x-workspace": {param.Workspace},
+			"reearth-x-project":   {param.Project},
+			"reearth-x-public":    {fmt.Sprintf("%v", param.Public)},
+		},
 	}
 
 	var headers []string
 	if param.ContentEncoding != "" {
 		headers = append(headers, "Content-Encoding: "+param.ContentEncoding)
-	}
-
-	if workspace := getWorkspaceFromContext(ctx); workspace != "" {
-		headers = append(headers, "x-goog-meta-X-Reearth-Workspace-ID: "+workspace)
 	}
 
 	if len(headers) > 0 {
@@ -606,10 +621,26 @@ func getGCSObjectPathFolder(uuid string) string {
 }
 
 func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
-	client, err := storage.NewClient(ctx)
+	return f.bucketWithOptions(ctx, false)
+}
+
+func (f *fileRepo) bucketWithOptions(ctx context.Context, forSigning bool) (*storage.BucketHandle, error) {
+	var client *storage.Client
+	var err error
+
+	// For signed URLs, always use standard GCS client to ensure signatures work
+	// with storage.googleapis.com, regardless of custom endpoint configuration
+	if forSigning || f.customEndpoint == "" {
+		client, err = storage.NewClient(ctx)
+	} else {
+		client, err = storage.NewClient(ctx, option.WithEndpoint(f.customEndpoint))
+	}
+
 	if err != nil {
+		log.Errorf("gcs: failed to initialize client: %v", err)
 		return nil, err
 	}
+
 	bucket := client.Bucket(f.bucketName)
 	return bucket, nil
 }

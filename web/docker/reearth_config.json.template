@@ -9,5 +9,5 @@
     "logoUrl": $REEARTH_CMS_LOGO_URL,
     "multiTenant": $REEARTH_CMS_MULTI_TENANT,
     "disableWorkspaceUi": $REEARTH_CMS_DISABLE_WORKSPACE_UI,
-    "dashboardProfileUrl": $REEARTH_CMS_DASHBOARD_PROFILE_URL
+    "dashboardBaseUrl": $REEARTH_CMS_DASHBOARD_BASE_URL
 }

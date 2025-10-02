@@ -388,17 +388,18 @@ type ComplexityRoot struct {
 	}
 
 	Me struct {
-		Auths         func(childComplexity int) int
-		Email         func(childComplexity int) int
-		Host          func(childComplexity int) int
-		ID            func(childComplexity int) int
-		Integrations  func(childComplexity int) int
-		Lang          func(childComplexity int) int
-		MyWorkspace   func(childComplexity int) int
-		MyWorkspaceID func(childComplexity int) int
-		Name          func(childComplexity int) int
-		Theme         func(childComplexity int) int
-		Workspaces    func(childComplexity int) int
+		Auths             func(childComplexity int) int
+		Email             func(childComplexity int) int
+		Host              func(childComplexity int) int
+		ID                func(childComplexity int) int
+		Integrations      func(childComplexity int) int
+		Lang              func(childComplexity int) int
+		MyWorkspace       func(childComplexity int) int
+		MyWorkspaceID     func(childComplexity int) int
+		Name              func(childComplexity int) int
+		ProfilePictureURL func(childComplexity int) int
+		Theme             func(childComplexity int) int
+		Workspaces        func(childComplexity int) int
 	}
 
 	Model struct {
@@ -919,6 +920,7 @@ type ComplexityRoot struct {
 	}
 
 	Workspace struct {
+		Alias    func(childComplexity int) int
 		ID       func(childComplexity int) int
 		Members  func(childComplexity int) int
 		Name     func(childComplexity int) int
@@ -2354,6 +2356,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Me.Name(childComplexity), true
+
+	case "Me.profilePictureUrl":
+		if e.complexity.Me.ProfilePictureURL == nil {
+			break
+		}
+
+		return e.complexity.Me.ProfilePictureURL(childComplexity), true
 
 	case "Me.theme":
 		if e.complexity.Me.Theme == nil {
@@ -4943,6 +4952,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.WebhookTrigger.OnItemUpdate(childComplexity), true
 
+	case "Workspace.alias":
+		if e.complexity.Workspace.Alias == nil {
+			break
+		}
+
+		return e.complexity.Workspace.Alias(childComplexity), true
+
 	case "Workspace.id":
 		if e.complexity.Workspace.ID == nil {
 			break
@@ -7080,6 +7096,7 @@ type Me {
   lang: Lang!
   theme: Theme!
   host: String
+  profilePictureUrl: String
   myWorkspaceId: ID!
   auths: [String!]!
   workspaces: [Workspace!]!
@@ -7127,6 +7144,7 @@ extend type Mutation {
 	{Name: "../../../schemas/workspace.graphql", Input: `type Workspace implements Node {
     id: ID!
     name: String!
+    alias: String
     members: [WorkspaceMember!]!
     personal: Boolean!
 }
@@ -8619,6 +8637,8 @@ func (ec *executionContext) fieldContext_AddUsersToWorkspacePayload_workspace(_ 
 				return ec.fieldContext_Workspace_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Workspace_name(ctx, field)
+			case "alias":
+				return ec.fieldContext_Workspace_alias(ctx, field)
 			case "members":
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
@@ -11668,6 +11688,8 @@ func (ec *executionContext) fieldContext_CreateWorkspacePayload_workspace(_ cont
 				return ec.fieldContext_Workspace_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Workspace_name(ctx, field)
+			case "alias":
+				return ec.fieldContext_Workspace_alias(ctx, field)
 			case "members":
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
@@ -16948,6 +16970,47 @@ func (ec *executionContext) fieldContext_Me_host(_ context.Context, field graphq
 	return fc, nil
 }
 
+func (ec *executionContext) _Me_profilePictureUrl(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Me) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Me_profilePictureUrl(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProfilePictureURL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Me_profilePictureUrl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Me",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Me_myWorkspaceId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Me) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Me_myWorkspaceId(ctx, field)
 	if err != nil {
@@ -17079,6 +17142,8 @@ func (ec *executionContext) fieldContext_Me_workspaces(_ context.Context, field 
 				return ec.fieldContext_Workspace_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Workspace_name(ctx, field)
+			case "alias":
+				return ec.fieldContext_Workspace_alias(ctx, field)
 			case "members":
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
@@ -17130,6 +17195,8 @@ func (ec *executionContext) fieldContext_Me_myWorkspace(_ context.Context, field
 				return ec.fieldContext_Workspace_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Workspace_name(ctx, field)
+			case "alias":
+				return ec.fieldContext_Workspace_alias(ctx, field)
 			case "members":
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
@@ -22897,6 +22964,8 @@ func (ec *executionContext) fieldContext_Project_workspace(_ context.Context, fi
 				return ec.fieldContext_Workspace_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Workspace_name(ctx, field)
+			case "alias":
+				return ec.fieldContext_Workspace_alias(ctx, field)
 			case "members":
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
@@ -25345,6 +25414,8 @@ func (ec *executionContext) fieldContext_Query_me(_ context.Context, field graph
 				return ec.fieldContext_Me_theme(ctx, field)
 			case "host":
 				return ec.fieldContext_Me_host(ctx, field)
+			case "profilePictureUrl":
+				return ec.fieldContext_Me_profilePictureUrl(ctx, field)
 			case "myWorkspaceId":
 				return ec.fieldContext_Me_myWorkspaceId(ctx, field)
 			case "auths":
@@ -25663,6 +25734,8 @@ func (ec *executionContext) fieldContext_RemoveIntegrationFromWorkspacePayload_w
 				return ec.fieldContext_Workspace_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Workspace_name(ctx, field)
+			case "alias":
+				return ec.fieldContext_Workspace_alias(ctx, field)
 			case "members":
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
@@ -25717,6 +25790,8 @@ func (ec *executionContext) fieldContext_RemoveIntegrationsFromWorkspacePayload_
 				return ec.fieldContext_Workspace_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Workspace_name(ctx, field)
+			case "alias":
+				return ec.fieldContext_Workspace_alias(ctx, field)
 			case "members":
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
@@ -25771,6 +25846,8 @@ func (ec *executionContext) fieldContext_RemoveMultipleMembersFromWorkspacePaylo
 				return ec.fieldContext_Workspace_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Workspace_name(ctx, field)
+			case "alias":
+				return ec.fieldContext_Workspace_alias(ctx, field)
 			case "members":
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
@@ -26538,6 +26615,8 @@ func (ec *executionContext) fieldContext_Request_workspace(_ context.Context, fi
 				return ec.fieldContext_Workspace_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Workspace_name(ctx, field)
+			case "alias":
+				return ec.fieldContext_Workspace_alias(ctx, field)
 			case "members":
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
@@ -30477,6 +30556,8 @@ func (ec *executionContext) fieldContext_Thread_workspace(_ context.Context, fie
 				return ec.fieldContext_Workspace_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Workspace_name(ctx, field)
+			case "alias":
+				return ec.fieldContext_Workspace_alias(ctx, field)
 			case "members":
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
@@ -31108,6 +31189,8 @@ func (ec *executionContext) fieldContext_UpdateMePayload_me(_ context.Context, f
 				return ec.fieldContext_Me_theme(ctx, field)
 			case "host":
 				return ec.fieldContext_Me_host(ctx, field)
+			case "profilePictureUrl":
+				return ec.fieldContext_Me_profilePictureUrl(ctx, field)
 			case "myWorkspaceId":
 				return ec.fieldContext_Me_myWorkspaceId(ctx, field)
 			case "auths":
@@ -31168,6 +31251,8 @@ func (ec *executionContext) fieldContext_UpdateMemberOfWorkspacePayload_workspac
 				return ec.fieldContext_Workspace_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Workspace_name(ctx, field)
+			case "alias":
+				return ec.fieldContext_Workspace_alias(ctx, field)
 			case "members":
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
@@ -31222,6 +31307,8 @@ func (ec *executionContext) fieldContext_UpdateWorkspacePayload_workspace(_ cont
 				return ec.fieldContext_Workspace_id(ctx, field)
 			case "name":
 				return ec.fieldContext_Workspace_name(ctx, field)
+			case "alias":
+				return ec.fieldContext_Workspace_alias(ctx, field)
 			case "members":
 				return ec.fieldContext_Workspace_members(ctx, field)
 			case "personal":
@@ -33138,6 +33225,47 @@ func (ec *executionContext) _Workspace_name(ctx context.Context, field graphql.C
 }
 
 func (ec *executionContext) fieldContext_Workspace_name(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Workspace",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Workspace_alias(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Workspace) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Workspace_alias(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Alias, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Workspace_alias(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Workspace",
 		Field:      field,
@@ -45129,6 +45257,8 @@ func (ec *executionContext) _Me(ctx context.Context, sel ast.SelectionSet, obj *
 			}
 		case "host":
 			out.Values[i] = ec._Me_host(ctx, field, obj)
+		case "profilePictureUrl":
+			out.Values[i] = ec._Me_profilePictureUrl(ctx, field, obj)
 		case "myWorkspaceId":
 			out.Values[i] = ec._Me_myWorkspaceId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -49781,6 +49911,8 @@ func (ec *executionContext) _Workspace(ctx context.Context, sel ast.SelectionSet
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "alias":
+			out.Values[i] = ec._Workspace_alias(ctx, field, obj)
 		case "members":
 			out.Values[i] = ec._Workspace_members(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

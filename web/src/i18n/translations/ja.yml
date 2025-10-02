@@ -99,6 +99,7 @@ URL: ''
 Please input the URL of the asset!: アセットのURLを入力してください!
 Please input a valid URL: 有効なURLを入力してください
 Could not display svg: svgを表示できませんでした。
+Myself: 自分
 Comment: コメント
 Comments: コメント
 No comments.: コメントはありません。
@@ -143,11 +144,10 @@ Settings: 設定
 Workspace name: ワークスペース名
 Please input the title of the new workspace!: 新しいワークスペースの名前を入力してください!
 Home: ホーム
+Member: メンバー
 Integrations: インテグレーション
 My Integrations: マイインテグレーション
-Member: メンバー
-Workspace: ワークスペース
-Account: アカウント
+Workspace Settings: ワークスペース設定
 Please input field!: フィールドを入力してください。
 Please select an option!: オプションを選択してください。
 URL is not valid: 無効なURLです
@@ -255,7 +255,6 @@ Are you sure to remove this member?: 本当にメンバーをこのワークス�
 Remove this member from workspace means this member will not view any content of this workspace.: メンバーをワークスペースから削除すると、そのメンバーはワークスペース内のいかなるコンテンツも閲覧することができなくなります。
 Are you sure to leave this workspace?: 本当にこのワークスペースを離れてもよろしいですか？
 Leave this workspace means you will not view any content of this workspace.: ワークスペースを離れると、ワークスペース内のいかなるコンテンツも閲覧することができなくなります。
-Thumbnail: サムネイル
 Email: メールアドレス
 Action: 操作
 Change Role?: ロールを変更
@@ -315,7 +314,6 @@ Are you sure you want to set this project to private?: ''
 All published content will be accessible to everyone.: ''
 Published content will no longer be visible, but you can access it using an API key.: ''
 This action is not reversible, so please continue with caution.: ''
-Visibility: ''
 Delete Project: プロジェクトを削除
 Permanently removes your project and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: プロジェクトとその内容をRe:Earth CMSから完全に削除します。このアクションは元に戻せません。
 Alias: エイリアス
@@ -505,7 +503,6 @@ Permanently removes the current workspace and all of its contents from Re:Earth 
 Workspace Name: ワークスペース名
 This is the name that will be visible within Re:Earth and Re:Earth CMS. This could be your company's name, department's name, the theme of your projects, etc.: ワークスペース名はワークスペースを判別するために表示されます。あなたの会社名、部署名、その他プロジェクトのテーマなどを利用することをお勧めします。
 Please input a new workspace name!: 新しいワークスペース名を入力してください。
-Workspace Settings: ワークスペース設定
 Failed to update user.: ユーザーの更新に失敗しました。
 Successfully updated user!: ユーザーの更新に成功しました。
 Failed to update language.: 言語設定の更新に失敗しました。

@@ -1,7 +1,5 @@
-import { Page } from "@playwright/test";
-
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { expect } from "@reearth-cms/e2e/utils";
+import { type Page, expect } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/utils/mock";
 
 export async function createProject(page: Page) {
@@ -11,7 +9,8 @@ export async function createProject(page: Page) {
   await page.getByRole("button", { name: "OK" }).click();
   await closeNotification(page);
   await page.getByText(id, { exact: true }).click();
-  await expect(page.getByRole("heading", { name: id })).toBeVisible();
+  const projectName = page.locator(".ant-layout-header p").nth(2);
+  await expect(projectName).toHaveText(id);
 }
 
 export async function deleteProject(page: Page) {

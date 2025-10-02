@@ -24,41 +24,43 @@ import (
 )
 
 var (
-	pApiP1Id               = id.NewProjectID()
-	pApiP1Alias            = "test-project"
-	pApiP1A1Id             = id.NewAssetID()
-	pApiA1UUID             = uuid.NewString()
-	pApiP1A2Id             = id.NewAssetID()
-	pApiP1M1Id             = id.NewModelID()
-	pApiP1M1Key            = "test-model"
-	pApiP1S1F1Key          = "test-field-1"
-	pApiP1S1F2Key          = "asset"
-	pApiP1S1F3Key          = "test-field-2"
-	pApiP1S1F4Key          = "asset2"
-	pApiP1S1F5Key          = "geometry-object"
-	pApiP1S1F6Key          = "geometry-editor"
-	pApiP1M1I1Id           = id.NewItemID()
-	pApiP1M1I2Id           = id.NewItemID()
-	pApiP1M1I3Id           = id.NewItemID()
-	pApiP1M1I4Id           = id.NewItemID()
-	pApiP1M1I5Id           = id.NewItemID()
-	pApiP1M2Id             = id.NewModelID()
-	pApiP1M2Key            = "test-model-2"
-	pApiP1M3Id             = id.NewModelID()
-	pApiP1M3Key            = "test-model-3"
-	pApiP1M3I1Id           = id.NewItemID()
-	pApiP2Id               = id.NewProjectID()
-	pApiP2M1Id             = id.NewModelID()
-	pApiP2M1Key            = "test-model-4"
-	pApiP1M2I1Id           = id.NewItemID()
-	pApiP1S2F1Key          = "test-field-1"
-	publicAPIProjectAlias2 = "test-project-2"
-	pApiP1M4Id             = id.NewModelID()
-	pApiP1M4Key            = "test-model-5"
-	pApiP1M4I1Id           = id.NewItemID()
-	pApiP1S3F1Key          = "group"
-	pApiP1S3F2Key          = "multiple-group"
-	pApiP1S3F3Key          = "geometry-object"
+	pApiP1Id      = id.NewProjectID()
+	pApiP1Alias   = "test-project"
+	pApiP1A1Id    = id.NewAssetID()
+	pApiA1UUID    = uuid.NewString()
+	pApiP1A2Id    = id.NewAssetID()
+	pApiP1M1Id    = id.NewModelID()
+	pApiP1M1Key   = "test-model"
+	pApiP1S1F1Key = "test-field-1"
+	pApiP1S1F2Key = "asset"
+	pApiP1S1F3Key = "test-field-2"
+	pApiP1S1F4Key = "asset2"
+	pApiP1S1F5Key = "geometry-object"
+	pApiP1S1F6Key = "geometry-editor"
+	pApiP1M1I1Id  = id.NewItemID()
+	pApiP1M1I2Id  = id.NewItemID()
+	pApiP1M1I3Id  = id.NewItemID()
+	pApiP1M1I4Id  = id.NewItemID()
+	pApiP1M1I5Id  = id.NewItemID()
+	pApiP1M2Id    = id.NewModelID()
+	pApiP1M2Key   = "test-model-2"
+	pApiP1M3Id    = id.NewModelID()
+	pApiP1M3Key   = "test-model-3"
+	pApiP1M3I1Id  = id.NewItemID()
+	pApiP2Id      = id.NewProjectID()
+	pApiP2M1Id    = id.NewModelID()
+	pApiP2M1Key   = "test-model-4"
+	pApiP2M2Key   = "key-p2-m2"
+	pApiP1M2I1Id  = id.NewItemID()
+	pApiP1S2F1Key = "test-field-1"
+	pApiP1S2F2Key = "test-field-2"
+	pApiP2Alias   = "test-project-2"
+	pApiP1M4Id    = id.NewModelID()
+	pApiP1M4Key   = "test-model-5"
+	pApiP1M4I1Id  = id.NewItemID()
+	pApiP1S3F1Key = "group"
+	pApiP1S3F2Key = "multiple-group"
+	pApiP1S3F3Key = "geometry-object"
 )
 
 func TestPublicAPI_NotFound(t *testing.T) {
@@ -72,7 +74,15 @@ func TestPublicAPI_NotFound(t *testing.T) {
 		JSON().
 		IsEqual(map[string]any{"error": "not found"})
 
-	e.GET("/api/p/{project}/{model}", pApiP1Alias, pApiP1M2Key).
+	// private model
+	e.GET("/api/p/{project}/{model}", pApiP2Alias, pApiP2M1Key).
+		Expect().
+		Status(http.StatusNotFound).
+		JSON().
+		IsEqual(map[string]any{"error": "not found"})
+
+	// private assets
+	e.GET("/api/p/{project}/{model}", pApiP2Alias, "assets").
 		Expect().
 		Status(http.StatusNotFound).
 		JSON().
@@ -135,6 +145,25 @@ func TestPublicAPI_Item(t *testing.T) {
 				"type": "asset",
 				"id":   pApiP1A1Id.String(),
 				"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
+			},
+		})
+
+	// test reference field
+	e.GET("/api/p/{project}/{model}/{item}", pApiP1Alias, pApiP1M2Key, pApiP1M2I1Id).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]any{
+			"id":          pApiP1M2I1Id.String(),
+			pApiP1S2F1Key: "bbb",
+			pApiP1S2F2Key: map[string]any{
+				"id":          pApiP1M1I1Id.String(),
+				pApiP1S1F1Key: "aaa",
+				pApiP1S1F2Key: map[string]any{
+					"type": "asset",
+					"id":   pApiP1A1Id.String(),
+					"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
+				},
 			},
 		})
 
@@ -279,11 +308,43 @@ func TestPublicAPI_Model(t *testing.T) {
 							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
 						},
 					},
-					pApiP1S1F5Key: "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
-					pApiP1S1F6Key: "{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}",
+					pApiP1S1F5Key: map[string]any{
+					"type":        "Point",
+					"coordinates": []any{102.0, 0.5},
+				},
+					pApiP1S1F6Key: map[string]any{
+					"type": "LineString",
+					"coordinates": []any{
+						[]any{139.65439725962517, 36.34793305387103},
+						[]any{139.61688622815393, 35.910803456352724},
+					},
+				},
 				},
 			},
 			"totalCount": 4,
+			"hasMore":    false,
+			"limit":      50,
+			"offset":     0,
+			"page":       1,
+		})
+
+	// test reference fields
+	e.GET("/api/p/{project}/{model}", pApiP1Alias, pApiP1M2Key).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		IsEqual(map[string]any{
+			"results": []map[string]any{
+				{
+					"id":          pApiP1M2I1Id.String(),
+					pApiP1S2F1Key: "bbb",
+					pApiP1S2F2Key: map[string]any{
+						"id":          pApiP1M1I1Id.String(),
+						pApiP1S1F1Key: "aaa",
+					},
+				},
+			},
+			"totalCount": 1,
 			"hasMore":    false,
 			"limit":      50,
 			"offset":     0,
@@ -374,8 +435,17 @@ func TestPublicAPI_Model(t *testing.T) {
 					//		"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
 					//	},
 					//},
-					pApiP1S1F5Key: "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
-					pApiP1S1F6Key: "{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}",
+					pApiP1S1F5Key: map[string]any{
+					"type":        "Point",
+					"coordinates": []any{102.0, 0.5},
+				},
+					pApiP1S1F6Key: map[string]any{
+					"type": "LineString",
+					"coordinates": []any{
+						[]any{139.65439725962517, 36.34793305387103},
+						[]any{139.61688622815393, 35.910803456352724},
+					},
+				},
 				},
 			},
 			"totalCount": 4,
@@ -466,8 +536,17 @@ func TestPublicAPI_Model(t *testing.T) {
 							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
 						},
 					},
-					pApiP1S1F5Key: "{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}",
-					pApiP1S1F6Key: "{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}",
+					pApiP1S1F5Key: map[string]any{
+					"type":        "Point",
+					"coordinates": []any{102.0, 0.5},
+				},
+					pApiP1S1F6Key: map[string]any{
+					"type": "LineString",
+					"coordinates": []any{
+						[]any{139.65439725962517, 36.34793305387103},
+						[]any{139.61688622815393, 35.910803456352724},
+					},
+				},
 				},
 			},
 			"totalCount": 4,
@@ -478,7 +557,7 @@ func TestPublicAPI_Model(t *testing.T) {
 		})
 
 	// different project in the same workspace with the same token
-	e.GET("/api/p/{project}/{model}", publicAPIProjectAlias2, pApiP1M2Key).
+	e.GET("/api/p/{project}/{model}", pApiP2Alias, pApiP1M2Key).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("Authorization", apiKey.Key()).
 		WithHeader("Content-Type", "application/json").
@@ -537,12 +616,12 @@ func TestPublicAPI_Model_GeoJson(t *testing.T) {
 		})
 
 	// no geometry field
-	e.GET("/api/p/{project}/{model}.geojson", pApiP1Alias, pApiP1M3Key).
+	e.GET("/api/p/{project}/{model}.geojson", pApiP1Alias, pApiP1M2Key).
 		Expect().
-		Status(http.StatusNotFound).
+		Status(http.StatusBadRequest).
 		JSON().
 		IsEqual(map[string]any{
-			"error": "not found",
+			"error": "no geometry field in this model",
 		})
 }
 
@@ -555,15 +634,16 @@ func TestPublicAPI_Model_CSV(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).
 		Body().
-		IsEqual(fmt.Sprintf("id,location_lat,location_lng,test-field-1,asset,test-field-2,asset2\n%s,0.5,102,eee,,aaa,\n", pApiP1M1I5Id.String()))
+		IsEqual("id,location_lat,location_lng,test-field-1,asset,test-field-2,asset2\n" +
+			fmt.Sprintf("%s,0.5,102,eee,,aaa,\n", pApiP1M1I5Id.String()))
 
-	// no geometry field
-	e.GET("/api/p/{project}/{model}.csv", pApiP1Alias, pApiP1M3Key).
+	// model does not have point type geometry field
+	e.GET("/api/p/{project}/{model}.csv", pApiP1Alias, pApiP1M2Key).
 		Expect().
-		Status(http.StatusNotFound).
+		Status(http.StatusBadRequest).
 		JSON().
 		IsEqual(map[string]any{
-			"error": "not found",
+			"error": "point type is not supported in this model",
 		})
 }
 
@@ -619,76 +699,90 @@ func TestPublicAPI_Model_Json(t *testing.T) {
 func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Container) error {
 	uid := accountdomain.NewUserID()
 	wid := accountdomain.NewWorkspaceID()
-	p1 := project.New().
-		ID(pApiP1Id).
-		Workspace(wid).Alias(pApiP1Alias).
-		Accessibility(project.NewPublicAccessibility()).
-		MustBuild()
 
-	p1a1 := asset.New().
-		ID(pApiP1A1Id).
-		Project(pApiP1Id).
-		CreatedByUser(uid).
-		Size(1).
-		Thread(id.NewThreadID().Ref()).
-		FileName("aaa.zip").
-		UUID(pApiA1UUID).
-		MustBuild()
-	c := []*asset.File{
+	/// Project 1 (Public Project)
+	p1 := project.New().ID(pApiP1Id).Workspace(wid).Alias(pApiP1Alias).Accessibility(project.NewPublicAccessibility()).MustBuild()
+	lo.Must0(r.Project.Save(ctx, p1))
+
+	/// Project 1 Asset 1
+	p1a1 := asset.New().ID(pApiP1A1Id).Project(pApiP1Id).CreatedByUser(uid).Size(1).Thread(id.NewThreadID().Ref()).FileName("aaa.zip").UUID(pApiA1UUID).MustBuild()
+	lo.Must0(r.Asset.Save(ctx, p1a1))
+
+	p1a1c := []*asset.File{
 		asset.NewFile().Name("bbb.txt").Path("aaa/bbb.txt").Build(),
 		asset.NewFile().Name("ccc.txt").Path("aaa/ccc.txt").Build(),
 	}
-	af := asset.NewFile().Name("aaa.zip").Path("aaa.zip").ContentType("application/zip").Size(10).Children(c).Build()
+	p1a1f := asset.NewFile().Name("aaa.zip").Path("aaa.zip").ContentType("application/zip").Size(10).Children(p1a1c).Build()
+	lo.Must0(r.AssetFile.Save(ctx, p1a1.ID(), p1a1f))
 
-	fid := id.NewFieldID()
+	/// Project 1 Model 1
+	p1s1txt1Id := id.NewFieldID()
 	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
 	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
-	p1s1 := schema.New().
-		NewID().
-		Project(pApiP1Id).
-		Workspace(p1.Workspace()).
+	p1s1 := schema.New().NewID().Project(pApiP1Id).Workspace(p1.Workspace()).
 		Fields(schema.FieldList{
-			schema.NewField(schema.NewText(nil).TypeProperty()).ID(fid).Name(pApiP1S1F1Key).Key(id.NewKey(pApiP1S1F1Key)).MustBuild(),
+			schema.NewField(schema.NewText(nil).TypeProperty()).ID(p1s1txt1Id).Name(pApiP1S1F1Key).Key(id.NewKey(pApiP1S1F1Key)).MustBuild(),
 			schema.NewField(schema.NewAsset().TypeProperty()).NewID().Name(pApiP1S1F2Key).Key(id.NewKey(pApiP1S1F2Key)).MustBuild(),
 			schema.NewField(schema.NewText(nil).TypeProperty()).NewID().Name(pApiP1S1F3Key).Key(id.NewKey(pApiP1S1F3Key)).Multiple(true).MustBuild(),
 			schema.NewField(schema.NewAsset().TypeProperty()).NewID().Name(pApiP1S1F4Key).Key(id.NewKey(pApiP1S1F4Key)).Multiple(true).MustBuild(),
 			schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name(pApiP1S1F5Key).Key(id.NewKey(pApiP1S1F5Key)).MustBuild(),
 			schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name(pApiP1S1F6Key).Key(id.NewKey(pApiP1S1F6Key)).MustBuild(),
-		}).TitleField(fid.Ref()).
+		}).TitleField(p1s1txt1Id.Ref()).
 		MustBuild()
-
-	p1s2 := schema.New().
-		NewID().
-		Project(pApiP1Id).
-		Workspace(p1.Workspace()).
-		Fields(schema.FieldList{
-			schema.NewField(schema.NewText(nil).TypeProperty()).ID(fid).Name(pApiP1S2F1Key).Key(id.NewKey(pApiP1S2F1Key)).MustBuild(),
-		}).MustBuild()
-
-	p1g1f1Id := id.NewFieldID()
-	p1g1f2Id := id.NewFieldID()
-	p1g1f3Id := id.NewFieldID()
-	p1g1f4Id := id.NewFieldID()
-	p1g1f5Id := id.NewFieldID()
-	p1g1s1 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
-		schema.NewField(schema.NewText(nil).TypeProperty()).ID(p1g1f4Id).Name("text").Key(id.NewKey("text")).MustBuild(),
-	}).MustBuild()
-	p1g1 := group.New().ID(id.NewGroupID()).Project(p1.ID()).Schema(p1g1s1.ID()).Name("group1").Key(id.NewKey("group1")).MustBuild()
-	p1g2s1 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
-		schema.NewField(schema.NewText(nil).TypeProperty()).ID(p1g1f5Id).Name("text2").Key(id.NewKey("text2")).MustBuild(),
-	}).MustBuild()
-	p1g2 := group.New().ID(id.NewGroupID()).Project(p1.ID()).Schema(p1g2s1.ID()).Name("group2").Key(id.NewKey("group2")).MustBuild()
-	p1s3 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
-		schema.NewField(schema.NewGroup(p1g1.ID()).TypeProperty()).ID(p1g1f1Id).Name(pApiP1S3F1Key).Key(id.NewKey(pApiP1S3F1Key)).MustBuild(),
-		schema.NewField(schema.NewGroup(p1g2.ID()).TypeProperty()).ID(p1g1f2Id).Name(pApiP1S3F2Key).Key(id.NewKey(pApiP1S3F2Key)).Multiple(true).MustBuild(),
-		schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).ID(p1g1f3Id).Name(pApiP1S3F3Key).Key(id.NewKey(pApiP1S3F3Key)).MustBuild(),
-	}).MustBuild()
+	lo.Must0(r.Schema.Save(ctx, p1s1))
 
 	p1m1 := model.New().ID(pApiP1M1Id).Project(pApiP1Id).Schema(p1s1.ID()).Key(id.NewKey(pApiP1M1Key)).MustBuild()
-	// p1m2 is not a public model
-	p1m2 := model.New().ID(pApiP1M2Id).Project(pApiP1Id).Schema(p1s1.ID()).Name(pApiP1M2Key).Key(id.NewKey(pApiP1M2Key)).MustBuild()
-	p1m3 := model.New().ID(pApiP1M3Id).Project(pApiP1Id).Schema(p1s2.ID()).Name(pApiP1M3Key).Key(id.NewKey(pApiP1M3Key)).MustBuild()
-	p1m4 := model.New().ID(pApiP1M4Id).Project(p1.ID()).Schema(p1s3.ID()).Key(id.NewKey(pApiP1M4Key)).MustBuild()
+	lo.Must0(r.Model.Save(ctx, p1m1))
+
+	/// Project 1 Model 2
+	p1s2 := schema.New().NewID().Project(pApiP1Id).Workspace(p1.Workspace()).
+		Fields(schema.FieldList{
+			schema.NewField(schema.NewText(nil).TypeProperty()).ID(p1s1txt1Id).Name(pApiP1S2F1Key).Key(id.NewKey(pApiP1S2F1Key)).MustBuild(),
+			schema.NewField(schema.NewReference(p1m1.ID(), p1m1.Schema(), nil, nil).TypeProperty()).NewID().Name(pApiP1S2F2Key).Key(id.NewKey(pApiP1S2F2Key)).MustBuild(),
+		}).MustBuild()
+	lo.Must0(r.Schema.Save(ctx, p1s2))
+
+	p1m2 := model.New().ID(pApiP1M2Id).Project(pApiP1Id).Schema(p1s2.ID()).Name(pApiP1M2Key).Key(id.NewKey(pApiP1M2Key)).MustBuild()
+	lo.Must0(r.Model.Save(ctx, p1m2))
+
+	/// Project 1 Model 3
+	p1g1f1Id := id.NewFieldID()
+	p1g1s := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
+		schema.NewField(schema.NewText(nil).TypeProperty()).ID(p1g1f1Id).Name("text").Key(id.NewKey("text")).MustBuild(),
+	}).MustBuild()
+	lo.Must0(r.Schema.Save(ctx, p1g1s))
+
+	p1g1 := group.New().ID(id.NewGroupID()).Project(p1.ID()).Schema(p1g1s.ID()).Name("group1").Key(id.NewKey("group1")).MustBuild()
+	lo.Must0(r.Group.Save(ctx, p1g1))
+
+	p1g2f1Id := id.NewFieldID()
+	p1g2s := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
+		schema.NewField(schema.NewText(nil).TypeProperty()).ID(p1g2f1Id).Name("text2").Key(id.NewKey("text2")).MustBuild(),
+	}).MustBuild()
+	lo.Must0(r.Schema.Save(ctx, p1g2s))
+
+	p1g2 := group.New().ID(id.NewGroupID()).Project(p1.ID()).Schema(p1g2s.ID()).Name("group2").Key(id.NewKey("group2")).MustBuild()
+	lo.Must0(r.Group.Save(ctx, p1g2))
+
+	p1s3g1Id := id.NewFieldID()
+	p1s3g2Id := id.NewFieldID()
+	p1s3geo1Id := id.NewFieldID()
+	p1s3 := schema.New().NewID().Project(p1.ID()).Workspace(p1.Workspace()).Fields(schema.FieldList{
+		schema.NewField(schema.NewGroup(p1g1.ID()).TypeProperty()).ID(p1s3g1Id).Name(pApiP1S3F1Key).Key(id.NewKey(pApiP1S3F1Key)).MustBuild(),
+		schema.NewField(schema.NewGroup(p1g2.ID()).TypeProperty()).ID(p1s3g2Id).Name(pApiP1S3F2Key).Key(id.NewKey(pApiP1S3F2Key)).Multiple(true).MustBuild(),
+		schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).ID(p1s3geo1Id).Name(pApiP1S3F3Key).Key(id.NewKey(pApiP1S3F3Key)).MustBuild(),
+	}).MustBuild()
+	lo.Must0(r.Schema.Save(ctx, p1s3))
+
+	p1m3 := model.New().ID(pApiP1M3Id).Project(pApiP1Id).Schema(p1s3.ID()).Name(pApiP1M3Key).Key(id.NewKey(pApiP1M3Key)).MustBuild()
+	lo.Must0(r.Model.Save(ctx, p1m3))
+
+	/// Project 1 Model 4
+	p1s4 := p1s3.Clone()
+	lo.Must0(r.Schema.Save(ctx, p1s4))
+
+	p1m4 := model.New().ID(pApiP1M4Id).Project(p1.ID()).Schema(p1s4.ID()).Key(id.NewKey(pApiP1M4Key)).MustBuild()
+	lo.Must0(r.Model.Save(ctx, p1m4))
 
 	p1m1i1 := item.New().
 		ID(pApiP1M1I1Id).
@@ -762,19 +856,19 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 		Thread(id.NewThreadID().Ref()).
 		User(uid).
 		Fields([]*item.Field{
-			item.NewField(p1s1.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple(), nil),
-			item.NewField(p1s1.Fields()[1].ID(), value.TypeAsset.Value(p1a1.ID()).AsMultiple(), nil),
+			item.NewField(p1s2.Fields()[0].ID(), value.TypeText.Value("bbb").AsMultiple(), nil),
+			item.NewField(p1s2.Fields()[1].ID(), value.TypeReference.Value(p1m1i1.ID()).AsMultiple(), nil),
 		}).MustBuild()
 
 	p1m3i1 := item.New().
 		ID(pApiP1M3I1Id).
 		Model(p1m3.ID()).
-		Schema(p1s2.ID()).
-		Project(pApiP1Id).
+		Schema(p1s3.ID()).
+		Project(p1.ID()).
 		Thread(id.NewThreadID().Ref()).
 		User(uid).
 		Fields([]*item.Field{
-			item.NewField(p1s1.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple(), nil),
+			item.NewField(p1s3.Fields()[0].ID(), value.TypeText.Value("aaa").AsMultiple(), nil),
 		}).MustBuild()
 
 	p1m4i8ig1 := id.NewItemGroupID()
@@ -782,61 +876,63 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 	p1m4i1 := item.New().
 		ID(pApiP1M4I1Id).
 		Model(p1m4.ID()).
-		Schema(p1s3.ID()).
+		Schema(p1s4.ID()).
 		Project(p1.ID()).
 		Thread(id.NewThreadID().Ref()).
 		IsMetadata(false).
 		User(uid).
 		Fields([]*item.Field{
-			item.NewField(p1g1f1Id, value.TypeGroup.Value(p1m4i8ig1).AsMultiple(), nil),
-			item.NewField(p1g1f2Id, value.MultipleFrom(value.TypeGroup, []*value.Value{value.TypeGroup.Value(p1m4i8ig2)}), nil),
-			item.NewField(p1g1f3Id, value.TypeGeometryObject.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}").AsMultiple(), nil),
-			item.NewField(p1g1f4Id, value.TypeText.Value("aaa").AsMultiple(), p1m4i8ig1.Ref()),
-			item.NewField(p1g1f5Id, value.TypeText.Value("bbb").AsMultiple(), p1m4i8ig2.Ref()),
+			item.NewField(p1s3g1Id, value.TypeGroup.Value(p1m4i8ig1).AsMultiple(), nil),
+			item.NewField(p1s3g2Id, value.MultipleFrom(value.TypeGroup, []*value.Value{value.TypeGroup.Value(p1m4i8ig2)}), nil),
+			item.NewField(p1s3geo1Id, value.TypeGeometryObject.Value("{\n\"type\": \"Point\",\n\t\"coordinates\": [102.0, 0.5]\n}").AsMultiple(), nil),
+			item.NewField(p1g1f1Id, value.TypeText.Value("aaa").AsMultiple(), p1m4i8ig1.Ref()),
+			item.NewField(p1g2f1Id, value.TypeText.Value("bbb").AsMultiple(), p1m4i8ig2.Ref()),
 		}).
 		MustBuild()
 
-	lo.Must0(r.Project.Save(ctx, p1))
-
-	lo.Must0(r.Asset.Save(ctx, p1a1))
-	lo.Must0(r.AssetFile.Save(ctx, p1a1.ID(), af))
-	lo.Must0(r.Schema.Save(ctx, p1s1))
-	lo.Must0(r.Model.Save(ctx, p1m1))
-
 	lo.Must0(r.Item.Save(ctx, p1m1i1))
-	lo.Must0(r.Item.Save(ctx, p1m1i2))
-	lo.Must0(r.Item.Save(ctx, p1m1i3))
-	lo.Must0(r.Item.Save(ctx, p1m1i4))
-	lo.Must0(r.Item.Save(ctx, p1m1i5))
-	lo.Must0(r.Item.Save(ctx, p1m2i1))
-	lo.Must0(r.Item.Save(ctx, p1m3i1))
 	lo.Must0(r.Item.UpdateRef(ctx, p1m1i1.ID(), version.Public, version.Latest.OrVersion().Ref()))
+	lo.Must0(r.Item.Save(ctx, p1m1i2))
 	lo.Must0(r.Item.UpdateRef(ctx, p1m1i2.ID(), version.Public, version.Latest.OrVersion().Ref()))
+	lo.Must0(r.Item.Save(ctx, p1m1i3))
 	lo.Must0(r.Item.UpdateRef(ctx, p1m1i3.ID(), version.Public, version.Latest.OrVersion().Ref()))
+	lo.Must0(r.Item.Save(ctx, p1m1i4))
 	//lo.Must0(r.Item.UpdateRef(ctx, p1m1i4.ID(), version.Public, version.Latest.OrVersion().Ref()))
+	lo.Must0(r.Item.Save(ctx, p1m1i5))
 	lo.Must0(r.Item.UpdateRef(ctx, p1m1i5.ID(), version.Public, version.Latest.OrVersion().Ref()))
+	lo.Must0(r.Item.Save(ctx, p1m2i1))
+	lo.Must0(r.Item.UpdateRef(ctx, p1m2i1.ID(), version.Public, version.Latest.OrVersion().Ref()))
+	lo.Must0(r.Item.Save(ctx, p1m3i1))
 	lo.Must0(r.Item.UpdateRef(ctx, p1m3i1.ID(), version.Public, version.Latest.OrVersion().Ref()))
 
-	lo.Must0(r.Schema.Save(ctx, p1s3))
-	lo.Must0(r.Schema.Save(ctx, p1g1s1))
-	lo.Must0(r.Schema.Save(ctx, p1g2s1))
-	lo.Must0(r.Model.Save(ctx, p1m4))
-	lo.Must0(r.Group.Save(ctx, p1g1))
-	lo.Must0(r.Group.Save(ctx, p1g2))
 	lo.Must0(r.Item.Save(ctx, p1m4i1))
 	lo.Must0(r.Item.UpdateRef(ctx, p1m4i1.ID(), version.Public, version.Latest.OrVersion().Ref()))
 
+	/// Project 2 (Private Project)
 	p2 := project.New().
 		ID(pApiP2Id).
 		Workspace(wid).
-		Alias(publicAPIProjectAlias2).
+		Alias(pApiP2Alias).
 		Accessibility(project.NewPrivateAccessibility(*project.NewPublicationSettings(nil, false), nil)).
 		MustBuild()
-
-	p2m1 := model.New().ID(pApiP2M1Id).Project(pApiP2Id).Schema(id.NewSchemaID()).Key(id.NewKey(pApiP2M1Key)).MustBuild()
-
 	lo.Must0(r.Project.Save(ctx, p2))
+
+	/// Project 2 Model 1
+	p2s1 := schema.New().NewID().Project(p2.ID()).Workspace(p2.Workspace()).Fields(schema.FieldList{}).MustBuild()
+	lo.Must0(r.Schema.Save(ctx, p2s1))
+
+	p2m1 := model.New().ID(pApiP2M1Id).Project(p2.ID()).Schema(p2s1.ID()).Key(id.NewKey(pApiP2M1Key)).MustBuild()
 	lo.Must0(r.Model.Save(ctx, p2m1))
+
+	/// Project 2 Model 2
+	p2s2 := schema.New().NewID().Project(p2.ID()).Workspace(p2.Workspace()).Fields(schema.FieldList{}).MustBuild()
+	lo.Must0(r.Schema.Save(ctx, p2s2))
+
+	p2m2 := model.New().NewID().Project(p2.ID()).Schema(p2s2.ID()).Key(id.NewKey(pApiP2M2Key)).MustBuild()
+	lo.Must0(r.Model.Save(ctx, p2m2))
+
+	p2.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(id.ModelIDList{p2m2.ID()}, false), nil))
+	lo.Must0(r.Project.Save(ctx, p2))
 
 	return nil
 }

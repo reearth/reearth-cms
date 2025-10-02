@@ -1,5 +1,6 @@
+/* eslint-disable playwright/no-skipped-test */
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { expect, test } from "@reearth-cms/e2e/utils";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
 
 import { config } from "../utils/config";
@@ -14,9 +15,7 @@ import { createWorkspace, deleteWorkspace } from "./utils/workspace";
 const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 
 test.beforeEach(async ({ reearth, page }) => {
-  // eslint-disable-next-line playwright/no-skipped-test
   test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
-
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createWorkspace(page);
   await createProject(page);
@@ -27,9 +26,7 @@ test.beforeEach(async ({ reearth, page }) => {
 });
 
 test.afterEach(async ({ page }) => {
-  // eslint-disable-next-line playwright/no-skipped-test
   test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
-
   await deleteProject(page);
   await deleteWorkspace(page);
 });

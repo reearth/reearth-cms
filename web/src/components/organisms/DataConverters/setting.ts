@@ -89,6 +89,7 @@ export const fromGraphQLWorkspace = (workspace: GQLWorkspace): Workspace => {
   return {
     id: workspace.id,
     name: workspace.name,
+    alias: workspace.alias ?? "",
     personal: workspace.personal,
     members: workspace.members.map(member => fromGraphQLMember(member)),
   };

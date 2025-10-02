@@ -1,7 +1,5 @@
-import { Page } from "@playwright/test";
-
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { expect } from "@reearth-cms/e2e/utils";
+import { type Page, expect } from "@reearth-cms/e2e/fixtures/test";
 
 export const modelName = "e2e model name";
 
@@ -15,7 +13,8 @@ async function createModel(page: Page, name = modelName, key?: string) {
 }
 
 export async function createModelFromOverview(page: Page, name = modelName, key?: string) {
-  await expect(page.getByRole("heading")).toBeVisible();
+  const titleEl = page.locator(".ant-page-header-heading-title");
+  await expect(titleEl).toHaveText("Models");
   await page.getByRole("button", { name: "plus New Model" }).first().click();
   await createModel(page, name, key);
 }
