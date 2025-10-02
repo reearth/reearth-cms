@@ -62,10 +62,10 @@ const MemberRoleModal: React.FC<Props> = ({ open, member, loading, onClose, onUp
       open={open}
       onCancel={handleClose}
       footer={[
-        <Button onClick={handleClose} disabled={loading}>
+        <Button key="cancel" onClick={handleClose} disabled={loading}>
           {t("Cancel")}
         </Button>,
-        <Button type="primary" loading={loading} onClick={handleSubmit} disabled={isDisabled}>
+        <Button key="ok" type="primary" loading={loading} onClick={handleSubmit} disabled={isDisabled}>
           {t("OK")}
         </Button>,
       ]}>

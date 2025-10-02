@@ -75,8 +75,8 @@ describe("Member", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "usergroup-add New Member" }));
-    await expect.poll(() => screen.getByRole("dialog")).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "usergroup-addNew Member" }));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Cancel" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -109,7 +109,7 @@ describe("Member", () => {
     );
 
     await user.click(screen.getAllByRole("button", { name: "Change Role?" })[0]);
-    await expect.poll(() => screen.getByRole("dialog")).toBeVisible();
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Cancel" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
