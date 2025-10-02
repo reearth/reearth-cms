@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+
 type ProjectMetadataDocument struct {
 	ID            string                        `bson:"_id,omitempty"`
 	Name          string                        `bson:"name,omitempty"`
@@ -36,8 +37,6 @@ func (d ProjectMetadataDocument) GetID() primitive.ObjectID {
 }
 
 func AddProjectMetadataFields(ctx context.Context, dbURL, dbName string, wetRun bool) error {
-	testID := ""
-
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbURL))
 	if err != nil {
 		return fmt.Errorf("db: failed to init client err: %w", err)
@@ -52,20 +51,6 @@ func AddProjectMetadataFields(ctx context.Context, dbURL, dbName string, wetRun 
 	pCol := client.Database(dbName).Collection("project")
 
 	filter := bson.M{}
-
-	if testID != "" {
-		filter = bson.M{
-			"$and": []bson.M{
-				{"_id": testID},
-				filter,
-			},
-		}
-		count, err := pCol.CountDocuments(ctx, filter)
-		if err != nil {
-			return fmt.Errorf("failed to count docs: %w", err)
-		}
-		fmt.Printf("test mode: filter on document id '%s' is applied, %d document selected.\n", testID, count)
-	}
 
 	if !wetRun {
 		fmt.Printf("dry run\n")
@@ -166,3 +151,4 @@ func BatchUpdateWithCustomOperation(ctx context.Context, col *mongo.Collection, 
 	fmt.Printf("Completed processing %d documents\n", processed)
 	return processed, nil
 }
+
