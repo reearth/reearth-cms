@@ -1,6 +1,7 @@
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
+/* eslint-disable playwright/expect-expect */
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
+import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });

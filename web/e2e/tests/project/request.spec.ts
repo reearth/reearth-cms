@@ -1,10 +1,10 @@
+/* eslint-disable playwright/expect-expect */
 /* eslint-disable playwright/no-skipped-test */
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
+import { config } from "@reearth-cms/e2e/config/config";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { parseConfigBoolean } from "@reearth-cms/e2e/helpers/format.helper";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-
-import { config } from "@reearth-cms/e2e/config/config";
+import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 const itemTitle = "e2e item title";

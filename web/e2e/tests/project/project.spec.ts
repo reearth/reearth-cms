@@ -1,6 +1,6 @@
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
+import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 test.afterEach(async ({ page, projectPage, workspacePage }) => {
   await projectPage.settingsMenuItem.click();

@@ -1,7 +1,6 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 
 import { baseURL, authFile } from "../../playwright.config";
-
 import { config } from "../config/config";
 
 const { userName, password } = config;

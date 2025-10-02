@@ -1,7 +1,7 @@
-import { stateColors } from "@reearth-cms/e2e/helpers/format.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { stateColors } from "@reearth-cms/e2e/helpers/format.helper";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
+import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 const dateReg = /([0-9]{4})\/(0[1-9]|1[0-2])\/([0-2][0-9]|3[01]), ([01][0-9]|2[0-3]):[0-5][0-9]/;
 const requestTitle = "e2e request title";

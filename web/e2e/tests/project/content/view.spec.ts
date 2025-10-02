@@ -1,7 +1,7 @@
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 import { type Page, expect, test } from "@reearth-cms/e2e/fixtures/test";
-import { ContentPage } from "@reearth-cms/e2e/pages/content.page";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
+import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
+import { ContentPage } from "@reearth-cms/e2e/pages/content.page";
 
 test.beforeEach(async ({ reearth, workspacePage, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });

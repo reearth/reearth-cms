@@ -1,6 +1,6 @@
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
+import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 const fieldName = "tag";
 const description = "tag description";

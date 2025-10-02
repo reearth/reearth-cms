@@ -1,5 +1,6 @@
 import { test as base, type Page } from "@playwright/test";
 
+import { config, getAccessToken, type Config } from "../config/config";
 import { AssetsPage } from "../pages/assets.page";
 import { AuthPage } from "../pages/auth.page";
 import { ContentPage } from "../pages/content.page";
@@ -11,7 +12,6 @@ import { RequestPage } from "../pages/request.page";
 import { SchemaPage } from "../pages/schema.page";
 import { SettingsPage } from "../pages/settings.page";
 import { WorkspacePage } from "../pages/workspace.page";
-import { config, getAccessToken, type Config } from "../config/config";
 
 export type PageObjects = {
   assetsPage: AssetsPage;

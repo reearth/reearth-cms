@@ -1,5 +1,5 @@
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 test.beforeEach(async ({ reearth, page, integrationsPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });

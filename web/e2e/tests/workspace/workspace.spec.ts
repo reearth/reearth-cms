@@ -1,8 +1,7 @@
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
+import { config } from "@reearth-cms/e2e/config/config";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { parseConfigBoolean } from "@reearth-cms/e2e/helpers/format.helper";
-
-import { config } from "@reearth-cms/e2e/config/config";
+import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 
