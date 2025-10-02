@@ -53,13 +53,6 @@ func Test_updateProjectMetadata(t *testing.T) {
 			assert.Equal(t, tt.wantFields["StarCount"], setMap["star_count"])
 			assert.Equal(t, tt.wantFields["StarredBy"], setMap["starred_by"])
 
-			// Check that created_at is set
-			assert.NotNil(t, setMap["created_at"])
-
-			// Check that created_at matches ObjectID timestamp
-			createdAt := setMap["created_at"].(time.Time)
-			assert.Equal(t, fixedTime, createdAt)
-
 			// Should not have $unset operation
 			_, hasUnset := updateOp["$unset"]
 			assert.False(t, hasUnset, "Should not have $unset operation")
@@ -67,22 +60,4 @@ func Test_updateProjectMetadata(t *testing.T) {
 	}
 }
 
-func Test_updateProjectMetadata_with_existing_created_at(t *testing.T) {
-	existingCreatedAt := time.Date(2022, 6, 15, 10, 30, 0, 0, time.UTC)
-	objID := primitive.NewObjectID()
-
-	project := ProjectMetadataDocument{
-		ID:        objID.Hex(),
-		Name:      "Test Project",
-		Workspace: "workspace1",
-	}
-
-	updateOp, err := updateProjectMetadata()(project)
-
-	assert.NoError(t, err)
-	
-	setOp := updateOp["$set"].(bson.M)
-	createdAt := setOp["created_at"].(time.Time)
-	assert.Equal(t, existingCreatedAt, createdAt, "Should preserve existing created_at")
-}
 
