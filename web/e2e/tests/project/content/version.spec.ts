@@ -19,7 +19,9 @@ function getRgb(colorCode: string) {
 
 test.beforeEach(async ({ reearth, fieldEditorPage, projectPage, contentPage, schemaPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await projectPage.createProject(getId());
+  const projectName = getId();
+  await projectPage.createProject(projectName);
+  await projectPage.gotoProject(projectName);
   await projectPage.createModelFromOverview();
   await fieldEditorPage.fieldTypeButton("Text").click();
   await schemaPage.handleFieldForm(fieldName);
@@ -27,7 +29,7 @@ test.beforeEach(async ({ reearth, fieldEditorPage, projectPage, contentPage, sch
   await contentPage.newItemButton.click();
   await contentPage.fieldInput(fieldName).fill("1");
   await contentPage.saveButton.click();
-  await closeNotification(contentPage.page);
+  await contentPage.closeNotification();
 
   await contentPage.versionHistoryTab.click();
 });
@@ -51,10 +53,10 @@ test("Read versions successfully", async ({ contentPage }) => {
   await expect(requestStatus).toHaveCSS("background-color", getRgb(stateColors.REVIEW));
   await requestStatus.hover();
   await expect(contentPage.tooltipByName("REVIEW")).toBeVisible();
-  const itemId = page.url().split("/").at(-1) as string;
+  const itemId = contentPage.url().split("/").at(-1) as string;
   await request.click();
   await contentPage.approveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.itemIdButton(itemId).click();
   await contentPage.versionHistoryTab.click();
   await expect(request).toBeHidden();
@@ -64,7 +66,7 @@ test("Read versions successfully", async ({ contentPage }) => {
 
   await contentPage.fieldInput(fieldName).fill("2");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await expect(contentPage.textByRegex(dateReg)).toHaveCount(2);
   await expect(contentPage.textByRegex(/Updated by .*/)).toBeVisible();

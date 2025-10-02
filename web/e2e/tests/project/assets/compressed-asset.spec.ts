@@ -19,7 +19,9 @@ const isCI = !!process.env.CI;
 test.beforeEach(async ({ reearth, projectPage }) => {
   test.skip(!isCI, "This test runs only in CI environment");
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await projectPage.createProject(getId());
+  const projectName = getId();
+  await projectPage.createProject(projectName);
+  await projectPage.gotoProject(projectName);
   await projectPage.assetMenuItem.click();
 });
 

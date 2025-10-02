@@ -9,7 +9,9 @@ const tag2 = "Tag2";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await projectPage.createProject(getId());
+  const projectName = getId();
+  await projectPage.createProject(projectName);
+  await projectPage.gotoProject(projectName);
   await projectPage.createModelFromOverview();
 });
 

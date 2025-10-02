@@ -4,7 +4,9 @@ import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await projectPage.createProject(getId());
+  const projectName = getId();
+  await projectPage.createProject(projectName);
+  await projectPage.gotoProject(projectName);
   await projectPage.createModelFromOverview();
 });
 
@@ -173,7 +175,12 @@ test("Comment CRUD on Content page has succeeded", async ({
   await contentPage.deleteComment();
 });
 
-test("Comment CRUD on edit page has succeeded", async ({ page, contentPage, fieldEditorPage, schemaPage }) => {
+test("Comment CRUD on edit page has succeeded", async ({
+  page,
+  contentPage,
+  fieldEditorPage,
+  schemaPage,
+}) => {
   await fieldEditorPage.fieldTypeListItem("Text").click();
   await schemaPage.handleFieldForm("text");
   await contentPage.contentText.click();

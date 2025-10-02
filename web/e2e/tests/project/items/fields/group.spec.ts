@@ -4,7 +4,9 @@ import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await projectPage.createProject(getId());
+  const projectName = getId();
+  await projectPage.createProject(projectName);
+  await projectPage.gotoProject(projectName);
   await projectPage.createModelFromOverview();
 });
 
@@ -19,10 +21,12 @@ test("Group field creating and updating has succeeded", async ({
   schemaPage,
 }) => {
   test.slow();
+  const groupName = "e2e group name";
+  const groupKey = "e2e-group-key";
   await expect(schemaPage.textByExact("Reference")).toBeVisible();
   await expect(schemaPage.firstTextByExact("Group")).toBeVisible();
 
-  await createGroup(page);
+  await schemaPage.createGroup(groupName, groupKey);
   await expect(schemaPage.textByExact("Reference")).toBeHidden();
   await expect(schemaPage.firstTextByExact("Group")).toBeHidden();
   await fieldEditorPage.fieldTypeButton("Text").click();
@@ -45,10 +49,8 @@ test("Group field creating and updating has succeeded", async ({
   await fieldEditorPage.settingsDescriptionInput.click();
   await fieldEditorPage.settingsDescriptionInput.fill("group1 description");
   await fieldEditorPage.antSelectSelector.click();
-  await schemaPage.groupNameByText("e2e group name #e2e-group-name").click();
-  await expect(fieldEditorPage.getByLabel("Settings")).toContainText(
-    "e2e group name #e2e-group-name",
-  );
+  await schemaPage.groupNameByText(`${groupName} #${groupKey}`).click();
+  await expect(fieldEditorPage.getByLabel("Settings")).toContainText(`${groupName} #${groupKey}`);
   await fieldEditorPage.validationTab.click();
   await expect(fieldEditorPage.makeFieldRequiredLabel.locator("span").nth(1)).toBeDisabled();
   await expect(fieldEditorPage.setFieldAsUniqueLabel.locator("span").nth(1)).toBeDisabled();
@@ -151,10 +153,13 @@ test("Group field editing has succeeded", async ({
   schemaPage,
 }) => {
   test.slow();
+  const groupName = "e2e group name";
+  const groupKey = "e2e-group-key";
+
   await expect(schemaPage.textByExact("Reference")).toBeVisible();
   await expect(schemaPage.firstTextByExact("Group")).toBeVisible();
 
-  await createGroup(page);
+  await schemaPage.createGroup(groupName, groupKey);
   await expect(schemaPage.textByExact("Reference")).toBeHidden();
   await expect(schemaPage.firstTextByExact("Group")).toBeHidden();
   await schemaPage.fieldTypeButton("Text").click();
@@ -177,10 +182,8 @@ test("Group field editing has succeeded", async ({
   await fieldEditorPage.settingsDescriptionInput.click();
   await fieldEditorPage.settingsDescriptionInput.fill("group1 description");
   await fieldEditorPage.antSelectSelector.click();
-  await schemaPage.groupNameByText("e2e group name #e2e-group-name").click();
-  await expect(fieldEditorPage.getByLabel("Settings")).toContainText(
-    "e2e group name #e2e-group-name",
-  );
+  await schemaPage.groupNameByText(`${groupName} #${groupKey}`).click();
+  await expect(fieldEditorPage.getByLabel("Settings")).toContainText(`${groupName} #${groupKey}`);
   await fieldEditorPage.validationTab.click();
   await expect(fieldEditorPage.makeFieldRequiredLabel.locator("span").nth(1)).toBeDisabled();
   await expect(fieldEditorPage.setFieldAsUniqueLabel.locator("span").nth(1)).toBeDisabled();

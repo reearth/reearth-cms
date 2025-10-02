@@ -16,7 +16,9 @@ test.beforeEach(async ({ reearth, workspacePage, projectPage, schemaPage, conten
   test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await workspacePage.createWorkspace("e2e workspace name");
-  await projectPage.createProject(getId());
+  const projectName = getId();
+  await projectPage.createProject(projectName);
+  await projectPage.gotoProject(projectName);
   await projectPage.createModelFromOverview();
   await schemaPage.createTitleField(titleFieldName, itemTitle);
   await contentPage.createItem();
@@ -120,7 +122,7 @@ test("Comment CRUD on edit page has succeeded", async ({ page, requestPage }) =>
   await expect(requestPage.getByText("new comment")).toBeHidden();
 });
 
-test("Comment CRUD on Request page has succeeded", async ({ page, requestPage, contentPage }) => {
+test("Comment CRUD on Request page has succeeded", async ({ requestPage, contentPage }) => {
   await requestPage.requestMenuItem.click();
   await requestPage.commentsCountButton("0").click();
 
@@ -148,7 +150,11 @@ test("Creating a new request and adding to request has succeeded", async ({
   await expect(requestPage.collapsedModelButton("e2e model name", 1)).toBeVisible();
 });
 
-test("Navigating between item and request has succeeded", async ({ page, requestPage }) => {
+test("Navigating between item and request has succeeded", async ({
+  page,
+  contentPage,
+  requestPage,
+}) => {
   await requestPage.versionHistoryTab.click();
   await requestPage.requestTitleLink(requestTitle).click();
   await expect(requestPage.requestPageTitle(requestTitle)).toBeVisible();
@@ -170,6 +176,6 @@ test("Navigating between item and request has succeeded", async ({ page, request
   await requestPage.saveButton.click();
   await closeNotification(page);
   await requestPage.versionHistoryTab.click();
-  await requestPage.requestTitleLink(requestTitle).click();
+  await requestPage.requestTitleLink(newRequestTitle).click();
   await expect(requestPage.collapsedModelItemButton(modelName, itemId)).toBeVisible();
 });

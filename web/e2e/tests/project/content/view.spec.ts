@@ -6,7 +6,9 @@ import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 test.beforeEach(async ({ reearth, workspacePage, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await workspacePage.createWorkspace("e2e workspace name");
-  await projectPage.createProject(getId());
+  const projectName = getId();
+  await projectPage.createProject(projectName);
+  await projectPage.gotoProject(projectName);
   await projectPage.createModelFromOverview();
 });
 
@@ -24,7 +26,13 @@ async function itemAdd(page: Page, data: string, contentPage: ContentPage) {
   await contentPage.backButton.click();
 }
 
-test("View CRUD has succeeded", async ({ page, fieldEditorPage, projectPage, contentPage, schemaPage }) => {
+test("View CRUD has succeeded", async ({
+  page,
+  fieldEditorPage,
+  projectPage,
+  contentPage,
+  schemaPage,
+}) => {
   test.slow();
   await fieldEditorPage.fieldTypeButton("Text").click();
   await schemaPage.handleFieldForm("text");
@@ -138,7 +146,7 @@ test("View CRUD has succeeded", async ({ page, fieldEditorPage, projectPage, con
 
 test("View reordering has succeeded", async ({ page, projectPage, contentPage }) => {
   await projectPage.contentMenuItem.click();
-  await projectPage.modelMenuItemClick(modelName).click();
+  await projectPage.modelMenuItemClick(projectPage.modelName).click();
 
   await contentPage.saveAsNewViewButton.click();
   await contentPage.viewNameInput.fill("view1");

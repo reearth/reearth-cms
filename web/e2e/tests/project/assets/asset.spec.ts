@@ -10,7 +10,9 @@ const pngUrl = `https://assets.cms.plateau.reearth.io/assets/33/e999c4-7859-446b
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await projectPage.createProject(getId());
+  const projectName = getId();
+  await projectPage.createProject(projectName);
+  await projectPage.gotoProject(projectName);
   await projectPage.assetMenuItem.click();
 });
 

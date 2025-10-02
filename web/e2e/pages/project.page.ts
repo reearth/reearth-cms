@@ -1,9 +1,10 @@
 // e2e/pages/project.page.ts
-import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { expect, type Locator } from "@reearth-cms/e2e/fixtures/test";
 
 import { BasePage } from "./base.page";
 
 export class ProjectPage extends BasePage {
+  readonly modelName = "e2e model name";
   // Navigation menu items
   get schemaMenuItem(): Locator {
     return this.getByRole("menuitem", { name: "Schema" });
@@ -138,6 +139,12 @@ export class ProjectPage extends BasePage {
     await this.getByRole("dialog").locator("#name").fill(name);
     await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
+  }
+
+  async gotoProject(name: string): Promise<void> {
+    await this.getByText(name, { exact: true }).click();
+    const projectName = this.locator(".ant-layout-header p").nth(2);
+    await expect(projectName).toHaveText(name);
   }
 
   async deleteProject(): Promise<void> {

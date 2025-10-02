@@ -1,10 +1,11 @@
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await projectPage.createProject(getId());
+  const projectName = getId();
+  await projectPage.createProject(projectName);
+  await projectPage.gotoProject(projectName);
   await projectPage.createModelFromOverview();
 });
 
@@ -13,7 +14,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("GeometryObject field creating and updating has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
 }) => {
@@ -24,7 +24,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
   await fieldEditorPage.settingsDescriptionInput.fill("geometryObject1 description");
   await fieldEditorPage.pointCheckbox.check();
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await fieldEditorPage.closeNotification();
 
   await expect(fieldEditorPage.fieldsContainerParagraph).toContainText(
     "geometryObject1#geometryobject1",
@@ -34,9 +34,9 @@ test("GeometryObject field creating and updating has succeeded", async ({
   await expect(contentPage.labelElement()).toContainText("geometryObject1");
   await expect(contentPage.mainElement).toContainText("geometryObject1 description");
   await contentPage.viewLinesEditor.click();
-  await contentPage.editorContent.fill('{\n"type": "Point",\n"coordinates": [0, 0]');
+  await contentPage.editorContent.fill('{\n"type": "Point",\n"coordinates": [0, 0] }');
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await contentPage.nthTableColumnButton(9).click();
   await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [0, 0] }');
@@ -46,14 +46,13 @@ test("GeometryObject field creating and updating has succeeded", async ({
   await contentPage.viewLinesEditor.click();
   await contentPage.editorContent.fill('{\n"type": "Point",\n"coordinates": [1, 0]');
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await contentPage.nthTableColumnButton(9).click();
   await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [1, 0] }');
 });
 
 test("GeometryObject field editing has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -68,7 +67,7 @@ test("GeometryObject field editing has succeeded", async ({
   await fieldEditorPage.viewLinesEditor.click();
   await fieldEditorPage.editorContent.fill('{\n"type": "Point",\n"coordinates": [0, 0]');
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await fieldEditorPage.closeNotification();
   await contentPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("geometryObject1");
   await contentPage.newItemButton.click();
@@ -77,7 +76,7 @@ test("GeometryObject field editing has succeeded", async ({
   );
 
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await contentPage.nthTableColumnButton(9).click();
   await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [0, 0] }');
@@ -109,7 +108,7 @@ test("GeometryObject field editing has succeeded", async ({
     '{  "type": "Point",  "coordinates": [0, 0]}',
   );
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await fieldEditorPage.closeNotification();
   await expect(
     schemaPage.uniqueFieldText("new geometryObject1", "new-geometryobject1"),
   ).toBeVisible();
@@ -128,7 +127,7 @@ test("GeometryObject field editing has succeeded", async ({
   await contentPage.editorContent.nth(2).fill('{\n"type": "Point",\n"coordinates": [2, 0]');
   await fieldEditorPage.arrowUpButtonByIndex(2).click();
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await contentPage.x3Button.click();
   await expect(contentPage.tooltipParagraphByIndex(0)).toContainText(

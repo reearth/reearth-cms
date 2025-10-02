@@ -384,7 +384,7 @@ export class FieldEditorPage extends BasePage {
     return this.getByLabel("delete").locator("svg");
   }
 
-    // Reference field specific elements
+  // Reference field specific elements
   get selectModelToReferenceLabel(): Locator {
     return this.getByLabel("Select the model to reference");
   }

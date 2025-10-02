@@ -96,6 +96,10 @@ export abstract class BasePage {
     await this.page.goto(url, options);
   }
 
+  url() {
+    return this.page.url();
+  }
+
   async closeNotification() {
     await closeNotification(this.page);
   }

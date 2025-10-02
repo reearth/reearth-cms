@@ -60,6 +60,7 @@ web/e2e/
 ### What is POM?
 
 The Page Object Model is a design pattern that:
+
 - **Separates** test logic from UI interaction code
 - **Encapsulates** page elements and actions in reusable classes
 - **Improves** test maintainability and readability
@@ -70,6 +71,7 @@ The Page Object Model is a design pattern that:
 #### 1. **Base Page** (`base.page.ts`)
 
 All page objects extend `BasePage`, which provides:
+
 - Common locator methods (`getByRole`, `getByText`, `getByLabel`, etc.)
 - Navigation methods (`goto`)
 - Utility methods (`closeNotification`)
@@ -91,6 +93,7 @@ export abstract class BasePage {
 Each page object contains:
 
 **Locator Getters** - For accessing page elements:
+
 ```typescript
 get newItemButton(): Locator {
   return this.getByRole("button", { name: "plus New Item" });
@@ -98,6 +101,7 @@ get newItemButton(): Locator {
 ```
 
 **Action Methods** - For performing operations:
+
 ```typescript
 async createItem(): Promise<void> {
   await this.getByText("Content").click();
@@ -113,7 +117,9 @@ Tests use page objects to interact with the UI:
 
 ```typescript
 test("Item CRUD has succeeded", async ({ contentPage, projectPage }) => {
-  await projectPage.createProject(getId());
+  const projectName = getId();
+  await projectPage.createProject(projectName);
+  await projectPage.gotoProject(projectName);
   await contentPage.createItem();
   // Test assertions...
 });
@@ -148,6 +154,7 @@ Utility functions that don't belong to any specific page:
 ### Configuration (`config/config.ts`)
 
 Centralized configuration for:
+
 - API endpoints
 - User credentials (from environment variables)
 - Access token management
@@ -158,6 +165,7 @@ Centralized configuration for:
 ### Best Practices
 
 1. **Use Page Objects for UI Interactions**
+
    ```typescript
    // ✅ Good
    await schemaPage.createModel("My Model", "my-model");
@@ -168,10 +176,12 @@ Centralized configuration for:
    ```
 
 2. **Keep Test Logic in Test Files**
+
    - Page objects handle "how" to interact with the UI
    - Test specs define "what" to test
 
 3. **Use Fixtures for Page Objects**
+
    ```typescript
    test("My test", async ({ schemaPage, contentPage }) => {
      // Page objects are automatically available
@@ -179,6 +189,7 @@ Centralized configuration for:
    ```
 
 4. **Generate Unique Test Data**
+
    ```typescript
    import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -189,13 +200,18 @@ Centralized configuration for:
 5. **Follow beforeEach/afterEach Pattern for Setup/Teardown**
    ```typescript
    test.beforeEach(async ({ projectPage }) => {
-     await projectPage.createProject(getId());
-   });
-
-   test.afterEach(async ({ projectPage }) => {
-     await projectPage.deleteProject();
-   });
+       const projectName = getId();
    ```
+
+await projectPage.createProject(projectName);
+await projectPage.gotoProject(projectName);
+});
+
+test.afterEach(async ({ projectPage }) => {
+await projectPage.deleteProject();
+});
+
+````
 
 ## 🏗️ Adding New Tests
 
@@ -209,18 +225,18 @@ import { BasePage } from "./base.page";
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 
 export class MyFeaturePage extends BasePage {
-  // Locators
-  get myButton(): Locator {
-    return this.getByRole("button", { name: "My Button" });
-  }
-
-  // Actions
-  async doSomething(): Promise<void> {
-    await this.myButton.click();
-    await this.closeNotification();
-  }
+// Locators
+get myButton(): Locator {
+ return this.getByRole("button", { name: "My Button" });
 }
-```
+
+// Actions
+async doSomething(): Promise<void> {
+ await this.myButton.click();
+ await this.closeNotification();
+}
+}
+````
 
 ### 2. Register Page Object in Fixtures
 
@@ -264,26 +280,31 @@ test("My feature works correctly", async ({ myFeaturePage }) => {
 ## 🚀 Running Tests
 
 ### Run All Tests
+
 ```bash
 yarn e2e
 ```
 
 ### Run Specific Test File
+
 ```bash
 yarn playwright test tests/project/schema.spec.ts
 ```
 
 ### Run Tests in UI Mode
+
 ```bash
 yarn playwright test --ui
 ```
 
 ### Run Tests in Debug Mode
+
 ```bash
 yarn playwright test --debug
 ```
 
 ### List All Tests
+
 ```bash
 yarn playwright test --list
 ```
@@ -324,6 +345,7 @@ import { parseConfigBoolean } from "@reearth-cms/e2e/helpers/format.helper";
 ```
 
 This ensures:
+
 - E2E tests remain independent of application internals
 - Tests don't break due to application refactoring
 - TypeScript compilation issues are avoided
@@ -339,6 +361,7 @@ This ensures:
 The E2E structure was refactored to follow POM standards:
 
 ### Changes Made:
+
 1. ✅ Moved utility functions from `project/utils/` into page object methods
 2. ✅ Reorganized test files into domain-based structure under `tests/`
 3. ✅ Created centralized helpers directory
@@ -348,6 +371,7 @@ The E2E structure was refactored to follow POM standards:
 7. ✅ Updated Playwright configuration for new structure
 
 ### Migration Guide:
+
 - `createProject(page)` → `projectPage.createProject(name)`
 - `createModel(page, name, key)` → `schemaPage.createModelFromSidebar(name, key)`
 - `createWorkspace(page)` → `workspacePage.createWorkspace(name)`
