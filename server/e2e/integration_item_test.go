@@ -3,7 +3,6 @@ package e2e
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -16,7 +15,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
-	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
@@ -2257,16 +2255,6 @@ func TestIntegrationPublishItemAPI(t *testing.T) {
 		Value("refs").
 		Array().
 		ContainsAny("public")
-}
-
-func TestName(t *testing.T) {
-	e := interfaces.ErrItemMissing
-	assert.True(t, errors.Is(e, interfaces.ErrItemMissing))
-
-	fn := func() error {
-		return interfaces.ErrItemMissing
-	}
-	assert.True(t, errors.Is(fn(), interfaces.ErrItemMissing))
 }
 
 func assertItem(v *httpexpect.Value, assetEmbeded bool) {
