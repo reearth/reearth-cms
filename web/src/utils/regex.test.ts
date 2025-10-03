@@ -32,9 +32,9 @@ test("validate aliasRegex", () => {
   // legal cases
   assert.match("test_project_123", aliasRegex);
   assert.match("test-project-123", aliasRegex);
-  assert.match("test.project.123", aliasRegex);
 
   // illegal cases
+  assert.notMatch("test.project.123", aliasRegex);
   assert.notMatch("test project 123", aliasRegex);
   assert.notMatch("testProject123", aliasRegex);
   assert.notMatch("testProject123@#$%^&*()+=", aliasRegex);
