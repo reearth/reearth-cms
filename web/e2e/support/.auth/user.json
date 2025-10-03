@@ -1,0 +1,111 @@
+{
+  "cookies": [
+    {
+      "name": "_csrf",
+      "value": "fnjQ4C8lQgAZCypETV0XLgB_",
+      "domain": "reearth-oss-test.eu.auth0.com",
+      "path": "/usernamepassword/login",
+      "expires": 1760272993.330486,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "did",
+      "value": "s%3Av0%3Aa733947f-2592-4862-ab53-5027ede10ae8.1XzgI6CHS47NJnGR5k0TGuRW3HrGlmikzzb5%2FZQ7HGA",
+      "domain": "reearth-oss-test.eu.auth0.com",
+      "path": "/",
+      "expires": 1790966604.222893,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "did_compat",
+      "value": "s%3Av0%3Aa733947f-2592-4862-ab53-5027ede10ae8.1XzgI6CHS47NJnGR5k0TGuRW3HrGlmikzzb5%2FZQ7HGA",
+      "domain": "reearth-oss-test.eu.auth0.com",
+      "path": "/",
+      "expires": 1790966592.673894,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "__cf_bm",
+      "value": "TBc.AeMy7SPgXQoY6IG9zWTlI1lp0dfaYMmzGqo9KWI-1759408993-1.0.1.1-eXwbc9NDbatH2wb2RvP8f3OIxxmWpMr95xZbERIEiTGNboJzN.lciHlYcbq16QlR",
+      "domain": ".eu.auth0.com",
+      "path": "/",
+      "expires": 1759410792.673951,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "auth0",
+      "value": "s%3AJvK2c5LEoBzI72LvxyFIU09Cg4b1tuen.SO4M6UOF4BoZXA8GKsZxzcGEQM0WgOHHGeeNCZsyepU",
+      "domain": "reearth-oss-test.eu.auth0.com",
+      "path": "/",
+      "expires": 1759668204.222959,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "auth0_compat",
+      "value": "s%3AJvK2c5LEoBzI72LvxyFIU09Cg4b1tuen.SO4M6UOF4BoZXA8GKsZxzcGEQM0WgOHHGeeNCZsyepU",
+      "domain": "reearth-oss-test.eu.auth0.com",
+      "path": "/",
+      "expires": 1759668202.61644,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_legacy_auth0.XpONnmPLss1PU5cZB9nx6pcbPA8qL4aw.is.authenticated",
+      "value": "true",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1759495405,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "auth0.XpONnmPLss1PU5cZB9nx6pcbPA8qL4aw.is.authenticated",
+      "value": "true",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1759495405,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "http://localhost:3000",
+      "localStorage": [
+        {
+          "name": "workspaceId",
+          "value": "\"01jkde6m5ypa2h0hgqf37q6qx3\""
+        },
+        {
+          "name": "i18nextLng",
+          "value": "en-US"
+        },
+        {
+          "name": "@@auth0spajs@@::XpONnmPLss1PU5cZB9nx6pcbPA8qL4aw::@@user@@",
+          "value": "{\"id_token\":\"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im0zZVA3clBDc2YzaGd0V1Uxc2VNWiJ9.eyJuaWNrbmFtZSI6ImIubm91ciIsIm5hbWUiOiJiLm5vdXIiLCJwaWN0dXJlIjoiaHR0cHM6Ly9zLmdyYXZhdGFyLmNvbS9hdmF0YXIvN2MxMDgzYzljMTI2ZWE5MjdiNTJjZTBiMmU5N2Q2YTk_cz00ODAmcj1wZyZkPWh0dHBzJTNBJTJGJTJGY2RuLmF1dGgwLmNvbSUyRmF2YXRhcnMlMkZiLnBuZyIsInVwZGF0ZWRfYXQiOiIyMDI1LTEwLTAyVDEyOjQzOjIyLjQxNVoiLCJlbWFpbCI6ImIubm91ckBldWthcnlhLmlvIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJpc3MiOiJodHRwczovL3JlZWFydGgtb3NzLXRlc3QuZXUuYXV0aDAuY29tLyIsImF1ZCI6IlhwT05ubVBMc3MxUFU1Y1pCOW54NnBjYlBBOHFMNGF3Iiwic3ViIjoiYXV0aDB8NjI5NmM5M2Y3YmFlZmIwMDZlYzQ0MTI1IiwiaWF0IjoxNzU5NDA5MDA2LCJleHAiOjE3NTk0NDUwMDYsInNpZCI6IlFFNUZQVGk0WVJWRGZ0STM3ekRXeWxBRTNZM2NkWk0xIiwibm9uY2UiOiJabDlhY0RWdFZUbFZTV3RsVGxKbmIyMDFjM1kzUkVoT1UxaHdVVUpNU1hBdWFVbFpTR2d3UTB4TFdnPT0ifQ.MsDpHj4O-lqv_UKDeNRIqT8RaenCXXiIV7iEkGyDG6sIcO7t5Xwh8v2X7tDKaWXEDYA8ZbiM19L2tJsnVgfUM6k61IeSXa3aRtIW8Kkvau7m5Ci4QRq1Ofg98GzMg9awtNOFP61cHlBbv-uS2MPNEMnAQ0kTghPFfUu6O9mJnkh7SCtT9njXhqaRnHicbwxLVPXoi99-KvlxR1KMGlWJBZC5MjOaYKpMUJxA8-INk2xSWWMwfJ4-zJXFuGrmjomLPn1lCZPI7Sgr8y67smILS-E3Xs6aO559TznURQOhzTmUfGBLuYAZSNZNfkR5JGaNEmE2NJKEyBMctxECOV5o5w\",\"decodedToken\":{\"encoded\":{\"header\":\"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im0zZVA3clBDc2YzaGd0V1Uxc2VNWiJ9\",\"payload\":\"eyJuaWNrbmFtZSI6ImIubm91ciIsIm5hbWUiOiJiLm5vdXIiLCJwaWN0dXJlIjoiaHR0cHM6Ly9zLmdyYXZhdGFyLmNvbS9hdmF0YXIvN2MxMDgzYzljMTI2ZWE5MjdiNTJjZTBiMmU5N2Q2YTk_cz00ODAmcj1wZyZkPWh0dHBzJTNBJTJGJTJGY2RuLmF1dGgwLmNvbSUyRmF2YXRhcnMlMkZiLnBuZyIsInVwZGF0ZWRfYXQiOiIyMDI1LTEwLTAyVDEyOjQzOjIyLjQxNVoiLCJlbWFpbCI6ImIubm91ckBldWthcnlhLmlvIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJpc3MiOiJodHRwczovL3JlZWFydGgtb3NzLXRlc3QuZXUuYXV0aDAuY29tLyIsImF1ZCI6IlhwT05ubVBMc3MxUFU1Y1pCOW54NnBjYlBBOHFMNGF3Iiwic3ViIjoiYXV0aDB8NjI5NmM5M2Y3YmFlZmIwMDZlYzQ0MTI1IiwiaWF0IjoxNzU5NDA5MDA2LCJleHAiOjE3NTk0NDUwMDYsInNpZCI6IlFFNUZQVGk0WVJWRGZ0STM3ekRXeWxBRTNZM2NkWk0xIiwibm9uY2UiOiJabDlhY0RWdFZUbFZTV3RsVGxKbmIyMDFjM1kzUkVoT1UxaHdVVUpNU1hBdWFVbFpTR2d3UTB4TFdnPT0ifQ\",\"signature\":\"MsDpHj4O-lqv_UKDeNRIqT8RaenCXXiIV7iEkGyDG6sIcO7t5Xwh8v2X7tDKaWXEDYA8ZbiM19L2tJsnVgfUM6k61IeSXa3aRtIW8Kkvau7m5Ci4QRq1Ofg98GzMg9awtNOFP61cHlBbv-uS2MPNEMnAQ0kTghPFfUu6O9mJnkh7SCtT9njXhqaRnHicbwxLVPXoi99-KvlxR1KMGlWJBZC5MjOaYKpMUJxA8-INk2xSWWMwfJ4-zJXFuGrmjomLPn1lCZPI7Sgr8y67smILS-E3Xs6aO559TznURQOhzTmUfGBLuYAZSNZNfkR5JGaNEmE2NJKEyBMctxECOV5o5w\"},\"header\":{\"alg\":\"RS256\",\"typ\":\"JWT\",\"kid\":\"m3eP7rPCsf3hgtWU1seMZ\"},\"claims\":{\"__raw\":\"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im0zZVA3clBDc2YzaGd0V1Uxc2VNWiJ9.eyJuaWNrbmFtZSI6ImIubm91ciIsIm5hbWUiOiJiLm5vdXIiLCJwaWN0dXJlIjoiaHR0cHM6Ly9zLmdyYXZhdGFyLmNvbS9hdmF0YXIvN2MxMDgzYzljMTI2ZWE5MjdiNTJjZTBiMmU5N2Q2YTk_cz00ODAmcj1wZyZkPWh0dHBzJTNBJTJGJTJGY2RuLmF1dGgwLmNvbSUyRmF2YXRhcnMlMkZiLnBuZyIsInVwZGF0ZWRfYXQiOiIyMDI1LTEwLTAyVDEyOjQzOjIyLjQxNVoiLCJlbWFpbCI6ImIubm91ckBldWthcnlhLmlvIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJpc3MiOiJodHRwczovL3JlZWFydGgtb3NzLXRlc3QuZXUuYXV0aDAuY29tLyIsImF1ZCI6IlhwT05ubVBMc3MxUFU1Y1pCOW54NnBjYlBBOHFMNGF3Iiwic3ViIjoiYXV0aDB8NjI5NmM5M2Y3YmFlZmIwMDZlYzQ0MTI1IiwiaWF0IjoxNzU5NDA5MDA2LCJleHAiOjE3NTk0NDUwMDYsInNpZCI6IlFFNUZQVGk0WVJWRGZ0STM3ekRXeWxBRTNZM2NkWk0xIiwibm9uY2UiOiJabDlhY0RWdFZUbFZTV3RsVGxKbmIyMDFjM1kzUkVoT1UxaHdVVUpNU1hBdWFVbFpTR2d3UTB4TFdnPT0ifQ.MsDpHj4O-lqv_UKDeNRIqT8RaenCXXiIV7iEkGyDG6sIcO7t5Xwh8v2X7tDKaWXEDYA8ZbiM19L2tJsnVgfUM6k61IeSXa3aRtIW8Kkvau7m5Ci4QRq1Ofg98GzMg9awtNOFP61cHlBbv-uS2MPNEMnAQ0kTghPFfUu6O9mJnkh7SCtT9njXhqaRnHicbwxLVPXoi99-KvlxR1KMGlWJBZC5MjOaYKpMUJxA8-INk2xSWWMwfJ4-zJXFuGrmjomLPn1lCZPI7Sgr8y67smILS-E3Xs6aO559TznURQOhzTmUfGBLuYAZSNZNfkR5JGaNEmE2NJKEyBMctxECOV5o5w\",\"nickname\":\"b.nour\",\"name\":\"b.nour\",\"picture\":\"https://s.gravatar.com/avatar/7c1083c9c126ea927b52ce0b2e97d6a9?s=480&r=pg&d=https%3A%2F%2Fcdn.auth0.com%2Favatars%2Fb.png\",\"updated_at\":\"2025-10-02T12:43:22.415Z\",\"email\":\"b.nour@eukarya.io\",\"email_verified\":false,\"iss\":\"https://reearth-oss-test.eu.auth0.com/\",\"aud\":\"XpONnmPLss1PU5cZB9nx6pcbPA8qL4aw\",\"sub\":\"auth0|6296c93f7baefb006ec44125\",\"iat\":1759409006,\"exp\":1759445006,\"sid\":\"QE5FPTi4YRVDftI37zDWylAE3Y3cdZM1\",\"nonce\":\"Zl9acDVtVTlVSWtlTlJnb201c3Y3REhOU1hwUUJMSXAuaUlZSGgwQ0xLWg==\"},\"user\":{\"nickname\":\"b.nour\",\"name\":\"b.nour\",\"picture\":\"https://s.gravatar.com/avatar/7c1083c9c126ea927b52ce0b2e97d6a9?s=480&r=pg&d=https%3A%2F%2Fcdn.auth0.com%2Favatars%2Fb.png\",\"updated_at\":\"2025-10-02T12:43:22.415Z\",\"email\":\"b.nour@eukarya.io\",\"email_verified\":false,\"sub\":\"auth0|6296c93f7baefb006ec44125\"}}}"
+        },
+        {
+          "name": "userId",
+          "value": "\"01jkde6m5ypa2h0hgqezwb7xm3\""
+        },
+        {
+          "name": "@@auth0spajs@@::XpONnmPLss1PU5cZB9nx6pcbPA8qL4aw::https://api.cms.test.reearth.dev::openid profile email offline_access",
+          "value": "{\"body\":{\"access_token\":\"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im0zZVA3clBDc2YzaGd0V1Uxc2VNWiJ9.eyJpc3MiOiJodHRwczovL3JlZWFydGgtb3NzLXRlc3QuZXUuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDYyOTZjOTNmN2JhZWZiMDA2ZWM0NDEyNSIsImF1ZCI6WyJodHRwczovL2FwaS5jbXMudGVzdC5yZWVhcnRoLmRldiIsImh0dHBzOi8vcmVlYXJ0aC1vc3MtdGVzdC5ldS5hdXRoMC5jb20vdXNlcmluZm8iXSwiaWF0IjoxNzU5NDA5MDA2LCJleHAiOjE3NTk0OTU0MDYsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJhenAiOiJYcE9Obm1QTHNzMVBVNWNaQjlueDZwY2JQQThxTDRhdyJ9.ZaOCAMLDPdojdHSjgRqE6113_nLB28liSP6nVwVxb7GqcPyLl2p_wfnqxiMIEQx7eCXfxzoh82wludOHC2cSL43WY4nNZmf7uisUvOILfJry7tiKfUzwwEj3Vuc-mqpFR3JKrOej3bQXUZf34Q8nKf9ErEat-pqyfT1CUuauPjM6ZJeHEn6cjQRfxatU3veMRAGj9N9qVJNpqNcYFyh78Q7DPr1CzLE3bJwKXA-E8Qg7op_9QgSmmdNKJAVNoMWK9UIfrydR1Gdyuy4hVIrqGBgUxrEvX1GBKsteCK1PJyUWfyxEYmyp1NTDhbRiqIaXc49zle_KoorRLdLkxQ5-uQ\",\"scope\":\"openid profile email offline_access\",\"expires_in\":86400,\"token_type\":\"Bearer\",\"audience\":\"https://api.cms.test.reearth.dev\",\"oauthTokenScope\":\"openid profile email\",\"client_id\":\"XpONnmPLss1PU5cZB9nx6pcbPA8qL4aw\"},\"expiresAt\":1759495405}"
+        }
+      ]
+    }
+  ]
+}
