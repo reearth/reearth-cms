@@ -12795,7 +12795,7 @@ i18next-browser-languagedetector@8.0.0:
   dependencies:
     "@babel/runtime" "^7.23.2"
 
-i18next-fs-backend@^2.6.0:
+i18next-fs-backend@2.6.0:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/i18next-fs-backend/-/i18next-fs-backend-2.6.0.tgz#7b6b54c5ffc2a5073e47eda0673c002376fa1a3c"
   integrity sha512-3ZlhNoF9yxnM8pa8bWp5120/Ob6t4lVl1l/tbLmkml/ei3ud8IWySCHt2lrY5xWRlSU5D9IV2sm5bEbGuTqwTw==
@@ -19279,7 +19279,7 @@ vite-plugin-cesium@1.2.23:
     rollup-plugin-external-globals "^0.6.1"
     serve-static "^1.14.1"
 
-vite-tsconfig-paths@^5.0.1:
+vite-tsconfig-paths@5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/vite-tsconfig-paths/-/vite-tsconfig-paths-5.0.1.tgz#c9387a29c32fd586e4c7f4e2b2da1f0b5c9a7403"
   integrity sha512-yqwv+LstU7NwPeNqajZzLEBVpUFU6Dugtb2P84FXuvaoYA+/70l9MHE+GYfYAycVyPSDYZ7mjOFuYBRqlEpTig==
