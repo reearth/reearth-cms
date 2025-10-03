@@ -1,4 +1,5 @@
 import i18next from "i18next";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import Backend from "i18next-fs-backend";
 
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
