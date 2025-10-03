@@ -5,4 +5,8 @@ export abstract class Constant {
     MIN_LENGTH: 5,
     MAX_LENGTH: 32,
   };
+
+  public static readonly KEY = {
+    MAX_LENGTH: 32,
+  };
 }
