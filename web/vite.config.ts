@@ -52,6 +52,17 @@ export default defineConfig({
       },
     },
   },
+  optimizeDeps: {
+    include: [
+      "react",
+      "react-dom",
+      "react-router-dom",
+      "antd",
+      "@ant-design/icons",
+      "@apollo/client",
+      "graphql",
+    ],
+  },
   build: {
     rollupOptions: {
       output: {
