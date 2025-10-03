@@ -103,6 +103,8 @@ func startServer(t *testing.T, cfg *app.Config, repos *repo.Container, accountre
 }
 
 func StartServerWithRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder Seeder) (*httpexpect.Expect, *repo.Container, *accountrepo.Container) {
+	t.Helper()
+
 	ctx := context.Background()
 
 	var repos *repo.Container
