@@ -1,6 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -15,7 +14,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Text metadata creating and updating has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -26,7 +24,7 @@ test("Text metadata creating and updating has succeeded", async ({
   await fieldEditorPage.fieldKeyInput.fill("text1");
   await fieldEditorPage.fieldDescriptionInput.fill("text1 description");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(schemaPage.groupNameByText("text1#text1")).toBeVisible();
 
   await fieldEditorPage.ellipsisButton.click();
@@ -52,7 +50,7 @@ test("Text metadata creating and updating has succeeded", async ({
 
   await contentPage.fieldInput("text1").fill("text1");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.itemInformationHeading).toBeVisible();
   await expect(contentPage.fieldInput("text1")).toHaveValue("text1");
 
@@ -60,14 +58,14 @@ test("Text metadata creating and updating has succeeded", async ({
   await expect(contentPage.textBoxes).toHaveValue("text1");
   await contentPage.textBoxes.fill("new text1");
   await contentPage.antTableBody.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.textBoxes).toHaveValue("new text1");
 
   await contentPage.editButton.click();
   await expect(contentPage.fieldInput("text1")).toHaveValue("new text1");
 
   await contentPage.fieldInput("text1").fill("text1");
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.fieldInput("text1")).toHaveValue("text1");
 
   await contentPage.backButton.click();
@@ -75,7 +73,6 @@ test("Text metadata creating and updating has succeeded", async ({
 });
 
 test("Text metadata editing has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -89,7 +86,7 @@ test("Text metadata editing has succeeded", async ({
   await fieldEditorPage.defaultValueTab.click();
   await fieldEditorPage.setDefaultValueInput.fill("text1 default value");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await schemaPage.menuItemByName("Content").click();
   await expect(contentPage.columnHeaderWithEdit("text1")).toBeVisible();
@@ -98,7 +95,7 @@ test("Text metadata editing has succeeded", async ({
   await expect(contentPage.fieldInput("text1")).toHaveValue("text1 default value");
 
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await schemaPage.menuItemByName("Schema").click();
   await schemaPage.metaDataTab.click();
   await fieldEditorPage.ellipsisButton.click();
@@ -118,7 +115,7 @@ test("Text metadata editing has succeeded", async ({
   await expect(fieldEditorPage.okButton).toBeDisabled();
   await contentPage.textBoxByIndex(0).fill("text1");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.optionTextByName("new text1 *#new-text1(unique)")).toBeVisible();
 
   await schemaPage.menuItemByName("Content").click();
@@ -135,7 +132,7 @@ test("Text metadata editing has succeeded", async ({
   await contentPage.textBoxByIndex(1).fill("text2");
 
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("text1");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("text2");
 
@@ -146,17 +143,17 @@ test("Text metadata editing has succeeded", async ({
 
   await contentPage.tooltipTextboxes.nth(1).fill("new text2");
   await contentPage.tooltipTextByName("new text1").click();
-  await closeNotification(page, false);
+  await contentPage.closeNotification(false);
   await contentPage.x2Button.click();
   await contentPage.tooltipTextboxes.nth(1).fill("text3");
   await contentPage.tooltipTextByName("new text1").click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.editButton.first().click();
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("text1");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("text3");
   await fieldEditorPage.plusNewButton.click();
   await contentPage.textBoxes.last().fill("text2");
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("text1");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("text3");
   await expect(contentPage.textBoxByIndex(2)).toHaveValue("text2");

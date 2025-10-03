@@ -1,6 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -15,7 +14,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Int field creating and updating has succeeded", async ({
-  page,
   fieldEditorPage,
   projectPage,
   contentPage,
@@ -30,7 +28,7 @@ test("Int field creating and updating has succeeded", async ({
   await fieldEditorPage.settingsDescriptionInput.fill("int1 description");
 
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("int1#int1");
   await projectPage.contentMenuItem.click();
@@ -40,7 +38,7 @@ test("Int field creating and updating has succeeded", async ({
   await contentPage.fieldInput("int1").click();
   await contentPage.fieldInput("int1").fill("1");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButtonLabel.click();
   await expect(contentPage.cellByTextExact("1")).toBeVisible();
 
@@ -49,17 +47,12 @@ test("Int field creating and updating has succeeded", async ({
   await contentPage.fieldInput("int1").click();
   await contentPage.fieldInput("int1").fill("2");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButtonLabel.click();
   await expect(contentPage.cellByTextExact("2")).toBeVisible();
 });
 
-test("Int field editing has succeeded", async ({
-  page,
-  fieldEditorPage,
-  contentPage,
-  schemaPage,
-}) => {
+test("Int field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
   await fieldEditorPage.fieldTypeListItem("Int").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("int1");
@@ -71,13 +64,13 @@ test("Int field editing has succeeded", async ({
   await fieldEditorPage.setDefaultValueInput.click();
   await fieldEditorPage.setDefaultValueInput.fill("1");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await schemaPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("int1");
   await contentPage.newItemButton.click();
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButtonLabel.click();
   await expect(contentPage.cellByTextExact("1")).toBeVisible();
 
@@ -117,7 +110,7 @@ test("Int field editing has succeeded", async ({
   await fieldEditorPage.defaultValueInputByIndex(1).click();
   await fieldEditorPage.defaultValueInputByIndex(1).fill("3");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await expect(fieldEditorPage.uniqueFieldText("new int1", "new-int1")).toBeVisible();
   await schemaPage.contentText.click();
@@ -128,7 +121,7 @@ test("Int field editing has succeeded", async ({
   await expect(contentPage.spinbuttonByIndex(0)).toHaveValue("2");
   await expect(contentPage.spinbuttonByIndex(1)).toHaveValue("3");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButtonLabel.click();
   await contentPage.x2Button.click();
   await expect(contentPage.tooltip).toContainText("new int123");

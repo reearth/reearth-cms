@@ -1,6 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -15,7 +14,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Option field creating and updating has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -39,7 +37,7 @@ test("Option field creating and updating has succeeded", async ({
   await expect(fieldEditorPage.okButton).toBeDisabled();
   await fieldEditorPage.valuesInput.nth(1).fill("second");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("option1#option1");
   await contentPage.contentText.click();
@@ -52,7 +50,7 @@ test("Option field creating and updating has succeeded", async ({
   await fieldEditorPage.optionDiv("first").click();
   await expect(contentPage.rootElement.getByText("first").last()).toBeVisible();
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await expect(contentPage.optionTextByName("first")).toBeVisible();
 
@@ -62,17 +60,12 @@ test("Option field creating and updating has succeeded", async ({
   await fieldEditorPage.optionDiv("second").click();
   await expect(contentPage.rootElement.getByText("second").last()).toBeVisible();
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await expect(contentPage.optionTextByName("second")).toBeVisible();
 });
 
-test("Option field editing has succeeded", async ({
-  page,
-  fieldEditorPage,
-  contentPage,
-  schemaPage,
-}) => {
+test("Option field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
   await schemaPage.fieldTypeButton("Option").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("option1");
@@ -108,7 +101,7 @@ test("Option field editing has succeeded", async ({
   await expect(fieldEditorPage.optionDiv("forth")).toBeVisible();
   await fieldEditorPage.optionDiv("third").click();
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await contentPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("option1");
@@ -119,7 +112,7 @@ test("Option field editing has succeeded", async ({
   await expect(fieldEditorPage.optionDiv("third")).toBeVisible();
   await expect(fieldEditorPage.optionDiv("forth")).toBeVisible();
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await expect(contentPage.optionTextByName("third")).toBeVisible();
 
@@ -177,7 +170,7 @@ test("Option field editing has succeeded", async ({
   await fieldEditorPage.antSelectSelectionItem.nth(1).click();
   await fieldEditorPage.optionDiv("new third").last().click();
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.optionTextByName("new option1 *#new-option1(unique)")).toBeVisible();
   await contentPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("option1");
@@ -187,7 +180,7 @@ test("Option field editing has succeeded", async ({
   await expect(contentPage.optionTextByName("new first")).toBeVisible();
   await expect(contentPage.optionTextByName("new third")).toBeVisible();
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await expect(contentPage.cellByComplexName("new first new third")).toBeVisible();
 });

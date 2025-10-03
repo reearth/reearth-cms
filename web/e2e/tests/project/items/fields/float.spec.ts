@@ -1,6 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -15,7 +14,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Float field creating and updating has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -29,7 +27,7 @@ test("Float field creating and updating has succeeded", async ({
   await fieldEditorPage.settingsDescriptionInput.fill("float1 description");
 
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await expect(fieldEditorPage.fieldsContainerParagraph).toContainText("float1#float1");
   await schemaPage.contentText.click();
@@ -39,7 +37,7 @@ test("Float field creating and updating has succeeded", async ({
   await contentPage.fieldInput("float1").click();
   await contentPage.fieldInput("float1").fill("1.1");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButtonLabel.click();
   await expect(contentPage.cellByTextExact("1.1")).toBeVisible();
 
@@ -48,17 +46,12 @@ test("Float field creating and updating has succeeded", async ({
   await contentPage.fieldInput("float1").click();
   await contentPage.fieldInput("float1").fill("2.2");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButtonLabel.click();
   await expect(contentPage.cellByTextExact("2.2")).toBeVisible();
 });
 
-test("Float field editing has succeeded", async ({
-  page,
-  fieldEditorPage,
-  contentPage,
-  schemaPage,
-}) => {
+test("Float field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
   await fieldEditorPage.fieldTypeListItem("Float").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("float1");
@@ -70,13 +63,13 @@ test("Float field editing has succeeded", async ({
   await fieldEditorPage.setDefaultValueInput.click();
   await fieldEditorPage.setDefaultValueInput.fill("1.1");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await schemaPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("float1");
   await contentPage.newItemButton.click();
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButtonLabel.click();
   await expect(contentPage.cellByTextExact("1.1")).toBeVisible();
 
@@ -116,7 +109,7 @@ test("Float field editing has succeeded", async ({
   await fieldEditorPage.defaultValueInputByIndex(1).click();
   await fieldEditorPage.defaultValueInputByIndex(1).fill("3.3");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await expect(fieldEditorPage.uniqueFieldText("new float1", "new-float1")).toBeVisible();
   await schemaPage.contentText.click();
@@ -127,7 +120,7 @@ test("Float field editing has succeeded", async ({
   await expect(contentPage.spinbuttonByIndex(0)).toHaveValue("2.2");
   await expect(contentPage.spinbuttonByIndex(1)).toHaveValue("3.3");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButtonLabel.click();
   await contentPage.x2Button.click();
   await expect(contentPage.tooltip).toContainText("new float12.23.3");

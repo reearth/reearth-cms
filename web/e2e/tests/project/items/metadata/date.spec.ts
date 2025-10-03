@@ -1,6 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -15,7 +14,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Date metadata creating and updating has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
 }) => {
@@ -25,7 +23,7 @@ test("Date metadata creating and updating has succeeded", async ({
   await fieldEditorPage.fieldKeyInput.fill("date1");
   await fieldEditorPage.descriptionRequiredInput.fill("date1 description");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(fieldEditorPage.fieldText("date1", "date1")).toBeVisible();
 
   await fieldEditorPage.ellipsisButton.click();
@@ -51,7 +49,7 @@ test("Date metadata creating and updating has succeeded", async ({
   await contentPage.fieldInput("date1").fill("2024-01-01");
   await contentPage.fieldInput("date1").press("Enter");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.itemInformationHeading).toBeVisible();
   await expect(contentPage.fieldInput("date1")).toHaveValue("2024-01-01");
 
@@ -59,7 +57,7 @@ test("Date metadata creating and updating has succeeded", async ({
   await expect(contentPage.textBoxes).toHaveValue("2024-01-01");
   await contentPage.textBoxes.fill("2024-01-02");
   await contentPage.textBoxes.press("Enter");
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.textBoxes).toHaveValue("2024-01-02");
 
   await contentPage.cellEditButton.click();
@@ -67,14 +65,14 @@ test("Date metadata creating and updating has succeeded", async ({
 
   await contentPage.fieldInput("date1").fill("2024-01-03");
   await contentPage.fieldInput("date1").press("Enter");
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.fieldInput("date1")).toHaveValue("2024-01-03");
 
   await contentPage.backButtonRole.click();
   await expect(contentPage.textBoxes).toHaveValue("2024-01-03");
 });
 
-test("Date metadata editing has succeeded", async ({ page, fieldEditorPage, contentPage }) => {
+test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPage }) => {
   test.slow();
   await fieldEditorPage.metaDataTab.click();
   await fieldEditorPage.fieldTypeListItem("Date").click();
@@ -85,7 +83,7 @@ test("Date metadata editing has succeeded", async ({ page, fieldEditorPage, cont
   await fieldEditorPage.setDefaultValueInput.fill("2024-01-01");
   await fieldEditorPage.selectDatePlaceholder.press("Enter");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await fieldEditorPage.menuItemByName("Content").click();
   await expect(fieldEditorPage.columnHeaderWithEdit("date1")).toBeVisible();
@@ -94,7 +92,7 @@ test("Date metadata editing has succeeded", async ({ page, fieldEditorPage, cont
   await expect(contentPage.fieldInput("date1")).toHaveValue("2024-01-01");
 
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await fieldEditorPage.menuItemByName("Schema").click();
   await fieldEditorPage.metaDataTab.click();
   await fieldEditorPage.ellipsisButton.click();
@@ -112,7 +110,7 @@ test("Date metadata editing has succeeded", async ({ page, fieldEditorPage, cont
   await fieldEditorPage.textboxByIndex(1).fill("2024-01-02");
   await fieldEditorPage.textboxByIndex(1).press("Enter");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(fieldEditorPage.uniqueFieldText("new date1", "new-date1")).toBeVisible();
 
   await fieldEditorPage.menuItemByName("Content").click();
@@ -126,7 +124,7 @@ test("Date metadata editing has succeeded", async ({ page, fieldEditorPage, cont
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("2024-01-02");
 
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("2024-01-01");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("2024-01-02");
 
@@ -137,14 +135,14 @@ test("Date metadata editing has succeeded", async ({ page, fieldEditorPage, cont
 
   await fieldEditorPage.tooltipTextbox(1).fill("2024-01-03");
   await fieldEditorPage.tooltipTextbox(1).press("Enter");
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.cellEditButtonByIndex(0).click();
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("2024-01-01");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("2024-01-03");
   await fieldEditorPage.plusNewButton.click();
   await fieldEditorPage.lastTextbox.fill("2024-01-02");
   await fieldEditorPage.lastTextbox.press("Enter");
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await contentPage.backButtonLabel.click();
   await fieldEditorPage.x3Button.click();

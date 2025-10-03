@@ -1,6 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 const fieldName = "tag";
 const description = "tag description";
@@ -20,7 +19,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Tag metadata creating and updating has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -45,7 +43,7 @@ test("Tag metadata creating and updating has succeeded", async ({
 
   await fieldEditorPage.lastTextbox.fill(tag2);
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(schemaPage.groupNameByText(`${fieldName}#${fieldName}`)).toBeVisible();
 
   await fieldEditorPage.ellipsisButton.click();
@@ -72,14 +70,14 @@ test("Tag metadata creating and updating has succeeded", async ({
   await contentPage.fieldInput(fieldName).click();
   await fieldEditorPage.tagOptionText(tag1).click();
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.itemInformationHeading).toBeVisible();
   await expect(contentPage.tabPanel.getByText(tag1)).toBeVisible();
 
   await contentPage.backButtonRole.click();
   await contentPage.cellByText(fieldName).locator("div").nth(1).click();
   await fieldEditorPage.tagOptionText(tag2).last().click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.cellByText(tag2)).toBeVisible();
 
   await contentPage.editButton.click();
@@ -87,19 +85,14 @@ test("Tag metadata creating and updating has succeeded", async ({
 
   await fieldEditorPage.tagOptionText(tag2).click();
   await fieldEditorPage.tagOptionText(tag1).click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.tabPanel.getByText(tag1)).toBeVisible();
 
   await contentPage.backButton.click();
   await expect(contentPage.cellByText(tag1)).toBeVisible();
 });
 
-test("Tag metadata editing has succeeded", async ({
-  page,
-  fieldEditorPage,
-  contentPage,
-  schemaPage,
-}) => {
+test("Tag metadata editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
   const newFieldName = `new ${fieldName}`;
   const newKey = `new-${fieldName}`;
   const newDescription = `new ${description}`;
@@ -120,7 +113,7 @@ test("Tag metadata editing has succeeded", async ({
   await fieldEditorPage.setDefaultValueInput.click();
   await fieldEditorPage.tagOptionText(tag1).last().click();
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await schemaPage.menuItemByName("Content").click();
   await expect(contentPage.columnHeaderWithEdit(fieldName)).toBeVisible();
@@ -129,7 +122,7 @@ test("Tag metadata editing has succeeded", async ({
   await expect(contentPage.optionTextByName("Tag1")).toBeVisible();
 
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await schemaPage.menuItemByName("Schema").click();
   await schemaPage.metaDataTab.click();
   await fieldEditorPage.ellipsisButton.click();
@@ -165,7 +158,7 @@ test("Tag metadata editing has succeeded", async ({
 
   await fieldEditorPage.antSelectSelector.click();
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.optionTextByName(`${newFieldName} *#${newKey}(unique)`)).toBeVisible();
 
   await schemaPage.menuItemByName("Content").click();
@@ -179,14 +172,14 @@ test("Tag metadata editing has succeeded", async ({
   await expect(contentPage.optionTextByName(tag3)).toBeVisible();
 
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.optionTextByName(tag2)).toBeVisible();
   await expect(contentPage.optionTextByName(tag3)).toBeVisible();
 
   await contentPage.backButton.click();
   await contentPage.cellByTagNames(`${tag2} ${tag3}`).click();
   await fieldEditorPage.tagOptionText(tag2).last().click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.editButton.first().click();
   await expect(fieldEditorPage.tagOptionText(tag2)).toBeHidden();
   await expect(fieldEditorPage.tagOptionText(tag3)).toBeVisible();
@@ -196,7 +189,7 @@ test("Tag metadata editing has succeeded", async ({
   await expect(contentPage.pleaseInputFieldText).toBeVisible();
   await fieldEditorPage.antSelectSelector.click();
   await fieldEditorPage.tagOptionText(tag2).click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await expect(contentPage.optionTextByName(tag2)).toBeVisible();
 });

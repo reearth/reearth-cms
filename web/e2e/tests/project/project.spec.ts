@@ -1,20 +1,18 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
-test.afterEach(async ({ page, projectPage, workspacePage }) => {
+test.afterEach(async ({ projectPage, workspacePage }) => {
   await projectPage.settingsMenuItem.click();
   const deleteButton = projectPage.deleteProjectButton;
   await deleteButton.waitFor({ state: "visible" });
   await deleteButton.click();
   await projectPage.okButton.click();
-  await closeNotification(page);
+  await projectPage.closeNotification();
   await expect(workspacePage.projectTextByName("new project name", true)).toBeHidden();
 });
 
 test("Project CRUD and searching has succeeded", async ({
   reearth,
-  page,
   workspacePage,
   projectPage,
 }) => {
@@ -26,7 +24,7 @@ test("Project CRUD and searching has succeeded", async ({
   await workspacePage.projectNameInput.fill(projectName);
   await workspacePage.projectDescriptionInput.fill(projectDescription);
   await workspacePage.okButton.click();
-  await closeNotification(page);
+  await workspacePage.closeNotification();
 
   const projectCard = workspacePage.projectCardByName(projectName);
   await expect(projectCard).toBeVisible();
@@ -45,7 +43,7 @@ test("Project CRUD and searching has succeeded", async ({
   await projectPage.nameInput.fill(newProjectName);
   await projectPage.descriptionInput.fill(newProjectDescription);
   await projectPage.formSaveChangesButton.click();
-  await closeNotification(page);
+  await projectPage.closeNotification();
 
   await expect(projectPage.projectSettingsHeading(newProjectName)).toBeVisible();
   await expect(projectPage.banner).toContainText(newProjectName);
@@ -53,7 +51,7 @@ test("Project CRUD and searching has succeeded", async ({
   await ownerSwitch.click();
   await projectPage.saveChangesButtonSecond.click();
   await expect(ownerSwitch).toHaveAttribute("aria-checked", "true");
-  await closeNotification(page);
+  await projectPage.closeNotification();
 
   await projectPage.modelsMenuItem.click();
   await expect(projectPage.banner).toContainText(projectName);

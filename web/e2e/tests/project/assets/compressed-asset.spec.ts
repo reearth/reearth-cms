@@ -4,7 +4,6 @@ import { fileURLToPath } from "url";
 
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,10 +30,7 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test.describe("Zip Upload Tests", () => {
-  test("Uploading and auto-unzipping ZIP file from URL tab succeeds", async ({
-    page,
-    assetsPage,
-  }) => {
+  test("Uploading and auto-unzipping ZIP file from URL tab succeeds", async ({ assetsPage }) => {
     await assetsPage.uploadButton.click();
     await assetsPage.urlTab.click();
     const urlInput = assetsPage.urlInput;
@@ -44,13 +40,10 @@ test.describe("Zip Upload Tests", () => {
     await expect(autoUnzipCheckbox).toBeChecked();
     await assetsPage.submitUploadButton.click();
     await expect(assetsPage.lastNotification).toContainText("Successfully added asset!");
-    await closeNotification(page);
+    await assetsPage.closeNotification();
   });
 
-  test("Uploading and auto-unzipping ZIP file via Local tab succeeds", async ({
-    page,
-    assetsPage,
-  }) => {
+  test("Uploading and auto-unzipping ZIP file via Local tab succeeds", async ({ assetsPage }) => {
     await assetsPage.uploadButton.click();
     await assetsPage.localTab.click();
     const uploadInput = assetsPage.fileInput;
@@ -63,6 +56,6 @@ test.describe("Zip Upload Tests", () => {
       "Successfully added one or more assets!",
     );
 
-    await closeNotification(page);
+    await assetsPage.closeNotification();
   });
 });

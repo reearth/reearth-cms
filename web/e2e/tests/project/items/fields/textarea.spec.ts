@@ -1,6 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -15,7 +14,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Textarea field editing has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -31,7 +29,7 @@ test("Textarea field editing has succeeded", async ({
   await fieldEditorPage.setDefaultValueInput.click();
   await fieldEditorPage.defaultValueTextInput.fill("text1 default value");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(fieldEditorPage.fieldText("text1", "text1")).toBeVisible();
   await fieldEditorPage.ellipsisMenuButton.click();
   await expect(fieldEditorPage.displayNameInput).toBeVisible();
@@ -55,7 +53,7 @@ test("Textarea field editing has succeeded", async ({
   await expect(contentPage.mainRole).toContainText("text1 description");
   await expect(contentPage.firstTextbox).toHaveValue("text1 default value");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButtonLabel.click();
   await contentPage.tableColumnButton(9).click();
   await expect(contentPage.tooltip).toContainText("text1text1 default value");
@@ -84,7 +82,7 @@ test("Textarea field editing has succeeded", async ({
   await fieldEditorPage.firstArrowDownButton.click();
   await expect(fieldEditorPage.defaultValueInputByIndex(1)).toHaveValue("text1");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(fieldEditorPage.uniqueFieldText("new text1", "new-text1")).toBeVisible();
   await schemaPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("new text1");
@@ -97,7 +95,7 @@ test("Textarea field editing has succeeded", async ({
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("text2");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("text1");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButtonLabel.click();
   await contentPage.x2Button.click();
   await expect(contentPage.mainRole).toContainText("new text1text2text1");
@@ -116,7 +114,7 @@ test("Textarea field editing has succeeded", async ({
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("text2");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("text");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButtonLabel.click();
   await contentPage.getByRole("button", { name: "x2" }).nth(1).click();
   await expect(contentPage.mainRole).toContainText("new text1text2text");

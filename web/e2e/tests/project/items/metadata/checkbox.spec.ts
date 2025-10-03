@@ -1,6 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -15,7 +14,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Checkbox metadata creating and updating has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -26,7 +24,7 @@ test("Checkbox metadata creating and updating has succeeded", async ({
   await fieldEditorPage.fieldKeyInput.fill("checkbox1");
   await fieldEditorPage.fieldDescriptionInput.fill("checkbox1 description");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(fieldEditorPage.fieldText("checkbox1", "checkbox1")).toBeVisible();
 
   await fieldEditorPage.ellipsisButton.click();
@@ -50,20 +48,20 @@ test("Checkbox metadata creating and updating has succeeded", async ({
   await expect(contentPage.fieldDescriptionText("checkbox1 description")).toBeVisible();
 
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.itemInformationHeading).toBeVisible();
   await expect(contentPage.fieldInput("checkbox1")).not.toBeChecked();
 
   await contentPage.backButtonRole.click();
   await contentPage.lastCellCheckbox.check();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.lastCellCheckbox).toBeChecked();
 
   await contentPage.cellEditButton.click();
   await expect(contentPage.fieldInput("checkbox1")).toBeChecked();
 
   await contentPage.fieldInput("checkbox1").uncheck();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.fieldInput("checkbox1")).not.toBeChecked();
 
   await contentPage.backButtonRole.click();
@@ -71,7 +69,6 @@ test("Checkbox metadata creating and updating has succeeded", async ({
 });
 
 test("Checkbox metadata editing has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -84,7 +81,7 @@ test("Checkbox metadata editing has succeeded", async ({
   await fieldEditorPage.defaultValueTab.click();
   await fieldEditorPage.setDefaultValueCheckbox.check();
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await schemaPage.contentMenuItem.click();
   await expect(contentPage.columnHeaderWithEdit("checkbox1")).toBeVisible();
@@ -93,7 +90,7 @@ test("Checkbox metadata editing has succeeded", async ({
   await expect(contentPage.fieldInput("checkbox1")).toBeChecked();
 
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await schemaPage.schemaMenuItem.click();
   await schemaPage.metaDataTab.click();
   await fieldEditorPage.ellipsisButton.click();
@@ -108,7 +105,7 @@ test("Checkbox metadata editing has succeeded", async ({
   await expect(fieldEditorPage.checkboxByIndex(1)).not.toBeChecked();
   await fieldEditorPage.checkboxByIndex(1).check();
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(schemaPage.getByText("new checkbox1")).toBeVisible();
   await expect(schemaPage.getByText("#new-checkbox1")).toBeVisible();
 
@@ -123,7 +120,7 @@ test("Checkbox metadata editing has succeeded", async ({
   await expect(contentPage.checkboxByIndex(1)).toBeChecked();
 
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.checkboxByIndex(0)).toBeChecked();
   await expect(contentPage.checkboxByIndex(1)).toBeChecked();
 
@@ -133,12 +130,12 @@ test("Checkbox metadata editing has succeeded", async ({
   await expect(contentPage.tooltipCheckboxByIndex(1)).toBeChecked();
 
   await contentPage.tooltipCheckboxByIndex(0).uncheck();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.cellEditButtonByIndex(0).click();
   await expect(contentPage.checkboxByIndex(0)).not.toBeChecked();
   await expect(contentPage.checkboxByIndex(1)).toBeChecked();
   await fieldEditorPage.plusNewButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.checkboxByIndex(0)).not.toBeChecked();
   await expect(contentPage.checkboxByIndex(1)).toBeChecked();
   await expect(contentPage.checkboxByIndex(2)).not.toBeChecked();

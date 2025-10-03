@@ -1,6 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -14,11 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("URL field creating and updating has succeeded", async ({
-  page,
-  fieldEditorPage,
-  contentPage,
-}) => {
+test("URL field creating and updating has succeeded", async ({ fieldEditorPage, contentPage }) => {
   await fieldEditorPage.fieldTypeButton("URL").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("url1");
@@ -28,7 +23,7 @@ test("URL field creating and updating has succeeded", async ({
   await fieldEditorPage.settingsDescriptionInput.fill("url1 description");
 
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await expect(fieldEditorPage.fieldsContainerParagraph).toContainText("url1#url1");
   await contentPage.contentText.click();
@@ -38,7 +33,7 @@ test("URL field creating and updating has succeeded", async ({
   await contentPage.fieldInput("url1").click();
   await contentPage.fieldInput("url1").fill("http://test1.com");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await expect(contentPage.cellByTextExact("http://test1.com")).toBeVisible();
 
@@ -47,17 +42,12 @@ test("URL field creating and updating has succeeded", async ({
   await contentPage.fieldInput("url1").click();
   await contentPage.fieldInput("url1").fill("http://test2.com");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await expect(contentPage.cellByTextExact("http://test2.com")).toBeVisible();
 });
 
-test("URL field editing has succeeded", async ({
-  page,
-  fieldEditorPage,
-  contentPage,
-  schemaPage,
-}) => {
+test("URL field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
   await fieldEditorPage.fieldTypeListItem("URL").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("url1");
@@ -69,13 +59,13 @@ test("URL field editing has succeeded", async ({
   await fieldEditorPage.setDefaultValueInput.click();
   await fieldEditorPage.setDefaultValueInput.fill("http://test1.com");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await contentPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("url1");
   await contentPage.newItemButton.click();
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await expect(contentPage.cellByTextExact("http://test1.com")).toBeVisible();
 
@@ -99,7 +89,7 @@ test("URL field editing has succeeded", async ({
   await fieldEditorPage.defaultValueInputByIndex(1).click();
   await fieldEditorPage.defaultValueInputByIndex(1).fill("http://test2.com");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await expect(schemaPage.uniqueFieldText("new url1", "new-url1")).toBeVisible();
   await contentPage.contentText.click();
@@ -110,7 +100,7 @@ test("URL field editing has succeeded", async ({
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://test1.com");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://test2.com");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await contentPage.x2Button.click();
   await expect(contentPage.tooltip).toContainText("http://test1.comhttp://test2.com");

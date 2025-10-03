@@ -1,11 +1,9 @@
-import { type Page, expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 import { FieldEditorPage } from "@reearth-cms/e2e/pages/field-editor.page";
 import { SchemaPage } from "@reearth-cms/e2e/pages/schema.page";
 
 async function deleteField(
-  page: Page,
   name: string,
   key = name,
   fieldEditorPage: FieldEditorPage,
@@ -13,7 +11,7 @@ async function deleteField(
 ) {
   await fieldEditorPage.deleteFieldButton.click();
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await schemaPage.closeNotification();
   await expect(schemaPage.fieldText(name, key)).toBeHidden();
 }
 
@@ -48,7 +46,7 @@ test("Model CRUD has succeeded", async ({ schemaPage, fieldEditorPage }) => {
   await expect(fieldEditorPage.titleByText(newModelName)).toBeHidden();
 });
 
-test("Model reordering has succeeded", async ({ page, schemaPage }) => {
+test("Model reordering has succeeded", async ({ schemaPage }) => {
   const modelName1 = "model1";
   const modelName2 = "model2";
   const modelName3 = "model3";
@@ -59,7 +57,7 @@ test("Model reordering has succeeded", async ({ page, schemaPage }) => {
   await expect(schemaPage.modelMenuItems().nth(1)).toContainText(modelName2);
 
   await schemaPage.modelMenuItem(modelName2).dragTo(schemaPage.modelMenuItem(modelName1));
-  await closeNotification(page);
+  await schemaPage.closeNotification();
   await expect(schemaPage.modelMenuItems().nth(0)).toContainText(modelName2);
   await expect(schemaPage.modelMenuItems().nth(1)).toContainText(modelName1);
 
@@ -88,11 +86,7 @@ test("Group CRUD has succeeded", async ({ schemaPage, fieldEditorPage }) => {
   await expect(fieldEditorPage.titleByText(updateGroupName)).toBeHidden();
 });
 
-test("Group creating from adding field has succeeded", async ({
-  page,
-  schemaPage,
-  fieldEditorPage,
-}) => {
+test("Group creating from adding field has succeeded", async ({ schemaPage, fieldEditorPage }) => {
   await schemaPage.createModelFromSidebar();
   await fieldEditorPage.fieldTypeListItem("Group").click();
   await schemaPage.addGroupButton.click();
@@ -104,7 +98,7 @@ test("Group creating from adding field has succeeded", async ({
   await schemaPage.groupKeyInput.click();
   await schemaPage.groupKeyInput.fill("e2e-group-key");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await schemaPage.closeNotification();
   await expect(schemaPage.menuItemByName("e2e group name").locator("span")).toBeVisible();
   await expect(schemaPage.groupNameByText("e2e group name#e2e-group-key")).toBeVisible();
   await expect(schemaPage.fieldsMetaDataText).toBeHidden();
@@ -120,13 +114,13 @@ test("Group creating from adding field has succeeded", async ({
   await fieldEditorPage.cancelButton.click();
 });
 
-test("Group reordering has succeeded", async ({ page, schemaPage }) => {
+test("Group reordering has succeeded", async ({ schemaPage }) => {
   await schemaPage.createGroup("group1", "group1");
   await schemaPage.createGroup("group2", "group2");
   await expect(schemaPage.groupMenuItems.nth(0)).toContainText("group1");
   await expect(schemaPage.groupMenuItems.nth(1)).toContainText("group2");
   await schemaPage.groupMenuItems.nth(1).dragTo(schemaPage.groupMenuItems.nth(0));
-  await closeNotification(page);
+  await schemaPage.closeNotification();
   await expect(schemaPage.groupMenuItems.nth(0)).toContainText("group2");
   await expect(schemaPage.groupMenuItems.nth(1)).toContainText("group1");
   await schemaPage.createGroup("group3", "group3");
@@ -136,16 +130,16 @@ test("Group reordering has succeeded", async ({ page, schemaPage }) => {
 });
 
 // eslint-disable-next-line playwright/expect-expect
-test("Text field CRUD has succeeded", async ({ page, fieldEditorPage, schemaPage }) => {
+test("Text field CRUD has succeeded", async ({ fieldEditorPage, schemaPage }) => {
   await schemaPage.createModelFromSidebar();
   await fieldEditorPage.fieldTypeListItem("Text").click();
   await schemaPage.handleFieldForm("text");
   await fieldEditorPage.ellipsisMenuButton.click();
   await schemaPage.handleFieldForm("new text", "new-text");
-  await deleteField(page, "new text", "new-text", fieldEditorPage, schemaPage);
+  await deleteField("new text", "new-text", fieldEditorPage, schemaPage);
 });
 
-test("Schema reordering has succeeded", async ({ page, schemaPage, fieldEditorPage }) => {
+test("Schema reordering has succeeded", async ({ schemaPage, fieldEditorPage }) => {
   await schemaPage.createModelFromSidebar();
   await fieldEditorPage.fieldTypeListItem(/Text/).click();
   await schemaPage.handleFieldForm("text1");
@@ -154,7 +148,7 @@ test("Schema reordering has succeeded", async ({ page, schemaPage, fieldEditorPa
   await expect(schemaPage.draggableItems.nth(0)).toContainText("text1#text1");
   await expect(schemaPage.draggableItems.nth(1)).toContainText("text2#text2");
   await schemaPage.grabbableItems.nth(1).dragTo(schemaPage.draggableItems.nth(0));
-  await closeNotification(page);
+  await schemaPage.closeNotification();
   await expect(schemaPage.draggableItems.nth(0)).toContainText("text2#text2");
   await expect(schemaPage.draggableItems.nth(1)).toContainText("text1#text1");
 });

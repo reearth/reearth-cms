@@ -1,6 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -15,7 +14,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Url metadata creating and updating has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
 }) => {
@@ -25,7 +23,7 @@ test("Url metadata creating and updating has succeeded", async ({
   await fieldEditorPage.fieldKeyInput.fill("url1");
   await fieldEditorPage.descriptionRequiredInput.fill("url1 description");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(fieldEditorPage.fieldText("url1", "url1")).toBeVisible();
 
   await fieldEditorPage.ellipsisButton.click();
@@ -50,7 +48,7 @@ test("Url metadata creating and updating has succeeded", async ({
 
   await contentPage.fieldInput("url1").fill("http://test1.com");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.itemInformationHeading).toBeVisible();
   await expect(contentPage.fieldInput("url1")).toHaveValue("http://test1.com");
 
@@ -63,21 +61,21 @@ test("Url metadata creating and updating has succeeded", async ({
   await editButton.click();
   await contentPage.textBoxes.fill("http://test2.com");
   await contentPage.tableBodyElement.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.linkByName("http://test2.com")).toBeVisible();
 
   await contentPage.cellEditButton.click();
   await expect(contentPage.fieldInput("url1")).toHaveValue("http://test2.com");
 
   await contentPage.fieldInput("url1").fill("http://test3.com");
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.fieldInput("url1")).toHaveValue("http://test3.com");
 
   await contentPage.backButtonRole.click();
   await expect(contentPage.linkByName("http://test3.com")).toBeVisible();
 });
 
-test("Url metadata editing has succeeded", async ({ page, fieldEditorPage, contentPage }) => {
+test("Url metadata editing has succeeded", async ({ fieldEditorPage, contentPage }) => {
   test.slow();
   await fieldEditorPage.metaDataTab.click();
   await fieldEditorPage.fieldTypeListItem("URL").click();
@@ -87,7 +85,7 @@ test("Url metadata editing has succeeded", async ({ page, fieldEditorPage, conte
   await fieldEditorPage.defaultValueTab.click();
   await fieldEditorPage.setDefaultValueInput.fill("http://default1.com");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await fieldEditorPage.menuItemByName("Content").click();
   await expect(fieldEditorPage.columnHeaderWithEdit("url1")).toBeVisible();
@@ -96,7 +94,7 @@ test("Url metadata editing has succeeded", async ({ page, fieldEditorPage, conte
   await expect(contentPage.fieldInput("url1")).toHaveValue("http://default1.com");
 
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButtonRole.click();
   await fieldEditorPage.menuItemByName("Schema").click();
   await fieldEditorPage.metaDataTab.click();
@@ -114,7 +112,7 @@ test("Url metadata editing has succeeded", async ({ page, fieldEditorPage, conte
   await fieldEditorPage.plusNewButton.click();
   await fieldEditorPage.textboxByIndex(1).fill("http://default2.com");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(fieldEditorPage.uniqueFieldText("new url1", "new-url1")).toBeVisible();
 
   await fieldEditorPage.menuItemByName("Content").click();
@@ -128,7 +126,7 @@ test("Url metadata editing has succeeded", async ({ page, fieldEditorPage, conte
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://default2.com");
 
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://default1.com");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://default2.com");
   await contentPage.backButtonRole.click();
@@ -143,13 +141,13 @@ test("Url metadata editing has succeeded", async ({ page, fieldEditorPage, conte
   await editButton.click();
   await contentPage.textBoxes.fill("http://new-default2.com");
   await contentPage.tooltipTextByName("new url1").click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.cellEditButtonByIndex(0).click();
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://default1.com");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://new-default2.com");
   await fieldEditorPage.plusNewButton.click();
   await fieldEditorPage.lastTextbox.fill("http://default3.com");
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://default1.com");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://new-default2.com");
   await expect(contentPage.textBoxByIndex(2)).toHaveValue("http://default3.com");

@@ -1,6 +1,5 @@
 // e2e/pages/assets.page.ts
-import { type Page, type Locator } from "@reearth-cms/e2e/fixtures/test";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
+import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 
 import { BasePage } from "./base.page";
 
@@ -110,12 +109,14 @@ export class AssetsPage extends BasePage {
     return this.getByText("Asset TypePNG/JPEG/TIFF/GIF");
   }
 
-  async uploadViaUrl(page: Page, url: string, autoUnzip = false): Promise<void> {
+  
+
+  async uploadViaUrl(url: string, autoUnzip = false): Promise<void> {
     await this.uploadButton.click();
     await this.urlTab.click();
     await this.urlInput.fill(url);
     if (autoUnzip) await this.autoUnzipCheckbox.setChecked(true);
     await this.submitUploadButton.click();
-    await closeNotification(page);
+    await this.closeNotification();
   }
 }

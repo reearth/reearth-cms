@@ -1,7 +1,6 @@
 /* eslint-disable playwright/expect-expect */
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 const jsonName = "tileset.json";
 const jsonUrl = `https://assets.cms.plateau.reearth.io/assets/11/6d05db-ed47-4f88-b565-9eb385b1ebb0/13100_tokyo23-ku_2022_3dtiles%20_1_1_op_bldg_13101_chiyoda-ku_lod1/${jsonName}`;
@@ -22,11 +21,11 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test.describe.parallel("Json file tests", () => {
-  test.beforeEach(async ({ page, assetsPage }) => {
-    await assetsPage.uploadViaUrl(page, jsonUrl);
+  test.beforeEach(async ({ assetsPage }) => {
+    await assetsPage.uploadViaUrl(jsonUrl);
   });
 
-  test("Asset CRUD and Searching has succeeded", async ({ page, assetsPage }) => {
+  test("Asset CRUD and Searching has succeeded", async ({ assetsPage }) => {
     await expect(assetsPage.rowByText(jsonName)).toBeVisible();
 
     // search no result
@@ -50,7 +49,7 @@ test.describe.parallel("Json file tests", () => {
     await assetsPage.selectAssetCheckbox.check();
     await assetsPage.deleteButton.click();
     await expect(assetsPage.rowByText(jsonName)).toBeHidden();
-    await closeNotification(page);
+    await assetsPage.closeNotification();
   });
 
   test("Previewing json file by full screen has succeeded", async ({ page, assetsPage }) => {
@@ -60,7 +59,7 @@ test.describe.parallel("Json file tests", () => {
     await assetsPage.typeSelectTrigger.click();
     await assetsPage.typeOption("GEOJSON/KML/CZML").click();
     await assetsPage.saveButton.click();
-    await closeNotification(page);
+    await assetsPage.closeNotification();
 
     // viewport dims
     const viewportSize = page.viewportSize();
@@ -88,7 +87,7 @@ test.describe.parallel("Json file tests", () => {
     await assetsPage.downloadButton.click();
     const d1 = await bulkDownload;
     expect(d1.suggestedFilename()).toEqual(jsonName);
-    await closeNotification(page);
+    await assetsPage.closeNotification();
 
     // details download
     await assetsPage.editIconButton.click();
@@ -96,13 +95,13 @@ test.describe.parallel("Json file tests", () => {
     await assetsPage.downloadButton.click();
     const d2 = await detailsDownload;
     expect(d2.suggestedFilename()).toEqual(jsonName);
-    await closeNotification(page);
+    await assetsPage.closeNotification();
 
     // cleanup
     await assetsPage.backButton.click();
     await assetsPage.selectAssetCheckbox.check();
     await assetsPage.deleteButton.click();
-    await closeNotification(page);
+    await assetsPage.closeNotification();
   });
 
   test("Comment CRUD on edit page has succeeded", async ({ assetsPage, contentPage }) => {
@@ -121,8 +120,8 @@ test.describe.parallel("Json file tests", () => {
   });
 });
 
-test("Previewing png file on modal has succeeded", async ({ page, assetsPage }) => {
-  await assetsPage.uploadViaUrl(page, pngUrl);
+test("Previewing png file on modal has succeeded", async ({ assetsPage }) => {
+  await assetsPage.uploadViaUrl(pngUrl);
 
   await assetsPage.editIconButton.click();
   await expect(assetsPage.assetTypeText).toBeVisible();

@@ -2,7 +2,6 @@
 import { config } from "@reearth-cms/e2e/config/config";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { parseConfigBoolean } from "@reearth-cms/e2e/helpers/format.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 
@@ -18,13 +17,13 @@ test.afterEach(async ({ workspacePage }) => {
   await workspacePage.deleteWorkspace();
 });
 
-test("Tiles CRUD has succeeded", async ({ page, settingsPage }) => {
+test("Tiles CRUD has succeeded", async ({ settingsPage }) => {
   await settingsPage.addNewTilesButton.click();
   await settingsPage.defaultTileOption.click();
   await settingsPage.labelledTileOption.click();
   await settingsPage.okButton.click();
   await settingsPage.saveButton.click();
-  await closeNotification(page);
+  await settingsPage.closeNotification();
   await settingsPage.editCardButton.click();
   await expect(settingsPage.textByName("Labelled", true)).toBeVisible();
   await settingsPage
@@ -41,7 +40,7 @@ test("Tiles CRUD has succeeded", async ({ page, settingsPage }) => {
   await settingsPage.imageUrlInput.fill("http://image.com");
   await settingsPage.okButton.click();
   await settingsPage.saveButton.click();
-  await closeNotification(page);
+  await settingsPage.closeNotification();
   await expect(settingsPage.textByName("url", true)).toBeVisible();
   const targetImageEl = settingsPage.cardMetaAvatarImage;
   await expect(targetImageEl).toHaveAttribute("src", "http://image.com");
@@ -53,11 +52,11 @@ test("Tiles CRUD has succeeded", async ({ page, settingsPage }) => {
   await settingsPage.closeButton.click();
   await settingsPage.deleteCardButton.click();
   await settingsPage.saveButton.click();
-  await closeNotification(page);
+  await settingsPage.closeNotification();
   await expect(settingsPage.textByName("url", true)).toBeHidden();
 });
 
-test("Terrain on/off and CRUD has succeeded", async ({ page, settingsPage }) => {
+test("Terrain on/off and CRUD has succeeded", async ({ settingsPage }) => {
   await expect(settingsPage.terrainSwitch).toBeEnabled();
   await settingsPage.terrainSwitch.click();
   await expect(settingsPage.terrainSwitch).toHaveAttribute("aria-checked", "true");
@@ -67,7 +66,7 @@ test("Terrain on/off and CRUD has succeeded", async ({ page, settingsPage }) => 
   await settingsPage.arcGisTerrainOption.click();
   await settingsPage.okButton.click();
   await settingsPage.saveButton.click();
-  await closeNotification(page);
+  await settingsPage.closeNotification();
   await settingsPage.editIconButton.click();
   await expect(settingsPage.formElement).toContainText("ArcGIS Terrain");
   await settingsPage
@@ -88,7 +87,7 @@ test("Terrain on/off and CRUD has succeeded", async ({ page, settingsPage }) => 
   await settingsPage.imageUrlInput.fill("http://image.com");
   await settingsPage.okButton.click();
   await settingsPage.saveButton.click();
-  await closeNotification(page);
+  await settingsPage.closeNotification();
   await expect(settingsPage.textByName("name", true)).toBeVisible();
   await settingsPage.editIconButton.click();
   await expect(settingsPage.formElement).toContainText("Cesium Ion");
@@ -100,17 +99,17 @@ test("Terrain on/off and CRUD has succeeded", async ({ page, settingsPage }) => 
   await settingsPage.closeButton.click();
   await settingsPage.deleteIconButton.click();
   await settingsPage.saveButton.click();
-  await closeNotification(page);
+  await settingsPage.closeNotification();
   await expect(settingsPage.textByName("name", true)).toBeHidden();
 
   await settingsPage.terrainSwitch.click();
   await settingsPage.saveButton.click();
-  await closeNotification(page);
+  await settingsPage.closeNotification();
   await expect(settingsPage.terrainSwitch).toHaveAttribute("aria-checked", "false");
   await expect(settingsPage.addTerrainButton).toBeHidden();
 });
 
-test("Tiles reordering has succeeded", async ({ page, settingsPage }) => {
+test("Tiles reordering has succeeded", async ({ settingsPage }) => {
   await settingsPage.addNewTilesButton.click();
   await settingsPage.okButton.click();
   await settingsPage.addNewTilesButton.click();
@@ -120,13 +119,13 @@ test("Tiles reordering has succeeded", async ({ page, settingsPage }) => {
   await expect(settingsPage.cardByIndex(0)).toHaveText("DEFAULT");
   await expect(settingsPage.cardByIndex(1)).toHaveText("LABELLED");
   await settingsPage.saveButton.click();
-  await closeNotification(page);
+  await settingsPage.closeNotification();
 
   await settingsPage.grabbableInCard(0).dragTo(settingsPage.cardByIndex(1));
   await expect(settingsPage.cardByIndex(0)).toHaveText("LABELLED");
   await expect(settingsPage.cardByIndex(1)).toHaveText("DEFAULT");
   await settingsPage.saveButton.click();
-  await closeNotification(page);
+  await settingsPage.closeNotification();
 
   await settingsPage.homeMenuItem.click();
   await settingsPage.settingsMenuItem.click();
@@ -134,7 +133,7 @@ test("Tiles reordering has succeeded", async ({ page, settingsPage }) => {
   await expect(settingsPage.cardByIndex(1)).toHaveText("DEFAULT");
 });
 
-test("Terrain reordering has succeeded", async ({ page, settingsPage }) => {
+test("Terrain reordering has succeeded", async ({ settingsPage }) => {
   await expect(settingsPage.terrainSwitch).toBeEnabled();
   await settingsPage.terrainSwitch.click();
   await expect(settingsPage.terrainSwitch).toHaveAttribute("aria-checked", "true");
@@ -148,13 +147,13 @@ test("Terrain reordering has succeeded", async ({ page, settingsPage }) => {
   await expect(settingsPage.cardByIndex(0)).toHaveText("CESIUM_WORLD_TERRAIN");
   await expect(settingsPage.cardByIndex(1)).toHaveText("ARC_GIS_TERRAIN");
   await settingsPage.saveButton.click();
-  await closeNotification(page);
+  await settingsPage.closeNotification();
 
   await settingsPage.grabbableInCard(0).dragTo(settingsPage.cardByIndex(1));
   await expect(settingsPage.cardByIndex(0)).toHaveText("ARC_GIS_TERRAIN");
   await expect(settingsPage.cardByIndex(1)).toHaveText("CESIUM_WORLD_TERRAIN");
   await settingsPage.saveButton.click();
-  await closeNotification(page);
+  await settingsPage.closeNotification();
 
   await settingsPage.homeMenuItem.click();
   await settingsPage.settingsMenuItem.click();

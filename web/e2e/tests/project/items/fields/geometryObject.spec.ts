@@ -72,7 +72,7 @@ test("GeometryObject field editing has succeeded", async ({
   await expect(contentPage.tableHead).toContainText("geometryObject1");
   await contentPage.newItemButton.click();
   await expect(contentPage.viewLinesEditor).toContainText(
-    '{    "type":     "Point",    "coordinates":     [0, 0]}',
+    '{  "type": "Point",  "coordinates": [0, 0]}',
   );
 
   await contentPage.saveButton.click();

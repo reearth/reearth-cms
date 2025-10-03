@@ -1,6 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -15,7 +14,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("One-way reference field creating and updating has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -25,31 +23,31 @@ test("One-way reference field creating and updating has succeeded", async ({
   await schemaPage.modelNameInput.fill("ref model");
   await schemaPage.modelKeyInput.fill("ref-model");
   await schemaPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await fieldEditorPage.fieldTypeButton("Text").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("text");
   await fieldEditorPage.useAsTitleCheckbox.check();
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await schemaPage.metaDataTab.click();
   await schemaPage.fieldTypeButton("Boolean").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("boolean");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.contentText.click();
   await contentPage.newItemButton.click();
   await contentPage.fieldInput("text").click();
   await contentPage.fieldInput("text").fill("text1");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await contentPage.newItemButton.click();
   await contentPage.fieldInput("text").click();
   await contentPage.fieldInput("text").fill("text2");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await schemaPage.schemaText.click();
   await schemaPage.modelByText("e2e model name").click();
   await schemaPage.fieldTypeButton("Reference").click();
@@ -76,7 +74,7 @@ test("One-way reference field creating and updating has succeeded", async ({
   await fieldEditorPage.makeFieldRequiredCheckbox.check();
   await fieldEditorPage.setFieldAsUniqueCheckbox.check();
   await fieldEditorPage.confirmButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText(
     "ref *#ref(unique)",
   );
@@ -123,7 +121,7 @@ test("One-way reference field creating and updating has succeeded", async ({
   await fieldEditorPage.rowButton(0).hover();
   await fieldEditorPage.rowButton(0).click();
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await expect(contentPage.cellSpanByText("text1")).toBeVisible();
   await contentPage.editButton.click();
@@ -133,13 +131,12 @@ test("One-way reference field creating and updating has succeeded", async ({
   await fieldEditorPage.rowButton(1).click();
   await expect(fieldEditorPage.referenceText("text2")).toBeVisible();
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await expect(contentPage.cellSpanByText("text2")).toBeVisible();
 });
 
 test("Two-way reference field editing has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -151,25 +148,25 @@ test("Two-way reference field editing has succeeded", async ({
   await schemaPage.modelKeyLabel.click();
   await schemaPage.modelKeyLabel.fill("ref-model");
   await schemaPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await schemaPage.fieldTypeButton("Text").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("text");
   await fieldEditorPage.useAsTitleCheckbox.check();
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.contentText.click();
   await contentPage.newItemButton.click();
   await contentPage.fieldInput("text").click();
   await contentPage.fieldInput("text").fill("reference text1");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await contentPage.newItemButton.click();
   await contentPage.fieldInput("text").click();
   await contentPage.fieldInput("text").fill("reference text2");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await schemaPage.schemaText.click();
   await schemaPage.modelByText("e2e model name").click();
@@ -178,7 +175,7 @@ test("Two-way reference field editing has succeeded", async ({
   await fieldEditorPage.displayNameInput.fill("text");
   await fieldEditorPage.useAsTitleCheckbox.check();
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await schemaPage.fieldTypeButton("Reference").click();
   await fieldEditorPage.selectModelToReferenceLabel.click();
   await fieldEditorPage.modelOption("ref model #ref-model").click();
@@ -218,7 +215,7 @@ test("Two-way reference field editing has succeeded", async ({
   await fieldEditorPage.validationTab.click();
   await expect(fieldEditorPage.makeFieldRequiredCheckbox).toBeChecked();
   await fieldEditorPage.confirmButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await expect(schemaPage.fieldsContainer).toContainText("ref1 *#ref1");
   await schemaPage.fieldEllipsisIcon("ref1 *#ref1").click();
@@ -263,7 +260,7 @@ test("Two-way reference field editing has succeeded", async ({
   await fieldEditorPage.rowButton(0).click();
   await expect(fieldEditorPage.referenceText("reference text1")).toBeVisible();
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
 
   await contentPage.newItemButton.click();
@@ -274,7 +271,7 @@ test("Two-way reference field editing has succeeded", async ({
   await fieldEditorPage.rowButton(1).click();
   await expect(fieldEditorPage.referenceText("reference text2")).toBeVisible();
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
 
   await expect(contentPage.cellSpanByText("reference text1")).toBeVisible();
@@ -289,7 +286,7 @@ test("Two-way reference field editing has succeeded", async ({
   await fieldEditorPage.rowButton(0).click();
   await fieldEditorPage.okButton.click();
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await expect(contentPage.cellByTextExact("text1").locator("span").first()).toBeVisible();
   await expect(contentPage.cellByTextExact("text2").locator("span").first()).toBeHidden();

@@ -1,6 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -15,7 +14,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Boolean field creating and updating has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
 }) => {
@@ -27,7 +25,7 @@ test("Boolean field creating and updating has succeeded", async ({
   await fieldEditorPage.settingsDescriptionInput.click();
   await fieldEditorPage.settingsDescriptionInput.fill("boolean1 description");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await expect(fieldEditorPage.fieldsContainerParagraph).toContainText("boolean1#boolean1");
   await contentPage.contentText.click();
@@ -37,20 +35,19 @@ test("Boolean field creating and updating has succeeded", async ({
 
   await contentPage.fieldInput("boolean1").click();
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await expect(contentPage.allSwitches).toHaveAttribute("aria-checked", "true");
   await contentPage.editButton.click();
   await expect(contentPage.allSwitches).toHaveAttribute("aria-checked", "true");
   await contentPage.fieldInput("boolean1").click();
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await expect(contentPage.allSwitches).toHaveAttribute("aria-checked", "false");
 });
 
 test("Boolean field editing has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -65,13 +62,13 @@ test("Boolean field editing has succeeded", async ({
   await fieldEditorPage.defaultValueTab.click();
   await fieldEditorPage.setDefaultValueSwitch.click();
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("boolean1");
   await contentPage.newItemButton.click();
   await expect(contentPage.allSwitches).toHaveAttribute("aria-checked", "true");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await expect(contentPage.allSwitches).toHaveAttribute("aria-checked", "true");
   await schemaPage.schemaText.click();
@@ -95,7 +92,7 @@ test("Boolean field editing has succeeded", async ({
   await expect(fieldEditorPage.switchByIndex(0)).toHaveAttribute("aria-checked", "false");
   await expect(fieldEditorPage.switchByIndex(1)).toHaveAttribute("aria-checked", "true");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(schemaPage.fieldText("new boolean1", "new-boolean1")).toBeVisible();
   await contentPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("new boolean1");
@@ -107,7 +104,7 @@ test("Boolean field editing has succeeded", async ({
   await expect(contentPage.switchByIndex(2)).toHaveAttribute("aria-checked", "false");
   await fieldEditorPage.arrowUpButtonByIndex(2).click();
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await contentPage.x3Button.click();
   await expect(contentPage.tooltip).toContainText("new boolean1");

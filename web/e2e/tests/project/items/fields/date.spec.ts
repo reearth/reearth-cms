@@ -1,6 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -14,11 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Date field creating and updating has succeeded", async ({
-  page,
-  fieldEditorPage,
-  contentPage,
-}) => {
+test("Date field creating and updating has succeeded", async ({ fieldEditorPage, contentPage }) => {
   await fieldEditorPage.fieldTypeButton("Date").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("date1");
@@ -27,7 +22,7 @@ test("Date field creating and updating has succeeded", async ({
   await fieldEditorPage.settingsDescriptionInput.click();
   await fieldEditorPage.settingsDescriptionInput.fill("date1 description");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await expect(fieldEditorPage.fieldsContainerParagraph).toContainText("date1#date1");
   await contentPage.contentText.click();
@@ -39,23 +34,18 @@ test("Date field creating and updating has succeeded", async ({
   await contentPage.selectDatePlaceholder.fill("2024-01-01");
   await contentPage.selectDatePlaceholder.press("Enter");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await expect(contentPage.tableBody).toContainText("2024-01-01");
   await contentPage.editButton.click();
   await contentPage.closeDateButton.click();
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await expect(contentPage.tableBody).not.toContainText("2024-01-01");
 });
 
-test("Date field editing has succeeded", async ({
-  page,
-  fieldEditorPage,
-  contentPage,
-  schemaPage,
-}) => {
+test("Date field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
   await fieldEditorPage.fieldTypeListItem("Date").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("date1");
@@ -68,13 +58,13 @@ test("Date field editing has succeeded", async ({
   await fieldEditorPage.selectDatePlaceholder.fill("2024-01-01");
   await fieldEditorPage.selectDatePlaceholder.press("Enter");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("date1");
   await contentPage.newItemButton.click();
   await expect(contentPage.selectDatePlaceholder).toHaveValue("2024-01-01");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await expect(contentPage.tableBody).toContainText("2024-01-01");
   await schemaPage.schemaText.click();
@@ -101,7 +91,7 @@ test("Date field editing has succeeded", async ({
   await fieldEditorPage.firstArrowDownButton.click();
   await expect(fieldEditorPage.selectDatePlaceholder.nth(0)).toHaveValue("2024-01-03");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(schemaPage.uniqueFieldText("new date1", "new-date1")).toBeVisible();
   await contentPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("new date1");
@@ -115,7 +105,7 @@ test("Date field editing has succeeded", async ({
   await contentPage.textBoxByIndex(2).fill("2024-01-04");
   await contentPage.textBoxByIndex(2).press("Enter");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await contentPage.x3Button.click();
   await expect(contentPage.tooltipParagraphByIndex(0)).toContainText("2024-01-03");

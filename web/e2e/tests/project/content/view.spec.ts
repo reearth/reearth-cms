@@ -1,6 +1,5 @@
-import { type Page, expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 import { ContentPage } from "@reearth-cms/e2e/pages/content.page";
 
 test.beforeEach(async ({ reearth, workspacePage, projectPage }) => {
@@ -17,17 +16,16 @@ test.afterEach(async ({ projectPage, workspacePage }) => {
   await workspacePage.deleteWorkspace();
 });
 
-async function itemAdd(page: Page, data: string, contentPage: ContentPage) {
+async function itemAdd(data: string, contentPage: ContentPage) {
   await contentPage.newItemButton.click();
   await contentPage.fieldInput("text").click();
   await contentPage.fieldInput("text").fill(data);
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
 }
 
 test("View CRUD has succeeded", async ({
-  page,
   fieldEditorPage,
   projectPage,
   contentPage,
@@ -37,14 +35,14 @@ test("View CRUD has succeeded", async ({
   await fieldEditorPage.fieldTypeButton("Text").click();
   await schemaPage.handleFieldForm("text");
   await projectPage.contentMenuItem.click();
-  await itemAdd(page, "text1", contentPage);
-  await itemAdd(page, "text2", contentPage);
-  await itemAdd(page, "sample1", contentPage);
-  await itemAdd(page, "sample2", contentPage);
+  await itemAdd("text1", contentPage);
+  await itemAdd("text2", contentPage);
+  await itemAdd("sample1", contentPage);
+  await itemAdd("sample2", contentPage);
   await contentPage.saveAsNewViewButton.click();
   await contentPage.viewNameInput.fill("view1");
   await contentPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.viewByName("view1")).toBeVisible();
   await expect(contentPage.tab(0)).toHaveAttribute("aria-selected", "true");
 
@@ -53,12 +51,12 @@ test("View CRUD has succeeded", async ({
   await contentPage.viewNameInput.click();
   await contentPage.viewNameInput.fill("new view1");
   await contentPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.viewByName("new view1")).toBeVisible();
   await contentPage.moreButton.click();
   await contentPage.removeViewButton.click();
   await contentPage.removeButton.click();
-  await closeNotification(page, false);
+  await contentPage.closeNotification(false);
   await contentPage.cancelButton.click();
 
   await contentPage.textColumnHeader().click();
@@ -84,7 +82,7 @@ test("View CRUD has succeeded", async ({
   await contentPage.viewNameInput.click();
   await contentPage.viewNameInput.fill("view2");
   await contentPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.tab(0)).toHaveAttribute("aria-selected", "false");
   await expect(contentPage.tab(1)).toHaveAttribute("aria-selected", "true");
   await expect(contentPage.sortUpIcon).toHaveClass(/active/);
@@ -114,7 +112,7 @@ test("View CRUD has succeeded", async ({
 
   await contentPage.viewTabWithMore("new view1").locator("svg").click();
   await contentPage.updateViewButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await contentPage.viewByName("view2").click();
   await expect(contentPage.sortUpIcon).toHaveClass(/active/);
@@ -135,7 +133,7 @@ test("View CRUD has succeeded", async ({
   await contentPage.viewTabWithMore("new view1").locator("svg").click();
   await contentPage.removeViewButton.click();
   await contentPage.removeButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.viewByName("new view1")).toBeHidden();
   await expect(contentPage.viewByName("view2")).toBeVisible();
   await expect(contentPage.tab(0)).toHaveAttribute("aria-selected", "true");
@@ -144,19 +142,19 @@ test("View CRUD has succeeded", async ({
   await expect(contentPage.tableRow(1)).toContainText("text2");
 });
 
-test("View reordering has succeeded", async ({ page, projectPage, contentPage }) => {
+test("View reordering has succeeded", async ({ projectPage, contentPage }) => {
   await projectPage.contentMenuItem.click();
   await projectPage.modelMenuItemClick(projectPage.modelName).click();
 
   await contentPage.saveAsNewViewButton.click();
   await contentPage.viewNameInput.fill("view1");
   await contentPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await contentPage.saveAsNewViewButton.click();
   await contentPage.viewNameInput.fill("view2");
   await contentPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await expect(contentPage.tabList.getByRole("tab").nth(0)).toContainText("view1");
   await expect(contentPage.tabList.getByRole("tab").nth(1)).toContainText("view2");
@@ -164,7 +162,7 @@ test("View reordering has succeeded", async ({ page, projectPage, contentPage })
     .getByRole("tab")
     .nth(0)
     .dragTo(contentPage.tabList.getByRole("tab").nth(1));
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await expect(contentPage.tabList.getByRole("tab").nth(0)).toContainText("view2");
   await expect(contentPage.tabList.getByRole("tab").nth(1)).toContainText("view1");
@@ -172,7 +170,7 @@ test("View reordering has succeeded", async ({ page, projectPage, contentPage })
   await contentPage.saveAsNewViewButton.click();
   await contentPage.viewNameInput.fill("view3");
   await contentPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await expect(contentPage.tabList.getByRole("tab").nth(0)).toContainText("view2");
   await expect(contentPage.tabList.getByRole("tab").nth(1)).toContainText("view1");

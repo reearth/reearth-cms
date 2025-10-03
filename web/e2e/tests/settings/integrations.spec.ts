@@ -1,6 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 let id: string;
 
@@ -15,11 +14,7 @@ test.afterEach(async ({ integrationsPage }) => {
   await integrationsPage.okButton.click();
 });
 
-test("Integration CRUD and searching has succeeded", async ({
-  reearth,
-  page,
-  integrationsPage,
-}) => {
+test("Integration CRUD and searching has succeeded", async ({ reearth, integrationsPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await integrationsPage.myIntegrationsMenuItem.click();
 
@@ -29,12 +24,12 @@ test("Integration CRUD and searching has succeeded", async ({
   await integrationsPage.descriptionInput.click();
   await integrationsPage.descriptionInput.fill("e2e integration description");
   await integrationsPage.createButton.click();
-  await closeNotification(page);
+  await integrationsPage.closeNotification();
   await integrationsPage.integrationsMenuItem.click();
   await integrationsPage.connectIntegrationButton.click();
   await integrationsPage.integrationTextById(id).click();
   await integrationsPage.connectButton.click();
-  await closeNotification(page);
+  await integrationsPage.closeNotification();
   await expect(integrationsPage.integrationCellById(id)).toBeVisible();
   await integrationsPage.connectIntegrationButton.click();
   await expect(integrationsPage.dialogIntegrationTextById(id)).toBeHidden();
@@ -46,7 +41,7 @@ test("Integration CRUD and searching has succeeded", async ({
   await integrationsPage.readerRoleOption.click();
   await integrationsPage.writerRoleOption.click();
   await integrationsPage.saveButton.click();
-  await closeNotification(page);
+  await integrationsPage.closeNotification();
   await expect(integrationsPage.writerCell).toBeVisible();
   await integrationsPage.searchInput.click();
   await integrationsPage.searchInput.fill("no integration");
@@ -58,7 +53,7 @@ test("Integration CRUD and searching has succeeded", async ({
   await expect(integrationsPage.integrationCellById(id)).toBeVisible();
   await integrationsPage.selectAllCheckbox.check();
   await integrationsPage.removeText.click();
-  await closeNotification(page);
+  await integrationsPage.closeNotification();
   await integrationsPage.connectIntegrationButton.click();
   await expect(integrationsPage.dialogIntegrationTextById(id)).toBeVisible();
   await integrationsPage.cancelButton.click();

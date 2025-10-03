@@ -1,6 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -15,7 +14,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Boolean metadata creating and updating has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -26,7 +24,7 @@ test("Boolean metadata creating and updating has succeeded", async ({
   await fieldEditorPage.fieldKeyInput.fill("boolean1");
   await fieldEditorPage.fieldDescriptionInput.fill("boolean1 description");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(fieldEditorPage.fieldText("boolean1", "boolean1")).toBeVisible();
 
   await fieldEditorPage.ellipsisButton.click();
@@ -50,20 +48,20 @@ test("Boolean metadata creating and updating has succeeded", async ({
   await expect(contentPage.fieldDescriptionText("boolean1 description")).toBeVisible();
 
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.itemInformationHeading).toBeVisible();
   await expect(contentPage.fieldInput("boolean1")).toHaveAttribute("aria-checked", "false");
 
   await contentPage.backButtonRole.click();
   await contentPage.closeSwitch.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.checkSwitch).toBeVisible();
 
   await contentPage.cellEditButton.click();
   await expect(contentPage.fieldInput("boolean1")).toHaveAttribute("aria-checked", "true");
 
   await contentPage.fieldInput("boolean1").click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.fieldInput("boolean1")).toHaveAttribute("aria-checked", "false");
 
   await contentPage.backButtonRole.click();
@@ -71,7 +69,6 @@ test("Boolean metadata creating and updating has succeeded", async ({
 });
 
 test("Boolean metadata editing has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -84,7 +81,7 @@ test("Boolean metadata editing has succeeded", async ({
   await fieldEditorPage.defaultValueTab.click();
   await fieldEditorPage.setDefaultValueSwitch.click();
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await schemaPage.contentMenuItem.click();
   await expect(contentPage.columnHeaderWithEdit("boolean1")).toBeVisible();
@@ -93,7 +90,7 @@ test("Boolean metadata editing has succeeded", async ({
   await expect(contentPage.fieldInput("boolean1")).toHaveAttribute("aria-checked", "true");
 
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await schemaPage.schemaMenuItem.click();
   await schemaPage.metaDataTab.click();
   await fieldEditorPage.ellipsisButton.click();
@@ -108,7 +105,7 @@ test("Boolean metadata editing has succeeded", async ({
   await expect(fieldEditorPage.switchByIndex(1)).toHaveAttribute("aria-checked", "false");
   await fieldEditorPage.switchByIndex(1).click();
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(schemaPage.getByText("new boolean1")).toBeVisible();
   await expect(schemaPage.getByText("#new-boolean1")).toBeVisible();
 
@@ -123,7 +120,7 @@ test("Boolean metadata editing has succeeded", async ({
   await expect(contentPage.switchByIndex(1)).toHaveAttribute("aria-checked", "true");
 
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.switchByIndex(0)).toHaveAttribute("aria-checked", "true");
   await expect(contentPage.switchByIndex(1)).toHaveAttribute("aria-checked", "true");
 
@@ -133,12 +130,12 @@ test("Boolean metadata editing has succeeded", async ({
   await expect(contentPage.tooltipSwitchByIndex(1)).toHaveAttribute("aria-checked", "true");
 
   await contentPage.tooltipSwitchByIndex(0).click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.cellEditButtonByIndex(0).click();
   await expect(contentPage.switchByIndex(0)).toHaveAttribute("aria-checked", "false");
   await expect(contentPage.switchByIndex(1)).toHaveAttribute("aria-checked", "true");
   await fieldEditorPage.plusNewButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(contentPage.switchByIndex(0)).toHaveAttribute("aria-checked", "false");
   await expect(contentPage.switchByIndex(1)).toHaveAttribute("aria-checked", "true");
   await expect(contentPage.switchByIndex(2)).toHaveAttribute("aria-checked", "false");

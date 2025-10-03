@@ -1,6 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -15,7 +14,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Group field creating and updating has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -37,7 +35,7 @@ test("Group field creating and updating has succeeded", async ({
   await fieldEditorPage.settingsDescriptionInput.click();
   await fieldEditorPage.settingsDescriptionInput.fill("text1 description");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(schemaPage.groupNameByText("text1#text1")).toBeVisible();
 
   await schemaPage.modelByText("e2e model name").click();
@@ -57,7 +55,7 @@ test("Group field creating and updating has succeeded", async ({
   await fieldEditorPage.defaultValueTab.click();
   await expect(fieldEditorPage.setDefaultValueInput).toBeDisabled();
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("group1#group1");
   await contentPage.contentText.click();
   await contentPage.newItemButton.click();
@@ -67,7 +65,7 @@ test("Group field creating and updating has succeeded", async ({
   await contentPage.fieldInput("text1").click();
   await contentPage.fieldInput("text1").fill("text1");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   // TO DO: check if the group field shows correctly
 
@@ -76,7 +74,7 @@ test("Group field creating and updating has succeeded", async ({
   await contentPage.fieldInput("text1").click();
   await contentPage.fieldInput("text1").fill("new text1");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await schemaPage.schemaSpanText.click();
   await schemaPage.metaDataTab.click();
   await schemaPage.groupMenuItem("e2e group name").locator("span").click();
@@ -102,7 +100,7 @@ test("Group field creating and updating has succeeded", async ({
   await fieldEditorPage.setDefaultValueInput.click();
   await fieldEditorPage.setDefaultValueInput.fill("text1");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.contentText.click();
   await schemaPage.modelByText("e2e model name").click();
   await contentPage.editButton.click();
@@ -114,7 +112,7 @@ test("Group field creating and updating has succeeded", async ({
   await contentPage.textBoxes.click();
   await contentPage.textBoxes.fill("text1");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await contentPage.editButton.click();
   await expect(contentPage.textBoxes).toHaveValue("text1");
@@ -132,26 +130,21 @@ test("Group field creating and updating has succeeded", async ({
     .fill("text2");
   await fieldEditorPage.plusNewButton.click();
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await contentPage.editButton.first().click();
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("text1");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("text2");
   await fieldEditorPage.arrowDownButton.first().click();
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await contentPage.editButton.first().click();
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("text2");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("text1");
 });
 
-test("Group field editing has succeeded", async ({
-  page,
-  fieldEditorPage,
-  contentPage,
-  schemaPage,
-}) => {
+test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
   test.slow();
   const groupName = "e2e group name";
   const groupKey = "e2e-group-key";
@@ -170,7 +163,7 @@ test("Group field editing has succeeded", async ({
   await fieldEditorPage.settingsDescriptionInput.click();
   await fieldEditorPage.settingsDescriptionInput.fill("text1 description");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(schemaPage.groupNameByText("text1#text1")).toBeVisible();
 
   await schemaPage.modelByText("e2e model name").click();
@@ -190,7 +183,7 @@ test("Group field editing has succeeded", async ({
   await fieldEditorPage.defaultValueTab.click();
   await expect(fieldEditorPage.setDefaultValueInput).toBeDisabled();
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("group1#group1");
   await contentPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("group1");
@@ -201,7 +194,7 @@ test("Group field editing has succeeded", async ({
   await contentPage.fieldInput("text1").click();
   await contentPage.fieldInput("text1").fill("text1");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await schemaPage.schemaText.click();
   await schemaPage.fieldEditButton.click();
@@ -214,7 +207,7 @@ test("Group field editing has succeeded", async ({
   await fieldEditorPage.supportMultipleValuesCheckbox.check();
   await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("new group1");
   await contentPage.editButton.click();
@@ -233,7 +226,7 @@ test("Group field editing has succeeded", async ({
     .getByLabel("text1")
     .fill("text1-2");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await contentPage.editButton.click();
   await expect(contentPage.divFilterByText(/^5text1 description$/).getByLabel("text1")).toHaveValue(
@@ -248,7 +241,7 @@ test("Group field editing has succeeded", async ({
   await contentPage.fieldInput("text1").click();
   await contentPage.fieldInput("text1").fill("text1");
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await contentPage.editButton.first().click();
   await expect(contentPage.fieldInput("text1")).toHaveValue("text1");
@@ -265,7 +258,7 @@ test("Group field editing has succeeded", async ({
   await fieldEditorPage.defaultValueInput.nth(1).click();
   await fieldEditorPage.defaultValueInput.nth(1).fill("text2");
   await fieldEditorPage.okButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
 
   await contentPage.contentText.click();
   await schemaPage.modelByText("e2e model name").click();
@@ -278,7 +271,7 @@ test("Group field editing has succeeded", async ({
   await expect(contentPage.textBoxByIndex(3)).toHaveValue("text2");
   await fieldEditorPage.arrowDownButton.nth(3).click();
   await contentPage.saveButton.click();
-  await closeNotification(page);
+  await contentPage.closeNotification();
   await contentPage.backButton.click();
   await contentPage.editButton.first().click();
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("text1");

@@ -100,8 +100,8 @@ export abstract class BasePage {
     return this.page.url();
   }
 
-  async closeNotification() {
-    await closeNotification(this.page);
+  async closeNotification(isSuccess = true) {
+    await closeNotification(this.page, isSuccess);
   }
 
   getByText(text: string | RegExp, options?: { exact?: boolean }): Locator {
