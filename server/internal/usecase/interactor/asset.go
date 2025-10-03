@@ -166,25 +166,30 @@ func (i *Asset) Export(ctx context.Context, params interfaces.ExportAssetsParams
 
 		// Write assets as JSON
 		for _, a := range res {
+			if totalProcessed > 0 {
+				_, err = w.Write([]byte(","))
+				if err != nil {
+					return err
+				}
+			}
 			if err := j.Encode(a); err != nil {
 				return err
 			}
+			totalProcessed += 1
 		}
-
-		totalProcessed += len(assets)
 
 		// Check if we have more pages
 		if pageInfo == nil || !pageInfo.HasNextPage {
 			break
 		}
 
-		// Update pagination for next batch
-		pagination.Cursor.After = pageInfo.EndCursor
-
 		// if an exact page is requested, stop after one batch
 		if params.Filter.Pagination != nil {
 			break
 		}
+
+		// Update pagination for next batch
+		pagination.Cursor.After = pageInfo.EndCursor
 	}
 
 	_, err = w.Write([]byte("],"))
