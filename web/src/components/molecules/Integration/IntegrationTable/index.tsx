@@ -27,7 +27,6 @@ type Props = {
   pageSize: number;
   onTableChange: (page: number, pageSize: number) => void;
   loading: boolean;
-  onReload: () => void;
   hasConnectRight: boolean;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
@@ -44,7 +43,6 @@ const IntegrationTable: React.FC<Props> = ({
   pageSize,
   onTableChange,
   loading,
-  onReload,
   hasConnectRight,
   hasUpdateRight,
   hasDeleteRight,
@@ -160,14 +158,6 @@ const IntegrationTable: React.FC<Props> = ({
     [deleteLoading, handleRemove, hasDeleteRight, t],
   );
 
-  const options = useMemo(
-    () => ({
-      fullScreen: true,
-      reload: onReload,
-    }),
-    [onReload],
-  );
-
   const ConnectButton = useCallback(
     () => (
       <Button
@@ -208,7 +198,7 @@ const IntegrationTable: React.FC<Props> = ({
             tableAlertOptionRender={alertOptions}
             search={false}
             rowKey="id"
-            options={options}
+            options={false}
             pagination={pagination}
             toolbar={toolbar}
             rowSelection={rowSelection}

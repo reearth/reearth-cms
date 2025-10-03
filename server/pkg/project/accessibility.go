@@ -1,5 +1,7 @@
 package project
 
+import "github.com/reearth/reearth-cms/server/pkg/id"
+
 type Accessibility struct {
 	visibility  Visibility
 	publication *PublicationSettings
@@ -151,4 +153,36 @@ func (p *Accessibility) Clone() *Accessibility {
 		publication: p.publication.Clone(),
 		apiKeys:     p.apiKeys.Clone(),
 	}
+}
+
+func (p *Accessibility) IsAssetsPublic(keyId *APIKeyID) bool {
+	if p == nil || p.publication == nil {
+		return true
+	}
+	if p.visibility == VisibilityPublic {
+		return true
+	}
+	if p.publication.PublicAssets() {
+		return true
+	}
+	if keyId != nil && p.APIKeyById(*keyId) != nil && p.APIKeyById(*keyId).Publication().PublicAssets() {
+		return true
+	}
+	return false
+}
+
+func (p *Accessibility) IsModelPublic(modelID id.ModelID, keyId *APIKeyID) bool {
+	if p == nil || p.publication == nil {
+		return true
+	}
+	if p.visibility == VisibilityPublic {
+		return true
+	}
+	if p.publication.PublicModels().Has(modelID) {
+		return true
+	}
+	if keyId != nil && p.APIKeyById(*keyId) != nil && p.APIKeyById(*keyId).Publication().PublicModels().Has(modelID) {
+		return true
+	}
+	return false
 }

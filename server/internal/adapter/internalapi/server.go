@@ -1,8 +1,8 @@
 package internalapi
 
 import (
+	"bytes"
 	"context"
-	"encoding/json"
 	"io"
 	"net/url"
 
@@ -11,11 +11,11 @@ import (
 	pb "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/reearth/reearth-cms/server/pkg/utils"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
@@ -384,76 +384,26 @@ func (s server) GetModelExportURL(ctx context.Context, req *pb.ExportRequest) (*
 		return nil, err
 	}
 
-	//var rc io.ReadWriteCloser
+	w := bytes.NewBuffer(nil)
 
-	rc := utils.NewBufferRW(nil)
-
-	// Write the beginning of the FeatureCollection
-	if _, err := rc.Write([]byte(`{"type":"FeatureCollection","features":[`)); err != nil {
-		return nil, err
-	}
-
-	isFirstFeature := true
-	page := 0
-	encoder := json.NewEncoder(rc)
-	encoder.SetEscapeHTML(false)
-
-	for {
-		// Get the next page of features
-		page++
-		res, err := uc.Item.ItemsAsGeoJSON(ctx, sp, &page, lo.ToPtr(100), op)
-		if err != nil {
-			return nil, err
-		}
-
-		// Process each feature in the page
-		for _, feature := range *res.FeatureCollections.Features {
-			// Add comma between features (except before the first one)
-			if !isFirstFeature {
-				if _, err := rc.Write([]byte(",")); err != nil {
-					return nil, err
-				}
-			} else {
-				isFirstFeature = false
-			}
-
-			// Write the feature without the enclosing bracket
-			if err := encoder.Encode(feature); err != nil {
-				return nil, err
-			}
-
-			// The encoder adds a newline character, so we need to backtrack
-			// by seeking -1 or using a different approach for certain writers
-			_, err = rc.Seek(-1, io.SeekCurrent)
-			if err != nil {
-				return nil, err
-			}
-
-		}
-
-		// Check if there are more pages
-		if !res.PageInfo.HasNextPage {
-			break
-		}
-	}
-
-	// Close the FeatureCollection
-	_, err = rc.Write([]byte("]}\n"))
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = rc.Seek(0, io.SeekStart)
+	err = uc.Item.Export(ctx, interfaces.ExportItemParams{
+		Format:        exporters.FormatGeoJSON,
+		ModelID:       mId,
+		SchemaPackage: *sp,
+		Options: exporters.ExportOptions{
+			PublicOnly: true,
+		},
+	}, w, op)
 	if err != nil {
 		return nil, err
 	}
 
 	// upload result as file
 	_, err = g.File.Upload(ctx, &file.File{
-		Content:         rc,
+		Content:         io.NopCloser(w),
 		Name:            m.ID().String() + ".geojson",
 		Size:            0,
-		ContentType:     "",
+		ContentType:     "application/geo+json",
 		ContentEncoding: "",
 	}, m.ID().String()+".geojson")
 	if err != nil {

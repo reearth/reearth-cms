@@ -6,6 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/samber/lo"
@@ -64,7 +65,7 @@ func TestBuildProperties(t *testing.T) {
 	fieldList := schema.FieldList{sf1, sf2, sf3, sf4, sf5, sf6}
 	gsMap := map[id.GroupID]*schema.Schema{gid: gs}
 
-	expectedProperties := map[string]SchemaJSONProperties{
+	expectedProperties := map[string]types.JSONSchema{
 		sfKey1.String(): {
 			Type:      "string",
 			MaxLength: lo.ToPtr(100),
@@ -76,9 +77,9 @@ func TestBuildProperties(t *testing.T) {
 		},
 		sfKey3.String(): {
 			Type: "array",
-			Items: &SchemaJSON{
+			Items: &types.JSONSchema{
 				Type: "object",
-				Properties: map[string]SchemaJSONProperties{
+				Properties: map[string]types.JSONSchema{
 					"asset-key": {
 						Format: lo.ToPtr("binary"),
 						Type:   "string",
@@ -98,7 +99,7 @@ func TestBuildProperties(t *testing.T) {
 		},
 	}
 
-	properties := BuildProperties(fieldList, gsMap)
+	properties := buildPropertiesMap(fieldList, gsMap)
 	assert.Equal(t, expectedProperties, properties)
 }
 
@@ -170,6 +171,6 @@ func TestBuildGroupSchemaMap(t *testing.T) {
 	schemaPackage := schema.NewPackage(mainSchema, nil, map[id.GroupID]*schema.Schema{groupID1: groupSchema1, groupID2: groupSchema2}, nil)
 
 	expected := map[id.GroupID]*schema.Schema{groupID1: groupSchema1, groupID2: groupSchema2}
-	result := BuildGroupSchemaMap(schemaPackage)
+	result := buildGroupSchemaMap(schemaPackage)
 	assert.Equal(t, expected, result)
 }

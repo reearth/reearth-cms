@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
 )
 
@@ -12,34 +13,36 @@ func TestPublicAPI_Export(t *testing.T) {
 		AssetBaseURL: "https://example.com",
 	}, true, publicAPISeeder)
 
-	e.GET("/api/p/{project}/{model}.geojson", pApiP1Alias, pApiP1M4Key).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		IsEqual(map[string]any{
-			"type": "FeatureCollection",
-			"features": []map[string]any{
-				{
-					"type": "Feature",
-					"id":   pApiP1M4I1Id.String(),
-					"geometry": map[string]any{
-						"type": "Point",
-						"coordinates": []any{
-							102,
-							0.5,
+	t.Run("Export entier data as geojson", func(t *testing.T) {
+		e.GET("/api/p/{project}/{model}.geojson", pApiP1Alias, pApiP1M4Key).
+			Expect().
+			Status(http.StatusOK).
+			JSON(httpexpect.ContentOpts{MediaType: "application/geo+json"}).
+			IsEqual(map[string]any{
+				"type": "FeatureCollection",
+				"features": []map[string]any{
+					{
+						"type": "Feature",
+						"id":   pApiP1M4I1Id.String(),
+						"geometry": map[string]any{
+							"type": "Point",
+							"coordinates": []any{
+								102,
+								0.5,
+							},
 						},
-					},
-					"properties": map[string]any{
-						pApiP1S3F1Key: map[string]any{
-							"text": "aaa",
-						},
-						pApiP1S3F2Key: []any{
-							map[string]any{
-								"text2": "bbb",
+						"properties": map[string]any{
+							pApiP1S3F1Key: map[string]any{
+								"text": "aaa",
+							},
+							pApiP1S3F2Key: []any{
+								map[string]any{
+									"text2": "bbb",
+								},
 							},
 						},
 					},
 				},
-			},
-		})
+			})
+	})
 }
