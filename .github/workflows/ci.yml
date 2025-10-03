@@ -78,7 +78,7 @@ jobs:
       new_tag_short: ${{ steps.prepare.outputs.new_tag_short }}
       name: ${{ steps.prepare.outputs.name }}
     steps:
-      - uses: reearth/actions/prepare-build@f11fdfe98bfdcd44a697577ba0ae2d4f56a45ea5 # main
+      - uses: reearth/actions/prepare-build@e05fcd1efc6c985c7c0c906cff1452ee634232c8 # main
         id: prepare
         with:
           repo: ${{ github.repository }}
@@ -154,7 +154,7 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-      - uses: reearth/actions/deploy-cloud-run-with-tag@f11fdfe98bfdcd44a697577ba0ae2d4f56a45ea5 # main
+      - uses: reearth/actions/deploy-cloud-run-with-tag@e05fcd1efc6c985c7c0c906cff1452ee634232c8 # main
         id: deploy
         with:
           image: '${{ secrets.WEB_IMAGE_BASE }}:${{ needs.build-prepare.outputs.sha_short }}'
