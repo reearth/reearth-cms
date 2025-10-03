@@ -1,7 +1,9 @@
 package publicapi
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/group"
@@ -44,7 +46,7 @@ func TestNewItem(t *testing.T) {
 
 	g := group.New().
 		NewID().
-		Name("test group").
+		Name("WPMContext group").
 		Project(id.NewProjectID()).
 		Key(id.NewKey("group1")).
 		Schema(s2.ID()).
@@ -241,4 +243,60 @@ func TestNewListResult(t *testing.T) {
 	}, usecasex.CursorPagination{
 		First: lo.ToPtr(int64(100)),
 	}.Wrap()))
+}
+
+func TestWriterToItems(t *testing.T) {
+	// Test with valid JSON containing items array
+	validJSON := `{"results":[{"id":"1","name":"item1"},{"id":"2","name":"item2"}],"total":2}`
+	buf := bytes.NewBufferString(validJSON)
+
+	items := writerToItems(buf)
+	assert.Equal(t, 2, len(items))
+
+	// Test with empty buffer
+	emptyBuf := bytes.NewBuffer(nil)
+	emptyItems := writerToItems(emptyBuf)
+	assert.Equal(t, 0, len(emptyItems))
+
+	// Test with invalid JSON
+	invalidJSON := `{"invalid": json`
+	invalidBuf := bytes.NewBufferString(invalidJSON)
+	invalidItems := writerToItems(invalidBuf)
+	assert.Equal(t, 0, len(invalidItems))
+
+	// Test with JSON without items field
+	noItemsJSON := `{"data":[],"total":0}`
+	noItemsBuf := bytes.NewBufferString(noItemsJSON)
+	noItems := writerToItems(noItemsBuf)
+	assert.Equal(t, 0, len(noItems))
+
+	// Test with non-buffer writer (should return empty slice)
+	var nonBuf io.Writer = &bytes.Buffer{}
+	nonBufItems := writerToItems(nonBuf)
+	assert.Equal(t, 0, len(nonBufItems))
+}
+
+func TestNewItemListResult(t *testing.T) {
+	// Test with buffer containing JSON items
+	validJSON := `{"results":[{"id":"1","name":"item1"},{"id":"2","name":"item2"}],"total":2}`
+	buf := bytes.NewBufferString(validJSON)
+
+	pi := &usecasex.PageInfo{
+		TotalCount: 100,
+	}
+
+	p := usecasex.OffsetPagination{
+		Offset: 0,
+		Limit:  10,
+	}.Wrap()
+
+	result := NewItemListResult(buf, pi, p)
+
+	assert.Equal(t, int64(100), result.TotalCount)
+	assert.Equal(t, 2, len(result.Results))
+	assert.NotNil(t, result.HasMore)
+	assert.True(t, *result.HasMore)
+	assert.Equal(t, lo.ToPtr(int64(10)), result.Limit)
+	assert.Equal(t, lo.ToPtr(int64(0)), result.Offset)
+	assert.Equal(t, lo.ToPtr(int64(1)), result.Page)
 }
