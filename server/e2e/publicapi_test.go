@@ -30,6 +30,7 @@ var (
 	pApiP1A1Id    = id.NewAssetID()
 	pApiA1UUID    = uuid.NewString()
 	pApiP1A2Id    = id.NewAssetID()
+	pApiA2UUID    = uuid.NewString()
 	pApiP1M1Id    = id.NewModelID()
 	pApiP1S1Id    = id.NewSchemaID()
 	pApiP1M1Key   = "test-model"
@@ -228,12 +229,13 @@ func TestPublicAPI_Assets(t *testing.T) {
 	t.Run("export assets with pagination", func(t *testing.T) {
 		e.GET("/api/p/{project}/assets", pApiP1Alias).
 			WithQuery("page", "1").
+			WithQuery("limit", "1").
 			Expect().
 			Status(http.StatusOK).
 			JSON().
 			IsEqual(map[string]any{
-				"hasMore": false,
-				"limit":   50,
+				"hasMore": true,
+				"limit":   1,
 				"offset":  0,
 				"page":    1,
 				"results": []map[string]any{
@@ -248,7 +250,7 @@ func TestPublicAPI_Assets(t *testing.T) {
 						},
 					},
 				},
-				"totalCount": 1,
+				"totalCount": 2,
 			})
 	})
 
@@ -269,8 +271,18 @@ func TestPublicAPI_Assets(t *testing.T) {
 							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
 						},
 					},
+					{
+						"id":          pApiP1A2Id.String(),
+						"type":        "asset",
+						"url":         fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
+						"contentType": "application/zip",
+						"files": []string{
+							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", pApiA2UUID[:2], pApiA2UUID[2:]),
+							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", pApiA2UUID[:2], pApiA2UUID[2:]),
+						},
+					},
 				},
-				"totalCount": 1,
+				"totalCount": 2,
 			})
 	})
 
@@ -333,6 +345,11 @@ func TestPublicAPI_Model(t *testing.T) {
 								"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
 							},
 						},
+						pApiP1S1F2Key: map[string]any{
+							"type": "asset",
+							"id":   pApiP1A2Id.String(),
+							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
+						},
 					},
 					// pApiP1M1I4Id is not included in the response because it does not have the public reference
 					//{
@@ -343,12 +360,10 @@ func TestPublicAPI_Model(t *testing.T) {
 						"id":          pApiP1M1I5Id.String(),
 						pApiP1S1F1Key: "eee",
 						pApiP1S1F3Key: []string{"aaa", "bbb", "ccc"},
-						pApiP1S1F4Key: []any{
-							map[string]any{
-								"type": "asset",
-								"id":   pApiP1A1Id.String(),
-								"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
-							},
+						pApiP1S1F2Key: map[string]any{
+							"type": "asset",
+							"id":   pApiP1A2Id.String(),
+							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
 						},
 						pApiP1S1F5Key: map[string]any{
 							"type":        "Point",
@@ -359,6 +374,13 @@ func TestPublicAPI_Model(t *testing.T) {
 							"coordinates": []any{
 								[]any{139.65439725962517, 36.34793305387103},
 								[]any{139.61688622815393, 35.910803456352724},
+							},
+						},
+						pApiP1S1F4Key: []any{
+							map[string]any{
+								"type": "asset",
+								"id":   pApiP1A1Id.String(),
+								"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
 							},
 						},
 					},
@@ -427,6 +449,11 @@ func TestPublicAPI_Model(t *testing.T) {
 								"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
 							},
 						},
+						pApiP1S1F2Key: map[string]any{
+							"type": "asset",
+							"id":   pApiP1A2Id.String(),
+							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
+						},
 					},
 					// pApiP1M1I4Id is not included in the response because it does not have the public reference
 					//{
@@ -454,6 +481,11 @@ func TestPublicAPI_Model(t *testing.T) {
 								[]any{139.65439725962517, 36.34793305387103},
 								[]any{139.61688622815393, 35.910803456352724},
 							},
+						},
+						pApiP1S1F2Key: map[string]any{
+							"type": "asset",
+							"id":   pApiP1A2Id.String(),
+							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
 						},
 					},
 				},
@@ -631,6 +663,11 @@ func TestPublicAPI_Model(t *testing.T) {
 								"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
 							},
 						},
+						pApiP1S1F2Key: map[string]any{
+							"type": "asset",
+							"id":   pApiP1A2Id.String(),
+							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
+						},
 					},
 					// pApiP1M1I4Id is not included in the response because it does not have the public reference
 					//{
@@ -658,6 +695,11 @@ func TestPublicAPI_Model(t *testing.T) {
 								[]any{139.65439725962517, 36.34793305387103},
 								[]any{139.61688622815393, 35.910803456352724},
 							},
+						},
+						pApiP1S1F2Key: map[string]any{
+							"type": "asset",
+							"id":   pApiP1A2Id.String(),
+							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
 						},
 					},
 				},
@@ -714,7 +756,7 @@ func TestPublicAPI_Model_GeoJson(t *testing.T) {
 						pApiP1S1F2Key: map[string]any{
 							"id":   pApiP1A2Id,
 							"type": "asset",
-							"url":  "", // asset does not exist in db
+							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
 						},
 						pApiP1S1F4Key: []map[string]any{
 							{
@@ -834,6 +876,13 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 	}
 	p1a1f := asset.NewFile().Name("aaa.zip").Path("aaa.zip").ContentType("application/zip").Size(10).Children(p1a1c).Build()
 	lo.Must0(r.AssetFile.Save(ctx, p1a1.ID(), p1a1f))
+
+	/// Project 1 Asset 2
+	p1a2 := asset.New().ID(pApiP1A2Id).Project(pApiP1Id).CreatedByUser(uid).Size(1).Thread(id.NewThreadID().Ref()).FileName("aaa.zip").UUID(pApiA2UUID).MustBuild()
+	lo.Must0(r.Asset.Save(ctx, p1a2))
+
+	p1a2f := p1a1f
+	lo.Must0(r.AssetFile.Save(ctx, p1a2.ID(), p1a2f))
 
 	/// Project 1 Model 1
 	p1s1txt1Id := id.NewFieldID()
