@@ -35,7 +35,7 @@ export default defineConfig({
   envPrefix: "REEARTH_CMS_",
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
-    __REEARTH_COMMIT_HASH__: JSON.stringify(process.env.GITHUB_SHA || commitHash)
+    __REEARTH_COMMIT_HASH__: JSON.stringify(process.env.GITHUB_SHA || commitHash),
   },
   plugins: [
     react(),
@@ -43,12 +43,32 @@ export default defineConfig({
     cesium({ cesiumBaseUrl: `cesium-${cesiumPackageJson.version}/` }),
     serverHeaders(),
     config(),
-    tsconfigPaths()
+    tsconfigPaths(),
   ],
   css: {
     preprocessorOptions: {
       less: {
         javascriptEnabled: true,
+      },
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "react-vendor": ["react", "react-dom", "react-router-dom"],
+          "antd-vendor": ["antd", "@ant-design/icons", "@ant-design/cssinjs"],
+          "antd-pro-vendor": [
+            "@ant-design/pro-components",
+            "@ant-design/pro-layout",
+            "@ant-design/pro-table",
+            "@ant-design/pro-provider",
+          ],
+          "apollo-vendor": ["@apollo/client", "graphql"],
+          "auth-vendor": ["@auth0/auth0-react"],
+          "map-vendor": ["ol", "resium", "cesium-mvt-imagery-provider"],
+          "editor-vendor": ["monaco-editor", "@monaco-editor/react", "graphiql"],
+        },
       },
     },
   },
