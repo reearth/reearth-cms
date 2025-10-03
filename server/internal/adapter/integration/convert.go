@@ -50,9 +50,9 @@ func Page(p usecasex.OffsetPagination) int {
 }
 
 func fromItemFieldParam(f integrationapi.Field, _ *schema.Field) interfaces.ItemFieldParam {
-	var v any = f.Value
+	var v = f.Value
 	if f.Value != nil {
-		v = *f.Value
+		v = f.Value
 	}
 
 	var k *id.Key
@@ -168,20 +168,20 @@ func tagNameToId(sf *schema.Field, field *integrationapi.Field) {
 		},
 	})
 	if !sf.Multiple() {
-		name := lo.FromPtr(field.Value).(string)
+		name := field.Value.(string)
 		tag := tagList.FindByName(name)
 		if tag != nil {
 			var v any = tag.ID()
-			field.Value = &v
+			field.Value = v
 		}
 	} else {
-		names := lo.FromPtr(field.Value).([]string)
+		names := field.Value.([]string)
 		tagIDs := util.Map(names, func(n string) id.TagID {
 			t := lo.FromPtr(tagList.FindByName(n))
 			return t.ID()
 		})
 		var v any = tagIDs
-		field.Value = &v
+		field.Value = v
 	}
 }
 

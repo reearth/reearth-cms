@@ -1,7 +1,9 @@
 package publicapi
 
 import (
+	"bytes"
 	"encoding/json"
+	"io"
 	"net/url"
 	"path"
 	"reflect"
@@ -48,6 +50,65 @@ func NewListResult[T any](results []T, pi *usecasex.PageInfo, p *usecasex.Pagina
 	}
 
 	return r
+}
+
+func NewItemListResult(w io.Writer, pi *usecasex.PageInfo, p *usecasex.Pagination) ListResult[any] {
+	r := ListResult[any]{
+		Results:    writerToItems(w),
+		TotalCount: pi.TotalCount,
+	}
+
+	if p.Cursor != nil {
+		r.NextCursor = pi.EndCursor.StringRef()
+		r.HasMore = &pi.HasNextPage
+	} else if p.Offset != nil {
+		page := p.Offset.Offset/p.Offset.Limit + 1
+		r.Limit = lo.ToPtr(p.Offset.Limit)
+		r.Offset = lo.ToPtr(p.Offset.Offset)
+		r.Page = lo.ToPtr(page)
+		r.HasMore = lo.ToPtr((page+1)*p.Offset.Limit < pi.TotalCount)
+	}
+
+	return r
+}
+
+// writerToItems extracts items from an io.Writer containing JSON data
+func writerToItems(w io.Writer) []any {
+	// Check if the writer is a bytes.Buffer or similar type that we can read from
+	var buf *bytes.Buffer
+
+	switch writer := w.(type) {
+	case *bytes.Buffer:
+		buf = writer
+	default:
+		// If it's not a readable buffer type, return empty slice
+		return []any{}
+	}
+
+	// If buffer is empty, return empty slice
+	if buf.Len() == 0 {
+		return []any{}
+	}
+
+	// Parse the JSON data
+	var data map[string]any
+	decoder := json.NewDecoder(bytes.NewReader(buf.Bytes()))
+	if err := decoder.Decode(&data); err != nil {
+		return []any{}
+	}
+
+	// Extract the "results" array from the JSON structure
+	items, ok := data["results"]
+	if !ok {
+		return []any{}
+	}
+
+	// Convert to []any if it's an array
+	if itemsArray, ok := items.([]any); ok {
+		return itemsArray
+	}
+
+	return []any{}
 }
 
 type ListParam struct {
@@ -238,24 +299,4 @@ func NewItemAsset(a *asset.Asset) ItemAsset {
 		ID:   a.ID().String(),
 		URL:  ai.Url,
 	}
-}
-
-type SchemaJSON struct {
-	Id          *string                         `json:"$id,omitempty"`
-	Schema      *string                         `json:"$schema,omitempty"`
-	Description *string                         `json:"description,omitempty"`
-	Properties  map[string]SchemaJSONProperties `json:"properties"`
-	Title       *string                         `json:"title,omitempty"`
-	Type        string                          `json:"type"`
-}
-
-type SchemaJSONProperties struct {
-	Description *string     `json:"description,omitempty"`
-	Format      *string     `json:"format,omitempty"`
-	Items       *SchemaJSON `json:"items,omitempty"`
-	MaxLength   *int        `json:"maxLength,omitempty"`
-	Maximum     *float64    `json:"maximum,omitempty"`
-	Minimum     *float64    `json:"minimum,omitempty"`
-	Title       *string     `json:"title,omitempty"`
-	Type        string      `json:"type"`
 }
