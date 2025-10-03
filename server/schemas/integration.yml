@@ -1632,6 +1632,30 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
+  '/items/{itemId}/publish':
+    parameters:
+      - $ref: '#/components/parameters/itemIdParam'
+      - $ref: '#/components/parameters/assetParam'
+    post:
+      operationId: ItemPublish
+      summary: publish item
+      tags:
+        - Items
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: the published item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/versionedItem'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
   '/items/{itemId}/comments':
     parameters:
       - $ref: '#/components/parameters/itemIdParam'

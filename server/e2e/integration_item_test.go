@@ -2212,8 +2212,49 @@ func TestIntegrationDeleteItemAPI(t *testing.T) {
 		Status(http.StatusNotFound)
 }
 
-func TestIntegrationItemForNumberAndIntegerType(t *testing.T) {
+// POST /items/{itemId}/publish
+func TestIntegrationPublishItemAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+	ep := "/api/items/{itemId}/publish"
 
+	e.POST(ep, id.NewItemID()).
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST(ep, id.NewItemID()).
+		WithHeader("authorization", "secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST(ep, id.NewItemID()).
+		WithHeader("authorization", "Bearer secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST(ep, id.NewItemID()).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusNotFound)
+
+	e.POST(ep, itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("refs").
+		Array().
+		ContainsAny("public")
+
+	e.GET("/api/items/{itemId}", itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("refs").
+		Array().
+		ContainsAny("public")
 }
 
 func assertItem(v *httpexpect.Value, assetEmbeded bool) {

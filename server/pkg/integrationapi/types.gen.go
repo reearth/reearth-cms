@@ -667,6 +667,12 @@ type ItemCommentUpdateJSONBody struct {
 	Content *string `json:"content,omitempty"`
 }
 
+// ItemPublishParams defines parameters for ItemPublish.
+type ItemPublishParams struct {
+	// Asset Specifies whether asset data are embedded in the results
+	Asset *AssetParam `form:"asset,omitempty" json:"asset,omitempty"`
+}
+
 // ModelUpdateJSONBody defines parameters for ModelUpdate.
 type ModelUpdateJSONBody struct {
 	Description *string `json:"description,omitempty"`

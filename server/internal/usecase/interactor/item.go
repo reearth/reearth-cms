@@ -576,7 +576,12 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 			}
 		}
 
-		for _, itm := range items {
+		updated, err := i.repos.Item.FindByIDs(ctx, itemIDs, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, itm := range updated {
 			refItems, err := i.getReferencedItems(ctx, itm.Value().Fields())
 			if err != nil {
 				return nil, err
@@ -599,7 +604,7 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 			}
 		}
 
-		return items, nil
+		return updated, nil
 	})
 }
 
