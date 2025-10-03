@@ -3,6 +3,7 @@ package e2e
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -15,6 +16,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
@@ -2212,8 +2214,59 @@ func TestIntegrationDeleteItemAPI(t *testing.T) {
 		Status(http.StatusNotFound)
 }
 
-func TestIntegrationItemForNumberAndIntegerType(t *testing.T) {
+// POST /items/{itemId}/publish
+func TestIntegrationPublishItemAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+	ep := "/api/items/{itemId}/publish"
 
+	e.POST(ep, id.NewItemID()).
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST(ep, id.NewItemID()).
+		WithHeader("authorization", "secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST(ep, id.NewItemID()).
+		WithHeader("authorization", "Bearer secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST(ep, id.NewItemID()).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusNotFound)
+
+	e.POST(ep, itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("refs").
+		Array().
+		ContainsAny("public")
+
+	e.GET("/api/items/{itemId}", itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("refs").
+		Array().
+		ContainsAny("public")
+}
+
+func TestName(t *testing.T) {
+	e := interfaces.ErrItemMissing
+	assert.True(t, errors.Is(e, interfaces.ErrItemMissing))
+
+	fn := func() error {
+		return interfaces.ErrItemMissing
+	}
+	assert.True(t, errors.Is(fn(), interfaces.ErrItemMissing))
 }
 
 func assertItem(v *httpexpect.Value, assetEmbeded bool) {

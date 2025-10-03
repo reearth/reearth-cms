@@ -476,6 +476,53 @@ func (s *Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Ite
 	return ItemGet200JSONResponse(integrationapi.NewVersionedItem(i, schm, assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i), ms, mi, sp.GroupSchemas())), nil
 }
 
+func (s *Server) ItemPublish(ctx context.Context, request ItemPublishRequestObject) (ItemPublishResponseObject, error) {
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
+
+	vl, err := uc.Item.Publish(ctx, id.ItemIDList{request.ItemId}, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) || errors.Is(err, interfaces.ErrItemMissing) {
+			return ItemPublish404Response{}, nil
+		}
+		return ItemPublish400Response{}, err
+	}
+
+	if len(vl) == 0 {
+		return ItemPublish404Response{}, nil
+	}
+
+	i := vl[0]
+
+	sp, err := uc.Schema.FindByModel(ctx, i.Value().Model(), op)
+	if err != nil {
+		return ItemPublish404Response{}, err
+	}
+
+	assets, err := getAssetsFromItems(ctx, item.VersionedList{i}, request.Params.Asset)
+	if err != nil {
+		return ItemPublish400Response{}, err
+	}
+
+	msList, miList := getMetaSchemasAndItems(ctx, item.VersionedList{i})
+
+	var mi item.Versioned
+	var ms *schema.Schema
+	if len(miList) > 0 {
+		mi = miList[0]
+	}
+	if len(msList) > 0 {
+		ms = msList[0]
+	}
+
+	schm := sp.Schema()
+	if i.Value().Schema() != schm.ID() {
+		schm = sp.MetaSchema()
+	}
+
+	return ItemPublish200JSONResponse(integrationapi.NewVersionedItem(i, schm, assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i), ms, mi, sp.GroupSchemas())), nil
+}
+
 func createItem(ctx context.Context, uc *interfaces.Container, m *model.Model, fields, metaFields *[]integrationapi.Field, op *usecase.Operator) (*integrationapi.VersionedItem, error) {
 	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
 	if err != nil {
