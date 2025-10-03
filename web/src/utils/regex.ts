@@ -1,5 +1,8 @@
-export const MAX_KEY_LENGTH = 32;
-const keyRegex = new RegExp(`^[a-zA-Z0-9_-]{1,${MAX_KEY_LENGTH}}$`);
+import { Constant } from "./constant";
+
+export const aliasRegex = new RegExp("^[a-z0-9\\-_]+$");
+
+const keyRegex = new RegExp(`^[a-zA-Z0-9_-]{1,${Constant.KEY.MAX_LENGTH}}$`);
 export const validateKey = (key: string): boolean => {
   return keyRegex.test(key);
 };
