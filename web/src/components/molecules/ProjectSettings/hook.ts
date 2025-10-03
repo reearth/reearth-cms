@@ -44,7 +44,7 @@ export default (
       if (!aliasRegex.test(value)) {
         return Promise.reject(
           t(
-            "Alias is invalid. Please use lowercase alphanumeric, hyphen, underscore, and dot characters only.",
+            "Alias is invalid. Please use lowercase alphanumeric, hyphen and underscore characters only.",
           ),
         );
       }

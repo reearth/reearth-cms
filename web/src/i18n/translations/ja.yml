@@ -321,7 +321,7 @@ Write something here to describe this record.: このレコードの説明を入
 '{{field}} field is required!': '{{field}}フィールドは必須項目です!'
 Project alias is already taken: プロジェクトのエイリアスは既に使用されています
 Your alias must be between {{min}} and {{max}} characters long.: エイリアスは{{min}}文字以上、{{max}}文字以内で入力してください
-Alias is invalid. Please use lowercase alphanumeric, hyphen, underscore, and dot characters only.: エイリアスが無効です。小文字の英数字、ハイフン、アンダースコア、ドットのみを使用してください。
+Alias is invalid. Please use lowercase alphanumeric, hyphen and underscore characters only.: エイリアスが無効です。小文字の英数字、ハイフン、アンダースコアのみを使用してください。
 Project Settings: プロジェクト設定
 Need request: リクエストの要否
 If this option is chosen, all new model within the project will default follow it.: このオプションが選択された場合、プロジェクト内のすべての新しいモデルはデフォルトでそれに従います。

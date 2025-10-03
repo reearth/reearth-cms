@@ -83,7 +83,7 @@ test.describe("Project General Settings", () => {
     await test.step("Alias illegal case 3", async () => {
       await aliasEl.fill("testAlias");
       const errorMsg3 = i18next.t(
-        "Alias is invalid. Please use lowercase alphanumeric, hyphen, underscore, and dot characters only.",
+        "Alias is invalid. Please use lowercase alphanumeric, hyphen and underscore characters only.",
       );
       await expect(errorEl).toHaveText(errorMsg3);
     });
@@ -91,7 +91,7 @@ test.describe("Project General Settings", () => {
     await test.step("Alias illegal case 4", async () => {
       await aliasEl.fill("test-alias#");
       const errorMsg4 = i18next.t(
-        "Alias is invalid. Please use lowercase alphanumeric, hyphen, underscore, and dot characters only.",
+        "Alias is invalid. Please use lowercase alphanumeric, hyphen and underscore characters only.",
       );
       await expect(errorEl).toHaveText(errorMsg4);
     });
