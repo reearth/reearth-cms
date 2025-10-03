@@ -68,9 +68,9 @@ func (e *JSONExporter) ProcessBatch(ctx context.Context, items item.List, assets
 		return ErrInvalidRequest
 	}
 
-	for i, itm := range items {
+	for _, itm := range items {
 		// Add comma if not the first item
-		if e.itemCount > 0 || i > 0 {
+		if e.itemCount > 0 {
 			if _, err := e.writer.Write([]byte(",")); err != nil {
 				return err
 			}

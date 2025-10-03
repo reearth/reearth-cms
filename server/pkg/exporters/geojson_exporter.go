@@ -79,7 +79,7 @@ func (e *GeoJSONExporter) ProcessBatch(ctx context.Context, items item.List, ass
 		}
 
 		// Add comma if not the first feature
-		if e.featureCount > 0 /*|| i > 0*/ {
+		if e.featureCount > 0 {
 			if _, err := e.writer.Write([]byte(",")); err != nil {
 				return err
 			}
