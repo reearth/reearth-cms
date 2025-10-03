@@ -45,17 +45,10 @@ func (e *CSVExporter) Export(ctx context.Context, req *ExportRequest, il item.Li
 
 	sch := req.Schema.Schema()
 
-	//// Write headers
-	//var headers []string
-	//if len(req.Options.CustomHeaders) > 0 {
-	//	headers = req.Options.CustomHeaders
-	//} else {
-	//	headers = BuildCSVHeaders(sch)
-	//}
-	//
-	//if err := writer.Write(headers); err != nil {
-	//	return err
-	//}
+	// Write headers
+	if err := writer.Write(BuildCSVHeaders(sch)); err != nil {
+		return err
+	}
 
 	// Get all fields and filter later in RowFromItem
 	allFields := sch.Fields()
