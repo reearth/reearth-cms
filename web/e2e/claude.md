@@ -36,17 +36,25 @@ web/e2e/
     ├── auth/                  # Authentication tests
     │   └── auth.spec.ts
     ├── project/               # Project-related tests
-    │   ├── assets/            # Asset management tests
-    │   ├── content/           # Content management tests
+    │   ├── assets/            # Asset management tests (2 specs)
+    │   │   ├── asset.spec.ts
+    │   │   └── compressed-asset.spec.ts
+    │   ├── content/           # Content management tests (3 specs)
+    │   │   ├── content.spec.ts
+    │   │   ├── version.spec.ts
+    │   │   └── view.spec.ts
     │   ├── items/
     │   │   ├── fields/        # Field type tests (13 specs)
     │   │   └── metadata/      # Metadata tests (7 specs)
     │   ├── accessibility.spec.ts
     │   ├── overview.spec.ts
+    │   ├── project.spec.ts
     │   ├── request.spec.ts
     │   └── schema.spec.ts
     ├── settings/              # Settings tests
     │   ├── account/
+    │   │   ├── general.spec.ts
+    │   │   └── lang.spec.ts
     │   ├── integrations.spec.ts
     │   ├── member.spec.ts
     │   ├── myIntegrations.spec.ts
@@ -377,8 +385,3 @@ The E2E structure was refactored to follow POM standards:
 - `createWorkspace(page)` → `workspacePage.createWorkspace(name)`
 - `createItem(page)` → `contentPage.createItem()`
 - All utility constants moved to test files as local constants
-
----
-
-**Maintained by**: Development Team
-**Last Updated**: October 1, 2025
