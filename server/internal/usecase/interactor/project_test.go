@@ -22,6 +22,31 @@ import (
 	"github.com/reearth/reearthx/rerror"
 )
 
+// sequentialPolicyChecker for testing multiple policy calls
+type sequentialPolicyChecker struct {
+	responses     []gateway.PolicyCheckResponse
+	responseIndex int
+}
+
+func (s *sequentialPolicyChecker) CheckPolicy(ctx context.Context, req gateway.PolicyCheckRequest) (*gateway.PolicyCheckResponse, error) {
+	if s.responseIndex >= len(s.responses) {
+		return &gateway.PolicyCheckResponse{
+			Allowed:      false,
+			CheckType:    req.CheckType,
+			CurrentLimit: "unexpected call",
+			Message:      "unexpected policy check call",
+			Value:        req.Value,
+		}, nil
+	}
+
+	response := s.responses[s.responseIndex]
+	response.CheckType = req.CheckType
+	response.Value = req.Value
+	s.responseIndex++
+
+	return &response, nil
+}
+
 func TestProject_Fetch(t *testing.T) {
 	mocktime := time.Now()
 	wid1 := accountdomain.NewWorkspaceID()
@@ -283,11 +308,12 @@ func TestProject_Create(t *testing.T) {
 		operator *usecase.Operator
 	}
 	tests := []struct {
-		name    string
-		seeds   project.List
-		args    args
-		want    *project.Project
-		wantErr error
+		name          string
+		seeds         project.List
+		args          args
+		want          *project.Project
+		policyChecker gateway.PolicyChecker
+		wantErr       error
 	}{
 		{
 			name:  "Create",
@@ -332,6 +358,78 @@ func TestProject_Create(t *testing.T) {
 			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
 		},
+		{
+			name:  "Create denied by general operation policy",
+			seeds: nil,
+			args: args{
+				cpp: interfaces.CreateProjectParam{
+					WorkspaceID:  wid,
+					Name:         lo.ToPtr("P003"),
+					Description:  lo.ToPtr("D003"),
+					Alias:        lo.ToPtr("Test003"),
+					RequestRoles: r,
+				},
+				operator: op,
+			},
+			policyChecker: &sequentialPolicyChecker{
+				responses: []gateway.PolicyCheckResponse{
+					{Allowed: false, CurrentLimit: "test limit", Message: "general operation denied"},
+				},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrOperationDenied,
+		},
+		{
+			name:  "Create denied by project creation policy",
+			seeds: nil,
+			args: args{
+				cpp: interfaces.CreateProjectParam{
+					WorkspaceID:  wid,
+					Name:         lo.ToPtr("P004"),
+					Description:  lo.ToPtr("D004"),
+					Alias:        lo.ToPtr("Test004"),
+					RequestRoles: r,
+				},
+				operator: op,
+			},
+			policyChecker: &sequentialPolicyChecker{
+				responses: []gateway.PolicyCheckResponse{
+					{Allowed: true, CurrentLimit: "test limit", Message: "general operation allowed"},
+					{Allowed: false, CurrentLimit: "test limit", Message: "project creation denied"},
+				},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrProjectCreationLimitExceeded,
+		},
+		{
+			name:  "Create with both policies allowed",
+			seeds: nil,
+			args: args{
+				cpp: interfaces.CreateProjectParam{
+					WorkspaceID:  wid,
+					Name:         lo.ToPtr("P005"),
+					Description:  lo.ToPtr("D005"),
+					Alias:        lo.ToPtr("Test005"),
+					RequestRoles: r,
+				},
+				operator: op,
+			},
+			policyChecker: &sequentialPolicyChecker{
+				responses: []gateway.PolicyCheckResponse{
+					{Allowed: true, CurrentLimit: "test limit", Message: "general operation allowed"},
+					{Allowed: true, CurrentLimit: "test limit", Message: "project creation allowed"},
+				},
+			},
+			want: project.New().
+				NewID().
+				Name("P005").
+				Alias("Test005").
+				Description("D005").
+				Workspace(wid).
+				RequestRoles(r).
+				MustBuild(),
+			wantErr: nil,
+		},
 	}
 
 	for _, tc := range tests {
@@ -346,7 +444,14 @@ func TestProject_Create(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			projectUC := NewProject(db, nil)
+
+			var gateways *gateway.Container
+			if tc.policyChecker != nil {
+				gateways = &gateway.Container{
+					PolicyChecker: tc.policyChecker,
+				}
+			}
+			projectUC := NewProject(db, gateways)
 
 			got, err := projectUC.Create(ctx, tc.args.cpp, tc.args.operator)
 			if tc.wantErr != nil {
@@ -538,7 +643,11 @@ func TestProject_Update(t *testing.T) {
 				},
 				operator: op,
 			},
-			policyChecker: &mockPolicyChecker{allowed: false},
+			policyChecker: &conditionalPolicyChecker{
+				generalOpAllowed: true,  // Allow general operation
+				publicAllowed:    false, // But deny public project creation
+				privateAllowed:   true,
+			},
 			want:          nil,
 			wantErr:       interfaces.ErrProjectCreationLimitExceeded,
 		},
@@ -555,12 +664,12 @@ func TestProject_Update(t *testing.T) {
 			mockProjectErr: true,
 		},
 		{
-			name: "update readme",
+			name:  "update readme",
 			seeds: project.List{p1, p2},
 			args: args{
 				upp: interfaces.UpdateProjectParam{
-					ID:      p1.ID(),
-					Readme:  lo.ToPtr("new readme"),
+					ID:     p1.ID(),
+					Readme: lo.ToPtr("new readme"),
 				},
 				operator: op,
 			},
@@ -574,17 +683,21 @@ func TestProject_Update(t *testing.T) {
 				MustBuild(),
 		},
 		{
-			name: "update readme on limited plan",
+			name:  "update readme on limited plan",
 			seeds: project.List{p1, p2},
 			args: args{
 				upp: interfaces.UpdateProjectParam{
-					ID:      p1.ID(),
-					Readme:  lo.ToPtr("new readme"),
+					ID:     p1.ID(),
+					Readme: lo.ToPtr("new readme"),
 				},
 				operator: op,
 			},
-			policyChecker: &mockPolicyChecker{allowed: false},
-			wantErr: nil,
+			policyChecker: &conditionalPolicyChecker{
+				generalOpAllowed: true, // Allow general operation
+				publicAllowed:    false, // Other limits don't matter for readme updates
+				privateAllowed:   false,
+			},
+			wantErr:       nil,
 			want: project.New().
 				ID(pid1).
 				Workspace(wid1).
@@ -592,6 +705,24 @@ func TestProject_Update(t *testing.T) {
 				Readme("new readme").
 				UpdatedAt(mocktime).
 				MustBuild(),
+		},
+		{
+			name:  "update denied by general operation policy",
+			seeds: project.List{p1},
+			args: args{
+				upp: interfaces.UpdateProjectParam{
+					ID:   p1.ID(),
+					Name: lo.ToPtr("Updated Name"),
+				},
+				operator: op,
+			},
+			policyChecker: &sequentialPolicyChecker{
+				responses: []gateway.PolicyCheckResponse{
+					{Allowed: false, CurrentLimit: "test limit", Message: "general operation denied"},
+				},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrOperationDenied,
 		},
 	}
 
@@ -746,6 +877,7 @@ func TestProject_Delete(t *testing.T) {
 		args           args
 		want           project.List
 		mockProjectErr bool
+		policyChecker  gateway.PolicyChecker
 		wantErr        error
 	}{
 		{
@@ -797,6 +929,21 @@ func TestProject_Delete(t *testing.T) {
 			wantErr:        errors.New("test"),
 			mockProjectErr: true,
 		},
+		{
+			name:  "delete denied by general operation policy",
+			seeds: project.List{p1},
+			args: args{
+				id:       pid1,
+				operator: opOwner,
+			},
+			policyChecker: &sequentialPolicyChecker{
+				responses: []gateway.PolicyCheckResponse{
+					{Allowed: false, CurrentLimit: "test limit", Message: "general operation denied"},
+				},
+			},
+			want:    nil,
+			wantErr: interfaces.ErrOperationDenied,
+		},
 	}
 
 	for _, tc := range tests {
@@ -814,7 +961,14 @@ func TestProject_Delete(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			projectUC := NewProject(db, nil)
+
+			var gateways *gateway.Container
+			if tc.policyChecker != nil {
+				gateways = &gateway.Container{
+					PolicyChecker: tc.policyChecker,
+				}
+			}
+			projectUC := NewProject(db, gateways)
 
 			err := projectUC.Delete(ctx, tc.args.id, tc.args.operator)
 			if tc.wantErr != nil {
@@ -831,10 +985,11 @@ func TestProject_Delete(t *testing.T) {
 
 // conditionalPolicyChecker allows different responses for different check types
 type conditionalPolicyChecker struct {
-	publicAllowed  bool
-	privateAllowed bool
-	shouldError    bool
-	errorType      gateway.PolicyCheckType
+	publicAllowed         bool
+	privateAllowed        bool
+	generalOpAllowed      bool
+	shouldError           bool
+	errorType             gateway.PolicyCheckType
 }
 
 func (c *conditionalPolicyChecker) CheckPolicy(ctx context.Context, req gateway.PolicyCheckRequest) (*gateway.PolicyCheckResponse, error) {
@@ -844,6 +999,8 @@ func (c *conditionalPolicyChecker) CheckPolicy(ctx context.Context, req gateway.
 
 	var allowed bool
 	switch req.CheckType {
+	case gateway.PolicyCheckGeneralOperationAllowed:
+		allowed = c.generalOpAllowed
 	case gateway.PolicyCheckGeneralPublicProjectCreation:
 		allowed = c.publicAllowed
 	case gateway.PolicyCheckGeneralPrivateProjectCreation:
@@ -866,7 +1023,7 @@ func TestProject_CheckProjectLimits(t *testing.T) {
 	wid2 := accountdomain.NewWorkspaceID()
 
 	u := user.New().Name("test").NewID().Email("test@test.com").Workspace(wid1).MustBuild()
-	
+
 	// Valid operator with access to wid1
 	validOp := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
@@ -926,8 +1083,9 @@ func TestProject_CheckProjectLimits(t *testing.T) {
 			workspaceID: wid1,
 			operator:    validOp,
 			policyChecker: &conditionalPolicyChecker{
-				publicAllowed:  true,
-				privateAllowed: true,
+				generalOpAllowed: true,
+				publicAllowed:    true,
+				privateAllowed:   true,
 			},
 			want: &interfaces.ProjectLimitsResult{
 				PublicProjectsAllowed:  true,
@@ -940,8 +1098,9 @@ func TestProject_CheckProjectLimits(t *testing.T) {
 			workspaceID: wid1,
 			operator:    validOp,
 			policyChecker: &conditionalPolicyChecker{
-				publicAllowed:  true,
-				privateAllowed: false,
+				generalOpAllowed: true,
+				publicAllowed:    true,
+				privateAllowed:   false,
 			},
 			want: &interfaces.ProjectLimitsResult{
 				PublicProjectsAllowed:  true,
@@ -954,8 +1113,9 @@ func TestProject_CheckProjectLimits(t *testing.T) {
 			workspaceID: wid1,
 			operator:    validOp,
 			policyChecker: &conditionalPolicyChecker{
-				publicAllowed:  false,
-				privateAllowed: true,
+				generalOpAllowed: true,
+				publicAllowed:    false,
+				privateAllowed:   true,
 			},
 			want: &interfaces.ProjectLimitsResult{
 				PublicProjectsAllowed:  false,
@@ -968,8 +1128,9 @@ func TestProject_CheckProjectLimits(t *testing.T) {
 			workspaceID: wid1,
 			operator:    validOp,
 			policyChecker: &conditionalPolicyChecker{
-				publicAllowed:  false,
-				privateAllowed: false,
+				generalOpAllowed: true,
+				publicAllowed:    false,
+				privateAllowed:   false,
 			},
 			want: &interfaces.ProjectLimitsResult{
 				PublicProjectsAllowed:  false,
@@ -982,10 +1143,11 @@ func TestProject_CheckProjectLimits(t *testing.T) {
 			workspaceID: wid1,
 			operator:    validOp,
 			policyChecker: &conditionalPolicyChecker{
-				publicAllowed:  true,
-				privateAllowed: true,
-				shouldError:    true,
-				errorType:      gateway.PolicyCheckGeneralPublicProjectCreation,
+				generalOpAllowed: true,
+				publicAllowed:    true,
+				privateAllowed:   true,
+				shouldError:      true,
+				errorType:        gateway.PolicyCheckGeneralPublicProjectCreation,
 			},
 			want:    nil,
 			wantErr: errors.New("policy check error"),
@@ -995,10 +1157,11 @@ func TestProject_CheckProjectLimits(t *testing.T) {
 			workspaceID: wid1,
 			operator:    validOp,
 			policyChecker: &conditionalPolicyChecker{
-				publicAllowed:  true,
-				privateAllowed: true,
-				shouldError:    true,
-				errorType:      gateway.PolicyCheckGeneralPrivateProjectCreation,
+				generalOpAllowed: true,
+				publicAllowed:    true,
+				privateAllowed:   true,
+				shouldError:      true,
+				errorType:        gateway.PolicyCheckGeneralPrivateProjectCreation,
 			},
 			want:    nil,
 			wantErr: errors.New("policy check error"),
