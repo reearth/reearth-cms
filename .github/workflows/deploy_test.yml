@@ -39,7 +39,7 @@ jobs:
           docker push ${{ secrets.SERVER_IMAGE_GC }}
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy reearth-cms-backend \
+          gcloud run deploy reearth-cms-api \
             --image ${{ secrets.SERVER_IMAGE_GC }} \
             --region ${{ secrets.GC_REGION }} \
             --platform managed \

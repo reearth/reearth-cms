@@ -1,9 +1,9 @@
 import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { handleFieldForm } from "@reearth-cms/e2e/project/utils/field";
 import { createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
-import { expect, test } from "@reearth-cms/e2e/utils";
 
 import { createRequest, requestTitle } from "../utils/item";
 
