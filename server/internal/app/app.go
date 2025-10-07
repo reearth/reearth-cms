@@ -36,6 +36,7 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 	e.Use(
 		logger.AccessLogger(),
 		middleware.Recover(),
+		middleware.Gzip(),
 		otelecho.Middleware("reearth-cms"),
 	)
 

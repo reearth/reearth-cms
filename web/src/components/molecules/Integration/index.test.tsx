@@ -25,7 +25,6 @@ describe("Integration wrapper", () => {
   const pageSize = 10;
   const onTableChange = () => {};
   const loading = false;
-  const onReload = () => {};
   const hasConnectRight = true;
   const hasUpdateRight = true;
   const hasDeleteRight = true;
@@ -52,7 +51,6 @@ describe("Integration wrapper", () => {
         loading={loading}
         workspaceIntegrations={workspaceIntegrations}
         onSearchTerm={onSearchTerm}
-        onReload={onReload}
         setSelectedIntegration={setSelectedIntegration}
         onIntegrationRemove={onIntegrationRemove}
         deleteLoading={deleteLoading}
@@ -83,7 +81,6 @@ describe("Integration wrapper", () => {
         loading={loading}
         workspaceIntegrations={workspaceIntegrations}
         onSearchTerm={onSearchTerm}
-        onReload={onReload}
         setSelectedIntegration={setSelectedIntegration}
         onIntegrationRemove={onIntegrationRemove}
         deleteLoading={deleteLoading}

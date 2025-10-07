@@ -6,6 +6,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
@@ -14,6 +15,33 @@ import (
 var (
 	noPointFieldError = rerror.NewE(i18n.T("no point field in this model"))
 )
+
+func CSVFromItems(l item.List, sp *schema.Package) ([][]string, error) {
+	if !sp.Schema().HasGeometryFields() {
+		return nil, noPointFieldError
+	}
+
+	var nonGeoFields []*schema.Field
+	for _, f := range sp.Schema().Fields() {
+		if !f.IsGeometryField() {
+			nonGeoFields = append(nonGeoFields, f)
+		}
+	}
+
+	rows := [][]string{}
+	header := BuildCSVHeaders(sp.Schema())
+	rows = append(rows, header)
+
+	for _, itm := range l {
+		row, ok := RowFromItem(itm, nonGeoFields)
+		if !ok {
+			continue
+		}
+		rows = append(rows, row)
+	}
+
+	return rows, nil
+}
 
 func BuildCSVHeaders(s *schema.Schema) []string {
 	keys := []string{"id", "location_lat", "location_lng"}
@@ -54,7 +82,7 @@ func extractFirstPointField(itm *item.Item) ([]float64, error) {
 			continue
 		}
 		g, err := stringToGeometry(ss)
-		if err != nil || g == nil || g.Type == nil || *g.Type != GeometryTypePoint {
+		if err != nil || g == nil || g.Type == nil || *g.Type != types.GeometryTypePoint {
 			continue
 		}
 		return g.Coordinates.AsPoint()

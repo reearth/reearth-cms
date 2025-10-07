@@ -21,7 +21,6 @@ describe("Integration table", () => {
   const pageSize = 10;
   const onTableChange = () => {};
   const loading = false;
-  const onReload = () => {};
   const hasConnectRight = true;
   const hasUpdateRight = true;
   const hasDeleteRight = true;
@@ -36,40 +35,6 @@ describe("Integration table", () => {
     role,
   };
 
-  test("Table options works successfully", async () => {
-    const reloadMock = vi.fn();
-
-    render(
-      <IntegrationTable
-        workspaceIntegrations={workspaceIntegrations}
-        onSearchTerm={onSearchTerm}
-        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
-        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
-        deleteLoading={deleteLoading}
-        onIntegrationRemove={onIntegrationRemove}
-        page={page}
-        pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        onReload={reloadMock}
-        hasConnectRight={hasConnectRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-      />,
-    );
-
-    const reloadIcon = screen.getByLabelText("reload");
-    const heightIcon = screen.getByLabelText("column-height");
-    const settingIcon = screen.getByLabelText("setting");
-    const fullscreenIcon = screen.getByLabelText("fullscreen");
-
-    await user.click(reloadIcon);
-    expect(reloadMock).toHaveBeenCalled();
-    expect(heightIcon).toBeVisible();
-    expect(settingIcon).toBeVisible();
-    expect(fullscreenIcon).toBeVisible();
-  });
-
   test("Page number and number of items per page are displayed successfully", async () => {
     render(
       <IntegrationTable
@@ -83,7 +48,6 @@ describe("Integration table", () => {
         pageSize={pageSize}
         onTableChange={onTableChange}
         loading={loading}
-        onReload={onReload}
         hasConnectRight={hasConnectRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
@@ -107,7 +71,6 @@ describe("Integration table", () => {
         pageSize={pageSize}
         onTableChange={onTableChange}
         loading={loading}
-        onReload={onReload}
         hasConnectRight={hasConnectRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
@@ -132,7 +95,6 @@ describe("Integration table", () => {
         pageSize={pageSize}
         onTableChange={onTableChange}
         loading={loading}
-        onReload={onReload}
         hasConnectRight={hasConnectRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
@@ -161,7 +123,6 @@ describe("Integration table", () => {
         pageSize={pageSize}
         onTableChange={onTableChange}
         loading={loading}
-        onReload={onReload}
         hasConnectRight={hasConnectRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
@@ -189,7 +150,6 @@ describe("Integration table", () => {
         pageSize={pageSize}
         onTableChange={onTableChange}
         loading={loading}
-        onReload={onReload}
         hasConnectRight={hasConnectRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
@@ -219,7 +179,6 @@ describe("Integration table", () => {
         pageSize={pageSize}
         onTableChange={onTableChange}
         loading={loading}
-        onReload={onReload}
         hasConnectRight={hasConnectRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
@@ -244,7 +203,6 @@ describe("Integration table", () => {
         pageSize={pageSize}
         onTableChange={onTableChange}
         loading={loading}
-        onReload={onReload}
         hasConnectRight={hasConnectRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
@@ -268,7 +226,6 @@ describe("Integration table", () => {
         pageSize={pageSize}
         onTableChange={onTableChange}
         loading={loading}
-        onReload={onReload}
         hasConnectRight={false}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
@@ -293,7 +250,6 @@ describe("Integration table", () => {
         pageSize={pageSize}
         onTableChange={onTableChange}
         loading={loading}
-        onReload={onReload}
         hasConnectRight={hasConnectRight}
         hasUpdateRight={false}
         hasDeleteRight={false}

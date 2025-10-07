@@ -330,6 +330,7 @@ func TestRequestFlow(t *testing.T) {
 
 	// check public item: should return no results
 	res := e.GET("/api/p/{project}/{model}", "test-1", "test-1").
+		WithQuery("page", "1").
 		Expect().
 		Status(http.StatusOK).
 		JSON()
@@ -366,6 +367,7 @@ func TestRequestFlow(t *testing.T) {
 
 	// check public item: should return version 2
 	res = e.GET("/api/p/{project}/{model}", "test-1", "test-1").
+		WithQuery("page", "1").
 		Expect().
 		Status(http.StatusOK).
 		JSON()
@@ -406,6 +408,7 @@ func TestRequestFlow(t *testing.T) {
 
 	// check public item: should return version 3
 	res = e.GET("/api/p/{project}/{model}", "test-1", "test-1").
+		WithQuery("page", "1").
 		Expect().
 		Status(http.StatusOK).
 		JSON()
