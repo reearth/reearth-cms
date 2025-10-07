@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -24,9 +23,6 @@ import (
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
-
-const maxPerPage = 100
-const defaultPerPage int64 = 50
 
 type Item struct {
 	repos       *repo.Container
@@ -580,7 +576,12 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 			}
 		}
 
-		for _, itm := range items {
+		updated, err := i.repos.Item.FindByIDs(ctx, itemIDs, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, itm := range updated {
 			refItems, err := i.getReferencedItems(ctx, itm.Value().Fields())
 			if err != nil {
 				return nil, err
@@ -603,7 +604,7 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 			}
 		}
 
-		return items, nil
+		return updated, nil
 	})
 }
 
@@ -857,72 +858,4 @@ func (i Item) getReferencedItems(ctx context.Context, fields []*item.Field) ([]i
 		}
 	}
 	return i.repos.Item.FindByIDs(ctx, ids, nil)
-}
-
-// ItemsAsCSV exports items data in content to csv file by schema package.
-func (i Item) ItemsAsCSV(ctx context.Context, schemaPackage *schema.Package, page *int, perPage *int, operator *usecase.Operator) (interfaces.ExportItemsToCSVResponse, error) {
-	if operator.AcOperator.User == nil && operator.Integration == nil {
-		return interfaces.ExportItemsToCSVResponse{}, interfaces.ErrInvalidOperator
-	}
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (interfaces.ExportItemsToCSVResponse, error) {
-
-		// fromPagination
-		paginationOffset := fromPagination(page, perPage)
-
-		items, _, err := i.repos.Item.FindBySchema(ctx, schemaPackage.Schema().ID(), nil, nil, paginationOffset)
-		if err != nil {
-			return interfaces.ExportItemsToCSVResponse{}, err
-		}
-
-		pr, pw := io.Pipe()
-		err = csvFromItems(pw, items, schemaPackage.Schema())
-		if err != nil {
-			return interfaces.ExportItemsToCSVResponse{}, err
-		}
-
-		return interfaces.ExportItemsToCSVResponse{
-			PipeReader: pr,
-		}, nil
-	})
-}
-
-// ItemsAsGeoJSON converts items to Geo JSON type given the schema package
-func (i Item) ItemsAsGeoJSON(ctx context.Context, sp *schema.Package, page *int, perPage *int, _ *usecase.Operator) (interfaces.ExportItemsToGeoJSONResponse, error) {
-	items, pi, err := i.repos.Item.FindBySchema(ctx, sp.Schema().ID(), nil, nil, fromPagination(page, perPage))
-	if err != nil {
-		return interfaces.ExportItemsToGeoJSONResponse{}, err
-	}
-
-	featureCollections, err := featureCollectionFromItems(items, sp)
-	if err != nil {
-		return interfaces.ExportItemsToGeoJSONResponse{}, err
-	}
-
-	return interfaces.ExportItemsToGeoJSONResponse{
-		FeatureCollections: featureCollections,
-		PageInfo:           pi,
-	}, nil
-}
-
-func fromPagination(page, perPage *int) *usecasex.Pagination {
-	p := int64(1)
-	if page != nil && *page > 0 {
-		p = int64(*page)
-	}
-
-	pp := defaultPerPage
-	if perPage != nil {
-		if ppr := *perPage; 1 <= ppr {
-			if ppr > maxPerPage {
-				pp = int64(maxPerPage)
-			} else {
-				pp = int64(ppr)
-			}
-		}
-	}
-
-	return usecasex.OffsetPagination{
-		Offset: (p - 1) * pp,
-		Limit:  pp,
-	}.Wrap()
 }

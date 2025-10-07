@@ -8,9 +8,11 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
 )
@@ -99,6 +101,22 @@ func (i Schema) FindByGroups(ctx context.Context, gIDs id.GroupIDList, op *useca
 	}
 
 	return schemas, nil
+}
+
+func (i Schema) Export(ctx context.Context, param interfaces.ExportSchemaParam, op *usecase.Operator) (*types.JSONSchema, error) {
+	m, err := i.repos.Model.FindByID(ctx, param.ModelID)
+	if err != nil {
+		return nil, err
+	}
+	sp, err := i.FindByModel(ctx, param.ModelID, op)
+	if err != nil {
+		return nil, err
+	}
+	target := exporters.JSONSchemaExportTargetSchema
+	if param.Target == interfaces.SchemaExportTargetMetadata {
+		target = exporters.JSONSchemaExportTargetMetadataSchema
+	}
+	return lo.ToPtr(exporters.NewJSONSchema(m, sp, target)), nil
 }
 
 func (i Schema) CreateField(ctx context.Context, param interfaces.CreateFieldParam, op *usecase.Operator) (*schema.Field, error) {
