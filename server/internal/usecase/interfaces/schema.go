@@ -6,6 +6,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
@@ -71,12 +72,25 @@ var (
 	ErrInvalidContentTypeForSchemaConversion error = rerror.NewE(i18n.T("invalid content type for schema conversion"))
 )
 
+type ExportSchemaParam struct {
+	ModelID id.ModelID
+	Target  SchemaExportTarget
+}
+
+type SchemaExportTarget string
+
+const (
+	SchemaExportTargetSchema   SchemaExportTarget = "schema"
+	SchemaExportTargetMetadata SchemaExportTarget = "metadata_schema"
+)
+
 type Schema interface {
 	FindByID(context.Context, id.SchemaID, *usecase.Operator) (*schema.Schema, error)
 	FindByIDs(context.Context, []id.SchemaID, *usecase.Operator) (schema.List, error)
 	FindByModel(context.Context, id.ModelID, *usecase.Operator) (*schema.Package, error)
 	FindByGroup(context.Context, id.GroupID, *usecase.Operator) (*schema.Schema, error)
 	FindByGroups(context.Context, id.GroupIDList, *usecase.Operator) (schema.List, error)
+	Export(context.Context, ExportSchemaParam, *usecase.Operator) (*types.JSONSchema, error)
 	CreateField(context.Context, CreateFieldParam, *usecase.Operator) (*schema.Field, error)
 	CreateFields(context.Context, id.SchemaID, []CreateFieldParam, *usecase.Operator) (schema.FieldList, error)
 	UpdateField(context.Context, UpdateFieldParam, *usecase.Operator) (*schema.Field, error)

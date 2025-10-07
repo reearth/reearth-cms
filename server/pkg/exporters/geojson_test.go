@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -81,11 +82,9 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 	}
 	jsonBytes, err := json.Marshal(lineString)
 	assert.Nil(t, err)
-	c := Geometry_Coordinates{
-		union: jsonBytes,
-	}
-	g := Geometry{
-		Type:        lo.ToPtr(GeometryTypeLineString),
+	c := types.GeometryCoordinates(jsonBytes)
+	g := types.Geometry{
+		Type:        lo.ToPtr(types.GeometryTypeLineString),
 		Coordinates: &c,
 	}
 	p := orderedmap.New()
@@ -93,16 +92,16 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 	p.Set(key4.String(), int64(30))
 	p.Set(key5.String(), true)
 
-	f := Feature{
-		Type:       lo.ToPtr(FeatureTypeFeature),
+	f := types.Feature{
+		Type:       lo.ToPtr(types.FeatureTypeFeature),
 		Geometry:   &g,
 		Properties: p,
 		Id:         vi1.Value().ID().Ref().StringRef(),
 	}
 
-	expected1 := &FeatureCollection{
-		Type:     lo.ToPtr(FeatureCollectionTypeFeatureCollection),
-		Features: &[]Feature{f},
+	expected1 := &types.FeatureCollection{
+		Type:     lo.ToPtr(types.FeatureCollectionTypeFeatureCollection),
+		Features: &[]types.Feature{f},
 	}
 
 	fc1, err1 := FeatureCollectionFromItems(ver1, sp1, nil)
@@ -129,7 +128,7 @@ func TestExtractGeometry(t *testing.T) {
 	geometry1, ok1 := extractGeometry(fi1)
 	assert.True(t, ok1)
 	assert.NotNil(t, geometry1)
-	assert.Equal(t, GeometryTypeLineString, *geometry1.Type)
+	assert.Equal(t, types.GeometryTypeLineString, *geometry1.Type)
 
 	// Test with non-geometry field
 	geometry2, ok2 := extractGeometry(fi2)
@@ -220,7 +219,7 @@ func TestStringToGeometry(t *testing.T) {
 	geo, err := stringToGeometry(validGeoStringPoint)
 	assert.NoError(t, err)
 	assert.NotNil(t, geo)
-	assert.Equal(t, GeometryTypePoint, *geo.Type)
+	assert.Equal(t, types.GeometryTypePoint, *geo.Type)
 	expected := []float64{139.7112596, 35.6424892}
 	actual, err := geo.Coordinates.AsPoint()
 	assert.NoError(t, err)
