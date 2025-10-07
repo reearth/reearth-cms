@@ -43,7 +43,7 @@ jobs:
           ref: ${{ inputs.branch || 'main' }}
       - uses: actions/setup-node@v4
         with:
-          node-version: 22.19.0
+          node-version: 20.11.0
           cache: yarn
           cache-dependency-path: "**/yarn.lock"
       - name: Install dependencies
@@ -72,8 +72,6 @@ jobs:
           echo "REEARTH_CMS_E2E_USERNAME is $REEARTH_CMS_E2E_USERNAME"
       - name: Run Playwright tests
         run: yarn e2e
-        env:
-          NODE_OPTIONS: --no-experimental-strip-types
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
