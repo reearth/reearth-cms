@@ -9,6 +9,7 @@ import (
 type PolicyCheckType string
 
 const (
+	PolicyCheckGeneralOperationAllowed       PolicyCheckType = "general_operation_allowed"
 	PolicyCheckPrivateDataTransferUpload     PolicyCheckType = "cms_private_data_transfer_upload_size"
 	PolicyCheckPrivateDataTransferDownload   PolicyCheckType = "cms_private_data_transfer_download_size"
 	PolicyCheckPublicDataTransferUpload      PolicyCheckType = "cms_public_data_transfer_upload_size"
