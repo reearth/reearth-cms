@@ -43,7 +43,7 @@ jobs:
           ref: ${{ inputs.branch || 'main' }}
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: 20.11.0
           cache: yarn
           cache-dependency-path: "**/yarn.lock"
       - name: Install dependencies
