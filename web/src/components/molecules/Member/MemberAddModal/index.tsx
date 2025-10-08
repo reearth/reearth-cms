@@ -207,10 +207,10 @@ const MemberAddModal: React.FC<Props> = ({
           <StyledFormItem label={`${t("Selected Members")} (${selectedUsers.length})`}>
             {selectedUsers.map(user => (
               <SelectedUser key={user.id}>
-                <UserInfo>
-                  <UserName title={user.name}>{user.name}</UserName>
-                  <Email title={user.email}>{user.email}</Email>
-                </UserInfo>
+                  <UserInfo>
+                    <UserName title={user.name}>{user.name}</UserName>
+                    <Email title={user.email}>{user.email}</Email>
+                  </UserInfo>
                 <Actions>
                   <FormItemRole name={[user.id]}>
                     <Select defaultValue={"READER"} popupMatchSelectWidth={105}>
