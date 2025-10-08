@@ -39,7 +39,6 @@ type fileRepo struct {
 	cacheControl     string
 	public           bool
 	replaceUploadURL bool
-	customEndpoint   string
 }
 
 func NewFile(bucketName, publicBase, cacheControl string, replaceUploadURL bool) (gateway.File, error) {
@@ -64,7 +63,6 @@ func NewFile(bucketName, publicBase, cacheControl string, replaceUploadURL bool)
 		cacheControl:     cacheControl,
 		public:           true,
 		replaceUploadURL: replaceUploadURL,
-		customEndpoint:   publicBase,
 	}, nil
 }
 
@@ -80,7 +78,6 @@ func NewFileWithACL(bucketName, publicBase, privateBase, cacheControl string, re
 	fr := f.(*fileRepo)
 	fr.privateBase = u
 	fr.public = false
-	fr.customEndpoint = publicBase
 	return fr, nil
 }
 
@@ -622,17 +619,16 @@ func (f *fileRepo) bucketWithOptions(ctx context.Context, forSigning bool) (*sto
 	var client *storage.Client
 	var err error
 
-	log.Debugf("DEBUG bucketWithOptions: bucketName='%s', customEndpoint='%s', forSigning=%v",
-		f.bucketName, f.customEndpoint, forSigning)
+	log.Debugf("DEBUG bucketWithOptions: bucketName='%s', publicBase='%s', forSigning=%v",
+		f.bucketName, f.publicBase.String(), forSigning)
 
 	// For signed URLs, always use standard GCS client to ensure signatures work.
 	// with storage.googleapis.com, regardless of custom endpoint configuration
-	if forSigning || f.customEndpoint == "" {
+	if forSigning || f.publicBase.Host == "storage.googleapis.com" {
 		log.Debugf("DEBUG: Using standard GCS client")
 		client, err = storage.NewClient(ctx)
 	} else {
-
-		endpointWithBucket := f.customEndpoint
+		endpointWithBucket := f.publicBase.String()
 		log.Debugf("DEBUG: Using custom endpoint client: %s", endpointWithBucket)
 		log.Debugf("DEBUG: About to create client with bucket='%s', endpoint='%s'", f.bucketName, endpointWithBucket)
 
