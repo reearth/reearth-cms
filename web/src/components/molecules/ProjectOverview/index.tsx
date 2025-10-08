@@ -87,7 +87,7 @@ const ProjectOverview: React.FC<Props> = ({
                 </Button>
               </Actions>
               <span>
-                <Trans i18nKey="readDocument" components={{ l: <a href="" /> }} />
+                <Trans i18nKey="readDocument" components={{ l: <a role="link" href="" /> }} />
               </span>
             </Content>
           </Placeholder>

@@ -187,7 +187,7 @@ const IntegrationTable: React.FC<Props> = ({
               <ConnectButton />
             </Action>
             <span>
-              <Trans i18nKey="readDocument" components={{ l: <a href="" /> }} />
+              <Trans i18nKey="readDocument" components={{ l: <a role="link" href="" /> }} />
             </span>
           </EmptyTableWrapper>
         )}>

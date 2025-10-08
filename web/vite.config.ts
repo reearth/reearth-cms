@@ -35,7 +35,12 @@ export default defineConfig({
   envPrefix: "REEARTH_CMS_",
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
-    __REEARTH_COMMIT_HASH__: JSON.stringify(process.env.GITHUB_SHA || commitHash)
+    __REEARTH_COMMIT_HASH__: JSON.stringify(process.env.GITHUB_SHA || commitHash),
+  },
+  resolve: {
+    alias: {
+      "@zip.js/zip.js/lib/zip-no-worker.js": "@zip.js/zip.js",
+    },
   },
   plugins: [
     react(),
@@ -43,7 +48,7 @@ export default defineConfig({
     cesium({ cesiumBaseUrl: `cesium-${cesiumPackageJson.version}/` }),
     serverHeaders(),
     config(),
-    tsconfigPaths()
+    tsconfigPaths(),
   ],
   css: {
     preprocessorOptions: {
