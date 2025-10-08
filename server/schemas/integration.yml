@@ -2630,6 +2630,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/field'
+        metadataFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/field'
+        referencedItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/item'
         createdAt:
           type: string
           format: date-time
@@ -2651,10 +2659,6 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/versionedItem'
-            metadataFields:
-              type: array
-              items:
-                $ref: '#/components/schemas/field'
     field:
       type: object
       properties:

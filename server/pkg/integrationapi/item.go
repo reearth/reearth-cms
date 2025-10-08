@@ -16,62 +16,64 @@ func NewVersionedItem(ver item.Versioned, s *schema.Schema, assets *AssetContext
 	rs := lo.Map(ver.Refs().Values(), func(r version.Ref, _ int) string {
 		return string(r)
 	})
+
+	i := ver.Value()
+	itemFields := fieldsFrom(i.Fields(), s.Fields(), assets)
+
 	var metaFields *[]Field
 	if mi != nil && ms != nil {
-		metaFields = NewItem(mi.Value(), schema.List{ms}, nil).Fields
+		metaFields = lo.ToPtr(fieldsFrom(mi.Value().Fields(), ms.Fields(), assets))
 	}
 
-	ii := NewItem(ver.Value(), append(sgl, s), assets)
 	return VersionedItem{
-		Id:             ii.Id,
-		ModelId:        ii.ModelId,
-		MetadataItemId: ii.MetadataItemId,
-		OriginalItemId: ii.OriginalItemId,
-		IsMetadata:     ii.IsMetadata,
-		Fields:         ii.Fields,
-		CreatedAt:      ii.CreatedAt,
-		UpdatedAt:      ii.UpdatedAt,
+		Id:              i.ID().Ref(),
+		ModelId:         i.Model().Ref().StringRef(),
+		MetadataItemId:  i.MetadataItem(),
+		OriginalItemId:  i.OriginalItem(),
+		IsMetadata:      lo.ToPtr(i.IsMetadata()),
+		Fields:          &itemFields,
+		MetadataFields:  metaFields,
+		ReferencedItems: f,
+		CreatedAt:       lo.ToPtr(i.ID().Timestamp()),
+		UpdatedAt:       lo.ToPtr(i.Timestamp()),
 
 		Version: lo.ToPtr(types.UUID(ver.Version())),
 		Parents: &ps,
 		Refs:    &rs,
-
-		MetadataFields:  metaFields,
-		ReferencedItems: f,
 	}
 }
 
 func NewItem(i *item.Item, ss schema.List, assets *AssetContext) Item {
-	var fs []Field
-	for _, s := range ss {
-		t := lo.FilterMap(i.Fields(), func(f *item.Field, _ int) (Field, bool) {
-			if s == nil {
-				return Field{}, false
-			}
-			sf := s.Field(f.FieldID())
-			if sf == nil {
-				return Field{}, false
-			}
-
-			return Field{
-				Id:    f.FieldID().Ref(),
-				Type:  lo.ToPtr(ToValueType(f.Type())),
-				Value: lo.ToPtr(ToValues(f.Value(), sf, assets)),
-				Key:   util.ToPtrIfNotEmpty(sf.Key().String()),
-				Group: f.ItemGroup(),
-			}, true
-		})
-		fs = append(fs, t...)
-	}
+	itemFields := fieldsFrom(i.Fields(), ss.Fields(), assets)
 
 	return Item{
-		Id:             i.ID().Ref(),
-		ModelId:        i.Model().Ref().StringRef(),
-		MetadataItemId: i.MetadataItem(),
-		OriginalItemId: i.OriginalItem(),
-		IsMetadata:     lo.ToPtr(i.IsMetadata()),
-		Fields:         &fs,
-		CreatedAt:      lo.ToPtr(i.ID().Timestamp()),
-		UpdatedAt:      lo.ToPtr(i.Timestamp()),
+		Id:              i.ID().Ref(),
+		ModelId:         i.Model().Ref().StringRef(),
+		MetadataItemId:  i.MetadataItem(),
+		OriginalItemId:  i.OriginalItem(),
+		IsMetadata:      lo.ToPtr(i.IsMetadata()),
+		Fields:          &itemFields,
+		MetadataFields:  nil,
+		ReferencedItems: nil,
+		CreatedAt:       lo.ToPtr(i.ID().Timestamp()),
+		UpdatedAt:       lo.ToPtr(i.Timestamp()),
 	}
+}
+
+func fieldsFrom(iFields item.Fields, sFields schema.FieldList, assets *AssetContext) []Field {
+	fs := lo.FilterMap(sFields, func(sf *schema.Field, _ int) (Field, bool) {
+		f := iFields.Field(sf.ID())
+		if f == nil {
+			return Field{}, false
+		}
+
+		return Field{
+			Id:    f.FieldID().Ref(),
+			Type:  lo.ToPtr(ToValueType(f.Type())),
+			Value: lo.ToPtr(ToValues(f.Value(), sf, assets)),
+			Key:   util.ToPtrIfNotEmpty(sf.Key().String()),
+			Group: f.ItemGroup(),
+		}, true
+	})
+	return fs
 }
