@@ -10,12 +10,16 @@ const Workspace: React.FC = () => {
     projects,
     loading,
     hasCreateRight,
+    page,
+    pageSize,
+    totalCount,
     handleProjectSearch,
     handleProjectSort,
     handleProjectCreate,
     handleProjectNavigation,
     handleWorkspaceCreate,
     handleProjectAliasCheck,
+    handlePageChange,
   } = useHooks();
 
   return (
@@ -26,12 +30,16 @@ const Workspace: React.FC = () => {
       projects={projects}
       loading={loading}
       hasCreateRight={hasCreateRight}
+      page={page}
+      pageSize={pageSize}
+      totalCount={totalCount}
       onProjectSearch={handleProjectSearch}
       onProjectSort={handleProjectSort}
       onProjectNavigation={handleProjectNavigation}
       onProjectCreate={handleProjectCreate}
       onWorkspaceCreate={handleWorkspaceCreate}
       onProjectAliasCheck={handleProjectAliasCheck}
+      onPageChange={handlePageChange}
     />
   );
 };
