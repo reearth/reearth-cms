@@ -47,6 +47,7 @@ func Echo(e *echo.Group) {
 	// /:ws/:p/:m.geojson
 	// /:ws/:p/:m.schema.json
 	// /:ws/:p/:m.metadata_schema.json
+	// /:ws/:p/:m.zip
 	// /:ws/:p/:m/:i
 
 	e.GET("/:project/:sub-route", SubRoute())
