@@ -537,7 +537,7 @@ type ValueType string
 // Version defines model for version.
 type Version struct {
 	Parents *[]openapi_types.UUID `json:"parents,omitempty"`
-	Refs    *[]openapi_types.UUID `json:"refs,omitempty"`
+	Refs    *[]string             `json:"refs,omitempty"`
 	Version *openapi_types.UUID   `json:"version,omitempty"`
 }
 
@@ -548,7 +548,9 @@ type VersionedItem struct {
 	Id              *id.ItemID            `json:"id,omitempty"`
 	IsMetadata      *bool                 `json:"isMetadata,omitempty"`
 	MetadataFields  *[]Field              `json:"metadataFields,omitempty"`
+	MetadataItemId  *id.ItemID            `json:"metadataItemId,omitempty"`
 	ModelId         *string               `json:"modelId,omitempty"`
+	OriginalItemId  *id.ItemID            `json:"originalItemId,omitempty"`
 	Parents         *[]openapi_types.UUID `json:"parents,omitempty"`
 	ReferencedItems *[]VersionedItem      `json:"referencedItems,omitempty"`
 	Refs            *[]string             `json:"refs,omitempty"`

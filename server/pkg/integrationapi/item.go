@@ -23,16 +23,20 @@ func NewVersionedItem(ver item.Versioned, s *schema.Schema, assets *AssetContext
 
 	ii := NewItem(ver.Value(), append(sgl, s), assets)
 	return VersionedItem{
-		Id:              ii.Id,
-		CreatedAt:       ii.CreatedAt,
-		UpdatedAt:       ii.UpdatedAt,
-		Fields:          ii.Fields,
-		ModelId:         ii.ModelId,
-		Parents:         &ps,
+		Id:             ii.Id,
+		ModelId:        ii.ModelId,
+		MetadataItemId: ii.MetadataItemId,
+		OriginalItemId: ii.OriginalItemId,
+		IsMetadata:     ii.IsMetadata,
+		Fields:         ii.Fields,
+		CreatedAt:      ii.CreatedAt,
+		UpdatedAt:      ii.UpdatedAt,
+
+		Version: lo.ToPtr(types.UUID(ver.Version())),
+		Parents: &ps,
+		Refs:    &rs,
+
 		MetadataFields:  metaFields,
-		IsMetadata:      lo.ToPtr(ver.Value().IsMetadata()),
-		Refs:            &rs,
-		Version:         lo.ToPtr(types.UUID(ver.Version())),
 		ReferencedItems: f,
 	}
 }
@@ -63,10 +67,10 @@ func NewItem(i *item.Item, ss schema.List, assets *AssetContext) Item {
 	return Item{
 		Id:             i.ID().Ref(),
 		ModelId:        i.Model().Ref().StringRef(),
-		Fields:         &fs,
 		MetadataItemId: i.MetadataItem(),
 		OriginalItemId: i.OriginalItem(),
 		IsMetadata:     lo.ToPtr(i.IsMetadata()),
+		Fields:         &fs,
 		CreatedAt:      lo.ToPtr(i.ID().Timestamp()),
 		UpdatedAt:      lo.ToPtr(i.Timestamp()),
 	}
