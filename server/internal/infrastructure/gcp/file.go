@@ -625,7 +625,7 @@ func (f *fileRepo) bucketWithOptions(ctx context.Context, forSigning bool) (*sto
 	log.Debugf("DEBUG bucketWithOptions: bucketName='%s', customEndpoint='%s', forSigning=%v",
 		f.bucketName, f.customEndpoint, forSigning)
 
-	// For signed URLs, always use standard GCS client to ensure signatures work
+	// For signed URLs, always use standard GCS client to ensure signatures work.
 	// with storage.googleapis.com, regardless of custom endpoint configuration
 	if forSigning || f.customEndpoint == "" {
 		log.Debugf("DEBUG: Using standard GCS client")
