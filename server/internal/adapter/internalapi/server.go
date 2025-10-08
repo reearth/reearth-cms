@@ -359,6 +359,7 @@ func (s server) ListItems(ctx context.Context, req *pb.ListItemsRequest) (*pb.Li
 	}, nil
 }
 
+//nolint:staticcheck // SA1019: pb.ExportRequest is deprecated but still used in generated interface
 func (s server) GetModelGeoJSONExportURL(ctx context.Context, req *pb.ExportRequest) (*pb.ExportURLResponse, error) {
 	op, uc, g := adapter.Operator(ctx), adapter.Usecases(ctx), adapter.Gateways(ctx)
 
