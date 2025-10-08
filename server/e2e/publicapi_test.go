@@ -789,19 +789,24 @@ func TestPublicAPI_Model_CSV(t *testing.T) {
 		e.GET("/api/p/{project}/{model}.csv", pApiP1Alias, pApiP1M1Key).
 			Expect().
 			Status(http.StatusOK).
+			HasContentType("text/csv").
 			Body().
-			IsEqual("id,location_lat,location_lng,test-field-1,asset,test-field-2,asset2\n" +
-				fmt.Sprintf("%s,0.5,102,eee,,aaa,\n", pApiP1M1I5Id.String()))
+			IsEqual(fmt.Sprintf("id,%s\n", pApiP1S1F1Key) +
+				fmt.Sprintf("%s,aaa\n", pApiP1M1I1Id.String()) +
+				fmt.Sprintf("%s,bbb\n", pApiP1M1I2Id.String()) +
+				fmt.Sprintf("%s,ccc\n", pApiP1M1I3Id.String()) +
+				fmt.Sprintf("%s,eee\n", pApiP1M1I5Id.String()),
+			)
 	})
 
-	t.Run("export as csv should fail if the model does not have point geo field", func(t *testing.T) {
+	t.Run("export as csv should not fail if the model does not have point geo field", func(t *testing.T) {
 		e.GET("/api/p/{project}/{model}.csv", pApiP1Alias, pApiP1M2Key).
 			Expect().
-			Status(http.StatusBadRequest).
-			JSON().
-			IsEqual(map[string]any{
-				"error": "no point field in this model",
-			})
+			Status(http.StatusOK).
+			HasContentType("text/csv").
+			Body().
+			IsEqual("id,test-field-1\n" +
+				fmt.Sprintf("%s,bbb\n", pApiP1M2I1Id.String()))
 	})
 }
 

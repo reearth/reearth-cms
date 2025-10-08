@@ -1,9 +1,7 @@
 package publicapi
 
 import (
-	"bytes"
 	"encoding/json"
-	"io"
 	"net/url"
 	"path"
 	"reflect"
@@ -12,108 +10,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
-	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
-
-type ListResult[T any] struct {
-	Results    []T   `json:"results"`
-	TotalCount int64 `json:"totalCount"`
-	HasMore    *bool `json:"hasMore,omitempty"`
-	// offset base
-	Limit  *int64 `json:"limit,omitempty"`
-	Offset *int64 `json:"offset,omitempty"`
-	Page   *int64 `json:"page,omitempty"`
-	// cursor base
-	NextCursor *string `json:"nextCursor,omitempty"`
-}
-
-func NewListResult[T any](results []T, pi *usecasex.PageInfo, p *usecasex.Pagination) ListResult[T] {
-	if results == nil {
-		results = []T{}
-	}
-
-	r := ListResult[T]{
-		Results:    results,
-		TotalCount: pi.TotalCount,
-	}
-
-	if p.Cursor != nil {
-		r.NextCursor = pi.EndCursor.StringRef()
-		r.HasMore = &pi.HasNextPage
-	} else if p.Offset != nil {
-		page := p.Offset.Offset/p.Offset.Limit + 1
-		r.Limit = lo.ToPtr(p.Offset.Limit)
-		r.Offset = lo.ToPtr(p.Offset.Offset)
-		r.Page = lo.ToPtr(page)
-		r.HasMore = lo.ToPtr((page+1)*p.Offset.Limit < pi.TotalCount)
-	}
-
-	return r
-}
-
-func NewItemListResult(w io.Writer, pi *usecasex.PageInfo, p *usecasex.Pagination) ListResult[any] {
-	r := ListResult[any]{
-		Results:    writerToItems(w),
-		TotalCount: pi.TotalCount,
-	}
-
-	if p.Cursor != nil {
-		r.NextCursor = pi.EndCursor.StringRef()
-		r.HasMore = &pi.HasNextPage
-	} else if p.Offset != nil {
-		page := p.Offset.Offset/p.Offset.Limit + 1
-		r.Limit = lo.ToPtr(p.Offset.Limit)
-		r.Offset = lo.ToPtr(p.Offset.Offset)
-		r.Page = lo.ToPtr(page)
-		r.HasMore = lo.ToPtr((page+1)*p.Offset.Limit < pi.TotalCount)
-	}
-
-	return r
-}
-
-// writerToItems extracts items from an io.Writer containing JSON data
-func writerToItems(w io.Writer) []any {
-	// Check if the writer is a bytes.Buffer or similar type that we can read from
-	var buf *bytes.Buffer
-
-	switch writer := w.(type) {
-	case *bytes.Buffer:
-		buf = writer
-	default:
-		// If it's not a readable buffer type, return empty slice
-		return []any{}
-	}
-
-	// If buffer is empty, return empty slice
-	if buf.Len() == 0 {
-		return []any{}
-	}
-
-	// Parse the JSON data
-	var data map[string]any
-	decoder := json.NewDecoder(bytes.NewReader(buf.Bytes()))
-	if err := decoder.Decode(&data); err != nil {
-		return []any{}
-	}
-
-	// Extract the "results" array from the JSON structure
-	items, ok := data["results"]
-	if !ok {
-		return []any{}
-	}
-
-	// Convert to []any if it's an array
-	if itemsArray, ok := items.([]any); ok {
-		return itemsArray
-	}
-
-	return []any{}
-}
-
-type ListParam struct {
-	Pagination *usecasex.Pagination
-}
 
 type Item struct {
 	ID     string
