@@ -95,8 +95,8 @@ func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string, h map[str
 
 func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileEntry, error) {
 	p := getGCSObjectPath(u, "")
-	// Use standard client for GetAssetFiles to avoid bucket name corruption
-	b, err := f.bucketWithOptions(ctx, true)
+	// Use custom endpoint client to ensure usage tracking by gcsproxy
+	b, err := f.bucket(ctx)
 	if err != nil {
 		return nil, rerror.ErrInternalBy(err)
 	}
@@ -631,9 +631,8 @@ func (f *fileRepo) bucketWithOptions(ctx context.Context, forSigning bool) (*sto
 		log.Debugf("DEBUG: Using standard GCS client")
 		client, err = storage.NewClient(ctx)
 	} else {
-		// Include bucket name in the custom endpoint path to match expected format:
-		// https://assets.cms.dev.reearth.io/reearth-cms-dev-assets/...
-		endpointWithBucket := f.customEndpoint + "/" + f.bucketName
+
+		endpointWithBucket := f.customEndpoint
 		log.Debugf("DEBUG: Using custom endpoint client: %s", endpointWithBucket)
 		log.Debugf("DEBUG: About to create client with bucket='%s', endpoint='%s'", f.bucketName, endpointWithBucket)
 
