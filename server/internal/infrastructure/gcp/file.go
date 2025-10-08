@@ -39,6 +39,7 @@ type fileRepo struct {
 	cacheControl     string
 	public           bool
 	replaceUploadURL bool
+	customEndpoint   string
 }
 
 func NewFile(bucketName, publicBase, cacheControl string, replaceUploadURL bool) (gateway.File, error) {
@@ -63,6 +64,7 @@ func NewFile(bucketName, publicBase, cacheControl string, replaceUploadURL bool)
 		cacheControl:     cacheControl,
 		public:           true,
 		replaceUploadURL: replaceUploadURL,
+		customEndpoint:   publicBase,
 	}, nil
 }
 
@@ -78,6 +80,7 @@ func NewFileWithACL(bucketName, publicBase, privateBase, cacheControl string, re
 	fr := f.(*fileRepo)
 	fr.privateBase = u
 	fr.public = false
+	fr.customEndpoint = publicBase
 	return fr, nil
 }
 
