@@ -9,7 +9,8 @@ import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Commo
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { ModelFormValues, Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
-import { MAX_KEY_LENGTH, validateKey } from "@reearth-cms/utils/regex";
+import { Constant } from "@reearth-cms/utils/constant";
+import { validateKey } from "@reearth-cms/utils/regex";
 
 type Props = {
   data?: Model | Group;
@@ -221,7 +222,7 @@ const FormModal: React.FC<Props> = ({
               },
             },
           ]}>
-          <Input onChange={handleKeyChange} showCount maxLength={MAX_KEY_LENGTH} />
+          <Input onChange={handleKeyChange} showCount maxLength={Constant.KEY.MAX_LENGTH} />
         </Form.Item>
       </Form>
     </Modal>
