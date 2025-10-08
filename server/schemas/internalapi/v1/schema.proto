@@ -203,6 +203,8 @@ message ListItemsRequest {
 }
 
 message ExportRequest {
+  option deprecated = true;
+
   string project_id = 1;
   string model_id = 2;
 }
