@@ -470,7 +470,7 @@ func (s server) GetModelExportURL(ctx context.Context, req *pb.ModelExportReques
 	_, err = g.File.Upload(ctx, &file.File{
 		Content:         io.NopCloser(w),
 		Name:            m.ID().String() + ext,
-		Size:            0,
+		Size:            int64(w.Len()),
 		ContentType:     ct,
 		ContentEncoding: "",
 	}, m.ID().String()+ext)
