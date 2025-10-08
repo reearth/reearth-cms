@@ -12,9 +12,9 @@ export type Reearth = {
   ) => Promise<T>;
 } & Config;
 
-type Fixtures = { reearth: Reearth };
-
-export const test = base.extend<Fixtures>({
+export const test = base.extend<{
+  reearth: Reearth;
+}>({
   reearth: async ({ page, request }, _use) => {
     _use({
       ...config,
