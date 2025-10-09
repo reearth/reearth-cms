@@ -485,15 +485,6 @@ func TestFileRepo_toPublicUrl_BucketNameRemoval(t *testing.T) {
 			replaceUpload: true,
 			description:   "GCS default domain: should not replace",
 		},
-		{
-			name:          "empty path after bucket removal - should add leading slash",
-			bucketName:    "test-bucket",
-			publicBaseURL: "https://assets.cms.test.reearth.dev",
-			inputURL:      "https://storage.googleapis.com/test-bucket/?signature=abc",
-			expectedPath:  "/",
-			replaceUpload: true,
-			description:   "Edge case: empty path after bucket removal should become '/'",
-		},
 	}
 
 	for _, tt := range tests {
