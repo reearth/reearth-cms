@@ -284,9 +284,8 @@ func (f *fileRepo) toPublicUrl(uploadURL string) string {
 			// Original: /bucket-name/assets/... -> /assets/...
 			if strings.HasPrefix(parsedURL.Path, "/"+f.bucketName+"/") {
 				parsedURL.Path = strings.TrimPrefix(parsedURL.Path, "/"+f.bucketName+"/")
-				if !strings.HasPrefix(parsedURL.Path, "/") {
-					parsedURL.Path = "/" + parsedURL.Path
-				}
+				// Ensure the path is relative (no leading slash) for path.Join
+				parsedURL.Path = strings.TrimLeft(parsedURL.Path, "/")
 			}
 			parsedURL.Path = path.Join(f.publicBase.Path, parsedURL.Path)
 			uploadURL = parsedURL.String()
