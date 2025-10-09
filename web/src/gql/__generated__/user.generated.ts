@@ -26,6 +26,7 @@ export type GetMeQuery = {
     name: string;
     email: string;
     lang: string;
+    profilePictureUrl: string | null;
     auths: Array<string>;
     myWorkspace: { __typename: "Workspace"; id: string; name: string; alias: string | null } | null;
     workspaces: Array<{
@@ -295,6 +296,7 @@ export const GetMeDocument = {
                 { kind: "Field", name: { kind: "Name", value: "name" } },
                 { kind: "Field", name: { kind: "Name", value: "email" } },
                 { kind: "Field", name: { kind: "Name", value: "lang" } },
+                { kind: "Field", name: { kind: "Name", value: "profilePictureUrl" } },
                 {
                   kind: "Field",
                   name: { kind: "Name", value: "myWorkspace" },
