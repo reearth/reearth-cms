@@ -37,11 +37,6 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(pkg.version),
     __REEARTH_COMMIT_HASH__: JSON.stringify(process.env.GITHUB_SHA || commitHash),
   },
-  resolve: {
-    alias: {
-      "@zip.js/zip.js/lib/zip-no-worker.js": "@zip.js/zip.js",
-    },
-  },
   plugins: [
     react(),
     yaml(),
