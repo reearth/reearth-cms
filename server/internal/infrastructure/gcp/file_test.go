@@ -411,3 +411,125 @@ func TestFileRepo_ValidateContentEncoding(t *testing.T) {
 		})
 	}
 }
+
+func TestFileRepo_toPublicUrl_BucketNameRemoval(t *testing.T) {
+	tests := []struct {
+		name          string
+		bucketName    string
+		publicBaseURL string
+		inputURL      string
+		expectedPath  string
+		replaceUpload bool
+		description   string
+	}{
+		{
+			name:          "bucket name with trailing slash - should remove correctly",
+			bucketName:    "test-bucket",
+			publicBaseURL: "https://assets.cms.test.reearth.dev",
+			inputURL:      "https://storage.googleapis.com/test-bucket/assets/12/345678/test.png?signature=abc",
+			expectedPath:  "/assets/12/345678/test.png",
+			replaceUpload: true,
+			description:   "Standard case: /bucket-name/ should be removed completely",
+		},
+		{
+			name:          "bucket name without trailing slash in input - should not match prefix",
+			bucketName:    "test-bucket",
+			publicBaseURL: "https://assets.cms.test.reearth.dev",
+			inputURL:      "https://storage.googleapis.com/test-bucket-suffix/assets/12/345678/test.png?signature=abc",
+			expectedPath:  "/test-bucket-suffix/assets/12/345678/test.png",
+			replaceUpload: true,
+			description:   "Edge case: bucket name is prefix of path segment but not exact match",
+		},
+		{
+			name:          "bucket name matches but no trailing slash - should not remove",
+			bucketName:    "test-bucket",
+			publicBaseURL: "https://assets.cms.test.reearth.dev",
+			inputURL:      "https://storage.googleapis.com/test-bucket-other/assets/12/345678/test.png?signature=abc",
+			expectedPath:  "/test-bucket-other/assets/12/345678/test.png",
+			replaceUpload: true,
+			description:   "Edge case: similar bucket name but different, should not remove",
+		},
+		{
+			name:          "bucket name exactly matches with trailing slash",
+			bucketName:    "my-bucket",
+			publicBaseURL: "https://cdn.example.com/files",
+			inputURL:      "https://storage.googleapis.com/my-bucket/assets/ab/cdef12/image.jpg?expires=123",
+			expectedPath:  "/files/assets/ab/cdef12/image.jpg",
+			replaceUpload: true,
+			description:   "Custom base with path: bucket removal + path join",
+		},
+		{
+			name:          "no bucket name in path - should not modify",
+			bucketName:    "test-bucket",
+			publicBaseURL: "https://assets.cms.test.reearth.dev",
+			inputURL:      "https://storage.googleapis.com/other-bucket/assets/12/345678/test.png?signature=abc",
+			expectedPath:  "/other-bucket/assets/12/345678/test.png",
+			replaceUpload: true,
+			description:   "Different bucket: should not remove anything",
+		},
+		{
+			name:          "replaceUpload disabled - should not modify URL",
+			bucketName:    "test-bucket",
+			publicBaseURL: "https://assets.cms.test.reearth.dev",
+			inputURL:      "https://storage.googleapis.com/test-bucket/assets/12/345678/test.png?signature=abc",
+			expectedPath:  "/test-bucket/assets/12/345678/test.png", // Original path preserved
+			replaceUpload: false,
+			description:   "URL replacement disabled: should return original URL",
+		},
+		{
+			name:          "GCS default domain - should not replace",
+			bucketName:    "test-bucket",
+			publicBaseURL: "https://storage.googleapis.com/test-bucket",
+			inputURL:      "https://storage.googleapis.com/test-bucket/assets/12/345678/test.png?signature=abc",
+			expectedPath:  "/test-bucket/assets/12/345678/test.png", // Original path preserved
+			replaceUpload: true,
+			description:   "GCS default domain: should not replace",
+		},
+		{
+			name:          "empty path after bucket removal - should add leading slash",
+			bucketName:    "test-bucket",
+			publicBaseURL: "https://assets.cms.test.reearth.dev",
+			inputURL:      "https://storage.googleapis.com/test-bucket/?signature=abc",
+			expectedPath:  "/",
+			replaceUpload: true,
+			description:   "Edge case: empty path after bucket removal should become '/'",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			publicBase, err := url.Parse(tt.publicBaseURL)
+			assert.NoError(t, err)
+
+			f := &fileRepo{
+				bucketName:       tt.bucketName,
+				publicBase:       publicBase,
+				replaceUploadURL: tt.replaceUpload,
+			}
+
+			result := f.toPublicUrl(tt.inputURL)
+			resultURL, err := url.Parse(result)
+			assert.NoError(t, err)
+
+			// For cases where replacement should happen
+			if tt.replaceUpload && publicBase.Host != "storage.googleapis.com" {
+				// Check that the domain was replaced
+				assert.Equal(t, publicBase.Host, resultURL.Host, "Domain should be replaced")
+				assert.Equal(t, publicBase.Scheme, resultURL.Scheme, "Scheme should be replaced")
+
+				// Check path handling
+				assert.Equal(t, tt.expectedPath, resultURL.Path, tt.description)
+
+				// Ensure query parameters are preserved
+				inputURL, _ := url.Parse(tt.inputURL)
+				if inputURL.RawQuery != "" {
+					assert.Equal(t, inputURL.RawQuery, resultURL.RawQuery, "Query parameters should be preserved")
+				}
+			} else {
+				// For cases where replacement should not happen, URL should be unchanged
+				assert.Equal(t, tt.inputURL, result, "URL should remain unchanged when replacement is disabled or using GCS domain")
+			}
+		})
+	}
+}
