@@ -18,7 +18,7 @@ func NewVersionedItem(ver item.Versioned, s *schema.Schema, assets *AssetContext
 	})
 
 	i := ver.Value()
-	itemFields := fieldsFrom(i.Fields(), s.Fields(), assets)
+	itemFields := fieldsFrom(i.Fields(), append(sgl, s).Fields(), assets)
 
 	var metaFields *[]Field
 	if mi != nil && ms != nil {
@@ -61,9 +61,9 @@ func NewItem(i *item.Item, ss schema.List, assets *AssetContext) Item {
 }
 
 func fieldsFrom(iFields item.Fields, sFields schema.FieldList, assets *AssetContext) []Field {
-	fs := lo.FilterMap(sFields, func(sf *schema.Field, _ int) (Field, bool) {
-		f := iFields.Field(sf.ID())
-		if f == nil {
+	fs := lo.FilterMap(iFields, func(f *item.Field, _ int) (Field, bool) {
+		sf := sFields.Find(f.FieldID())
+		if sf == nil {
 			return Field{}, false
 		}
 
