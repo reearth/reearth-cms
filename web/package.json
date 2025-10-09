@@ -7,6 +7,7 @@
   "main": "./dist/reearth-cms.es.js",
   "browser": "./dist/reearth-cms.umd.js",
   "types": "./dist/reearth-cms.d.ts",
+  "packageManager": "yarn@1.22.22",
   "engines": {
     "node": ">=20.11.0"
   },
@@ -62,7 +63,7 @@
     "@types/react-router-dom": "5.3.3",
     "@vitejs/plugin-react": "4.3.1",
     "@vitest/coverage-v8": "2.0.5",
-    "axios": "1.7.5",
+    "axios": "1.8.2",
     "dotenv": "16.4.5",
     "eslint": "9.9.1",
     "eslint-config-reearth": "0.3.6",
@@ -81,10 +82,10 @@
     "storybook": "8.2.9",
     "ts-node": "10.9.2",
     "typescript": "5.5.4",
-    "vite": "5.4.2",
+    "vite": "5.4.19",
     "vite-plugin-cesium": "1.2.23",
     "vite-tsconfig-paths": "^5.0.1",
-    "vitest": "2.0.5"
+    "vitest": "2.1.9"
   },
   "dependencies": {
     "@ant-design/compatible": "5.1.3",
