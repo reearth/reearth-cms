@@ -183,7 +183,8 @@ describe("Member table", () => {
       />,
     );
 
-    expect(screen.getByRole("checkbox")).toBeDisabled();
+    const checkboxes = screen.getAllByRole("checkbox");
+    expect(checkboxes[1]).toBeDisabled();
     expect(screen.getByRole("button", { name: "Change Role?" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Leave" })).toBeDisabled();
   });

@@ -2,14 +2,15 @@ import { t } from "@reearth-cms/i18n";
 
 import type { FieldType } from "./types";
 
-export const fieldTypes: {
-  [key in FieldType]: {
+export const fieldTypes: Record<
+  FieldType,
+  {
     icon: string;
     title: string;
     description: string;
     color: string;
-  };
-} = {
+  }
+> = {
   Text: {
     icon: "textT",
     title: "Text",
