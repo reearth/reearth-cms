@@ -2612,7 +2612,6 @@ components:
           type: array
           items:
             type: string
-            format: uuid
     item:
       type: object
       properties:
@@ -2631,6 +2630,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/field'
+        metadataFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/field'
+        referencedItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/item'
         createdAt:
           type: string
           format: date-time
@@ -2643,45 +2650,15 @@ components:
       type: object
       x-go-type: types.GeoJSON
     versionedItem:
-      type: object
-      properties:
-        id:
-          x-go-type: id.ItemID
-          type: string
-        modelId:
-          type: string
-        fields:
-          type: array
-          items:
-            $ref: '#/components/schemas/field'
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        version:
-          type: string
-          format: uuid
-        parents:
-          type: array
-          items:
-            type: string
-            format: uuid
-        refs:
-          type: array
-          items:
-            type: string
-        referencedItems:
-          type: array
-          items:
-            $ref: '#/components/schemas/versionedItem'
-        metadataFields:
-          type: array
-          items:
-            $ref: '#/components/schemas/field'
-        isMetadata:
-          type: boolean
+      allOf:
+        - $ref: '#/components/schemas/item'
+        - $ref: '#/components/schemas/version'
+        - type: object
+          properties:
+            referencedItems:
+              type: array
+              items:
+                $ref: '#/components/schemas/versionedItem'
     field:
       type: object
       properties:
