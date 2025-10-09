@@ -62,7 +62,7 @@
     "@types/react-resizable": "3.0.8",
     "@types/react-router-dom": "5.3.3",
     "@vitejs/plugin-react": "4.3.1",
-    "@vitest/coverage-v8": "2.0.5",
+    "@vitest/coverage-v8": "2.1.9",
     "axios": "1.8.2",
     "dotenv": "16.4.5",
     "eslint": "9.9.1",
