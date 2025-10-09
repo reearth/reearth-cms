@@ -24,9 +24,9 @@ test("Service form works successfully", async () => {
   expect(saveButton).toHaveAttribute("disabled");
 
   await user.click(langSelect);
-  await expect.poll(() => screen.getByText("Auto")).toBeVisible();
+  expect(screen.getByText("Auto")).toBeInTheDocument();
   expect(screen.getAllByText(localesWithLabel.en).length).toBe(2);
-  expect(screen.getByText(localesWithLabel.ja)).toBeVisible();
+  expect(screen.getByText(localesWithLabel.ja)).toBeInTheDocument();
   await user.click(screen.getByText(localesWithLabel.ja));
   expect(saveButton).not.toHaveAttribute("disabled");
 

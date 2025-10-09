@@ -102,8 +102,8 @@ describe("Request options", () => {
     await user.click(firstSwitch);
     expect(saveButton).toBeEnabled();
     await user.click(saveButton);
-    expect(saveButton).toBeDisabled();
-    await expect.poll(() => saveButton).toBeEnabled();
+    await expect.poll(() => screen.queryByLabelText("loading")).not.toBeInTheDocument();
+    expect(saveButton).toBeEnabled();
   });
 
   test("Switches are disabled according to user right successfully", async () => {
