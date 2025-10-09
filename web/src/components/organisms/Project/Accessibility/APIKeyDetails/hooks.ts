@@ -1,16 +1,17 @@
+import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
+import { Model as GQLModel } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { GetModelsDocument } from "@reearth-cms/gql/__generated__/model.generated";
 import {
-  useCreateApiKeyMutation,
-  useUpdateApiKeyMutation,
-  useRegenerateApiKeyMutation,
-  useGetModelsQuery,
-  Model as GQLModel,
-} from "@reearth-cms/gql/graphql-client-api";
+  CreateApiKeyDocument,
+  RegenerateApiKeyDocument,
+  UpdateApiKeyDocument,
+} from "@reearth-cms/gql/__generated__/project.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useUserRights } from "@reearth-cms/state";
 
@@ -29,17 +30,20 @@ export default () => {
   );
   const isNewKey = useMemo(() => keyId === "new", [keyId]);
 
-  const [createAPIKeyMutation, { loading: createLoading }] = useCreateApiKeyMutation({
+  const [createAPIKeyMutation, { loading: createLoading }] = useMutation(CreateApiKeyDocument, {
     refetchQueries: ["GetProject"],
   });
-  const [updateAPIKeyMutation, { loading: updateLoading }] = useUpdateApiKeyMutation({
+  const [updateAPIKeyMutation, { loading: updateLoading }] = useMutation(UpdateApiKeyDocument, {
     refetchQueries: ["GetProject"],
   });
-  const [regenerateAPIKeyMutation, { loading: regenerateLoading }] = useRegenerateApiKeyMutation({
-    refetchQueries: ["GetProject"],
-  });
+  const [regenerateAPIKeyMutation, { loading: regenerateLoading }] = useMutation(
+    RegenerateApiKeyDocument,
+    {
+      refetchQueries: ["GetProject"],
+    },
+  );
 
-  const { data: modelsData } = useGetModelsQuery({
+  const { data: modelsData } = useQuery(GetModelsDocument, {
     variables: {
       projectId: currentProject?.id ?? "",
       pagination: { first: 100 },
@@ -103,7 +107,7 @@ export default () => {
           publication,
         },
       });
-      if (result.errors || !result.data?.createAPIKey) {
+      if (result.error || !result.data?.createAPIKey) {
         Notification.error({ message: t("Failed to create API Key.") });
         return;
       }
@@ -132,7 +136,7 @@ export default () => {
           publication,
         },
       });
-      if (result.errors || !result.data?.updateAPIKey) {
+      if (result.error || !result.data?.updateAPIKey) {
         Notification.error({ message: t("Failed to update API Key.") });
         return;
       }
@@ -150,7 +154,7 @@ export default () => {
           id,
         },
       });
-      if (result.errors || !result.data?.regenerateAPIKey) {
+      if (result.error || !result.data?.regenerateAPIKey) {
         Notification.error({ message: t("Failed to re-generate API Key.") });
         return;
       }

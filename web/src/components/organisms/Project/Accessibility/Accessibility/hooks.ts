@@ -1,3 +1,4 @@
+import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -5,12 +6,12 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { FormType } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
+import { Model as GQLModel } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { GetModelsDocument } from "@reearth-cms/gql/__generated__/model.generated";
 import {
-  useGetModelsQuery,
-  useUpdateProjectMutation,
-  useDeleteApiKeyMutation,
-  Model as GQLModel,
-} from "@reearth-cms/gql/graphql-client-api";
+  DeleteApiKeyDocument,
+  UpdateProjectDocument,
+} from "@reearth-cms/gql/__generated__/project.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useUserRights } from "@reearth-cms/state";
 import { shallowEqual } from "@reearth-cms/utils/object";
@@ -40,7 +41,7 @@ export default () => {
     [currentProject?.accessibility?.apiKeys],
   );
 
-  const { data: modelsData } = useGetModelsQuery({
+  const { data: modelsData } = useQuery(GetModelsDocument, {
     variables: {
       projectId: currentProject?.id ?? "",
       pagination: { first: 100 },
@@ -70,9 +71,11 @@ export default () => {
     };
   }, [currentProject?.accessibility?.publication, models]);
 
-  const [updateProjectMutation] = useUpdateProjectMutation();
+  const [updateProjectMutation] = useMutation(UpdateProjectDocument);
 
-  const [deleteAPIKeyMutation] = useDeleteApiKeyMutation({ refetchQueries: ["GetProject"] });
+  const [deleteAPIKeyMutation] = useMutation(DeleteApiKeyDocument, {
+    refetchQueries: ["GetProject"],
+  });
 
   const handlePublicUpdate = useCallback(
     async ({ assetPublic, models }: FormType) => {
@@ -101,7 +104,7 @@ export default () => {
             },
           });
 
-          if (projRes.errors) throw new Error();
+          if (projRes.error) throw new Error();
         }
         Notification.success({ message: t("Successfully updated publication settings!") });
       } catch (e) {

@@ -27,6 +27,6 @@ export default [
   storyBookConfig,
   playwrightConfig,
   {
-    ignores: ["coverage/*", "src/gql/graphql-client-api.tsx", "amplify/*"],
+    ignores: ["coverage/*", "src/gql/*", "amplify/*"],
   },
 ];

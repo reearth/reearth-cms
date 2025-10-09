@@ -8,7 +8,7 @@ import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
 import { CreateFieldInput } from "@reearth-cms/components/molecules/Schema/types";
 import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
-import { ContentTypesEnum } from "@reearth-cms/gql/graphql-client-api";
+import { ContentTypesEnum } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
