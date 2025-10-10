@@ -41,38 +41,90 @@ func TestInternalListProjectsAPI(t *testing.T) {
 	})
 	mdCtx := metadata.NewOutgoingContext(t.Context(), md)
 
-	// List projects without any parameters should return an error
-	_, err = client.ListProjects(mdCtx, &pb.ListProjectsRequest{})
-	assert.Error(t, err)
-	assert.Equal(t, err.Error(), "rpc error: code = InvalidArgument desc = at least one valid workspace_id is required")
+	t.Run("List Projects without any parameters should return only public projects", func(t *testing.T) {
+		l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), l.TotalCount)
+		assert.Equal(t, 1, len(l.Projects))
 
-	// 1- List projects for the workspace
-	l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{WorkspaceIds: []string{wId0.String()}})
-	assert.NoError(t, err)
+		p1 := l.Projects[0]
+		assert.Equal(t, pid.String(), p1.Id)
+		assert.Equal(t, "p1", p1.Name)
+		assert.Equal(t, palias, p1.Alias)
+		assert.Equal(t, wId0.String(), p1.WorkspaceId)
+		assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
+	})
 
-	assert.Equal(t, int64(2), l.TotalCount)
-	assert.Equal(t, 2, len(l.Projects))
+	t.Run("List Projects for the workspace should return all projects in the workspace", func(t *testing.T) {
+		l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{WorkspaceIds: []string{wId0.String()}})
+		assert.NoError(t, err)
 
-	p1 := l.Projects[0]
-	assert.Equal(t, pid.String(), p1.Id)
-	assert.Equal(t, "p1", p1.Name)
-	assert.Equal(t, palias, p1.Alias)
-	assert.Equal(t, wId0.String(), p1.WorkspaceId)
-	assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
+		assert.Equal(t, int64(2), l.TotalCount)
+		assert.Equal(t, 2, len(l.Projects))
 
-	// 2- List projects for the workspace with PublicOnly = true
-	l, err = client.ListProjects(mdCtx, &pb.ListProjectsRequest{WorkspaceIds: []string{wId0.String()}, PublicOnly: true})
-	assert.NoError(t, err)
+		p1 := l.Projects[0]
+		assert.Equal(t, pid.String(), p1.Id)
+		assert.Equal(t, "p1", p1.Name)
+		assert.Equal(t, palias, p1.Alias)
+		assert.Equal(t, wId0.String(), p1.WorkspaceId)
+		assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
 
-	assert.Equal(t, int64(1), l.TotalCount)
-	assert.Equal(t, 1, len(l.Projects))
+		p2 := l.Projects[1]
+		assert.Equal(t, pid2.String(), p2.Id)
+		assert.Equal(t, "p2", p2.Name)
+		assert.Equal(t, palias2, p2.Alias)
+		assert.Equal(t, wId0.String(), p2.WorkspaceId)
+		assert.Equal(t, lo.ToPtr("p2 desc"), p2.Description)
+	})
 
-	p1 = l.Projects[0]
-	assert.Equal(t, pid.String(), p1.Id)
-	assert.Equal(t, "p1", p1.Name)
-	assert.Equal(t, palias, p1.Alias)
-	assert.Equal(t, wId0.String(), p1.WorkspaceId)
-	assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
+	t.Run("List Projects for the workspace with PublicOnly = true should return only public projects in the workspace", func(t *testing.T) {
+		l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{WorkspaceIds: []string{wId0.String()}, PublicOnly: true})
+		assert.NoError(t, err)
+
+		assert.Equal(t, int64(1), l.TotalCount)
+		assert.Equal(t, 1, len(l.Projects))
+
+		p1 := l.Projects[0]
+		assert.Equal(t, pid.String(), p1.Id)
+		assert.Equal(t, "p1", p1.Name)
+		assert.Equal(t, palias, p1.Alias)
+		assert.Equal(t, wId0.String(), p1.WorkspaceId)
+		assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
+	})
+
+	t.Run("List Projects with keyword (exact project id)", func(t *testing.T) {
+		l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{
+			Keyword: pid.StringRef(),
+		})
+		assert.NoError(t, err)
+
+		assert.Equal(t, int64(1), l.TotalCount)
+		assert.Equal(t, 1, len(l.Projects))
+
+		p1 := l.Projects[0]
+		assert.Equal(t, pid.String(), p1.Id)
+		assert.Equal(t, "p1", p1.Name)
+		assert.Equal(t, palias, p1.Alias)
+		assert.Equal(t, wId0.String(), p1.WorkspaceId)
+		assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
+	})
+
+	t.Run("List Projects with keyword (alias)", func(t *testing.T) {
+		l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{
+			Keyword: &palias,
+		})
+		assert.NoError(t, err)
+
+		assert.Equal(t, int64(1), l.TotalCount)
+		assert.Equal(t, 1, len(l.Projects))
+
+		p1 := l.Projects[0]
+		assert.Equal(t, pid.String(), p1.Id)
+		assert.Equal(t, "p1", p1.Name)
+		assert.Equal(t, palias, p1.Alias)
+		assert.Equal(t, wId0.String(), p1.WorkspaceId)
+		assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
+	})
 }
 
 // GRPC Get Project

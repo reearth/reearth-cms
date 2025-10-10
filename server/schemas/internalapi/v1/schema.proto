@@ -42,8 +42,10 @@ message Project {
   optional string readme = 6;
   string workspace_id = 7;
   Visibility visibility = 8;
-  google.protobuf.Timestamp created_at = 9;
-  google.protobuf.Timestamp updated_at = 10;
+  repeated string topics = 9;
+  int32 star_count = 10;
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
 }
 
 enum Visibility {
@@ -164,6 +166,7 @@ message DeleteProjectRequest {
 
 message ListProjectsRequest {
   repeated string workspace_ids = 1;
+  optional string keyword = 2;
   bool public_only = 3;
 
   optional PageInfo page_info = 100;
