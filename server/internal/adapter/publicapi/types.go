@@ -10,49 +10,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
-	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
-
-type ListResult[T any] struct {
-	Results    []T   `json:"results"`
-	TotalCount int64 `json:"totalCount"`
-	HasMore    *bool `json:"hasMore,omitempty"`
-	// offset base
-	Limit  *int64 `json:"limit,omitempty"`
-	Offset *int64 `json:"offset,omitempty"`
-	Page   *int64 `json:"page,omitempty"`
-	// cursor base
-	NextCursor *string `json:"nextCursor,omitempty"`
-}
-
-func NewListResult[T any](results []T, pi *usecasex.PageInfo, p *usecasex.Pagination) ListResult[T] {
-	if results == nil {
-		results = []T{}
-	}
-
-	r := ListResult[T]{
-		Results:    results,
-		TotalCount: pi.TotalCount,
-	}
-
-	if p.Cursor != nil {
-		r.NextCursor = pi.EndCursor.StringRef()
-		r.HasMore = &pi.HasNextPage
-	} else if p.Offset != nil {
-		page := p.Offset.Offset/p.Offset.Limit + 1
-		r.Limit = lo.ToPtr(p.Offset.Limit)
-		r.Offset = lo.ToPtr(p.Offset.Offset)
-		r.Page = lo.ToPtr(page)
-		r.HasMore = lo.ToPtr((page+1)*p.Offset.Limit < pi.TotalCount)
-	}
-
-	return r
-}
-
-type ListParam struct {
-	Pagination *usecasex.Pagination
-}
 
 type Item struct {
 	ID     string
@@ -151,6 +110,37 @@ func NewItemFields(fields item.Fields, sfields schema.FieldList, groupFields sch
 			} else if len(res) == 1 {
 				val = res[0]
 			}
+		} else if sf.Type() == value.TypeGeometryObject || sf.Type() == value.TypeGeometryEditor {
+			// Parse geometry JSON strings into actual JSON objects
+			if sf.Multiple() {
+				var geoValues []any
+				for _, v := range f.Value().Values() {
+					if geoStr, ok := v.Value().(string); ok && geoStr != "" {
+						var geoJSON any
+						if err := json.Unmarshal([]byte(geoStr), &geoJSON); err == nil {
+							geoValues = append(geoValues, geoJSON)
+						} else {
+							geoValues = append(geoValues, geoStr) // fallback to string if parsing fails
+						}
+					} else {
+						geoValues = append(geoValues, nil) // explicitly handle non-string values
+					}
+				}
+				val = geoValues
+			} else {
+				if first := f.Value().First(); first != nil {
+					if geoStr, ok := first.Value().(string); ok && geoStr != "" {
+						var geoJSON any
+						if err := json.Unmarshal([]byte(geoStr), &geoJSON); err == nil {
+							val = geoJSON
+						} else {
+							val = geoStr // fallback to string if parsing fails
+						}
+					} else {
+						val = first.Value() // fallback to the original value if not a non-empty string
+					}
+				}
+			}
 		} else if sf.Multiple() {
 			val = f.Value().Interface()
 		} else {
@@ -207,24 +197,4 @@ func NewItemAsset(a *asset.Asset) ItemAsset {
 		ID:   a.ID().String(),
 		URL:  ai.Url,
 	}
-}
-
-type SchemaJSON struct {
-	Id          *string                         `json:"$id,omitempty"`
-	Schema      *string                         `json:"$schema,omitempty"`
-	Description *string                         `json:"description,omitempty"`
-	Properties  map[string]SchemaJSONProperties `json:"properties"`
-	Title       *string                         `json:"title,omitempty"`
-	Type        string                          `json:"type"`
-}
-
-type SchemaJSONProperties struct {
-	Description *string     `json:"description,omitempty"`
-	Format      *string     `json:"format,omitempty"`
-	Items       *SchemaJSON `json:"items,omitempty"`
-	MaxLength   *int        `json:"maxLength,omitempty"`
-	Maximum     *float64    `json:"maximum,omitempty"`
-	Minimum     *float64    `json:"minimum,omitempty"`
-	Title       *string     `json:"title,omitempty"`
-	Type        string      `json:"type"`
 }

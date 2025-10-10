@@ -220,6 +220,32 @@ func (i *Item) AssetIDs() AssetIDList {
 	})
 }
 
+func (i *Item) AssetIDsBySchema(s *schema.Schema) AssetIDList {
+	if s == nil {
+		return nil
+	}
+	sAssetsFields := s.FieldsByType(value.TypeAsset)
+	if len(sAssetsFields) == 0 {
+		return nil
+	}
+	ids := lo.FlatMap(i.Fields().Filter(sAssetsFields.IDs()), func(f *Field, _ int) []*value.Value {
+		sf := sAssetsFields.Find(f.FieldID())
+		if sf == nil {
+			return nil
+		}
+		if sf.Multiple() {
+			return f.Value().Values()
+		}
+		if v := f.Value().First(); v != nil {
+			return []*value.Value{v}
+		}
+		return nil
+	})
+	return lo.FilterMap(ids, func(v *value.Value, _ int) (AssetID, bool) {
+		return v.ValueAsset()
+	})
+}
+
 func (i *Item) GetTitle(s *schema.Schema) *string {
 	if s == nil || s.TitleField() == nil {
 		return nil

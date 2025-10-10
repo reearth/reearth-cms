@@ -2,56 +2,61 @@ package exporters
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
 )
 
 const defaultJSONSchemaVersion = "https://json-schema.org/draft/2020-12/schema"
 
-type SchemaJSON struct {
-	Id          *string                         `json:"$id,omitempty"`
-	Schema      *string                         `json:"$schema,omitempty"`
-	Description *string                         `json:"description,omitempty"`
-	Properties  map[string]SchemaJSONProperties `json:"properties"`
-	Title       *string                         `json:"title,omitempty"`
-	Type        string                          `json:"type"`
+type JSONSchemaExportTarget string
+
+const (
+	JSONSchemaExportTargetSchema         JSONSchemaExportTarget = "schema"
+	JSONSchemaExportTargetMetadataSchema JSONSchemaExportTarget = "metadataSchema"
+)
+
+func NewJSONSchema(m *model.Model, sp *schema.Package, t JSONSchemaExportTarget) types.JSONSchema {
+	if m == nil || sp == nil {
+		return types.JSONSchema{}
+	}
+	return types.JSONSchema{
+		Id:          targetId(sp, t),
+		Title:       lo.EmptyableToPtr(m.Name()),
+		Description: lo.EmptyableToPtr(m.Description()),
+		Schema:      lo.ToPtr(defaultJSONSchemaVersion),
+		Type:        "object",
+		Properties:  buildPropertiesMap(targetFields(sp, t), buildGroupSchemaMap(sp)),
+	}
 }
 
-type SchemaJSONProperties struct {
-	Description *string     `json:"description,omitempty"`
-	Format      *string     `json:"format,omitempty"`
-	Items       *SchemaJSON `json:"items,omitempty"`
-	MaxLength   *int        `json:"maxLength,omitempty"`
-	Maximum     *float64    `json:"maximum,omitempty"`
-	Minimum     *float64    `json:"minimum,omitempty"`
-	Title       *string     `json:"title,omitempty"`
-	Type        string      `json:"type"`
+func targetFields(sp *schema.Package, t JSONSchemaExportTarget) schema.FieldList {
+	if t == JSONSchemaExportTargetMetadataSchema {
+		return sp.MetaSchema().Fields()
+	}
+	if t == JSONSchemaExportTargetSchema {
+		return sp.Schema().Fields()
+	}
+	return nil
 }
 
-func NewSchemaJSON(id, title, description *string, pp map[string]SchemaJSONProperties) SchemaJSON {
-	res := SchemaJSON{
-		Schema:     lo.ToPtr(defaultJSONSchemaVersion),
-		Type:       "object",
-		Properties: pp,
+func targetId(sp *schema.Package, t JSONSchemaExportTarget) *string {
+	if t == JSONSchemaExportTargetMetadataSchema {
+		return sp.MetaSchema().ID().Ref().StringRef()
 	}
-	if id != nil && *id != "" {
-		res.Id = id
+	if t == JSONSchemaExportTargetSchema {
+		return sp.Schema().ID().Ref().StringRef()
 	}
-	if title != nil && *title != "" {
-		res.Title = title
-	}
-	if description != nil && *description != "" {
-		res.Description = description
-	}
-	return res
+	return nil
 }
 
-func buildPropertiesMap(f schema.FieldList, gsMap map[id.GroupID]*schema.Schema) map[string]SchemaJSONProperties {
-	properties := make(map[string]SchemaJSONProperties)
+func buildPropertiesMap(f schema.FieldList, gsMap map[id.GroupID]*schema.Schema) map[string]types.JSONSchema {
+	properties := make(map[string]types.JSONSchema)
 	for _, field := range f {
 		fieldType, format := determineTypeAndFormat(field.Type())
-		fieldSchema := SchemaJSONProperties{Type: fieldType}
+		fieldSchema := types.JSONSchema{Type: fieldType}
 		if field.Name() != "" {
 			fieldSchema.Title = lo.ToPtr(field.Name())
 		}
@@ -104,7 +109,7 @@ func buildPropertiesMap(f schema.FieldList, gsMap map[id.GroupID]*schema.Schema)
 				if gsMap != nil {
 					gs := gsMap[f.Group()]
 					if gs != nil {
-						fieldSchema.Items = BuildItems(gs.Fields())
+						fieldSchema.Items = buildItems(gs.Fields())
 					}
 				}
 			},
@@ -115,12 +120,8 @@ func buildPropertiesMap(f schema.FieldList, gsMap map[id.GroupID]*schema.Schema)
 	return properties
 }
 
-func BuildProperties(f schema.FieldList, gsMap map[id.GroupID]*schema.Schema) map[string]SchemaJSONProperties {
-	return buildPropertiesMap(f, gsMap)
-}
-
-func BuildItems(f schema.FieldList) *SchemaJSON {
-	return &SchemaJSON{
+func buildItems(f schema.FieldList) *types.JSONSchema {
+	return &types.JSONSchema{
 		Type:       "object",
 		Properties: buildPropertiesMap(f, nil),
 	}
@@ -130,8 +131,7 @@ func int64ToFloat64(input *int64) *float64 {
 	if input == nil {
 		return nil
 	}
-	value := float64(*input)
-	return &value
+	return lo.ToPtr(float64(*input))
 }
 
 func determineTypeAndFormat(t value.Type) (string, string) {
@@ -159,7 +159,7 @@ func determineTypeAndFormat(t value.Type) (string, string) {
 	}
 }
 
-func BuildGroupSchemaMap(sp *schema.Package) map[id.GroupID]*schema.Schema {
+func buildGroupSchemaMap(sp *schema.Package) map[id.GroupID]*schema.Schema {
 	groupSchemaMap := make(map[id.GroupID]*schema.Schema)
 	for _, field := range sp.Schema().Fields() {
 		field.TypeProperty().Match(schema.TypePropertyMatch{

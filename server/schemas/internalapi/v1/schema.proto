@@ -20,7 +20,10 @@ service ReEarthCMS {
   rpc GetModel(ModelRequest) returns (ModelResponse) {}
   rpc ListModels(ListModelsRequest) returns (ListModelsResponse) {}
   rpc ListItems(ListItemsRequest) returns (ListItemsResponse) {}
-  rpc GetModelGeoJSONExportURL(ExportRequest) returns (ExportURLResponse) {}
+  rpc GetModelExportURL(ModelExportRequest) returns (ExportURLResponse) {}
+  rpc GetModelGeoJSONExportURL(ExportRequest) returns (ExportURLResponse) {
+    option deprecated = true;
+  }
 }
 
 // Implementation note:
@@ -200,8 +203,21 @@ message ListItemsRequest {
 }
 
 message ExportRequest {
+  option deprecated = true;
+
   string project_id = 1;
   string model_id = 2;
+}
+
+message ModelExportRequest {
+  enum Type {
+    JSON = 0;
+    GEOJSON = 1;
+  }
+
+  string project_id = 1;
+  string model_id = 2;
+  Type export_type = 3;
 }
 
 // Response messages

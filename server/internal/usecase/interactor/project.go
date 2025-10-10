@@ -53,21 +53,32 @@ func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectPara
 		visibility = *param.Accessibility.Visibility
 	}
 
-	var checkType gateway.PolicyCheckType
-	if visibility == project.VisibilityPublic {
-		checkType = gateway.PolicyCheckGeneralPublicProjectCreation
-	} else {
-		checkType = gateway.PolicyCheckGeneralPrivateProjectCreation
-	}
-
 	if i.gateways != nil && i.gateways.PolicyChecker != nil {
+		// Check general operation allowed first
 		policyReq := gateway.PolicyCheckRequest{
 			WorkspaceID: param.WorkspaceID,
-			CheckType:   checkType,
+			CheckType:   gateway.PolicyCheckGeneralOperationAllowed,
 			Value:       1,
 		}
 
 		policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+		if err != nil {
+			return nil, err
+		}
+		if !policyResp.Allowed {
+			return nil, interfaces.ErrOperationDenied
+		}
+
+		// Check specific project creation limits
+		var checkType gateway.PolicyCheckType
+		if visibility == project.VisibilityPublic {
+			checkType = gateway.PolicyCheckGeneralPublicProjectCreation
+		} else {
+			checkType = gateway.PolicyCheckGeneralPrivateProjectCreation
+		}
+
+		policyReq.CheckType = checkType
+		policyResp, err = i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
 		if err != nil {
 			return nil, err
 		}
@@ -131,6 +142,23 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 	p, err := i.repos.Project.FindByID(ctx, param.ID)
 	if err != nil {
 		return nil, err
+	}
+
+	if i.gateways != nil && i.gateways.PolicyChecker != nil {
+		// Check general operation allowed first
+		policyReq := gateway.PolicyCheckRequest{
+			WorkspaceID: p.Workspace(),
+			CheckType:   gateway.PolicyCheckGeneralOperationAllowed,
+			Value:       1,
+		}
+
+		policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+		if err != nil {
+			return nil, err
+		}
+		if !policyResp.Allowed {
+			return nil, interfaces.ErrOperationDenied
+		}
 	}
 
 	if param.Accessibility != nil && param.Accessibility.Visibility != nil {
@@ -252,6 +280,24 @@ func (i *Project) Delete(ctx context.Context, projectID id.ProjectID, op *usecas
 	if err != nil {
 		return err
 	}
+
+	if i.gateways != nil && i.gateways.PolicyChecker != nil {
+		// Check general operation allowed first
+		policyReq := gateway.PolicyCheckRequest{
+			WorkspaceID: proj.Workspace(),
+			CheckType:   gateway.PolicyCheckGeneralOperationAllowed,
+			Value:       1,
+		}
+
+		policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+		if err != nil {
+			return err
+		}
+		if !policyResp.Allowed {
+			return interfaces.ErrOperationDenied
+		}
+	}
+
 	return Run0(ctx, op, i.repos, Usecase().WithWritableWorkspaces(proj.Workspace()).Transaction(),
 		func(ctx context.Context) error {
 			if !op.IsWritableWorkspace(proj.Workspace()) {
