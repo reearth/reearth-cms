@@ -11,9 +11,6 @@
   "engines": {
     "node": ">=20.11.0"
   },
-  "resolutions": {
-    "@zip.js/zip.js": "^2.7.34"
-  },
   "scripts": {
     "start": "yarn && vite",
     "build": "tsc && vite build",
