@@ -152,10 +152,22 @@ describe("Member table", () => {
 
     const { user, role } = workspaceUserMembers[0];
 
-    expect(screen.getByText("Name")).toBeInTheDocument();
-    expect(screen.getByText("Email")).toBeInTheDocument();
-    expect(screen.getByText("Role")).toBeInTheDocument();
-    expect(screen.getByText("Action")).toBeInTheDocument();
+    const nameEl = screen.getAllByText("Name").find(el => el.classList.contains("ant-table-cell"));
+    expect(nameEl).toBeVisible();
+
+    const emailEl = screen
+      .getAllByText("Email")
+      .find(el => el.classList.contains("ant-table-cell"));
+    expect(emailEl).toBeVisible();
+
+    const roleEl = screen.getAllByText("Role").find(el => el.classList.contains("ant-table-cell"));
+    expect(roleEl).toBeVisible();
+
+    const actionEl = screen
+      .getAllByText("Action")
+      .find(el => el.classList.contains("ant-table-cell"));
+    expect(actionEl).toBeVisible();
+
     expect(screen.getByText(user.name)).toBeVisible();
     expect(screen.getByText(user.email)).toBeVisible();
     expect(screen.getByText(role)).toBeVisible();
@@ -183,7 +195,9 @@ describe("Member table", () => {
       />,
     );
 
-    expect(screen.getByRole("checkbox")).toBeDisabled();
+    expect(
+      screen.getAllByRole("checkbox").find(el => !el.hasAttribute("aria-label")),
+    ).toBeDisabled();
     expect(screen.getByRole("button", { name: "Change Role?" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Leave" })).toBeDisabled();
   });
@@ -255,7 +269,7 @@ describe("Member table", () => {
       />,
     );
 
-    await user.click(screen.getByLabelText("Select all"));
+    await user.click(screen.getAllByLabelText("Select all")[0]);
     await user.click(screen.getByRole("button", { name: "usergroup-deleteRemove" }));
     const dialog = screen.getByRole("dialog");
     expect(dialog).toBeInTheDocument();
