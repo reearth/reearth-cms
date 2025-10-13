@@ -830,8 +830,9 @@ func Test_projectRepo_FindByWorkspace(t *testing.T) {
 				r = r.Filtered(*tc.filter)
 			}
 
-			got, _, err := r.FindByWorkspaces(ctx, tc.args.wids, &interfaces.ProjectFilter{
-				Pagination: tc.args.pInfo,
+			got, _, err := r.Search(ctx, interfaces.ProjectFilter{
+				WorkspaceIds: &tc.args.wids,
+				Pagination:   tc.args.pInfo,
 			})
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
