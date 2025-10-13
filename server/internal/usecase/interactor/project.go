@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
 )
 
 type Project struct {
@@ -32,11 +33,32 @@ func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, _ *usecase.Oper
 }
 
 func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.WorkspaceID, f *interfaces.ProjectFilter, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
-	return i.repos.Project.FindByWorkspaces(ctx, accountdomain.WorkspaceIDList{wid}, f)
+	if f == nil {
+		f = &interfaces.ProjectFilter{}
+	}
+	if f.WorkspaceIds == nil {
+		f.WorkspaceIds = &accountdomain.WorkspaceIDList{}
+	}
+	f.WorkspaceIds = lo.ToPtr(append(*f.WorkspaceIds, wid))
+	return i.repos.Project.Search(ctx, *f)
 }
 
 func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
-	return i.repos.Project.FindByWorkspaces(ctx, wIds, f)
+	if f == nil {
+		f = &interfaces.ProjectFilter{}
+	}
+	if f.WorkspaceIds == nil {
+		f.WorkspaceIds = &accountdomain.WorkspaceIDList{}
+	}
+	f.WorkspaceIds = lo.ToPtr(append(*f.WorkspaceIds, wIds...))
+	return i.repos.Project.Search(ctx, *f)
+}
+
+func (i *Project) Search(ctx context.Context, f interfaces.ProjectFilter, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+	if f.WorkspaceIds == nil || len(*f.WorkspaceIds) == 0 {
+		f.Visibility = lo.ToPtr(project.VisibilityPublic)
+	}
+	return i.repos.Project.Search(ctx, f)
 }
 
 func (i *Project) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias, _ *usecase.Operator) (*project.Project, error) {
