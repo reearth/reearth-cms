@@ -29,9 +29,4 @@ export default [
   {
     ignores: ["coverage/*", "src/gql/graphql-client-api.tsx", "amplify/*"],
   },
-  {
-    rules: {
-      "vitest/prefer-called-exactly-once-with": "off",
-    },
-  },
 ];
