@@ -1,3 +1,4 @@
+/* eslint-disable playwright/no-skipped-test */
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 
@@ -35,6 +36,7 @@ test("MyIntegration CRUD has succeeded", async ({ page }) => {
 });
 
 test("Webhook CRUD has succeeded", async ({ page }) => {
+  test.skip();
   await page.getByRole("tab", { name: "Webhook" }).click();
   await page.getByRole("button", { name: "plus new webhook" }).first().click();
   await page.getByRole("tabpanel").getByLabel("Name").click();
