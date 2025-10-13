@@ -177,7 +177,11 @@ const AssetListTable: React.FC<Props> = ({
         title: t("Created By"),
         dataIndex: "createdBy",
         key: "createdBy",
-        render: (_, item) => <span>{item.createdBy.name}</span>,
+        render: (_, item) => (
+          <span>
+            {item.createdBy.name}
+          </span>
+        ),
         width: 105,
         minWidth: 105,
         ellipsis: true,

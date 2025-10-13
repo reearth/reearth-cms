@@ -53,7 +53,7 @@ const WebhookList: React.FC<Props> = ({
             </Button>
           </Suggestion>
           <Suggestion>
-            <Trans i18nKey="readDocument" components={{ l: <a role="link" href="" /> }} />
+            <Trans i18nKey="readDocument" components={{ l: <a href="" /> }} />
           </Suggestion>
         </EmptyListWrapper>
       )}

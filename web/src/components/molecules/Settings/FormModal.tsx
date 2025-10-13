@@ -25,7 +25,7 @@ type FormValues = {
   cesiumIonAccessToken?: string;
 };
 
-export const TileTypeFormat: Record<TileType, string> = {
+export const TileTypeFormat: { [key in TileType]: string } = {
   DEFAULT: "Default",
   LABELLED: "Labelled",
   ROAD_MAP: "Road Map",
@@ -36,7 +36,7 @@ export const TileTypeFormat: Record<TileType, string> = {
   URL: "URL",
 };
 
-export const TerrainTypeFormat: Record<TerrainType, string> = {
+export const TerrainTypeFormat: { [key in TerrainType]: string } = {
   CESIUM_WORLD_TERRAIN: "Cesium World Terrain",
   ARC_GIS_TERRAIN: "ArcGIS Terrain",
   CESIUM_ION: "Cesium Ion",

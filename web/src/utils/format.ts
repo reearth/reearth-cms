@@ -33,4 +33,4 @@ export const parseConfigBoolean = (value: string | boolean | undefined | null): 
   if (value === true) return true;
   if (typeof value === "string") return value.toLowerCase() === "true";
   return false;
-};
+}
