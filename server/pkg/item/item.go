@@ -220,6 +220,32 @@ func (i *Item) AssetIDs() AssetIDList {
 	})
 }
 
+func (i *Item) AssetIDsBySchema(s *schema.Schema) AssetIDList {
+	if s == nil {
+		return nil
+	}
+	sAssetsFields := s.FieldsByType(value.TypeAsset)
+	if len(sAssetsFields) == 0 {
+		return nil
+	}
+	ids := lo.FlatMap(i.Fields().Filter(sAssetsFields.IDs()), func(f *Field, _ int) []*value.Value {
+		sf := sAssetsFields.Find(f.FieldID())
+		if sf == nil {
+			return nil
+		}
+		if sf.Multiple() {
+			return f.Value().Values()
+		}
+		if v := f.Value().First(); v != nil {
+			return []*value.Value{v}
+		}
+		return nil
+	})
+	return lo.FilterMap(ids, func(v *value.Value, _ int) (AssetID, bool) {
+		return v.ValueAsset()
+	})
+}
+
 func (i *Item) GetTitle(s *schema.Schema) *string {
 	if s == nil || s.TitleField() == nil {
 		return nil
@@ -270,4 +296,31 @@ func (i *Item) GetFirstGeometryField() (*Field, bool) {
 		}
 	}
 	return nil, false
+}
+
+func (i *Item) Clone() *Item {
+	if i == nil {
+		return nil
+	}
+
+	fields := lo.Map(i.fields, func(f *Field, _ int) *Field {
+		return f.Clone()
+	})
+
+	return &Item{
+		id:                   i.id,
+		schema:               i.schema,
+		model:                i.model,
+		project:              i.project,
+		fields:               fields,
+		timestamp:            i.timestamp,
+		thread:               i.thread,
+		isMetadata:           i.isMetadata,
+		user:                 i.user,
+		updatedByUser:        i.updatedByUser,
+		updatedByIntegration: i.updatedByIntegration,
+		integration:          i.integration,
+		metadataItem:         i.metadataItem,
+		originalItem:         i.originalItem,
+	}
 }

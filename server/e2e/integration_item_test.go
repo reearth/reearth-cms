@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -37,77 +38,83 @@ import (
 )
 
 var (
-	secret = "secret_1234567890"
-	wId0   = accountdomain.NewWorkspaceID()
-	uId    = accountdomain.NewUserID()
-	iId    = id.NewIntegrationID()
-	mId0   = id.NewModelID()
-	mId1   = id.NewModelID()
-	mId2   = id.NewModelID()
-	mId3   = id.NewModelID()
-	mId4   = id.NewModelID()
-	mId5   = id.NewModelID()
-	gId1   = id.NewGroupID()
-	gId2   = id.NewGroupID()
-	dvmId  = id.NewModelID()
-	aid1   = id.NewAssetID()
-	aid2   = id.NewAssetID()
-	aid3   = id.NewAssetID() // no thread
-	auuid1 = uuid.NewString()
-	auuid2 = uuid.NewString()
-	auuid3 = uuid.NewString()
-	itmId1 = id.NewItemID()
-	itmId2 = id.NewItemID()
-	itmId3 = id.NewItemID()
-	itmId4 = id.NewItemID()
-	itmId5 = id.NewItemID()
-	itmId6 = id.NewItemID()
-	itmId7 = id.NewItemID() // no thread
-	fId1   = id.NewFieldID()
-	fId2   = id.NewFieldID()
-	fId3   = id.NewFieldID()
-	fId4   = id.NewFieldID()
-	fId5   = id.NewFieldID()
-	fId6   = id.NewFieldID()
-	fId7   = id.NewFieldID()
-	fId8   = id.NewFieldID()
-	fId9   = id.NewFieldID()
-	dvsfId = id.NewFieldID()
-	thId1  = id.NewThreadID()
-	thId2  = id.NewThreadID()
-	thId3  = id.NewThreadID()
-	thId4  = id.NewThreadID()
-	thId5  = id.NewThreadID()
-	thId6  = id.NewThreadID()
-	icId   = id.NewCommentID()
-	ikey0  = id.RandomKey()
-	ikey1  = id.RandomKey()
-	ikey2  = id.RandomKey()
-	ikey3  = id.RandomKey()
-	ikey4  = id.RandomKey()
-	ikey5  = id.RandomKey()
-	pid    = id.NewProjectID()
-	sid0   = id.NewSchemaID()
-	sid1   = id.NewSchemaID()
-	sid2   = id.NewSchemaID()
-	sid3   = id.NewSchemaID()
-	sid4   = id.NewSchemaID()
-	gsId   = id.NewSchemaID()
-	palias = "PROJECT_ALIAS"
-	sfKey1 = id.RandomKey()
-	sfKey2 = id.NewKey("asset")
-	sfKey3 = id.RandomKey()
-	sfKey4 = id.RandomKey()
-	sfKey5 = id.NewKey("asset-key")
-	sfKey6 = id.NewKey("group-key")
-	sfKey7 = id.NewKey("geometry-key")
-	sfKey8 = id.NewKey("geometry-editor-key")
-	sfkey9 = id.NewKey("number-key")
-	gKey1  = id.RandomKey()
-	gKey2  = id.RandomKey()
-	igId1  = id.NewItemGroupID()
-	igId2  = id.NewItemGroupID()
-	igId3  = id.NewItemGroupID()
+	secret  = "secret_1234567890"
+	wId0    = accountdomain.NewWorkspaceID()
+	uId     = accountdomain.NewUserID()
+	uId_2   = accountdomain.NewUserID()
+	iId     = id.NewIntegrationID()
+	mId0    = id.NewModelID()
+	mId1    = id.NewModelID()
+	mId2    = id.NewModelID()
+	mId3    = id.NewModelID()
+	mId4    = id.NewModelID()
+	mId5    = id.NewModelID()
+	gId1    = id.NewGroupID()
+	gId2    = id.NewGroupID()
+	dvmId   = id.NewModelID()
+	aid1    = id.NewAssetID()
+	aid2    = id.NewAssetID()
+	aid3    = id.NewAssetID() // no thread
+	auuid1  = uuid.NewString()
+	auuid2  = uuid.NewString()
+	auuid3  = uuid.NewString()
+	itmId1  = id.NewItemID()
+	itmId2  = id.NewItemID()
+	itmId3  = id.NewItemID()
+	itmId4  = id.NewItemID()
+	itmId5  = id.NewItemID()
+	itmId6  = id.NewItemID()
+	itmId7  = id.NewItemID() // no thread
+	fId1    = id.NewFieldID()
+	fId2    = id.NewFieldID()
+	fId3    = id.NewFieldID()
+	fId4    = id.NewFieldID()
+	fId5    = id.NewFieldID()
+	fId6    = id.NewFieldID()
+	fId7    = id.NewFieldID()
+	fId8    = id.NewFieldID()
+	fId9    = id.NewFieldID()
+	fId10   = id.NewFieldID()
+	dvsfId  = id.NewFieldID()
+	thId1   = id.NewThreadID()
+	thId2   = id.NewThreadID()
+	thId3   = id.NewThreadID()
+	thId4   = id.NewThreadID()
+	thId5   = id.NewThreadID()
+	thId6   = id.NewThreadID()
+	icId    = id.NewCommentID()
+	ikey0   = id.RandomKey()
+	ikey1   = id.RandomKey()
+	ikey2   = id.RandomKey()
+	ikey3   = id.RandomKey()
+	ikey4   = id.RandomKey()
+	ikey5   = id.RandomKey()
+	pid     = id.NewProjectID()
+	pid2    = id.NewProjectID()
+	sid0    = id.NewSchemaID()
+	sid1    = id.NewSchemaID()
+	msid1   = id.NewSchemaID()
+	sid2    = id.NewSchemaID()
+	sid3    = id.NewSchemaID()
+	sid4    = id.NewSchemaID()
+	gsId    = id.NewSchemaID()
+	palias  = "PROJECT_ALIAS"
+	palias2 = "PROJECT_ALIAS_2"
+	sfKey1  = id.RandomKey()
+	sfKey2  = id.NewKey("asset")
+	sfKey3  = id.RandomKey()
+	sfKey4  = id.RandomKey()
+	sfKey5  = id.NewKey("asset-key")
+	sfKey6  = id.NewKey("group-key")
+	sfKey7  = id.NewKey("geometry-key")
+	sfKey8  = id.NewKey("geometry-editor-key")
+	sfkey9  = id.NewKey("number-key")
+	sfkey10 = id.NewKey("integer-key")
+	gKey1   = id.RandomKey()
+	gKey2   = id.RandomKey()
+	igId1   = id.NewItemGroupID()
+	igId2   = id.NewItemGroupID()
+	igId3   = id.NewItemGroupID()
 
 	now = time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)
 )
@@ -115,13 +122,26 @@ var (
 func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) error {
 	defer util.MockNow(now)()
 
+	metadata := user.NewMetadata()
+
 	// region user & integration & workspace & project
 	u := user.New().ID(uId).
 		Name("e2e").
 		Email("e2e@e2e.com").
 		Workspace(wId0).
+		Metadata(metadata).
 		MustBuild()
 	if err := r.User.Save(ctx, u); err != nil {
+		return err
+	}
+
+	u2 := user.New().ID(uId_2).
+		Name("e2e2").
+		Email("e2e2@e2e.com").
+		Workspace(wId0).
+		Metadata(metadata).
+		MustBuild()
+	if err := r.User.Save(ctx, u2); err != nil {
 		return err
 	}
 
@@ -142,12 +162,14 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		return err
 	}
 
+	wMetadata := workspace.NewMetadata()
 	w := workspace.New().
 		ID(wId0).
 		Name("e2e").
 		Personal(false).
 		Members(map[accountdomain.UserID]workspace.Member{uId: {Role: workspace.RoleOwner, InvitedBy: u.ID()}}).
 		Integrations(map[workspace.IntegrationID]workspace.Member{iid: {Role: workspace.RoleOwner, InvitedBy: u.ID()}}).
+		Metadata(wMetadata).
 		MustBuild()
 	if err := r.Workspace.Save(ctx, w); err != nil {
 		return err
@@ -165,6 +187,18 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		return err
 	}
 
+	p2 := project.New().
+		ID(pid2).
+		Name("p2").
+		Description("p2 desc").
+		ImageURL(lo.Must(url.Parse("https://test.com"))).
+		Workspace(w.ID()).
+		Alias(palias2).
+		Accessibility(project.NewPrivateAccessibility(*project.NewPublicationSettings(id.ModelIDList{}, false), nil)).
+		MustBuild()
+	if err := r.Project.Save(ctx, p2); err != nil {
+		return err
+	}
 	// endregion
 
 	// region schema & model
@@ -182,6 +216,10 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 	if err := r.Schema.Save(ctx, s1); err != nil {
 		return err
 	}
+	ms1 := schema.New().ID(msid1).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf4}).MustBuild()
+	if err := r.Schema.Save(ctx, ms1); err != nil {
+		return err
+	}
 
 	s2 := schema.New().ID(sid2).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf3}).MustBuild()
 	if err := r.Schema.Save(ctx, s2); err != nil {
@@ -197,7 +235,6 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ID(mId0).
 		Name("m0").
 		Description("m0 desc").
-		Public(true).
 		Key(ikey0).
 		Project(p.ID()).
 		Schema(s0.ID()).
@@ -212,11 +249,10 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ID(mId1).
 		Name("m1").
 		Description("m1 desc").
-		Public(true).
 		Key(ikey1).
 		Project(p.ID()).
 		Schema(s1.ID()).
-		Metadata(s3.ID().Ref()).
+		Metadata(ms1.ID().Ref()).
 		UpdatedAt(now.Add(2 * time.Second)).
 		Order(1).
 		MustBuild()
@@ -228,7 +264,6 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ID(mId2).
 		Name("m2").
 		Description("m2 desc").
-		Public(true).
 		Key(ikey2).
 		Project(p.ID()).
 		Schema(s2.ID()).
@@ -259,7 +294,6 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ID(mId3).
 		Name("m3").
 		Description("m3 desc").
-		Public(true).
 		Key(ikey3).
 		Project(p.ID()).
 		Schema(s5.ID()).
@@ -282,7 +316,6 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ID(mId4).
 		Name("m4").
 		Description("m4 desc").
-		Public(true).
 		Key(ikey4).
 		Project(p.ID()).
 		Schema(s7.ID()).
@@ -297,7 +330,8 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 	float2 := float64(123.4)
 	sn1, _ := schema.NewNumber(&float1, &float2)
 	sf9 := schema.NewField(sn1.TypeProperty()).ID(fId9).Key(sfkey9).Type(sn1.TypeProperty()).MustBuild()
-	s8 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf9}).MustBuild()
+	sf10 := schema.NewField(lo.Must(schema.NewInteger(nil, nil)).TypeProperty()).ID(fId10).Key(sfkey10).MustBuild()
+	s8 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf9, sf10}).MustBuild()
 	if err := r.Schema.Save(ctx, s8); err != nil {
 		return err
 	}
@@ -305,7 +339,6 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ID(mId5).
 		Name("m5").
 		Description("m5 desc").
-		Public(true).
 		Key(ikey5).
 		Project(p.ID()).
 		Schema(s8.ID()).
@@ -397,9 +430,8 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Thread(thId6.Ref()).
 		IsMetadata(false).
 		Fields([]*item.Field{
-			item.NewField(fId9, value.MultipleFrom(value.TypeNumber, []*value.Value{
-				value.TypeNumber.Value(21.2),
-			}), nil),
+			item.NewField(fId9, value.MultipleFrom(value.TypeNumber, []*value.Value{value.TypeNumber.Value(21.2)}), nil),
+			item.NewField(fId10, value.MultipleFrom(value.TypeInteger, []*value.Value{value.TypeInteger.Value(123)}), nil),
 		}).
 		MustBuild()
 	if err := r.Item.Save(ctx, itm6); err != nil {
@@ -532,7 +564,6 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ID(dvmId).
 		Name("dvm").
 		Description("dvm desc").
-		Public(true).
 		Key(id.RandomKey()).
 		Project(pid).
 		Schema(dvs1.ID()).
@@ -568,18 +599,23 @@ func IntegrationSearchItem(e *httpexpect.Expect, mId string, page, perPage int, 
 	return res
 }
 
-func IntegrationItemsAsGeoJSON(e *httpexpect.Expect, mId string, page, perPage int) *httpexpect.Value {
+func IntegrationItemsAsGeoJSON(e *httpexpect.Expect, t *testing.T, mId string, page, perPage int) *httpexpect.Value {
 	res := e.GET("/api/models/{modelId}/items.geojson", mId).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithHeader("Content-Type", "application/json").
+		WithHeader("Content-Type", "application/octet-stream").
 		WithQuery("page", page).
 		WithQuery("perPage", perPage).
-		Expect().
-		Status(http.StatusOK).
-		JSON()
+		Expect()
+	raw := res.Status(http.StatusOK).
+		Body().Raw()
 
-	return res
+	var v any
+	if err := json.Unmarshal([]byte(raw), &v); err != nil {
+		t.Fatalf("bad JSON: %v; body=%q", err, raw)
+	}
+
+	return httpexpect.NewValue(t, v)
 }
 
 func IntegrationItemsWithProjectAsGeoJSON(e *httpexpect.Expect, pId string, mId string, page, perPage int) *httpexpect.Value {
@@ -1442,7 +1478,7 @@ func TestIntegrationItemsAsGeoJSON(t *testing.T) {
 		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryObject"},
 	})
 
-	res := IntegrationItemsAsGeoJSON(e, mId, 1, 10)
+	res := IntegrationItemsAsGeoJSON(e, t, mId, 1, 10)
 	res.Object().Value("type").String().IsEqual("FeatureCollection")
 	features := res.Object().Value("features").Array()
 	features.Length().IsEqual(1)
@@ -1501,7 +1537,7 @@ func TestIntegrationItemsAsCSV(t *testing.T) {
 	})
 
 	res := IntegrationItemsAsCSV(e, mId, 1, 10)
-	expected := fmt.Sprintf("id,location_lat,location_lng,text,textArea,markdown,asset,bool,select,integer,number,url,date,tag,checkbox\n%s,36.58570985749664,139.28179282584915,test1,,,,,,,,,,,\n", i1Id)
+	expected := fmt.Sprintf("id,text,textArea,markdown,bool,select,integer,number,url,date,m_tag,m_checkbox\n%s,test1,,,,,,,,,,\n", i1Id)
 	res.IsEqual(expected)
 }
 
@@ -1521,7 +1557,7 @@ func TestIntegrationItemsWithProjectAsCSV(t *testing.T) {
 	})
 
 	res := IntegrationItemsWithProjectAsCSV(e, pId, mId, 1, 10)
-	expected := fmt.Sprintf("id,location_lat,location_lng,text,textArea,markdown,asset,bool,select,integer,number,url,date,tag,checkbox\n%s,36.58570985749664,139.28179282584915,test1,,,,,,30,,,,,\n", i1Id)
+	expected := fmt.Sprintf("id,text,textArea,markdown,bool,select,integer,number,url,date,m_tag,m_checkbox\n%s,test1,,,,,30,,,,,\n", i1Id)
 	res.IsEqual(expected)
 }
 
@@ -1862,7 +1898,8 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		Object()
 
 	r.Value("fields").
-		IsEqual([]any{
+		Array().
+		IsEqualUnordered([]any{
 			map[string]any{
 				"group": igId1.String(),
 				"id":    fId5.String(),
@@ -1910,7 +1947,8 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		Object()
 
 	r.Value("fields").
-		IsEqual([]any{
+		Array().
+		IsEqualUnordered([]any{
 			map[string]any{
 				"group": igId1.String(),
 				"id":    fId5.String(),
@@ -2098,7 +2136,8 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 		Object()
 
 	r.Value("fields").
-		IsEqual([]any{
+		Array().
+		IsEqualUnordered([]any{
 			map[string]any{
 				"group": igId1.String(),
 				"id":    fId5.String(),
@@ -2176,8 +2215,49 @@ func TestIntegrationDeleteItemAPI(t *testing.T) {
 		Status(http.StatusNotFound)
 }
 
-func TestIntegrationItemForNumberAndIntegerType(t *testing.T) {
+// POST /items/{itemId}/publish
+func TestIntegrationPublishItemAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+	ep := "/api/items/{itemId}/publish"
 
+	e.POST(ep, id.NewItemID()).
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST(ep, id.NewItemID()).
+		WithHeader("authorization", "secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST(ep, id.NewItemID()).
+		WithHeader("authorization", "Bearer secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST(ep, id.NewItemID()).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusNotFound)
+
+	e.POST(ep, itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("refs").
+		Array().
+		ContainsAny("public")
+
+	e.GET("/api/items/{itemId}", itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("refs").
+		Array().
+		ContainsAny("public")
 }
 
 func assertItem(v *httpexpect.Value, assetEmbeded bool) {

@@ -28,6 +28,14 @@ func NewInteger(min, max *int64) (*FieldInteger, error) {
 	}, nil
 }
 
+func MustNewInteger(min, max *int64) *FieldInteger {
+	f, err := NewInteger(min, max)
+	if err != nil {
+		panic(err)
+	}
+	return f
+}
+
 func (f *FieldInteger) TypeProperty() *TypeProperty {
 	return &TypeProperty{
 		t:       f.Type(),

@@ -9,6 +9,9 @@ paths:
       - $ref: '#/components/parameters/workspaceIdParam'
       - $ref: '#/components/parameters/pageParam'
       - $ref: '#/components/parameters/perPageParam'
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/sortDirParam'
+      - $ref: '#/components/parameters/keywordParam'
     get:
       operationId: ProjectFilter
       security:
@@ -63,6 +66,10 @@ paths:
                 name:
                   type: string
                 description:
+                  type: string
+                license:
+                  type: string
+                readme:
                   type: string
                 alias:
                   type: string
@@ -131,10 +138,14 @@ paths:
                   type: string
                 description:
                   type: string
+                license:
+                  type: string
+                readme:
+                  type: string
                 alias:
                   type: string
-                publication:
-                  $ref: '#/components/schemas/projectPublication'
+                accessibility:
+                  $ref: '#/components/schemas/accessibility'
                 requestRoles:
                   type: array
                   items:
@@ -185,6 +196,9 @@ paths:
       - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/pageParam'
       - $ref: '#/components/parameters/perPageParam'
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/sortDirParam'
+      - $ref: '#/components/parameters/keywordParam'
     get:
       operationId: ModelFilter
       security:
@@ -396,7 +410,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/schemaJSON'
+                $ref: '#/components/schemas/JSONSchema'
                 format: binary
         '400':
           description: Invalid request parameter value
@@ -425,7 +439,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/schemaJSON'
+                $ref: '#/components/schemas/JSONSchema'
                 format: binary
         '400':
           description: Invalid request parameter value
@@ -533,7 +547,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/schemaJSON'
+                $ref: '#/components/schemas/JSONSchema'
                 format: binary
         '400':
           description: Invalid request parameter value
@@ -561,7 +575,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/schemaJSON'
+                $ref: '#/components/schemas/JSONSchema'
                 format: binary
         '400':
           description: Invalid request parameter value
@@ -995,10 +1009,9 @@ paths:
         '200':
           description: A GeoJSON object
           content:
-            application/json:
+            application/octet-stream:
               schema:
                 $ref: '#/components/schemas/GeoJSON'
-                format: binary
         '400':
           description: Invalid request parameter value
         '401':
@@ -1337,7 +1350,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GeoJSON'
-                format: binary
         '400':
           description: Invalid request parameter value
         '401':
@@ -1398,7 +1410,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/schemaJSON'
+                $ref: '#/components/schemas/JSONSchema'
                 format: binary
         '400':
           description: Invalid request parameter value
@@ -1427,7 +1439,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/schemaJSON'
+                $ref: '#/components/schemas/JSONSchema'
                 format: binary
         '400':
           description: Invalid request parameter value
@@ -1614,6 +1626,30 @@ paths:
                   id:
                     x-go-type: id.ItemID
                     type: string
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+  '/items/{itemId}/publish':
+    parameters:
+      - $ref: '#/components/parameters/itemIdParam'
+      - $ref: '#/components/parameters/assetParam'
+    post:
+      operationId: ItemPublish
+      summary: publish item
+      tags:
+        - Items
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: the published item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/versionedItem'
         '400':
           description: Invalid request parameter value
         '401':
@@ -2342,8 +2378,11 @@ components:
         - id
         - name
         - description
+        - license
+        - readme
         - workspaceId
         - alias
+        - accessibility
         - createdAt
         - updatedAt
       properties:
@@ -2357,6 +2396,10 @@ components:
           type: string
         description:
           type: string
+        license:
+          type: string
+        readme:
+          type: string
         alias:
           type: string
         createdAt:
@@ -2365,22 +2408,59 @@ components:
         updatedAt:
           type: string
           format: date-time
-        publication:
-          $ref: '#/components/schemas/projectPublication'
+        accessibility:
+          $ref: '#/components/schemas/accessibility'
         requestRoles:
           type: array
           items:
             $ref: '#/components/schemas/projectRequestRole'
-    projectPublication:
+    publicationSettings:
       type: object
       properties:
-        scope:
-          type: string
-          enum: [PUBLIC, LIMITED, PRIVATE]
-        assetPublic:
+        publicModels:
+          type: array
+          items:
+            type: string
+            x-go-type: id.ModelID
+        publicAssets:
           type: boolean
-        token:
+      required:
+        - publicModels
+        - publicAssets
+    apiKey:
+      type: object
+      properties:
+        id:
           type: string
+          x-go-type: id.APIKeyID
+        name:
+          type: string
+        description:
+          type: string
+        key:
+          type: string
+        publication:
+          $ref: '#/components/schemas/publicationSettings'
+      required:
+        - id
+        - name
+        - key
+        - publication
+    accessibility:
+      type: object
+      properties:
+        visibility:
+          type: string
+          enum: [ PUBLIC, PRIVATE ]
+        publication:
+          $ref: '#/components/schemas/publicationSettings'
+        apiKeys:
+          type: array
+          items:
+            $ref: '#/components/schemas/apiKey'
+      required:
+        - visibility
+        - apiKeys
     projectRequestRole:
       type: string
       enum: [READER, WRITER, MAINTAINER, OWNER]
@@ -2407,8 +2487,6 @@ components:
           type: string
         description:
           type: string
-        public:
-          type: boolean
         key:
           type: string
         createdAt:
@@ -2472,46 +2550,9 @@ components:
         createdAt:
           type: string
           format: date-time
-    schemaJSON:
+    JSONSchema:
       type: object
-      required: ["type", "properties"]
-      properties:
-        $schema:
-          type: string
-        $id:
-          type: string
-        title:
-          type: string
-        description:
-          type: string
-        type:
-          type: string
-        properties:
-          type: object
-          additionalProperties:
-            $ref: '#/components/schemas/schemaJSONProperties'
-    schemaJSONProperties:
-      type: object
-      required: ["type"]
-      properties:
-        type:
-          type: string
-        title:
-          type: string
-        description:
-          type: string
-        format:
-          type: string
-        minimum:
-          type: number
-          format: double
-        maximum:
-          type: number
-          format: double
-        maxLength:
-          type: integer
-        items:
-          $ref: '#/components/schemas/schemaJSON'
+      x-go-type: types.JSONSchema
     valueType:
       type: string
       enum:
@@ -2571,7 +2612,6 @@ components:
           type: array
           items:
             type: string
-            format: uuid
     item:
       type: object
       properties:
@@ -2590,6 +2630,14 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/field'
+        metadataFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/field'
+        referencedItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/item'
         createdAt:
           type: string
           format: date-time
@@ -2599,130 +2647,18 @@ components:
           type: string
           format: date-time
     GeoJSON:
-      $ref: '#/components/schemas/FeatureCollection'
-    FeatureCollection:
       type: object
-      properties:
-        type:
-          type: string
-          enum: [FeatureCollection]
-        features:
-          type: array
-          items:
-            $ref: '#/components/schemas/Feature'
-    Feature:
-      type: object
-      properties:
-        id:
-          x-go-type: id.ItemID
-          type: string
-        type:
-          type: string
-          enum: [Feature]
-        geometry:
-          $ref: '#/components/schemas/Geometry'
-        properties:
-          type: object
-          x-go-type: orderedmap.OrderedMap
-    Geometry:
-      type: object
-      properties:
-        type:
-          type: string
-          enum: [Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon, GeometryCollection]
-        coordinates:
-          oneOf:
-            - $ref: '#/components/schemas/Point'
-            - $ref: '#/components/schemas/MultiPoint'
-            - $ref: '#/components/schemas/LineString'
-            - $ref: '#/components/schemas/MultiLineString'
-            - $ref: '#/components/schemas/Polygon'
-            - $ref: '#/components/schemas/MultiPolygon'
-        geometries:
-          type: array
-          items:
-            $ref: '#/components/schemas/Geometry'
-    GeometryCollection:
-      type: object
-      properties:
-        type:
-          type: string
-          enum: [GeometryCollection]
-        geometries:
-          type: array
-          items:
-            $ref: '#/components/schemas/Geometry'
-    Point:
-      type: array
-      items:
-        type: number
-        format: double
-      minItems: 2
-      maxItems: 3
-    MultiPoint:
-      type: array
-      items:
-        $ref: '#/components/schemas/Point'
-    LineString:
-      type: array
-      items:
-        $ref: '#/components/schemas/Point'
-      minItems: 2
-    MultiLineString:
-      type: array
-      items:
-        $ref: '#/components/schemas/LineString'
-    Polygon:
-      type: array
-      items:
-        type: array
-        items:
-          $ref: '#/components/schemas/Point'
-      minItems: 4
-    MultiPolygon:
-      type: array
-      items:
-        $ref: '#/components/schemas/Polygon'
+      x-go-type: types.GeoJSON
     versionedItem:
-      type: object
-      properties:
-        id:
-          x-go-type: id.ItemID
-          type: string
-        modelId:
-          type: string
-        fields:
-          type: array
-          items:
-            $ref: '#/components/schemas/field'
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        version:
-          type: string
-          format: uuid
-        parents:
-          type: array
-          items:
-            type: string
-            format: uuid
-        refs:
-          type: array
-          items:
-            type: string
-        referencedItems:
-          type: array
-          items:
-            $ref: '#/components/schemas/versionedItem'
-        metadataFields:
-          type: array
-          items:
-            $ref: '#/components/schemas/field'
-        isMetadata:
-          type: boolean
+      allOf:
+        - $ref: '#/components/schemas/item'
+        - $ref: '#/components/schemas/version'
+        - type: object
+          properties:
+            referencedItems:
+              type: array
+              items:
+                $ref: '#/components/schemas/versionedItem'
     field:
       type: object
       properties:

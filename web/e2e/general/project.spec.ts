@@ -1,5 +1,5 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { expect, test } from "@reearth-cms/e2e/utils";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/utils/mock";
 
 test.afterEach(async ({ page }) => {
@@ -32,8 +32,7 @@ test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await page.getByRole("button", { name: "close-circle" }).click();
   await expect(projectCard).toBeVisible();
   await projectCard.click();
-  await expect(page.getByRole("heading", { name: projectName })).toBeVisible();
-  await expect(page.getByText(projectDescription)).toBeVisible();
+  await expect(page.getByRole("banner")).toContainText(projectName);
 
   await page.getByText("Settings").click();
   const newProjectName = `new ${projectName}`;
@@ -53,7 +52,6 @@ test("Project CRUD and searching has succeeded", async ({ reearth, page }) => {
   await expect(ownerSwitch).toHaveAttribute("aria-checked", "true");
   await closeNotification(page);
 
-  await page.getByText("Overview").click();
-  await expect(page.getByRole("heading", { name: newProjectName })).toBeVisible();
-  await expect(page.getByText(newProjectDescription)).toBeVisible();
+  await page.getByText("Models").click();
+  await expect(page.getByRole("banner")).toContainText(projectName);
 });

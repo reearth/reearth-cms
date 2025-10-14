@@ -24,13 +24,18 @@ func (s *Server) ModelFilter(ctx context.Context, request ModelFilterRequestObje
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	ms, pi, err := uc.Model.FindByProject(ctx, prj.ID(), p, op)
+	ml, pi, err := uc.Model.FindByProjectAndKeyword(ctx, interfaces.FindByProjectAndKeywordParam{
+		ProjectID:  prj.ID(),
+		Keyword:    request.Params.Keyword,
+		Sort:       toModelSort(request.Params.Sort, request.Params.Dir),
+		Pagination: p,
+	}, op)
 	if err != nil {
 		return nil, err
 	}
 
-	models := make([]integrationapi.Model, 0, len(ms))
-	for _, m := range ms {
+	models := make([]integrationapi.Model, 0, len(ml))
+	for _, m := range ml {
 		sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
 		if err != nil {
 			return nil, err
@@ -67,7 +72,6 @@ func (s *Server) ModelCreate(ctx context.Context, request ModelCreateRequestObje
 		Name:        request.Body.Name,
 		Description: request.Body.Description,
 		Key:         request.Body.Key,
-		Public:      lo.ToPtr(true),
 	}
 	m, err := uc.Model.Create(ctx, input, op)
 	if err != nil {
@@ -189,7 +193,6 @@ func (s *Server) ModelUpdate(ctx context.Context, request ModelUpdateRequestObje
 		Name:        request.Body.Name,
 		Description: request.Body.Description,
 		Key:         request.Body.Key,
-		Public:      nil,
 	}
 	m, err := uc.Model.Update(ctx, input, op)
 	if err != nil {
@@ -237,7 +240,6 @@ func (s *Server) ModelUpdateWithProject(ctx context.Context, request ModelUpdate
 		Name:        request.Body.Name,
 		Description: request.Body.Description,
 		Key:         request.Body.Key,
-		Public:      nil,
 	}
 	m, err = uc.Model.Update(ctx, input, op)
 	if err != nil {

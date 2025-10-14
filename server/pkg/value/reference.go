@@ -68,5 +68,5 @@ func (m *Multiple) ValuesReference() (vv []Reference, ok bool) {
 	if len(vv) != len(m.v) {
 		return nil, false
 	}
-	return
+	return vv, true
 }

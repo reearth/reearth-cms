@@ -1,7 +1,5 @@
-import { Page } from "@playwright/test";
-
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { expect, test } from "@reearth-cms/e2e/utils";
+import { type Page, expect, test } from "@reearth-cms/e2e/fixtures/test";
 
 import { handleFieldForm } from "./utils/field";
 import { createGroup, updateGroup, deleteGroup } from "./utils/group";
@@ -151,7 +149,6 @@ test("Group reordering has succeeded", async ({ page }) => {
   ).toContainText("group3");
 });
 
-// eslint-disable-next-line playwright/expect-expect
 test("Text field CRUD has succeeded", async ({ page }) => {
   await createModelFromSidebar(page);
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();

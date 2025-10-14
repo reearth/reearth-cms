@@ -471,7 +471,7 @@ func TestBuilder_Token(t *testing.T) {
 			b := &Builder{
 				i: tt.fields.i,
 			}
-			assert.Equalf(t, tt.want, b.Token(tt.args.token), "Token(%v)", tt.args.token)
+			assert.Equalf(t, tt.want, b.Token(tt.args.token), "Key(%v)", tt.args.token)
 		})
 	}
 }

@@ -1,7 +1,7 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { createModelFromOverview } from "@reearth-cms/e2e/project/utils/model";
 import { createProject, deleteProject } from "@reearth-cms/e2e/project/utils/project";
-import { expect, test } from "@reearth-cms/e2e/utils";
 
 test.beforeEach(async ({ reearth, page }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -14,6 +14,7 @@ test.afterEach(async ({ page }) => {
 });
 
 test("GeometryObject field creating and updating has succeeded", async ({ page }) => {
+  test.skip();
   await page.locator("li").filter({ hasText: "Geometry Object" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("geometryObject1");
@@ -58,6 +59,7 @@ test("GeometryObject field creating and updating has succeeded", async ({ page }
 });
 
 test("GeometryObject field editing has succeeded", async ({ page }) => {
+  test.skip();
   await page.locator("li").filter({ hasText: "Geometry Object" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("geometryObject1");

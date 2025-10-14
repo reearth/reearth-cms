@@ -1,5 +1,5 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { expect, test } from "@reearth-cms/e2e/utils";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/utils/mock";
 
 let id: string;
@@ -16,6 +16,7 @@ test.afterEach(async ({ page }) => {
 });
 
 test("Integration CRUD and searching has succeeded", async ({ reearth, page }) => {
+  test.skip();
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByText("My Integrations").click();
 

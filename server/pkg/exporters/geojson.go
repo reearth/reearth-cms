@@ -5,8 +5,10 @@ import (
 	"time"
 
 	"github.com/iancoleman/orderedmap"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
@@ -17,172 +19,165 @@ var (
 	noGeometryFieldError = rerror.NewE(i18n.T("no geometry field in this model"))
 )
 
-type GeoJSON = FeatureCollection
-
-type FeatureCollectionType string
-
-const FeatureCollectionTypeFeatureCollection FeatureCollectionType = "FeatureCollection"
-
-type FeatureCollection struct {
-	Features *[]Feature             `json:"features,omitempty"`
-	Type     *FeatureCollectionType `json:"type,omitempty"`
-}
-
-type FeatureType string
-
-const FeatureTypeFeature FeatureType = "Feature"
-
-type Feature struct {
-	Geometry   *Geometry              `json:"geometry,omitempty"`
-	Id         *string                `json:"id,omitempty"`
-	Properties *orderedmap.OrderedMap `json:"properties,omitempty"`
-	Type       *FeatureType           `json:"type,omitempty"`
-}
-
-type GeometryCollectionType string
-
-const GeometryCollectionTypeGeometryCollection GeometryCollectionType = "GeometryCollection"
-
-type GeometryCollection struct {
-	Geometries *[]Geometry             `json:"geometries,omitempty"`
-	Type       *GeometryCollectionType `json:"type,omitempty"`
-}
-
-type GeometryType string
-
-const (
-	GeometryTypeGeometryCollection GeometryType = "GeometryCollection"
-	GeometryTypeLineString         GeometryType = "LineString"
-	GeometryTypeMultiLineString    GeometryType = "MultiLineString"
-	GeometryTypeMultiPoint         GeometryType = "MultiPoint"
-	GeometryTypeMultiPolygon       GeometryType = "MultiPolygon"
-	GeometryTypePoint              GeometryType = "Point"
-	GeometryTypePolygon            GeometryType = "Polygon"
-)
-
-type Geometry struct {
-	Coordinates *Geometry_Coordinates `json:"coordinates,omitempty"`
-	Geometries  *[]Geometry           `json:"geometries,omitempty"`
-	Type        *GeometryType         `json:"type,omitempty"`
-}
-type Geometry_Coordinates struct {
-	union json.RawMessage
-}
-
-type LineString = []Point
-type MultiLineString = []LineString
-type MultiPoint = []Point
-type MultiPolygon = []Polygon
-type Point = []float64
-type Polygon = [][]Point
-
-func (t Geometry_Coordinates) AsPoint() (Point, error) {
-	var body Point
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-func (t Geometry_Coordinates) AsMultiPoint() (MultiPoint, error) {
-	var body MultiPoint
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-func (t Geometry_Coordinates) AsLineString() (LineString, error) {
-	var body LineString
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-func (t Geometry_Coordinates) AsMultiLineString() (MultiLineString, error) {
-	var body MultiLineString
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-func (t Geometry_Coordinates) AsPolygon() (Polygon, error) {
-	var body Polygon
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-func (t Geometry_Coordinates) AsMultiPolygon() (MultiPolygon, error) {
-	var body MultiPolygon
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-func (t Geometry_Coordinates) MarshalJSON() ([]byte, error) {
-	b, err := t.union.MarshalJSON()
-	return b, err
-}
-
-func (t *Geometry_Coordinates) UnmarshalJSON(b []byte) error {
-	err := t.union.UnmarshalJSON(b)
-	return err
-}
-
-func FeatureCollectionFromItems(ver item.VersionedList, s *schema.Schema) (*FeatureCollection, error) {
-	if !s.HasGeometryFields() {
+func FeatureCollectionFromItems(l item.List, sp *schema.Package, assets asset.List) (*types.GeoJSON, error) {
+	if !sp.Schema().HasGeometryFields() {
 		return nil, noGeometryFieldError
 	}
 
-	features := lo.FilterMap(ver, func(v item.Versioned, _ int) (Feature, bool) {
-		return FeatureFromItem(v, s)
+	features := lo.FilterMap(l, func(i *item.Item, _ int) (types.Feature, bool) {
+		return featureFromItem(i, sp, assets)
 	})
 
 	if len(features) == 0 {
 		return nil, noGeometryFieldError
 	}
 
-	return &FeatureCollection{
-		Type:     lo.ToPtr(FeatureCollectionTypeFeatureCollection),
+	return &types.GeoJSON{
+		Type:     lo.ToPtr(types.FeatureCollectionTypeFeatureCollection),
 		Features: &features,
 	}, nil
 }
 
-func FeatureFromItem(ver item.Versioned, s *schema.Schema) (Feature, bool) {
-	if s == nil {
-		return Feature{}, false
+func featureFromItem(itm *item.Item, sp *schema.Package, assets asset.List) (types.Feature, bool) {
+	if sp == nil || sp.Schema() == nil {
+		return types.Feature{}, false
 	}
-	itm := ver.Value()
 	geoField, ok := itm.GetFirstGeometryField()
 	if !ok {
-		return Feature{}, false
+		return types.Feature{}, false
 	}
 	geometry, ok := extractGeometry(geoField)
 	if !ok {
-		return Feature{}, false
+		return types.Feature{}, false
 	}
 
-	return Feature{
-		Type:       lo.ToPtr(FeatureTypeFeature),
+	return types.Feature{
+		Type:       lo.ToPtr(types.FeatureTypeFeature),
 		Id:         itm.ID().Ref().StringRef(),
 		Geometry:   geometry,
-		Properties: extractProperties(itm, s),
+		Properties: extractProperties(itm, sp, assets),
 	}, true
 }
 
-func extractProperties(itm *item.Item, s *schema.Schema) *orderedmap.OrderedMap {
-	if itm == nil || s == nil {
+func extractProperties(itm *item.Item, sp *schema.Package, assets asset.List) *orderedmap.OrderedMap {
+	if itm == nil || sp == nil || sp.Schema() == nil {
 		return nil
 	}
 	properties := orderedmap.New()
-	for _, field := range s.Fields().Ordered() {
-		if field.Type() == value.TypeGeometryObject || field.Type() == value.TypeGeometryEditor {
+	for _, field := range sp.Schema().Fields().Ordered() {
+		switch field.Type() {
+		case value.TypeGeometryObject, value.TypeGeometryEditor:
 			continue
-		}
-
-		key := field.Name()
-		itmField := itm.Field(field.ID())
-		if val, ok := toGeoJSONProp(itmField); ok {
-			properties.Set(key, val)
+		case value.TypeGroup:
+			gp, ok := extractGroupProperties(itm, sp, field)
+			if ok {
+				properties.Set(field.Key().String(), gp)
+			}
+			continue
+		case value.TypeAsset:
+			gp, ok := extractAssetProperties(itm, field, assets)
+			if ok {
+				properties.Set(field.Key().String(), gp)
+			}
+			continue
+		default:
+			itmField := itm.Field(field.ID())
+			if val, ok := toGeoJSONProp(itmField); ok {
+				properties.Set(field.Key().String(), val)
+			}
 		}
 	}
 	return properties
 }
 
-func extractGeometry(field *item.Field) (*Geometry, bool) {
+func extractAssetProperties(itm *item.Item, gf *schema.Field, assets asset.List) (any, bool) {
+	type asset struct {
+		ID   string `json:"id"`
+		URL  string `json:"url"`
+		Type string `json:"type"`
+	}
+	af := itm.Field(gf.ID())
+	if af == nil || af.Value() == nil {
+		return nil, false
+	}
+	vv, ok := af.Value().ValuesAsset()
+	if !ok || len(vv) == 0 {
+		return nil, false
+	}
+	if gf.Multiple() {
+		return lo.Map(vv, func(v value.Asset, _ int) asset {
+			a := assets.FindByID(v)
+			if a != nil {
+				return asset{
+					ID:   v.String(),
+					URL:  a.AccessInfo().Url,
+					Type: v.Type(),
+				}
+			}
+			return asset{
+				ID:   v.String(),
+				URL:  "",
+				Type: v.Type(),
+			}
+		}), true
+	} else {
+		a := assets.FindByID(vv[0])
+		if a != nil {
+			return asset{
+				ID:   vv[0].String(),
+				URL:  a.AccessInfo().Url,
+				Type: vv[0].Type(),
+			}, true
+		}
+		return asset{
+			ID:   vv[0].String(),
+			URL:  "",
+			Type: vv[0].Type(),
+		}, true
+	}
+}
+
+func extractGroupProperties(itm *item.Item, sp *schema.Package, gf *schema.Field) (any, bool) {
+	var gId schema.GroupID
+	gf.TypeProperty().Match(schema.TypePropertyMatch{
+		Group: func(fg *schema.FieldGroup) {
+			gId = fg.Group()
+		},
+	})
+
+	s := sp.GroupSchema(gId)
+	igf := itm.Field(gf.ID())
+	if igf == nil || igf.Value() == nil {
+		return nil, false
+	}
+	vv, ok := igf.Value().ValuesGroup()
+	if !ok || len(vv) == 0 {
+		return nil, false
+	}
+	if gf.Multiple() {
+		return lo.Map(vv, func(v value.Group, _ int) *orderedmap.OrderedMap {
+			return extractSingleGroupProperties(v, itm, s.Fields())
+		}), true
+	} else {
+		return extractSingleGroupProperties(vv[0], itm, s.Fields()), true
+	}
+}
+
+func extractSingleGroupProperties(gId value.Group, itm *item.Item, gf schema.FieldList) *orderedmap.OrderedMap {
+	gp := orderedmap.New()
+	for _, sf := range gf.Ordered() {
+		f := itm.FieldByItemGroupAndID(sf.ID(), gId)
+		if f == nil {
+			continue
+		}
+		if val, ok := toGeoJSONProp(f); ok {
+			gp.Set(sf.Key().String(), val)
+		}
+	}
+	return gp
+}
+
+func extractGeometry(field *item.Field) (*types.Geometry, bool) {
 	geoStr, ok := field.Value().First().ValueString()
 	if !ok {
 		return nil, false
@@ -194,8 +189,8 @@ func extractGeometry(field *item.Field) (*Geometry, bool) {
 	return geometry, true
 }
 
-func stringToGeometry(geoString string) (*Geometry, error) {
-	var geometry Geometry
+func stringToGeometry(geoString string) (*types.Geometry, error) {
+	var geometry types.Geometry
 	if err := json.Unmarshal([]byte(geoString), &geometry); err != nil {
 		return nil, err
 	}
@@ -264,6 +259,12 @@ func toGeoJsonSingleValue(vv *value.Value) (any, bool) {
 			return "", false
 		}
 		return v.Format(time.RFC3339), true
+	case value.TypeAsset:
+		v, ok := vv.ValueAsset()
+		if !ok {
+			return "", false
+		}
+		return v, true
 	default:
 		return "", false
 	}

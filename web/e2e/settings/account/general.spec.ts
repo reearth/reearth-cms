@@ -1,5 +1,5 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { expect, test } from "@reearth-cms/e2e/utils";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 
 let originalUsername: string;
 let originalEmail: string;
@@ -27,7 +27,6 @@ test.afterEach(async ({ reearth, page }) => {
 });
 
 test("Name and email updating has succeeded", async ({ reearth, page }) => {
-  // eslint-disable-next-line playwright/no-skipped-test
   test.skip(process.env.ENV !== "oss", "This test is only for oss");
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByText("Account").click();

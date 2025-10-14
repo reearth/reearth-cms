@@ -1,62 +1,151 @@
 package interactor
 
 import (
-	"encoding/csv"
+	"context"
 	"io"
 
-	"github.com/labstack/gommon/log"
-	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
+	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/exporters"
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/samber/lo"
+	"github.com/reearth/reearthx/usecasex"
 )
 
-var (
-	pointFieldIsNotSupportedError = rerror.NewE(i18n.T("point type is not supported in any geometry field in this model"))
-)
-
-// GeoJSON
-func featureCollectionFromItems(ver item.VersionedList, s *schema.Schema) (*integrationapi.FeatureCollection, error) {
-	return integrationapi.FeatureCollectionFromItems(ver, s)
+type BatchConfig struct {
+	BatchSize int64
 }
 
-// CSV
-func csvFromItems(pw *io.PipeWriter, l item.VersionedList, s *schema.Schema) error {
-	if !s.IsPointFieldSupported() {
-		return pointFieldIsNotSupportedError
-	}
-	go handleCSVGeneration(pw, l, s)
-	return nil
-}
-func handleCSVGeneration(pw *io.PipeWriter, l item.VersionedList, s *schema.Schema) {
-	err := generateCSV(pw, l, s)
-	if err != nil {
-		log.Errorf("failed to generate CSV: %v", err)
-		_ = pw.CloseWithError(err)
-	} else {
-		_ = pw.Close()
+// DefaultBatchConfig returns sensible defaults for batch processing
+func defaultBatchConfig() *BatchConfig {
+	return &BatchConfig{
+		BatchSize: 1000,
 	}
 }
-func generateCSV(pw *io.PipeWriter, l item.VersionedList, s *schema.Schema) error {
-	w := csv.NewWriter(pw)
-	defer w.Flush()
-	headers := integrationapi.BuildCSVHeaders(s)
-	if err := w.Write(headers); err != nil {
+
+func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w io.Writer, op *usecase.Operator) error {
+	// Create the exporter based on format
+	var exporter exporters.Exporter
+	switch params.Format {
+	case exporters.FormatJSON:
+		exporter = exporters.NewJSONExporter(w)
+	case exporters.FormatCSV:
+		exporter = exporters.NewCSVExporter(w)
+	case exporters.FormatGeoJSON:
+		exporter = exporters.NewGeoJSONExporter(w)
+	default:
+		return rerror.NewE(i18n.T("unsupported export format"))
+	}
+
+	req := &exporters.ExportRequest{
+		Format:  params.Format,
+		ModelID: params.ModelID,
+		Schema:  params.SchemaPackage,
+		Options: params.Options,
+		ItemLoader: func(itemIDs id.ItemIDList) (item.List, error) {
+			versioned, err := i.repos.Item.FindByIDs(ctx, itemIDs, version.Public.Ref())
+			if err != nil {
+				return nil, err
+			}
+			return versioned.Unwrap(), nil
+		},
+		AssetLoader: func(assetIDs id.AssetIDList) (asset.List, error) {
+			if !params.Options.IncludeAssets {
+				return nil, nil
+			}
+			return i.repos.Asset.FindByIDs(ctx, assetIDs)
+		},
+	}
+
+	if err := exporter.ValidateRequest(req); err != nil {
 		return err
 	}
-	nonGeoFields := lo.Filter(s.Fields(), func(f *schema.Field, _ int) bool {
-		return !f.IsGeometryField()
-	})
-	for _, ver := range l {
-		row, ok := integrationapi.RowFromItem(ver.Value(), nonGeoFields)
-		if ok {
-			if err := w.Write(row); err != nil {
-				return err
+
+	if err := exporter.StartExport(ctx, req); err != nil {
+		return err
+	}
+
+	batchConfig := defaultBatchConfig()
+
+	pagination := usecasex.CursorPagination{First: &batchConfig.BatchSize}.Wrap()
+	if params.Options.Pagination != nil {
+		pagination = params.Options.Pagination
+	}
+
+	ver := version.Public.Ref()
+	if !params.Options.PublicOnly {
+		ver = nil
+	}
+
+	totalProcessed := 0
+	pageInfo := &usecasex.PageInfo{}
+	for {
+		versionedItems, pi, err := i.repos.Item.FindByModel(ctx, params.ModelID, ver, nil, pagination)
+		if err != nil {
+			return rerror.ErrInternalBy(err)
+		}
+		pageInfo = pi
+
+		items := versionedItems.Unwrap()
+		if len(items) == 0 {
+			break
+		}
+
+		// Extract and load assets for this batch
+		assetIDs := items.AssetIDs(params.SchemaPackage.Schema())
+		var assets asset.List
+		if len(assetIDs) > 0 && params.Options.IncludeAssets {
+			assets, err = i.repos.Asset.FindByIDs(ctx, assetIDs)
+			if err != nil {
+				return rerror.ErrInternalBy(err)
 			}
+			if assets != nil {
+				assets.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+			}
+		}
+
+		// Process this batch
+		if err := exporter.ProcessBatch(ctx, items, assets); err != nil {
+			return err
+		}
+
+		totalProcessed += len(items)
+
+		// Check if we have more pages
+		if pageInfo == nil || !pageInfo.HasNextPage {
+			break
+		}
+
+		// if exact page requested, stop after one batch
+		if params.Options.Pagination != nil {
+			break
+		}
+
+		// Update pagination for next batch
+		pagination.Cursor.After = pageInfo.EndCursor
+	}
+
+	props := map[string]any{
+		"totalCount": pageInfo.TotalCount,
+	}
+
+	if req.Options.Pagination != nil {
+		props["hasMore"] = pageInfo.HasNextPage
+		if req.Options.Pagination.Cursor != nil {
+			props["nextCursor"] = pageInfo.EndCursor
+			// props["limit"] = req.Options.Pagination
+		}
+		if req.Options.Pagination.Offset != nil {
+			props["page"] = (req.Options.Pagination.Offset.Offset / req.Options.Pagination.Offset.Limit) + 1
+			props["offset"] = req.Options.Pagination.Offset.Offset
+			props["limit"] = req.Options.Pagination.Offset.Limit
 		}
 	}
 
-	return w.Error()
+	// Finalize export
+	return exporter.EndExport(ctx, props)
 }

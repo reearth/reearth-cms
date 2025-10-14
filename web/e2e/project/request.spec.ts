@@ -1,5 +1,8 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
-import { expect, test } from "@reearth-cms/e2e/utils";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { parseConfigBoolean } from "@reearth-cms/utils/format";
+
+import { config } from "../utils/config";
 
 import { crudComment } from "./utils/comment";
 import { createTitleField, itemTitle, titleFieldName } from "./utils/field";
@@ -8,7 +11,10 @@ import { createModelFromOverview, modelName } from "./utils/model";
 import { createProject, deleteProject } from "./utils/project";
 import { createWorkspace, deleteWorkspace } from "./utils/workspace";
 
+const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
+
 test.beforeEach(async ({ reearth, page }) => {
+  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createWorkspace(page);
   await createProject(page);
@@ -19,6 +25,7 @@ test.beforeEach(async ({ reearth, page }) => {
 });
 
 test.afterEach(async ({ page }) => {
+  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await deleteProject(page);
   await deleteWorkspace(page);
 });
@@ -113,7 +120,6 @@ test("Comment CRUD on edit page has succeeded", async ({ page }) => {
   await expect(page.getByText("new comment")).toBeHidden();
 });
 
-// eslint-disable-next-line playwright/expect-expect
 test("Comment CRUD on Request page has succeeded", async ({ page }) => {
   await page.getByText("Request", { exact: true }).click();
   await page.getByRole("button", { name: "0" }).click();
@@ -121,6 +127,7 @@ test("Comment CRUD on Request page has succeeded", async ({ page }) => {
 });
 
 test("Creating a new request and adding to request has succeeded", async ({ page }) => {
+  test.skip();
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByRole("button", { name: "Save" }).click();

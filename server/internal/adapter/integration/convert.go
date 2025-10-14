@@ -7,7 +7,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
-	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -51,9 +50,9 @@ func Page(p usecasex.OffsetPagination) int {
 }
 
 func fromItemFieldParam(f integrationapi.Field, _ *schema.Field) interfaces.ItemFieldParam {
-	var v any = f.Value
+	var v = f.Value
 	if f.Value != nil {
-		v = *f.Value
+		v = f.Value
 	}
 
 	var k *id.Key
@@ -169,20 +168,20 @@ func tagNameToId(sf *schema.Field, field *integrationapi.Field) {
 		},
 	})
 	if !sf.Multiple() {
-		name := lo.FromPtr(field.Value).(string)
+		name := field.Value.(string)
 		tag := tagList.FindByName(name)
 		if tag != nil {
 			var v any = tag.ID()
-			field.Value = &v
+			field.Value = v
 		}
 	} else {
-		names := lo.FromPtr(field.Value).([]string)
+		names := field.Value.([]string)
 		tagIDs := util.Map(names, func(n string) id.TagID {
 			t := lo.FromPtr(tagList.FindByName(n))
 			return t.ID()
 		})
 		var v any = tagIDs
-		field.Value = &v
+		field.Value = v
 	}
 }
 
@@ -231,25 +230,41 @@ func fromSort(_ schema.Package, sort integrationapi.ItemFilterParamsSort, dir *i
 	return nil
 }
 
-func toModelSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirParam) *model.Sort {
-	direction := model.DirectionDesc
-	if dir != nil && *dir == integrationapi.SortDirParamAsc {
-		direction = model.DirectionAsc
-	}
+func toProjectSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirParam) *usecasex.Sort {
+	reverted := dir == nil || *dir == integrationapi.SortDirParamDesc
 
-	column := model.ColumnCreatedAt
+	column := "id"
 	if sort != nil {
 		switch *sort {
 		case integrationapi.SortParamCreatedAt:
-			column = model.ColumnCreatedAt
+			column = "id"
 		case integrationapi.SortParamUpdatedAt:
-			column = model.ColumnUpdatedAt
+			column = "updatedat"
 		}
 	}
 
-	return &model.Sort{
-		Column:    column,
-		Direction: direction,
+	return &usecasex.Sort{
+		Key:      column,
+		Reverted: reverted,
+	}
+}
+
+func toModelSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirParam) *usecasex.Sort {
+	reverted := dir == nil || *dir == integrationapi.SortDirParamDesc
+
+	column := "order"
+	if sort != nil {
+		switch *sort {
+		case integrationapi.SortParamCreatedAt:
+			column = "id"
+		case integrationapi.SortParamUpdatedAt:
+			column = "updatedat"
+		}
+	}
+
+	return &usecasex.Sort{
+		Key:      column,
+		Reverted: reverted,
 	}
 }
 
@@ -308,14 +323,12 @@ func fromRequestRole(r integrationapi.ProjectRequestRole) (*workspace.Role, bool
 	}
 }
 
-func fromProjectPublicationScope(p integrationapi.ProjectPublicationScope) *project.PublicationScope {
+func fromProjectVisibility(p integrationapi.AccessibilityVisibility) *project.Visibility {
 	switch p {
 	case integrationapi.PUBLIC:
-		return lo.ToPtr(project.PublicationScopePublic)
+		return lo.ToPtr(project.VisibilityPublic)
 	case integrationapi.PRIVATE:
-		return lo.ToPtr(project.PublicationScopePrivate)
-	case integrationapi.LIMITED:
-		return lo.ToPtr(project.PublicationScopeLimited)
+		return lo.ToPtr(project.VisibilityPrivate)
 	default:
 		return nil
 	}

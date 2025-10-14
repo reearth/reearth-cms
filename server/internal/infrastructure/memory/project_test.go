@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 
@@ -721,7 +722,10 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 				r = r.Filtered(*tc.filter)
 			}
 
-			got, _, err := r.FindByWorkspaces(ctx, tc.args.wids, tc.args.pInfo)
+			got, _, err := r.Search(ctx, interfaces.ProjectFilter{
+				WorkspaceIds: &tc.args.wids,
+				Pagination:   tc.args.pInfo,
+			})
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return
@@ -940,16 +944,17 @@ func TestProjectRepo_Save(t *testing.T) {
 	}
 }
 
-func TestProject_FindByPublicAPIToken(t *testing.T) {
+func TestProject_FindByAPIKey(t *testing.T) {
 	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewProjectID()
-	pub := project.NewPublication(project.PublicationScopeLimited, false)
+	apikey := project.NewAPIKeyBuilder().NewID().GenerateKey().Name("key1").Build()
+	pub := project.NewPrivateAccessibility(*project.NewPublicationSettings(nil, false), project.APIKeys{apikey})
 	p1 := project.New().
 		ID(id1).
 		Workspace(tid1).
 		UpdatedAt(mocknow).
-		Publication(pub).
+		Accessibility(pub).
 		MustBuild()
 
 	tests := []struct {
@@ -981,7 +986,7 @@ func TestProject_FindByPublicAPIToken(t *testing.T) {
 			seeds: project.List{
 				p1,
 			},
-			arg:     pub.Token(),
+			arg:     apikey.Key(),
 			want:    p1,
 			wantErr: nil,
 		},
@@ -1008,7 +1013,7 @@ func TestProject_FindByPublicAPIToken(t *testing.T) {
 				assert.NoError(t, err)
 			}
 
-			got, err := r.FindByPublicAPIToken(ctx, tc.arg)
+			got, err := r.FindByPublicAPIKey(ctx, tc.arg)
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return

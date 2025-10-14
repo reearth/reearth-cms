@@ -75,6 +75,12 @@ export const userRightsGet = (role: Role): UserRights => {
           update: true,
           delete: true,
         },
+        apiKey: {
+          create: true,
+          read: true,
+          update: true,
+          delete: true,
+        },
       };
     case "MAINTAINER":
       return {
@@ -87,14 +93,14 @@ export const userRightsGet = (role: Role): UserRights => {
           update: true,
         },
         integrations: {
-          connect: false,
-          update: false,
-          delete: false,
+          connect: true,
+          update: true,
+          delete: true,
         },
         members: {
-          invite: false,
-          remove: false,
-          changeRole: false,
+          invite: true,
+          remove: true,
+          changeRole: true,
           leave: true,
         },
         project: {
@@ -149,6 +155,12 @@ export const userRightsGet = (role: Role): UserRights => {
           update: true,
           delete: true,
         },
+        apiKey: {
+          create: true,
+          read: true,
+          update: true,
+          delete: true,
+        },
       };
     case "WRITER":
       return {
@@ -172,24 +184,24 @@ export const userRightsGet = (role: Role): UserRights => {
           leave: true,
         },
         project: {
-          create: false,
+          create: true,
           read: true,
           update: false,
-          delete: false,
-          publish: false,
+          delete: true,
+          publish: true,
         },
         model: {
-          create: false,
+          create: true,
           read: true,
-          update: false,
-          delete: false,
-          publish: false,
+          update: true,
+          delete: true,
+          publish: true,
         },
         schema: {
-          create: false,
+          create: true,
           read: true,
-          update: false,
-          delete: false,
+          update: true,
+          delete: true,
         },
         view: {
           create: false,
@@ -222,6 +234,12 @@ export const userRightsGet = (role: Role): UserRights => {
           read: true,
           update: null,
           delete: null,
+        },
+        apiKey: {
+          create: true,
+          read: true,
+          update: false,
+          delete: false,
         },
       };
     case "READER":
@@ -293,6 +311,12 @@ export const userRightsGet = (role: Role): UserRights => {
           approve: false,
         },
         comment: {
+          create: false,
+          read: true,
+          update: false,
+          delete: false,
+        },
+        apiKey: {
           create: false,
           read: true,
           update: false,

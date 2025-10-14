@@ -227,16 +227,22 @@ func TestModel_Create(t *testing.T) {
 	mockTime := time.Now()
 	// mId := id.NewModelID()
 	// sId := id.NewSchemaID()
-	// wid1 := accountdomain.NewWorkspaceID()
+	wid1 := accountdomain.NewWorkspaceID()
 	// wid2 := accountdomain.NewWorkspaceID()
 	//
-	// pid1 := id.NewProjectID()
-	// p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mockTime).MustBuild()
+	pid1 := id.NewProjectID()
+	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mockTime).MustBuild()
 	//
 	// pid2 := id.NewProjectID()
 	// p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mockTime).MustBuild()
 	//
-	// u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	u := user.New().NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
+	op := &usecase.Operator{
+		OwningProjects: []id.ProjectID{pid1},
+		AcOperator: &accountusecase.Operator{
+			User: lo.ToPtr(u.ID()),
+		},
+	}
 	// op := &usecase.Operator{
 	// 	User:               u.ID(),
 	// 	ReadableWorkspaces: []id.WorkspaceID{wid1, wid2},
@@ -252,13 +258,15 @@ func TestModel_Create(t *testing.T) {
 		model   model.List
 		project project.List
 	}
+
 	tests := []struct {
-		name    string
-		seeds   seeds
-		args    args
-		want    *model.Model
-		mockErr bool
-		wantErr error
+		name            string
+		seeds           seeds
+		args            args
+		setupPolicyMock func(*gatewaymock.MockPolicyChecker)
+		want            *model.Model
+		mockErr         bool
+		wantErr         error
 	}{
 		// TODO: fix
 		// {
@@ -281,7 +289,84 @@ func TestModel_Create(t *testing.T) {
 		// 	mockErr: false,
 		// 	wantErr: nil,
 		// },
+		{
+			name: "policy checker allows creation",
+			seeds: seeds{
+				model:   model.List{},
+				project: project.List{p1},
+			},
+			args: args{
+				param: interfaces.CreateModelParam{
+					ProjectId:   pid1,
+					Name:        lo.ToPtr("test-model"),
+					Description: lo.ToPtr("test description"),
+					Key:         lo.ToPtr("testkey"),
+				},
+				operator: op,
+			},
+			setupPolicyMock: func(mockPC *gatewaymock.MockPolicyChecker) {
+				mockPC.EXPECT().CheckPolicy(gomock.Any(), gateway.PolicyCheckRequest{
+					WorkspaceID: wid1,
+					CheckType:   gateway.PolicyCheckModelCountPerProject,
+					Value:       int64(0),
+				}).Return(&gateway.PolicyCheckResponse{
+					Allowed: true,
+				}, nil)
+			},
+			wantErr: nil,
+		},
+		{
+			name: "policy checker denies creation - limit exceeded",
+			seeds: seeds{
+				model:   model.List{},
+				project: project.List{p1},
+			},
+			args: args{
+				param: interfaces.CreateModelParam{
+					ProjectId:   pid1,
+					Name:        lo.ToPtr("test-model"),
+					Description: lo.ToPtr("test description"),
+					Key:         lo.ToPtr("testkey"),
+				},
+				operator: op,
+			},
+			setupPolicyMock: func(mockPC *gatewaymock.MockPolicyChecker) {
+				mockPC.EXPECT().CheckPolicy(gomock.Any(), gateway.PolicyCheckRequest{
+					WorkspaceID: wid1,
+					CheckType:   gateway.PolicyCheckModelCountPerProject,
+					Value:       int64(0),
+				}).Return(&gateway.PolicyCheckResponse{
+					Allowed: false,
+				}, nil)
+			},
+			wantErr: interfaces.ErrModelCountPerProjectExceeded,
+		},
+		{
+			name: "policy checker error",
+			seeds: seeds{
+				model:   model.List{},
+				project: project.List{p1},
+			},
+			args: args{
+				param: interfaces.CreateModelParam{
+					ProjectId:   pid1,
+					Name:        lo.ToPtr("test-model"),
+					Description: lo.ToPtr("test description"),
+					Key:         lo.ToPtr("testkey"),
+				},
+				operator: op,
+			},
+			setupPolicyMock: func(mockPC *gatewaymock.MockPolicyChecker) {
+				mockPC.EXPECT().CheckPolicy(gomock.Any(), gateway.PolicyCheckRequest{
+					WorkspaceID: wid1,
+					CheckType:   gateway.PolicyCheckModelCountPerProject,
+					Value:       int64(0),
+				}).Return(nil, errors.New("policy check service error"))
+			},
+			wantErr: errors.New("policy check service error"),
+		},
 	}
+
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
@@ -289,6 +374,16 @@ func TestModel_Create(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+
+			mockPolicyChecker := gatewaymock.NewMockPolicyChecker(mockCtrl)
+			gw := &gateway.Container{PolicyChecker: mockPolicyChecker}
+
+			if tt.setupPolicyMock != nil {
+				tt.setupPolicyMock(mockPolicyChecker)
+			}
+
 			if tt.mockErr {
 				memory.SetModelError(db.Model, tt.wantErr)
 			}
@@ -301,7 +396,8 @@ func TestModel_Create(t *testing.T) {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
 			}
-			u := NewModel(db, nil)
+
+			u := NewModel(db, gw)
 
 			got, err := u.Create(ctx, tt.args.param, tt.args.operator)
 			if tt.wantErr != nil {
@@ -310,7 +406,11 @@ func TestModel_Create(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tt.want, got)
+			if tt.want != nil {
+				assert.Equal(t, tt.want, got)
+			} else {
+				assert.NotNil(t, got)
+			}
 		})
 	}
 }
@@ -407,135 +507,6 @@ func TestModel_FindByIDs(t *testing.T) {
 				return
 			}
 			assert.Equal(t, tt.want, got)
-		})
-	}
-}
-
-func TestModel_Publish(t *testing.T) {
-	mockTime := time.Now()
-	pId := id.NewProjectID()
-	sid := id.NewSchemaID()
-	mId1 := id.NewModelID()
-	m1 := model.New().ID(mId1).Key(id.RandomKey()).Schema(sid).Project(pId).MustBuild()
-	mId2 := id.NewModelID()
-	m2 := model.New().ID(mId2).Key(id.RandomKey()).Schema(sid).Project(pId).MustBuild()
-
-	op := &usecase.Operator{
-		AcOperator: &accountusecase.Operator{
-			User: lo.ToPtr(user.NewID()),
-		},
-		OwningProjects: id.ProjectIDList{pId},
-	}
-
-	type args struct {
-		params   []interfaces.PublishModelParam
-		operator *usecase.Operator
-	}
-	type seeds struct {
-		model   model.List
-		project project.List
-	}
-	tests := []struct {
-		name    string
-		seeds   seeds
-		args    args
-		mockErr bool
-		wantErr error
-	}{
-		{
-			name:  "empty params",
-			seeds: seeds{},
-			args: args{
-				params:   nil,
-				operator: nil,
-			},
-			mockErr: false,
-			wantErr: rerror.ErrInvalidParams,
-		},
-		{
-			name:  "empty params",
-			seeds: seeds{},
-			args: args{
-				params:   []interfaces.PublishModelParam{},
-				operator: nil,
-			},
-			mockErr: false,
-			wantErr: rerror.ErrInvalidParams,
-		},
-		{
-			name:  "not found model",
-			seeds: seeds{},
-			args: args{
-				params: []interfaces.PublishModelParam{{
-					ModelID: id.ModelID{},
-					Public:  false,
-				}},
-				operator: nil,
-			},
-			mockErr: false,
-			wantErr: rerror.ErrNotFound,
-		},
-		{
-			name:  "not found model",
-			seeds: seeds{model.List{m1, m2}, project.List{}},
-			args: args{
-				params: []interfaces.PublishModelParam{{
-					ModelID: id.NewModelID(),
-					Public:  false,
-				}},
-				operator: nil,
-			},
-			mockErr: false,
-			wantErr: rerror.ErrNotFound,
-		},
-		{
-			name:  "not found model",
-			seeds: seeds{model.List{m1, m2}, project.List{}},
-			args: args{
-				params: []interfaces.PublishModelParam{
-					{
-						ModelID: mId1,
-						Public:  false,
-					},
-					{
-						ModelID: mId2,
-						Public:  true,
-					},
-				},
-				operator: op,
-			},
-			mockErr: false,
-			wantErr: nil,
-		},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			ctx := context.Background()
-			db := memory.New()
-			if tt.mockErr {
-				memory.SetModelError(db.Model, tt.wantErr)
-			}
-			defer memory.MockNow(db, mockTime)()
-			for _, m := range tt.seeds.model {
-				err := db.Model.Save(ctx, m.Clone())
-				assert.NoError(t, err)
-			}
-			for _, p := range tt.seeds.project {
-				err := db.Project.Save(ctx, p.Clone())
-				assert.NoError(t, err)
-			}
-			u := NewModel(db, nil)
-
-			err := u.Publish(ctx, tt.args.params, tt.args.operator)
-			if tt.wantErr != nil {
-				assert.Equal(t, tt.wantErr, err)
-			} else {
-				assert.NoError(t, err)
-			}
-
 		})
 	}
 }
@@ -676,7 +647,6 @@ func TestModel_Copy(t *testing.T) {
 				assert.NotEqual(t, m.Key(), got.Key())
 				assert.Equal(t, "Copied Model", got.Name())
 				assert.Equal(t, m.Description(), got.Description())
-				assert.Equal(t, m.Public(), got.Public())
 			},
 		},
 		{

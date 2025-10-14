@@ -73,9 +73,10 @@ func (i Model) FindByIDOrKey(ctx context.Context, p id.ProjectID, q model.IDOrKe
 func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, operator *usecase.Operator) (*model.Model, error) {
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ *model.Model, err error) {
-			if !operator.IsMaintainingProject(param.ProjectId) {
+			if !operator.IsWritableProject(param.ProjectId) {
 				return nil, interfaces.ErrOperationDenied
 			}
+
 			return i.create(ctx, param)
 		})
 }
@@ -85,6 +86,26 @@ func (i Model) create(ctx context.Context, param interfaces.CreateModelParam) (*
 	if err != nil {
 		return nil, err
 	}
+
+	currentModelNumber, err := i.repos.Model.CountByProject(ctx, p.ID())
+	if err != nil {
+		return nil, err
+	}
+
+	if i.gateways != nil && i.gateways.PolicyChecker != nil {
+		policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, gateway.PolicyCheckRequest{
+			WorkspaceID: p.Workspace(),
+			CheckType:   gateway.PolicyCheckModelCountPerProject,
+			Value:       int64(currentModelNumber),
+		})
+		if err != nil {
+			return nil, err
+		}
+		if !policyResp.Allowed {
+			return nil, interfaces.ErrModelCountPerProjectExceeded
+		}
+	}
+
 	m, err := i.repos.Model.FindByKey(ctx, param.ProjectId, *param.Key)
 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 		return nil, err
@@ -92,6 +113,7 @@ func (i Model) create(ctx context.Context, param interfaces.CreateModelParam) (*
 	if m != nil {
 		return nil, id.ErrDuplicatedKey
 	}
+
 	s, err := schema.New().NewID().Workspace(p.Workspace()).Project(p.ID()).TitleField(nil).Build()
 	if err != nil {
 		return nil, err
@@ -105,7 +127,6 @@ func (i Model) create(ctx context.Context, param interfaces.CreateModelParam) (*
 		New().
 		NewID().
 		Schema(s.ID()).
-		Public(false).
 		Project(param.ProjectId)
 
 	if param.Name != nil {
@@ -113,9 +134,6 @@ func (i Model) create(ctx context.Context, param interfaces.CreateModelParam) (*
 	}
 	if param.Description != nil {
 		mb = mb.Description(*param.Description)
-	}
-	if param.Public != nil {
-		mb = mb.Public(*param.Public)
 	}
 	if param.Key != nil {
 		mb = mb.Key(id.NewKey(*param.Key))
@@ -151,7 +169,7 @@ func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, op
 				return nil, err
 			}
 
-			if !operator.IsMaintainingProject(m.Project()) {
+			if !operator.IsWritableProject(m.Project()) {
 				return nil, interfaces.ErrOperationDenied
 			}
 
@@ -165,9 +183,6 @@ func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, op
 				if err := m.SetKey(id.NewKey(*param.Key)); err != nil {
 					return nil, err
 				}
-			}
-			if param.Public != nil {
-				m.SetPublic(*param.Public)
 			}
 
 			if err := i.repos.Model.Save(ctx, m); err != nil {
@@ -200,7 +215,7 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 			if err != nil {
 				return err
 			}
-			if !operator.IsMaintainingProject(m.Project()) {
+			if !operator.IsWritableProject(m.Project()) {
 				return interfaces.ErrOperationDenied
 			}
 
@@ -213,42 +228,6 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 				return err
 			}
 			if err := i.repos.Model.SaveAll(ctx, res); err != nil {
-				return err
-			}
-			return nil
-		})
-}
-
-func (i Model) Publish(ctx context.Context, params []interfaces.PublishModelParam, operator *usecase.Operator) error {
-	if len(params) == 0 {
-		return rerror.ErrInvalidParams
-	}
-	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
-		func(ctx context.Context) error {
-			mIds := lo.Map(params, func(p interfaces.PublishModelParam, _ int) id.ModelID { return p.ModelID })
-			ml, err := i.repos.Model.FindByIDs(ctx, mIds)
-			if err != nil {
-				return err
-			}
-			if len(ml) != len(mIds) {
-				return rerror.ErrNotFound
-			}
-			if len(lo.UniqMap(ml, func(m *model.Model, _ int) id.ProjectID { return m.Project() })) != 1 {
-				return rerror.ErrInvalidParams
-			}
-			if !operator.IsMaintainingProject(ml[0].Project()) {
-				return interfaces.ErrOperationDenied
-			}
-
-			for _, p := range params {
-				m := ml.Model(p.ModelID)
-				if m == nil {
-					return rerror.ErrNotFound
-				}
-				m.SetPublic(p.Public)
-			}
-
-			if err := i.repos.Model.SaveAll(ctx, ml); err != nil {
 				return err
 			}
 			return nil
@@ -276,7 +255,7 @@ func (i Model) FindOrCreateSchema(ctx context.Context, param interfaces.FindOrCr
 						if err != nil {
 							return nil, err
 						}
-						if !operator.IsMaintainingProject(p.ID()) {
+						if !operator.IsWritableProject(p.ID()) {
 							return nil, interfaces.ErrOperationDenied
 						}
 
@@ -328,7 +307,7 @@ func (i Model) UpdateOrder(ctx context.Context, ids id.ModelIDList, operator *us
 				return nil, rerror.ErrNotFound
 			}
 
-			if !operator.IsMaintainingProject(models.Projects()...) {
+			if !operator.IsWritableProject(models.Projects()...) {
 				return nil, interfaces.ErrOperationDenied
 			}
 			ordered := models.OrderByIDs(ids)
@@ -347,7 +326,7 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 			if err != nil {
 				return nil, err
 			}
-			if !operator.IsMaintainingProject(oldModel.Project()) {
+			if !operator.IsWritableProject(oldModel.Project()) {
 				return nil, interfaces.ErrOperationDenied
 			}
 
@@ -365,7 +344,6 @@ func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, opera
 				Name:        name,
 				Description: lo.ToPtr(oldModel.Description()),
 				Key:         key,
-				Public:      lo.ToPtr(oldModel.Public()),
 			})
 			if err != nil {
 				return nil, err

@@ -43,3 +43,18 @@ func (l List) IDs() (ids id.AssetIDList) {
 	}
 	return
 }
+
+func (l List) FindByID(id ID) *Asset {
+	for _, a := range l {
+		if a != nil && a.ID() == id {
+			return a
+		}
+	}
+	return nil
+}
+
+func (l List) FilterByIDs(ids id.AssetIDList) List {
+	return lo.Filter(l, func(a *Asset, _ int) bool {
+		return a != nil && slices.Contains(ids, a.ID())
+	})
+}

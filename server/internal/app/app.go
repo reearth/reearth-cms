@@ -36,16 +36,17 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 	e.Use(
 		logger.AccessLogger(),
 		middleware.Recover(),
+		middleware.Gzip(),
 		otelecho.Middleware("reearth-cms"),
 	)
-	origins := allowedOrigins(appCtx)
-	if len(origins) > 0 {
-		e.Use(
-			middleware.CORSWithConfig(middleware.CORSConfig{
-				AllowOrigins: origins,
-			}),
-		)
-	}
+
+	usecaseMiddleware := UsecaseMiddleware(appCtx.Repos, appCtx.Gateways, appCtx.AcRepos, appCtx.AcGateways, interactor.ContainerConfig{
+		SignupSecret:    appCtx.Config.SignupSecret,
+		AuthSrvUIDomain: appCtx.Config.Host_Web,
+	})
+
+	// apis
+	initApi(appCtx, e.Group("/api"), usecaseMiddleware)
 
 	// GraphQL Playground without auth
 	if appCtx.Debug || appCtx.Config.Dev {
@@ -55,17 +56,28 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 		log.Infof("gql: GraphQL Playground is available")
 	}
 
-	usecaseMiddleware := UsecaseMiddleware(appCtx.Repos, appCtx.Gateways, appCtx.AcRepos, appCtx.AcGateways, interactor.ContainerConfig{
-		SignupSecret:    appCtx.Config.SignupSecret,
-		AuthSrvUIDomain: appCtx.Config.Host_Web,
-	})
+	// Public API
+	initPublicApi(appCtx, e.Group("/api/p"), usecaseMiddleware)
 
-	// apis
-	api := e.Group("/api", private)
+	// Integration API
+	initIntegrationApi(appCtx, e.Group("/api"), usecaseMiddleware)
+
+	// Assets API
+	initAssetsApi(appCtx, e.Group("/assets"))
+
+	// Web app delivery
+	Web(e, appCtx.Config.WebConfig(), appCtx.Config.Web_Disabled, nil)
+
+	return e
+}
+
+func initApi(appCtx *ApplicationContext, api *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {
+	api.Use(private)
 	api.GET("/ping", Ping())
 	api.GET("/health", HealthCheck(appCtx.Config, appCtx.Version))
 	api.POST(
 		"/graphql", GraphqlAPI(appCtx.Config.GraphQL, appCtx.Config.Dev),
+		middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: allowedOrigins(appCtx)}),
 		jwtParseMiddleware(appCtx),
 		authMiddleware(appCtx),
 		usecaseMiddleware,
@@ -75,20 +87,44 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 		M2MAuthMiddleware(appCtx.Config),
 		usecaseMiddleware,
 	)
+	
+	// M2M API endpoints
+	if appCtx.Config.AuthM2M.Token != "" {
+		m2mGroup := api.Group("/m2m")
+		m2mGroup.Use(
+			M2MTokenAuthMiddleware(appCtx.Config.AuthM2M.Token),
+			usecaseMiddleware,
+		)
+		m2mGroup.GET("/assets/:uuid/is-private", M2MAssetHandler())
+	}
+	
 	api.POST("/signup", Signup(), usecaseMiddleware)
+}
 
-	publicapi.Echo(api.Group("/p", publicAPIAuthMiddleware(appCtx), usecaseMiddleware))
-	integration.RegisterHandlers(api.Group(
-		"",
-		authMiddleware(appCtx),
-		AuthRequiredMiddleware(),
-		usecaseMiddleware,
-		private,
-	), integration.NewStrictHandler(integration.NewServer(), nil))
+func initPublicApi(appCtx *ApplicationContext, publicAPIGroup *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {
+	publicOrigins := allowedPublicOrigins(appCtx)
+	if len(publicOrigins) > 0 {
+		publicAPIGroup.Use(middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: publicOrigins}))
+	}
+	publicAPIGroup.Use(publicAPIAuthMiddleware(appCtx), usecaseMiddleware)
+	publicapi.Echo(publicAPIGroup)
+}
 
-	serveFiles(e, appCtx)
-	Web(e, appCtx.Config.WebConfig(), appCtx.Config.Web_Disabled, nil)
-	return e
+func initIntegrationApi(appCtx *ApplicationContext, integrationAPIGroup *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {
+	integrationOrigins := allowedIntegrationOrigins(appCtx)
+	if len(integrationOrigins) > 0 {
+		integrationAPIGroup.Use(middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: integrationOrigins}))
+	}
+	integrationAPIGroup.Use(authMiddleware(appCtx), AuthRequiredMiddleware(), usecaseMiddleware, private)
+	integration.RegisterHandlers(integrationAPIGroup, integration.NewStrictHandler(integration.NewServer(), nil))
+}
+
+func initAssetsApi(appCtx *ApplicationContext, fileServeGroup *echo.Group) {
+	origins := allowedOrigins(appCtx)
+	if len(origins) > 0 {
+		fileServeGroup.Use(middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: origins}))
+	}
+	serveFiles(fileServeGroup, appCtx)
 }
 
 func jwtParseMiddleware(appCtx *ApplicationContext) echo.MiddlewareFunc {
@@ -104,6 +140,28 @@ func allowedOrigins(appCtx *ApplicationContext) []string {
 	origins := append([]string{}, appCtx.Config.Origins...)
 	if appCtx.Debug {
 		origins = append(origins, "http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8080")
+	}
+	return origins
+}
+
+func allowedIntegrationOrigins(appCtx *ApplicationContext) []string {
+	if appCtx == nil {
+		return nil
+	}
+	origins := append([]string{}, appCtx.Config.Integration_Origins...)
+	if appCtx.Debug {
+		origins = append(origins, "http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8080")
+	}
+	return origins
+}
+
+func allowedPublicOrigins(appCtx *ApplicationContext) []string {
+	if appCtx == nil {
+		return nil
+	}
+	origins := append([]string{}, appCtx.Config.Public_Origins...)
+	if appCtx.Debug {
+		origins = append(origins, "*")
 	}
 	return origins
 }

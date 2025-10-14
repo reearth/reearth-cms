@@ -303,11 +303,11 @@ func TestRequestFlow(t *testing.T) {
 
 	// 1- create public project
 	pId, _ := createProject(e, wId.String(), "test", "test", "test-1")
-	updateProject(e, pId, "test", "test", "test-1", "PUBLIC", true)
+	updateProject(e, pId, "test", "test", "test-1", "PUBLIC", false, []string{})
 
 	// 2- create public model
 	mId, _ := createModel(e, pId, "test", "test", "test-1")
-	updateModel(e, mId, lo.ToPtr("test"), lo.ToPtr("test"), lo.ToPtr("test-1"), true)
+	updateModel(e, mId, lo.ToPtr("test"), lo.ToPtr("test"), lo.ToPtr("test-1"))
 
 	fid, _ := createField(e, mId, "text", "text", "text",
 		false, false, false, false, "Text",
@@ -330,6 +330,7 @@ func TestRequestFlow(t *testing.T) {
 
 	// check public item: should return no results
 	res := e.GET("/api/p/{project}/{model}", "test-1", "test-1").
+		WithQuery("page", "1").
 		Expect().
 		Status(http.StatusOK).
 		JSON()
@@ -366,6 +367,7 @@ func TestRequestFlow(t *testing.T) {
 
 	// check public item: should return version 2
 	res = e.GET("/api/p/{project}/{model}", "test-1", "test-1").
+		WithQuery("page", "1").
 		Expect().
 		Status(http.StatusOK).
 		JSON()
@@ -406,6 +408,7 @@ func TestRequestFlow(t *testing.T) {
 
 	// check public item: should return version 3
 	res = e.GET("/api/p/{project}/{model}", "test-1", "test-1").
+		WithQuery("page", "1").
 		Expect().
 		Status(http.StatusOK).
 		JSON()

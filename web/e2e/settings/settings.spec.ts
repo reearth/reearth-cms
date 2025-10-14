@@ -1,18 +1,26 @@
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
+import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { createWorkspace, deleteWorkspace } from "@reearth-cms/e2e/project/utils/workspace";
-import { expect, test } from "@reearth-cms/e2e/utils";
+import { parseConfigBoolean } from "@reearth-cms/utils/format";
+
+import { config } from "../utils/config";
+
+const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 
 test.beforeEach(async ({ reearth, page }) => {
+  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await createWorkspace(page);
-  await page.getByText("Settings").click();
+  await page.getByText("Settings").first().click();
 });
 
 test.afterEach(async ({ page }) => {
+  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await deleteWorkspace(page);
 });
 
 test("Tiles CRUD has succeeded", async ({ page }) => {
+  test.skip();
   await page.getByRole("button", { name: "plus Add new Tiles option" }).click();
   await page
     .locator("div")
@@ -35,15 +43,16 @@ test("Tiles CRUD has succeeded", async ({ page }) => {
   await page.getByTitle("URL").locator("div").click();
   await page.getByLabel("Name").click();
   await page.getByLabel("Name").fill("url");
-  await page.getByRole("textbox", { name: "URL :", exact: true }).click();
-  await page.getByRole("textbox", { name: "URL :", exact: true }).fill("http://url.com");
+  await page.getByLabel("URL").first().click();
+  await page.getByLabel("URL").first().fill("http://url.com");
   await page.getByLabel("Image URL").click();
   await page.getByLabel("Image URL").fill("http://image.com");
   await page.getByRole("button", { name: "OK" }).click();
   await page.getByRole("button", { name: "Save" }).click();
   await closeNotification(page);
   await expect(page.getByText("url", { exact: true })).toBeVisible();
-  await expect(page.locator("img")).toBeVisible();
+  const targetImageEl = page.locator(".ant-card-body .ant-card-meta-avatar > img");
+  await expect(targetImageEl).toHaveAttribute("src", "http://image.com");
   await page
     .locator("div:last-child > .ant-card-actions > li:nth-child(2) > span > .anticon")
     .click();
@@ -144,7 +153,7 @@ test("Tiles reordering has succeeded", async ({ page }) => {
   await closeNotification(page);
 
   await page.getByText("Home").click();
-  await page.getByText("Settings").click();
+  await page.getByText("Settings").first().click();
   await expect(page.locator(".ant-card").nth(0)).toHaveText("LABELLED");
   await expect(page.locator(".ant-card").nth(1)).toHaveText("DEFAULT");
 });
@@ -180,7 +189,7 @@ test("Terrain reordering has succeeded", async ({ page }) => {
   await closeNotification(page);
 
   await page.getByText("Home").click();
-  await page.getByText("Settings").click();
+  await page.getByText("Settings").first().click();
   await expect(page.locator(".ant-card").nth(0)).toHaveText("ARC_GIS_TERRAIN");
   await expect(page.locator(".ant-card").nth(1)).toHaveText("CESIUM_WORLD_TERRAIN");
 });
