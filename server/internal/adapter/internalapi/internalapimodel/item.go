@@ -16,7 +16,7 @@ func ToItem(i *item.Item, sp *schema.Package) *pb.Item {
 	}
 
 	var m = make(map[string]*anypb.Any)
-	for k, v := range exporters.MapFromItem(i, sp) {
+	for k, v := range exporters.MapFromItem(i, sp, nil, nil) {
 		if v == nil {
 			continue
 		}

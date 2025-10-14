@@ -37,7 +37,7 @@ func (r *Project) Filtered(f repo.WorkspaceFilter) repo.Project {
 	}
 }
 
-func (r *Project) FindByWorkspaces(_ context.Context, wids accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter) (project.List, *usecasex.PageInfo, error) {
+func (r *Project) Search(_ context.Context, f interfaces.ProjectFilter) (project.List, *usecasex.PageInfo, error) {
 	if r.err != nil {
 		return nil, nil, r.err
 	}
@@ -45,12 +45,12 @@ func (r *Project) FindByWorkspaces(_ context.Context, wids accountdomain.Workspa
 	// TODO: implement sort & pagination
 
 	result := project.List(r.data.FindAll(func(_ id.ProjectID, v *project.Project) bool {
-		if f != nil && f.Visibility != nil {
+		if f.Visibility != nil {
 			if v.Accessibility().Visibility() != *f.Visibility {
 				return false
 			}
 		}
-		return wids.Has(v.Workspace()) && r.f.CanRead(v.Workspace())
+		return f.WorkspaceIds.Has(v.Workspace()) && r.f.CanRead(v.Workspace())
 	})).SortByID()
 
 	var startCursor, endCursor *usecasex.Cursor

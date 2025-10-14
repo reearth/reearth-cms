@@ -14,10 +14,11 @@ import (
 )
 
 type ProjectFilter struct {
-	Visibility *project.Visibility
-	Keyword    *string
-	Sort       *usecasex.Sort
-	Pagination *usecasex.Pagination
+	WorkspaceIds *accountdomain.WorkspaceIDList
+	Visibility   *project.Visibility
+	Keyword      *string
+	Sort         *usecasex.Sort
+	Pagination   *usecasex.Pagination
 }
 type CreateProjectParam struct {
 	WorkspaceID   accountdomain.WorkspaceID
@@ -87,7 +88,7 @@ type Project interface {
 	FindByIDOrAlias(context.Context, project.IDOrAlias, *usecase.Operator) (*project.Project, error)
 	FindByAliases(context.Context, string, string, *usecase.Operator) (*project.Project, error)
 	FindByWorkspace(context.Context, accountdomain.WorkspaceID, *ProjectFilter, *usecase.Operator) (project.List, *usecasex.PageInfo, error)
-	FindByWorkspaces(context.Context, accountdomain.WorkspaceIDList, *ProjectFilter, *usecase.Operator) (project.List, *usecasex.PageInfo, error)
+	Search(context.Context, ProjectFilter, *usecase.Operator) (project.List, *usecasex.PageInfo, error)
 	Create(context.Context, CreateProjectParam, *usecase.Operator) (*project.Project, error)
 	Update(context.Context, UpdateProjectParam, *usecase.Operator) (*project.Project, error)
 	CheckAlias(context.Context, string) (bool, error)

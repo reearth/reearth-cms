@@ -2,9 +2,12 @@ package mongo
 
 import (
 	"context"
+	"fmt"
+	"regexp"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
@@ -90,23 +93,32 @@ func (r *ProjectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) (proj
 	return filterProjects(ids, res), nil
 }
 
-func (r *ProjectRepo) FindByWorkspaces(ctx context.Context, ids accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter) (project.List, *usecasex.PageInfo, error) {
-	filter := bson.M{
-		"workspace": bson.M{
-			"$in": ids.Strings(),
-		},
-	}
-	var s *usecasex.Sort
-	var p *usecasex.Pagination
-	if f != nil {
-		s = f.Sort
-		p = f.Pagination
+func (r *ProjectRepo) Search(ctx context.Context, f interfaces.ProjectFilter) (project.List, *usecasex.PageInfo, error) {
+	filter := bson.M{}
 
-		if f.Visibility != nil {
-			filter["accessibility.visibility"] = f.Visibility.String()
+	if f.Visibility != nil {
+		filter["accessibility.visibility"] = f.Visibility.String()
+	}
+
+	if f.WorkspaceIds != nil && len(*f.WorkspaceIds) > 0 {
+		filter["workspace"] = bson.M{
+			"$in": f.WorkspaceIds.Strings(),
 		}
 	}
-	return r.paginate(ctx, filter, s, p)
+
+	if f.Keyword != nil && *f.Keyword != "" {
+		p := fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*f.Keyword))
+		regx := bson.M{"$regex": primitive.Regex{Pattern: p, Options: "i"}}
+		filter["$or"] = bson.A{
+			bson.M{"name": regx},
+			bson.M{"alias": regx},
+			bson.M{"description": regx},
+			bson.M{"topics": regx},
+			bson.M{"id": *f.Keyword},
+		}
+	}
+
+	return r.paginate(ctx, filter, f.Sort, f.Pagination)
 }
 
 func (r *ProjectRepo) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias) (*project.Project, error) {

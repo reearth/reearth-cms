@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/gavv/httpexpect/v2"
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -32,7 +33,9 @@ var (
 	pApiP1A1Id    = id.NewAssetID()
 	pApiA1UUID    = uuid.NewString()
 	pApiP1A2Id    = id.NewAssetID()
+	pApiA2UUID    = uuid.NewString()
 	pApiP1M1Id    = id.NewModelID()
+	pApiP1S1Id    = id.NewSchemaID()
 	pApiP1M1Key   = "test-model"
 	pApiP1S1F1Key = "test-field-1"
 	pApiP1S1F2Key = "asset"
@@ -71,37 +74,45 @@ func TestPublicAPI_NotFound(t *testing.T) {
 		AssetBaseURL: "https://example.com",
 	}, true, publicAPISeeder)
 
-	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, "invalid-alias", pApiP1M1Key).
-		Expect().
-		Status(http.StatusNotFound).
-		JSON().
-		IsEqual(map[string]any{"error": "not found"})
+	t.Run("invalid alias", func(t *testing.T) {
+		e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, "invalid-alias", pApiP1M1Key).
+			Expect().
+			Status(http.StatusNotFound).
+			JSON().
+			IsEqual(map[string]any{"error": "not found"})
+	})
 
-	// private model
-	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP2Alias, pApiP2M1Key).
-		Expect().
-		Status(http.StatusNotFound).
-		JSON().
-		IsEqual(map[string]any{"error": "not found"})
+	t.Run("private model", func(t *testing.T) {
+		e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP2Alias, pApiP2M1Key).
+			Expect().
+			Status(http.StatusNotFound).
+			JSON().
+			IsEqual(map[string]any{"error": "not found"})
+	})
 
-	// private assets
-	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP2Alias, "assets").
-		Expect().
-		Status(http.StatusNotFound).
-		JSON().
-		IsEqual(map[string]any{"error": "not found"})
+	t.Run("private assets", func(t *testing.T) {
+		e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP2Alias, "assets").
+			Expect().
+			Status(http.StatusNotFound).
+			JSON().
+			IsEqual(map[string]any{"error": "not found"})
+	})
 
-	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, "invalid-key").
-		Expect().
-		Status(http.StatusNotFound).
-		JSON().
-		IsEqual(map[string]any{"error": "not found"})
+	t.Run("invalid key", func(t *testing.T) {
+		e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, "invalid-key").
+			Expect().
+			Status(http.StatusNotFound).
+			JSON().
+			IsEqual(map[string]any{"error": "not found"})
+	})
 
-	e.GET("/api/p/{workspace}/{project}/{model}/{item}", pApiW1Alias, pApiP1Alias, pApiP1M1Key, id.NewItemID()).
-		Expect().
-		Status(http.StatusNotFound).
-		JSON().
-		IsEqual(map[string]any{"error": "not found"})
+	t.Run("item not found", func(t *testing.T) {
+		e.GET("/api/p/{workspace}/{project}/{model}/{item}", pApiW1Alias, pApiP1Alias, pApiP1M1Key, id.NewItemID()).
+			Expect().
+			Status(http.StatusNotFound).
+			JSON().
+			IsEqual(map[string]any{"error": "not found"})
+	})
 }
 
 func TestPublicAPI_CORS(t *testing.T) {
@@ -218,358 +229,502 @@ func TestPublicAPI_Assets(t *testing.T) {
 		AssetBaseURL: "https://example.com",
 	}, true, publicAPISeeder)
 
-	e.GET("/api/p/{workspace}/{project}/assets", pApiW1Alias, pApiP1Alias).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		IsEqual(map[string]any{
-			"hasMore": false,
-			"limit":   50,
-			"offset":  0,
-			"page":    1,
-			"results": []map[string]any{
-				{
-					"id":          pApiP1A1Id.String(),
-					"type":        "asset",
-					"url":         fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
-					"contentType": "application/zip",
-					"files": []string{
-						fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
-						fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
+	t.Run("export assets with pagination", func(t *testing.T) {
+		e.GET("/api/p/{workspace}/{project}/assets", pApiW1Alias, pApiP1Alias).
+			WithQuery("page", "1").
+			WithQuery("limit", "1").
+			Expect().
+			Status(http.StatusOK).
+			JSON().
+			IsEqual(map[string]any{
+				"hasMore": true,
+				"limit":   1,
+				"offset":  0,
+				"page":    1,
+				"results": []map[string]any{
+					{
+						"id":          pApiP1A1Id.String(),
+						"type":        "asset",
+						"url":         fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
+						"contentType": "application/zip",
+						"files": []string{
+							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
+							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
+						},
 					},
 				},
-			},
-			"totalCount": 1,
-		})
+				"totalCount": 2,
+			})
+	})
 
-	e.GET("/api/p/{workspace}/{project}/assets/{assetid}", pApiW1Alias, pApiP1Alias, pApiP1A1Id).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		IsEqual(map[string]any{
-			"type":        "asset",
-			"id":          pApiP1A1Id.String(),
-			"url":         fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
-			"contentType": "application/zip",
-			"files": []string{
-				fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
-				fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
-			},
-		})
+	t.Run("export assets without pagination", func(t *testing.T) {
+		e.GET("/api/p/{project}/assets", pApiP1Alias).
+			Expect().
+			Status(http.StatusOK).
+			JSON().
+			IsEqual(map[string]any{
+				"results": []map[string]any{
+					{
+						"id":          pApiP1A1Id.String(),
+						"type":        "asset",
+						"url":         fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
+						"contentType": "application/zip",
+						"files": []string{
+							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
+							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
+						},
+					},
+					{
+						"id":          pApiP1A2Id.String(),
+						"type":        "asset",
+						"url":         fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
+						"contentType": "application/zip",
+						"files": []string{
+							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", pApiA2UUID[:2], pApiA2UUID[2:]),
+							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", pApiA2UUID[:2], pApiA2UUID[2:]),
+						},
+					},
+				},
+				"totalCount": 2,
+			})
+	})
+
+	t.Run("get a single asset", func(t *testing.T) {
+		e.GET("/api/p/{workspace}/{project}/assets/{assetid}", pApiW1Alias, pApiP1Alias, pApiP1A1Id).
+			Expect().
+			Status(http.StatusOK).
+			JSON().
+			IsEqual(map[string]any{
+				"type":        "asset",
+				"id":          pApiP1A1Id.String(),
+				"url":         fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
+				"contentType": "application/zip",
+				"files": []string{
+					fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
+					fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
+				},
+			})
+	})
 }
 
 func TestPublicAPI_Model(t *testing.T) {
 	e, r, _ := StartServerWithRepos(t, &app.Config{
 		AssetBaseURL: "https://example.com",
 	}, true, publicAPISeeder)
-
-	// ok
-	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		IsEqual(map[string]any{
-			"results": []map[string]any{
-				{
-					"id":          pApiP1M1I1Id.String(),
-					pApiP1S1F1Key: "aaa",
-					pApiP1S1F2Key: map[string]any{
-						"type": "asset",
-						"id":   pApiP1A1Id.String(),
-						"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
-					},
-				},
-				{
-					"id":          pApiP1M1I2Id.String(),
-					pApiP1S1F1Key: "bbb",
-				},
-				{
-					"id":          pApiP1M1I3Id.String(),
-					pApiP1S1F1Key: "ccc",
-					pApiP1S1F3Key: []string{"aaa", "bbb", "ccc"},
-					pApiP1S1F4Key: []any{
-						map[string]any{
-							"type": "asset",
-							"id":   pApiP1A1Id.String(),
-							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
-						},
-					},
-				},
-				// pApiP1M1I4Id is not included in the response because it does not have the public reference
-				//{
-				//	"id":          pApiP1M1I4Id.String(),
-				//	pApiP1S1F1Key: "ddd",
-				//},
-				{
-					"id":          pApiP1M1I5Id.String(),
-					pApiP1S1F1Key: "eee",
-					pApiP1S1F3Key: []string{"aaa", "bbb", "ccc"},
-					pApiP1S1F4Key: []any{
-						map[string]any{
-							"type": "asset",
-							"id":   pApiP1A1Id.String(),
-							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
-						},
-					},
-					pApiP1S1F5Key: map[string]any{
-						"type":        "Point",
-						"coordinates": []any{102.0, 0.5},
-					},
-					pApiP1S1F6Key: map[string]any{
-						"type": "LineString",
-						"coordinates": []any{
-							[]any{139.65439725962517, 36.34793305387103},
-							[]any{139.61688622815393, 35.910803456352724},
-						},
-					},
-				},
-			},
-			"totalCount": 4,
-			"hasMore":    false,
-			"limit":      50,
-			"offset":     0,
-			"page":       1,
-		})
-
-	// test reference fields
-	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M2Key).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		IsEqual(map[string]any{
-			"results": []map[string]any{
-				{
-					"id":          pApiP1M2I1Id.String(),
-					pApiP1S2F1Key: "bbb",
-					pApiP1S2F2Key: map[string]any{
-						"id":          pApiP1M1I1Id.String(),
-						pApiP1S1F1Key: "aaa",
-					},
-				},
-			},
-			"totalCount": 1,
-			"hasMore":    false,
-			"limit":      50,
-			"offset":     0,
-			"page":       1,
-		})
-
-	// offset pagination
-	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
-		WithQuery("limit", "1").
-		WithQuery("offset", "1").
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		IsEqual(map[string]any{
-			"results": []map[string]any{
-				{
-					"id":          pApiP1M1I2Id.String(),
-					pApiP1S1F1Key: "bbb",
-				},
-			},
-			"totalCount": 4,
-			"hasMore":    true,
-			"limit":      1,
-			"offset":     1,
-			"page":       2,
-		})
-
-	// cursor pagination
-	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
-		WithQuery("start_cursor", pApiP1M1I1Id.String()).
-		WithQuery("page_size", "1").
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		IsEqual(map[string]any{
-			"results": []map[string]any{
-				{
-					"id":          pApiP1M1I2Id.String(),
-					pApiP1S1F1Key: "bbb",
-				},
-			},
-			"totalCount": 4,
-			"hasMore":    true,
-			"nextCursor": pApiP1M1I2Id.String(),
-		})
-
-	// make the project's assets private
 	ctx := context.Background()
 	prj := lo.Must(r.Project.FindByID(ctx, pApiP1Id))
-	prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(id.ModelIDList{pApiP1M1Id}, false), nil))
-	lo.Must0(r.Project.Save(ctx, prj))
-
-	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		IsEqual(map[string]any{
-			"results": []map[string]any{
-				{
-					"id":          pApiP1M1I1Id.String(),
-					pApiP1S1F1Key: "aaa",
-					// pApiP1S1F2Key should be removed
-				},
-				{
-					"id":          pApiP1M1I2Id.String(),
-					pApiP1S1F1Key: "bbb",
-				},
-				{
-					"id":          pApiP1M1I3Id.String(),
-					pApiP1S1F1Key: "ccc",
-					pApiP1S1F3Key: []string{"aaa", "bbb", "ccc"},
-					// pApiP1S1F4Key should be removed (not public asset)
-				},
-				// pApiP1M1I4Id is not included in the response because it does not have the public reference
-				//{
-				//	"id":          pApiP1M1I4Id.String(),
-				//	pApiP1S1F1Key: "ddd",
-				//},
-				{
-					"id":          pApiP1M1I5Id.String(),
-					pApiP1S1F1Key: "eee",
-					pApiP1S1F3Key: []string{"aaa", "bbb", "ccc"},
-					// pApiP1S1F4Key should be removed (not public asset)
-					//pApiP1S1F4Key: []any{
-					//	map[string]any{
-					//		"type": "asset",
-					//		"id":   pApiP1A1Id.String(),
-					//		"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
-					//	},
-					//},
-					pApiP1S1F5Key: map[string]any{
-						"type":        "Point",
-						"coordinates": []any{102.0, 0.5},
-					},
-					pApiP1S1F6Key: map[string]any{
-						"type": "LineString",
-						"coordinates": []any{
-							[]any{139.65439725962517, 36.34793305387103},
-							[]any{139.61688622815393, 35.910803456352724},
-						},
-					},
-				},
-			},
-			"totalCount": 4,
-			"hasMore":    false,
-			"limit":      50,
-			"offset":     0,
-			"page":       1,
-		})
-
-	// make the project private
-	prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(id.ModelIDList{}, false), nil))
-	lo.Must0(r.Project.Save(ctx, prj))
-
-	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
-		Expect().
-		Status(http.StatusNotFound).
-		JSON().
-		IsEqual(map[string]any{
-			"error": "not found",
-		})
-
-	// make the project limited
 	apiKey := project.NewAPIKeyBuilder().NewID().GenerateKey().Name("key1").Description("desc1").
 		Publication(project.NewPublicationSettings(id.ModelIDList{pApiP1M1Id}, true)).Build()
-	prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(nil, false), project.APIKeys{apiKey}))
-	lo.Must0(r.Project.Save(ctx, prj))
 
-	// invalid token
-	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
-		WithHeader("Origin", "https://example.com").
-		WithHeader("Authorization", "secret_abc").
-		WithHeader("Content-Type", "application/json").
-		Expect().
-		Status(http.StatusUnauthorized).
-		JSON().
-		IsEqual(map[string]any{
-			"error": "invalid key",
-		})
-
-	// valid token
-	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
-		WithHeader("Origin", "https://example.com").
-		WithHeader("Authorization", apiKey.Key()).
-		WithHeader("Content-Type", "application/json").
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		IsEqual(map[string]any{
-			"results": []map[string]any{
-				{
-					"id":          pApiP1M1I1Id.String(),
-					pApiP1S1F1Key: "aaa",
-					pApiP1S1F2Key: map[string]any{
-						"type": "asset",
-						"id":   pApiP1A1Id.String(),
-						"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
-					},
-				},
-				{
-					"id":          pApiP1M1I2Id.String(),
-					pApiP1S1F1Key: "bbb",
-				},
-				{
-					"id":          pApiP1M1I3Id.String(),
-					pApiP1S1F1Key: "ccc",
-					pApiP1S1F3Key: []string{"aaa", "bbb", "ccc"},
-					pApiP1S1F4Key: []any{
-						map[string]any{
+	t.Run("export as json (default format)", func(t *testing.T) {
+		e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
+			WithQuery("page", "1").
+			Expect().
+			Status(http.StatusOK).
+			JSON().
+			IsEqual(map[string]any{
+				"results": []map[string]any{
+					{
+						"id":          pApiP1M1I1Id.String(),
+						pApiP1S1F1Key: "aaa",
+						pApiP1S1F2Key: map[string]any{
 							"type": "asset",
 							"id":   pApiP1A1Id.String(),
 							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
 						},
 					},
+					{
+						"id":          pApiP1M1I2Id.String(),
+						pApiP1S1F1Key: "bbb",
+					},
+					{
+						"id":          pApiP1M1I3Id.String(),
+						pApiP1S1F1Key: "ccc",
+						pApiP1S1F3Key: []string{"aaa", "bbb", "ccc"},
+						pApiP1S1F4Key: []any{
+							map[string]any{
+								"type": "asset",
+								"id":   pApiP1A1Id.String(),
+								"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
+							},
+						},
+						pApiP1S1F2Key: map[string]any{
+							"type": "asset",
+							"id":   pApiP1A2Id.String(),
+							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
+						},
+					},
+					// pApiP1M1I4Id is not included in the response because it does not have the public reference
+					//{
+					//	"id":          pApiP1M1I4Id.String(),
+					//	pApiP1S1F1Key: "ddd",
+					//},
+					{
+						"id":          pApiP1M1I5Id.String(),
+						pApiP1S1F1Key: "eee",
+						pApiP1S1F3Key: []string{"aaa", "bbb", "ccc"},
+						pApiP1S1F2Key: map[string]any{
+							"type": "asset",
+							"id":   pApiP1A2Id.String(),
+							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
+						},
+						pApiP1S1F5Key: map[string]any{
+								"type":        "Point",
+								"coordinates": []any{102.0, 0.5},
+							},
+						pApiP1S1F6Key: map[string]any{
+								"type": "LineString",
+								"coordinates": []any{
+									[]any{139.65439725962517, 36.34793305387103},
+									[]any{139.61688622815393, 35.910803456352724},
+								},
+							},
+						pApiP1S1F4Key: []any{
+							map[string]any{
+								"type": "asset",
+								"id":   pApiP1A1Id.String(),
+								"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
+							},
+						},
+					},
 				},
-				// pApiP1M1I4Id is not included in the response because it does not have the public reference
-				//{
-				//	"id":          pApiP1M1I4Id.String(),
-				//	pApiP1S1F1Key: "ddd",
-				//},
-				{
-					"id":          pApiP1M1I5Id.String(),
-					pApiP1S1F1Key: "eee",
-					pApiP1S1F3Key: []string{"aaa", "bbb", "ccc"},
-					pApiP1S1F4Key: []any{
-						map[string]any{
+				"totalCount": 4,
+				"hasMore":    false,
+				"limit":      50,
+				"offset":     0,
+				"page":       1,
+			})
+	})
+
+	t.Run("export as json with reference fields", func(t *testing.T) {
+		e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M2Key).
+			WithQuery("page", "1").
+			Expect().
+			Status(http.StatusOK).
+			JSON().
+			IsEqual(map[string]any{
+				"results": []map[string]any{
+					{
+						"id":          pApiP1M2I1Id.String(),
+						pApiP1S2F1Key: "bbb",
+						pApiP1S2F2Key: map[string]any{
+							"id":          pApiP1M1I1Id.String(),
+							pApiP1S1F1Key: "aaa",
+						},
+					},
+				},
+				"totalCount": 1,
+				"hasMore":    false,
+				"limit":      50,
+				"offset":     0,
+				"page":       1,
+			})
+	})
+
+	t.Run("export as json with no pagination", func(t *testing.T) {
+		e.GET("/api/p/{project}/{model}", pApiP1Alias, pApiP1M1Key).
+			Expect().
+			Status(http.StatusOK).
+			JSON().
+			IsEqual(map[string]any{
+				"results": []map[string]any{
+					{
+						"id":          pApiP1M1I1Id.String(),
+						pApiP1S1F1Key: "aaa",
+						pApiP1S1F2Key: map[string]any{
 							"type": "asset",
 							"id":   pApiP1A1Id.String(),
 							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
 						},
 					},
-					pApiP1S1F5Key: map[string]any{
-						"type":        "Point",
-						"coordinates": []any{102.0, 0.5},
+					{
+						"id":          pApiP1M1I2Id.String(),
+						pApiP1S1F1Key: "bbb",
 					},
-					pApiP1S1F6Key: map[string]any{
-						"type": "LineString",
-						"coordinates": []any{
-							[]any{139.65439725962517, 36.34793305387103},
-							[]any{139.61688622815393, 35.910803456352724},
+					{
+						"id":          pApiP1M1I3Id.String(),
+						pApiP1S1F1Key: "ccc",
+						pApiP1S1F3Key: []string{"aaa", "bbb", "ccc"},
+						pApiP1S1F4Key: []any{
+							map[string]any{
+								"type": "asset",
+								"id":   pApiP1A1Id.String(),
+								"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
+							},
+						},
+						pApiP1S1F2Key: map[string]any{
+							"type": "asset",
+							"id":   pApiP1A2Id.String(),
+							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
+						},
+					},
+					// pApiP1M1I4Id is not included in the response because it does not have the public reference
+					//{
+					//	"id":          pApiP1M1I4Id.String(),
+					//	pApiP1S1F1Key: "ddd",
+					//},
+					{
+						"id":          pApiP1M1I5Id.String(),
+						pApiP1S1F1Key: "eee",
+						pApiP1S1F3Key: []string{"aaa", "bbb", "ccc"},
+						pApiP1S1F4Key: []any{
+							map[string]any{
+								"type": "asset",
+								"id":   pApiP1A1Id.String(),
+								"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
+							},
+						},
+						pApiP1S1F5Key: map[string]any{
+							"type":        "Point",
+							"coordinates": []any{102.0, 0.5},
+						},
+						pApiP1S1F6Key: map[string]any{
+							"type": "LineString",
+							"coordinates": []any{
+								[]any{139.65439725962517, 36.34793305387103},
+								[]any{139.61688622815393, 35.910803456352724},
+							},
+						},
+						pApiP1S1F2Key: map[string]any{
+							"type": "asset",
+							"id":   pApiP1A2Id.String(),
+							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
 						},
 					},
 				},
-			},
-			"totalCount": 4,
-			"hasMore":    false,
-			"limit":      50,
-			"offset":     0,
-			"page":       1,
-		})
+				"totalCount": 4,
+			})
+	})
 
-	// different project in the same workspace with the same token
-	e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP2Alias, pApiP1M2Key).
-		WithHeader("Origin", "https://example.com").
-		WithHeader("Authorization", apiKey.Key()).
-		WithHeader("Content-Type", "application/json").
-		Expect().
-		Status(http.StatusNotFound).
-		JSON().
-		IsEqual(map[string]any{
-			"error": "not found",
-		})
+	t.Run("export as json with offset pagination", func(t *testing.T) {
+		e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
+			WithQuery("limit", "1").
+			WithQuery("offset", "1").
+			Expect().
+			Status(http.StatusOK).
+			JSON().
+			IsEqual(map[string]any{
+				"results": []map[string]any{
+					{
+						"id":          pApiP1M1I2Id.String(),
+						pApiP1S1F1Key: "bbb",
+					},
+				},
+				"totalCount": 4,
+				"hasMore":    true,
+				"limit":      1,
+				"offset":     1,
+				"page":       2,
+			})
+	})
+
+	t.Run("export as json with cursor pagination", func(t *testing.T) {
+		e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
+			WithQuery("start_cursor", pApiP1M1I1Id.String()).
+			WithQuery("page_size", "1").
+			Expect().
+			Status(http.StatusOK).
+			JSON().
+			IsEqual(map[string]any{
+				"results": []map[string]any{
+					{
+						"id":          pApiP1M1I2Id.String(),
+						pApiP1S1F1Key: "bbb",
+					},
+				},
+				"totalCount": 4,
+				"hasMore":    true,
+				"nextCursor": pApiP1M1I2Id.String(),
+			})
+	})
+
+	t.Run("export as json with private assets", func(t *testing.T) {
+		prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(id.ModelIDList{pApiP1M1Id}, false), nil))
+		lo.Must0(r.Project.Save(ctx, prj))
+
+		e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
+			WithQuery("page", "1").
+			Expect().
+			Status(http.StatusOK).
+			JSON().
+			IsEqual(map[string]any{
+				"results": []map[string]any{
+					{
+						"id":          pApiP1M1I1Id.String(),
+						pApiP1S1F1Key: "aaa",
+						// pApiP1S1F2Key should be removed
+					},
+					{
+						"id":          pApiP1M1I2Id.String(),
+						pApiP1S1F1Key: "bbb",
+					},
+					{
+						"id":          pApiP1M1I3Id.String(),
+						pApiP1S1F1Key: "ccc",
+						pApiP1S1F3Key: []string{"aaa", "bbb", "ccc"},
+						// pApiP1S1F4Key should be removed (not public asset)
+					},
+					// pApiP1M1I4Id is not included in the response because it does not have the public reference
+					//{
+					//	"id":          pApiP1M1I4Id.String(),
+					//	pApiP1S1F1Key: "ddd",
+					//},
+					{
+						"id":          pApiP1M1I5Id.String(),
+						pApiP1S1F1Key: "eee",
+						pApiP1S1F3Key: []string{"aaa", "bbb", "ccc"},
+						// pApiP1S1F4Key should be removed (not public asset)
+						//pApiP1S1F4Key: []any{
+						//	map[string]any{
+						//		"type": "asset",
+						//		"id":   pApiP1A1Id.String(),
+						//		"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
+						//	},
+						//},
+						pApiP1S1F5Key: map[string]any{
+								"type":        "Point",
+								"coordinates": []any{102.0, 0.5},
+							},
+						pApiP1S1F6Key: map[string]any{
+								"type": "LineString",
+								"coordinates": []any{
+									[]any{139.65439725962517, 36.34793305387103},
+									[]any{139.61688622815393, 35.910803456352724},
+								},
+							},
+					},
+				},
+				"totalCount": 4,
+				"hasMore":    false,
+				"limit":      50,
+				"offset":     0,
+				"page":       1,
+			})
+	})
+
+	t.Run("export as json should fail for private project", func(t *testing.T) {
+		prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(id.ModelIDList{}, false), nil))
+		lo.Must0(r.Project.Save(ctx, prj))
+
+		e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
+			Expect().
+			Status(http.StatusNotFound).
+			JSON().
+			IsEqual(map[string]any{
+				"error": "not found",
+			})
+	})
+
+	t.Run("export as json with valid/invalid token", func(t *testing.T) {
+		prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(nil, false), project.APIKeys{apiKey}))
+		lo.Must0(r.Project.Save(ctx, prj))
+
+		// invalid token
+		e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
+			WithHeader("Origin", "https://example.com").
+			WithHeader("Authorization", "secret_abc").
+			WithHeader("Content-Type", "application/json").
+			Expect().
+			Status(http.StatusUnauthorized).
+			JSON().
+			IsEqual(map[string]any{
+				"error": "invalid key",
+			})
+
+		// valid token
+		e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
+			WithHeader("Origin", "https://example.com").
+			WithHeader("Authorization", apiKey.Key()).
+			WithHeader("Content-Type", "application/json").
+			WithQuery("page", "1").
+			Expect().
+			Status(http.StatusOK).
+			JSON().
+			IsEqual(map[string]any{
+				"results": []map[string]any{
+					{
+						"id":          pApiP1M1I1Id.String(),
+						pApiP1S1F1Key: "aaa",
+						pApiP1S1F2Key: map[string]any{
+							"type": "asset",
+							"id":   pApiP1A1Id.String(),
+							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
+						},
+					},
+					{
+						"id":          pApiP1M1I2Id.String(),
+						pApiP1S1F1Key: "bbb",
+					},
+					{
+						"id":          pApiP1M1I3Id.String(),
+						pApiP1S1F1Key: "ccc",
+						pApiP1S1F3Key: []string{"aaa", "bbb", "ccc"},
+						pApiP1S1F4Key: []any{
+							map[string]any{
+								"type": "asset",
+								"id":   pApiP1A1Id.String(),
+								"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
+							},
+						},
+						pApiP1S1F2Key: map[string]any{
+							"type": "asset",
+							"id":   pApiP1A2Id.String(),
+							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
+						},
+					},
+					// pApiP1M1I4Id is not included in the response because it does not have the public reference
+					//{
+					//	"id":          pApiP1M1I4Id.String(),
+					//	pApiP1S1F1Key: "ddd",
+					//},
+					{
+						"id":          pApiP1M1I5Id.String(),
+						pApiP1S1F1Key: "eee",
+						pApiP1S1F3Key: []string{"aaa", "bbb", "ccc"},
+						pApiP1S1F4Key: []any{
+							map[string]any{
+								"type": "asset",
+								"id":   pApiP1A1Id.String(),
+								"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
+							},
+						},
+						pApiP1S1F5Key: map[string]any{
+								"type":        "Point",
+								"coordinates": []any{102.0, 0.5},
+							},
+						pApiP1S1F6Key: map[string]any{
+								"type": "LineString",
+								"coordinates": []any{
+									[]any{139.65439725962517, 36.34793305387103},
+									[]any{139.61688622815393, 35.910803456352724},
+								},
+							},
+						pApiP1S1F2Key: map[string]any{
+							"type": "asset",
+							"id":   pApiP1A2Id.String(),
+							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
+						},
+					},
+				},
+				"totalCount": 4,
+				"hasMore":    false,
+				"limit":      50,
+				"offset":     0,
+				"page":       1,
+			})
+
+		// different project in the same workspace with the same token
+		e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP2Alias, pApiP1M2Key).
+			WithHeader("Origin", "https://example.com").
+			WithHeader("Authorization", apiKey.Key()).
+			WithHeader("Content-Type", "application/json").
+			Expect().
+			Status(http.StatusNotFound).
+			JSON().
+			IsEqual(map[string]any{
+				"error": "not found",
+			})
+	})
 }
 
 func TestPublicAPI_Model_GeoJson(t *testing.T) {
@@ -580,7 +735,7 @@ func TestPublicAPI_Model_GeoJson(t *testing.T) {
 	e.GET("/api/p/{workspace}/{project}/{model}.geojson", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
 		Expect().
 		Status(http.StatusOK).
-		JSON().
+		JSON(httpexpect.ContentOpts{MediaType: "application/geo+json"}).
 		IsEqual(map[string]any{
 			"type": "FeatureCollection",
 			"features": []map[string]any{
@@ -604,7 +759,7 @@ func TestPublicAPI_Model_GeoJson(t *testing.T) {
 						pApiP1S1F2Key: map[string]any{
 							"id":   pApiP1A2Id,
 							"type": "asset",
-							"url":  "", // asset does not exist in db
+							"url":  fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
 						},
 						pApiP1S1F4Key: []map[string]any{
 							{
@@ -633,70 +788,82 @@ func TestPublicAPI_Model_CSV(t *testing.T) {
 		AssetBaseURL: "https://example.com",
 	}, true, publicAPISeeder)
 
-	e.GET("/api/p/{workspace}/{project}/{model}.csv", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
-		Expect().
-		Status(http.StatusOK).
-		Body().
-		IsEqual("id,location_lat,location_lng,test-field-1,asset,test-field-2,asset2\n" +
-			fmt.Sprintf("%s,0.5,102,eee,,aaa,\n", pApiP1M1I5Id.String()))
+	t.Run("export as csv with default settings", func(t *testing.T) {
+		e.GET("/api/p/{workspace}/{project}/{model}.csv", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
+			Expect().
+			Status(http.StatusOK).
+			HasContentType("text/csv").
+			Body().
+			IsEqual(fmt.Sprintf("id,%s\n", pApiP1S1F1Key) +
+				fmt.Sprintf("%s,aaa\n", pApiP1M1I1Id.String()) +
+				fmt.Sprintf("%s,bbb\n", pApiP1M1I2Id.String()) +
+				fmt.Sprintf("%s,ccc\n", pApiP1M1I3Id.String()) +
+				fmt.Sprintf("%s,eee\n", pApiP1M1I5Id.String()),
+			)
+	})
 
-	// model does not have point type geometry field
-	e.GET("/api/p/{workspace}/{project}/{model}.csv", pApiW1Alias, pApiP1Alias, pApiP1M2Key).
-		Expect().
-		Status(http.StatusBadRequest).
-		JSON().
-		IsEqual(map[string]any{
-			"error": "point type is not supported in this model",
-		})
+	t.Run("export as csv should not fail if the model does not have point geo field", func(t *testing.T) {
+		e.GET("/api/p/{workspace}/{project}/{model}.csv", pApiW1Alias, pApiP1Alias, pApiP1M2Key).
+			Expect().
+			Status(http.StatusOK).
+			HasContentType("text/csv").
+			Body().
+			IsEqual("id,test-field-1\n" +
+				fmt.Sprintf("%s,bbb\n", pApiP1M2I1Id.String()))
+	})
 }
 
-func TestPublicAPI_Model_Json(t *testing.T) {
+func TestPublicAPI_Model_Schema(t *testing.T) {
 	e, _, _ := StartServerWithRepos(t, &app.Config{
 		AssetBaseURL: "https://example.com",
 	}, true, publicAPISeeder)
 
 	// schema export json
-	e.GET("/api/p/{workspace}/{project}/{model}/schema.json", pApiW1Alias, pApiP1Alias, id.RandomKey()).
-		Expect().
-		Status(http.StatusNotFound)
+	t.Run("not found", func(t *testing.T) {
+		e.GET("/api/p/{workspace}/{project}/{model}/schema.json", pApiW1Alias, pApiP1Alias, id.RandomKey()).
+			Expect().
+			Status(http.StatusNotFound)
+	})
 
-	e.GET("/api/p/{workspace}/{project}/{model}/schema.json", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		IsEqual(map[string]any{
-			"$id": pApiP1M1Id,
-			"properties": map[string]any{
-				"asset": map[string]any{
-					"title":  "asset",
-					"type":   "string",
-					"format": "binary",
+	t.Run("ok", func(t *testing.T) {
+		e.GET("/api/p/{workspace}/{project}/{model}.schema.json", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
+			Expect().
+			Status(http.StatusOK).
+			JSON().
+			IsEqual(map[string]any{
+				"$id": pApiP1S1Id,
+				"properties": map[string]any{
+					"asset": map[string]any{
+						"title":  "asset",
+						"type":   "string",
+						"format": "binary",
+					},
+					"asset2": map[string]any{
+						"title":  "asset2",
+						"type":   "string",
+						"format": "binary",
+					},
+					"geometry-editor": map[string]any{
+						"title": "geometry-editor",
+						"type":  "object",
+					},
+					"geometry-object": map[string]any{
+						"title": "geometry-object",
+						"type":  "object",
+					},
+					"test-field-1": map[string]any{
+						"title": "test-field-1",
+						"type":  "string",
+					},
+					"test-field-2": map[string]any{
+						"title": "test-field-2",
+						"type":  "string",
+					},
 				},
-				"asset2": map[string]any{
-					"title":  "asset2",
-					"type":   "string",
-					"format": "binary",
-				},
-				"geometry-editor": map[string]any{
-					"title": "geometry-editor",
-					"type":  "object",
-				},
-				"geometry-object": map[string]any{
-					"title": "geometry-object",
-					"type":  "object",
-				},
-				"test-field-1": map[string]any{
-					"title": "test-field-1",
-					"type":  "string",
-				},
-				"test-field-2": map[string]any{
-					"title": "test-field-2",
-					"type":  "string",
-				},
-			},
-			"$schema": "https://json-schema.org/draft/2020-12/schema",
-			"type":    "object",
-		})
+				"$schema": "https://json-schema.org/draft/2020-12/schema",
+				"type":    "object",
+			})
+	})
 }
 
 func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Container) error {
@@ -724,11 +891,18 @@ func publicAPISeeder(ctx context.Context, r *repo.Container, _ *gateway.Containe
 	p1a1f := asset.NewFile().Name("aaa.zip").Path("aaa.zip").ContentType("application/zip").Size(10).Children(p1a1c).Build()
 	lo.Must0(r.AssetFile.Save(ctx, p1a1.ID(), p1a1f))
 
+	/// Project 1 Asset 2
+	p1a2 := asset.New().ID(pApiP1A2Id).Project(pApiP1Id).CreatedByUser(uid).Size(1).Thread(id.NewThreadID().Ref()).FileName("aaa.zip").UUID(pApiA2UUID).MustBuild()
+	lo.Must0(r.Asset.Save(ctx, p1a2))
+
+	p1a2f := p1a1f
+	lo.Must0(r.AssetFile.Save(ctx, p1a2.ID(), p1a2f))
+
 	/// Project 1 Model 1
 	p1s1txt1Id := id.NewFieldID()
 	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString}
 	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString}
-	p1s1 := schema.New().NewID().Project(pApiP1Id).Workspace(p1.Workspace()).
+	p1s1 := schema.New().ID(pApiP1S1Id).Project(pApiP1Id).Workspace(p1.Workspace()).
 		Fields(schema.FieldList{
 			schema.NewField(schema.NewText(nil).TypeProperty()).ID(p1s1txt1Id).Name(pApiP1S1F1Key).Key(id.NewKey(pApiP1S1F1Key)).MustBuild(),
 			schema.NewField(schema.NewAsset().TypeProperty()).NewID().Name(pApiP1S1F2Key).Key(id.NewKey(pApiP1S1F2Key)).MustBuild(),
