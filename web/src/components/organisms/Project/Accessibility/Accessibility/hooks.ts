@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useState, useMemo } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { FormType } from "@reearth-cms/components/molecules/Accessibility/types";

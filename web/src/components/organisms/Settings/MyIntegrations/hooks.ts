@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import type { FormValues } from "@reearth-cms/components/molecules/MyIntegrations/CreationModal";

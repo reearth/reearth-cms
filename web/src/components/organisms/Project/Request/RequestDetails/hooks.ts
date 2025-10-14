@@ -1,7 +1,7 @@
 import { NetworkStatus } from "@apollo/client";
 import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";

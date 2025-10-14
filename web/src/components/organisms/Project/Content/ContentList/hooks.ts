@@ -1,6 +1,6 @@
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useEffect, useMemo, useState, useRef, Key } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { checkIfEmpty } from "@reearth-cms/components/molecules/Content/Form/fields/utils";

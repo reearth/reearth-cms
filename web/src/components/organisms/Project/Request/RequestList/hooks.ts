@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client/react";
 import { Key, useCallback, useMemo, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
