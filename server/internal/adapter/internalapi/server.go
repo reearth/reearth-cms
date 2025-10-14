@@ -149,7 +149,8 @@ func (s server) GetProject(ctx context.Context, req *pb.ProjectRequest) (*pb.Pro
 func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (*pb.ListProjectsResponse, error) {
 	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
 
-	f := &interfaces.ProjectFilter{
+	f := interfaces.ProjectFilter{
+		Keyword:    req.Keyword,
 		Sort:       internalapimodel.SortFromPB(req.SortInfo),
 		Pagination: internalapimodel.PaginationFromPB(req.PageInfo),
 	}
@@ -165,11 +166,9 @@ func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (
 		return wId, true
 	})
 
-	if len(wIds) == 0 {
-		return nil, status.Error(codes.InvalidArgument, "at least one valid workspace_id is required")
-	}
+	f.WorkspaceIds = lo.ToPtr(accountdomain.WorkspaceIDList(wIds))
 
-	p, pi, err := uc.Project.FindByWorkspaces(ctx, wIds, f, op)
+	p, pi, err := uc.Project.Search(ctx, f, op)
 	if err != nil {
 		return nil, err
 	}
