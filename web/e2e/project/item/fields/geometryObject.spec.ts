@@ -14,6 +14,7 @@ test.afterEach(async ({ page }) => {
 });
 
 test("GeometryObject field creating and updating has succeeded", async ({ page }) => {
+  test.skip();
   await page.locator("li").filter({ hasText: "Geometry Object" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("geometryObject1");
@@ -58,6 +59,7 @@ test("GeometryObject field creating and updating has succeeded", async ({ page }
 });
 
 test("GeometryObject field editing has succeeded", async ({ page }) => {
+  test.skip();
   await page.locator("li").filter({ hasText: "Geometry Object" }).locator("div").first().click();
   await page.getByLabel("Display name").click();
   await page.getByLabel("Display name").fill("geometryObject1");

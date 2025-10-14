@@ -132,7 +132,6 @@ test("Showing item title has succeeded", async ({ page }) => {
   await expect(page.getByTitle(`e2e model name / default text`, { exact: true })).toBeVisible();
 });
 
-// eslint-disable-next-line playwright/expect-expect
 test("Comment CRUD on Content page has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");
@@ -149,7 +148,6 @@ test("Comment CRUD on Content page has succeeded", async ({ page }) => {
   await crudComment(page);
 });
 
-// eslint-disable-next-line playwright/expect-expect
 test("Comment CRUD on edit page has succeeded", async ({ page }) => {
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
   await handleFieldForm(page, "text");

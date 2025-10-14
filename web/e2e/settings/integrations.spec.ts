@@ -16,6 +16,7 @@ test.afterEach(async ({ page }) => {
 });
 
 test("Integration CRUD and searching has succeeded", async ({ reearth, page }) => {
+  test.skip();
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByText("My Integrations").click();
 

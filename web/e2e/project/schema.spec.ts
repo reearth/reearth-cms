@@ -149,7 +149,6 @@ test("Group reordering has succeeded", async ({ page }) => {
   ).toContainText("group3");
 });
 
-// eslint-disable-next-line playwright/expect-expect
 test("Text field CRUD has succeeded", async ({ page }) => {
   await createModelFromSidebar(page);
   await page.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
