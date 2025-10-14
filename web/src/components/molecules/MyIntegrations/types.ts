@@ -39,7 +39,7 @@ export type TriggerKey =
   | "onAssetDecompress"
   | "onAssetDelete";
 
-export type WebhookTrigger = Record<TriggerKey, boolean | null | undefined>;
+export type WebhookTrigger = Partial<Record<TriggerKey, boolean | null>>;
 
 export type WebhookValues = Webhook & {
   trigger: TriggerKey[];
