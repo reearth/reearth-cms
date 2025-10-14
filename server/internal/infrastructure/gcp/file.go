@@ -280,6 +280,13 @@ func (f *fileRepo) toPublicUrl(uploadURL string) string {
 		if err == nil {
 			parsedURL.Scheme = f.publicBase.Scheme
 			parsedURL.Host = f.publicBase.Host
+			// Remove bucket name from the path since custom domain represents the bucket
+			// Original: /bucket-name/assets/... -> /assets/...
+			if strings.HasPrefix(parsedURL.Path, "/"+f.bucketName+"/") {
+				parsedURL.Path = strings.TrimPrefix(parsedURL.Path, "/"+f.bucketName+"/")
+				// Ensure the path is relative (no leading slash) for path.Join
+				parsedURL.Path = strings.TrimLeft(parsedURL.Path, "/")
+			}
 			parsedURL.Path = path.Join(f.publicBase.Path, parsedURL.Path)
 			uploadURL = parsedURL.String()
 		}
