@@ -3421,7 +3421,7 @@
     "@graphql-codegen/visitor-plugin-common" "^6.0.0"
     tslib "~2.6.0"
 
-"@graphql-codegen/near-operation-file-preset@^3.1.0":
+"@graphql-codegen/near-operation-file-preset@3.1.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/near-operation-file-preset/-/near-operation-file-preset-3.1.0.tgz#5c60a9ec137bb78d83eeab39a97595a09ad6bd9a"
   integrity sha512-sXIIi0BPP3IcARdzSztpE51oJTcGB67hi7ddBYfLinks/R/5aFG1Ry/J61707Kt+6Q5WhTnf5XAQUAqi6200yA==
@@ -3466,7 +3466,7 @@
     "@graphql-tools/utils" "^10.0.0"
     tslib "~2.6.0"
 
-"@graphql-codegen/typed-document-node@^6.0.0":
+"@graphql-codegen/typed-document-node@6.0.0", "@graphql-codegen/typed-document-node@^6.0.0":
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/@graphql-codegen/typed-document-node/-/typed-document-node-6.0.0.tgz#18e068a0ab442bebc65cc5de6fc5965547a21cb4"
   integrity sha512-OYmbadwvjq19yCZjioy901pLI9YV6i7A0fP3MpcJlo2uQVY27RJPcN2NeLfFzXdHr6f5bm9exqB6X1iKimfA2Q==
@@ -3877,7 +3877,7 @@
     tslib "^2.4.0"
     value-or-promise "^1.0.12"
 
-"@graphql-typed-document-node/core@3.2.0", "@graphql-typed-document-node/core@^3.2.0":
+"@graphql-typed-document-node/core@3.2.0":
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/@graphql-typed-document-node/core/-/core-3.2.0.tgz#5f3d96ec6b2354ad6d8a28bf216a1d97b5426861"
   integrity sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==
@@ -10503,7 +10503,7 @@ graphemer@^1.4.0:
   resolved "https://registry.yarnpkg.com/graphemer/-/graphemer-1.4.0.tgz#fb2f1d55e0e3a1849aeffc90c4fa0dd53a0e66c6"
   integrity sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==
 
-graphiql@^5.2.0:
+graphiql@5.2.0:
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/graphiql/-/graphiql-5.2.0.tgz#e2e5a10ac562ac5f126a2f95bfab0845ec787924"
   integrity sha512-nf+3cmwTANNaJCLHzfSBFxR00ckXXpUcQAKt2O1bNLiqhHavfFlZie+sZrYz26sQVxa9LfxPYUJvjF4x8C24Nw==
@@ -15076,7 +15076,7 @@ runes2@1.1.4:
   resolved "https://registry.yarnpkg.com/runes2/-/runes2-1.1.4.tgz#aa38d3d7946e147ac4718ed0fb19b22340ae5c66"
   integrity sha512-LNPnEDPOOU4ehF71m5JoQyzT2yxwD6ZreFJ7MxZUAoMKNMY1XrAo60H1CUoX5ncSm0rIuKlqn9JZNRrRkNou2g==
 
-rxjs@^7.8.1, rxjs@^7.8.2:
+rxjs@7.8.2, rxjs@^7.8.1:
   version "7.8.2"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.8.2.tgz#955bc473ed8af11a002a2be52071bf475638607b"
   integrity sha512-dhKf903U/PQZY6boNNtAGdWbG85WAbjT/1xYoZIC7FAY0yWapOBQVsVrDl58W86//e1VpMNBtRV4MaXfdMySFA==

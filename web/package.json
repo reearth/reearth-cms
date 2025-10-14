@@ -34,11 +34,11 @@
     "@graphql-codegen/cli": "6.0.0",
     "@graphql-codegen/fragment-matcher": "6.0.0",
     "@graphql-codegen/introspection": "5.0.0",
-    "@graphql-codegen/near-operation-file-preset": "^3.1.0",
-    "@graphql-codegen/typed-document-node": "^6.0.0",
+    "@graphql-codegen/near-operation-file-preset": "3.1.0",
+    "@graphql-codegen/typed-document-node": "6.0.0",
     "@graphql-codegen/typescript": "5.0.2",
     "@graphql-codegen/typescript-operations": "5.0.2",
-    "@graphql-typed-document-node/core": "^3.2.0",
+    "@graphql-typed-document-node/core": "3.2.0",
     "@mapbox/vector-tile": "2.0.4",
     "@playwright/test": "1.56.0",
     "@rollup/plugin-yaml": "4.1.2",
@@ -71,7 +71,7 @@
     "eslint-plugin-playwright": "2.2.2",
     "eslint-plugin-storybook": "0.8.0",
     "globals": "16.4.0",
-    "graphiql": "^5.2.0",
+    "graphiql": "5.2.0",
     "i18next-parser": "9.3.0",
     "jest": "30.2.0",
     "jsdom": "27.0.0",
@@ -139,7 +139,7 @@
     "remark-gfm": "4.0.1",
     "resium": "1.18.3",
     "runes2": "1.1.4",
-    "rxjs": "^7.8.2",
+    "rxjs": "7.8.2",
     "ulid": "3.0.1"
   }
 }
