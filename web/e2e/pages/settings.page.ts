@@ -57,7 +57,7 @@ export class SettingsPage extends BasePage {
     return this.getByLabel("Name");
   }
   get urlInput(): Locator {
-    return this.getByRole("textbox", { name: "URL :", exact: true });
+    return this.getByLabel("URL").first();
   }
   get imageUrlInput(): Locator {
     return this.getByLabel("Image URL");

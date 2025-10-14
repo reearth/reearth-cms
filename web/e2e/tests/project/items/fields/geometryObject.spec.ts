@@ -34,7 +34,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
   await expect(contentPage.labelElement()).toContainText("geometryObject1");
   await expect(contentPage.mainElement).toContainText("geometryObject1 description");
   await contentPage.viewLinesEditor.click();
-  await contentPage.editorContent.fill('{\n"type": "Point",\n"coordinates": [0, 0] }');
+  await contentPage.editorContent.fill('{\n"type": "Point",\n"coordinates": [0, 0]');
   await contentPage.saveButton.click();
   await contentPage.closeNotification();
   await contentPage.backButton.click();

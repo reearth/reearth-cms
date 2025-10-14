@@ -25,12 +25,12 @@ test("MyIntegration CRUD has succeeded", async ({ integrationsPage }) => {
 
   await expect(integrationsPage.rootElement).toContainText("newName");
   await integrationsPage.backButton.click();
-  await expect(integrationsPage.mainElement).toContainText("newNamenewDescription");
-  await integrationsPage.integrationLinkByText("newNamenewDescription").click();
+  await expect(integrationsPage.mainElement).toContainText("newDescription");
+  await integrationsPage.integrationLinkByText("newDescription").click();
   await integrationsPage.removeIntegrationButton.click();
   await integrationsPage.okButton.click();
   await integrationsPage.closeNotification();
-  await expect(integrationsPage.mainElement).not.toContainText("newNamenewDescription");
+  await expect(integrationsPage.mainElement).not.toContainText("newDescription");
 });
 
 test("Webhook CRUD has succeeded", async ({ integrationsPage }) => {
