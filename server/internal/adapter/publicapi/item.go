@@ -16,8 +16,8 @@ import (
 	"github.com/reearth/reearthx/usecasex"
 )
 
-func (c *Controller) GetItem(ctx context.Context, wAlias, pAlias, mKey, iID string) (Item, error) {
-	wpm, err := c.loadWPMContext(ctx, wAlias, pAlias, mKey)
+func (c *Controller) GetItem(ctx context.Context, wsAlias, pAlias, mKey, iID string) (Item, error) {
+	wpm, err := c.loadWPMContext(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
 		return Item{}, err
 	}

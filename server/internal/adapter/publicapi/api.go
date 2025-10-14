@@ -168,13 +168,13 @@ func ItemOrAsset() echo.HandlerFunc {
 		ctx := c.Request().Context()
 		ctrl := GetController(c.Request().Context())
 
-		wAlias, pAlias, mKey, iID := c.Param("workspace-alias"), c.Param("project-alias"), c.Param("model-key"), c.Param("item-id")
+		wsAlias, pAlias, mKey, iID := c.Param("workspace"), c.Param("project"), c.Param("model"), c.Param("item")
 		var res any
 		var err error
 		if mKey == "assets" {
-			res, err = ctrl.GetAsset(ctx, wAlias, pAlias, iID)
+			res, err = ctrl.GetAsset(ctx, wsAlias, pAlias, iID)
 		} else {
-			res, err = ctrl.GetItem(ctx, wAlias, pAlias, mKey, iID)
+			res, err = ctrl.GetItem(ctx, wsAlias, pAlias, mKey, iID)
 		}
 
 		if err != nil {

@@ -11,8 +11,8 @@ import (
 	"github.com/reearth/reearthx/usecasex"
 )
 
-func (c *Controller) GetAsset(ctx context.Context, wAlias, pAlias, iID string) (Asset, error) {
-	wpm, err := c.loadWPMContext(ctx, wAlias, pAlias, "")
+func (c *Controller) GetAsset(ctx context.Context, wsAlias, pAlias, iID string) (Asset, error) {
+	wpm, err := c.loadWPMContext(ctx, wsAlias, pAlias, "")
 	if err != nil {
 		return Asset{}, err
 	}
