@@ -5,18 +5,19 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import {
-  useCreateApiKeyMutation,
-  useUpdateApiKeyMutation,
-  useRegenerateApiKeyMutation,
-  useGetModelsQuery,
   Model as GQLModel,
+  useCreateApiKeyMutation,
+  useGetModelsQuery,
+  useRegenerateApiKeyMutation,
+  useUpdateApiKeyMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useProject, useUserRights } from "@reearth-cms/state";
+import { useProject, useUserRights, useWorkspace } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
   const { workspaceId, projectId, keyId } = useParams();
+  const [currentWorkspace] = useWorkspace();
   const [currentProject] = useProject();
   const navigate = useNavigate();
   const location = useLocation();
@@ -160,8 +161,8 @@ export default () => {
   );
 
   const apiUrl = useMemo(
-    () => `${window.REEARTH_CONFIG?.api}/p/${currentProject?.alias}/`,
-    [currentProject?.alias],
+    () => `${window.REEARTH_CONFIG?.api}/p/${currentWorkspace?.alias}/${currentProject?.alias}/`,
+    [currentProject?.alias, currentWorkspace?.alias],
   );
 
   const handleBack = useCallback(() => {
