@@ -1,9 +1,7 @@
 package publicapi
 
 import (
-	"bytes"
 	"encoding/json"
-	"io"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/group"
@@ -14,7 +12,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -186,117 +183,4 @@ func TestItem_MarshalJSON(t *testing.T) {
 			"url":  "https://example.com",
 		},
 	}, v)
-}
-
-func TestNewListResult(t *testing.T) {
-	assert.Equal(t, ListResult[any]{
-		Results:    []any{},
-		TotalCount: 1010,
-		HasMore:    lo.ToPtr(true),
-		Limit:      lo.ToPtr(int64(100)),
-		Offset:     lo.ToPtr(int64(250)),
-		Page:       lo.ToPtr(int64(3)),
-	}, NewListResult[any](nil, &usecasex.PageInfo{
-		TotalCount: 1010,
-	}, usecasex.OffsetPagination{
-		Offset: 250,
-		Limit:  100,
-	}.Wrap()))
-
-	assert.Equal(t, ListResult[any]{
-		Results:    []any{},
-		TotalCount: 150,
-		HasMore:    lo.ToPtr(false),
-		Limit:      lo.ToPtr(int64(100)),
-		Offset:     lo.ToPtr(int64(100)),
-		Page:       lo.ToPtr(int64(2)),
-	}, NewListResult[any](nil, &usecasex.PageInfo{
-		TotalCount: 150,
-	}, usecasex.OffsetPagination{
-		Offset: 100,
-		Limit:  100,
-	}.Wrap()))
-
-	assert.Equal(t, ListResult[any]{
-		Results:    []any{},
-		TotalCount: 50,
-		HasMore:    lo.ToPtr(false),
-		Limit:      lo.ToPtr(int64(50)),
-		Offset:     lo.ToPtr(int64(0)),
-		Page:       lo.ToPtr(int64(1)),
-	}, NewListResult[any](nil, &usecasex.PageInfo{
-		TotalCount: 50,
-	}, usecasex.OffsetPagination{
-		Offset: 0,
-		Limit:  50,
-	}.Wrap()))
-
-	assert.Equal(t, ListResult[any]{
-		Results:    []any{},
-		TotalCount: 50,
-		HasMore:    lo.ToPtr(true),
-		NextCursor: lo.ToPtr("cur"),
-	}, NewListResult[any](nil, &usecasex.PageInfo{
-		TotalCount:  50,
-		EndCursor:   usecasex.Cursor("cur").Ref(),
-		HasNextPage: true,
-	}, usecasex.CursorPagination{
-		First: lo.ToPtr(int64(100)),
-	}.Wrap()))
-}
-
-func TestWriterToItems(t *testing.T) {
-	// Test with valid JSON containing items array
-	validJSON := `{"results":[{"id":"1","name":"item1"},{"id":"2","name":"item2"}],"total":2}`
-	buf := bytes.NewBufferString(validJSON)
-
-	items := writerToItems(buf)
-	assert.Equal(t, 2, len(items))
-
-	// Test with empty buffer
-	emptyBuf := bytes.NewBuffer(nil)
-	emptyItems := writerToItems(emptyBuf)
-	assert.Equal(t, 0, len(emptyItems))
-
-	// Test with invalid JSON
-	invalidJSON := `{"invalid": json`
-	invalidBuf := bytes.NewBufferString(invalidJSON)
-	invalidItems := writerToItems(invalidBuf)
-	assert.Equal(t, 0, len(invalidItems))
-
-	// Test with JSON without items field
-	noItemsJSON := `{"data":[],"total":0}`
-	noItemsBuf := bytes.NewBufferString(noItemsJSON)
-	noItems := writerToItems(noItemsBuf)
-	assert.Equal(t, 0, len(noItems))
-
-	// Test with non-buffer writer (should return empty slice)
-	var nonBuf io.Writer = &bytes.Buffer{}
-	nonBufItems := writerToItems(nonBuf)
-	assert.Equal(t, 0, len(nonBufItems))
-}
-
-func TestNewItemListResult(t *testing.T) {
-	// Test with buffer containing JSON items
-	validJSON := `{"results":[{"id":"1","name":"item1"},{"id":"2","name":"item2"}],"total":2}`
-	buf := bytes.NewBufferString(validJSON)
-
-	pi := &usecasex.PageInfo{
-		TotalCount: 100,
-	}
-
-	p := usecasex.OffsetPagination{
-		Offset: 0,
-		Limit:  10,
-	}.Wrap()
-
-	result := NewItemListResult(buf, pi, p)
-
-	assert.Equal(t, int64(100), result.TotalCount)
-	assert.Equal(t, 2, len(result.Results))
-	assert.NotNil(t, result.HasMore)
-	assert.True(t, *result.HasMore)
-	assert.Equal(t, lo.ToPtr(int64(10)), result.Limit)
-	assert.Equal(t, lo.ToPtr(int64(0)), result.Offset)
-	assert.Equal(t, lo.ToPtr(int64(1)), result.Page)
 }

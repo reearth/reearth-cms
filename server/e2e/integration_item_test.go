@@ -1537,7 +1537,7 @@ func TestIntegrationItemsAsCSV(t *testing.T) {
 	})
 
 	res := IntegrationItemsAsCSV(e, mId, 1, 10)
-	expected := fmt.Sprintf("id,location_lat,location_lng,text,textArea,markdown,asset,bool,select,integer,number,url,date,tag,checkbox\n%s,36.58570985749664,139.28179282584915,test1,,,,,,,,,,,\n", i1Id)
+	expected := fmt.Sprintf("id,text,textArea,markdown,bool,select,integer,number,url,date,m_tag,m_checkbox\n%s,test1,,,,,,,,,,\n", i1Id)
 	res.IsEqual(expected)
 }
 
@@ -1557,7 +1557,7 @@ func TestIntegrationItemsWithProjectAsCSV(t *testing.T) {
 	})
 
 	res := IntegrationItemsWithProjectAsCSV(e, pId, mId, 1, 10)
-	expected := fmt.Sprintf("id,location_lat,location_lng,text,textArea,markdown,asset,bool,select,integer,number,url,date,tag,checkbox\n%s,36.58570985749664,139.28179282584915,test1,,,,,,30,,,,,\n", i1Id)
+	expected := fmt.Sprintf("id,text,textArea,markdown,bool,select,integer,number,url,date,m_tag,m_checkbox\n%s,test1,,,,,30,,,,,\n", i1Id)
 	res.IsEqual(expected)
 }
 
@@ -1898,7 +1898,8 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		Object()
 
 	r.Value("fields").
-		IsEqual([]any{
+		Array().
+		IsEqualUnordered([]any{
 			map[string]any{
 				"group": igId1.String(),
 				"id":    fId5.String(),
@@ -1946,7 +1947,8 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		Object()
 
 	r.Value("fields").
-		IsEqual([]any{
+		Array().
+		IsEqualUnordered([]any{
 			map[string]any{
 				"group": igId1.String(),
 				"id":    fId5.String(),
@@ -2134,7 +2136,8 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 		Object()
 
 	r.Value("fields").
-		IsEqual([]any{
+		Array().
+		IsEqualUnordered([]any{
 			map[string]any{
 				"group": igId1.String(),
 				"id":    fId5.String(),

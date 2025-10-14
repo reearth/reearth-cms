@@ -11,7 +11,6 @@ test("authenticate", async ({ page }) => {
   await page.goto(baseURL);
   await expect(page.getByRole("button").first()).toBeVisible();
   const isNew = await page.getByLabel("Email address").isVisible();
-  // eslint-disable-next-line playwright/no-conditional-in-test
   if (isNew) {
     await page.getByLabel("Email address").click();
     await page.getByLabel("Email address").fill(userName as string);
@@ -20,7 +19,6 @@ test("authenticate", async ({ page }) => {
     await page.getByLabel("Password").fill(password as string);
     await page.getByRole("button", { name: "Continue", exact: true }).click();
     const withoutPasskeyButton = page.getByRole("button", { name: "Continue without passkeys" });
-    // eslint-disable-next-line playwright/no-conditional-in-test
     if (await withoutPasskeyButton.isVisible()) {
       await withoutPasskeyButton.click();
     }

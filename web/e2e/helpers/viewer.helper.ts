@@ -11,7 +11,6 @@ export async function isCesiumViewerReady(
   let prevSig = previous.toString("base64");
 
   while (Date.now() - startTime < maxWaitTime) {
-    // eslint-disable-next-line playwright/no-wait-for-timeout
     await page.waitForTimeout(interval);
     const current = await canvas.screenshot();
     const currSig = current.toString("base64");

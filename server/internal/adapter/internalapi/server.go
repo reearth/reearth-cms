@@ -149,7 +149,8 @@ func (s server) GetProject(ctx context.Context, req *pb.ProjectRequest) (*pb.Pro
 func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (*pb.ListProjectsResponse, error) {
 	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
 
-	f := &interfaces.ProjectFilter{
+	f := interfaces.ProjectFilter{
+		Keyword:    req.Keyword,
 		Sort:       internalapimodel.SortFromPB(req.SortInfo),
 		Pagination: internalapimodel.PaginationFromPB(req.PageInfo),
 	}
@@ -165,11 +166,9 @@ func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (
 		return wId, true
 	})
 
-	if len(wIds) == 0 {
-		return nil, status.Error(codes.InvalidArgument, "at least one valid workspace_id is required")
-	}
+	f.WorkspaceIds = lo.ToPtr(accountdomain.WorkspaceIDList(wIds))
 
-	p, pi, err := uc.Project.FindByWorkspaces(ctx, wIds, f, op)
+	p, pi, err := uc.Project.Search(ctx, f, op)
 	if err != nil {
 		return nil, err
 	}
@@ -359,6 +358,7 @@ func (s server) ListItems(ctx context.Context, req *pb.ListItemsRequest) (*pb.Li
 	}, nil
 }
 
+//nolint:staticcheck // to be removed after a confirmation from dashboard team
 func (s server) GetModelGeoJSONExportURL(ctx context.Context, req *pb.ExportRequest) (*pb.ExportURLResponse, error) {
 	op, uc, g := adapter.Operator(ctx), adapter.Usecases(ctx), adapter.Gateways(ctx)
 
@@ -412,5 +412,73 @@ func (s server) GetModelGeoJSONExportURL(ctx context.Context, req *pb.ExportRequ
 
 	return &pb.ExportURLResponse{
 		Url: lo.Must(url.JoinPath(g.File.GetBaseURL(), m.ID().String()+".geojson")),
+	}, nil
+}
+
+func (s server) GetModelExportURL(ctx context.Context, req *pb.ModelExportRequest) (*pb.ExportURLResponse, error) {
+	op, uc, g := adapter.Operator(ctx), adapter.Usecases(ctx), adapter.Gateways(ctx)
+
+	pId, err := project.IDFrom(req.ProjectId)
+	if err != nil {
+		return nil, err
+	}
+	mId, err := model.IDFrom(req.ModelId)
+	if err != nil {
+		return nil, err
+	}
+
+	m, err := uc.Model.FindByID(ctx, mId, op)
+	if err != nil {
+		return nil, err
+	}
+	if m.Project() != pId {
+		return nil, rerror.ErrNotFound
+	}
+
+	sp, err := uc.Schema.FindByModel(ctx, mId, op)
+	if err != nil {
+		return nil, err
+	}
+
+	w := bytes.NewBuffer(nil)
+
+	format := exporters.FormatJSON
+	if req.ExportType == pb.ModelExportRequest_GEOJSON {
+		format = exporters.FormatGeoJSON
+	}
+
+	err = uc.Item.Export(ctx, interfaces.ExportItemParams{
+		Format:        format,
+		ModelID:       mId,
+		SchemaPackage: *sp,
+		Options: exporters.ExportOptions{
+			PublicOnly: true,
+		},
+	}, w, op)
+	if err != nil {
+		return nil, err
+	}
+
+	ext := ".json"
+	ct := "application/json"
+	if format == exporters.FormatGeoJSON {
+		ext = ".geojson"
+		ct = "application/geo+json"
+	}
+
+	// upload result as file
+	_, err = g.File.Upload(ctx, &file.File{
+		Content:         io.NopCloser(w),
+		Name:            m.ID().String() + ext,
+		Size:            int64(w.Len()),
+		ContentType:     ct,
+		ContentEncoding: "",
+	}, m.ID().String()+ext)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.ExportURLResponse{
+		Url: lo.Must(url.JoinPath(g.File.GetBaseURL(), m.ID().String()+ext)),
 	}, nil
 }
