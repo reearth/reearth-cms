@@ -1,4 +1,3 @@
-/* eslint-disable playwright/no-skipped-test */
 import { closeNotification } from "@reearth-cms/e2e/common/notification";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
@@ -121,7 +120,6 @@ test("Comment CRUD on edit page has succeeded", async ({ page }) => {
   await expect(page.getByText("new comment")).toBeHidden();
 });
 
-// eslint-disable-next-line playwright/expect-expect
 test("Comment CRUD on Request page has succeeded", async ({ page }) => {
   await page.getByText("Request", { exact: true }).click();
   await page.getByRole("button", { name: "0" }).click();

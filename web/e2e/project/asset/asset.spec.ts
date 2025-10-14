@@ -102,14 +102,12 @@ test.describe.parallel("Json file tests", () => {
     await closeNotification(page);
   });
 
-  // eslint-disable-next-line playwright/expect-expect
   test("Comment CRUD on edit page has succeeded", async ({ page }) => {
     await page.getByRole("cell", { name: "edit" }).locator("svg").click();
     await page.getByLabel("comment").click();
     await crudComment(page);
   });
 
-  // eslint-disable-next-line playwright/expect-expect
   test("Comment CRUD on Asset page has succeeded", async ({ page }) => {
     await page.getByRole("button", { name: "0" }).click();
     await crudComment(page);
