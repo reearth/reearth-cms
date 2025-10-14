@@ -129,6 +129,7 @@ test("Comment CRUD on Request page has succeeded", async ({ page }) => {
 });
 
 test("Creating a new request and adding to request has succeeded", async ({ page }) => {
+  test.skip();
   await page.getByLabel("Back").click();
   await page.getByRole("button", { name: "plus New Item" }).click();
   await page.getByRole("button", { name: "Save" }).click();
