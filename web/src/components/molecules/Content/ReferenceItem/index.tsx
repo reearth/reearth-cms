@@ -51,7 +51,9 @@ const ReferenceItem: React.FC<Props> = ({
         )}
       </Tooltip>
       <div>
-        {itemStatus?.map((state, index) => <StyledBadge key={index} color={stateColors[state]} />)}
+        {itemStatus?.map((state, index) => (
+          <StyledBadge key={index} color={stateColors[state]} />
+        ))}
       </div>
     </StyledReferenceItem>
   );

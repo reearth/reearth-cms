@@ -13,11 +13,12 @@ import {
   UpdateApiKeyDocument,
 } from "@reearth-cms/gql/__generated__/project.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useProject, useUserRights } from "@reearth-cms/state";
+import { useProject, useUserRights, useWorkspace } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
   const { workspaceId, projectId, keyId } = useParams();
+  const [currentWorkspace] = useWorkspace();
   const [currentProject] = useProject();
   const navigate = useNavigate();
   const location = useLocation();
@@ -164,8 +165,8 @@ export default () => {
   );
 
   const apiUrl = useMemo(
-    () => `${window.REEARTH_CONFIG?.api}/p/${currentProject?.alias}/`,
-    [currentProject?.alias],
+    () => `${window.REEARTH_CONFIG?.api}/p/${currentWorkspace?.alias}/${currentProject?.alias}/`,
+    [currentProject?.alias, currentWorkspace?.alias],
   );
 
   const handleBack = useCallback(() => {

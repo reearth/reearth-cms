@@ -7,7 +7,6 @@ import { config } from "../utils/config";
 const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 
 test.beforeEach(async () => {
-  // eslint-disable-next-line playwright/no-skipped-test
   test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
 });
 
