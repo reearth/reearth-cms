@@ -619,12 +619,16 @@ func (f *fileRepo) bucketWithOptions(ctx context.Context, forSigning bool) (*sto
 	var client *storage.Client
 	var err error
 
+	publicBaseStr := "nil"
+	if f.publicBase != nil {
+		publicBaseStr = f.publicBase.String()
+	}
 	log.Debugf("DEBUG bucketWithOptions: bucketName='%s', publicBase='%s', forSigning=%v",
-		f.bucketName, f.publicBase.String(), forSigning)
+		f.bucketName, publicBaseStr, forSigning)
 
 	// For signed URLs, always use standard GCS client to ensure signatures work.
 	// with storage.googleapis.com, regardless of custom endpoint configuration
-	if forSigning || f.publicBase.Host == "storage.googleapis.com" {
+	if forSigning || f.publicBase == nil || f.publicBase.Host == "storage.googleapis.com" {
 		log.Debugf("DEBUG: Using standard GCS client")
 		client, err = storage.NewClient(ctx)
 	} else {
