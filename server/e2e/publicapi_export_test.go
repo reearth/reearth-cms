@@ -14,7 +14,7 @@ func TestPublicAPI_Export(t *testing.T) {
 	}, true, publicAPISeeder)
 
 	t.Run("Export entier data as geojson", func(t *testing.T) {
-		e.GET("/api/p/{project}/{model}.geojson", pApiP1Alias, pApiP1M4Key).
+		e.GET("/api/p/{workspace}/{project}/{model}.geojson", pApiW1Alias, pApiP1Alias, pApiP1M4Key).
 			Expect().
 			Status(http.StatusOK).
 			JSON(httpexpect.ContentOpts{MediaType: "application/geo+json"}).
