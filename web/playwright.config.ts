@@ -34,7 +34,6 @@ const config: PlaywrightTestConfig = {
         storageState: authFile,
       },
       dependencies: ["setup"],
-      testDir: "e2e/tests",
     },
   ],
   timeout: 120 * 1000,
