@@ -2597,6 +2597,15 @@ components:
           type: boolean
         multiple:
           type: boolean
+        name:
+          type: string
+      required:
+        - id
+        - type
+        - key
+        - required
+        - multiple
+        - name
     version:
       type: object
       properties:

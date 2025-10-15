@@ -519,11 +519,12 @@ type Schema struct {
 
 // SchemaField defines model for schemaField.
 type SchemaField struct {
-	Id       *id.FieldID `json:"id,omitempty"`
-	Key      *string     `json:"key,omitempty"`
-	Multiple *bool       `json:"multiple,omitempty"`
-	Required *bool       `json:"required,omitempty"`
-	Type     *ValueType  `json:"type,omitempty"`
+	Id       id.FieldID `json:"id"`
+	Key      string     `json:"key"`
+	Multiple bool       `json:"multiple"`
+	Name     string     `json:"name"`
+	Required bool       `json:"required"`
+	Type     ValueType  `json:"type"`
 }
 
 // TagResponse defines model for tagResponse.
