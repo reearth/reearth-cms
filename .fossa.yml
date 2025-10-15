@@ -1,0 +1,36 @@
+# FOSSA Configuration File
+# https://github.com/fossas/fossa-cli/blob/master/docs/references/files/fossa-yml.md
+
+version: 3
+
+project:
+  name: reearth-cms
+  team: reearth
+  policy: default
+
+targets:
+  only:
+    - type: yarn
+      path: web
+
+experimental-vendored-dependencies:
+  - name: '@zip.js/zip.js'
+    path: web/node_modules/@zip.js/zip.js
+    version: 2.8.7
+    license: BSD-3-Clause
+
+custom-license-search:
+  license-search:
+    - name: '@zip.js/zip.js'
+      override-license: BSD-3-Clause
+      comment: 'Contains SJCL crypto library which is dual-licensed. Using BSD-3-Clause option.'
+
+    - name: 'ol'
+      override-license: BSD-2-Clause
+      comment: 'OpenLayers is BSD-2-Clause licensed. GPL flags are false positives.'
+
+analyze:
+  modules:
+    - path: web
+      type: yarn
+      target: .
