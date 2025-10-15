@@ -590,4 +590,115 @@ export class ContentPage extends BasePage {
     await this.getByLabel("delete").locator("svg").click();
     await this.closeNotification();
   }
+
+  viewTabMoreIcon(viewName: string): Locator {
+    return this.viewTabWithMore(viewName).locator("svg");
+  }
+
+  viewTab(index: number): Locator {
+    return this.tabList.getByRole("tab").nth(index);
+  }
+
+  x2ButtonByIndex(index: number): Locator {
+    return this.getByRole("button", { name: "x2" }).nth(index);
+  }
+
+  tabPanelTextByName(text: string): Locator {
+    return this.tabPanel.getByText(text);
+  }
+
+  cellDivByText(text: string, index: number): Locator {
+    return this.cellByText(text).locator("div").nth(index);
+  }
+
+  get closeCircleLabelSvg(): Locator {
+    return this.closeCircleLabel.locator("svg");
+  }
+
+  async createView(viewName: string): Promise<void> {
+    await this.saveAsNewViewButton.click();
+    await this.viewNameInput.fill(viewName);
+    await this.okButton.click();
+    await this.closeNotification();
+  }
+
+  async renameView(newName: string): Promise<void> {
+    await this.moreButton.click();
+    await this.renameViewButton.click();
+    await this.viewNameInput.fill(newName);
+    await this.okButton.click();
+    await this.closeNotification();
+  }
+
+  async deleteView(): Promise<void> {
+    await this.moreButton.click();
+    await this.removeViewButton.click();
+    await this.removeButton.click();
+    await this.closeNotification();
+  }
+
+  async searchFor(searchTerm: string): Promise<void> {
+    await this.searchInput.fill(searchTerm);
+    await this.searchButton.click();
+  }
+
+  async clearSearch(): Promise<void> {
+    await this.searchInput.fill("");
+    await this.searchButton.click();
+  }
+
+  async publishItem(): Promise<void> {
+    await this.publishButton.click();
+    await this.closeNotification();
+  }
+
+  async unpublishItem(): Promise<void> {
+    await this.ellipsisMenuButton.click();
+    await this.unpublishButton.click();
+    await this.closeNotification();
+  }
+
+  async addFilter(
+    fieldName: string,
+    operator: "is" | "contains" | "end with",
+    value: string,
+  ): Promise<void> {
+    await this.addFilterButton.click();
+    await this.filterMenuItem(fieldName).click();
+
+    if (operator !== "is") {
+      await this.isDropdown.click();
+      if (operator === "contains") {
+        await this.containsOption.click();
+      } else if (operator === "end with") {
+        await this.endWithOption.click();
+      }
+    }
+
+    await this.filterValueInput.fill(value);
+    await this.confirmButton.click();
+  }
+
+  async removeFilter(fieldName: string): Promise<void> {
+    await this.filterCloseButton(fieldName).click();
+  }
+
+  async createItemWithField(
+    fieldName: string,
+    fieldValue: string,
+    navigateBack = true,
+  ): Promise<void> {
+    await this.newItemButton.click();
+    await this.fieldInput(fieldName).fill(fieldValue);
+    await this.saveButton.click();
+    await this.closeNotification();
+    if (navigateBack) {
+      await this.backButton.click();
+    }
+  }
+
+  getCurrentItemId(): string {
+    const url = this.page.url();
+    return url.split("/").at(-1) as string;
+  }
 }

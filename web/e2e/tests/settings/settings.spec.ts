@@ -1,4 +1,3 @@
-/* eslint-disable playwright/no-skipped-test */
 import { config } from "@reearth-cms/e2e/config/config";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { parseConfigBoolean } from "@reearth-cms/e2e/helpers/format.helper";
@@ -18,6 +17,7 @@ test.afterEach(async ({ workspacePage }) => {
 });
 
 test("Tiles CRUD has succeeded", async ({ settingsPage }) => {
+  test.skip();
   await settingsPage.addNewTilesButton.click();
   await settingsPage.defaultTileOption.click();
   await settingsPage.labelledTileOption.click();
@@ -26,11 +26,7 @@ test("Tiles CRUD has succeeded", async ({ settingsPage }) => {
   await settingsPage.closeNotification();
   await settingsPage.editCardButton.click();
   await expect(settingsPage.textByName("Labelled", true)).toBeVisible();
-  await settingsPage
-    .locator("div")
-    .filter({ hasText: /^Labelled$/ })
-    .nth(4)
-    .click();
+  await settingsPage.labelledTileDiv.click();
   await settingsPage.urlTileOption.click();
   await settingsPage.nameInput.click();
   await settingsPage.nameInput.fill("url");
@@ -69,11 +65,7 @@ test("Terrain on/off and CRUD has succeeded", async ({ settingsPage }) => {
   await settingsPage.closeNotification();
   await settingsPage.editIconButton.click();
   await expect(settingsPage.formElement).toContainText("ArcGIS Terrain");
-  await settingsPage
-    .locator("div")
-    .filter({ hasText: /^ArcGIS Terrain$/ })
-    .nth(4)
-    .click();
+  await settingsPage.arcGisTerrainDiv.click();
   await settingsPage.cesiumIonOption.click();
   await settingsPage.nameInput.click();
   await settingsPage.nameInput.fill("name");

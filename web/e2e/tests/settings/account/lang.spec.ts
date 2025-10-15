@@ -1,5 +1,3 @@
-/* eslint-disable playwright/no-conditional-expect */
-/* eslint-disable playwright/no-conditional-in-test */
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 
 test("Language updating has succeeded", async ({ reearth, settingsPage }) => {

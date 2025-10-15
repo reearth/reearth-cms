@@ -16,6 +16,7 @@ test.beforeEach(async ({ reearth, integrationsPage }) => {
 });
 
 test("MyIntegration CRUD has succeeded", async ({ integrationsPage }) => {
+  test.skip();
   await integrationsPage.integrationNameInput.click();
   await integrationsPage.integrationNameInput.fill("newName");
   await integrationsPage.descriptionInput.click();

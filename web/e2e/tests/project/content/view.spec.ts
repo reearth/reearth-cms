@@ -1,6 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { ContentPage } from "@reearth-cms/e2e/pages/content.page";
 
 test.beforeEach(async ({ reearth, workspacePage, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -16,15 +15,6 @@ test.afterEach(async ({ projectPage, workspacePage }) => {
   await workspacePage.deleteWorkspace();
 });
 
-async function itemAdd(data: string, contentPage: ContentPage) {
-  await contentPage.newItemButton.click();
-  await contentPage.fieldInput("text").click();
-  await contentPage.fieldInput("text").fill(data);
-  await contentPage.saveButton.click();
-  await contentPage.closeNotification();
-  await contentPage.backButton.click();
-}
-
 test("View CRUD has succeeded", async ({
   fieldEditorPage,
   projectPage,
@@ -35,10 +25,10 @@ test("View CRUD has succeeded", async ({
   await fieldEditorPage.fieldTypeButton("Text").click();
   await schemaPage.handleFieldForm("text");
   await projectPage.contentMenuItem.click();
-  await itemAdd("text1", contentPage);
-  await itemAdd("text2", contentPage);
-  await itemAdd("sample1", contentPage);
-  await itemAdd("sample2", contentPage);
+  await contentPage.createItemWithField("text", "text1");
+  await contentPage.createItemWithField("text", "text2");
+  await contentPage.createItemWithField("text", "sample1");
+  await contentPage.createItemWithField("text", "sample2");
   await contentPage.saveAsNewViewButton.click();
   await contentPage.viewNameInput.fill("view1");
   await contentPage.okButton.click();
@@ -110,7 +100,7 @@ test("View CRUD has succeeded", async ({
   await contentPage.filterValueInput.fill("1");
   await contentPage.confirmButton.click();
 
-  await contentPage.viewTabWithMore("new view1").locator("svg").click();
+  await contentPage.viewTabMoreIcon("new view1").click();
   await contentPage.updateViewButton.click();
   await contentPage.closeNotification();
 
@@ -130,7 +120,7 @@ test("View CRUD has succeeded", async ({
   await expect(contentPage.tableRow(1)).toContainText("sample1");
 
   await contentPage.viewTabWithMore("new view1").click();
-  await contentPage.viewTabWithMore("new view1").locator("svg").click();
+  await contentPage.viewTabMoreIcon("new view1").click();
   await contentPage.removeViewButton.click();
   await contentPage.removeButton.click();
   await contentPage.closeNotification();
@@ -156,23 +146,20 @@ test("View reordering has succeeded", async ({ projectPage, contentPage }) => {
   await contentPage.okButton.click();
   await contentPage.closeNotification();
 
-  await expect(contentPage.tabList.getByRole("tab").nth(0)).toContainText("view1");
-  await expect(contentPage.tabList.getByRole("tab").nth(1)).toContainText("view2");
-  await contentPage.tabList
-    .getByRole("tab")
-    .nth(0)
-    .dragTo(contentPage.tabList.getByRole("tab").nth(1));
+  await expect(contentPage.viewTab(0)).toContainText("view1");
+  await expect(contentPage.viewTab(1)).toContainText("view2");
+  await contentPage.viewTab(0).dragTo(contentPage.viewTab(1));
   await contentPage.closeNotification();
 
-  await expect(contentPage.tabList.getByRole("tab").nth(0)).toContainText("view2");
-  await expect(contentPage.tabList.getByRole("tab").nth(1)).toContainText("view1");
+  await expect(contentPage.viewTab(0)).toContainText("view2");
+  await expect(contentPage.viewTab(1)).toContainText("view1");
 
   await contentPage.saveAsNewViewButton.click();
   await contentPage.viewNameInput.fill("view3");
   await contentPage.okButton.click();
   await contentPage.closeNotification();
 
-  await expect(contentPage.tabList.getByRole("tab").nth(0)).toContainText("view2");
-  await expect(contentPage.tabList.getByRole("tab").nth(1)).toContainText("view1");
-  await expect(contentPage.tabList.getByRole("tab").nth(2)).toContainText("view3");
+  await expect(contentPage.viewTab(0)).toContainText("view2");
+  await expect(contentPage.viewTab(1)).toContainText("view1");
+  await expect(contentPage.viewTab(2)).toContainText("view3");
 });

@@ -1,19 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { FieldEditorPage } from "@reearth-cms/e2e/pages/field-editor.page";
-import { SchemaPage } from "@reearth-cms/e2e/pages/schema.page";
-
-async function deleteField(
-  name: string,
-  key = name,
-  fieldEditorPage: FieldEditorPage,
-  schemaPage: SchemaPage,
-) {
-  await fieldEditorPage.deleteFieldButton.click();
-  await fieldEditorPage.okButton.click();
-  await schemaPage.closeNotification();
-  await expect(schemaPage.fieldText(name, key)).toBeHidden();
-}
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -33,14 +19,14 @@ test("Model CRUD has succeeded", async ({ schemaPage, fieldEditorPage }) => {
   await schemaPage.createModelFromSidebar(modelName, modelKey);
   await expect(fieldEditorPage.titleByText(modelName, true)).toBeVisible();
   await expect(schemaPage.textByExact(`#${modelKey}`)).toBeVisible();
-  await expect(schemaPage.modelMenuItem(modelName).locator("span")).toBeVisible();
+  await expect(schemaPage.modelMenuItemSpan(modelName)).toBeVisible();
 
   const newModelName = "new model name";
   const newModelKey = "new-model-key";
   await schemaPage.updateModel(newModelName, newModelKey);
   await expect(fieldEditorPage.titleByText(newModelName)).toBeVisible();
   await expect(schemaPage.textByExact(`#${newModelKey}`)).toBeVisible();
-  await expect(schemaPage.modelMenuItem(newModelName).locator("span")).toBeVisible();
+  await expect(schemaPage.modelMenuItemSpan(newModelName)).toBeVisible();
 
   await schemaPage.deleteModel();
   await expect(fieldEditorPage.titleByText(newModelName)).toBeHidden();
@@ -99,7 +85,7 @@ test("Group creating from adding field has succeeded", async ({ schemaPage, fiel
   await schemaPage.groupKeyInput.fill("e2e-group-key");
   await fieldEditorPage.okButton.click();
   await schemaPage.closeNotification();
-  await expect(schemaPage.menuItemByName("e2e group name").locator("span")).toBeVisible();
+  await expect(schemaPage.groupMenuItemSpan("e2e group name")).toBeVisible();
   await expect(schemaPage.groupNameByText("e2e group name#e2e-group-key")).toBeVisible();
   await expect(schemaPage.fieldsMetaDataText).toBeHidden();
   await expect(schemaPage.textByExact("Reference")).toBeHidden();
@@ -129,14 +115,17 @@ test("Group reordering has succeeded", async ({ schemaPage }) => {
   await expect(schemaPage.groupMenuItems.nth(2)).toContainText("group3");
 });
 
-// eslint-disable-next-line playwright/expect-expect
+ 
 test("Text field CRUD has succeeded", async ({ fieldEditorPage, schemaPage }) => {
   await schemaPage.createModelFromSidebar();
   await fieldEditorPage.fieldTypeListItem("Text").click();
   await schemaPage.handleFieldForm("text");
   await fieldEditorPage.ellipsisMenuButton.click();
   await schemaPage.handleFieldForm("new text", "new-text");
-  await deleteField("new text", "new-text", fieldEditorPage, schemaPage);
+  await fieldEditorPage.deleteFieldButton.click();
+  await fieldEditorPage.okButton.click();
+  await schemaPage.closeNotification();
+  await expect(schemaPage.fieldText("new text", "new-text")).toBeHidden();
 });
 
 test("Schema reordering has succeeded", async ({ schemaPage, fieldEditorPage }) => {

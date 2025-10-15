@@ -259,4 +259,12 @@ export class SchemaPage extends BasePage {
     await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
   }
+
+  modelMenuItemSpan(name: string): Locator {
+    return this.getByRole("menuitem", { name }).locator("span");
+  }
+
+  groupMenuItemSpan(name: string): Locator {
+    return this.getByRole("menuitem", { name }).locator("span");
+  }
 }

@@ -145,4 +145,32 @@ export class RequestPage extends BasePage {
   collapsedModelItemButton(modelName: string, itemId: string): Locator {
     return this.getByRole("button", { name: `collapsed ${modelName} / ${itemId}` });
   }
+
+  async assignReviewer(reviewerIndex = 0): Promise<void> {
+    await this.assignToButton.click();
+    await this.closeCircleButton.click();
+    await this.selectOverflow.click();
+    await this.selectItem.nth(reviewerIndex).click();
+    await this.reviewerHeading.click();
+  }
+
+  async approveRequest(): Promise<void> {
+    await this.approveButton.click();
+    await this.closeNotification();
+  }
+
+  async closeRequest(): Promise<void> {
+    await this.closeButton.click();
+    await this.closeNotification();
+  }
+
+  async reopenRequest(): Promise<void> {
+    await this.reopenButton.click();
+    await this.closeNotification();
+  }
+
+  getCurrentItemId(): string {
+    const url = this.page.url();
+    return url.split("/").at(-1) as string;
+  }
 }

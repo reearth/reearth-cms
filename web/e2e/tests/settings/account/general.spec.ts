@@ -26,7 +26,6 @@ test.afterEach(async ({ reearth, settingsPage }) => {
 });
 
 test("Name and email updating has succeeded", async ({ reearth, settingsPage }) => {
-  // eslint-disable-next-line playwright/no-skipped-test
   test.skip(process.env.ENV !== "oss", "This test is only for oss");
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await settingsPage.textByName("Account").click();

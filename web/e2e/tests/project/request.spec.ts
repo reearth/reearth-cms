@@ -1,5 +1,3 @@
-/* eslint-disable playwright/expect-expect */
-/* eslint-disable playwright/no-skipped-test */
 import { config } from "@reearth-cms/e2e/config/config";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { parseConfigBoolean } from "@reearth-cms/e2e/helpers/format.helper";
@@ -146,7 +144,6 @@ test("Creating a new request and adding to request has succeeded", async ({ requ
 });
 
 test("Navigating between item and request has succeeded", async ({
-  page,
   contentPage,
   requestPage,
 }) => {
@@ -162,7 +159,7 @@ test("Navigating between item and request has succeeded", async ({
   await requestPage.titleFieldInput(titleFieldName, "Title").clear();
   await requestPage.saveButton.click();
   await requestPage.closeNotification();
-  const itemId = page.url().split("/").at(-1) as string;
+  const itemId = requestPage.getCurrentItemId();
   await expect(requestPage.modelPathText(modelName, itemId)).toBeVisible();
   const newRequestTitle = "newRequestTitle";
   await contentPage.createRequest(newRequestTitle);

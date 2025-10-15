@@ -138,4 +138,9 @@ export abstract class BasePage {
   locator(selector: string): Locator {
     return this.page.locator(selector);
   }
+
+  getCurrentItemId(): string {
+    const url = this.page.url();
+    return url.split("/").at(-1) as string;
+  }
 }

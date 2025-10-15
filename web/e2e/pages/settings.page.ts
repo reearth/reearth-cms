@@ -169,4 +169,16 @@ export class SettingsPage extends BasePage {
   get headerElement(): Locator {
     return this.locator("header");
   }
+
+  get labelledTileDiv(): Locator {
+    return this.locator("div")
+      .filter({ hasText: /^Labelled$/ })
+      .nth(4);
+  }
+
+  get arcGisTerrainDiv(): Locator {
+    return this.locator("div")
+      .filter({ hasText: /^ArcGIS Terrain$/ })
+      .nth(4);
+  }
 }

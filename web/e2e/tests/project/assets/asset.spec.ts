@@ -1,4 +1,3 @@
-/* eslint-disable playwright/expect-expect */
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 

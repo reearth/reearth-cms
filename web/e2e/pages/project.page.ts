@@ -163,4 +163,8 @@ export class ProjectPage extends BasePage {
     await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
   }
+
+  projectCardDescription(description: string): Locator {
+    return this.locator(".ant-card").getByText(description);
+  }
 }

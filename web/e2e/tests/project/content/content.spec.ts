@@ -1,4 +1,3 @@
-/* eslint-disable playwright/expect-expect */
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -111,7 +110,6 @@ test("Publishing and Unpublishing item from table has succeeded", async ({
 });
 
 test("Showing item title has succeeded", async ({
-  page,
   contentPage,
   fieldEditorPage,
   schemaPage,
@@ -125,7 +123,7 @@ test("Showing item title has succeeded", async ({
   await contentPage.fieldInput("text").fill("text");
   await contentPage.saveButton.click();
   await contentPage.closeNotification();
-  const itemId = page.url().split("/").at(-1);
+  const itemId = contentPage.getCurrentItemId();
   await expect(contentPage.titleByText(`e2e model name / ${itemId}`, true)).toBeVisible();
 
   await schemaPage.schemaText.click();

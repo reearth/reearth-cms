@@ -458,4 +458,36 @@ export class FieldEditorPage extends BasePage {
   clearReferenceButton(): Locator {
     return this.getByRole("button").nth(3);
   }
+
+  async createField(
+    fieldType: string,
+    displayName: string,
+    key?: string,
+    description?: string,
+  ): Promise<void> {
+    await this.fieldTypeButton(fieldType).click();
+    await this.displayNameInput.fill(displayName);
+    await this.settingsKeyInput.fill(key || displayName);
+    if (description) {
+      await this.settingsDescriptionInput.fill(description);
+    }
+    await this.okButton.click();
+    await this.closeNotification();
+  }
+
+  async setFieldValidation(required = false, unique = false): Promise<void> {
+    await this.validationTab.click();
+    if (required) {
+      await this.requiredFieldCheckbox.check();
+    }
+    if (unique) {
+      await this.uniqueFieldCheckbox.check();
+    }
+  }
+
+  async deleteField(): Promise<void> {
+    await this.deleteFieldButton.click();
+    await this.okButton.click();
+    await this.closeNotification();
+  }
 }

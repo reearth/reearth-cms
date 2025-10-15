@@ -1,4 +1,3 @@
-/* eslint-disable playwright/no-skipped-test */
 import { config } from "@reearth-cms/e2e/config/config";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { parseConfigBoolean } from "@reearth-cms/e2e/helpers/format.helper";

@@ -1,4 +1,3 @@
-/* eslint-disable playwright/no-skipped-test */
 import path from "path";
 import { fileURLToPath } from "url";
 
