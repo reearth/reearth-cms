@@ -236,7 +236,7 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 		return nil, gateway.ErrInvalidFile
 	}
 
-	bucket, err := f.bucket(ctx)
+	bucket, err := f.bucketWithOptions(ctx, true)
 	if err != nil {
 		return nil, err
 	}
