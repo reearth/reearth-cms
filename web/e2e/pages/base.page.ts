@@ -143,4 +143,12 @@ export abstract class BasePage {
     const url = this.page.url();
     return url.split("/").at(-1) as string;
   }
+
+  public async fillInput(element: Locator, value: string): Promise<void> {
+    await element.fill(value);
+  }
+
+  public async clearInput(element: Locator): Promise<void> {
+    await element.clear();
+  }
 }

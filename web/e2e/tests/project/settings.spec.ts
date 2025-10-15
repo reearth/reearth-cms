@@ -1,15 +1,13 @@
 import i18next from "i18next";
-// eslint-disable-next-line import/no-extraneous-dependencies
 import Backend from "i18next-fs-backend";
 
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 import { Constant } from "@reearth-cms/utils/constant";
 
-import { createProject, deleteProject } from "./utils/project";
-
-const EXIST_PROJECT_NAME = "exist-project";
-const PROJECT_NAME = "test-project";
-const NEW_PROJECT_NAME = "new-test-project";
+const EXIST_PROJECT_NAME = getId();
+const PROJECT_NAME = getId();
+const NEW_PROJECT_NAME = getId();
 
 test.beforeEach(async ({ reearth }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -25,28 +23,28 @@ test.beforeEach(async ({ reearth }) => {
 test.afterEach(async ({ page: _page, reearth: _reearth }) => {});
 
 test.describe("Project General Settings", () => {
-  test("Update project general settings", async ({ reearth, page }) => {
+  test("Update project general settings", async ({ projectSettingsPage, projectPage }) => {
     await test.step("Project creation setup", async () => {
-      await createProject(page, EXIST_PROJECT_NAME);
-      await reearth.goto("/");
-      await createProject(page, PROJECT_NAME);
+      await projectPage.createProject(EXIST_PROJECT_NAME);
+      await projectSettingsPage.goto("/");
+      await projectPage.createProject(PROJECT_NAME);
 
-      await page.getByText("Settings", { exact: true }).click();
+      await projectPage.gotoProject(PROJECT_NAME);
+      await projectSettingsPage.goToProjectSettings();
     });
 
     await test.step("Check project settings heading", async () => {
-      const settingsTitle = page.getByRole("heading", { name: PROJECT_NAME, exact: false });
-      await expect(settingsTitle).toBeVisible();
+      await expect(projectSettingsPage.settingsTitle(PROJECT_NAME)).toBeVisible();
     });
 
-    const nameEl = page.getByLabel("name");
+    const nameEl = projectSettingsPage.projectName;
 
     await test.step("Check original name exists", async () => {
       await expect(nameEl).toBeVisible();
       await expect(nameEl).toHaveValue(PROJECT_NAME);
     });
 
-    const aliasEl = page.getByLabel("alias");
+    const aliasEl = projectSettingsPage.projectAlias;
 
     await test.step("Check original alias exists", async () => {
       await expect(aliasEl).toBeVisible();
@@ -54,22 +52,23 @@ test.describe("Project General Settings", () => {
     });
 
     await test.step("Update project name and check result", async () => {
-      await nameEl.fill(NEW_PROJECT_NAME);
-      await page.getByRole("button", { name: "Save Changes" }).first().click();
-      const newSettingsTitle = page.getByRole("heading", { name: NEW_PROJECT_NAME, exact: false });
+      await projectSettingsPage.fillInput(nameEl, NEW_PROJECT_NAME);
+      await projectSettingsPage.saveSettings();
+      const newSettingsTitle = projectSettingsPage.settingsTitle(NEW_PROJECT_NAME);
       await expect(newSettingsTitle).toBeVisible();
     });
 
-    const errorEl = page.locator("#alias_help");
+    const errorEl = projectSettingsPage.errorMessage;
 
     await test.step("Alias illegal case 1", async () => {
-      await aliasEl.clear();
+      await projectSettingsPage.clearInput(aliasEl);
+
       const errorMsg1 = i18next.t("{{field}} field is required!", { field: "alias" });
       await expect(errorEl).toHaveText(errorMsg1);
     });
 
     await test.step("Alias illegal case 2", async () => {
-      await aliasEl.fill("hell");
+      await projectSettingsPage.fillInput(aliasEl, "hell");
       const errorMsg2 = i18next.t(
         "Your alias must be between {{min}} and {{max}} characters long.",
         {
@@ -81,7 +80,7 @@ test.describe("Project General Settings", () => {
     });
 
     await test.step("Alias illegal case 3", async () => {
-      await aliasEl.fill("testAlias");
+      await projectSettingsPage.fillInput(aliasEl, "testAlias");
       const errorMsg3 = i18next.t(
         "Alias is invalid. Please use lowercase alphanumeric, hyphen and underscore characters only.",
       );
@@ -89,7 +88,7 @@ test.describe("Project General Settings", () => {
     });
 
     await test.step("Alias illegal case 4", async () => {
-      await aliasEl.fill("test-alias#");
+      await projectSettingsPage.fillInput(aliasEl, "test-alias#");
       const errorMsg4 = i18next.t(
         "Alias is invalid. Please use lowercase alphanumeric, hyphen and underscore characters only.",
       );
@@ -97,24 +96,26 @@ test.describe("Project General Settings", () => {
     });
 
     await test.step("Alias illegal case 5", async () => {
-      await aliasEl.fill(EXIST_PROJECT_NAME);
+      await projectSettingsPage.fillInput(aliasEl, EXIST_PROJECT_NAME);
       const errorMsg5 = i18next.t("Project alias is already taken");
       await expect(errorEl).toHaveText(errorMsg5);
     });
 
     await test.step("Alias legal case 1", async () => {
-      await aliasEl.fill("test-alias-123");
+      await projectSettingsPage.fillInput(aliasEl, "test-alias-123");
       await expect(errorEl).toBeHidden();
     });
 
     await test.step("Alias legal case 2", async () => {
-      await aliasEl.fill("test_alias_123");
+      await projectSettingsPage.fillInput(aliasEl, "test_alias_123");
       await expect(errorEl).toBeHidden();
     });
 
     await test.step("Delete all projects", async () => {
-      await deleteProject(page, reearth, NEW_PROJECT_NAME);
-      await deleteProject(page, reearth, EXIST_PROJECT_NAME);
+      await projectPage.gotoProject(NEW_PROJECT_NAME);
+      await projectPage.deleteProject();
+      await projectPage.gotoProject(EXIST_PROJECT_NAME);
+      await projectPage.deleteProject();
     });
   });
 });
