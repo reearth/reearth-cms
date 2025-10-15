@@ -42,13 +42,15 @@ yarn playwright test --list
 
 ### Environment Variables
 
-Create a `.env` file in the root directory with:
+Create a `.env` file in the `web/` directory with:
 
 ```env
 REEARTH_CMS_E2E_BASEURL=http://localhost:3000
-REEARTH_CMS_E2E_EMAIL=your-email@example.com
+REEARTH_CMS_E2E_USERNAME=your-email@example.com
 REEARTH_CMS_E2E_PASSWORD=your-password
 ```
+
+**Note:** The authentication system now uses `REEARTH_CMS_E2E_USERNAME` and `REEARTH_CMS_E2E_PASSWORD` (not `EMAIL`).
 
 ### Playwright Configuration
 
@@ -68,11 +70,24 @@ web/e2e/
 ├── fixtures/            # Custom Playwright fixtures
 ├── helpers/             # Utility functions
 ├── pages/               # Page Object Models
-├── support/             # Authentication setup
-└── tests/               # Test specifications
+│   └── login.page.ts    # Centralized login page (handles Auth0 & legacy UI)
+├── support/
+│   └── .auth/           # Saved authentication state (gitignored)
+├── tests/               # Test specifications
+├── global-setup.ts      # Global authentication setup (runs once before all tests)
+└── README.md           # This file
 ```
 
-For detailed structure documentation, see [claude.md](./claude.md).
+### 🔐 Centralized Authentication System
+
+This project now uses a **global setup** approach for authentication:
+
+- **Global Setup** (`global-setup.ts`): Authenticates once before all tests run
+- **Shared State**: Authentication session is saved to `support/.auth/user.json`
+- **Auto-Detection**: `LoginPage` automatically detects and handles both Auth0 and legacy login UIs
+- **Performance**: Login happens once, not per test suite - significantly faster!
+
+All tests automatically load the saved authentication state, so they start already logged in.
 
 ## 🎯 Page Object Model (POM)
 
@@ -213,9 +228,10 @@ See [claude.md](./claude.md) for detailed contribution guidelines.
 
 ### Authentication Issues
 
-- Verify credentials in `.env` file
+- Verify credentials in `web/.env` file (use `REEARTH_CMS_E2E_USERNAME` and `REEARTH_CMS_E2E_PASSWORD`)
 - Delete auth state: `rm -rf web/e2e/support/.auth/user.json`
-- Re-run auth setup: `yarn playwright test support/auth.setup.ts`
+- Re-run tests: The global setup will re-authenticate automatically
+- Check console output: The `LoginPage` logs which UI it detects and authentication progress
 
 ### Timeout Errors
 

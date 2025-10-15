@@ -22,7 +22,11 @@
     },
     "types": ["@testing-library/jest-dom"]
   },
-  "include": ["src", "e2e"],
+  "include": [
+    "src",
+    "e2e",
+    "playwright.config.ts"
+  ],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"
