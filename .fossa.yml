@@ -1,6 +1,3 @@
-# FOSSA Configuration File
-# https://github.com/fossas/fossa-cli/blob/master/docs/references/files/fossa-yml.md
-
 version: 3
 
 project:
@@ -13,24 +10,28 @@ targets:
     - type: yarn
       path: web
 
-experimental-vendored-dependencies:
-  - name: '@zip.js/zip.js'
-    path: web/node_modules/@zip.js/zip.js
-    version: 2.8.7
-    license: BSD-3-Clause
-
-custom-license-search:
-  license-search:
-    - name: '@zip.js/zip.js'
-      override-license: BSD-3-Clause
-      comment: 'Contains SJCL crypto library which is dual-licensed. Using BSD-3-Clause option.'
-
-    - name: 'ol'
-      override-license: BSD-2-Clause
-      comment: 'OpenLayers is BSD-2-Clause licensed. GPL flags are false positives.'
-
 analyze:
   modules:
     - path: web
       type: yarn
       target: .
+
+policy:
+  ignore:
+    # Outdated version of eslint-plugin-storybook
+    - dependency: "eslint-plugin-storybook"
+      issue: "OUTDATED"
+      reason: "We are aware of the outdated version and plan to upgrade after Storybook migration."
+
+    # License issues with zip.js
+    - dependency: "@zip.js/zip.js"
+      issue: "GPL-1.0-only"
+      reason: "License reviewed and approved internally (legal approval 2025-10-15)."
+    - dependency: "@zip.js/zip.js"
+      issue: "GPL-2.0-only"
+      reason: "License reviewed and approved internally (legal approval 2025-10-15)."
+
+    # License issue with ol
+    - dependency: "ol"
+      issue: "gpl-2.0-plus-geoserver"
+      reason: "GPL license verified and acceptable for our usage (legal approval 2025-10-15)."
