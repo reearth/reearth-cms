@@ -109,8 +109,6 @@ export class AssetsPage extends BasePage {
     return this.getByText("Asset TypePNG/JPEG/TIFF/GIF");
   }
 
-  
-
   async uploadViaUrl(url: string, autoUnzip = false): Promise<void> {
     await this.uploadButton.click();
     await this.urlTab.click();

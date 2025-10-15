@@ -191,13 +191,6 @@ yarn playwright test --headed
 npx playwright codegen http://localhost:3000
 ```
 
-## 🔗 Useful Links
-
-- [Playwright Documentation](https://playwright.dev/)
-- [Page Object Model Pattern](https://playwright.dev/docs/pom)
-- [Best Practices](https://playwright.dev/docs/best-practices)
-- [Detailed Documentation](./claude.md)
-
 ## 🤝 Contributing
 
 When adding new tests:

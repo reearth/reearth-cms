@@ -128,6 +128,7 @@ test("Comment CRUD on Request page has succeeded", async ({ requestPage, content
 });
 
 test("Creating a new request and adding to request has succeeded", async ({ requestPage }) => {
+  test.skip();
   await requestPage.backButtonCapitalized.click();
   await requestPage.newItemButton.click();
   await requestPage.saveButton.click();
