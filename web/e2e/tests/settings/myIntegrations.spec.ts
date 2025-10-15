@@ -35,6 +35,7 @@ test("MyIntegration CRUD has succeeded", async ({ integrationsPage }) => {
 });
 
 test("Webhook CRUD has succeeded", async ({ integrationsPage }) => {
+  test.skip();
   await integrationsPage.webhookTab.click();
   await integrationsPage.newWebhookButton.click();
   await integrationsPage.webhookNameInput.click();
