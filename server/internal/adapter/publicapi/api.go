@@ -50,8 +50,8 @@ func Echo(e *echo.Group) {
 	// /:ws/:p/:m.zip
 	// /:ws/:p/:m/:i
 
-	e.GET("/:project/:sub-route", SubRoute())
-	e.GET("/:project/:model/:item", ItemOrAsset())
+	e.GET("/:workspace/:project/:sub-route", SubRoute())
+	e.GET("/:workspace/:project/:model/:item", ItemOrAsset())
 }
 
 // SubRoute since echo supports only / separated params, we need to route inside the handler
@@ -168,13 +168,13 @@ func ItemOrAsset() echo.HandlerFunc {
 		ctx := c.Request().Context()
 		ctrl := GetController(c.Request().Context())
 
-		p, m, i := c.Param("project"), c.Param("model"), c.Param("item")
+		ws, p, m, i := c.Param("workspace"), c.Param("project"), c.Param("model"), c.Param("item")
 		var res any
 		var err error
 		if m == "assets" {
-			res, err = ctrl.GetAsset(ctx, p, i)
+			res, err = ctrl.GetAsset(ctx, ws, p, i)
 		} else {
-			res, err = ctrl.GetItem(ctx, p, m, i)
+			res, err = ctrl.GetItem(ctx, ws, p, m, i)
 		}
 
 		if err != nil {

@@ -1,4 +1,3 @@
-/* eslint-disable playwright/no-skipped-test */
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { createWorkspace, deleteWorkspace } from "@reearth-cms/e2e/project/utils/workspace";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";

@@ -9,7 +9,7 @@ import (
 )
 
 func (c *Controller) GetSchemaJSON(ctx context.Context, wsAlias, pAlias, mKey, schemaType string) (types.JSONSchema, error) {
-	wpm, err := c.loadWPMContext(ctx, "", pAlias, mKey)
+	wpm, err := c.loadWPMContext(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
 		return types.JSONSchema{}, err
 	}
