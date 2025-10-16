@@ -18,7 +18,7 @@ web/e2e/
 ├── pages/               # Page Object Models (POM)
 │   ├── base.page.ts           # Base page class with common methods
 │   ├── assets.page.ts         # Assets page interactions
-│   ├── login.page.ts          # Login page (handles Auth0 & legacy UI)
+│   ├── login.page.ts          # Login page interactions
 │   ├── content.page.ts        # Content management page interactions
 │   ├── field-editor.page.ts   # Field editor page interactions
 │   ├── integrations.page.ts   # Integrations page interactions
@@ -206,30 +206,25 @@ REEARTH_CMS_E2E_BASEURL=http://localhost:3000/
 
 ### Login Page (`pages/login.page.ts`)
 
-The `LoginPage` class handles all authentication interactions with **automatic UI detection**:
+The `LoginPage` class handles all authentication interactions:
 
 ```typescript
 export class LoginPage {
   async login(email: string, password: string) {
-    // Automatically detects Auth0 UI vs legacy login UI
-    const isNewUI = await this.emailInput.isVisible();
-
-    if (isNewUI) {
-      // Handle Auth0 login flow
-      // Also handles optional passkey prompts
-    } else {
-      // Handle legacy login flow
-    }
+    await this.emailInput.click();
+    await this.emailInput.fill(email);
+    await this.passwordInput.click();
+    await this.passwordInput.fill(password);
+    await this.loginButton.click();
   }
 }
 ```
 
 **Features:**
 
-- 🔍 Auto-detects which login UI is present (Auth0 or legacy)
-- 🔐 Handles both login flows transparently
-- 🔑 Manages optional passkey prompts in Auth0
-- 📊 Logs authentication progress for debugging
+- 🔐 Handles login form interactions
+- 👤 Manages user menu and logout functionality
+- 🎯 Uses data-testid for reliable element selection
 
 ## 📝 Writing Tests
 
@@ -436,11 +431,11 @@ The authentication system was refactored to use a centralized global setup appro
 #### Changes Made
 
 1. ✅ **Added Global Setup**: Created `global-setup.ts` for one-time authentication
-2. ✅ **Created LoginPage**: New page object handling both Auth0 and legacy login UIs
+2. ✅ **Created LoginPage**: New page object replacing `auth.page.ts`
 3. ✅ **Removed Duplicates**: Deleted `auth.setup.ts` and `auth.page.ts`
-4. ✅ **Updated Configuration**: Fixed all path references in `playwright.config.ts`
+4. ✅ **Updated Configuration**: Moved from project-based setup to global setup in `playwright.config.ts`
 5. ✅ **Improved Error Handling**: Added console logging and better error messages
-6. ✅ **Enhanced Documentation**: Added JSDoc comments and updated README
+6. ✅ **Enhanced Documentation**: Updated README and improved inline comments
 
 #### Breaking Changes
 
