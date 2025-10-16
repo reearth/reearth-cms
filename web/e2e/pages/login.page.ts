@@ -12,12 +12,10 @@ export class LoginPage {
   logoutButton: Locator;
 
   constructor(private page: Page) {
-    // Initialize login form locators
     this.emailInput = this.page.getByPlaceholder("username/email");
     this.passwordInput = this.page.getByPlaceholder("your password");
     this.loginButton = this.page.getByText("LOG IN");
-
-    // Initialize user menu locators
+  
     this.userMenuLink = this.page.locator("a").nth(1);
     this.logoutButton = this.page.getByText("Logout");
   }
