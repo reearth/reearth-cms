@@ -8,7 +8,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Project, Workspace } from "@reearth-cms/components/molecules/Workspace/types";
-import { ProjectVisibility } from "@reearth-cms/gql/graphql-client-api";
+import { ProjectVisibility } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
 

@@ -40,8 +40,8 @@ export type Reearth = {
 type Fixtures = { reearth: Reearth } & PageObjects;
 
 export const test = base.extend<Fixtures>({
-  reearth: async ({ page, request }, use) => {
-    use({
+  reearth: async ({ page, request }, _use) => {
+    _use({
       ...config,
       token: getAccessToken(),
       async goto(url, options) {

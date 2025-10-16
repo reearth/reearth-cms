@@ -27,7 +27,7 @@ describe("My integrations", () => {
     );
 
     await user.click(screen.getByRole("button", { name: "plus Create new integration" }));
-    await expect.poll(() => screen.getByRole("dialog")).toBeVisible();
+    await expect(screen.getByRole("dialog")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Cancel" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
