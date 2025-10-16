@@ -13,6 +13,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
+	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
@@ -21,12 +23,13 @@ import (
 var ErrInvalidProject = rerror.NewE(i18n.T("invalid project"))
 
 type Controller struct {
-	project  repo.Project
-	usecases *interfaces.Container
+	project   repo.Project
+	workspace accountrepo.Workspace
+	usecases  *interfaces.Container
 }
 
 type WPMContext struct {
-	Workspace     accountdomain.Workspace
+	Workspace     workspace.Workspace
 	Project       project.Project
 	Model         *model.Model
 	SchemaPackage *schema.Package
@@ -34,21 +37,22 @@ type WPMContext struct {
 	PublicModels  id.ModelIDList
 }
 
-func NewController(project repo.Project, usecases *interfaces.Container) *Controller {
+func NewController(workspace accountrepo.Workspace, project repo.Project, usecases *interfaces.Container) *Controller {
 	return &Controller{
-		project:  project,
-		usecases: usecases,
+		workspace: workspace,
+		project:   project,
+		usecases:  usecases,
 	}
 }
 
 func (c *Controller) loadWPMContext(ctx context.Context, wAlias, pAlias, mKey string) (*WPMContext, error) {
-	//w, err := c.usecases.Workspace.FindByIDOrAlias(ctx, wAlias)
-	//if err != nil {
-	//	if errors.Is(err, rerror.ErrNotFound) {
-	//		return nil, rerror.ErrNotFound
-	//	}
-	//	return nil, ErrInvalidProject
-	//}
+	w, err := c.workspace.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(wAlias))
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return nil, rerror.ErrNotFound
+		}
+		return nil, ErrInvalidProject
+	}
 
 	p, err := c.project.FindByIDOrAlias(ctx, project.IDOrAlias(pAlias))
 	if err != nil {
@@ -59,9 +63,9 @@ func (c *Controller) loadWPMContext(ctx context.Context, wAlias, pAlias, mKey st
 	}
 
 	// Check if the project belongs to the workspace
-	//if p.Workspace() != w.ID() {
-	//	return nil, rerror.ErrNotFound
-	//}
+	if p.Workspace() != w.ID() {
+		return nil, rerror.ErrNotFound
+	}
 
 	var m *model.Model
 	var sp *schema.Package
@@ -86,7 +90,7 @@ func (c *Controller) loadWPMContext(ctx context.Context, wAlias, pAlias, mKey st
 	}
 
 	wpm := &WPMContext{
-		//Workspace: w,
+		Workspace:     *w,
 		Project:       *p,
 		Model:         m,
 		SchemaPackage: sp,

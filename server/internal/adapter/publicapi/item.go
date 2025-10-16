@@ -16,13 +16,13 @@ import (
 	"github.com/reearth/reearthx/usecasex"
 )
 
-func (c *Controller) GetItem(ctx context.Context, prj, mkey, i string) (Item, error) {
-	wpm, err := c.loadWPMContext(ctx, "", prj, mkey)
+func (c *Controller) GetItem(ctx context.Context, wsAlias, pAlias, mKey, i string) (Item, error) {
+	wpm, err := c.loadWPMContext(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
 		return Item{}, err
 	}
 
-	if mkey == "" {
+	if mKey == "" {
 		return Item{}, rerror.ErrNotFound
 	}
 
@@ -58,7 +58,7 @@ func (c *Controller) GetItem(ctx context.Context, prj, mkey, i string) (Item, er
 }
 
 func (c *Controller) GetPublicItems(ctx context.Context, wsAlias, pAlias, mKey, ext string, p *usecasex.Pagination, w io.Writer) error {
-	wpm, err := c.loadWPMContext(ctx, "", pAlias, mKey)
+	wpm, err := c.loadWPMContext(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
 		return err
 	}
