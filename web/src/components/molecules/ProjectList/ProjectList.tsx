@@ -144,7 +144,6 @@ const Title = styled.h1`
 `;
 
 const ProjectPagination = styled(Pagination)`
-  padding-top: 12px;
   box-shadow: 0 1px 0 0 #f0f0f0 inset;
   padding: 12px;
 `;
