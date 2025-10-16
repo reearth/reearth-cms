@@ -1,4 +1,4 @@
-// e2e/pages/settings.page.ts
+// e2e/pages/project-settings.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 
 import { BasePage } from "./base.page";
