@@ -220,7 +220,8 @@ func operatorProjects(ctx context.Context, appCtx *ApplicationContext, w workspa
 	}
 	var cur *usecasex.Cursor
 	for {
-		projects, pi, err := appCtx.Repos.Project.FindByWorkspaces(ctx, w.IDs(), &interfaces.ProjectFilter{
+		projects, pi, err := appCtx.Repos.Project.Search(ctx, interfaces.ProjectFilter{
+			WorkspaceIds: lo.ToPtr(accountdomain.WorkspaceIDList(w.IDs())),
 			Pagination: usecasex.CursorPagination{
 				After: cur,
 				First: lo.ToPtr(int64(100)),

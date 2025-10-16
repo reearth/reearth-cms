@@ -41,7 +41,7 @@ jobs:
         with:
           repository: reearth/reearth-cms
           ref: ${{ inputs.branch || 'main' }}
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: lts/*
           cache: yarn
@@ -72,8 +72,6 @@ jobs:
           echo "REEARTH_CMS_E2E_USERNAME is $REEARTH_CMS_E2E_USERNAME"
       - name: Run Playwright tests
         run: yarn e2e
-        env:
-          NODE_OPTIONS: --no-experimental-strip-types
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

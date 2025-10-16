@@ -27,22 +27,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Mock policy checker that can be configured to allow or deny
-type mockPolicyChecker struct {
-	allowed bool
-	message string
-}
-
-func (m *mockPolicyChecker) CheckPolicy(ctx context.Context, req gateway.PolicyCheckRequest) (*gateway.PolicyCheckResponse, error) {
-	return &gateway.PolicyCheckResponse{
-		Allowed:      m.allowed,
-		CheckType:    req.CheckType,
-		CurrentLimit: "test limit",
-		Message:      m.message,
-		Value:        req.Value,
-	}, nil
-}
-
 func TestAsset_Create_WithPolicyCheck(t *testing.T) {
 	ws := workspace.New().NewID().MustBuild()
 	pid := id.NewProjectID()

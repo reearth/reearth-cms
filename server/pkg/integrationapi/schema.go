@@ -72,12 +72,7 @@ func NewSchema(i *schema.Schema) Schema {
 		return Schema{}
 	}
 	fs := lo.Map(i.Fields(), func(f *schema.Field, _ int) SchemaField {
-		return SchemaField{
-			Id:       f.ID().Ref(),
-			Type:     lo.ToPtr(ValueType(f.Type())),
-			Key:      lo.ToPtr(f.Key().String()),
-			Required: lo.ToPtr(f.Required()),
-		}
+		return NewSchemaField(f)
 	})
 	var tf *id.FieldID
 	if i.TitleField() != nil {
@@ -90,6 +85,17 @@ func NewSchema(i *schema.Schema) Schema {
 		Fields:     &fs,
 		TitleField: tf,
 		CreatedAt:  lo.ToPtr(i.ID().Timestamp()),
+	}
+}
+
+func NewSchemaField(f *schema.Field) SchemaField {
+	return SchemaField{
+		Id:       f.ID(),
+		Type:     ValueType(f.Type()),
+		Key:      f.Key().String(),
+		Required: f.Required(),
+		Multiple: f.Multiple(),
+		Name:     f.Name(),
 	}
 }
 

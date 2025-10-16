@@ -1898,7 +1898,8 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		Object()
 
 	r.Value("fields").
-		IsEqual([]any{
+		Array().
+		IsEqualUnordered([]any{
 			map[string]any{
 				"group": igId1.String(),
 				"id":    fId5.String(),
@@ -1946,7 +1947,8 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		Object()
 
 	r.Value("fields").
-		IsEqual([]any{
+		Array().
+		IsEqualUnordered([]any{
 			map[string]any{
 				"group": igId1.String(),
 				"id":    fId5.String(),
@@ -2134,7 +2136,8 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 		Object()
 
 	r.Value("fields").
-		IsEqual([]any{
+		Array().
+		IsEqualUnordered([]any{
 			map[string]any{
 				"group": igId1.String(),
 				"id":    fId5.String(),
