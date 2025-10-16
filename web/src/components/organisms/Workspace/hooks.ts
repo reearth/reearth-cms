@@ -32,8 +32,6 @@ export default () => {
 
   const location: {
     state?: {
-      // searchTerm?: string;
-      // sort: SortType;
       page: number;
       pageSize: number;
     } | null;
