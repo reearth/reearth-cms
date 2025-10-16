@@ -30,7 +30,7 @@ const Dropdown: React.FC<Props> = ({
     <StyledDropdown
       menu={{ items }}
       trigger={["click"]}
-      popupRender={menu => <StyledDropdownMenu>{menu}</StyledDropdownMenu>}
+      dropdownRender={menu => <StyledDropdownMenu>{menu}</StyledDropdownMenu>}
       {...props}>
       <a onClick={e => e.preventDefault()} data-testid={isUserMenu ? "user-menu" : undefined}>
         <Space>
