@@ -57,7 +57,6 @@ const Header = styled(PageHeader)`
 
 const Section = styled.div<{ flex?: boolean; lastChild?: boolean }>`
   ${({ lastChild }) => !lastChild && "margin-bottom: 16px;"}
-  /* ${({ flex }) => flex && "flex: 1;"} */
   ${({ flex, lastChild }) => (flex || lastChild) && "flex: 1;"}
 `;
 
