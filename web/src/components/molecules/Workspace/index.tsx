@@ -53,7 +53,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
   const disableWorkspaceUi = parseConfigBoolean(window.REEARTH_CONFIG?.disableWorkspaceUi);
 
   return (
-    <InnerContent isFullHeight={true}>
+    <InnerContent isFullHeight>
       <Greeting username={username} coverImageUrl={coverImageUrl} />
       <ContentSection
         title="Projects"
