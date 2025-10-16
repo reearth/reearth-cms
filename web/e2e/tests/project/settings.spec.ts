@@ -20,8 +20,6 @@ test.beforeEach(async ({ reearth }) => {
   });
 });
 
-test.afterEach(async ({ page: _page, reearth: _reearth }) => {});
-
 test.describe("Project General Settings", () => {
   test("Update project general settings", async ({ projectSettingsPage, projectPage }) => {
     await test.step("Project creation setup", async () => {
