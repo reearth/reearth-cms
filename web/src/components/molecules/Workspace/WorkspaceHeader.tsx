@@ -8,11 +8,12 @@ import { useT } from "@reearth-cms/i18n";
 import { SortBy, SortOption } from "./types";
 
 type Props = {
+  projectSort: SortBy;
   onProjectSearch: (value: string) => void;
   onProjectSort: (sort: SortBy) => void;
 };
 
-const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort }) => {
+const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort, projectSort }) => {
   const t = useT();
 
   const projectSortOptions: SortOption[] = useMemo(
@@ -35,7 +36,7 @@ const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort }) =>
       <Wrapper>
         <Label>{t("Sort by")}</Label>
         <StyledSelect
-          defaultValue="updatedAt"
+          defaultValue={projectSort}
           onChange={value => {
             onProjectSort(value as SortBy);
           }}>

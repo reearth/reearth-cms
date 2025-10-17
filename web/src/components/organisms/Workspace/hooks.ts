@@ -32,13 +32,17 @@ export default () => {
 
   const location: {
     state?: {
+      searchTerm?: string;
+      sort: SortBy;
       page: number;
       pageSize: number;
     } | null;
   } = useLocation();
 
-  const [searchedProjectName, setSearchedProjectName] = useState<string>("");
-  const [projectSort, setProjectSort] = useState<SortBy>("updatedAt");
+  const [searchedProjectName, setSearchedProjectName] = useState<string>(
+    location?.state?.searchTerm ?? "",
+  );
+  const [projectSort, setProjectSort] = useState<SortBy>(location?.state?.sort ?? "updatedAt");
   const [page, setPage] = useState(location.state?.page ?? INITIAL_PAGE);
   const [pageSize, setPageSize] = useState(location.state?.pageSize ?? INITIAL_PAGE_SIZE);
 
@@ -178,6 +182,7 @@ export default () => {
     hasCreateRight,
     page,
     pageSize,
+    projectSort,
     totalCount: data?.projects.totalCount ?? 0,
     handleProjectSearch,
     handleProjectSort,

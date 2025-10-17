@@ -22,6 +22,7 @@ type Props = {
   hasCreateRight: boolean;
   page: number;
   pageSize: number;
+  projectSort: SortBy;
   totalCount: number;
   onProjectSearch: (value: string) => void;
   onProjectSort: (sort: SortBy) => void;
@@ -41,6 +42,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
   hasCreateRight,
   page,
   pageSize,
+  projectSort,
   totalCount,
   onProjectSearch,
   onProjectSort,
@@ -69,7 +71,11 @@ const WorkspaceWrapper: React.FC<Props> = ({
           </ButtonWrapper>
         }
         hasPadding={false}>
-        <WorkspaceHeader onProjectSearch={onProjectSearch} onProjectSort={onProjectSort} />
+        <WorkspaceHeader
+          onProjectSearch={onProjectSearch}
+          onProjectSort={onProjectSort}
+          projectSort={projectSort}
+        />
         <ProjectList
           hasCreateRight={hasCreateRight}
           projects={projects}

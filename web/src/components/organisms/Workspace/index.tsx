@@ -12,6 +12,7 @@ const Workspace: React.FC = () => {
     hasCreateRight,
     page,
     pageSize,
+    projectSort,
     totalCount,
     handleProjectSearch,
     handleProjectSort,
@@ -32,6 +33,7 @@ const Workspace: React.FC = () => {
       hasCreateRight={hasCreateRight}
       page={page}
       pageSize={pageSize}
+      projectSort={projectSort}
       totalCount={totalCount}
       onProjectSearch={handleProjectSearch}
       onProjectSort={handleProjectSort}
