@@ -11,47 +11,49 @@ web/e2e/
 ├── fixtures/            # Playwright test fixtures
 │   └── test.ts          # Custom fixtures extending Playwright's test with page objects
 ├── helpers/             # Reusable helper utilities
-│   ├── format.helper.ts       # Format utilities (parseConfigBoolean, stateColors)
-│   ├── mock.helper.ts         # Mock data generation (getId)
-│   ├── notification.helper.ts # Notification handling utilities
-│   └── viewer.helper.ts       # Viewer utilities (Cesium ready checks)
+│   ├── format.helper.ts          # Format utilities (parseConfigBoolean, stateColors)
+│   ├── mock.helper.ts            # Mock data generation (getId)
+│   ├── notification.helper.ts    # Notification handling utilities
+│   └── viewer.helper.ts          # Viewer utilities (Cesium ready checks)
 ├── pages/               # Page Object Models (POM)
-│   ├── base.page.ts           # Base page class with common methods
-│   ├── assets.page.ts         # Assets page interactions
-│   ├── login.page.ts          # Login page interactions
-│   ├── content.page.ts        # Content management page interactions
-│   ├── field-editor.page.ts   # Field editor page interactions
-│   ├── integrations.page.ts   # Integrations page interactions
-│   ├── member.page.ts         # Member management page interactions
-│   ├── project.page.ts        # Project page interactions
-│   ├── request.page.ts        # Request page interactions
-│   ├── schema.page.ts         # Schema management page interactions
-│   ├── settings.page.ts       # Settings page interactions
-│   └── workspace.page.ts      # Workspace page interactions
+│   ├── base.page.ts              # Base page class with common methods
+│   ├── assets.page.ts            # Assets page interactions
+│   ├── login.page.ts             # Login page interactions
+│   ├── content.page.ts           # Content management page interactions
+│   ├── field-editor.page.ts      # Field editor page interactions
+│   ├── integrations.page.ts      # Integrations page interactions
+│   ├── member.page.ts            # Member management page interactions
+│   ├── project.page.ts           # Project page interactions
+│   ├── project-settings.page.ts  # Project settings page interactions
+│   ├── request.page.ts           # Request page interactions
+│   ├── schema.page.ts            # Schema management page interactions
+│   ├── settings.page.ts          # Settings page interactions
+│   └── workspace.page.ts         # Workspace page interactions
 ├── support/             # Support files
-│   └── .auth/                 # Authentication state storage (gitignored)
-│       └── user.json          # Saved authentication session state
+│   └── .auth/                    # Authentication state storage (gitignored)
+│       └── user.json             # Saved authentication session state
 ├── global-setup.ts      # Global authentication setup (runs once before all tests)
 └── tests/               # Test specifications (organized by domain)
-    ├── auth/                  # Authentication tests
+    ├── auth/                     # Authentication tests
     │   └── auth.spec.ts
-    ├── project/               # Project-related tests
-    │   ├── assets/            # Asset management tests (2 specs)
+    ├── project/                  # Project-related tests
+    │   ├── assets/               # Asset management tests (2 specs)
     │   │   ├── asset.spec.ts
     │   │   └── compressed-asset.spec.ts
-    │   ├── content/           # Content management tests (3 specs)
+    │   ├── content/              # Content management tests (3 specs)
     │   │   ├── content.spec.ts
     │   │   ├── version.spec.ts
     │   │   └── view.spec.ts
     │   ├── items/
-    │   │   ├── fields/        # Field type tests (13 specs)
-    │   │   └── metadata/      # Metadata tests (7 specs)
+    │   │   ├── fields/           # Field type tests (13 specs)
+    │   │   └── metadata/         # Metadata tests (7 specs)
     │   ├── accessibility.spec.ts
     │   ├── overview.spec.ts
     │   ├── project.spec.ts
     │   ├── request.spec.ts
-    │   └── schema.spec.ts
-    ├── settings/              # Settings tests
+    │   ├── schema.spec.ts
+    │   └── settings.spec.ts
+    ├── settings/                 # Settings tests
     │   ├── account/
     │   │   ├── general.spec.ts
     │   │   └── lang.spec.ts
@@ -59,7 +61,7 @@ web/e2e/
     │   ├── member.spec.ts
     │   ├── myIntegrations.spec.ts
     │   └── settings.spec.ts
-    └── workspace/             # Workspace tests
+    └── workspace/                # Workspace tests
         └── workspace.spec.ts
 ```
 
@@ -156,6 +158,7 @@ async function globalSetup(_config: FullConfig) {
 ```
 
 **Benefits:**
+
 - ⚡ **50-70% faster** - Authentication happens once, not per test suite
 - 🔄 **Consistent** - All tests use identical authentication state
 - 🎯 **Maintainable** - Single place to update authentication logic
@@ -242,7 +245,6 @@ export class LoginPage {
    ```
 
 2. **Keep Test Logic in Test Files**
-
    - Page objects handle "how" to interact with the UI
    - Test specs define "what" to test
 
@@ -264,6 +266,7 @@ export class LoginPage {
    ```
 
 5. **Follow beforeEach/afterEach Pattern for Setup/Teardown**
+
    ```typescript
    test.beforeEach(async ({ projectPage }) => {
        const projectName = getId();

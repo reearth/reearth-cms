@@ -54,5 +54,5 @@ test("Project CRUD and searching has succeeded", async ({
   await projectPage.closeNotification();
 
   await projectPage.modelsMenuItem.click();
-  await expect(projectPage.banner).toContainText(newProjectName);  
+  await expect(projectPage.banner).toContainText(newProjectName);
 });

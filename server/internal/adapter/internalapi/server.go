@@ -249,7 +249,7 @@ func (s server) ListAssets(ctx context.Context, req *pb.ListAssetsRequest) (*pb.
 }
 
 func (s server) GetModel(ctx context.Context, req *pb.ModelRequest) (*pb.ModelResponse, error) {
-	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
+	op, uc, ar := adapter.Operator(ctx), adapter.Usecases(ctx), adapter.AcRepos(ctx)
 
 	p, err := uc.Project.FindByIDOrAlias(ctx, project.IDOrAlias(req.ProjectIdOrAlias), nil)
 	if err != nil {
@@ -272,8 +272,16 @@ func (s server) GetModel(ctx context.Context, req *pb.ModelRequest) (*pb.ModelRe
 		return nil, err
 	}
 
+	w, err := ar.Workspace.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(p.Workspace().String()))
+	if err != nil {
+		return nil, err
+	}
+	if w == nil {
+		return nil, rerror.ErrNotFound
+	}
+
 	webProjectUrl := s.webBaseUrl.JoinPath("workspace", p.Workspace().String(), "project", p.ID().String())
-	pApiProjectUrl := s.pApiBaseUrl.JoinPath(p.Alias())
+	pApiProjectUrl := s.pApiBaseUrl.JoinPath(w.Alias(), p.Alias())
 
 	return &pb.ModelResponse{
 		Model: internalapimodel.ToModel(m, sp, webProjectUrl, pApiProjectUrl),
@@ -281,7 +289,7 @@ func (s server) GetModel(ctx context.Context, req *pb.ModelRequest) (*pb.ModelRe
 }
 
 func (s server) ListModels(ctx context.Context, req *pb.ListModelsRequest) (*pb.ListModelsResponse, error) {
-	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
+	op, uc, ar := adapter.Operator(ctx), adapter.Usecases(ctx), adapter.AcRepos(ctx)
 	// Validate required fields
 	if req.ProjectId == "" {
 		return nil, status.Error(codes.InvalidArgument, "project_id is required")
@@ -301,8 +309,16 @@ func (s server) ListModels(ctx context.Context, req *pb.ListModelsRequest) (*pb.
 		return nil, err
 	}
 
+	w, err := ar.Workspace.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(p.Workspace().String()))
+	if err != nil {
+		return nil, err
+	}
+	if w == nil {
+		return nil, rerror.ErrNotFound
+	}
+
 	webProjectUrl := s.webBaseUrl.JoinPath("workspace", p.Workspace().String(), "project", pId.String())
-	pApiProjectUrl := s.pApiBaseUrl.JoinPath(p.Alias())
+	pApiProjectUrl := s.pApiBaseUrl.JoinPath(w.Alias(), p.Alias())
 
 	res := lo.FilterMap(ml, func(m *model.Model, _ int) (*pb.Model, bool) {
 		sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
