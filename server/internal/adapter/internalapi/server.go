@@ -19,7 +19,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
-	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"google.golang.org/grpc/codes"
@@ -28,16 +27,14 @@ import (
 
 type server struct {
 	pb.UnimplementedReEarthCMSServer
-	webBaseUrl     *url.URL
-	pApiBaseUrl    *url.URL
-	workspaceRepo  accountrepo.Workspace
+	webBaseUrl  *url.URL
+	pApiBaseUrl *url.URL
 }
 
-func NewServer(webHost, serverHost string, workspaceRepo accountrepo.Workspace) pb.ReEarthCMSServer {
+func NewServer(webHost, serverHost string) pb.ReEarthCMSServer {
 	return &server{
-		webBaseUrl:    lo.Must(url.Parse(webHost)),
-		pApiBaseUrl:   lo.Must(url.Parse(serverHost)).JoinPath("api", "p"),
-		workspaceRepo: workspaceRepo,
+		webBaseUrl:  lo.Must(url.Parse(webHost)),
+		pApiBaseUrl: lo.Must(url.Parse(serverHost)).JoinPath("api", "p"),
 	}
 }
 
@@ -252,7 +249,7 @@ func (s server) ListAssets(ctx context.Context, req *pb.ListAssetsRequest) (*pb.
 }
 
 func (s server) GetModel(ctx context.Context, req *pb.ModelRequest) (*pb.ModelResponse, error) {
-	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
+	op, uc, acRepos := adapter.Operator(ctx), adapter.Usecases(ctx), adapter.AcRepos(ctx)
 
 	p, err := uc.Project.FindByIDOrAlias(ctx, project.IDOrAlias(req.ProjectIdOrAlias), nil)
 	if err != nil {
@@ -275,8 +272,7 @@ func (s server) GetModel(ctx context.Context, req *pb.ModelRequest) (*pb.ModelRe
 		return nil, err
 	}
 
-	// Fetch workspace to get its alias
-	w, err := s.workspaceRepo.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(p.Workspace().String()))
+	w, err := acRepos.Workspace.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(p.Workspace().String()))
 	if err != nil {
 		return nil, err
 	}
@@ -293,7 +289,7 @@ func (s server) GetModel(ctx context.Context, req *pb.ModelRequest) (*pb.ModelRe
 }
 
 func (s server) ListModels(ctx context.Context, req *pb.ListModelsRequest) (*pb.ListModelsResponse, error) {
-	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
+	op, uc, acRepos := adapter.Operator(ctx), adapter.Usecases(ctx), adapter.AcRepos(ctx)
 	// Validate required fields
 	if req.ProjectId == "" {
 		return nil, status.Error(codes.InvalidArgument, "project_id is required")
@@ -313,8 +309,7 @@ func (s server) ListModels(ctx context.Context, req *pb.ListModelsRequest) (*pb.
 		return nil, err
 	}
 
-	// Fetch workspace to get its alias
-	w, err := s.workspaceRepo.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(p.Workspace().String()))
+	w, err := acRepos.Workspace.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(p.Workspace().String()))
 	if err != nil {
 		return nil, err
 	}

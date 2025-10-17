@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"golang.org/x/text/language"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -22,6 +23,7 @@ const (
 	ContextAuthInfo ContextKey = "auth-info"
 	contextUsecases ContextKey = "usecases"
 	contextGateways ContextKey = "gateways"
+	contextAcRepos  ContextKey = "acrepos"
 )
 
 func AttachUser(ctx context.Context, u *user.User) context.Context {
@@ -71,6 +73,19 @@ func Gateways(ctx context.Context) *gateway.Container {
 	if v := ctx.Value(contextGateways); v != nil {
 		if g, ok := v.(*gateway.Container); ok {
 			return g
+		}
+	}
+	return nil
+}
+
+func AttachAcRepos(ctx context.Context, r *accountrepo.Container) context.Context {
+	return context.WithValue(ctx, contextAcRepos, r)
+}
+
+func AcRepos(ctx context.Context) *accountrepo.Container {
+	if v := ctx.Value(contextAcRepos); v != nil {
+		if r, ok := v.(*accountrepo.Container); ok {
+			return r
 		}
 	}
 	return nil
