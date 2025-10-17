@@ -23,7 +23,7 @@ const (
 	ContextAuthInfo ContextKey = "auth-info"
 	contextUsecases ContextKey = "usecases"
 	contextGateways ContextKey = "gateways"
-	contextAcRepos  ContextKey = "acrepos"
+	contextAcRepos  ContextKey = "ac-repos"
 )
 
 func AttachUser(ctx context.Context, u *user.User) context.Context {
