@@ -50,7 +50,7 @@ test.describe("Project General Settings", () => {
     });
 
     await test.step("Update project name and check result", async () => {
-      await projectSettingsPage.fillInput(nameEl, NEW_PROJECT_NAME);
+      await nameEl.fill(NEW_PROJECT_NAME);
       await projectSettingsPage.saveSettings();
       const newSettingsTitle = projectSettingsPage.settingsTitle(NEW_PROJECT_NAME);
       await expect(newSettingsTitle).toBeVisible();
@@ -59,14 +59,14 @@ test.describe("Project General Settings", () => {
     const errorEl = projectSettingsPage.errorMessage;
 
     await test.step("Alias illegal case 1", async () => {
-      await projectSettingsPage.clearInput(aliasEl);
+      await aliasEl.clear();
 
       const errorMsg1 = i18next.t("{{field}} field is required!", { field: "alias" });
       await expect(errorEl).toHaveText(errorMsg1);
     });
 
     await test.step("Alias illegal case 2", async () => {
-      await projectSettingsPage.fillInput(aliasEl, "hell");
+      await aliasEl.fill("hell");
       const errorMsg2 = i18next.t(
         "Your alias must be between {{min}} and {{max}} characters long.",
         {
@@ -78,7 +78,7 @@ test.describe("Project General Settings", () => {
     });
 
     await test.step("Alias illegal case 3", async () => {
-      await projectSettingsPage.fillInput(aliasEl, "testAlias");
+      await aliasEl.fill("testAlias");
       const errorMsg3 = i18next.t(
         "Alias is invalid. Please use lowercase alphanumeric, hyphen and underscore characters only.",
       );
@@ -86,7 +86,7 @@ test.describe("Project General Settings", () => {
     });
 
     await test.step("Alias illegal case 4", async () => {
-      await projectSettingsPage.fillInput(aliasEl, "test-alias#");
+      await aliasEl.fill("test-alias#");
       const errorMsg4 = i18next.t(
         "Alias is invalid. Please use lowercase alphanumeric, hyphen and underscore characters only.",
       );
@@ -94,18 +94,18 @@ test.describe("Project General Settings", () => {
     });
 
     await test.step("Alias illegal case 5", async () => {
-      await projectSettingsPage.fillInput(aliasEl, EXIST_PROJECT_NAME);
+      await aliasEl.fill(EXIST_PROJECT_NAME);
       const errorMsg5 = i18next.t("Project alias is already taken");
       await expect(errorEl).toHaveText(errorMsg5);
     });
 
     await test.step("Alias legal case 1", async () => {
-      await projectSettingsPage.fillInput(aliasEl, "test-alias-123");
+      await aliasEl.fill("test-alias-123");
       await expect(errorEl).toBeHidden();
     });
 
     await test.step("Alias legal case 2", async () => {
-      await projectSettingsPage.fillInput(aliasEl, "test_alias_123");
+      await aliasEl.fill("test_alias_123");
       await expect(errorEl).toBeHidden();
     });
 
