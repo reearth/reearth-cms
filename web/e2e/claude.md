@@ -186,7 +186,6 @@ Centralized configuration for:
    ```
 
 2. **Keep Test Logic in Test Files**
-
    - Page objects handle "how" to interact with the UI
    - Test specs define "what" to test
 
