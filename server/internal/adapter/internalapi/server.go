@@ -19,6 +19,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
+	"github.com/reearth/reearthx/account/accountusecase/accountrepo"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 	"google.golang.org/grpc/codes"
@@ -27,14 +28,16 @@ import (
 
 type server struct {
 	pb.UnimplementedReEarthCMSServer
-	webBaseUrl  *url.URL
-	pApiBaseUrl *url.URL
+	webBaseUrl     *url.URL
+	pApiBaseUrl    *url.URL
+	workspaceRepo  accountrepo.Workspace
 }
 
-func NewServer(webHost, serverHost string) pb.ReEarthCMSServer {
+func NewServer(webHost, serverHost string, workspaceRepo accountrepo.Workspace) pb.ReEarthCMSServer {
 	return &server{
-		webBaseUrl:  lo.Must(url.Parse(webHost)),
-		pApiBaseUrl: lo.Must(url.Parse(serverHost)).JoinPath("api", "p"),
+		webBaseUrl:    lo.Must(url.Parse(webHost)),
+		pApiBaseUrl:   lo.Must(url.Parse(serverHost)).JoinPath("api", "p"),
+		workspaceRepo: workspaceRepo,
 	}
 }
 
@@ -272,8 +275,17 @@ func (s server) GetModel(ctx context.Context, req *pb.ModelRequest) (*pb.ModelRe
 		return nil, err
 	}
 
+	// Fetch workspace to get its alias
+	w, err := s.workspaceRepo.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(p.Workspace().String()))
+	if err != nil {
+		return nil, err
+	}
+	if w == nil {
+		return nil, rerror.ErrNotFound
+	}
+
 	webProjectUrl := s.webBaseUrl.JoinPath("workspace", p.Workspace().String(), "project", p.ID().String())
-	pApiProjectUrl := s.pApiBaseUrl.JoinPath(p.Alias())
+	pApiProjectUrl := s.pApiBaseUrl.JoinPath(w.Alias(), p.Alias())
 
 	return &pb.ModelResponse{
 		Model: internalapimodel.ToModel(m, sp, webProjectUrl, pApiProjectUrl),
@@ -301,8 +313,17 @@ func (s server) ListModels(ctx context.Context, req *pb.ListModelsRequest) (*pb.
 		return nil, err
 	}
 
+	// Fetch workspace to get its alias
+	w, err := s.workspaceRepo.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(p.Workspace().String()))
+	if err != nil {
+		return nil, err
+	}
+	if w == nil {
+		return nil, rerror.ErrNotFound
+	}
+
 	webProjectUrl := s.webBaseUrl.JoinPath("workspace", p.Workspace().String(), "project", pId.String())
-	pApiProjectUrl := s.pApiBaseUrl.JoinPath(p.Alias())
+	pApiProjectUrl := s.pApiBaseUrl.JoinPath(w.Alias(), p.Alias())
 
 	res := lo.FilterMap(ml, func(m *model.Model, _ int) (*pb.Model, bool) {
 		sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)

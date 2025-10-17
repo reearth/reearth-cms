@@ -32,7 +32,7 @@ func initGrpc(appCtx *ApplicationContext) *grpc.Server {
 		unaryAttachUsecaseInterceptor(appCtx),
 	)
 	s := grpc.NewServer(ui)
-	pb.RegisterReEarthCMSServer(s, internalapi.NewServer(appCtx.Config.Host_Web, appCtx.Config.Host))
+	pb.RegisterReEarthCMSServer(s, internalapi.NewServer(appCtx.Config.Host_Web, appCtx.Config.Host, appCtx.AcRepos.Workspace))
 
 	return s
 }
