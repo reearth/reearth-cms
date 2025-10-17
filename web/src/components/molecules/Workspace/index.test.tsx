@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
 
-import { Project } from "@reearth-cms/components/molecules/Workspace/types";
+import { Project, SortBy } from "@reearth-cms/components/molecules/Workspace/types";
 
 import WorkspaceWrapper from ".";
 
@@ -11,6 +11,7 @@ const loading = false;
 const hasCreateRight = true;
 const page = 1;
 const pageSize = 10;
+const projectSort: SortBy = "updatedAt";
 const totalCount = 0;
 
 test("Workspace wrapper works successfully", () => {
@@ -22,6 +23,7 @@ test("Workspace wrapper works successfully", () => {
       hasCreateRight={hasCreateRight}
       page={page}
       pageSize={pageSize}
+      projectSort={projectSort}
       totalCount={totalCount}
       onProjectSearch={vi.fn()}
       onProjectSort={vi.fn()}
