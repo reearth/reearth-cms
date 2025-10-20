@@ -22,6 +22,8 @@ import { useWorkspace, useUserRights } from "@reearth-cms/state";
 
 const INITIAL_PAGE = 1;
 const INITIAL_PAGE_SIZE = 10;
+const INITIAL_PAGE_SORT: SortBy = "updatedAt";
+const INITIAL_SEARCH_TERM = "";
 
 export default () => {
   const t = useT();
@@ -40,9 +42,11 @@ export default () => {
   } = useLocation();
 
   const [searchedProjectName, setSearchedProjectName] = useState<string>(
-    location?.state?.searchTerm ?? "",
+    location?.state?.searchTerm ?? INITIAL_SEARCH_TERM,
   );
-  const [projectSort, setProjectSort] = useState<SortBy>(location?.state?.sort ?? "updatedAt");
+  const [projectSort, setProjectSort] = useState<SortBy>(
+    location?.state?.sort ?? INITIAL_PAGE_SORT,
+  );
   const [page, setPage] = useState(location.state?.page ?? INITIAL_PAGE);
   const [pageSize, setPageSize] = useState(location.state?.pageSize ?? INITIAL_PAGE_SIZE);
 
@@ -62,7 +66,7 @@ export default () => {
     variables: {
       workspaceId: workspaceId ?? "",
       keyword: searchedProjectName,
-      sort: { key: projectSort, reverted: false },
+      sort: { key: projectSort, reverted: projectSort !== "name" },
       pagination: { first: pageSize, offset: (page - 1) * pageSize },
     },
     skip: !workspaceId,
@@ -82,6 +86,8 @@ export default () => {
 
   const handleProjectSearch = useCallback(
     (value: string) => {
+      setPage(INITIAL_PAGE);
+      setProjectSort(INITIAL_PAGE_SORT);
       setSearchedProjectName(value);
     },
     [setSearchedProjectName],
@@ -89,6 +95,7 @@ export default () => {
 
   const handleProjectSort = useCallback(
     (sort: SortBy) => {
+      setPage(INITIAL_PAGE);
       setProjectSort(sort);
     },
     [setProjectSort],
@@ -117,6 +124,8 @@ export default () => {
         throw new Error();
       }
       Notification.success({ message: t("Successfully created project!") });
+      setPage(INITIAL_PAGE);
+      setProjectSort(INITIAL_PAGE_SORT);
       projectsRefetch();
     },
     [createNewProject, workspaceId, projectsRefetch, t],
@@ -145,6 +154,8 @@ export default () => {
         );
         navigate(`/workspace/${results.data.createWorkspace.workspace.id}`);
       }
+      setPage(INITIAL_PAGE);
+      setProjectSort(INITIAL_PAGE_SORT);
       projectsRefetch();
     },
     [createWorkspaceMutation, setCurrentWorkspace, projectsRefetch, navigate, t],
