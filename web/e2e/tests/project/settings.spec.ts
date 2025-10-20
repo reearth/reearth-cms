@@ -1,8 +1,6 @@
-import i18next from "i18next";
-import Backend from "i18next-fs-backend";
-
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
+import i18next from "@reearth-cms/e2e/support/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 
 const EXIST_PROJECT_NAME = getId();
@@ -11,13 +9,6 @@ const NEW_PROJECT_NAME = getId();
 
 test.beforeEach(async ({ reearth }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-
-  await i18next.use(Backend).init({
-    lng: "en",
-    backend: {
-      loadPath: "@reearth-cms/e2e/translations/en.yml",
-    },
-  });
 });
 
 test.describe("Project General Settings", () => {

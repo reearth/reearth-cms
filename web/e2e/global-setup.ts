@@ -4,6 +4,7 @@ import { authFile, baseURL } from "../playwright.config";
 
 import { config } from "./config/config";
 import { LoginPage } from "./pages/login.page";
+import "./support/i18n";
 
 const { userName, password } = config;
 
