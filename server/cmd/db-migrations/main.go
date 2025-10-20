@@ -12,9 +12,10 @@ import (
 type command = func(ctx context.Context, dbURL, dbName string, wetRun bool) error
 
 var commands = map[string]command{
-	"ref-field-schema":   RefFieldSchema,
-	"item-migration":     ItemMigration,
-	"project-visibility": ProjectVisibility,
+	"ref-field-schema":           RefFieldSchema,
+	"item-migration":             ItemMigration,
+	"project-visibility":         ProjectVisibility,
+	"add-project-metadata-fields": AddProjectMetadataFields,
 }
 
 func main() {
