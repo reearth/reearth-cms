@@ -1,58 +1,231 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
-import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
+import { getId, getMultipleProjects } from "@reearth-cms/e2e/helpers/mock.helper";
 
-test.afterEach(async ({ projectPage, workspacePage }) => {
-  await projectPage.settingsMenuItem.click();
-  const deleteButton = projectPage.deleteProjectButton;
-  await deleteButton.waitFor({ state: "visible" });
-  await deleteButton.click();
-  await projectPage.okButton.click();
-  await projectPage.closeNotification();
-  await expect(workspacePage.projectTextByName("new project name", true)).toBeHidden();
+test.describe.configure({ mode: "default" });
+
+test.beforeEach(async ({ reearth }) => {
+  await reearth.goto("/", { waitUntil: "domcontentloaded" });
 });
 
-test("Project CRUD and searching has succeeded", async ({
-  reearth,
-  workspacePage,
-  projectPage,
-}) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  const newProjectButton = workspacePage.newProjectButtonLast;
-  await newProjectButton.click();
-  const projectName = getId();
-  const projectDescription = "project description";
-  await workspacePage.projectNameInput.fill(projectName);
-  await workspacePage.projectDescriptionInput.fill(projectDescription);
-  await workspacePage.okButton.click();
-  await workspacePage.closeNotification();
+test.describe("Project CRUD and searching has succeeded", () => {
+  // setup
+  const PROJECT_NAME = getId();
+  const PROJECT_DESCRIPTION = "project description";
+  const NEW_PROJECT_NAME = `new ${PROJECT_NAME}`;
+  const NEW_PROJECT_DESCRIPTION = `new ${PROJECT_DESCRIPTION}`;
 
-  const projectCard = workspacePage.projectCardByName(projectName);
-  await expect(projectCard).toBeVisible();
-  await expect(projectCard.getByText(projectDescription)).toBeVisible();
-  await workspacePage.searchProjectsInput.fill("no project");
-  await workspacePage.searchButton.click();
-  await expect(projectCard).toBeHidden();
-  await workspacePage.clearSearchButton.click();
-  await expect(projectCard).toBeVisible();
-  await projectCard.click();
-  await expect(workspacePage.banner).toContainText(projectName);
+  test("Create project", async ({ workspacePage }) => {
+    const newProjectButton = workspacePage.newProjectButtonLast;
+    await newProjectButton.click();
 
-  await projectPage.settingsMenuItem.click();
-  const newProjectName = `new ${projectName}`;
-  const newProjectDescription = `new ${projectDescription}`;
-  await projectPage.nameInput.fill(newProjectName);
-  await projectPage.descriptionInput.fill(newProjectDescription);
-  await projectPage.formSaveChangesButton.click();
-  await projectPage.closeNotification();
+    await workspacePage.projectNameInput.fill(PROJECT_NAME);
+    await workspacePage.projectDescriptionInput.fill(PROJECT_DESCRIPTION);
 
-  await expect(projectPage.projectSettingsHeading(newProjectName)).toBeVisible();
-  await expect(projectPage.banner).toContainText(newProjectName);
-  const ownerSwitch = projectPage.ownerSwitch;
-  await ownerSwitch.click();
-  await projectPage.saveChangesButtonSecond.click();
-  await expect(ownerSwitch).toHaveAttribute("aria-checked", "true");
-  await projectPage.closeNotification();
+    await workspacePage.okButton.click();
+    await workspacePage.closeNotification();
+  });
 
-  await projectPage.modelsMenuItem.click();
-  await expect(projectPage.banner).toContainText(newProjectName);
+  test("Read project and search project", async ({ workspacePage }) => {
+    const projectCard = workspacePage.projectCardByName(PROJECT_NAME);
+    await expect(projectCard).toBeVisible();
+    await expect(projectCard.getByText(PROJECT_DESCRIPTION)).toBeVisible();
+
+    await workspacePage.searchProjectsInput.fill("no project");
+    await workspacePage.searchButton.click();
+    await expect(projectCard).toBeHidden();
+
+    await workspacePage.clearSearchButton.click();
+    await expect(projectCard).toBeVisible();
+
+    await projectCard.click();
+    await expect(workspacePage.banner).toContainText(PROJECT_NAME);
+  });
+
+  test("Update project", async ({ projectPage, projectSettingsPage }) => {
+    await projectPage.gotoProject(PROJECT_NAME);
+    await projectSettingsPage.goToProjectSettings();
+    await projectPage.nameInput.fill(NEW_PROJECT_NAME);
+    await projectPage.descriptionInput.fill(NEW_PROJECT_DESCRIPTION);
+    await projectPage.formSaveChangesButton.click();
+    await projectPage.closeNotification();
+
+    await expect(projectPage.projectSettingsHeading(NEW_PROJECT_NAME)).toBeVisible();
+    await expect(projectPage.banner).toContainText(NEW_PROJECT_NAME);
+
+    const ownerSwitch = projectPage.ownerSwitch;
+    await ownerSwitch.click();
+    await projectPage.saveChangesButtonSecond.click();
+
+    await expect(ownerSwitch).toHaveAttribute("aria-checked", "true");
+
+    await projectPage.closeNotification();
+    await projectPage.modelsMenuItem.click();
+
+    await expect(projectPage.banner).toContainText(NEW_PROJECT_NAME);
+  });
+
+  test("Delete project", async ({ projectPage, workspacePage, projectSettingsPage }) => {
+    await projectPage.gotoProject(NEW_PROJECT_NAME);
+    await projectSettingsPage.goToProjectSettings();
+    const deleteButton = projectPage.deleteProjectButton;
+    await deleteButton.waitFor({ state: "visible" });
+    await deleteButton.click();
+    await projectPage.okButton.click();
+    await projectPage.closeNotification();
+    await expect(workspacePage.projectTextByName("new project name", true)).toBeHidden();
+  });
+});
+
+test.describe("Project List", () => {
+  const { PROJECT_ID_LIST, FIRST_PAGE_PROJECTS, SECOND_PAGE_PROJECTS, NAME_SEPARATOR } =
+    getMultipleProjects();
+
+  test.beforeEach(async ({ projectPage }) => {
+    for await (const projectName of PROJECT_ID_LIST) {
+      await projectPage.createProject(projectName);
+    }
+  });
+
+  test("Project list pagination", async ({ workspacePage }) => {
+    await test.step("Check first page", async () => {
+      await workspacePage.clickPagination(1);
+
+      for await (const projectName of FIRST_PAGE_PROJECTS) {
+        const projectCard = workspacePage.projectCardByName(projectName);
+        await expect(projectCard).toBeVisible();
+      }
+    });
+
+    await test.step("Check second page", async () => {
+      await workspacePage.clickPagination(2);
+
+      for await (const projectName of SECOND_PAGE_PROJECTS) {
+        const projectCard = workspacePage.projectCardByName(projectName);
+        await expect(projectCard).toBeVisible();
+      }
+    });
+
+    await test.step("Check jump page", async () => {
+      await workspacePage.jumpToPage(2);
+
+      for await (const projectName of SECOND_PAGE_PROJECTS) {
+        const projectCard = workspacePage.projectCardByName(projectName);
+        await expect(projectCard).toBeVisible();
+      }
+    });
+  });
+
+  test("Project list sorting", async ({ projectPage, workspacePage, projectSettingsPage }) => {
+    await workspacePage.clickPagination(1);
+
+    const projectSortSelectEl = workspacePage.projectSelectSort;
+    await expect(projectSortSelectEl).toBeVisible();
+
+    await test.step("Check sort with createdAt (latest to oldest)", async () => {
+      await workspacePage.selectSortOption("createdAt");
+      const projectNames = await workspacePage.getVisibleProjects();
+
+      const equality = projectNames.every(
+        (project, index) => project === PROJECT_ID_LIST[index - 1],
+      );
+      expect(equality).toBe(true);
+    });
+
+    // TODO: API has some issue with field "updatedAt", un-skip this after fix it
+    await test.step.skip("Check sort with updatedAt (latest to oldest)", async () => {
+      const firstProjectName = PROJECT_ID_LIST[0];
+      const newFirstProjectName = "new-" + firstProjectName;
+
+      await test.step("Update the first project", async () => {
+        await workspacePage.searchProjectsInput.fill(firstProjectName);
+        await workspacePage.searchButton.click();
+        await projectPage.gotoProject(firstProjectName);
+        await projectSettingsPage.goToProjectSettings();
+
+        const nameEl = projectSettingsPage.projectName;
+        await nameEl.fill(newFirstProjectName);
+        await projectSettingsPage.saveSettings();
+        await workspacePage.goto("/", { waitUntil: "domcontentloaded" });
+      });
+
+      await workspacePage.selectSortOption("updatedAt");
+
+      const projectCard = workspacePage.projectCardByName(newFirstProjectName);
+      await expect(projectCard).toBeVisible();
+    });
+
+    await test.step("Check sort with name (a-z)", async () => {
+      await workspacePage.selectSortOption("name");
+      const projectNames = await workspacePage.getVisibleProjects();
+
+      const equality = projectNames.every((project, index) => project === PROJECT_ID_LIST[index]);
+      expect(equality).toBe(true);
+    });
+  });
+
+  test("Check reset state: search input, sort select, pagination", async ({
+    projectPage,
+    workspacePage,
+  }) => {
+    const preCondition = async () => {
+      await workspacePage.clickPagination(2);
+      await workspacePage.selectSortOption("name");
+    };
+
+    const checkStatus = async (checkSort = false) => {
+      const firstEl = workspacePage.paginationEl(1);
+      await expect(firstEl).toBeVisible();
+      await expect(firstEl).toContainClass("ant-pagination-item-active");
+
+      if (checkSort) {
+        await expect(workspacePage.projectSelectDefaultSort).toBeVisible();
+      }
+    };
+
+    await test.step("Reset after sort change", async () => {
+      await preCondition();
+      await workspacePage.selectSortOption("createdAt");
+      await checkStatus();
+    });
+
+    await test.step("Reset after search project", async () => {
+      await preCondition();
+      await workspacePage.searchProjectsInput.fill(PROJECT_ID_LIST[0]);
+      await workspacePage.searchButton.click();
+
+      await checkStatus(true);
+      await workspacePage.clearSearchButton.click();
+    });
+
+    await test.step("Reset after cancel search", async () => {
+      await preCondition();
+
+      await workspacePage.searchProjectsInput.fill(NAME_SEPARATOR);
+      await workspacePage.searchButton.click();
+      await workspacePage.clickPagination(2);
+      await workspacePage.clearSearchButton.click();
+
+      await checkStatus(true);
+    });
+
+    await test.step("Reset after create project", async () => {
+      const projectName = getId();
+      await projectPage.createProject(projectName);
+
+      await checkStatus(true);
+
+      await projectPage.gotoProject(projectName);
+      await projectPage.deleteProject();
+    });
+  });
+
+  test.afterEach(async ({ workspacePage, projectPage }) => {
+    for await (const projectName of PROJECT_ID_LIST) {
+      await workspacePage.searchProjectsInput.fill(projectName);
+      await workspacePage.searchButton.click();
+
+      await projectPage.gotoProject(projectName);
+      await projectPage.deleteProject();
+    }
+  });
 });
