@@ -7,6 +7,7 @@ import { ContentPage } from "../pages/content.page";
 import { FieldEditorPage } from "../pages/field-editor.page";
 import { IntegrationsPage } from "../pages/integrations.page";
 import { MemberPage } from "../pages/member.page";
+import { ProjectSettingsPage } from "../pages/project-settings.page";
 import { ProjectPage } from "../pages/project.page";
 import { RequestPage } from "../pages/request.page";
 import { SchemaPage } from "../pages/schema.page";
@@ -25,6 +26,7 @@ export type PageObjects = {
   schemaPage: SchemaPage;
   settingsPage: SettingsPage;
   workspacePage: WorkspacePage;
+  projectSettingsPage: ProjectSettingsPage;
 };
 
 export type Reearth = {
@@ -96,6 +98,10 @@ export const test = base.extend<Fixtures>({
 
   projectPage: async ({ page }, use) => {
     await use(new ProjectPage(page));
+  },
+
+  projectSettingsPage: async ({ page }, use) => {
+    await use(new ProjectSettingsPage(page));
   },
 
   requestPage: async ({ page }, use) => {

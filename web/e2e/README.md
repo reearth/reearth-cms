@@ -165,6 +165,7 @@ yarn playwright show-report
 ### Using VS Code Extension
 
 Install the [Playwright Test for VSCode](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright) extension for:
+
 - Running tests from the editor
 - Debugging with breakpoints
 - Viewing test results inline

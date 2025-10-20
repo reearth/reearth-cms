@@ -144,10 +144,7 @@ test("Creating a new request and adding to request has succeeded", async ({ requ
   await expect(requestPage.collapsedModelButton("e2e model name", 1)).toBeVisible();
 });
 
-test("Navigating between item and request has succeeded", async ({
-  contentPage,
-  requestPage,
-}) => {
+test("Navigating between item and request has succeeded", async ({ contentPage, requestPage }) => {
   await requestPage.versionHistoryTab.click();
   await requestPage.requestTitleLink(requestTitle).click();
   await expect(requestPage.requestPageTitle(requestTitle)).toBeVisible();
