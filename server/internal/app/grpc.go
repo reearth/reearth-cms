@@ -122,10 +122,11 @@ func unaryAttachUsecaseInterceptor(appCtx *ApplicationContext) grpc.UnaryServerI
 			return nil, errors.New("internal error")
 		}
 
-		r, ar := appCtx.Repos, appCtx.AcRepos
-		uc := interactor.New(r, appCtx.Gateways, ar, appCtx.AcGateways, interactor.ContainerConfig{})
+		r, ar, g, ag := appCtx.Repos, appCtx.AcRepos, appCtx.Gateways, appCtx.AcGateways
+		uc := interactor.New(r, g, ar, ag, interactor.ContainerConfig{})
 		ctx = adapter.AttachUsecases(ctx, &uc)
-		ctx = adapter.AttachGateways(ctx, appCtx.Gateways)
+		ctx = adapter.AttachGateways(ctx, g)
+		ctx = adapter.AttachAcRepos(ctx, ar)
 
 		return handler(ctx, req)
 	}

@@ -115,7 +115,6 @@ test("Group reordering has succeeded", async ({ schemaPage }) => {
   await expect(schemaPage.groupMenuItems.nth(2)).toContainText("group3");
 });
 
- 
 test("Text field CRUD has succeeded", async ({ fieldEditorPage, schemaPage }) => {
   await schemaPage.createModelFromSidebar();
   await fieldEditorPage.fieldTypeListItem("Text").click();
