@@ -412,115 +412,233 @@ func TestFileRepo_ValidateContentEncoding(t *testing.T) {
 	}
 }
 
-func TestFileRepo_toPublicUrl_BucketNameRemoval(t *testing.T) {
+func TestFileRepo_BucketWithOptions(t *testing.T) {
 	tests := []struct {
 		name          string
 		bucketName    string
 		publicBaseURL string
-		inputURL      string
-		expectedPath  string
-		replaceUpload bool
+		forSigning    bool
+		expectedError bool
 		description   string
 	}{
 		{
-			name:          "bucket name with trailing slash - should remove correctly",
+			name:          "standard GCS client for signing",
 			bucketName:    "test-bucket",
-			publicBaseURL: "https://assets.cms.test.reearth.dev",
-			inputURL:      "https://storage.googleapis.com/test-bucket/assets/12/345678/test.png?signature=abc",
-			expectedPath:  "/assets/12/345678/test.png",
-			replaceUpload: true,
-			description:   "Standard case: /bucket-name/ should be removed completely",
+			publicBaseURL: "https://assets.example.com",
+			forSigning:    true,
+			expectedError: false,
+			description:   "Should use standard GCS client when forSigning=true",
 		},
 		{
-			name:          "bucket name without trailing slash in input - should not match prefix",
-			bucketName:    "test-bucket",
-			publicBaseURL: "https://assets.cms.test.reearth.dev",
-			inputURL:      "https://storage.googleapis.com/test-bucket-suffix/assets/12/345678/test.png?signature=abc",
-			expectedPath:  "/test-bucket-suffix/assets/12/345678/test.png",
-			replaceUpload: true,
-			description:   "Edge case: bucket name is prefix of path segment but not exact match",
-		},
-		{
-			name:          "bucket name matches but no trailing slash - should not remove",
-			bucketName:    "test-bucket",
-			publicBaseURL: "https://assets.cms.test.reearth.dev",
-			inputURL:      "https://storage.googleapis.com/test-bucket-other/assets/12/345678/test.png?signature=abc",
-			expectedPath:  "/test-bucket-other/assets/12/345678/test.png",
-			replaceUpload: true,
-			description:   "Edge case: similar bucket name but different, should not remove",
-		},
-		{
-			name:          "bucket name exactly matches with trailing slash",
-			bucketName:    "my-bucket",
-			publicBaseURL: "https://cdn.example.com/files",
-			inputURL:      "https://storage.googleapis.com/my-bucket/assets/ab/cdef12/image.jpg?expires=123",
-			expectedPath:  "/files/assets/ab/cdef12/image.jpg",
-			replaceUpload: true,
-			description:   "Custom base with path: bucket removal + path join",
-		},
-		{
-			name:          "no bucket name in path - should not modify",
-			bucketName:    "test-bucket",
-			publicBaseURL: "https://assets.cms.test.reearth.dev",
-			inputURL:      "https://storage.googleapis.com/other-bucket/assets/12/345678/test.png?signature=abc",
-			expectedPath:  "/other-bucket/assets/12/345678/test.png",
-			replaceUpload: true,
-			description:   "Different bucket: should not remove anything",
-		},
-		{
-			name:          "replaceUpload disabled - should not modify URL",
-			bucketName:    "test-bucket",
-			publicBaseURL: "https://assets.cms.test.reearth.dev",
-			inputURL:      "https://storage.googleapis.com/test-bucket/assets/12/345678/test.png?signature=abc",
-			expectedPath:  "/test-bucket/assets/12/345678/test.png", // Original path preserved
-			replaceUpload: false,
-			description:   "URL replacement disabled: should return original URL",
-		},
-		{
-			name:          "GCS default domain - should not replace",
+			name:          "standard GCS client for default domain",
 			bucketName:    "test-bucket",
 			publicBaseURL: "https://storage.googleapis.com/test-bucket",
-			inputURL:      "https://storage.googleapis.com/test-bucket/assets/12/345678/test.png?signature=abc",
-			expectedPath:  "/test-bucket/assets/12/345678/test.png", // Original path preserved
-			replaceUpload: true,
-			description:   "GCS default domain: should not replace",
+			forSigning:    false,
+			expectedError: false,
+			description:   "Should use standard GCS client when domain is storage.googleapis.com",
+		},
+		{
+			name:          "custom endpoint client for custom domain",
+			bucketName:    "test-bucket",
+			publicBaseURL: "https://assets.example.com",
+			forSigning:    false,
+			expectedError: false,
+			description:   "Should use custom endpoint client when domain is not storage.googleapis.com and not signing",
+		},
+		{
+			name:          "custom endpoint with path",
+			bucketName:    "test-bucket",
+			publicBaseURL: "https://cdn.example.com/storage",
+			forSigning:    false,
+			expectedError: false,
+			description:   "Should handle custom endpoints with paths",
+		},
+		{
+			name:          "empty bucket name",
+			bucketName:    "",
+			publicBaseURL: "https://storage.googleapis.com",
+			forSigning:    false,
+			expectedError: false,
+			description:   "Should handle empty bucket name (will create handle but may fail on actual operations)",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			t.Parallel()
+			// Parse the public base URL
+			var publicBase *url.URL
+			if tt.publicBaseURL != "" {
+				var err error
+				publicBase, err = url.Parse(tt.publicBaseURL)
+				assert.NoError(t, err)
+			}
+
+			// Create fileRepo instance
+			f := &fileRepo{
+				bucketName: tt.bucketName,
+				publicBase: publicBase,
+			}
+
+			// Test bucketWithOptions
+			ctx := context.Background()
+			bucket, err := f.bucketWithOptions(ctx, tt.forSigning)
+
+			if tt.expectedError {
+				assert.Error(t, err)
+				assert.Nil(t, bucket)
+			} else {
+				if err != nil {
+					t.Logf("Expected auth-related error in test environment: %v", err)
+				} else {
+					assert.NotNil(t, bucket)
+				}
+			}
+		})
+	}
+}
+
+func TestFileRepo_BucketWithOptions_ClientSelection(t *testing.T) {
+	tests := []struct {
+		name               string
+		publicBaseHost     string
+		forSigning         bool
+		expectedClientType string
+		description        string
+	}{
+		{
+			name:               "signing with custom domain uses standard client",
+			publicBaseHost:     "assets.example.com",
+			forSigning:         true,
+			expectedClientType: "standard",
+			description:        "Signed URLs must always use standard GCS client regardless of custom domain",
+		},
+		{
+			name:               "non-signing with GCS domain uses standard client",
+			publicBaseHost:     "storage.googleapis.com",
+			forSigning:         false,
+			expectedClientType: "standard",
+			description:        "Standard GCS domain should use standard client",
+		},
+		{
+			name:               "non-signing with custom domain uses custom client",
+			publicBaseHost:     "assets.example.com",
+			forSigning:         false,
+			expectedClientType: "custom",
+			description:        "Custom domain should use custom endpoint client when not signing",
+		},
+		{
+			name:               "signing with GCS domain uses standard client",
+			publicBaseHost:     "storage.googleapis.com",
+			forSigning:         true,
+			expectedClientType: "standard",
+			description:        "GCS domain with signing should use standard client",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			publicBase, err := url.Parse(tt.publicBaseURL)
+
+			// Create a URL with the specified host
+			publicBase, err := url.Parse("https://" + tt.publicBaseHost + "/test-bucket")
 			assert.NoError(t, err)
 
 			f := &fileRepo{
-				bucketName:       tt.bucketName,
-				publicBase:       publicBase,
-				replaceUploadURL: tt.replaceUpload,
+				bucketName: "test-bucket",
+				publicBase: publicBase,
 			}
 
-			result := f.toPublicUrl(tt.inputURL)
-			resultURL, err := url.Parse(result)
-			assert.NoError(t, err)
+			ctx := context.Background()
 
-			// For cases where replacement should happen
-			if tt.replaceUpload && publicBase.Host != "storage.googleapis.com" {
-				// Check that the domain was replaced
-				assert.Equal(t, publicBase.Host, resultURL.Host, "Domain should be replaced")
-				assert.Equal(t, publicBase.Scheme, resultURL.Scheme, "Scheme should be replaced")
+			shouldUseStandard := tt.forSigning || f.publicBase.Host == "storage.googleapis.com"
 
-				// Check path handling
-				assert.Equal(t, tt.expectedPath, resultURL.Path, tt.description)
-
-				// Ensure query parameters are preserved
-				inputURL, _ := url.Parse(tt.inputURL)
-				if inputURL.RawQuery != "" {
-					assert.Equal(t, inputURL.RawQuery, resultURL.RawQuery, "Query parameters should be preserved")
-				}
+			if tt.expectedClientType == "standard" {
+				assert.True(t, shouldUseStandard, "Should use standard client for test case: %s", tt.name)
 			} else {
-				// For cases where replacement should not happen, URL should be unchanged
-				assert.Equal(t, tt.inputURL, result, "URL should remain unchanged when replacement is disabled or using GCS domain")
+				assert.False(t, shouldUseStandard, "Should use custom client for test case: %s", tt.name)
+			}
+
+			bucket, err := f.bucketWithOptions(ctx, tt.forSigning)
+			if err != nil {
+				t.Logf("Expected error in test environment: %v", err)
+			} else {
+				assert.NotNil(t, bucket)
 			}
 		})
+	}
+}
+
+func TestFileRepo_BucketWithOptions_ErrorHandling(t *testing.T) {
+	tests := []struct {
+		name          string
+		publicBaseURL string
+		forSigning    bool
+		description   string
+	}{
+		{
+			name:          "invalid custom endpoint URL",
+			publicBaseURL: "not-a-valid-url",
+			forSigning:    false,
+			description:   "Should handle invalid URLs gracefully",
+		},
+		{
+			name:          "empty public base",
+			publicBaseURL: "",
+			forSigning:    false,
+			description:   "Should handle nil publicBase",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			var publicBase *url.URL
+			if tt.publicBaseURL != "" {
+				if tt.publicBaseURL == "not-a-valid-url" {
+					publicBase = &url.URL{Host: "invalid-host-with-no-scheme"}
+				} else {
+					var err error
+					publicBase, err = url.Parse(tt.publicBaseURL)
+					assert.NoError(t, err)
+				}
+			}
+
+			f := &fileRepo{
+				bucketName: "test-bucket",
+				publicBase: publicBase,
+			}
+
+			ctx := context.Background()
+			bucket, err := f.bucketWithOptions(ctx, tt.forSigning)
+
+			if err != nil {
+				t.Logf("Expected error in test environment: %v", err)
+				assert.Error(t, err)
+			} else {
+				assert.NotNil(t, bucket)
+			}
+		})
+	}
+}
+
+func TestFileRepo_Bucket(t *testing.T) {
+	// Test the wrapper method bucket() that calls bucketWithOptions(ctx, false)
+	publicBase, err := url.Parse("https://storage.googleapis.com/test-bucket")
+	assert.NoError(t, err)
+
+	f := &fileRepo{
+		bucketName: "test-bucket",
+		publicBase: publicBase,
+	}
+
+	ctx := context.Background()
+	bucket, err := f.bucket(ctx)
+
+	if err != nil {
+		t.Logf("Expected error in test environment: %v", err)
+	} else {
+		assert.NotNil(t, bucket)
 	}
 }

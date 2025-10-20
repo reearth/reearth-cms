@@ -22,6 +22,7 @@ import (
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"google.golang.org/api/iterator"
+	"google.golang.org/api/option"
 )
 
 const (
@@ -91,6 +92,7 @@ func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string, h map[str
 
 func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileEntry, error) {
 	p := getGCSObjectPath(u, "")
+	// Use custom endpoint client to ensure usage tracking by gcsproxy
 	b, err := f.bucket(ctx)
 	if err != nil {
 		return nil, rerror.ErrInternalBy(err)
@@ -234,7 +236,7 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 		return nil, gateway.ErrInvalidFile
 	}
 
-	bucket, err := f.bucket(ctx)
+	bucket, err := f.bucketWithOptions(ctx, true)
 	if err != nil {
 		return nil, err
 	}
@@ -280,13 +282,6 @@ func (f *fileRepo) toPublicUrl(uploadURL string) string {
 		if err == nil {
 			parsedURL.Scheme = f.publicBase.Scheme
 			parsedURL.Host = f.publicBase.Host
-			// Remove bucket name from the path since custom domain represents the bucket
-			// Original: /bucket-name/assets/... -> /assets/...
-			if strings.HasPrefix(parsedURL.Path, "/"+f.bucketName+"/") {
-				parsedURL.Path = strings.TrimPrefix(parsedURL.Path, "/"+f.bucketName+"/")
-				// Ensure the path is relative (no leading slash) for path.Join
-				parsedURL.Path = strings.TrimLeft(parsedURL.Path, "/")
-			}
 			parsedURL.Path = path.Join(f.publicBase.Path, parsedURL.Path)
 			uploadURL = parsedURL.String()
 		}
@@ -403,6 +398,7 @@ func (f *fileRepo) Upload(ctx context.Context, file *file.File, objectName strin
 		return 0, rerror.ErrInternalBy(err)
 	}
 
+	log.Debugf("DEBUG Upload: About to perform GCS operations with bucketName='%s', objectName='%s'", f.bucketName, objectName)
 	object := bucket.Object(objectName)
 	if err := object.Delete(ctx); err != nil && !errors.Is(err, storage.ErrObjectNotExist) {
 		log.Errorf("gcs: upload err: %+v\n", err)
@@ -616,13 +612,49 @@ func getGCSObjectPathFolder(uuid string) string {
 }
 
 func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
-	client, err := storage.NewClient(ctx)
+	return f.bucketWithOptions(ctx, false)
+}
+
+func (f *fileRepo) bucketWithOptions(ctx context.Context, forSigning bool) (*storage.BucketHandle, error) {
+	var client *storage.Client
+	var err error
+
+	publicBaseStr := "nil"
+	if f.publicBase != nil {
+		publicBaseStr = f.publicBase.String()
+	}
+	log.Debugf("DEBUG bucketWithOptions: bucketName='%s', publicBase='%s', forSigning=%v",
+		f.bucketName, publicBaseStr, forSigning)
+
+	// For signed URLs, always use standard GCS client to ensure signatures work.
+	// with storage.googleapis.com, regardless of custom endpoint configuration
+	if forSigning || f.publicBase == nil || f.publicBase.Host == "storage.googleapis.com" {
+		log.Debugf("DEBUG: Using standard GCS client")
+		client, err = storage.NewClient(ctx)
+	} else {
+		endpointWithBucket := f.publicBase.String()
+		log.Debugf("DEBUG: Using custom endpoint client: %s", endpointWithBucket)
+		log.Debugf("DEBUG: About to create client with bucket='%s', endpoint='%s'", f.bucketName, endpointWithBucket)
+
+		client, err = storage.NewClient(ctx, option.WithEndpoint(endpointWithBucket))
+
+		if err != nil {
+			log.Errorf("gcs: failed to initialize custom endpoint client: %v", err)
+			return nil, err
+		}
+
+		log.Debugf("DEBUG: Custom endpoint client created successfully")
+	}
+
 	if err != nil {
 		log.Errorf("gcs: failed to initialize client: %v", err)
 		return nil, err
 	}
 
+	log.Debugf("DEBUG: Creating bucket handle with bucketName='%s'", f.bucketName)
 	bucket := client.Bucket(f.bucketName)
+	log.Debugf("DEBUG: Bucket handle created successfully for bucket='%s'", f.bucketName)
+
 	return bucket, nil
 }
 

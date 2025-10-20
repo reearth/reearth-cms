@@ -107,13 +107,7 @@ func (s *Server) FieldCreate(ctx context.Context, request FieldCreateRequestObje
 		return FieldCreate400Response{}, err
 	}
 
-	return FieldCreate200JSONResponse{
-		Id:       f.ID().Ref(),
-		Key:      f.Key().Ref().StringRef(),
-		Multiple: lo.ToPtr(f.Multiple()),
-		Required: lo.ToPtr(f.Required()),
-		Type:     lo.ToPtr(integrationapi.ToValueType(f.Type())),
-	}, err
+	return FieldCreate200JSONResponse(integrationapi.NewSchemaField(f)), err
 }
 
 func (s *Server) FieldCreateWithProject(ctx context.Context, request FieldCreateWithProjectRequestObject) (FieldCreateWithProjectResponseObject, error) {
@@ -168,13 +162,7 @@ func (s *Server) FieldCreateWithProject(ctx context.Context, request FieldCreate
 		return FieldCreateWithProject400Response{}, err
 	}
 
-	return FieldCreateWithProject200JSONResponse{
-		Id:       f.ID().Ref(),
-		Key:      f.Key().Ref().StringRef(),
-		Multiple: lo.ToPtr(f.Multiple()),
-		Required: lo.ToPtr(f.Required()),
-		Type:     lo.ToPtr(integrationapi.ToValueType(f.Type())),
-	}, err
+	return FieldCreateWithProject200JSONResponse(integrationapi.NewSchemaField(f)), err
 }
 
 func (s *Server) FieldUpdate(ctx context.Context, request FieldUpdateRequestObject) (FieldUpdateResponseObject, error) {
@@ -219,13 +207,7 @@ func (s *Server) FieldUpdate(ctx context.Context, request FieldUpdateRequestObje
 		return FieldUpdate400Response{}, err
 	}
 
-	return FieldUpdate200JSONResponse{
-		Id:       f.ID().Ref(),
-		Key:      f.Key().Ref().StringRef(),
-		Multiple: lo.ToPtr(f.Multiple()),
-		Required: lo.ToPtr(f.Required()),
-		Type:     lo.ToPtr(integrationapi.ToValueType(f.Type())),
-	}, err
+	return FieldUpdate200JSONResponse(integrationapi.NewSchemaField(f)), err
 }
 
 func (s *Server) FieldUpdateWithProject(ctx context.Context, request FieldUpdateWithProjectRequestObject) (FieldUpdateWithProjectResponseObject, error) {
@@ -286,13 +268,7 @@ func (s *Server) FieldUpdateWithProject(ctx context.Context, request FieldUpdate
 		return FieldUpdateWithProject400Response{}, err
 	}
 
-	return FieldUpdateWithProject200JSONResponse{
-		Id:       f.ID().Ref(),
-		Key:      f.Key().Ref().StringRef(),
-		Multiple: lo.ToPtr(f.Multiple()),
-		Required: lo.ToPtr(f.Required()),
-		Type:     lo.ToPtr(integrationapi.ToValueType(f.Type())),
-	}, err
+	return FieldUpdateWithProject200JSONResponse(integrationapi.NewSchemaField(f)), err
 }
 
 func (s *Server) FieldDelete(ctx context.Context, request FieldDeleteRequestObject) (FieldDeleteResponseObject, error) {
