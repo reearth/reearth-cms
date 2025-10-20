@@ -1,4 +1,4 @@
-import { t } from "@reearth-cms/i18n";
+import { t } from "i18next";
 
 export type CreateAssetUploadPayload = {
   url: string;
