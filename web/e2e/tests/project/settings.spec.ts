@@ -1,8 +1,6 @@
-import i18next from "i18next";
-import Backend from "i18next-fs-backend";
-
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
+import { t } from "@reearth-cms/e2e/support/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 
 const EXIST_PROJECT_NAME = getId();
@@ -11,13 +9,6 @@ const NEW_PROJECT_NAME = getId();
 
 test.beforeEach(async ({ reearth }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-
-  await i18next.use(Backend).init({
-    lng: "en",
-    backend: {
-      loadPath: "@reearth-cms/e2e/translations/en.yml",
-    },
-  });
 });
 
 test.describe("Project General Settings", () => {
@@ -61,25 +52,22 @@ test.describe("Project General Settings", () => {
     await test.step("Alias illegal cases", async () => {
       await test.step("Alias illegal case 1", async () => {
         await aliasEl.clear();
-        const errorMsg1 = i18next.t("{{field}} field is required!", { field: "alias" });
+        const errorMsg1 = t("{{field}} field is required!", { field: "alias" });
         await expect(errorEl).toHaveText(errorMsg1);
       });
 
       await test.step("Alias illegal case 2", async () => {
         await aliasEl.fill("hell");
-        const errorMsg2 = i18next.t(
-          "Your alias must be between {{min}} and {{max}} characters long.",
-          {
-            min: Constant.PROJECT_ALIAS.MIN_LENGTH,
-            max: Constant.PROJECT_ALIAS.MAX_LENGTH,
-          },
-        );
+        const errorMsg2 = t("Your alias must be between {{min}} and {{max}} characters long.", {
+          min: Constant.PROJECT_ALIAS.MIN_LENGTH,
+          max: Constant.PROJECT_ALIAS.MAX_LENGTH,
+        });
         await expect(errorEl).toHaveText(errorMsg2);
       });
 
       await test.step("Alias illegal case 3", async () => {
         await aliasEl.fill("testAlias");
-        const errorMsg3 = i18next.t(
+        const errorMsg3 = t(
           "Alias is invalid. Please use lowercase alphanumeric, hyphen and underscore characters only.",
         );
         await expect(errorEl).toHaveText(errorMsg3);
@@ -87,7 +75,7 @@ test.describe("Project General Settings", () => {
 
       await test.step("Alias illegal case 4", async () => {
         await aliasEl.fill("test-alias#");
-        const errorMsg4 = i18next.t(
+        const errorMsg4 = t(
           "Alias is invalid. Please use lowercase alphanumeric, hyphen and underscore characters only.",
         );
         await expect(errorEl).toHaveText(errorMsg4);
@@ -95,7 +83,7 @@ test.describe("Project General Settings", () => {
 
       await test.step("Alias illegal case 5", async () => {
         await aliasEl.fill(EXIST_PROJECT_NAME);
-        const errorMsg5 = i18next.t("Project alias is already taken");
+        const errorMsg5 = t("Project alias is already taken");
         await expect(errorEl).toHaveText(errorMsg5);
       });
     });
