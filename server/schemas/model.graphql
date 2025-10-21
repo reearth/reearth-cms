@@ -15,9 +15,9 @@ type Model implements Node {
 }
 
 enum ExportFormat{
-    JSON
-    CSV
-    GEOJSON
+  JSON
+  CSV
+  GEOJSON
 }
 
 # Inputs
@@ -44,12 +44,12 @@ input DeleteModelInput {
 }
 
 input ExportModelInput {
-    modelId: ID!
-    format: ExportFormat!
+  modelId: ID!
+  format: ExportFormat!
 }
 
 input ExportModelSchemaInput {
-    modelId: ID!
+  modelId: ID!
 }
 
 # Payloads
@@ -62,13 +62,13 @@ type DeleteModelPayload {
 }
 
 type ExportModelPayload {
-    modelId: ID!
-    url: URL!
+  modelId: ID!
+  url: URL!
 }
 
 type ExportModelSchemaPayload {
-    modelId: ID!
-    url: URL!
+  modelId: ID!
+  url: URL!
 }
 
 type ModelsPayload {
@@ -97,6 +97,6 @@ extend type Mutation {
   updateModel(input: UpdateModelInput!): ModelPayload
   updateModelsOrder(input: UpdateModelsOrderInput!): ModelsPayload
   deleteModel(input: DeleteModelInput!): DeleteModelPayload
-    exportModel(input: ExportModelInput!): ExportModelPayload
-    exportModelSchema(input: ExportModelSchemaInput!): ExportModelSchemaPayload
+  exportModel(input: ExportModelInput!): ExportModelPayload
+  exportModelSchema(input: ExportModelSchemaInput!): ExportModelSchemaPayload
 }
