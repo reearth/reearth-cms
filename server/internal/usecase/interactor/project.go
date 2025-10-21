@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
 )
 
@@ -253,6 +254,7 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 				p.SetRequestRoles(param.RequestRoles)
 			}
 
+			p.SetUpdatedAt(util.Now())
 			if err := i.repos.Project.Save(ctx, p); err != nil {
 				return nil, err
 			}

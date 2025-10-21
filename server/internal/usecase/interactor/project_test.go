@@ -6,9 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/samber/lo"
-	"github.com/stretchr/testify/assert"
-
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -20,6 +17,9 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/account/accountusecase"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
+	"github.com/stretchr/testify/assert"
 )
 
 // sequentialPolicyChecker for testing multiple policy calls
@@ -64,15 +64,14 @@ func (m *mockPolicyChecker) CheckPolicy(ctx context.Context, req gateway.PolicyC
 }
 
 func TestProject_Fetch(t *testing.T) {
-	mocktime := time.Now()
 	wid1 := accountdomain.NewWorkspaceID()
 	wid2 := accountdomain.NewWorkspaceID()
 
 	pid1 := id.NewProjectID()
-	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mocktime).MustBuild()
+	p1 := project.New().ID(pid1).Workspace(wid1).MustBuild()
 
 	pid2 := id.NewProjectID()
-	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mocktime).MustBuild()
+	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(time.Now().Add(-time.Hour)).MustBuild()
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
@@ -167,7 +166,6 @@ func TestProject_Fetch(t *testing.T) {
 			if tc.mockProjectErr {
 				memory.SetProjectError(db.Project, tc.wantErr)
 			}
-			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
@@ -186,15 +184,14 @@ func TestProject_Fetch(t *testing.T) {
 }
 
 func TestProject_FindByWorkspace(t *testing.T) {
-	mocktime := time.Now()
 	wid1 := accountdomain.NewWorkspaceID()
 	wid2 := accountdomain.NewWorkspaceID()
 
 	pid1 := id.NewProjectID()
-	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mocktime).MustBuild()
+	p1 := project.New().ID(pid1).Workspace(wid1).MustBuild()
 
 	pid2 := id.NewProjectID()
-	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mocktime).MustBuild()
+	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(time.Now().Add(-time.Hour)).MustBuild()
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
@@ -287,7 +284,6 @@ func TestProject_FindByWorkspace(t *testing.T) {
 			if tc.mockProjectErr {
 				memory.SetProjectError(db.Project, tc.wantErr)
 			}
-			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
@@ -306,7 +302,6 @@ func TestProject_FindByWorkspace(t *testing.T) {
 }
 
 func TestProject_Create(t *testing.T) {
-	mocktime := time.Now()
 	wid := accountdomain.NewWorkspaceID()
 	r := []workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer}
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid).MustBuild()
@@ -455,7 +450,6 @@ func TestProject_Create(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
-			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
@@ -493,23 +487,25 @@ func TestProject_Create(t *testing.T) {
 }
 
 func TestProject_Update(t *testing.T) {
-	mocktime := time.Now()
+	now := util.Now()
+	defer util.MockNow(now)
+
 	wid1 := accountdomain.NewWorkspaceID()
 	wid2 := accountdomain.NewWorkspaceID()
 	r1 := []workspace.Role{workspace.RoleOwner}
 	r2 := []workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer}
 
 	pid1 := id.NewProjectID()
-	p1 := project.New().ID(pid1).Workspace(wid1).RequestRoles(r1).UpdatedAt(mocktime.Add(-time.Second)).MustBuild()
+	p1 := project.New().ID(pid1).Workspace(wid1).RequestRoles(r1).UpdatedAt(now.Add(-time.Hour)).MustBuild()
 
 	pid2 := id.NewProjectID()
-	p2 := project.New().ID(pid2).Workspace(wid2).RequestRoles(r2).Alias("testAlias").UpdatedAt(mocktime).MustBuild()
+	p2 := project.New().ID(pid2).Workspace(wid2).RequestRoles(r2).Alias("testAlias").UpdatedAt(now.Add(-time.Minute)).MustBuild()
 
 	// Project with explicit private visibility for policy test
 	pid3 := id.NewProjectID()
 	p3 := project.New().ID(pid3).Workspace(wid1).RequestRoles(r1).
 		Accessibility(project.NewPrivateAccessibility(project.PublicationSettings{}, nil)).
-		UpdatedAt(mocktime.Add(-time.Second)).MustBuild()
+		UpdatedAt(now.Add(-time.Second)).MustBuild()
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
@@ -553,7 +549,7 @@ func TestProject_Update(t *testing.T) {
 				Description("desc321").
 				Alias("alias").
 				RequestRoles(r1).
-				UpdatedAt(mocktime).
+				UpdatedAt(now).
 				MustBuild(),
 			wantErr: nil,
 		},
@@ -603,7 +599,7 @@ func TestProject_Update(t *testing.T) {
 			want: project.New().
 				ID(pid1).
 				Workspace(wid1).
-				UpdatedAt(mocktime).
+				UpdatedAt(now).
 				Accessibility(project.NewPublicAccessibility()).
 				RequestRoles(r1).
 				MustBuild(),
@@ -622,7 +618,7 @@ func TestProject_Update(t *testing.T) {
 				ID(pid1).
 				Workspace(wid1).
 				RequestRoles(r2).
-				UpdatedAt(mocktime).
+				UpdatedAt(now).
 				MustBuild(),
 			wantErr: nil,
 		},
@@ -642,7 +638,7 @@ func TestProject_Update(t *testing.T) {
 				ID(pid1).
 				Workspace(wid1).
 				RequestRoles(r1).
-				UpdatedAt(mocktime).
+				UpdatedAt(now).
 				Accessibility(project.NewPublicAccessibility()).
 				MustBuild(),
 			wantErr: nil,
@@ -695,7 +691,7 @@ func TestProject_Update(t *testing.T) {
 				Workspace(wid1).
 				RequestRoles(r1).
 				Readme("new readme").
-				UpdatedAt(mocktime).
+				UpdatedAt(now).
 				MustBuild(),
 		},
 		{
@@ -719,7 +715,7 @@ func TestProject_Update(t *testing.T) {
 				Workspace(wid1).
 				RequestRoles(r1).
 				Readme("new readme").
-				UpdatedAt(mocktime).
+				UpdatedAt(now).
 				MustBuild(),
 		},
 		{
@@ -752,7 +748,6 @@ func TestProject_Update(t *testing.T) {
 			if tc.mockProjectErr {
 				memory.SetProjectError(db.Project, tc.wantErr)
 			}
-			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
@@ -778,12 +773,11 @@ func TestProject_Update(t *testing.T) {
 }
 
 func TestProject_CheckAlias(t *testing.T) {
-	mocktime := time.Now()
 	wid1 := accountdomain.NewWorkspaceID()
 	wid2 := accountdomain.NewWorkspaceID()
 
 	pid1 := id.NewProjectID()
-	p1 := project.New().ID(pid1).Workspace(wid1).Alias("test123").UpdatedAt(mocktime).MustBuild()
+	p1 := project.New().ID(pid1).Workspace(wid1).Alias("test123").MustBuild()
 
 	pid2 := id.NewProjectID()
 	p2 := project.New().ID(pid2).Workspace(wid2).MustBuild()
@@ -836,7 +830,6 @@ func TestProject_CheckAlias(t *testing.T) {
 
 			ctx := context.Background()
 			db := memory.New()
-			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
@@ -855,15 +848,14 @@ func TestProject_CheckAlias(t *testing.T) {
 }
 
 func TestProject_Delete(t *testing.T) {
-	mocktime := time.Now()
 	wid1 := accountdomain.NewWorkspaceID()
 	wid2 := accountdomain.NewWorkspaceID()
 
 	pid1 := id.NewProjectID()
-	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mocktime).MustBuild()
+	p1 := project.New().ID(pid1).Workspace(wid1).MustBuild()
 
 	pid2 := id.NewProjectID()
-	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mocktime).MustBuild()
+	p2 := project.New().ID(pid2).Workspace(wid2).MustBuild()
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
@@ -891,7 +883,6 @@ func TestProject_Delete(t *testing.T) {
 		name           string
 		seeds          project.List
 		args           args
-		want           project.List
 		mockProjectErr bool
 		policyChecker  gateway.PolicyChecker
 		wantErr        error
@@ -903,7 +894,6 @@ func TestProject_Delete(t *testing.T) {
 				id:       pid1,
 				operator: opOwner,
 			},
-			want:    nil,
 			wantErr: nil,
 		},
 		{
@@ -913,7 +903,6 @@ func TestProject_Delete(t *testing.T) {
 				id:       id.NewProjectID(),
 				operator: op,
 			},
-			want:    nil,
 			wantErr: rerror.ErrNotFound,
 		},
 		{
@@ -923,7 +912,6 @@ func TestProject_Delete(t *testing.T) {
 				id:       pid2,
 				operator: op,
 			},
-			want:    nil,
 			wantErr: rerror.ErrNotFound,
 		},
 		{
@@ -933,7 +921,6 @@ func TestProject_Delete(t *testing.T) {
 				id:       pid1,
 				operator: op,
 			},
-			want:    nil,
 			wantErr: rerror.ErrNotFound,
 		},
 		{
@@ -957,7 +944,6 @@ func TestProject_Delete(t *testing.T) {
 					{Allowed: false, CurrentLimit: "test limit", Message: "general operation denied"},
 				},
 			},
-			want:    nil,
 			wantErr: interfaces.ErrOperationDenied,
 		},
 	}
@@ -972,7 +958,6 @@ func TestProject_Delete(t *testing.T) {
 			if tc.mockProjectErr {
 				memory.SetProjectError(db.Project, tc.wantErr)
 			}
-			defer memory.MockNow(db, mocktime)()
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p.Clone())
 				assert.NoError(t, err)
