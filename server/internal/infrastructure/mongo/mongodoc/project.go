@@ -21,6 +21,8 @@ type ProjectDocument struct {
 	Readme        string
 	Alias         string
 	ImageURL      string
+	StarCount     int64
+	StarredBy     []string
 	Workspace     string
 	Accessibility *ProjectAccessibilityDocument
 	RequestRoles  []string
@@ -62,6 +64,8 @@ func NewProject(project *project.Project) (*ProjectDocument, string) {
 		Readme:        project.Readme(),
 		Alias:         project.Alias(),
 		ImageURL:      imageURL,
+		StarCount:     project.StarCount(),
+		StarredBy:     project.StarredBy(),
 		Workspace:     project.Workspace().String(),
 		Accessibility: NewProjectAccessibility(project.Accessibility()),
 		RequestRoles:  fromRequestRoles(project.RequestRoles()),
@@ -136,6 +140,8 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 		Alias(d.Alias).
 		Workspace(tid).
 		ImageURL(imageURL).
+		StarCount(d.StarCount).
+		StarredBy(d.StarredBy).
 		Accessibility(d.Accessibility.Model()).
 		RequestRoles(toRequestRoles(d.RequestRoles)).
 		Build()

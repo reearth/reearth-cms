@@ -3,8 +3,11 @@ package internalapi
 import (
 	"bytes"
 	"context"
+	"errors"
+	"fmt"
 	"io"
 	"net/url"
+	"slices"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/internalapi/internalapimodel"
@@ -496,5 +499,57 @@ func (s server) GetModelExportURL(ctx context.Context, req *pb.ModelExportReques
 
 	return &pb.ExportURLResponse{
 		Url: lo.Must(url.JoinPath(g.File.GetBaseURL(), m.ID().String()+ext)),
+	}, nil
+}
+
+func (s server) PatchStarCount(ctx context.Context, req *pb.PatchStarCountRequest) (*pb.PatchStarCountResponse, error) {
+	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
+	usr := adapter.User(ctx)
+
+	if usr == nil {
+		return nil, errors.New("user not found in context")
+	}
+
+	pj, err := uc.Project.FindByIDOrAlias(ctx, project.IDOrAlias(req.ProjectAlias), op)
+	if err != nil {
+		fmt.Println("FindByIDOrAlias error:", err)
+		return nil, err
+	}
+
+	pid := pj.ID()
+	userID := usr.ID().String()
+
+	starredBy := []string{}
+	starCount := int64(0)
+
+	if pj.StarredBy() != nil {
+		starredBy = pj.StarredBy()
+	}
+
+	if pj.StarCount() > 0 {
+		starCount = pj.StarCount()
+	}
+
+	if slices.Contains(starredBy, userID) && starCount > 0 {
+		starredBy = slices.Delete(starredBy, slices.Index(starredBy, userID), slices.Index(starredBy, userID)+1)
+		starCount = starCount - 1
+
+	} else {
+		starredBy = append(starredBy, userID)
+		starCount = starCount + 1
+
+	}
+
+	p, err := uc.Project.Update(ctx, interfaces.UpdateProjectParam{
+		ID:        pid,
+		StarCount: &starCount,
+		StarredBy: &starredBy,
+	}, op)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.PatchStarCountResponse{
+		Project: internalapimodel.ToProject(p),
 	}, nil
 }

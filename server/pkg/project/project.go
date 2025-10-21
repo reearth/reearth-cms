@@ -27,6 +27,8 @@ type Project struct {
 	readme        string
 	license       string
 	imageURL      *url.URL
+	starCount     int64
+	starredBy     []string
 	updatedAt     time.Time
 	accessibility *Accessibility
 	requestRoles  []workspace.Role
@@ -67,6 +69,14 @@ func (p *Project) ImageURL() *url.URL {
 	// https://github.com/golang/go/issues/38351
 	imageURL2 := *p.imageURL
 	return &imageURL2
+}
+
+func (p *Project) StarCount() int64 {
+	return p.starCount
+}
+
+func (p *Project) StarredBy() []string {
+	return p.starredBy
 }
 
 func (p *Project) Workspace() accountdomain.WorkspaceID {
@@ -117,6 +127,20 @@ func (p *Project) UpdateReadMe(readme string) {
 
 func (p *Project) UpdateLicense(license string) {
 	p.license = license
+}
+
+func (p *Project) SetStarCount(count int64) {
+	if p == nil {
+		return
+	}
+	p.starCount = count
+}
+
+func (p *Project) SetStarredBy(starredBy []string) {
+	if p == nil {
+		return
+	}
+	p.starredBy = starredBy
 }
 
 func (p *Project) SetRequestRoles(sr []workspace.Role) {

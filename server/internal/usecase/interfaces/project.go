@@ -38,6 +38,8 @@ type UpdateProjectParam struct {
 	License       *string
 	Readme        *string
 	Alias         *string
+	StarCount     *int64
+	StarredBy     *[]string
 	RequestRoles  []workspace.Role
 	Accessibility *AccessibilityParam
 }

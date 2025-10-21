@@ -254,6 +254,14 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 				p.SetRequestRoles(param.RequestRoles)
 			}
 
+			if param.StarCount != nil {
+				p.SetStarCount(*param.StarCount)
+			}
+
+			if param.StarredBy != nil {
+				p.SetStarredBy(*param.StarredBy)
+			}
+
 			p.SetUpdatedAt(util.Now())
 			if err := i.repos.Project.Save(ctx, p); err != nil {
 				return nil, err
