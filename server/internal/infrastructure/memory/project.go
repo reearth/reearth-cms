@@ -2,7 +2,6 @@ package memory
 
 import (
 	"context"
-	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
@@ -18,14 +17,12 @@ import (
 type Project struct {
 	data *util.SyncMap[id.ProjectID, *project.Project]
 	f    repo.WorkspaceFilter
-	now  *util.TimeNow
 	err  error
 }
 
 func NewProject() repo.Project {
 	return &Project{
 		data: &util.SyncMap[id.ProjectID, *project.Project]{},
-		now:  &util.TimeNow{},
 	}
 }
 
@@ -33,7 +30,6 @@ func (r *Project) Filtered(f repo.WorkspaceFilter) repo.Project {
 	return &Project{
 		data: r.data,
 		f:    r.f.Merge(f),
-		now:  &util.TimeNow{},
 	}
 }
 
@@ -180,7 +176,6 @@ func (r *Project) Save(_ context.Context, p *project.Project) error {
 		return repo.ErrOperationDenied
 	}
 
-	p.SetUpdatedAt(r.now.Now())
 	r.data.Store(p.ID(), p)
 	return nil
 }
@@ -195,10 +190,6 @@ func (r *Project) Remove(_ context.Context, id id.ProjectID) error {
 		return nil
 	}
 	return rerror.ErrNotFound
-}
-
-func MockProjectNow(r repo.Project, t time.Time) func() {
-	return r.(*Project).now.Mock(t)
 }
 
 func SetProjectError(r repo.Project, err error) {
