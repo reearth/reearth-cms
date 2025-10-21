@@ -157,6 +157,10 @@ func (r *mutationResolver) ExportModel(ctx context.Context, input gqlmodel.Expor
 		ext = ".geojson"
 		ct = "application/geo+json"
 	}
+	if format == exporters.FormatCSV {
+		ext = ".csv"
+		ct = "text/csv"
+	}
 
 	// upload result as file
 	_, err = g.File.Upload(ctx, &file.File{
@@ -170,8 +174,13 @@ func (r *mutationResolver) ExportModel(ctx context.Context, input gqlmodel.Expor
 		return nil, err
 	}
 
+	baseURL, err := url.Parse(g.File.GetBaseURL())
+	if err != nil {
+		return nil, err
+	}
+
 	return &gqlmodel.ExportModelPayload{
-		URL: *lo.Must(url.Parse(g.File.GetBaseURL())).JoinPath(m.ID().String() + ext),
+		URL: *baseURL.JoinPath(m.ID().String() + ext),
 	}, nil
 }
 
@@ -214,8 +223,13 @@ func (r *mutationResolver) ExportModelSchema(ctx context.Context, input gqlmodel
 		return nil, err
 	}
 
+	baseURL, err := url.Parse(g.File.GetBaseURL())
+	if err != nil {
+		return nil, err
+	}
+
 	return &gqlmodel.ExportModelSchemaPayload{
-		URL: *lo.Must(url.Parse(g.File.GetBaseURL())).JoinPath(fileName),
+		URL: *baseURL.JoinPath(fileName),
 	}, nil
 }
 
