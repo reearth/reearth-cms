@@ -4,7 +4,6 @@ import (
 	"context"
 	"path/filepath"
 	"testing"
-	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
@@ -27,7 +26,6 @@ import (
 )
 
 func TestModel_UpdateWithNewSchemaFields(t *testing.T) {
-	mockTime := time.Now()
 	wid := accountdomain.NewWorkspaceID()
 	p := project.New().NewID().Workspace(wid).MustBuild()
 	op := &usecase.Operator{
@@ -196,7 +194,6 @@ func TestModel_UpdateWithNewSchemaFields(t *testing.T) {
 			ctx := context.Background()
 			db := memory.New()
 			u := NewSchema(db, nil)
-			defer memory.MockNow(db, mockTime)()
 			for _, m := range tt.seeds.model {
 				assert.NoError(t, db.Model.Save(ctx, m.Clone()))
 			}

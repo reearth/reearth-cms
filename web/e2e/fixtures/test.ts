@@ -2,11 +2,12 @@ import { test as base, type Page } from "@playwright/test";
 
 import { config, getAccessToken, type Config } from "../config/config";
 import { AssetsPage } from "../pages/assets.page";
-import { AuthPage } from "../pages/auth.page";
 import { ContentPage } from "../pages/content.page";
 import { FieldEditorPage } from "../pages/field-editor.page";
 import { IntegrationsPage } from "../pages/integrations.page";
+import { LoginPage } from "../pages/login.page";
 import { MemberPage } from "../pages/member.page";
+import { ProjectSettingsPage } from "../pages/project-settings.page";
 import { ProjectPage } from "../pages/project.page";
 import { RequestPage } from "../pages/request.page";
 import { SchemaPage } from "../pages/schema.page";
@@ -15,7 +16,7 @@ import { WorkspacePage } from "../pages/workspace.page";
 
 export type PageObjects = {
   assetsPage: AssetsPage;
-  authPage: AuthPage;
+  loginPage: LoginPage;
   contentPage: ContentPage;
   fieldEditorPage: FieldEditorPage;
   integrationsPage: IntegrationsPage;
@@ -25,6 +26,7 @@ export type PageObjects = {
   schemaPage: SchemaPage;
   settingsPage: SettingsPage;
   workspacePage: WorkspacePage;
+  projectSettingsPage: ProjectSettingsPage;
 };
 
 export type Reearth = {
@@ -78,8 +80,8 @@ export const test = base.extend<Fixtures>({
     await use(new AssetsPage(page));
   },
 
-  authPage: async ({ page }, use) => {
-    await use(new AuthPage(page));
+  loginPage: async ({ page }, use) => {
+    await use(new LoginPage(page));
   },
 
   contentPage: async ({ page }, use) => {
@@ -96,6 +98,10 @@ export const test = base.extend<Fixtures>({
 
   projectPage: async ({ page }, use) => {
     await use(new ProjectPage(page));
+  },
+
+  projectSettingsPage: async ({ page }, use) => {
+    await use(new ProjectSettingsPage(page));
   },
 
   requestPage: async ({ page }, use) => {

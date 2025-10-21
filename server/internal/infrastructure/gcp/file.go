@@ -616,6 +616,7 @@ func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
 	}
 
 	bucket := client.Bucket(f.bucketName)
+
 	return bucket, nil
 }
 

@@ -268,7 +268,7 @@ export default () => {
           });
           if (requiredErrorFields.length || maxLengthErrorFields.length) {
             requiredErrorFields.forEach(field => {
-              Notification.error({ message: t("Required field error", { field }) });
+              Notification.error({ message: t("{{field}} field is required!", { field }) });
             });
             maxLengthErrorFields.forEach(field => {
               Notification.error({ message: t("Maximum length error", { field }) });
