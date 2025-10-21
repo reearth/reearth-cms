@@ -5,7 +5,7 @@ import WorkspaceHeader from "./WorkspaceHeader";
 
 test("WorkspaceHeader renders with search input and sort select", () => {
   render(
-    <WorkspaceHeader onProjectSearch={vi.fn()} onProjectSort={vi.fn()} projectSort="updatedAt" />,
+    <WorkspaceHeader onProjectSearch={vi.fn()} onProjectSort={vi.fn()} projectSort="updatedat" />,
   );
 
   expect(screen.getByPlaceholderText("search projects")).toBeVisible();

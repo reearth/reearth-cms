@@ -11,7 +11,7 @@ const loading = false;
 const hasCreateRight = true;
 const page = 1;
 const pageSize = 10;
-const projectSort: SortBy = "updatedAt";
+const projectSort: SortBy = "updatedat";
 const totalCount = 0;
 
 test("Workspace wrapper works successfully", () => {

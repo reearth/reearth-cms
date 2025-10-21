@@ -22,7 +22,7 @@ import { useWorkspace, useUserRights } from "@reearth-cms/state";
 
 const INITIAL_PAGE = 1;
 const INITIAL_PAGE_SIZE = 10;
-const INITIAL_PAGE_SORT: SortBy = "updatedAt";
+const INITIAL_PAGE_SORT: SortBy = "updatedat";
 const INITIAL_SEARCH_TERM = "";
 
 export default () => {

@@ -115,14 +115,9 @@ test.describe("Project List", () => {
     });
   });
 
-  test("Project list sorting", async ({ projectPage, workspacePage, projectSettingsPage }) => {
-    await workspacePage.clickPagination(1);
-
-    const projectSortSelectEl = workspacePage.projectSelectSort;
-    await expect(projectSortSelectEl).toBeVisible();
-
-    await test.step("Check sort with createdAt (latest to oldest)", async () => {
-      await workspacePage.selectSortOption("createdAt");
+  test.describe("Project list sorting", () => {
+    test("Check sort with createdAt (latest to oldest)", async ({ workspacePage }) => {
+      await workspacePage.selectSortOption("id");
       const projectNames = await workspacePage.getVisibleProjects();
 
       const equality = projectNames.every(
@@ -131,8 +126,11 @@ test.describe("Project List", () => {
       expect(equality).toBe(true);
     });
 
-    // TODO: API has some issue with field "updatedAt", un-skip this after fix it
-    await test.step.skip("Check sort with updatedAt (latest to oldest)", async () => {
+    test("Check sort with updatedAt (latest to oldest)", async ({
+      workspacePage,
+      projectPage,
+      projectSettingsPage,
+    }) => {
       const firstProjectName = PROJECT_ID_LIST[0];
       const newFirstProjectName = "new-" + firstProjectName;
 
@@ -148,13 +146,17 @@ test.describe("Project List", () => {
         await workspacePage.goto("/", { waitUntil: "domcontentloaded" });
       });
 
-      await workspacePage.selectSortOption("updatedAt");
+      await workspacePage.selectSortOption("updatedat");
 
       const projectCard = workspacePage.projectCardByName(newFirstProjectName);
       await expect(projectCard).toBeVisible();
+
+      await test.step("Update the first project with new name for deletion", async () => {
+        PROJECT_ID_LIST[0] = newFirstProjectName;
+      });
     });
 
-    await test.step("Check sort with name (a-z)", async () => {
+    test("Check sort with name (a-z)", async ({ workspacePage }) => {
       await workspacePage.selectSortOption("name");
       const projectNames = await workspacePage.getVisibleProjects();
 
@@ -184,7 +186,7 @@ test.describe("Project List", () => {
 
     await test.step("Reset after sort change", async () => {
       await preCondition();
-      await workspacePage.selectSortOption("createdAt");
+      await workspacePage.selectSortOption("id");
       await checkStatus();
     });
 
@@ -223,7 +225,6 @@ test.describe("Project List", () => {
     for await (const projectName of PROJECT_ID_LIST) {
       await workspacePage.searchProjectsInput.fill(projectName);
       await workspacePage.searchButton.click();
-
       await projectPage.gotoProject(projectName);
       await projectPage.deleteProject();
     }
