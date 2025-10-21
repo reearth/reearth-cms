@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"net/url"
 	"slices"
@@ -512,26 +511,18 @@ func (s server) PatchStarCount(ctx context.Context, req *pb.PatchStarCountReques
 
 	pj, err := uc.Project.FindByIDOrAlias(ctx, project.IDOrAlias(req.ProjectAlias), op)
 	if err != nil {
-		fmt.Println("FindByIDOrAlias error:", err)
 		return nil, err
 	}
 
 	pid := pj.ID()
 	userID := usr.ID().String()
 
-	starredBy := []string{}
-	starCount := int64(0)
-
-	if pj.StarredBy() != nil {
-		starredBy = pj.StarredBy()
-	}
-
-	if pj.StarCount() > 0 {
-		starCount = pj.StarCount()
-	}
+	starredBy := pj.StarredBy()
+	starCount := pj.StarCount()
 
 	if slices.Contains(starredBy, userID) && starCount > 0 {
-		starredBy = slices.Delete(starredBy, slices.Index(starredBy, userID), slices.Index(starredBy, userID)+1)
+		idx := slices.Index(starredBy, userID)
+		starredBy = slices.Delete(starredBy, idx, idx+1)
 		starCount = starCount - 1
 
 	} else {
