@@ -64,7 +64,7 @@ export default () => {
   );
 
   const [createNewProject] = useMutation(CreateProjectDocument, {
-    refetchQueries: ["GetProjects"],
+    refetchQueries: [{ query: GetProjectsDocument }],
   });
 
   const handleProjectSearch = useCallback(
@@ -113,7 +113,7 @@ export default () => {
   );
 
   const [createWorkspaceMutation] = useMutation(CreateWorkspaceDocument, {
-    refetchQueries: ["GetMe"],
+    refetchQueries: [{ query: GetMeDocument }],
   });
   const handleWorkspaceCreate = useCallback(
     async (data: WorkspaceFormValues) => {

@@ -31,6 +31,7 @@ import {
   DecompressAssetDocument,
   GetAssetDocument,
   GetAssetFileDocument,
+  GetAssetItemDocument,
   UpdateAssetDocument,
 } from "@reearth-cms/gql/__generated__/assets.generated";
 import {
@@ -105,7 +106,7 @@ export default (assetId?: string) => {
       if (!assetId) return;
       const result = await updateAssetMutation({
         variables: { id: assetId, previewType: previewType as GQLPreviewType },
-        refetchQueries: ["GetAssetItem"],
+        refetchQueries: [{ query: GetAssetItemDocument }],
       });
       if (result.error || !result.data?.updateAsset) {
         Notification.error({ message: t("Failed to update asset.") });
@@ -125,7 +126,7 @@ export default (assetId?: string) => {
         setDecompressing(true);
         const result = await decompressAssetMutation({
           variables: { assetId },
-          refetchQueries: ["GetAssetItem"],
+          refetchQueries: [{ query: GetAssetItemDocument }],
         });
         setDecompressing(false);
         if (result.error || !result.data?.decompressAsset) {

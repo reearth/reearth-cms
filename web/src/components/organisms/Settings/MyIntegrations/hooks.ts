@@ -18,7 +18,7 @@ export default () => {
   const [createNewIntegration, { loading: createLoading }] = useMutation(
     CreateIntegrationDocument,
     {
-      refetchQueries: ["GetMe"],
+      refetchQueries: [{ query: GetMeDocument }],
     },
   );
 

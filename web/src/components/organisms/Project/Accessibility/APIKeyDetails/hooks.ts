@@ -9,6 +9,7 @@ import { Model as GQLModel } from "@reearth-cms/gql/__generated__/graphql.genera
 import { GetModelsDocument } from "@reearth-cms/gql/__generated__/model.generated";
 import {
   CreateApiKeyDocument,
+  GetProjectDocument,
   RegenerateApiKeyDocument,
   UpdateApiKeyDocument,
 } from "@reearth-cms/gql/__generated__/project.generated";
@@ -32,15 +33,15 @@ export default () => {
   const isNewKey = useMemo(() => keyId === "new", [keyId]);
 
   const [createAPIKeyMutation, { loading: createLoading }] = useMutation(CreateApiKeyDocument, {
-    refetchQueries: ["GetProject"],
+    refetchQueries: [{ query: GetProjectDocument }],
   });
   const [updateAPIKeyMutation, { loading: updateLoading }] = useMutation(UpdateApiKeyDocument, {
-    refetchQueries: ["GetProject"],
+    refetchQueries: [{ query: GetProjectDocument }],
   });
   const [regenerateAPIKeyMutation, { loading: regenerateLoading }] = useMutation(
     RegenerateApiKeyDocument,
     {
-      refetchQueries: ["GetProject"],
+      refetchQueries: [{ query: GetProjectDocument }],
     },
   );
 

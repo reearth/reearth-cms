@@ -10,6 +10,7 @@ import { Model as GQLModel } from "@reearth-cms/gql/__generated__/graphql.genera
 import { GetModelsDocument } from "@reearth-cms/gql/__generated__/model.generated";
 import {
   DeleteApiKeyDocument,
+  GetProjectDocument,
   UpdateProjectDocument,
 } from "@reearth-cms/gql/__generated__/project.generated";
 import { useT } from "@reearth-cms/i18n";
@@ -75,7 +76,7 @@ export default () => {
   const [updateProjectMutation] = useMutation(UpdateProjectDocument);
 
   const [deleteAPIKeyMutation] = useMutation(DeleteApiKeyDocument, {
-    refetchQueries: ["GetProject"],
+    refetchQueries: [{ query: GetProjectDocument }],
   });
 
   const handlePublicUpdate = useCallback(

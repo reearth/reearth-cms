@@ -1,5 +1,6 @@
 import AssetListBody from "@reearth-cms/components/molecules/Asset/AssetList";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
+import { GetAssetsItemsDocument } from "@reearth-cms/gql/__generated__/assets.generated";
 
 import useHooks from "./hooks";
 
@@ -54,7 +55,7 @@ const AssetList: React.FC = () => {
           onCollapse={handleToggleCommentMenu}
           comments={selectedAsset?.comments}
           threadId={selectedAsset?.threadId}
-          refetchQueries={["GetAssetsItems"]}
+          refetchQueries={[GetAssetsItemsDocument]}
         />
       }
       assetList={assetList}

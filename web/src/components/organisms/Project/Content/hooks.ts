@@ -9,8 +9,11 @@ import {
   Request as GQLRequest,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
 import {
+  GetItemDocument,
   PublishItemDocument,
+  SearchItemDocument,
   UnpublishItemDocument,
+  VersionsByItemDocument,
 } from "@reearth-cms/gql/__generated__/item.generated";
 import {
   GetModalRequestsDocument,
@@ -56,7 +59,7 @@ export default () => {
   );
 
   const [updateRequest] = useMutation(UpdateRequestDocument, {
-    refetchQueries: ["SearchItem", "GetItem", "VersionsByItem"],
+    refetchQueries: [SearchItemDocument, GetItemDocument, VersionsByItemDocument],
   });
 
   const handleAddItemToRequest = useCallback(
@@ -92,7 +95,7 @@ export default () => {
   );
 
   const [publishItem, { loading: publishLoading }] = useMutation(PublishItemDocument, {
-    refetchQueries: ["SearchItem", "GetItem", "VersionsByItem"],
+    refetchQueries: [SearchItemDocument, GetItemDocument, VersionsByItemDocument],
   });
 
   const handlePublish = useCallback(
@@ -113,7 +116,7 @@ export default () => {
   );
 
   const [unpublishItem, { loading: unpublishLoading }] = useMutation(UnpublishItemDocument, {
-    refetchQueries: ["SearchItem", "GetItem", "VersionsByItem"],
+    refetchQueries: [SearchItemDocument, GetItemDocument, VersionsByItemDocument],
   });
 
   const handleUnpublish = useCallback(

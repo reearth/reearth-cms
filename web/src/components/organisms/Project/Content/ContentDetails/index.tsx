@@ -2,6 +2,7 @@ import ContentDetailsMolecule from "@reearth-cms/components/molecules/Content/De
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
+import { GetItemDocument } from "@reearth-cms/gql/__generated__/item.generated";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
@@ -134,7 +135,7 @@ const ContentDetails: React.FC = () => {
             threadId={currentItem.threadId}
             collapsed={collapsedCommentsPanel}
             onCollapse={collapseCommentsPanel}
-            refetchQueries={["GetItem"]}
+            refetchQueries={[GetItemDocument]}
           />
         ) : undefined
       }

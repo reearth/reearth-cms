@@ -44,7 +44,10 @@ import {
   VersionsByItemDocument,
 } from "@reearth-cms/gql/__generated__/item.generated";
 import { GetModelDocument } from "@reearth-cms/gql/__generated__/model.generated";
-import { CreateRequestDocument } from "@reearth-cms/gql/__generated__/requests.generated";
+import {
+  CreateRequestDocument,
+  GetRequestsDocument,
+} from "@reearth-cms/gql/__generated__/requests.generated";
 import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
@@ -247,7 +250,7 @@ export default () => {
   }, [currentModel?.id, currentProject?.id, currentWorkspace?.id, location.state, navigate]);
 
   const [createItem, { loading: itemCreationLoading }] = useMutation(CreateItemDocument, {
-    refetchQueries: ["GetRequests"],
+    refetchQueries: [{ query: GetRequestsDocument }],
   });
 
   const handleItemCreate = useCallback(
@@ -299,7 +302,7 @@ export default () => {
   );
 
   const [updateItem, { loading: itemUpdatingLoading }] = useMutation(UpdateItemDocument, {
-    refetchQueries: ["GetItem", "VersionsByItem"],
+    refetchQueries: [{ query: GetItemDocument }, { query: VersionsByItemDocument }],
   });
 
   const handleItemUpdate = useCallback(

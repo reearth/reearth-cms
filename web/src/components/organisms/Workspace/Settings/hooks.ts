@@ -5,6 +5,7 @@ import { useNavigate } from "react-router";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
 import { Workspace as GQLWorkspace } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
 import {
   DeleteWorkspaceDocument,
   UpdateWorkspaceDocument,
@@ -32,7 +33,7 @@ export default () => {
   const [updateWorkspaceMutation, { loading: updateWorkspaceLoading }] =
     useMutation(UpdateWorkspaceDocument);
   const [deleteWorkspaceMutation] = useMutation(DeleteWorkspaceDocument, {
-    refetchQueries: ["GetMe"],
+    refetchQueries: [{ query: GetMeDocument }],
   });
 
   const handleWorkspaceUpdate = useCallback(

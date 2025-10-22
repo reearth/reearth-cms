@@ -39,12 +39,17 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
     [userRights?.comment.delete],
   );
 
+  const _refetchQueries = useMemo(
+    () => [...refetchQueries.map(query => ({ query }))],
+    [refetchQueries],
+  );
+
   const [createThreadWithComment] = useMutation(CreateThreadWithCommentDocument, {
-    refetchQueries,
+    refetchQueries: _refetchQueries,
   });
 
   const [createComment] = useMutation(AddCommentDocument, {
-    refetchQueries,
+    refetchQueries: _refetchQueries,
   });
 
   const handleCommentCreate = useCallback(
@@ -92,7 +97,7 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
   );
 
   const [updateComment] = useMutation(UpdateCommentDocument, {
-    refetchQueries,
+    refetchQueries: _refetchQueries,
   });
 
   const handleCommentUpdate = useCallback(
@@ -115,7 +120,7 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
   );
 
   const [deleteComment] = useMutation(DeleteCommentDocument, {
-    refetchQueries,
+    refetchQueries: _refetchQueries,
   });
 
   const handleCommentDelete = useCallback(

@@ -12,6 +12,7 @@ import {
 import {
   CheckProjectAliasDocument,
   DeleteProjectDocument,
+  GetProjectDocument,
   UpdateProjectDocument,
 } from "@reearth-cms/gql/__generated__/project.generated";
 import { useT } from "@reearth-cms/i18n";
@@ -35,7 +36,7 @@ export default () => {
   );
 
   const [updateProjectMutation] = useMutation(UpdateProjectDocument, {
-    refetchQueries: ["GetProject"],
+    refetchQueries: [{ query: GetProjectDocument }],
   });
   const [deleteProjectMutation] = useMutation(DeleteProjectDocument);
 

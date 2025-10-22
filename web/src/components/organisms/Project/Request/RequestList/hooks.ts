@@ -159,7 +159,7 @@ export default () => {
       if (!projectId) return;
       const result = await deleteRequestMutation({
         variables: { projectId, requestsId },
-        refetchQueries: ["GetRequests"],
+        refetchQueries: [{ query: GetRequestsDocument }],
       });
       if (result.error) {
         Notification.error({ message: t("Failed to delete one or more requests.") });

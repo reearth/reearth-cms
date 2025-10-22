@@ -181,15 +181,15 @@ export default () => {
   );
 
   const [createNewField, { loading: fieldCreationLoading }] = useMutation(CreateFieldDocument, {
-    refetchQueries: ["GetModel", "GetGroup"],
+    refetchQueries: [{ query: GetModelDocument }, { query: GetGroupDocument }],
   });
 
   const [updateField, { loading: fieldUpdateLoading }] = useMutation(UpdateFieldDocument, {
-    refetchQueries: ["GetModel", "GetGroup"],
+    refetchQueries: [{ query: GetModelDocument }, { query: GetGroupDocument }],
   });
 
   const [deleteFieldMutation] = useMutation(DeleteFieldDocument, {
-    refetchQueries: ["GetModel", "GetGroup"],
+    refetchQueries: [{ query: GetModelDocument }, { query: GetGroupDocument }],
   });
 
   const handleFieldDelete = useCallback(
@@ -244,7 +244,7 @@ export default () => {
   );
 
   const [updateFieldsOrder] = useMutation(UpdateFieldsDocument, {
-    refetchQueries: ["GetModel"],
+    refetchQueries: [{ query: GetModelDocument }],
   });
 
   const handleFieldOrder = useCallback(
@@ -340,7 +340,7 @@ export default () => {
   });
 
   const [deleteGroup, { loading: deleteGroupLoading }] = useMutation(DeleteGroupDocument, {
-    refetchQueries: ["GetGroups"],
+    refetchQueries: [{ query: GetGroupsDocument }],
   });
 
   const handleGroupDelete = useCallback(
@@ -383,7 +383,7 @@ export default () => {
   );
 
   const [createNewGroup] = useMutation(CreateGroupDocument, {
-    refetchQueries: ["GetGroups"],
+    refetchQueries: [{ query: GetGroupsDocument }],
   });
 
   const handleGroupCreate = useCallback(
@@ -411,7 +411,7 @@ export default () => {
   );
 
   const [updateNewGroup] = useMutation(UpdateGroupDocument, {
-    refetchQueries: ["GetGroups"],
+    refetchQueries: [{ query: GetGroupsDocument }],
   });
 
   const handleGroupUpdate = useCallback(
@@ -474,7 +474,7 @@ export default () => {
   );
 
   const [deleteModel, { loading: deleteModelLoading }] = useMutation(DeleteModelDocument, {
-    refetchQueries: ["GetModels"],
+    refetchQueries: [{ query: GetModelsDocument }],
   });
 
   const handleModelDelete = useCallback(
@@ -502,7 +502,7 @@ export default () => {
   );
 
   const [updateNewModel] = useMutation(UpdateModelDocument, {
-    refetchQueries: ["GetModels"],
+    refetchQueries: [{ query: GetModelsDocument }],
   });
 
   const handleModelModalClose = useCallback(() => setModelModalShown(false), []);
@@ -582,7 +582,7 @@ export default () => {
 
   const [createNewFields, { loading: fieldsCreationLoading, error: fieldsCreationError }] =
     useMutation(CreateFieldsDocument, {
-      refetchQueries: ["GetModel", "GetGroup"],
+      refetchQueries: [{ query: GetModelDocument }, { query: GetGroupDocument }],
     });
 
   const handleFieldsCreate = useCallback(

@@ -149,7 +149,7 @@ export default (workspaceId?: string) => {
           integrationIds.map(async integrationId => {
             const result = await removeIntegrationFromWorkspaceMutation({
               variables: { workspaceId, integrationId },
-              refetchQueries: ["GetMe"],
+              refetchQueries: [{ query: GetMeDocument }],
             });
             if (result.error) {
               throw new Error();

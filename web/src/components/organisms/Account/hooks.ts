@@ -28,7 +28,7 @@ export default () => {
   }, [data]);
 
   const [updateMeMutation] = useMutation(UpdateMeDocument, {
-    refetchQueries: ["GetMe"],
+    refetchQueries: [{ query: GetMeDocument }],
   });
   const [deleteMeMutation] = useMutation(DeleteMeDocument);
 

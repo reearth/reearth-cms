@@ -21,6 +21,7 @@ import {
   ApproveRequestDocument,
   DeleteRequestDocument,
   GetRequestDocument,
+  GetRequestsDocument,
   UpdateRequestDocument,
 } from "@reearth-cms/gql/__generated__/requests.generated";
 import { CreateThreadWithCommentDocument } from "@reearth-cms/gql/__generated__/thread.generated";
@@ -137,7 +138,7 @@ export default () => {
       if (!projectId) return;
       const result = await deleteRequestMutation({
         variables: { projectId, requestsId },
-        refetchQueries: ["GetRequest"],
+        refetchQueries: [{ query: GetRequestDocument }],
       });
       if (result.error) {
         Notification.error({ message: t("Failed to delete one or more requests.") });
@@ -166,11 +167,11 @@ export default () => {
   );
 
   const [createComment] = useMutation(AddCommentDocument, {
-    refetchQueries: ["GetRequests", "GetRequest"],
+    refetchQueries: [{ query: GetRequestsDocument }, { query: GetRequestDocument }],
   });
 
   const [createThreadWithComment] = useMutation(CreateThreadWithCommentDocument, {
-    refetchQueries: ["GetRequests", "GetRequest"],
+    refetchQueries: [{ query: GetRequestsDocument }, { query: GetRequestDocument }],
   });
 
   const handleCommentCreate = useCallback(
@@ -232,7 +233,7 @@ export default () => {
   );
 
   const [updateComment] = useMutation(UpdateCommentDocument, {
-    refetchQueries: ["GetRequests", "GetRequest"],
+    refetchQueries: [{ query: GetRequestsDocument }, { query: GetRequestDocument }],
   });
 
   const handleCommentUpdate = useCallback(
@@ -255,7 +256,7 @@ export default () => {
   );
 
   const [deleteComment] = useMutation(DeleteCommentDocument, {
-    refetchQueries: ["GetRequests", "GetRequest"],
+    refetchQueries: [{ query: GetRequestsDocument }, { query: GetRequestDocument }],
   });
 
   const handleCommentDelete = useCallback(

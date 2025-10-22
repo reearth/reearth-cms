@@ -18,7 +18,10 @@ import {
   GetModelsDocument,
   UpdateModelDocument,
 } from "@reearth-cms/gql/__generated__/model.generated";
-import { UpdateProjectDocument } from "@reearth-cms/gql/__generated__/project.generated";
+import {
+  GetProjectDocument,
+  UpdateProjectDocument,
+} from "@reearth-cms/gql/__generated__/project.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
 
@@ -46,7 +49,7 @@ export default () => {
   } = useModelHooks({});
 
   const [updateProjectMutation] = useMutation(UpdateProjectDocument, {
-    refetchQueries: ["GetProject"],
+    refetchQueries: [{ query: GetProjectDocument }],
   });
 
   const handleProjectUpdate = useCallback(
@@ -113,7 +116,7 @@ export default () => {
   }, [setSelectedModel, setModelDeletionModalShown]);
 
   const [deleteModel, { loading: deleteLoading }] = useMutation(DeleteModelDocument, {
-    refetchQueries: ["GetModels"],
+    refetchQueries: [{ query: GetModelsDocument }],
   });
 
   const handleModelDelete = useCallback(
@@ -131,7 +134,7 @@ export default () => {
   );
 
   const [updateNewModel] = useMutation(UpdateModelDocument, {
-    refetchQueries: ["GetModels"],
+    refetchQueries: [{ query: GetModelsDocument }],
   });
 
   const handleModelUpdate = useCallback(
