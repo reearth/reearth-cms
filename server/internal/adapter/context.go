@@ -17,13 +17,14 @@ import (
 type ContextKey string
 
 const (
-	contextUser     ContextKey = "user"
-	contextOperator ContextKey = "operator"
-	contextAPIKeyId ContextKey = "api-key-id"
-	ContextAuthInfo ContextKey = "auth-info"
-	contextUsecases ContextKey = "usecases"
-	contextGateways ContextKey = "gateways"
-	contextAcRepos  ContextKey = "ac-repos"
+	contextUser       ContextKey = "user"
+	contextOperator   ContextKey = "operator"
+	contextAPIKeyId   ContextKey = "api-key-id"
+	ContextAuthInfo   ContextKey = "auth-info"
+	contextAuthHeader ContextKey = "auth-header"
+	contextUsecases   ContextKey = "usecases"
+	contextGateways   ContextKey = "gateways"
+	contextAcRepos    ContextKey = "ac-repos"
 )
 
 func AttachUser(ctx context.Context, u *user.User) context.Context {
@@ -129,4 +130,17 @@ func GetAuthInfo(ctx context.Context) *appx.AuthInfo {
 		}
 	}
 	return nil
+}
+
+func AttachAuthHeader(ctx context.Context, authHeader string) context.Context {
+	return context.WithValue(ctx, contextAuthHeader, authHeader)
+}
+
+func GetAuthHeader(ctx context.Context) string {
+	if v := ctx.Value(contextAuthHeader); v != nil {
+		if authHeader, ok := v.(string); ok {
+			return authHeader
+		}
+	}
+	return ""
 }
