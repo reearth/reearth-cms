@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/mail"
 	"regexp"
+	"slices"
 
 	"github.com/reearth/reearth-cms/server/pkg/workspace"
 )
@@ -61,7 +62,7 @@ func (u *User) Auths() []string {
 	if u.auths == nil {
 		return []string{}
 	}
-	return append([]string{}, u.auths...)
+	return slices.Clone(u.auths)
 }
 
 func (u *User) Workspaces() workspace.WorkspaceList {
@@ -79,7 +80,7 @@ func (u *User) Clone() *User {
 
 	var clonedAuths []string
 	if u.auths != nil {
-		clonedAuths = append([]string{}, u.auths...)
+		clonedAuths = slices.Clone(u.auths)
 	}
 
 	return &User{
@@ -115,23 +116,23 @@ func ValidateAlias(alias string) bool {
 
 // ValidateWorkspace validates that workspace ID and workspaces are consistent
 func ValidateWorkspace(myWorkspaceID WorkspaceID, workspaces workspace.WorkspaceList) bool {
-	// If no workspace ID is set, it's valid (workspace is optional)
+	// Personal workspace is required - workspace ID cannot be empty
 	if myWorkspaceID.IsEmpty() {
-		return true
+		return false
 	}
-	
+
 	// If workspace ID is set but no workspaces list, it's still valid
 	if len(workspaces) == 0 {
 		return true
 	}
-	
+
 	// If both are set, verify that myWorkspaceID exists in workspaces
 	for _, ws := range workspaces {
 		if ws.ID().String() == myWorkspaceID.String() {
 			return true
 		}
 	}
-	
+
 	// myWorkspaceID doesn't match any workspace in the list
 	return false
 }
