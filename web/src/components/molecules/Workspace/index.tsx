@@ -20,12 +20,17 @@ type Props = {
   projects: Project[];
   loading: boolean;
   hasCreateRight: boolean;
+  page: number;
+  pageSize: number;
+  projectSort: SortBy;
+  totalCount: number;
   onProjectSearch: (value: string) => void;
   onProjectSort: (sort: SortBy) => void;
   onProjectNavigation: (projectId: string) => void;
   onProjectCreate: (values: ProjectFormValues) => Promise<void>;
   onWorkspaceCreate: (values: WorkspaceFormValues) => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
+  onPageChange: (page: number, pageSize: number) => void;
 };
 
 const WorkspaceWrapper: React.FC<Props> = ({
@@ -35,17 +40,22 @@ const WorkspaceWrapper: React.FC<Props> = ({
   projects,
   loading,
   hasCreateRight,
+  page,
+  pageSize,
+  projectSort,
+  totalCount,
   onProjectSearch,
   onProjectSort,
   onProjectNavigation,
   onWorkspaceCreate,
   onProjectCreate,
   onProjectAliasCheck,
+  onPageChange,
 }) => {
   const disableWorkspaceUi = parseConfigBoolean(window.REEARTH_CONFIG?.disableWorkspaceUi);
 
   return (
-    <InnerContent>
+    <InnerContent isFullHeight>
       <Greeting username={username} coverImageUrl={coverImageUrl} />
       <ContentSection
         title="Projects"
@@ -59,15 +69,24 @@ const WorkspaceWrapper: React.FC<Props> = ({
               onProjectAliasCheck={onProjectAliasCheck}
             />
           </ButtonWrapper>
-        }>
-        <WorkspaceHeader onProjectSearch={onProjectSearch} onProjectSort={onProjectSort} />
+        }
+        hasPadding={false}>
+        <WorkspaceHeader
+          onProjectSearch={onProjectSearch}
+          onProjectSort={onProjectSort}
+          projectSort={projectSort}
+        />
         <ProjectList
           hasCreateRight={hasCreateRight}
           projects={projects}
           loading={loading}
+          page={page}
+          pageSize={pageSize}
+          totalCount={totalCount}
           onProjectNavigation={onProjectNavigation}
           onProjectCreate={onProjectCreate}
           onProjectAliasCheck={onProjectAliasCheck}
+          onPageChange={onPageChange}
         />
       </ContentSection>
     </InnerContent>

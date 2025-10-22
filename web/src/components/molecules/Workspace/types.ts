@@ -108,7 +108,7 @@ export type CesiumResourceProps = {
   cesiumIonAccessToken: string;
 };
 
-export type SortBy = "createdAt" | "updatedAt" | "name";
+export type SortBy = "id" | "updatedat" | "name";
 
 export type SortOption = {
   key: SortBy;

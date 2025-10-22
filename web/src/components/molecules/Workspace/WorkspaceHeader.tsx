@@ -8,17 +8,18 @@ import { useT } from "@reearth-cms/i18n";
 import { SortBy, SortOption } from "./types";
 
 type Props = {
+  projectSort: SortBy;
   onProjectSearch: (value: string) => void;
   onProjectSort: (sort: SortBy) => void;
 };
 
-const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort }) => {
+const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort, projectSort }) => {
   const t = useT();
 
   const projectSortOptions: SortOption[] = useMemo(
     () => [
-      { key: "updatedAt", label: t("Last Modified") },
-      { key: "createdAt", label: t("Created At") },
+      { key: "updatedat", label: t("Last Modified") },
+      { key: "id", label: t("Created At") },
       { key: "name", label: t("Name") },
     ],
     [t],
@@ -35,12 +36,16 @@ const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort }) =>
       <Wrapper>
         <Label>{t("Sort by")}</Label>
         <StyledSelect
-          defaultValue="updatedAt"
+          data-testid="workspace-header-project-sort-select"
+          value={projectSort}
           onChange={value => {
             onProjectSort(value as SortBy);
           }}>
           {projectSortOptions.map(option => (
-            <Select.Option key={option.key} value={option.key}>
+            <Select.Option
+              key={option.key}
+              value={option.key}
+              data-testid={`workspace-header-project-sort-option-${option.key}`}>
               {option.label}
             </Select.Option>
           ))}
@@ -54,6 +59,7 @@ const Container = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 24px 24px 0 24px;
 `;
 
 const Wrapper = styled.div`

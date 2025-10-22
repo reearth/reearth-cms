@@ -143,4 +143,8 @@ export abstract class BasePage {
     const url = this.page.url();
     return url.split("/").at(-1) as string;
   }
+
+  async keypress(key: string, delay?: number): Promise<void> {
+    await this.page.keyboard.press(key, { delay });
+  }
 }

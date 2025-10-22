@@ -30,7 +30,7 @@ export default () => {
   const [selectedModel, setSelectedModel] = useState<Model | undefined>();
   const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
   const [searchedModelName, setSearchedModelName] = useState<string>("");
-  const [modelSort, setModelSort] = useState<SortBy>("updatedAt");
+  const [modelSort, setModelSort] = useState<SortBy>("updatedat");
   const t = useT();
   const navigate = useNavigate();
 
