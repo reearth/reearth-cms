@@ -2,6 +2,7 @@ import ContentListMolecule from "@reearth-cms/components/molecules/Content/List"
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 import ViewsMenu from "@reearth-cms/components/organisms/Project/Content/ViewsMenu";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
+import { SearchItemDocument } from "@reearth-cms/gql/__generated__/item.generated";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
@@ -73,7 +74,7 @@ const ContentList: React.FC = () => {
           onCollapse={collapseCommentsPanel}
           comments={selectedItem?.comments}
           threadId={selectedItem?.threadId}
-          refetchQueries={["SearchItem"]}
+          refetchQueries={[SearchItemDocument]}
         />
       }
       modelsMenu={

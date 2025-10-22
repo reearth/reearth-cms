@@ -1,16 +1,19 @@
+import { useMutation, useQuery } from "@apollo/client/react";
 import { Key, useCallback, useMemo, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { fromGraphQLComment } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
-  useGetRequestsQuery,
-  useDeleteRequestMutation,
   Comment as GQLComment,
   RequestState as GQLRequestState,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import {
+  DeleteRequestDocument,
+  GetRequestsDocument,
+} from "@reearth-cms/gql/__generated__/requests.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace, useUserId, useUserRights } from "@reearth-cms/state";
 
@@ -57,7 +60,7 @@ export default () => {
     [selection, userId, userRights?.request.close],
   );
 
-  const [selectedRequestId, setselectedRequestId] = useState<string>();
+  const [selectedRequestId, setSelectedRequestId] = useState<string>();
   const [page, setPage] = useState(location.state?.page ?? 1);
   const [pageSize, setPageSize] = useState(location.state?.pageSize ?? 10);
   const [searchTerm, setSearchTerm] = useState(location.state?.searchTerm ?? "");
@@ -76,7 +79,7 @@ export default () => {
     data: rawRequests,
     refetch,
     loading,
-  } = useGetRequestsQuery({
+  } = useQuery(GetRequestsDocument, {
     fetchPolicy: "no-cache",
     variables: {
       projectId: projectId ?? "",
@@ -123,10 +126,10 @@ export default () => {
 
   const handleRequestSelect = useCallback(
     (id: string) => {
-      setselectedRequestId(id);
+      setSelectedRequestId(id);
       collapseCommentsPanel(false);
     },
-    [setselectedRequestId],
+    [setSelectedRequestId],
   );
 
   const handleNavigateToRequest = useCallback(
@@ -150,15 +153,15 @@ export default () => {
     ],
   );
 
-  const [deleteRequestMutation, { loading: deleteLoading }] = useDeleteRequestMutation();
+  const [deleteRequestMutation, { loading: deleteLoading }] = useMutation(DeleteRequestDocument);
   const handleRequestDelete = useCallback(
     async (requestsId: string[]) => {
       if (!projectId) return;
       const result = await deleteRequestMutation({
         variables: { projectId, requestsId },
-        refetchQueries: ["GetRequests"],
+        refetchQueries: [{ query: GetRequestsDocument }],
       });
-      if (result.errors) {
+      if (result.error) {
         Notification.error({ message: t("Failed to delete one or more requests.") });
       }
       if (result) {

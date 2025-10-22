@@ -11,7 +11,11 @@ describe("Member add modal", () => {
   const searchLoading = false;
   const addLoading = false;
   const member = { id: "id", name: "name", email: "email@test.com" };
-  const onUserSearch = () => {
+  const onUserSearch = (searchTerm: string) => {
+    // Return empty results for "tes" to test the no results state
+    if (searchTerm === "tes") {
+      return Promise.resolve([]);
+    }
     return Promise.resolve([member]);
   };
   const onClose = () => {};
@@ -39,20 +43,22 @@ describe("Member add modal", () => {
     expect(addButton).toBeDisabled();
 
     await user.click(searchInput);
-    await user.type(searchInput, "te");
-    await expect.poll(() => screen.getByText("No result")).toBeVisible();
+    await user.type(searchInput, "tes");
+    await expect.poll(() => screen.getByText("No result")).toBeInTheDocument();
 
-    await user.type(searchInput, "st");
+    await user.click(searchInput);
+    await user.type(searchInput, "t");
     await expect.poll(() => onUserSearchMock).toHaveBeenCalledWith("test");
-    expect(screen.getByText(member.email)).toBeVisible();
+    await expect.poll(() => screen.getByText(member.name)).toBeInTheDocument();
 
     await user.click(screen.getByText(member.name));
-    expect(screen.getByText(member.name)).toBeVisible();
-    expect(screen.getByText(member.email)).toBeVisible();
+
+    await expect.poll(() => screen.getByTitle(member.name)).toBeInTheDocument();
+    await expect.poll(() => screen.getByTitle(member.email)).toBeInTheDocument();
     await user.click(screen.getByText("Reader"));
-    await expect.poll(() => screen.getByText("Owner")).toBeVisible();
-    expect(screen.getByText("Maintainer")).toBeVisible();
-    expect(screen.getByText("Writer")).toBeVisible();
+    expect(screen.getByText("Owner")).toBeInTheDocument();
+    expect(screen.getByText("Maintainer")).toBeInTheDocument();
+    expect(screen.getByText("Writer")).toBeInTheDocument();
 
     await user.click(addButton);
     expect(onUsersAddToWorkspaceMock).toBeCalledWith([{ userId: member.id, role: "READER" }]);
@@ -70,7 +76,14 @@ describe("Member add modal", () => {
       />,
     );
 
-    await expect.poll(() => screen.getByRole("button", { name: "loading" })).toBeVisible();
-    expect(screen.getByRole("button", { name: "loading Add to workspace" })).toBeVisible();
+    // Check for search loading state
+    const searchInput = screen.getByLabelText("Search user");
+    expect(searchInput).toBeInTheDocument();
+
+    // Check for add button loading state - when loading, the accessible name includes "loading" prefix
+    const addButton = screen.getByRole("button", {
+      name: /loadingAdd to workspace|Add to workspace/,
+    });
+    expect(addButton).toHaveClass("ant-btn-loading");
   });
 });

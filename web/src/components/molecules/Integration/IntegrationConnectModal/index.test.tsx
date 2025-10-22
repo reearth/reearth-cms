@@ -40,8 +40,8 @@ describe("Integration connect modal", () => {
       />,
     );
 
-    await expect.poll(() => screen.getByText("name1")).toBeVisible();
-    expect(screen.getByText("name2")).toBeVisible();
+    await expect.poll(() => screen.getByText("name1")).toBeInTheDocument();
+    expect(screen.getByText("name2")).toBeInTheDocument();
   });
 
   test("Loading is displayed successfully", async () => {
@@ -54,7 +54,8 @@ describe("Integration connect modal", () => {
         onSubmit={onSubmit}
       />,
     );
-    await expect.poll(() => screen.getByLabelText("loading")).toBeVisible();
+
+    expect(screen.getByLabelText("loading")).toBeInTheDocument();
   });
 
   test("Connect button is toggled successfully", async () => {

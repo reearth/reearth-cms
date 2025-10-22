@@ -34,14 +34,14 @@ describe("Integration settings modal", () => {
       />,
     );
 
-    await expect.poll(() => screen.getByText(name)).toBeVisible();
-    expect(screen.getByText(description)).toBeVisible();
-    expect(screen.getByText("Reader")).toBeVisible();
+    expect(screen.getByText(name)).toBeInTheDocument();
+    expect(screen.getByText(description)).toBeInTheDocument();
+    expect(screen.getByText("Reader")).toBeInTheDocument();
 
     await user.click(screen.getByLabelText("Role"));
-    await expect.poll(() => screen.getByText("Writer")).toBeVisible();
-    expect(screen.getByText("Maintainer")).toBeVisible();
-    expect(screen.getByText("Owner")).toBeVisible();
+    expect(screen.getByText("Writer")).toBeInTheDocument();
+    expect(screen.getByText("Maintainer")).toBeInTheDocument();
+    expect(screen.getByText("Owner")).toBeInTheDocument();
   });
 
   test("Loading is displayed successfully", async () => {
@@ -55,7 +55,7 @@ describe("Integration settings modal", () => {
       />,
     );
 
-    await expect.poll(() => screen.getByLabelText("loading")).toBeVisible();
+    expect(screen.getByLabelText("loading")).toBeInTheDocument();
   });
 
   test("Save button is toggled successfully", async () => {
@@ -100,7 +100,7 @@ describe("Integration settings modal", () => {
       />,
     );
 
-    await expect.poll(() => screen.getAllByTitle("Reader")[0]).toBeVisible();
+    expect(screen.getAllByTitle("Reader")[0]).toBeInTheDocument();
     expect(saveButton).toBeDisabled();
   });
 

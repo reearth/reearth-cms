@@ -1,5 +1,6 @@
 import RequestListMolecule from "@reearth-cms/components/molecules/Request/List";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
+import { GetRequestsDocument } from "@reearth-cms/gql/__generated__/requests.generated";
 
 import useHooks from "./hooks";
 
@@ -41,7 +42,7 @@ const RequestList: React.FC = () => {
           onCollapse={collapseCommentsPanel}
           comments={selectedRequest?.comments}
           threadId={selectedRequest?.threadId}
-          refetchQueries={["GetRequests"]}
+          refetchQueries={[GetRequestsDocument]}
         />
       }
       requests={requests}

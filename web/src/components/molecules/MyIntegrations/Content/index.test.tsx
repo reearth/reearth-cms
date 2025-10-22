@@ -82,7 +82,7 @@ describe("Integration creation modal", () => {
     expect(screen.getByText("Integration Name")).toBeVisible();
 
     await user.click(screen.getByRole("tab", { name: "Webhook" }));
-    expect(screen.getByRole("button", { name: "plus New Webhook" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "plusNew Webhook" })).toBeVisible();
   });
 
   test("Loading is displayed successfully", async () => {

@@ -13,7 +13,7 @@ import {
   ColumnSelectionInput as GQLColumnSelectionInput,
   AndCondition as GQLAndCondition,
   ConditionInput as GQLConditionInput,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
 
 export const fromGraphQLView = (view: GQLView): View => ({
   id: view.id,
