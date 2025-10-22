@@ -93,7 +93,7 @@ func TestUserRepo_FindMe(t *testing.T) {
 				assert.Equal(t, "john@example.com", result.Email())
 				assert.NotNil(t, result.Host())
 				assert.Equal(t, "example.com", *result.Host())
-				expectedWid, err := user.WorkspaceIDFrom("01k4w1b0xap3ssvfq0we2b5p9j")
+				expectedWid, _ := user.WorkspaceIDFrom("01k4w1b0xap3ssvfq0we2b5p9j")
 				assert.Equal(t, expectedWid, result.MyWorkspaceID())
 				assert.Equal(t, []string{"github", "google"}, result.Auths())
 

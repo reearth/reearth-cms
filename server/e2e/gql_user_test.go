@@ -298,7 +298,7 @@ func TestMe(t *testing.T) {
 		assert.NoError(t, err)
 	}
 	o := e.POST("/api/graphql").
-		WithHeader("authorization", "Bearer test 2").
+		WithHeader("authorization", "Bearer test").
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("me").Object()

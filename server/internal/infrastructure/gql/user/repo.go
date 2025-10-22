@@ -40,9 +40,13 @@ func (r *UserRepo) FindMe(ctx context.Context) (*user.User, error) {
 		return nil, err
 	}
 
-	wId, err := user.WorkspaceIDFrom(string(query.Me.MyWorkspaceID))
-	if err != nil {
-		return nil, err
+	var wId user.WorkspaceID
+	if query.Me.MyWorkspaceID != "" {
+		var err error
+		wId, err = user.WorkspaceIDFrom(string(query.Me.MyWorkspaceID))
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// Build the user using the domain builder
