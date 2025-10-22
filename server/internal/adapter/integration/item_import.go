@@ -84,13 +84,7 @@ func (s *Server) ModelImport(ctx context.Context, request ModelImportRequestObje
 		UpdatedCount:  &res.Updated,
 		ItemsCount:    &res.Total,
 		NewFields: lo.ToPtr(lo.Map(res.NewFields, func(f *schema.Field, _ int) integrationapi.SchemaField {
-			return integrationapi.SchemaField{
-				Id:       f.ID().Ref(),
-				Key:      lo.ToPtr(f.Key().String()),
-				Multiple: lo.ToPtr(f.Multiple()),
-				Required: lo.ToPtr(f.Required()),
-				Type:     lo.ToPtr(integrationapi.ValueType(f.Type())),
-			}
+			return integrationapi.NewSchemaField(f)
 		})),
 	}, nil
 }

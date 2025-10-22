@@ -329,7 +329,8 @@ func TestRequestFlow(t *testing.T) {
 	ver2 := i1.Path("$.data.updateItem.item.version").Raw().(string)
 
 	// check public item: should return no results
-	res := e.GET("/api/p/{project}/{model}", "test-1", "test-1").
+	res := e.GET("/api/p/{workspace}/{project}/{model}", "test-workspace", "test-1", "test-1").
+		WithQuery("page", "1").
 		Expect().
 		Status(http.StatusOK).
 		JSON()
@@ -365,7 +366,8 @@ func TestRequestFlow(t *testing.T) {
 	itm.Path("$.data.node").Object().Value("status").IsEqual("PUBLIC_DRAFT")
 
 	// check public item: should return version 2
-	res = e.GET("/api/p/{project}/{model}", "test-1", "test-1").
+	res = e.GET("/api/p/{workspace}/{project}/{model}", "test-workspace", "test-1", "test-1").
+		WithQuery("page", "1").
 		Expect().
 		Status(http.StatusOK).
 		JSON()
@@ -405,7 +407,8 @@ func TestRequestFlow(t *testing.T) {
 	itm.Path("$.data.node").Object().Value("status").IsEqual("PUBLIC")
 
 	// check public item: should return version 3
-	res = e.GET("/api/p/{project}/{model}", "test-1", "test-1").
+	res = e.GET("/api/p/{workspace}/{project}/{model}", "test-workspace", "test-1", "test-1").
+		WithQuery("page", "1").
 		Expect().
 		Status(http.StatusOK).
 		JSON()

@@ -132,12 +132,11 @@ func TestProjectRepo_CountByWorkspace(t *testing.T) {
 }
 
 func TestProjectRepo_Filtered(t *testing.T) {
-	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	id2 := id.NewProjectID()
-	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(mocknow).MustBuild()
-	p2 := project.New().ID(id2).Workspace(tid1).UpdatedAt(mocknow).MustBuild()
+	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(time.Now()).MustBuild()
+	p2 := project.New().ID(id2).Workspace(tid1).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -186,7 +185,7 @@ func TestProjectRepo_Filtered(t *testing.T) {
 			if tc.mockErr {
 				SetProjectError(r, tc.wantErr)
 			}
-			defer MockProjectNow(r, mocknow)()
+
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())
@@ -199,8 +198,8 @@ func TestProjectRepo_Filtered(t *testing.T) {
 func TestProjectRepo_FindByID(t *testing.T) {
 	tid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewProjectID()
-	mocknow := time.Now().Truncate(time.Millisecond).UTC()
-	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(mocknow).MustBuild()
+	p1 := project.New().ID(id1).Workspace(tid1).MustBuild()
+
 	tests := []struct {
 		name    string
 		seeds   project.List
@@ -290,7 +289,6 @@ func TestProjectRepo_FindByID(t *testing.T) {
 			if tc.mockErr {
 				SetProjectError(r, tc.wantErr)
 			}
-			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())
@@ -312,12 +310,11 @@ func TestProjectRepo_FindByID(t *testing.T) {
 }
 
 func TestProjectRepo_FindByIDs(t *testing.T) {
-	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	id2 := id.NewProjectID()
-	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(mocknow).MustBuild()
-	p2 := project.New().ID(id2).Workspace(tid1).UpdatedAt(mocknow).MustBuild()
+	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(time.Now().Add(-time.Hour)).MustBuild()
+	p2 := project.New().ID(id2).Workspace(tid1).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -423,7 +420,6 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 			if tc.mockErr {
 				SetProjectError(r, tc.wantErr)
 			}
-			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())
@@ -446,14 +442,13 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 }
 
 func TestProjectRepo_IsAliasAvailable(t *testing.T) {
-	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	p1 := project.New().
 		ID(id1).
 		Workspace(tid1).
 		Alias("xyz123").
-		UpdatedAt(mocknow).
+		UpdatedAt(time.Now().Add(-time.Hour)).
 		MustBuild()
 
 	id2 := id.NewProjectID()
@@ -461,7 +456,6 @@ func TestProjectRepo_IsAliasAvailable(t *testing.T) {
 		ID(id2).
 		Workspace(accountdomain.NewWorkspaceID()).
 		Alias("xyz321").
-		UpdatedAt(mocknow).
 		MustBuild()
 
 	tests := []struct {
@@ -563,7 +557,6 @@ func TestProjectRepo_IsAliasAvailable(t *testing.T) {
 			if tc.mockErr {
 				SetProjectError(r, tc.wantErr)
 			}
-			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())
@@ -586,10 +579,9 @@ func TestProjectRepo_IsAliasAvailable(t *testing.T) {
 }
 
 func TestProjectRepo_FindByWorkspaces(t *testing.T) {
-	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := accountdomain.NewWorkspaceID()
-	p1 := project.New().NewID().Workspace(tid1).UpdatedAt(mocknow).MustBuild()
-	p2 := project.New().NewID().Workspace(tid1).UpdatedAt(mocknow).MustBuild()
+	p1 := project.New().NewID().Workspace(tid1).UpdatedAt(time.Now().Add(-time.Hour)).MustBuild()
+	p2 := project.New().NewID().Workspace(tid1).MustBuild()
 
 	type args struct {
 		wids  accountdomain.WorkspaceIDList
@@ -711,7 +703,6 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 			if tc.mockErr {
 				SetProjectError(r, tc.wantErr)
 			}
-			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())
@@ -722,8 +713,9 @@ func TestProjectRepo_FindByWorkspaces(t *testing.T) {
 				r = r.Filtered(*tc.filter)
 			}
 
-			got, _, err := r.FindByWorkspaces(ctx, tc.args.wids, &interfaces.ProjectFilter{
-				Pagination: tc.args.pInfo,
+			got, _, err := r.Search(ctx, interfaces.ProjectFilter{
+				WorkspaceIds: &tc.args.wids,
+				Pagination:   tc.args.pInfo,
 			})
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
@@ -846,7 +838,7 @@ func TestProjectRepo_Remove(t *testing.T) {
 func TestProjectRepo_Save(t *testing.T) {
 	tid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewProjectID()
-	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(time.Now().Truncate(time.Millisecond).UTC()).MustBuild()
+	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(time.Now().Add(-time.Hour)).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -944,7 +936,6 @@ func TestProjectRepo_Save(t *testing.T) {
 }
 
 func TestProject_FindByAPIKey(t *testing.T) {
-	mocknow := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	apikey := project.NewAPIKeyBuilder().NewID().GenerateKey().Name("key1").Build()
@@ -952,7 +943,6 @@ func TestProject_FindByAPIKey(t *testing.T) {
 	p1 := project.New().
 		ID(id1).
 		Workspace(tid1).
-		UpdatedAt(mocknow).
 		Accessibility(pub).
 		MustBuild()
 
@@ -1005,7 +995,6 @@ func TestProject_FindByAPIKey(t *testing.T) {
 			if tc.mockErr {
 				SetProjectError(r, tc.wantErr)
 			}
-			defer MockProjectNow(r, mocknow)()
 			ctx := context.Background()
 			for _, p := range tc.seeds {
 				err := r.Save(ctx, p.Clone())

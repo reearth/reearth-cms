@@ -9,7 +9,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v5
       - name: go setup
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: 'worker/go.mod'
           check-latest: true
@@ -43,7 +43,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v5
       - name: go setup
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: 'worker/go.mod'
           check-latest: true

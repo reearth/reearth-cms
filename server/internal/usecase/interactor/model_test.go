@@ -105,7 +105,6 @@ func TestModel_FindByID(t *testing.T) {
 }
 
 func TestModel_CheckKey(t *testing.T) {
-	mockTime := time.Now()
 	pId := id.NewProjectID()
 	type args struct {
 		pId id.ProjectID
@@ -201,7 +200,6 @@ func TestModel_CheckKey(t *testing.T) {
 			if tt.mockErr {
 				memory.SetModelError(db.Model, tt.wantErr)
 			}
-			defer memory.MockNow(db, mockTime)()
 			for _, m := range tt.seeds.model {
 				err := db.Model.Save(ctx, m.Clone())
 				assert.NoError(t, err)
@@ -224,14 +222,13 @@ func TestModel_CheckKey(t *testing.T) {
 }
 
 func TestModel_Create(t *testing.T) {
-	mockTime := time.Now()
 	// mId := id.NewModelID()
 	// sId := id.NewSchemaID()
 	wid1 := accountdomain.NewWorkspaceID()
 	// wid2 := accountdomain.NewWorkspaceID()
 	//
 	pid1 := id.NewProjectID()
-	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(mockTime).MustBuild()
+	p1 := project.New().ID(pid1).Workspace(wid1).UpdatedAt(time.Now().Add(-time.Hour)).MustBuild()
 	//
 	// pid2 := id.NewProjectID()
 	// p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(mockTime).MustBuild()
@@ -387,7 +384,6 @@ func TestModel_Create(t *testing.T) {
 			if tt.mockErr {
 				memory.SetModelError(db.Model, tt.wantErr)
 			}
-			defer memory.MockNow(db, mockTime)()
 			for _, m := range tt.seeds.model {
 				err := db.Model.Save(ctx, m.Clone())
 				assert.NoError(t, err)
@@ -416,7 +412,6 @@ func TestModel_Create(t *testing.T) {
 }
 
 func TestModel_Delete(t *testing.T) {
-	mockTime := time.Now()
 	type args struct {
 		modelID  id.ModelID
 		operator *usecase.Operator
@@ -444,7 +439,6 @@ func TestModel_Delete(t *testing.T) {
 			if tt.mockErr {
 				memory.SetModelError(db.Model, tt.wantErr)
 			}
-			defer memory.MockNow(db, mockTime)()
 			for _, m := range tt.seeds.model {
 				err := db.Model.Save(ctx, m.Clone())
 				assert.NoError(t, err)
@@ -461,7 +455,6 @@ func TestModel_Delete(t *testing.T) {
 }
 
 func TestModel_FindByIDs(t *testing.T) {
-	mockTime := time.Now()
 	type args struct {
 		ids      []id.ModelID
 		operator *usecase.Operator
@@ -490,7 +483,6 @@ func TestModel_FindByIDs(t *testing.T) {
 			if tt.mockErr {
 				memory.SetModelError(db.Model, tt.wantErr)
 			}
-			defer memory.MockNow(db, mockTime)()
 			for _, m := range tt.seeds.model {
 				err := db.Model.Save(ctx, m.Clone())
 				assert.NoError(t, err)
@@ -512,7 +504,6 @@ func TestModel_FindByIDs(t *testing.T) {
 }
 
 func TestModel_Update(t *testing.T) {
-	mockTime := time.Now()
 	type args struct {
 		param    interfaces.UpdateModelParam
 		operator *usecase.Operator
@@ -541,7 +532,6 @@ func TestModel_Update(t *testing.T) {
 			if tt.mockErr {
 				memory.SetModelError(db.Model, tt.wantErr)
 			}
-			defer memory.MockNow(db, mockTime)()
 			for _, m := range tt.seeds.model {
 				err := db.Model.Save(ctx, m.Clone())
 				assert.NoError(t, err)
@@ -585,7 +575,6 @@ func TestNewModel(t *testing.T) {
 }
 
 func TestModel_Copy(t *testing.T) {
-	mockTime := time.Now()
 	wid := accountdomain.NewWorkspaceID()
 	p := project.New().NewID().Workspace(wid).MustBuild()
 	op := &usecase.Operator{
@@ -613,8 +602,6 @@ func TestModel_Copy(t *testing.T) {
 	mRunner := gatewaymock.NewMockTaskRunner(mockCtrl)
 	gw := &gateway.Container{TaskRunner: mRunner}
 	u := NewModel(db, gw)
-
-	defer memory.MockNow(db, mockTime)()
 
 	err := db.Project.Save(ctx, p.Clone())
 	assert.NoError(t, err)

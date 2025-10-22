@@ -233,19 +233,20 @@ func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.Issue
 	if p == "" {
 		return nil, gateway.ErrInvalidFile
 	}
+
 	bucket, err := f.bucket(ctx)
 	if err != nil {
 		return nil, err
 	}
 	opt := &storage.SignedURLOptions{
-		Scheme: storage.SigningSchemeV4,
+		Scheme:      storage.SigningSchemeV4,
 		Method:      http.MethodPut,
 		Expires:     param.ExpiresAt,
 		ContentType: contentType,
 		QueryParameters: map[string][]string{
 			"reearth-x-workspace": {param.Workspace},
 			"reearth-x-project":   {param.Project},
-			"reearth-x-public": {fmt.Sprintf("%v", param.Public)},
+			"reearth-x-public":    {fmt.Sprintf("%v", param.Public)},
 		},
 	}
 
@@ -610,9 +611,12 @@ func getGCSObjectPathFolder(uuid string) string {
 func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
 	client, err := storage.NewClient(ctx)
 	if err != nil {
+		log.Errorf("gcs: failed to initialize client: %v", err)
 		return nil, err
 	}
+
 	bucket := client.Bucket(f.bucketName)
+
 	return bucket, nil
 }
 
