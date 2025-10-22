@@ -14,6 +14,7 @@ import {
   RegenerateIntegrationTokenDocument,
   UpdateIntegrationDocument,
 } from "@reearth-cms/gql/__generated__/integration.generated";
+import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
 import {
   CreateWebhookDocument,
   DeleteWebhookDocument,
@@ -32,8 +33,10 @@ export default () => {
     [integrations, integrationId],
   );
 
-  const [updateIntegrationMutation, { loading: updateIntegrationLoading }] =
-    useMutation(UpdateIntegrationDocument);
+  const [updateIntegrationMutation, { loading: updateIntegrationLoading }] = useMutation(
+    UpdateIntegrationDocument,
+    { refetchQueries: [{ query: GetMeDocument }] },
+  );
 
   const handleIntegrationUpdate = useCallback(
     async ({ name, description, logoUrl }: IntegrationInfo) => {
@@ -56,7 +59,7 @@ export default () => {
   );
 
   const [deleteIntegrationMutation] = useMutation(DeleteIntegrationDocument, {
-    refetchQueries: ["GetMe"],
+    refetchQueries: [{ query: GetMeDocument }],
   });
 
   const handleIntegrationDelete = useCallback(async () => {
@@ -72,9 +75,7 @@ export default () => {
 
   const [regenerateTokenMutation, { loading: regenerateLoading }] = useMutation(
     RegenerateIntegrationTokenDocument,
-    {
-      refetchQueries: ["GetMe"],
-    },
+    { refetchQueries: [{ query: GetMeDocument }] },
   );
 
   const handleRegenerateToken = useCallback(async () => {
@@ -96,7 +97,7 @@ export default () => {
   }, [integrationId, regenerateTokenMutation, t]);
 
   const [createNewWebhook, { loading: createWebhookLoading }] = useMutation(CreateWebhookDocument, {
-    refetchQueries: ["GetMe"],
+    refetchQueries: [{ query: GetMeDocument }],
   });
 
   const handleWebhookCreate = useCallback(
@@ -122,7 +123,7 @@ export default () => {
   );
 
   const [deleteWebhook] = useMutation(DeleteWebhookDocument, {
-    refetchQueries: ["GetMe"],
+    refetchQueries: [{ query: GetMeDocument }],
   });
 
   const handleWebhookDelete = useCallback(
@@ -144,7 +145,7 @@ export default () => {
   );
 
   const [updateWebhook, { loading: updateWebhookLoading }] = useMutation(UpdateWebhookDocument, {
-    refetchQueries: ["GetMe"],
+    refetchQueries: [{ query: GetMeDocument }],
   });
 
   const handleWebhookUpdate = useCallback(
