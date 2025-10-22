@@ -72,7 +72,7 @@ test.describe("Project CRUD and searching has succeeded", () => {
     await deleteButton.click();
     await projectPage.okButton.click();
     await projectPage.closeNotification();
-    await expect(workspacePage.projectTextByName("new project name", true)).toBeHidden();
+    await expect(workspacePage.projectTextByName(NEW_PROJECT_NAME, true)).toBeHidden();
   });
 });
 
@@ -134,6 +134,10 @@ test.describe("Project List", () => {
       const firstProjectName = PROJECT_ID_LIST[0];
       const newFirstProjectName = "new-" + firstProjectName;
 
+      await test.step("Update the first project with new name for deletion", async () => {
+        PROJECT_ID_LIST[0] = newFirstProjectName;
+      });
+
       await test.step("Update the first project", async () => {
         await workspacePage.searchProjectsInput.fill(firstProjectName);
         await workspacePage.searchButton.click();
@@ -150,10 +154,6 @@ test.describe("Project List", () => {
 
       const projectCard = workspacePage.projectCardByName(newFirstProjectName);
       await expect(projectCard).toBeVisible();
-
-      await test.step("Update the first project with new name for deletion", async () => {
-        PROJECT_ID_LIST[0] = newFirstProjectName;
-      });
     });
 
     test("Check sort with name (a-z)", async ({ workspacePage }) => {
