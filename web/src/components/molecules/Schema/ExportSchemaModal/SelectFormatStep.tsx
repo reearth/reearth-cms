@@ -1,4 +1,4 @@
-import {  useMemo } from "react";
+import { useMemo } from "react";
 
 import Form, { FormInstance } from "@reearth-cms/components/atoms/Form";
 import Select from "@reearth-cms/components/atoms/Select";

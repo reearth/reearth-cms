@@ -55,6 +55,7 @@ const ProjectOverview: React.FC = () => {
         onModelDeletionModalOpen={handleModelDeletionModalOpen}
         onModelUpdateModalOpen={handleModelUpdateModalOpen}
         onModelExportModalOpen={handleModelExportModalOpen}
+        onModelExport={handleModelExport}
       />
       <FormModal
         data={selectedModel}

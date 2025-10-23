@@ -554,6 +554,33 @@ export type DeleteWorkspacePayload = {
   workspaceId: Scalars['ID']['output'];
 };
 
+export enum ExportFormat {
+  Csv = 'CSV',
+  Geojson = 'GEOJSON',
+  Json = 'JSON'
+}
+
+export type ExportModelInput = {
+  format: ExportFormat;
+  modelId: Scalars['ID']['input'];
+};
+
+export type ExportModelPayload = {
+  __typename?: 'ExportModelPayload';
+  modelId: Scalars['ID']['output'];
+  url: Scalars['URL']['output'];
+};
+
+export type ExportModelSchemaInput = {
+  modelId: Scalars['ID']['input'];
+};
+
+export type ExportModelSchemaPayload = {
+  __typename?: 'ExportModelSchemaPayload';
+  modelId: Scalars['ID']['output'];
+  url: Scalars['URL']['output'];
+};
+
 export type FieldPayload = {
   __typename?: 'FieldPayload';
   field: SchemaField;
@@ -894,6 +921,8 @@ export type Mutation = {
   deleteView?: Maybe<DeleteViewPayload>;
   deleteWebhook?: Maybe<DeleteWebhookPayload>;
   deleteWorkspace?: Maybe<DeleteWorkspacePayload>;
+  exportModel?: Maybe<ExportModelPayload>;
+  exportModelSchema?: Maybe<ExportModelSchemaPayload>;
   publishItem?: Maybe<PublishItemPayload>;
   regenerateAPIKey?: Maybe<ApiKeyPayload>;
   regenerateIntegrationToken?: Maybe<IntegrationPayload>;
@@ -1103,6 +1132,16 @@ export type MutationDeleteWebhookArgs = {
 
 export type MutationDeleteWorkspaceArgs = {
   input: DeleteWorkspaceInput;
+};
+
+
+export type MutationExportModelArgs = {
+  input: ExportModelInput;
+};
+
+
+export type MutationExportModelSchemaArgs = {
+  input: ExportModelSchemaInput;
 };
 
 
@@ -2876,6 +2915,21 @@ export type UpdateModelsOrderMutationVariables = Exact<{
 
 
 export type UpdateModelsOrderMutation = { __typename?: 'Mutation', updateModelsOrder?: { __typename?: 'ModelsPayload', models: Array<{ __typename?: 'Model', id: string }> } | null };
+
+export type ExportModelMutationVariables = Exact<{
+  modelId: Scalars['ID']['input'];
+  format: ExportFormat;
+}>;
+
+
+export type ExportModelMutation = { __typename?: 'Mutation', exportModel?: { __typename?: 'ExportModelPayload', modelId: string, url: string } | null };
+
+export type ExportModelSchemaMutationVariables = Exact<{
+  modelId: Scalars['ID']['input'];
+}>;
+
+
+export type ExportModelSchemaMutation = { __typename?: 'Mutation', exportModelSchema?: { __typename?: 'ExportModelSchemaPayload', modelId: string, url: string } | null };
 
 export type GetProjectQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -6042,6 +6096,75 @@ export function useUpdateModelsOrderMutation(baseOptions?: Apollo.MutationHookOp
 export type UpdateModelsOrderMutationHookResult = ReturnType<typeof useUpdateModelsOrderMutation>;
 export type UpdateModelsOrderMutationResult = Apollo.MutationResult<UpdateModelsOrderMutation>;
 export type UpdateModelsOrderMutationOptions = Apollo.BaseMutationOptions<UpdateModelsOrderMutation, UpdateModelsOrderMutationVariables>;
+export const ExportModelDocument = gql`
+    mutation ExportModel($modelId: ID!, $format: ExportFormat!) {
+  exportModel(input: {modelId: $modelId, format: $format}) {
+    modelId
+    url
+  }
+}
+    `;
+export type ExportModelMutationFn = Apollo.MutationFunction<ExportModelMutation, ExportModelMutationVariables>;
+
+/**
+ * __useExportModelMutation__
+ *
+ * To run a mutation, you first call `useExportModelMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useExportModelMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [exportModelMutation, { data, loading, error }] = useExportModelMutation({
+ *   variables: {
+ *      modelId: // value for 'modelId'
+ *      format: // value for 'format'
+ *   },
+ * });
+ */
+export function useExportModelMutation(baseOptions?: Apollo.MutationHookOptions<ExportModelMutation, ExportModelMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ExportModelMutation, ExportModelMutationVariables>(ExportModelDocument, options);
+      }
+export type ExportModelMutationHookResult = ReturnType<typeof useExportModelMutation>;
+export type ExportModelMutationResult = Apollo.MutationResult<ExportModelMutation>;
+export type ExportModelMutationOptions = Apollo.BaseMutationOptions<ExportModelMutation, ExportModelMutationVariables>;
+export const ExportModelSchemaDocument = gql`
+    mutation ExportModelSchema($modelId: ID!) {
+  exportModelSchema(input: {modelId: $modelId}) {
+    modelId
+    url
+  }
+}
+    `;
+export type ExportModelSchemaMutationFn = Apollo.MutationFunction<ExportModelSchemaMutation, ExportModelSchemaMutationVariables>;
+
+/**
+ * __useExportModelSchemaMutation__
+ *
+ * To run a mutation, you first call `useExportModelSchemaMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useExportModelSchemaMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [exportModelSchemaMutation, { data, loading, error }] = useExportModelSchemaMutation({
+ *   variables: {
+ *      modelId: // value for 'modelId'
+ *   },
+ * });
+ */
+export function useExportModelSchemaMutation(baseOptions?: Apollo.MutationHookOptions<ExportModelSchemaMutation, ExportModelSchemaMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ExportModelSchemaMutation, ExportModelSchemaMutationVariables>(ExportModelSchemaDocument, options);
+      }
+export type ExportModelSchemaMutationHookResult = ReturnType<typeof useExportModelSchemaMutation>;
+export type ExportModelSchemaMutationResult = Apollo.MutationResult<ExportModelSchemaMutation>;
+export type ExportModelSchemaMutationOptions = Apollo.BaseMutationOptions<ExportModelSchemaMutation, ExportModelSchemaMutationVariables>;
 export const GetProjectDocument = gql`
     query GetProject($projectId: ID!) {
   node(id: $projectId, type: PROJECT) {

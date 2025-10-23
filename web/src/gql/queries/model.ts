@@ -210,3 +210,21 @@ export const UPDATE_MODELS_ORDER = gql`
     }
   }
 `;
+
+export const EXPORT_MODEL = gql`
+  mutation ExportModel($modelId: ID!, $format: ExportFormat!) {
+    exportModel(input: { modelId: $modelId, format: $format }) {
+      modelId
+      url
+    }
+  }
+`;
+
+export const EXPORT_MODEL_SCHEMA = gql`
+  mutation ExportModelSchema($modelId: ID!) {
+    exportModelSchema(input: { modelId: $modelId }) {
+      modelId
+      url
+    }
+  }
+`;

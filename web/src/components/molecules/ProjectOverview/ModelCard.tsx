@@ -17,6 +17,7 @@ type Props = {
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
   onModelUpdateModalOpen: (model: Model) => Promise<void>;
   onModelExportModalOpen: (model: Model) => Promise<void>;
+  onModelExport: (modelId: string, format: string) => Promise<void>;
 };
 
 const ModelCard: React.FC<Props> = ({
@@ -27,6 +28,7 @@ const ModelCard: React.FC<Props> = ({
   onContentNavigate,
   onModelDeletionModalOpen,
   onModelUpdateModalOpen,
+  onModelExport,
 }) => {
   const { Meta } = Card;
   const t = useT();
@@ -52,9 +54,8 @@ const ModelCard: React.FC<Props> = ({
 
   const [messageApi, contextHolder] = message.useMessage();
   const key = "updatable";
-  const handleModelExport = useCallback(
-    (model: Model, exportType: string) => {
-      console.log(model, exportType);
+  const handleModelExportClick = useCallback(
+    async (model: Model, exportType: string) => {
       messageApi.open({
         key,
         type: "loading",
@@ -67,7 +68,9 @@ const ModelCard: React.FC<Props> = ({
           </StyledMessage>
         ),
       });
-      setTimeout(() => {
+
+      try {
+        await onModelExport(model.id, exportType);
         messageApi.open({
           key,
           type: "success",
@@ -77,11 +80,23 @@ const ModelCard: React.FC<Props> = ({
               <StyledMessageContent>Your file has been successfully exported.</StyledMessageContent>
             </StyledMessage>
           ),
-          duration: 500,
+          duration: 2000,
         });
-      }, 1000);
+      } catch {
+        messageApi.open({
+          key,
+          type: "error",
+          content: (
+            <StyledMessage>
+              <StyledMessageTitle>Export failed</StyledMessageTitle>
+              <StyledMessageContent>Failed to export data. Please try again.</StyledMessageContent>
+            </StyledMessage>
+          ),
+          duration: 2000,
+        });
+      }
     },
-    [messageApi],
+    [messageApi, onModelExport],
   );
 
   const ExportMenuItems = useMemo(
@@ -89,25 +104,25 @@ const ModelCard: React.FC<Props> = ({
       {
         key: "schema",
         label: t("Export Schema"),
-        onClick: () => handleModelExport(model, "schema"),
+        onClick: () => handleModelExportClick(model, "schema"),
       },
       {
         key: "json",
         label: t("Export as JSON"),
-        onClick: () => handleModelExport(model, "json"),
+        onClick: () => handleModelExportClick(model, "json"),
       },
       {
         key: "csv",
         label: t("Export as CSV"),
-        onClick: () => handleModelExport(model, "csv"),
+        onClick: () => handleModelExportClick(model, "csv"),
       },
       {
         key: "geojson",
         label: t("Export as GeoJSON"),
-        onClick: () => handleModelExport(model, "geojson"),
+        onClick: () => handleModelExportClick(model, "geojson"),
       },
     ],
-    [t, handleModelExport, model],
+    [t, handleModelExportClick, model],
   );
 
   return (

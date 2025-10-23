@@ -11,10 +11,13 @@ import {
   useDeleteModelMutation,
   useGetModelsQuery,
   useUpdateModelMutation,
+  useExportModelMutation,
+  useExportModelSchemaMutation,
   Model as GQLModel,
   Role as GQLRole,
   ProjectAccessibility as GQLProjectAccessibility,
   useUpdateProjectMutation,
+  ExportFormat,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
@@ -166,13 +169,49 @@ export default () => {
     [updateNewModel, handleModelModalClose, t],
   );
 
-  // TODO: implement this function
-  const exportLoading = false;
+  const [exportModel, { loading: exportModelLoading }] = useExportModelMutation();
+  const [exportModelSchema, { loading: exportSchemaLoading }] = useExportModelSchemaMutation();
 
-  // TODO: implement this function
-  const handleModelExport = useCallback(async (modelId?: string, format?: string) => {
-    if (!modelId && !format) return;
-  }, []);
+  const exportLoading = exportModelLoading || exportSchemaLoading;
+
+  const handleModelExport = useCallback(
+    async (modelId?: string, format?: string) => {
+      if (!modelId || !format) return;
+
+      try {
+        if (format === "schema") {
+          // Export schema
+          const res = await exportModelSchema({ variables: { modelId } });
+          if (res.errors || !res.data?.exportModelSchema) {
+            Notification.error({ message: t("Failed to export schema.") });
+            return;
+          }
+          const url = res.data.exportModelSchema.url;
+          // Download the file
+          window.open(url, "_blank");
+          Notification.success({ message: t("Successfully exported schema!") });
+        } else {
+          // Export model data (JSON, CSV, or GeoJSON)
+          const exportFormat = format.toUpperCase() as ExportFormat;
+          const res = await exportModel({
+            variables: { modelId, format: exportFormat },
+          });
+          if (res.errors || !res.data?.exportModel) {
+            Notification.error({ message: t("Failed to export model data.") });
+            return;
+          }
+          const url = res.data.exportModel.url;
+          // Download the file
+          window.open(url, "_blank");
+          Notification.success({ message: t("Successfully exported model data!") });
+        }
+        handleModelExportModalClose();
+      } catch {
+        Notification.error({ message: t("Failed to export.") });
+      }
+    },
+    [exportModel, exportModelSchema, handleModelExportModalClose, t],
+  );
 
   const handleHomeNavigation = useCallback(() => {
     navigate(`/workspace/${currentWorkspace?.id}`);
