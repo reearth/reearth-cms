@@ -624,14 +624,14 @@ func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
 }
 
 func (f *fileRepo) bucketWithEndpoint(ctx context.Context) (*storage.BucketHandle, error) {
-	var opts []option.ClientOption
-
-	// If publicBase is configured, use it for uploads
-	if f.publicBase != nil {
-		endpoint := f.publicBase.String() + gcsUploadAPIPath
-		opts = append(opts, option.WithEndpoint(endpoint))
+	// If publicBase is not configured, reuse the default bucket logic
+	if f.publicBase == nil {
+		return f.bucket(ctx)
 	}
 
+	var opts []option.ClientOption
+	endpoint := f.publicBase.String() + gcsUploadAPIPath
+	opts = append(opts, option.WithEndpoint(endpoint))
 	client, err := storage.NewClient(ctx, opts...)
 	if err != nil {
 		log.Errorf("gcs: failed to initialize storage client for bucket %q: %v", f.bucketName, err)
