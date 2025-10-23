@@ -681,8 +681,8 @@ func convertAnyToInt64(a *anypb.Any) (int64, error) {
 	return int64(w.Value), nil
 }
 
-// GRPC Patch Star Count
-func TestInternalPatchStarCountAPI(t *testing.T) {
+// GRPC Star Project
+func TestInternalStarProjectAPI(t *testing.T) {
 	StartServer(t, &app.Config{
 		InternalApi: app.InternalApiConfig{
 			Active: true,
@@ -706,7 +706,7 @@ func TestInternalPatchStarCountAPI(t *testing.T) {
 		mdCtx := metadata.NewOutgoingContext(t.Context(), md)
 
 		// First call should star the project
-		resp, err := client.PatchStarCount(mdCtx, &pb.PatchStarCountRequest{
+		resp, err := client.StarProject(mdCtx, &pb.StarRequest{
 			ProjectAlias: palias,
 		})
 		assert.NoError(t, err)
@@ -726,7 +726,7 @@ func TestInternalPatchStarCountAPI(t *testing.T) {
 		mdCtx := metadata.NewOutgoingContext(t.Context(), md)
 
 		// Second call should unstar the project
-		resp, err := client.PatchStarCount(mdCtx, &pb.PatchStarCountRequest{
+		resp, err := client.StarProject(mdCtx, &pb.StarRequest{
 			ProjectAlias: palias,
 		})
 		assert.NoError(t, err)
@@ -746,7 +746,7 @@ func TestInternalPatchStarCountAPI(t *testing.T) {
 		mdCtx := metadata.NewOutgoingContext(t.Context(), md)
 
 		// Star the project (3rd time total)
-		resp1, err := client.PatchStarCount(mdCtx, &pb.PatchStarCountRequest{
+		resp1, err := client.StarProject(mdCtx, &pb.StarRequest{
 			ProjectAlias: palias,
 		})
 		assert.NoError(t, err)
@@ -755,7 +755,7 @@ func TestInternalPatchStarCountAPI(t *testing.T) {
 		assert.Len(t, resp1.Project.StarredBy, 1)
 
 		// Unstar the project (4th time total)
-		resp2, err := client.PatchStarCount(mdCtx, &pb.PatchStarCountRequest{
+		resp2, err := client.StarProject(mdCtx, &pb.StarRequest{
 			ProjectAlias: palias,
 		})
 		assert.NoError(t, err)
@@ -764,7 +764,7 @@ func TestInternalPatchStarCountAPI(t *testing.T) {
 		assert.Len(t, resp2.Project.StarredBy, 0)
 
 		// Star again (5th time total)
-		resp3, err := client.PatchStarCount(mdCtx, &pb.PatchStarCountRequest{
+		resp3, err := client.StarProject(mdCtx, &pb.StarRequest{
 			ProjectAlias: palias,
 		})
 		assert.NoError(t, err)
@@ -773,7 +773,7 @@ func TestInternalPatchStarCountAPI(t *testing.T) {
 		assert.Len(t, resp3.Project.StarredBy, 1)
 
 		// Clean up - unstar
-		_, err = client.PatchStarCount(mdCtx, &pb.PatchStarCountRequest{
+		_, err = client.StarProject(mdCtx, &pb.StarRequest{
 			ProjectAlias: palias,
 		})
 		assert.NoError(t, err)
@@ -787,7 +787,7 @@ func TestInternalPatchStarCountAPI(t *testing.T) {
 		mdCtx := metadata.NewOutgoingContext(t.Context(), md)
 
 		// Use project ID instead of alias
-		resp, err := client.PatchStarCount(mdCtx, &pb.PatchStarCountRequest{
+		resp, err := client.StarProject(mdCtx, &pb.StarRequest{
 			ProjectAlias: pid.String(),
 		})
 		assert.NoError(t, err)
@@ -799,7 +799,7 @@ func TestInternalPatchStarCountAPI(t *testing.T) {
 		assert.Equal(t, pid.String(), resp.Project.Id)
 
 		// Clean up - unstar
-		_, err = client.PatchStarCount(mdCtx, &pb.PatchStarCountRequest{
+		_, err = client.StarProject(mdCtx, &pb.StarRequest{
 			ProjectAlias: pid.String(),
 		})
 		assert.NoError(t, err)
@@ -813,14 +813,14 @@ func TestInternalPatchStarCountAPI(t *testing.T) {
 		mdCtx := metadata.NewOutgoingContext(t.Context(), md)
 
 		// Non-existent project alias
-		_, err := client.PatchStarCount(mdCtx, &pb.PatchStarCountRequest{
+		_, err := client.StarProject(mdCtx, &pb.StarRequest{
 			ProjectAlias: "non-existent-project",
 		})
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "not found")
 
 		// Empty project alias
-		_, err = client.PatchStarCount(mdCtx, &pb.PatchStarCountRequest{
+		_, err = client.StarProject(mdCtx, &pb.StarRequest{
 			ProjectAlias: "",
 		})
 		assert.Error(t, err)
@@ -831,7 +831,7 @@ func TestInternalPatchStarCountAPI(t *testing.T) {
 		})
 		mdCtxNoUser := metadata.NewOutgoingContext(t.Context(), mdNoUser)
 
-		_, err = client.PatchStarCount(mdCtxNoUser, &pb.PatchStarCountRequest{
+		_, err = client.StarProject(mdCtxNoUser, &pb.StarRequest{
 			ProjectAlias: palias,
 		})
 		assert.Error(t, err)
@@ -843,7 +843,7 @@ func TestInternalPatchStarCountAPI(t *testing.T) {
 		})
 		mdCtxInvalidUser := metadata.NewOutgoingContext(t.Context(), mdInvalidUser)
 
-		_, err = client.PatchStarCount(mdCtxInvalidUser, &pb.PatchStarCountRequest{
+		_, err = client.StarProject(mdCtxInvalidUser, &pb.StarRequest{
 			ProjectAlias: palias,
 		})
 		assert.Error(t, err)
@@ -858,7 +858,7 @@ func TestInternalPatchStarCountAPI(t *testing.T) {
 		mdCtx := metadata.NewOutgoingContext(t.Context(), md)
 
 		// Star the project
-		_, err := client.PatchStarCount(mdCtx, &pb.PatchStarCountRequest{
+		_, err := client.StarProject(mdCtx, &pb.StarRequest{
 			ProjectAlias: palias,
 		})
 		assert.NoError(t, err)
@@ -872,7 +872,7 @@ func TestInternalPatchStarCountAPI(t *testing.T) {
 		assert.Contains(t, getResp.Project.StarredBy, uId.String())
 
 		// Unstar the project
-		_, err = client.PatchStarCount(mdCtx, &pb.PatchStarCountRequest{
+		_, err = client.StarProject(mdCtx, &pb.StarRequest{
 			ProjectAlias: palias,
 		})
 		assert.NoError(t, err)

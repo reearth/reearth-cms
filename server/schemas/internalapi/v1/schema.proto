@@ -24,7 +24,7 @@ service ReEarthCMS {
   rpc GetModelGeoJSONExportURL(ExportRequest) returns (ExportURLResponse) {
     option deprecated = true;
   }
-  rpc PatchStarCount(PatchStarCountRequest) returns (PatchStarCountResponse) {}
+  rpc StarProject(StarRequest) returns (StarResponse) {}
 }
 
 // Implementation note:
@@ -225,8 +225,9 @@ message ModelExportRequest {
   Type export_type = 3;
 }
 
-message PatchStarCountRequest {
-  string project_alias = 1;
+message StarRequest {
+  string workspace_alias = 1;
+  string project_alias = 2;
 }
 
 // Response messages
@@ -282,6 +283,6 @@ message ExportURLResponse {
   string url = 1;
 }
 
-message PatchStarCountResponse {
+message StarResponse {
   Project project = 1;
 }

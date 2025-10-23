@@ -501,7 +501,7 @@ func (s server) GetModelExportURL(ctx context.Context, req *pb.ModelExportReques
 	}, nil
 }
 
-func (s server) PatchStarCount(ctx context.Context, req *pb.PatchStarCountRequest) (*pb.PatchStarCountResponse, error) {
+func (s server) StarProject(ctx context.Context, req *pb.StarRequest) (*pb.StarResponse, error) {
 	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
 	usr := adapter.User(ctx)
 
@@ -515,21 +515,16 @@ func (s server) PatchStarCount(ctx context.Context, req *pb.PatchStarCountReques
 	}
 
 	pid := pj.ID()
-	userID := usr.ID().String()
+	userID := usr.ID()
 
-	starredBy := pj.StarredBy()
-	starCount := pj.StarCount()
-
-	if slices.Contains(starredBy, userID) && starCount > 0 {
-		idx := slices.Index(starredBy, userID)
-		starredBy = slices.Delete(starredBy, idx, idx+1)
-		starCount = starCount - 1
-
+	if slices.Contains(pj.StarredBy(), userID.String()) {
+		pj.Unstar(userID)
 	} else {
-		starredBy = append(starredBy, userID)
-		starCount = starCount + 1
-
+		pj.Star(userID)
 	}
+
+	starCount := pj.StarCount()
+	starredBy := pj.StarredBy()
 
 	p, err := uc.Project.Update(ctx, interfaces.UpdateProjectParam{
 		ID:        pid,
@@ -540,7 +535,7 @@ func (s server) PatchStarCount(ctx context.Context, req *pb.PatchStarCountReques
 		return nil, err
 	}
 
-	return &pb.PatchStarCountResponse{
+	return &pb.StarResponse{
 		Project: internalapimodel.ToProject(p),
 	}, nil
 }

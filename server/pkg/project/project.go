@@ -129,22 +129,44 @@ func (p *Project) UpdateLicense(license string) {
 	p.license = license
 }
 
-func (p *Project) SetStarCount(count int64) {
+func (p *Project) Star(uId accountdomain.UserID) {
 	if p == nil {
 		return
 	}
-	p.starCount = count
+	uIdStr := uId.String()
+	for _, id := range p.starredBy {
+		if id == uIdStr {
+			return // already starred
+		}
+	}
+	p.starCount++
+	p.starredBy = append(p.starredBy, uIdStr)
 }
 
-func (p *Project) SetStarredBy(starredBy []string) {
+func (p *Project) Unstar(uId accountdomain.UserID) {
 	if p == nil {
 		return
 	}
-	p.starredBy = starredBy
+	uIdStr := uId.String()
+	for i, id := range p.starredBy {
+		if id == uIdStr {
+			p.starCount--
+			p.starredBy = append(p.starredBy[:i], p.starredBy[i+1:]...)
+			return
+		}
+	}
 }
 
 func (p *Project) SetRequestRoles(sr []workspace.Role) {
 	p.requestRoles = slices.Clone(sr)
+}
+
+func (p *Project) SetStarCount(count int64) {
+	p.starCount = count
+}
+
+func (p *Project) SetStarredBy(starredBy []string) {
+	p.starredBy = slices.Clone(starredBy)
 }
 
 func (p *Project) UpdateAlias(alias string) error {

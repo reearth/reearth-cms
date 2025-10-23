@@ -32,7 +32,7 @@ const (
 	ReEarthCMS_ListItems_FullMethodName                = "/reearth.cms.v1.ReEarthCMS/ListItems"
 	ReEarthCMS_GetModelExportURL_FullMethodName        = "/reearth.cms.v1.ReEarthCMS/GetModelExportURL"
 	ReEarthCMS_GetModelGeoJSONExportURL_FullMethodName = "/reearth.cms.v1.ReEarthCMS/GetModelGeoJSONExportURL"
-	ReEarthCMS_PatchStarCount_FullMethodName           = "/reearth.cms.v1.ReEarthCMS/PatchStarCount"
+	ReEarthCMS_StarProject_FullMethodName              = "/reearth.cms.v1.ReEarthCMS/StarProject"
 )
 
 // ReEarthCMSClient is the client API for ReEarthCMS service.
@@ -54,7 +54,7 @@ type ReEarthCMSClient interface {
 	GetModelExportURL(ctx context.Context, in *ModelExportRequest, opts ...grpc.CallOption) (*ExportURLResponse, error)
 	// Deprecated: Do not use.
 	GetModelGeoJSONExportURL(ctx context.Context, in *ExportRequest, opts ...grpc.CallOption) (*ExportURLResponse, error)
-	PatchStarCount(ctx context.Context, in *PatchStarCountRequest, opts ...grpc.CallOption) (*PatchStarCountResponse, error)
+	StarProject(ctx context.Context, in *StarRequest, opts ...grpc.CallOption) (*StarResponse, error)
 }
 
 type reEarthCMSClient struct {
@@ -196,10 +196,10 @@ func (c *reEarthCMSClient) GetModelGeoJSONExportURL(ctx context.Context, in *Exp
 	return out, nil
 }
 
-func (c *reEarthCMSClient) PatchStarCount(ctx context.Context, in *PatchStarCountRequest, opts ...grpc.CallOption) (*PatchStarCountResponse, error) {
+func (c *reEarthCMSClient) StarProject(ctx context.Context, in *StarRequest, opts ...grpc.CallOption) (*StarResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PatchStarCountResponse)
-	err := c.cc.Invoke(ctx, ReEarthCMS_PatchStarCount_FullMethodName, in, out, cOpts...)
+	out := new(StarResponse)
+	err := c.cc.Invoke(ctx, ReEarthCMS_StarProject_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -225,7 +225,7 @@ type ReEarthCMSServer interface {
 	GetModelExportURL(context.Context, *ModelExportRequest) (*ExportURLResponse, error)
 	// Deprecated: Do not use.
 	GetModelGeoJSONExportURL(context.Context, *ExportRequest) (*ExportURLResponse, error)
-	PatchStarCount(context.Context, *PatchStarCountRequest) (*PatchStarCountResponse, error)
+	StarProject(context.Context, *StarRequest) (*StarResponse, error)
 	mustEmbedUnimplementedReEarthCMSServer()
 }
 
@@ -275,8 +275,8 @@ func (UnimplementedReEarthCMSServer) GetModelExportURL(context.Context, *ModelEx
 func (UnimplementedReEarthCMSServer) GetModelGeoJSONExportURL(context.Context, *ExportRequest) (*ExportURLResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetModelGeoJSONExportURL not implemented")
 }
-func (UnimplementedReEarthCMSServer) PatchStarCount(context.Context, *PatchStarCountRequest) (*PatchStarCountResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PatchStarCount not implemented")
+func (UnimplementedReEarthCMSServer) StarProject(context.Context, *StarRequest) (*StarResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StarProject not implemented")
 }
 func (UnimplementedReEarthCMSServer) mustEmbedUnimplementedReEarthCMSServer() {}
 func (UnimplementedReEarthCMSServer) testEmbeddedByValue()                    {}
@@ -533,20 +533,20 @@ func _ReEarthCMS_GetModelGeoJSONExportURL_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ReEarthCMS_PatchStarCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PatchStarCountRequest)
+func _ReEarthCMS_StarProject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StarRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ReEarthCMSServer).PatchStarCount(ctx, in)
+		return srv.(ReEarthCMSServer).StarProject(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ReEarthCMS_PatchStarCount_FullMethodName,
+		FullMethod: ReEarthCMS_StarProject_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ReEarthCMSServer).PatchStarCount(ctx, req.(*PatchStarCountRequest))
+		return srv.(ReEarthCMSServer).StarProject(ctx, req.(*StarRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -611,8 +611,8 @@ var ReEarthCMS_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ReEarthCMS_GetModelGeoJSONExportURL_Handler,
 		},
 		{
-			MethodName: "PatchStarCount",
-			Handler:    _ReEarthCMS_PatchStarCount_Handler,
+			MethodName: "StarProject",
+			Handler:    _ReEarthCMS_StarProject_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

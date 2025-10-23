@@ -1677,27 +1677,28 @@ func (x *ModelExportRequest) GetExportType() ModelExportRequest_Type {
 	return ModelExportRequest_JSON
 }
 
-type PatchStarCountRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ProjectAlias  string                 `protobuf:"bytes,1,opt,name=project_alias,json=projectAlias,proto3" json:"project_alias,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+type StarRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	WorkspaceAlias string                 `protobuf:"bytes,1,opt,name=workspace_alias,json=workspaceAlias,proto3" json:"workspace_alias,omitempty"`
+	ProjectAlias   string                 `protobuf:"bytes,2,opt,name=project_alias,json=projectAlias,proto3" json:"project_alias,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
-func (x *PatchStarCountRequest) Reset() {
-	*x = PatchStarCountRequest{}
+func (x *StarRequest) Reset() {
+	*x = StarRequest{}
 	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PatchStarCountRequest) String() string {
+func (x *StarRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PatchStarCountRequest) ProtoMessage() {}
+func (*StarRequest) ProtoMessage() {}
 
-func (x *PatchStarCountRequest) ProtoReflect() protoreflect.Message {
+func (x *StarRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1709,12 +1710,19 @@ func (x *PatchStarCountRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PatchStarCountRequest.ProtoReflect.Descriptor instead.
-func (*PatchStarCountRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use StarRequest.ProtoReflect.Descriptor instead.
+func (*StarRequest) Descriptor() ([]byte, []int) {
 	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{21}
 }
 
-func (x *PatchStarCountRequest) GetProjectAlias() string {
+func (x *StarRequest) GetWorkspaceAlias() string {
+	if x != nil {
+		return x.WorkspaceAlias
+	}
+	return ""
+}
+
+func (x *StarRequest) GetProjectAlias() string {
 	if x != nil {
 		return x.ProjectAlias
 	}
@@ -2226,27 +2234,27 @@ func (x *ExportURLResponse) GetUrl() string {
 	return ""
 }
 
-type PatchStarCountResponse struct {
+type StarResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Project       *Project               `protobuf:"bytes,1,opt,name=project,proto3" json:"project,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PatchStarCountResponse) Reset() {
-	*x = PatchStarCountResponse{}
+func (x *StarResponse) Reset() {
+	*x = StarResponse{}
 	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PatchStarCountResponse) String() string {
+func (x *StarResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PatchStarCountResponse) ProtoMessage() {}
+func (*StarResponse) ProtoMessage() {}
 
-func (x *PatchStarCountResponse) ProtoReflect() protoreflect.Message {
+func (x *StarResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2258,12 +2266,12 @@ func (x *PatchStarCountResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PatchStarCountResponse.ProtoReflect.Descriptor instead.
-func (*PatchStarCountResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use StarResponse.ProtoReflect.Descriptor instead.
+func (*StarResponse) Descriptor() ([]byte, []int) {
 	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{32}
 }
 
-func (x *PatchStarCountResponse) GetProject() *Project {
+func (x *StarResponse) GetProject() *Project {
 	if x != nil {
 		return x.Project
 	}
@@ -2479,9 +2487,10 @@ const file_schemas_internalapi_v1_schema_proto_rawDesc = "" +
 	"exportType\"\x1d\n" +
 	"\x04Type\x12\b\n" +
 	"\x04JSON\x10\x00\x12\v\n" +
-	"\aGEOJSON\x10\x01\"<\n" +
-	"\x15PatchStarCountRequest\x12#\n" +
-	"\rproject_alias\x18\x01 \x01(\tR\fprojectAlias\"D\n" +
+	"\aGEOJSON\x10\x01\"[\n" +
+	"\vStarRequest\x12'\n" +
+	"\x0fworkspace_alias\x18\x01 \x01(\tR\x0eworkspaceAlias\x12#\n" +
+	"\rproject_alias\x18\x02 \x01(\tR\fprojectAlias\"D\n" +
 	"\x0fProjectResponse\x121\n" +
 	"\aproject\x18\x01 \x01(\v2\x17.reearth.cms.v1.ProjectR\aproject\"9\n" +
 	"\x19AliasAvailabilityResponse\x12\x1c\n" +
@@ -2514,14 +2523,14 @@ const file_schemas_internalapi_v1_schema_proto_rawDesc = "" +
 	"totalCount\x125\n" +
 	"\tpage_info\x18d \x01(\v2\x18.reearth.cms.v1.PageInfoR\bpageInfo\"%\n" +
 	"\x11ExportURLResponse\x12\x10\n" +
-	"\x03url\x18\x01 \x01(\tR\x03url\"K\n" +
-	"\x16PatchStarCountResponse\x121\n" +
+	"\x03url\x18\x01 \x01(\tR\x03url\"A\n" +
+	"\fStarResponse\x121\n" +
 	"\aproject\x18\x01 \x01(\v2\x17.reearth.cms.v1.ProjectR\aproject*%\n" +
 	"\n" +
 	"Visibility\x12\n" +
 	"\n" +
 	"\x06PUBLIC\x10\x00\x12\v\n" +
-	"\aPRIVATE\x10\x012\xfb\t\n" +
+	"\aPRIVATE\x10\x012\xe4\t\n" +
 	"\n" +
 	"ReEarthCMS\x12X\n" +
 	"\rCreateProject\x12$.reearth.cms.v1.CreateProjectRequest\x1a\x1f.reearth.cms.v1.ProjectResponse\"\x00\x12X\n" +
@@ -2539,8 +2548,8 @@ const file_schemas_internalapi_v1_schema_proto_rawDesc = "" +
 	"ListModels\x12!.reearth.cms.v1.ListModelsRequest\x1a\".reearth.cms.v1.ListModelsResponse\"\x00\x12R\n" +
 	"\tListItems\x12 .reearth.cms.v1.ListItemsRequest\x1a!.reearth.cms.v1.ListItemsResponse\"\x00\x12\\\n" +
 	"\x11GetModelExportURL\x12\".reearth.cms.v1.ModelExportRequest\x1a!.reearth.cms.v1.ExportURLResponse\"\x00\x12a\n" +
-	"\x18GetModelGeoJSONExportURL\x12\x1d.reearth.cms.v1.ExportRequest\x1a!.reearth.cms.v1.ExportURLResponse\"\x03\x88\x02\x01\x12a\n" +
-	"\x0ePatchStarCount\x12%.reearth.cms.v1.PatchStarCountRequest\x1a&.reearth.cms.v1.PatchStarCountResponse\"\x00B\n" +
+	"\x18GetModelGeoJSONExportURL\x12\x1d.reearth.cms.v1.ExportRequest\x1a!.reearth.cms.v1.ExportURLResponse\"\x03\x88\x02\x01\x12J\n" +
+	"\vStarProject\x12\x1b.reearth.cms.v1.StarRequest\x1a\x1c.reearth.cms.v1.StarResponse\"\x00B\n" +
 	"Z\bproto/v1b\x06proto3"
 
 var (
@@ -2582,7 +2591,7 @@ var file_schemas_internalapi_v1_schema_proto_goTypes = []any{
 	(*ListItemsRequest)(nil),          // 21: reearth.cms.v1.ListItemsRequest
 	(*ExportRequest)(nil),             // 22: reearth.cms.v1.ExportRequest
 	(*ModelExportRequest)(nil),        // 23: reearth.cms.v1.ModelExportRequest
-	(*PatchStarCountRequest)(nil),     // 24: reearth.cms.v1.PatchStarCountRequest
+	(*StarRequest)(nil),               // 24: reearth.cms.v1.StarRequest
 	(*ProjectResponse)(nil),           // 25: reearth.cms.v1.ProjectResponse
 	(*AliasAvailabilityResponse)(nil), // 26: reearth.cms.v1.AliasAvailabilityResponse
 	(*DeleteProjectResponse)(nil),     // 27: reearth.cms.v1.DeleteProjectResponse
@@ -2593,7 +2602,7 @@ var file_schemas_internalapi_v1_schema_proto_goTypes = []any{
 	(*ListModelsResponse)(nil),        // 32: reearth.cms.v1.ListModelsResponse
 	(*ListItemsResponse)(nil),         // 33: reearth.cms.v1.ListItemsResponse
 	(*ExportURLResponse)(nil),         // 34: reearth.cms.v1.ExportURLResponse
-	(*PatchStarCountResponse)(nil),    // 35: reearth.cms.v1.PatchStarCountResponse
+	(*StarResponse)(nil),              // 35: reearth.cms.v1.StarResponse
 	nil,                               // 36: reearth.cms.v1.Item.FieldsEntry
 	(*timestamppb.Timestamp)(nil),     // 37: google.protobuf.Timestamp
 	(*anypb.Any)(nil),                 // 38: google.protobuf.Any
@@ -2633,7 +2642,7 @@ var file_schemas_internalapi_v1_schema_proto_depIdxs = []int32{
 	9,  // 31: reearth.cms.v1.ListModelsResponse.page_info:type_name -> reearth.cms.v1.PageInfo
 	6,  // 32: reearth.cms.v1.ListItemsResponse.items:type_name -> reearth.cms.v1.Item
 	9,  // 33: reearth.cms.v1.ListItemsResponse.page_info:type_name -> reearth.cms.v1.PageInfo
-	3,  // 34: reearth.cms.v1.PatchStarCountResponse.project:type_name -> reearth.cms.v1.Project
+	3,  // 34: reearth.cms.v1.StarResponse.project:type_name -> reearth.cms.v1.Project
 	38, // 35: reearth.cms.v1.Item.FieldsEntry.value:type_name -> google.protobuf.Any
 	13, // 36: reearth.cms.v1.ReEarthCMS.CreateProject:input_type -> reearth.cms.v1.CreateProjectRequest
 	14, // 37: reearth.cms.v1.ReEarthCMS.UpdateProject:input_type -> reearth.cms.v1.UpdateProjectRequest
@@ -2648,7 +2657,7 @@ var file_schemas_internalapi_v1_schema_proto_depIdxs = []int32{
 	21, // 46: reearth.cms.v1.ReEarthCMS.ListItems:input_type -> reearth.cms.v1.ListItemsRequest
 	23, // 47: reearth.cms.v1.ReEarthCMS.GetModelExportURL:input_type -> reearth.cms.v1.ModelExportRequest
 	22, // 48: reearth.cms.v1.ReEarthCMS.GetModelGeoJSONExportURL:input_type -> reearth.cms.v1.ExportRequest
-	24, // 49: reearth.cms.v1.ReEarthCMS.PatchStarCount:input_type -> reearth.cms.v1.PatchStarCountRequest
+	24, // 49: reearth.cms.v1.ReEarthCMS.StarProject:input_type -> reearth.cms.v1.StarRequest
 	25, // 50: reearth.cms.v1.ReEarthCMS.CreateProject:output_type -> reearth.cms.v1.ProjectResponse
 	25, // 51: reearth.cms.v1.ReEarthCMS.UpdateProject:output_type -> reearth.cms.v1.ProjectResponse
 	27, // 52: reearth.cms.v1.ReEarthCMS.DeleteProject:output_type -> reearth.cms.v1.DeleteProjectResponse
@@ -2662,7 +2671,7 @@ var file_schemas_internalapi_v1_schema_proto_depIdxs = []int32{
 	33, // 60: reearth.cms.v1.ReEarthCMS.ListItems:output_type -> reearth.cms.v1.ListItemsResponse
 	34, // 61: reearth.cms.v1.ReEarthCMS.GetModelExportURL:output_type -> reearth.cms.v1.ExportURLResponse
 	34, // 62: reearth.cms.v1.ReEarthCMS.GetModelGeoJSONExportURL:output_type -> reearth.cms.v1.ExportURLResponse
-	35, // 63: reearth.cms.v1.ReEarthCMS.PatchStarCount:output_type -> reearth.cms.v1.PatchStarCountResponse
+	35, // 63: reearth.cms.v1.ReEarthCMS.StarProject:output_type -> reearth.cms.v1.StarResponse
 	50, // [50:64] is the sub-list for method output_type
 	36, // [36:50] is the sub-list for method input_type
 	36, // [36:36] is the sub-list for extension type_name
