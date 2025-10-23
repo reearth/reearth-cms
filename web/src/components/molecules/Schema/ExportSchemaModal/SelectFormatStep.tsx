@@ -18,6 +18,7 @@ const SelectFormatStep: React.FC<Props> = ({ form, initialValues }) => {
       { key: "csv", label: t("CSV") },
       { key: "json", label: t("JSON") },
       { key: "geojson", label: t("GeoJSON") },
+      { key: "schema", label: t("Schema") },
     ],
     [t],
   );
