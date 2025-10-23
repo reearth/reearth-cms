@@ -49,7 +49,7 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
 
-type Props = {
+export type Props = {
   contentTableFields?: ContentTableField[];
   contentTableColumns?: ExtendedColumns[];
   loading: boolean;
