@@ -12,8 +12,10 @@ import (
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -817,13 +819,19 @@ func TestInternalStarProjectAPI(t *testing.T) {
 			ProjectAlias: "non-existent-project",
 		})
 		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "not found")
+		st, ok := status.FromError(err)
+		assert.True(t, ok, "error should be a gRPC status error")
+		assert.Equal(t, codes.Unknown, st.Code())
+		assert.Contains(t, st.Message(), "not found")
 
 		// Empty project alias
 		_, err = client.StarProject(mdCtx, &pb.StarRequest{
 			ProjectAlias: "",
 		})
 		assert.Error(t, err)
+		st, ok = status.FromError(err)
+		assert.True(t, ok, "error should be a gRPC status error")
+		assert.Equal(t, codes.InvalidArgument, st.Code())
 
 		// Missing user ID in metadata
 		mdNoUser := metadata.New(map[string]string{
@@ -835,6 +843,10 @@ func TestInternalStarProjectAPI(t *testing.T) {
 			ProjectAlias: palias,
 		})
 		assert.Error(t, err)
+		st, ok = status.FromError(err)
+		assert.True(t, ok, "error should be a gRPC status error")
+		assert.Equal(t, codes.Unknown, st.Code())
+		assert.Contains(t, st.Message(), "user not found")
 
 		// Invalid user ID format (should be rejected by user ID validation)
 		mdInvalidUser := metadata.New(map[string]string{
@@ -847,7 +859,9 @@ func TestInternalStarProjectAPI(t *testing.T) {
 			ProjectAlias: palias,
 		})
 		assert.Error(t, err)
-		// Should get an error during user ID parsing in gRPC interceptor
+		st, ok = status.FromError(err)
+		assert.True(t, ok, "error should be a gRPC status error")
+		assert.Equal(t, codes.Unknown, st.Code())
 	})
 
 	t.Run("Star count persists across GetProject calls", func(t *testing.T) {
@@ -858,10 +872,12 @@ func TestInternalStarProjectAPI(t *testing.T) {
 		mdCtx := metadata.NewOutgoingContext(t.Context(), md)
 
 		// Star the project
-		_, err := client.StarProject(mdCtx, &pb.StarRequest{
+		starResp, err := client.StarProject(mdCtx, &pb.StarRequest{
 			ProjectAlias: palias,
 		})
 		assert.NoError(t, err)
+		// Verify the star operation was successful
+		assert.Equal(t, int64(1), starResp.Project.StarCount)
 
 		// Get the project and verify the star count persisted
 		getResp, err := client.GetProject(mdCtx, &pb.ProjectRequest{
@@ -872,10 +888,11 @@ func TestInternalStarProjectAPI(t *testing.T) {
 		assert.Contains(t, getResp.Project.StarredBy, uId.String())
 
 		// Unstar the project
-		_, err = client.StarProject(mdCtx, &pb.StarRequest{
+		unstarResp, err := client.StarProject(mdCtx, &pb.StarRequest{
 			ProjectAlias: palias,
 		})
 		assert.NoError(t, err)
+		assert.Equal(t, int64(0), unstarResp.Project.StarCount)
 
 		// Get the project again and verify the unstar persisted
 		getResp2, err := client.GetProject(mdCtx, &pb.ProjectRequest{
