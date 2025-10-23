@@ -22,10 +22,12 @@ import (
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"google.golang.org/api/iterator"
+	"google.golang.org/api/option"
 )
 
 const (
 	gcsAssetBasePath string = "assets"
+	gcsUploadAPIPath string = "/upload/storage/v1/"   // Google Cloud Storage upload API path
 	fileSizeLimit    int64  = 10 * 1024 * 1024 * 1024 // 10GB
 )
 
@@ -390,13 +392,14 @@ func (f *fileRepo) Upload(ctx context.Context, file *file.File, objectName strin
 		file.ContentEncoding = ""
 	}
 
-	bucket, err := f.bucket(ctx)
+	bucket, err := f.bucketWithEndpoint(ctx)
 	if err != nil {
 		log.Errorf("gcs: upload bucket err: %+v\n", err)
 		return 0, rerror.ErrInternalBy(err)
 	}
 
 	object := bucket.Object(objectName)
+
 	if err := object.Delete(ctx); err != nil && !errors.Is(err, storage.ErrObjectNotExist) {
 		log.Errorf("gcs: upload err: %+v\n", err)
 		return 0, gateway.ErrFailedToUploadFile
@@ -612,6 +615,26 @@ func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
 	client, err := storage.NewClient(ctx)
 	if err != nil {
 		log.Errorf("gcs: failed to initialize client: %v", err)
+		return nil, err
+	}
+
+	bucket := client.Bucket(f.bucketName)
+
+	return bucket, nil
+}
+
+func (f *fileRepo) bucketWithEndpoint(ctx context.Context) (*storage.BucketHandle, error) {
+	var opts []option.ClientOption
+
+	// If publicBase is configured, use it for uploads
+	if f.publicBase != nil {
+		endpoint := f.publicBase.String() + gcsUploadAPIPath
+		opts = append(opts, option.WithEndpoint(endpoint))
+	}
+
+	client, err := storage.NewClient(ctx, opts...)
+	if err != nil {
+		log.Errorf("gcs: failed to initialize storage client for bucket %q: %v", f.bucketName, err)
 		return nil, err
 	}
 
