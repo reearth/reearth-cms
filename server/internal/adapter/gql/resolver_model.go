@@ -181,7 +181,7 @@ func (r *mutationResolver) ExportModel(ctx context.Context, input gqlmodel.Expor
 
 	return &gqlmodel.ExportModelPayload{
 		ModelID: input.ModelID,
-		URL: *baseURL.JoinPath(m.ID().String() + ext),
+		URL:     *baseURL.JoinPath(m.ID().String() + ext),
 	}, nil
 }
 
@@ -231,7 +231,7 @@ func (r *mutationResolver) ExportModelSchema(ctx context.Context, input gqlmodel
 
 	return &gqlmodel.ExportModelSchemaPayload{
 		ModelID: input.ModelID,
-		URL: *baseURL.JoinPath(fileName),
+		URL:     *baseURL.JoinPath(fileName),
 	}, nil
 }
 
