@@ -508,6 +508,10 @@ func (s server) StarProject(ctx context.Context, req *pb.StarRequest) (*pb.StarR
 		return nil, errors.New("user not found in context")
 	}
 
+	if req.ProjectAlias == "" {
+		return nil, status.Error(codes.InvalidArgument, "project_alias is required")
+	}
+
 	p, err := uc.Project.StarProject(ctx, project.IDOrAlias(req.ProjectAlias), op)
 	if err != nil {
 		return nil, err
