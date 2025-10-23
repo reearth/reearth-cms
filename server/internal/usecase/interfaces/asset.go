@@ -40,9 +40,10 @@ type CreateAssetUploadParam struct {
 }
 
 var (
-	ErrCreateAssetFailed            error = rerror.NewE(i18n.T("failed to create asset"))
-	ErrFileNotIncluded              error = rerror.NewE(i18n.T("file not included"))
-	ErrAssetUploadSizeLimitExceeded error = rerror.NewE(i18n.T("asset upload size limit exceeded"))
+	ErrCreateAssetFailed                   error = rerror.NewE(i18n.T("failed to create asset"))
+	ErrFileNotIncluded                     error = rerror.NewE(i18n.T("file not included"))
+	ErrDataTransferUploadSizeLimitExceeded error = rerror.NewE(i18n.T("data transfer upload size limit exceeded"))
+	ErrAssetUploadSizeLimitExceeded        error = rerror.NewE(i18n.T("asset upload size limit exceeded"))
 )
 
 type AssetFilter struct {
@@ -60,11 +61,19 @@ type AssetUpload struct {
 	ContentEncoding string
 	Next            string
 }
+
+type ExportAssetsParams struct {
+	ProjectID    id.ProjectID
+	Filter       AssetFilter
+	IncludeFiles bool
+}
+
 type Asset interface {
 	FindByID(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
 	FindByUUID(context.Context, string, *usecase.Operator) (*asset.Asset, error)
 	FindByIDs(context.Context, []id.AssetID, *usecase.Operator) (asset.List, error)
 	Search(context.Context, id.ProjectID, AssetFilter, *usecase.Operator) (asset.List, *usecasex.PageInfo, error)
+	Export(context.Context, ExportAssetsParams, io.Writer, *usecase.Operator) error
 	FindFileByID(context.Context, id.AssetID, *usecase.Operator) (*asset.File, error)
 	FindFilesByIDs(context.Context, id.AssetIDList, *usecase.Operator) (map[id.AssetID]*asset.File, error)
 	DownloadByID(context.Context, id.AssetID, map[string]string, *usecase.Operator) (io.ReadCloser, map[string]string, error)

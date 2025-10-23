@@ -27,22 +27,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Mock policy checker that can be configured to allow or deny
-type mockPolicyChecker struct {
-	allowed bool
-	message string
-}
-
-func (m *mockPolicyChecker) CheckPolicy(ctx context.Context, req gateway.PolicyCheckRequest) (*gateway.PolicyCheckResponse, error) {
-	return &gateway.PolicyCheckResponse{
-		Allowed:      m.allowed,
-		CheckType:    req.CheckType,
-		CurrentLimit: "test limit",
-		Message:      m.message,
-		Value:        req.Value,
-	}, nil
-}
-
 func TestAsset_Create_WithPolicyCheck(t *testing.T) {
 	ws := workspace.New().NewID().MustBuild()
 	pid := id.NewProjectID()
@@ -75,8 +59,8 @@ func TestAsset_Create_WithPolicyCheck(t *testing.T) {
 			name:          "denied upload - size limit exceeded",
 			fileSize:      1024 * 1024 * 1024, // 1GB
 			policyAllowed: false,
-			policyMessage: "Upload size limit exceeded",
-			wantErr:       interfaces.ErrAssetUploadSizeLimitExceeded,
+			policyMessage: "Data transfer size limit exceeded",
+			wantErr:       interfaces.ErrDataTransferUploadSizeLimitExceeded,
 		},
 	}
 
@@ -248,6 +232,6 @@ func TestAsset_Create_WithHTTPPolicyChecker(t *testing.T) {
 		},
 	}, op)
 
-	assert.ErrorIs(t, err, interfaces.ErrAssetUploadSizeLimitExceeded)
+	assert.ErrorIs(t, err, interfaces.ErrDataTransferUploadSizeLimitExceeded)
 	assert.True(t, httpCalled, "HTTP endpoint should have been called")
 }

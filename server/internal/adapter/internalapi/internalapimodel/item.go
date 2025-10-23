@@ -1,6 +1,8 @@
 package internalapimodel
 
 import (
+	"encoding/json"
+
 	pb "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/item"
@@ -16,7 +18,7 @@ func ToItem(i *item.Item, sp *schema.Package) *pb.Item {
 	}
 
 	var m = make(map[string]*anypb.Any)
-	for k, v := range exporters.MapFromItem(i, sp) {
+	for k, v := range exporters.MapFromItem(i, sp, nil, nil) {
 		if v == nil {
 			continue
 		}
@@ -40,6 +42,13 @@ func WrapPrimitive(value any) (*anypb.Any, error) {
 	switch v := value.(type) {
 	case string:
 		return anypb.New(wrapperspb.String(v))
+	case *string:
+		if v == nil {
+			return nil, nil
+		}
+		return anypb.New(wrapperspb.String(*v))
+	case int64:
+		return anypb.New(wrapperspb.Int64(v))
 	case int32:
 		return anypb.New(wrapperspb.Int32(v))
 	case int:
@@ -51,6 +60,10 @@ func WrapPrimitive(value any) (*anypb.Any, error) {
 	case float64:
 		return anypb.New(wrapperspb.Double(v))
 	default:
-		return nil, nil
+		jsonBytes, err := json.Marshal(v)
+		if err != nil {
+			return nil, err
+		}
+		return anypb.New(wrapperspb.String(string(jsonBytes)))
 	}
 }

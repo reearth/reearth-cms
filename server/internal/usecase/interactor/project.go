@@ -13,6 +13,8 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 )
 
 type Project struct {
@@ -32,11 +34,32 @@ func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, _ *usecase.Oper
 }
 
 func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.WorkspaceID, f *interfaces.ProjectFilter, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
-	return i.repos.Project.FindByWorkspaces(ctx, accountdomain.WorkspaceIDList{wid}, f)
+	if f == nil {
+		f = &interfaces.ProjectFilter{}
+	}
+	if f.WorkspaceIds == nil {
+		f.WorkspaceIds = &accountdomain.WorkspaceIDList{}
+	}
+	f.WorkspaceIds = lo.ToPtr(append(*f.WorkspaceIds, wid))
+	return i.repos.Project.Search(ctx, *f)
 }
 
 func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
-	return i.repos.Project.FindByWorkspaces(ctx, wIds, f)
+	if f == nil {
+		f = &interfaces.ProjectFilter{}
+	}
+	if f.WorkspaceIds == nil {
+		f.WorkspaceIds = &accountdomain.WorkspaceIDList{}
+	}
+	f.WorkspaceIds = lo.ToPtr(append(*f.WorkspaceIds, wIds...))
+	return i.repos.Project.Search(ctx, *f)
+}
+
+func (i *Project) Search(ctx context.Context, f interfaces.ProjectFilter, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+	if f.WorkspaceIds == nil || len(*f.WorkspaceIds) == 0 {
+		f.Visibility = lo.ToPtr(project.VisibilityPublic)
+	}
+	return i.repos.Project.Search(ctx, f)
 }
 
 func (i *Project) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias, _ *usecase.Operator) (*project.Project, error) {
@@ -53,17 +76,11 @@ func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectPara
 		visibility = *param.Accessibility.Visibility
 	}
 
-	var checkType gateway.PolicyCheckType
-	if visibility == project.VisibilityPublic {
-		checkType = gateway.PolicyCheckGeneralPublicProjectCreation
-	} else {
-		checkType = gateway.PolicyCheckGeneralPrivateProjectCreation
-	}
-
 	if i.gateways != nil && i.gateways.PolicyChecker != nil {
+		// Check general operation allowed first
 		policyReq := gateway.PolicyCheckRequest{
 			WorkspaceID: param.WorkspaceID,
-			CheckType:   checkType,
+			CheckType:   gateway.PolicyCheckGeneralOperationAllowed,
 			Value:       1,
 		}
 
@@ -72,11 +89,28 @@ func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectPara
 			return nil, err
 		}
 		if !policyResp.Allowed {
+			return nil, interfaces.ErrOperationDenied
+		}
+
+		// Check specific project creation limits
+		var checkType gateway.PolicyCheckType
+		if visibility == project.VisibilityPublic {
+			checkType = gateway.PolicyCheckGeneralPublicProjectCreation
+		} else {
+			checkType = gateway.PolicyCheckGeneralPrivateProjectCreation
+		}
+
+		policyReq.CheckType = checkType
+		policyResp, err = i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+		if err != nil {
+			return nil, err
+		}
+		if !policyResp.Allowed {
 			return nil, interfaces.ErrProjectCreationLimitExceeded
 		}
 	}
 
-	return Run1(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(param.WorkspaceID).Transaction(),
+	return Run1(ctx, op, i.repos, Usecase().WithWritableWorkspaces(param.WorkspaceID).Transaction(),
 		func(ctx context.Context) (_ *project.Project, err error) {
 			pb := project.New().
 				NewID().
@@ -133,37 +167,44 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 		return nil, err
 	}
 
-	visibility := p.Accessibility().Visibility()
-	var updatedVisibility project.Visibility
-	if param.Accessibility != nil && param.Accessibility.Visibility != nil {
-		updatedVisibility = *param.Accessibility.Visibility
-	}
-	if visibility != updatedVisibility {
-		var checkType gateway.PolicyCheckType
-		if updatedVisibility == project.VisibilityPublic {
-			checkType = gateway.PolicyCheckGeneralPublicProjectCreation
-		} else {
-			checkType = gateway.PolicyCheckGeneralPrivateProjectCreation
+	if i.gateways != nil && i.gateways.PolicyChecker != nil {
+		// Check general operation allowed first
+		policyReq := gateway.PolicyCheckRequest{
+			WorkspaceID: p.Workspace(),
+			CheckType:   gateway.PolicyCheckGeneralOperationAllowed,
+			Value:       1,
 		}
 
-		if i.gateways != nil && i.gateways.PolicyChecker != nil {
-			policyReq := gateway.PolicyCheckRequest{
-				WorkspaceID: p.Workspace(),
-				CheckType:   checkType,
-				Value:       1,
+		policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+		if err != nil {
+			return nil, err
+		}
+		if !policyResp.Allowed {
+			return nil, interfaces.ErrOperationDenied
+		}
+	}
+
+	if param.Accessibility != nil && param.Accessibility.Visibility != nil {
+		newVisibility := *param.Accessibility.Visibility
+		OldVisibility := project.VisibilityPublic
+		if p.Accessibility() != nil {
+			OldVisibility = p.Accessibility().Visibility()
+		}
+
+		if OldVisibility != newVisibility {
+			checkType := gateway.PolicyCheckGeneralPublicProjectCreation
+			if newVisibility == project.VisibilityPrivate {
+				checkType = gateway.PolicyCheckGeneralPrivateProjectCreation
 			}
 
-			policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+			err := i.ensurePolicy(ctx, p.Workspace(), checkType, 1)
 			if err != nil {
 				return nil, err
 			}
-			if !policyResp.Allowed {
-				return nil, interfaces.ErrProjectCreationLimitExceeded
-			}
 		}
 	}
 
-	return Run1(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(p.Workspace()).Transaction(),
+	return Run1(ctx, op, i.repos, Usecase().WithWritableWorkspaces(p.Workspace()).Transaction(),
 		func(ctx context.Context) (_ *project.Project, err error) {
 			if param.Name != nil {
 				p.UpdateName(*param.Name)
@@ -192,6 +233,9 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 			}
 
 			if param.Accessibility != nil {
+				if !op.IsMaintainingWorkspace(p.Workspace()) {
+					return nil, interfaces.ErrOperationDenied
+				}
 				accessibility := p.Accessibility()
 				if accessibility == nil {
 					accessibility = project.NewPublicAccessibility()
@@ -210,12 +254,35 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 				p.SetRequestRoles(param.RequestRoles)
 			}
 
+			p.SetUpdatedAt(util.Now())
 			if err := i.repos.Project.Save(ctx, p); err != nil {
 				return nil, err
 			}
 
 			return p, nil
 		})
+}
+
+func (i *Project) ensurePolicy(ctx context.Context, wID workspace.ID, checkType gateway.PolicyCheckType, value int64) error {
+	if i.gateways == nil || i.gateways.PolicyChecker == nil {
+		return nil
+	}
+
+	policyReq := gateway.PolicyCheckRequest{
+		WorkspaceID: wID,
+		CheckType:   checkType,
+		Value:       value,
+	}
+
+	policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+	if err != nil {
+		return err
+	}
+	if !policyResp.Allowed {
+		return interfaces.ErrProjectCreationLimitExceeded
+	}
+
+	return nil
 }
 
 func (i *Project) CheckAlias(ctx context.Context, alias string) (bool, error) {
@@ -237,9 +304,27 @@ func (i *Project) Delete(ctx context.Context, projectID id.ProjectID, op *usecas
 	if err != nil {
 		return err
 	}
-	return Run0(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(proj.Workspace()).Transaction(),
+
+	if i.gateways != nil && i.gateways.PolicyChecker != nil {
+		// Check general operation allowed first
+		policyReq := gateway.PolicyCheckRequest{
+			WorkspaceID: proj.Workspace(),
+			CheckType:   gateway.PolicyCheckGeneralOperationAllowed,
+			Value:       1,
+		}
+
+		policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+		if err != nil {
+			return err
+		}
+		if !policyResp.Allowed {
+			return interfaces.ErrOperationDenied
+		}
+	}
+
+	return Run0(ctx, op, i.repos, Usecase().WithWritableWorkspaces(proj.Workspace()).Transaction(),
 		func(ctx context.Context) error {
-			if !op.IsOwningWorkspace(proj.Workspace()) {
+			if !op.IsWritableWorkspace(proj.Workspace()) {
 				return interfaces.ErrOperationDenied
 			}
 			if err := i.repos.Project.Remove(ctx, projectID); err != nil {

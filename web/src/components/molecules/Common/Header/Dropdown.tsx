@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { useMemo } from "react";
 
 import DropdownAtom, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -8,21 +9,37 @@ import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 type Props = {
   items: MenuProps["items"];
   name?: string;
+  profilePictureUrl?: string;
   personal: boolean;
   showName?: boolean;
   showArrow?: boolean;
 };
 
-const Dropdown: React.FC<Props> = ({ items, name, personal, showName, showArrow, ...props }) => {
+const Dropdown: React.FC<Props> = ({
+  items,
+  name,
+  profilePictureUrl,
+  personal,
+  showName,
+  showArrow,
+  ...props
+}) => {
+  const isUserMenu = useMemo(() => !showName && !showArrow, [showName, showArrow]);
+
   return (
     <StyledDropdown
       menu={{ items }}
       trigger={["click"]}
       dropdownRender={menu => <StyledDropdownMenu>{menu}</StyledDropdownMenu>}
       {...props}>
-      <a onClick={e => e.preventDefault()}>
+      <a onClick={e => e.preventDefault()} data-testid={isUserMenu ? "user-menu" : undefined}>
         <Space>
-          <UserAvatar username={name ?? ""} shape={personal ? "circle" : "square"} size={"small"} />
+          <UserAvatar
+            username={name ?? ""}
+            profilePictureUrl={personal ? profilePictureUrl : ""}
+            shape={personal ? "circle" : "square"}
+            size={"small"}
+          />
           {showName && <Text>{name}</Text>}
           {showArrow && <StyledIcon icon="caretDown" />}
         </Space>

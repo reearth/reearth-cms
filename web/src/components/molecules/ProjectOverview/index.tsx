@@ -2,9 +2,8 @@ import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import ComplexInnerContent from "@reearth-cms/components/atoms/InnerContents/complex";
+import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
-import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 
@@ -117,12 +116,6 @@ const ProjectOverview: React.FC<Props> = ({
 };
 
 export default ProjectOverview;
-
-const Wrapper = styled.div`
-  width: 100%;
-  height: 100%;
-  background-color: white;
-`;
 
 const GridArea = styled.div`
   margin-top: 12px;

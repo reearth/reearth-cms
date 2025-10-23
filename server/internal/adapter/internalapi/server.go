@@ -1,22 +1,22 @@
 package internalapi
 
 import (
+	"bytes"
 	"context"
-	"encoding/json"
 	"io"
 	"net/url"
-	"path"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/internalapi/internalapimodel"
 	pb "github.com/reearth/reearth-cms/server/internal/adapter/internalapi/schemas/internalapi/v1"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
-	"github.com/reearth/reearth-cms/server/pkg/utils"
+	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/rerror"
@@ -34,7 +34,7 @@ type server struct {
 func NewServer(webHost, serverHost string) pb.ReEarthCMSServer {
 	return &server{
 		webBaseUrl:  lo.Must(url.Parse(webHost)),
-		pApiBaseUrl: lo.Must(url.Parse(serverHost)).JoinPath("p"),
+		pApiBaseUrl: lo.Must(url.Parse(serverHost)).JoinPath("api", "p"),
 	}
 }
 
@@ -149,7 +149,8 @@ func (s server) GetProject(ctx context.Context, req *pb.ProjectRequest) (*pb.Pro
 func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (*pb.ListProjectsResponse, error) {
 	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
 
-	f := &interfaces.ProjectFilter{
+	f := interfaces.ProjectFilter{
+		Keyword:    req.Keyword,
 		Sort:       internalapimodel.SortFromPB(req.SortInfo),
 		Pagination: internalapimodel.PaginationFromPB(req.PageInfo),
 	}
@@ -165,11 +166,9 @@ func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (
 		return wId, true
 	})
 
-	if len(wIds) == 0 {
-		return nil, status.Error(codes.InvalidArgument, "at least one valid workspace_id is required")
-	}
+	f.WorkspaceIds = lo.ToPtr(accountdomain.WorkspaceIDList(wIds))
 
-	p, pi, err := uc.Project.FindByWorkspaces(ctx, wIds, f, op)
+	p, pi, err := uc.Project.Search(ctx, f, op)
 	if err != nil {
 		return nil, err
 	}
@@ -182,6 +181,28 @@ func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (
 		TotalCount: pi.TotalCount,
 
 		PageInfo: internalapimodel.ToPageInfo(req.PageInfo),
+	}, nil
+}
+
+func (s server) GetAsset(ctx context.Context, req *pb.AssetRequest) (*pb.AssetResponse, error) {
+	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
+
+	aId, err := asset.IDFrom(req.AssetId)
+	if err != nil {
+		return nil, err
+	}
+
+	a, err := uc.Asset.FindByID(ctx, aId, op)
+	if err != nil {
+		return nil, err
+	}
+
+	if a == nil {
+		return nil, rerror.ErrNotFound
+	}
+
+	return &pb.AssetResponse{
+		Asset: internalapimodel.ToAsset(a),
 	}, nil
 }
 
@@ -228,7 +249,7 @@ func (s server) ListAssets(ctx context.Context, req *pb.ListAssetsRequest) (*pb.
 }
 
 func (s server) GetModel(ctx context.Context, req *pb.ModelRequest) (*pb.ModelResponse, error) {
-	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
+	op, uc, ar := adapter.Operator(ctx), adapter.Usecases(ctx), adapter.AcRepos(ctx)
 
 	p, err := uc.Project.FindByIDOrAlias(ctx, project.IDOrAlias(req.ProjectIdOrAlias), nil)
 	if err != nil {
@@ -251,8 +272,16 @@ func (s server) GetModel(ctx context.Context, req *pb.ModelRequest) (*pb.ModelRe
 		return nil, err
 	}
 
+	w, err := ar.Workspace.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(p.Workspace().String()))
+	if err != nil {
+		return nil, err
+	}
+	if w == nil {
+		return nil, rerror.ErrNotFound
+	}
+
 	webProjectUrl := s.webBaseUrl.JoinPath("workspace", p.Workspace().String(), "project", p.ID().String())
-	pApiProjectUrl := s.pApiBaseUrl.JoinPath(p.Alias())
+	pApiProjectUrl := s.pApiBaseUrl.JoinPath(w.Alias(), p.Alias())
 
 	return &pb.ModelResponse{
 		Model: internalapimodel.ToModel(m, sp, webProjectUrl, pApiProjectUrl),
@@ -260,7 +289,7 @@ func (s server) GetModel(ctx context.Context, req *pb.ModelRequest) (*pb.ModelRe
 }
 
 func (s server) ListModels(ctx context.Context, req *pb.ListModelsRequest) (*pb.ListModelsResponse, error) {
-	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
+	op, uc, ar := adapter.Operator(ctx), adapter.Usecases(ctx), adapter.AcRepos(ctx)
 	// Validate required fields
 	if req.ProjectId == "" {
 		return nil, status.Error(codes.InvalidArgument, "project_id is required")
@@ -280,8 +309,16 @@ func (s server) ListModels(ctx context.Context, req *pb.ListModelsRequest) (*pb.
 		return nil, err
 	}
 
+	w, err := ar.Workspace.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(p.Workspace().String()))
+	if err != nil {
+		return nil, err
+	}
+	if w == nil {
+		return nil, rerror.ErrNotFound
+	}
+
 	webProjectUrl := s.webBaseUrl.JoinPath("workspace", p.Workspace().String(), "project", pId.String())
-	pApiProjectUrl := s.pApiBaseUrl.JoinPath(p.Alias())
+	pApiProjectUrl := s.pApiBaseUrl.JoinPath(w.Alias(), p.Alias())
 
 	res := lo.FilterMap(ml, func(m *model.Model, _ int) (*pb.Model, bool) {
 		sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
@@ -315,7 +352,7 @@ func (s server) ListItems(ctx context.Context, req *pb.ListItemsRequest) (*pb.Li
 		return nil, err
 	}
 
-	q := item.NewQuery(sp.Schema().Project(), mId, sp.Schema().ID().Ref(), req.GetKeyword(), nil)
+	q := item.NewQuery(sp.Schema().Project(), mId, sp.Schema().ID().Ref(), req.GetKeyword(), version.Public.Ref())
 	if req.SortInfo != nil {
 		q = q.WithSort(internalapimodel.SortToViewSort(req.SortInfo))
 	}
@@ -337,6 +374,7 @@ func (s server) ListItems(ctx context.Context, req *pb.ListItemsRequest) (*pb.Li
 	}, nil
 }
 
+//nolint:staticcheck // to be removed after a confirmation from dashboard team
 func (s server) GetModelGeoJSONExportURL(ctx context.Context, req *pb.ExportRequest) (*pb.ExportURLResponse, error) {
 	op, uc, g := adapter.Operator(ctx), adapter.Usecases(ctx), adapter.Gateways(ctx)
 
@@ -362,76 +400,26 @@ func (s server) GetModelGeoJSONExportURL(ctx context.Context, req *pb.ExportRequ
 		return nil, err
 	}
 
-	//var rc io.ReadWriteCloser
+	w := bytes.NewBuffer(nil)
 
-	rc := utils.NewBufferRW(nil)
-
-	// Write the beginning of the FeatureCollection
-	if _, err := rc.Write([]byte(`{"type":"FeatureCollection","features":[`)); err != nil {
-		return nil, err
-	}
-
-	isFirstFeature := true
-	page := 0
-	encoder := json.NewEncoder(rc)
-	encoder.SetEscapeHTML(false)
-
-	for {
-		// Get the next page of features
-		page++
-		res, err := uc.Item.ItemsAsGeoJSON(ctx, sp, &page, lo.ToPtr(100), op)
-		if err != nil {
-			return nil, err
-		}
-
-		// Process each feature in the page
-		for _, feature := range *res.FeatureCollections.Features {
-			// Add comma between features (except before the first one)
-			if !isFirstFeature {
-				if _, err := rc.Write([]byte(",")); err != nil {
-					return nil, err
-				}
-			} else {
-				isFirstFeature = false
-			}
-
-			// Write the feature without the enclosing bracket
-			if err := encoder.Encode(feature); err != nil {
-				return nil, err
-			}
-
-			// The encoder adds a newline character, so we need to backtrack
-			// by seeking -1 or using a different approach for certain writers
-			_, err = rc.Seek(-1, io.SeekCurrent)
-			if err != nil {
-				return nil, err
-			}
-
-		}
-
-		// Check if there are more pages
-		if !res.PageInfo.HasNextPage {
-			break
-		}
-	}
-
-	// Close the FeatureCollection
-	_, err = rc.Write([]byte("]}\n"))
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = rc.Seek(0, io.SeekStart)
+	err = uc.Item.Export(ctx, interfaces.ExportItemParams{
+		Format:        exporters.FormatGeoJSON,
+		ModelID:       mId,
+		SchemaPackage: *sp,
+		Options: exporters.ExportOptions{
+			PublicOnly: true,
+		},
+	}, w, op)
 	if err != nil {
 		return nil, err
 	}
 
 	// upload result as file
 	_, err = g.File.Upload(ctx, &file.File{
-		Content:         rc,
+		Content:         io.NopCloser(w),
 		Name:            m.ID().String() + ".geojson",
 		Size:            0,
-		ContentType:     "",
+		ContentType:     "application/geo+json",
 		ContentEncoding: "",
 	}, m.ID().String()+".geojson")
 	if err != nil {
@@ -439,6 +427,74 @@ func (s server) GetModelGeoJSONExportURL(ctx context.Context, req *pb.ExportRequ
 	}
 
 	return &pb.ExportURLResponse{
-		Url: path.Join(g.File.GetBaseURL(), m.ID().String()+".geojson"),
+		Url: lo.Must(url.JoinPath(g.File.GetBaseURL(), m.ID().String()+".geojson")),
+	}, nil
+}
+
+func (s server) GetModelExportURL(ctx context.Context, req *pb.ModelExportRequest) (*pb.ExportURLResponse, error) {
+	op, uc, g := adapter.Operator(ctx), adapter.Usecases(ctx), adapter.Gateways(ctx)
+
+	pId, err := project.IDFrom(req.ProjectId)
+	if err != nil {
+		return nil, err
+	}
+	mId, err := model.IDFrom(req.ModelId)
+	if err != nil {
+		return nil, err
+	}
+
+	m, err := uc.Model.FindByID(ctx, mId, op)
+	if err != nil {
+		return nil, err
+	}
+	if m.Project() != pId {
+		return nil, rerror.ErrNotFound
+	}
+
+	sp, err := uc.Schema.FindByModel(ctx, mId, op)
+	if err != nil {
+		return nil, err
+	}
+
+	w := bytes.NewBuffer(nil)
+
+	format := exporters.FormatJSON
+	if req.ExportType == pb.ModelExportRequest_GEOJSON {
+		format = exporters.FormatGeoJSON
+	}
+
+	err = uc.Item.Export(ctx, interfaces.ExportItemParams{
+		Format:        format,
+		ModelID:       mId,
+		SchemaPackage: *sp,
+		Options: exporters.ExportOptions{
+			PublicOnly: true,
+		},
+	}, w, op)
+	if err != nil {
+		return nil, err
+	}
+
+	ext := ".json"
+	ct := "application/json"
+	if format == exporters.FormatGeoJSON {
+		ext = ".geojson"
+		ct = "application/geo+json"
+	}
+
+	// upload result as file
+	_, err = g.File.Upload(ctx, &file.File{
+		Content:         io.NopCloser(w),
+		Name:            m.ID().String() + ext,
+		Size:            int64(w.Len()),
+		ContentType:     ct,
+		ContentEncoding: "",
+	}, m.ID().String()+ext)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.ExportURLResponse{
+		Url: lo.Must(url.JoinPath(g.File.GetBaseURL(), m.ID().String()+ext)),
 	}, nil
 }

@@ -23,13 +23,13 @@ jobs:
       contents: read # To checkout
       id-token: write # To authenticate with Google Cloud using OIDC
     steps:
-      - uses: actions/checkout@v4
-      - uses: google-github-actions/auth@v2
+      - uses: actions/checkout@v5
+      - uses: google-github-actions/auth@v3
         with:
           service_account: ${{ secrets.GC_SA_EMAIL }}
           workload_identity_provider: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@v3
       - name: Configure docker
         run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
       - name: docker push
@@ -39,7 +39,7 @@ jobs:
           docker push ${{ secrets.SERVER_IMAGE_GC }}
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy reearth-cms-backend \
+          gcloud run deploy reearth-cms-api \
             --image ${{ secrets.SERVER_IMAGE_GC }} \
             --region ${{ secrets.GC_REGION }} \
             --platform managed \
@@ -59,13 +59,13 @@ jobs:
       contents: read # To checkout
       id-token: write # To authenticate with Google Cloud using OIDC
     steps:
-      - uses: actions/checkout@v4
-      - uses: google-github-actions/auth@v2
+      - uses: actions/checkout@v5
+      - uses: google-github-actions/auth@v3
         with:
           service_account: ${{ secrets.GC_SA_EMAIL }}
           workload_identity_provider: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@v3
       - name: Configure docker
         run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
       - name: docker push
@@ -74,7 +74,7 @@ jobs:
           docker tag ${{ secrets.WEB_IMAGE }} ${{ secrets.WEB_IMAGE_GC }}
           docker push ${{ secrets.WEB_IMAGE_GC }}
       - name: Deploy to Cloud Run
-        uses: google-github-actions/deploy-cloudrun@9c5864eab7354d2e132307e685a2272655932799 # v2.7.3
+        uses: google-github-actions/deploy-cloudrun@2028e2d7d30a78c6910e0632e48dd561b064884d # v3.0.1
         with:
           service: reearth-cms-web
           skip_default_labels: true
@@ -89,13 +89,13 @@ jobs:
       contents: read # To checkout
       id-token: write # To authenticate with Google Cloud using OIDC
     steps:
-      - uses: actions/checkout@v4
-      - uses: google-github-actions/auth@v2
+      - uses: actions/checkout@v5
+      - uses: google-github-actions/auth@v3
         with:
           service_account: ${{ secrets.GC_SA_EMAIL }}
           workload_identity_provider: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@v3
       - name: Configure docker
         run: gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
       - name: docker push

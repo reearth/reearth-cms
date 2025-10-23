@@ -23,7 +23,8 @@ import {
   CorrespondingField,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
-import { MAX_KEY_LENGTH, validateKey } from "@reearth-cms/utils/regex";
+import { Constant } from "@reearth-cms/utils/constant";
+import { validateKey } from "@reearth-cms/utils/regex";
 
 const { Step } = Steps;
 const { TabPane } = Tabs;
@@ -477,7 +478,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                     handleKeyChange(e, field1Form);
                   }}
                   showCount
-                  maxLength={MAX_KEY_LENGTH}
+                  maxLength={Constant.KEY.MAX_LENGTH}
                 />
               </Form.Item>
               <Form.Item name="description" label={t("Description")}>
@@ -561,7 +562,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                     handleKeyChange(e, field2Form);
                   }}
                   showCount
-                  maxLength={MAX_KEY_LENGTH}
+                  maxLength={Constant.KEY.MAX_LENGTH}
                 />
               </Form.Item>
               <Form.Item name="description" label={t("Description")}>

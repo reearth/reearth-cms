@@ -83,6 +83,7 @@ func baseSeederUser(ctx context.Context, r *repo.Container, _ *gateway.Container
 	wMetadata := workspace.NewMetadata()
 	w := workspace.New().ID(wId).
 		Name("e2e").
+		Alias("test-workspace").
 		Members(map[idx.ID[accountdomain.User]]workspace.Member{
 			uId1: roleOwner,
 			uId4: roleMaintainer,
@@ -188,7 +189,7 @@ func TestDeleteMe(t *testing.T) {
 
 func TestMe(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
-	query := ` { me{ id name email lang theme myWorkspaceId } }`
+	query := ` { me{ id name email lang theme myWorkspaceId profilePictureUrl } }`
 	request := GraphQLRequest{
 		Query: query,
 	}
@@ -207,6 +208,7 @@ func TestMe(t *testing.T) {
 	o.Value("lang").String().IsEqual("en")
 	o.Value("theme").String().IsEqual("dark")
 	o.Value("myWorkspaceId").String().IsEqual(wId.String())
+	o.Value("profilePictureUrl").String().IsEqual("")
 
 	o = e.POST("/api/graphql").
 		WithHeader("authorization", "Bearer test").
@@ -219,6 +221,7 @@ func TestMe(t *testing.T) {
 	o.Value("lang").String().IsEqual("ja")
 	o.Value("theme").String().IsEqual("default")
 	o.Value("myWorkspaceId").String().IsEqual(wId2.String())
+	o.Value("profilePictureUrl").String().IsEqual("")
 }
 
 func TestUserByNameOrEmail(t *testing.T) {

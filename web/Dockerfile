@@ -1,4 +1,4 @@
-FROM node:22.17.0-slim AS builder
+FROM node:22.20.0-slim AS builder
 WORKDIR /app
 
 ARG NODE_OPTIONS="--max-old-space-size=4096"
@@ -48,7 +48,7 @@ ENV REEARTH_CMS_EDITOR_URL=null
 ENV REEARTH_CMS_LOGO_URL=null
 ENV REEARTH_CMS_MULTI_TENANT=null
 ENV REEARTH_CMS_DISABLE_WORKSPACE_UI=null
-ENV REEARTH_CMS_DASHBOARD_PROFILE_URL=null
+ENV REEARTH_CMS_DASHBOARD_BASE_URL=null
 
 RUN --mount=type=cache,target=/var/cache/apk \
     apk add --no-cache jq

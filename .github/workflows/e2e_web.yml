@@ -37,11 +37,11 @@ jobs:
       run:
         working-directory: web
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: reearth/reearth-cms
           ref: ${{ inputs.branch || 'main' }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: lts/*
           cache: yarn
@@ -69,6 +69,7 @@ jobs:
         run: |
           echo "REEARTH_CMS_API is $REEARTH_CMS_API"
           echo "REEARTH_CMS_E2E_BASEURL is $REEARTH_CMS_E2E_BASEURL"
+          echo "REEARTH_CMS_E2E_USERNAME is $REEARTH_CMS_E2E_USERNAME"
       - name: Run Playwright tests
         run: yarn e2e
       - uses: actions/upload-artifact@v4

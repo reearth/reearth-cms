@@ -54,7 +54,8 @@ type PublishModelParam struct {
 }
 
 var (
-	ErrModelKey error = rerror.NewE(i18n.T("model key is already used by another model"))
+	ErrModelKey                     error = rerror.NewE(i18n.T("model key is already used by another model"))
+	ErrModelCountPerProjectExceeded       = rerror.NewE(i18n.T("the number of models in a project has exceeded the limit"))
 )
 
 type Model interface {

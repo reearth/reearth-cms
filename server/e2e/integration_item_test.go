@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -73,6 +74,7 @@ var (
 	fId7    = id.NewFieldID()
 	fId8    = id.NewFieldID()
 	fId9    = id.NewFieldID()
+	fId10   = id.NewFieldID()
 	dvsfId  = id.NewFieldID()
 	thId1   = id.NewThreadID()
 	thId2   = id.NewThreadID()
@@ -91,6 +93,7 @@ var (
 	pid2    = id.NewProjectID()
 	sid0    = id.NewSchemaID()
 	sid1    = id.NewSchemaID()
+	msid1   = id.NewSchemaID()
 	sid2    = id.NewSchemaID()
 	sid3    = id.NewSchemaID()
 	sid4    = id.NewSchemaID()
@@ -106,6 +109,7 @@ var (
 	sfKey7  = id.NewKey("geometry-key")
 	sfKey8  = id.NewKey("geometry-editor-key")
 	sfkey9  = id.NewKey("number-key")
+	sfkey10 = id.NewKey("integer-key")
 	gKey1   = id.RandomKey()
 	gKey2   = id.RandomKey()
 	igId1   = id.NewItemGroupID()
@@ -212,6 +216,10 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 	if err := r.Schema.Save(ctx, s1); err != nil {
 		return err
 	}
+	ms1 := schema.New().ID(msid1).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf4}).MustBuild()
+	if err := r.Schema.Save(ctx, ms1); err != nil {
+		return err
+	}
 
 	s2 := schema.New().ID(sid2).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf3}).MustBuild()
 	if err := r.Schema.Save(ctx, s2); err != nil {
@@ -244,7 +252,7 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Key(ikey1).
 		Project(p.ID()).
 		Schema(s1.ID()).
-		Metadata(s3.ID().Ref()).
+		Metadata(ms1.ID().Ref()).
 		UpdatedAt(now.Add(2 * time.Second)).
 		Order(1).
 		MustBuild()
@@ -322,7 +330,8 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 	float2 := float64(123.4)
 	sn1, _ := schema.NewNumber(&float1, &float2)
 	sf9 := schema.NewField(sn1.TypeProperty()).ID(fId9).Key(sfkey9).Type(sn1.TypeProperty()).MustBuild()
-	s8 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf9}).MustBuild()
+	sf10 := schema.NewField(lo.Must(schema.NewInteger(nil, nil)).TypeProperty()).ID(fId10).Key(sfkey10).MustBuild()
+	s8 := schema.New().ID(id.NewSchemaID()).Workspace(w.ID()).Project(p.ID()).Fields([]*schema.Field{sf9, sf10}).MustBuild()
 	if err := r.Schema.Save(ctx, s8); err != nil {
 		return err
 	}
@@ -421,9 +430,8 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Thread(thId6.Ref()).
 		IsMetadata(false).
 		Fields([]*item.Field{
-			item.NewField(fId9, value.MultipleFrom(value.TypeNumber, []*value.Value{
-				value.TypeNumber.Value(21.2),
-			}), nil),
+			item.NewField(fId9, value.MultipleFrom(value.TypeNumber, []*value.Value{value.TypeNumber.Value(21.2)}), nil),
+			item.NewField(fId10, value.MultipleFrom(value.TypeInteger, []*value.Value{value.TypeInteger.Value(123)}), nil),
 		}).
 		MustBuild()
 	if err := r.Item.Save(ctx, itm6); err != nil {
@@ -591,18 +599,23 @@ func IntegrationSearchItem(e *httpexpect.Expect, mId string, page, perPage int, 
 	return res
 }
 
-func IntegrationItemsAsGeoJSON(e *httpexpect.Expect, mId string, page, perPage int) *httpexpect.Value {
+func IntegrationItemsAsGeoJSON(e *httpexpect.Expect, t *testing.T, mId string, page, perPage int) *httpexpect.Value {
 	res := e.GET("/api/models/{modelId}/items.geojson", mId).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithHeader("Content-Type", "application/json").
+		WithHeader("Content-Type", "application/octet-stream").
 		WithQuery("page", page).
 		WithQuery("perPage", perPage).
-		Expect().
-		Status(http.StatusOK).
-		JSON()
+		Expect()
+	raw := res.Status(http.StatusOK).
+		Body().Raw()
 
-	return res
+	var v any
+	if err := json.Unmarshal([]byte(raw), &v); err != nil {
+		t.Fatalf("bad JSON: %v; body=%q", err, raw)
+	}
+
+	return httpexpect.NewValue(t, v)
 }
 
 func IntegrationItemsWithProjectAsGeoJSON(e *httpexpect.Expect, pId string, mId string, page, perPage int) *httpexpect.Value {
@@ -1465,7 +1478,7 @@ func TestIntegrationItemsAsGeoJSON(t *testing.T) {
 		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryObject"},
 	})
 
-	res := IntegrationItemsAsGeoJSON(e, mId, 1, 10)
+	res := IntegrationItemsAsGeoJSON(e, t, mId, 1, 10)
 	res.Object().Value("type").String().IsEqual("FeatureCollection")
 	features := res.Object().Value("features").Array()
 	features.Length().IsEqual(1)
@@ -1524,7 +1537,7 @@ func TestIntegrationItemsAsCSV(t *testing.T) {
 	})
 
 	res := IntegrationItemsAsCSV(e, mId, 1, 10)
-	expected := fmt.Sprintf("id,location_lat,location_lng,text,textArea,markdown,asset,bool,select,integer,number,url,date,tag,checkbox\n%s,36.58570985749664,139.28179282584915,test1,,,,,,,,,,,\n", i1Id)
+	expected := fmt.Sprintf("id,text,textArea,markdown,bool,select,integer,number,url,date,m_tag,m_checkbox\n%s,test1,,,,,,,,,,\n", i1Id)
 	res.IsEqual(expected)
 }
 
@@ -1544,7 +1557,7 @@ func TestIntegrationItemsWithProjectAsCSV(t *testing.T) {
 	})
 
 	res := IntegrationItemsWithProjectAsCSV(e, pId, mId, 1, 10)
-	expected := fmt.Sprintf("id,location_lat,location_lng,text,textArea,markdown,asset,bool,select,integer,number,url,date,tag,checkbox\n%s,36.58570985749664,139.28179282584915,test1,,,,,,30,,,,,\n", i1Id)
+	expected := fmt.Sprintf("id,text,textArea,markdown,bool,select,integer,number,url,date,m_tag,m_checkbox\n%s,test1,,,,,30,,,,,\n", i1Id)
 	res.IsEqual(expected)
 }
 
@@ -1885,7 +1898,8 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		Object()
 
 	r.Value("fields").
-		IsEqual([]any{
+		Array().
+		IsEqualUnordered([]any{
 			map[string]any{
 				"group": igId1.String(),
 				"id":    fId5.String(),
@@ -1933,7 +1947,8 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		Object()
 
 	r.Value("fields").
-		IsEqual([]any{
+		Array().
+		IsEqualUnordered([]any{
 			map[string]any{
 				"group": igId1.String(),
 				"id":    fId5.String(),
@@ -2121,7 +2136,8 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 		Object()
 
 	r.Value("fields").
-		IsEqual([]any{
+		Array().
+		IsEqualUnordered([]any{
 			map[string]any{
 				"group": igId1.String(),
 				"id":    fId5.String(),
@@ -2199,8 +2215,49 @@ func TestIntegrationDeleteItemAPI(t *testing.T) {
 		Status(http.StatusNotFound)
 }
 
-func TestIntegrationItemForNumberAndIntegerType(t *testing.T) {
+// POST /items/{itemId}/publish
+func TestIntegrationPublishItemAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+	ep := "/api/items/{itemId}/publish"
 
+	e.POST(ep, id.NewItemID()).
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST(ep, id.NewItemID()).
+		WithHeader("authorization", "secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST(ep, id.NewItemID()).
+		WithHeader("authorization", "Bearer secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	e.POST(ep, id.NewItemID()).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusNotFound)
+
+	e.POST(ep, itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("refs").
+		Array().
+		ContainsAny("public")
+
+	e.GET("/api/items/{itemId}", itmId1).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("refs").
+		Array().
+		ContainsAny("public")
 }
 
 func assertItem(v *httpexpect.Value, assetEmbeded bool) {

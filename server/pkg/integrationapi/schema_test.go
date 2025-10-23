@@ -140,3 +140,58 @@ func TestNewItemFieldChanges(t *testing.T) {
 		})
 	}
 }
+
+func TestNewSchemaField(t *testing.T) {
+	fID := id.NewFieldID()
+	type args struct {
+		f *schema.Field
+	}
+	tests := []struct {
+		name string
+		args args
+		want SchemaField
+	}{
+		{
+			name: "success",
+			args: args{
+				f: schema.NewField(schema.NewText(nil).TypeProperty()).ID(fID).Key(id.NewKey("test1")).MustBuild(),
+			},
+			want: SchemaField{
+				Id:       fID,
+				Key:      "test1",
+				Multiple: false,
+				Name:     "",
+				Required: false,
+				Type:     "text",
+			},
+		},
+		{
+			name: "success2",
+			args: args{
+				f: schema.NewField(schema.NewText(nil).TypeProperty()).
+					ID(fID).
+					Key(id.NewKey("test1")).
+					Name("test name").
+					Multiple(true).
+					Required(true).
+					MustBuild(),
+			},
+			want: SchemaField{
+				Id:       fID,
+				Key:      "test1",
+				Multiple: true,
+				Name:     "test name",
+				Required: true,
+				Type:     "text",
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, NewSchemaField(tt.args.f))
+		})
+	}
+}

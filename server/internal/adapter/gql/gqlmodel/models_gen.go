@@ -509,6 +509,25 @@ type DeleteWorkspacePayload struct {
 	WorkspaceID ID `json:"workspaceId"`
 }
 
+type ExportModelInput struct {
+	ModelID ID           `json:"modelId"`
+	Format  ExportFormat `json:"format"`
+}
+
+type ExportModelPayload struct {
+	ModelID ID      `json:"modelId"`
+	URL     url.URL `json:"url"`
+}
+
+type ExportModelSchemaInput struct {
+	ModelID ID `json:"modelId"`
+}
+
+type ExportModelSchemaPayload struct {
+	ModelID ID      `json:"modelId"`
+	URL     url.URL `json:"url"`
+}
+
 type FieldPayload struct {
 	Field *SchemaField `json:"field"`
 }
@@ -682,17 +701,18 @@ type KeyAvailability struct {
 }
 
 type Me struct {
-	ID            ID             `json:"id"`
-	Name          string         `json:"name"`
-	Email         string         `json:"email"`
-	Lang          language.Tag   `json:"lang"`
-	Theme         Theme          `json:"theme"`
-	Host          *string        `json:"host,omitempty"`
-	MyWorkspaceID ID             `json:"myWorkspaceId"`
-	Auths         []string       `json:"auths"`
-	Workspaces    []*Workspace   `json:"workspaces"`
-	MyWorkspace   *Workspace     `json:"myWorkspace,omitempty"`
-	Integrations  []*Integration `json:"integrations"`
+	ID                ID             `json:"id"`
+	Name              string         `json:"name"`
+	Email             string         `json:"email"`
+	Lang              language.Tag   `json:"lang"`
+	Theme             Theme          `json:"theme"`
+	Host              *string        `json:"host,omitempty"`
+	ProfilePictureURL *string        `json:"profilePictureUrl,omitempty"`
+	MyWorkspaceID     ID             `json:"myWorkspaceId"`
+	Auths             []string       `json:"auths"`
+	Workspaces        []*Workspace   `json:"workspaces"`
+	MyWorkspace       *Workspace     `json:"myWorkspace,omitempty"`
+	Integrations      []*Integration `json:"integrations"`
 }
 
 type MemberInput struct {
@@ -1621,6 +1641,7 @@ type WebhookTriggerInput struct {
 type Workspace struct {
 	ID       ID                `json:"id"`
 	Name     string            `json:"name"`
+	Alias    *string           `json:"alias,omitempty"`
 	Members  []WorkspaceMember `json:"members"`
 	Personal bool              `json:"personal"`
 }
@@ -1950,6 +1971,63 @@ func (e *ContentTypesEnum) UnmarshalJSON(b []byte) error {
 }
 
 func (e ContentTypesEnum) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type ExportFormat string
+
+const (
+	ExportFormatJSON    ExportFormat = "JSON"
+	ExportFormatCSV     ExportFormat = "CSV"
+	ExportFormatGeojson ExportFormat = "GEOJSON"
+)
+
+var AllExportFormat = []ExportFormat{
+	ExportFormatJSON,
+	ExportFormatCSV,
+	ExportFormatGeojson,
+}
+
+func (e ExportFormat) IsValid() bool {
+	switch e {
+	case ExportFormatJSON, ExportFormatCSV, ExportFormatGeojson:
+		return true
+	}
+	return false
+}
+
+func (e ExportFormat) String() string {
+	return string(e)
+}
+
+func (e *ExportFormat) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ExportFormat(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ExportFormat", str)
+	}
+	return nil
+}
+
+func (e ExportFormat) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ExportFormat) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ExportFormat) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

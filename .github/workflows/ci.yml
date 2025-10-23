@@ -12,10 +12,10 @@ jobs:
       worker: ${{ steps.worker.outputs.any_modified }}
     steps:
       - name: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: changed files for web
         id: web
-        uses: step-security/changed-files@3dbe17c78367e7d60f00d78ae6781a35be47b4a1 # v45.0.1
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46.0.5
         with:
           files: |
             web/**
@@ -25,7 +25,7 @@ jobs:
 
       - name: changed files for server
         id: server
-        uses: step-security/changed-files@3dbe17c78367e7d60f00d78ae6781a35be47b4a1 # v45.0.1
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46.0.5
         with:
           files: |
             server/**
@@ -35,7 +35,7 @@ jobs:
 
       - name: changed files for worker
         id: worker
-        uses: step-security/changed-files@3dbe17c78367e7d60f00d78ae6781a35be47b4a1 # v45.0.1
+        uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94 # v46.0.5
         with:
           files: |
             worker/**
@@ -78,7 +78,7 @@ jobs:
       new_tag_short: ${{ steps.prepare.outputs.new_tag_short }}
       name: ${{ steps.prepare.outputs.name }}
     steps:
-      - uses: reearth/actions/prepare-build@f11fdfe98bfdcd44a697577ba0ae2d4f56a45ea5 # main
+      - uses: reearth/actions/prepare-build@e05fcd1efc6c985c7c0c906cff1452ee634232c8 # main
         id: prepare
         with:
           repo: ${{ github.repository }}
@@ -154,7 +154,7 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-      - uses: reearth/actions/deploy-cloud-run-with-tag@f11fdfe98bfdcd44a697577ba0ae2d4f56a45ea5 # main
+      - uses: reearth/actions/deploy-cloud-run-with-tag@e05fcd1efc6c985c7c0c906cff1452ee634232c8 # main
         id: deploy
         with:
           image: '${{ secrets.WEB_IMAGE_BASE }}:${{ needs.build-prepare.outputs.sha_short }}'

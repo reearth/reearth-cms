@@ -2,9 +2,11 @@ package interactor
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"net/url"
 	"path"
 	"strings"
 	"time"
@@ -18,7 +20,9 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearth-cms/server/pkg/types"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
@@ -88,6 +92,152 @@ func (i *Asset) Search(ctx context.Context, projectID id.ProjectID, filter inter
 		al.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
 	}
 	return al, pi, nil
+}
+
+func (i *Asset) Export(ctx context.Context, params interfaces.ExportAssetsParams, w io.Writer, _ *usecase.Operator) error {
+
+	_, err := w.Write([]byte(`{"results":[`))
+	if err != nil {
+		return err
+	}
+
+	j := json.NewEncoder(w)
+
+	batchConfig := defaultBatchConfig()
+
+	pagination := usecasex.CursorPagination{First: &batchConfig.BatchSize}.Wrap()
+	if params.Filter.Pagination != nil {
+		pagination = params.Filter.Pagination
+	}
+
+	totalProcessed := 0
+	pageInfo := &usecasex.PageInfo{}
+	for {
+		assets, pi, err := i.repos.Asset.Search(ctx, params.ProjectID, repo.AssetFilter{
+			Pagination:   pagination,
+			Sort:         params.Filter.Sort,
+			Keyword:      params.Filter.Keyword,
+			ContentTypes: params.Filter.ContentTypes,
+		})
+		if err != nil {
+			return rerror.ErrInternalBy(err)
+		}
+		pageInfo = pi
+
+		assets.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+		if len(assets) == 0 {
+			break
+		}
+
+		var fileMap map[id.AssetID]*asset.File
+		if params.IncludeFiles {
+			fileMap, err = i.FindFilesByIDs(ctx, assets.IDs(), nil)
+			if err != nil {
+				return err
+			}
+		}
+
+		res := lo.Map(assets, func(a *asset.Asset, _ int) types.Asset {
+			var files []string
+			f := fileMap[a.ID()]
+
+			if params.IncludeFiles {
+				ai := a.AccessInfo()
+				if ai.Url != "" {
+					base, _ := url.Parse(ai.Url)
+					base.Path = path.Dir(base.Path)
+
+					files = lo.Map(f.FilePaths(), func(p string, _ int) string {
+						b := *base
+						b.Path = path.Join(b.Path, p)
+						return b.String()
+					})
+				}
+			}
+
+			return types.Asset{
+				Type:        "asset",
+				ID:          a.ID().String(),
+				URL:         a.AccessInfo().Url,
+				ContentType: f.ContentType(),
+				Files:       files,
+			}
+		})
+
+		// Write assets as JSON
+		for _, a := range res {
+			if totalProcessed > 0 {
+				_, err = w.Write([]byte(","))
+				if err != nil {
+					return err
+				}
+			}
+			if err := j.Encode(a); err != nil {
+				return err
+			}
+			totalProcessed += 1
+		}
+
+		// Check if we have more pages
+		if pageInfo == nil || !pageInfo.HasNextPage {
+			break
+		}
+
+		// if an exact page is requested, stop after one batch
+		if params.Filter.Pagination != nil {
+			break
+		}
+
+		// Update pagination for next batch
+		pagination.Cursor.After = pageInfo.EndCursor
+	}
+
+	_, err = w.Write([]byte("],"))
+	if err != nil {
+		return err
+	}
+
+	props := map[string]any{
+		"totalCount": pageInfo.TotalCount,
+	}
+
+	if params.Filter.Pagination != nil {
+		props["hasMore"] = pageInfo.HasNextPage
+		if params.Filter.Pagination.Cursor != nil {
+			props["nextCursor"] = pageInfo.EndCursor
+			// props["limit"] = req.Options.Pagination
+		}
+		if params.Filter.Pagination.Offset != nil {
+			props["page"] = (params.Filter.Pagination.Offset.Offset / params.Filter.Pagination.Offset.Limit) + 1
+			props["offset"] = params.Filter.Pagination.Offset.Offset
+			props["limit"] = params.Filter.Pagination.Offset.Limit
+		}
+	}
+
+	ii := 0
+	for key, value := range props {
+		// Marshal the value
+		valueBytes, err := json.Marshal(value)
+		if err != nil {
+			return err
+		}
+
+		// Write key-value pair
+		if ii > 0 {
+			if _, err := w.Write([]byte(",")); err != nil {
+				return err
+			}
+		}
+
+		entry := fmt.Sprintf(`"%s":%s`, key, valueBytes)
+		if _, err := w.Write([]byte(entry)); err != nil {
+			return err
+		}
+		ii++
+	}
+
+	_, err = w.Write([]byte(`}`))
+	return err
 }
 
 func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (*asset.File, error) {
@@ -160,13 +310,35 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 		var size int64
 		file = inp.File
 
+		visibility := project.VisibilityPublic
+		if prj.Accessibility() != nil && prj.Accessibility().Visibility() != "" {
+			visibility = prj.Accessibility().Visibility()
+		}
+
+		var checkType gateway.PolicyCheckType
+		if visibility == project.VisibilityPublic {
+			checkType = gateway.PolicyCheckPublicDataTransferUpload
+		} else {
+			checkType = gateway.PolicyCheckPrivateDataTransferUpload
+		}
+
 		if i.gateways != nil && i.gateways.PolicyChecker != nil {
 			policyReq := gateway.PolicyCheckRequest{
 				WorkspaceID: prj.Workspace(),
-				CheckType:   gateway.PolicyCheckUploadAssetsSize,
+				CheckType:   checkType,
 				Value:       file.Size,
 			}
 			policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+			if err != nil {
+				return nil, nil, rerror.NewE(i18n.T("policy check failed"))
+			}
+			if !policyResp.Allowed {
+				return nil, nil, interfaces.ErrDataTransferUploadSizeLimitExceeded
+			}
+
+			policyReq.CheckType = gateway.PolicyCheckUploadAssetsSize
+
+			policyResp, err = i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
 			if err != nil {
 				return nil, nil, rerror.NewE(i18n.T("policy check failed"))
 			}
@@ -476,13 +648,39 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 		return nil, interfaces.ErrOperationDenied
 	}
 
+	param.Workspace = prj.Workspace().String()
+	param.Project = prj.ID().String()
+	param.Public = prj.Accessibility() == nil || prj.Accessibility().Visibility() == project.VisibilityPublic
+
+	visibility := project.VisibilityPublic
+	if prj.Accessibility() != nil && prj.Accessibility().Visibility() != "" {
+		visibility = prj.Accessibility().Visibility()
+	}
+
+	var checkType gateway.PolicyCheckType
+	if visibility == project.VisibilityPublic {
+		checkType = gateway.PolicyCheckPublicDataTransferUpload
+	} else {
+		checkType = gateway.PolicyCheckPrivateDataTransferUpload
+	}
+
 	if i.gateways != nil && i.gateways.PolicyChecker != nil {
 		policyReq := gateway.PolicyCheckRequest{
 			WorkspaceID: prj.Workspace(),
-			CheckType:   gateway.PolicyCheckUploadAssetsSize,
+			CheckType:   checkType,
 			Value:       param.ContentLength,
 		}
 		policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+		if err != nil {
+			return nil, rerror.NewE(i18n.T("policy check failed"))
+		}
+		if !policyResp.Allowed {
+			return nil, interfaces.ErrDataTransferUploadSizeLimitExceeded
+		}
+
+		policyReq.CheckType = gateway.PolicyCheckUploadAssetsSize
+
+		policyResp, err = i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
 		if err != nil {
 			return nil, rerror.NewE(i18n.T("policy check failed"))
 		}
@@ -491,8 +689,7 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 		}
 	}
 
-	ctxWithWorkspace := context.WithValue(ctx, contextKey("workspace"), prj.Workspace().String())
-	uploadLink, err := i.gateways.File.IssueUploadAssetLink(ctxWithWorkspace, *param)
+	uploadLink, err := i.gateways.File.IssueUploadAssetLink(ctx, *param)
 	if errors.Is(err, gateway.ErrUnsupportedOperation) {
 		return nil, rerror.ErrNotFound
 	}

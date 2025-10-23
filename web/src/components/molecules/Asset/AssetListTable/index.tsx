@@ -16,7 +16,6 @@ import {
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
-import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
 import {
   Asset,
@@ -178,12 +177,7 @@ const AssetListTable: React.FC<Props> = ({
         title: t("Created By"),
         dataIndex: "createdBy",
         key: "createdBy",
-        render: (_, item) => (
-          <Space>
-            <UserAvatar username={item.createdBy.name} size={"small"} />
-            {item.createdBy.name}
-          </Space>
-        ),
+        render: (_, item) => <span>{item.createdBy.name}</span>,
         width: 105,
         minWidth: 105,
         ellipsis: true,

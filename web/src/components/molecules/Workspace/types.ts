@@ -24,7 +24,9 @@ export type UpdateProjectInput = {
   accessibility?: ProjectAccessibility;
 };
 
-export type ProjectListItem = Pick<Project, "id" | "name" | "description"> & { accessibility?: ProjectAccessibility };
+export type ProjectListItem = Pick<Project, "id" | "name" | "description"> & {
+  accessibility?: ProjectAccessibility;
+};
 
 export type UserMember = {
   userId: string;
@@ -42,6 +44,7 @@ export type MemberInput = {
 export type Workspace = {
   id: string;
   name: string;
+  alias?: string;
   personal?: boolean;
   members?: Member[];
 };

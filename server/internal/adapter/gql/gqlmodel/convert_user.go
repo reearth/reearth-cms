@@ -50,6 +50,7 @@ func ToMe(u *user.User) *Me {
 		Auths: util.Map(u.Auths(), func(a user.Auth) string {
 			return a.Provider
 		}),
+		ProfilePictureURL: lo.ToPtr(u.Metadata().PhotoURL()),
 	}
 }
 
@@ -97,6 +98,7 @@ func ToWorkspace(t *workspace.Workspace) *Workspace {
 	return &Workspace{
 		ID:       IDFrom(t.ID()),
 		Name:     t.Name(),
+		Alias:    lo.ToPtr(t.Alias()),
 		Personal: t.IsPersonal(),
 		Members:  members,
 	}

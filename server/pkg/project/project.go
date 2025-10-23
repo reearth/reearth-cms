@@ -132,10 +132,6 @@ func (p *Project) UpdateAlias(alias string) error {
 	return nil
 }
 
-func (p *Project) UpdateTeam(team accountdomain.WorkspaceID) {
-	p.workspaceID = team
-}
-
 func (p *Project) Clone() *Project {
 	if p == nil {
 		return nil
