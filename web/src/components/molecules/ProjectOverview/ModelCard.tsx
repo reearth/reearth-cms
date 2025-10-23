@@ -5,7 +5,7 @@ import { useCallback, useMemo } from "react";
 import Card from "@reearth-cms/components/atoms/Card";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
@@ -16,8 +16,7 @@ type Props = {
   onContentNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
   onModelUpdateModalOpen: (model: Model) => Promise<void>;
-  onModelExportModalOpen: (model: Model) => Promise<void>;
-  onModelExport: (modelId: string, format: string) => Promise<void>;
+  onModelExport: (modelId?: string, format?: ExportFormat) => Promise<void>;
 };
 
 const ModelCard: React.FC<Props> = ({
@@ -55,7 +54,7 @@ const ModelCard: React.FC<Props> = ({
   const [messageApi, contextHolder] = message.useMessage();
   const key = "updatable";
   const handleModelExportClick = useCallback(
-    async (model: Model, exportType: string) => {
+    async (model: Model, exportType: ExportFormat) => {
       messageApi.open({
         key,
         type: "loading",
@@ -104,22 +103,22 @@ const ModelCard: React.FC<Props> = ({
       {
         key: "schema",
         label: t("Export Schema"),
-        onClick: () => handleModelExportClick(model, "schema"),
+        onClick: () => handleModelExportClick(model, ExportFormat.Schema),
       },
       {
         key: "json",
         label: t("Export as JSON"),
-        onClick: () => handleModelExportClick(model, "json"),
+        onClick: () => handleModelExportClick(model, ExportFormat.Json),
       },
       {
         key: "csv",
         label: t("Export as CSV"),
-        onClick: () => handleModelExportClick(model, "csv"),
+        onClick: () => handleModelExportClick(model, ExportFormat.Csv),
       },
       {
         key: "geojson",
         label: t("Export as GeoJSON"),
-        onClick: () => handleModelExportClick(model, "geojson"),
+        onClick: () => handleModelExportClick(model, ExportFormat.Geojson),
       },
     ],
     [t, handleModelExportClick, model],

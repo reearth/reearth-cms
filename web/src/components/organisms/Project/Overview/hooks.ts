@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 import { SortBy, UpdateProjectInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
@@ -17,7 +17,7 @@ import {
   Role as GQLRole,
   ProjectAccessibility as GQLProjectAccessibility,
   useUpdateProjectMutation,
-  ExportFormat,
+  ExportFormat as GQLExportFormat,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
@@ -32,7 +32,6 @@ export default () => {
 
   const [selectedModel, setSelectedModel] = useState<Model | undefined>();
   const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
-  const [modelExportModalShown, setModelExportModalShown] = useState(false);
   const [searchedModelName, setSearchedModelName] = useState<string>("");
   const [modelSort, setModelSort] = useState<SortBy>("updatedAt");
   const t = useT();
@@ -100,19 +99,6 @@ export default () => {
     [setSelectedModel, handleModelModalOpen],
   );
 
-  const handleModelExportModalOpen = useCallback(
-    async (model: Model) => {
-      setSelectedModel(model);
-      setModelExportModalShown(true);
-    },
-    [setSelectedModel, setModelExportModalShown],
-  );
-
-  const handleModelExportModalClose = useCallback(async () => {
-    setSelectedModel(undefined);
-    setModelExportModalShown(false);
-  }, [setSelectedModel, setModelExportModalShown]);
-
   const handleModelDeletionModalOpen = useCallback(
     async (model: Model) => {
       setSelectedModel(model);
@@ -175,11 +161,11 @@ export default () => {
   const exportLoading = exportModelLoading || exportSchemaLoading;
 
   const handleModelExport = useCallback(
-    async (modelId?: string, format?: string) => {
+    async (modelId?: string, format?: ExportFormat) => {
       if (!modelId || !format) return;
 
       try {
-        if (format === "schema") {
+        if (format === ExportFormat.Schema) {
           // Export schema
           const res = await exportModelSchema({ variables: { modelId } });
           if (res.errors || !res.data?.exportModelSchema) {
@@ -192,7 +178,7 @@ export default () => {
           Notification.success({ message: t("Successfully exported schema!") });
         } else {
           // Export model data (JSON, CSV, or GeoJSON)
-          const exportFormat = format.toUpperCase() as ExportFormat;
+          const exportFormat = format as GQLExportFormat;
           const res = await exportModel({
             variables: { modelId, format: exportFormat },
           });
@@ -205,12 +191,11 @@ export default () => {
           window.open(url, "_blank");
           Notification.success({ message: t("Successfully exported model data!") });
         }
-        handleModelExportModalClose();
       } catch {
         Notification.error({ message: t("Failed to export.") });
       }
     },
-    [exportModel, exportModelSchema, handleModelExportModalClose, t],
+    [exportModel, exportModelSchema, t],
   );
 
   const handleHomeNavigation = useCallback(() => {
@@ -235,10 +220,6 @@ export default () => {
     [currentWorkspace?.id, currentProject?.id, navigate],
   );
 
-  const handleGoToAssets = useCallback(() => {
-    navigate(`/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/asset`);
-  }, [currentWorkspace?.id, currentProject?.id, navigate]);
-
   const handleModelModalReset = useCallback(() => {
     setSelectedModel(undefined);
     handleModelModalClose();
@@ -258,7 +239,6 @@ export default () => {
     modelModalShown,
     selectedModel,
     modelDeletionModalShown,
-    modelExportModalShown,
     deleteLoading,
     exportLoading,
     hasCreateRight,
@@ -270,7 +250,6 @@ export default () => {
     handleHomeNavigation,
     handleSchemaNavigation,
     handleContentNavigation,
-    handleGoToAssets,
     handleModelKeyCheck,
     handleModelModalOpen,
     handleModelModalReset,
@@ -278,8 +257,6 @@ export default () => {
     handleModelDeletionModalOpen,
     handleModelDeletionModalClose,
     handleModelUpdateModalOpen,
-    handleModelExportModalOpen,
-    handleModelExportModalClose,
     handleModelDelete,
     handleModelExport,
     handleModelUpdate,

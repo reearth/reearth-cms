@@ -350,15 +350,6 @@ Are you sure you want to delete this group: 本当に<strong>{{name}}</strong>�
 This action will permanently delete the selected model and cannot be reversed.: 選択中のモデルを削除します。この操作は取り消すことができません。
 This action will permanently delete the selected group and cannot be reversed.: この操作は選択したグループを永久に削除し、元に戻すことはできません。
 Warning: 注意
-Export not successful.: エクスポートに失敗しました。
-Generating...: 生成中...
-Export successful!: エクスポートが完了しました！
-Go to Assets: アセットへ移動
-Export: エクスポート
-JSON: ''
-GeoJSON: ''
-File type: ファイル形式
-If a Geometry field is included, it is recommended to export as GeoJSON format.: ジオメトリフィールドが含まれている場合は、GeoJSON形式でのエクスポートを推奨します。
 Text: テキスト
 Time: 時間
 Boolean: ブーリアン
