@@ -161,14 +161,6 @@ func (p *Project) SetRequestRoles(sr []workspace.Role) {
 	p.requestRoles = slices.Clone(sr)
 }
 
-func (p *Project) SetStarCount(count int64) {
-	p.starCount = count
-}
-
-func (p *Project) SetStarredBy(starredBy []string) {
-	p.starredBy = slices.Clone(starredBy)
-}
-
 func (p *Project) UpdateAlias(alias string) error {
 	if CheckAliasPattern(alias) {
 		p.alias = alias

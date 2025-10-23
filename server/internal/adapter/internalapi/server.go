@@ -508,9 +508,7 @@ func (s server) StarProject(ctx context.Context, req *pb.StarRequest) (*pb.StarR
 		return nil, errors.New("user not found in context")
 	}
 
-	userID := usr.ID()
-
-	p, err := uc.Project.StarProject(ctx, project.IDOrAlias(req.ProjectAlias), op, &userID)
+	p, err := uc.Project.StarProject(ctx, project.IDOrAlias(req.ProjectAlias), op)
 	if err != nil {
 		return nil, err
 	}

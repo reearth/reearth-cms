@@ -549,8 +549,9 @@ func (i *Project) CheckProjectLimits(ctx context.Context, workspaceID accountdom
 	return result, nil
 }
 
-func (i *Project) StarProject(ctx context.Context, idOrAlias project.IDOrAlias, op *usecase.Operator, usrID *accountdomain.UserID) (_ *project.Project, err error) {
-	if !op.IsUserOrIntegration() {
+func (i *Project) StarProject(ctx context.Context, idOrAlias project.IDOrAlias, op *usecase.Operator) (_ *project.Project, err error) {
+	userID := op.AcOperator.User
+	if userID == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 
@@ -562,14 +563,12 @@ func (i *Project) StarProject(ctx context.Context, idOrAlias project.IDOrAlias, 
 		return nil, rerror.ErrNotFound
 	}
 
-	userID := *usrID
-
 	return Run1(ctx, op, i.repos, Usecase().WithWritableWorkspaces(p.Workspace()).Transaction(),
 		func(ctx context.Context) (_ *project.Project, err error) {
 			if slices.Contains(p.StarredBy(), userID.String()) {
-				p.Unstar(userID)
+				p.Unstar(*userID)
 			} else {
-				p.Star(userID)
+				p.Star(*userID)
 			}
 
 			p.SetUpdatedAt(util.Now())
