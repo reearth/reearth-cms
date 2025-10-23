@@ -2,6 +2,7 @@ package interactor
 
 import (
 	"context"
+	"slices"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -252,14 +253,6 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 
 			if param.RequestRoles != nil {
 				p.SetRequestRoles(param.RequestRoles)
-			}
-
-			if param.StarCount != nil {
-				p.SetStarCount(*param.StarCount)
-			}
-
-			if param.StarredBy != nil {
-				p.SetStarredBy(*param.StarredBy)
 			}
 
 			p.SetUpdatedAt(util.Now())
@@ -554,4 +547,36 @@ func (i *Project) CheckProjectLimits(ctx context.Context, workspaceID accountdom
 	}
 
 	return result, nil
+}
+
+func (i *Project) StarProject(ctx context.Context, idOrAlias project.IDOrAlias, op *usecase.Operator, usrID *accountdomain.UserID) (_ *project.Project, err error) {
+	if !op.IsUserOrIntegration() {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
+	p, err := i.repos.Project.FindByIDOrAlias(ctx, idOrAlias)
+	if err != nil {
+		return nil, err
+	}
+	if p == nil {
+		return nil, rerror.ErrNotFound
+	}
+
+	userID := *usrID
+
+	return Run1(ctx, op, i.repos, Usecase().WithWritableWorkspaces(p.Workspace()).Transaction(),
+		func(ctx context.Context) (_ *project.Project, err error) {
+			if slices.Contains(p.StarredBy(), userID.String()) {
+				p.Unstar(userID)
+			} else {
+				p.Star(userID)
+			}
+
+			p.SetUpdatedAt(util.Now())
+			if err := i.repos.Project.Save(ctx, p); err != nil {
+				return nil, err
+			}
+
+			return p, nil
+		})
 }

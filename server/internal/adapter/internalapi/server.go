@@ -6,7 +6,6 @@ import (
 	"errors"
 	"io"
 	"net/url"
-	"slices"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/internalapi/internalapimodel"
@@ -509,28 +508,9 @@ func (s server) StarProject(ctx context.Context, req *pb.StarRequest) (*pb.StarR
 		return nil, errors.New("user not found in context")
 	}
 
-	pj, err := uc.Project.FindByIDOrAlias(ctx, project.IDOrAlias(req.ProjectAlias), op)
-	if err != nil {
-		return nil, err
-	}
-
-	pid := pj.ID()
 	userID := usr.ID()
 
-	if slices.Contains(pj.StarredBy(), userID.String()) {
-		pj.Unstar(userID)
-	} else {
-		pj.Star(userID)
-	}
-
-	starCount := pj.StarCount()
-	starredBy := pj.StarredBy()
-
-	p, err := uc.Project.Update(ctx, interfaces.UpdateProjectParam{
-		ID:        pid,
-		StarCount: &starCount,
-		StarredBy: &starredBy,
-	}, op)
+	p, err := uc.Project.StarProject(ctx, project.IDOrAlias(req.ProjectAlias), op, &userID)
 	if err != nil {
 		return nil, err
 	}
