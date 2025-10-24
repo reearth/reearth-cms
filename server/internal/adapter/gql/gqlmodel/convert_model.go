@@ -1,6 +1,7 @@
 package gqlmodel
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/samber/lo"
 )
@@ -21,5 +22,18 @@ func ToModel(m *model.Model) *Model {
 		CreatedAt:        m.ID().Timestamp(),
 		UpdatedAt:        m.UpdatedAt(),
 		Order:            lo.ToPtr(m.Order()),
+	}
+}
+
+func ToExportFormat(f ExportFormat) exporters.ExportFormat {
+	switch f {
+	case ExportFormatJSON:
+		return exporters.FormatJSON
+	case ExportFormatCSV:
+		return exporters.FormatCSV
+	case ExportFormatGeojson:
+		return exporters.FormatGeoJSON
+	default:
+		return exporters.FormatJSON
 	}
 }
