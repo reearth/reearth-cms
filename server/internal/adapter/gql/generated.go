@@ -255,6 +255,16 @@ type ComplexityRoot struct {
 		WorkspaceID func(childComplexity int) int
 	}
 
+	ExportModelPayload struct {
+		ModelID func(childComplexity int) int
+		URL     func(childComplexity int) int
+	}
+
+	ExportModelSchemaPayload struct {
+		ModelID func(childComplexity int) int
+		URL     func(childComplexity int) int
+	}
+
 	FieldPayload struct {
 		Field func(childComplexity int) int
 	}
@@ -481,6 +491,8 @@ type ComplexityRoot struct {
 		DeleteView                         func(childComplexity int, input gqlmodel.DeleteViewInput) int
 		DeleteWebhook                      func(childComplexity int, input gqlmodel.DeleteWebhookInput) int
 		DeleteWorkspace                    func(childComplexity int, input gqlmodel.DeleteWorkspaceInput) int
+		ExportModel                        func(childComplexity int, input gqlmodel.ExportModelInput) int
+		ExportModelSchema                  func(childComplexity int, input gqlmodel.ExportModelSchemaInput) int
 		PublishItem                        func(childComplexity int, input gqlmodel.PublishItemInput) int
 		RegenerateAPIKey                   func(childComplexity int, input gqlmodel.RegenerateAPIKeyInput) int
 		RegenerateIntegrationToken         func(childComplexity int, input gqlmodel.RegenerateIntegrationTokenInput) int
@@ -1038,6 +1050,8 @@ type MutationResolver interface {
 	UpdateModel(ctx context.Context, input gqlmodel.UpdateModelInput) (*gqlmodel.ModelPayload, error)
 	UpdateModelsOrder(ctx context.Context, input gqlmodel.UpdateModelsOrderInput) (*gqlmodel.ModelsPayload, error)
 	DeleteModel(ctx context.Context, input gqlmodel.DeleteModelInput) (*gqlmodel.DeleteModelPayload, error)
+	ExportModel(ctx context.Context, input gqlmodel.ExportModelInput) (*gqlmodel.ExportModelPayload, error)
+	ExportModelSchema(ctx context.Context, input gqlmodel.ExportModelSchemaInput) (*gqlmodel.ExportModelSchemaPayload, error)
 	CreateProject(ctx context.Context, input gqlmodel.CreateProjectInput) (*gqlmodel.ProjectPayload, error)
 	UpdateProject(ctx context.Context, input gqlmodel.UpdateProjectInput) (*gqlmodel.ProjectPayload, error)
 	DeleteProject(ctx context.Context, input gqlmodel.DeleteProjectInput) (*gqlmodel.DeleteProjectPayload, error)
@@ -1695,6 +1709,32 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.DeleteWorkspacePayload.WorkspaceID(childComplexity), true
+
+	case "ExportModelPayload.modelId":
+		if e.complexity.ExportModelPayload.ModelID == nil {
+			break
+		}
+
+		return e.complexity.ExportModelPayload.ModelID(childComplexity), true
+	case "ExportModelPayload.url":
+		if e.complexity.ExportModelPayload.URL == nil {
+			break
+		}
+
+		return e.complexity.ExportModelPayload.URL(childComplexity), true
+
+	case "ExportModelSchemaPayload.modelId":
+		if e.complexity.ExportModelSchemaPayload.ModelID == nil {
+			break
+		}
+
+		return e.complexity.ExportModelSchemaPayload.ModelID(childComplexity), true
+	case "ExportModelSchemaPayload.url":
+		if e.complexity.ExportModelSchemaPayload.URL == nil {
+			break
+		}
+
+		return e.complexity.ExportModelSchemaPayload.URL(childComplexity), true
 
 	case "FieldPayload.field":
 		if e.complexity.FieldPayload.Field == nil {
@@ -2801,6 +2841,28 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.DeleteWorkspace(childComplexity, args["input"].(gqlmodel.DeleteWorkspaceInput)), true
+	case "Mutation.exportModel":
+		if e.complexity.Mutation.ExportModel == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_exportModel_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ExportModel(childComplexity, args["input"].(gqlmodel.ExportModelInput)), true
+	case "Mutation.exportModelSchema":
+		if e.complexity.Mutation.ExportModelSchema == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_exportModelSchema_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ExportModelSchema(childComplexity, args["input"].(gqlmodel.ExportModelSchemaInput)), true
 	case "Mutation.publishItem":
 		if e.complexity.Mutation.PublishItem == nil {
 			break
@@ -4769,6 +4831,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteViewInput,
 		ec.unmarshalInputDeleteWebhookInput,
 		ec.unmarshalInputDeleteWorkspaceInput,
+		ec.unmarshalInputExportModelInput,
+		ec.unmarshalInputExportModelSchemaInput,
 		ec.unmarshalInputFieldSelectorInput,
 		ec.unmarshalInputGuessSchemaFieldsInput,
 		ec.unmarshalInputItemFieldInput,
@@ -6307,6 +6371,12 @@ extend type Mutation {
   order: Int
 }
 
+enum ExportFormat{
+  JSON
+  CSV
+  GEOJSON
+}
+
 # Inputs
 input CreateModelInput {
   projectId: ID!
@@ -6330,6 +6400,15 @@ input DeleteModelInput {
   modelId: ID!
 }
 
+input ExportModelInput {
+  modelId: ID!
+  format: ExportFormat!
+}
+
+input ExportModelSchemaInput {
+  modelId: ID!
+}
+
 # Payloads
 type ModelPayload {
   model: Model!
@@ -6337,6 +6416,16 @@ type ModelPayload {
 
 type DeleteModelPayload {
   modelId: ID!
+}
+
+type ExportModelPayload {
+  modelId: ID!
+  url: URL!
+}
+
+type ExportModelSchemaPayload {
+  modelId: ID!
+  url: URL!
 }
 
 type ModelsPayload {
@@ -6365,6 +6454,8 @@ extend type Mutation {
   updateModel(input: UpdateModelInput!): ModelPayload
   updateModelsOrder(input: UpdateModelsOrderInput!): ModelsPayload
   deleteModel(input: DeleteModelInput!): DeleteModelPayload
+  exportModel(input: ExportModelInput!): ExportModelPayload
+  exportModelSchema(input: ExportModelSchemaInput!): ExportModelSchemaPayload
 }
 `, BuiltIn: false},
 	{Name: "../../../schemas/project.graphql", Input: `type ProjectAliasAvailability {
@@ -7414,6 +7505,28 @@ func (ec *executionContext) field_Mutation_deleteWorkspace_args(ctx context.Cont
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNDeleteWorkspaceInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteWorkspaceInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_exportModelSchema_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNExportModelSchemaInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportModelSchemaInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_exportModel_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNExportModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportModelInput)
 	if err != nil {
 		return nil, err
 	}
@@ -10918,6 +11031,122 @@ func (ec *executionContext) fieldContext_DeleteWorkspacePayload_workspaceId(_ co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExportModelPayload_modelId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ExportModelPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ExportModelPayload_modelId,
+		func(ctx context.Context) (any, error) {
+			return obj.ModelID, nil
+		},
+		nil,
+		ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ExportModelPayload_modelId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExportModelPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExportModelPayload_url(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ExportModelPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ExportModelPayload_url,
+		func(ctx context.Context) (any, error) {
+			return obj.URL, nil
+		},
+		nil,
+		ec.marshalNURL2netᚋurlᚐURL,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ExportModelPayload_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExportModelPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type URL does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExportModelSchemaPayload_modelId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ExportModelSchemaPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ExportModelSchemaPayload_modelId,
+		func(ctx context.Context) (any, error) {
+			return obj.ModelID, nil
+		},
+		nil,
+		ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ExportModelSchemaPayload_modelId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExportModelSchemaPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ExportModelSchemaPayload_url(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ExportModelSchemaPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ExportModelSchemaPayload_url,
+		func(ctx context.Context) (any, error) {
+			return obj.URL, nil
+		},
+		nil,
+		ec.marshalNURL2netᚋurlᚐURL,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ExportModelSchemaPayload_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ExportModelSchemaPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type URL does not have child fields")
 		},
 	}
 	return fc, nil
@@ -16893,6 +17122,100 @@ func (ec *executionContext) fieldContext_Mutation_deleteModel(ctx context.Contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteModel_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_exportModel(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_exportModel,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().ExportModel(ctx, fc.Args["input"].(gqlmodel.ExportModelInput))
+		},
+		nil,
+		ec.marshalOExportModelPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportModelPayload,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_exportModel(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "modelId":
+				return ec.fieldContext_ExportModelPayload_modelId(ctx, field)
+			case "url":
+				return ec.fieldContext_ExportModelPayload_url(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ExportModelPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_exportModel_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_exportModelSchema(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_exportModelSchema,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().ExportModelSchema(ctx, fc.Args["input"].(gqlmodel.ExportModelSchemaInput))
+		},
+		nil,
+		ec.marshalOExportModelSchemaPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportModelSchemaPayload,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_exportModelSchema(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "modelId":
+				return ec.fieldContext_ExportModelSchemaPayload_modelId(ctx, field)
+			case "url":
+				return ec.fieldContext_ExportModelSchemaPayload_url(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ExportModelSchemaPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_exportModelSchema_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -30318,6 +30641,67 @@ func (ec *executionContext) unmarshalInputDeleteWorkspaceInput(ctx context.Conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputExportModelInput(ctx context.Context, obj any) (gqlmodel.ExportModelInput, error) {
+	var it gqlmodel.ExportModelInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"modelId", "format"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "modelId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ModelID = data
+		case "format":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("format"))
+			data, err := ec.unmarshalNExportFormat2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportFormat(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Format = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputExportModelSchemaInput(ctx context.Context, obj any) (gqlmodel.ExportModelSchemaInput, error) {
+	var it gqlmodel.ExportModelSchemaInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"modelId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "modelId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("modelId"))
+			data, err := ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ModelID = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputFieldSelectorInput(ctx context.Context, obj any) (gqlmodel.FieldSelectorInput, error) {
 	var it gqlmodel.FieldSelectorInput
 	asMap := map[string]any{}
@@ -36031,6 +36415,94 @@ func (ec *executionContext) _DeleteWorkspacePayload(ctx context.Context, sel ast
 	return out
 }
 
+var exportModelPayloadImplementors = []string{"ExportModelPayload"}
+
+func (ec *executionContext) _ExportModelPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ExportModelPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, exportModelPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ExportModelPayload")
+		case "modelId":
+			out.Values[i] = ec._ExportModelPayload_modelId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "url":
+			out.Values[i] = ec._ExportModelPayload_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var exportModelSchemaPayloadImplementors = []string{"ExportModelSchemaPayload"}
+
+func (ec *executionContext) _ExportModelSchemaPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ExportModelSchemaPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, exportModelSchemaPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ExportModelSchemaPayload")
+		case "modelId":
+			out.Values[i] = ec._ExportModelSchemaPayload_modelId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "url":
+			out.Values[i] = ec._ExportModelSchemaPayload_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var fieldPayloadImplementors = []string{"FieldPayload"}
 
 func (ec *executionContext) _FieldPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.FieldPayload) graphql.Marshaler {
@@ -38177,6 +38649,14 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "deleteModel":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteModel(ctx, field)
+			})
+		case "exportModel":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_exportModel(ctx, field)
+			})
+		case "exportModelSchema":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_exportModelSchema(ctx, field)
 			})
 		case "createProject":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -43404,6 +43884,26 @@ func (ec *executionContext) unmarshalNDeleteWorkspaceInput2githubᚗcomᚋreeart
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNExportFormat2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportFormat(ctx context.Context, v any) (gqlmodel.ExportFormat, error) {
+	var res gqlmodel.ExportFormat
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNExportFormat2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportFormat(ctx context.Context, sel ast.SelectionSet, v gqlmodel.ExportFormat) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNExportModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportModelInput(ctx context.Context, v any) (gqlmodel.ExportModelInput, error) {
+	res, err := ec.unmarshalInputExportModelInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNExportModelSchemaInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportModelSchemaInput(ctx context.Context, v any) (gqlmodel.ExportModelSchemaInput, error) {
+	res, err := ec.unmarshalInputExportModelSchemaInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNFieldSelector2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldSelector(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.FieldSelector) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -46570,6 +47070,20 @@ func (ec *executionContext) marshalODeleteWorkspacePayload2ᚖgithubᚗcomᚋree
 		return graphql.Null
 	}
 	return ec._DeleteWorkspacePayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOExportModelPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportModelPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ExportModelPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ExportModelPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOExportModelSchemaPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportModelSchemaPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ExportModelSchemaPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ExportModelSchemaPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOFieldPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐFieldPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.FieldPayload) graphql.Marshaler {
