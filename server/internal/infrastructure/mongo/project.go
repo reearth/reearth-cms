@@ -108,7 +108,7 @@ func (r *ProjectRepo) Search(ctx context.Context, f interfaces.ProjectFilter) (p
 		}
 	}
 
-	if f.Topics != nil && len(f.Topics) > 0 {
+	if len(f.Topics) > 0 {
 		regexPatterns := make([]primitive.Regex, len(f.Topics))
 		for i, topic := range f.Topics {
 			regexPatterns[i] = primitive.Regex{Pattern: fmt.Sprintf("^%s$", regexp.QuoteMeta(topic)), Options: "i"}
