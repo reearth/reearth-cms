@@ -13,6 +13,10 @@ export const GET_MODELS = gql`
         updatedAt
         schema {
           id
+          fields {
+            id
+            type
+          }
         }
       }
     }

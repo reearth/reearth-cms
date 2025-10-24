@@ -2865,7 +2865,7 @@ export type GetModelsQueryVariables = Exact<{
 }>;
 
 
-export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, order?: number | null, createdAt: Date, updatedAt: Date, schema: { __typename?: 'Schema', id: string } } | null> } };
+export type GetModelsQuery = { __typename?: 'Query', models: { __typename?: 'ModelConnection', nodes: Array<{ __typename?: 'Model', id: string, name: string, description: string, key: string, order?: number | null, createdAt: Date, updatedAt: Date, schema: { __typename?: 'Schema', id: string, fields: Array<{ __typename?: 'SchemaField', id: string, type: SchemaFieldType }> } } | null> } };
 
 export type GetModelQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -5690,6 +5690,10 @@ export const GetModelsDocument = gql`
       updatedAt
       schema {
         id
+        fields {
+          id
+          type
+        }
       }
     }
   }
