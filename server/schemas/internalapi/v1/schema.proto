@@ -168,6 +168,7 @@ message ListProjectsRequest {
   repeated string workspace_ids = 1;
   optional string keyword = 2;
   bool public_only = 3;
+  repeated string topics = 4;
 
   optional PageInfo page_info = 100;
   optional SortInfo sort_info = 101;
