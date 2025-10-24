@@ -98,4 +98,5 @@ type Project interface {
 	DeleteAPIKey(context.Context, id.ProjectID, id.APIKeyID, *usecase.Operator) (*project.Project, error)
 	RegenerateAPIKeyKey(context.Context, RegenerateKeyParam, *usecase.Operator) (*project.Project, error)
 	CheckProjectLimits(context.Context, accountdomain.WorkspaceID, *usecase.Operator) (*ProjectLimitsResult, error)
+	StarProject(context.Context, project.IDOrAlias, *usecase.Operator) (*project.Project, error)
 }
