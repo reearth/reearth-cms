@@ -12,8 +12,10 @@ import (
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -679,4 +681,225 @@ func convertAnyToInt64(a *anypb.Any) (int64, error) {
 		return 0, fmt.Errorf("failed to unmarshal Any to IntValue: %w", err)
 	}
 	return int64(w.Value), nil
+}
+
+// GRPC Star Project
+func TestInternalStarProjectAPI(t *testing.T) {
+	StartServer(t, &app.Config{
+		InternalApi: app.InternalApiConfig{
+			Active: true,
+			Port:   "52050",
+			Token:  "TestToken",
+		},
+	}, true, baseSeeder)
+
+	clientConn, err := grpc.NewClient("localhost:52050",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithMaxCallAttempts(5))
+	assert.NoError(t, err)
+
+	client := pb.NewReEarthCMSClient(clientConn)
+
+	t.Run("Star project (first time) - should add user to starredBy and increment count", func(t *testing.T) {
+		md := metadata.New(map[string]string{
+			"Authorization": "Bearer TestToken",
+			"User-Id":       uId.String(),
+		})
+		mdCtx := metadata.NewOutgoingContext(t.Context(), md)
+
+		// First call should star the project
+		resp, err := client.StarProject(mdCtx, &pb.StarRequest{
+			ProjectAlias: palias,
+		})
+		assert.NoError(t, err)
+		assert.NotNil(t, resp.Project)
+
+		// Verify star count is 1 and user is in starredBy
+		assert.Equal(t, int64(1), resp.Project.StarCount)
+		assert.Contains(t, resp.Project.StarredBy, uId.String())
+		assert.Len(t, resp.Project.StarredBy, 1)
+	})
+
+	t.Run("Unstar project (second time) - should remove user from starredBy and decrement count", func(t *testing.T) {
+		md := metadata.New(map[string]string{
+			"Authorization": "Bearer TestToken",
+			"User-Id":       uId.String(),
+		})
+		mdCtx := metadata.NewOutgoingContext(t.Context(), md)
+
+		// Second call should unstar the project
+		resp, err := client.StarProject(mdCtx, &pb.StarRequest{
+			ProjectAlias: palias,
+		})
+		assert.NoError(t, err)
+		assert.NotNil(t, resp.Project)
+
+		// Verify star count is 0 and user is not in starredBy
+		assert.Equal(t, int64(0), resp.Project.StarCount)
+		assert.NotContains(t, resp.Project.StarredBy, uId.String())
+		assert.Len(t, resp.Project.StarredBy, 0)
+	})
+
+	t.Run("Star and unstar multiple times", func(t *testing.T) {
+		md := metadata.New(map[string]string{
+			"Authorization": "Bearer TestToken",
+			"User-Id":       uId.String(),
+		})
+		mdCtx := metadata.NewOutgoingContext(t.Context(), md)
+
+		// Star the project (3rd time total)
+		resp1, err := client.StarProject(mdCtx, &pb.StarRequest{
+			ProjectAlias: palias,
+		})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), resp1.Project.StarCount)
+		assert.Contains(t, resp1.Project.StarredBy, uId.String())
+		assert.Len(t, resp1.Project.StarredBy, 1)
+
+		// Unstar the project (4th time total)
+		resp2, err := client.StarProject(mdCtx, &pb.StarRequest{
+			ProjectAlias: palias,
+		})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(0), resp2.Project.StarCount)
+		assert.NotContains(t, resp2.Project.StarredBy, uId.String())
+		assert.Len(t, resp2.Project.StarredBy, 0)
+
+		// Star again (5th time total)
+		resp3, err := client.StarProject(mdCtx, &pb.StarRequest{
+			ProjectAlias: palias,
+		})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), resp3.Project.StarCount)
+		assert.Contains(t, resp3.Project.StarredBy, uId.String())
+		assert.Len(t, resp3.Project.StarredBy, 1)
+
+		// Clean up - unstar
+		_, err = client.StarProject(mdCtx, &pb.StarRequest{
+			ProjectAlias: palias,
+		})
+		assert.NoError(t, err)
+	})
+
+	t.Run("Star project using project ID instead of alias", func(t *testing.T) {
+		md := metadata.New(map[string]string{
+			"Authorization": "Bearer TestToken",
+			"User-Id":       uId.String(),
+		})
+		mdCtx := metadata.NewOutgoingContext(t.Context(), md)
+
+		// Use project ID instead of alias
+		resp, err := client.StarProject(mdCtx, &pb.StarRequest{
+			ProjectAlias: pid.String(),
+		})
+		assert.NoError(t, err)
+		assert.NotNil(t, resp.Project)
+
+		// Verify star count is 1 and user is in starredBy
+		assert.Equal(t, int64(1), resp.Project.StarCount)
+		assert.Contains(t, resp.Project.StarredBy, uId.String())
+		assert.Equal(t, pid.String(), resp.Project.Id)
+
+		// Clean up - unstar
+		_, err = client.StarProject(mdCtx, &pb.StarRequest{
+			ProjectAlias: pid.String(),
+		})
+		assert.NoError(t, err)
+	})
+
+	t.Run("Error cases", func(t *testing.T) {
+		md := metadata.New(map[string]string{
+			"Authorization": "Bearer TestToken",
+			"User-Id":       uId.String(),
+		})
+		mdCtx := metadata.NewOutgoingContext(t.Context(), md)
+
+		// Non-existent project alias
+		_, err := client.StarProject(mdCtx, &pb.StarRequest{
+			ProjectAlias: "non-existent-project",
+		})
+		assert.Error(t, err)
+		st, ok := status.FromError(err)
+		assert.True(t, ok, "error should be a gRPC status error")
+		assert.Equal(t, codes.Unknown, st.Code())
+		assert.Contains(t, st.Message(), "not found")
+
+		// Empty project alias
+		_, err = client.StarProject(mdCtx, &pb.StarRequest{
+			ProjectAlias: "",
+		})
+		assert.Error(t, err)
+		st, ok = status.FromError(err)
+		assert.True(t, ok, "error should be a gRPC status error")
+		assert.Equal(t, codes.InvalidArgument, st.Code())
+
+		// Missing user ID in metadata
+		mdNoUser := metadata.New(map[string]string{
+			"Authorization": "Bearer TestToken",
+		})
+		mdCtxNoUser := metadata.NewOutgoingContext(t.Context(), mdNoUser)
+
+		_, err = client.StarProject(mdCtxNoUser, &pb.StarRequest{
+			ProjectAlias: palias,
+		})
+		assert.Error(t, err)
+		st, ok = status.FromError(err)
+		assert.True(t, ok, "error should be a gRPC status error")
+		assert.Equal(t, codes.Unknown, st.Code())
+		assert.Contains(t, st.Message(), "user not found")
+
+		// Invalid user ID format (should be rejected by user ID validation)
+		mdInvalidUser := metadata.New(map[string]string{
+			"Authorization": "Bearer TestToken",
+			"User-Id":       "invalid-user-id",
+		})
+		mdCtxInvalidUser := metadata.NewOutgoingContext(t.Context(), mdInvalidUser)
+
+		_, err = client.StarProject(mdCtxInvalidUser, &pb.StarRequest{
+			ProjectAlias: palias,
+		})
+		assert.Error(t, err)
+		st, ok = status.FromError(err)
+		assert.True(t, ok, "error should be a gRPC status error")
+		assert.Equal(t, codes.Unknown, st.Code())
+	})
+
+	t.Run("Star count persists across GetProject calls", func(t *testing.T) {
+		md := metadata.New(map[string]string{
+			"Authorization": "Bearer TestToken",
+			"User-Id":       uId.String(),
+		})
+		mdCtx := metadata.NewOutgoingContext(t.Context(), md)
+
+		// Star the project
+		starResp, err := client.StarProject(mdCtx, &pb.StarRequest{
+			ProjectAlias: palias,
+		})
+		assert.NoError(t, err)
+		// Verify the star operation was successful
+		assert.Equal(t, int64(1), starResp.Project.StarCount)
+
+		// Get the project and verify the star count persisted
+		getResp, err := client.GetProject(mdCtx, &pb.ProjectRequest{
+			ProjectIdOrAlias: palias,
+		})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(1), getResp.Project.StarCount)
+		assert.Contains(t, getResp.Project.StarredBy, uId.String())
+
+		// Unstar the project
+		unstarResp, err := client.StarProject(mdCtx, &pb.StarRequest{
+			ProjectAlias: palias,
+		})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(0), unstarResp.Project.StarCount)
+
+		// Get the project again and verify the unstar persisted
+		getResp2, err := client.GetProject(mdCtx, &pb.ProjectRequest{
+			ProjectIdOrAlias: palias,
+		})
+		assert.NoError(t, err)
+		assert.Equal(t, int64(0), getResp2.Project.StarCount)
+		assert.Len(t, getResp2.Project.StarredBy, 0)
+	})
 }

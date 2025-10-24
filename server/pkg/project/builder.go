@@ -111,3 +111,13 @@ func (b *Builder) RequestRoles(requestRoles []workspace.Role) *Builder {
 	b.p.requestRoles = slices.Clone(requestRoles)
 	return b
 }
+
+func (b *Builder) StarCount(starCount int64) *Builder {
+	b.p.starCount = starCount
+	return b
+}
+
+func (b *Builder) StarredBy(starredBy []string) *Builder {
+	b.p.starredBy = slices.Clone(starredBy)
+	return b
+}
