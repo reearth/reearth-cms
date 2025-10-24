@@ -1,11 +1,12 @@
 import styled from "@emotion/styled";
-import { message } from "antd";
 import { useCallback, useMemo } from "react";
 
 import Card from "@reearth-cms/components/atoms/Card";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Modal from "@reearth-cms/components/atoms/Modal";
 import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
@@ -29,8 +30,8 @@ const ModelCard: React.FC<Props> = ({
   onModelUpdateModalOpen,
   onModelExport,
 }) => {
-  const { Meta } = Card;
   const t = useT();
+  const { Meta } = Card;
 
   const OptionsMenuItems = useMemo(
     () => [
@@ -51,51 +52,88 @@ const ModelCard: React.FC<Props> = ({
     [t, hasUpdateRight, hasDeleteRight, onModelUpdateModalOpen, model, onModelDeletionModalOpen],
   );
 
-  const [messageApi, contextHolder] = message.useMessage();
-  const key = "updatable";
-  const handleModelExportClick = useCallback(
-    async (model: Model, exportType: ExportFormat) => {
-      messageApi.open({
-        key,
-        type: "loading",
+  const handleCSVExport = useCallback(
+    async (exportType: ExportFormat) => {
+      Modal.confirm({
+        title: t("Export as CSV"),
         content: (
-          <StyledMessage>
-            <StyledMessageTitle>Preparing data export</StyledMessageTitle>
-            <StyledMessageContent>
-              Your file is being prepared. This may take a few seconds.
-            </StyledMessageContent>
-          </StyledMessage>
+          <ModalContent>
+            <div>{t("CSV export only supports simple fields (text, number, date).")}</div>
+            <div>{t("Relations, arrays, objects, and geometry fields are not included.")}</div>
+            <div>
+              {t("For a complete export with all fields, please use the JSON export option.")}
+            </div>
+          </ModalContent>
         ),
+        okText: t("Export CSV"),
+        cancelText: t("Cancel"),
+        async onOk() {
+          await onModelExport(model.id, exportType);
+        },
       });
+    },
+    [model.id, onModelExport, t],
+  );
 
-      try {
+  const getGeometryFieldsCount = useCallback(() => {
+    return (
+      model.schema?.fields?.filter(
+        field =>
+          field.type === SchemaFieldType.GeometryEditor ||
+          field.type === SchemaFieldType.GeometryObject,
+      ).length ?? 0
+    );
+  }, [model.schema?.fields]);
+
+  const handleGeoJSONExport = useCallback(
+    async (exportType: ExportFormat) => {
+      const geoFieldsCount = getGeometryFieldsCount();
+      if (geoFieldsCount === 0) {
+        Modal.error({
+          title: t("Cannot export GeoJSON"),
+          content: t(
+            "No Geometry field was found in this model, so GeoJSON export is not available.",
+          ),
+          okText: t("OK"),
+        });
+      } else if (geoFieldsCount > 1) {
+        Modal.confirm({
+          title: t("Multiple Geometry fields detected"),
+          content: (
+            <ModalContent>
+              <div>{t("This model has multiple Geometry fields.")}</div>
+              <div>{t("GeoJSON format supports only one geometry field. ")}</div>
+              <div>
+                {t(
+                  "Only the first Geometry field will be exported. Please adjust your data if needed.",
+                )}
+              </div>
+            </ModalContent>
+          ),
+          okText: t("Export Anyway"),
+          cancelText: t("Cancel"),
+          async onOk() {
+            await onModelExport(model.id, exportType);
+          },
+        });
+      } else {
         await onModelExport(model.id, exportType);
-        messageApi.open({
-          key,
-          type: "success",
-          content: (
-            <StyledMessage>
-              <StyledMessageTitle>Data export complete</StyledMessageTitle>
-              <StyledMessageContent>Your file has been successfully exported.</StyledMessageContent>
-            </StyledMessage>
-          ),
-          duration: 2000,
-        });
-      } catch {
-        messageApi.open({
-          key,
-          type: "error",
-          content: (
-            <StyledMessage>
-              <StyledMessageTitle>Export failed</StyledMessageTitle>
-              <StyledMessageContent>Failed to export data. Please try again.</StyledMessageContent>
-            </StyledMessage>
-          ),
-          duration: 2000,
-        });
       }
     },
-    [messageApi, onModelExport],
+    [getGeometryFieldsCount, model.id, onModelExport, t],
+  );
+
+  const handleModelExportClick = useCallback(
+    async (exportType: ExportFormat) => {
+      if (exportType === ExportFormat.Csv) {
+        await handleCSVExport(exportType);
+      } else if (exportType === ExportFormat.Geojson) {
+        await handleGeoJSONExport(exportType);
+      } else {
+        await onModelExport(model.id, exportType);
+      }
+    },
+    [handleCSVExport, handleGeoJSONExport, model.id, onModelExport],
   );
 
   const ExportMenuItems = useMemo(
@@ -103,25 +141,25 @@ const ModelCard: React.FC<Props> = ({
       {
         key: "schema",
         label: t("Export Schema"),
-        onClick: () => handleModelExportClick(model, ExportFormat.Schema),
+        onClick: () => handleModelExportClick(ExportFormat.Schema),
       },
       {
         key: "json",
         label: t("Export as JSON"),
-        onClick: () => handleModelExportClick(model, ExportFormat.Json),
+        onClick: () => handleModelExportClick(ExportFormat.Json),
       },
       {
         key: "csv",
         label: t("Export as CSV"),
-        onClick: () => handleModelExportClick(model, ExportFormat.Csv),
+        onClick: () => handleModelExportClick(ExportFormat.Csv),
       },
       {
         key: "geojson",
         label: t("Export as GeoJSON"),
-        onClick: () => handleModelExportClick(model, ExportFormat.Geojson),
+        onClick: () => handleModelExportClick(ExportFormat.Geojson),
       },
     ],
-    [t, handleModelExportClick, model],
+    [t, handleModelExportClick],
   );
 
   return (
@@ -129,14 +167,11 @@ const ModelCard: React.FC<Props> = ({
       actions={[
         <Icon icon="unorderedList" key="schema" onClick={() => onSchemaNavigate(model.id)} />,
         <Icon icon="table" key="content" onClick={() => onContentNavigate(model.id)} />,
-        <>
-          {contextHolder}
-          <Dropdown key="export" menu={{ items: ExportMenuItems }} trigger={["click"]}>
-            <a onClick={e => e.preventDefault()}>
-              <Icon icon="download" />
-            </a>
-          </Dropdown>
-        </>,
+        <Dropdown key="export" menu={{ items: ExportMenuItems }} trigger={["click"]}>
+          <a onClick={e => e.preventDefault()}>
+            <Icon icon="download" />
+          </a>
+        </Dropdown>,
         <Dropdown key="options" menu={{ items: OptionsMenuItems }} trigger={["click"]}>
           <a onClick={e => e.preventDefault()}>
             <Icon icon="ellipsis" />
@@ -168,19 +203,8 @@ const StyledCard = styled(Card)`
   }
 `;
 
-const StyledMessage = styled.div`
-  width: 400px;
-  height: 100px;
+const ModalContent = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: start;
-  align-items: center;
-`;
-
-const StyledMessageTitle = styled.h3`
-  width: 350px;
-`;
-
-const StyledMessageContent = styled.p`
-  width: 350px;
+  gap: 8px;
 `;
