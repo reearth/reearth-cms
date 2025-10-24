@@ -2433,12 +2433,13 @@ const file_schemas_internalapi_v1_schema_proto_rawDesc = "" +
 	"\v_visibility\"5\n" +
 	"\x14DeleteProjectRequest\x12\x1d\n" +
 	"\n" +
-	"project_id\x18\x01 \x01(\tR\tprojectId\"\x9a\x02\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\"\xb2\x02\n" +
 	"\x13ListProjectsRequest\x12#\n" +
 	"\rworkspace_ids\x18\x01 \x03(\tR\fworkspaceIds\x12\x1d\n" +
 	"\akeyword\x18\x02 \x01(\tH\x00R\akeyword\x88\x01\x01\x12\x1f\n" +
 	"\vpublic_only\x18\x03 \x01(\bR\n" +
-	"publicOnly\x12:\n" +
+	"publicOnly\x12\x16\n" +
+	"\x06topics\x18\x04 \x03(\tR\x06topics\x12:\n" +
 	"\tpage_info\x18d \x01(\v2\x18.reearth.cms.v1.PageInfoH\x01R\bpageInfo\x88\x01\x01\x12:\n" +
 	"\tsort_info\x18e \x01(\v2\x18.reearth.cms.v1.SortInfoH\x02R\bsortInfo\x88\x01\x01B\n" +
 	"\n" +
