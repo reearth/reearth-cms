@@ -1200,3 +1200,180 @@ func TestProject_CheckProjectLimits(t *testing.T) {
 		})
 	}
 }
+
+func TestProject_StarProject(t *testing.T) {
+	now := util.Now()
+	defer util.MockNow(now)
+
+	wid1 := accountdomain.NewWorkspaceID()
+	wid2 := accountdomain.NewWorkspaceID()
+
+	u1 := user.New().Name("user1").NewID().Email("user1@test.com").Workspace(wid1).MustBuild()
+	u1ID := u1.ID()
+
+	pid1 := id.NewProjectID()
+	p1 := project.New().ID(pid1).Workspace(wid1).Alias("test-project").MustBuild()
+
+	pid3 := id.NewProjectID()
+	p3 := project.New().ID(pid3).Workspace(wid2).MustBuild()
+
+	validOp := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(u1ID),
+			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2},
+			WritableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2},
+		},
+	}
+
+	invalidOp := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{},
+	}
+
+	type args struct {
+		idOrAlias project.IDOrAlias
+		operator  *usecase.Operator
+	}
+	tests := []struct {
+		name           string
+		seeds          project.List
+		args           args
+		want           *project.Project
+		mockProjectErr bool
+		wantErr        error
+	}{
+		{
+			name:  "star project by ID",
+			seeds: project.List{p1.Clone()},
+			args: args{
+				idOrAlias: project.IDOrAlias(pid1.String()),
+				operator:  validOp,
+			},
+			want: func() *project.Project {
+				p := p1.Clone()
+				p.Star(u1ID)
+				p.SetUpdatedAt(now)
+				return p
+			}(),
+			wantErr: nil,
+		},
+		{
+			name:  "star project by alias",
+			seeds: project.List{p1.Clone()},
+			args: args{
+				idOrAlias: project.IDOrAlias("test-project"),
+				operator:  validOp,
+			},
+			want: func() *project.Project {
+				p := p1.Clone()
+				p.Star(u1ID)
+				p.SetUpdatedAt(now)
+				return p
+			}(),
+			wantErr: nil,
+		},
+		{
+			name:  "star project in different workspace",
+			seeds: project.List{p3.Clone()},
+			args: args{
+				idOrAlias: project.IDOrAlias(pid3.String()),
+				operator:  validOp,
+			},
+			want: func() *project.Project {
+				p := p3.Clone()
+				p.Star(u1ID)
+				p.SetUpdatedAt(now)
+				return p
+			}(),
+			wantErr: nil,
+		},
+		{
+			name:  "invalid operator - no user",
+			seeds: project.List{p1.Clone()},
+			args: args{
+				idOrAlias: project.IDOrAlias(pid1.String()),
+				operator:  invalidOp,
+			},
+			want:    nil,
+			wantErr: interfaces.ErrInvalidOperator,
+		},
+		{
+			name:  "project not found by ID",
+			seeds: project.List{},
+			args: args{
+				idOrAlias: project.IDOrAlias(id.NewProjectID().String()),
+				operator:  validOp,
+			},
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:  "project not found by alias",
+			seeds: project.List{},
+			args: args{
+				idOrAlias: project.IDOrAlias("non-existent-alias"),
+				operator:  validOp,
+			},
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name: "repository error on find",
+			args: args{
+				idOrAlias: project.IDOrAlias(pid1.String()),
+				operator:  validOp,
+			},
+			mockProjectErr: true,
+			want:           nil,
+			wantErr:        errors.New("test"),
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			// Removed t.Parallel() to fix user ID consistency issue in unstar test
+
+			ctx := context.Background()
+			db := memory.New()
+			if tc.mockProjectErr {
+				memory.SetProjectError(db.Project, tc.wantErr)
+			}
+			for _, p := range tc.seeds {
+				err := db.Project.Save(ctx, p)
+				assert.NoError(t, err)
+			}
+
+			projectUC := NewProject(db, nil)
+
+			got, err := projectUC.StarProject(ctx, tc.args.idOrAlias, tc.args.operator)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				return
+			}
+			assert.NoError(t, err)
+			assert.NotNil(t, got)
+			assert.Equal(t, tc.want.ID(), got.ID())
+
+			// For star tests, check that the user IS in the starred list
+			if tc.name == "star project by ID" || tc.name == "star project by alias" || tc.name == "star project in different workspace" {
+				assert.Contains(t, got.StarredBy(), u1ID.String())
+				assert.Len(t, got.StarredBy(), 1)
+			}
+
+			// Verify that UpdatedAt was set (should be recent)
+			assert.True(t, got.UpdatedAt().After(now.Add(-time.Second)))
+
+			dbGot, err := db.Project.FindByID(ctx, got.ID())
+			assert.NoError(t, err)
+
+			// Same checks for database state
+			if tc.name == "star project by ID" || tc.name == "star project by alias" || tc.name == "star project in different workspace" {
+				assert.Contains(t, dbGot.StarredBy(), u1ID.String())
+				assert.Len(t, dbGot.StarredBy(), 1)
+			}
+
+			// Verify that UpdatedAt was persisted correctly
+			assert.True(t, dbGot.UpdatedAt().After(now.Add(-time.Second)))
+		})
+	}
+}
