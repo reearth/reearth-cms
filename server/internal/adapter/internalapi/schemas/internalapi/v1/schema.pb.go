@@ -2290,7 +2290,7 @@ var File_schemas_internalapi_v1_schema_proto protoreflect.FileDescriptor
 
 const file_schemas_internalapi_v1_schema_proto_rawDesc = "" +
 	"\n" +
-	"#schemas/internalapi/v1/schema.proto\x12\x0ereearth.cms.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19google/protobuf/any.proto\"\xd9\x03\n" +
+	"#schemas/internalapi/v1/schema.proto\x12\x0ereearth.cms.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19google/protobuf/any.proto\"\xf8\x03\n" +
 	"\aProject\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
@@ -2305,11 +2305,13 @@ const file_schemas_internalapi_v1_schema_proto_rawDesc = "" +
 	"\x06topics\x18\t \x03(\tR\x06topics\x12\x1d\n" +
 	"\n" +
 	"star_count\x18\n" +
-	" \x01(\x05R\tstarCount\x129\n" +
+	" \x01(\x03R\tstarCount\x12\x1d\n" +
 	"\n" +
-	"created_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"starred_by\x18\v \x03(\tR\tstarredBy\x129\n" +
 	"\n" +
-	"updated_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB\x0e\n" +
+	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"\n" +
+	"updated_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB\x0e\n" +
 	"\f_descriptionB\n" +
 	"\n" +
 	"\b_licenseB\t\n" +
@@ -2431,13 +2433,12 @@ const file_schemas_internalapi_v1_schema_proto_rawDesc = "" +
 	"\v_visibility\"5\n" +
 	"\x14DeleteProjectRequest\x12\x1d\n" +
 	"\n" +
-	"project_id\x18\x01 \x01(\tR\tprojectId\"\xb2\x02\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\"\x9a\x02\n" +
 	"\x13ListProjectsRequest\x12#\n" +
 	"\rworkspace_ids\x18\x01 \x03(\tR\fworkspaceIds\x12\x1d\n" +
 	"\akeyword\x18\x02 \x01(\tH\x00R\akeyword\x88\x01\x01\x12\x1f\n" +
 	"\vpublic_only\x18\x03 \x01(\bR\n" +
-	"publicOnly\x12\x16\n" +
-	"\x06topics\x18\x04 \x03(\tR\x06topics\x12:\n" +
+	"publicOnly\x12:\n" +
 	"\tpage_info\x18d \x01(\v2\x18.reearth.cms.v1.PageInfoH\x01R\bpageInfo\x88\x01\x01\x12:\n" +
 	"\tsort_info\x18e \x01(\v2\x18.reearth.cms.v1.SortInfoH\x02R\bsortInfo\x88\x01\x01B\n" +
 	"\n" +
@@ -2494,7 +2495,10 @@ const file_schemas_internalapi_v1_schema_proto_rawDesc = "" +
 	"exportType\"\x1d\n" +
 	"\x04Type\x12\b\n" +
 	"\x04JSON\x10\x00\x12\v\n" +
-	"\aGEOJSON\x10\x01\"D\n" +
+	"\aGEOJSON\x10\x01\"[\n" +
+	"\vStarRequest\x12'\n" +
+	"\x0fworkspace_alias\x18\x01 \x01(\tR\x0eworkspaceAlias\x12#\n" +
+	"\rproject_alias\x18\x02 \x01(\tR\fprojectAlias\"D\n" +
 	"\x0fProjectResponse\x121\n" +
 	"\aproject\x18\x01 \x01(\v2\x17.reearth.cms.v1.ProjectR\aproject\"9\n" +
 	"\x19AliasAvailabilityResponse\x12\x1c\n" +
@@ -2527,12 +2531,14 @@ const file_schemas_internalapi_v1_schema_proto_rawDesc = "" +
 	"totalCount\x125\n" +
 	"\tpage_info\x18d \x01(\v2\x18.reearth.cms.v1.PageInfoR\bpageInfo\"%\n" +
 	"\x11ExportURLResponse\x12\x10\n" +
-	"\x03url\x18\x01 \x01(\tR\x03url*%\n" +
+	"\x03url\x18\x01 \x01(\tR\x03url\"A\n" +
+	"\fStarResponse\x121\n" +
+	"\aproject\x18\x01 \x01(\v2\x17.reearth.cms.v1.ProjectR\aproject*%\n" +
 	"\n" +
 	"Visibility\x12\n" +
 	"\n" +
 	"\x06PUBLIC\x10\x00\x12\v\n" +
-	"\aPRIVATE\x10\x012\x98\t\n" +
+	"\aPRIVATE\x10\x012\xe4\t\n" +
 	"\n" +
 	"ReEarthCMS\x12X\n" +
 	"\rCreateProject\x12$.reearth.cms.v1.CreateProjectRequest\x1a\x1f.reearth.cms.v1.ProjectResponse\"\x00\x12X\n" +
@@ -2550,7 +2556,8 @@ const file_schemas_internalapi_v1_schema_proto_rawDesc = "" +
 	"ListModels\x12!.reearth.cms.v1.ListModelsRequest\x1a\".reearth.cms.v1.ListModelsResponse\"\x00\x12R\n" +
 	"\tListItems\x12 .reearth.cms.v1.ListItemsRequest\x1a!.reearth.cms.v1.ListItemsResponse\"\x00\x12\\\n" +
 	"\x11GetModelExportURL\x12\".reearth.cms.v1.ModelExportRequest\x1a!.reearth.cms.v1.ExportURLResponse\"\x00\x12a\n" +
-	"\x18GetModelGeoJSONExportURL\x12\x1d.reearth.cms.v1.ExportRequest\x1a!.reearth.cms.v1.ExportURLResponse\"\x03\x88\x02\x01B\n" +
+	"\x18GetModelGeoJSONExportURL\x12\x1d.reearth.cms.v1.ExportRequest\x1a!.reearth.cms.v1.ExportURLResponse\"\x03\x88\x02\x01\x12J\n" +
+	"\vStarProject\x12\x1b.reearth.cms.v1.StarRequest\x1a\x1c.reearth.cms.v1.StarResponse\"\x00B\n" +
 	"Z\bproto/v1b\x06proto3"
 
 var (
