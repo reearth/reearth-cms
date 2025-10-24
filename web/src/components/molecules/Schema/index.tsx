@@ -17,7 +17,7 @@ import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
 import {
   Field,
-  FieldType,
+  SchemaFieldType,
   Group,
   Tab,
   SelectedSchemaType,
@@ -70,7 +70,7 @@ type Props = {
   onCollapse: (collapse: boolean) => void;
   onFieldReorder: (data: Field[]) => Promise<void>;
   onFieldUpdateModalOpen: (field: Field) => void;
-  onFieldCreationModalOpen: (fieldType: FieldType) => void;
+  onFieldCreationModalOpen: (fieldType: SchemaFieldType) => void;
   onFieldDelete: (fieldId: string) => Promise<void>;
   importSchemaModalVisibility: boolean;
   selectFileModalVisibility: boolean;

@@ -13,6 +13,10 @@ export const GET_MODELS = gql`
         updatedAt
         schema {
           id
+          fields {
+            id
+            type
+          }
         }
       }
     }
@@ -207,6 +211,24 @@ export const UPDATE_MODELS_ORDER = gql`
           id
         }
       }
+    }
+  }
+`;
+
+export const EXPORT_MODEL = gql`
+  mutation ExportModel($modelId: ID!, $format: ExportFormat!) {
+    exportModel(input: { modelId: $modelId, format: $format }) {
+      modelId
+      url
+    }
+  }
+`;
+
+export const EXPORT_MODEL_SCHEMA = gql`
+  mutation ExportModelSchema($modelId: ID!) {
+    exportModelSchema(input: { modelId: $modelId }) {
+      modelId
+      url
     }
   }
 `;

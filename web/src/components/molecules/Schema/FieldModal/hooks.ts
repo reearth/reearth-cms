@@ -11,7 +11,7 @@ import {
 import {
   Field,
   FieldModalTabs,
-  FieldType,
+  SchemaFieldType,
   FormValues,
   FormTypes,
   ObjectSupportedType,
@@ -23,7 +23,7 @@ import { validateKey } from "@reearth-cms/utils/regex";
 
 export default (
   selectedSchemaType: SelectedSchemaType,
-  selectedType: FieldType,
+  selectedType: SchemaFieldType,
   isMeta: boolean,
   selectedField: Field | null,
   open: boolean,

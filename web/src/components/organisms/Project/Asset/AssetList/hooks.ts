@@ -9,7 +9,7 @@ import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/As
 import { CreateFieldInput } from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
-  convertFieldType,
+  convertSchemaFieldType,
   defaultTypePropertyGet,
 } from "@reearth-cms/components/organisms/Project/Schema/helpers";
 import { useAuthHeader } from "@reearth-cms/gql";
@@ -165,7 +165,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
       unique: false,
       isTitle: false,
       required: false,
-      type: convertFieldType(field.type),
+      type: convertSchemaFieldType(field.type),
       modelId: modelId,
       groupId: undefined,
       typeProperty: defaultTypePropertyGet(field.type),

@@ -42,6 +42,24 @@ test("Model CRUD on Overview page has succeeded", async ({ schemaPage, projectPa
   await expect(projectPage.noModelsYetText).toBeVisible();
 });
 
+test("Model Export on Overview page has succeeded", async ({ schemaPage, projectPage }) => {
+  await expect(projectPage.noModelsYetText).toBeVisible();
+  await projectPage.newModelButtonFirst.click();
+  await expect(projectPage.newModelLabelText).toBeVisible();
+  await schemaPage.modelKeyInput.fill("model key");
+  await schemaPage.modelNameInput.fill("model name");
+  await projectPage.modelDescriptionInput.fill("model description");
+  await schemaPage.okButton.click();
+  await projectPage.closeNotification();
+  await expect(projectPage.modelTitleByName("model name")).toBeVisible();
+  await expect(projectPage.modelKeyTextByKey("model-key")).toBeVisible();
+  await expect(projectPage.modelMenuItemByName("model name")).toBeVisible();
+  await projectPage.modelsMenuItem.click();
+  await projectPage.modelExportLink.click();
+  await projectPage.exportAsJSONText.click();
+  await projectPage.closeNotification();
+});
+
 test("Creating Model by using the button on placeholder has succeeded", async ({ projectPage }) => {
   await projectPage.newModelButtonLast.click();
   await expect(projectPage.dialogNewModelText).toBeVisible();

@@ -17,7 +17,7 @@ import { defaultTypePropertyGet } from "@reearth-cms/components/organisms/Projec
 import { Trans, useT } from "@reearth-cms/i18n";
 
 import { fieldTypes } from "../fieldTypes";
-import { CreateFieldInput, FieldType } from "../types";
+import { CreateFieldInput, SchemaFieldType } from "../types";
 
 import FileSelectionStep from "./FileSelectionStep";
 import ImportingStep from "./ImportingStep";
@@ -139,7 +139,7 @@ const ImportSchemaModal: React.FC<Props> = ({
   );
 
   const handleFieldTypeChange = useCallback(
-    (key: string, value: FieldType) => {
+    (key: string, value: SchemaFieldType) => {
       setFields(prev =>
         prev.map(field =>
           field.key === key

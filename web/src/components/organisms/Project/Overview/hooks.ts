@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 import { SortBy, UpdateProjectInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
@@ -11,10 +11,13 @@ import {
   useDeleteModelMutation,
   useGetModelsQuery,
   useUpdateModelMutation,
+  useExportModelMutation,
+  useExportModelSchemaMutation,
   Model as GQLModel,
   Role as GQLRole,
   ProjectAccessibility as GQLProjectAccessibility,
   useUpdateProjectMutation,
+  ExportFormat as GQLExportFormat,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
@@ -152,6 +155,49 @@ export default () => {
     [updateNewModel, handleModelModalClose, t],
   );
 
+  const [exportModel, { loading: exportModelLoading }] = useExportModelMutation();
+  const [exportModelSchema, { loading: exportSchemaLoading }] = useExportModelSchemaMutation();
+
+  const exportLoading = exportModelLoading || exportSchemaLoading;
+
+  const handleModelExport = useCallback(
+    async (modelId?: string, format?: ExportFormat) => {
+      if (!modelId || !format) return;
+
+      try {
+        if (format === ExportFormat.Schema) {
+          // Export schema
+          const res = await exportModelSchema({ variables: { modelId } });
+          if (res.errors || !res.data?.exportModelSchema) {
+            Notification.error({ message: t("Failed to export schema.") });
+            return;
+          }
+          const url = res.data.exportModelSchema.url;
+          // Download the file
+          window.open(url, "_blank");
+          Notification.success({ message: t("Successfully exported schema!") });
+        } else {
+          // Export model data (JSON, CSV, or GeoJSON)
+          const exportFormat = format as GQLExportFormat;
+          const res = await exportModel({
+            variables: { modelId, format: exportFormat },
+          });
+          if (res.errors || !res.data?.exportModel) {
+            Notification.error({ message: t("Failed to export model data.") });
+            return;
+          }
+          const url = res.data.exportModel.url;
+          // Download the file
+          window.open(url, "_blank");
+          Notification.success({ message: t("Successfully exported model data!") });
+        }
+      } catch {
+        Notification.error({ message: t("Failed to export.") });
+      }
+    },
+    [exportModel, exportModelSchema, t],
+  );
+
   const handleHomeNavigation = useCallback(() => {
     navigate(`/workspace/${currentWorkspace?.id}`);
   }, [currentWorkspace?.id, navigate]);
@@ -194,6 +240,7 @@ export default () => {
     selectedModel,
     modelDeletionModalShown,
     deleteLoading,
+    exportLoading,
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
@@ -211,6 +258,7 @@ export default () => {
     handleModelDeletionModalClose,
     handleModelUpdateModalOpen,
     handleModelDelete,
+    handleModelExport,
     handleModelUpdate,
   };
 };

@@ -46,14 +46,20 @@ export class ProjectPage extends BasePage {
   get modelsMenuItem(): Locator {
     return this.getByText("Models").first();
   }
+  get modelExportLink(): Locator {
+    return this.getByRole("list").locator("a").nth(0);
+  }
   get modelListLink(): Locator {
-    return this.getByRole("list").locator("a");
+    return this.getByRole("list").locator("a").nth(1);
   }
   get editText(): Locator {
     return this.getByText("Edit", { exact: true });
   }
   get deleteText(): Locator {
     return this.getByText("Delete");
+  }
+  get exportAsJSONText(): Locator {
+    return this.getByText("Export as JSON");
   }
   get deleteModelButton(): Locator {
     return this.getByRole("button", { name: "Delete Model" });

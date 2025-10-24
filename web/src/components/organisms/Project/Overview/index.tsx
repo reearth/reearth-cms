@@ -28,6 +28,7 @@ const ProjectOverview: React.FC = () => {
     handleModelDeletionModalClose,
     handleModelUpdateModalOpen,
     handleModelDelete,
+    handleModelExport,
     handleModelUpdate,
   } = useHooks();
 
@@ -47,6 +48,7 @@ const ProjectOverview: React.FC = () => {
         onModelModalOpen={handleModelModalOpen}
         onModelDeletionModalOpen={handleModelDeletionModalOpen}
         onModelUpdateModalOpen={handleModelUpdateModalOpen}
+        onModelExport={handleModelExport}
       />
       <FormModal
         data={selectedModel}
