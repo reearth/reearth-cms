@@ -163,7 +163,8 @@ func (p *Project) Unstar(uId accountdomain.UserID) {
 }
 
 func (p *Project) SetTopics(topics []string) {
-	// adding length check as topics will be [] in the gRPC request and will delete topics in the record which is not intended
+	// Adding length check as topics will be [] in the gRPC request even when its not explicitly passed
+	// and will delete topics in the record, which is not intended.
 	if p == nil || len(topics) == 0 {
 		return
 	}
