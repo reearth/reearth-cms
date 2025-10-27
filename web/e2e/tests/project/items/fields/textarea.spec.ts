@@ -55,7 +55,7 @@ test("Textarea field editing has succeeded", async ({
   await contentPage.saveButton.click();
   await contentPage.closeNotification();
   await contentPage.backButtonLabel.click();
-  await contentPage.tableColumnButton(9).click();
+  await contentPage.tableColumnButton(5).click();
   await expect(contentPage.tooltip).toContainText("text1text1 default value");
   await schemaPage.schemaText.click();
   await fieldEditorPage.ellipsisMenuButton.click();
@@ -86,7 +86,7 @@ test("Textarea field editing has succeeded", async ({
   await expect(fieldEditorPage.uniqueFieldText("new text1", "new-text1")).toBeVisible();
   await schemaPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("new text1");
-  await contentPage.tableColumnButton(9).click();
+  await contentPage.tableColumnButton(5).click();
   await expect(contentPage.tooltip).toContainText("text1text1 default value");
   await contentPage.newItemButton.click();
   await expect(fieldEditorPage.uniqueFieldLabel("new text1")).toBeVisible();
