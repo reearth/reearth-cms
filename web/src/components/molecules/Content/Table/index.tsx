@@ -49,7 +49,7 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
 
-type Props = {
+export type Props = {
   contentTableFields?: ContentTableField[];
   contentTableColumns?: ExtendedColumns[];
   loading: boolean;
@@ -194,6 +194,12 @@ const ContentTable: React.FC<Props> = ({
         width: 148,
         minWidth: 148,
       },
+    ],
+    [t, onItemEdit, selectedItem?.id, onItemSelect],
+  );
+
+  const systemMetaDataColumns: ExtendedColumns[] = useMemo(
+    () => [
       {
         title: t("Created At"),
         dataIndex: "createdAt",
@@ -251,12 +257,14 @@ const ContentTable: React.FC<Props> = ({
         ellipsis: true,
       },
     ],
-    [t, sortOrderGet, onItemEdit, selectedItem?.id, onItemSelect],
+    [t, sortOrderGet],
   );
 
   const tableColumns = useMemo(() => {
-    return contentTableColumns ? [...actionsColumns, ...contentTableColumns] : [...actionsColumns];
-  }, [actionsColumns, contentTableColumns]);
+    return contentTableColumns
+      ? [...actionsColumns, ...contentTableColumns, ...systemMetaDataColumns]
+      : [...actionsColumns];
+  }, [actionsColumns, contentTableColumns, systemMetaDataColumns]);
 
   const rowSelection: TableRowSelection = useMemo(
     () => ({
