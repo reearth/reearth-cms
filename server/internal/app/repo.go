@@ -178,7 +178,7 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 			log.Infof("account api: using user token forwarding")
 		}
 
-		gateways.AccountGQL = gql.NewClient(conf.Account_Api.Endpoint, transport)
+		gateways.Account = gql.NewClient(conf.Account_Api.Endpoint, transport)
 		log.Infof("account api: external GraphQL API configured: %s", conf.Account_Api.Endpoint)
 	} else {
 		log.Infof("account api: not configured, using default account repositories")

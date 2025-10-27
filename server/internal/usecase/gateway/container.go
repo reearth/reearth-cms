@@ -8,5 +8,5 @@ type Container struct {
 	Mailer        Mailer
 	PolicyChecker PolicyChecker
 	TaskRunner    TaskRunner
-	AccountGQL    *gql.Client
+	Account       *gql.Client
 }

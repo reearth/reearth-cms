@@ -88,7 +88,7 @@ func (r *mutationResolver) DeleteMe(ctx context.Context, input gqlmodel.DeleteMe
 func (r *queryResolver) Me(ctx context.Context) (*gqlmodel.Me, error) {
 	// Use external account API
 	gateways := adapter.Gateways(ctx)
-	if gateways == nil || gateways.AccountGQL == nil {
+	if gateways == nil || gateways.Account == nil {
 		// Fallback to local account data (for tests without external API configured)
 		u := adapter.User(ctx)
 		if u == nil {
@@ -97,7 +97,7 @@ func (r *queryResolver) Me(ctx context.Context) (*gqlmodel.Me, error) {
 		return gqlmodel.ToMe(u), nil
 	}
 
-	extUser, err := gateways.AccountGQL.UserRepo.FindMe(ctx)
+	extUser, err := gateways.Account.UserRepo.FindMe(ctx)
 	if err != nil {
 		return nil, err
 	}
