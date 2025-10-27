@@ -46,6 +46,7 @@ const IntegrationConnectModal: React.FC<Props> = ({
 
   return (
     <Modal
+      forceRender
       afterClose={() => setSelectedIntegration(undefined)}
       title={t("Connect Integration")}
       open={open}

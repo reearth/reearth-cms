@@ -1,10 +1,11 @@
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 
 import Loading from "@reearth-cms/components/atoms/Loading";
 import NotFound from "@reearth-cms/components/atoms/NotFound/partial";
 import AssetWrapper from "@reearth-cms/components/molecules/Asset/Asset/AssetBody";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 import useSettingsHooks from "@reearth-cms/components/organisms/Settings/General/hooks";
+import { GetAssetItemDocument } from "@reearth-cms/gql/__generated__/assets.generated";
 
 import useHooks from "./hooks";
 
@@ -55,7 +56,7 @@ const Asset: React.FC = () => {
           threadId={asset.threadId}
           collapsed={collapsed}
           onCollapse={handleToggleCommentMenu}
-          refetchQueries={["GetAssetItem"]}
+          refetchQueries={[GetAssetItemDocument]}
         />
       }
       asset={asset}

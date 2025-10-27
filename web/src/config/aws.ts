@@ -21,17 +21,26 @@ export function configureCognito(cognito: CognitoParams) {
   const cognitoOauthRedirectSignOut = cognito.cognitoOauthRedirectSignOut;
   const cognitoOauthResponseType = cognito.cognitoOauthResponseType;
 
+  if (!cognitoRegion || !cognitoUserPoolId || !cognitoUserPoolWebClientId) {
+    return;
+  }
+
   const config = {
     Auth: {
-      region: cognitoRegion,
-      userPoolId: cognitoUserPoolId,
-      userPoolWebClientId: cognitoUserPoolWebClientId,
-      oauth: {
-        scope: cognitoOauthScope,
-        domain: cognitoOauthDomain,
-        redirectSignIn: cognitoOauthRedirectSignIn,
-        redirectSignOut: cognitoOauthRedirectSignOut,
-        responseType: cognitoOauthResponseType,
+      Cognito: {
+        userPoolId: cognitoUserPoolId,
+        userPoolClientId: cognitoUserPoolWebClientId,
+        ...(cognitoOauthDomain && {
+          loginWith: {
+            oauth: {
+              domain: cognitoOauthDomain,
+              scopes: cognitoOauthScope || [],
+              redirectSignIn: [cognitoOauthRedirectSignIn || ""],
+              redirectSignOut: [cognitoOauthRedirectSignOut || ""],
+              responseType: (cognitoOauthResponseType as "code" | "token") || "code",
+            },
+          },
+        }),
       },
     },
   };

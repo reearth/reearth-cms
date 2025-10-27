@@ -12,7 +12,7 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import useHook from "@reearth-cms/components/molecules/ProjectSettings/hook";
 import { license_options, getLicenseContent } from "@reearth-cms/data/license";
-import { ProjectVisibility } from "@reearth-cms/gql/graphql-client-api";
+import { ProjectVisibility } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 

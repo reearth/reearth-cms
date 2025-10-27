@@ -1,3 +1,4 @@
+import { useMutation } from "@apollo/client/react";
 import { useCallback, useMemo } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -6,12 +7,12 @@ import {
   ResourceType,
 } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import {
-  ResourceType as GQLResourceType,
-  useAddCommentMutation,
-  useDeleteCommentMutation,
-  useUpdateCommentMutation,
-  useCreateThreadWithCommentMutation,
-} from "@reearth-cms/gql/graphql-client-api";
+  AddCommentDocument,
+  DeleteCommentDocument,
+  UpdateCommentDocument,
+} from "@reearth-cms/gql/__generated__/comment.generated";
+import { ResourceType as GQLResourceType } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { CreateThreadWithCommentDocument } from "@reearth-cms/gql/__generated__/thread.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspaceId, useUserRights, useUserId } from "@reearth-cms/state";
 
@@ -38,19 +39,24 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
     [userRights?.comment.delete],
   );
 
-  const [createThreadWithComment] = useCreateThreadWithCommentMutation({
-    refetchQueries,
+  const _refetchQueries = useMemo(
+    () => [...refetchQueries.map(query => ({ query }))],
+    [refetchQueries],
+  );
+
+  const [createThreadWithComment] = useMutation(CreateThreadWithCommentDocument, {
+    refetchQueries: _refetchQueries,
   });
 
-  const [createComment] = useAddCommentMutation({
-    refetchQueries,
+  const [createComment] = useMutation(AddCommentDocument, {
+    refetchQueries: _refetchQueries,
   });
 
   const handleCommentCreate = useCallback(
     async (content: string) => {
       try {
         if (!threadId) {
-          const { data, errors } = await createThreadWithComment({
+          const { data, error } = await createThreadWithComment({
             variables: {
               workspaceId: currentWorkspaceId ?? "",
               resourceId: resourceId ?? "",
@@ -59,12 +65,12 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
             },
           });
 
-          if (errors || !data?.createThreadWithComment?.thread?.id) {
+          if (error || !data?.createThreadWithComment?.thread?.id) {
             Notification.error({ message: t("Failed to create thread.") });
             return;
           }
         } else {
-          const { data: commentData, errors: commentErrors } = await createComment({
+          const { data: commentData, error: commentErrors } = await createComment({
             variables: { threadId, content },
           });
 
@@ -90,8 +96,8 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
     ],
   );
 
-  const [updateComment] = useUpdateCommentMutation({
-    refetchQueries,
+  const [updateComment] = useMutation(UpdateCommentDocument, {
+    refetchQueries: _refetchQueries,
   });
 
   const handleCommentUpdate = useCallback(
@@ -104,7 +110,7 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
           content,
         },
       });
-      if (comment.errors || !comment.data?.updateComment) {
+      if (comment.error || !comment.data?.updateComment) {
         Notification.error({ message: t("Failed to update comment.") });
         return;
       }
@@ -113,8 +119,8 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
     [updateComment, threadId, t],
   );
 
-  const [deleteComment] = useDeleteCommentMutation({
-    refetchQueries,
+  const [deleteComment] = useMutation(DeleteCommentDocument, {
+    refetchQueries: _refetchQueries,
   });
 
   const handleCommentDelete = useCallback(
@@ -126,7 +132,7 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
           commentId,
         },
       });
-      if (comment.errors || !comment.data?.deleteComment) {
+      if (comment.error || !comment.data?.deleteComment) {
         Notification.error({ message: t("Failed to delete comment.") });
         return;
       }

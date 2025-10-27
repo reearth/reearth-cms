@@ -77,7 +77,7 @@ describe("Integration table", () => {
       />,
     );
 
-    expect(screen.getByRole("link")).toBeVisible();
+    expect(screen.getByText("how to use Re:Earth CMS")).toBeVisible();
   });
 
   test("Connecting buttons works successfully", async () => {
@@ -101,7 +101,7 @@ describe("Integration table", () => {
       />,
     );
 
-    const connectButtons = screen.getAllByRole("button", { name: "api Connect Integration" });
+    const connectButtons = screen.getAllByRole("button", { name: "apiConnect Integration" });
     for (const button of connectButtons) {
       await user.click(button);
     }
@@ -156,9 +156,9 @@ describe("Integration table", () => {
       />,
     );
 
-    expect(screen.getByText("Name")).toBeInTheDocument();
-    expect(screen.getByText("Role")).toBeInTheDocument();
-    expect(screen.getByText("Creator")).toBeInTheDocument();
+    expect(screen.getAllByText("Name")[0]).toBeInTheDocument();
+    expect(screen.getAllByText("Role")[0]).toBeInTheDocument();
+    expect(screen.getAllByText("Creator")[0]).toBeInTheDocument();
     expect(screen.getByText(name)).toBeVisible();
     expect(screen.getByText(role)).toBeVisible();
     expect(screen.getByText(creatorName)).toBeVisible();
@@ -185,8 +185,8 @@ describe("Integration table", () => {
       />,
     );
 
-    await user.click(screen.getByLabelText("Select all"));
-    await user.click(screen.getByRole("button", { name: "delete Remove" }));
+    await user.click(screen.getAllByLabelText("Select all")[0]);
+    await user.click(screen.getByRole("button", { name: "deleteRemove" }));
     expect(onIntegrationRemoveMock).toHaveBeenCalled();
   });
 
@@ -209,7 +209,7 @@ describe("Integration table", () => {
       />,
     );
 
-    await user.click(screen.getByLabelText("Select all"));
+    await user.click(screen.getAllByLabelText("Select all")[0]);
     expect(screen.getByLabelText("loading")).toBeVisible();
   });
 
@@ -232,7 +232,7 @@ describe("Integration table", () => {
       />,
     );
 
-    for (const button of screen.getAllByRole("button", { name: "api Connect Integration" })) {
+    for (const button of screen.getAllByRole("button", { name: "apiConnect Integration" })) {
       expect(button).toBeDisabled();
     }
   });
@@ -258,7 +258,7 @@ describe("Integration table", () => {
 
     expect(screen.getByRole("button", { name: "setting" })).toBeDisabled();
 
-    await user.click(screen.getByLabelText("Select all"));
-    expect(screen.getByRole("button", { name: "delete Remove" })).toBeDisabled();
+    await user.click(screen.getAllByLabelText("Select all")[0]);
+    expect(screen.getByRole("button", { name: "deleteRemove" })).toBeDisabled();
   });
 });

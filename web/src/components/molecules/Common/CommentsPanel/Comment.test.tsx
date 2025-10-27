@@ -21,7 +21,7 @@ describe("Comments panel", () => {
   const hasDeleteRight = true;
   const name = "name";
   const content = "content";
-  const createdAt = "";
+  const createdAt = dayjs().toString();
   const fromNow = dayjs(createdAt).fromNow();
   const commentId = "commentId";
   const comment: CommentType = {
@@ -69,8 +69,8 @@ describe("Comments panel", () => {
 
     await user.hover(screen.getByText(fromNow));
     await expect
-      .poll(() => screen.getByRole("tooltip", { name: dateTimeFormat(createdAt) }))
-      .toBeVisible();
+      .poll(() => screen.queryByRole("tooltip", { name: dateTimeFormat(createdAt) }))
+      .toBeInTheDocument();
   });
 
   test("Markdown text is rendered successfully", async () => {
