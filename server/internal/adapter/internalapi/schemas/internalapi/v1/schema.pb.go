@@ -1678,11 +1678,10 @@ func (x *ModelExportRequest) GetExportType() ModelExportRequest_Type {
 }
 
 type StarRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	WorkspaceAlias string                 `protobuf:"bytes,1,opt,name=workspace_alias,json=workspaceAlias,proto3" json:"workspace_alias,omitempty"`
-	ProjectAlias   string                 `protobuf:"bytes,2,opt,name=project_alias,json=projectAlias,proto3" json:"project_alias,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ProjectAlias  string                 `protobuf:"bytes,2,opt,name=project_alias,json=projectAlias,proto3" json:"project_alias,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *StarRequest) Reset() {
@@ -1713,13 +1712,6 @@ func (x *StarRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use StarRequest.ProtoReflect.Descriptor instead.
 func (*StarRequest) Descriptor() ([]byte, []int) {
 	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{21}
-}
-
-func (x *StarRequest) GetWorkspaceAlias() string {
-	if x != nil {
-		return x.WorkspaceAlias
-	}
-	return ""
 }
 
 func (x *StarRequest) GetProjectAlias() string {
@@ -2487,9 +2479,8 @@ const file_schemas_internalapi_v1_schema_proto_rawDesc = "" +
 	"exportType\"\x1d\n" +
 	"\x04Type\x12\b\n" +
 	"\x04JSON\x10\x00\x12\v\n" +
-	"\aGEOJSON\x10\x01\"[\n" +
-	"\vStarRequest\x12'\n" +
-	"\x0fworkspace_alias\x18\x01 \x01(\tR\x0eworkspaceAlias\x12#\n" +
+	"\aGEOJSON\x10\x01\"2\n" +
+	"\vStarRequest\x12#\n" +
 	"\rproject_alias\x18\x02 \x01(\tR\fprojectAlias\"D\n" +
 	"\x0fProjectResponse\x121\n" +
 	"\aproject\x18\x01 \x01(\v2\x17.reearth.cms.v1.ProjectR\aproject\"9\n" +

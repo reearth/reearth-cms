@@ -226,7 +226,6 @@ message ModelExportRequest {
 }
 
 message StarRequest {
-  string workspace_alias = 1;
   string project_alias = 2;
 }
 
