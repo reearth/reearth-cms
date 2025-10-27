@@ -61,6 +61,15 @@ export class ProjectPage extends BasePage {
   get exportAsJSONText(): Locator {
     return this.getByText("Export as JSON");
   }
+  get exportAsCSVText(): Locator {
+    return this.getByText("Export as CSV");
+  }
+  get exportAsGeoJSONText(): Locator {
+    return this.getByText("Export as GeoJSON");
+  }
+  get exportSchemaText(): Locator {
+    return this.getByText("Export Schema");
+  }
   get deleteModelButton(): Locator {
     return this.getByRole("button", { name: "Delete Model" });
   }
@@ -69,6 +78,40 @@ export class ProjectPage extends BasePage {
   }
   get dialogNewModelText(): Locator {
     return this.getByRole("dialog").getByText("New Model");
+  }
+
+  // Export modal locators
+  get csvExportWarningText(): Locator {
+    return this.getByText("CSV export only supports simple fields");
+  }
+  get csvExportRelationsWarningText(): Locator {
+    return this.getByText("Relations, arrays, objects, and geometry fields are not included.");
+  }
+  get exportCSVButton(): Locator {
+    return this.getByRole("button", { name: "Export CSV" });
+  }
+  get cancelButton(): Locator {
+    return this.getByRole("button", { name: "Cancel" });
+  }
+  get cannotExportGeoJSONText(): Locator {
+    return this.getByText("Cannot export GeoJSON");
+  }
+  get noGeometryFieldText(): Locator {
+    return this.getByText(
+      "No Geometry field was found in this model, so GeoJSON export is not available.",
+    );
+  }
+  get multipleGeometryFieldsText(): Locator {
+    return this.getByText("Multiple Geometry fields detected");
+  }
+  get multipleGeometryWarningText(): Locator {
+    return this.getByText("This model has multiple Geometry fields.");
+  }
+  get geoJSONSingleFieldWarningText(): Locator {
+    return this.getByText("GeoJSON format supports only one geometry field.");
+  }
+  get exportAnywayButton(): Locator {
+    return this.getByRole("button", { name: "Export Anyway" });
   }
 
   // Dynamic locators for model-specific content

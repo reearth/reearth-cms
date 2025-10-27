@@ -11,6 +11,7 @@ const ProjectOverview: React.FC = () => {
     selectedModel,
     modelDeletionModalShown,
     deleteLoading,
+    exportLoading,
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
@@ -39,6 +40,7 @@ const ProjectOverview: React.FC = () => {
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
+        exportLoading={exportLoading}
         onProjectUpdate={handleProjectUpdate}
         onModelSearch={handleModelSearch}
         onModelSort={handleModelSort}

@@ -13,6 +13,7 @@ type Props = {
   model: Model;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
+  exportLoading?: boolean;
   onSchemaNavigate: (modelId: string) => void;
   onContentNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
@@ -24,6 +25,7 @@ const ModelCard: React.FC<Props> = ({
   model,
   hasUpdateRight,
   hasDeleteRight,
+  exportLoading,
   onSchemaNavigate,
   onContentNavigate,
   onModelDeletionModalOpen,
@@ -55,6 +57,7 @@ const ModelCard: React.FC<Props> = ({
   const handleCSVExport = useCallback(
     async (exportType: ExportFormat) => {
       Modal.confirm({
+        width: 550,
         title: t("Export as CSV"),
         content: (
           <ModalContent>
@@ -91,13 +94,20 @@ const ModelCard: React.FC<Props> = ({
       if (geoFieldsCount === 0) {
         Modal.error({
           title: t("Cannot export GeoJSON"),
-          content: t(
-            "No Geometry field was found in this model, so GeoJSON export is not available.",
+          content: (
+            <ModalContent>
+              <div>
+                {t(
+                  "No Geometry field was found in this model, so GeoJSON export is not available.",
+                )}
+              </div>
+            </ModalContent>
           ),
           okText: t("OK"),
         });
       } else if (geoFieldsCount > 1) {
         Modal.confirm({
+          width: 550,
           title: t("Multiple Geometry fields detected"),
           content: (
             <ModalContent>
@@ -142,24 +152,28 @@ const ModelCard: React.FC<Props> = ({
         key: "schema",
         label: t("Export Schema"),
         onClick: () => handleModelExportClick(ExportFormat.Schema),
+        disabled: exportLoading,
       },
       {
         key: "json",
         label: t("Export as JSON"),
         onClick: () => handleModelExportClick(ExportFormat.Json),
+        disabled: exportLoading,
       },
       {
         key: "csv",
         label: t("Export as CSV"),
         onClick: () => handleModelExportClick(ExportFormat.Csv),
+        disabled: exportLoading,
       },
       {
         key: "geojson",
         label: t("Export as GeoJSON"),
         onClick: () => handleModelExportClick(ExportFormat.Geojson),
+        disabled: exportLoading,
       },
     ],
-    [t, handleModelExportClick],
+    [t, handleModelExportClick, exportLoading],
   );
 
   return (

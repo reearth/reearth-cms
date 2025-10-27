@@ -1,3 +1,4 @@
+import fileDownload from "js-file-download";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -160,8 +161,52 @@ export default () => {
 
   const exportLoading = exportModelLoading || exportSchemaLoading;
 
+  const getFilenameFromFormat = useCallback((modelId: string, format: ExportFormat): string => {
+    switch (format) {
+      case ExportFormat.Schema:
+        return `${modelId}-schema.json`;
+      case ExportFormat.Json:
+        return `${modelId}-data.json`;
+      case ExportFormat.Csv:
+        return `${modelId}-data.csv`;
+      case ExportFormat.Geojson:
+        return `${modelId}-data.geojson`;
+      default:
+        return `${modelId}-data.json`;
+    }
+  }, []);
+
+  const downloadFile = useCallback(
+    async (url: string, filename: string) => {
+      try {
+        const response = await fetch(url, {
+          method: "GET",
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to download ${filename}: HTTP ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        fileDownload(blob, filename);
+
+        Notification.success({
+          message: t("Download successful"),
+          description: filename,
+        });
+      } catch (err) {
+        console.error("Download error:", err);
+        Notification.error({
+          message: t("Download failed"),
+          description: filename,
+        });
+      }
+    },
+    [t],
+  );
+
   const handleModelExport = useCallback(
-    async (modelId?: string, format?: ExportFormat) => {
+    async (modelId?: string, format?: ExportFormat): Promise<void> => {
       if (!modelId || !format) return;
 
       try {
@@ -173,9 +218,8 @@ export default () => {
             return;
           }
           const url = res.data.exportModelSchema.url;
-          // Download the file
-          window.open(url, "_blank");
-          Notification.success({ message: t("Successfully exported schema!") });
+          const filename = getFilenameFromFormat(modelId, format);
+          await downloadFile(url, filename);
         } else {
           // Export model data (JSON, CSV, or GeoJSON)
           const exportFormat = format as GQLExportFormat;
@@ -187,15 +231,14 @@ export default () => {
             return;
           }
           const url = res.data.exportModel.url;
-          // Download the file
-          window.open(url, "_blank");
-          Notification.success({ message: t("Successfully exported model data!") });
+          const filename = getFilenameFromFormat(modelId, format);
+          await downloadFile(url, filename);
         }
       } catch {
         Notification.error({ message: t("Failed to export.") });
       }
     },
-    [exportModel, exportModelSchema, t],
+    [exportModel, exportModelSchema, t, downloadFile, getFilenameFromFormat],
   );
 
   const handleHomeNavigation = useCallback(() => {
