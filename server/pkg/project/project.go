@@ -29,6 +29,7 @@ type Project struct {
 	imageURL      *url.URL
 	starCount     int64
 	starredBy     []string
+	topics        []string
 	updatedAt     time.Time
 	accessibility *Accessibility
 	requestRoles  []workspace.Role
@@ -77,6 +78,10 @@ func (p *Project) StarCount() int64 {
 
 func (p *Project) StarredBy() []string {
 	return p.starredBy
+}
+
+func (p *Project) Topics() []string {
+	return p.topics
 }
 
 func (p *Project) Workspace() accountdomain.WorkspaceID {
@@ -155,6 +160,21 @@ func (p *Project) Unstar(uId accountdomain.UserID) {
 			return
 		}
 	}
+}
+
+func (p *Project) SetTopics(topics []string) {
+	// adding length check as topics will be [] in the gRPC request and will delete topics in the record which is not intended
+	if p == nil || len(topics) == 0 {
+		return
+	}
+
+	// A single empty string is used as a sentinel value to signal topic deletion.
+	// This distinguishes it from proto3's default empty array behavior.
+	if len(topics) == 1 && topics[0] == "" {
+		p.topics = []string{}
+		return
+	}
+	p.topics = slices.Clone(topics)
 }
 
 func (p *Project) SetRequestRoles(sr []workspace.Role) {

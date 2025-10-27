@@ -149,7 +149,8 @@ message CreateProjectRequest {
   optional string license = 4;
   optional string readme = 5;
   string alias = 6;
-  Visibility visibility = 7;
+  repeated string topics = 7;
+  Visibility visibility = 8;
 }
 
 message UpdateProjectRequest {
@@ -159,7 +160,8 @@ message UpdateProjectRequest {
   optional string license = 4;
   optional string readme = 5;
   optional string alias = 6;
-  optional Visibility visibility = 7;
+  repeated string topics = 7;
+  optional Visibility visibility = 8;
 }
 
 message DeleteProjectRequest {

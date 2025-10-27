@@ -145,6 +145,10 @@ func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectPara
 				pb = pb.Accessibility(accessibility)
 			}
 
+			if param.Topics != nil {
+				pb = pb.Topics(*param.Topics)
+			}
+
 			proj, err := pb.Build()
 			if err != nil {
 				return nil, err
@@ -253,6 +257,10 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 
 			if param.RequestRoles != nil {
 				p.SetRequestRoles(param.RequestRoles)
+			}
+
+			if param.Topics != nil {
+				p.SetTopics(*param.Topics)
 			}
 
 			p.SetUpdatedAt(util.Now())

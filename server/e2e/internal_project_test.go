@@ -298,14 +298,34 @@ func TestInternalCreateProjectAPI(t *testing.T) {
 	l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{WorkspaceIds: []string{wId0.String()}})
 	assert.NoError(t, err)
 	assert.Equal(t, int64(3), l.TotalCount)
-	for _, p := range l.Projects {
-		if p.Alias == "new_project" {
-			assert.Equal(t, "New Project", p.Name)
-			assert.Equal(t, lo.ToPtr("This is a new project"), p.Description)
-			assert.Equal(t, wId0.String(), p.WorkspaceId)
-			return
+
+	// Test different project creation scenarios
+	t.Run("should create project with topics", func(t *testing.T) {
+		_, err := client.CreateProject(mdCtx, &pb.CreateProjectRequest{
+			Name:        "Project With Topics",
+			Alias:       "project_with_topics",
+			Description: lo.ToPtr("Project with topics"),
+			Topics:      []string{"topic1", "topic2", "topic3"},
+			WorkspaceId: wId0.String(),
+		})
+		assert.NoError(t, err)
+
+		// Verify the project was created with topics
+		l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{WorkspaceIds: []string{wId0.String()}})
+		assert.NoError(t, err)
+		var found bool
+		for _, p := range l.Projects {
+			if p.Alias == "project_with_topics" {
+				assert.Equal(t, "Project With Topics", p.Name)
+				assert.Equal(t, lo.ToPtr("Project with topics"), p.Description)
+				assert.Equal(t, wId0.String(), p.WorkspaceId)
+				assert.Equal(t, []string{"topic1", "topic2", "topic3"}, p.Topics)
+				found = true
+				break
+			}
 		}
-	}
+		assert.True(t, found, "Project with topics was not found")
+	})
 }
 
 // GRPC Update Project
@@ -345,6 +365,46 @@ func TestInternalUpdateProjectAPI(t *testing.T) {
 	assert.Equal(t, "updated_alias", p.Project.Alias)
 	assert.Equal(t, wId0.String(), p.Project.WorkspaceId)
 	assert.Equal(t, pid.String(), p.Project.Id)
+
+	// Test updating project topics
+	t.Run("should update project topics", func(t *testing.T) {
+		_, err := client.UpdateProject(mdCtx, &pb.UpdateProjectRequest{
+			ProjectId: pid.String(),
+			Topics:    []string{"topic1", "topic2"},
+		})
+		assert.NoError(t, err)
+
+		// Verify topics were updated
+		p, err := client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: pid.String()})
+		assert.NoError(t, err)
+		assert.Equal(t, []string{"topic1", "topic2"}, p.Project.Topics)
+	})
+
+	t.Run("empty topics array should not delete topics", func(t *testing.T) {
+		_, err := client.UpdateProject(mdCtx, &pb.UpdateProjectRequest{
+			ProjectId: pid.String(),
+			Topics:    []string{},
+		})
+		assert.NoError(t, err)
+
+		// Verify topics were not deleted
+		p, err := client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: pid.String()})
+		assert.NoError(t, err)
+		assert.Equal(t, []string{"topic1", "topic2"}, p.Project.Topics)
+	})
+
+	t.Run("topics array with empty string should delete topics", func(t *testing.T) {
+		_, err := client.UpdateProject(mdCtx, &pb.UpdateProjectRequest{
+			ProjectId: pid.String(),
+			Topics:    []string{""},
+		})
+		assert.NoError(t, err)
+
+		// Verify topics were deleted
+		p, err := client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: pid.String()})
+		assert.NoError(t, err)
+		assert.Empty(t, p.Project.Topics)
+	})
 }
 
 // GRPC Delete Project

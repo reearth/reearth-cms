@@ -7,13 +7,14 @@
 package v1
 
 import (
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
+
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	anypb "google.golang.org/protobuf/types/known/anypb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
 )
 
 const (
@@ -976,7 +977,8 @@ type CreateProjectRequest struct {
 	License       *string                `protobuf:"bytes,4,opt,name=license,proto3,oneof" json:"license,omitempty"`
 	Readme        *string                `protobuf:"bytes,5,opt,name=readme,proto3,oneof" json:"readme,omitempty"`
 	Alias         string                 `protobuf:"bytes,6,opt,name=alias,proto3" json:"alias,omitempty"`
-	Visibility    Visibility             `protobuf:"varint,7,opt,name=visibility,proto3,enum=reearth.cms.v1.Visibility" json:"visibility,omitempty"`
+	Topics        []string               `protobuf:"bytes,7,rep,name=topics,proto3" json:"topics,omitempty"`
+	Visibility    Visibility             `protobuf:"varint,8,opt,name=visibility,proto3,enum=reearth.cms.v1.Visibility" json:"visibility,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1053,6 +1055,13 @@ func (x *CreateProjectRequest) GetAlias() string {
 	return ""
 }
 
+func (x *CreateProjectRequest) GetTopics() []string {
+	if x != nil {
+		return x.Topics
+	}
+	return nil
+}
+
 func (x *CreateProjectRequest) GetVisibility() Visibility {
 	if x != nil {
 		return x.Visibility
@@ -1068,7 +1077,8 @@ type UpdateProjectRequest struct {
 	License       *string                `protobuf:"bytes,4,opt,name=license,proto3,oneof" json:"license,omitempty"`
 	Readme        *string                `protobuf:"bytes,5,opt,name=readme,proto3,oneof" json:"readme,omitempty"`
 	Alias         *string                `protobuf:"bytes,6,opt,name=alias,proto3,oneof" json:"alias,omitempty"`
-	Visibility    *Visibility            `protobuf:"varint,7,opt,name=visibility,proto3,enum=reearth.cms.v1.Visibility,oneof" json:"visibility,omitempty"`
+	Topics        []string               `protobuf:"bytes,7,rep,name=topics,proto3" json:"topics,omitempty"`
+	Visibility    *Visibility            `protobuf:"varint,8,opt,name=visibility,proto3,enum=reearth.cms.v1.Visibility,oneof" json:"visibility,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1143,6 +1153,13 @@ func (x *UpdateProjectRequest) GetAlias() string {
 		return *x.Alias
 	}
 	return ""
+}
+
+func (x *UpdateProjectRequest) GetTopics() []string {
+	if x != nil {
+		return x.Topics
+	}
+	return nil
 }
 
 func (x *UpdateProjectRequest) GetVisibility() Visibility {
@@ -2390,21 +2407,22 @@ const file_schemas_internalapi_v1_schema_proto_rawDesc = "" +
 	"\x0eProjectRequest\x12-\n" +
 	"\x13project_id_or_alias\x18\x01 \x01(\tR\x10projectIdOrAlias\"0\n" +
 	"\x18AliasAvailabilityRequest\x12\x14\n" +
-	"\x05alias\x18\x01 \x01(\tR\x05alias\"\xa9\x02\n" +
+	"\x05alias\x18\x01 \x01(\tR\x05alias\"\xc1\x02\n" +
 	"\x14CreateProjectRequest\x12!\n" +
 	"\fworkspace_id\x18\x01 \x01(\tR\vworkspaceId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12%\n" +
 	"\vdescription\x18\x03 \x01(\tH\x00R\vdescription\x88\x01\x01\x12\x1d\n" +
 	"\alicense\x18\x04 \x01(\tH\x01R\alicense\x88\x01\x01\x12\x1b\n" +
 	"\x06readme\x18\x05 \x01(\tH\x02R\x06readme\x88\x01\x01\x12\x14\n" +
-	"\x05alias\x18\x06 \x01(\tR\x05alias\x12:\n" +
+	"\x05alias\x18\x06 \x01(\tR\x05alias\x12\x16\n" +
+	"\x06topics\x18\a \x03(\tR\x06topics\x12:\n" +
 	"\n" +
-	"visibility\x18\a \x01(\x0e2\x1a.reearth.cms.v1.VisibilityR\n" +
+	"visibility\x18\b \x01(\x0e2\x1a.reearth.cms.v1.VisibilityR\n" +
 	"visibilityB\x0e\n" +
 	"\f_descriptionB\n" +
 	"\n" +
 	"\b_licenseB\t\n" +
-	"\a_readme\"\xd6\x02\n" +
+	"\a_readme\"\xee\x02\n" +
 	"\x14UpdateProjectRequest\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x17\n" +
@@ -2412,9 +2430,10 @@ const file_schemas_internalapi_v1_schema_proto_rawDesc = "" +
 	"\vdescription\x18\x03 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
 	"\alicense\x18\x04 \x01(\tH\x02R\alicense\x88\x01\x01\x12\x1b\n" +
 	"\x06readme\x18\x05 \x01(\tH\x03R\x06readme\x88\x01\x01\x12\x19\n" +
-	"\x05alias\x18\x06 \x01(\tH\x04R\x05alias\x88\x01\x01\x12?\n" +
+	"\x05alias\x18\x06 \x01(\tH\x04R\x05alias\x88\x01\x01\x12\x16\n" +
+	"\x06topics\x18\a \x03(\tR\x06topics\x12?\n" +
 	"\n" +
-	"visibility\x18\a \x01(\x0e2\x1a.reearth.cms.v1.VisibilityH\x05R\n" +
+	"visibility\x18\b \x01(\x0e2\x1a.reearth.cms.v1.VisibilityH\x05R\n" +
 	"visibility\x88\x01\x01B\a\n" +
 	"\x05_nameB\x0e\n" +
 	"\f_descriptionB\n" +

@@ -54,6 +54,7 @@ func (s server) CreateProject(ctx context.Context, req *pb.CreateProjectRequest)
 		License:       req.License,
 		Readme:        req.Readme,
 		Alias:         &req.Alias,
+		Topics:        &req.Topics,
 		RequestRoles:  []workspace.Role{},
 		Accessibility: internalapimodel.ProjectAccessibilityFromPB(&req.Visibility),
 	}, op)
@@ -81,6 +82,7 @@ func (s server) UpdateProject(ctx context.Context, req *pb.UpdateProjectRequest)
 		License:       req.License,
 		Readme:        req.Readme,
 		Alias:         req.Alias,
+		Topics:        &req.Topics,
 		RequestRoles:  []workspace.Role{},
 		Accessibility: internalapimodel.ProjectAccessibilityFromPB(req.Visibility),
 	}, op)
