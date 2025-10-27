@@ -24,6 +24,7 @@ service ReEarthCMS {
   rpc GetModelGeoJSONExportURL(ExportRequest) returns (ExportURLResponse) {
     option deprecated = true;
   }
+  rpc StarProject(StarRequest) returns (StarResponse) {}
 }
 
 // Implementation note:
@@ -43,9 +44,10 @@ message Project {
   string workspace_id = 7;
   Visibility visibility = 8;
   repeated string topics = 9;
-  int32 star_count = 10;
-  google.protobuf.Timestamp created_at = 11;
-  google.protobuf.Timestamp updated_at = 12;
+  int64 star_count = 10;
+  repeated string starred_by = 11;
+  google.protobuf.Timestamp created_at = 12;
+  google.protobuf.Timestamp updated_at = 13;
 }
 
 enum Visibility {
@@ -223,6 +225,11 @@ message ModelExportRequest {
   Type export_type = 3;
 }
 
+message StarRequest {
+  string workspace_alias = 1;
+  string project_alias = 2;
+}
+
 // Response messages
 message ProjectResponse {
   Project project = 1;
@@ -274,4 +281,8 @@ message ListItemsResponse {
 
 message ExportURLResponse {
   string url = 1;
+}
+
+message StarResponse {
+  Project project = 1;
 }
