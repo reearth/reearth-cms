@@ -46,7 +46,6 @@ test("Model Export as JSON on Overview page has succeeded", async ({
   schemaPage,
   projectPage,
 }) => {
-  test.skip(); // Temporarily skip due to CORS issue in OSS environment
   await expect(projectPage.noModelsYetText).toBeVisible();
   await projectPage.newModelButtonFirst.click();
   await expect(projectPage.newModelLabelText).toBeVisible();
@@ -65,7 +64,6 @@ test("Model Export as JSON on Overview page has succeeded", async ({
 });
 
 test("Model Export as CSV on Overview page has succeed", async ({ schemaPage, projectPage }) => {
-  test.skip(); // Temporarily skip due to CORS issue in OSS environment
   await expect(projectPage.noModelsYetText).toBeVisible();
   await projectPage.newModelButtonFirst.click();
   await expect(projectPage.newModelLabelText).toBeVisible();
@@ -87,7 +85,6 @@ test("Model Export as CSV on Overview page has succeed", async ({ schemaPage, pr
 });
 
 test("Model Export Schema has succeeded", async ({ schemaPage, projectPage }) => {
-  test.skip(); // Temporarily skip due to CORS issue in OSS environment
   await expect(projectPage.noModelsYetText).toBeVisible();
   await projectPage.newModelButtonFirst.click();
   await expect(projectPage.newModelLabelText).toBeVisible();
@@ -131,7 +128,6 @@ test("Model Export as GeoJSON with single geometry field succeeds", async ({
   projectPage,
   fieldEditorPage,
 }) => {
-  test.skip(); // Temporarily skip due to CORS issue in OSS environment
   await expect(projectPage.noModelsYetText).toBeVisible();
   await projectPage.newModelButtonFirst.click();
   await expect(projectPage.newModelLabelText).toBeVisible();
