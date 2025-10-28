@@ -1,7 +1,5 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 
-let integrationId: string;
-
 test.beforeEach(async ({ reearth, integrationsPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await integrationsPage.myIntegrationsMenuItem.click();
