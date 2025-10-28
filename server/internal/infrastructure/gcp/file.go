@@ -392,13 +392,14 @@ func (f *fileRepo) Upload(ctx context.Context, file *file.File, objectName strin
 		file.ContentEncoding = ""
 	}
 
-	bucket, err := f.bucketWithEndpoint(ctx)
+	// Use gcsproxy endpoint for upload to enable tracking
+	bucketForUpload, err := f.bucketWithEndpoint(ctx)
 	if err != nil {
 		log.Errorf("gcs: upload bucket err: %+v\n", err)
 		return 0, rerror.ErrInternalBy(err)
 	}
 
-	object := bucket.Object(objectName)
+	object := bucketForUpload.Object(objectName)
 
 	if err := object.Delete(ctx); err != nil && !errors.Is(err, storage.ErrObjectNotExist) {
 		log.Errorf("gcs: upload err: %+v\n", err)
@@ -438,7 +439,15 @@ func (f *fileRepo) Upload(ctx context.Context, file *file.File, objectName strin
 		return 0, gateway.ErrFailedToUploadFile
 	}
 
-	attr, err := object.Attrs(ctx)
+	// Use standard GCS client for attributes to ensure reliability
+	// gcsproxy doesn't support the metadata API endpoints needed for Attrs()
+	bucketForAttrs, err := f.bucket(ctx)
+	if err != nil {
+		log.Errorf("gcs: attrs bucket err: %+v\n", err)
+		return 0, rerror.ErrInternalBy(err)
+	}
+
+	attr, err := bucketForAttrs.Object(objectName).Attrs(ctx)
 	if err != nil {
 		return 0, rerror.ErrInternalBy(err)
 	}
@@ -623,18 +632,20 @@ func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
 	return bucket, nil
 }
 
+// bucketWithEndpoint creates a bucket handle using gcsproxy endpoint for upload tracking
 func (f *fileRepo) bucketWithEndpoint(ctx context.Context) (*storage.BucketHandle, error) {
-	// If publicBase is not configured, reuse the default bucket logic
-	if f.publicBase == nil {
+	// If publicBase is not configured, use the standard client
+	if f.publicBase == nil || f.publicBase.Host == "storage.googleapis.com" {
 		return f.bucket(ctx)
 	}
 
 	var opts []option.ClientOption
 	endpoint := f.publicBase.String() + gcsUploadAPIPath
 	opts = append(opts, option.WithEndpoint(endpoint))
+	
 	client, err := storage.NewClient(ctx, opts...)
 	if err != nil {
-		log.Errorf("gcs: failed to initialize storage client for bucket %q: %v", f.bucketName, err)
+		log.Errorf("gcs: failed to initialize storage client with endpoint %q: %v", endpoint, err)
 		return nil, err
 	}
 
