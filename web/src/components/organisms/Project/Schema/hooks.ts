@@ -1,4 +1,4 @@
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
+import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { Modal } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -83,17 +83,18 @@ export default () => {
       .filter((model): model is Model => !!model);
   }, [modelsData?.models.nodes]);
 
-  const [getModel, { data: modelData }] = useLazyQuery(GetModelDocument, {
-    fetchPolicy: "cache-and-network",
-  });
+  const { data: modelData, refetch: modelRefetch } = useQuery(
+    GetModelDocument,
+    currentModel
+      ? { variables: { id: currentModel.id }, fetchPolicy: "cache-and-network" }
+      : skipToken,
+  );
 
   const handleReferencedModelGet = useCallback(
     (modelId: string) => {
-      getModel({
-        variables: { id: modelId },
-      });
+      modelRefetch({ id: modelId });
     },
-    [getModel],
+    [modelRefetch],
   );
 
   const referencedModel = useMemo<Model | undefined>(
