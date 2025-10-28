@@ -57,7 +57,8 @@ export class ServiceAccountIAPAuthHelper {
   }
 
   async forceRefresh(): Promise<void> {
-    this.cache = undefined;
+    this.cache = undefined;  
+    await this.getIdToken();  
   }
 
   static fromEnv(): ServiceAccountIAPAuthHelper {

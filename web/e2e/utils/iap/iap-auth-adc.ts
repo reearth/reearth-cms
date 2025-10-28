@@ -42,6 +42,7 @@ export class ADCIAPAuthHelper {
 
   async forceRefresh(): Promise<void> {
     this.cache = undefined;
+    await this.getIdToken();  
   }
 
   static fromEnv(): ADCIAPAuthHelper {
