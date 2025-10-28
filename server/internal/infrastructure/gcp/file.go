@@ -447,8 +447,6 @@ func (f *fileRepo) Upload(ctx context.Context, file *file.File, objectName strin
 		return 0, gateway.ErrFailedToUploadFile
 	}
 
-	// Get object attributes using the same client
-	// gcsproxy should transparently handle all GCS operations
 	attr, err := object.Attrs(ctx)
 	if err != nil {
 		return 0, rerror.ErrInternalBy(err)
