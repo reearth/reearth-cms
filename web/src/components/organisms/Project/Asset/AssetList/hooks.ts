@@ -1,3 +1,4 @@
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import fileDownload from "js-file-download";
 import { useState, useCallback, Key, useMemo, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
@@ -14,18 +15,20 @@ import {
 } from "@reearth-cms/components/organisms/Project/Schema/helpers";
 import { useAuthHeader } from "@reearth-cms/gql";
 import {
-  useGetAssetsLazyQuery,
-  useCreateAssetMutation,
-  useDeleteAssetMutation,
+  CreateAssetDocument,
+  CreateAssetUploadDocument,
+  DeleteAssetDocument,
+  GetAssetDocument,
+  GetAssetsDocument,
+  GetAssetsItemsDocument,
+  GuessSchemaFieldsDocument,
+} from "@reearth-cms/gql/__generated__/assets.generated";
+import {
   Asset as GQLAsset,
   SortDirection as GQLSortDirection,
   AssetSortType as GQLSortType,
-  useGetAssetsItemsLazyQuery,
-  useCreateAssetUploadMutation,
-  useGetAssetLazyQuery,
   ContentTypesEnum,
-  useGuessSchemaFieldsQuery,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
 
@@ -79,8 +82,8 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   );
 
   const [uploading, setUploading] = useState(false);
-  const [createAssetMutation] = useCreateAssetMutation();
-  const [createAssetUploadMutation] = useCreateAssetUploadMutation();
+  const [createAssetMutation] = useMutation(CreateAssetDocument);
+  const [createAssetUploadMutation] = useMutation(CreateAssetUploadDocument);
 
   const handleSelect = useCallback(
     (selectedRowKeys: Key[], selectedRows: Asset[]) => {
@@ -97,7 +100,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     [selection, userId, userRights?.asset.delete],
   );
 
-  const [getAsset] = useGetAssetLazyQuery();
+  const [getAsset] = useLazyQuery(GetAssetDocument);
 
   const handleGetAsset = useCallback(
     async (assetId: string) => {
@@ -112,39 +115,42 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     [getAsset],
   );
 
-  const params = {
-    fetchPolicy: "cache-and-network" as const,
-    variables: {
-      projectId: projectId ?? "",
-      pagination: { first: pageSize, offset: (page - 1) * pageSize },
-      sort: sort
-        ? {
-            sortBy: sort.type as GQLSortType,
-            direction: sort.direction as GQLSortDirection,
-          }
-        : { sortBy: "DATE" as GQLSortType, direction: "DESC" as GQLSortDirection },
-      keyword: searchTerm,
-      contentTypes: contentTypes,
-    },
-    notifyOnNetworkStatusChange: true,
-    skip: !projectId,
-  };
+  const params = useMemo(
+    () => ({
+      fetchPolicy: "cache-and-network" as const,
+      variables: {
+        projectId: projectId ?? "",
+        pagination: { first: pageSize, offset: (page - 1) * pageSize },
+        sort: sort
+          ? {
+              sortBy: sort.type as GQLSortType,
+              direction: sort.direction as GQLSortDirection,
+            }
+          : { sortBy: "DATE" as GQLSortType, direction: "DESC" as GQLSortDirection },
+        keyword: searchTerm,
+        contentTypes: contentTypes,
+      },
+      notifyOnNetworkStatusChange: true,
+      skip: !projectId,
+    }),
+    [contentTypes, page, pageSize, projectId, searchTerm, sort],
+  );
 
   const [getAssets, { data, refetch, loading }] = isItemsRequired
-    ? useGetAssetsItemsLazyQuery(params)
-    : useGetAssetsLazyQuery(params);
+    ? useLazyQuery(GetAssetsItemsDocument)
+    : useLazyQuery(GetAssetsDocument);
 
   useEffect(() => {
     if (isItemsRequired) {
-      getAssets();
+      getAssets(params);
     }
-  }, [getAssets, isItemsRequired]);
+  }, [getAssets, isItemsRequired, params]);
 
   const {
     data: guessSchemaFieldsData,
     loading: guessSchemaFieldsLoading,
     error: guessSchemaFieldsError,
-  } = useGuessSchemaFieldsQuery({
+  } = useQuery(GuessSchemaFieldsDocument, {
     fetchPolicy: "cache-and-network",
     variables: {
       modelId: modelId ?? "",
@@ -249,7 +255,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
                 },
               });
 
-              if (result.errors || !result.data?.createAssetUpload) {
+              if (result.error || !result.data?.createAssetUpload) {
                 Notification.error({ message: t("Failed to add one or more assets.") });
                 handleUploadModalCancel();
                 return undefined;
@@ -273,7 +279,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
                   skipDecompression: !!file?.skipDecompression,
                 },
               }).then(result => {
-                if (result.errors || !result.data?.createAsset) {
+                if (result.error || !result.data?.createAsset) {
                   Notification.error({ message: t("Failed to add one or more assets.") });
                   return undefined;
                 }
@@ -335,7 +341,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     [projectId, createAssetMutation, t, refetch, handleUploadModalCancel],
   );
 
-  const [deleteAssetMutation, { loading: deleteLoading }] = useDeleteAssetMutation();
+  const [deleteAssetMutation, { loading: deleteLoading }] = useMutation(DeleteAssetDocument);
   const handleAssetDelete = useCallback(
     async (assetIds: string[]) => {
       if (!projectId) return;
@@ -344,7 +350,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
           const result = await deleteAssetMutation({
             variables: { assetId },
           });
-          if (result.errors) {
+          if (result.error) {
             Notification.error({ message: t("Failed to delete one or more assets.") });
           }
         }),
@@ -364,8 +370,8 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   }, []);
 
   const handleAssetsGet = useCallback(() => {
-    getAssets();
-  }, [getAssets]);
+    getAssets(params);
+  }, [getAssets, params]);
 
   const handleAssetsReload = useCallback(() => {
     refetch();

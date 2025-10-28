@@ -1,3 +1,4 @@
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useEffect, useMemo, useState, useRef, Key } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
@@ -33,18 +34,20 @@ import {
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
 import {
   Item as GQLItem,
-  useDeleteItemMutation,
   Comment as GQLComment,
-  useSearchItemQuery,
   Asset as GQLAsset,
-  useGetItemLazyQuery,
-  useUpdateItemMutation,
-  useCreateItemMutation,
   SchemaFieldType,
   View as GQLView,
-  useGetViewsQuery,
   ItemFieldInput,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import {
+  CreateItemDocument,
+  DeleteItemDocument,
+  GetItemDocument,
+  SearchItemDocument,
+  UpdateItemDocument,
+} from "@reearth-cms/gql/__generated__/item.generated";
+import { GetViewsDocument } from "@reearth-cms/gql/__generated__/view.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
 
@@ -112,7 +115,7 @@ export default () => {
   const viewsRef = useRef<View[]>([]);
   const prevModelIdRef = useRef<string>();
 
-  const { data: viewData, loading: viewLoading } = useGetViewsQuery({
+  const { data: viewData, loading: viewLoading } = useQuery(GetViewsDocument, {
     variables: { modelId: modelId ?? "" },
     skip: !modelId,
   });
@@ -137,7 +140,7 @@ export default () => {
     viewsRef.current = viewList ?? [];
   }, [location.state?.currentView, modelId, viewData?.view, viewLoading]);
 
-  const { data, refetch, loading } = useSearchItemQuery({
+  const { data, refetch, loading } = useQuery(SearchItemDocument, {
     fetchPolicy: "no-cache",
     variables: {
       searchItemInput: {
@@ -187,9 +190,9 @@ export default () => {
     [selectedItems, userId, userRights?.content.delete, userRights?.request.update],
   );
 
-  const [updateItemMutation] = useUpdateItemMutation();
-  const [getItem] = useGetItemLazyQuery({ fetchPolicy: "no-cache" });
-  const [createNewItem] = useCreateItemMutation();
+  const [updateItemMutation] = useMutation(UpdateItemDocument);
+  const [getItem] = useLazyQuery(GetItemDocument, { fetchPolicy: "no-cache" });
+  const [createNewItem] = useMutation(CreateItemDocument);
 
   const itemIdToMetadata = useRef(new Map<string, Metadata>());
   const metadataVersionSet = useCallback(
@@ -279,7 +282,7 @@ export default () => {
               version: metadata.version,
             },
           });
-          if (item.errors || !item.data?.updateItem) {
+          if (item.error || !item.data?.updateItem) {
             Notification.error({ message: t("Failed to update item.") });
             return;
           }
@@ -296,7 +299,7 @@ export default () => {
               fields,
             },
           });
-          if (metaItem.errors || !metaItem.data?.createItem) {
+          if (metaItem.error || !metaItem.data?.createItem) {
             Notification.error({ message: t("Failed to update item.") });
             return;
           }
@@ -311,7 +314,7 @@ export default () => {
               version: target?.version ?? "",
             },
           });
-          if (item.errors || !item.data?.updateItem) {
+          if (item.error || !item.data?.updateItem) {
             Notification.error({ message: t("Failed to update item.") });
             return;
           }
@@ -542,7 +545,7 @@ export default () => {
     ],
   );
 
-  const [deleteItemMutation, { loading: deleteLoading }] = useDeleteItemMutation();
+  const [deleteItemMutation, { loading: deleteLoading }] = useMutation(DeleteItemDocument);
   const handleItemDelete = useCallback(
     (itemIds: string[]) =>
       (async () => {
@@ -552,7 +555,7 @@ export default () => {
               variables: { itemId },
               refetchQueries: ["SearchItem"],
             });
-            if (result.errors) {
+            if (result.error) {
               Notification.error({ message: t("Failed to delete one or more items.") });
             }
           }),

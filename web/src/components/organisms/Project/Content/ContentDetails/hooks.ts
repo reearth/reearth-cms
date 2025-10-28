@@ -1,3 +1,4 @@
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo, useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
@@ -29,20 +30,22 @@ import {
   Group as GQLGroup,
   VersionedItem as GQLVersionedItem,
   RequestState as GQLRequestState,
-  useCreateItemMutation,
-  useCreateRequestMutation,
-  useGetItemQuery,
-  useGetModelLazyQuery,
-  useGetMeQuery,
-  useUpdateItemMutation,
-  useSearchItemQuery,
-  useGetGroupLazyQuery,
   FieldType as GQLFieldType,
-  StringOperator,
   ItemFieldInput,
-  useIsItemReferencedLazyQuery,
-  useVersionsByItemQuery,
-} from "@reearth-cms/gql/graphql-client-api";
+  StringOperator,
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import { GetGroupDocument } from "@reearth-cms/gql/__generated__/group.generated";
+import {
+  CreateItemDocument,
+  GetItemDocument,
+  IsItemReferencedDocument,
+  SearchItemDocument,
+  UpdateItemDocument,
+  VersionsByItemDocument,
+} from "@reearth-cms/gql/__generated__/item.generated";
+import { GetModelDocument } from "@reearth-cms/gql/__generated__/model.generated";
+import { CreateRequestDocument } from "@reearth-cms/gql/__generated__/requests.generated";
+import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
 import { newID } from "@reearth-cms/utils/id";
@@ -73,7 +76,7 @@ export default () => {
   } = useContentHooks();
   const navigate = useNavigate();
   const location = useLocation();
-  const { data: userData } = useGetMeQuery();
+  const { data: userData } = useQuery(GetMeDocument);
 
   const { itemId } = useParams();
   const [collapsedModelMenu, collapseModelMenu] = useCollapsedModelMenu();
@@ -101,21 +104,20 @@ export default () => {
   const titleId = useRef("");
   const t = useT();
 
-  const { data, loading: itemLoading } = useGetItemQuery({
+  const { data, loading: itemLoading } = useQuery(GetItemDocument, {
     fetchPolicy: "cache-and-network",
     variables: { id: itemId ?? "" },
     skip: !itemId,
   });
 
-  const [getModel] = useGetModelLazyQuery({
+  const [getModel] = useLazyQuery(GetModelDocument, {
     fetchPolicy: "cache-and-network",
-    onCompleted: data => setReferenceModel(fromGraphQLModel(data?.node as GQLModel)),
   });
   const {
     data: itemsData,
     loading: loadingReference,
     refetch,
-  } = useSearchItemQuery({
+  } = useQuery(SearchItemDocument, {
     fetchPolicy: "cache-and-network",
     variables: {
       searchItemInput: {
@@ -205,7 +207,7 @@ export default () => {
     [currentItem?.createdBy?.id, me?.id, userRights?.content.update],
   );
 
-  const [getGroup] = useGetGroupLazyQuery({
+  const [getGroup] = useLazyQuery(GetGroupDocument, {
     fetchPolicy: "cache-and-network",
   });
 
@@ -244,7 +246,7 @@ export default () => {
     );
   }, [currentModel?.id, currentProject?.id, currentWorkspace?.id, location.state, navigate]);
 
-  const [createItem, { loading: itemCreationLoading }] = useCreateItemMutation({
+  const [createItem, { loading: itemCreationLoading }] = useMutation(CreateItemDocument, {
     refetchQueries: ["GetRequests"],
   });
 
@@ -270,7 +272,7 @@ export default () => {
             fields: metaFields as ItemFieldInput[],
           },
         });
-        if (metaItem.errors || !metaItem.data?.createItem) {
+        if (metaItem.error || !metaItem.data?.createItem) {
           Notification.error({ message: t("Failed to create item.") });
           return;
         }
@@ -284,7 +286,7 @@ export default () => {
           metadataId,
         },
       });
-      if (item.errors || !item.data?.createItem) {
+      if (item.error || !item.data?.createItem) {
         Notification.error({ message: t("Failed to create item.") });
         return;
       }
@@ -296,7 +298,7 @@ export default () => {
     [currentModel?.id, createItem, navigate, currentWorkspace?.id, currentProject?.id, t],
   );
 
-  const [updateItem, { loading: itemUpdatingLoading }] = useUpdateItemMutation({
+  const [updateItem, { loading: itemUpdatingLoading }] = useMutation(UpdateItemDocument, {
     refetchQueries: ["GetItem", "VersionsByItem"],
   });
 
@@ -309,7 +311,7 @@ export default () => {
           version: currentItem?.version ?? "",
         },
       });
-      if (item.errors || !item.data?.updateItem) {
+      if (item.error || !item.data?.updateItem) {
         Notification.error({ message: t("Failed to update item.") });
         return;
       }
@@ -328,7 +330,7 @@ export default () => {
             version: currentItem?.metadata?.version ?? "",
           },
         });
-        if (item.errors || !item.data?.updateItem) {
+        if (item.error || !item.data?.updateItem) {
           Notification.error({ message: t("Failed to update item.") });
           return;
         }
@@ -345,7 +347,7 @@ export default () => {
             fields: metaFields as ItemFieldInput[],
           },
         });
-        if (metaItem.errors || !metaItem.data?.createItem) {
+        if (metaItem.error || !metaItem.data?.createItem) {
           Notification.error({ message: t("Failed to update item.") });
           return;
         }
@@ -360,7 +362,7 @@ export default () => {
             version: currentItem.version,
           },
         });
-        if (item.errors || !item.data?.updateItem) {
+        if (item.error || !item.data?.updateItem) {
           Notification.error({ message: t("Failed to update item.") });
           return;
         }
@@ -517,9 +519,10 @@ export default () => {
     );
   }, [currentWorkspace]);
 
-  const [createRequestMutation, { loading: requestCreationLoading }] = useCreateRequestMutation({
-    refetchQueries: ["GetModalRequests", "GetItem", "VersionsByItem"],
-  });
+  const [createRequestMutation, { loading: requestCreationLoading }] = useMutation(
+    CreateRequestDocument,
+    { refetchQueries: ["GetModalRequests", "GetItem", "VersionsByItem"] },
+  );
 
   const handleRequestCreate = useCallback(
     async (data: {
@@ -540,7 +543,7 @@ export default () => {
           items: data.items,
         },
       });
-      if (request.errors || !request.data?.createRequest) {
+      if (request.error || !request.data?.createRequest) {
         Notification.error({ message: t("Failed to create request.") });
         return;
       }
@@ -555,17 +558,23 @@ export default () => {
   const handleModalOpen = useCallback(() => setRequestModalShown(true), []);
 
   const handleReferenceModelUpdate = useCallback(
-    (modelId: string, titleFieldId: string) => {
-      getModel({
-        variables: { id: modelId },
-      });
+    async (modelId: string, titleFieldId: string) => {
+      try {
+        const { data } = await getModel({
+          variables: { id: modelId },
+        }).retain();
+        setReferenceModel(fromGraphQLModel(data?.node as GQLModel));
+      } catch (error) {
+        Notification.error({ message: String(error) });
+      }
+
       titleId.current = titleFieldId;
       handleSearchTerm();
     },
     [getModel, handleSearchTerm],
   );
 
-  const [checkIfItemIsReferenced] = useIsItemReferencedLazyQuery({
+  const [checkIfItemIsReferenced] = useLazyQuery(IsItemReferencedDocument, {
     fetchPolicy: "no-cache",
   });
 
@@ -593,7 +602,7 @@ export default () => {
     return result;
   }, [currentItem, currentModel?.name]);
 
-  const { data: versionsData } = useVersionsByItemQuery({
+  const { data: versionsData } = useQuery(VersionsByItemDocument, {
     fetchPolicy: "cache-and-network",
     variables: { itemId: itemId ?? "" },
     skip: !itemId,

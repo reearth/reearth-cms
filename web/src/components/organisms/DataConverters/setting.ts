@@ -14,7 +14,7 @@ import {
   Workspace as GQLWorkspace,
   WorkspaceMember,
   WorkspaceUserMember,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
 
 export const fromGraphQLWorkspaceSettings = (
   GQLWorkspaceSettings: GQLWorkspaceSettings,
