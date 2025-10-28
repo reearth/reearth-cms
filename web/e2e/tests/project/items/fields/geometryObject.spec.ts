@@ -38,7 +38,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
   await contentPage.saveButton.click();
   await contentPage.closeNotification();
   await contentPage.backButton.click();
-  await contentPage.nthTableColumnButton(9).click();
+  await contentPage.nthTableColumnButton(5).click();
   await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [0, 0] }');
 
   await contentPage.editButton.click();
@@ -48,7 +48,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
   await contentPage.saveButton.click();
   await contentPage.closeNotification();
   await contentPage.backButton.click();
-  await contentPage.nthTableColumnButton(9).click();
+  await contentPage.nthTableColumnButton(5).click();
   await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [1, 0] }');
 });
 
@@ -78,7 +78,7 @@ test("GeometryObject field editing has succeeded", async ({
   await contentPage.saveButton.click();
   await contentPage.closeNotification();
   await contentPage.backButton.click();
-  await contentPage.nthTableColumnButton(9).click();
+  await contentPage.nthTableColumnButton(5).click();
   await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [0, 0] }');
   await schemaPage.schemaText.click();
   await fieldEditorPage.ellipsisMenuButton.click();
@@ -114,7 +114,7 @@ test("GeometryObject field editing has succeeded", async ({
   ).toBeVisible();
   await contentPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("new geometryObject1");
-  await contentPage.nthTableColumnButton(9).click();
+  await contentPage.nthTableColumnButton(5).click();
   await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [0, 0] }');
   await contentPage.newItemButton.click();
   await expect(contentPage.viewLinesEditor.nth(0)).toContainText(
