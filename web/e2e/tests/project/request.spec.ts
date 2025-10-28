@@ -9,11 +9,13 @@ const titleFieldName = "e2e title field";
 const requestTitle = "e2e request title";
 const modelName = "e2e model name";
 
+let projectName: string;
+
 test.beforeEach(async ({ reearth, workspacePage, projectPage, schemaPage, contentPage }) => {
   test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await workspacePage.createWorkspace("e2e workspace name");
-  const projectName = getId();
+  projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
   await projectPage.createModelFromOverview();
@@ -22,10 +24,40 @@ test.beforeEach(async ({ reearth, workspacePage, projectPage, schemaPage, conten
   await contentPage.createRequest(requestTitle);
 });
 
-test.afterEach(async ({ projectPage, workspacePage }) => {
+test.afterEach(async ({ page, reearth, projectPage, workspacePage }) => {
   test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
-  await projectPage.deleteProject();
-  await workspacePage.deleteWorkspace();
+
+  // Check if page is still available
+  if (page.isClosed()) {
+    console.warn("Page already closed, skipping UI cleanup");
+    return;
+  }
+
+  // Delete project first
+  try {
+    await reearth.goto("/", { waitUntil: "domcontentloaded", timeout: 10000 });
+    await page.waitForTimeout(1000);
+    const projectLink = page.getByText(projectName, { exact: true });
+    if (await projectLink.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await projectLink.click({ timeout: 5000 });
+      await projectPage.deleteProject();
+    }
+  } catch (error) {
+    console.warn("Failed to delete project:", error);
+  }
+
+  // Delete workspace
+  try {
+    await reearth.goto("/", { waitUntil: "domcontentloaded", timeout: 10000 });
+    await page.waitForTimeout(1000);
+    const workspaceLink = page.getByText("e2e workspace name");
+    if (await workspaceLink.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await workspaceLink.click({ timeout: 5000 });
+      await workspacePage.deleteWorkspace();
+    }
+  } catch (error) {
+    console.warn("Failed to delete workspace:", error);
+  }
 });
 
 test("Request creating, searching, updating reviewer, and approving has succeeded", async ({

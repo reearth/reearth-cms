@@ -7,15 +7,19 @@ const jsonUrl = `https://assets.cms.plateau.reearth.io/assets/11/6d05db-ed47-4f8
 const pngName = "road_plan2.png";
 const pngUrl = `https://assets.cms.plateau.reearth.io/assets/33/e999c4-7859-446b-ab3c-86625b3c760e/${pngName}`;
 
+let projectName: string;
+
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  const projectName = getId();
+  projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
   await projectPage.assetMenuItem.click();
 });
 
-test.afterEach(async ({ projectPage }) => {
+test.afterEach(async ({ reearth, projectPage }) => {
+  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+  await projectPage.gotoProject(projectName);
   await projectPage.deleteProject();
 });
 

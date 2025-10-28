@@ -1,5 +1,7 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 
+let integrationId: string;
+
 test.beforeEach(async ({ reearth, integrationsPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await integrationsPage.myIntegrationsMenuItem.click();
@@ -13,6 +15,34 @@ test.beforeEach(async ({ reearth, integrationsPage }) => {
   await integrationsPage.closeNotification();
 
   await integrationsPage.integrationTextByName("name", "description").last().click();
+});
+
+test.afterEach(async ({ reearth, integrationsPage }) => {
+  // Clean up the integration created in beforeEach
+  // Only attempt cleanup if the test wasn't skipped
+  const testInfo = test.info();
+  if (testInfo.status !== "skipped") {
+    await reearth.goto("/", { waitUntil: "domcontentloaded" });
+    await integrationsPage.myIntegrationsMenuItem.click();
+
+    // Check if integration exists before attempting to delete
+    const integrationExists = await integrationsPage
+      .integrationTextByName("name", "description")
+      .or(integrationsPage.integrationTextByName("newName", "newDescription"))
+      .isVisible()
+      .catch(() => false);
+
+    if (integrationExists) {
+      await integrationsPage
+        .integrationTextByName("name", "description")
+        .or(integrationsPage.integrationTextByName("newName", "newDescription"))
+        .last()
+        .click();
+      await integrationsPage.removeIntegrationButton.click();
+      await integrationsPage.okButton.click();
+      await integrationsPage.closeNotification();
+    }
+  }
 });
 
 test("MyIntegration CRUD has succeeded", async ({ integrationsPage }) => {

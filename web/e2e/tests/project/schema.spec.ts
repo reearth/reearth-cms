@@ -1,15 +1,19 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
+let projectName: string;
+
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  const projectName = getId();
+  projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
   await projectPage.schemaMenuItem.click();
 });
 
-test.afterEach(async ({ projectPage }) => {
+test.afterEach(async ({ reearth, projectPage }) => {
+  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+  await projectPage.gotoProject(projectName);
   await projectPage.deleteProject();
 });
 

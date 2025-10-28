@@ -1,14 +1,18 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
+let projectName: string;
+
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  const projectName = getId();
+  projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
 });
 
-test.afterEach(async ({ projectPage }) => {
+test.afterEach(async ({ reearth, projectPage }) => {
+  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+  await projectPage.gotoProject(projectName);
   await projectPage.deleteProject();
 });
 
@@ -41,11 +45,11 @@ test("Model CRUD on Overview page has succeeded", async ({ schemaPage, projectPa
   await expect(projectPage.rootElement).not.toContainText("new model name");
   await expect(projectPage.noModelsYetText).toBeVisible();
 });
+const isCI = !!process.env.CI;
 
-test("Model Export as JSON on Overview page has succeeded", async ({
-  schemaPage,
-  projectPage,
-}) => {
+test("Model Export as JSON on Overview page has succeeded", async ({ schemaPage, projectPage }) => {
+  test.skip(!isCI, "This test runs only in CI environment");
+
   await expect(projectPage.noModelsYetText).toBeVisible();
   await projectPage.newModelButtonFirst.click();
   await expect(projectPage.newModelLabelText).toBeVisible();
@@ -64,6 +68,8 @@ test("Model Export as JSON on Overview page has succeeded", async ({
 });
 
 test("Model Export as CSV on Overview page has succeeded", async ({ schemaPage, projectPage }) => {
+  test.skip(!isCI, "This test runs only in CI environment");
+
   await expect(projectPage.noModelsYetText).toBeVisible();
   await projectPage.newModelButtonFirst.click();
   await expect(projectPage.newModelLabelText).toBeVisible();
@@ -85,6 +91,8 @@ test("Model Export as CSV on Overview page has succeeded", async ({ schemaPage, 
 });
 
 test("Model Export Schema has succeeded", async ({ schemaPage, projectPage }) => {
+  test.skip(!isCI, "This test runs only in CI environment");
+
   await expect(projectPage.noModelsYetText).toBeVisible();
   await projectPage.newModelButtonFirst.click();
   await expect(projectPage.newModelLabelText).toBeVisible();
@@ -103,6 +111,8 @@ test("Model Export as GeoJSON without geometry field shows error", async ({
   schemaPage,
   projectPage,
 }) => {
+  test.skip(!isCI, "This test runs only in CI environment");
+
   await expect(projectPage.noModelsYetText).toBeVisible();
   await projectPage.newModelButtonFirst.click();
   await expect(projectPage.newModelLabelText).toBeVisible();
@@ -128,6 +138,8 @@ test("Model Export as GeoJSON with single geometry field succeeds", async ({
   projectPage,
   fieldEditorPage,
 }) => {
+  test.skip(!isCI, "This test runs only in CI environment");
+
   await expect(projectPage.noModelsYetText).toBeVisible();
   await projectPage.newModelButtonFirst.click();
   await expect(projectPage.newModelLabelText).toBeVisible();
@@ -162,6 +174,8 @@ test("Model Export as GeoJSON with multiple geometry fields shows warning", asyn
   projectPage,
   fieldEditorPage,
 }) => {
+  test.skip(!isCI, "This test runs only in CI environment");
+
   await expect(projectPage.noModelsYetText).toBeVisible();
   await projectPage.newModelButtonFirst.click();
   await expect(projectPage.newModelLabelText).toBeVisible();

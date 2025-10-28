@@ -6,15 +6,19 @@ const description = "tag description";
 const tag1 = "Tag1";
 const tag2 = "Tag2";
 
+let projectName: string;
+
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  const projectName = getId();
+  projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
   await projectPage.createModelFromOverview();
 });
 
-test.afterEach(async ({ projectPage }) => {
+test.afterEach(async ({ reearth, projectPage }) => {
+  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+  await projectPage.gotoProject(projectName);
   await projectPage.deleteProject();
 });
 

@@ -14,22 +14,25 @@ const zipUrl = `https://assets.cms.plateau.reearth.io/assets/ff/5caafa-1c09-46b7
 
 const isCI = !!process.env.CI;
 
+let projectName: string;
+
 test.beforeEach(async ({ reearth, projectPage }) => {
-  test.skip(!isCI, "This test runs only in CI environment");
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  const projectName = getId();
+  projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
   await projectPage.assetMenuItem.click();
 });
 
-test.afterEach(async ({ projectPage }) => {
-  test.skip(!isCI, "This test runs only in CI environment");
+test.afterEach(async ({ reearth, projectPage }) => {
+  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+  await projectPage.gotoProject(projectName);
   await projectPage.deleteProject();
 });
 
 test.describe("Zip Upload Tests", () => {
   test("Uploading and auto-unzipping ZIP file from URL tab succeeds", async ({ assetsPage }) => {
+    test.skip(!isCI, "This test runs only in CI environment");
     await assetsPage.uploadButton.click();
     await assetsPage.urlTab.click();
     const urlInput = assetsPage.urlInput;
@@ -43,6 +46,7 @@ test.describe("Zip Upload Tests", () => {
   });
 
   test("Uploading and auto-unzipping ZIP file via Local tab succeeds", async ({ assetsPage }) => {
+    test.skip(!isCI, "This test runs only in CI environment");
     await assetsPage.uploadButton.click();
     await assetsPage.localTab.click();
     const uploadInput = assetsPage.fileInput;

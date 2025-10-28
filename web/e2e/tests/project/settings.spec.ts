@@ -7,16 +7,37 @@ const EXIST_PROJECT_NAME = getId();
 const PROJECT_NAME = getId();
 const NEW_PROJECT_NAME = getId();
 
+let projectsCreated: string[] = [];
+
 test.beforeEach(async ({ reearth }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
+  projectsCreated = [];
+});
+
+test.afterEach(async ({ projectPage, reearth }) => {
+  // Clean up all created projects
+  // Note: PROJECT_NAME gets renamed to NEW_PROJECT_NAME during the test
+  const projectsToDelete = [NEW_PROJECT_NAME, EXIST_PROJECT_NAME];
+  for (const projectName of projectsToDelete) {
+    try {
+      await reearth.goto("/", { waitUntil: "domcontentloaded" });
+      await projectPage.gotoProject(projectName);
+      await projectPage.deleteProject();
+    } catch (error) {
+      console.warn(`Failed to cleanup project ${projectName}:`, error);
+    }
+  }
+  projectsCreated = [];
 });
 
 test.describe("Project General Settings", () => {
   test("Update project general settings", async ({ projectSettingsPage, projectPage }) => {
     await test.step("Project creation setup", async () => {
       await projectPage.createProject(EXIST_PROJECT_NAME);
+      projectsCreated.push(EXIST_PROJECT_NAME);
       await projectSettingsPage.goto("/");
       await projectPage.createProject(PROJECT_NAME);
+      projectsCreated.push(PROJECT_NAME);
 
       await projectPage.gotoProject(PROJECT_NAME);
       await projectSettingsPage.goToProjectSettings();
@@ -100,13 +121,6 @@ test.describe("Project General Settings", () => {
       });
     });
 
-    await test.step("Delete all projects", async () => {
-      const projects = [NEW_PROJECT_NAME, EXIST_PROJECT_NAME];
-
-      for await (const project of projects) {
-        await projectPage.gotoProject(project);
-        await projectPage.deleteProject();
-      }
-    });
+    // Note: Project cleanup is handled in test.afterEach()
   });
 });
