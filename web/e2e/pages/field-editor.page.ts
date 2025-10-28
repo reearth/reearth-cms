@@ -72,6 +72,10 @@ export class FieldEditorPage extends BasePage {
     return this.getByLabel("Description");
   }
 
+  get supportTypePointCheckbox(): Locator {
+    return this.getByLabel("Point", { exact: true });
+  }
+
   // Default value specific
   get plusNewButton(): Locator {
     return this.getByRole("button", { name: "plus New" });

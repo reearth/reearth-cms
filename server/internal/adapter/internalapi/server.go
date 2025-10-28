@@ -3,6 +3,7 @@ package internalapi
 import (
 	"bytes"
 	"context"
+	"errors"
 	"io"
 	"net/url"
 
@@ -496,5 +497,27 @@ func (s server) GetModelExportURL(ctx context.Context, req *pb.ModelExportReques
 
 	return &pb.ExportURLResponse{
 		Url: lo.Must(url.JoinPath(g.File.GetBaseURL(), m.ID().String()+ext)),
+	}, nil
+}
+
+func (s server) StarProject(ctx context.Context, req *pb.StarRequest) (*pb.StarResponse, error) {
+	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
+	usr := adapter.User(ctx)
+
+	if usr == nil {
+		return nil, errors.New("user not found in context")
+	}
+
+	if req.ProjectAlias == "" {
+		return nil, status.Error(codes.InvalidArgument, "project_alias is required")
+	}
+
+	p, err := uc.Project.StarProject(ctx, project.IDOrAlias(req.ProjectAlias), op)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.StarResponse{
+		Project: internalapimodel.ToProject(p),
 	}, nil
 }

@@ -21,7 +21,7 @@ import FieldValidationInputs from "@reearth-cms/components/molecules/Schema/Fiel
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import {
   Field,
-  FieldType,
+  SchemaFieldType,
   Group,
   FormValues,
   Tag,
@@ -34,7 +34,7 @@ import useHooks from "./hooks";
 
 type Props = {
   groups?: Group[];
-  selectedType: FieldType;
+  selectedType: SchemaFieldType;
   selectedSchemaType: SelectedSchemaType;
   isMeta: boolean;
   open: boolean;
