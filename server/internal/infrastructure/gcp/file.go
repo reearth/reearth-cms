@@ -392,10 +392,19 @@ func (f *fileRepo) Upload(ctx context.Context, file *file.File, objectName strin
 	}
 
 	// Use gcsproxy endpoint for upload to enable tracking
-	bucketForUpload, err := f.bucketWithEndpoint(ctx)
+	bucketForUpload, clientForUpload, err := f.bucketWithEndpoint(ctx)
 	if err != nil {
 		log.Errorf("gcs: upload bucket err: %+v\n", err)
 		return 0, rerror.ErrInternalBy(err)
+	}
+
+	// Close the upload client when done
+	if clientForUpload != nil {
+		defer func() {
+			if closeErr := clientForUpload.Close(); closeErr != nil {
+				log.Errorf("gcs: failed to close upload client: %v", closeErr)
+			}
+		}()
 	}
 
 	object := bucketForUpload.Object(objectName)
@@ -438,15 +447,9 @@ func (f *fileRepo) Upload(ctx context.Context, file *file.File, objectName strin
 		return 0, gateway.ErrFailedToUploadFile
 	}
 
-	// Use standard GCS client for attributes to ensure reliability
-	// gcsproxy doesn't support the metadata API endpoints needed for Attrs()
-	bucketForAttrs, err := f.bucket(ctx)
-	if err != nil {
-		log.Errorf("gcs: attrs bucket err: %+v\n", err)
-		return 0, rerror.ErrInternalBy(err)
-	}
-
-	attr, err := bucketForAttrs.Object(objectName).Attrs(ctx)
+	// Get object attributes using the same client
+	// gcsproxy should transparently handle all GCS operations
+	attr, err := object.Attrs(ctx)
 	if err != nil {
 		return 0, rerror.ErrInternalBy(err)
 	}
@@ -632,25 +635,29 @@ func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
 }
 
 // bucketWithEndpoint creates a bucket handle using gcsproxy endpoint for upload tracking
-func (f *fileRepo) bucketWithEndpoint(ctx context.Context) (*storage.BucketHandle, error) {
-	// If publicBase is not configured, use the standard client
-	if f.publicBase == nil || f.publicBase.Host == "storage.googleapis.com" {
-		return f.bucket(ctx)
+// Returns both bucket and client so caller can close the client after use
+func (f *fileRepo) bucketWithEndpoint(ctx context.Context) (*storage.BucketHandle, *storage.Client, error) {
+	var opts []option.ClientOption
+
+	// Configure custom endpoint if publicBase is set and not standard GCS
+	if f.publicBase != nil && f.publicBase.Host != "storage.googleapis.com" {
+		endpoint := f.publicBase.String()
+		opts = append(opts, option.WithEndpoint(endpoint))
 	}
 
-	var opts []option.ClientOption
-	endpoint := f.publicBase.String()
-	opts = append(opts, option.WithEndpoint(endpoint))
-
+	// Create client with or without custom endpoint
 	client, err := storage.NewClient(ctx, opts...)
 	if err != nil {
-		log.Errorf("gcs: failed to initialize storage client with endpoint %q: %v", endpoint, err)
-		return nil, err
+		if len(opts) > 0 {
+			log.Errorf("gcs: failed to initialize client with custom endpoint: %v", err)
+		} else {
+			log.Errorf("gcs: failed to initialize client: %v", err)
+		}
+		return nil, nil, err
 	}
 
 	bucket := client.Bucket(f.bucketName)
-
-	return bucket, nil
+	return bucket, client, nil
 }
 
 func newUUID() string {
