@@ -63,7 +63,7 @@ test("Model Export as JSON on Overview page has succeeded", async ({
   await projectPage.closeNotification();
 });
 
-test("Model Export as CSV on Overview page has succeed", async ({ schemaPage, projectPage }) => {
+test("Model Export as CSV on Overview page has succeeded", async ({ schemaPage, projectPage }) => {
   await expect(projectPage.noModelsYetText).toBeVisible();
   await projectPage.newModelButtonFirst.click();
   await expect(projectPage.newModelLabelText).toBeVisible();

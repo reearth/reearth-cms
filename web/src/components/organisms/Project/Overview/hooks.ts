@@ -179,26 +179,22 @@ export default () => {
   const downloadFile = useCallback(
     async (url: string, filename: string) => {
       try {
-        const response = await fetch(url, {
-          method: "GET",
-        });
-
+        const response = await fetch(url, { method: "GET" });
         if (!response.ok) {
-          throw new Error(`Failed to download ${filename}: HTTP ${response.status}`);
+          throw new Error(`Failed to download ${filename}`);
         }
-
         const blob = await response.blob();
         fileDownload(blob, filename);
-
         Notification.success({
           message: t("Download successful"),
           description: filename,
         });
       } catch (err) {
-        console.error("Download error:", err);
+        const errorMessage = err instanceof Error ? err.message : "Unknown error";
+        console.error("Download error:", errorMessage);
         Notification.error({
           message: t("Download failed"),
-          description: filename,
+          description: errorMessage,
         });
       }
     },
@@ -214,8 +210,7 @@ export default () => {
           // Export schema
           const res = await exportModelSchema({ variables: { modelId } });
           if (res.errors || !res.data?.exportModelSchema) {
-            Notification.error({ message: t("Failed to export schema.") });
-            return;
+            throw new Error(t("Failed to export schema."));
           }
           const url = res.data.exportModelSchema.url;
           const filename = getFilenameFromFormat(modelId, format);
@@ -227,15 +222,19 @@ export default () => {
             variables: { modelId, format: exportFormat },
           });
           if (res.errors || !res.data?.exportModel) {
-            Notification.error({ message: t("Failed to export model data.") });
-            return;
+            throw new Error(t("Failed to export model data."));
           }
           const url = res.data.exportModel.url;
           const filename = getFilenameFromFormat(modelId, format);
           await downloadFile(url, filename);
         }
-      } catch {
-        Notification.error({ message: t("Failed to export.") });
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "Unknown error";
+        console.error("Export error:", errorMessage);
+        Notification.error({
+          message: t("Export failed"),
+          description: errorMessage,
+        });
       }
     },
     [exportModel, exportModelSchema, t, downloadFile, getFilenameFromFormat],

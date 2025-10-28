@@ -604,7 +604,7 @@ Failed to update model.: モデルの更新に失敗しました。
 Successfully updated model!: モデルの更新に成功しました。
 Failed to export schema.: スキーマのエクスポートに失敗しました。
 Failed to export model data.: モデルデータのエクスポートに失敗しました。
-Failed to export.: エクスポートに失敗しました。
+Export failed: エクスポートに失敗しました
 Successfully updated request!: リクエストの更新に成功しました。
 Failed to delete one or more requests.: リクエストの削除に失敗しました。
 One or more requests were successfully closed!: リクエストのクローズに成功しました。

@@ -212,9 +212,6 @@ const StyledCard = styled(Card)`
     -webkit-box-orient: vertical;
     word-break: break-all;
   }
-  .ant-message-custom-content {
-    font-size: 32px !important;
-  }
 `;
 
 const ModalContent = styled.div`
