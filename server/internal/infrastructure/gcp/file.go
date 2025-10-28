@@ -27,7 +27,6 @@ import (
 
 const (
 	gcsAssetBasePath string = "assets"
-	gcsUploadAPIPath string = "/upload/storage/v1/"   // Google Cloud Storage upload API path
 	fileSizeLimit    int64  = 10 * 1024 * 1024 * 1024 // 10GB
 )
 
@@ -640,9 +639,9 @@ func (f *fileRepo) bucketWithEndpoint(ctx context.Context) (*storage.BucketHandl
 	}
 
 	var opts []option.ClientOption
-	endpoint := f.publicBase.String() + gcsUploadAPIPath
+	endpoint := f.publicBase.String()
 	opts = append(opts, option.WithEndpoint(endpoint))
-	
+
 	client, err := storage.NewClient(ctx, opts...)
 	if err != nil {
 		log.Errorf("gcs: failed to initialize storage client with endpoint %q: %v", endpoint, err)
