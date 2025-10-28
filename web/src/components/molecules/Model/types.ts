@@ -10,3 +10,10 @@ export type Model = {
   metadataSchema: MetaDataSchema;
   order?: number;
 };
+
+export enum ExportFormat {
+  Csv = "CSV",
+  Geojson = "GEOJSON",
+  Json = "JSON",
+  Schema = "SCHEMA",
+}
