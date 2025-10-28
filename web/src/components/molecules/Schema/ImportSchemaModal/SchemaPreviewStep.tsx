@@ -10,13 +10,13 @@ import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { useT } from "@reearth-cms/i18n";
 
-import { CreateFieldInput, FieldType } from "../types";
+import { CreateFieldInput, SchemaFieldType } from "../types";
 
 type Props = {
   fields: CreateFieldInput[];
   fieldTypeOptions: { value: string; label: JSX.Element }[];
   onDragEnd: (fromIndex: number, toIndex: number) => void;
-  onFieldTypeChange: (id: string, value: FieldType) => void;
+  onFieldTypeChange: (id: string, value: SchemaFieldType) => void;
   onFieldDelete: (id: string, name: string) => void;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
@@ -84,7 +84,7 @@ const SchemaPreviewStep: React.FC<Props> = ({
                     <AlignLeftCol span={11}>
                       <FieldTypeSelect
                         value={field.type}
-                        onChange={value => onFieldTypeChange(field.key, value as FieldType)}
+                        onChange={value => onFieldTypeChange(field.key, value as SchemaFieldType)}
                         options={fieldTypeOptions}
                       />
                     </AlignLeftCol>
