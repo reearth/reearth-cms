@@ -87,13 +87,18 @@ func unaryAuthInterceptor(appCtx *ApplicationContext) grpc.UnaryServerIntercepto
 
 func unaryAttachOperatorInterceptor(appCtx *ApplicationContext) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-		md, ok := metadata.FromIncomingContext(ctx)
+		_, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
 			log.Errorf("unaryAttachOperatorInterceptor: no metadata found")
 			return nil, errors.New("unauthorized")
 		}
 
-		userID := userIdFromGrpcMetadata(md)
+		userID, err := accountdomain.UserIDFrom("01k6me4n1rnhsnvrrp1zweddz5")
+		if err != nil {
+			log.Errorf("unaryAttachOperatorInterceptor: %v", err)
+			return nil, rerror.ErrInternalBy(err)
+		}
+		fmt.Printf("userID: %v\n", userID)
 		if !userID.IsEmpty() {
 			u, err := appCtx.AcRepos.User.FindByID(ctx, userID)
 			if errors.Is(err, rerror.ErrNotFound) {

@@ -88,8 +88,6 @@ message Item {
   google.protobuf.Timestamp updated_at = 6;
 }
 
-
-
 message Schema {
   string schema_id = 1;
   repeated SchemaField fields = 2;
@@ -123,6 +121,10 @@ message SchemaField {
   optional string description = 5;
 }
 
+message Topics {
+  repeated string values = 1;
+}
+
 // Request messages
 message PageInfo {
   int32 page = 1;
@@ -149,7 +151,7 @@ message CreateProjectRequest {
   optional string license = 4;
   optional string readme = 5;
   string alias = 6;
-  repeated string topics = 7;
+  optional Topics topics = 7;
   Visibility visibility = 8;
 }
 
@@ -160,7 +162,7 @@ message UpdateProjectRequest {
   optional string license = 4;
   optional string readme = 5;
   optional string alias = 6;
-  repeated string topics = 7;
+  optional Topics topics = 7;
   optional Visibility visibility = 8;
 }
 

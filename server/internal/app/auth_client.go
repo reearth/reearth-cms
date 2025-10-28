@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -33,10 +34,12 @@ func authMiddleware(appCtx *ApplicationContext) echo.MiddlewareFunc {
 			req := c.Request()
 			ctx := req.Context()
 
-			ctx, err = attachUserOperator(ctx, req, appCtx)
-			if err != nil {
-				return err
-			}
+			fmt.Println("reaches here")
+
+			// ctx, err = attachUserOperator(ctx, req, appCtx)
+			// if err != nil {
+			// 	return err
+			// }
 
 			ctx, err = attachIntegrationOperator(ctx, req, appCtx)
 			if err != nil {

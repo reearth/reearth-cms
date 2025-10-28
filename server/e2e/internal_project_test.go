@@ -305,7 +305,7 @@ func TestInternalCreateProjectAPI(t *testing.T) {
 			Name:        "Project With Topics",
 			Alias:       "project_with_topics",
 			Description: lo.ToPtr("Project with topics"),
-			Topics:      []string{"topic1", "topic2", "topic3"},
+			Topics:      &pb.Topics{Values: []string{"topic1", "topic2", "topic3"}},
 			WorkspaceId: wId0.String(),
 		})
 		assert.NoError(t, err)
@@ -370,7 +370,7 @@ func TestInternalUpdateProjectAPI(t *testing.T) {
 	t.Run("should update project topics", func(t *testing.T) {
 		_, err := client.UpdateProject(mdCtx, &pb.UpdateProjectRequest{
 			ProjectId: pid.String(),
-			Topics:    []string{"topic1", "topic2"},
+			Topics:    &pb.Topics{Values: []string{"topic1", "topic2"}},
 		})
 		assert.NoError(t, err)
 
@@ -380,30 +380,17 @@ func TestInternalUpdateProjectAPI(t *testing.T) {
 		assert.Equal(t, []string{"topic1", "topic2"}, p.Project.Topics)
 	})
 
-	t.Run("empty topics array should not delete topics", func(t *testing.T) {
+	t.Run("empty topics array should delete topics", func(t *testing.T) {
 		_, err := client.UpdateProject(mdCtx, &pb.UpdateProjectRequest{
 			ProjectId: pid.String(),
-			Topics:    []string{},
+			Topics:    &pb.Topics{Values: []string{}},
 		})
 		assert.NoError(t, err)
 
 		// Verify topics were not deleted
 		p, err := client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: pid.String()})
 		assert.NoError(t, err)
-		assert.Equal(t, []string{"topic1", "topic2"}, p.Project.Topics)
-	})
-
-	t.Run("topics array with empty string should delete topics", func(t *testing.T) {
-		_, err := client.UpdateProject(mdCtx, &pb.UpdateProjectRequest{
-			ProjectId: pid.String(),
-			Topics:    []string{""},
-		})
-		assert.NoError(t, err)
-
-		// Verify topics were deleted
-		p, err := client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: pid.String()})
-		assert.NoError(t, err)
-		assert.Empty(t, p.Project.Topics)
+		assert.Nil(t, p.Project.Topics)
 	})
 }
 

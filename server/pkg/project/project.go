@@ -163,18 +163,10 @@ func (p *Project) Unstar(uId accountdomain.UserID) {
 }
 
 func (p *Project) SetTopics(topics []string) {
-	// Adding length check as topics will be [] in the gRPC request even when its not explicitly passed
-	// and will delete topics in the record, which is not intended.
-	if p == nil || len(topics) == 0 {
+	if p == nil {
 		return
 	}
 
-	// A single empty string is used as a sentinel value to signal topic deletion.
-	// This distinguishes it from proto3's default empty array behavior.
-	if len(topics) == 1 && topics[0] == "" {
-		p.topics = []string{}
-		return
-	}
 	p.topics = slices.Clone(topics)
 }
 
