@@ -111,6 +111,51 @@ func TestBuilder_RequestRoles(t *testing.T) {
 	}, res)
 }
 
+func TestBuilder_Topics(t *testing.T) {
+	tests := []struct {
+		name     string
+		topics   []string
+		expected []string
+	}{
+		{
+			name:     "nil topics",
+			topics:   nil,
+			expected: []string{}, // MongoDB converts nil slices to empty slices
+		},
+		{
+			name:     "empty topics",
+			topics:   []string{},
+			expected: []string{},
+		},
+		{
+			name:     "with topics",
+			topics:   []string{"topic1", "topic2"},
+			expected: []string{"topic1", "topic2"},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			p := New().NewID().Topics(tt.topics).MustBuild()
+			assert.Equal(t, tt.expected, p.Topics())
+		})
+	}
+}
+
+func TestBuilder_TopicsClone(t *testing.T) {
+	// Test that modifying the input slice doesn't affect the project's topics
+	topics := []string{"topic1", "topic2"}
+	p := New().NewID().Topics(topics).MustBuild()
+
+	// Modify original slice
+	topics[0] = "modified"
+
+	// Check that project's topics remain unchanged
+	assert.Equal(t, []string{"topic1", "topic2"}, p.Topics())
+}
+
 func TestBuilder_Build(t *testing.T) {
 	d := time.Date(1900, 1, 1, 00, 00, 0, 1, time.UTC)
 	i, _ := url.Parse("ttt://xxx.aa/")

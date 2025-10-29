@@ -3,6 +3,7 @@ package project
 import (
 	"net/url"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -10,6 +11,7 @@ import (
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
@@ -29,6 +31,7 @@ type Project struct {
 	imageURL      *url.URL
 	starCount     int64
 	starredBy     []string
+	topics        []string
 	updatedAt     time.Time
 	accessibility *Accessibility
 	requestRoles  []workspace.Role
@@ -77,6 +80,10 @@ func (p *Project) StarCount() int64 {
 
 func (p *Project) StarredBy() []string {
 	return p.starredBy
+}
+
+func (p *Project) Topics() []string {
+	return p.topics
 }
 
 func (p *Project) Workspace() accountdomain.WorkspaceID {
@@ -155,6 +162,22 @@ func (p *Project) Unstar(uId accountdomain.UserID) {
 			return
 		}
 	}
+}
+
+func (p *Project) SetTopics(topics []string) {
+	if p == nil {
+		return
+	}
+
+	trimmed := lo.Map(topics, func(s string, _ int) string {
+		return strings.TrimSpace(s)
+	})
+
+	nonEmpty := lo.Filter(trimmed, func(s string, _ int) bool {
+		return s != ""
+	})
+
+	p.topics = lo.Uniq(nonEmpty)
 }
 
 func (p *Project) SetRequestRoles(sr []workspace.Role) {
