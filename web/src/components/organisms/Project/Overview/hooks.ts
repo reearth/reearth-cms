@@ -1,8 +1,9 @@
+import fileDownload from "js-file-download";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 import { SortBy, UpdateProjectInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
@@ -11,10 +12,13 @@ import {
   useDeleteModelMutation,
   useGetModelsQuery,
   useUpdateModelMutation,
+  useExportModelMutation,
+  useExportModelSchemaMutation,
   Model as GQLModel,
   Role as GQLRole,
   ProjectAccessibility as GQLProjectAccessibility,
   useUpdateProjectMutation,
+  ExportFormat as GQLExportFormat,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
@@ -152,6 +156,90 @@ export default () => {
     [updateNewModel, handleModelModalClose, t],
   );
 
+  const [exportModel, { loading: exportModelLoading }] = useExportModelMutation();
+  const [exportModelSchema, { loading: exportSchemaLoading }] = useExportModelSchemaMutation();
+
+  const exportLoading = exportModelLoading || exportSchemaLoading;
+
+  const getFilenameFromFormat = useCallback((modelId: string, format: ExportFormat): string => {
+    switch (format) {
+      case ExportFormat.Schema:
+        return `${modelId}-schema.json`;
+      case ExportFormat.Json:
+        return `${modelId}-data.json`;
+      case ExportFormat.Csv:
+        return `${modelId}-data.csv`;
+      case ExportFormat.Geojson:
+        return `${modelId}-data.geojson`;
+      default:
+        return `${modelId}-data.json`;
+    }
+  }, []);
+
+  const downloadFile = useCallback(
+    async (url: string, filename: string) => {
+      try {
+        const response = await fetch(url, { method: "GET" });
+        if (!response.ok) {
+          throw new Error(`Failed to download ${filename}`);
+        }
+        const blob = await response.blob();
+        fileDownload(blob, filename);
+        Notification.success({
+          message: t("Download successful"),
+          description: filename,
+        });
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "Unknown error";
+        console.error("Download error:", errorMessage);
+        Notification.error({
+          message: t("Download failed"),
+          description: errorMessage,
+        });
+      }
+    },
+    [t],
+  );
+
+  const handleModelExport = useCallback(
+    async (modelId?: string, format?: ExportFormat): Promise<void> => {
+      if (!modelId || !format) return;
+
+      try {
+        if (format === ExportFormat.Schema) {
+          // Export schema
+          const res = await exportModelSchema({ variables: { modelId } });
+          if (res.errors || !res.data?.exportModelSchema) {
+            throw new Error(t("Failed to export schema."));
+          }
+          const url = res.data.exportModelSchema.url;
+          const filename = getFilenameFromFormat(modelId, format);
+          await downloadFile(url, filename);
+        } else {
+          // Export model data (JSON, CSV, or GeoJSON)
+          const exportFormat = format as GQLExportFormat;
+          const res = await exportModel({
+            variables: { modelId, format: exportFormat },
+          });
+          if (res.errors || !res.data?.exportModel) {
+            throw new Error(t("Failed to export model data."));
+          }
+          const url = res.data.exportModel.url;
+          const filename = getFilenameFromFormat(modelId, format);
+          await downloadFile(url, filename);
+        }
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "Unknown error";
+        console.error("Export error:", errorMessage);
+        Notification.error({
+          message: t("Export failed"),
+          description: errorMessage,
+        });
+      }
+    },
+    [exportModel, exportModelSchema, t, downloadFile, getFilenameFromFormat],
+  );
+
   const handleHomeNavigation = useCallback(() => {
     navigate(`/workspace/${currentWorkspace?.id}`);
   }, [currentWorkspace?.id, navigate]);
@@ -194,6 +282,7 @@ export default () => {
     selectedModel,
     modelDeletionModalShown,
     deleteLoading,
+    exportLoading,
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
@@ -211,6 +300,7 @@ export default () => {
     handleModelDeletionModalClose,
     handleModelUpdateModalOpen,
     handleModelDelete,
+    handleModelExport,
     handleModelUpdate,
   };
 };

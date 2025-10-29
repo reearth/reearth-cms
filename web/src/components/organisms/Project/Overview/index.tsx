@@ -11,6 +11,7 @@ const ProjectOverview: React.FC = () => {
     selectedModel,
     modelDeletionModalShown,
     deleteLoading,
+    exportLoading,
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
@@ -28,6 +29,7 @@ const ProjectOverview: React.FC = () => {
     handleModelDeletionModalClose,
     handleModelUpdateModalOpen,
     handleModelDelete,
+    handleModelExport,
     handleModelUpdate,
   } = useHooks();
 
@@ -38,6 +40,7 @@ const ProjectOverview: React.FC = () => {
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
+        exportLoading={exportLoading}
         onProjectUpdate={handleProjectUpdate}
         onModelSearch={handleModelSearch}
         onModelSort={handleModelSort}
@@ -47,6 +50,7 @@ const ProjectOverview: React.FC = () => {
         onModelModalOpen={handleModelModalOpen}
         onModelDeletionModalOpen={handleModelDeletionModalOpen}
         onModelUpdateModalOpen={handleModelUpdateModalOpen}
+        onModelExport={handleModelExport}
       />
       <FormModal
         data={selectedModel}

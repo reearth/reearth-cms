@@ -34,9 +34,9 @@ func MapFromItem(itm *item.Item, sp *schema.Package, al AssetLoader, il ItemLoad
 		return nil
 	}
 
-	var convertFields func(iid *id.ItemID, fields item.Fields, sfields schema.FieldList, groupFields schema.FieldList, al AssetLoader, il ItemLoader) ItemMap
+	var convertFields func(iid *id.ItemID, fields item.Fields, sfields schema.FieldList, groupFields schema.FieldList, al AssetLoader, il ItemLoader, deep int) ItemMap
 
-	convertFields = func(iid *id.ItemID, fields item.Fields, sfields schema.FieldList, groupFields schema.FieldList, al AssetLoader, il ItemLoader) ItemMap {
+	convertFields = func(iid *id.ItemID, fields item.Fields, sfields schema.FieldList, groupFields schema.FieldList, al AssetLoader, il ItemLoader, deep int) ItemMap {
 		m := ItemMap(lo.SliceToMap(fields, func(f *item.Field) (k string, val any) {
 			sf := sfields.Find(f.FieldID())
 			if sf == nil {
@@ -84,7 +84,7 @@ func MapFromItem(itm *item.Item, sp *schema.Package, al AssetLoader, il ItemLoad
 				if !ok || len(rfIds) == 0 {
 					return k, nil
 				}
-				if il == nil {
+				if il == nil || deep >= 1 {
 					if sf.Multiple() {
 						val = rfIds
 					} else if len(rfIds) > 0 {
@@ -97,7 +97,7 @@ func MapFromItem(itm *item.Item, sp *schema.Package, al AssetLoader, il ItemLoad
 					return k, nil
 				}
 				refItems := lo.Map(items, func(it *item.Item, _ int) ItemMap {
-					return convertFields(it.ID().Ref(), it.Fields(), sp.ReferencedSchemas().Fields(), nil, al, il)
+					return convertFields(it.ID().Ref(), it.Fields(), sp.ReferencedSchemas().Fields(), nil, al, il, deep+1)
 				})
 				if sf.Multiple() {
 					val = refItems
@@ -112,7 +112,7 @@ func MapFromItem(itm *item.Item, sp *schema.Package, al AssetLoader, il ItemLoad
 						continue
 					}
 					gf := fields.FieldsByGroup(itgID)
-					igf := convertFields(nil, gf, groupFields, nil, al, nil)
+					igf := convertFields(nil, gf, groupFields, nil, al, nil, deep+1)
 					res = append(res, igf)
 				}
 				if sf.Multiple() {
@@ -163,7 +163,7 @@ func MapFromItem(itm *item.Item, sp *schema.Package, al AssetLoader, il ItemLoad
 		return m.DropEmptyFields()
 	}
 
-	m := convertFields(itm.ID().Ref(), itm.Fields(), sp.Schema().Fields(), sp.GroupSchemas().Fields(), al, il)
+	m := convertFields(itm.ID().Ref(), itm.Fields(), sp.Schema().Fields(), sp.GroupSchemas().Fields(), al, il, 0)
 
 	return m.DropEmptyFields()
 }
