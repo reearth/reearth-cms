@@ -521,7 +521,7 @@ export default () => {
 
   const [createRequestMutation, { loading: requestCreationLoading }] = useMutation(
     CreateRequestDocument,
-    { refetchQueries: ["GetModalRequests", "GetItem", "VersionsByItem"] },
+    { refetchQueries: ["GetItem", "VersionsByItem"] },
   );
 
   const handleRequestCreate = useCallback(
