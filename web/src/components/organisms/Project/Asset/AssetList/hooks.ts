@@ -1,4 +1,5 @@
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
+import { WatchQueryFetchPolicy } from "@apollo/client";
+import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import fileDownload from "js-file-download";
 import { useState, useCallback, Key, useMemo, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
@@ -116,35 +117,37 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   );
 
   const params = useMemo(
-    () => ({
-      fetchPolicy: "cache-and-network" as const,
-      variables: {
-        projectId: projectId ?? "",
-        pagination: { first: pageSize, offset: (page - 1) * pageSize },
-        sort: sort
-          ? {
-              sortBy: sort.type as GQLSortType,
-              direction: sort.direction as GQLSortDirection,
-            }
-          : { sortBy: "DATE" as GQLSortType, direction: "DESC" as GQLSortDirection },
-        keyword: searchTerm,
-        contentTypes: contentTypes,
-      },
-      notifyOnNetworkStatusChange: true,
-      skip: !projectId,
-    }),
+    () =>
+      projectId
+        ? {
+            fetchPolicy: "cache-and-network" as WatchQueryFetchPolicy,
+            variables: {
+              projectId,
+              pagination: { first: pageSize, offset: (page - 1) * pageSize },
+              sort: sort
+                ? {
+                    sortBy: sort.type as GQLSortType,
+                    direction: sort.direction as GQLSortDirection,
+                  }
+                : { sortBy: "DATE" as GQLSortType, direction: "DESC" as GQLSortDirection },
+              keyword: searchTerm,
+              contentTypes: contentTypes,
+            },
+            notifyOnNetworkStatusChange: true,
+          }
+        : skipToken,
     [contentTypes, page, pageSize, projectId, searchTerm, sort],
   );
 
-  const [getAssets, { data, refetch, loading }] = isItemsRequired
-    ? useLazyQuery(GetAssetsItemsDocument)
-    : useLazyQuery(GetAssetsDocument);
+  const { data, refetch, loading } = isItemsRequired
+    ? useQuery(GetAssetsItemsDocument, params)
+    : useQuery(GetAssetsDocument, params);
 
   useEffect(() => {
     if (isItemsRequired) {
-      getAssets(params);
+      refetch();
     }
-  }, [getAssets, isItemsRequired, params]);
+  }, [isItemsRequired, params, refetch]);
 
   const {
     data: guessSchemaFieldsData,
@@ -370,8 +373,8 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   }, []);
 
   const handleAssetsGet = useCallback(() => {
-    getAssets(params);
-  }, [getAssets, params]);
+    refetch();
+  }, [refetch]);
 
   const handleAssetsReload = useCallback(() => {
     refetch();
