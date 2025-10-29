@@ -300,17 +300,17 @@ func TestInternalCreateProjectAPI(t *testing.T) {
 	assert.Equal(t, int64(3), l.TotalCount)
 
 	// Test different project creation scenarios
-	t.Run("should create project with topics", func(t *testing.T) {
+	t.Run("should create project with topics and handle duplicates and empty values", func(t *testing.T) {
 		_, err := client.CreateProject(mdCtx, &pb.CreateProjectRequest{
 			Name:        "Project With Topics",
 			Alias:       "project_with_topics",
 			Description: lo.ToPtr("Project with topics"),
-			Topics:      &pb.Topics{Values: []string{"topic1", "topic2", "topic3"}},
+			Topics:      &pb.Topics{Values: []string{"topic1", "topic2", "", "topic1", "topic3", "", "topic2"}},
 			WorkspaceId: wId0.String(),
 		})
 		assert.NoError(t, err)
 
-		// Verify the project was created with topics
+		// Verify the project was created with unique topics only, no duplicates or empty values
 		l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{WorkspaceIds: []string{wId0.String()}})
 		assert.NoError(t, err)
 		var found bool
@@ -367,17 +367,17 @@ func TestInternalUpdateProjectAPI(t *testing.T) {
 	assert.Equal(t, pid.String(), p.Project.Id)
 
 	// Test updating project topics
-	t.Run("should update project topics", func(t *testing.T) {
+	t.Run("should update project topics and handle duplicates and empty values", func(t *testing.T) {
 		_, err := client.UpdateProject(mdCtx, &pb.UpdateProjectRequest{
 			ProjectId: pid.String(),
-			Topics:    &pb.Topics{Values: []string{"topic1", "topic2"}},
+			Topics:    &pb.Topics{Values: []string{"topic1", "", "topic2", "topic1", "", "topic3", "topic2"}},
 		})
 		assert.NoError(t, err)
 
-		// Verify topics were updated
+		// Verify topics were updated with unique values only, no duplicates or empty values
 		p, err := client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: pid.String()})
 		assert.NoError(t, err)
-		assert.Equal(t, []string{"topic1", "topic2"}, p.Project.Topics)
+		assert.Equal(t, []string{"topic1", "topic2", "topic3"}, p.Project.Topics)
 	})
 
 	t.Run("empty topics array should delete topics", func(t *testing.T) {

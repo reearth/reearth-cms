@@ -167,7 +167,20 @@ func (p *Project) SetTopics(topics []string) {
 		return
 	}
 
-	p.topics = slices.Clone(topics)
+	uniqueTopics := make([]string, 0, len(topics))
+	topicSet := make(map[string]struct{})
+
+	for _, t := range topics {
+		if t == "" {
+			continue
+		}
+		if _, exists := topicSet[t]; !exists {
+			topicSet[t] = struct{}{}
+			uniqueTopics = append(uniqueTopics, t)
+		}
+	}
+
+	p.topics = uniqueTopics
 }
 
 func (p *Project) SetRequestRoles(sr []workspace.Role) {
