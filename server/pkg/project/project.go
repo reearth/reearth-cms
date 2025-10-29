@@ -3,6 +3,7 @@ package project
 import (
 	"net/url"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -10,6 +11,7 @@ import (
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
@@ -167,20 +169,15 @@ func (p *Project) SetTopics(topics []string) {
 		return
 	}
 
-	uniqueTopics := make([]string, 0, len(topics))
-	topicSet := make(map[string]struct{})
+	trimmed := lo.Map(topics, func(s string, _ int) string {
+		return strings.TrimSpace(s)
+	})
 
-	for _, t := range topics {
-		if t == "" {
-			continue
-		}
-		if _, exists := topicSet[t]; !exists {
-			topicSet[t] = struct{}{}
-			uniqueTopics = append(uniqueTopics, t)
-		}
-	}
+	nonEmpty := lo.Filter(trimmed, func(s string, _ int) bool {
+		return s != ""
+	})
 
-	p.topics = uniqueTopics
+	p.topics = lo.Uniq(nonEmpty)
 }
 
 func (p *Project) SetRequestRoles(sr []workspace.Role) {

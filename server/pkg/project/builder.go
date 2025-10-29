@@ -123,22 +123,6 @@ func (b *Builder) StarredBy(starredBy []string) *Builder {
 }
 
 func (b *Builder) Topics(topics []string) *Builder {
-	if topics == nil {
-		b.p.topics = nil
-		return b
-	}
-	uniqueTopics := make([]string, 0, len(topics))
-	topicSet := make(map[string]struct{})
-	for _, t := range topics {
-		if t == "" {
-			continue // skip empty values
-		}
-		if _, exists := topicSet[t]; exists {
-			continue // skip duplicates
-		}
-		topicSet[t] = struct{}{}
-		uniqueTopics = append(uniqueTopics, t)
-	}
-	b.p.topics = uniqueTopics
+	b.p.SetTopics(topics)
 	return b
 }
