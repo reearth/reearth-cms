@@ -189,7 +189,7 @@ func Test_projectRepo_FindByID(t *testing.T) {
 	tid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	now := time.Now().Truncate(time.Millisecond).UTC()
-	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(now).Topics([]string{}).MustBuild()
+	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(now).MustBuild()
 	tests := []struct {
 		name    string
 		seeds   project.List
