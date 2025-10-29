@@ -11,7 +11,7 @@ const modelName = "e2e model name";
 
 let projectName: string;
 
-test.beforeEach(async ({ reearth, projectPage, schemaPage, contentPage}) => {
+test.beforeEach(async ({ reearth, projectPage, schemaPage, contentPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   projectName = getId();
   await projectPage.createProject(projectName);
@@ -131,7 +131,6 @@ test("Comment CRUD on Request page has succeeded", async ({ requestPage, content
 
 test("Creating a new request and adding to request has succeeded", async ({ requestPage }) => {
   test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
-  test.slow();
   await requestPage.backButtonCapitalized.click();
   await requestPage.newItemButton.click();
   await requestPage.saveButton.click();

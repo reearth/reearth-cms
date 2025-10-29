@@ -7,29 +7,16 @@ const EXIST_PROJECT_NAME = getId();
 const PROJECT_NAME = getId();
 const NEW_PROJECT_NAME = getId();
 
-let projectsCreated: string[] = [];
-
 test.beforeEach(async ({ reearth }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  projectsCreated = [];
-});
-
-test.afterEach(async ({ projectPage }) => {
-  const projectsToDelete = [NEW_PROJECT_NAME, EXIST_PROJECT_NAME];
-  for (const projectName of projectsToDelete) {
-    await projectPage.deleteProject(projectName);
-  }
-  projectsCreated = [];
 });
 
 test.describe("Project General Settings", () => {
   test("Update project general settings", async ({ projectSettingsPage, projectPage }) => {
     await test.step("Project creation setup", async () => {
       await projectPage.createProject(EXIST_PROJECT_NAME);
-      projectsCreated.push(EXIST_PROJECT_NAME);
       await projectSettingsPage.goto("/");
       await projectPage.createProject(PROJECT_NAME);
-      projectsCreated.push(PROJECT_NAME);
 
       await projectPage.gotoProject(PROJECT_NAME);
       await projectSettingsPage.goToProjectSettings();
@@ -111,6 +98,15 @@ test.describe("Project General Settings", () => {
         await aliasEl.fill("test_alias_123");
         await expect(errorEl).toBeHidden();
       });
+    });
+
+    await test.step("Delete all projects", async () => {
+      const projects = [NEW_PROJECT_NAME, EXIST_PROJECT_NAME];
+
+      for await (const project of projects) {
+        await projectPage.gotoProject(project);
+        await projectPage.deleteProject(project);
+      }
     });
   });
 });

@@ -41,7 +41,6 @@ test("MyIntegration CRUD has succeeded", async ({ integrationsPage }) => {
 });
 
 test("Webhook CRUD has succeeded", async ({ integrationsPage }) => {
-  test.slow();
   await integrationsPage.webhookTab.click();
   await integrationsPage.newWebhookButton.click();
   await integrationsPage.webhookNameInput.click();
@@ -63,7 +62,7 @@ test("Webhook CRUD has succeeded", async ({ integrationsPage }) => {
   await integrationsPage.urlInput.fill("http://new.com");
   await integrationsPage.secretInput.click();
   await integrationsPage.secretInput.fill("new secret");
-  await integrationsPage.createCheckbox.check();
+  await integrationsPage.createCheckbox.setChecked(true, { force: true });
   await expect(integrationsPage.createCheckbox).toBeChecked();
   await integrationsPage.uploadCheckbox.check();
   await expect(integrationsPage.uploadCheckbox).toBeChecked();

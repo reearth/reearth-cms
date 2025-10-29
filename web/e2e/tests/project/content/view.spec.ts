@@ -3,7 +3,7 @@ import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 let projectName: string;
 
-test.beforeEach(async ({ reearth, projectPage}) => {
+test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   projectName = getId();
   await projectPage.createProject(projectName);
@@ -133,7 +133,6 @@ test("View CRUD has succeeded", async ({
 });
 
 test("View reordering has succeeded", async ({ projectPage, contentPage }) => {
-  test.slow();
   await projectPage.contentMenuItem.click();
   await projectPage.modelMenuItemClick(projectPage.modelName).click();
 
