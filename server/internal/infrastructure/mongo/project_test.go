@@ -1046,7 +1046,7 @@ func TestProjectRepo_FindByPublicAPIToken(t *testing.T) {
 	now := time.Now().Truncate(time.Millisecond).UTC()
 	apiKey := project.NewAPIKeyBuilder().NewID().GenerateKey().Name("key1").Build()
 	pub := project.NewPrivateAccessibility(*project.NewPublicationSettings(nil, false), project.APIKeys{apiKey})
-	p1 := project.New().ID(id1).Workspace(tid1).Accessibility(pub).UpdatedAt(now).MustBuild()
+	p1 := project.New().ID(id1).Workspace(tid1).Accessibility(pub).UpdatedAt(now).Topics([]string{}).MustBuild()
 	tests := []struct {
 		name    string
 		seeds   project.List
