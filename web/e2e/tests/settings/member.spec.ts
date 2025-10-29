@@ -5,18 +5,16 @@ import { parseConfigBoolean } from "@reearth-cms/e2e/helpers/format.helper";
 const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 
 test.beforeEach(async ({ reearth, workspacePage }) => {
-  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await workspacePage.createWorkspace("e2e workspace name");
 });
 
 test.afterEach(async ({ workspacePage }) => {
-  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await workspacePage.deleteWorkspace();
 });
 
 test("Searching current members has succeeded", async ({ memberPage }) => {
-  test.skip();
+  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await memberPage.memberMenuItem.click();
   await expect(memberPage.cellByText("OWNER")).toBeVisible();
   await memberPage.searchInput.click();

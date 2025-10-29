@@ -3,47 +3,16 @@ import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 let projectName: string;
 
-test.beforeEach(async ({ reearth, workspacePage, projectPage }) => {
+test.beforeEach(async ({ reearth, projectPage}) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await workspacePage.createWorkspace("e2e workspace name");
   projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
   await projectPage.createModelFromOverview();
 });
 
-test.afterEach(async ({ page, reearth, projectPage, workspacePage }) => {
-  // Check if page is still available
-  if (page.isClosed()) {
-    console.warn("Page already closed, skipping UI cleanup");
-    return;
-  }
-
-  // Delete project first
-  try {
-    await reearth.goto("/", { waitUntil: "domcontentloaded", timeout: 10000 });
-    await page.waitForTimeout(1000); // Brief wait for page to stabilize
-    const projectLink = page.getByText(projectName, { exact: true });
-    if (await projectLink.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await projectLink.click({ timeout: 5000 });
-      await projectPage.deleteProject();
-    }
-  } catch (error) {
-    console.warn("Failed to delete project:", error);
-  }
-
-  // Delete workspace
-  try {
-    await reearth.goto("/", { waitUntil: "domcontentloaded", timeout: 10000 });
-    await page.waitForTimeout(1000);
-    const workspaceLink = page.getByText("e2e workspace name");
-    if (await workspaceLink.isVisible({ timeout: 3000 }).catch(() => false)) {
-      await workspaceLink.click({ timeout: 5000 });
-      await workspacePage.deleteWorkspace();
-    }
-  } catch (error) {
-    console.warn("Failed to delete workspace:", error);
-  }
+test.afterEach(async ({ projectPage }) => {
+  await projectPage.deleteProject(projectName);
 });
 
 test("View CRUD has succeeded", async ({
@@ -164,6 +133,7 @@ test("View CRUD has succeeded", async ({
 });
 
 test("View reordering has succeeded", async ({ projectPage, contentPage }) => {
+  test.slow();
   await projectPage.contentMenuItem.click();
   await projectPage.modelMenuItemClick(projectPage.modelName).click();
 

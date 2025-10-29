@@ -11,10 +11,8 @@ test.beforeEach(async ({ reearth, projectPage }) => {
   await projectPage.schemaMenuItem.click();
 });
 
-test.afterEach(async ({ reearth, projectPage }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await projectPage.gotoProject(projectName);
-  await projectPage.deleteProject();
+test.afterEach(async ({ projectPage }) => {
+  await projectPage.deleteProject(projectName);
 });
 
 test("Model CRUD has succeeded", async ({ schemaPage, fieldEditorPage }) => {

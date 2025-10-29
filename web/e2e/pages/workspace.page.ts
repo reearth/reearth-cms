@@ -89,21 +89,9 @@ export class WorkspacePage extends BasePage {
   }
 
   async deleteWorkspace(): Promise<void> {
-    try {
-      await this.getByText("Workspace Settings", { exact: true }).click();
-      await this.getByRole("button", { name: "Remove Workspace" }).waitFor({
-        state: "visible",
-        timeout: 5000,
-      });
-      await this.getByRole("button", { name: "Remove Workspace" }).click();
-      await this.getByRole("button", { name: "OK" }).click();
-      await this.closeNotification();
-    } catch (error) {
-      console.warn("Failed to delete workspace:", error);
-      // Attempt to navigate back to home if deletion fails
-      await this.page.goto("/", { waitUntil: "domcontentloaded" }).catch(() => {
-        console.warn("Failed to navigate to home page after deletion error");
-      });
-    }
+    await this.getByText("Workspace Settings", { exact: true }).click();
+    await this.getByRole("button", { name: "Remove Workspace" }).click();
+    await this.getByRole("button", { name: "OK" }).click();
+    await this.closeNotification();
   }
 }

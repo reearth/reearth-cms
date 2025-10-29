@@ -24,10 +24,8 @@ test.beforeEach(async ({ reearth, fieldEditorPage, projectPage, contentPage, sch
   await projectPage.contentMenuItem.click();
 });
 
-test.afterEach(async ({ reearth, projectPage }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await projectPage.gotoProject(projectName);
-  await projectPage.deleteProject();
+test.afterEach(async ({ projectPage }) => {
+  await projectPage.deleteProject(projectName);
 });
 
 test("Updating metadata added later from table has succeeded", async ({ contentPage }) => {

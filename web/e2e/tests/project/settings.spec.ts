@@ -14,18 +14,10 @@ test.beforeEach(async ({ reearth }) => {
   projectsCreated = [];
 });
 
-test.afterEach(async ({ projectPage, reearth }) => {
-  // Clean up all created projects
-  // Note: PROJECT_NAME gets renamed to NEW_PROJECT_NAME during the test
+test.afterEach(async ({ projectPage }) => {
   const projectsToDelete = [NEW_PROJECT_NAME, EXIST_PROJECT_NAME];
   for (const projectName of projectsToDelete) {
-    try {
-      await reearth.goto("/", { waitUntil: "domcontentloaded" });
-      await projectPage.gotoProject(projectName);
-      await projectPage.deleteProject();
-    } catch (error) {
-      console.warn(`Failed to cleanup project ${projectName}:`, error);
-    }
+    await projectPage.deleteProject(projectName);
   }
   projectsCreated = [];
 });
@@ -120,7 +112,5 @@ test.describe("Project General Settings", () => {
         await expect(errorEl).toBeHidden();
       });
     });
-
-    // Note: Project cleanup is handled in test.afterEach()
   });
 });

@@ -17,10 +17,8 @@ test.beforeEach(async ({ reearth, projectPage }) => {
   await projectPage.assetMenuItem.click();
 });
 
-test.afterEach(async ({ reearth, projectPage }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await projectPage.gotoProject(projectName);
-  await projectPage.deleteProject();
+test.afterEach(async ({ projectPage }) => {
+  await projectPage.deleteProject(projectName);
 });
 
 test.describe.parallel("Json file tests", () => {

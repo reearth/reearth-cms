@@ -35,10 +35,8 @@ test.beforeEach(async ({ reearth, fieldEditorPage, projectPage, contentPage, sch
   await contentPage.versionHistoryTab.click();
 });
 
-test.afterEach(async ({ reearth, projectPage }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await projectPage.gotoProject(projectName);
-  await projectPage.deleteProject();
+test.afterEach(async ({ projectPage }) => {
+  await projectPage.deleteProject(projectName);
 });
 
 test("Read versions successfully", async ({ contentPage }) => {

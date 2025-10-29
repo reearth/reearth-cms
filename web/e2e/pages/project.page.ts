@@ -186,7 +186,7 @@ export class ProjectPage extends BasePage {
   async createProject(name: string): Promise<void> {
     await this.getByRole("button", { name: "plus New Project" }).first().click();
     await this.getByRole("dialog").locator("#name").fill(name);
-    await this.getByRole("button", { name: "OK" }).click();
+    await this.okButton.click();
     await this.closeNotification();
   }
 
@@ -196,60 +196,13 @@ export class ProjectPage extends BasePage {
     await expect(projectName).toHaveText(name);
   }
 
-  async deleteProject(projectName?: string): Promise<void> {
-    try {
-      // If project name is provided, navigate to it first
-      if (projectName) {
-        await this.page.goto("/", { waitUntil: "domcontentloaded" });
-        await this.gotoProject(projectName);
-      }
-
-      // Check if "Delete Project" button is already visible (we might already be in Settings)
-      const deleteButton = this.getByRole("button", { name: "Delete Project" });
-      const isDeleteButtonVisible = await deleteButton
-        .isVisible({ timeout: 1000 })
-        .catch(() => false);
-
-      if (!isDeleteButtonVisible) {
-        // Try to navigate to Settings from current page
-        const settingsButton = this.getByText("Settings").first();
-        const isSettingsVisible = await settingsButton
-          .isVisible({ timeout: 1000 })
-          .catch(() => false);
-
-        if (isSettingsVisible) {
-          await settingsButton.click();
-        } else {
-          // If Settings text is not visible, try to navigate via sidebar
-          const settingsMenuItem = this.settingsMenuItem;
-          const isSettingsMenuVisible = await settingsMenuItem
-            .isVisible({ timeout: 1000 })
-            .catch(() => false);
-
-          if (isSettingsMenuVisible) {
-            await settingsMenuItem.click({ timeout: 3000 });
-          } else {
-            console.warn("Could not find Settings, skipping project deletion");
-            return;
-          }
-        }
-      }
-
-      // Now try to delete
-      await this.getByRole("button", { name: "Delete Project" }).waitFor({
-        state: "visible",
-        timeout: 5000,
-      });
-      await this.getByRole("button", { name: "Delete Project" }).click();
-      await this.getByRole("button", { name: "OK" }).click();
-      await this.closeNotification();
-    } catch (error) {
-      console.warn("Failed to delete project:", error);
-      // Attempt to navigate back to home if deletion fails
-      await this.page.goto("/", { waitUntil: "domcontentloaded" }).catch(() => {
-        console.warn("Failed to navigate to home page after deletion error");
-      });
-    }
+  async deleteProject(projectName: string): Promise<void> {
+    await this.page.goto("/", { waitUntil: "domcontentloaded" });
+    await this.gotoProject(projectName);
+    await this.settingsMenuItem.click();
+    await this.deleteProjectButton.click();
+    await this.okButton.click();
+    await this.closeNotification();
   }
 
   async createModelFromOverview(name = "e2e model name", key?: string): Promise<void> {
@@ -258,7 +211,7 @@ export class ProjectPage extends BasePage {
     if (key) {
       await this.getByLabel("Model key").fill(key);
     }
-    await this.getByRole("button", { name: "OK" }).click();
+    await this.okButton.click();
     await this.closeNotification();
   }
 

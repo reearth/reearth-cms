@@ -7,12 +7,10 @@ const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 let workspaceCreated = false;
 
 test.beforeEach(async () => {
-  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   workspaceCreated = false;
 });
 
 test.afterEach(async ({ reearth, workspacePage }) => {
-  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   // Clean up workspace if it was created and not already deleted in the test
   if (workspaceCreated) {
     try {
@@ -40,6 +38,7 @@ test.afterEach(async ({ reearth, workspacePage }) => {
 });
 
 test("Workspace CRUD has succeeded", async ({ reearth, workspacePage }) => {
+  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await workspacePage.createWorkspaceButton.click();
   await workspacePage.workspaceNameInput.click();
@@ -65,6 +64,7 @@ test("Workspace CRUD has succeeded", async ({ reearth, workspacePage }) => {
 });
 
 test("Workspace Creating from tab has succeeded", async ({ reearth, workspacePage }) => {
+  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await workspacePage.firstWorkspaceLink.click();
   await workspacePage.createWorkspaceTabButton.click();

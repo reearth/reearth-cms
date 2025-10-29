@@ -11,10 +11,8 @@ test.beforeEach(async ({ reearth, projectPage }) => {
   await projectPage.createModelFromOverview();
 });
 
-test.afterEach(async ({ reearth, projectPage }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await projectPage.gotoProject(projectName);
-  await projectPage.deleteProject();
+test.afterEach(async ({ projectPage }) => {
+  await projectPage.deleteProject(projectName);
 });
 
 test("Group field creating and updating has succeeded", async ({

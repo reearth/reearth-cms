@@ -16,10 +16,8 @@ test.beforeEach(async ({ reearth, projectPage }) => {
   await projectPage.createModelFromOverview();
 });
 
-test.afterEach(async ({ reearth, projectPage }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await projectPage.gotoProject(projectName);
-  await projectPage.deleteProject();
+test.afterEach(async ({ projectPage }) => {
+  await projectPage.deleteProject(projectName);
 });
 
 test("Tag metadata creating and updating has succeeded", async ({

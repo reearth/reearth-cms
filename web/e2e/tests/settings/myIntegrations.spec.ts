@@ -1,58 +1,36 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
+
+let integrationName: string;
+let newIntegrationName: string;
 
 test.beforeEach(async ({ reearth, integrationsPage }) => {
+  integrationName = getId();
+  newIntegrationName = getId();
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await integrationsPage.myIntegrationsMenuItem.click();
   await integrationsPage.createIntegrationButton.click();
 
   await integrationsPage.integrationNameInput.click();
-  await integrationsPage.integrationNameInput.fill("name");
+  await integrationsPage.integrationNameInput.fill(integrationName);
   await integrationsPage.descriptionInput.click();
   await integrationsPage.descriptionInput.fill("description");
   await integrationsPage.createButton.click();
   await integrationsPage.closeNotification();
 
-  await integrationsPage.integrationTextByName("name", "description").last().click();
-});
-
-test.afterEach(async ({ reearth, integrationsPage }) => {
-  // Clean up the integration created in beforeEach
-  // Only attempt cleanup if the test wasn't skipped
-  const testInfo = test.info();
-  if (testInfo.status !== "skipped") {
-    await reearth.goto("/", { waitUntil: "domcontentloaded" });
-    await integrationsPage.myIntegrationsMenuItem.click();
-
-    // Check if integration exists before attempting to delete
-    const integrationExists = await integrationsPage
-      .integrationTextByName("name", "description")
-      .or(integrationsPage.integrationTextByName("newName", "newDescription"))
-      .isVisible()
-      .catch(() => false);
-
-    if (integrationExists) {
-      await integrationsPage
-        .integrationTextByName("name", "description")
-        .or(integrationsPage.integrationTextByName("newName", "newDescription"))
-        .last()
-        .click();
-      await integrationsPage.removeIntegrationButton.click();
-      await integrationsPage.okButton.click();
-      await integrationsPage.closeNotification();
-    }
-  }
+  await integrationsPage.integrationTextByName(integrationName, "description").last().click();
 });
 
 test("MyIntegration CRUD has succeeded", async ({ integrationsPage }) => {
-  test.skip();
+  test.slow();
   await integrationsPage.integrationNameInput.click();
-  await integrationsPage.integrationNameInput.fill("newName");
+  await integrationsPage.integrationNameInput.fill(newIntegrationName);
   await integrationsPage.descriptionInput.click();
   await integrationsPage.descriptionInput.fill("newDescription");
   await integrationsPage.saveButton.click();
   await integrationsPage.closeNotification();
 
-  await expect(integrationsPage.rootElement).toContainText("newName");
+  await expect(integrationsPage.rootElement).toContainText(newIntegrationName);
   await integrationsPage.backButton.click();
   await expect(integrationsPage.mainElement).toContainText("newDescription");
   await integrationsPage.integrationLinkByText("newDescription").click();
@@ -63,7 +41,7 @@ test("MyIntegration CRUD has succeeded", async ({ integrationsPage }) => {
 });
 
 test("Webhook CRUD has succeeded", async ({ integrationsPage }) => {
-  test.skip();
+  test.slow();
   await integrationsPage.webhookTab.click();
   await integrationsPage.newWebhookButton.click();
   await integrationsPage.webhookNameInput.click();
