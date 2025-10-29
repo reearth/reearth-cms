@@ -23,6 +23,7 @@ type ProjectDocument struct {
 	ImageURL      string
 	StarCount     int64
 	StarredBy     []string
+	Topics        []string
 	Workspace     string
 	Accessibility *ProjectAccessibilityDocument
 	RequestRoles  []string
@@ -66,6 +67,7 @@ func NewProject(project *project.Project) (*ProjectDocument, string) {
 		ImageURL:      imageURL,
 		StarCount:     project.StarCount(),
 		StarredBy:     project.StarredBy(),
+		Topics:        project.Topics(),
 		Workspace:     project.Workspace().String(),
 		Accessibility: NewProjectAccessibility(project.Accessibility()),
 		RequestRoles:  fromRequestRoles(project.RequestRoles()),
@@ -142,6 +144,7 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 		ImageURL(imageURL).
 		StarCount(d.StarCount).
 		StarredBy(d.StarredBy).
+		Topics(d.Topics).
 		Accessibility(d.Accessibility.Model()).
 		RequestRoles(toRequestRoles(d.RequestRoles)).
 		Build()
