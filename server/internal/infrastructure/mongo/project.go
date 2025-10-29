@@ -104,6 +104,7 @@ func (r *ProjectRepo) Search(ctx context.Context, f interfaces.ProjectFilter) (p
 			bson.M{"name": regx},
 			bson.M{"alias": regx},
 			bson.M{"description": regx},
+			bson.M{"topics": regx},
 			bson.M{"id": *f.Keyword},
 		}
 	}
