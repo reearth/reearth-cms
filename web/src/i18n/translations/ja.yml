@@ -304,6 +304,21 @@ Create a new project: 新規プロジェクトを作成
 New Model: 新規モデル
 No Models yet: モデルはまだありません
 Create a new model: 新しいモデルを作成する
+Export as CSV: CSV形式でエクスポート
+CSV export only supports simple fields (text, number, date).: CSVエクスポートは単純なフィールド（テキスト、数値、日付）のみをサポートします。
+Relations, arrays, objects, and geometry fields are not included.: リレーション、配列、オブジェクト、ジオメトリフィールドは含まれません。
+For a complete export with all fields, please use the JSON export option.: すべてのフィールドを含む完全なエクスポートには、JSONエクスポートオプションを使用してください。
+Export CSV: ''
+Cannot export GeoJSON: GeoJSONをエクスポートできません
+No Geometry field was found in this model, so GeoJSON export is not available.: このモデルにジオメトリフィールドが見つからないため、GeoJSONエクスポートは利用できません。
+Multiple Geometry fields detected: 複数のジオメトリフィールドが検出されました
+This model has multiple Geometry fields.: このモデルには複数のジオメトリフィールドがあります。
+'GeoJSON format supports only one geometry field. ': ''
+Only the first Geometry field will be exported. Please adjust your data if needed.: 最初のジオメトリフィールドのみがエクスポートされます。必要に応じてデータを調整してください。
+Export Anyway: とにかくエクスポート
+Export Schema: スキーマをエクスポート
+Export as JSON: JSON形式でエクスポート
+Export as GeoJSON: GeoJSON形式でエクスポート
 Last Modified: ''
 search models: モデルを検索
 Sort by: 並び替え
@@ -587,6 +602,9 @@ Failed to delete model.: モデルの削除に失敗しました。
 Successfully deleted model!: モデルの削除に成功しました。
 Failed to update model.: モデルの更新に失敗しました。
 Successfully updated model!: モデルの更新に成功しました。
+Failed to export schema.: スキーマのエクスポートに失敗しました。
+Failed to export model data.: モデルデータのエクスポートに失敗しました。
+Export failed: エクスポートに失敗しました
 Successfully updated request!: リクエストの更新に成功しました。
 Failed to delete one or more requests.: リクエストの削除に失敗しました。
 One or more requests were successfully closed!: リクエストのクローズに成功しました。
