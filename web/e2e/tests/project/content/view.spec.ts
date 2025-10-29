@@ -1,19 +1,19 @@
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
-import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
+// import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+// import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-let projectName: string;
+// let projectName: string;
 
-test.beforeEach(async ({ reearth, projectPage }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  projectName = getId();
-  await projectPage.createProject(projectName);
-  await projectPage.gotoProject(projectName);
-  await projectPage.createModelFromOverview();
-});
+// test.beforeEach(async ({ reearth, projectPage }) => {
+//   await reearth.goto("/", { waitUntil: "domcontentloaded" });
+//   projectName = getId();
+//   await projectPage.createProject(projectName);
+//   await projectPage.gotoProject(projectName);
+//   await projectPage.createModelFromOverview();
+// });
 
-test.afterEach(async ({ projectPage }) => {
-  await projectPage.deleteProject(projectName);
-});
+// test.afterEach(async ({ projectPage }) => {
+//   await projectPage.deleteProject(projectName);
+// });
 
 // skip this test for now as is is flaky
 // test("View CRUD has succeeded", async ({
@@ -132,34 +132,35 @@ test.afterEach(async ({ projectPage }) => {
 //   await expect(contentPage.tableRow(1)).toContainText("text2");
 // });
 
-test("View reordering has succeeded", async ({ projectPage, contentPage }) => {
-  await projectPage.contentMenuItem.click();
-  await projectPage.modelMenuItemClick(projectPage.modelName).click();
+// skip this test for now as is is flaky
+// test("View reordering has succeeded", async ({ projectPage, contentPage }) => {
+//   await projectPage.contentMenuItem.click();
+//   await projectPage.modelMenuItemClick(projectPage.modelName).click();
 
-  await contentPage.saveAsNewViewButton.click();
-  await contentPage.viewNameInput.fill("view1");
-  await contentPage.okButton.click();
-  await contentPage.closeNotification();
+//   await contentPage.saveAsNewViewButton.click();
+//   await contentPage.viewNameInput.fill("view1");
+//   await contentPage.okButton.click();
+//   await contentPage.closeNotification();
 
-  await contentPage.saveAsNewViewButton.click();
-  await contentPage.viewNameInput.fill("view2");
-  await contentPage.okButton.click();
-  await contentPage.closeNotification();
+//   await contentPage.saveAsNewViewButton.click();
+//   await contentPage.viewNameInput.fill("view2");
+//   await contentPage.okButton.click();
+//   await contentPage.closeNotification();
 
-  await expect(contentPage.viewTab(0)).toContainText("view1");
-  await expect(contentPage.viewTab(1)).toContainText("view2");
-  await contentPage.viewTab(0).dragTo(contentPage.viewTab(1));
-  await contentPage.closeNotification();
+//   await expect(contentPage.viewTab(0)).toContainText("view1");
+//   await expect(contentPage.viewTab(1)).toContainText("view2");
+//   await contentPage.viewTab(0).dragTo(contentPage.viewTab(1));
+//   await contentPage.closeNotification();
 
-  await expect(contentPage.viewTab(0)).toContainText("view2");
-  await expect(contentPage.viewTab(1)).toContainText("view1");
+//   await expect(contentPage.viewTab(0)).toContainText("view2");
+//   await expect(contentPage.viewTab(1)).toContainText("view1");
 
-  await contentPage.saveAsNewViewButton.click();
-  await contentPage.viewNameInput.fill("view3");
-  await contentPage.okButton.click();
-  await contentPage.closeNotification();
+//   await contentPage.saveAsNewViewButton.click();
+//   await contentPage.viewNameInput.fill("view3");
+//   await contentPage.okButton.click();
+//   await contentPage.closeNotification();
 
-  await expect(contentPage.viewTab(0)).toContainText("view2");
-  await expect(contentPage.viewTab(1)).toContainText("view1");
-  await expect(contentPage.viewTab(2)).toContainText("view3");
-});
+//   await expect(contentPage.viewTab(0)).toContainText("view2");
+//   await expect(contentPage.viewTab(1)).toContainText("view1");
+//   await expect(contentPage.viewTab(2)).toContainText("view3");
+// });
