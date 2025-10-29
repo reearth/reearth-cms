@@ -189,7 +189,7 @@ func Test_projectRepo_FindByID(t *testing.T) {
 	tid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	now := time.Now().Truncate(time.Millisecond).UTC()
-	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(now).MustBuild()
+	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(now).Topics([]string{}).MustBuild()
 	tests := []struct {
 		name    string
 		seeds   project.List
@@ -298,7 +298,7 @@ func Test_projectRepo_FindByIDOrAlias(t *testing.T) {
 	tid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	now := time.Now().Truncate(time.Millisecond).UTC()
-	p1 := project.New().ID(id1).Alias("xyz-123").Workspace(tid1).UpdatedAt(now).MustBuild()
+	p1 := project.New().ID(id1).Alias("xyz-123").Workspace(tid1).UpdatedAt(now).Topics([]string{}).MustBuild()
 	tests := []struct {
 		name    string
 		seeds   project.List
@@ -432,8 +432,8 @@ func Test_projectRepo_FindByIDs(t *testing.T) {
 	tid1 := accountdomain.NewWorkspaceID()
 	id1 := id.NewProjectID()
 	id2 := id.NewProjectID()
-	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(now).MustBuild()
-	p2 := project.New().ID(id2).Workspace(tid1).UpdatedAt(now).MustBuild()
+	p1 := project.New().ID(id1).Workspace(tid1).UpdatedAt(now).Topics([]string{}).MustBuild()
+	p2 := project.New().ID(id2).Workspace(tid1).UpdatedAt(now).Topics([]string{}).MustBuild()
 
 	tests := []struct {
 		name    string
@@ -702,8 +702,8 @@ func Test_projectRepo_IsAliasAvailable(t *testing.T) {
 func Test_projectRepo_FindByWorkspace(t *testing.T) {
 	now := time.Now().Truncate(time.Millisecond).UTC()
 	tid1 := accountdomain.NewWorkspaceID()
-	p1 := project.New().NewID().Workspace(tid1).UpdatedAt(now).MustBuild()
-	p2 := project.New().NewID().Workspace(tid1).UpdatedAt(now).MustBuild()
+	p1 := project.New().NewID().Workspace(tid1).UpdatedAt(now).Topics([]string{}).MustBuild()
+	p2 := project.New().NewID().Workspace(tid1).UpdatedAt(now).Topics([]string{}).MustBuild()
 
 	type args struct {
 		wids  accountdomain.WorkspaceIDList
