@@ -1,4 +1,4 @@
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
+import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import fileDownload from "js-file-download";
 import { useState, useCallback, Key, useMemo, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
@@ -24,10 +24,10 @@ import {
   GuessSchemaFieldsDocument,
 } from "@reearth-cms/gql/__generated__/assets.generated";
 import {
-  Asset as GQLAsset,
-  SortDirection as GQLSortDirection,
-  AssetSortType as GQLSortType,
+  AssetSortType,
   ContentTypesEnum,
+  SortDirection,
+  Asset as GQLAsset,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
@@ -115,36 +115,27 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     [getAsset],
   );
 
-  const params = useMemo(
-    () => ({
-      fetchPolicy: "cache-and-network" as const,
-      variables: {
-        projectId: projectId ?? "",
-        pagination: { first: pageSize, offset: (page - 1) * pageSize },
-        sort: sort
-          ? {
-              sortBy: sort.type as GQLSortType,
-              direction: sort.direction as GQLSortDirection,
-            }
-          : { sortBy: "DATE" as GQLSortType, direction: "DESC" as GQLSortDirection },
-        keyword: searchTerm,
-        contentTypes: contentTypes,
-      },
-      notifyOnNetworkStatusChange: true,
-      skip: !projectId,
-    }),
-    [contentTypes, page, pageSize, projectId, searchTerm, sort],
+  const { data, refetch, loading } = useQuery(
+    isItemsRequired ? GetAssetsItemsDocument : GetAssetsDocument,
+    projectId
+      ? {
+          fetchPolicy: "cache-and-network",
+          variables: {
+            projectId,
+            pagination: { first: pageSize, offset: (page - 1) * pageSize },
+            sort: sort
+              ? {
+                  sortBy: sort.type as AssetSortType,
+                  direction: sort.direction as SortDirection,
+                }
+              : { sortBy: "DATE" as AssetSortType, direction: "DESC" as SortDirection },
+            keyword: searchTerm,
+            contentTypes: contentTypes,
+          },
+          notifyOnNetworkStatusChange: true,
+        }
+      : skipToken,
   );
-
-  const [getAssets, { data, refetch, loading }] = isItemsRequired
-    ? useLazyQuery(GetAssetsItemsDocument)
-    : useLazyQuery(GetAssetsDocument);
-
-  useEffect(() => {
-    if (isItemsRequired) {
-      getAssets(params);
-    }
-  }, [getAssets, isItemsRequired, params]);
 
   const {
     data: guessSchemaFieldsData,
@@ -370,8 +361,8 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   }, []);
 
   const handleAssetsGet = useCallback(() => {
-    getAssets(params);
-  }, [getAssets, params]);
+    refetch();
+  }, [refetch]);
 
   const handleAssetsReload = useCallback(() => {
     refetch();
