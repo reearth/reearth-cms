@@ -22,6 +22,7 @@ func ToProject(p *project.Project) *pb.Project {
 		Readme:      lo.ToPtr(p.Readme()),
 		StarCount:   p.StarCount(),
 		StarredBy:   p.StarredBy(),
+		Topics:      p.Topics(),
 		WorkspaceId: p.Workspace().String(),
 		Visibility:  ToProjectVisibility(p.Accessibility().Visibility()),
 		CreatedAt:   timestamppb.New(p.ID().Timestamp()),

@@ -137,6 +137,7 @@ func TestProjectDocument_Model(t *testing.T) {
 				UpdatedAt(now).
 				Workspace(wId).
 				Accessibility(pp).
+				Topics([]string{}).
 				RequestRoles(r).
 				MustBuild(),
 			wantErr: false,
@@ -164,6 +165,7 @@ func TestProjectDocument_Model(t *testing.T) {
 				UpdatedAt(now).
 				Workspace(wId).
 				Accessibility(pp).
+				Topics([]string{}).
 				MustBuild(),
 			wantErr: false,
 		},
