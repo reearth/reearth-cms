@@ -28,6 +28,7 @@ type CreateProjectParam struct {
 	License       *string
 	Readme        *string
 	Alias         *string
+	Topics        *[]string
 	RequestRoles  []workspace.Role
 	Accessibility *AccessibilityParam
 }
@@ -39,6 +40,7 @@ type UpdateProjectParam struct {
 	License       *string
 	Readme        *string
 	Alias         *string
+	Topics        *[]string
 	RequestRoles  []workspace.Role
 	Accessibility *AccessibilityParam
 }

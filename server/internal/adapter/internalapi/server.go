@@ -48,12 +48,18 @@ func (s server) CreateProject(ctx context.Context, req *pb.CreateProjectRequest)
 	}
 
 	p, err := uc.Project.Create(ctx, interfaces.CreateProjectParam{
-		WorkspaceID:   wId,
-		Name:          &req.Name,
-		Description:   req.Description,
-		License:       req.License,
-		Readme:        req.Readme,
-		Alias:         &req.Alias,
+		WorkspaceID: wId,
+		Name:        &req.Name,
+		Description: req.Description,
+		License:     req.License,
+		Readme:      req.Readme,
+		Alias:       &req.Alias,
+		Topics: func() *[]string {
+			if req.Topics == nil {
+				return nil
+			}
+			return &req.Topics.Values
+		}(),
 		RequestRoles:  []workspace.Role{},
 		Accessibility: internalapimodel.ProjectAccessibilityFromPB(&req.Visibility),
 	}, op)
@@ -75,12 +81,18 @@ func (s server) UpdateProject(ctx context.Context, req *pb.UpdateProjectRequest)
 
 	// todo accessibility
 	p, err := uc.Project.Update(ctx, interfaces.UpdateProjectParam{
-		ID:            pId,
-		Name:          req.Name,
-		Description:   req.Description,
-		License:       req.License,
-		Readme:        req.Readme,
-		Alias:         req.Alias,
+		ID:          pId,
+		Name:        req.Name,
+		Description: req.Description,
+		License:     req.License,
+		Readme:      req.Readme,
+		Alias:       req.Alias,
+		Topics: func() *[]string {
+			if req.Topics == nil {
+				return nil
+			}
+			return &req.Topics.Values
+		}(),
 		RequestRoles:  []workspace.Role{},
 		Accessibility: internalapimodel.ProjectAccessibilityFromPB(req.Visibility),
 	}, op)

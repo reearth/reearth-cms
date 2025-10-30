@@ -3,6 +3,7 @@ package project
 import (
 	"net/url"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -10,6 +11,7 @@ import (
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
@@ -160,6 +162,22 @@ func (p *Project) Unstar(uId accountdomain.UserID) {
 			return
 		}
 	}
+}
+
+func (p *Project) SetTopics(topics []string) {
+	if p == nil {
+		return
+	}
+
+	trimmed := lo.Map(topics, func(s string, _ int) string {
+		return strings.TrimSpace(s)
+	})
+
+	nonEmpty := lo.Filter(trimmed, func(s string, _ int) bool {
+		return s != ""
+	})
+
+	p.topics = lo.Uniq(nonEmpty)
 }
 
 func (p *Project) SetRequestRoles(sr []workspace.Role) {
