@@ -16,11 +16,9 @@ function getRgb(colorCode: string) {
   ).replaceAll(",", ", ")})`;
 }
 
-let projectName: string;
-
 test.beforeEach(async ({ reearth, fieldEditorPage, projectPage, contentPage, schemaPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  projectName = getId();
+  const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
   await projectPage.createModelFromOverview();
@@ -36,7 +34,7 @@ test.beforeEach(async ({ reearth, fieldEditorPage, projectPage, contentPage, sch
 });
 
 test.afterEach(async ({ projectPage }) => {
-  await projectPage.deleteProject(projectName);
+  await projectPage.deleteProject();
 });
 
 test("Read versions successfully", async ({ contentPage }) => {

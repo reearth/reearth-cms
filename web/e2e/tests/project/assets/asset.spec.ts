@@ -7,21 +7,20 @@ const jsonUrl = `https://assets.cms.plateau.reearth.io/assets/11/6d05db-ed47-4f8
 const pngName = "road_plan2.png";
 const pngUrl = `https://assets.cms.plateau.reearth.io/assets/33/e999c4-7859-446b-ab3c-86625b3c760e/${pngName}`;
 
-let projectName: string;
-
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  projectName = getId();
+  const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
   await projectPage.assetMenuItem.click();
 });
 
 test.afterEach(async ({ projectPage }) => {
-  await projectPage.deleteProject(projectName);
+  await projectPage.deleteProject();
 });
 
-test.describe.parallel("Json file tests", () => {
+test.describe("Json file tests", () => {
+  test.slow();
   test.beforeEach(async ({ assetsPage }) => {
     await assetsPage.uploadViaUrl(jsonUrl);
   });
@@ -77,8 +76,8 @@ test.describe.parallel("Json file tests", () => {
     await expect(assetsPage.canvas).toHaveAttribute("width", width);
     await expect(assetsPage.canvas).toHaveAttribute("height", height);
 
-    // exit fullscreen
-    await assetsPage.canvas.press("Escape");
+    // exit via browser back (same as your original)
+    await page.goBack();
   });
 
   test("Downloading asset has succeeded", async ({ page, assetsPage }) => {

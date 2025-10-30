@@ -12,18 +12,16 @@ const localZipPath = path.resolve(__dirname, "./mock-assets/test.zip");
 const zipName = "20214_chino-shi_2022_mvt_1_op_urf_UseDistrict.zip";
 const zipUrl = `https://assets.cms.plateau.reearth.io/assets/ff/5caafa-1c09-46b7-868e-9f4b62f59c68/${zipName}`;
 
-let projectName: string;
-
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  projectName = getId();
+  const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
   await projectPage.assetMenuItem.click();
 });
 
 test.afterEach(async ({ projectPage }) => {
-  await projectPage.deleteProject(projectName);
+  await projectPage.deleteProject();
 });
 
 test.describe("Zip Upload Tests", () => {

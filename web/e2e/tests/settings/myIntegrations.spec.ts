@@ -40,7 +40,6 @@ test("MyIntegration CRUD has succeeded", async ({ integrationsPage }) => {
   await expect(integrationsPage.mainElement).not.toContainText("newDescription");
 });
 
-// skip this test for now as is is flaky
 test("Webhook CRUD has succeeded", async ({ integrationsPage }) => {
   test.skip();
   await integrationsPage.webhookTab.click();

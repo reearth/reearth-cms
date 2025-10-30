@@ -105,7 +105,7 @@ test.describe("Project General Settings", () => {
 
       for await (const project of projects) {
         await projectPage.gotoProject(project);
-        await projectPage.deleteProject(project);
+        await projectPage.deleteProject();
       }
     });
   });

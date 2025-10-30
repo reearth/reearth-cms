@@ -196,9 +196,7 @@ export class ProjectPage extends BasePage {
     await expect(projectName).toHaveText(name);
   }
 
-  async deleteProject(projectName: string): Promise<void> {
-    await this.page.goto("/", { waitUntil: "domcontentloaded" });
-    await this.gotoProject(projectName);
+  async deleteProject(): Promise<void> {
     await this.getByText("Settings").first().click();
     await this.getByRole("button", { name: "Delete Project" }).click();
     await this.getByRole("button", { name: "OK" }).click();

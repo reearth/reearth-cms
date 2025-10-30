@@ -1,19 +1,14 @@
-import { config } from "@reearth-cms/e2e/config/config";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
-import { parseConfigBoolean } from "@reearth-cms/e2e/helpers/format.helper";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 const itemTitle = "e2e item title";
 const titleFieldName = "e2e title field";
 const requestTitle = "e2e request title";
 const modelName = "e2e model name";
 
-let projectName: string;
-
 test.beforeEach(async ({ reearth, projectPage, schemaPage, contentPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  projectName = getId();
+  const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
   await projectPage.createModelFromOverview();
@@ -23,13 +18,12 @@ test.beforeEach(async ({ reearth, projectPage, schemaPage, contentPage }) => {
 });
 
 test.afterEach(async ({ projectPage }) => {
-  await projectPage.deleteProject(projectName);
+  await projectPage.deleteProject();
 });
 
 test("Request creating, searching, updating reviewer, and approving has succeeded", async ({
   requestPage,
 }) => {
-  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await requestPage.requestMenuItem.click();
   await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
   await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
@@ -61,7 +55,6 @@ test("Request creating, searching, updating reviewer, and approving has succeede
 });
 
 test("Request closing and reopening has succeeded", async ({ requestPage }) => {
-  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await requestPage.requestMenuItem.click();
   await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
   await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
@@ -97,7 +90,6 @@ test("Request closing and reopening has succeeded", async ({ requestPage }) => {
 });
 
 test("Comment CRUD on edit page has succeeded", async ({ requestPage }) => {
-  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await requestPage.requestMenuItem.click();
   await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
   await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
@@ -120,7 +112,6 @@ test("Comment CRUD on edit page has succeeded", async ({ requestPage }) => {
 });
 
 test("Comment CRUD on Request page has succeeded", async ({ requestPage, contentPage }) => {
-  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await requestPage.requestMenuItem.click();
   await requestPage.commentsCountButton("0").click();
 
@@ -130,7 +121,6 @@ test("Comment CRUD on Request page has succeeded", async ({ requestPage, content
 });
 
 test("Creating a new request and adding to request has succeeded", async ({ requestPage }) => {
-  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await requestPage.backButtonCapitalized.click();
   await requestPage.newItemButton.click();
   await requestPage.saveButton.click();
@@ -147,7 +137,6 @@ test("Creating a new request and adding to request has succeeded", async ({ requ
 });
 
 test("Navigating between item and request has succeeded", async ({ contentPage, requestPage }) => {
-  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await requestPage.versionHistoryTab.click();
   await requestPage.requestTitleLink(requestTitle).click();
   await expect(requestPage.requestPageTitle(requestTitle)).toBeVisible();

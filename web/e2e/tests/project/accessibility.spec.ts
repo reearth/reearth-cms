@@ -1,17 +1,15 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-let projectName: string;
-
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  projectName = getId();
+  const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
 });
 
 test.afterEach(async ({ projectPage }) => {
-  await projectPage.deleteProject(projectName);
+  await projectPage.deleteProject();
 });
 
 test("Update settings on Accessibility page has succeeded", async ({ projectPage }) => {

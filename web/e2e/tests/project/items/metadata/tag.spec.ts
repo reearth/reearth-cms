@@ -6,18 +6,16 @@ const description = "tag description";
 const tag1 = "Tag1";
 const tag2 = "Tag2";
 
-let projectName: string;
-
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  projectName = getId();
+  const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
   await projectPage.createModelFromOverview();
 });
 
 test.afterEach(async ({ projectPage }) => {
-  await projectPage.deleteProject(projectName);
+  await projectPage.deleteProject();
 });
 
 test("Tag metadata creating and updating has succeeded", async ({
