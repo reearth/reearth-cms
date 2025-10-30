@@ -12,8 +12,6 @@ const localZipPath = path.resolve(__dirname, "./mock-assets/test.zip");
 const zipName = "20214_chino-shi_2022_mvt_1_op_urf_UseDistrict.zip";
 const zipUrl = `https://assets.cms.plateau.reearth.io/assets/ff/5caafa-1c09-46b7-868e-9f4b62f59c68/${zipName}`;
 
-const isCI = !!process.env.CI;
-
 let projectName: string;
 
 test.beforeEach(async ({ reearth, projectPage }) => {
@@ -30,7 +28,6 @@ test.afterEach(async ({ projectPage }) => {
 
 test.describe("Zip Upload Tests", () => {
   test("Uploading and auto-unzipping ZIP file from URL tab succeeds", async ({ assetsPage }) => {
-    test.skip(!isCI, "This test runs only in CI environment");
     await assetsPage.uploadButton.click();
     await assetsPage.urlTab.click();
     const urlInput = assetsPage.urlInput;
@@ -44,7 +41,6 @@ test.describe("Zip Upload Tests", () => {
   });
 
   test("Uploading and auto-unzipping ZIP file via Local tab succeeds", async ({ assetsPage }) => {
-    test.skip(!isCI, "This test runs only in CI environment");
     await assetsPage.uploadButton.click();
     await assetsPage.localTab.click();
     const uploadInput = assetsPage.fileInput;
