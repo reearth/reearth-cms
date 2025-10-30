@@ -203,7 +203,7 @@ func (x ModelExportRequest_Type) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ModelExportRequest_Type.Descriptor instead.
 func (ModelExportRequest_Type) EnumDescriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{20, 0}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{21, 0}
 }
 
 // Core messages
@@ -775,6 +775,50 @@ func (x *SchemaField) GetDescription() string {
 	return ""
 }
 
+type Topics struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Values        []string               `protobuf:"bytes,1,rep,name=values,proto3" json:"values,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Topics) Reset() {
+	*x = Topics{}
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Topics) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Topics) ProtoMessage() {}
+
+func (x *Topics) ProtoReflect() protoreflect.Message {
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Topics.ProtoReflect.Descriptor instead.
+func (*Topics) Descriptor() ([]byte, []int) {
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *Topics) GetValues() []string {
+	if x != nil {
+		return x.Values
+	}
+	return nil
+}
+
 // Request messages
 type PageInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -786,7 +830,7 @@ type PageInfo struct {
 
 func (x *PageInfo) Reset() {
 	*x = PageInfo{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[6]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -798,7 +842,7 @@ func (x *PageInfo) String() string {
 func (*PageInfo) ProtoMessage() {}
 
 func (x *PageInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[6]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -811,7 +855,7 @@ func (x *PageInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageInfo.ProtoReflect.Descriptor instead.
 func (*PageInfo) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{6}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *PageInfo) GetPage() int32 {
@@ -838,7 +882,7 @@ type SortInfo struct {
 
 func (x *SortInfo) Reset() {
 	*x = SortInfo{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[7]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -850,7 +894,7 @@ func (x *SortInfo) String() string {
 func (*SortInfo) ProtoMessage() {}
 
 func (x *SortInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[7]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -863,7 +907,7 @@ func (x *SortInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SortInfo.ProtoReflect.Descriptor instead.
 func (*SortInfo) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{7}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *SortInfo) GetKey() string {
@@ -889,7 +933,7 @@ type ProjectRequest struct {
 
 func (x *ProjectRequest) Reset() {
 	*x = ProjectRequest{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[8]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -901,7 +945,7 @@ func (x *ProjectRequest) String() string {
 func (*ProjectRequest) ProtoMessage() {}
 
 func (x *ProjectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[8]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -914,7 +958,7 @@ func (x *ProjectRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectRequest.ProtoReflect.Descriptor instead.
 func (*ProjectRequest) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{8}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ProjectRequest) GetProjectIdOrAlias() string {
@@ -933,7 +977,7 @@ type AliasAvailabilityRequest struct {
 
 func (x *AliasAvailabilityRequest) Reset() {
 	*x = AliasAvailabilityRequest{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[9]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -945,7 +989,7 @@ func (x *AliasAvailabilityRequest) String() string {
 func (*AliasAvailabilityRequest) ProtoMessage() {}
 
 func (x *AliasAvailabilityRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[9]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -958,7 +1002,7 @@ func (x *AliasAvailabilityRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AliasAvailabilityRequest.ProtoReflect.Descriptor instead.
 func (*AliasAvailabilityRequest) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{9}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *AliasAvailabilityRequest) GetAlias() string {
@@ -976,14 +1020,15 @@ type CreateProjectRequest struct {
 	License       *string                `protobuf:"bytes,4,opt,name=license,proto3,oneof" json:"license,omitempty"`
 	Readme        *string                `protobuf:"bytes,5,opt,name=readme,proto3,oneof" json:"readme,omitempty"`
 	Alias         string                 `protobuf:"bytes,6,opt,name=alias,proto3" json:"alias,omitempty"`
-	Visibility    Visibility             `protobuf:"varint,7,opt,name=visibility,proto3,enum=reearth.cms.v1.Visibility" json:"visibility,omitempty"`
+	Topics        *Topics                `protobuf:"bytes,7,opt,name=topics,proto3,oneof" json:"topics,omitempty"`
+	Visibility    Visibility             `protobuf:"varint,8,opt,name=visibility,proto3,enum=reearth.cms.v1.Visibility" json:"visibility,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateProjectRequest) Reset() {
 	*x = CreateProjectRequest{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[10]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -995,7 +1040,7 @@ func (x *CreateProjectRequest) String() string {
 func (*CreateProjectRequest) ProtoMessage() {}
 
 func (x *CreateProjectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[10]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1008,7 +1053,7 @@ func (x *CreateProjectRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateProjectRequest.ProtoReflect.Descriptor instead.
 func (*CreateProjectRequest) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{10}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *CreateProjectRequest) GetWorkspaceId() string {
@@ -1053,6 +1098,13 @@ func (x *CreateProjectRequest) GetAlias() string {
 	return ""
 }
 
+func (x *CreateProjectRequest) GetTopics() *Topics {
+	if x != nil {
+		return x.Topics
+	}
+	return nil
+}
+
 func (x *CreateProjectRequest) GetVisibility() Visibility {
 	if x != nil {
 		return x.Visibility
@@ -1068,14 +1120,15 @@ type UpdateProjectRequest struct {
 	License       *string                `protobuf:"bytes,4,opt,name=license,proto3,oneof" json:"license,omitempty"`
 	Readme        *string                `protobuf:"bytes,5,opt,name=readme,proto3,oneof" json:"readme,omitempty"`
 	Alias         *string                `protobuf:"bytes,6,opt,name=alias,proto3,oneof" json:"alias,omitempty"`
-	Visibility    *Visibility            `protobuf:"varint,7,opt,name=visibility,proto3,enum=reearth.cms.v1.Visibility,oneof" json:"visibility,omitempty"`
+	Topics        *Topics                `protobuf:"bytes,7,opt,name=topics,proto3,oneof" json:"topics,omitempty"`
+	Visibility    *Visibility            `protobuf:"varint,8,opt,name=visibility,proto3,enum=reearth.cms.v1.Visibility,oneof" json:"visibility,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateProjectRequest) Reset() {
 	*x = UpdateProjectRequest{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[11]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1087,7 +1140,7 @@ func (x *UpdateProjectRequest) String() string {
 func (*UpdateProjectRequest) ProtoMessage() {}
 
 func (x *UpdateProjectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[11]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1100,7 +1153,7 @@ func (x *UpdateProjectRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateProjectRequest.ProtoReflect.Descriptor instead.
 func (*UpdateProjectRequest) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{11}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *UpdateProjectRequest) GetProjectId() string {
@@ -1145,6 +1198,13 @@ func (x *UpdateProjectRequest) GetAlias() string {
 	return ""
 }
 
+func (x *UpdateProjectRequest) GetTopics() *Topics {
+	if x != nil {
+		return x.Topics
+	}
+	return nil
+}
+
 func (x *UpdateProjectRequest) GetVisibility() Visibility {
 	if x != nil && x.Visibility != nil {
 		return *x.Visibility
@@ -1161,7 +1221,7 @@ type DeleteProjectRequest struct {
 
 func (x *DeleteProjectRequest) Reset() {
 	*x = DeleteProjectRequest{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[12]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1173,7 +1233,7 @@ func (x *DeleteProjectRequest) String() string {
 func (*DeleteProjectRequest) ProtoMessage() {}
 
 func (x *DeleteProjectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[12]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1186,7 +1246,7 @@ func (x *DeleteProjectRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteProjectRequest.ProtoReflect.Descriptor instead.
 func (*DeleteProjectRequest) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{12}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *DeleteProjectRequest) GetProjectId() string {
@@ -1210,7 +1270,7 @@ type ListProjectsRequest struct {
 
 func (x *ListProjectsRequest) Reset() {
 	*x = ListProjectsRequest{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[13]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1222,7 +1282,7 @@ func (x *ListProjectsRequest) String() string {
 func (*ListProjectsRequest) ProtoMessage() {}
 
 func (x *ListProjectsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[13]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1235,7 +1295,7 @@ func (x *ListProjectsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListProjectsRequest.ProtoReflect.Descriptor instead.
 func (*ListProjectsRequest) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{13}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ListProjectsRequest) GetWorkspaceIds() []string {
@@ -1289,7 +1349,7 @@ type AssetRequest struct {
 
 func (x *AssetRequest) Reset() {
 	*x = AssetRequest{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[14]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1301,7 +1361,7 @@ func (x *AssetRequest) String() string {
 func (*AssetRequest) ProtoMessage() {}
 
 func (x *AssetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[14]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1314,7 +1374,7 @@ func (x *AssetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssetRequest.ProtoReflect.Descriptor instead.
 func (*AssetRequest) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{14}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *AssetRequest) GetAssetId() string {
@@ -1335,7 +1395,7 @@ type ListAssetsRequest struct {
 
 func (x *ListAssetsRequest) Reset() {
 	*x = ListAssetsRequest{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[15]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1347,7 +1407,7 @@ func (x *ListAssetsRequest) String() string {
 func (*ListAssetsRequest) ProtoMessage() {}
 
 func (x *ListAssetsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[15]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1360,7 +1420,7 @@ func (x *ListAssetsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAssetsRequest.ProtoReflect.Descriptor instead.
 func (*ListAssetsRequest) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{15}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ListAssetsRequest) GetProjectId() string {
@@ -1394,7 +1454,7 @@ type ModelRequest struct {
 
 func (x *ModelRequest) Reset() {
 	*x = ModelRequest{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[16]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1406,7 +1466,7 @@ func (x *ModelRequest) String() string {
 func (*ModelRequest) ProtoMessage() {}
 
 func (x *ModelRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[16]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1419,7 +1479,7 @@ func (x *ModelRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModelRequest.ProtoReflect.Descriptor instead.
 func (*ModelRequest) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{16}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ModelRequest) GetProjectIdOrAlias() string {
@@ -1447,7 +1507,7 @@ type ListModelsRequest struct {
 
 func (x *ListModelsRequest) Reset() {
 	*x = ListModelsRequest{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[17]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1459,7 +1519,7 @@ func (x *ListModelsRequest) String() string {
 func (*ListModelsRequest) ProtoMessage() {}
 
 func (x *ListModelsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[17]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1472,7 +1532,7 @@ func (x *ListModelsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListModelsRequest.ProtoReflect.Descriptor instead.
 func (*ListModelsRequest) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{17}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ListModelsRequest) GetProjectId() string {
@@ -1509,7 +1569,7 @@ type ListItemsRequest struct {
 
 func (x *ListItemsRequest) Reset() {
 	*x = ListItemsRequest{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[18]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1521,7 +1581,7 @@ func (x *ListItemsRequest) String() string {
 func (*ListItemsRequest) ProtoMessage() {}
 
 func (x *ListItemsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[18]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1534,7 +1594,7 @@ func (x *ListItemsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListItemsRequest.ProtoReflect.Descriptor instead.
 func (*ListItemsRequest) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{18}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ListItemsRequest) GetModelId() string {
@@ -1583,7 +1643,7 @@ type ExportRequest struct {
 
 func (x *ExportRequest) Reset() {
 	*x = ExportRequest{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[19]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1595,7 +1655,7 @@ func (x *ExportRequest) String() string {
 func (*ExportRequest) ProtoMessage() {}
 
 func (x *ExportRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[19]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1608,7 +1668,7 @@ func (x *ExportRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExportRequest.ProtoReflect.Descriptor instead.
 func (*ExportRequest) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{19}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ExportRequest) GetProjectId() string {
@@ -1636,7 +1696,7 @@ type ModelExportRequest struct {
 
 func (x *ModelExportRequest) Reset() {
 	*x = ModelExportRequest{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[20]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1648,7 +1708,7 @@ func (x *ModelExportRequest) String() string {
 func (*ModelExportRequest) ProtoMessage() {}
 
 func (x *ModelExportRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[20]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1661,7 +1721,7 @@ func (x *ModelExportRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModelExportRequest.ProtoReflect.Descriptor instead.
 func (*ModelExportRequest) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{20}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ModelExportRequest) GetProjectId() string {
@@ -1695,7 +1755,7 @@ type StarRequest struct {
 
 func (x *StarRequest) Reset() {
 	*x = StarRequest{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[21]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1707,7 +1767,7 @@ func (x *StarRequest) String() string {
 func (*StarRequest) ProtoMessage() {}
 
 func (x *StarRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[21]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1720,7 +1780,7 @@ func (x *StarRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StarRequest.ProtoReflect.Descriptor instead.
 func (*StarRequest) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{21}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *StarRequest) GetWorkspaceAlias() string {
@@ -1747,7 +1807,7 @@ type ProjectResponse struct {
 
 func (x *ProjectResponse) Reset() {
 	*x = ProjectResponse{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[22]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1759,7 +1819,7 @@ func (x *ProjectResponse) String() string {
 func (*ProjectResponse) ProtoMessage() {}
 
 func (x *ProjectResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[22]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1772,7 +1832,7 @@ func (x *ProjectResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProjectResponse.ProtoReflect.Descriptor instead.
 func (*ProjectResponse) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{22}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ProjectResponse) GetProject() *Project {
@@ -1791,7 +1851,7 @@ type AliasAvailabilityResponse struct {
 
 func (x *AliasAvailabilityResponse) Reset() {
 	*x = AliasAvailabilityResponse{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[23]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1803,7 +1863,7 @@ func (x *AliasAvailabilityResponse) String() string {
 func (*AliasAvailabilityResponse) ProtoMessage() {}
 
 func (x *AliasAvailabilityResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[23]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1816,7 +1876,7 @@ func (x *AliasAvailabilityResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AliasAvailabilityResponse.ProtoReflect.Descriptor instead.
 func (*AliasAvailabilityResponse) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{23}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *AliasAvailabilityResponse) GetAvailable() bool {
@@ -1835,7 +1895,7 @@ type DeleteProjectResponse struct {
 
 func (x *DeleteProjectResponse) Reset() {
 	*x = DeleteProjectResponse{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[24]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1847,7 +1907,7 @@ func (x *DeleteProjectResponse) String() string {
 func (*DeleteProjectResponse) ProtoMessage() {}
 
 func (x *DeleteProjectResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[24]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1860,7 +1920,7 @@ func (x *DeleteProjectResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteProjectResponse.ProtoReflect.Descriptor instead.
 func (*DeleteProjectResponse) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{24}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *DeleteProjectResponse) GetProjectId() string {
@@ -1881,7 +1941,7 @@ type ListProjectsResponse struct {
 
 func (x *ListProjectsResponse) Reset() {
 	*x = ListProjectsResponse{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[25]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1893,7 +1953,7 @@ func (x *ListProjectsResponse) String() string {
 func (*ListProjectsResponse) ProtoMessage() {}
 
 func (x *ListProjectsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[25]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1906,7 +1966,7 @@ func (x *ListProjectsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListProjectsResponse.ProtoReflect.Descriptor instead.
 func (*ListProjectsResponse) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{25}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ListProjectsResponse) GetProjects() []*Project {
@@ -1939,7 +1999,7 @@ type AssetResponse struct {
 
 func (x *AssetResponse) Reset() {
 	*x = AssetResponse{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[26]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1951,7 +2011,7 @@ func (x *AssetResponse) String() string {
 func (*AssetResponse) ProtoMessage() {}
 
 func (x *AssetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[26]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1964,7 +2024,7 @@ func (x *AssetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AssetResponse.ProtoReflect.Descriptor instead.
 func (*AssetResponse) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{26}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *AssetResponse) GetAsset() *Asset {
@@ -1985,7 +2045,7 @@ type ListAssetsResponse struct {
 
 func (x *ListAssetsResponse) Reset() {
 	*x = ListAssetsResponse{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[27]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1997,7 +2057,7 @@ func (x *ListAssetsResponse) String() string {
 func (*ListAssetsResponse) ProtoMessage() {}
 
 func (x *ListAssetsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[27]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2010,7 +2070,7 @@ func (x *ListAssetsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAssetsResponse.ProtoReflect.Descriptor instead.
 func (*ListAssetsResponse) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{27}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *ListAssetsResponse) GetAssets() []*Asset {
@@ -2043,7 +2103,7 @@ type ModelResponse struct {
 
 func (x *ModelResponse) Reset() {
 	*x = ModelResponse{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[28]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2055,7 +2115,7 @@ func (x *ModelResponse) String() string {
 func (*ModelResponse) ProtoMessage() {}
 
 func (x *ModelResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[28]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2068,7 +2128,7 @@ func (x *ModelResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ModelResponse.ProtoReflect.Descriptor instead.
 func (*ModelResponse) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{28}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *ModelResponse) GetModel() *Model {
@@ -2089,7 +2149,7 @@ type ListModelsResponse struct {
 
 func (x *ListModelsResponse) Reset() {
 	*x = ListModelsResponse{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[29]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2101,7 +2161,7 @@ func (x *ListModelsResponse) String() string {
 func (*ListModelsResponse) ProtoMessage() {}
 
 func (x *ListModelsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[29]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2114,7 +2174,7 @@ func (x *ListModelsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListModelsResponse.ProtoReflect.Descriptor instead.
 func (*ListModelsResponse) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{29}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *ListModelsResponse) GetModels() []*Model {
@@ -2149,7 +2209,7 @@ type ListItemsResponse struct {
 
 func (x *ListItemsResponse) Reset() {
 	*x = ListItemsResponse{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[30]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2161,7 +2221,7 @@ func (x *ListItemsResponse) String() string {
 func (*ListItemsResponse) ProtoMessage() {}
 
 func (x *ListItemsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[30]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2174,7 +2234,7 @@ func (x *ListItemsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListItemsResponse.ProtoReflect.Descriptor instead.
 func (*ListItemsResponse) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{30}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *ListItemsResponse) GetItems() []*Item {
@@ -2207,7 +2267,7 @@ type ExportURLResponse struct {
 
 func (x *ExportURLResponse) Reset() {
 	*x = ExportURLResponse{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[31]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2219,7 +2279,7 @@ func (x *ExportURLResponse) String() string {
 func (*ExportURLResponse) ProtoMessage() {}
 
 func (x *ExportURLResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[31]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2232,7 +2292,7 @@ func (x *ExportURLResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExportURLResponse.ProtoReflect.Descriptor instead.
 func (*ExportURLResponse) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{31}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *ExportURLResponse) GetUrl() string {
@@ -2251,7 +2311,7 @@ type StarResponse struct {
 
 func (x *StarResponse) Reset() {
 	*x = StarResponse{}
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[32]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2263,7 +2323,7 @@ func (x *StarResponse) String() string {
 func (*StarResponse) ProtoMessage() {}
 
 func (x *StarResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[32]
+	mi := &file_schemas_internalapi_v1_schema_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2276,7 +2336,7 @@ func (x *StarResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StarResponse.ProtoReflect.Descriptor instead.
 func (*StarResponse) Descriptor() ([]byte, []int) {
-	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{32}
+	return file_schemas_internalapi_v1_schema_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *StarResponse) GetProject() *Project {
@@ -2388,7 +2448,9 @@ const file_schemas_internalapi_v1_schema_proto_rawDesc = "" +
 	"\x05Group\x10\x0e\x12\x12\n" +
 	"\x0eGeometryObject\x10\x0f\x12\x12\n" +
 	"\x0eGeometryEditor\x10\x10B\x0e\n" +
-	"\f_description\";\n" +
+	"\f_description\" \n" +
+	"\x06Topics\x12\x16\n" +
+	"\x06values\x18\x01 \x03(\tR\x06values\";\n" +
 	"\bPageInfo\x12\x12\n" +
 	"\x04page\x18\x01 \x01(\x05R\x04page\x12\x1b\n" +
 	"\tpage_size\x18\x02 \x01(\x05R\bpageSize\"8\n" +
@@ -2398,21 +2460,23 @@ const file_schemas_internalapi_v1_schema_proto_rawDesc = "" +
 	"\x0eProjectRequest\x12-\n" +
 	"\x13project_id_or_alias\x18\x01 \x01(\tR\x10projectIdOrAlias\"0\n" +
 	"\x18AliasAvailabilityRequest\x12\x14\n" +
-	"\x05alias\x18\x01 \x01(\tR\x05alias\"\xa9\x02\n" +
+	"\x05alias\x18\x01 \x01(\tR\x05alias\"\xe9\x02\n" +
 	"\x14CreateProjectRequest\x12!\n" +
 	"\fworkspace_id\x18\x01 \x01(\tR\vworkspaceId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12%\n" +
 	"\vdescription\x18\x03 \x01(\tH\x00R\vdescription\x88\x01\x01\x12\x1d\n" +
 	"\alicense\x18\x04 \x01(\tH\x01R\alicense\x88\x01\x01\x12\x1b\n" +
 	"\x06readme\x18\x05 \x01(\tH\x02R\x06readme\x88\x01\x01\x12\x14\n" +
-	"\x05alias\x18\x06 \x01(\tR\x05alias\x12:\n" +
+	"\x05alias\x18\x06 \x01(\tR\x05alias\x123\n" +
+	"\x06topics\x18\a \x01(\v2\x16.reearth.cms.v1.TopicsH\x03R\x06topics\x88\x01\x01\x12:\n" +
 	"\n" +
-	"visibility\x18\a \x01(\x0e2\x1a.reearth.cms.v1.VisibilityR\n" +
+	"visibility\x18\b \x01(\x0e2\x1a.reearth.cms.v1.VisibilityR\n" +
 	"visibilityB\x0e\n" +
 	"\f_descriptionB\n" +
 	"\n" +
 	"\b_licenseB\t\n" +
-	"\a_readme\"\xd6\x02\n" +
+	"\a_readmeB\t\n" +
+	"\a_topics\"\x96\x03\n" +
 	"\x14UpdateProjectRequest\x12\x1d\n" +
 	"\n" +
 	"project_id\x18\x01 \x01(\tR\tprojectId\x12\x17\n" +
@@ -2420,16 +2484,18 @@ const file_schemas_internalapi_v1_schema_proto_rawDesc = "" +
 	"\vdescription\x18\x03 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
 	"\alicense\x18\x04 \x01(\tH\x02R\alicense\x88\x01\x01\x12\x1b\n" +
 	"\x06readme\x18\x05 \x01(\tH\x03R\x06readme\x88\x01\x01\x12\x19\n" +
-	"\x05alias\x18\x06 \x01(\tH\x04R\x05alias\x88\x01\x01\x12?\n" +
+	"\x05alias\x18\x06 \x01(\tH\x04R\x05alias\x88\x01\x01\x123\n" +
+	"\x06topics\x18\a \x01(\v2\x16.reearth.cms.v1.TopicsH\x05R\x06topics\x88\x01\x01\x12?\n" +
 	"\n" +
-	"visibility\x18\a \x01(\x0e2\x1a.reearth.cms.v1.VisibilityH\x05R\n" +
+	"visibility\x18\b \x01(\x0e2\x1a.reearth.cms.v1.VisibilityH\x06R\n" +
 	"visibility\x88\x01\x01B\a\n" +
 	"\x05_nameB\x0e\n" +
 	"\f_descriptionB\n" +
 	"\n" +
 	"\b_licenseB\t\n" +
 	"\a_readmeB\b\n" +
-	"\x06_aliasB\r\n" +
+	"\x06_aliasB\t\n" +
+	"\a_topicsB\r\n" +
 	"\v_visibility\"5\n" +
 	"\x14DeleteProjectRequest\x12\x1d\n" +
 	"\n" +
@@ -2574,7 +2640,7 @@ func file_schemas_internalapi_v1_schema_proto_rawDescGZIP() []byte {
 }
 
 var file_schemas_internalapi_v1_schema_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_schemas_internalapi_v1_schema_proto_msgTypes = make([]protoimpl.MessageInfo, 34)
+var file_schemas_internalapi_v1_schema_proto_msgTypes = make([]protoimpl.MessageInfo, 35)
 var file_schemas_internalapi_v1_schema_proto_goTypes = []any{
 	(Visibility)(0),                   // 0: reearth.cms.v1.Visibility
 	(SchemaField_Type)(0),             // 1: reearth.cms.v1.SchemaField.Type
@@ -2585,107 +2651,110 @@ var file_schemas_internalapi_v1_schema_proto_goTypes = []any{
 	(*Item)(nil),                      // 6: reearth.cms.v1.Item
 	(*Schema)(nil),                    // 7: reearth.cms.v1.Schema
 	(*SchemaField)(nil),               // 8: reearth.cms.v1.SchemaField
-	(*PageInfo)(nil),                  // 9: reearth.cms.v1.PageInfo
-	(*SortInfo)(nil),                  // 10: reearth.cms.v1.SortInfo
-	(*ProjectRequest)(nil),            // 11: reearth.cms.v1.ProjectRequest
-	(*AliasAvailabilityRequest)(nil),  // 12: reearth.cms.v1.AliasAvailabilityRequest
-	(*CreateProjectRequest)(nil),      // 13: reearth.cms.v1.CreateProjectRequest
-	(*UpdateProjectRequest)(nil),      // 14: reearth.cms.v1.UpdateProjectRequest
-	(*DeleteProjectRequest)(nil),      // 15: reearth.cms.v1.DeleteProjectRequest
-	(*ListProjectsRequest)(nil),       // 16: reearth.cms.v1.ListProjectsRequest
-	(*AssetRequest)(nil),              // 17: reearth.cms.v1.AssetRequest
-	(*ListAssetsRequest)(nil),         // 18: reearth.cms.v1.ListAssetsRequest
-	(*ModelRequest)(nil),              // 19: reearth.cms.v1.ModelRequest
-	(*ListModelsRequest)(nil),         // 20: reearth.cms.v1.ListModelsRequest
-	(*ListItemsRequest)(nil),          // 21: reearth.cms.v1.ListItemsRequest
-	(*ExportRequest)(nil),             // 22: reearth.cms.v1.ExportRequest
-	(*ModelExportRequest)(nil),        // 23: reearth.cms.v1.ModelExportRequest
-	(*StarRequest)(nil),               // 24: reearth.cms.v1.StarRequest
-	(*ProjectResponse)(nil),           // 25: reearth.cms.v1.ProjectResponse
-	(*AliasAvailabilityResponse)(nil), // 26: reearth.cms.v1.AliasAvailabilityResponse
-	(*DeleteProjectResponse)(nil),     // 27: reearth.cms.v1.DeleteProjectResponse
-	(*ListProjectsResponse)(nil),      // 28: reearth.cms.v1.ListProjectsResponse
-	(*AssetResponse)(nil),             // 29: reearth.cms.v1.AssetResponse
-	(*ListAssetsResponse)(nil),        // 30: reearth.cms.v1.ListAssetsResponse
-	(*ModelResponse)(nil),             // 31: reearth.cms.v1.ModelResponse
-	(*ListModelsResponse)(nil),        // 32: reearth.cms.v1.ListModelsResponse
-	(*ListItemsResponse)(nil),         // 33: reearth.cms.v1.ListItemsResponse
-	(*ExportURLResponse)(nil),         // 34: reearth.cms.v1.ExportURLResponse
-	(*StarResponse)(nil),              // 35: reearth.cms.v1.StarResponse
-	nil,                               // 36: reearth.cms.v1.Item.FieldsEntry
-	(*timestamppb.Timestamp)(nil),     // 37: google.protobuf.Timestamp
-	(*anypb.Any)(nil),                 // 38: google.protobuf.Any
+	(*Topics)(nil),                    // 9: reearth.cms.v1.Topics
+	(*PageInfo)(nil),                  // 10: reearth.cms.v1.PageInfo
+	(*SortInfo)(nil),                  // 11: reearth.cms.v1.SortInfo
+	(*ProjectRequest)(nil),            // 12: reearth.cms.v1.ProjectRequest
+	(*AliasAvailabilityRequest)(nil),  // 13: reearth.cms.v1.AliasAvailabilityRequest
+	(*CreateProjectRequest)(nil),      // 14: reearth.cms.v1.CreateProjectRequest
+	(*UpdateProjectRequest)(nil),      // 15: reearth.cms.v1.UpdateProjectRequest
+	(*DeleteProjectRequest)(nil),      // 16: reearth.cms.v1.DeleteProjectRequest
+	(*ListProjectsRequest)(nil),       // 17: reearth.cms.v1.ListProjectsRequest
+	(*AssetRequest)(nil),              // 18: reearth.cms.v1.AssetRequest
+	(*ListAssetsRequest)(nil),         // 19: reearth.cms.v1.ListAssetsRequest
+	(*ModelRequest)(nil),              // 20: reearth.cms.v1.ModelRequest
+	(*ListModelsRequest)(nil),         // 21: reearth.cms.v1.ListModelsRequest
+	(*ListItemsRequest)(nil),          // 22: reearth.cms.v1.ListItemsRequest
+	(*ExportRequest)(nil),             // 23: reearth.cms.v1.ExportRequest
+	(*ModelExportRequest)(nil),        // 24: reearth.cms.v1.ModelExportRequest
+	(*StarRequest)(nil),               // 25: reearth.cms.v1.StarRequest
+	(*ProjectResponse)(nil),           // 26: reearth.cms.v1.ProjectResponse
+	(*AliasAvailabilityResponse)(nil), // 27: reearth.cms.v1.AliasAvailabilityResponse
+	(*DeleteProjectResponse)(nil),     // 28: reearth.cms.v1.DeleteProjectResponse
+	(*ListProjectsResponse)(nil),      // 29: reearth.cms.v1.ListProjectsResponse
+	(*AssetResponse)(nil),             // 30: reearth.cms.v1.AssetResponse
+	(*ListAssetsResponse)(nil),        // 31: reearth.cms.v1.ListAssetsResponse
+	(*ModelResponse)(nil),             // 32: reearth.cms.v1.ModelResponse
+	(*ListModelsResponse)(nil),        // 33: reearth.cms.v1.ListModelsResponse
+	(*ListItemsResponse)(nil),         // 34: reearth.cms.v1.ListItemsResponse
+	(*ExportURLResponse)(nil),         // 35: reearth.cms.v1.ExportURLResponse
+	(*StarResponse)(nil),              // 36: reearth.cms.v1.StarResponse
+	nil,                               // 37: reearth.cms.v1.Item.FieldsEntry
+	(*timestamppb.Timestamp)(nil),     // 38: google.protobuf.Timestamp
+	(*anypb.Any)(nil),                 // 39: google.protobuf.Any
 }
 var file_schemas_internalapi_v1_schema_proto_depIdxs = []int32{
 	0,  // 0: reearth.cms.v1.Project.visibility:type_name -> reearth.cms.v1.Visibility
-	37, // 1: reearth.cms.v1.Project.created_at:type_name -> google.protobuf.Timestamp
-	37, // 2: reearth.cms.v1.Project.updated_at:type_name -> google.protobuf.Timestamp
-	37, // 3: reearth.cms.v1.Asset.created_at:type_name -> google.protobuf.Timestamp
+	38, // 1: reearth.cms.v1.Project.created_at:type_name -> google.protobuf.Timestamp
+	38, // 2: reearth.cms.v1.Project.updated_at:type_name -> google.protobuf.Timestamp
+	38, // 3: reearth.cms.v1.Asset.created_at:type_name -> google.protobuf.Timestamp
 	7,  // 4: reearth.cms.v1.Model.schema:type_name -> reearth.cms.v1.Schema
-	37, // 5: reearth.cms.v1.Model.created_at:type_name -> google.protobuf.Timestamp
-	37, // 6: reearth.cms.v1.Model.updated_at:type_name -> google.protobuf.Timestamp
-	36, // 7: reearth.cms.v1.Item.fields:type_name -> reearth.cms.v1.Item.FieldsEntry
-	37, // 8: reearth.cms.v1.Item.created_at:type_name -> google.protobuf.Timestamp
-	37, // 9: reearth.cms.v1.Item.updated_at:type_name -> google.protobuf.Timestamp
+	38, // 5: reearth.cms.v1.Model.created_at:type_name -> google.protobuf.Timestamp
+	38, // 6: reearth.cms.v1.Model.updated_at:type_name -> google.protobuf.Timestamp
+	37, // 7: reearth.cms.v1.Item.fields:type_name -> reearth.cms.v1.Item.FieldsEntry
+	38, // 8: reearth.cms.v1.Item.created_at:type_name -> google.protobuf.Timestamp
+	38, // 9: reearth.cms.v1.Item.updated_at:type_name -> google.protobuf.Timestamp
 	8,  // 10: reearth.cms.v1.Schema.fields:type_name -> reearth.cms.v1.SchemaField
 	1,  // 11: reearth.cms.v1.SchemaField.type:type_name -> reearth.cms.v1.SchemaField.Type
-	0,  // 12: reearth.cms.v1.CreateProjectRequest.visibility:type_name -> reearth.cms.v1.Visibility
-	0,  // 13: reearth.cms.v1.UpdateProjectRequest.visibility:type_name -> reearth.cms.v1.Visibility
-	9,  // 14: reearth.cms.v1.ListProjectsRequest.page_info:type_name -> reearth.cms.v1.PageInfo
-	10, // 15: reearth.cms.v1.ListProjectsRequest.sort_info:type_name -> reearth.cms.v1.SortInfo
-	9,  // 16: reearth.cms.v1.ListAssetsRequest.page_info:type_name -> reearth.cms.v1.PageInfo
-	10, // 17: reearth.cms.v1.ListAssetsRequest.sort_info:type_name -> reearth.cms.v1.SortInfo
-	9,  // 18: reearth.cms.v1.ListModelsRequest.page_info:type_name -> reearth.cms.v1.PageInfo
-	10, // 19: reearth.cms.v1.ListModelsRequest.sort_info:type_name -> reearth.cms.v1.SortInfo
-	9,  // 20: reearth.cms.v1.ListItemsRequest.page_info:type_name -> reearth.cms.v1.PageInfo
-	10, // 21: reearth.cms.v1.ListItemsRequest.sort_info:type_name -> reearth.cms.v1.SortInfo
-	2,  // 22: reearth.cms.v1.ModelExportRequest.export_type:type_name -> reearth.cms.v1.ModelExportRequest.Type
-	3,  // 23: reearth.cms.v1.ProjectResponse.project:type_name -> reearth.cms.v1.Project
-	3,  // 24: reearth.cms.v1.ListProjectsResponse.projects:type_name -> reearth.cms.v1.Project
-	9,  // 25: reearth.cms.v1.ListProjectsResponse.page_info:type_name -> reearth.cms.v1.PageInfo
-	4,  // 26: reearth.cms.v1.AssetResponse.asset:type_name -> reearth.cms.v1.Asset
-	4,  // 27: reearth.cms.v1.ListAssetsResponse.assets:type_name -> reearth.cms.v1.Asset
-	9,  // 28: reearth.cms.v1.ListAssetsResponse.page_info:type_name -> reearth.cms.v1.PageInfo
-	5,  // 29: reearth.cms.v1.ModelResponse.model:type_name -> reearth.cms.v1.Model
-	5,  // 30: reearth.cms.v1.ListModelsResponse.models:type_name -> reearth.cms.v1.Model
-	9,  // 31: reearth.cms.v1.ListModelsResponse.page_info:type_name -> reearth.cms.v1.PageInfo
-	6,  // 32: reearth.cms.v1.ListItemsResponse.items:type_name -> reearth.cms.v1.Item
-	9,  // 33: reearth.cms.v1.ListItemsResponse.page_info:type_name -> reearth.cms.v1.PageInfo
-	3,  // 34: reearth.cms.v1.StarResponse.project:type_name -> reearth.cms.v1.Project
-	38, // 35: reearth.cms.v1.Item.FieldsEntry.value:type_name -> google.protobuf.Any
-	13, // 36: reearth.cms.v1.ReEarthCMS.CreateProject:input_type -> reearth.cms.v1.CreateProjectRequest
-	14, // 37: reearth.cms.v1.ReEarthCMS.UpdateProject:input_type -> reearth.cms.v1.UpdateProjectRequest
-	15, // 38: reearth.cms.v1.ReEarthCMS.DeleteProject:input_type -> reearth.cms.v1.DeleteProjectRequest
-	12, // 39: reearth.cms.v1.ReEarthCMS.CheckAliasAvailability:input_type -> reearth.cms.v1.AliasAvailabilityRequest
-	11, // 40: reearth.cms.v1.ReEarthCMS.GetProject:input_type -> reearth.cms.v1.ProjectRequest
-	16, // 41: reearth.cms.v1.ReEarthCMS.ListProjects:input_type -> reearth.cms.v1.ListProjectsRequest
-	17, // 42: reearth.cms.v1.ReEarthCMS.GetAsset:input_type -> reearth.cms.v1.AssetRequest
-	18, // 43: reearth.cms.v1.ReEarthCMS.ListAssets:input_type -> reearth.cms.v1.ListAssetsRequest
-	19, // 44: reearth.cms.v1.ReEarthCMS.GetModel:input_type -> reearth.cms.v1.ModelRequest
-	20, // 45: reearth.cms.v1.ReEarthCMS.ListModels:input_type -> reearth.cms.v1.ListModelsRequest
-	21, // 46: reearth.cms.v1.ReEarthCMS.ListItems:input_type -> reearth.cms.v1.ListItemsRequest
-	23, // 47: reearth.cms.v1.ReEarthCMS.GetModelExportURL:input_type -> reearth.cms.v1.ModelExportRequest
-	22, // 48: reearth.cms.v1.ReEarthCMS.GetModelGeoJSONExportURL:input_type -> reearth.cms.v1.ExportRequest
-	24, // 49: reearth.cms.v1.ReEarthCMS.StarProject:input_type -> reearth.cms.v1.StarRequest
-	25, // 50: reearth.cms.v1.ReEarthCMS.CreateProject:output_type -> reearth.cms.v1.ProjectResponse
-	25, // 51: reearth.cms.v1.ReEarthCMS.UpdateProject:output_type -> reearth.cms.v1.ProjectResponse
-	27, // 52: reearth.cms.v1.ReEarthCMS.DeleteProject:output_type -> reearth.cms.v1.DeleteProjectResponse
-	26, // 53: reearth.cms.v1.ReEarthCMS.CheckAliasAvailability:output_type -> reearth.cms.v1.AliasAvailabilityResponse
-	25, // 54: reearth.cms.v1.ReEarthCMS.GetProject:output_type -> reearth.cms.v1.ProjectResponse
-	28, // 55: reearth.cms.v1.ReEarthCMS.ListProjects:output_type -> reearth.cms.v1.ListProjectsResponse
-	29, // 56: reearth.cms.v1.ReEarthCMS.GetAsset:output_type -> reearth.cms.v1.AssetResponse
-	30, // 57: reearth.cms.v1.ReEarthCMS.ListAssets:output_type -> reearth.cms.v1.ListAssetsResponse
-	31, // 58: reearth.cms.v1.ReEarthCMS.GetModel:output_type -> reearth.cms.v1.ModelResponse
-	32, // 59: reearth.cms.v1.ReEarthCMS.ListModels:output_type -> reearth.cms.v1.ListModelsResponse
-	33, // 60: reearth.cms.v1.ReEarthCMS.ListItems:output_type -> reearth.cms.v1.ListItemsResponse
-	34, // 61: reearth.cms.v1.ReEarthCMS.GetModelExportURL:output_type -> reearth.cms.v1.ExportURLResponse
-	34, // 62: reearth.cms.v1.ReEarthCMS.GetModelGeoJSONExportURL:output_type -> reearth.cms.v1.ExportURLResponse
-	35, // 63: reearth.cms.v1.ReEarthCMS.StarProject:output_type -> reearth.cms.v1.StarResponse
-	50, // [50:64] is the sub-list for method output_type
-	36, // [36:50] is the sub-list for method input_type
-	36, // [36:36] is the sub-list for extension type_name
-	36, // [36:36] is the sub-list for extension extendee
-	0,  // [0:36] is the sub-list for field type_name
+	9,  // 12: reearth.cms.v1.CreateProjectRequest.topics:type_name -> reearth.cms.v1.Topics
+	0,  // 13: reearth.cms.v1.CreateProjectRequest.visibility:type_name -> reearth.cms.v1.Visibility
+	9,  // 14: reearth.cms.v1.UpdateProjectRequest.topics:type_name -> reearth.cms.v1.Topics
+	0,  // 15: reearth.cms.v1.UpdateProjectRequest.visibility:type_name -> reearth.cms.v1.Visibility
+	10, // 16: reearth.cms.v1.ListProjectsRequest.page_info:type_name -> reearth.cms.v1.PageInfo
+	11, // 17: reearth.cms.v1.ListProjectsRequest.sort_info:type_name -> reearth.cms.v1.SortInfo
+	10, // 18: reearth.cms.v1.ListAssetsRequest.page_info:type_name -> reearth.cms.v1.PageInfo
+	11, // 19: reearth.cms.v1.ListAssetsRequest.sort_info:type_name -> reearth.cms.v1.SortInfo
+	10, // 20: reearth.cms.v1.ListModelsRequest.page_info:type_name -> reearth.cms.v1.PageInfo
+	11, // 21: reearth.cms.v1.ListModelsRequest.sort_info:type_name -> reearth.cms.v1.SortInfo
+	10, // 22: reearth.cms.v1.ListItemsRequest.page_info:type_name -> reearth.cms.v1.PageInfo
+	11, // 23: reearth.cms.v1.ListItemsRequest.sort_info:type_name -> reearth.cms.v1.SortInfo
+	2,  // 24: reearth.cms.v1.ModelExportRequest.export_type:type_name -> reearth.cms.v1.ModelExportRequest.Type
+	3,  // 25: reearth.cms.v1.ProjectResponse.project:type_name -> reearth.cms.v1.Project
+	3,  // 26: reearth.cms.v1.ListProjectsResponse.projects:type_name -> reearth.cms.v1.Project
+	10, // 27: reearth.cms.v1.ListProjectsResponse.page_info:type_name -> reearth.cms.v1.PageInfo
+	4,  // 28: reearth.cms.v1.AssetResponse.asset:type_name -> reearth.cms.v1.Asset
+	4,  // 29: reearth.cms.v1.ListAssetsResponse.assets:type_name -> reearth.cms.v1.Asset
+	10, // 30: reearth.cms.v1.ListAssetsResponse.page_info:type_name -> reearth.cms.v1.PageInfo
+	5,  // 31: reearth.cms.v1.ModelResponse.model:type_name -> reearth.cms.v1.Model
+	5,  // 32: reearth.cms.v1.ListModelsResponse.models:type_name -> reearth.cms.v1.Model
+	10, // 33: reearth.cms.v1.ListModelsResponse.page_info:type_name -> reearth.cms.v1.PageInfo
+	6,  // 34: reearth.cms.v1.ListItemsResponse.items:type_name -> reearth.cms.v1.Item
+	10, // 35: reearth.cms.v1.ListItemsResponse.page_info:type_name -> reearth.cms.v1.PageInfo
+	3,  // 36: reearth.cms.v1.StarResponse.project:type_name -> reearth.cms.v1.Project
+	39, // 37: reearth.cms.v1.Item.FieldsEntry.value:type_name -> google.protobuf.Any
+	14, // 38: reearth.cms.v1.ReEarthCMS.CreateProject:input_type -> reearth.cms.v1.CreateProjectRequest
+	15, // 39: reearth.cms.v1.ReEarthCMS.UpdateProject:input_type -> reearth.cms.v1.UpdateProjectRequest
+	16, // 40: reearth.cms.v1.ReEarthCMS.DeleteProject:input_type -> reearth.cms.v1.DeleteProjectRequest
+	13, // 41: reearth.cms.v1.ReEarthCMS.CheckAliasAvailability:input_type -> reearth.cms.v1.AliasAvailabilityRequest
+	12, // 42: reearth.cms.v1.ReEarthCMS.GetProject:input_type -> reearth.cms.v1.ProjectRequest
+	17, // 43: reearth.cms.v1.ReEarthCMS.ListProjects:input_type -> reearth.cms.v1.ListProjectsRequest
+	18, // 44: reearth.cms.v1.ReEarthCMS.GetAsset:input_type -> reearth.cms.v1.AssetRequest
+	19, // 45: reearth.cms.v1.ReEarthCMS.ListAssets:input_type -> reearth.cms.v1.ListAssetsRequest
+	20, // 46: reearth.cms.v1.ReEarthCMS.GetModel:input_type -> reearth.cms.v1.ModelRequest
+	21, // 47: reearth.cms.v1.ReEarthCMS.ListModels:input_type -> reearth.cms.v1.ListModelsRequest
+	22, // 48: reearth.cms.v1.ReEarthCMS.ListItems:input_type -> reearth.cms.v1.ListItemsRequest
+	24, // 49: reearth.cms.v1.ReEarthCMS.GetModelExportURL:input_type -> reearth.cms.v1.ModelExportRequest
+	23, // 50: reearth.cms.v1.ReEarthCMS.GetModelGeoJSONExportURL:input_type -> reearth.cms.v1.ExportRequest
+	25, // 51: reearth.cms.v1.ReEarthCMS.StarProject:input_type -> reearth.cms.v1.StarRequest
+	26, // 52: reearth.cms.v1.ReEarthCMS.CreateProject:output_type -> reearth.cms.v1.ProjectResponse
+	26, // 53: reearth.cms.v1.ReEarthCMS.UpdateProject:output_type -> reearth.cms.v1.ProjectResponse
+	28, // 54: reearth.cms.v1.ReEarthCMS.DeleteProject:output_type -> reearth.cms.v1.DeleteProjectResponse
+	27, // 55: reearth.cms.v1.ReEarthCMS.CheckAliasAvailability:output_type -> reearth.cms.v1.AliasAvailabilityResponse
+	26, // 56: reearth.cms.v1.ReEarthCMS.GetProject:output_type -> reearth.cms.v1.ProjectResponse
+	29, // 57: reearth.cms.v1.ReEarthCMS.ListProjects:output_type -> reearth.cms.v1.ListProjectsResponse
+	30, // 58: reearth.cms.v1.ReEarthCMS.GetAsset:output_type -> reearth.cms.v1.AssetResponse
+	31, // 59: reearth.cms.v1.ReEarthCMS.ListAssets:output_type -> reearth.cms.v1.ListAssetsResponse
+	32, // 60: reearth.cms.v1.ReEarthCMS.GetModel:output_type -> reearth.cms.v1.ModelResponse
+	33, // 61: reearth.cms.v1.ReEarthCMS.ListModels:output_type -> reearth.cms.v1.ListModelsResponse
+	34, // 62: reearth.cms.v1.ReEarthCMS.ListItems:output_type -> reearth.cms.v1.ListItemsResponse
+	35, // 63: reearth.cms.v1.ReEarthCMS.GetModelExportURL:output_type -> reearth.cms.v1.ExportURLResponse
+	35, // 64: reearth.cms.v1.ReEarthCMS.GetModelGeoJSONExportURL:output_type -> reearth.cms.v1.ExportURLResponse
+	36, // 65: reearth.cms.v1.ReEarthCMS.StarProject:output_type -> reearth.cms.v1.StarResponse
+	52, // [52:66] is the sub-list for method output_type
+	38, // [38:52] is the sub-list for method input_type
+	38, // [38:38] is the sub-list for extension type_name
+	38, // [38:38] is the sub-list for extension extendee
+	0,  // [0:38] is the sub-list for field type_name
 }
 
 func init() { file_schemas_internalapi_v1_schema_proto_init() }
@@ -2696,19 +2765,19 @@ func file_schemas_internalapi_v1_schema_proto_init() {
 	file_schemas_internalapi_v1_schema_proto_msgTypes[0].OneofWrappers = []any{}
 	file_schemas_internalapi_v1_schema_proto_msgTypes[1].OneofWrappers = []any{}
 	file_schemas_internalapi_v1_schema_proto_msgTypes[5].OneofWrappers = []any{}
-	file_schemas_internalapi_v1_schema_proto_msgTypes[10].OneofWrappers = []any{}
 	file_schemas_internalapi_v1_schema_proto_msgTypes[11].OneofWrappers = []any{}
-	file_schemas_internalapi_v1_schema_proto_msgTypes[13].OneofWrappers = []any{}
-	file_schemas_internalapi_v1_schema_proto_msgTypes[15].OneofWrappers = []any{}
-	file_schemas_internalapi_v1_schema_proto_msgTypes[17].OneofWrappers = []any{}
+	file_schemas_internalapi_v1_schema_proto_msgTypes[12].OneofWrappers = []any{}
+	file_schemas_internalapi_v1_schema_proto_msgTypes[14].OneofWrappers = []any{}
+	file_schemas_internalapi_v1_schema_proto_msgTypes[16].OneofWrappers = []any{}
 	file_schemas_internalapi_v1_schema_proto_msgTypes[18].OneofWrappers = []any{}
+	file_schemas_internalapi_v1_schema_proto_msgTypes[19].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_schemas_internalapi_v1_schema_proto_rawDesc), len(file_schemas_internalapi_v1_schema_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   34,
+			NumMessages:   35,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
