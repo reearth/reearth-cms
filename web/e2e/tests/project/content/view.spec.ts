@@ -19,7 +19,6 @@ test("View CRUD has succeeded", async ({
   contentPage,
   schemaPage,
 }) => {
-  test.slow();
   await fieldEditorPage.fieldTypeButton("Text").click();
   await schemaPage.handleFieldForm("text");
   await projectPage.contentMenuItem.click();

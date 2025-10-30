@@ -7,6 +7,7 @@ const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 
 let workspaceName: string;
 test.beforeEach(async ({ reearth, workspacePage, settingsPage }) => {
+  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   workspaceName = getId();
   await workspacePage.createWorkspace(workspaceName);
@@ -14,11 +15,11 @@ test.beforeEach(async ({ reearth, workspacePage, settingsPage }) => {
 });
 
 test.afterEach(async ({ workspacePage }) => {
+  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await workspacePage.deleteWorkspace();
 });
 
 test("Tiles CRUD has succeeded", async ({ settingsPage }) => {
-  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await settingsPage.addNewTilesButton.click();
   await settingsPage.defaultTileOption.click();
   await settingsPage.labelledTileOption.click();
@@ -54,7 +55,6 @@ test("Tiles CRUD has succeeded", async ({ settingsPage }) => {
 });
 
 test("Terrain on/off and CRUD has succeeded", async ({ settingsPage }) => {
-  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await expect(settingsPage.terrainSwitch).toBeEnabled();
   await settingsPage.terrainSwitch.click();
   await expect(settingsPage.terrainSwitch).toHaveAttribute("aria-checked", "true");
@@ -104,7 +104,6 @@ test("Terrain on/off and CRUD has succeeded", async ({ settingsPage }) => {
 });
 
 test("Tiles reordering has succeeded", async ({ settingsPage }) => {
-  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await settingsPage.addNewTilesButton.click();
   await settingsPage.okButton.click();
   await settingsPage.addNewTilesButton.click();
@@ -129,7 +128,6 @@ test("Tiles reordering has succeeded", async ({ settingsPage }) => {
 });
 
 test("Terrain reordering has succeeded", async ({ settingsPage }) => {
-  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await expect(settingsPage.terrainSwitch).toBeEnabled();
   await settingsPage.terrainSwitch.click();
   await expect(settingsPage.terrainSwitch).toHaveAttribute("aria-checked", "true");
