@@ -284,8 +284,7 @@ const GeometryItem: React.FC<Props> = ({
         preload: Infinity,
         source: new OSM({
           attributions:
-            '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> • ' +
-            '<a href="https://opendatacommons.org/licenses/odbl/">ODbL</a>',
+            'Map data from <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         }),
       });
 
