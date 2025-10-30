@@ -217,11 +217,11 @@ type Project struct {
 	Readme        *string                `protobuf:"bytes,6,opt,name=readme,proto3,oneof" json:"readme,omitempty"`
 	WorkspaceId   string                 `protobuf:"bytes,7,opt,name=workspace_id,json=workspaceId,proto3" json:"workspace_id,omitempty"`
 	Visibility    Visibility             `protobuf:"varint,8,opt,name=visibility,proto3,enum=reearth.cms.v1.Visibility" json:"visibility,omitempty"`
-	Topics        []string               `protobuf:"bytes,9,rep,name=topics,proto3" json:"topics,omitempty"`
-	StarCount     int64                  `protobuf:"varint,10,opt,name=star_count,json=starCount,proto3" json:"star_count,omitempty"`
-	StarredBy     []string               `protobuf:"bytes,11,rep,name=starred_by,json=starredBy,proto3" json:"starred_by,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	Topics        []string               `protobuf:"bytes,14,rep,name=topics,proto3" json:"topics,omitempty"`
+	StarCount     int64                  `protobuf:"varint,15,opt,name=star_count,json=starCount,proto3" json:"star_count,omitempty"`
+	StarredBy     []string               `protobuf:"bytes,16,rep,name=starred_by,json=starredBy,proto3" json:"starred_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -312,6 +312,20 @@ func (x *Project) GetVisibility() Visibility {
 	return Visibility_PUBLIC
 }
 
+func (x *Project) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *Project) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
 func (x *Project) GetTopics() []string {
 	if x != nil {
 		return x.Topics
@@ -329,20 +343,6 @@ func (x *Project) GetStarCount() int64 {
 func (x *Project) GetStarredBy() []string {
 	if x != nil {
 		return x.StarredBy
-	}
-	return nil
-}
-
-func (x *Project) GetCreatedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.CreatedAt
-	}
-	return nil
-}
-
-func (x *Project) GetUpdatedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.UpdatedAt
 	}
 	return nil
 }
@@ -2342,7 +2342,7 @@ var File_schemas_internalapi_v1_schema_proto protoreflect.FileDescriptor
 
 const file_schemas_internalapi_v1_schema_proto_rawDesc = "" +
 	"\n" +
-	"#schemas/internalapi/v1/schema.proto\x12\x0ereearth.cms.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19google/protobuf/any.proto\"\xf8\x03\n" +
+	"#schemas/internalapi/v1/schema.proto\x12\x0ereearth.cms.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19google/protobuf/any.proto\"\x8a\x04\n" +
 	"\aProject\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
@@ -2353,21 +2353,21 @@ const file_schemas_internalapi_v1_schema_proto_rawDesc = "" +
 	"\fworkspace_id\x18\a \x01(\tR\vworkspaceId\x12:\n" +
 	"\n" +
 	"visibility\x18\b \x01(\x0e2\x1a.reearth.cms.v1.VisibilityR\n" +
-	"visibility\x12\x16\n" +
-	"\x06topics\x18\t \x03(\tR\x06topics\x12\x1d\n" +
+	"visibility\x129\n" +
 	"\n" +
-	"star_count\x18\n" +
-	" \x01(\x03R\tstarCount\x12\x1d\n" +
+	"created_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"starred_by\x18\v \x03(\tR\tstarredBy\x129\n" +
+	"updated_at\x18\n" +
+	" \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x16\n" +
+	"\x06topics\x18\x0e \x03(\tR\x06topics\x12\x1d\n" +
 	"\n" +
-	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
+	"star_count\x18\x0f \x01(\x03R\tstarCount\x12\x1d\n" +
 	"\n" +
-	"updated_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB\x0e\n" +
+	"starred_by\x18\x10 \x03(\tR\tstarredByB\x0e\n" +
 	"\f_descriptionB\n" +
 	"\n" +
 	"\b_licenseB\t\n" +
-	"\a_readme\"\xf7\x02\n" +
+	"\a_readmeJ\x04\b\v\x10\fJ\x04\b\f\x10\rJ\x04\b\r\x10\x0e\"\xf7\x02\n" +
 	"\x05Asset\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04uuid\x18\x02 \x01(\tR\x04uuid\x12\x1d\n" +

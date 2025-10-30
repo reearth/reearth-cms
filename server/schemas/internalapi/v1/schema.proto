@@ -43,11 +43,12 @@ message Project {
   optional string readme = 6;
   string workspace_id = 7;
   Visibility visibility = 8;
-  repeated string topics = 9;
-  int64 star_count = 10;
-  repeated string starred_by = 11;
-  google.protobuf.Timestamp created_at = 12;
-  google.protobuf.Timestamp updated_at = 13;
+  reserved 11, 12, 13; // don't resuse these as they have been used before
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
+  repeated string topics = 14;
+  int64 star_count = 15;
+  repeated string starred_by = 16;
 }
 
 enum Visibility {
