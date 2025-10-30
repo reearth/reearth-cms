@@ -29,6 +29,7 @@ type Project struct {
 	imageURL      *url.URL
 	starCount     int64
 	starredBy     []string
+	topics        []string
 	updatedAt     time.Time
 	accessibility *Accessibility
 	requestRoles  []workspace.Role
@@ -77,6 +78,10 @@ func (p *Project) StarCount() int64 {
 
 func (p *Project) StarredBy() []string {
 	return p.starredBy
+}
+
+func (p *Project) Topics() []string {
+	return p.topics
 }
 
 func (p *Project) Workspace() accountdomain.WorkspaceID {

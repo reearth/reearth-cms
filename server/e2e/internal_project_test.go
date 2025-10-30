@@ -127,6 +127,52 @@ func TestInternalListProjectsAPI(t *testing.T) {
 		assert.Equal(t, wId0.String(), p1.WorkspaceId)
 		assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
 	})
+
+	t.Run("List Projects with keyword (topics)", func(t *testing.T) {
+		l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{
+			Keyword: lo.ToPtr("topic1"),
+		})
+		assert.NoError(t, err)
+
+		assert.Equal(t, int64(1), l.TotalCount)
+		assert.Equal(t, 1, len(l.Projects))
+
+		p1 := l.Projects[0]
+		assert.Equal(t, pid.String(), p1.Id)
+		assert.Equal(t, "p1", p1.Name)
+		assert.Equal(t, palias, p1.Alias)
+		assert.Equal(t, wId0.String(), p1.WorkspaceId)
+		assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
+	})
+
+	t.Run("List Projects with topics", func(t *testing.T) {
+		l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{
+			Topics: []string{"topic1"},
+		})
+		assert.NoError(t, err)
+
+		assert.Equal(t, int64(1), l.TotalCount)
+		assert.Equal(t, 1, len(l.Projects))
+
+		p1 := l.Projects[0]
+		assert.Equal(t, pid.String(), p1.Id)
+		assert.Equal(t, "p1", p1.Name)
+		assert.Equal(t, palias, p1.Alias)
+		assert.Equal(t, wId0.String(), p1.WorkspaceId)
+		assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
+		assert.NotNil(t, p1.Topics)
+		assert.Equal(t, "topic1", p1.Topics[0])
+	})
+
+	t.Run("List Projects with non-existence topics", func(t *testing.T) {
+		l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{
+			Topics: []string{"non-existence-topic"},
+		})
+		assert.NoError(t, err)
+
+		assert.Equal(t, int64(0), l.TotalCount)
+		assert.Equal(t, 0, len(l.Projects))
+	})
 }
 
 // GRPC Get Project
@@ -614,7 +660,7 @@ func createRequest2(e *httpexpect.Expect, projectId, title string, description, 
 				approvedAt
 				closedAt
 			}
-		}		
+		}
   }`,
 		Variables: map[string]any{
 			"projectId":   projectId,
