@@ -16,7 +16,7 @@ paths:
     get:
       operationId: ProjectFilter
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Returns a list of projects.
       tags:
         - Projects
@@ -56,7 +56,7 @@ paths:
       tags:
         - Projects
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -100,7 +100,7 @@ paths:
     get:
       operationId: ProjectGet
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Returns a project.
       tags:
         - Projects
@@ -123,7 +123,7 @@ paths:
     patch:
       operationId: ProjectUpdate
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Update a project.
       tags:
         - Projects
@@ -172,7 +172,7 @@ paths:
       tags:
         - Projects
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         '200':
           description: The project was deleted successfully
@@ -206,7 +206,7 @@ paths:
     get:
       operationId: ModelFilter
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Returns a list of models.
       tags:
         - Models
@@ -246,7 +246,7 @@ paths:
       tags:
         - Models
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -568,7 +568,7 @@ paths:
     get:
       operationId: GroupFilter
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Returns a list of groups in a project.
       tags:
         - Groups
@@ -608,7 +608,7 @@ paths:
       tags:
         - Groups
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -742,7 +742,7 @@ paths:
       tags:
         - Fields
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -764,7 +764,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: '#/components/schemas/schemaField'
+                $ref: '#/components/schemas/schemaField'
         '400':
           description: Invalid request parameter value
         '401':
@@ -840,7 +840,7 @@ paths:
     get:
       operationId: ItemFilter
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Returns a list of items.
       tags:
         - Items
@@ -898,7 +898,7 @@ paths:
         - Items
       description: Create an Item.
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -933,7 +933,7 @@ paths:
     get:
       operationId: ItemsAsGeoJSON
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Returns a GeoJSON that has a list of items as features.
       tags:
         - Items
@@ -966,7 +966,7 @@ paths:
     get:
       operationId: ItemsAsCSV
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Returns a CSV that has a list of items as features.
       tags:
         - Items project
@@ -1001,7 +1001,7 @@ paths:
     get:
       operationId: ItemGet
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Returns an item.
       tags:
         - Items
@@ -1027,7 +1027,7 @@ paths:
     patch:
       operationId: ItemUpdate
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Update an item.
       tags:
         - Items
@@ -1070,7 +1070,7 @@ paths:
       tags:
         - Items
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         '200':
           description: delete an item
@@ -1129,7 +1129,7 @@ paths:
       tags:
         - Items comments
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         '200':
           description: item comments list
@@ -1154,7 +1154,7 @@ paths:
       tags:
         - Items comments
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -1189,7 +1189,7 @@ paths:
       tags:
         - Items comments
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Update Item Comment
       description: ''
       requestBody:
@@ -1220,7 +1220,7 @@ paths:
       tags:
         - Items comments
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         '200':
           description: delete an item comment
@@ -1249,7 +1249,7 @@ paths:
       tags:
         - Assets project
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Returns a list of assets.
       description: Returns a list of assets with filtering and ordering.
       parameters:
@@ -1290,7 +1290,7 @@ paths:
       tags:
         - Assets project
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Create an new asset.
       description: Create a new asset and return the created asset.
       requestBody:
@@ -1383,7 +1383,7 @@ paths:
       tags:
         - Assets project
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Upload an asset.
       description: Issue an URL and a token to upload an asset.
       parameters:
@@ -1579,7 +1579,7 @@ paths:
       tags:
         - Assets comments
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         '200':
           description: asset comments list
@@ -1604,7 +1604,7 @@ paths:
       tags:
         - Assets comments
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -1638,7 +1638,7 @@ paths:
       tags:
         - Assets comments
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Update AssetComment
       description: ''
       requestBody:
@@ -1669,7 +1669,7 @@ paths:
       tags:
         - Assets comments
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         '200':
           description: delete an asset comment
@@ -1957,7 +1957,7 @@ components:
         - apiKeys
     projectRequestRole:
       type: string
-      enum: [READER, WRITER, MAINTAINER, OWNER]
+      enum: [ READER, WRITER, MAINTAINER, OWNER ]
     model:
       type: object
       properties:
@@ -1976,7 +1976,7 @@ components:
           x-go-type: id.SchemaID
           type: string
         metadataSchema:
-            $ref: '#/components/schemas/schema'
+          $ref: '#/components/schemas/schema'
         name:
           type: string
         description:
@@ -2170,7 +2170,7 @@ components:
           type: string
         type:
           $ref: '#/components/schemas/valueType'
-        value: {}
+        value: { }
         key:
           type: string
         group:
@@ -2297,132 +2297,132 @@ components:
             - field
             - metaField
     condition:
-        type: object
-        properties:
-          and:
-            type: array
-            items:
-              $ref: '#/components/schemas/condition'
-          or:
-            type: array
-            items:
-              $ref: '#/components/schemas/condition'
-          basic:
-            type: object
-            properties:
-              fieldId:
-                $ref: '#/components/schemas/fieldSelector'
-              operator:
-                type: string
-                enum:
-                  - equals
-                  - notEquals
-              value: {}
-          nullable:
-            type: object
-            properties:
-              fieldId:
-                $ref: '#/components/schemas/fieldSelector'
-              operator:
-                type: string
-                enum:
-                  - empty
-                  - notEmpty
-          multiple:
-            type: object
-            properties:
-              fieldId:
-                $ref: '#/components/schemas/fieldSelector'
-              operator:
-                type: string
-                enum:
-                  - includesAny
-                  - notIncludesAny
-                  - includesAll
-                  - notIncludesAll
-              value:
-                type: array
-                items: {}
-            required:
-              - fieldId
-              - operator
-              - value
-          bool:
-            type: object
-            properties:
-              fieldId:
-                $ref: '#/components/schemas/fieldSelector'
-              operator:
-                type: string
-                enum:
-                  - equals
-                  - notEquals
-              value:
-                type: boolean
-            required:
-              - fieldId
-              - operator
-              - value
-          string:
-            type: object
-            properties:
-              fieldId:
-                $ref: '#/components/schemas/fieldSelector'
-              operator:
-                type: string
-                enum:
-                  - contains
-                  - notContains
-                  - startsWith
-                  - endsWith
-                  - notStartsWith
-                  - notEndsWith
-              value:
-                type: string
-            required:
-              - fieldId
-              - operator
-              - value
-          number:
-            type: object
-            properties:
-              fieldId:
-                $ref: '#/components/schemas/fieldSelector'
-              operator:
-                type: string
-                enum:
-                  - greaterThan
-                  - lessThan
-                  - greaterThanOrEqualTo
-                  - lessThanOrEqualTo
-              value:
-                type: number
-            required:
-              - fieldId
-              - operator
-              - value
-          time:
-            type: object
-            properties:
-              fieldId:
-                $ref: '#/components/schemas/fieldSelector'
-              operator:
-                type: string
-                enum:
-                  - before
-                  - after
-                  - beforeOrOn
-                  - afterOrOn
-                  - ofThisWeek
-                  - ofThisMonth
-                  - ofThisYear
-              value:
-                type: string
-                format: date-time
-            required:
-              - fieldId
-              - operator
-              - value
+      type: object
+      properties:
+        and:
+          type: array
+          items:
+            $ref: '#/components/schemas/condition'
+        or:
+          type: array
+          items:
+            $ref: '#/components/schemas/condition'
+        basic:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - equals
+                - notEquals
+            value: { }
+        nullable:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - empty
+                - notEmpty
+        multiple:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - includesAny
+                - notIncludesAny
+                - includesAll
+                - notIncludesAll
+            value:
+              type: array
+              items: { }
+          required:
+            - fieldId
+            - operator
+            - value
+        bool:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - equals
+                - notEquals
+            value:
+              type: boolean
+          required:
+            - fieldId
+            - operator
+            - value
+        string:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - contains
+                - notContains
+                - startsWith
+                - endsWith
+                - notStartsWith
+                - notEndsWith
+            value:
+              type: string
+          required:
+            - fieldId
+            - operator
+            - value
+        number:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - greaterThan
+                - lessThan
+                - greaterThanOrEqualTo
+                - lessThanOrEqualTo
+            value:
+              type: number
+          required:
+            - fieldId
+            - operator
+            - value
+        time:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - before
+                - after
+                - beforeOrOn
+                - afterOrOn
+                - ofThisWeek
+                - ofThisMonth
+                - ofThisYear
+            value:
+              type: string
+              format: date-time
+          required:
+            - fieldId
+            - operator
+            - value
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid
