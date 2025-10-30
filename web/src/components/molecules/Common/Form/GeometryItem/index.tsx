@@ -5,6 +5,7 @@ import axios from "axios";
 import { editor, Range } from "monaco-editor";
 import "ol/ol.css";
 import { Map, View } from "ol";
+import { defaults as defaultControls, Attribution } from "ol/control";
 import { GeoJSON } from "ol/format";
 import { Circle, LineString, Point, Polygon } from "ol/geom";
 import { fromCircle } from "ol/geom/Polygon";
@@ -281,7 +282,10 @@ const GeometryItem: React.FC<Props> = ({
     if (mapContainerRef.current) {
       const osmLayer = new TileLayer({
         preload: Infinity,
-        source: new OSM(),
+        source: new OSM({
+          attributions:
+            'Map data from <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }),
       });
 
       const view = new View({
@@ -293,7 +297,9 @@ const GeometryItem: React.FC<Props> = ({
         target: mapContainerRef.current,
         layers: [osmLayer],
         view,
-        controls: [],
+        controls: defaultControls({ zoom: false, rotate: false, attribution: false }).extend([
+          new Attribution({ collapsible: false }),
+        ]),
         interactions: defaults({
           doubleClickZoom: false,
         }),
@@ -695,7 +701,7 @@ const ViewerButtons = styled.div`
   z-index: 1;
   position: absolute;
   right: 8px;
-  height: 100%;
+  height: calc(100% - 16px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
