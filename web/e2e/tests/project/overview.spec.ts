@@ -189,7 +189,7 @@ test.describe("Model Export tests on Overview page", () => {
     await fieldEditorPage.fieldTypeButton("Geometry Object").click();
     await fieldEditorPage.displayNameInput.fill("location1");
     await fieldEditorPage.settingsDescriptionInput.fill("first location field");
-    await fieldEditorPage.supportTypePointCheckbox.check();
+    await fieldEditorPage.supportTypePointCheckbox.setChecked(true);
     await fieldEditorPage.okButton.click();
     await fieldEditorPage.closeNotification();
 
@@ -197,7 +197,7 @@ test.describe("Model Export tests on Overview page", () => {
     await fieldEditorPage.fieldTypeButton("Geometry Object").click();
     await fieldEditorPage.displayNameInput.fill("location2");
     await fieldEditorPage.settingsDescriptionInput.fill("second location field");
-    await fieldEditorPage.supportTypePointCheckbox.check();
+    await fieldEditorPage.supportTypePointCheckbox.setChecked(true);
     await fieldEditorPage.okButton.click();
     await fieldEditorPage.closeNotification();
 
