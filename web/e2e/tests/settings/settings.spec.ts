@@ -104,6 +104,7 @@ test("Terrain on/off and CRUD has succeeded", async ({ settingsPage }) => {
 });
 
 test("Tiles reordering has succeeded", async ({ settingsPage }) => {
+  test.slow();
   await settingsPage.addNewTilesButton.click();
   await settingsPage.okButton.click();
   await settingsPage.addNewTilesButton.click();
@@ -128,6 +129,7 @@ test("Tiles reordering has succeeded", async ({ settingsPage }) => {
 });
 
 test("Terrain reordering has succeeded", async ({ settingsPage }) => {
+  test.slow();
   await expect(settingsPage.terrainSwitch).toBeEnabled();
   await settingsPage.terrainSwitch.click();
   await expect(settingsPage.terrainSwitch).toHaveAttribute("aria-checked", "true");

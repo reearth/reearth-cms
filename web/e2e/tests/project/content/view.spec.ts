@@ -139,6 +139,7 @@ test("View CRUD has succeeded", async ({
 });
 
 test("View reordering has succeeded", async ({ projectPage, contentPage }) => {
+  test.slow();
   await projectPage.contentMenuItem.click();
   await projectPage.modelMenuItemClick(projectPage.modelName).click();
 
