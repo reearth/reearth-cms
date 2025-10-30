@@ -1,4 +1,5 @@
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
+import { ApolloClient } from "@apollo/client";
+import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo, useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
@@ -14,7 +15,11 @@ import {
   ItemField,
 } from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { RequestState, RequestItem } from "@reearth-cms/components/molecules/Request/types";
+import {
+  RequestState,
+  RequestItem,
+  Request,
+} from "@reearth-cms/components/molecules/Request/types";
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import {
@@ -59,9 +64,9 @@ export default () => {
     currentProject,
     requests,
     addItemToRequestModalShown,
-    handlePublish,
-    handleUnpublish,
-    handleAddItemToRequest,
+    handlePublish: _handlePublish,
+    handleUnpublish: _handleUnpublish,
+    handleAddItemToRequest: _handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
     handleRequestTableChange,
@@ -104,52 +109,65 @@ export default () => {
   const titleId = useRef("");
   const t = useT();
 
-  const { data, loading: itemLoading } = useQuery(GetItemDocument, {
-    fetchPolicy: "cache-and-network",
-    variables: { id: itemId ?? "" },
-    skip: !itemId,
-  });
+  const {
+    data: itemData,
+    loading: itemLoading,
+    refetch: itemRefetch,
+  } = useQuery(
+    GetItemDocument,
+    itemId
+      ? {
+          fetchPolicy: "cache-and-network",
+          variables: { id: itemId },
+        }
+      : skipToken,
+  );
 
   const [getModel] = useLazyQuery(GetModelDocument, {
     fetchPolicy: "cache-and-network",
   });
+
   const {
     data: itemsData,
-    loading: loadingReference,
-    refetch,
-  } = useQuery(SearchItemDocument, {
-    fetchPolicy: "cache-and-network",
-    variables: {
-      searchItemInput: {
-        query: {
-          project: currentProject?.id ?? "",
-          model: referenceModel?.id ?? "",
-          schema: referenceModel?.schema.id,
-        },
-        pagination: {
-          first: linkItemModalPageSize,
-          offset: (linkItemModalPage - 1) * linkItemModalPageSize,
-        },
-        filter:
-          searchTerm && titleId.current
-            ? {
-                and: {
-                  conditions: [
-                    {
-                      string: {
-                        fieldId: { id: titleId.current, type: GQLFieldType.Field },
-                        operator: StringOperator.Contains,
-                        value: searchTerm,
+    loading: itemsLoading,
+    refetch: itemsRefetch,
+  } = useQuery(
+    SearchItemDocument,
+    referenceModel && currentProject
+      ? {
+          fetchPolicy: "cache-and-network",
+          variables: {
+            searchItemInput: {
+              query: {
+                project: currentProject.id,
+                model: referenceModel.id,
+                schema: referenceModel?.schema.id,
+              },
+              pagination: {
+                first: linkItemModalPageSize,
+                offset: (linkItemModalPage - 1) * linkItemModalPageSize,
+              },
+              filter:
+                searchTerm && titleId.current
+                  ? {
+                      and: {
+                        conditions: [
+                          {
+                            string: {
+                              fieldId: { id: titleId.current, type: GQLFieldType.Field },
+                              operator: StringOperator.Contains,
+                              value: searchTerm,
+                            },
+                          },
+                        ],
                       },
-                    },
-                  ],
-                },
-              }
-            : undefined,
-      },
-    },
-    skip: !referenceModel,
-  });
+                    }
+                  : undefined,
+            },
+          },
+        }
+      : skipToken,
+  );
 
   const handleSearchTerm = useCallback((term?: string) => {
     setSearchTerm(term ?? "");
@@ -157,8 +175,8 @@ export default () => {
   }, []);
 
   const handleLinkItemTableReload = useCallback(() => {
-    refetch();
-  }, [refetch]);
+    itemsRefetch();
+  }, [itemsRefetch]);
 
   const handleLinkItemTableChange = useCallback((page: number, pageSize: number) => {
     setLinkItemModalPage(page);
@@ -195,8 +213,8 @@ export default () => {
   }, [userData]);
 
   const currentItem: Item | undefined = useMemo(
-    () => fromGraphQLItem(data?.node as GQLItem),
-    [data?.node],
+    () => fromGraphQLItem(itemData?.node as GQLItem),
+    [itemData?.node],
   );
 
   const hasItemUpdateRight = useMemo(
@@ -602,11 +620,15 @@ export default () => {
     return result;
   }, [currentItem, currentModel?.name]);
 
-  const { data: versionsData } = useQuery(VersionsByItemDocument, {
-    fetchPolicy: "cache-and-network",
-    variables: { itemId: itemId ?? "" },
-    skip: !itemId,
-  });
+  const { data: versionsData, refetch: versionsRefetch } = useQuery(
+    VersionsByItemDocument,
+    itemId
+      ? {
+          fetchPolicy: "cache-and-network",
+          variables: { itemId },
+        }
+      : skipToken,
+  );
 
   const versions = useMemo(
     () =>
@@ -626,8 +648,44 @@ export default () => {
     [initialValueGet, versions],
   );
 
+  const handleRefetch = useCallback(async () => {
+    const refetchList: Promise<ApolloClient.QueryResult>[] = [];
+    if (itemId) {
+      refetchList.push(itemRefetch());
+      refetchList.push(versionsRefetch());
+    }
+
+    if (referenceModel && currentProject) refetchList.push(itemsRefetch());
+
+    await Promise.all(refetchList);
+  }, [currentProject, itemId, itemRefetch, itemsRefetch, referenceModel, versionsRefetch]);
+
+  const handlePublish = useCallback(
+    async (itemIds: string[]) => {
+      await _handlePublish(itemIds);
+      await handleRefetch();
+    },
+    [_handlePublish, handleRefetch],
+  );
+
+  const handleUnpublish = useCallback(
+    async (itemIds: string[]) => {
+      await _handleUnpublish(itemIds);
+      await handleRefetch();
+    },
+    [_handleUnpublish, handleRefetch],
+  );
+
+  const handleAddItemToRequest = useCallback(
+    async (request: Request, items: RequestItem[]) => {
+      await _handleAddItemToRequest(request, items);
+      await handleRefetch();
+    },
+    [_handleAddItemToRequest, handleRefetch],
+  );
+
   return {
-    loadingReference,
+    loadingReference: itemsLoading,
     linkedItemsModalList,
     showPublishAction,
     requests,

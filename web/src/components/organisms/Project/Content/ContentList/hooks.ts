@@ -1,4 +1,4 @@
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
+import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useEffect, useMemo, useState, useRef, Key } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
@@ -67,8 +67,8 @@ export default () => {
     currentProject,
     requests,
     addItemToRequestModalShown,
-    handlePublish,
-    handleUnpublish,
+    handlePublish: _handlePublish,
+    handleUnpublish: _handleUnpublish,
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
@@ -140,24 +140,28 @@ export default () => {
     viewsRef.current = viewList ?? [];
   }, [location.state?.currentView, modelId, viewData?.view, viewLoading]);
 
-  const { data, refetch, loading } = useQuery(SearchItemDocument, {
-    fetchPolicy: "no-cache",
-    variables: {
-      searchItemInput: {
-        query: {
-          project: currentProject?.id ?? "",
-          model: currentModel?.id ?? "",
-          schema: currentModel?.schema.id,
-          q: searchTerm,
-        },
-        pagination: { first: pageSize, offset: (page - 1) * pageSize },
-        sort: toGraphItemSort(currentView.sort ?? defaultViewSort),
-        filter: toGraphConditionInput(currentView.filter),
-      },
-    },
-    notifyOnNetworkStatusChange: true,
-    skip: !currentProject?.id || !currentModel?.id || viewLoading,
-  });
+  const { data, refetch, loading } = useQuery(
+    SearchItemDocument,
+    currentProject?.id && currentModel?.id && !viewLoading
+      ? {
+          fetchPolicy: "no-cache",
+          variables: {
+            searchItemInput: {
+              query: {
+                project: currentProject.id,
+                model: currentModel.id,
+                schema: currentModel.schema.id,
+                q: searchTerm,
+              },
+              pagination: { first: pageSize, offset: (page - 1) * pageSize },
+              sort: toGraphItemSort(currentView.sort ?? defaultViewSort),
+              filter: toGraphConditionInput(currentView.filter),
+            },
+          },
+          notifyOnNetworkStatusChange: true,
+        }
+      : skipToken,
+  );
 
   const handleItemsReload = useCallback(() => {
     refetch();
@@ -613,6 +617,22 @@ export default () => {
       setSelectedItems({ selectedRows: [] });
     },
     [handleAddItemToRequest],
+  );
+
+  const handlePublish = useCallback(
+    async (itemIds: string[]) => {
+      await _handlePublish(itemIds);
+      await refetch();
+    },
+    [_handlePublish, refetch],
+  );
+
+  const handleUnpublish = useCallback(
+    async (itemIds: string[]) => {
+      await _handleUnpublish(itemIds);
+      await refetch();
+    },
+    [_handleUnpublish, refetch],
   );
 
   return {
