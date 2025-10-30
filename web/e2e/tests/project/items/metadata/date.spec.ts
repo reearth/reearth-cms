@@ -74,81 +74,81 @@ test("Date metadata creating and updating has succeeded", async ({
   await expect(contentPage.textBoxes).toHaveValue("2024-01-03");
 });
 
-// skip this test for now as is is flaky
-// test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPage }) => {
-//   await fieldEditorPage.metaDataTab.click();
-//   await fieldEditorPage.fieldTypeListItem("Date").click();
-//   await fieldEditorPage.displayNameInput.fill("date1");
-//   await fieldEditorPage.fieldKeyInput.fill("date1");
-//   await fieldEditorPage.descriptionRequiredInput.fill("date1 description");
-//   await fieldEditorPage.defaultValueTab.click();
-//   await fieldEditorPage.setDefaultValueInput.fill("2024-01-01");
-//   await fieldEditorPage.selectDatePlaceholder.press("Enter");
-//   await fieldEditorPage.okButton.click();
-//   await contentPage.closeNotification();
+test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPage }) => {
+  test.slow();
+  await fieldEditorPage.metaDataTab.click();
+  await fieldEditorPage.fieldTypeListItem("Date").click();
+  await fieldEditorPage.displayNameInput.fill("date1");
+  await fieldEditorPage.fieldKeyInput.fill("date1");
+  await fieldEditorPage.descriptionRequiredInput.fill("date1 description");
+  await fieldEditorPage.defaultValueTab.click();
+  await fieldEditorPage.setDefaultValueInput.fill("2024-01-01");
+  await fieldEditorPage.selectDatePlaceholder.press("Enter");
+  await fieldEditorPage.okButton.click();
+  await contentPage.closeNotification();
 
-//   await fieldEditorPage.menuItemByName("Content").click();
-//   await expect(fieldEditorPage.columnHeaderWithEdit("date1")).toBeVisible();
+  await fieldEditorPage.menuItemByName("Content").click();
+  await expect(fieldEditorPage.columnHeaderWithEdit("date1")).toBeVisible();
 
-//   await contentPage.newItemButton.click();
-//   await expect(contentPage.fieldInput("date1")).toHaveValue("2024-01-01");
+  await contentPage.newItemButton.click();
+  await expect(contentPage.fieldInput("date1")).toHaveValue("2024-01-01");
 
-//   await contentPage.saveButton.click();
-//   await contentPage.closeNotification();
-//   await fieldEditorPage.menuItemByName("Schema").click();
-//   await fieldEditorPage.metaDataTab.click();
-//   await fieldEditorPage.ellipsisButton.click();
-//   await fieldEditorPage.displayNameInput.fill("new date1");
-//   await fieldEditorPage.fieldKeyInput.fill("new-date1");
-//   await fieldEditorPage.descriptionRequiredInput.fill("new date1 description");
-//   await fieldEditorPage.supportMultipleValuesCheckbox.check();
-//   await fieldEditorPage.validationTab.click();
-//   await fieldEditorPage.requiredFieldCheckbox.check();
-//   await fieldEditorPage.uniqueFieldCheckbox.check();
-//   await fieldEditorPage.defaultValueTab.click();
-//   await expect(fieldEditorPage.firstTextbox).toHaveValue("2024-01-01");
+  await contentPage.saveButton.click();
+  await contentPage.closeNotification();
+  await fieldEditorPage.menuItemByName("Schema").click();
+  await fieldEditorPage.metaDataTab.click();
+  await fieldEditorPage.ellipsisButton.click();
+  await fieldEditorPage.displayNameInput.fill("new date1");
+  await fieldEditorPage.fieldKeyInput.fill("new-date1");
+  await fieldEditorPage.descriptionRequiredInput.fill("new date1 description");
+  await fieldEditorPage.supportMultipleValuesCheckbox.check();
+  await fieldEditorPage.validationTab.click();
+  await fieldEditorPage.requiredFieldCheckbox.check();
+  await fieldEditorPage.uniqueFieldCheckbox.check();
+  await fieldEditorPage.defaultValueTab.click();
+  await expect(fieldEditorPage.firstTextbox).toHaveValue("2024-01-01");
 
-//   await fieldEditorPage.plusNewButton.click();
-//   await fieldEditorPage.textboxByIndex(1).fill("2024-01-02");
-//   await fieldEditorPage.textboxByIndex(1).press("Enter");
-//   await fieldEditorPage.okButton.click();
-//   await contentPage.closeNotification();
-//   await expect(fieldEditorPage.uniqueFieldText("new date1", "new-date1")).toBeVisible();
+  await fieldEditorPage.plusNewButton.click();
+  await fieldEditorPage.textboxByIndex(1).fill("2024-01-02");
+  await fieldEditorPage.textboxByIndex(1).press("Enter");
+  await fieldEditorPage.okButton.click();
+  await contentPage.closeNotification();
+  await expect(fieldEditorPage.uniqueFieldText("new date1", "new-date1")).toBeVisible();
 
-//   await fieldEditorPage.menuItemByName("Content").click();
-//   await expect(fieldEditorPage.columnHeaderWithEdit("new date1")).toBeVisible();
-//   await expect(contentPage.textBoxes).toHaveValue("2024-01-01");
+  await fieldEditorPage.menuItemByName("Content").click();
+  await expect(fieldEditorPage.columnHeaderWithEdit("new date1")).toBeVisible();
+  await expect(contentPage.textBoxes).toHaveValue("2024-01-01");
 
-//   await contentPage.newItemButton.click();
-//   await expect(fieldEditorPage.uniqueFieldLabel("new date1")).toBeVisible();
-//   await expect(contentPage.fieldDescriptionText("new date1 description")).toBeVisible();
-//   await expect(contentPage.textBoxByIndex(0)).toHaveValue("2024-01-01");
-//   await expect(contentPage.textBoxByIndex(1)).toHaveValue("2024-01-02");
+  await contentPage.newItemButton.click();
+  await expect(fieldEditorPage.uniqueFieldLabel("new date1")).toBeVisible();
+  await expect(contentPage.fieldDescriptionText("new date1 description")).toBeVisible();
+  await expect(contentPage.textBoxByIndex(0)).toHaveValue("2024-01-01");
+  await expect(contentPage.textBoxByIndex(1)).toHaveValue("2024-01-02");
 
-//   await contentPage.saveButton.click();
-//   await contentPage.closeNotification();
-//   await expect(contentPage.textBoxByIndex(0)).toHaveValue("2024-01-01");
-//   await expect(contentPage.textBoxByIndex(1)).toHaveValue("2024-01-02");
+  await contentPage.saveButton.click();
+  await contentPage.closeNotification();
+  await expect(contentPage.textBoxByIndex(0)).toHaveValue("2024-01-01");
+  await expect(contentPage.textBoxByIndex(1)).toHaveValue("2024-01-02");
 
-//   await contentPage.backButtonRole.click();
-//   await contentPage.x2Button.click();
-//   await expect(fieldEditorPage.tooltipTextbox(0)).toHaveValue("2024-01-01");
-//   await expect(fieldEditorPage.tooltipTextbox(1)).toHaveValue("2024-01-02");
+  await contentPage.backButtonRole.click();
+  await contentPage.x2Button.click();
+  await expect(fieldEditorPage.tooltipTextbox(0)).toHaveValue("2024-01-01");
+  await expect(fieldEditorPage.tooltipTextbox(1)).toHaveValue("2024-01-02");
 
-//   await fieldEditorPage.tooltipTextbox(1).fill("2024-01-03");
-//   await fieldEditorPage.tooltipTextbox(1).press("Enter");
-//   await contentPage.closeNotification();
-//   await contentPage.cellEditButtonByIndex(0).click();
-//   await expect(contentPage.textBoxByIndex(0)).toHaveValue("2024-01-01");
-//   await expect(contentPage.textBoxByIndex(1)).toHaveValue("2024-01-03");
-//   await fieldEditorPage.plusNewButton.click();
-//   await fieldEditorPage.lastTextbox.fill("2024-01-02");
-//   await fieldEditorPage.lastTextbox.press("Enter");
-//   await contentPage.closeNotification();
+  await fieldEditorPage.tooltipTextbox(1).fill("2024-01-03");
+  await fieldEditorPage.tooltipTextbox(1).press("Enter");
+  await contentPage.closeNotification();
+  await contentPage.cellEditButtonByIndex(0).click();
+  await expect(contentPage.textBoxByIndex(0)).toHaveValue("2024-01-01");
+  await expect(contentPage.textBoxByIndex(1)).toHaveValue("2024-01-03");
+  await fieldEditorPage.plusNewButton.click();
+  await fieldEditorPage.lastTextbox.fill("2024-01-02");
+  await fieldEditorPage.lastTextbox.press("Enter");
+  await contentPage.closeNotification();
 
-//   await contentPage.backButtonLabel.click();
-//   await fieldEditorPage.x3Button.click();
-//   await expect(fieldEditorPage.tooltipTextbox(0)).toHaveValue("2024-01-01");
-//   await expect(fieldEditorPage.tooltipTextbox(1)).toHaveValue("2024-01-03");
-//   await expect(fieldEditorPage.tooltipTextbox(2)).toHaveValue("2024-01-02");
-// });
+  await contentPage.backButtonLabel.click();
+  await fieldEditorPage.x3Button.click();
+  await expect(fieldEditorPage.tooltipTextbox(0)).toHaveValue("2024-01-01");
+  await expect(fieldEditorPage.tooltipTextbox(1)).toHaveValue("2024-01-03");
+  await expect(fieldEditorPage.tooltipTextbox(2)).toHaveValue("2024-01-02");
+});

@@ -186,7 +186,7 @@ export class ProjectPage extends BasePage {
   async createProject(name: string): Promise<void> {
     await this.getByRole("button", { name: "plus New Project" }).first().click();
     await this.getByRole("dialog").locator("#name").fill(name);
-    await this.okButton.click();
+    await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
   }
 
@@ -199,9 +199,9 @@ export class ProjectPage extends BasePage {
   async deleteProject(projectName: string): Promise<void> {
     await this.page.goto("/", { waitUntil: "domcontentloaded" });
     await this.gotoProject(projectName);
-    await this.settingsMenuItem.click();
-    await this.deleteProjectButton.click();
-    await this.okButton.click();
+    await this.getByText("Settings").first().click();
+    await this.getByRole("button", { name: "Delete Project" }).click();
+    await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
   }
 
@@ -211,7 +211,7 @@ export class ProjectPage extends BasePage {
     if (key) {
       await this.getByLabel("Model key").fill(key);
     }
-    await this.okButton.click();
+    await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
   }
 

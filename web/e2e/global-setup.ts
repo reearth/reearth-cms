@@ -28,26 +28,17 @@ async function globalSetup(_config: FullConfig) {
     // Wait for the page to be ready
     await expect(page.getByRole("button").first()).toBeVisible();
 
-    // Check if already logged in by looking for "New Project" button
-    const isLoggedIn = await page
-      .getByRole("button", { name: "New Project" })
-      .first()
-      .isVisible()
-      .catch(() => false);
+    // Perform login using LoginPage
+    const loginPage = new LoginPage(page);
+    await loginPage.login(userName, password);
 
-    if (!isLoggedIn) {
-      // Perform login using LoginPage
-      const loginPage = new LoginPage(page);
-      await loginPage.login(userName, password);
+    // Wait for successful login - should redirect to base URL
+    await page.waitForURL(baseURL, { timeout: 30000 });
 
-      // Wait for successful login - should redirect to base URL
-      await page.waitForURL(baseURL, { timeout: 30000 });
-
-      // Verify we're logged in by checking for "New Project" button
-      await expect(page.getByRole("button", { name: "New Project" }).first()).toBeVisible({
-        timeout: 10000,
-      });
-    }
+    // Verify we're logged in by checking for "New Project" button
+    await expect(page.getByRole("button", { name: "New Project" }).first()).toBeVisible({
+      timeout: 10000,
+    });
 
     // Save authentication state
     await context.storageState({ path: authFile });
