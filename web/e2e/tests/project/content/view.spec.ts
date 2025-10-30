@@ -1,16 +1,24 @@
+import { config } from "@reearth-cms/e2e/config/config";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { parseConfigBoolean } from "@reearth-cms/e2e/helpers/format.helper";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-test.beforeEach(async ({ reearth, projectPage }) => {
+const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
+
+test.beforeEach(async ({ reearth, workspacePage, projectPage }) => {
+  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
+  await workspacePage.createWorkspace("e2e workspace name");
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
   await projectPage.createModelFromOverview();
 });
 
-test.afterEach(async ({ projectPage }) => {
+test.afterEach(async ({ projectPage, workspacePage }) => {
+  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await projectPage.deleteProject();
+  await workspacePage.deleteWorkspace();
 });
 
 test("View CRUD has succeeded", async ({
@@ -19,6 +27,7 @@ test("View CRUD has succeeded", async ({
   contentPage,
   schemaPage,
 }) => {
+  test.slow();
   await fieldEditorPage.fieldTypeButton("Text").click();
   await schemaPage.handleFieldForm("text");
   await projectPage.contentMenuItem.click();

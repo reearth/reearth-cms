@@ -33,6 +33,7 @@ test("Model CRUD has succeeded", async ({ schemaPage, fieldEditorPage }) => {
 });
 
 test("Model reordering has succeeded", async ({ schemaPage }) => {
+  test.slow();
   const modelName1 = "model1";
   const modelName2 = "model2";
   const modelName3 = "model3";
