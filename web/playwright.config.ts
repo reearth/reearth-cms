@@ -32,7 +32,7 @@ const config: PlaywrightTestConfig = {
   fullyParallel: false,
   projects: [
     {
-      name: "webkit",
+      name: "chromium",
       use: {
         ...devices["Desktop Safari"],
       },

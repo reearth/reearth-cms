@@ -1,4 +1,4 @@
-import { webkit, expect, FullConfig } from "@playwright/test";
+import { chromium, expect, FullConfig } from "@playwright/test";
 
 import { authFile, baseURL } from "../playwright.config";
 
@@ -15,7 +15,7 @@ async function globalSetup(_config: FullConfig) {
 
   console.log("Setting up authentication...");
 
-  const browser = await webkit.launch({ headless: true });
+  const browser = await chromium.launch({ headless: true });
   const context = await createIAPContext(browser, baseURL);
   const page = await context.newPage();
 
