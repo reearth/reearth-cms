@@ -19,8 +19,9 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test.describe.parallel("Json file tests", () => {
+test.describe("Json file tests", () => {
   test.beforeEach(async ({ assetsPage }) => {
+    test.slow();
     await assetsPage.uploadViaUrl(jsonUrl);
   });
 

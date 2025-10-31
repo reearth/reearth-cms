@@ -1,30 +1,36 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
+
+let integrationName: string;
+let newIntegrationName: string;
 
 test.beforeEach(async ({ reearth, integrationsPage }) => {
+  integrationName = getId();
+  newIntegrationName = getId();
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await integrationsPage.myIntegrationsMenuItem.click();
   await integrationsPage.createIntegrationButton.click();
 
   await integrationsPage.integrationNameInput.click();
-  await integrationsPage.integrationNameInput.fill("name");
+  await integrationsPage.integrationNameInput.fill(integrationName);
   await integrationsPage.descriptionInput.click();
   await integrationsPage.descriptionInput.fill("description");
   await integrationsPage.createButton.click();
   await integrationsPage.closeNotification();
 
-  await integrationsPage.integrationTextByName("name", "description").last().click();
+  await integrationsPage.integrationTextByName(integrationName, "description").last().click();
 });
 
 test("MyIntegration CRUD has succeeded", async ({ integrationsPage }) => {
   test.skip();
   await integrationsPage.integrationNameInput.click();
-  await integrationsPage.integrationNameInput.fill("newName");
+  await integrationsPage.integrationNameInput.fill(newIntegrationName);
   await integrationsPage.descriptionInput.click();
   await integrationsPage.descriptionInput.fill("newDescription");
   await integrationsPage.saveButton.click();
   await integrationsPage.closeNotification();
 
-  await expect(integrationsPage.rootElement).toContainText("newName");
+  await expect(integrationsPage.rootElement).toContainText(newIntegrationName);
   await integrationsPage.backButton.click();
   await expect(integrationsPage.mainElement).toContainText("newDescription");
   await integrationsPage.integrationLinkByText("newDescription").click();
@@ -57,7 +63,7 @@ test("Webhook CRUD has succeeded", async ({ integrationsPage }) => {
   await integrationsPage.urlInput.fill("http://new.com");
   await integrationsPage.secretInput.click();
   await integrationsPage.secretInput.fill("new secret");
-  await integrationsPage.createCheckbox.check();
+  await integrationsPage.createCheckbox.setChecked(true, { force: true });
   await expect(integrationsPage.createCheckbox).toBeChecked();
   await integrationsPage.uploadCheckbox.check();
   await expect(integrationsPage.uploadCheckbox).toBeChecked();

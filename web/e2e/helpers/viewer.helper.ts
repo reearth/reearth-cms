@@ -7,17 +7,27 @@ export async function isCesiumViewerReady(
 ): Promise<boolean> {
   const canvas = page.locator("canvas").first();
   const startTime = Date.now();
-  let previous = await canvas.screenshot();
-  let prevSig = previous.toString("base64");
+  const snap = async (): Promise<string | null> => {
+    try {
+      await canvas.waitFor({ state: "visible", timeout: 5000 });
+      const buf = await canvas.screenshot();
+      return buf.toString("base64");
+    } catch {
+      return null;
+    }
+  };
+  let prevSig: string | null = await snap();
 
   while (Date.now() - startTime < maxWaitTime) {
     await page.waitForTimeout(interval);
-    const current = await canvas.screenshot();
-    const currSig = current.toString("base64");
+    const currSig = await snap();
+    if (!prevSig || !currSig) {
+      prevSig = currSig ?? prevSig;
+      continue;
+    }
     if (currSig !== prevSig) {
       return true;
     }
-    previous = current;
     prevSig = currSig;
   }
 

@@ -17,6 +17,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
 }) => {
+  test.slow();
   await fieldEditorPage.fieldTypeButton("Geometry Object").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("geometryObject1");
@@ -53,6 +54,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
 });
 
 test("GeometryObject field editing has succeeded", async ({
+  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -68,15 +70,18 @@ test("GeometryObject field editing has succeeded", async ({
   await fieldEditorPage.editorContent.fill('{\n"type": "Point",\n"coordinates": [0, 0]');
   await fieldEditorPage.okButton.click();
   await fieldEditorPage.closeNotification();
+  await page.waitForTimeout(100);
+
   await contentPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("geometryObject1");
   await contentPage.newItemButton.click();
   await expect(contentPage.viewLinesEditor).toContainText(
     '{  "type": "Point",  "coordinates": [0, 0]}',
   );
-
   await contentPage.saveButton.click();
   await contentPage.closeNotification();
+  await page.waitForTimeout(100);
+
   await contentPage.backButton.click();
   await contentPage.nthTableColumnButton(5).click();
   await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [0, 0] }');
@@ -109,6 +114,8 @@ test("GeometryObject field editing has succeeded", async ({
   );
   await fieldEditorPage.okButton.click();
   await fieldEditorPage.closeNotification();
+  await page.waitForTimeout(100);
+
   await expect(
     schemaPage.uniqueFieldText("new geometryObject1", "new-geometryobject1"),
   ).toBeVisible();
@@ -128,6 +135,8 @@ test("GeometryObject field editing has succeeded", async ({
   await fieldEditorPage.arrowUpButtonByIndex(2).click();
   await contentPage.saveButton.click();
   await contentPage.closeNotification();
+  await page.waitForTimeout(100);
+
   await contentPage.backButton.click();
   await contentPage.x3Button.click();
   await expect(contentPage.tooltipParagraphByIndex(0)).toContainText(

@@ -1,18 +1,13 @@
-import { config } from "@reearth-cms/e2e/config/config";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
-import { parseConfigBoolean } from "@reearth-cms/e2e/helpers/format.helper";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 const itemTitle = "e2e item title";
 const titleFieldName = "e2e title field";
 const requestTitle = "e2e request title";
 const modelName = "e2e model name";
 
-test.beforeEach(async ({ reearth, workspacePage, projectPage, schemaPage, contentPage }) => {
-  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
+test.beforeEach(async ({ reearth, projectPage, schemaPage, contentPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await workspacePage.createWorkspace("e2e workspace name");
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
@@ -22,10 +17,8 @@ test.beforeEach(async ({ reearth, workspacePage, projectPage, schemaPage, conten
   await contentPage.createRequest(requestTitle);
 });
 
-test.afterEach(async ({ projectPage, workspacePage }) => {
-  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
+test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
-  await workspacePage.deleteWorkspace();
 });
 
 test("Request creating, searching, updating reviewer, and approving has succeeded", async ({
@@ -128,7 +121,6 @@ test("Comment CRUD on Request page has succeeded", async ({ requestPage, content
 });
 
 test("Creating a new request and adding to request has succeeded", async ({ requestPage }) => {
-  test.skip();
   await requestPage.backButtonCapitalized.click();
   await requestPage.newItemButton.click();
   await requestPage.saveButton.click();

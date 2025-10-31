@@ -65,7 +65,7 @@ test("Option field creating and updating has succeeded", async ({
   await expect(contentPage.optionTextByName("second")).toBeVisible();
 });
 
-test("Option field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
+test("Option field editing has succeeded", async ({ page, fieldEditorPage, contentPage, schemaPage }) => {
   await schemaPage.fieldTypeButton("Option").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("option1");
@@ -102,6 +102,7 @@ test("Option field editing has succeeded", async ({ fieldEditorPage, contentPage
   await fieldEditorPage.optionDiv("third").click();
   await fieldEditorPage.okButton.click();
   await contentPage.closeNotification();
+  await page.waitForTimeout(100);
 
   await contentPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("option1");
@@ -113,6 +114,7 @@ test("Option field editing has succeeded", async ({ fieldEditorPage, contentPage
   await expect(fieldEditorPage.optionDiv("forth")).toBeVisible();
   await contentPage.saveButton.click();
   await contentPage.closeNotification();
+  await page.waitForTimeout(100);
   await contentPage.backButton.click();
   await expect(contentPage.optionTextByName("third")).toBeVisible();
 
@@ -171,6 +173,8 @@ test("Option field editing has succeeded", async ({ fieldEditorPage, contentPage
   await fieldEditorPage.optionDiv("new third").last().click();
   await fieldEditorPage.okButton.click();
   await contentPage.closeNotification();
+  await page.waitForTimeout(100);
+
   await expect(contentPage.optionTextByName("new option1 *#new-option1(unique)")).toBeVisible();
   await contentPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("option1");

@@ -42,7 +42,8 @@ export async function createIAPContext(
       const parsedUrl = new URL(baseUrl);
       const hostname = parsedUrl.hostname.toLowerCase();
       // Skip IAP for localhost and production (reearth.io without 'dev' or 'staging')
-      const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+      const isLocalhost =
+        hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
       const isProduction = hostname === "reearth.io" || hostname === "www.reearth.io";
       useIAPAuth = !isLocalhost && !isProduction;
     } catch {

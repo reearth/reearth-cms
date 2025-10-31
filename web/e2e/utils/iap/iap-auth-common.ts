@@ -114,7 +114,8 @@ export async function createIAPBrowserContext(
     const baseHeaders = request.headers();
     const headers = Object.fromEntries(
       Object.entries(baseHeaders).filter(
-        ([key]) => key.toLowerCase() !== "authorization" && key.toLowerCase() !== "proxy-authorization",
+        ([key]) =>
+          key.toLowerCase() !== "authorization" && key.toLowerCase() !== "proxy-authorization",
       ),
     );
 
@@ -170,7 +171,8 @@ export async function createIAPBrowserContext(
           await route.fulfill({ response: retryResponse });
           return;
         } catch (retryError) {
-          const retryErrorMessage = retryError instanceof Error ? retryError.message : "Unknown retry error";
+          const retryErrorMessage =
+            retryError instanceof Error ? retryError.message : "Unknown retry error";
           console.warn("Token refresh retry also failed:", retryErrorMessage);
         }
       }
