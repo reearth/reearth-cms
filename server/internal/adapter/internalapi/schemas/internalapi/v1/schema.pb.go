@@ -1277,6 +1277,7 @@ type ListProjectsRequest struct {
 	WorkspaceIds  []string               `protobuf:"bytes,1,rep,name=workspace_ids,json=workspaceIds,proto3" json:"workspace_ids,omitempty"`
 	Keyword       *string                `protobuf:"bytes,2,opt,name=keyword,proto3,oneof" json:"keyword,omitempty"`
 	PublicOnly    bool                   `protobuf:"varint,3,opt,name=public_only,json=publicOnly,proto3" json:"public_only,omitempty"`
+	Topics        []string               `protobuf:"bytes,4,rep,name=topics,proto3" json:"topics,omitempty"`
 	PageInfo      *PageInfo              `protobuf:"bytes,100,opt,name=page_info,json=pageInfo,proto3,oneof" json:"page_info,omitempty"`
 	SortInfo      *SortInfo              `protobuf:"bytes,101,opt,name=sort_info,json=sortInfo,proto3,oneof" json:"sort_info,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1332,6 +1333,13 @@ func (x *ListProjectsRequest) GetPublicOnly() bool {
 		return x.PublicOnly
 	}
 	return false
+}
+
+func (x *ListProjectsRequest) GetTopics() []string {
+	if x != nil {
+		return x.Topics
+	}
+	return nil
 }
 
 func (x *ListProjectsRequest) GetPageInfo() *PageInfo {

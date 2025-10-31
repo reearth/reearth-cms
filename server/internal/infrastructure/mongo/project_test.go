@@ -1134,3 +1134,410 @@ func TestProjectRepo_FindByPublicAPIToken(t *testing.T) {
 		})
 	}
 }
+
+func Test_projectRepo_Search(t *testing.T) {
+	now := time.Now().Truncate(time.Millisecond).UTC()
+	tid1 := accountdomain.NewWorkspaceID()
+	tid2 := accountdomain.NewWorkspaceID()
+
+	// Projects with different properties for testing
+	p1 := project.New().
+		NewID().
+		Name("Test Project Alpha").
+		Description("A test project for searching").
+		Alias("alpha-test").
+		Topics([]string{"topic1", "abc"}).
+		Workspace(tid1).
+		UpdatedAt(now).
+		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil)).
+		MustBuild()
+
+	p2 := project.New().
+		NewID().
+		Name("Beta Project").
+		Description("Another project").
+		Alias("beta-proj").
+		Topics([]string{"topic2", "xyz"}).
+		Workspace(tid1).
+		UpdatedAt(now.Add(time.Hour)).
+		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil)).
+		MustBuild()
+
+	p3 := project.New().
+		NewID().
+		Name("Gamma Search Test").
+		Description("Third project").
+		Alias("gamma-123").
+		Topics([]string{"abc"}).
+		Workspace(tid2).
+		UpdatedAt(now.Add(2 * time.Hour)).
+		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil)).
+		MustBuild()
+
+	p4 := project.New().
+		NewID().
+		Name("Delta").
+		Description("Contains keyword alpha in description").
+		Alias("delta-one").
+		Topics([]string{"topic1", "topic2", "xyz"}).
+		Workspace(tid1).
+		UpdatedAt(now.Add(3 * time.Hour)).
+		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil)).
+		MustBuild()
+
+	type args struct {
+		filter interfaces.ProjectFilter
+	}
+	tests := []struct {
+		name     string
+		seeds    project.List
+		args     args
+		wsFilter *repo.WorkspaceFilter
+		want     project.List
+		wantErr  error
+	}{
+		{
+			name:  "empty database",
+			seeds: project.List{},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name:  "find all projects in workspace",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1},
+					Pagination:   usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p1, p2, p4},
+			wantErr: nil,
+		},
+		{
+			name:  "find projects in multiple workspaces",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1, tid2},
+					Pagination:   usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p1, p2, p3, p4},
+			wantErr: nil,
+		},
+		{
+			name:  "filter by visibility public",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					Visibility: lo.ToPtr(project.VisibilityPublic),
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p1, p3, p4},
+			wantErr: nil,
+		},
+		{
+			name:  "filter by visibility private",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					Visibility: lo.ToPtr(project.VisibilityPrivate),
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p2},
+			wantErr: nil,
+		},
+		{
+			name:  "search by keyword in name",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					Keyword:    lo.ToPtr("Alpha"),
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p1, p4},
+			wantErr: nil,
+		},
+		{
+			name:  "search by keyword in alias",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					Keyword:    lo.ToPtr("beta"),
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p2},
+			wantErr: nil,
+		},
+		{
+			name:  "search by keyword in description",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					Keyword:    lo.ToPtr("searching"),
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p1},
+			wantErr: nil,
+		},
+		{
+			name:  "search by exact project ID",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					Keyword:    lo.ToPtr(p1.ID().String()),
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p1},
+			wantErr: nil,
+		},
+		{
+			name:  "search with case insensitive keyword",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					Keyword:    lo.ToPtr("GAMMA"),
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p3},
+			wantErr: nil,
+		},
+		{
+			name:  "search with no results",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					Keyword:    lo.ToPtr("nonexistent"),
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name:  "combine workspace and visibility filters",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1},
+					Visibility:   lo.ToPtr(project.VisibilityPublic),
+					Pagination:   usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p1, p4},
+			wantErr: nil,
+		},
+		{
+			name:  "combine workspace and keyword filters",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1},
+					Keyword:      lo.ToPtr("project"),
+					Pagination:   usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p1, p2},
+			wantErr: nil,
+		},
+		{
+			name:  "pagination first 2",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1},
+					Pagination:   usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap(),
+				},
+			},
+			want:    project.List{p1, p2},
+			wantErr: nil,
+		},
+		{
+			name:  "pagination last 2",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1},
+					Pagination:   usecasex.CursorPagination{Last: lo.ToPtr(int64(2))}.Wrap(),
+				},
+			},
+			want:    project.List{p2, p4},
+			wantErr: nil,
+		},
+		{
+			name:  "workspace filter readable",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			wsFilter: &repo.WorkspaceFilter{
+				Readable: accountdomain.WorkspaceIDList{tid1},
+				Writable: accountdomain.WorkspaceIDList{},
+			},
+			want:    project.List{p1, p2, p4},
+			wantErr: nil,
+		},
+		{
+			name:  "workspace filter no access",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			wsFilter: &repo.WorkspaceFilter{
+				Readable: accountdomain.WorkspaceIDList{accountdomain.NewWorkspaceID()},
+				Writable: accountdomain.WorkspaceIDList{},
+			},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name:  "empty keyword should return all",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					Keyword:    lo.ToPtr(""),
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p1, p2, p3, p4},
+			wantErr: nil,
+		},
+		{
+			name:  "sort by updated_at descending",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1},
+					Sort: &usecasex.Sort{
+						Key:      "updatedAt",
+						Reverted: true,
+					},
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p4, p2, p1},
+			wantErr: nil,
+		},
+		{
+			name:  "search by topics filter single topic",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					Topics:     []string{"topic1"},
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p1, p4},
+			wantErr: nil,
+		},
+		{
+			name:  "search by topics filter multiple topics",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					Topics:     []string{"topic1", "topic2"},
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p1, p2, p4},
+			wantErr: nil,
+		},
+		{
+			name:  "search by topics with case sensitivity",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					Topics:     []string{"Topic1"},
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p1, p4},
+			wantErr: nil,
+		},
+		{
+			name:  "combine topics and workspace filters",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1},
+					Topics:       []string{"abc"},
+					Pagination:   usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p1},
+			wantErr: nil,
+		},
+		{
+			name:  "combine topics and keyword filters",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					Topics:     []string{"topic1"},
+					Keyword:    lo.ToPtr("test"),
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p1},
+			wantErr: nil,
+		},
+	}
+
+	initDB := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			client := mongox.NewClientWithDatabase(initDB(t))
+
+			r := NewProject(client)
+			ctx := context.Background()
+			for _, p := range tc.seeds {
+				err := r.Save(ctx, p)
+				assert.NoError(t, err)
+			}
+
+			if tc.wsFilter != nil {
+				r = r.Filtered(*tc.wsFilter)
+			}
+
+			got, _, err := r.Search(ctx, tc.args.filter)
+			if tc.wantErr != nil {
+				assert.ErrorIs(t, err, tc.wantErr)
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.Equal(t, len(tc.want), len(got))
+
+			// Compare projects by ID since order might vary
+			wantIDs := make(map[id.ProjectID]bool)
+			for _, p := range tc.want {
+				wantIDs[p.ID()] = true
+			}
+			gotIDs := make(map[id.ProjectID]bool)
+			for _, p := range got {
+				gotIDs[p.ID()] = true
+			}
+			assert.Equal(t, wantIDs, gotIDs)
+		})
+	}
+}

@@ -169,6 +169,7 @@ func (s server) ListProjects(ctx context.Context, req *pb.ListProjectsRequest) (
 
 	f := interfaces.ProjectFilter{
 		Keyword:    req.Keyword,
+		Topics:     req.Topics,
 		Sort:       internalapimodel.SortFromPB(req.SortInfo),
 		Pagination: internalapimodel.PaginationFromPB(req.PageInfo),
 	}
