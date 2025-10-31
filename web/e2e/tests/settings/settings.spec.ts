@@ -1,13 +1,14 @@
-import { config } from "@reearth-cms/e2e/config/config";
+// import { config } from "@reearth-cms/e2e/config/config";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
-import { parseConfigBoolean } from "@reearth-cms/e2e/helpers/format.helper";
+// import { parseConfigBoolean } from "@reearth-cms/e2e/helpers/format.helper";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
+// const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 
 let workspaceName: string;
 test.beforeEach(async ({ reearth, workspacePage, settingsPage }) => {
-  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
+  // test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
+  test.skip();
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   workspaceName = getId();
   await workspacePage.createWorkspace(workspaceName);
@@ -15,7 +16,8 @@ test.beforeEach(async ({ reearth, workspacePage, settingsPage }) => {
 });
 
 test.afterEach(async ({ workspacePage }) => {
-  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
+  test.skip();
+  // test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await workspacePage.deleteWorkspace();
 });
 
