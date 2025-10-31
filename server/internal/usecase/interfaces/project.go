@@ -17,6 +17,7 @@ type ProjectFilter struct {
 	WorkspaceIds *accountdomain.WorkspaceIDList
 	Visibility   *project.Visibility
 	Keyword      *string
+	Topics       []string
 	Sort         *usecasex.Sort
 	Pagination   *usecasex.Pagination
 }
