@@ -1261,6 +1261,7 @@ type ListProjectsRequest struct {
 	WorkspaceIds  []string               `protobuf:"bytes,1,rep,name=workspace_ids,json=workspaceIds,proto3" json:"workspace_ids,omitempty"`
 	Keyword       *string                `protobuf:"bytes,2,opt,name=keyword,proto3,oneof" json:"keyword,omitempty"`
 	PublicOnly    bool                   `protobuf:"varint,3,opt,name=public_only,json=publicOnly,proto3" json:"public_only,omitempty"`
+	Topics        []string               `protobuf:"bytes,4,rep,name=topics,proto3" json:"topics,omitempty"`
 	PageInfo      *PageInfo              `protobuf:"bytes,100,opt,name=page_info,json=pageInfo,proto3,oneof" json:"page_info,omitempty"`
 	SortInfo      *SortInfo              `protobuf:"bytes,101,opt,name=sort_info,json=sortInfo,proto3,oneof" json:"sort_info,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1316,6 +1317,13 @@ func (x *ListProjectsRequest) GetPublicOnly() bool {
 		return x.PublicOnly
 	}
 	return false
+}
+
+func (x *ListProjectsRequest) GetTopics() []string {
+	if x != nil {
+		return x.Topics
+	}
+	return nil
 }
 
 func (x *ListProjectsRequest) GetPageInfo() *PageInfo {
@@ -2491,12 +2499,13 @@ const file_schemas_internalapi_v1_schema_proto_rawDesc = "" +
 	"\v_visibility\"5\n" +
 	"\x14DeleteProjectRequest\x12\x1d\n" +
 	"\n" +
-	"project_id\x18\x01 \x01(\tR\tprojectId\"\x9a\x02\n" +
+	"project_id\x18\x01 \x01(\tR\tprojectId\"\xb2\x02\n" +
 	"\x13ListProjectsRequest\x12#\n" +
 	"\rworkspace_ids\x18\x01 \x03(\tR\fworkspaceIds\x12\x1d\n" +
 	"\akeyword\x18\x02 \x01(\tH\x00R\akeyword\x88\x01\x01\x12\x1f\n" +
 	"\vpublic_only\x18\x03 \x01(\bR\n" +
-	"publicOnly\x12:\n" +
+	"publicOnly\x12\x16\n" +
+	"\x06topics\x18\x04 \x03(\tR\x06topics\x12:\n" +
 	"\tpage_info\x18d \x01(\v2\x18.reearth.cms.v1.PageInfoH\x01R\bpageInfo\x88\x01\x01\x12:\n" +
 	"\tsort_info\x18e \x01(\v2\x18.reearth.cms.v1.SortInfoH\x02R\bsortInfo\x88\x01\x01B\n" +
 	"\n" +
