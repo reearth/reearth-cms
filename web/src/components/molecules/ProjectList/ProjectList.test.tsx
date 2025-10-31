@@ -9,6 +9,10 @@ describe("Project list", () => {
   const hasCreateRight = true;
   const projects: Project[] = [];
   const loading = false;
+  const page = 1;
+  const pageSize = 10;
+  const totalCount = 0;
+
   const onProjectNavigation = () => {
     return Promise.resolve();
   };
@@ -19,15 +23,23 @@ describe("Project list", () => {
     return Promise.resolve(true);
   };
 
+  const onPageChange = () => {
+    return Promise.resolve();
+  };
+
   test("Loading displays successfully", () => {
     render(
       <ProjectList
         hasCreateRight={hasCreateRight}
         projects={projects}
         loading={true}
+        page={page}
+        pageSize={pageSize}
+        totalCount={totalCount}
         onProjectNavigation={onProjectNavigation}
         onProjectCreate={onProjectCreate}
         onProjectAliasCheck={onProjectAliasCheck}
+        onPageChange={onPageChange}
       />,
     );
 
@@ -40,9 +52,13 @@ describe("Project list", () => {
         hasCreateRight={hasCreateRight}
         projects={projects}
         loading={loading}
+        page={page}
+        pageSize={pageSize}
+        totalCount={totalCount}
         onProjectNavigation={onProjectNavigation}
         onProjectCreate={onProjectCreate}
         onProjectAliasCheck={onProjectAliasCheck}
+        onPageChange={onPageChange}
       />,
     );
 
@@ -56,9 +72,13 @@ describe("Project list", () => {
         hasCreateRight={false}
         projects={projects}
         loading={loading}
+        page={page}
+        pageSize={pageSize}
+        totalCount={totalCount}
         onProjectNavigation={onProjectNavigation}
         onProjectCreate={onProjectCreate}
         onProjectAliasCheck={onProjectAliasCheck}
+        onPageChange={onPageChange}
       />,
     );
 
@@ -86,9 +106,13 @@ describe("Project list", () => {
         hasCreateRight={hasCreateRight}
         projects={testProjects}
         loading={loading}
+        page={page}
+        pageSize={pageSize}
+        totalCount={totalCount}
         onProjectNavigation={onProjectNavigation}
         onProjectCreate={onProjectCreate}
         onProjectAliasCheck={onProjectAliasCheck}
+        onPageChange={onPageChange}
       />,
     );
 
