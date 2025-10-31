@@ -2946,7 +2946,7 @@ export type GetProjectsQueryVariables = Exact<{
 }>;
 
 
-export type GetProjectsQuery = { __typename?: 'Query', projects: { __typename?: 'ProjectConnection', nodes: Array<{ __typename?: 'Project', id: string, name: string, description: string, alias: string, license: string, readme: string, createdAt: Date, updatedAt: Date, requestRoles?: Array<Role> | null, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null, apiKeys?: Array<{ __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }> | null } } | null> } };
+export type GetProjectsQuery = { __typename?: 'Query', projects: { __typename?: 'ProjectConnection', totalCount: number, nodes: Array<{ __typename?: 'Project', id: string, name: string, description: string, alias: string, license: string, readme: string, createdAt: Date, updatedAt: Date, requestRoles?: Array<Role> | null, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null, apiKeys?: Array<{ __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }> | null } } | null> } };
 
 export type CheckProjectAliasQueryVariables = Exact<{
   alias: Scalars['String']['input'];
@@ -6270,6 +6270,7 @@ export const GetProjectsDocument = gql`
       }
       requestRoles
     }
+    totalCount
   }
 }
     `;
