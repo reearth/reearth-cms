@@ -34,7 +34,7 @@ const config: PlaywrightTestConfig = {
     {
       name: "chromium",
       use: {
-        ...devices["Desktop Safari"],
+        ...devices["Desktop Chrome"],
       },
     },
   ],
