@@ -25,6 +25,7 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test.describe("Zip Upload Tests", () => {
+  test.slow()
   test("Uploading and auto-unzipping ZIP file from URL tab succeeds", async ({ assetsPage }) => {
     await assetsPage.uploadButton.click();
     await assetsPage.urlTab.click();

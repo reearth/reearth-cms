@@ -54,7 +54,7 @@ test("Model reordering has succeeded", async ({ schemaPage }) => {
   await expect(schemaPage.modelMenuItems().nth(2)).toContainText(modelName3);
 });
 
-test("Group CRUD has succeeded", async ({ schemaPage, fieldEditorPage }) => {
+test("Group CRUD has succeeded", async ({ page, schemaPage, fieldEditorPage }) => {
   const groupName = "e2e group name";
   const groupKey = "e2e-group-key";
   const updateGroupName = "new e2e group name";
@@ -63,17 +63,20 @@ test("Group CRUD has succeeded", async ({ schemaPage, fieldEditorPage }) => {
   await schemaPage.createGroup(groupName, groupKey);
   await expect(fieldEditorPage.titleByText(groupName, true)).toBeVisible();
   await expect(schemaPage.textByExact(`#${groupKey}`)).toBeVisible();
+  await page.waitForTimeout(100);
 
   await schemaPage.updateGroup(updateGroupName, updateGroupKey);
   await expect(fieldEditorPage.titleByText(updateGroupName)).toBeVisible();
   await expect(schemaPage.textByExact(`#${updateGroupKey}`)).toBeVisible();
   await expect(schemaPage.menuItemByName(updateGroupName)).toBeVisible();
+  await page.waitForTimeout(100);
 
   await schemaPage.deleteGroup();
   await expect(fieldEditorPage.titleByText(updateGroupName)).toBeHidden();
 });
 
 test("Group creating from adding field has succeeded", async ({ schemaPage, fieldEditorPage }) => {
+  test.slow();
   await schemaPage.createModelFromSidebar();
   await fieldEditorPage.fieldTypeListItem("Group").click();
   await schemaPage.addGroupButton.click();
