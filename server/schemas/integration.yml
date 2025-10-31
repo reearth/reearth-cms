@@ -180,6 +180,8 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - id
                 properties:
                   id:
                     x-go-type: id.ProjectID
@@ -277,7 +279,7 @@ paths:
       - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/modelIdOrKeyParam'
     get:
-      operationId: ModelGetWithProject
+      operationId: ModelGet
       security:
         - bearerAuth: [ ]
       summary: Returns a model.
@@ -300,7 +302,7 @@ paths:
         '500':
           description: Internal server error
     patch:
-      operationId: ModelUpdateWithProject
+      operationId: ModelUpdate
       security:
         - bearerAuth: [ ]
       summary: Update a model.
@@ -336,7 +338,7 @@ paths:
         '500':
           description: Internal server error
     delete:
-      operationId: ModelDeleteWithProject
+      operationId: ModelDelete
       security:
         - bearerAuth: [ ]
       summary: Delete a model.
@@ -350,6 +352,8 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - id
                 properties:
                   id:
                     x-go-type: id.ModelID
@@ -368,7 +372,7 @@ paths:
       - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/modelIdOrKeyParam'
     get:
-      operationId: SchemaByModelWithProjectAsJSON
+      operationId: SchemaByModelAsJSON
       security:
         - bearerAuth: [ ]
       summary: Returns a schema as json by project and model ID
@@ -397,7 +401,7 @@ paths:
       - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/modelIdOrKeyParam'
     get:
-      operationId: MetadataSchemaByModelWithProjectAsJSON
+      operationId: MetadataSchemaByModelAsJSON
       security:
         - bearerAuth: [ ]
       summary: Returns a metadata schema as json by project and model ID
@@ -514,6 +518,8 @@ paths:
                       $ref: '#/components/schemas/schemaField'
         '400':
           description: Invalid request parameter value
+        '404':
+          description: Not found
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '500':
@@ -644,7 +650,7 @@ paths:
       - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/groupIdOrKeyParam'
     get:
-      operationId: GroupGetWithProject
+      operationId: GroupGet
       security:
         - bearerAuth: [ ]
       summary: Retrieve a group within a project.
@@ -667,7 +673,7 @@ paths:
         '500':
           description: Internal server error
     patch:
-      operationId: GroupUpdateWithProject
+      operationId: GroupUpdate
       security:
         - bearerAuth: [ ]
       summary: Update a group's details within a project.
@@ -703,7 +709,7 @@ paths:
         '500':
           description: Internal server error
     delete:
-      operationId: GroupDeleteWithProject
+      operationId: GroupDelete
       security:
         - bearerAuth: [ ]
       summary: Delete a group within a project.
@@ -769,6 +775,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
   '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/schemata/{schemaId}/fields/{fieldIdOrKey}':
     parameters:
       - $ref: '#/components/parameters/workspaceIdOrAliasParam'
@@ -808,6 +816,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
     delete:
       operationId: FieldDelete
       summary: delete a field
@@ -830,6 +840,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
 
   ###   ITEMS   ###
   '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items':
@@ -925,6 +937,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
   '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson':
     parameters:
       - $ref: '#/components/parameters/workspaceIdOrAliasParam'
@@ -1386,8 +1400,6 @@ paths:
         - bearerAuth: [ ]
       summary: Upload an asset.
       description: Issue an URL and a token to upload an asset.
-      parameters:
-        - $ref: '#/components/parameters/projectIdParam'
       requestBody:
         content:
           application/json:
@@ -1690,20 +1702,6 @@ paths:
 
 components:
   parameters:
-    workspaceIdParam:
-      name: workspaceId
-      in: path
-      description: ID of the selected workspace
-      required: true
-      schema:
-        x-go-type: accountdomain.WorkspaceID
-    projectIdParam:
-      name: projectId
-      in: path
-      description: ID of the selected project
-      required: true
-      schema:
-        x-go-type: id.ProjectID
     workspaceIdOrAliasParam:
       name: workspaceIdOrAlias
       in: path
@@ -1720,22 +1718,6 @@ components:
       schema:
         type: string
         x-go-type: project.IDOrAlias
-    modelIdParam:
-      name: modelId
-      in: path
-      description: ID of the model in the project
-      required: true
-      schema:
-        type: string
-        x-go-type: id.ModelID
-    groupIdParam:
-      name: groupId
-      in: path
-      description: ID of the group in the project
-      required: true
-      schema:
-        type: string
-        x-go-type: id.GroupID
     schemaIdParam:
       name: schemaId
       in: path
@@ -1744,14 +1726,6 @@ components:
       schema:
         type: string
         x-go-type: id.SchemaID
-    fieldIdParam:
-      name: fieldId
-      in: path
-      description: ID of the field in the models schema
-      required: true
-      schema:
-        type: string
-        x-go-type: id.FieldID
     modelIdOrKeyParam:
       name: modelIdOrKey
       in: path

@@ -610,7 +610,7 @@ type ComplexityRoot struct {
 		Assets                      func(childComplexity int, input gqlmodel.SearchAssetsInput) int
 		CheckGroupKeyAvailability   func(childComplexity int, projectID gqlmodel.ID, key string) int
 		CheckModelKeyAvailability   func(childComplexity int, projectID gqlmodel.ID, key string) int
-		CheckProjectAlias           func(childComplexity int, alias string) int
+		CheckProjectAlias           func(childComplexity int, workspaceID gqlmodel.ID, alias string) int
 		CheckWorkspaceProjectLimits func(childComplexity int, workspaceID gqlmodel.ID) int
 		Groups                      func(childComplexity int, projectID *gqlmodel.ID, modelID *gqlmodel.ID) int
 		GuessSchemaFields           func(childComplexity int, input gqlmodel.GuessSchemaFieldsInput) int
@@ -1101,7 +1101,7 @@ type QueryResolver interface {
 	Models(ctx context.Context, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.Sort, pagination *gqlmodel.Pagination) (*gqlmodel.ModelConnection, error)
 	CheckModelKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error)
 	Projects(ctx context.Context, workspaceID gqlmodel.ID, keyword *string, sort *gqlmodel.Sort, pagination *gqlmodel.Pagination) (*gqlmodel.ProjectConnection, error)
-	CheckProjectAlias(ctx context.Context, alias string) (*gqlmodel.ProjectAliasAvailability, error)
+	CheckProjectAlias(ctx context.Context, workspaceID gqlmodel.ID, alias string) (*gqlmodel.ProjectAliasAvailability, error)
 	CheckWorkspaceProjectLimits(ctx context.Context, workspaceID gqlmodel.ID) (*gqlmodel.WorkspaceProjectLimits, error)
 	Requests(ctx context.Context, projectID gqlmodel.ID, key *string, state []gqlmodel.RequestState, createdBy *gqlmodel.ID, reviewer *gqlmodel.ID, pagination *gqlmodel.Pagination, sort *gqlmodel.Sort) (*gqlmodel.RequestConnection, error)
 	Me(ctx context.Context) (*gqlmodel.Me, error)
@@ -3502,7 +3502,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Query.CheckProjectAlias(childComplexity, args["alias"].(string)), true
+		return e.complexity.Query.CheckProjectAlias(childComplexity, args["workspaceId"].(gqlmodel.ID), args["alias"].(string)), true
 	case "Query.checkWorkspaceProjectLimits":
 		if e.complexity.Query.CheckWorkspaceProjectLimits == nil {
 			break
@@ -6601,7 +6601,7 @@ type ProjectEdge {
 
 extend type Query {
   projects(workspaceId: ID!, keyword: String, sort: Sort, pagination: Pagination): ProjectConnection!
-  checkProjectAlias(alias: String!): ProjectAliasAvailability!
+  checkProjectAlias(workspaceId: ID!, alias: String!): ProjectAliasAvailability!
   checkWorkspaceProjectLimits(workspaceId: ID!): WorkspaceProjectLimits!
 }
 
@@ -7921,11 +7921,16 @@ func (ec *executionContext) field_Query_checkModelKeyAvailability_args(ctx conte
 func (ec *executionContext) field_Query_checkProjectAlias_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "alias", ec.unmarshalNString2string)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "workspaceId", ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID)
 	if err != nil {
 		return nil, err
 	}
-	args["alias"] = arg0
+	args["workspaceId"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "alias", ec.unmarshalNString2string)
+	if err != nil {
+		return nil, err
+	}
+	args["alias"] = arg1
 	return args, nil
 }
 
@@ -20742,7 +20747,7 @@ func (ec *executionContext) _Query_checkProjectAlias(ctx context.Context, field 
 		ec.fieldContext_Query_checkProjectAlias,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().CheckProjectAlias(ctx, fc.Args["alias"].(string))
+			return ec.resolvers.Query().CheckProjectAlias(ctx, fc.Args["workspaceId"].(gqlmodel.ID), fc.Args["alias"].(string))
 		},
 		nil,
 		ec.marshalNProjectAliasAvailability2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐProjectAliasAvailability,

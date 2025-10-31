@@ -129,7 +129,12 @@ func (s server) CheckAliasAvailability(ctx context.Context, req *pb.AliasAvailab
 		return nil, status.Error(codes.InvalidArgument, "alias is required")
 	}
 
-	ok, err := uc.Project.CheckAlias(ctx, req.Alias)
+	wId, err := accountdomain.WorkspaceIDFrom(req.WorkspaceId)
+	if err != nil {
+		return nil, err
+	}
+
+	ok, err := uc.Project.CheckAlias(ctx, wId, req.Alias)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +147,7 @@ func (s server) CheckAliasAvailability(ctx context.Context, req *pb.AliasAvailab
 func (s server) GetProject(ctx context.Context, req *pb.ProjectRequest) (*pb.ProjectResponse, error) {
 	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
 
-	p, err := uc.Project.FindByIDOrAlias(ctx, project.IDOrAlias(req.ProjectIdOrAlias), nil)
+	p, err := uc.Project.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(req.WorkspaceIdOrAlias), project.IDOrAlias(req.ProjectIdOrAlias), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -231,20 +236,22 @@ func (s server) ListAssets(ctx context.Context, req *pb.ListAssetsRequest) (*pb.
 		return nil, err
 	}
 
-	p, err := uc.Project.FindByIDOrAlias(ctx, project.IDOrAlias(pId.String()), op)
+	pl, err := uc.Project.Fetch(ctx, project.IDList{pId}, op)
 	if err != nil {
 		return nil, err
 	}
 
-	if p == nil {
+	if len(pl) == 0 {
 		return nil, rerror.ErrNotFound
 	}
+
+	p := pl[0]
 
 	f := interfaces.AssetFilter{
 		Sort:       internalapimodel.SortFromPB(req.SortInfo),
 		Pagination: internalapimodel.PaginationFromPB(req.PageInfo),
 	}
-	assets, pi, err := uc.Asset.Search(ctx, pId, f, op)
+	assets, pi, err := uc.Asset.Search(ctx, p.ID(), f, op)
 	if err != nil {
 		return nil, err
 	}
@@ -264,7 +271,7 @@ func (s server) ListAssets(ctx context.Context, req *pb.ListAssetsRequest) (*pb.
 func (s server) GetModel(ctx context.Context, req *pb.ModelRequest) (*pb.ModelResponse, error) {
 	op, uc, ar := adapter.Operator(ctx), adapter.Usecases(ctx), adapter.AcRepos(ctx)
 
-	p, err := uc.Project.FindByIDOrAlias(ctx, project.IDOrAlias(req.ProjectIdOrAlias), nil)
+	p, err := uc.Project.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(req.WorkspaceIdOrAlias), project.IDOrAlias(req.ProjectIdOrAlias), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -312,10 +319,14 @@ func (s server) ListModels(ctx context.Context, req *pb.ListModelsRequest) (*pb.
 	if err != nil {
 		return nil, err
 	}
-	p, err := uc.Project.FindByIDOrAlias(ctx, project.IDOrAlias(pId.String()), op)
+	pl, err := uc.Project.Fetch(ctx, project.IDList{pId}, op)
 	if err != nil {
 		return nil, err
 	}
+	if len(pl) == 0 {
+		return nil, rerror.ErrNotFound
+	}
+	p := pl[0]
 
 	ml, pi, err := uc.Model.FindByProject(ctx, pId, internalapimodel.PaginationFromPB(req.PageInfo), op)
 	if err != nil {
@@ -524,7 +535,7 @@ func (s server) StarProject(ctx context.Context, req *pb.StarRequest) (*pb.StarR
 		return nil, status.Error(codes.InvalidArgument, "project_alias is required")
 	}
 
-	p, err := uc.Project.StarProject(ctx, project.IDOrAlias(req.ProjectAlias), op)
+	p, err := uc.Project.StarProject(ctx, accountdomain.WorkspaceIDOrAlias(req.WorkspaceAlias), project.IDOrAlias(req.ProjectAlias), op)
 	if err != nil {
 		return nil, err
 	}

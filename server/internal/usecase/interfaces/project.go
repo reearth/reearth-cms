@@ -87,17 +87,17 @@ type ProjectLimitsResult struct {
 
 type Project interface {
 	Fetch(context.Context, []id.ProjectID, *usecase.Operator) (project.List, error)
-	FindByIDOrAlias(context.Context, project.IDOrAlias, *usecase.Operator) (*project.Project, error)
+	FindByIDOrAlias(context.Context, accountdomain.WorkspaceIDOrAlias, project.IDOrAlias, *usecase.Operator) (*project.Project, error)
 	FindByWorkspace(context.Context, accountdomain.WorkspaceID, *ProjectFilter, *usecase.Operator) (project.List, *usecasex.PageInfo, error)
 	Search(context.Context, ProjectFilter, *usecase.Operator) (project.List, *usecasex.PageInfo, error)
 	Create(context.Context, CreateProjectParam, *usecase.Operator) (*project.Project, error)
 	Update(context.Context, UpdateProjectParam, *usecase.Operator) (*project.Project, error)
-	CheckAlias(context.Context, string) (bool, error)
+	CheckAlias(context.Context, accountdomain.WorkspaceID, string) (bool, error)
 	Delete(context.Context, id.ProjectID, *usecase.Operator) error
 	CreateAPIKey(context.Context, CreateAPITokenParam, *usecase.Operator) (*project.Project, *project.APIKeyID, error)
 	UpdateAPIKey(context.Context, UpdateAPITokenParam, *usecase.Operator) (*project.Project, error)
 	DeleteAPIKey(context.Context, id.ProjectID, id.APIKeyID, *usecase.Operator) (*project.Project, error)
 	RegenerateAPIKeyKey(context.Context, RegenerateKeyParam, *usecase.Operator) (*project.Project, error)
 	CheckProjectLimits(context.Context, accountdomain.WorkspaceID, *usecase.Operator) (*ProjectLimitsResult, error)
-	StarProject(context.Context, project.IDOrAlias, *usecase.Operator) (*project.Project, error)
+	StarProject(context.Context, accountdomain.WorkspaceIDOrAlias, project.IDOrAlias, *usecase.Operator) (*project.Project, error)
 }

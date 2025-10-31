@@ -791,8 +791,9 @@ func TestProject_CheckAlias(t *testing.T) {
 	}
 
 	type args struct {
-		alias    string
-		operator *usecase.Operator
+		workspace workspace.ID
+		alias     string
+		operator  *usecase.Operator
 	}
 	tests := []struct {
 		name    string
@@ -836,7 +837,7 @@ func TestProject_CheckAlias(t *testing.T) {
 			}
 			projectUC := NewProject(db, nil)
 
-			got, err := projectUC.CheckAlias(ctx, tc.args.alias)
+			got, err := projectUC.CheckAlias(ctx, tc.args.workspace, tc.args.alias)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -1230,8 +1231,9 @@ func TestProject_StarProject(t *testing.T) {
 	}
 
 	type args struct {
-		idOrAlias project.IDOrAlias
-		operator  *usecase.Operator
+		wIdOrAlias workspace.IDOrAlias
+		pIdOrAlias project.IDOrAlias
+		operator   *usecase.Operator
 	}
 	tests := []struct {
 		name           string
@@ -1245,8 +1247,8 @@ func TestProject_StarProject(t *testing.T) {
 			name:  "star project by ID",
 			seeds: project.List{p1.Clone()},
 			args: args{
-				idOrAlias: project.IDOrAlias(pid1.String()),
-				operator:  validOp,
+				pIdOrAlias: project.IDOrAlias(pid1.String()),
+				operator:   validOp,
 			},
 			want: func() *project.Project {
 				p := p1.Clone()
@@ -1260,8 +1262,8 @@ func TestProject_StarProject(t *testing.T) {
 			name:  "star project by alias",
 			seeds: project.List{p1.Clone()},
 			args: args{
-				idOrAlias: project.IDOrAlias("test-project"),
-				operator:  validOp,
+				pIdOrAlias: project.IDOrAlias("test-project"),
+				operator:   validOp,
 			},
 			want: func() *project.Project {
 				p := p1.Clone()
@@ -1275,8 +1277,8 @@ func TestProject_StarProject(t *testing.T) {
 			name:  "star project in different workspace",
 			seeds: project.List{p3.Clone()},
 			args: args{
-				idOrAlias: project.IDOrAlias(pid3.String()),
-				operator:  validOp,
+				pIdOrAlias: project.IDOrAlias(pid3.String()),
+				operator:   validOp,
 			},
 			want: func() *project.Project {
 				p := p3.Clone()
@@ -1290,8 +1292,8 @@ func TestProject_StarProject(t *testing.T) {
 			name:  "invalid operator - no user",
 			seeds: project.List{p1.Clone()},
 			args: args{
-				idOrAlias: project.IDOrAlias(pid1.String()),
-				operator:  invalidOp,
+				pIdOrAlias: project.IDOrAlias(pid1.String()),
+				operator:   invalidOp,
 			},
 			want:    nil,
 			wantErr: interfaces.ErrInvalidOperator,
@@ -1300,8 +1302,8 @@ func TestProject_StarProject(t *testing.T) {
 			name:  "project not found by ID",
 			seeds: project.List{},
 			args: args{
-				idOrAlias: project.IDOrAlias(id.NewProjectID().String()),
-				operator:  validOp,
+				pIdOrAlias: project.IDOrAlias(id.NewProjectID().String()),
+				operator:   validOp,
 			},
 			want:    nil,
 			wantErr: rerror.ErrNotFound,
@@ -1310,8 +1312,8 @@ func TestProject_StarProject(t *testing.T) {
 			name:  "project not found by alias",
 			seeds: project.List{},
 			args: args{
-				idOrAlias: project.IDOrAlias("non-existent-alias"),
-				operator:  validOp,
+				pIdOrAlias: project.IDOrAlias("non-existent-alias"),
+				operator:   validOp,
 			},
 			want:    nil,
 			wantErr: rerror.ErrNotFound,
@@ -1319,8 +1321,8 @@ func TestProject_StarProject(t *testing.T) {
 		{
 			name: "repository error on find",
 			args: args{
-				idOrAlias: project.IDOrAlias(pid1.String()),
-				operator:  validOp,
+				pIdOrAlias: project.IDOrAlias(pid1.String()),
+				operator:   validOp,
 			},
 			mockProjectErr: true,
 			want:           nil,
@@ -1345,7 +1347,7 @@ func TestProject_StarProject(t *testing.T) {
 
 			projectUC := NewProject(db, nil)
 
-			got, err := projectUC.StarProject(ctx, tc.args.idOrAlias, tc.args.operator)
+			got, err := projectUC.StarProject(ctx, tc.args.wIdOrAlias, tc.args.pIdOrAlias, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
