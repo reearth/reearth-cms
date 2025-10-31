@@ -14,7 +14,7 @@ test.describe("Project CRUD and searching has succeeded", () => {
   const NEW_PROJECT_NAME = `new ${PROJECT_NAME}`;
   const NEW_PROJECT_DESCRIPTION = `new ${PROJECT_DESCRIPTION}`;
 
-  test("@important Create project", async ({ workspacePage }) => {
+  test("@smoke Create project", async ({ workspacePage }) => {
     const newProjectButton = workspacePage.newProjectButtonLast;
     await newProjectButton.click();
 
@@ -25,7 +25,7 @@ test.describe("Project CRUD and searching has succeeded", () => {
     await workspacePage.closeNotification();
   });
 
-  test("@important Read project and search project", async ({ workspacePage }) => {
+  test("@smoke Read project and search project", async ({ workspacePage }) => {
     const projectCard = workspacePage.projectCardByName(PROJECT_NAME);
     await expect(projectCard).toBeVisible();
     await expect(projectCard.getByText(PROJECT_DESCRIPTION)).toBeVisible();
@@ -41,7 +41,7 @@ test.describe("Project CRUD and searching has succeeded", () => {
     await expect(workspacePage.banner).toContainText(PROJECT_NAME);
   });
 
-  test("@important Update project", async ({ projectPage, projectSettingsPage }) => {
+  test("@smoke Update project", async ({ projectPage, projectSettingsPage }) => {
     await projectPage.gotoProject(PROJECT_NAME);
     await projectSettingsPage.goToProjectSettings();
     await projectPage.nameInput.fill(NEW_PROJECT_NAME);
@@ -64,7 +64,7 @@ test.describe("Project CRUD and searching has succeeded", () => {
     await expect(projectPage.banner).toContainText(NEW_PROJECT_NAME);
   });
 
-  test("@important Delete project", async ({ projectPage, workspacePage, projectSettingsPage }) => {
+  test("@smoke Delete project", async ({ projectPage, workspacePage, projectSettingsPage }) => {
     await projectPage.gotoProject(NEW_PROJECT_NAME);
     await projectSettingsPage.goToProjectSettings();
     const deleteButton = projectPage.deleteProjectButton;
@@ -116,7 +116,7 @@ test.describe("Project List", () => {
   });
 
   test.describe("Project list sorting", () => {
-    test("@important Check sort with createdAt (latest to oldest)", async ({ workspacePage }) => {
+    test("@smoke Check sort with createdAt (latest to oldest)", async ({ workspacePage }) => {
       await workspacePage.selectSortOption("id");
       const projectNames = await workspacePage.getVisibleProjects();
 
@@ -156,7 +156,7 @@ test.describe("Project List", () => {
       await expect(projectCard).toBeVisible();
     });
 
-    test("@important Check sort with name (a-z)", async ({ workspacePage }) => {
+    test("@smoke Check sort with name (a-z)", async ({ workspacePage }) => {
       await workspacePage.selectSortOption("name");
       const projectNames = await workspacePage.getVisibleProjects();
 
@@ -165,7 +165,7 @@ test.describe("Project List", () => {
     });
   });
 
-  test("@important Check reset state: search input, sort select, pagination", async ({
+  test("@smoke Check reset state: search input, sort select, pagination", async ({
     projectPage,
     workspacePage,
   }) => {

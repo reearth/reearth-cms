@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@important Boolean field creating and updating has succeeded", async ({
+test("@smoke Boolean field creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
 }) => {
@@ -47,7 +47,7 @@ test("@important Boolean field creating and updating has succeeded", async ({
   await expect(contentPage.allSwitches).toHaveAttribute("aria-checked", "false");
 });
 
-test("@important Boolean field editing has succeeded", async ({
+test("@smoke Boolean field editing has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,

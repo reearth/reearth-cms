@@ -28,7 +28,7 @@ test.afterEach(async ({ projectPage, workspacePage }) => {
   await workspacePage.deleteWorkspace();
 });
 
-test("@important Request creating, searching, updating reviewer, and approving has succeeded", async ({
+test("@smoke Request creating, searching, updating reviewer, and approving has succeeded", async ({
   requestPage,
 }) => {
   await requestPage.requestMenuItem.click();
@@ -61,7 +61,7 @@ test("@important Request creating, searching, updating reviewer, and approving h
   await expect(requestPage.tableBodyTextByText("APPROVED")).toBeVisible();
 });
 
-test("@important Request closing and reopening has succeeded", async ({ requestPage }) => {
+test("@smoke Request closing and reopening has succeeded", async ({ requestPage }) => {
   await requestPage.requestMenuItem.click();
   await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
   await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
@@ -96,7 +96,7 @@ test("@important Request closing and reopening has succeeded", async ({ requestP
   await expect(requestPage.statusText("CLOSED")).toBeVisible();
 });
 
-test("@important Comment CRUD on edit page has succeeded", async ({ requestPage }) => {
+test("@smoke Comment CRUD on edit page has succeeded", async ({ requestPage }) => {
   await requestPage.requestMenuItem.click();
   await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
   await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
@@ -118,10 +118,7 @@ test("@important Comment CRUD on edit page has succeeded", async ({ requestPage 
   await expect(requestPage.getByText("new comment")).toBeHidden();
 });
 
-test("@important Comment CRUD on Request page has succeeded", async ({
-  requestPage,
-  contentPage,
-}) => {
+test("@smoke Comment CRUD on Request page has succeeded", async ({ requestPage, contentPage }) => {
   await requestPage.requestMenuItem.click();
   await requestPage.commentsCountButton("0").click();
 
@@ -130,7 +127,7 @@ test("@important Comment CRUD on Request page has succeeded", async ({
   await contentPage.deleteComment();
 });
 
-test("@important Creating a new request and adding to request has succeeded", async ({
+test("@smoke Creating a new request and adding to request has succeeded", async ({
   requestPage,
 }) => {
   await requestPage.backButtonCapitalized.click();
@@ -148,7 +145,7 @@ test("@important Creating a new request and adding to request has succeeded", as
   await expect(requestPage.collapsedModelButton("e2e model name", 1)).toBeVisible();
 });
 
-test("@important Navigating between item and request has succeeded", async ({
+test("@smoke Navigating between item and request has succeeded", async ({
   contentPage,
   requestPage,
 }) => {

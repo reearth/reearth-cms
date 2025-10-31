@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@important Date field creating and updating has succeeded", async ({
+test("@smoke Date field creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
 }) => {
@@ -48,7 +48,7 @@ test("@important Date field creating and updating has succeeded", async ({
   await expect(contentPage.tableBody).not.toContainText("2024-01-01");
 });
 
-test("@important Date field editing has succeeded", async ({
+test("@smoke Date field editing has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,

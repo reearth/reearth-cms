@@ -12,10 +12,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@important Model CRUD on Overview page has succeeded", async ({
-  schemaPage,
-  projectPage,
-}) => {
+test("@smoke Model CRUD on Overview page has succeeded", async ({ schemaPage, projectPage }) => {
   await expect(projectPage.noModelsYetText).toBeVisible();
   await projectPage.newModelButtonFirst.click();
   await expect(projectPage.newModelLabelText).toBeVisible();
@@ -99,7 +96,7 @@ test("Model Export Schema has succeeded", async ({ schemaPage, projectPage }) =>
   await projectPage.closeNotification();
 });
 
-test("@important Model Export as GeoJSON without geometry field shows error", async ({
+test("@smoke Model Export as GeoJSON without geometry field shows error", async ({
   schemaPage,
   projectPage,
 }) => {
@@ -207,7 +204,7 @@ test("Model Export as GeoJSON with multiple geometry fields shows warning", asyn
   await expect(projectPage.multipleGeometryFieldsText).not.toBeVisible();
 });
 
-test("@important Creating Model by using the button on placeholder has succeeded", async ({
+test("@smoke Creating Model by using the button on placeholder has succeeded", async ({
   projectPage,
 }) => {
   await projectPage.newModelButtonLast.click();

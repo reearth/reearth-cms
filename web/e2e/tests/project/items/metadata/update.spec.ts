@@ -26,9 +26,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@important Updating metadata added later from table has succeeded", async ({
-  contentPage,
-}) => {
+test("@smoke Updating metadata added later from table has succeeded", async ({ contentPage }) => {
   await contentPage.allSwitches.click();
   await contentPage.closeNotification();
   await contentPage.allSwitches.click();
@@ -39,7 +37,7 @@ test("@important Updating metadata added later from table has succeeded", async 
   await expect(contentPage.fieldInput("boolean")).toHaveAttribute("aria-checked", "true");
 });
 
-test("@important Updating metadata added later from edit page has succeeded", async ({
+test("@smoke Updating metadata added later from edit page has succeeded", async ({
   contentPage,
 }) => {
   await contentPage.editButton.click();

@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@important Option field creating and updating has succeeded", async ({
+test("@smoke Option field creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -65,7 +65,7 @@ test("@important Option field creating and updating has succeeded", async ({
   await expect(contentPage.optionTextByName("second")).toBeVisible();
 });
 
-test("@important Option field editing has succeeded", async ({
+test("@smoke Option field editing has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,

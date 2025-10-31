@@ -21,7 +21,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@important Asset field creating and updating has succeeded", async ({
+test("@smoke Asset field creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -75,7 +75,7 @@ test("@important Asset field creating and updating has succeeded", async ({
   await expect(contentPage.optionTextByName(uploadFileName_2)).toBeVisible();
 });
 
-test("@important Previewing JSON file from content page into new tab succeeded", async ({
+test("@smoke Previewing JSON file from content page into new tab succeeded", async ({
   context,
   fieldEditorPage,
   contentPage,

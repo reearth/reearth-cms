@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@important Float field creating and updating has succeeded", async ({
+test("@smoke Float field creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -51,7 +51,7 @@ test("@important Float field creating and updating has succeeded", async ({
   await expect(contentPage.cellByTextExact("2.2")).toBeVisible();
 });
 
-test("@important Float field editing has succeeded", async ({
+test("@smoke Float field editing has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,

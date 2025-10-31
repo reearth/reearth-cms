@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@important Url metadata creating and updating has succeeded", async ({
+test("@smoke Url metadata creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
 }) => {

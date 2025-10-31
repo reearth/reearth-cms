@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@important Markdown field editing has succeeded", async ({
+test("@smoke Markdown field editing has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,
