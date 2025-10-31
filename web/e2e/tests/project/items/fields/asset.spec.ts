@@ -75,7 +75,7 @@ test("@smoke Asset field creating and updating has succeeded", async ({
   await expect(contentPage.optionTextByName(uploadFileName_2)).toBeVisible();
 });
 
-test("@smoke Previewing JSON file from content page into new tab succeeded", async ({
+test("Previewing JSON file from content page into new tab succeeded", async ({
   context,
   fieldEditorPage,
   contentPage,
