@@ -16,7 +16,7 @@ export class LoginPage {
     this.passwordInput = this.page.getByPlaceholder("your password");
     this.loginButton = this.page.getByText("LOG IN");
 
-    this.userMenuLink = this.page.getByTestId("user-menu");
+    this.userMenuLink = this.page.locator("a").nth(1);
     this.logoutButton = this.page.getByText("Logout");
   }
 
