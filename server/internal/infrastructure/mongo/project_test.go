@@ -1127,6 +1127,7 @@ func Test_projectRepo_Search(t *testing.T) {
 		Name("Test Project Alpha").
 		Description("A test project for searching").
 		Alias("alpha-test").
+		Topics([]string{"topic1", "abc"}).
 		Workspace(tid1).
 		UpdatedAt(now).
 		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil)).
@@ -1137,6 +1138,7 @@ func Test_projectRepo_Search(t *testing.T) {
 		Name("Beta Project").
 		Description("Another project").
 		Alias("beta-proj").
+		Topics([]string{"topic2", "xyz"}).
 		Workspace(tid1).
 		UpdatedAt(now.Add(time.Hour)).
 		Accessibility(project.NewAccessibility(project.VisibilityPrivate, nil, nil)).
@@ -1147,6 +1149,7 @@ func Test_projectRepo_Search(t *testing.T) {
 		Name("Gamma Search Test").
 		Description("Third project").
 		Alias("gamma-123").
+		Topics([]string{"abc"}).
 		Workspace(tid2).
 		UpdatedAt(now.Add(2 * time.Hour)).
 		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil)).
@@ -1157,6 +1160,7 @@ func Test_projectRepo_Search(t *testing.T) {
 		Name("Delta").
 		Description("Contains keyword alpha in description").
 		Alias("delta-one").
+		Topics([]string{"topic1", "topic2", "xyz"}).
 		Workspace(tid1).
 		UpdatedAt(now.Add(3 * time.Hour)).
 		Accessibility(project.NewAccessibility(project.VisibilityPublic, nil, nil)).
@@ -1417,11 +1421,11 @@ func Test_projectRepo_Search(t *testing.T) {
 			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				filter: interfaces.ProjectFilter{
-					Topics:     []string{"engineering"},
+					Topics:     []string{"topic1"},
 					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
 				},
 			},
-			want:    nil,
+			want:    project.List{p1, p4},
 			wantErr: nil,
 		},
 		{
@@ -1429,11 +1433,11 @@ func Test_projectRepo_Search(t *testing.T) {
 			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				filter: interfaces.ProjectFilter{
-					Topics:     []string{"engineering", "design"},
+					Topics:     []string{"topic1", "topic2"},
 					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
 				},
 			},
-			want:    nil,
+			want:    project.List{p1, p2, p4},
 			wantErr: nil,
 		},
 		{
@@ -1441,11 +1445,11 @@ func Test_projectRepo_Search(t *testing.T) {
 			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				filter: interfaces.ProjectFilter{
-					Topics:     []string{"Engineering"},
+					Topics:     []string{"Topic1"},
 					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
 				},
 			},
-			want:    nil,
+			want:    project.List{p1, p4},
 			wantErr: nil,
 		},
 		{
@@ -1454,11 +1458,11 @@ func Test_projectRepo_Search(t *testing.T) {
 			args: args{
 				filter: interfaces.ProjectFilter{
 					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1},
-					Topics:       []string{"engineering"},
+					Topics:       []string{"abc"},
 					Pagination:   usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
 				},
 			},
-			want:    nil,
+			want:    project.List{p1},
 			wantErr: nil,
 		},
 		{
@@ -1466,12 +1470,12 @@ func Test_projectRepo_Search(t *testing.T) {
 			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				filter: interfaces.ProjectFilter{
-					Topics:     []string{"engineering"},
-					Keyword:    lo.ToPtr("Alpha"),
+					Topics:     []string{"topic1"},
+					Keyword:    lo.ToPtr("test"),
 					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
 				},
 			},
-			want:    nil,
+			want:    project.List{p1},
 			wantErr: nil,
 		},
 	}
