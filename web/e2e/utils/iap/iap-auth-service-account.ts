@@ -57,8 +57,8 @@ export class ServiceAccountIAPAuthHelper {
   }
 
   async forceRefresh(): Promise<void> {
-    this.cache = undefined;  
-    await this.getIdToken();  
+    this.cache = undefined;
+    await this.getIdToken();
   }
 
   static fromEnv(): ServiceAccountIAPAuthHelper {
@@ -98,7 +98,10 @@ export const getServiceAccountIAPToken = async (): Promise<string> => {
   return ServiceAccountIAPAuthHelper.fromEnv().getIdToken();
 };
 
-export const makeServiceAccountIAPRequest = async (url: string, options: RequestInit = {}): Promise<Response> => {
+export const makeServiceAccountIAPRequest = async (
+  url: string,
+  options: RequestInit = {},
+): Promise<Response> => {
   return ServiceAccountIAPAuthHelper.fromEnv().makeAuthenticatedRequest(url, options);
 };
 

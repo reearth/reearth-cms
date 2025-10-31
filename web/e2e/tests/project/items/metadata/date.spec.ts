@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Date metadata creating and updating has succeeded", async ({
+test("@smoke Date metadata creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
 }) => {

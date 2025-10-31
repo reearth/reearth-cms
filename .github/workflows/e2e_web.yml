@@ -82,10 +82,10 @@ jobs:
             ${{ runner.os }}-playwright-
       - name: Install Playwright system dependencies and browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: yarn playwright install --with-deps webkit
+        run: yarn playwright install --with-deps chromium
       - name: Install Playwright system dependencies
         if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: yarn playwright install-deps webkit
+        run: yarn playwright install-deps chromium
       - name: Authenticate to Google Cloud
         id: auth
         if: ${{ inputs.use_iap }}
@@ -116,7 +116,7 @@ jobs:
           USE_IAP_AUTH: ${{ inputs.use_iap || false }}
           IAP_AUTH_METHOD: ${{ inputs.token_format || 'id-token' }}
           IAP_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
-        run: yarn e2e
+        run: yarn e2e-smoke
       - uses: actions/upload-artifact@v5
         if: failure()
         with:

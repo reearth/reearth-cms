@@ -3,7 +3,8 @@ import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 let id: string;
 
-test.beforeEach(() => {
+test.beforeEach(async ({ reearth }) => {
+  await reearth.goto("/", { waitUntil: "domcontentloaded" });
   id = getId();
 });
 
@@ -14,8 +15,7 @@ test.afterEach(async ({ integrationsPage }) => {
   await integrationsPage.okButton.click();
 });
 
-test("Integration CRUD and searching has succeeded", async ({ reearth, integrationsPage }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+test("Integration CRUD and searching has succeeded", async ({ integrationsPage }) => {
   await integrationsPage.myIntegrationsMenuItem.click();
 
   await integrationsPage.createIntegrationButton.click();
