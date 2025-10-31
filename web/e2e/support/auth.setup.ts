@@ -5,7 +5,7 @@ import { config } from "../config/config";
 
 const { userName, password } = config;
 
-test("authenticate", async ({ page }) => {
+test("@important authenticate", async ({ page }) => {
   expect(userName).toBeTruthy();
   expect(password).toBeTruthy();
   await page.goto(baseURL);

@@ -37,7 +37,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Read versions successfully", async ({ contentPage }) => {
+test("read versions successfully", async ({ contentPage }) => {
   const requestStatus = contentPage.requestStatusElement;
   await expect(contentPage.textByRegex(dateReg)).toBeVisible();
   await expect(contentPage.currentVersionText).toBeVisible();
@@ -85,7 +85,7 @@ test.describe("Version details", () => {
     await contentPage.textByRegex(dateReg).last().click();
   });
 
-  test("Read a version details successfully", async ({ contentPage }) => {
+  test("@important Read a version details successfully", async ({ contentPage }) => {
     await expect(contentPage.versionHistoryTab).toBeHidden();
     await expect(contentPage.fieldInput(fieldName).first()).toHaveValue("2");
     await expect(contentPage.fieldInput(fieldName).last()).toHaveValue("1");

@@ -12,7 +12,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Model CRUD on Overview page has succeeded", async ({ schemaPage, projectPage }) => {
+test("@important Model CRUD on Overview page has succeeded", async ({ schemaPage, projectPage }) => {
   await expect(projectPage.noModelsYetText).toBeVisible();
   await projectPage.newModelButtonFirst.click();
   await expect(projectPage.newModelLabelText).toBeVisible();
@@ -99,29 +99,29 @@ test("Model Export Schema has succeeded", async ({ schemaPage, projectPage }) =>
   await projectPage.closeNotification();
 });
 
-test("Model Export as GeoJSON without geometry field shows error", async ({
-  schemaPage,
-  projectPage,
-}) => {
-  await expect(projectPage.noModelsYetText).toBeVisible();
-  await projectPage.newModelButtonFirst.click();
-  await expect(projectPage.newModelLabelText).toBeVisible();
-  await schemaPage.modelKeyInput.fill("model key");
-  await schemaPage.modelNameInput.fill("model name");
-  await projectPage.modelDescriptionInput.fill("model description");
-  await schemaPage.okButton.click();
-  await projectPage.closeNotification();
-  await projectPage.modelsMenuItem.click();
-  await projectPage.modelExportLink.click();
-  await projectPage.exportAsGeoJSONText.click();
-  // Verify error modal appears
-  await expect(projectPage.cannotExportGeoJSONText).toBeVisible();
-  await expect(projectPage.noGeometryFieldText).toBeVisible();
-  // Click OK
-  await projectPage.okButton.click();
-  // Verify modal closed
-  await expect(projectPage.cannotExportGeoJSONText).not.toBeVisible();
-});
+  test("@important Model Export as GeoJSON without geometry field shows error", async ({
+    schemaPage,
+    projectPage,
+  }) => {
+    await expect(projectPage.noModelsYetText).toBeVisible();
+    await projectPage.newModelButtonFirst.click();
+    await expect(projectPage.newModelLabelText).toBeVisible();
+    await schemaPage.modelKeyInput.fill("model key");
+    await schemaPage.modelNameInput.fill("model name");
+    await projectPage.modelDescriptionInput.fill("model description");
+    await schemaPage.okButton.click();
+    await projectPage.closeNotification();
+    await projectPage.modelsMenuItem.click();
+    await projectPage.modelExportLink.click();
+    await projectPage.exportAsGeoJSONText.click();
+    // Verify error modal appears
+    await expect(projectPage.cannotExportGeoJSONText).toBeVisible();
+    await expect(projectPage.noGeometryFieldText).toBeVisible();
+    // Click OK
+    await projectPage.okButton.click();
+    // Verify modal closed
+    await expect(projectPage.cannotExportGeoJSONText).not.toBeVisible();
+  });
 
 test("Model Export as GeoJSON with single geometry field succeeds", async ({
   schemaPage,
@@ -207,7 +207,7 @@ test("Model Export as GeoJSON with multiple geometry fields shows warning", asyn
   await expect(projectPage.multipleGeometryFieldsText).not.toBeVisible();
 });
 
-test("Creating Model by using the button on placeholder has succeeded", async ({ projectPage }) => {
+test("@important Creating Model by using the button on placeholder has succeeded", async ({ projectPage }) => {
   await projectPage.newModelButtonLast.click();
   await expect(projectPage.dialogNewModelText).toBeVisible();
   await projectPage.modelNameInput.fill("model name");

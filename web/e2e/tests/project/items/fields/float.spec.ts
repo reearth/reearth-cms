@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Float field creating and updating has succeeded", async ({
+test("@important Float field creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -51,7 +51,11 @@ test("Float field creating and updating has succeeded", async ({
   await expect(contentPage.cellByTextExact("2.2")).toBeVisible();
 });
 
-test("Float field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
+test("@important Float field editing has succeeded", async ({
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   await fieldEditorPage.fieldTypeListItem("Float").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("float1");

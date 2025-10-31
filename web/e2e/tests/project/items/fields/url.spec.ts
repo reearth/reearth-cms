@@ -13,7 +13,10 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("URL field creating and updating has succeeded", async ({ fieldEditorPage, contentPage }) => {
+test("URL field creating and updating has succeeded", async ({
+  fieldEditorPage,
+  contentPage,
+}) => {
   await fieldEditorPage.fieldTypeButton("URL").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("url1");
@@ -47,7 +50,11 @@ test("URL field creating and updating has succeeded", async ({ fieldEditorPage, 
   await expect(contentPage.cellByTextExact("http://test2.com")).toBeVisible();
 });
 
-test("URL field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
+test("URL field editing has succeeded", async ({
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   await fieldEditorPage.fieldTypeListItem("URL").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("url1");

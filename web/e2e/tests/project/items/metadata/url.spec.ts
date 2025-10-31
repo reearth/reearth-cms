@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Url metadata creating and updating has succeeded", async ({
+test("@important Url metadata creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
 }) => {
@@ -76,7 +76,6 @@ test("Url metadata creating and updating has succeeded", async ({
 });
 
 test("Url metadata editing has succeeded", async ({ fieldEditorPage, contentPage }) => {
-  test.slow();
   await fieldEditorPage.metaDataTab.click();
   await fieldEditorPage.fieldTypeListItem("URL").click();
   await fieldEditorPage.displayNameInput.fill("url1");

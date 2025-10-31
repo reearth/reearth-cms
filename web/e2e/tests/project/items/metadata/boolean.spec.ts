@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Boolean metadata creating and updating has succeeded", async ({
+test("@important Boolean metadata creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -68,7 +68,7 @@ test("Boolean metadata creating and updating has succeeded", async ({
   await expect(contentPage.closeSwitch).toBeVisible();
 });
 
-test("Boolean metadata editing has succeeded", async ({
+test("@important Boolean metadata editing has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,

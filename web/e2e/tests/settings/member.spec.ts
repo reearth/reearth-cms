@@ -15,7 +15,7 @@ test.afterEach(async ({ workspacePage }) => {
   await workspacePage.deleteWorkspace();
 });
 
-test("Searching current members has succeeded", async ({ memberPage }) => {
+test("@important Searching current members has succeeded", async ({ memberPage }) => {
   await memberPage.memberMenuItem.click();
   await expect(memberPage.cellByText("OWNER")).toBeVisible();
   await memberPage.searchInput.click();

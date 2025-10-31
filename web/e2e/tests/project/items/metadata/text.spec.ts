@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Text metadata creating and updating has succeeded", async ({
+test("@important Text metadata creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -77,7 +77,6 @@ test("Text metadata editing has succeeded", async ({
   contentPage,
   schemaPage,
 }) => {
-  test.slow();
   await schemaPage.metaDataTab.click();
   await schemaPage.textListItem.click();
   await fieldEditorPage.displayNameInput.fill("text1");

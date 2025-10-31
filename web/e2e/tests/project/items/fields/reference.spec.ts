@@ -18,7 +18,6 @@ test("One-way reference field creating and updating has succeeded", async ({
   contentPage,
   schemaPage,
 }) => {
-  test.slow();
   await schemaPage.firstPlusAddButton.click();
   await schemaPage.modelNameInput.fill("ref model");
   await schemaPage.modelKeyInput.fill("ref-model");
@@ -141,7 +140,6 @@ test("Two-way reference field editing has succeeded", async ({
   contentPage,
   schemaPage,
 }) => {
-  test.slow();
   await schemaPage.plusAddButton.first().click();
   await schemaPage.modelNameLabel.click();
   await schemaPage.modelNameLabel.fill("ref model");

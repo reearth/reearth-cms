@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Checkbox metadata creating and updating has succeeded", async ({
+test("@important Checkbox metadata creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -68,7 +68,7 @@ test("Checkbox metadata creating and updating has succeeded", async ({
   await expect(contentPage.lastCellCheckbox).not.toBeChecked();
 });
 
-test("Checkbox metadata editing has succeeded", async ({
+test("@important Checkbox metadata editing has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,

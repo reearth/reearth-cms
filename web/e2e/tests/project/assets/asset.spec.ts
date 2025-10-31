@@ -51,7 +51,10 @@ test.describe.parallel("Json file tests", () => {
     await assetsPage.closeNotification();
   });
 
-  test("Previewing json file by full screen has succeeded", async ({ page, assetsPage }) => {
+  test("Previewing json file by full screen has succeeded", async ({
+    page,
+    assetsPage,
+  }) => {
     await assetsPage.editIconButton.click();
 
     // change type
@@ -79,7 +82,7 @@ test.describe.parallel("Json file tests", () => {
     await page.goBack();
   });
 
-  test("Downloading asset has succeeded", async ({ page, assetsPage }) => {
+  test("@important Downloading asset has succeeded", async ({ page, assetsPage }) => {
     // select + bulk download
     await assetsPage.selectAssetCheckbox.check();
     const bulkDownload = page.waitForEvent("download");
@@ -103,7 +106,10 @@ test.describe.parallel("Json file tests", () => {
     await assetsPage.closeNotification();
   });
 
-  test("Comment CRUD on edit page has succeeded", async ({ assetsPage, contentPage }) => {
+  test("@important Comment CRUD on edit page has succeeded", async ({
+    assetsPage,
+    contentPage,
+  }) => {
     await assetsPage.editIconButton.click();
     await assetsPage.commentButton.click();
     await contentPage.createComment("comment");
@@ -111,7 +117,10 @@ test.describe.parallel("Json file tests", () => {
     await contentPage.deleteComment();
   });
 
-  test("Comment CRUD on Asset page has succeeded", async ({ assetsPage, contentPage }) => {
+  test("@important Comment CRUD on Asset page has succeeded", async ({
+    assetsPage,
+    contentPage,
+  }) => {
     await assetsPage.commentsCountButton(0).click();
     await contentPage.createComment("comment");
     await contentPage.updateComment("comment", "new comment");
@@ -119,7 +128,7 @@ test.describe.parallel("Json file tests", () => {
   });
 });
 
-test("Previewing png file on modal has succeeded", async ({ assetsPage }) => {
+test("@important Previewing png file on modal has succeeded", async ({ assetsPage }) => {
   await assetsPage.uploadViaUrl(pngUrl);
 
   await assetsPage.editIconButton.click();

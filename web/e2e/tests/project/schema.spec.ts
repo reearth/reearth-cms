@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Model CRUD has succeeded", async ({ schemaPage, fieldEditorPage }) => {
+test("@important Model CRUD has succeeded", async ({ schemaPage, fieldEditorPage }) => {
   const modelName = "model name";
   const modelKey = "model-key";
   await schemaPage.createModelFromSidebar(modelName, modelKey);
@@ -53,7 +53,7 @@ test("Model reordering has succeeded", async ({ schemaPage }) => {
   await expect(schemaPage.modelMenuItems().nth(2)).toContainText(modelName3);
 });
 
-test("Group CRUD has succeeded", async ({ schemaPage, fieldEditorPage }) => {
+test("@important Group CRUD has succeeded", async ({ page, schemaPage, fieldEditorPage }) => {
   const groupName = "e2e group name";
   const groupKey = "e2e-group-key";
   const updateGroupName = "new e2e group name";
@@ -100,7 +100,7 @@ test("Group creating from adding field has succeeded", async ({ schemaPage, fiel
   await fieldEditorPage.cancelButton.click();
 });
 
-test("Group reordering has succeeded", async ({ schemaPage }) => {
+test("@important Group reordering has succeeded", async ({ schemaPage }) => {
   await schemaPage.createGroup("group1", "group1");
   await schemaPage.createGroup("group2", "group2");
   await expect(schemaPage.groupMenuItems.nth(0)).toContainText("group1");

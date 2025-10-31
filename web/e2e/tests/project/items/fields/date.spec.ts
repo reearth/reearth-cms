@@ -13,7 +13,10 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Date field creating and updating has succeeded", async ({ fieldEditorPage, contentPage }) => {
+test("@important Date field creating and updating has succeeded", async ({
+  fieldEditorPage,
+  contentPage,
+}) => {
   await fieldEditorPage.fieldTypeButton("Date").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("date1");
@@ -45,7 +48,11 @@ test("Date field creating and updating has succeeded", async ({ fieldEditorPage,
   await expect(contentPage.tableBody).not.toContainText("2024-01-01");
 });
 
-test("Date field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
+test("@important Date field editing has succeeded", async ({
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   await fieldEditorPage.fieldTypeListItem("Date").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("date1");

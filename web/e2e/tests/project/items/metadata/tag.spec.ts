@@ -92,7 +92,11 @@ test("Tag metadata creating and updating has succeeded", async ({
   await expect(contentPage.cellByText(tag1)).toBeVisible();
 });
 
-test("Tag metadata editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
+test("@important Tag metadata editing has succeeded", async ({
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   const newFieldName = `new ${fieldName}`;
   const newKey = `new-${fieldName}`;
   const newDescription = `new ${description}`;
