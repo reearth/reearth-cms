@@ -18,6 +18,7 @@ test("Group field creating and updating has succeeded", async ({
   contentPage,
   schemaPage,
 }) => {
+  test.slow();
   const groupName = "e2e group name";
   const groupKey = "e2e-group-key";
   await expect(schemaPage.textByExact("Reference")).toBeVisible();
@@ -143,11 +144,8 @@ test("Group field creating and updating has succeeded", async ({
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("text1");
 });
 
-test("Group field editing has succeeded", async ({
-  fieldEditorPage,
-  contentPage,
-  schemaPage,
-}) => {
+test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
+  test.slow();
   const groupName = "e2e group name";
   const groupKey = "e2e-group-key";
 

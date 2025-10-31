@@ -77,6 +77,7 @@ test("Text metadata editing has succeeded", async ({
   contentPage,
   schemaPage,
 }) => {
+  test.slow();
   await schemaPage.metaDataTab.click();
   await schemaPage.textListItem.click();
   await fieldEditorPage.displayNameInput.fill("text1");

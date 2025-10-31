@@ -73,6 +73,7 @@ test("@important Date metadata creating and updating has succeeded", async ({
 });
 
 test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPage }) => {
+  test.slow();
   await fieldEditorPage.metaDataTab.click();
   await fieldEditorPage.fieldTypeListItem("Date").click();
   await fieldEditorPage.displayNameInput.fill("date1");

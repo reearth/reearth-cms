@@ -51,10 +51,7 @@ test.describe.parallel("Json file tests", () => {
     await assetsPage.closeNotification();
   });
 
-  test("Previewing json file by full screen has succeeded", async ({
-    page,
-    assetsPage,
-  }) => {
+  test("Previewing json file by full screen has succeeded", async ({ page, assetsPage }) => {
     await assetsPage.editIconButton.click();
 
     // change type

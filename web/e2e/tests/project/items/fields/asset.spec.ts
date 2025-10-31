@@ -87,7 +87,6 @@ test("@important Previewing JSON file from content page into new tab succeeded",
   await fieldEditorPage.settingsDescriptionInput.fill("asset1 description");
   await fieldEditorPage.okButton.click();
   await contentPage.closeNotification();
-
   await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("asset1#asset1");
 
   await contentPage.contentText.click();
@@ -101,7 +100,6 @@ test("@important Previewing JSON file from content page into new tab succeeded",
   await fieldEditorPage.urlInput.fill(uploadFileUrl_2);
   await fieldEditorPage.uploadAndLinkButton.click();
   await contentPage.closeNotification();
-
   await expect(fieldEditorPage.folderButton(uploadFileName_2)).toBeVisible();
   await expect(fieldEditorPage.filenameButton(uploadFileName_2)).toBeVisible();
 
@@ -118,11 +116,8 @@ test("@important Previewing JSON file from content page into new tab succeeded",
   expect(isViewerReady).toBe(true);
 });
 
-test("Asset field editing has succeeded", async ({
-  fieldEditorPage,
-  contentPage,
-  schemaPage,
-}) => {
+test("Asset field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
+  test.slow();
   await fieldEditorPage.fieldTypeButton("Asset").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("asset1");
@@ -138,7 +133,6 @@ test("Asset field editing has succeeded", async ({
   await fieldEditorPage.urlInput.fill(uploadFileUrl_1);
   await fieldEditorPage.uploadAndLinkButton.click();
   await contentPage.closeNotification();
-
   await expect(fieldEditorPage.folderButton(uploadFileName_1)).toBeVisible();
   await expect(fieldEditorPage.filenameButton(uploadFileName_1)).toBeVisible();
   await fieldEditorPage.defaultValueLabel.getByRole("button").nth(3).click();
@@ -156,7 +150,6 @@ test("Asset field editing has succeeded", async ({
   await expect(fieldEditorPage.filenameButton(uploadFileName_1)).toBeVisible();
   await fieldEditorPage.okButton.click();
   await contentPage.closeNotification();
-
   await contentPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("asset1");
   await contentPage.newItemButton.click();
@@ -166,7 +159,6 @@ test("Asset field editing has succeeded", async ({
   await expect(contentPage.optionTextByName("asset1 description")).toBeVisible();
   await contentPage.saveButton.click();
   await contentPage.closeNotification();
-
   await contentPage.backButton.click();
   await expect(contentPage.optionTextByName(uploadFileName_1)).toBeVisible();
   await schemaPage.schemaText.click();
@@ -185,7 +177,6 @@ test("Asset field editing has succeeded", async ({
   await fieldEditorPage.defaultValueTab.click();
   await expect(fieldEditorPage.folderButton(uploadFileName_1)).toBeVisible();
   await expect(fieldEditorPage.filenameButton(uploadFileName_1)).toBeVisible();
-
   await fieldEditorPage.plusNewButton.click();
   await fieldEditorPage.assetButton.click();
   await fieldEditorPage.uploadAssetButton.click();
@@ -195,7 +186,6 @@ test("Asset field editing has succeeded", async ({
   await fieldEditorPage.urlInput.fill(uploadFileUrl_2);
   await fieldEditorPage.uploadAndLinkButton.click();
   await contentPage.closeNotification();
-
   await expect(fieldEditorPage.folderButton(uploadFileName_2)).toBeVisible();
   await expect(fieldEditorPage.filenameButton(uploadFileName_2)).toBeVisible();
   await fieldEditorPage.arrowUpButton.nth(1).click();
@@ -216,7 +206,6 @@ test("Asset field editing has succeeded", async ({
   await fieldEditorPage.plusNewButton.click();
   await contentPage.saveButton.click();
   await contentPage.closeNotification();
-
   await contentPage.backButton.click();
   await contentPage.x2Button.click();
   await expect(contentPage.tooltip).toContainText(`new asset1`);

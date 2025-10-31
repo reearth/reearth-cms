@@ -52,11 +52,7 @@ test("@important Int field creating and updating has succeeded", async ({
   await expect(contentPage.cellByTextExact("2")).toBeVisible();
 });
 
-test("Int field editing has succeeded", async ({
-  fieldEditorPage,
-  contentPage,
-  schemaPage,
-}) => {
+test("Int field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
   await fieldEditorPage.fieldTypeListItem("Int").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("int1");

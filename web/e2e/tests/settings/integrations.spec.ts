@@ -14,10 +14,7 @@ test.afterEach(async ({ integrationsPage }) => {
   await integrationsPage.okButton.click();
 });
 
-test("Integration CRUD and searching has succeeded", async ({
-  reearth,
-  integrationsPage,
-}) => {
+test("Integration CRUD and searching has succeeded", async ({ reearth, integrationsPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await integrationsPage.myIntegrationsMenuItem.click();
 

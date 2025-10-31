@@ -117,7 +117,6 @@ test("@important Option field editing has succeeded", async ({
   await expect(fieldEditorPage.optionDiv("forth")).toBeVisible();
   await contentPage.saveButton.click();
   await contentPage.closeNotification();
-
   await contentPage.backButton.click();
   await expect(contentPage.optionTextByName("third")).toBeVisible();
 
@@ -176,7 +175,6 @@ test("@important Option field editing has succeeded", async ({
   await fieldEditorPage.optionDiv("new third").last().click();
   await fieldEditorPage.okButton.click();
   await contentPage.closeNotification();
-
   await expect(contentPage.optionTextByName("new option1 *#new-option1(unique)")).toBeVisible();
   await contentPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("option1");

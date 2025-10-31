@@ -138,7 +138,7 @@ test("View CRUD has succeeded", async ({
   await expect(contentPage.tableRow(1)).toContainText("text2");
 });
 
-test("View reordering has succeeded", async ({ page, projectPage, contentPage }) => {
+test("View reordering has succeeded", async ({ projectPage, contentPage }) => {
   await projectPage.contentMenuItem.click();
   await projectPage.modelMenuItemClick(projectPage.modelName).click();
 
