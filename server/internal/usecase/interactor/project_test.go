@@ -492,6 +492,7 @@ func TestProject_Update(t *testing.T) {
 
 	wid1 := accountdomain.NewWorkspaceID()
 	wid2 := accountdomain.NewWorkspaceID()
+	wid3 := accountdomain.NewWorkspaceID()
 	r1 := []workspace.Role{workspace.RoleOwner}
 	r2 := []workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer}
 
@@ -499,20 +500,23 @@ func TestProject_Update(t *testing.T) {
 	p1 := project.New().ID(pid1).Workspace(wid1).RequestRoles(r1).UpdatedAt(now.Add(-time.Hour)).MustBuild()
 
 	pid2 := id.NewProjectID()
-	p2 := project.New().ID(pid2).Workspace(wid2).RequestRoles(r2).Alias("testAlias").UpdatedAt(now.Add(-time.Minute)).MustBuild()
+	p2 := project.New().ID(pid2).Workspace(wid1).RequestRoles(r2).Alias("testAlias").UpdatedAt(now.Add(-time.Minute)).MustBuild()
 
 	// Project with explicit private visibility for policy test
 	pid3 := id.NewProjectID()
-	p3 := project.New().ID(pid3).Workspace(wid1).RequestRoles(r1).
+	p3 := project.New().ID(pid3).Workspace(wid2).RequestRoles(r1).
 		Accessibility(project.NewPrivateAccessibility(project.PublicationSettings{}, nil)).
 		UpdatedAt(now.Add(-time.Second)).MustBuild()
+
+	pid4 := id.NewProjectID()
+	p4 := project.New().ID(pid4).Workspace(wid3).RequestRoles(r2).Alias("testAlias-2").UpdatedAt(now.Add(-time.Minute)).MustBuild()
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
 			User:               lo.ToPtr(u.ID()),
-			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2},
-			OwningWorkspaces:   []accountdomain.WorkspaceID{wid1},
+			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2, wid3},
+			OwningWorkspaces:   []accountdomain.WorkspaceID{wid1, wid2},
 		},
 	}
 
@@ -554,11 +558,11 @@ func TestProject_Update(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:  "update od",
-			seeds: project.List{p1, p2},
+			name:  "update a project that op does not owen its workspace should return operation denied",
+			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				upp: interfaces.UpdateProjectParam{
-					ID:          p2.ID(),
+					ID:          p4.ID(),
 					Name:        lo.ToPtr("test123"),
 					Description: lo.ToPtr("desc321"),
 					Alias:       lo.ToPtr("alias"),
@@ -569,8 +573,23 @@ func TestProject_Update(t *testing.T) {
 			wantErr: interfaces.ErrOperationDenied,
 		},
 		{
-			name:  "update duplicated alias",
-			seeds: project.List{p1, p2},
+			name:  "update duplicated alias on different workspaces",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				upp: interfaces.UpdateProjectParam{
+					ID:    p3.ID(),
+					Alias: lo.ToPtr("testAlias"),
+				},
+				operator: op,
+			},
+			want: project.New().ID(pid3).Workspace(wid2).RequestRoles(r1).Alias("testAlias").
+				Accessibility(project.NewPrivateAccessibility(project.PublicationSettings{}, nil)).
+				UpdatedAt(now).MustBuild(),
+			wantErr: nil,
+		},
+		{
+			name:  "update duplicated alias on same workspace",
+			seeds: project.List{p1, p2, p3},
 			args: args{
 				upp: interfaces.UpdateProjectParam{
 					ID:    p1.ID(),
@@ -803,13 +822,25 @@ func TestProject_CheckAlias(t *testing.T) {
 		wantErr error
 	}{
 		{
-			name:  "Check found",
+			name:  "not available alias on same workspace",
 			seeds: project.List{p1, p2},
 			args: args{
-				alias:    "test123",
-				operator: op,
+				workspace: wid1,
+				alias:     "test123",
+				operator:  op,
 			},
 			want:    false,
+			wantErr: nil,
+		},
+		{
+			name:  "available alias on diffrent workspace",
+			seeds: project.List{p1, p2},
+			args: args{
+				workspace: wid2,
+				alias:     "test123",
+				operator:  op,
+			},
+			want:    true,
 			wantErr: nil,
 		},
 		{
@@ -1207,7 +1238,9 @@ func TestProject_StarProject(t *testing.T) {
 	defer util.MockNow(now)
 
 	wid1 := accountdomain.NewWorkspaceID()
+	w1 := workspace.New().ID(wid1).MustBuild()
 	wid2 := accountdomain.NewWorkspaceID()
+	w2 := workspace.New().ID(wid2).MustBuild()
 
 	u1 := user.New().Name("user1").NewID().Email("user1@test.com").Workspace(wid1).MustBuild()
 	u1ID := u1.ID()
@@ -1215,8 +1248,8 @@ func TestProject_StarProject(t *testing.T) {
 	pid1 := id.NewProjectID()
 	p1 := project.New().ID(pid1).Workspace(wid1).Alias("test-project").MustBuild()
 
-	pid3 := id.NewProjectID()
-	p3 := project.New().ID(pid3).Workspace(wid2).MustBuild()
+	pid2 := id.NewProjectID()
+	p2 := project.New().ID(pid2).Workspace(wid2).MustBuild()
 
 	validOp := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
@@ -1247,6 +1280,7 @@ func TestProject_StarProject(t *testing.T) {
 			name:  "star project by ID",
 			seeds: project.List{p1.Clone()},
 			args: args{
+				wIdOrAlias: workspace.IDOrAlias(wid1.String()),
 				pIdOrAlias: project.IDOrAlias(pid1.String()),
 				operator:   validOp,
 			},
@@ -1262,6 +1296,7 @@ func TestProject_StarProject(t *testing.T) {
 			name:  "star project by alias",
 			seeds: project.List{p1.Clone()},
 			args: args{
+				wIdOrAlias: workspace.IDOrAlias(wid1.String()),
 				pIdOrAlias: project.IDOrAlias("test-project"),
 				operator:   validOp,
 			},
@@ -1275,13 +1310,14 @@ func TestProject_StarProject(t *testing.T) {
 		},
 		{
 			name:  "star project in different workspace",
-			seeds: project.List{p3.Clone()},
+			seeds: project.List{p2.Clone()},
 			args: args{
-				pIdOrAlias: project.IDOrAlias(pid3.String()),
+				wIdOrAlias: workspace.IDOrAlias(wid2.String()),
+				pIdOrAlias: project.IDOrAlias(pid2.String()),
 				operator:   validOp,
 			},
 			want: func() *project.Project {
-				p := p3.Clone()
+				p := p2.Clone()
 				p.Star(u1ID)
 				p.SetUpdatedAt(now)
 				return p
@@ -1292,6 +1328,7 @@ func TestProject_StarProject(t *testing.T) {
 			name:  "invalid operator - no user",
 			seeds: project.List{p1.Clone()},
 			args: args{
+				wIdOrAlias: workspace.IDOrAlias(wid1.String()),
 				pIdOrAlias: project.IDOrAlias(pid1.String()),
 				operator:   invalidOp,
 			},
@@ -1302,7 +1339,19 @@ func TestProject_StarProject(t *testing.T) {
 			name:  "project not found by ID",
 			seeds: project.List{},
 			args: args{
+				wIdOrAlias: workspace.IDOrAlias(wid1.String()),
 				pIdOrAlias: project.IDOrAlias(id.NewProjectID().String()),
+				operator:   validOp,
+			},
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:  "project not found in the workspace",
+			seeds: project.List{},
+			args: args{
+				wIdOrAlias: workspace.IDOrAlias(wid1.String()),
+				pIdOrAlias: project.IDOrAlias(pid2.String()),
 				operator:   validOp,
 			},
 			want:    nil,
@@ -1312,6 +1361,7 @@ func TestProject_StarProject(t *testing.T) {
 			name:  "project not found by alias",
 			seeds: project.List{},
 			args: args{
+				wIdOrAlias: workspace.IDOrAlias(wid1.String()),
 				pIdOrAlias: project.IDOrAlias("non-existent-alias"),
 				operator:   validOp,
 			},
@@ -1321,6 +1371,7 @@ func TestProject_StarProject(t *testing.T) {
 		{
 			name: "repository error on find",
 			args: args{
+				wIdOrAlias: workspace.IDOrAlias(wid1.String()),
 				pIdOrAlias: project.IDOrAlias(pid1.String()),
 				operator:   validOp,
 			},
@@ -1340,6 +1391,8 @@ func TestProject_StarProject(t *testing.T) {
 			if tc.mockProjectErr {
 				memory.SetProjectError(db.Project, tc.wantErr)
 			}
+			err := db.Workspace.SaveAll(ctx, workspace.List{w1, w2})
+			assert.NoError(t, err)
 			for _, p := range tc.seeds {
 				err := db.Project.Save(ctx, p)
 				assert.NoError(t, err)

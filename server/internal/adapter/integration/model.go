@@ -119,16 +119,16 @@ func (s *Server) ModelGet(ctx context.Context, request ModelGetRequestObject) (M
 	return ModelGet200JSONResponse(integrationapi.NewModel(wp.Model, sp, lastModified)), nil
 }
 
-func (s *Server) CopyModel(ctx context.Context, request CopyModelRequestObject) (CopyModelResponseObject, error) {
+func (s *Server) ModelCopy(ctx context.Context, request ModelCopyRequestObject) (ModelCopyResponseObject, error) {
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 
 	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return CopyModel404Response{}, err
+			return ModelCopy404Response{}, err
 		}
-		return CopyModel500Response{}, err
+		return ModelCopy500Response{}, err
 	}
 
 	m, err := uc.Model.Copy(ctx, interfaces.CopyModelParam{
@@ -138,25 +138,25 @@ func (s *Server) CopyModel(ctx context.Context, request CopyModelRequestObject) 
 	}, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return CopyModel404Response{}, err
+			return ModelCopy404Response{}, err
 		}
-		return CopyModel500Response{}, err
+		return ModelCopy500Response{}, err
 	}
 
 	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return CopyModel404Response{}, err
+			return ModelCopy404Response{}, err
 		}
-		return CopyModel500Response{}, err
+		return ModelCopy500Response{}, err
 	}
 
 	lastModified, err := uc.Item.LastModifiedByModel(ctx, m.ID(), op)
 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
-		return CopyModel500Response{}, err
+		return ModelCopy500Response{}, err
 	}
 
-	return CopyModel200JSONResponse(integrationapi.NewModel(m, sp, lastModified)), nil
+	return ModelCopy200JSONResponse(integrationapi.NewModel(m, sp, lastModified)), nil
 }
 
 func (s *Server) ModelUpdate(ctx context.Context, request ModelUpdateRequestObject) (ModelUpdateResponseObject, error) {

@@ -53,7 +53,7 @@ func (s *Server) loadWPContext(ctx context.Context, wAlias accountdomain.Workspa
 
 	var m *model.Model
 	if mKey != nil {
-		m, err := uc.Model.FindByIDOrKey(ctx, p.ID(), *mKey, op)
+		m, err = uc.Model.FindByIDOrKey(ctx, p.ID(), *mKey, op)
 		if err != nil {
 			return nil, err
 		}

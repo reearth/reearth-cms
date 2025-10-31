@@ -530,7 +530,7 @@ paths:
       - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/modelIdOrKeyParam'
     post:
-      operationId: CopyModel
+      operationId: ModelCopy
       summary: Copy schema and items of a selected model
       tags:
         - Models
