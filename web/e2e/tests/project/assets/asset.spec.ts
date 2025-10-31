@@ -79,7 +79,7 @@ test.describe.parallel("Json file tests", () => {
     await page.goBack();
   });
 
-  test("@smoke Downloading asset has succeeded", async ({ page, assetsPage }) => {
+  test("Downloading asset has succeeded", async ({ page, assetsPage }) => {
     // select + bulk download
     await assetsPage.selectAssetCheckbox.check();
     const bulkDownload = page.waitForEvent("download");
