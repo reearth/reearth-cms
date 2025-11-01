@@ -4,36 +4,47 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
+
+func iAPIProjectModelItemsList(e *httpexpect.Expect, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+	endpoint := "/api/projects/{projectId}/models/{modelId}/items"
+	return e.GET(endpoint, projectIdOrAlias, modelIdOrKey)
+}
+
+func iAPIProjectModelItemCreate(e *httpexpect.Expect, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+	endpoint := "/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items"
+	return e.POST(endpoint, projectIdOrAlias, modelIdOrKey)
+}
 
 // GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items
 func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, id.NewModelID()).
+	iAPIProjectModelItemsList(e, pid, id.NewModelID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, id.NewModelID()).
+	iAPIProjectModelItemsList(e, pid, id.NewModelID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, id.NewModelID()).
+	iAPIProjectModelItemsList(e, pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, id.NewModelID()).
+	iAPIProjectModelItemsList(e, pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
 		Expect().
 		Status(http.StatusNotFound)
 
-	obj := e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, mId1).
+	obj := iAPIProjectModelItemsList(e, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -51,7 +62,7 @@ func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 	assertItem(a.Value(0), false)
 
 	// model key can be also usable
-	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, ikey1).
+	obj = iAPIProjectModelItemsList(e, pid, ikey1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -68,7 +79,7 @@ func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 	assertItem(a.Value(0), false)
 
 	// project alias can be also usable
-	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", palias, ikey1).
+	obj = iAPIProjectModelItemsList(e, palias, ikey1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -85,7 +96,7 @@ func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 	assertItem(a.Value(0), false)
 
 	// asset embeded
-	obj = e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, mId1).
+	obj = iAPIProjectModelItemsList(e, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -103,7 +114,7 @@ func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 	assertItem(a.Value(0), true)
 
 	// invalid key
-	e.GET("/api/projects/{projectId}/models/{modelId}/items", pid, "xxx").
+	iAPIProjectModelItemsList(e, pid, "xxx").
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -111,7 +122,7 @@ func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 		Status(http.StatusNotFound)
 
 	// invalid project
-	e.GET("/api/projects/{projectId}/models/{modelId}/items", id.NewProjectID(), ikey1).
+	iAPIProjectModelItemsList(e, id.NewProjectID(), ikey1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -123,21 +134,21 @@ func TestIntegrationItemListWithProjectAPI(t *testing.T) {
 func TestIntegrationCreateItemWithProjectAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, id.NewModelID()).
+	iAPIProjectModelItemCreate(e, palias, id.NewModelID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, id.NewModelID()).
+	iAPIProjectModelItemCreate(e, palias, id.NewModelID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, id.NewModelID()).
+	iAPIProjectModelItemCreate(e, palias, id.NewModelID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	r := e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, ikey1).
+	r := iAPIProjectModelItemCreate(e, palias, ikey1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -164,7 +175,7 @@ func TestIntegrationCreateItemWithProjectAPI(t *testing.T) {
 	r.Value("modelId").IsEqual(mId1.String())
 	r.Value("refs").IsEqual([]string{"latest"})
 
-	e.POST("/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items", palias, ikey1).
+	iAPIProjectModelItemCreate(e, palias, ikey1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{

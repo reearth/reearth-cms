@@ -4,35 +4,56 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 )
 
+func iAPIAssetCommentsList(e *httpexpect.Expect, assetId interface{}) *httpexpect.Request {
+	endpoint := "/api/assets/{assetId}/comments"
+	return e.GET(endpoint, assetId)
+}
+
+func iAPIAssetCommentCreate(e *httpexpect.Expect, assetId interface{}) *httpexpect.Request {
+	endpoint := "/api/assets/{assetId}/comments"
+	return e.POST(endpoint, assetId)
+}
+
+func iAPIAssetCommentUpdate(e *httpexpect.Expect, assetId interface{}, commentId interface{}) *httpexpect.Request {
+	endpoint := "/api/assets/{assetId}/comments/{commentId}"
+	return e.PATCH(endpoint, assetId, commentId)
+}
+
+func iAPIAssetCommentDelete(e *httpexpect.Expect, assetId interface{}, commentId interface{}) *httpexpect.Request {
+	endpoint := "/api/assets/{assetId}/comments/{commentId}"
+	return e.DELETE(endpoint, assetId, commentId)
+}
+
 // GET|/assets/{assetId}/comments
 func TestIntegrationGetAssetCommentAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.GET("/api/assets/{assetId}/comments", id.NewAssetID()).
+	iAPIAssetCommentsList(e, id.NewAssetID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/assets/{assetId}/comments", id.NewAssetID()).
+	iAPIAssetCommentsList(e, id.NewAssetID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/assets/{assetId}/comments", id.NewAssetID()).
+	iAPIAssetCommentsList(e, id.NewAssetID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/assets/{assetId}/comments", id.NewAssetID()).
+	iAPIAssetCommentsList(e, id.NewAssetID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	r := e.GET("/api/assets/{assetId}/comments", aid1).
+	r := iAPIAssetCommentsList(e, aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -50,26 +71,26 @@ func TestIntegrationGetAssetCommentAPI(t *testing.T) {
 func TestIntegrationCreateAssetCommentAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.POST("/api/assets/{assetId}/comments", id.NewAssetID()).
+	iAPIAssetCommentCreate(e, id.NewAssetID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/assets/{assetId}/comments", id.NewAssetID()).
+	iAPIAssetCommentCreate(e, id.NewAssetID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/assets/{assetId}/comments", id.NewAssetID()).
+	iAPIAssetCommentCreate(e, id.NewAssetID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/assets/{assetId}/comments", id.NewAssetID()).
+	iAPIAssetCommentCreate(e, id.NewAssetID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	c := e.POST("/api/assets/{assetId}/comments", aid1).
+	c := iAPIAssetCommentCreate(e, aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"content": "test",
@@ -84,7 +105,7 @@ func TestIntegrationCreateAssetCommentAPI(t *testing.T) {
 	c.Value("content").IsEqual("test")
 
 	// asset with no thread
-	e.POST("/api/assets/{assetId}/comments", aid3).
+	iAPIAssetCommentCreate(e, aid3).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"content": "test2",
@@ -99,26 +120,26 @@ func TestIntegrationCreateAssetCommentAPI(t *testing.T) {
 func TestIntegrationUpdateAssetCommentAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.PATCH("/api/assets/{assetId}/comments/{commentId}", id.NewAssetID(), id.NewCommentID()).
+	iAPIAssetCommentUpdate(e, id.NewAssetID(), id.NewCommentID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.PATCH("/api/assets/{assetId}/comments/{commentId}", id.NewAssetID(), id.NewCommentID()).
+	iAPIAssetCommentUpdate(e, id.NewAssetID(), id.NewCommentID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.PATCH("/api/assets/{assetId}/comments/{commentId}", id.NewAssetID(), id.NewCommentID()).
+	iAPIAssetCommentUpdate(e, id.NewAssetID(), id.NewCommentID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.PATCH("/api/assets/{assetId}/comments/{commentId}", id.NewAssetID(), id.NewCommentID()).
+	iAPIAssetCommentUpdate(e, id.NewAssetID(), id.NewCommentID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	r := e.PATCH("/api/assets/{assetId}/comments/{commentId}", aid1, icId).
+	r := iAPIAssetCommentUpdate(e, aid1, icId).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"content": "updated content",
@@ -142,12 +163,12 @@ func TestIntegrationUpdateAssetCommentAPI(t *testing.T) {
 func TestIntegrationDeleteAssetCommentAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.DELETE("/api/assets/{assetId}/comments/{commentId}", id.NewAssetID(), id.NewCommentID()).
+	iAPIAssetCommentDelete(e, id.NewAssetID(), id.NewCommentID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.DELETE("/api/assets/{assetId}/comments/{commentId}", aid1, icId).
+	iAPIAssetCommentDelete(e, aid1, icId).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -155,7 +176,7 @@ func TestIntegrationDeleteAssetCommentAPI(t *testing.T) {
 		Object().Keys().
 		ContainsAll("id")
 
-	e.GET("/api/assets/{assetId}/comments", aid1).
+	iAPIAssetCommentsList(e, aid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).

@@ -4,25 +4,56 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
+
+func iAPISchemaExport(e *httpexpect.Expect, schemaId interface{}) *httpexpect.Request {
+	endpoint := "/api/schemata/{schemaId}/schema.json"
+	return e.GET(endpoint, schemaId)
+}
+
+func iAPIProjectSchemaExport(e *httpexpect.Expect, projectIdOrAlias interface{}, schemaId interface{}) *httpexpect.Request {
+	endpoint := "/api/projects/{projectIdOrAlias}/schemata/{schemaId}/schema.json"
+	return e.GET(endpoint, projectIdOrAlias, schemaId)
+}
+
+func iAPIProjectModelSchemaExport(e *httpexpect.Expect, projectIdOrAlias interface{}, modelId interface{}) *httpexpect.Request {
+	endpoint := "/api/projects/{projectIdOrAlias}/models/{modelId}/schema.json"
+	return e.GET(endpoint, projectIdOrAlias, modelId)
+}
+
+func iAPIProjectModelMetadataSchemaExport(e *httpexpect.Expect, projectIdOrAlias interface{}, modelId interface{}) *httpexpect.Request {
+	endpoint := "/api/projects/{projectIdOrAlias}/models/{modelId}/metadata_schema.json"
+	return e.GET(endpoint, projectIdOrAlias, modelId)
+}
+
+func iAPIModelSchemaExport(e *httpexpect.Expect, modelId interface{}) *httpexpect.Request {
+	endpoint := "/api/models/{modelId}/schema.json"
+	return e.GET(endpoint, modelId)
+}
+
+func iAPIModelMetadataSchemaExport(e *httpexpect.Expect, modelId interface{}) *httpexpect.Request {
+	endpoint := "/api/models/{modelId}/metadata_schema.json"
+	return e.GET(endpoint, modelId)
+}
 
 func TestIntegrationJSONSchemaExportAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
 	// /api/schemata/{schemaId}/schema.json
-	e.GET("/api/schemata/{schemaId}/schema.json", sid1).
+	iAPISchemaExport(e, sid1).
 		WithHeader("authorization", "Bearer abcd").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/schemata/{schemaId}/schema.json", id.NewSchemaID()).
+	iAPISchemaExport(e, id.NewSchemaID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.GET("/api/schemata/{schemaId}/schema.json", sid1).
+	iAPISchemaExport(e, sid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -45,17 +76,17 @@ func TestIntegrationJSONSchemaExportAPI(t *testing.T) {
 		})
 
 	// /api/projects/{projectIdOrAlias}/schemata/{schemaId}/schema.json
-	e.GET("/api/projects/{projectIdOrAlias}/schemata/{schemaId}/schema.json", pid, sid1).
+	iAPIProjectSchemaExport(e, pid, sid1).
 		WithHeader("authorization", "Bearer abcd").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/projects/{projectIdOrAlias}/schemata/{schemaId}/schema.json", pid, id.NewSchemaID()).
+	iAPIProjectSchemaExport(e, pid, id.NewSchemaID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.GET("/api/projects/{projectIdOrAlias}/schemata/{schemaId}/schema.json", pid, sid1).
+	iAPIProjectSchemaExport(e, pid, sid1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -78,17 +109,17 @@ func TestIntegrationJSONSchemaExportAPI(t *testing.T) {
 		})
 
 	// /api/projects/{projectIdOrAlias}/models/{modelId}/schema.json
-	e.GET("/api/projects/{projectIdOrAlias}/models/{modelId}/schema.json", pid, mId1).
+	iAPIProjectModelSchemaExport(e, pid, mId1).
 		WithHeader("authorization", "Bearer abcd").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/projects/{projectIdOrAlias}/models/{modelId}/schema.json", pid, id.NewModelID()).
+	iAPIProjectModelSchemaExport(e, pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.GET("/api/projects/{projectIdOrAlias}/models/{modelId}/schema.json", pid, mId1).
+	iAPIProjectModelSchemaExport(e, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -111,17 +142,17 @@ func TestIntegrationJSONSchemaExportAPI(t *testing.T) {
 		})
 
 	// /api/projects/{projectIdOrAlias}/models/{modelId}/metadata_schema.json
-	e.GET("/api/projects/{projectIdOrAlias}/models/{modelId}/metadata_schema.json", pid, mId1).
+	iAPIProjectModelMetadataSchemaExport(e, pid, mId1).
 		WithHeader("authorization", "Bearer abcd").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/projects/{projectIdOrAlias}/models/{modelId}/metadata_schema.json", pid, id.NewModelID()).
+	iAPIProjectModelMetadataSchemaExport(e, pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.GET("/api/projects/{projectIdOrAlias}/models/{modelId}/metadata_schema.json", pid, mId1).
+	iAPIProjectModelMetadataSchemaExport(e, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -140,17 +171,17 @@ func TestIntegrationJSONSchemaExportAPI(t *testing.T) {
 		})
 
 	// /api/models/{modelId}/schema.json
-	e.GET("/api/models/{modelId}/schema.json", mId1).
+	iAPIModelSchemaExport(e, mId1).
 		WithHeader("authorization", "Bearer abcd").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/models/{modelId}/schema.json", id.NewModelID()).
+	iAPIModelSchemaExport(e, id.NewModelID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.GET("/api/models/{modelId}/schema.json", mId1).
+	iAPIModelSchemaExport(e, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -173,17 +204,17 @@ func TestIntegrationJSONSchemaExportAPI(t *testing.T) {
 		})
 
 	// /api/models/{modelId}/metadata_schema.json
-	e.GET("/api/models/{modelId}/metadata_schema.json", mId1).
+	iAPIModelMetadataSchemaExport(e, mId1).
 		WithHeader("authorization", "Bearer abcd").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/models/{modelId}/metadata_schema.json", id.NewModelID()).
+	iAPIModelMetadataSchemaExport(e, id.NewModelID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.GET("/api/models/{modelId}/metadata_schema.json", mId1).
+	iAPIModelMetadataSchemaExport(e, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
