@@ -10,52 +10,52 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 )
 
-func iAPIItemCommentsList(e *httpexpect.Expect, itemId interface{}) *httpexpect.Request {
-	endpoint := "/api/items/{itemId}/comments"
-	return e.GET(endpoint, itemId)
+func iAPIItemCommentList(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}, itemId interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments"
+	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
 }
 
-func iAPIItemCommentCreate(e *httpexpect.Expect, itemId interface{}) *httpexpect.Request {
-	endpoint := "/api/items/{itemId}/comments"
-	return e.POST(endpoint, itemId)
+func iAPIItemCommentCreate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}, itemId interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments"
+	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
 }
 
-func iAPIItemCommentUpdate(e *httpexpect.Expect, itemId interface{}, commentId interface{}) *httpexpect.Request {
-	endpoint := "/api/items/{itemId}/comments/{commentId}"
-	return e.PATCH(endpoint, itemId, commentId)
+func iAPIItemCommentUpdate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}, itemId interface{}, commentId interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments/{commentId}"
+	return e.PATCH(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId, commentId)
 }
 
-func iAPIItemCommentDelete(e *httpexpect.Expect, itemId interface{}, commentId interface{}) *httpexpect.Request {
-	endpoint := "/api/items/{itemId}/comments/{commentId}"
-	return e.DELETE(endpoint, itemId, commentId)
+func iAPIItemCommentDelete(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}, itemId interface{}, commentId interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments/{commentId}"
+	return e.DELETE(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId, commentId)
 }
 
 // Get|/items/{itemId}/comments
 func TestIntegrationItemCommentListAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	iAPIItemCommentsList(e, id.NewItemID()).
+	iAPIItemCommentList(e, wId0, pid, mId1, id.NewItemID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIItemCommentsList(e, id.NewItemID()).
+	iAPIItemCommentList(e, wId0, pid, mId1, id.NewItemID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIItemCommentsList(e, id.NewItemID()).
+	iAPIItemCommentList(e, wId0, pid, mId1, id.NewItemID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIItemCommentsList(e, id.NewItemID()).
+	iAPIItemCommentList(e, wId0, pid, mId1, id.NewItemID()).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
 		Expect().
 		Status(http.StatusNotFound)
 
-	r := iAPIItemCommentsList(e, itmId1).
+	r := iAPIItemCommentList(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -75,26 +75,26 @@ func TestIntegrationItemCommentListAPI(t *testing.T) {
 func TestIntegrationCreateItemCommentAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	iAPIItemCommentCreate(e, id.NewItemID()).
+	iAPIItemCommentCreate(e, wId0, pid, mId1, id.NewItemID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIItemCommentCreate(e, id.NewItemID()).
+	iAPIItemCommentCreate(e, wId0, pid, mId1, id.NewItemID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIItemCommentCreate(e, id.NewItemID()).
+	iAPIItemCommentCreate(e, wId0, pid, mId1, id.NewItemID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIItemCommentCreate(e, id.NewItemID()).
+	iAPIItemCommentCreate(e, wId0, pid, mId1, id.NewItemID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	c := iAPIItemCommentCreate(e, itmId1).
+	c := iAPIItemCommentCreate(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"content": "test",
@@ -110,7 +110,7 @@ func TestIntegrationCreateItemCommentAPI(t *testing.T) {
 	c.Value("content").IsEqual("test")
 
 	// item with no thread
-	iAPIItemCommentCreate(e, itmId7).
+	iAPIItemCommentCreate(e, wId0, pid, mId1, itmId7).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"content": "test2",
@@ -125,26 +125,26 @@ func TestIntegrationCreateItemCommentAPI(t *testing.T) {
 func TestIntegrationUpdateItemCommentAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	iAPIItemCommentUpdate(e, id.NewItemID(), id.NewCommentID()).
+	iAPIItemCommentUpdate(e, wId0, pid, mId1, id.NewItemID(), id.NewCommentID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIItemCommentUpdate(e, id.NewItemID(), id.NewCommentID()).
+	iAPIItemCommentUpdate(e, wId0, pid, mId1, id.NewItemID(), id.NewCommentID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIItemCommentUpdate(e, id.NewItemID(), id.NewCommentID()).
+	iAPIItemCommentUpdate(e, wId0, pid, mId1, id.NewItemID(), id.NewCommentID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIItemCommentUpdate(e, id.NewItemID(), id.NewCommentID()).
+	iAPIItemCommentUpdate(e, wId0, pid, mId1, id.NewItemID(), id.NewCommentID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	r := iAPIItemCommentUpdate(e, itmId1, icId).
+	r := iAPIItemCommentUpdate(e, wId0, pid, mId1, itmId1, icId).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"content": "updated content",
@@ -165,12 +165,12 @@ func TestIntegrationUpdateItemCommentAPI(t *testing.T) {
 func TestIntegrationDeleteItemCommentAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	iAPIItemCommentDelete(e, id.NewItemID(), id.NewCommentID()).
+	iAPIItemCommentDelete(e, wId0, pid, mId1, id.NewItemID(), id.NewCommentID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIItemCommentDelete(e, itmId1, icId).
+	iAPIItemCommentDelete(e, wId0, pid, mId1, itmId1, icId).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -178,7 +178,7 @@ func TestIntegrationDeleteItemCommentAPI(t *testing.T) {
 		Object().Keys().
 		ContainsAll("id")
 
-	iAPIItemCommentsList(e, itmId1).
+	iAPIItemCommentList(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).

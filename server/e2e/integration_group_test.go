@@ -8,62 +8,47 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/app"
 )
 
-func iAPIProjectGroupsList(e *httpexpect.Expect, projectIdOrAlias interface{}) *httpexpect.Request {
-	endpoint := "/api/projects/{projectIdOrAlias}/groups"
-	return e.GET(endpoint, projectIdOrAlias)
+func iAPIGroupFilter(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups"
+	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias)
 }
 
-func iAPIProjectGroupCreate(e *httpexpect.Expect, projectIdOrAlias interface{}) *httpexpect.Request {
-	endpoint := "/api/projects/{projectIdOrAlias}/groups"
-	return e.POST(endpoint, projectIdOrAlias)
+func iAPIGroupCreate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups"
+	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias)
 }
 
-func iAPIGroupGet(e *httpexpect.Expect, groupId interface{}) *httpexpect.Request {
-	endpoint := "/api/groups/{groupId}"
-	return e.GET(endpoint, groupId)
+func iAPIGroupGet(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, groupIdOrKey interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups/{groupIdOrKey}"
+	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, groupIdOrKey)
 }
 
-func iAPIGroupUpdate(e *httpexpect.Expect, groupId interface{}) *httpexpect.Request {
-	endpoint := "/api/groups/{groupId}"
-	return e.PATCH(endpoint, groupId)
+func iAPIGroupUpdate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, groupIdOrKey interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups/{groupIdOrKey}"
+	return e.PATCH(endpoint, workspaceIdOrAlias, projectIdOrAlias, groupIdOrKey)
 }
 
-func iAPIGroupDelete(e *httpexpect.Expect, groupId interface{}) *httpexpect.Request {
-	endpoint := "/api/groups/{groupId}"
-	return e.DELETE(endpoint, groupId)
-}
-
-func iAPIProjectGroupGet(e *httpexpect.Expect, projectIdOrAlias interface{}, groupIdOrKey interface{}) *httpexpect.Request {
-	endpoint := "/api/projects/{projectIdOrAlias}/groups/{groupIdOrKey}"
-	return e.GET(endpoint, projectIdOrAlias, groupIdOrKey)
-}
-
-func iAPIProjectGroupUpdate(e *httpexpect.Expect, projectIdOrAlias interface{}, groupIdOrKey interface{}) *httpexpect.Request {
-	endpoint := "/api/projects/{projectIdOrAlias}/groups/{groupIdOrKey}"
-	return e.PATCH(endpoint, projectIdOrAlias, groupIdOrKey)
-}
-
-func iAPIProjectGroupDelete(e *httpexpect.Expect, projectIdOrAlias interface{}, groupIdOrKey interface{}) *httpexpect.Request {
-	endpoint := "/api/projects/{projectIdOrAlias}/groups/{groupIdOrKey}"
-	return e.DELETE(endpoint, projectIdOrAlias, groupIdOrKey)
+func iAPIGroupDelete(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, groupIdOrKey interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups/{groupIdOrKey}"
+	return e.DELETE(endpoint, workspaceIdOrAlias, projectIdOrAlias, groupIdOrKey)
 }
 
 func TestIntegrationGroupFilter(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
 	// Unauthorized
-	iAPIProjectGroupsList(e, pid.String()).
+	iAPIGroupFilter(e, wId0, pid.String()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
 	// Invalid project
-	iAPIProjectGroupsList(e, "unknown").
+	iAPIGroupFilter(e, wId0, "unknown").
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
 	// Success
-	res := iAPIProjectGroupsList(e, pid.String()).
+	res := iAPIGroupFilter(e, wId0, pid.String()).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 50).
@@ -103,12 +88,12 @@ func TestIntegrationGroupCreate(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
 	// Unauthorized
-	iAPIProjectGroupCreate(e, pid.String()).
+	iAPIGroupCreate(e, wId0, pid.String()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
 	// Success
-	created := iAPIProjectGroupCreate(e, pid.String()).
+	created := iAPIGroupCreate(e, wId0, pid.String()).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{
 			"name": "Create Group",
@@ -128,7 +113,7 @@ func TestIntegrationGroupCreate(t *testing.T) {
 	created.Value("schemaId").NotNull()
 
 	// Duplicate key
-	iAPIProjectGroupCreate(e, pid.String()).
+	iAPIGroupCreate(e, wId0, pid.String()).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{
 			"name": "Create Group 2",
@@ -142,7 +127,7 @@ func TestIntegrationGroupGet(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
 	// Create group
-	created := iAPIProjectGroupCreate(e, pid.String()).
+	created := iAPIGroupCreate(e, wId0, pid.String()).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{"name": "ToGet", "key": "to-get"}).
 		Expect().
@@ -153,7 +138,7 @@ func TestIntegrationGroupGet(t *testing.T) {
 	groupID := created.Value("id").String().Raw()
 
 	// Get by ID - success
-	got := iAPIGroupGet(e, groupID).
+	got := iAPIGroupGet(e, wId0, pid.String(), groupID).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -169,7 +154,7 @@ func TestIntegrationGroupGet(t *testing.T) {
 	got.Value("schemaId").NotNull()
 
 	// Get by ID - not found
-	iAPIGroupGet(e, "gr_xxxxxx").
+	iAPIGroupGet(e, wId0, pid.String(), "gr_xxxxxx").
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusBadRequest)
@@ -179,7 +164,7 @@ func TestIntegrationGroupUpdate(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
 	// Create
-	created := iAPIProjectGroupCreate(e, pid.String()).
+	created := iAPIGroupCreate(e, wId0, pid.String()).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{"name": "ToUpdate", "key": "to-update"}).
 		Expect().
@@ -190,7 +175,7 @@ func TestIntegrationGroupUpdate(t *testing.T) {
 	groupID := created.Value("id").String().Raw()
 
 	// Update by ID - success
-	updated := iAPIGroupUpdate(e, groupID).
+	updated := iAPIGroupUpdate(e, wId0, pid.String(), groupID).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{"name": "Updated Name"}).
 		Expect().
@@ -207,7 +192,7 @@ func TestIntegrationGroupUpdate(t *testing.T) {
 	updated.Value("schemaId").NotNull()
 
 	// Update by ID - not found
-	iAPIGroupUpdate(e, "gr_unknown").
+	iAPIGroupUpdate(e, wId0, pid.String(), "gr_unknown").
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{"name": "X"}).
 		Expect().
@@ -218,7 +203,7 @@ func TestIntegrationGroupDelete(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
 	// Create group
-	created := iAPIProjectGroupCreate(e, pid.String()).
+	created := iAPIGroupCreate(e, wId0, pid.String()).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{"name": "ToDelete", "key": "to-delete"}).
 		Expect().
@@ -229,7 +214,7 @@ func TestIntegrationGroupDelete(t *testing.T) {
 	groupID := created.Value("id").String().Raw()
 
 	// Delete by ID - success
-	deleted := iAPIGroupDelete(e, groupID).
+	deleted := iAPIGroupDelete(e, wId0, pid.String(), groupID).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -238,7 +223,7 @@ func TestIntegrationGroupDelete(t *testing.T) {
 	deleted.HasValue("id", groupID)
 
 	// Delete by ID - already deleted
-	iAPIGroupDelete(e, groupID).
+	iAPIGroupDelete(e, wId0, pid.String(), groupID).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
@@ -248,7 +233,7 @@ func TestIntegrationGroupGetWithProject(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
 	// Create group
-	created := iAPIProjectGroupCreate(e, pid.String()).
+	created := iAPIGroupCreate(e, wId0, pid.String()).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{"name": "ToGet", "key": "to-get"}).
 		Expect().
@@ -259,7 +244,7 @@ func TestIntegrationGroupGetWithProject(t *testing.T) {
 	groupID := created.Value("id").String().Raw()
 
 	// Get by ID - success
-	got := iAPIProjectGroupGet(e, pid.String(), groupID).
+	got := iAPIGroupGet(e, wId0, pid.String(), groupID).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -275,13 +260,13 @@ func TestIntegrationGroupGetWithProject(t *testing.T) {
 	got.Value("schemaId").NotNull()
 
 	// Get by ID - not found
-	iAPIProjectGroupGet(e, pid.String(), "gr_xxxxxx").
+	iAPIGroupGet(e, wId0, pid.String(), "gr_xxxxxx").
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
 	// Get by key - success
-	got2 := iAPIProjectGroupGet(e, pid.String(), "to-get").
+	got2 := iAPIGroupGet(e, wId0, pid.String(), "to-get").
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -297,7 +282,7 @@ func TestIntegrationGroupGetWithProject(t *testing.T) {
 	got2.Value("schemaId").NotNull()
 
 	// Get by key - not found
-	iAPIProjectGroupGet(e, pid.String(), "unknown").
+	iAPIGroupGet(e, wId0, pid.String(), "unknown").
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
@@ -307,7 +292,7 @@ func TestIntegrationGroupUpdateWithProject(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
 	// Create
-	created := iAPIProjectGroupCreate(e, pid.String()).
+	created := iAPIGroupCreate(e, wId0, pid.String()).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{"name": "ToUpdate", "key": "to-update"}).
 		Expect().
@@ -318,7 +303,7 @@ func TestIntegrationGroupUpdateWithProject(t *testing.T) {
 	groupID := created.Value("id").String().Raw()
 
 	// Update by ID - success
-	updated := iAPIProjectGroupUpdate(e, pid.String(), groupID).
+	updated := iAPIGroupUpdate(e, wId0, pid.String(), groupID).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{"name": "Updated Name"}).
 		Expect().
@@ -335,14 +320,14 @@ func TestIntegrationGroupUpdateWithProject(t *testing.T) {
 	updated.Value("schemaId").NotNull()
 
 	// Update by ID - not found
-	iAPIProjectGroupUpdate(e, pid.String(), "gr_unknown").
+	iAPIGroupUpdate(e, wId0, pid.String(), "gr_unknown").
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{"name": "X"}).
 		Expect().
 		Status(http.StatusNotFound)
 
 	// Update by key - success
-	updated2 := iAPIProjectGroupUpdate(e, pid.String(), "to-update").
+	updated2 := iAPIGroupUpdate(e, wId0, pid.String(), "to-update").
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{"name": "Updated Again"}).
 		Expect().
@@ -358,7 +343,7 @@ func TestIntegrationGroupUpdateWithProject(t *testing.T) {
 	updated2.Value("schemaId").NotNull()
 
 	// Update by key - not found
-	iAPIProjectGroupUpdate(e, pid.String(), "not-found").
+	iAPIGroupUpdate(e, wId0, pid.String(), "not-found").
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{"name": "X"}).
 		Expect().
@@ -369,7 +354,7 @@ func TestIntegrationGroupDeleteWithProject(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
 	// Create groups
-	created1 := iAPIProjectGroupCreate(e, pid.String()).
+	created1 := iAPIGroupCreate(e, wId0, pid.String()).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{"name": "ToDelete", "key": "to-delete"}).
 		Expect().
@@ -377,7 +362,7 @@ func TestIntegrationGroupDeleteWithProject(t *testing.T) {
 		JSON().
 		Object()
 
-	created2 := iAPIProjectGroupCreate(e, pid.String()).
+	created2 := iAPIGroupCreate(e, wId0, pid.String()).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{"name": "ToDelete2", "key": "to-delete2"}).
 		Expect().
@@ -389,7 +374,7 @@ func TestIntegrationGroupDeleteWithProject(t *testing.T) {
 	groupID2 := created2.Value("id").String().Raw()
 
 	// Delete by ID - success
-	deleted := iAPIProjectGroupDelete(e, pid.String(), groupID2).
+	deleted := iAPIGroupDelete(e, wId0, pid.String(), groupID2).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -398,13 +383,13 @@ func TestIntegrationGroupDeleteWithProject(t *testing.T) {
 	deleted.HasValue("id", groupID2)
 
 	// Delete by ID - already deleted
-	iAPIProjectGroupDelete(e, pid.String(), groupID2).
+	iAPIGroupDelete(e, wId0, pid.String(), groupID2).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
 	// Delete by key - success
-	deleted2 := iAPIProjectGroupDelete(e, pid.String(), "to-delete").
+	deleted2 := iAPIGroupDelete(e, wId0, pid.String(), "to-delete").
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -413,7 +398,7 @@ func TestIntegrationGroupDeleteWithProject(t *testing.T) {
 	deleted2.HasValue("id", groupID1)
 
 	// Delete by key - already deleted
-	iAPIProjectGroupDelete(e, pid.String(), "to-delete").
+	iAPIGroupDelete(e, wId0, pid.String(), "to-delete").
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)

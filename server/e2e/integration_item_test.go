@@ -582,7 +582,7 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 }
 
 func IntegrationSearchItem(e *httpexpect.Expect, mId string, page, perPage int, keyword string, sort, sortDir string, filter map[string]any) *httpexpect.Value {
-	res := iAPIModelItemsGet(e, mId).
+	res := iAPIItemFilter(e, wId0, pid, mId).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -602,7 +602,7 @@ func IntegrationSearchItem(e *httpexpect.Expect, mId string, page, perPage int, 
 }
 
 func IntegrationItemsAsGeoJSON(e *httpexpect.Expect, t *testing.T, mId string, page, perPage int) *httpexpect.Value {
-	res := iAPIModelItemsAsGeoJSON(e, mId).
+	res := iAPIItemsAsGeoJSON(e, wId0, pid, mId).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/octet-stream").
@@ -621,7 +621,7 @@ func IntegrationItemsAsGeoJSON(e *httpexpect.Expect, t *testing.T, mId string, p
 }
 
 func IntegrationItemsWithProjectAsGeoJSON(e *httpexpect.Expect, pId string, mId string, page, perPage int) *httpexpect.Value {
-	res := iAPIProjectModelItemsAsGeoJSON(e, pId, mId).
+	res := iAPIItemsAsGeoJSON(e, wId0, pId, mId).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -635,7 +635,7 @@ func IntegrationItemsWithProjectAsGeoJSON(e *httpexpect.Expect, pId string, mId 
 }
 
 func IntegrationItemsAsCSV(e *httpexpect.Expect, mId string, page, perPage int) *httpexpect.String {
-	res := iAPIModelItemsAsCSV(e, mId).
+	res := iAPIItemsAsCSV(e, wId0, pid, mId).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "text/csv").
@@ -649,7 +649,7 @@ func IntegrationItemsAsCSV(e *httpexpect.Expect, mId string, page, perPage int) 
 }
 
 func IntegrationItemsWithProjectAsCSV(e *httpexpect.Expect, pId string, mId string, page, perPage int) *httpexpect.String {
-	res := iAPIProjectModelItemsAsCSV(e, pId, mId).
+	res := iAPIItemsAsCSV(e, wId0, pId, mId).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "text/csv").
@@ -662,67 +662,72 @@ func IntegrationItemsWithProjectAsCSV(e *httpexpect.Expect, pId string, mId stri
 	return res
 }
 
-func iAPIItemGet(e *httpexpect.Expect, itemId interface{}) *httpexpect.Request {
-	endpoint := "/api/items/{itemId}"
-	return e.GET(endpoint, itemId)
+func iAPIItemFilter(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items"
+	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 }
 
-func iAPIItemUpdate(e *httpexpect.Expect, itemId interface{}) *httpexpect.Request {
-	endpoint := "/api/items/{itemId}"
-	return e.PATCH(endpoint, itemId)
+func iAPIItemCreate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items"
+	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 }
 
-func iAPIItemDelete(e *httpexpect.Expect, itemId interface{}) *httpexpect.Request {
-	endpoint := "/api/items/{itemId}"
-	return e.DELETE(endpoint, itemId)
+func iAPIItemGet(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}, itemId interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}"
+	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
 }
 
-func iAPIModelItemsAsCSV(e *httpexpect.Expect, modelId interface{}) *httpexpect.Request {
-	endpoint := "/api/models/{modelId}/items.csv"
-	return e.GET(endpoint, modelId)
+func iAPIItemUpdate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}, itemId interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}"
+	return e.PATCH(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
 }
 
-func iAPIModelItemsAsGeoJSON(e *httpexpect.Expect, modelId interface{}) *httpexpect.Request {
-	endpoint := "/api/models/{modelId}/items.geojson"
-	return e.GET(endpoint, modelId)
+func iAPIItemDelete(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}, itemId interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}"
+	return e.DELETE(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
 }
 
-func iAPIProjectModelItemsAsCSV(e *httpexpect.Expect, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
-	endpoint := "/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.csv"
-	return e.GET(endpoint, projectIdOrAlias, modelIdOrKey)
+func iAPIItemPublish(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}, itemId interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/publish"
+	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
 }
 
-func iAPIProjectModelItemsAsGeoJSON(e *httpexpect.Expect, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
-	endpoint := "/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson"
-	return e.GET(endpoint, projectIdOrAlias, modelIdOrKey)
+func iAPIItemsAsGeoJSON(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson"
+	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
+}
+
+func iAPIItemsAsCSV(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.csv"
+	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 }
 
 // GET /models/{modelId}/items
 func TestIntegrationItemListAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	iAPIModelItemsGet(e, id.NewModelID()).
+	iAPIItemFilter(e, wId0, pid, id.NewModelID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIModelItemsGet(e, id.NewModelID()).
+	iAPIItemFilter(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIModelItemsGet(e, id.NewModelID()).
+	iAPIItemFilter(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIModelItemsGet(e, id.NewModelID()).
+	iAPIItemFilter(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
 		Expect().
 		Status(http.StatusNotFound)
 
-	obj := iAPIModelItemsGet(e, mId1).
+	obj := iAPIItemFilter(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -739,7 +744,7 @@ func TestIntegrationItemListAPI(t *testing.T) {
 	assertItem(a.Value(0), false)
 
 	// asset embeded
-	obj = iAPIModelItemsGet(e, mId1).
+	obj = iAPIItemFilter(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -757,14 +762,14 @@ func TestIntegrationItemListAPI(t *testing.T) {
 	assertItem(a.Value(0), true)
 
 	// key cannot be used
-	iAPIModelItemsGet(e, ikey1).
+	iAPIItemFilter(e, wId0, pid, ikey1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
 		Expect().
 		Status(http.StatusBadRequest)
 
-	r2 := iAPIModelItemCreate(e, mId2).
+	r2 := iAPIItemCreate(e, wId0, pid, mId2).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -796,7 +801,7 @@ func TestIntegrationItemListAPI(t *testing.T) {
 	raw["id"] = itmId1.String()
 	raw["modelId"] = mId1.String()
 
-	iAPIModelItemsGet(e, mId4).
+	iAPIItemFilter(e, wId0, pid, mId4).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -809,7 +814,7 @@ func TestIntegrationItemListAPI(t *testing.T) {
 		HasValue("perPage", 5).
 		HasValue("totalCount", 1)
 
-	r3 := iAPIModelItemCreate(e, mId5).
+	r3 := iAPIItemCreate(e, wId0, pid, mId5).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -836,7 +841,7 @@ func TestIntegrationItemListAPI(t *testing.T) {
 			},
 		})
 
-	iAPIModelItemsGet(e, mId5).
+	iAPIItemFilter(e, wId0, pid, mId5).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -1602,31 +1607,31 @@ func TestIntegrationItemsWithProjectAsCSV(t *testing.T) {
 func TestIntegrationCreateItemAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	iAPIModelItemCreate(e, id.NewModelID()).
+	iAPIItemCreate(e, wId0, pid, id.NewModelID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIModelItemCreate(e, id.NewModelID()).
+	iAPIItemCreate(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIModelItemCreate(e, id.NewModelID()).
+	iAPIItemCreate(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIModelItemCreate(e, id.NewModelID()).
+	iAPIItemCreate(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusBadRequest)
 
-	iAPIModelItemCreate(e, ikey1).
+	iAPIItemCreate(e, wId0, pid, ikey1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusBadRequest)
 
-	r := iAPIModelItemCreate(e, mId1).
+	r := iAPIItemCreate(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1654,7 +1659,7 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 	r.Value("refs").IsEqual([]string{"latest"})
 	r.Value("isMetadata").IsEqual(false)
 
-	obj := iAPIModelItemCreate(e, mId1).
+	obj := iAPIItemCreate(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1694,7 +1699,7 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 				"key":   sfKey4.String(),
 			},
 		})
-	r2 := iAPIModelItemCreate(e, mId2).
+	r2 := iAPIItemCreate(e, wId0, pid, mId2).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1726,7 +1731,7 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 	raw["id"] = itmId1.String()
 	raw["modelId"] = mId1.String()
 
-	obj2 := iAPIModelItemCreate(e, mId4).
+	obj2 := iAPIItemCreate(e, wId0, pid, mId4).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1766,7 +1771,7 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 func TestIntegrationCreateItemAPIWithDefaultValues(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	r := iAPIModelItemCreate(e, dvmId).
+	r := iAPIItemCreate(e, wId0, pid, dvmId).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1796,21 +1801,21 @@ func TestIntegrationCreateItemAPIWithDefaultValues(t *testing.T) {
 func TestIntegrationUpdateItemAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	iAPIItemUpdate(e, id.NewItemID()).
+	iAPIItemUpdate(e, wId0, pid, mId1, id.NewItemID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIItemUpdate(e, id.NewItemID()).
+	iAPIItemUpdate(e, wId0, pid, mId1, id.NewItemID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIItemUpdate(e, id.NewItemID()).
+	iAPIItemUpdate(e, wId0, pid, mId1, id.NewItemID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	r := iAPIItemUpdate(e, itmId1).
+	r := iAPIItemUpdate(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1843,7 +1848,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 	r.Value("modelId").IsEqual(mId1.String())
 	r.Value("refs").IsEqual([]string{"latest"})
 
-	iAPIItemUpdate(e, itmId1).
+	iAPIItemUpdate(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1879,7 +1884,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 			},
 		})
 
-	r2 := iAPIItemUpdate(e, itmId2).
+	r2 := iAPIItemUpdate(e, wId0, pid, mId1, itmId2).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1910,7 +1915,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 	raw["id"] = itmId1.String()
 	raw["modelId"] = mId1.String()
 
-	r = iAPIItemUpdate(e, itmId4).
+	r = iAPIItemUpdate(e, wId0, pid, mId1, itmId4).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1959,7 +1964,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 			},
 		})
 
-	r = iAPIItemUpdate(e, itmId4).
+	r = iAPIItemUpdate(e, wId0, pid, mId1, itmId4).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -2015,7 +2020,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 			},
 		})
 
-	r = iAPIItemUpdate(e, itmId4).
+	r = iAPIItemUpdate(e, wId0, pid, mId1, itmId4).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -2042,7 +2047,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 			},
 		})
 
-	iAPIItemUpdate(e, itmId5).
+	iAPIItemUpdate(e, wId0, pid, mId1, itmId5).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -2085,26 +2090,26 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 func TestIntegrationGetItemAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	iAPIItemGet(e, id.NewItemID()).
+	iAPIItemGet(e, wId0, pid, mId1, id.NewItemID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIItemGet(e, id.NewItemID()).
+	iAPIItemGet(e, wId0, pid, mId1, id.NewItemID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIItemGet(e, id.NewItemID()).
+	iAPIItemGet(e, wId0, pid, mId1, id.NewItemID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIItemGet(e, id.NewItemID()).
+	iAPIItemGet(e, wId0, pid, mId1, id.NewItemID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	iAPIItemGet(e, itmId1).
+	iAPIItemGet(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -2112,7 +2117,7 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 		Object().Keys().
 		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
 
-	r2 := iAPIModelItemCreate(e, mId2).
+	r2 := iAPIItemCreate(e, wId0, pid, mId2).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -2145,7 +2150,7 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 	raw["modelId"] = mId1.String()
 
 	//	get Metadata Item
-	rm := iAPIItemGet(e, itmId3).
+	rm := iAPIItemGet(e, wId0, pid, mId1, itmId3).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -2165,7 +2170,7 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 			},
 		})
 
-	r := iAPIItemGet(e, itmId4).
+	r := iAPIItemGet(e, wId0, pid, mId1, itmId4).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -2197,7 +2202,7 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 			},
 		})
 
-	r3 := iAPIItemGet(e, itmId5).
+	r3 := iAPIItemGet(e, wId0, pid, mId1, itmId5).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -2225,12 +2230,12 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 func TestIntegrationDeleteItemAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	iAPIItemDelete(e, itmId1).
+	iAPIItemDelete(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIItemGet(e, itmId1).
+	iAPIItemGet(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -2238,7 +2243,7 @@ func TestIntegrationDeleteItemAPI(t *testing.T) {
 		Object().Keys().
 		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
 
-	iAPIItemDelete(e, itmId1).
+	iAPIItemDelete(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -2246,7 +2251,7 @@ func TestIntegrationDeleteItemAPI(t *testing.T) {
 		Object().Keys().
 		ContainsAll("id")
 
-	iAPIItemGet(e, itmId1).
+	iAPIItemGet(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
@@ -2286,7 +2291,7 @@ func TestIntegrationPublishItemAPI(t *testing.T) {
 		Array().
 		ContainsAny("public")
 
-	iAPIItemGet(e, itmId1).
+	iAPIItemGet(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).

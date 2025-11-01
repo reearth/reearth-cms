@@ -9,6 +9,8 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
 
+// iAPIModelSchemaExport and iAPIModelMetadataSchemaExport are defined in integration_model_test.go
+
 func iAPISchemaExport(e *httpexpect.Expect, schemaId interface{}) *httpexpect.Request {
 	endpoint := "/api/schemata/{schemaId}/schema.json"
 	return e.GET(endpoint, schemaId)
@@ -19,24 +21,14 @@ func iAPIProjectSchemaExport(e *httpexpect.Expect, projectIdOrAlias interface{},
 	return e.GET(endpoint, projectIdOrAlias, schemaId)
 }
 
-func iAPIProjectModelSchemaExport(e *httpexpect.Expect, projectIdOrAlias interface{}, modelId interface{}) *httpexpect.Request {
-	endpoint := "/api/projects/{projectIdOrAlias}/models/{modelId}/schema.json"
-	return e.GET(endpoint, projectIdOrAlias, modelId)
+func iAPIProjectModelSchemaExport(e *httpexpect.Expect, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+	endpoint := "/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/schema.json"
+	return e.GET(endpoint, projectIdOrAlias, modelIdOrKey)
 }
 
-func iAPIProjectModelMetadataSchemaExport(e *httpexpect.Expect, projectIdOrAlias interface{}, modelId interface{}) *httpexpect.Request {
-	endpoint := "/api/projects/{projectIdOrAlias}/models/{modelId}/metadata_schema.json"
-	return e.GET(endpoint, projectIdOrAlias, modelId)
-}
-
-func iAPIModelSchemaExport(e *httpexpect.Expect, modelId interface{}) *httpexpect.Request {
-	endpoint := "/api/models/{modelId}/schema.json"
-	return e.GET(endpoint, modelId)
-}
-
-func iAPIModelMetadataSchemaExport(e *httpexpect.Expect, modelId interface{}) *httpexpect.Request {
-	endpoint := "/api/models/{modelId}/metadata_schema.json"
-	return e.GET(endpoint, modelId)
+func iAPIProjectModelMetadataSchemaExport(e *httpexpect.Expect, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+	endpoint := "/api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/metadata_schema.json"
+	return e.GET(endpoint, projectIdOrAlias, modelIdOrKey)
 }
 
 func TestIntegrationJSONSchemaExportAPI(t *testing.T) {
@@ -171,17 +163,17 @@ func TestIntegrationJSONSchemaExportAPI(t *testing.T) {
 		})
 
 	// /api/models/{modelId}/schema.json
-	iAPIModelSchemaExport(e, mId1).
+	iAPIModelSchemaExport(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer abcd").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIModelSchemaExport(e, id.NewModelID()).
+	iAPIModelSchemaExport(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	iAPIModelSchemaExport(e, mId1).
+	iAPIModelSchemaExport(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -204,17 +196,17 @@ func TestIntegrationJSONSchemaExportAPI(t *testing.T) {
 		})
 
 	// /api/models/{modelId}/metadata_schema.json
-	iAPIModelMetadataSchemaExport(e, mId1).
+	iAPIModelMetadataSchemaExport(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer abcd").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIModelMetadataSchemaExport(e, id.NewModelID()).
+	iAPIModelMetadataSchemaExport(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	iAPIModelMetadataSchemaExport(e, mId1).
+	iAPIModelMetadataSchemaExport(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
