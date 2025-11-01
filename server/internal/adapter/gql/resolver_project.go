@@ -200,8 +200,8 @@ func (r *queryResolver) Projects(ctx context.Context, workspaceID gqlmodel.ID, k
 }
 
 // CheckProjectAlias is the resolver for the checkProjectAlias field.
-func (r *queryResolver) CheckProjectAlias(ctx context.Context, alias string) (*gqlmodel.ProjectAliasAvailability, error) {
-	return loaders(ctx).Project.CheckAlias(ctx, alias)
+func (r *queryResolver) CheckProjectAlias(ctx context.Context, workspaceID gqlmodel.ID, alias string) (*gqlmodel.ProjectAliasAvailability, error) {
+	return loaders(ctx).Project.CheckAlias(ctx, workspaceID, alias)
 }
 
 // CheckWorkspaceProjectLimits is the resolver for the checkWorkspaceProjectLimits field.

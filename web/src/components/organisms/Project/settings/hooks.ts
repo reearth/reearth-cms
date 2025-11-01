@@ -5,14 +5,14 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { Role } from "@reearth-cms/components/molecules/Member/types";
 import useHooks from "@reearth-cms/components/organisms/Workspace/hooks";
 import {
-  useUpdateProjectMutation,
-  useDeleteProjectMutation,
+  ProjectVisibility,
   Role as GQLRole,
   useCheckProjectAliasLazyQuery,
-  ProjectVisibility,
+  useDeleteProjectMutation,
+  useUpdateProjectMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace, useUserRights, useProject } from "@reearth-cms/state";
+import { useProject, useUserRights, useWorkspace } from "@reearth-cms/state";
 
 export default () => {
   const { projectsRefetch } = useHooks();
@@ -95,10 +95,11 @@ export default () => {
     async (alias: string) => {
       if (!alias) return false;
 
-      const response = await CheckProjectAlias({ variables: { alias } });
+      if (!workspaceId) throw new Error();
+      const response = await CheckProjectAlias({ variables: { workspaceId, alias } });
       return response.data ? response.data.checkProjectAlias.available : false;
     },
-    [CheckProjectAlias],
+    [CheckProjectAlias, workspaceId],
   );
 
   const handleProjectVisibilityChange = useCallback(

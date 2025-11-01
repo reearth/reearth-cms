@@ -63,8 +63,16 @@ func (i *Project) Search(ctx context.Context, f interfaces.ProjectFilter, _ *use
 	return i.repos.Project.Search(ctx, f)
 }
 
-func (i *Project) FindByIDOrAlias(ctx context.Context, id project.IDOrAlias, _ *usecase.Operator) (*project.Project, error) {
-	return i.repos.Project.FindByIDOrAlias(ctx, id)
+func (i *Project) FindByIDOrAlias(ctx context.Context, wsIdOrAlias accountdomain.WorkspaceIDOrAlias, idOrAlias project.IDOrAlias, _ *usecase.Operator) (*project.Project, error) {
+	w, err := i.repos.Workspace.FindByIDOrAlias(ctx, wsIdOrAlias)
+	if err != nil {
+		return nil, err
+	}
+	if w == nil {
+		return nil, rerror.ErrNotFound
+	}
+
+	return i.repos.Project.FindByIDOrAlias(ctx, w.ID(), idOrAlias)
 }
 
 func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectParam, op *usecase.Operator) (_ *project.Project, err error) {
@@ -129,7 +137,7 @@ func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectPara
 				pb = pb.Readme(*param.Readme)
 			}
 			if param.Alias != nil {
-				if ok, _ := i.repos.Project.IsAliasAvailable(ctx, *param.Alias); !ok {
+				if ok, _ := i.repos.Project.IsAliasAvailable(ctx, param.WorkspaceID, *param.Alias); !ok {
 					return nil, interfaces.ErrProjectAliasAlreadyUsed
 				}
 				pb = pb.Alias(*param.Alias)
@@ -228,7 +236,7 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 			}
 
 			if param.Alias != nil && *param.Alias != p.Alias() {
-				if ok, _ := i.repos.Project.IsAliasAvailable(ctx, *param.Alias); !ok {
+				if ok, _ := i.repos.Project.IsAliasAvailable(ctx, p.Workspace(), *param.Alias); !ok {
 					return nil, interfaces.ErrProjectAliasAlreadyUsed
 				}
 
@@ -294,14 +302,14 @@ func (i *Project) ensurePolicy(ctx context.Context, wID workspace.ID, checkType 
 	return nil
 }
 
-func (i *Project) CheckAlias(ctx context.Context, alias string) (bool, error) {
+func (i *Project) CheckAlias(ctx context.Context, wId accountdomain.WorkspaceID, alias string) (bool, error) {
 	return Run1(ctx, nil, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (bool, error) {
 			if !project.CheckAliasPattern(alias) {
 				return false, project.ErrInvalidAlias
 			}
 
-			return i.repos.Project.IsAliasAvailable(ctx, alias)
+			return i.repos.Project.IsAliasAvailable(ctx, wId, alias)
 		})
 }
 
@@ -557,13 +565,21 @@ func (i *Project) CheckProjectLimits(ctx context.Context, workspaceID accountdom
 	return result, nil
 }
 
-func (i *Project) StarProject(ctx context.Context, idOrAlias project.IDOrAlias, op *usecase.Operator) (_ *project.Project, err error) {
+func (i *Project) StarProject(ctx context.Context, wsIdOrAlias accountdomain.WorkspaceIDOrAlias, idOrAlias project.IDOrAlias, op *usecase.Operator) (_ *project.Project, err error) {
 	userID := op.AcOperator.User
 	if userID == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
 
-	p, err := i.repos.Project.FindByIDOrAlias(ctx, idOrAlias)
+	w, err := i.repos.Workspace.FindByIDOrAlias(ctx, wsIdOrAlias)
+	if err != nil {
+		return nil, err
+	}
+	if w == nil {
+		return nil, rerror.ErrNotFound
+	}
+
+	p, err := i.repos.Project.FindByIDOrAlias(ctx, w.ID(), idOrAlias)
 	if err != nil {
 		return nil, err
 	}

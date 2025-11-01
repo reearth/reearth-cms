@@ -7,29 +7,50 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 )
+
+func iAPIAssetFilter(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets"
+	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias)
+}
+
+func iAPIAssetCreate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets"
+	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias)
+}
+
+func iAPIAssetUploadCreate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/uploads"
+	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias)
+}
+
+func iAPIAssetBatchDelete(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets"
+	return e.DELETE(endpoint, workspaceIdOrAlias, projectIdOrAlias)
+}
 
 // GET projects/{projectId}/assets
 func TestIntegrationGetAssetListAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.GET("/api/projects/{projectId}/assets", pid).
+	iAPIAssetFilter(e, wId0, pid).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/projects/{projectId}/assets", pid).
+	iAPIAssetFilter(e, wId0, pid).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/projects/{projectId}/assets", pid).
+	iAPIAssetFilter(e, wId0, pid).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET("/api/projects/{projectId}/assets", id.NewProjectID()).
+	iAPIAssetFilter(e, wId0, id.NewProjectID()).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -41,7 +62,7 @@ func TestIntegrationGetAssetListAPI(t *testing.T) {
 		HasValue("perPage", 5).
 		HasValue("totalCount", 0)
 
-	obj := e.GET("/api/projects/{projectId}/assets", pid).
+	obj := iAPIAssetFilter(e, wId0, pid).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -63,7 +84,7 @@ func TestIntegrationGetAssetListAPI(t *testing.T) {
 		HasValue("createdAt", aid1.Timestamp().UTC().Format(time.RFC3339Nano)).
 		HasValue("updatedAt", time.Time{}.Format("2006-01-02T15:04:05Z"))
 
-	e.GET("/api/projects/{projectId}/assets", pid).
+	iAPIAssetFilter(e, wId0, pid).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
@@ -79,27 +100,27 @@ func TestIntegrationGetAssetListAPI(t *testing.T) {
 func TestIntegrationCreateAssetAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.POST("/api/projects/{projectId}/assets", id.NewProjectID()).
+	iAPIAssetCreate(e, wId0, id.NewProjectID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/projects/{projectId}/assets", id.NewProjectID()).
+	iAPIAssetCreate(e, wId0, id.NewProjectID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/projects/{projectId}/assets", id.NewProjectID()).
+	iAPIAssetCreate(e, wId0, id.NewProjectID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/projects/{projectId}/assets", id.NewProjectID()).
+	iAPIAssetCreate(e, wId0, id.NewProjectID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusBadRequest)
 
 	b := bytes.NewBufferString("test data")
-	e.POST("/api/projects/{projectId}/assets", id.NewProjectID()).
+	iAPIAssetCreate(e, wId0, id.NewProjectID()).
 		WithHeader("authorization", "Bearer "+secret).
 		WithMultipart().
 		WithFile("file", "path", b).
@@ -107,7 +128,7 @@ func TestIntegrationCreateAssetAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound)
 
-	r := e.POST("/api/projects/{projectId}/assets", pid).
+	r := iAPIAssetCreate(e, wId0, pid).
 		WithHeader("authorization", "Bearer "+secret).
 		WithMultipart().
 		WithFile("file", "./testFile.jpg", strings.NewReader("test")).
@@ -128,26 +149,26 @@ func TestIntegrationCreateAssetAPI(t *testing.T) {
 func TestIntegrationCreateAssetUploadAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.POST("/api/projects/{projectId}/assets/uploads", id.NewProjectID()).
+	iAPIAssetUploadCreate(e, wId0, id.NewProjectID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/projects/{projectId}/assets/uploads", id.NewProjectID()).
+	iAPIAssetUploadCreate(e, wId0, id.NewProjectID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/projects/{projectId}/assets/uploads", id.NewProjectID()).
+	iAPIAssetUploadCreate(e, wId0, id.NewProjectID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST("/api/projects/{projectId}/assets/uploads", id.NewProjectID()).
+	iAPIAssetUploadCreate(e, wId0, id.NewProjectID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusBadRequest)
 
-	e.POST("/api/projects/{projectId}/assets/uploads", pid).
+	iAPIAssetUploadCreate(e, wId0, pid).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{"name": "test.jpg"}).
 		Expect().

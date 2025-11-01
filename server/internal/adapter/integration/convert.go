@@ -7,6 +7,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -185,7 +186,7 @@ func tagNameToId(sf *schema.Field, field *integrationapi.Field) {
 	}
 }
 
-func fromQuery(sp schema.Package, req ItemFilterRequestObject) *item.Query {
+func fromQuery(sp schema.Package, mId model.ID, req ItemFilterRequestObject) *item.Query {
 	var s *view.Sort
 	if req.Params.Sort != nil {
 		s = fromSort(sp, *req.Params.Sort, req.Params.Dir)
@@ -196,21 +197,21 @@ func fromQuery(sp schema.Package, req ItemFilterRequestObject) *item.Query {
 		c = fromCondition(sp, *req.Body.Filter)
 	}
 
-	return item.NewQuery(sp.Schema().Project(), req.ModelId, sp.Schema().ID().Ref(), lo.FromPtr(req.Params.Keyword), nil).
+	return item.NewQuery(sp.Schema().Project(), mId, sp.Schema().ID().Ref(), lo.FromPtr(req.Params.Keyword), nil).
 		WithSort(s).
 		WithFilter(c)
 }
 
 func fromSort(_ schema.Package, sort integrationapi.ItemFilterParamsSort, dir *integrationapi.ItemFilterParamsDir) *view.Sort {
 	if dir == nil {
-		dir = lo.ToPtr(integrationapi.ItemFilterParamsDirAsc)
+		dir = lo.ToPtr(integrationapi.Asc)
 	}
 	d := view.DirectionDesc
-	if *dir == integrationapi.ItemFilterParamsDirAsc {
+	if *dir == integrationapi.Asc {
 		d = view.DirectionAsc
 	}
 	switch sort {
-	case integrationapi.ItemFilterParamsSortCreatedAt:
+	case integrationapi.CreatedAt:
 		return &view.Sort{
 			Field: view.FieldSelector{
 				Type: view.FieldTypeCreationDate,
@@ -218,7 +219,7 @@ func fromSort(_ schema.Package, sort integrationapi.ItemFilterParamsSort, dir *i
 			},
 			Direction: d,
 		}
-	case integrationapi.ItemFilterParamsSortUpdatedAt:
+	case integrationapi.UpdatedAt:
 		return &view.Sort{
 			Field: view.FieldSelector{
 				Type: view.FieldTypeModificationDate,

@@ -141,7 +141,7 @@ type ProjectEdge {
 
 extend type Query {
   projects(workspaceId: ID!, keyword: String, sort: Sort, pagination: Pagination): ProjectConnection!
-  checkProjectAlias(alias: String!): ProjectAliasAvailability!
+  checkProjectAlias(workspaceId: ID!, alias: String!): ProjectAliasAvailability!
   checkWorkspaceProjectLimits(workspaceId: ID!): WorkspaceProjectLimits!
 }
 

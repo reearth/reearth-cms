@@ -15,17 +15,17 @@ func (s *Server) ModelFilter(ctx context.Context, request ModelFilterRequestObje
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 
-	prj, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, nil)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ModelFilter404Response{}, err
 		}
-		return nil, err
+		return ModelFilter400Response{}, err
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
 	ml, pi, err := uc.Model.FindByProjectAndKeyword(ctx, interfaces.FindByProjectAndKeywordParam{
-		ProjectID:  prj.ID(),
+		ProjectID:  wp.Project.ID(),
 		Keyword:    request.Params.Keyword,
 		Sort:       toModelSort(request.Params.Sort, request.Params.Dir),
 		Pagination: p,
@@ -59,7 +59,7 @@ func (s *Server) ModelCreate(ctx context.Context, request ModelCreateRequestObje
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
-	p, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, nil)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ModelCreate400Response{}, err
@@ -68,7 +68,7 @@ func (s *Server) ModelCreate(ctx context.Context, request ModelCreateRequestObje
 	}
 
 	input := interfaces.CreateModelParam{
-		ProjectId:   p.ID(),
+		ProjectId:   wp.Project.ID(),
 		Name:        request.Body.Name,
 		Description: request.Body.Description,
 		Key:         request.Body.Key,
@@ -98,98 +98,81 @@ func (s *Server) ModelGet(ctx context.Context, request ModelGetRequestObject) (M
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 
-	m, err := uc.Model.FindByID(ctx, request.ModelId, op)
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ModelGet404Response{}, err
+		}
+		return ModelGet500Response{}, err
+	}
+
+	sp, err := uc.Schema.FindByModel(ctx, wp.Model.ID(), op)
 	if err != nil {
 		return nil, err
 	}
 
-	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
-	if err != nil {
-		return nil, err
-	}
-
-	lastModified, err := uc.Item.LastModifiedByModel(ctx, request.ModelId, op)
+	lastModified, err := uc.Item.LastModifiedByModel(ctx, wp.Model.ID(), op)
 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 		return nil, err
 	}
 
-	return ModelGet200JSONResponse(integrationapi.NewModel(m, sp, lastModified)), nil
+	return ModelGet200JSONResponse(integrationapi.NewModel(wp.Model, sp, lastModified)), nil
 }
 
-func (s *Server) CopyModel(ctx context.Context, request CopyModelRequestObject) (CopyModelResponseObject, error) {
+func (s *Server) ModelCopy(ctx context.Context, request ModelCopyRequestObject) (ModelCopyResponseObject, error) {
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ModelCopy404Response{}, err
+		}
+		return ModelCopy500Response{}, err
+	}
+
 	m, err := uc.Model.Copy(ctx, interfaces.CopyModelParam{
-		ModelId: request.ModelId,
+		ModelId: wp.Model.ID(),
 		Name:    request.Body.Name,
 		Key:     request.Body.Key,
 	}, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return CopyModel404Response{}, err
+			return ModelCopy404Response{}, err
 		}
-		return CopyModel500Response{}, err
+		return ModelCopy500Response{}, err
 	}
 
 	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return CopyModel404Response{}, err
+			return ModelCopy404Response{}, err
 		}
-		return CopyModel500Response{}, err
+		return ModelCopy500Response{}, err
 	}
 
 	lastModified, err := uc.Item.LastModifiedByModel(ctx, m.ID(), op)
 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
-		return CopyModel500Response{}, err
+		return ModelCopy500Response{}, err
 	}
 
-	return CopyModel200JSONResponse(integrationapi.NewModel(m, sp, lastModified)), nil
-}
-
-func (s *Server) ModelGetWithProject(ctx context.Context, request ModelGetWithProjectRequestObject) (ModelGetWithProjectResponseObject, error) {
-	uc := adapter.Usecases(ctx)
-	op := adapter.Operator(ctx)
-
-	p, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return ModelGetWithProject404Response{}, nil
-		}
-		return ModelGetWithProject500Response{}, nil
-	}
-
-	m, err := uc.Model.FindByIDOrKey(ctx, p.ID(), request.ModelIdOrKey, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return ModelGetWithProject404Response{}, nil
-		}
-		return ModelGetWithProject500Response{}, nil
-	}
-
-	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
-	if err != nil {
-		return nil, err
-	}
-
-	lastModified, err := uc.Item.LastModifiedByModel(ctx, m.ID(), op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return ModelGetWithProject404Response{}, nil
-		}
-		return ModelGetWithProject500Response{}, nil
-	}
-
-	return ModelGetWithProject200JSONResponse(integrationapi.NewModel(m, sp, lastModified)), nil
+	return ModelCopy200JSONResponse(integrationapi.NewModel(m, sp, lastModified)), nil
 }
 
 func (s *Server) ModelUpdate(ctx context.Context, request ModelUpdateRequestObject) (ModelUpdateResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ModelUpdate400Response{}, err
+		}
+		return ModelUpdate400Response{}, err
+	}
+
 	input := interfaces.UpdateModelParam{
-		ModelID:     request.ModelId,
+		ModelID:     wp.Model.ID(),
 		Name:        request.Body.Name,
 		Description: request.Body.Description,
 		Key:         request.Body.Key,
@@ -207,7 +190,7 @@ func (s *Server) ModelUpdate(ctx context.Context, request ModelUpdateRequestObje
 		return nil, err
 	}
 
-	lastModified, err := uc.Item.LastModifiedByModel(ctx, request.ModelId, op)
+	lastModified, err := uc.Item.LastModifiedByModel(ctx, wp.Model.ID(), op)
 	if err != nil && !errors.Is(err, rerror.ErrNotFound) {
 		return nil, err
 	}
@@ -215,58 +198,19 @@ func (s *Server) ModelUpdate(ctx context.Context, request ModelUpdateRequestObje
 	return ModelUpdate200JSONResponse(integrationapi.NewModel(m, sp, lastModified)), nil
 }
 
-func (s *Server) ModelUpdateWithProject(ctx context.Context, request ModelUpdateWithProjectRequestObject) (ModelUpdateWithProjectResponseObject, error) {
-	op := adapter.Operator(ctx)
-	uc := adapter.Usecases(ctx)
-
-	prj, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return ModelUpdateWithProject400Response{}, err
-		}
-		return nil, err
-	}
-
-	m, err := uc.Model.FindByIDOrKey(ctx, prj.ID(), request.ModelIdOrKey, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return ModelUpdateWithProject400Response{}, err
-		}
-		return ModelUpdateWithProject400Response{}, err
-	}
-
-	input := interfaces.UpdateModelParam{
-		ModelID:     m.ID(),
-		Name:        request.Body.Name,
-		Description: request.Body.Description,
-		Key:         request.Body.Key,
-	}
-	m, err = uc.Model.Update(ctx, input, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return ModelUpdateWithProject400Response{}, err
-		}
-		return ModelUpdateWithProject400Response{}, err
-	}
-
-	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
-	if err != nil {
-		return nil, err
-	}
-
-	lastModified, err := uc.Item.LastModifiedByModel(ctx, m.ID(), op)
-	if err != nil {
-		return nil, err
-	}
-
-	return ModelUpdateWithProject200JSONResponse(integrationapi.NewModel(m, sp, lastModified)), nil
-}
-
 func (s *Server) ModelDelete(ctx context.Context, request ModelDeleteRequestObject) (ModelDeleteResponseObject, error) {
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
 
-	err := uc.Model.Delete(ctx, request.ModelId, op)
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ModelDelete400Response{}, err
+		}
+		return ModelDelete400Response{}, err
+	}
+
+	err = uc.Model.Delete(ctx, wp.Model.ID(), op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ModelDelete400Response{}, err
@@ -275,39 +219,6 @@ func (s *Server) ModelDelete(ctx context.Context, request ModelDeleteRequestObje
 	}
 
 	return ModelDelete200JSONResponse{
-		Id: request.ModelId.Ref(),
-	}, err
-}
-
-func (s *Server) ModelDeleteWithProject(ctx context.Context, request ModelDeleteWithProjectRequestObject) (ModelDeleteWithProjectResponseObject, error) {
-	uc := adapter.Usecases(ctx)
-	op := adapter.Operator(ctx)
-
-	prj, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return ModelDeleteWithProject400Response{}, err
-		}
-		return nil, err
-	}
-
-	m, err := uc.Model.FindByIDOrKey(ctx, prj.ID(), request.ModelIdOrKey, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return ModelDeleteWithProject400Response{}, err
-		}
-		return ModelDeleteWithProject400Response{}, err
-	}
-
-	err = uc.Model.Delete(ctx, m.ID(), op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return ModelDeleteWithProject400Response{}, err
-		}
-		return ModelDeleteWithProject400Response{}, err
-	}
-
-	return ModelDeleteWithProject200JSONResponse{
-		Id: m.ID().Ref(),
+		Id: wp.Model.ID(),
 	}, err
 }
