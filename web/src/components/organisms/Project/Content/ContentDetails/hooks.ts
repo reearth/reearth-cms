@@ -235,7 +235,7 @@ export default () => {
         variables: {
           id,
         },
-      });
+      }).retain();
       return fromGraphQLGroup(res.data?.node as GQLGroup);
     },
     [getGroup],
