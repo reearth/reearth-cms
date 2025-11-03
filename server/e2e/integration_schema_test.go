@@ -24,21 +24,6 @@ func iAPIFieldDelete(e *httpexpect.Expect, workspaceIdOrAlias interface{}, proje
 	return e.DELETE(endpoint, workspaceIdOrAlias, projectIdOrAlias, schemaId, fieldIdOrKey)
 }
 
-func iAPIProjectModelFieldCreate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
-	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields"
-	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
-}
-
-func iAPIProjectModelFieldUpdate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}, fieldIdOrKey interface{}) *httpexpect.Request {
-	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields/{fieldIdOrKey}"
-	return e.PATCH(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, fieldIdOrKey)
-}
-
-func iAPIProjectModelFieldDelete(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}, fieldIdOrKey interface{}) *httpexpect.Request {
-	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields/{fieldIdOrKey}"
-	return e.DELETE(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, fieldIdOrKey)
-}
-
 // GET /projects/{projectIdOrAlias}/schemata
 func TestIntegrationSchemaFilterAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
@@ -317,7 +302,7 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 
 	res.ContainsKey("id")
 
-	res = e.GET("/api/models/{modelId}", mId1).
+	res = iAPIModelGet(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -362,7 +347,7 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 
 	res.ContainsKey("id")
 
-	res = e.GET("/api/models/{modelId}", mId1).
+	res = iAPIModelGet(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -405,7 +390,7 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 
 	res.ContainsKey("id")
 
-	res = e.GET("/api/models/{modelId}", mId1).
+	res = iAPIModelGet(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -448,7 +433,7 @@ func TestIntegrationFieldCreateAPI(t *testing.T) {
 
 	res.ContainsKey("id")
 
-	res = e.GET("/api/models/{modelId}", mId1).
+	res = iAPIModelGet(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -550,7 +535,7 @@ func TestIntegrationFieldUpdateAPI(t *testing.T) {
 		HasValue("multiple", true).
 		HasValue("required", true)
 
-	obj1 := e.GET("/api/models/{modelId}", mId1).
+	obj1 := iAPIModelGet(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -642,7 +627,7 @@ func TestIntegrationFieldDeleteAPI(t *testing.T) {
 		Object().
 		HasValue("id", fId)
 
-	obj1 := e.GET("/api/models/{modelId}", mId1).
+	obj1 := iAPIModelGet(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -661,268 +646,7 @@ func TestIntegrationFieldDeleteAPI(t *testing.T) {
 }
 
 // POST /api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields
-func TestIntegrationFieldCreateWithProjectAPI(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeeder)
-
-	iAPIProjectModelFieldCreate(e, wId0, pid, id.NewModelID()).
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	iAPIProjectModelFieldCreate(e, wId0, pid, id.NewModelID()).
-		WithHeader("authorization", "secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	iAPIProjectModelFieldCreate(e, wId0, pid, id.NewModelID()).
-		WithHeader("authorization", "Bearer secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	iAPIProjectModelFieldCreate(e, wId0, pid, id.NewModelID()).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusNotFound)
-
-	obj1 := iAPIProjectModelFieldCreate(e, wId0, pid, mId1).
-		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"key":      "fKey1",
-			"type":     "bool",
-			"multiple": false,
-			"required": false,
-		}).
-		Expect().
-		Status(http.StatusOK)
-
-	obj1.JSON().Object().ContainsKey("id")
-
-	obj1 = iAPIProjectModelFieldCreate(e, wId0, pid, ikey1).
-		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"key":      "fKey2",
-			"type":     "bool",
-			"multiple": false,
-			"required": false,
-		}).
-		Expect().
-		Status(http.StatusOK)
-
-	obj1.JSON().Object().ContainsKey("id")
-
-	obj := e.GET("/api/models/{modelId}", mId1).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("id", mId1.String()).
-		HasValue("name", "m1").
-		HasValue("description", "m1 desc").
-		HasValue("key", ikey1.String()).
-		HasValue("projectId", pid).
-		HasValue("schemaId", sid1)
-
-	obj.Value("createdAt").NotNull()
-	obj.Value("updatedAt").NotNull()
-	obj.Value("lastModified").NotNull()
-}
 
 // PATCH /api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields/{FieldIdOrKey}
-func TestIntegrationFieldUpdateWithProjectAPI(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeeder)
-
-	obj := iAPIFieldCreate(e, wId0, pid, sid1).
-		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"key":      "fKey1",
-			"type":     "bool",
-			"multiple": false,
-			"required": false,
-		}).
-		Expect().
-		Status(http.StatusOK)
-	fId := obj.JSON().Object().Value("id").String().Raw()
-
-	iAPIProjectModelFieldUpdate(e, wId0, pid, id.NewModelID(), id.NewFieldID()).
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	iAPIProjectModelFieldUpdate(e, wId0, pid, id.NewModelID(), id.NewFieldID()).
-		WithHeader("authorization", "secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	iAPIProjectModelFieldUpdate(e, wId0, pid, id.NewModelID(), id.NewFieldID()).
-		WithHeader("authorization", "Bearer secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	iAPIProjectModelFieldUpdate(e, wId0, pid, id.NewModelID(), id.NewFieldID()).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusNotFound)
-
-	iAPIProjectModelFieldUpdate(e, wId0, pid, id.NewModelID(), fId).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusNotFound)
-
-	iAPIProjectModelFieldUpdate(e, wId0, pid, mId1, fId).
-		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"key":      "fKey1Updated",
-			"type":     "bool",
-			"multiple": true,
-			"required": true,
-		}).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("id", fId).
-		HasValue("key", "fKey1Updated").
-		HasValue("type", "bool").
-		HasValue("multiple", true).
-		HasValue("required", true)
-
-	iAPIProjectModelFieldUpdate(e, wId0, pid, mId1, "fKey1Updated").
-		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"key":      "fKey1Updated1",
-			"type":     "bool",
-			"multiple": true,
-			"required": true,
-		}).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("id", fId).
-		HasValue("key", "fKey1Updated1").
-		HasValue("type", "bool").
-		HasValue("multiple", true).
-		HasValue("required", true)
-
-	obj1 := e.GET("/api/models/{modelId}", mId1).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("id", mId1.String()).
-		HasValue("name", "m1").
-		HasValue("description", "m1 desc").
-		HasValue("key", ikey1.String()).
-		HasValue("projectId", pid).
-		HasValue("schemaId", sid1)
-
-	obj1.Value("createdAt").NotNull()
-	obj1.Value("updatedAt").NotNull()
-	obj1.Value("lastModified").NotNull()
-}
 
 // DELETE /api/projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields/{FieldIdOrKey}
-func TestIntegrationFieldDeleteWithProjectAPI(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeeder)
-
-	obj := iAPIFieldCreate(e, wId0, pid, sid1).
-		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"key":      "fKey1",
-			"type":     "bool",
-			"multiple": false,
-			"required": false,
-		}).
-		Expect().
-		Status(http.StatusOK)
-	fId := obj.JSON().Object().Value("id").String().Raw()
-
-	iAPIProjectModelFieldDelete(e, wId0, pid, id.NewModelID(), id.NewFieldID()).
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	iAPIProjectModelFieldDelete(e, wId0, pid, id.NewModelID(), id.NewFieldID()).
-		WithHeader("authorization", "secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	iAPIProjectModelFieldDelete(e, wId0, pid, id.NewModelID(), id.NewFieldID()).
-		WithHeader("authorization", "Bearer secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	iAPIProjectModelFieldDelete(e, wId0, pid, id.NewModelID(), id.NewFieldID()).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusNotFound)
-
-	iAPIProjectModelFieldDelete(e, wId0, pid, id.NewModelID(), fId).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusNotFound)
-
-	iAPIProjectModelFieldDelete(e, wId0, pid, ikey1, fId).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("id", fId)
-
-	obj = iAPIFieldCreate(e, wId0, pid, sid1).
-		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"key":      "fKey1",
-			"type":     "bool",
-			"multiple": false,
-			"required": false,
-		}).
-		Expect().
-		Status(http.StatusOK)
-	fId = obj.JSON().Object().Value("id").String().Raw()
-
-	iAPIProjectModelFieldDelete(e, wId0, pid, mId1, fId).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("id", fId)
-
-	obj = iAPIFieldCreate(e, wId0, pid, sid1).
-		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"key":      "fKey1",
-			"type":     "bool",
-			"multiple": false,
-			"required": false,
-		}).
-		Expect().
-		Status(http.StatusOK)
-	fId = obj.JSON().Object().Value("id").String().Raw()
-
-	iAPIProjectModelFieldDelete(e, wId0, pid, mId1, "fKey1").
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("id", fId)
-
-	obj1 := e.GET("/api/models/{modelId}", mId1).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("id", mId1.String()).
-		HasValue("name", "m1").
-		HasValue("description", "m1 desc").
-		HasValue("key", ikey1.String()).
-		HasValue("projectId", pid).
-		HasValue("schemaId", sid1)
-
-	obj1.Value("createdAt").NotNull()
-	obj1.Value("updatedAt").NotNull()
-	obj1.Value("lastModified").NotNull()
-}

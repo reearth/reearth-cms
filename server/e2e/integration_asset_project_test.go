@@ -55,12 +55,7 @@ func TestIntegrationGetAssetListAPI(t *testing.T) {
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
 		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("page", 1).
-		HasValue("perPage", 5).
-		HasValue("totalCount", 0)
+		Status(http.StatusNotFound)
 
 	obj := iAPIAssetFilter(e, wId0, pid).
 		WithHeader("authorization", "Bearer "+secret).
@@ -114,7 +109,7 @@ func TestIntegrationCreateAssetAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIAssetCreate(e, wId0, id.NewProjectID()).
+	iAPIAssetCreate(e, wId0, pid).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusBadRequest)
@@ -163,7 +158,7 @@ func TestIntegrationCreateAssetUploadAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIAssetUploadCreate(e, wId0, id.NewProjectID()).
+	iAPIAssetUploadCreate(e, wId0, pid).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusBadRequest)

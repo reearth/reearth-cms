@@ -662,42 +662,42 @@ func IntegrationItemsWithProjectAsCSV(e *httpexpect.Expect, pId string, mId stri
 	return res
 }
 
-func iAPIItemFilter(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+func iAPIItemFilter(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items"
 	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 }
 
-func iAPIItemCreate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+func iAPIItemCreate(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items"
 	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 }
 
-func iAPIItemGet(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}, itemId interface{}) *httpexpect.Request {
+func iAPIItemGet(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey any, itemId any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}"
 	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
 }
 
-func iAPIItemUpdate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}, itemId interface{}) *httpexpect.Request {
+func iAPIItemUpdate(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey any, itemId any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}"
 	return e.PATCH(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
 }
 
-func iAPIItemDelete(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}, itemId interface{}) *httpexpect.Request {
+func iAPIItemDelete(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey any, itemId any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}"
 	return e.DELETE(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
 }
 
-func iAPIItemPublish(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}, itemId interface{}) *httpexpect.Request {
+func iAPIItemPublish(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey any, itemId any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/publish"
 	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
 }
 
-func iAPIItemsAsGeoJSON(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+func iAPIItemsAsGeoJSON(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson"
 	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 }
 
-func iAPIItemsAsCSV(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, modelIdOrKey interface{}) *httpexpect.Request {
+func iAPIItemsAsCSV(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.csv"
 	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 }
@@ -761,13 +761,12 @@ func TestIntegrationItemListAPI(t *testing.T) {
 	a.Length().IsEqual(1)
 	assertItem(a.Value(0), true)
 
-	// key cannot be used
 	iAPIItemFilter(e, wId0, pid, ikey1).
 		WithHeader("authorization", "Bearer "+secret).
 		WithQuery("page", 1).
 		WithQuery("perPage", 5).
 		Expect().
-		Status(http.StatusBadRequest)
+		Status(http.StatusOK)
 
 	r2 := iAPIItemCreate(e, wId0, pid, mId2).
 		WithHeader("authorization", "Bearer "+secret).
@@ -1884,7 +1883,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 			},
 		})
 
-	r2 := iAPIItemUpdate(e, wId0, pid, mId1, itmId2).
+	r2 := iAPIItemUpdate(e, wId0, pid, mId2, itmId2).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1915,7 +1914,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 	raw["id"] = itmId1.String()
 	raw["modelId"] = mId1.String()
 
-	r = iAPIItemUpdate(e, wId0, pid, mId1, itmId4).
+	r = iAPIItemUpdate(e, wId0, pid, mId3, itmId4).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -1964,7 +1963,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 			},
 		})
 
-	r = iAPIItemUpdate(e, wId0, pid, mId1, itmId4).
+	r = iAPIItemUpdate(e, wId0, pid, mId3, itmId4).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -2020,7 +2019,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 			},
 		})
 
-	r = iAPIItemUpdate(e, wId0, pid, mId1, itmId4).
+	r = iAPIItemUpdate(e, wId0, pid, mId3, itmId4).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -2047,7 +2046,7 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 			},
 		})
 
-	iAPIItemUpdate(e, wId0, pid, mId1, itmId5).
+	iAPIItemUpdate(e, wId0, pid, mId4, itmId5).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -2170,7 +2169,7 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 			},
 		})
 
-	r := iAPIItemGet(e, wId0, pid, mId1, itmId4).
+	r := iAPIItemGet(e, wId0, pid, mId3, itmId4).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -2202,7 +2201,7 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 			},
 		})
 
-	r3 := iAPIItemGet(e, wId0, pid, mId1, itmId5).
+	r3 := iAPIItemGet(e, wId0, pid, mId4, itmId5).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -2260,28 +2259,27 @@ func TestIntegrationDeleteItemAPI(t *testing.T) {
 // POST /items/{itemId}/publish
 func TestIntegrationPublishItemAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
-	ep := "/api/items/{itemId}/publish"
 
-	e.POST(ep, id.NewItemID()).
+	iAPIItemPublish(e, wId0, pid, mId0, id.NewItemID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST(ep, id.NewItemID()).
+	iAPIItemPublish(e, wId0, pid, mId0, id.NewItemID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST(ep, id.NewItemID()).
+	iAPIItemPublish(e, wId0, pid, mId0, id.NewItemID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.POST(ep, id.NewItemID()).
+	iAPIItemPublish(e, wId0, pid, mId0, id.NewItemID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	e.POST(ep, itmId1).
+	iAPIItemPublish(e, wId0, pid, mId0, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).

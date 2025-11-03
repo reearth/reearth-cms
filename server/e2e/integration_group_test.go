@@ -8,27 +8,27 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/app"
 )
 
-func iAPIGroupFilter(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}) *httpexpect.Request {
+func iAPIGroupFilter(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups"
 	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias)
 }
 
-func iAPIGroupCreate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}) *httpexpect.Request {
+func iAPIGroupCreate(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups"
 	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias)
 }
 
-func iAPIGroupGet(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, groupIdOrKey interface{}) *httpexpect.Request {
+func iAPIGroupGet(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, groupIdOrKey any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups/{groupIdOrKey}"
 	return e.GET(endpoint, workspaceIdOrAlias, projectIdOrAlias, groupIdOrKey)
 }
 
-func iAPIGroupUpdate(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, groupIdOrKey interface{}) *httpexpect.Request {
+func iAPIGroupUpdate(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, groupIdOrKey any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups/{groupIdOrKey}"
 	return e.PATCH(endpoint, workspaceIdOrAlias, projectIdOrAlias, groupIdOrKey)
 }
 
-func iAPIGroupDelete(e *httpexpect.Expect, workspaceIdOrAlias interface{}, projectIdOrAlias interface{}, groupIdOrKey interface{}) *httpexpect.Request {
+func iAPIGroupDelete(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, groupIdOrKey any) *httpexpect.Request {
 	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups/{groupIdOrKey}"
 	return e.DELETE(endpoint, workspaceIdOrAlias, projectIdOrAlias, groupIdOrKey)
 }
@@ -157,7 +157,7 @@ func TestIntegrationGroupGet(t *testing.T) {
 	iAPIGroupGet(e, wId0, pid.String(), "gr_xxxxxx").
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
-		Status(http.StatusBadRequest)
+		Status(http.StatusNotFound)
 }
 
 func TestIntegrationGroupUpdate(t *testing.T) {
@@ -196,7 +196,7 @@ func TestIntegrationGroupUpdate(t *testing.T) {
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{"name": "X"}).
 		Expect().
-		Status(http.StatusBadRequest)
+		Status(http.StatusNotFound)
 }
 
 func TestIntegrationGroupDelete(t *testing.T) {
