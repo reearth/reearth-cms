@@ -581,10 +581,10 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 	return nil
 }
 
-func IntegrationSearchItem(e *httpexpect.Expect, mId string, page, perPage int, keyword string, sort, sortDir string, filter map[string]any) *httpexpect.Value {
-	res := iAPIItemFilter(e, wId0, pid, mId).
+func IntegrationSearchItem(e *httpexpect.Expect, workspaceId, projectId, userId, mId string, page, perPage int, keyword string, sort, sortDir string, filter map[string]any) *httpexpect.Value {
+	res := iAPIItemFilter(e, workspaceId, projectId, mId).
 		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("X-Reearth-Debug-User", userId).
 		WithHeader("Content-Type", "application/json").
 		WithQuery("page", page).
 		WithQuery("perPage", perPage).
@@ -601,10 +601,10 @@ func IntegrationSearchItem(e *httpexpect.Expect, mId string, page, perPage int, 
 	return res
 }
 
-func IntegrationItemsAsGeoJSON(e *httpexpect.Expect, t *testing.T, mId string, page, perPage int) *httpexpect.Value {
-	res := iAPIItemsAsGeoJSON(e, wId0, pid, mId).
+func IntegrationItemsAsGeoJSON(e *httpexpect.Expect, t *testing.T, workspaceId, projectId, userId, mId string, page, perPage int) *httpexpect.Value {
+	res := iAPIItemsAsGeoJSON(e, workspaceId, projectId, mId).
 		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("X-Reearth-Debug-User", userId).
 		WithHeader("Content-Type", "application/octet-stream").
 		WithQuery("page", page).
 		WithQuery("perPage", perPage).
@@ -620,24 +620,29 @@ func IntegrationItemsAsGeoJSON(e *httpexpect.Expect, t *testing.T, mId string, p
 	return httpexpect.NewValue(t, v)
 }
 
-func IntegrationItemsWithProjectAsGeoJSON(e *httpexpect.Expect, pId string, mId string, page, perPage int) *httpexpect.Value {
-	res := iAPIItemsAsGeoJSON(e, wId0, pId, mId).
+func IntegrationItemsWithProjectAsGeoJSON(e *httpexpect.Expect, t *testing.T, workspaceId, projectId, userId, mId string, page, perPage int) *httpexpect.Value {
+	res := iAPIItemsAsGeoJSON(e, workspaceId, projectId, mId).
 		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", userId).
+		WithHeader("Content-Type", "application/octet-stream").
 		WithQuery("page", page).
 		WithQuery("perPage", perPage).
-		Expect().
-		Status(http.StatusOK).
-		JSON()
+		Expect()
+	raw := res.Status(http.StatusOK).
+		Body().Raw()
 
-	return res
+	var v any
+	if err := json.Unmarshal([]byte(raw), &v); err != nil {
+		t.Fatalf("bad JSON: %v; body=%q", err, raw)
+	}
+
+	return httpexpect.NewValue(t, v)
 }
 
-func IntegrationItemsAsCSV(e *httpexpect.Expect, mId string, page, perPage int) *httpexpect.String {
-	res := iAPIItemsAsCSV(e, wId0, pid, mId).
+func IntegrationItemsAsCSV(e *httpexpect.Expect, workspaceId, projectId, userId, mId string, page, perPage int) *httpexpect.String {
+	res := iAPIItemsAsCSV(e, workspaceId, projectId, mId).
 		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("X-Reearth-Debug-User", userId).
 		WithHeader("Content-Type", "text/csv").
 		WithQuery("page", page).
 		WithQuery("perPage", perPage).
@@ -648,10 +653,10 @@ func IntegrationItemsAsCSV(e *httpexpect.Expect, mId string, page, perPage int) 
 	return res
 }
 
-func IntegrationItemsWithProjectAsCSV(e *httpexpect.Expect, pId string, mId string, page, perPage int) *httpexpect.String {
-	res := iAPIItemsAsCSV(e, wId0, pId, mId).
+func IntegrationItemsWithProjectAsCSV(e *httpexpect.Expect, workspaceId, projectId, userId, mId string, page, perPage int) *httpexpect.String {
+	res := iAPIItemsAsCSV(e, workspaceId, projectId, mId).
 		WithHeader("Origin", "https://example.com").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("X-Reearth-Debug-User", userId).
 		WithHeader("Content-Type", "text/csv").
 		WithQuery("page", page).
 		WithQuery("perPage", perPage).
@@ -929,12 +934,12 @@ func TestIntegrationSearchItem(t *testing.T) {
 	// endregion
 
 	// region search by id
-	res = IntegrationSearchItem(e, mId, 1, 10, i1Id, "", "", nil)
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 10, i1Id, "", "", nil)
 
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 10, i2Id, "", "", nil)
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 10, i2Id, "", "", nil)
 
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
@@ -990,14 +995,14 @@ func TestIntegrationSearchItem(t *testing.T) {
 	// res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, mi1Id, i2Id})
 
 	// fetch by model with search
-	res = IntegrationSearchItem(e, mId, 1, 2, "updated", "", "", nil)
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "updated", "", "", nil)
 
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
 	// endregion
 
 	// region filter basic
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"basic": map[string]any{
 				"fieldId": map[string]any{
@@ -1012,7 +1017,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"basic": map[string]any{
 				"fieldId": map[string]any{
@@ -1028,7 +1033,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
 
 	// user
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"basic": map[string]any{
 				"fieldId": map[string]any{
@@ -1043,7 +1048,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(2)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"basic": map[string]any{
 				"fieldId": map[string]any{
@@ -1059,7 +1064,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.items").IsNull()
 
 	// date
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"basic": map[string]any{
 				"fieldId": map[string]any{
@@ -1074,7 +1079,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(2)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"basic": map[string]any{
 				"fieldId": map[string]any{
@@ -1096,7 +1101,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 		{"schemaFieldId": fids.textFId, "value": "", "type": "Text"},
 	})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"nullable": map[string]any{
 				"fieldId": map[string]any{
@@ -1110,7 +1115,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"nullable": map[string]any{
 				"fieldId": map[string]any{
@@ -1131,7 +1136,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	// endregion
 
 	// region filters number
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"number": map[string]any{
 				"fieldId": map[string]any{
@@ -1146,7 +1151,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"number": map[string]any{
 				"fieldId": map[string]any{
@@ -1161,7 +1166,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(2)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"number": map[string]any{
 				"fieldId": map[string]any{
@@ -1176,7 +1181,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"number": map[string]any{
 				"fieldId": map[string]any{
@@ -1193,7 +1198,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	// endregion
 
 	// region filters text
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"string": map[string]any{
 				"fieldId": map[string]any{
@@ -1208,7 +1213,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"string": map[string]any{
 				"fieldId": map[string]any{
@@ -1223,7 +1228,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"string": map[string]any{
 				"fieldId": map[string]any{
@@ -1238,7 +1243,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(2)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"string": map[string]any{
 				"fieldId": map[string]any{
@@ -1253,7 +1258,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(0)
 	res.Path("$.items").IsNull()
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"string": map[string]any{
 				"fieldId": map[string]any{
@@ -1268,7 +1273,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"string": map[string]any{
 				"fieldId": map[string]any{
@@ -1285,7 +1290,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	// endregion
 
 	// region filters boolean
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"bool": map[string]any{
 				"fieldId": map[string]any{
@@ -1300,7 +1305,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"bool": map[string]any{
 				"fieldId": map[string]any{
@@ -1317,7 +1322,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	// endregion
 
 	// region filters select
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"multiple": map[string]any{
 				"fieldId": map[string]any{
@@ -1332,7 +1337,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(2)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id, i2Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"multiple": map[string]any{
 				"fieldId": map[string]any{
@@ -1347,7 +1352,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"multiple": map[string]any{
 				"fieldId": map[string]any{
@@ -1364,7 +1369,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	// endregion
 
 	// region filters and
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"and": []map[string]any{
 				{
@@ -1395,7 +1400,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	// endregion
 
 	// region filters or
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"or": []map[string]any{
 				{
@@ -1426,7 +1431,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	// endregion
 
 	// region filters date
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"time": map[string]any{
 				"fieldId": map[string]any{
@@ -1441,7 +1446,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i2Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"basic": map[string]any{
 				"fieldId": map[string]any{
@@ -1456,7 +1461,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(1)
 	res.Path("$.items[:].id").Array().IsEqual([]string{i1Id})
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"time": map[string]any{
 				"fieldId": map[string]any{
@@ -1471,7 +1476,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	res.Path("$.totalCount").Number().IsEqual(0)
 	res.Path("$.items").IsNull()
 
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"time": map[string]any{
 				"fieldId": map[string]any{
@@ -1488,7 +1493,7 @@ func TestIntegrationSearchItem(t *testing.T) {
 	// endregion
 
 	// region filters Metadata tags
-	res = IntegrationSearchItem(e, mId, 1, 2, "", "", "",
+	res = IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 2, "", "", "",
 		map[string]any{
 			"basic": map[string]any{
 				"fieldId": map[string]any{
@@ -1519,7 +1524,7 @@ func TestIntegrationItemsAsGeoJSON(t *testing.T) {
 		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryObject"},
 	})
 
-	res := IntegrationItemsAsGeoJSON(e, t, mId, 1, 10)
+	res := IntegrationItemsAsGeoJSON(e, t, wId.String(), pId, uId1.String(), mId, 1, 10)
 	res.Object().Value("type").String().IsEqual("FeatureCollection")
 	features := res.Object().Value("features").Array()
 	features.Length().IsEqual(1)
@@ -1550,7 +1555,7 @@ func TestIntegrationItemsWithProjectAsGeoJSON(t *testing.T) {
 		{"schemaFieldId": fids.geometryEditorFid, "value": "{\"coordinates\": [[[138.90306434425662,36.11737907906834],[138.90306434425662,36.33622175736386],[138.67187898370287,36.33622175736386],[138.67187898370287,36.11737907906834],[138.90306434425662,36.11737907906834]]],\"type\": \"Polygon\"}", "type": "GeometryEditor"},
 	})
 
-	res := IntegrationItemsWithProjectAsGeoJSON(e, pId, mId, 1, 10)
+	res := IntegrationItemsWithProjectAsGeoJSON(e, t, wId.String(), pId, uId1.String(), mId, 1, 10)
 	res.Object().Value("type").String().IsEqual("FeatureCollection")
 	features := res.Object().Value("features").Array()
 	features.Length().IsEqual(1)
@@ -1577,7 +1582,7 @@ func TestIntegrationItemsAsCSV(t *testing.T) {
 		{"schemaFieldId": fids.geometryObjectFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryObject"},
 	})
 
-	res := IntegrationItemsAsCSV(e, mId, 1, 10)
+	res := IntegrationItemsAsCSV(e, wId.String(), pId, uId1.String(), mId, 1, 10)
 	expected := fmt.Sprintf("id,text,textArea,markdown,bool,select,integer,number,url,date,m_tag,m_checkbox\n%s,test1,,,,,,,,,,\n", i1Id)
 	res.IsEqual(expected)
 }
@@ -1597,7 +1602,7 @@ func TestIntegrationItemsWithProjectAsCSV(t *testing.T) {
 		{"schemaFieldId": fids.geometryEditorFid, "value": "{\"coordinates\":[139.28179282584915,36.58570985749664],\"type\":\"Point\"}", "type": "GeometryEditor"},
 	})
 
-	res := IntegrationItemsWithProjectAsCSV(e, pId, mId, 1, 10)
+	res := IntegrationItemsWithProjectAsCSV(e, wId.String(), pId, uId1.String(), mId, 1, 10)
 	expected := fmt.Sprintf("id,text,textArea,markdown,bool,select,integer,number,url,date,m_tag,m_checkbox\n%s,test1,,,,,30,,,,,\n", i1Id)
 	res.IsEqual(expected)
 }
@@ -1623,12 +1628,12 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 	iAPIItemCreate(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
-		Status(http.StatusBadRequest)
+		Status(http.StatusNotFound)
 
-	iAPIItemCreate(e, wId0, pid, ikey1).
+	iAPIItemCreate(e, wId0, pid, id.RandomKey()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
-		Status(http.StatusBadRequest)
+		Status(http.StatusNotFound)
 
 	r := iAPIItemCreate(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
@@ -2279,7 +2284,7 @@ func TestIntegrationPublishItemAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound)
 
-	iAPIItemPublish(e, wId0, pid, mId0, itmId1).
+	iAPIItemPublish(e, wId0, pid, mId1, itmId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).

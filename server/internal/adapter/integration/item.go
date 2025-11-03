@@ -337,15 +337,7 @@ func (s *Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject
 		return ItemCreate400Response{}, err
 	}
 
-	m, err := uc.Model.FindByID(ctx, wp.Model.ID(), op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return ItemCreate400Response{}, err
-		}
-		return nil, err
-	}
-
-	res, err := createItem(ctx, uc, m, request.Body.Fields, request.Body.MetadataFields, op)
+	res, err := createItem(ctx, uc, wp.Model, request.Body.Fields, request.Body.MetadataFields, op)
 	if err != nil {
 		return ItemCreate400Response{}, err
 	}

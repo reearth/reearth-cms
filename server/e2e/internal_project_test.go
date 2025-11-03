@@ -551,7 +551,7 @@ func TestInternalGetModelAPI(t *testing.T) {
 	mdCtx := metadata.NewOutgoingContext(t.Context(), md)
 
 	// Get model by IDs
-	m, err := client.GetModel(mdCtx, &pb.ModelRequest{ProjectIdOrAlias: pid.String(), ModelIdOrAlias: mId1.String()})
+	m, err := client.GetModel(mdCtx, &pb.ModelRequest{WorkspaceIdOrAlias: wId0.String(), ProjectIdOrAlias: pid.String(), ModelIdOrAlias: mId1.String()})
 	assert.NoError(t, err)
 	assert.Equal(t, mId1.String(), m.Model.Id)
 	assert.Equal(t, ikey1.String(), m.Model.Key)
@@ -561,7 +561,7 @@ func TestInternalGetModelAPI(t *testing.T) {
 	assert.NotNil(t, m.Model.Schema)
 
 	// Get model by aliases
-	m, err = client.GetModel(mdCtx, &pb.ModelRequest{ProjectIdOrAlias: palias, ModelIdOrAlias: ikey1.String()})
+	m, err = client.GetModel(mdCtx, &pb.ModelRequest{WorkspaceIdOrAlias: wId0.String(), ProjectIdOrAlias: palias, ModelIdOrAlias: ikey1.String()})
 	assert.NoError(t, err)
 	assert.Equal(t, mId1.String(), m.Model.Id)
 	assert.Equal(t, ikey1.String(), m.Model.Key)

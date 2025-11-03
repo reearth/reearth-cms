@@ -13,8 +13,8 @@ import (
 // iAPIModelImport is defined in integration_model_test.go
 // iAPIItemFilter and iAPIItemCreate are defined in integration_item_test.go
 
-func IntegrationModelImportMultiPart(e *httpexpect.Expect, mId string, format string, strategy string, mutateSchema bool, geometryFieldKey string, content string) *httpexpect.Value {
-	res := iAPIModelImport(e, wId0, pid, mId).
+func IntegrationModelImportMultiPart(e *httpexpect.Expect, wId, pId, mId string, format string, strategy string, mutateSchema bool, geometryFieldKey string, content string) *httpexpect.Value {
+	res := iAPIModelImport(e, wId, pId, mId).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		//WithHeader("Content-Type", "multipart/form-data").
@@ -31,8 +31,8 @@ func IntegrationModelImportMultiPart(e *httpexpect.Expect, mId string, format st
 	return res
 }
 
-func IntegrationModelImportJSON(e *httpexpect.Expect, mId string, assetId string, format string, strategy string, mutateSchema bool, geometryFieldKey *string) *httpexpect.Value {
-	res := iAPIModelImport(e, wId0, pid, mId).
+func IntegrationModelImportJSON(e *httpexpect.Expect, wId, pId, mId string, assetId string, format string, strategy string, mutateSchema bool, geometryFieldKey *string) *httpexpect.Value {
+	res := iAPIModelImport(e, wId, pId, mId).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithHeader("Content-Type", "application/json").
@@ -60,7 +60,7 @@ func TestIntegrationModelImportMultiPart(t *testing.T) {
 
 	// strategy="insert" and mutateSchema=false
 	fileContent1 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2"}}]}`
-	res1 := IntegrationModelImportMultiPart(e, mId, "geoJson", "insert", false, fids.geometryObjectFid, fileContent1)
+	res1 := IntegrationModelImportMultiPart(e, wId.String(), pId, mId, "geoJson", "insert", false, fids.geometryObjectFid, fileContent1)
 	res1.Object().Value("modelId").String().IsEqual(mId)
 	res1.Object().Value("itemsCount").Number().IsEqual(1)
 	res1.Object().Value("insertedCount").Number().IsEqual(1)
@@ -70,7 +70,7 @@ func TestIntegrationModelImportMultiPart(t *testing.T) {
 	//newFields1.Length().IsEqual(1)
 	//field1 := newFields1.Value(0).Object()
 	//field1.Value("key").String().IsEqual(fids.geometryObjectFid)
-	items1 := IntegrationSearchItem(e, mId, 1, 10, "", "", "", nil)
+	items1 := IntegrationSearchItem(e, wId.String(), pId, uId1.String(), mId, 1, 10, "", "", "", nil)
 	items1.Object().Value("items").Array().Length().IsEqual(1)
 
 	// 	// strategy="insert" and mutateSchema=true
@@ -106,7 +106,7 @@ func TestIntegrationModelImportJSONWithGeoJsonInput(t *testing.T) {
 
 	fileContent1 := `{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [139.28179282584915,36.58570985749664]}, "properties": {"text": "test2", "bool": true}}]}`
 	aId := uploadAsset(e, wId.String(), pId, "./test1.geojson", fileContent1).Object().Value("id").String().Raw()
-	res := IntegrationModelImportJSON(e, mId, aId, "geoJson", "insert", false, &fids.geometryObjectFid)
+	res := IntegrationModelImportJSON(e, wId.String(), pId, mId, aId, "geoJson", "insert", false, &fids.geometryObjectFid)
 	res.Object().Value("modelId").String().IsEqual(mId)
 	res.Object().IsEqual(map[string]any{
 		"modelId":       mId,
@@ -117,7 +117,7 @@ func TestIntegrationModelImportJSONWithGeoJsonInput(t *testing.T) {
 		"newFields":     []any{},
 	})
 
-	obj := iAPIItemFilter(e, wId0, pid, mId).
+	obj := iAPIItemFilter(e, wId, pId, mId).
 		// WithHeader("authorization", "Bearer "+secret).
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithQuery("page", 1).
@@ -148,7 +148,7 @@ func TestIntegrationModelImportJSONWithGeoJsonInput(t *testing.T) {
 			},
 		})
 
-	res = IntegrationModelImportJSON(e, mId, aId, "geoJson", "insert", true, &geometryObjectFId)
+	res = IntegrationModelImportJSON(e, wId.String(), pId, mId, aId, "geoJson", "insert", true, &geometryObjectFId)
 	res.Object().Value("modelId").String().IsEqual(mId)
 	res.Object().ContainsSubset(map[string]any{
 		"modelId":       mId,
@@ -162,7 +162,7 @@ func TestIntegrationModelImportJSONWithGeoJsonInput(t *testing.T) {
 	// insure the same order of fields
 	res.Path("$.newFields[:].type").Array().IsEqual([]string{"text", "bool"})
 
-	obj = iAPIItemFilter(e, wId0, pid, mId).
+	obj = iAPIItemFilter(e, wId, pId, mId).
 		// WithHeader("authorization", "Bearer "+secret).
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithQuery("page", 1).
@@ -223,7 +223,7 @@ func TestIntegrationModelImportJSONWithJsonInput1(t *testing.T) {
 	aId := uploadAsset(e, wId.String(), pId, "./test1.json", jsonContent).Object().Value("id").String().Raw()
 
 	// region strategy="insert" and mutateSchema=false
-	res := IntegrationModelImportJSON(e, mId, aId, "json", "insert", false, nil)
+	res := IntegrationModelImportJSON(e, wId.String(), pId, mId, aId, "json", "insert", false, nil)
 	res.Object().IsEqual(map[string]any{
 		"modelId":       mId,
 		"itemsCount":    3,
@@ -233,7 +233,7 @@ func TestIntegrationModelImportJSONWithJsonInput1(t *testing.T) {
 		"newFields":     []any{},
 	})
 
-	obj := iAPIItemFilter(e, wId0, pid, mId).
+	obj := iAPIItemFilter(e, wId, pId, mId).
 		// WithHeader("authorization", "Bearer "+secret).
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithQuery("page", 1).
@@ -264,7 +264,7 @@ func TestIntegrationModelImportJSONWithJsonInput1(t *testing.T) {
 
 	// jsonContent = `[{"text": "test1", "bool": true, "integer": 1},{"text": "test2", "bool": false, "integer": 2}]`
 	// aId = UploadAsset(e, pId, "./test1.json", jsonContent).Object().Value("id").String().Raw()
-	res = IntegrationModelImportJSON(e, mId, aId, "json", "insert", true, nil)
+	res = IntegrationModelImportJSON(e, wId.String(), pId, mId, aId, "json", "insert", true, nil)
 	res.Object().ContainsSubset(map[string]any{
 		"modelId":       mId,
 		"itemsCount":    3,
@@ -277,7 +277,7 @@ func TestIntegrationModelImportJSONWithJsonInput1(t *testing.T) {
 	res.Path("$.newFields[:].key").Array().IsEqual([]string{"text", "bool", "number", "text2"})
 	res.Path("$.newFields[:].type").Array().IsEqual([]string{"text", "bool", "number", "text"})
 
-	obj = iAPIItemFilter(e, wId0, pid, mId).
+	obj = iAPIItemFilter(e, wId, pId, mId).
 		// WithHeader("authorization", "Bearer "+secret).
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithQuery("page", 1).
@@ -313,7 +313,7 @@ func TestIntegrationModelImportJSONWithJsonInput2(t *testing.T) {
 	mId, _ := createModel(e, pId, "test", "test", "test-1")
 	f := createFieldOfEachType(t, e, mId)
 
-	r := iAPIItemCreate(e, wId0, pid, mId).
+	r := iAPIItemCreate(e, wId, pId, mId).
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -331,7 +331,7 @@ func TestIntegrationModelImportJSONWithJsonInput2(t *testing.T) {
 
 	jsonContent := `[{"id": "` + iId + `","text": "test1", "bool": true, "number": 1.1},{"text": "test2", "bool": false, "number": 2},{"text": "test3", "bool": null, "number": null}]`
 	aId := uploadAsset(e, wId.String(), pId, "./test1.json", jsonContent).Object().Value("id").String().Raw()
-	res := IntegrationModelImportJSON(e, mId, aId, "json", "upsert", true, nil)
+	res := IntegrationModelImportJSON(e, wId.String(), pId, mId, aId, "json", "upsert", true, nil)
 	res.Object().IsEqual(map[string]any{
 		"modelId":       mId,
 		"itemsCount":    3,
@@ -341,7 +341,7 @@ func TestIntegrationModelImportJSONWithJsonInput2(t *testing.T) {
 		"newFields":     []any{},
 	})
 
-	obj := iAPIItemFilter(e, wId0, pid, mId).
+	obj := iAPIItemFilter(e, wId, pId, mId).
 		// WithHeader("authorization", "Bearer "+secret).
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithQuery("page", 1).
@@ -378,7 +378,7 @@ func TestIntegrationModelImportJSONWithJsonInput3(t *testing.T) {
 
 	f := createFieldOfEachType(t, e, mId)
 
-	r := iAPIItemCreate(e, wId0, pid, mId).
+	r := iAPIItemCreate(e, wId, pId, mId).
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithJSON(map[string]interface{}{
 			"fields": []interface{}{
@@ -396,7 +396,7 @@ func TestIntegrationModelImportJSONWithJsonInput3(t *testing.T) {
 
 	jsonContent := `[{"id": "` + iId + `","text": "test1", "bool": true, "number": 1.1},{"text": "test2", "bool": false, "number": 2},{"text": "test3", "bool": null, "number": null}]`
 	aId := uploadAsset(e, wId.String(), pId, "./test1.json", jsonContent).Object().Value("id").String().Raw()
-	res := IntegrationModelImportJSON(e, mId, aId, "json", "update", true, nil)
+	res := IntegrationModelImportJSON(e, wId.String(), pId, mId, aId, "json", "update", true, nil)
 	res.Object().IsEqual(map[string]any{
 		"modelId":       mId,
 		"itemsCount":    3,
@@ -406,7 +406,7 @@ func TestIntegrationModelImportJSONWithJsonInput3(t *testing.T) {
 		"newFields":     []any{},
 	})
 
-	obj := iAPIItemFilter(e, wId0, pid, mId).
+	obj := iAPIItemFilter(e, wId, pId, mId).
 		// WithHeader("authorization", "Bearer "+secret).
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithQuery("page", 1).
