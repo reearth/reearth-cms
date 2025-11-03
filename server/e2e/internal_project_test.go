@@ -127,6 +127,81 @@ func TestInternalListProjectsAPI(t *testing.T) {
 		assert.Equal(t, wId0.String(), p1.WorkspaceId)
 		assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
 	})
+
+	t.Run("List Projects with keyword (topics)", func(t *testing.T) {
+		l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{
+			Keyword: lo.ToPtr("topic1"),
+		})
+		assert.NoError(t, err)
+
+		assert.Equal(t, int64(1), l.TotalCount)
+		assert.Equal(t, 1, len(l.Projects))
+
+		p1 := l.Projects[0]
+		assert.Equal(t, pid.String(), p1.Id)
+		assert.Equal(t, "p1", p1.Name)
+		assert.Equal(t, palias, p1.Alias)
+		assert.Equal(t, wId0.String(), p1.WorkspaceId)
+		assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
+	})
+
+	t.Run("List Projects with topics", func(t *testing.T) {
+		l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{
+			Topics: []string{"topic1"},
+		})
+		assert.NoError(t, err)
+
+		assert.Equal(t, int64(1), l.TotalCount)
+		assert.Equal(t, 1, len(l.Projects))
+
+		p1 := l.Projects[0]
+		assert.Equal(t, pid.String(), p1.Id)
+		assert.Equal(t, "p1", p1.Name)
+		assert.Equal(t, palias, p1.Alias)
+		assert.Equal(t, wId0.String(), p1.WorkspaceId)
+		assert.Equal(t, lo.ToPtr("p1 desc"), p1.Description)
+		assert.NotNil(t, p1.Topics)
+		assert.Equal(t, "topic1", p1.Topics[0])
+	})
+
+	t.Run("List Projects with topic (private project)", func(t *testing.T) {
+		l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{
+			WorkspaceIds: []string{wId0.String()},
+			PublicOnly:   false,
+			Topics:       []string{"topic2"},
+		})
+		assert.NoError(t, err)
+
+		assert.Equal(t, int64(1), l.TotalCount)
+		assert.Equal(t, 1, len(l.Projects))
+
+		assert.Equal(t, pid2.String(), l.Projects[0].Id)
+	})
+
+	t.Run("List Projects with multiple topics", func(t *testing.T) {
+		l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{
+			WorkspaceIds: []string{wId0.String()},
+			PublicOnly:   false,
+			Topics:       []string{"topic1", "topic2"},
+		})
+		assert.NoError(t, err)
+
+		assert.Equal(t, int64(2), l.TotalCount)
+		assert.Equal(t, 2, len(l.Projects))
+
+		assert.Equal(t, pid.String(), l.Projects[0].Id)
+		assert.Equal(t, pid2.String(), l.Projects[1].Id)
+	})
+
+	t.Run("List Projects with non-existence topics", func(t *testing.T) {
+		l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{
+			Topics: []string{"non-existence-topic"},
+		})
+		assert.NoError(t, err)
+
+		assert.Equal(t, int64(0), l.TotalCount)
+		assert.Equal(t, 0, len(l.Projects))
+	})
 }
 
 // GRPC Get Project
@@ -298,14 +373,34 @@ func TestInternalCreateProjectAPI(t *testing.T) {
 	l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{WorkspaceIds: []string{wId0.String()}})
 	assert.NoError(t, err)
 	assert.Equal(t, int64(3), l.TotalCount)
-	for _, p := range l.Projects {
-		if p.Alias == "new_project" {
-			assert.Equal(t, "New Project", p.Name)
-			assert.Equal(t, lo.ToPtr("This is a new project"), p.Description)
-			assert.Equal(t, wId0.String(), p.WorkspaceId)
-			return
+
+	// Test different project creation scenarios
+	t.Run("should create project with topics and handle duplicates and empty values", func(t *testing.T) {
+		_, err := client.CreateProject(mdCtx, &pb.CreateProjectRequest{
+			Name:        "Project With Topics",
+			Alias:       "project_with_topics",
+			Description: lo.ToPtr("Project with topics"),
+			Topics:      &pb.Topics{Values: []string{"topic1", "topic2", "", "topic1", "topic3", "", "topic2"}},
+			WorkspaceId: wId0.String(),
+		})
+		assert.NoError(t, err)
+
+		// Verify the project was created with unique topics only, no duplicates or empty values
+		l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{WorkspaceIds: []string{wId0.String()}})
+		assert.NoError(t, err)
+		var found bool
+		for _, p := range l.Projects {
+			if p.Alias == "project_with_topics" {
+				assert.Equal(t, "Project With Topics", p.Name)
+				assert.Equal(t, lo.ToPtr("Project with topics"), p.Description)
+				assert.Equal(t, wId0.String(), p.WorkspaceId)
+				assert.Equal(t, []string{"topic1", "topic2", "topic3"}, p.Topics)
+				found = true
+				break
+			}
 		}
-	}
+		assert.True(t, found, "Project with topics was not found")
+	})
 }
 
 // GRPC Update Project
@@ -345,6 +440,33 @@ func TestInternalUpdateProjectAPI(t *testing.T) {
 	assert.Equal(t, "updated_alias", p.Project.Alias)
 	assert.Equal(t, wId0.String(), p.Project.WorkspaceId)
 	assert.Equal(t, pid.String(), p.Project.Id)
+
+	// Test updating project topics
+	t.Run("should update project topics and handle duplicates and empty values", func(t *testing.T) {
+		_, err := client.UpdateProject(mdCtx, &pb.UpdateProjectRequest{
+			ProjectId: pid.String(),
+			Topics:    &pb.Topics{Values: []string{"topic1", "", "topic2", "topic1", "", "topic3", "topic2"}},
+		})
+		assert.NoError(t, err)
+
+		// Verify topics were updated with unique values only, no duplicates or empty values
+		p, err := client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: pid.String()})
+		assert.NoError(t, err)
+		assert.Equal(t, []string{"topic1", "topic2", "topic3"}, p.Project.Topics)
+	})
+
+	t.Run("empty topics array should delete topics", func(t *testing.T) {
+		_, err := client.UpdateProject(mdCtx, &pb.UpdateProjectRequest{
+			ProjectId: pid.String(),
+			Topics:    &pb.Topics{Values: []string{}},
+		})
+		assert.NoError(t, err)
+
+		// Verify topics were not deleted
+		p, err := client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: pid.String()})
+		assert.NoError(t, err)
+		assert.Nil(t, p.Project.Topics)
+	})
 }
 
 // GRPC Delete Project
@@ -614,7 +736,7 @@ func createRequest2(e *httpexpect.Expect, projectId, title string, description, 
 				approvedAt
 				closedAt
 			}
-		}		
+		}
   }`,
 		Variables: map[string]any{
 			"projectId":   projectId,

@@ -17,6 +17,7 @@ type ProjectFilter struct {
 	WorkspaceIds *accountdomain.WorkspaceIDList
 	Visibility   *project.Visibility
 	Keyword      *string
+	Topics       []string
 	Sort         *usecasex.Sort
 	Pagination   *usecasex.Pagination
 }
@@ -27,6 +28,7 @@ type CreateProjectParam struct {
 	License       *string
 	Readme        *string
 	Alias         *string
+	Topics        *[]string
 	RequestRoles  []workspace.Role
 	Accessibility *AccessibilityParam
 }
@@ -38,6 +40,7 @@ type UpdateProjectParam struct {
 	License       *string
 	Readme        *string
 	Alias         *string
+	Topics        *[]string
 	RequestRoles  []workspace.Role
 	Accessibility *AccessibilityParam
 }

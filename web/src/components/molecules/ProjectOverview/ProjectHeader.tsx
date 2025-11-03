@@ -17,8 +17,8 @@ const ProjectHeader: React.FC<Props> = ({ onModelSearch, onModelSort }) => {
 
   const modelSortOptions: SortOption[] = useMemo(
     () => [
-      { key: "updatedAt", label: t("Last Modified") },
-      { key: "createdAt", label: t("Created At") },
+      { key: "updatedat", label: t("Last Modified") },
+      { key: "id", label: t("Created At") },
       { key: "name", label: t("Name") },
     ],
     [t],

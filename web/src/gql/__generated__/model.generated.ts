@@ -20,7 +20,11 @@ export type GetModelsQuery = {
       order: number | null;
       createdAt: Date;
       updatedAt: Date;
-      schema: { __typename: "Schema"; id: string };
+      schema: {
+        __typename: "Schema";
+        id: string;
+        fields: Array<{ __typename: "SchemaField"; id: string; type: Types.SchemaFieldType }>;
+      };
     } | null>;
   };
 };
@@ -244,6 +248,27 @@ export type UpdateModelsOrderMutation = {
   } | null;
 };
 
+export type ExportModelMutationVariables = Types.Exact<{
+  modelId: Types.Scalars["ID"]["input"];
+  format: Types.ExportFormat;
+}>;
+
+export type ExportModelMutation = {
+  exportModel: { __typename: "ExportModelPayload"; modelId: string; url: string } | null;
+};
+
+export type ExportModelSchemaMutationVariables = Types.Exact<{
+  modelId: Types.Scalars["ID"]["input"];
+}>;
+
+export type ExportModelSchemaMutation = {
+  exportModelSchema: {
+    __typename: "ExportModelSchemaPayload";
+    modelId: string;
+    url: string;
+  } | null;
+};
+
 export const GetModelsDocument = {
   kind: "Document",
   definitions: [
@@ -325,7 +350,20 @@ export const GetModelsDocument = {
                         name: { kind: "Name", value: "schema" },
                         selectionSet: {
                           kind: "SelectionSet",
-                          selections: [{ kind: "Field", name: { kind: "Name", value: "id" } }],
+                          selections: [
+                            { kind: "Field", name: { kind: "Name", value: "id" } },
+                            {
+                              kind: "Field",
+                              name: { kind: "Name", value: "fields" },
+                              selectionSet: {
+                                kind: "SelectionSet",
+                                selections: [
+                                  { kind: "Field", name: { kind: "Name", value: "id" } },
+                                  { kind: "Field", name: { kind: "Name", value: "type" } },
+                                ],
+                              },
+                            },
+                          ],
                         },
                       },
                     ],
@@ -1317,3 +1355,120 @@ export const UpdateModelsOrderDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateModelsOrderMutation, UpdateModelsOrderMutationVariables>;
+export const ExportModelDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "ExportModel" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "modelId" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "format" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ExportFormat" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "exportModel" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "ObjectValue",
+                  fields: [
+                    {
+                      kind: "ObjectField",
+                      name: { kind: "Name", value: "modelId" },
+                      value: { kind: "Variable", name: { kind: "Name", value: "modelId" } },
+                    },
+                    {
+                      kind: "ObjectField",
+                      name: { kind: "Name", value: "format" },
+                      value: { kind: "Variable", name: { kind: "Name", value: "format" } },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "modelId" } },
+                { kind: "Field", name: { kind: "Name", value: "url" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ExportModelMutation, ExportModelMutationVariables>;
+export const ExportModelSchemaDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "ExportModelSchema" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "modelId" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "exportModelSchema" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "ObjectValue",
+                  fields: [
+                    {
+                      kind: "ObjectField",
+                      name: { kind: "Name", value: "modelId" },
+                      value: { kind: "Variable", name: { kind: "Name", value: "modelId" } },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "modelId" } },
+                { kind: "Field", name: { kind: "Name", value: "url" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ExportModelSchemaMutation, ExportModelSchemaMutationVariables>;

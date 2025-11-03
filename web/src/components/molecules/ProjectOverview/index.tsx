@@ -4,7 +4,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 
 import { SortBy, UpdateProjectInput } from "../Workspace/types";
@@ -17,6 +17,7 @@ type Props = {
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
+  exportLoading?: boolean;
   onProjectUpdate: (data: UpdateProjectInput) => Promise<void>;
   onModelSearch: (value: string) => void;
   onModelSort: (sort: SortBy) => void;
@@ -26,6 +27,7 @@ type Props = {
   onContentNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
   onModelUpdateModalOpen: (model: Model) => Promise<void>;
+  onModelExport: (modelId?: string, format?: ExportFormat) => Promise<void>;
 };
 
 const ProjectOverview: React.FC<Props> = ({
@@ -33,6 +35,7 @@ const ProjectOverview: React.FC<Props> = ({
   hasCreateRight,
   hasUpdateRight,
   hasDeleteRight,
+  exportLoading,
   onModelSearch,
   onModelSort,
   onModelModalOpen,
@@ -40,6 +43,7 @@ const ProjectOverview: React.FC<Props> = ({
   onContentNavigate,
   onModelDeletionModalOpen,
   onModelUpdateModalOpen,
+  onModelExport,
 }) => {
   const t = useT();
 
@@ -65,10 +69,12 @@ const ProjectOverview: React.FC<Props> = ({
                 model={m}
                 hasUpdateRight={hasUpdateRight}
                 hasDeleteRight={hasDeleteRight}
+                exportLoading={exportLoading}
                 onSchemaNavigate={onSchemaNavigate}
                 onContentNavigate={onContentNavigate}
                 onModelDeletionModalOpen={onModelDeletionModalOpen}
                 onModelUpdateModalOpen={onModelUpdateModalOpen}
+                onModelExport={onModelExport}
               />
             ))}
           </GridArea>

@@ -1,6 +1,6 @@
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { FormValues as ProjectFormValues } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
@@ -23,6 +23,11 @@ import { CreateWorkspaceDocument } from "@reearth-cms/gql/__generated__/workspac
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace, useUserRights } from "@reearth-cms/state";
 
+const INITIAL_PAGE = 1;
+const INITIAL_PAGE_SIZE = 10;
+const INITIAL_PAGE_SORT: SortBy = "updatedat";
+const INITIAL_SEARCH_TERM = "";
+
 export default () => {
   const t = useT();
   const navigate = useNavigate();
@@ -30,8 +35,23 @@ export default () => {
 
   const [currentWorkspace, setCurrentWorkspace] = useWorkspace();
 
-  const [searchedProjectName, setSearchedProjectName] = useState<string>("");
-  const [projectSort, setProjectSort] = useState<SortBy>("updatedAt");
+  const location: {
+    state?: {
+      searchTerm?: string;
+      sort: SortBy;
+      page: number;
+      pageSize: number;
+    } | null;
+  } = useLocation();
+
+  const [searchedProjectName, setSearchedProjectName] = useState<string>(
+    location?.state?.searchTerm ?? INITIAL_SEARCH_TERM,
+  );
+  const [projectSort, setProjectSort] = useState<SortBy>(
+    location?.state?.sort ?? INITIAL_PAGE_SORT,
+  );
+  const [page, setPage] = useState(location.state?.page ?? INITIAL_PAGE);
+  const [pageSize, setPageSize] = useState(location.state?.pageSize ?? INITIAL_PAGE_SIZE);
 
   const [userRights] = useUserRights();
   const hasCreateRight = useMemo(() => !!userRights?.project.create, [userRights?.project.create]);
@@ -49,8 +69,8 @@ export default () => {
     variables: {
       workspaceId: workspaceId ?? "",
       keyword: searchedProjectName,
-      sort: { key: projectSort, reverted: false },
-      pagination: { first: 100 },
+      sort: { key: projectSort, reverted: projectSort !== "name" },
+      pagination: { first: pageSize, offset: (page - 1) * pageSize },
     },
     skip: !workspaceId,
   });
@@ -69,6 +89,8 @@ export default () => {
 
   const handleProjectSearch = useCallback(
     (value: string) => {
+      setPage(INITIAL_PAGE);
+      setProjectSort(INITIAL_PAGE_SORT);
       setSearchedProjectName(value);
     },
     [setSearchedProjectName],
@@ -76,10 +98,16 @@ export default () => {
 
   const handleProjectSort = useCallback(
     (sort: SortBy) => {
+      setPage(INITIAL_PAGE);
       setProjectSort(sort);
     },
     [setProjectSort],
   );
+
+  const handlePageChange = useCallback((page: number, pageSize: number) => {
+    setPage(page);
+    setPageSize(pageSize);
+  }, []);
 
   const handleProjectCreate = useCallback(
     async (data: ProjectFormValues) => {
@@ -99,6 +127,8 @@ export default () => {
         throw new Error();
       }
       Notification.success({ message: t("Successfully created project!") });
+      setPage(INITIAL_PAGE);
+      setProjectSort(INITIAL_PAGE_SORT);
       projectsRefetch();
     },
     [createNewProject, workspaceId, projectsRefetch, t],
@@ -127,6 +157,8 @@ export default () => {
         );
         navigate(`/workspace/${results.data.createWorkspace.workspace.id}`);
       }
+      setPage(INITIAL_PAGE);
+      setProjectSort(INITIAL_PAGE_SORT);
       projectsRefetch();
     },
     [createWorkspaceMutation, setCurrentWorkspace, projectsRefetch, navigate, t],
@@ -162,6 +194,10 @@ export default () => {
     projects,
     loading,
     hasCreateRight,
+    page,
+    pageSize,
+    projectSort,
+    totalCount: data?.projects.totalCount ?? 0,
     handleProjectSearch,
     handleProjectSort,
     handleProjectCreate,
@@ -169,5 +205,6 @@ export default () => {
     handleWorkspaceCreate,
     handleProjectAliasCheck,
     projectsRefetch,
+    handlePageChange,
   };
 };

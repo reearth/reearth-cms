@@ -121,3 +121,8 @@ func (b *Builder) StarredBy(starredBy []string) *Builder {
 	b.p.starredBy = slices.Clone(starredBy)
 	return b
 }
+
+func (b *Builder) Topics(topics []string) *Builder {
+	b.p.SetTopics(topics)
+	return b
+}

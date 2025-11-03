@@ -28,6 +28,10 @@ func TestEventDocument_Model(t *testing.T) {
 			Visibility: "public",
 		},
 	}
+
+	pDoc.StarredBy = []string{}
+	pDoc.Topics = []string{}
+
 	tests := []struct {
 		name    string
 		eDoc    EventDocument
@@ -83,6 +87,8 @@ func TestNewEvent(t *testing.T) {
 		Description: "xyz",
 		Alias:       "ppp123",
 		ImageURL:    "https://huho.com/xzy",
+		StarredBy:   []string{},
+		Topics:      []string{},
 		Workspace:   wId.String(),
 		Accessibility: &ProjectAccessibilityDocument{
 			Visibility: "public",

@@ -1,11 +1,11 @@
 import {
   EditorSupportedType,
-  FieldType,
+  SchemaFieldType,
   ObjectSupportedType,
   TypeProperty,
 } from "@reearth-cms/components/molecules/Schema/types";
 
-export function convertFieldType(s: string): FieldType {
+export function convertSchemaFieldType(s: string): SchemaFieldType {
   switch (s) {
     case "textArea":
       return "TextArea";

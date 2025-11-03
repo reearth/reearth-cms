@@ -8,7 +8,7 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
   CreateFieldInput,
   Field,
-  FieldType,
+  SchemaFieldType,
   Group,
   SelectedSchemaType,
   Schema,
@@ -27,7 +27,7 @@ import {
 import {
   Model as GQLModel,
   Group as GQLGroup,
-  SchemaFieldType,
+  SchemaFieldType as GQLSchemaFieldType,
   SchemaFieldTypePropertyInput,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
 import {
@@ -67,7 +67,7 @@ export default () => {
   const [fieldModalShown, setFieldModalShown] = useState(false);
   const [isMeta, setIsMeta] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
-  const [selectedType, setSelectedType] = useState<FieldType | null>(null);
+  const [selectedType, setSelectedType] = useState<SchemaFieldType | null>(null);
   const [collapsed, setCollapsed] = useCollapsedModelMenu();
   const { data: modelsData } = useQuery(GetModelsDocument, {
     variables: {
@@ -285,7 +285,7 @@ export default () => {
           unique: data.unique,
           isTitle: data.isTitle,
           required: data.required,
-          type: data.type as SchemaFieldType,
+          type: data.type as GQLSchemaFieldType,
           typeProperty: data.typeProperty as SchemaFieldTypePropertyInput,
           modelId: selectedSchemaType === "model" ? schemaId : undefined,
           groupId: selectedSchemaType === "group" ? schemaId : undefined,
@@ -356,7 +356,7 @@ export default () => {
         Modal.error({
           title: t("Group cannot be deleted"),
           content: `
-          ${group?.name}${t("is used in", { modelNames })}  
+          ${group?.name}${t("is used in", { modelNames })}
           ${t("If you want to delete it, please delete the field that uses it first.")}`,
         });
         return;
@@ -437,7 +437,7 @@ export default () => {
   );
 
   const handleFieldCreationModalOpen = useCallback(
-    (fieldType: FieldType) => {
+    (fieldType: SchemaFieldType) => {
       if (fieldType === "Group" && groups?.length === 0) {
         confirm({
           title: t("No available Group"),
@@ -600,7 +600,7 @@ export default () => {
             unique: field.unique,
             isTitle: field.isTitle,
             required: field.required,
-            type: field.type as SchemaFieldType,
+            type: field.type as GQLSchemaFieldType,
             typeProperty: field.typeProperty as SchemaFieldTypePropertyInput,
             modelId: schemaId,
             groupId: undefined,

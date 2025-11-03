@@ -62,6 +62,7 @@ export type GetProjectsQueryVariables = Types.Exact<{
 export type GetProjectsQuery = {
   projects: {
     __typename: "ProjectConnection";
+    totalCount: number;
     nodes: Array<{
       __typename: "Project";
       id: string;
@@ -548,6 +549,7 @@ export const GetProjectsDocument = {
                     ],
                   },
                 },
+                { kind: "Field", name: { kind: "Name", value: "totalCount" } },
               ],
             },
           },
