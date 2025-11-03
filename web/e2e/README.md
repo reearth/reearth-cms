@@ -22,6 +22,9 @@ yarn install
 # Run all tests
 yarn e2e
 
+# Run smoke tests only (faster, recommended for local development)
+yarn e2e-smoke
+
 # Run specific test file
 yarn playwright test tests/project/schema.spec.ts
 
@@ -36,7 +39,33 @@ yarn playwright test --headed
 
 # List all tests
 yarn playwright test --list
+
+# List smoke tests only
+yarn playwright test --list --grep @smoke
 ```
+
+### Smoke Tests
+
+Smoke tests are a subset of critical tests tagged with `@smoke` that verify core functionality. These tests:
+
+- Run faster than the full test suite (~48 tests vs 100+ tests)
+- Cover critical user journeys and core features
+- Are executed automatically in CI/CD pipelines
+- Should be run before pushing changes
+
+**Smoke Test Selection Criteria:**
+Tests are tagged with `@smoke` if they verify:
+- **Authentication**: Login and session management
+- **Core CRUD operations**: Creating, reading, updating, and deleting projects, workspaces, models, and content
+- **Essential field types**: Text, boolean, date, number, option, asset, and other field interactions
+- **Critical metadata operations**: Tag, checkbox, and other metadata management
+- **Content publishing**: Publishing and unpublishing workflows
+- **Comment system**: Creating, updating, and deleting comments
+- **User requests**: Request creation and approval workflows
+
+**When to use:**
+- `yarn e2e-smoke`: For quick validation during local development
+- `yarn e2e`: Before submitting PRs or for comprehensive testing
 
 ## ⚙️ Configuration
 
@@ -60,7 +89,7 @@ Configuration is defined in `web/playwright.config.ts`. Key settings:
 - **Browser**: Chromium (default)
 - **Parallel execution**: Enabled
 - **Retries**: Configured for CI/local environments
-- **Timeout**: 30 seconds per test
+- **Timeout**: 120 seconds per test
 
 ## 📁 Project Structure
 
