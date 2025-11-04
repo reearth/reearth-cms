@@ -143,7 +143,7 @@ test("Creating a new request and adding to request has succeeded", async ({ requ
   await expect(requestPage.collapsedModelButton("e2e model name", 1)).toBeVisible();
 });
 
-test("@smoke Navigating between item and request has succeeded", async ({
+test("Navigating between item and request has succeeded", async ({
   contentPage,
   requestPage,
 }) => {

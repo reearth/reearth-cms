@@ -81,7 +81,7 @@ test("Publishing and Unpublishing item from edit page has succeeded", async ({
   await expect(contentPage.draftStatus).toBeVisible();
 });
 
-test("@smoke Publishing and Unpublishing item from table has succeeded", async ({
+test("Publishing and Unpublishing item from table has succeeded", async ({
   contentPage,
   fieldEditorPage,
   schemaPage,

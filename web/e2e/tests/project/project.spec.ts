@@ -156,7 +156,7 @@ test.describe("Project List", () => {
       await expect(projectCard).toBeVisible();
     });
 
-    test("@smoke Check sort with name (a-z)", async ({ workspacePage }) => {
+    test("Check sort with name (a-z)", async ({ workspacePage }) => {
       await workspacePage.selectSortOption("name");
       const projectNames = await workspacePage.getVisibleProjects();
 

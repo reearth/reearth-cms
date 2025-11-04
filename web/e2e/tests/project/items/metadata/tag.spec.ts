@@ -92,7 +92,7 @@ test("Tag metadata creating and updating has succeeded", async ({
   await expect(contentPage.cellByText(tag1)).toBeVisible();
 });
 
-test("@smoke Tag metadata editing has succeeded", async ({
+test("Tag metadata editing has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,
