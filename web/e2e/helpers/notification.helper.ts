@@ -9,4 +9,5 @@ export async function closeNotification(page: Page, isSuccess = true) {
     .locator(".ant-notification-notice-close")
     .click();
   await expect(page.getByRole("alert").last()).toBeHidden();
+  await page.waitForLoadState("networkidle");
 }
