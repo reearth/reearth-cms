@@ -39,33 +39,7 @@ yarn playwright test --headed
 
 # List all tests
 yarn playwright test --list
-
-# List smoke tests only
-yarn playwright test --list --grep @smoke
 ```
-
-### Smoke Tests
-
-Smoke tests are a subset of critical tests tagged with `@smoke` that verify core functionality. These tests:
-
-- Run faster than the full test suite (~48 tests vs 100+ tests)
-- Cover critical user journeys and core features
-- Are executed automatically in CI/CD pipelines
-- Should be run before pushing changes
-
-**Smoke Test Selection Criteria:**
-Tests are tagged with `@smoke` if they verify:
-- **Authentication**: Login and session management
-- **Core CRUD operations**: Creating, reading, updating, and deleting projects, workspaces, models, and content
-- **Essential field types**: Text, boolean, date, number, option, asset, and other field interactions
-- **Critical metadata operations**: Tag, checkbox, and other metadata management
-- **Content publishing**: Publishing and unpublishing workflows
-- **Comment system**: Creating, updating, and deleting comments
-- **User requests**: Request creation and approval workflows
-
-**When to use:**
-- `yarn e2e-smoke`: For quick validation during local development
-- `yarn e2e`: Before submitting PRs or for comprehensive testing
 
 ## ⚙️ Configuration
 
@@ -102,7 +76,7 @@ web/e2e/
 │   └── login.page.ts    # Centralized login page
 ├── support/
 │   ├── .auth/           # Saved authentication state (gitignored)
-│   └── auth.setup.ts    # Authentication setup (runs as @smoke test)
+│   └── auth.setup.ts    # Authentication setup (runs as test)
 ├── tests/               # Test specifications
 ├── global-setup.ts      # Global setup for non-auth tasks (environment, cleanup, etc.)
 └── README.md           # This file
@@ -115,8 +89,6 @@ This project uses a **setup project** pattern for authentication:
 - **Setup Project** (`auth.setup.ts`): Runs as a special test that authenticates once before all tests
 - **Shared State**: Authentication session is saved to `support/.auth/user.json`
 - **Performance**: Login happens once, not per test suite - significantly faster!
-- **Smoke Test Integration**: Tagged with `@smoke` so authentication runs with smoke tests
-- **IAP Support**: Automatically handles IAP authentication when needed
 
 All tests automatically load the saved authentication state, so they start already logged in.
 

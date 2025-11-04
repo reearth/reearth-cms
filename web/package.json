@@ -20,7 +20,6 @@
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "e2e": "playwright test",
-    "e2e-smoke": "playwright test --grep @smoke",
     "lint": "eslint .",
     "fix": "eslint --fix .",
     "format": "prettier --write .",

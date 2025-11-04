@@ -13,11 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Text field editing has succeeded", async ({
-  fieldEditorPage,
-  contentPage,
-  schemaPage,
-}) => {
+test("Text field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
   await fieldEditorPage.fieldTypeButton("Text").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("text1");

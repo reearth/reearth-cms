@@ -81,7 +81,7 @@ test("Publishing and Unpublishing item from edit page has succeeded", async ({
   await expect(contentPage.draftStatus).toBeVisible();
 });
 
-test("@smoke Publishing and Unpublishing item from table has succeeded", async ({
+test("Publishing and Unpublishing item from table has succeeded", async ({
   contentPage,
   fieldEditorPage,
   schemaPage,
@@ -109,11 +109,7 @@ test("@smoke Publishing and Unpublishing item from table has succeeded", async (
   await expect(contentPage.draftStatus).toBeVisible();
 });
 
-test("@smoke Showing item title has succeeded", async ({
-  contentPage,
-  fieldEditorPage,
-  schemaPage,
-}) => {
+test("Showing item title has succeeded", async ({ contentPage, fieldEditorPage, schemaPage }) => {
   await fieldEditorPage.fieldTypeListItem("Text").click();
   await schemaPage.handleFieldForm("text");
   await contentPage.contentText.click();
@@ -147,7 +143,7 @@ test("@smoke Showing item title has succeeded", async ({
   await expect(contentPage.titleByText(`e2e model name / default text`, true)).toBeVisible();
 });
 
-test("@smoke Comment CRUD on Content page has succeeded", async ({
+test("Comment CRUD on Content page has succeeded", async ({
   contentPage,
   fieldEditorPage,
   schemaPage,
@@ -169,7 +165,7 @@ test("@smoke Comment CRUD on Content page has succeeded", async ({
   await contentPage.deleteComment();
 });
 
-test("@smoke Comment CRUD on edit page has succeeded", async ({
+test("Comment CRUD on edit page has succeeded", async ({
   contentPage,
   fieldEditorPage,
   schemaPage,

@@ -39,9 +39,6 @@ const config: PlaywrightTestConfig = {
       },
     },
     {
-      // Using Chromium for better performance and stability in CI environments.
-      // Chromium provides faster test execution and more reliable IAP authentication
-      // compared to WebKit, especially in headless mode on Linux runners.
       name: "chromium",
       use: {
         ...devices["Desktop Chrome"],

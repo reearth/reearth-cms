@@ -7,7 +7,7 @@ import { createIAPContext } from "../utils/iap/iap-auth";
 
 const { userName, password } = config;
 
-setup("@smoke authenticate", async () => {
+setup("authenticate", async () => {
   if (!userName || !password) {
     throw new Error("Missing required configuration: userName and password");
   }

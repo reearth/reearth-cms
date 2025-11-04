@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Text metadata creating and updating has succeeded", async ({
+test("Text metadata creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,
