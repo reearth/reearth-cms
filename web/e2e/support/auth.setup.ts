@@ -1,4 +1,4 @@
-import { chromium, expect, test as setup } from "@playwright/test";
+import { chromium, expect, test } from "@reearth-cms/e2e/fixtures/test";
 
 import { baseURL, authFile } from "../../playwright.config";
 import { config } from "../config/config";
@@ -7,20 +7,16 @@ import { createIAPContext } from "../utils/iap/iap-auth";
 
 const { userName, password } = config;
 
-setup("authenticate", async () => {
-  if (!userName || !password) {
-    throw new Error("Missing required configuration: userName and password");
-  }
+test("authenticate", async () => {
+  expect(userName).toBeTruthy();
+  expect(password).toBeTruthy();
 
   const browser = await chromium.launch({ headless: true });
   const context = await createIAPContext(browser, baseURL);
   const page = await context.newPage();
 
   try {
-    await page.goto(baseURL, {
-      waitUntil: "domcontentloaded",
-    });
-
+    await page.goto(baseURL, { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("button").first()).toBeVisible();
 
     const isLoggedIn = await page
@@ -30,25 +26,14 @@ setup("authenticate", async () => {
       .catch(() => false);
 
     if (!isLoggedIn) {
-      const isNewAuth = await page.getByLabel("Email address").isVisible();
-
+      const loginPage = new LoginPage(page);
+      const isNewAuth = await loginPage.auth0EmailInput.isVisible();
       if (isNewAuth) {
-        await page.getByLabel("Email address").click();
-        await page.getByLabel("Email address").fill(userName);
-        await page.getByRole("button", { name: "Continue", exact: true }).click();
-        await page.getByLabel("Password").click();
-        await page.getByLabel("Password").fill(password);
-        await page.getByRole("button", { name: "Continue", exact: true }).click();
-
-        const withoutPasskeyButton = page.getByRole("button", {
-          name: "Continue without passkeys",
-        });
-        if (await withoutPasskeyButton.isVisible()) {
-          await withoutPasskeyButton.click();
-        }
+        // Auth0 login flow
+        await loginPage.loginWithAuth0(userName as string, password as string);
       } else {
-        const loginPage = new LoginPage(page);
-        await loginPage.login(userName, password);
+        // Custom login flow
+        await loginPage.login(userName as string, password as string);
       }
 
       await page.waitForURL(baseURL, { timeout: 30 * 1000 });

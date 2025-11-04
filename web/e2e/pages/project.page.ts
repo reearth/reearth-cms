@@ -5,6 +5,11 @@ import { BasePage } from "./base.page";
 
 export class ProjectPage extends BasePage {
   readonly modelName = "e2e model name";
+
+  get newProjectButton(): Locator {
+    return this.getByRole("button", { name: "plus New Project" }).first();
+  }
+
   // Navigation menu items
   get schemaMenuItem(): Locator {
     return this.getByRole("menuitem", { name: "Schema" });
@@ -184,7 +189,7 @@ export class ProjectPage extends BasePage {
   // ========== Action Methods (POM Pattern) ==========
 
   async createProject(name: string): Promise<void> {
-    await this.getByRole("button", { name: "plus New Project" }).first().click();
+    await this.newProjectButton.click();
     await this.getByRole("dialog").locator("#name").fill(name);
     await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
