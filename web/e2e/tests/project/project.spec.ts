@@ -87,8 +87,6 @@ test.describe("Project List", () => {
   });
 
   test("Project list pagination", async ({ workspacePage }) => {
-    test.skip();
-
     await test.step("Check first page", async () => {
       await workspacePage.clickPagination(1);
 
@@ -118,7 +116,7 @@ test.describe("Project List", () => {
   });
 
   test.describe("Project list sorting", () => {
-    test("@smoke Check sort with createdAt (latest to oldest)", async ({ workspacePage }) => {
+    test("Check sort with createdAt (latest to oldest)", async ({ workspacePage }) => {
       await workspacePage.selectSortOption("id");
       const projectNames = await workspacePage.getVisibleProjects();
 
@@ -167,7 +165,7 @@ test.describe("Project List", () => {
     });
   });
 
-  test("@smoke Check reset state: search input, sort select, pagination", async ({
+  test("Check reset state: search input, sort select, pagination", async ({
     projectPage,
     workspacePage,
   }) => {

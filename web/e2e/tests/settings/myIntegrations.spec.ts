@@ -16,7 +16,6 @@ test.beforeEach(async ({ reearth, integrationsPage }) => {
 });
 
 test("MyIntegration CRUD has succeeded", async ({ integrationsPage }) => {
-  test.skip();
   await integrationsPage.integrationNameInput.click();
   await integrationsPage.integrationNameInput.fill("newName");
   await integrationsPage.descriptionInput.click();
@@ -35,7 +34,6 @@ test("MyIntegration CRUD has succeeded", async ({ integrationsPage }) => {
 });
 
 test("Webhook CRUD has succeeded", async ({ integrationsPage }) => {
-  test.skip();
   await integrationsPage.webhookTab.click();
   await integrationsPage.newWebhookButton.click();
   await integrationsPage.webhookNameInput.click();

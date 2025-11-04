@@ -17,7 +17,6 @@ test.afterEach(async ({ workspacePage }) => {
 });
 
 test("Tiles CRUD has succeeded", async ({ settingsPage }) => {
-  test.skip();
   await settingsPage.addNewTilesButton.click();
   await settingsPage.defaultTileOption.click();
   await settingsPage.labelledTileOption.click();
