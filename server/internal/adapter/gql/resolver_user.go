@@ -76,11 +76,23 @@ func (r *mutationResolver) DeleteMe(ctx context.Context, input gqlmodel.DeleteMe
 
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*gqlmodel.Me, error) {
-	u := getUser(ctx)
-	if u == nil {
-		return nil, nil
+	var err error
+	g := gateways(ctx)
+	if g != nil && g.AccountsAPI != nil {
+		user, err := g.AccountsAPI.UserRepo.FindMe(ctx)
+		if err != nil {
+			return gqlmodel.ToMeFromAPI(user), nil
+		}
 	}
-	return gqlmodel.ToMe(u), nil
+
+	return nil, err
+	// TODO: once AccountsAPI is fully integrated, remove the above and always use local user context
+	// Fallback to local user context
+	// u := getUser(ctx)
+	// if u == nil {
+	// 	return nil, nil
+	// }
+	// return gqlmodel.ToMe(u), nil
 }
 
 // UserSearch is the resolver for the userSearch field.
