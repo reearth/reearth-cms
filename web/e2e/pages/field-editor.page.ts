@@ -380,7 +380,7 @@ export class FieldEditorPage extends BasePage {
   }
 
   get editorContent(): Locator {
-    return this.getByLabel("Editor content;Press Alt+F1");
+    return this.getByLabel("Editor content");
   }
 
   // Delete field button
