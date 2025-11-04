@@ -22,9 +22,6 @@ yarn install
 # Run all tests
 yarn e2e
 
-# Run smoke tests only (faster, recommended for local development)
-yarn e2e-smoke
-
 # Run specific test file
 yarn playwright test tests/project/schema.spec.ts
 
