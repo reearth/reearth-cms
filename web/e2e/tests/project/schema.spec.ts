@@ -100,7 +100,7 @@ test("Group creating from adding field has succeeded", async ({ schemaPage, fiel
   await fieldEditorPage.cancelButton.click();
 });
 
-test("@smoke Group reordering has succeeded", async ({ schemaPage }) => {
+test("Group reordering has succeeded", async ({ schemaPage }) => {
   await schemaPage.createGroup("group1", "group1");
   await schemaPage.createGroup("group2", "group2");
   await expect(schemaPage.groupMenuItems.nth(0)).toContainText("group1");

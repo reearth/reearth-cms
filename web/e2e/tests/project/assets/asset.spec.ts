@@ -103,7 +103,7 @@ test.describe.parallel("Json file tests", () => {
     await assetsPage.closeNotification();
   });
 
-  test("@smoke Comment CRUD on edit page has succeeded", async ({ assetsPage, contentPage }) => {
+  test("Comment CRUD on edit page has succeeded", async ({ assetsPage, contentPage }) => {
     await assetsPage.editIconButton.click();
     await assetsPage.commentButton.click();
     await contentPage.createComment("comment");
@@ -111,7 +111,7 @@ test.describe.parallel("Json file tests", () => {
     await contentPage.deleteComment();
   });
 
-  test("@smoke Comment CRUD on Asset page has succeeded", async ({ assetsPage, contentPage }) => {
+  test("Comment CRUD on Asset page has succeeded", async ({ assetsPage, contentPage }) => {
     await assetsPage.commentsCountButton(0).click();
     await contentPage.createComment("comment");
     await contentPage.updateComment("comment", "new comment");
@@ -119,7 +119,7 @@ test.describe.parallel("Json file tests", () => {
   });
 });
 
-test("@smoke Previewing png file on modal has succeeded", async ({ assetsPage }) => {
+test("Previewing png file on modal has succeeded", async ({ assetsPage }) => {
   await assetsPage.uploadViaUrl(pngUrl);
 
   await assetsPage.editIconButton.click();

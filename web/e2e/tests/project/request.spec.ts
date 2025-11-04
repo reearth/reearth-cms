@@ -127,7 +127,7 @@ test("@smoke Comment CRUD on Request page has succeeded", async ({ requestPage, 
   await contentPage.deleteComment();
 });
 
-test("@smoke Creating a new request and adding to request has succeeded", async ({
+test("Creating a new request and adding to request has succeeded", async ({
   requestPage,
 }) => {
   await requestPage.backButtonCapitalized.click();
