@@ -182,6 +182,7 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ImageURL(lo.Must(url.Parse("https://test.com"))).
 		Workspace(w.ID()).
 		Alias(palias).
+		Topics([]string{"topic1"}).
 		MustBuild()
 	if err := r.Project.Save(ctx, p); err != nil {
 		return err
@@ -194,6 +195,7 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ImageURL(lo.Must(url.Parse("https://test.com"))).
 		Workspace(w.ID()).
 		Alias(palias2).
+		Topics([]string{"topic2"}).
 		Accessibility(project.NewPrivateAccessibility(*project.NewPublicationSettings(id.ModelIDList{}, false), nil)).
 		MustBuild()
 	if err := r.Project.Save(ctx, p2); err != nil {
