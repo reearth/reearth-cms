@@ -139,7 +139,7 @@ export class ContentPage extends BasePage {
 
   // Table sorting and filtering
   textColumnHeader(): Locator {
-    return this.getByText("text", { exact: true });
+    return this.locator("thead").getByText("text");
   }
   get columnHeaderText(): Locator {
     return this.getByRole("columnheader", { name: "text" });
