@@ -55,6 +55,7 @@ Smoke tests are a subset of critical tests tagged with `@smoke` that verify core
 
 **Smoke Test Selection Criteria:**
 Tests are tagged with `@smoke` if they verify:
+
 - **Authentication**: Login and session management
 - **Core CRUD operations**: Creating, reading, updating, and deleting projects, workspaces, models, and content
 - **Essential field types**: Text, boolean, date, number, option, asset, and other field interactions
@@ -64,6 +65,7 @@ Tests are tagged with `@smoke` if they verify:
 - **User requests**: Request creation and approval workflows
 
 **When to use:**
+
 - `yarn e2e-smoke`: For quick validation during local development
 - `yarn e2e`: Before submitting PRs or for comprehensive testing
 
@@ -101,21 +103,24 @@ web/e2e/
 ├── pages/               # Page Object Models
 │   └── login.page.ts    # Centralized login page
 ├── support/
-│   └── .auth/           # Saved authentication state (gitignored)
+│   ├── .auth/           # Saved authentication state (gitignored)
+│   └── auth.setup.ts    # Authentication setup (runs as test)
 ├── tests/               # Test specifications
-├── global-setup.ts      # Global authentication setup (runs once before all tests)
+├── global-setup.ts      # Global setup for non-auth tasks (environment, cleanup, etc.)
 └── README.md           # This file
 ```
 
 ### 🔐 Centralized Authentication System
 
-This project now uses a **global setup** approach for authentication:
+This project uses a **setup project** pattern for authentication:
 
-- **Global Setup** (`global-setup.ts`): Authenticates once before all tests run
+- **Setup Project** (`auth.setup.ts`): Runs as a special test that authenticates once before all tests
 - **Shared State**: Authentication session is saved to `support/.auth/user.json`
 - **Performance**: Login happens once, not per test suite - significantly faster!
 
 All tests automatically load the saved authentication state, so they start already logged in.
+
+The `global-setup.ts` file is reserved for other global tasks like environment validation or cleanup.
 
 ## 🎯 Page Object Model (POM)
 
@@ -259,7 +264,7 @@ See [claude.md](./claude.md) for detailed contribution guidelines.
 
 - Verify credentials in `web/.env` file (use `REEARTH_CMS_E2E_USERNAME` and `REEARTH_CMS_E2E_PASSWORD`)
 - Delete auth state: `rm -rf web/e2e/support/.auth/user.json`
-- Re-run tests: The global setup will re-authenticate automatically
+- Re-run tests: The setup project will re-authenticate automatically
 
 ### Timeout Errors
 

@@ -59,17 +59,23 @@ test("@smoke Group CRUD has succeeded", async ({ schemaPage, fieldEditorPage }) 
   const updateGroupName = "new e2e group name";
   const updateGroupKey = "new-e2e-group-key";
 
-  await schemaPage.createGroup(groupName, groupKey);
-  await expect(fieldEditorPage.titleByText(groupName, true)).toBeVisible();
-  await expect(schemaPage.textByExact(`#${groupKey}`)).toBeVisible();
+  await test.step("Create group", async () => {
+    await schemaPage.createGroup(groupName, groupKey);
+    await expect(fieldEditorPage.titleByText(groupName, true)).toBeVisible();
+    await expect(schemaPage.textByExact(`#${groupKey}`)).toBeVisible();
+  });
 
-  await schemaPage.updateGroup(updateGroupName, updateGroupKey);
-  await expect(fieldEditorPage.titleByText(updateGroupName)).toBeVisible();
-  await expect(schemaPage.textByExact(`#${updateGroupKey}`)).toBeVisible();
-  await expect(schemaPage.menuItemByName(updateGroupName)).toBeVisible();
+  await test.step("Update group", async () => {
+    await schemaPage.updateGroup(updateGroupName, updateGroupKey);
+    await expect(fieldEditorPage.titleByText(updateGroupName)).toBeVisible();
+    await expect(schemaPage.textByExact(`#${updateGroupKey}`)).toBeVisible();
+    await expect(schemaPage.menuItemByName(updateGroupName)).toBeVisible();
+  });
 
-  await schemaPage.deleteGroup();
-  await expect(fieldEditorPage.titleByText(updateGroupName)).toBeHidden();
+  await test.step("Delete group", async () => {
+    await schemaPage.deleteGroup();
+    await expect(fieldEditorPage.titleByText(updateGroupName)).toBeHidden();
+  });
 });
 
 test("Group creating from adding field has succeeded", async ({ schemaPage, fieldEditorPage }) => {

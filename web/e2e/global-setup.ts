@@ -1,65 +1,26 @@
-import { chromium, expect, FullConfig } from "@playwright/test";
-
-import { authFile, baseURL } from "../playwright.config";
-
-import { config } from "./config/config";
-import { LoginPage } from "./pages/login.page";
-import { createIAPContext } from "./utils/iap/iap-auth";
-
-const { userName, password } = config;
+import { FullConfig } from "@playwright/test";
 
 async function globalSetup(_config: FullConfig) {
-  if (!userName || !password) {
-    throw new Error("Missing required configuration: userName and password in config");
-  }
+  console.log("Running global setup...");
+  validateEnvironment();
+  console.log("Global setup completed successfully");
+}
 
-  console.log("Setting up authentication...");
-
-  const browser = await chromium.launch({ headless: true });
-  const context = await createIAPContext(browser, baseURL);
-  const page = await context.newPage();
-
+function validateEnvironment() {
   try {
-    // Navigate to the login page
-    await page.goto(baseURL, {
-      waitUntil: "domcontentloaded",
-    });
-
-    // Wait for the page to be ready
-    await expect(page.getByRole("button").first()).toBeVisible();
-
-    // Check if already logged in by looking for "New Project" button
-    const isLoggedIn = await page
-      .getByRole("button", { name: "New Project" })
-      .first()
-      .isVisible()
-      .catch(() => false);
-
-    if (!isLoggedIn) {
-      // Perform login using LoginPage
-      const loginPage = new LoginPage(page);
-      await loginPage.login(userName, password);
-
-      // Wait for successful login - should redirect to base URL
-      await page.waitForURL(baseURL, { timeout: 30000 });
-
-      // Verify we're logged in by checking for "New Project" button
-      await expect(page.getByRole("button", { name: "New Project" }).first()).toBeVisible({
-        timeout: 10000,
-      });
+    const required = [
+      "REEARTH_CMS_E2E_USERNAME",
+      "REEARTH_CMS_E2E_PASSWORD",
+      "REEARTH_CMS_E2E_BASEURL",
+    ];
+    const missing = required.filter(key => !process.env[key]);
+    if (missing.length > 0) {
+      throw new Error(
+        `Missing environment variables: ${missing.join(", ")}\n` + `Please check your .env file.`,
+      );
     }
-
-    // Save authentication state
-    await context.storageState({ path: authFile });
-
-    console.log("Authentication setup completed successfully");
   } catch (error) {
-    console.error("Authentication setup failed:", error);
-    throw error;
-  } finally {
-    await page.close();
-    await context.close();
-    await browser.close();
+    console.error("Error validating environment variables:", error);
   }
 }
 
