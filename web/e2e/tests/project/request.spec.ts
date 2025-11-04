@@ -61,7 +61,7 @@ test("@smoke Request creating, searching, updating reviewer, and approving has s
   await expect(requestPage.tableBodyTextByText("APPROVED")).toBeVisible();
 });
 
-test("@smoke Request closing and reopening has succeeded", async ({ requestPage }) => {
+test("Request closing and reopening has succeeded", async ({ requestPage }) => {
   await requestPage.requestMenuItem.click();
   await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
   await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
@@ -96,7 +96,7 @@ test("@smoke Request closing and reopening has succeeded", async ({ requestPage 
   await expect(requestPage.statusText("CLOSED")).toBeVisible();
 });
 
-test("@smoke Comment CRUD on edit page has succeeded", async ({ requestPage }) => {
+test("Comment CRUD on edit page has succeeded", async ({ requestPage }) => {
   await requestPage.requestMenuItem.click();
   await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
   await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
@@ -118,7 +118,7 @@ test("@smoke Comment CRUD on edit page has succeeded", async ({ requestPage }) =
   await expect(requestPage.getByText("new comment")).toBeHidden();
 });
 
-test("@smoke Comment CRUD on Request page has succeeded", async ({ requestPage, contentPage }) => {
+test("Comment CRUD on Request page has succeeded", async ({ requestPage, contentPage }) => {
   await requestPage.requestMenuItem.click();
   await requestPage.commentsCountButton("0").click();
 

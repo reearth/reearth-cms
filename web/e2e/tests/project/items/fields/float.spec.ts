@@ -51,7 +51,7 @@ test("Float field creating and updating has succeeded", async ({
   await expect(contentPage.cellByTextExact("2.2")).toBeVisible();
 });
 
-test("@smoke Float field editing has succeeded", async ({
+test("Float field editing has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,

@@ -109,7 +109,7 @@ test("Publishing and Unpublishing item from table has succeeded", async ({
   await expect(contentPage.draftStatus).toBeVisible();
 });
 
-test("@smoke Showing item title has succeeded", async ({
+test("Showing item title has succeeded", async ({
   contentPage,
   fieldEditorPage,
   schemaPage,
@@ -169,7 +169,7 @@ test("@smoke Comment CRUD on Content page has succeeded", async ({
   await contentPage.deleteComment();
 });
 
-test("@smoke Comment CRUD on edit page has succeeded", async ({
+test("Comment CRUD on edit page has succeeded", async ({
   contentPage,
   fieldEditorPage,
   schemaPage,

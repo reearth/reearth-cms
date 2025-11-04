@@ -218,7 +218,7 @@ test.describe("Model Export tests on Overview page", () => {
   });
 });
 
-test("@smoke Creating Model by using the button on placeholder has succeeded", async ({
+test("Creating Model by using the button on placeholder has succeeded", async ({
   projectPage,
 }) => {
   await projectPage.newModelButtonLast.click();
