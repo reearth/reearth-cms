@@ -6,7 +6,9 @@ package gql
 
 import (
 	"context"
+	"errors"
 
+	user_api "github.com/reearth/reearth-accounts/server/pkg/user"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
@@ -77,22 +79,17 @@ func (r *mutationResolver) DeleteMe(ctx context.Context, input gqlmodel.DeleteMe
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*gqlmodel.Me, error) {
 	var err error
+	var usr *user_api.User
 	g := gateways(ctx)
-	if g != nil && g.AccountsAPI != nil {
-		user, err := g.AccountsAPI.UserRepo.FindMe(ctx)
-		if err != nil {
-			return gqlmodel.ToMeFromAPI(user), nil
-		}
+	if g == nil {
+		return nil, errors.New("no gateways available")
 	}
 
-	return nil, err
-	// TODO: once AccountsAPI is fully integrated, remove the above and always use local user context
-	// Fallback to local user context
-	// u := getUser(ctx)
-	// if u == nil {
-	// 	return nil, nil
-	// }
-	// return gqlmodel.ToMe(u), nil
+	usr, err = g.AccountsAPI.UserRepo.FindMe(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return gqlmodel.ToMeFromAPI(usr), err
 }
 
 // UserSearch is the resolver for the userSearch field.

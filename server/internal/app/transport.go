@@ -27,7 +27,7 @@ func (t DynamicAuthTransport) RoundTrip(req *http.Request) (*http.Response, erro
 		log.Errorfc(req.Context(), "[Accounts API] Request failed: %v", err)
 		return nil, err
 	}
-	
+
 	log.Debugfc(ctx, "[Accounts API] Request successful, status: %d", resp.StatusCode)
 	return resp, nil
 }

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net"
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/gavv/httpexpect/v2"
@@ -27,6 +28,25 @@ import (
 )
 
 type Seeder func(context.Context, *repo.Container, *gateway.Container) error
+
+// setupTestAccountsAPI configures a test accounts API instance for e2e testing
+func setupTestAccountsAPI(t *testing.T, cfg *app.Config) {
+	t.Helper()
+
+	testAccountsAPIHost := os.Getenv("REEARTH_ACCOUNTS_API_HOST")
+	if testAccountsAPIHost == "" {
+		testAccountsAPIHost = "http://"
+		t.Logf("REEARTH_ACCOUNTS_API_HOST not set, defaulting to %s", testAccountsAPIHost)
+	}
+
+	cfg.Account_Api = app.AccountAPIConfig{
+		Enabled: true,
+		Host:    testAccountsAPIHost,
+		Timeout: 10,
+	}
+
+	t.Logf("Test accounts API configured: %s", testAccountsAPIHost)
+}
 
 func init() {
 	mongotest.Env = "REEARTH_CMS_DB"
@@ -130,6 +150,10 @@ func StartServerWithRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder S
 	if !cfg.Asset_Public {
 		f = lo.Must(fs.NewFileWithACL(afero.NewMemMapFs(), cfg.AssetBaseURL, cfg.Host, cfg.AssetUploadURLReplacement))
 	}
+
+	// Configure test accounts API
+	setupTestAccountsAPI(t, cfg)
+
 	gateway := &gateway.Container{File: f}
 	accountGateways := &accountgateway.Container{
 		Mailer: mailer.New(ctx, &mailer.Config{}),
