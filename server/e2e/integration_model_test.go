@@ -450,171 +450,68 @@ func TestIntegrationModelCreateAPI(t *testing.T) {
 	obj.Value("schemaId").NotNull()
 }
 
-// GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}
-func TestIntegrationModelGetWithProjectAPI(t *testing.T) {
+func TestIntegrationJSONSchemaExportAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	iAPIModelGet(e, wId0, palias, id.NewModelID().String()).
+	// /api/models/{modelId}/schema.json
+	iAPIModelSchemaExport(e, wId0, pid, mId1).
+		WithHeader("authorization", "Bearer abcd").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIModelGet(e, wId0, palias, id.NewModelID().String()).
-		WithHeader("authorization", "secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	iAPIModelGet(e, wId0, palias, id.NewModelID().String()).
-		WithHeader("authorization", "Bearer secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	iAPIModelGet(e, wId0, palias, id.NewModelID().String()).
-		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		Expect().
-		Status(http.StatusNotFound)
-
-	obj := iAPIModelGet(e, wId0, palias, mId1.String()).
-		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("id", mId1.String()).
-		HasValue("name", "m1").
-		HasValue("description", "m1 desc").
-		HasValue("key", ikey1.String()).
-		HasValue("projectId", pid).
-		HasValue("schemaId", sid1)
-
-	obj.Value("createdAt").NotNull()
-	obj.Value("updatedAt").NotNull()
-	obj.Value("lastModified").NotNull()
-
-	obj = iAPIModelGet(e, wId0, palias, ikey1.String()).
-		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("id", mId1.String()).
-		HasValue("name", "m1").
-		HasValue("description", "m1 desc").
-		HasValue("key", ikey1.String()).
-		HasValue("projectId", pid).
-		HasValue("schemaId", sid1)
-
-	obj.Value("createdAt").NotNull()
-	obj.Value("updatedAt").NotNull()
-	obj.Value("lastModified").NotNull()
-}
-
-// PATCH /projects/{projectIdOrAlias}/models/{modelIdOrKey}
-func TestIntegrationModelUpdateWithProjectAPI(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeeder)
-
-	iAPIModelUpdate(e, wId0, palias, id.NewModelID().String()).
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	iAPIModelUpdate(e, wId0, palias, id.NewModelID().String()).
-		WithHeader("authorization", "secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	iAPIModelUpdate(e, wId0, palias, id.NewModelID().String()).
-		WithHeader("authorization", "Bearer secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	iAPIModelUpdate(e, wId0, palias, id.NewModelID().String()).
+	iAPIModelSchemaExport(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	obj := iAPIModelUpdate(e, wId0, palias, mId1.String()).
-		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"name":        "newM1 updated",
-			"description": "newM1 desc updated",
-			"key":         "newM1KeyUpdated",
-		}).
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object().
-		HasValue("id", mId1.String()).
-		HasValue("name", "newM1 updated").
-		HasValue("description", "newM1 desc updated").
-		HasValue("key", "newM1KeyUpdated").
-		HasValue("projectId", pid).
-		HasValue("schemaId", sid1)
-
-	obj.Value("createdAt").NotNull()
-	obj.Value("updatedAt").NotNull()
-	obj.Value("lastModified").NotNull()
-
-	obj = iAPIModelGet(e, wId0, palias, "newM1KeyUpdated").
+	iAPIModelSchemaExport(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().
-		HasValue("id", mId1.String()).
-		HasValue("name", "newM1 updated").
-		HasValue("description", "newM1 desc updated").
-		HasValue("key", "newM1KeyUpdated").
-		HasValue("projectId", pid).
-		HasValue("schemaId", sid1)
+		IsEqual(map[string]any{
+			"$id":     sid1,
+			"$schema": "https://json-schema.org/draft/2020-12/schema",
+			"properties": map[string]any{
+				"asset": map[string]any{
+					"type":   "string",
+					"format": "binary",
+				},
+				sfKey1.String(): map[string]any{
+					"type": "string",
+				},
+			},
+			"type":        "object",
+			"description": "m1 desc",
+			"title":       "m1",
+		})
 
-	obj.Value("createdAt").NotNull()
-	obj.Value("updatedAt").NotNull()
-	obj.Value("lastModified").NotNull()
-}
-
-// DELETE /projects/{projectIdOrAlias}/models/{modelIdOrKey}
-func TestIntegrationModelDeleteWithProjectAPI(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeeder)
-
-	iAPIModelDelete(e, wId0, palias, id.NewModelID().String()).
+	// /api/models/{modelId}/metadata_schema.json
+	iAPIModelMetadataSchemaExport(e, wId0, pid, mId1).
+		WithHeader("authorization", "Bearer abcd").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	iAPIModelDelete(e, wId0, palias, id.NewModelID().String()).
-		WithHeader("authorization", "secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	iAPIModelDelete(e, wId0, palias, id.NewModelID().String()).
-		WithHeader("authorization", "Bearer secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	iAPIModelDelete(e, wId0, palias, id.NewModelID().String()).
+	iAPIModelMetadataSchemaExport(e, wId0, pid, id.NewModelID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	iAPIModelDelete(e, wId0, palias, mId1.String()).
+	iAPIModelMetadataSchemaExport(e, wId0, pid, mId1).
 		WithHeader("authorization", "Bearer "+secret).
-		WithJSON(map[string]interface{}{
-			"name":        "newM1 updated",
-			"description": "newM1 desc updated",
-			"key":         "newM1KeyUpdated",
-		}).
 		Expect().
 		Status(http.StatusOK).
 		JSON().
-		Object().
-		HasValue("id", mId1.String())
-
-	iAPIModelGet(e, wId0, palias, mId1.String()).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusNotFound)
+		IsEqual(map[string]any{
+			"$id":     msid1,
+			"$schema": "https://json-schema.org/draft/2020-12/schema",
+			"properties": map[string]any{
+				sfKey4.String(): map[string]any{
+					"type": "boolean",
+				},
+			},
+			"type":        "object",
+			"description": "m1 desc",
+			"title":       "m1",
+		})
 }

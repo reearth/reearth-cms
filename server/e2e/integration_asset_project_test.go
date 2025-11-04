@@ -169,3 +169,49 @@ func TestIntegrationCreateAssetUploadAPI(t *testing.T) {
 		Expect().
 		Status(http.StatusNotFound) // FS does not support upload link
 }
+
+// DELETE projects/{projectId}/assets
+func TestIntegrationBatchDeleteAssetAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	iAPIAssetBatchDelete(e, wId0, id.NewProjectID()).
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	iAPIAssetBatchDelete(e, wId0, id.NewProjectID()).
+		WithHeader("authorization", "secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	iAPIAssetBatchDelete(e, wId0, id.NewProjectID()).
+		WithHeader("authorization", "Bearer secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	iAPIAssetBatchDelete(e, wId0, pid).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusBadRequest)
+
+	iAPIAssetBatchDelete(e, wId0, id.NewProjectID()).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]any{"ids": []string{aid1.String()}}).
+		Expect().
+		Status(http.StatusNotFound)
+
+	iAPIAssetBatchDelete(e, wId0, pid).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]any{"assetIds": []string{aid1.String()}}).
+		Expect().
+		Status(http.StatusOK)
+
+	// Verify deletion
+	iAPIAssetFilter(e, wId0, pid).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		Value("totalCount").
+		IsEqual(2)
+}

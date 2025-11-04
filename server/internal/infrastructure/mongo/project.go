@@ -131,19 +131,23 @@ func (r *ProjectRepo) FindByIDOrAlias(ctx context.Context, wId accountdomain.Wor
 		return nil, rerror.ErrNotFound
 	}
 
-	f := bson.M{
-		"workspace": wId.String(),
-	}
-	o := options.FindOne()
+	filter := bson.M{}
 	if pId != nil {
-		f["id"] = pId.String()
+		filter["id"] = pId.String()
 	}
 	if alias != nil {
-		f["alias"] = *alias
+		filter["alias"] = *alias
+	}
+
+	o := options.FindOne()
+	if alias != nil {
 		o.SetCollation(aliasCollation)
 	}
 
-	return r.findOne(ctx, f, o)
+	// Apply workspace filter using $and to avoid issues with ProjectRepo.readFilter
+	combinedFilter := bson.M{"$and": bson.A{bson.M{"workspace": wId.String()}, filter}}
+
+	return r.findOne(ctx, combinedFilter, o)
 }
 
 func (r *ProjectRepo) IsAliasAvailable(ctx context.Context, wId accountdomain.WorkspaceID, alias string) (bool, error) {

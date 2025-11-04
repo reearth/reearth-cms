@@ -180,7 +180,7 @@ func (s *Server) AssetBatchDelete(ctx context.Context, req AssetBatchDeleteReque
 		return AssetBatchDelete400Response{}, err
 	}
 
-	if req.Body == nil || len(*req.Body.AssetIDs) == 0 {
+	if req.Body == nil || req.Body.AssetIDs == nil || len(*req.Body.AssetIDs) == 0 {
 		return AssetBatchDelete400Response{}, ErrAtLeastOneAssetID
 	}
 
