@@ -1,65 +1,46 @@
-import { chromium, expect, FullConfig } from "@playwright/test";
+import { FullConfig } from "@playwright/test";
 
-import { authFile, baseURL } from "../playwright.config";
-
-import { config } from "./config/config";
-import { LoginPage } from "./pages/login.page";
-import { createIAPContext } from "./utils/iap/iap-auth";
-
-const { userName, password } = config;
-
+/**
+ * Global setup that runs once before all tests.
+ * Note: Authentication is now handled by the setup project (auth.setup.ts)
+ * which runs as a dependency before the chromium project.
+ *
+ * Use this file for:
+ * - Environment validation
+ * - Cleaning up old test artifacts
+ * - Setting up test databases or services
+ * - Any other global non-authentication setup tasks
+ */
 async function globalSetup(_config: FullConfig) {
-  if (!userName || !password) {
-    throw new Error("Missing required configuration: userName and password in config");
+  console.log("Running global setup...");
+
+  validateEnvironment();
+
+  console.log("Global setup completed successfully");
+}
+
+function validateEnvironment() {
+  const required = ["REEARTH_CMS_E2E_USERNAME", "REEARTH_CMS_E2E_PASSWORD"];
+  const missing = required.filter(key => !process.env[key]);
+
+  if (missing.length > 0) {
+    console.warn(
+      `Warning: Missing environment variables: ${missing.join(", ")}\n` +
+        `   Tests may fail. Please check your .env file.`,
+    );
   }
 
-  console.log("Setting up authentication...");
-
-  const browser = await chromium.launch({ headless: true });
-  const context = await createIAPContext(browser, baseURL);
-  const page = await context.newPage();
-
-  try {
-    // Navigate to the login page
-    await page.goto(baseURL, {
-      waitUntil: "domcontentloaded",
-    });
-
-    // Wait for the page to be ready
-    await expect(page.getByRole("button").first()).toBeVisible();
-
-    // Check if already logged in by looking for "New Project" button
-    const isLoggedIn = await page
-      .getByRole("button", { name: "New Project" })
-      .first()
-      .isVisible()
-      .catch(() => false);
-
-    if (!isLoggedIn) {
-      // Perform login using LoginPage
-      const loginPage = new LoginPage(page);
-      await loginPage.login(userName, password);
-
-      // Wait for successful login - should redirect to base URL
-      await page.waitForURL(baseURL, { timeout: 30000 });
-
-      // Verify we're logged in by checking for "New Project" button
-      await expect(page.getByRole("button", { name: "New Project" }).first()).toBeVisible({
-        timeout: 10000,
-      });
+  const baseUrl = process.env.REEARTH_CMS_E2E_BASEURL;
+  if (baseUrl) {
+    try {
+      new URL(baseUrl);
+      console.log(`✓ Base URL validated: ${baseUrl}`);
+    } catch {
+      throw new Error(
+        `Invalid REEARTH_CMS_E2E_BASEURL: "${baseUrl}"\n` +
+          `Must be a valid URL (e.g., http://localhost:3000)`,
+      );
     }
-
-    // Save authentication state
-    await context.storageState({ path: authFile });
-
-    console.log("Authentication setup completed successfully");
-  } catch (error) {
-    console.error("Authentication setup failed:", error);
-    throw error;
-  } finally {
-    await page.close();
-    await context.close();
-    await browser.close();
   }
 }
 

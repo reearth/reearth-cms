@@ -23,7 +23,6 @@ const config: PlaywrightTestConfig = {
     screenshot: "only-on-failure",
     video: process.env.CI ? "on-first-retry" : "retain-on-failure",
     locale: "en-US",
-    storageState: authFile,
   },
   testDir: "./e2e/tests",
   testMatch: "**/*.spec.ts",
@@ -32,10 +31,23 @@ const config: PlaywrightTestConfig = {
   fullyParallel: false,
   projects: [
     {
-      name: "chromium",
+      name: "setup",
+      testDir: "./e2e/support",
+      testMatch: "auth.setup.ts",
       use: {
         ...devices["Desktop Chrome"],
       },
+    },
+    {
+      // Using Chromium for better performance and stability in CI environments.
+      // Chromium provides faster test execution and more reliable IAP authentication
+      // compared to WebKit, especially in headless mode on Linux runners.
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: authFile,
+      },
+      dependencies: ["setup"],
     },
   ],
   timeout: 120 * 1000,
