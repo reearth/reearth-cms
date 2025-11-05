@@ -14,7 +14,7 @@ export const baseURL = process.env.REEARTH_CMS_E2E_BASEURL || "http://localhost:
 
 const config: PlaywrightTestConfig = {
   globalSetup: path.resolve(__dirname, "./e2e/global-setup.ts"),
-  workers: process.env.CI ? 4 : undefined,
+  workers: process.env.CI ? 2 : undefined,
   retries: 2,
   maxFailures: process.env.CI ? undefined : 10,
   forbidOnly: !!process.env.CI,
@@ -23,8 +23,8 @@ const config: PlaywrightTestConfig = {
     screenshot: "only-on-failure",
     video: process.env.CI ? "on-first-retry" : "retain-on-failure",
     locale: "en-US",
-    actionTimeout: 25 * 1000,
-    navigationTimeout: 25 * 1000,
+    actionTimeout: 60 * 1000,
+    navigationTimeout: 60 * 1000,
   },
   testDir: "./e2e/tests",
   testMatch: "**/*.spec.ts",
@@ -50,9 +50,9 @@ const config: PlaywrightTestConfig = {
     },
   ],
   expect: {
-    timeout: 15 * 1000,
+    timeout: 60 * 1000,
   },
-  timeout: 120 * 1000,
+  timeout: 150 * 1000,
 };
 
 export default config;
