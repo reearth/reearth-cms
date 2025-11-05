@@ -859,3 +859,72 @@ func (i Item) getReferencedItems(ctx context.Context, fields []*item.Field) ([]i
 	}
 	return i.repos.Item.FindByIDs(ctx, ids, nil)
 }
+
+func (i Item) BatchDelete(ctx context.Context, itemIDs id.ItemIDList, operator *usecase.Operator) (result id.ItemIDList, err error) {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
+		return itemIDs, interfaces.ErrInvalidOperator
+	}
+
+	if len(itemIDs) == 0 {
+		return nil, interfaces.ErrEmptyIDsList
+	}
+
+	return Run1(
+		ctx, operator, i.repos,
+		Usecase().Transaction(),
+		func(ctx context.Context) (id.ItemIDList, error) {
+			items, err := i.repos.Item.FindByIDs(ctx, itemIDs, nil)
+			if err != nil {
+				return itemIDs, err
+			}
+
+			if len(itemIDs) != len(items) {
+				return itemIDs, interfaces.ErrPartialNotFound
+			}
+
+			if items == nil {
+				return itemIDs, nil
+			}
+
+			// TODO: Optimize batch deletion performance
+			// - Batch MongoDB queries: Currently FindByID is called per item for schema lookup
+			// - Batch reference field handling: handleReferenceFields is called per item
+			// - Batch Remove operations: Consider implementing a BatchRemove repository method
+			// Delete each item with proper reference handling
+			for _, itm := range items {
+				if itm == nil {
+					continue
+				}
+
+				s, err := i.repos.Schema.FindByID(ctx, itm.Value().Schema())
+				if err != nil {
+					return itemIDs, err
+				}
+
+				if !operator.CanUpdate(itm.Value()) {
+					return itemIDs, interfaces.ErrOperationDenied
+				}
+
+				oldFields := itm.Value().Fields()
+				itm.Value().ClearReferenceFields()
+				if err := i.handleReferenceFields(ctx, *s, itm.Value(), oldFields); err != nil {
+					return itemIDs, err
+				}
+
+				if itm.Value().MetadataItem() != nil {
+					err = i.repos.Item.Remove(ctx, itm.Value().ID())
+					if err != nil {
+						return itemIDs, err
+					}
+				}
+
+				err = i.repos.Item.Remove(ctx, itm.Value().ID())
+				if err != nil {
+					return itemIDs, err
+				}
+			}
+
+			return itemIDs, nil
+		},
+	)
+}
