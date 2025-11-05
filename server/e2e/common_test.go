@@ -6,9 +6,11 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/gavv/httpexpect/v2"
+	"github.com/reearth/reearth-accounts/server/pkg/gqlclient"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
@@ -35,17 +37,37 @@ func setupTestAccountsAPI(t *testing.T, cfg *app.Config) {
 
 	testAccountsAPIHost := os.Getenv("REEARTH_ACCOUNTS_API_HOST")
 	if testAccountsAPIHost == "" {
-		testAccountsAPIHost = "http://"
-		t.Logf("REEARTH_ACCOUNTS_API_HOST not set, defaulting to %s", testAccountsAPIHost)
+		// Check if default Docker service is available
+		testAccountsAPIHost = "http://localhost:8099/graphql"
+		t.Logf("REEARTH_ACCOUNTS_API_HOST not set, using default: %s", testAccountsAPIHost)
+
+		// Quick health check - if accounts API is not available, disable it for tests
+		if !isAccountsAPIAvailable(testAccountsAPIHost) {
+			t.Logf("Accounts API not available at %s, disabling for tests", testAccountsAPIHost)
+			cfg.Account_Api = app.AccountAPIConfig{Enabled: false}
+			return
+		}
 	}
 
 	cfg.Account_Api = app.AccountAPIConfig{
 		Enabled: true,
 		Host:    testAccountsAPIHost,
-		Timeout: 10,
+		Timeout: 30, // Longer timeout for Docker startup
 	}
 
 	t.Logf("Test accounts API configured: %s", testAccountsAPIHost)
+}
+
+// isAccountsAPIAvailable checks if the accounts API is reachable
+func isAccountsAPIAvailable(host string) bool {
+	// Quick HTTP check to see if the service is running
+	// We'll check the health endpoint or just try to connect
+	resp, err := http.Get(strings.Replace(host, "/graphql", "/health", 1))
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+	return resp.StatusCode < 500
 }
 
 func init() {
@@ -154,7 +176,21 @@ func StartServerWithRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder S
 	// Configure test accounts API
 	setupTestAccountsAPI(t, cfg)
 
+	// Create gateway container and initialize AccountsAPI if configured
 	gateway := &gateway.Container{File: f}
+	
+	// Initialize AccountsAPI client if enabled (similar to repo.go:168-179)
+	if cfg.Account_Api.Enabled && cfg.Account_Api.Host != "" {
+		timeout := cfg.Account_Api.Timeout
+		if timeout == 0 {
+			timeout = 30 // Default 30 seconds
+		}
+		transport := app.DynamicAuthTransport{}
+		gateway.AccountsAPI = gqlclient.NewClient(cfg.Account_Api.Host, timeout, transport)
+		t.Logf("Test AccountsAPI client created: %s (timeout: %ds)", cfg.Account_Api.Host, timeout)
+	} else {
+		t.Log("AccountsAPI not configured for tests")
+	}
 	accountGateways := &accountgateway.Container{
 		Mailer: mailer.New(ctx, &mailer.Config{}),
 	}

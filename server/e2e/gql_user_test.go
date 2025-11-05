@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"strings"
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/internal/app"
@@ -188,6 +190,14 @@ func TestDeleteMe(t *testing.T) {
 }
 
 func TestMe(t *testing.T) {
+	// Check if AccountsAPI is available
+	accountsAPIHost := os.Getenv("REEARTH_ACCOUNTS_API_HOST")
+	if accountsAPIHost == "" {
+		accountsAPIHost = "http://localhost:8099/graphql"
+	}
+
+	accountsAPIAvailable := isAccountsAPIHealthy(accountsAPIHost)
+
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
 	query := ` { me{ id name email lang theme myWorkspaceId profilePictureUrl } }`
 	request := GraphQLRequest{
@@ -197,31 +207,63 @@ func TestMe(t *testing.T) {
 	if err != nil {
 		assert.NoError(t, err)
 	}
-	o := e.POST("/api/graphql").
-		WithHeader("authorization", "Bearer test").
-		WithHeader("Content-Type", "application/json").
-		WithHeader("X-Reearth-Debug-User", uId1.String()).
-		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("me").Object()
-	o.Value("id").String().IsEqual(uId1.String())
-	o.Value("name").String().IsEqual("e2e")
-	o.Value("email").String().IsEqual("e2e@e2e.com")
-	o.Value("lang").String().IsEqual("en")
-	o.Value("theme").String().IsEqual("dark")
-	o.Value("myWorkspaceId").String().IsEqual(wId.String())
-	o.Value("profilePictureUrl").String().IsEqual("")
 
-	o = e.POST("/api/graphql").
-		WithHeader("authorization", "Bearer test").
-		WithHeader("Content-Type", "application/json").
-		WithHeader("X-Reearth-Debug-User", uId2.String()).
-		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("me").Object()
-	o.Value("id").String().IsEqual(uId2.String())
-	o.Value("name").String().IsEqual("e2e2")
-	o.Value("email").String().IsEqual("e2e2@e2e.com")
-	o.Value("lang").String().IsEqual("ja")
-	o.Value("theme").String().IsEqual("default")
-	o.Value("myWorkspaceId").String().IsEqual(wId2.String())
-	o.Value("profilePictureUrl").String().IsEqual("")
+	if accountsAPIAvailable {
+		// Test successful cases when AccountsAPI is available
+		t.Log("Testing with AccountsAPI available")
+		o := e.POST("/api/graphql").
+			WithHeader("authorization", "Bearer test").
+			WithHeader("Content-Type", "application/json").
+			WithHeader("X-Reearth-Debug-User", uId1.String()).
+			WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("me").Object()
+		o.Value("id").String().IsEqual(uId1.String())
+		o.Value("name").String().IsEqual("e2e")
+		o.Value("email").String().IsEqual("e2e@e2e.com")
+		o.Value("lang").String().IsEqual("en")
+		o.Value("theme").String().IsEqual("dark")
+		o.Value("myWorkspaceId").String().IsEqual(wId.String())
+		o.Value("profilePictureUrl").String().IsEqual("")
+
+		o = e.POST("/api/graphql").
+			WithHeader("authorization", "Bearer test").
+			WithHeader("Content-Type", "application/json").
+			WithHeader("X-Reearth-Debug-User", uId2.String()).
+			WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("me").Object()
+		o.Value("id").String().IsEqual(uId2.String())
+		o.Value("name").String().IsEqual("e2e2")
+		o.Value("email").String().IsEqual("e2e2@e2e.com")
+		o.Value("lang").String().IsEqual("ja")
+		o.Value("theme").String().IsEqual("default")
+		o.Value("myWorkspaceId").String().IsEqual(wId2.String())
+		o.Value("profilePictureUrl").String().IsEqual("")
+	} else {
+		// Test error cases when AccountsAPI is not available
+		t.Log("Testing without AccountsAPI - expecting errors")
+		e.POST("/api/graphql").
+			WithHeader("authorization", "Bearer test").
+			WithHeader("Content-Type", "application/json").
+			WithHeader("X-Reearth-Debug-User", uId1.String()).
+			WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
+			Value("errors").Array().Length().IsEqual(1)
+
+		e.POST("/api/graphql").
+			WithHeader("authorization", "Bearer test").
+			WithHeader("Content-Type", "application/json").
+			WithHeader("X-Reearth-Debug-User", uId2.String()).
+			WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
+			Value("errors").Array().Length().IsEqual(1)
+	}
+}
+
+// isAccountsAPIHealthy checks if the accounts API is available for testing
+func isAccountsAPIHealthy(host string) bool {
+	healthURL := strings.Replace(host, "/graphql", "/health", 1)
+	resp, err := http.Get(healthURL)
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+	return resp.StatusCode >= 200 && resp.StatusCode < 300
 }
 
 func TestUserByNameOrEmail(t *testing.T) {
