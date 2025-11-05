@@ -218,9 +218,7 @@ test.describe("Model Export tests on Overview page", () => {
   });
 });
 
-test("Creating Model by using the button on placeholder has succeeded", async ({
-  projectPage,
-}) => {
+test("Creating Model by using the button on placeholder has succeeded", async ({ projectPage }) => {
   await projectPage.newModelButtonLast.click();
   await expect(projectPage.dialogNewModelText).toBeVisible();
   await projectPage.modelNameInput.fill("model name");

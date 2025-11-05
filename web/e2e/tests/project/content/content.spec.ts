@@ -109,11 +109,7 @@ test("Publishing and Unpublishing item from table has succeeded", async ({
   await expect(contentPage.draftStatus).toBeVisible();
 });
 
-test("Showing item title has succeeded", async ({
-  contentPage,
-  fieldEditorPage,
-  schemaPage,
-}) => {
+test("Showing item title has succeeded", async ({ contentPage, fieldEditorPage, schemaPage }) => {
   await fieldEditorPage.fieldTypeListItem("Text").click();
   await schemaPage.handleFieldForm("text");
   await contentPage.contentText.click();

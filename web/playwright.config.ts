@@ -17,7 +17,6 @@ const config: PlaywrightTestConfig = {
   workers: process.env.CI ? 4 : undefined,
   retries: 2,
   maxFailures: process.env.CI ? undefined : 10,
-  forbidOnly: !!process.env.CI,
   use: {
     baseURL,
     screenshot: "only-on-failure",
@@ -27,7 +26,7 @@ const config: PlaywrightTestConfig = {
   testDir: "./e2e/tests",
   testMatch: "**/*.spec.ts",
   testIgnore: ["**/node_modules/**", "**/dist/**", "**/build/**"],
-  reporter: process.env.CI ? "github" : [["list"], ["html", { open: "never" }]],
+  reporter: process.env.CI ? "github" : "list",
   fullyParallel: false,
   projects: [
     {
