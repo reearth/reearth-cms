@@ -33,10 +33,8 @@ func (t DynamicAuthTransport) RoundTrip(req *http.Request) (*http.Response, erro
 }
 
 func getContextJWT(ctx context.Context) string {
-
 	if authInfo := adapter.GetAuthInfo(ctx); authInfo != nil && authInfo.Token != "" {
 		return authInfo.Token
 	}
-
 	return ""
 }
