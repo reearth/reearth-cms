@@ -54,7 +54,7 @@ test("Model reordering has succeeded", async ({ schemaPage }) => {
   await expect(schemaPage.modelMenuItems().nth(2)).toContainText(modelName3);
 });
 
-test("Group CRUD has succeeded", async ({ page, schemaPage, fieldEditorPage }) => {
+test("Group CRUD has succeeded", async ({ schemaPage, fieldEditorPage }) => {
   const groupName = "e2e group name";
   const groupKey = "e2e-group-key";
   const updateGroupName = "new e2e group name";

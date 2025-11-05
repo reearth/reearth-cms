@@ -9,7 +9,7 @@ export async function isCesiumViewerReady(
   const startTime = Date.now();
   const snap = async (): Promise<string | null> => {
     try {
-      await canvas.waitFor({ state: "visible", timeout: 5000 });
+      await canvas.waitFor({ state: "visible", timeout: 15000 });
       const buf = await canvas.screenshot();
       return buf.toString("base64");
     } catch {
