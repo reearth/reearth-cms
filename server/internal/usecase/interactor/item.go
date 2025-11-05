@@ -911,13 +911,15 @@ func (i Item) BatchDelete(ctx context.Context, itemIDs id.ItemIDList, operator *
 					return itemIDs, err
 				}
 
+				// If this item has a metadata item, remove the metadata item first
 				if itm.Value().MetadataItem() != nil {
-					err = i.repos.Item.Remove(ctx, itm.Value().ID())
+					err = i.repos.Item.Remove(ctx, *itm.Value().MetadataItem())
 					if err != nil {
 						return itemIDs, err
 					}
 				}
 
+				// Remove the main item
 				err = i.repos.Item.Remove(ctx, itm.Value().ID())
 				if err != nil {
 					return itemIDs, err
