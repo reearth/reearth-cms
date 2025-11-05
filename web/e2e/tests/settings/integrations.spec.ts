@@ -20,7 +20,9 @@ test.afterEach(async ({ integrationsPage }) => {
 test("Integration CRUD and searching has succeeded", async ({ integrationsPage }) => {
   await test.step("Create integration", async () => {
     await integrationsPage.myIntegrationsMenuItem.click();
+    await expect(integrationsPage.createIntegrationButton).toBeVisible();
     await integrationsPage.createIntegrationButton.click();
+    await expect(integrationsPage.integrationNameInput).toBeVisible();
     await integrationsPage.integrationNameInput.click();
     await integrationsPage.integrationNameInput.fill(id);
     await integrationsPage.descriptionInput.click();
@@ -31,6 +33,7 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage }
 
   await test.step("Connect integration", async () => {
     await integrationsPage.integrationsMenuItem.click();
+    await expect(integrationsPage.connectIntegrationButton).toBeVisible();
     await integrationsPage.connectIntegrationButton.click();
     await expect(integrationsPage.integrationTextById(id)).toBeVisible();
     await integrationsPage.integrationTextById(id).click();
@@ -40,6 +43,7 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage }
 
   await test.step("Verify integration is connected", async () => {
     await expect(integrationsPage.integrationCellById(id)).toBeVisible();
+    await expect(integrationsPage.connectIntegrationButton).toBeVisible();
     await integrationsPage.connectIntegrationButton.click();
     await expect(integrationsPage.dialogIntegrationTextById(id)).toBeHidden();
     await integrationsPage.cancelButton.click();
@@ -49,9 +53,12 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage }
     await integrationsPage.searchInput.click();
     await integrationsPage.searchInput.fill(id);
     await integrationsPage.searchButton.click();
+    await expect(integrationsPage.settingSvgButton).toBeVisible();
     await integrationsPage.settingSvgButton.click();
+    await expect(integrationsPage.readerRoleOption).toBeVisible();
     await integrationsPage.readerRoleOption.click();
     await integrationsPage.writerRoleOption.click();
+    await expect(integrationsPage.saveButton).toBeVisible();
     await integrationsPage.saveButton.click();
     await integrationsPage.closeNotification();
     await expect(integrationsPage.writerCell).toBeVisible();
@@ -69,9 +76,11 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage }
   });
 
   await test.step("Remove integration and verify", async () => {
+    await expect(integrationsPage.selectAllCheckbox).toBeVisible();
     await integrationsPage.selectAllCheckbox.check();
     await integrationsPage.removeText.click();
     await integrationsPage.closeNotification();
+    await expect(integrationsPage.connectIntegrationButton).toBeVisible();
     await integrationsPage.connectIntegrationButton.click();
     await expect(integrationsPage.dialogIntegrationTextById(id)).toBeVisible();
     await integrationsPage.cancelButton.click();

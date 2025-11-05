@@ -95,7 +95,6 @@ test.describe("Version details", () => {
   });
 
   test("Restore a version successfully", async ({ contentPage }) => {
-    test.slow();
     const saveButton = contentPage.saveButton;
     await expect(saveButton).toBeDisabled();
     await contentPage.restoreButton.click();

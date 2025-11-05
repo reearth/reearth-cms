@@ -21,7 +21,6 @@ test.afterEach(async ({ projectPage }) => {
 
 test.describe("Json file tests", () => {
   test.beforeEach(async ({ assetsPage }) => {
-    test.slow();
     await assetsPage.uploadViaUrl(jsonUrl);
   });
 

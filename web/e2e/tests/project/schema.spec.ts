@@ -16,20 +16,27 @@ test.afterEach(async ({ projectPage }) => {
 test("Model CRUD has succeeded", async ({ schemaPage, fieldEditorPage }) => {
   const modelName = "model name";
   const modelKey = "model-key";
-  await schemaPage.createModelFromSidebar(modelName, modelKey);
-  await expect(fieldEditorPage.titleByText(modelName, true)).toBeVisible();
-  await expect(schemaPage.textByExact(`#${modelKey}`)).toBeVisible();
-  await expect(schemaPage.modelMenuItemSpan(modelName)).toBeVisible();
-
   const newModelName = "new model name";
   const newModelKey = "new-model-key";
-  await schemaPage.updateModel(newModelName, newModelKey);
-  await expect(fieldEditorPage.titleByText(newModelName)).toBeVisible();
-  await expect(schemaPage.textByExact(`#${newModelKey}`)).toBeVisible();
-  await expect(schemaPage.modelMenuItemSpan(newModelName)).toBeVisible();
 
-  await schemaPage.deleteModel();
-  await expect(fieldEditorPage.titleByText(newModelName)).toBeHidden();
+  await test.step("Create model", async () => {
+    await schemaPage.createModelFromSidebar(modelName, modelKey);
+    await expect(fieldEditorPage.titleByText(modelName, true)).toBeVisible();
+    await expect(schemaPage.textByExact(`#${modelKey}`)).toBeVisible();
+    await expect(schemaPage.modelMenuItemSpan(modelName)).toBeVisible();
+  });
+
+  await test.step("Update model", async () => {
+    await schemaPage.updateModel(newModelName, newModelKey);
+    await expect(fieldEditorPage.titleByText(newModelName)).toBeVisible();
+    await expect(schemaPage.textByExact(`#${newModelKey}`)).toBeVisible();
+    await expect(schemaPage.modelMenuItemSpan(newModelName)).toBeVisible();
+  });
+
+  await test.step("Delete model", async () => {
+    await schemaPage.deleteModel();
+    await expect(fieldEditorPage.titleByText(newModelName)).toBeHidden();
+  });
 });
 
 test("Model reordering has succeeded", async ({ schemaPage }) => {
@@ -38,20 +45,26 @@ test("Model reordering has succeeded", async ({ schemaPage }) => {
   const modelName2 = "model2";
   const modelName3 = "model3";
 
-  await schemaPage.createModelFromSidebar(modelName1);
-  await schemaPage.createModelFromSidebar(modelName2);
-  await expect(schemaPage.modelMenuItems().nth(0)).toContainText(modelName1);
-  await expect(schemaPage.modelMenuItems().nth(1)).toContainText(modelName2);
+  await test.step("Create two models and verify initial order", async () => {
+    await schemaPage.createModelFromSidebar(modelName1);
+    await schemaPage.createModelFromSidebar(modelName2);
+    await expect(schemaPage.modelMenuItems().nth(0)).toContainText(modelName1);
+    await expect(schemaPage.modelMenuItems().nth(1)).toContainText(modelName2);
+  });
 
-  await schemaPage.modelMenuItem(modelName2).dragTo(schemaPage.modelMenuItem(modelName1));
-  await schemaPage.closeNotification();
-  await expect(schemaPage.modelMenuItems().nth(0)).toContainText(modelName2);
-  await expect(schemaPage.modelMenuItems().nth(1)).toContainText(modelName1);
+  await test.step("Drag model2 above model1", async () => {
+    await schemaPage.modelMenuItem(modelName2).dragTo(schemaPage.modelMenuItem(modelName1));
+    await schemaPage.closeNotification();
+    await expect(schemaPage.modelMenuItems().nth(0)).toContainText(modelName2);
+    await expect(schemaPage.modelMenuItems().nth(1)).toContainText(modelName1);
+  });
 
-  await schemaPage.createModelFromSidebar(modelName3);
-  await expect(schemaPage.modelMenuItems().nth(0)).toContainText(modelName2);
-  await expect(schemaPage.modelMenuItems().nth(1)).toContainText(modelName1);
-  await expect(schemaPage.modelMenuItems().nth(2)).toContainText(modelName3);
+  await test.step("Create third model and verify it appears at the end", async () => {
+    await schemaPage.createModelFromSidebar(modelName3);
+    await expect(schemaPage.modelMenuItems().nth(0)).toContainText(modelName2);
+    await expect(schemaPage.modelMenuItems().nth(1)).toContainText(modelName1);
+    await expect(schemaPage.modelMenuItems().nth(2)).toContainText(modelName3);
+  });
 });
 
 test("Group CRUD has succeeded", async ({ schemaPage, fieldEditorPage }) => {
@@ -81,70 +94,111 @@ test("Group CRUD has succeeded", async ({ schemaPage, fieldEditorPage }) => {
 
 test("Group creating from adding field has succeeded", async ({ schemaPage, fieldEditorPage }) => {
   test.slow();
-  await schemaPage.createModelFromSidebar();
-  await fieldEditorPage.fieldTypeListItem("Group").click();
-  await schemaPage.addGroupButton.click();
-  await expect(schemaPage.newGroupDialog).toContainText("New Group");
-  await expect(fieldEditorPage.okButton).toBeDisabled();
 
-  await schemaPage.groupNameInput.click();
-  await schemaPage.groupNameInput.fill("e2e group name");
-  await schemaPage.groupKeyInput.click();
-  await schemaPage.groupKeyInput.fill("e2e-group-key");
-  await fieldEditorPage.okButton.click();
-  await schemaPage.closeNotification();
-  await expect(schemaPage.groupMenuItemSpan("e2e group name")).toBeVisible();
-  await expect(schemaPage.groupNameByText("e2e group name#e2e-group-key")).toBeVisible();
-  await expect(schemaPage.fieldsMetaDataText).toBeHidden();
-  await expect(schemaPage.textByExact("Reference")).toBeHidden();
-  await expect(schemaPage.textByExact("Group")).toBeHidden();
-  await fieldEditorPage.fieldTypeListItem("Text").click();
-  await schemaPage.handleFieldForm("text");
-  await schemaPage.modelByText("e2e model name").click();
-  await schemaPage.lastTextByExact("Group").click();
-  await expect(schemaPage.createGroupFieldButton).toBeVisible();
-  await schemaPage.groupSelectTrigger.click();
-  await expect(schemaPage.groupNameByText("e2e group name #e2e-group-key")).toBeVisible();
-  await fieldEditorPage.cancelButton.click();
+  await test.step("Create model and open group field dialog", async () => {
+    await schemaPage.createModelFromSidebar();
+    await fieldEditorPage.fieldTypeListItem("Group").click();
+    await schemaPage.addGroupButton.click();
+    await expect(schemaPage.newGroupDialog).toContainText("New Group");
+    await expect(fieldEditorPage.okButton).toBeDisabled();
+  });
+
+  await test.step("Create new group from field dialog", async () => {
+    await schemaPage.groupNameInput.click();
+    await schemaPage.groupNameInput.fill("e2e group name");
+    await schemaPage.groupKeyInput.click();
+    await schemaPage.groupKeyInput.fill("e2e-group-key");
+    await fieldEditorPage.okButton.click();
+    await schemaPage.closeNotification();
+  });
+
+  await test.step("Verify group created and field type restrictions applied", async () => {
+    await expect(schemaPage.groupMenuItemSpan("e2e group name")).toBeVisible();
+    await expect(schemaPage.groupNameByText("e2e group name#e2e-group-key")).toBeVisible();
+    await expect(schemaPage.fieldsMetaDataText).toBeHidden();
+    await expect(schemaPage.textByExact("Reference")).toBeHidden();
+    await expect(schemaPage.textByExact("Group")).toBeHidden();
+  });
+
+  await test.step("Add text field to model", async () => {
+    await fieldEditorPage.fieldTypeListItem("Text").click();
+    await schemaPage.handleFieldForm("text");
+  });
+
+  await test.step("Verify group can be selected for group field in model", async () => {
+    await schemaPage.modelByText("e2e model name").click();
+    await schemaPage.lastTextByExact("Group").click();
+    await expect(schemaPage.createGroupFieldButton).toBeVisible();
+    await schemaPage.groupSelectTrigger.click();
+    await expect(schemaPage.groupNameByText("e2e group name #e2e-group-key")).toBeVisible();
+    await fieldEditorPage.cancelButton.click();
+  });
 });
 
 test("Group reordering has succeeded", async ({ schemaPage }) => {
-  await schemaPage.createGroup("group1", "group1");
-  await schemaPage.createGroup("group2", "group2");
-  await expect(schemaPage.groupMenuItems.nth(0)).toContainText("group1");
-  await expect(schemaPage.groupMenuItems.nth(1)).toContainText("group2");
-  await schemaPage.groupMenuItems.nth(1).dragTo(schemaPage.groupMenuItems.nth(0));
-  await schemaPage.closeNotification();
-  await expect(schemaPage.groupMenuItems.nth(0)).toContainText("group2");
-  await expect(schemaPage.groupMenuItems.nth(1)).toContainText("group1");
-  await schemaPage.createGroup("group3", "group3");
-  await expect(schemaPage.groupMenuItems.nth(0)).toContainText("group2");
-  await expect(schemaPage.groupMenuItems.nth(1)).toContainText("group1");
-  await expect(schemaPage.groupMenuItems.nth(2)).toContainText("group3");
+  await test.step("Create two groups and verify initial order", async () => {
+    await schemaPage.createGroup("group1", "group1");
+    await schemaPage.createGroup("group2", "group2");
+    await expect(schemaPage.groupMenuItems.nth(0)).toContainText("group1");
+    await expect(schemaPage.groupMenuItems.nth(1)).toContainText("group2");
+  });
+
+  await test.step("Drag group2 above group1", async () => {
+    await schemaPage.groupMenuItems.nth(1).dragTo(schemaPage.groupMenuItems.nth(0));
+    await schemaPage.closeNotification();
+    await expect(schemaPage.groupMenuItems.nth(0)).toContainText("group2");
+    await expect(schemaPage.groupMenuItems.nth(1)).toContainText("group1");
+  });
+
+  await test.step("Create third group and verify it appears at the end", async () => {
+    await schemaPage.createGroup("group3", "group3");
+    await expect(schemaPage.groupMenuItems.nth(0)).toContainText("group2");
+    await expect(schemaPage.groupMenuItems.nth(1)).toContainText("group1");
+    await expect(schemaPage.groupMenuItems.nth(2)).toContainText("group3");
+  });
 });
 
 test("Text field CRUD has succeeded", async ({ fieldEditorPage, schemaPage }) => {
-  await schemaPage.createModelFromSidebar();
-  await fieldEditorPage.fieldTypeListItem("Text").click();
-  await schemaPage.handleFieldForm("text");
-  await fieldEditorPage.ellipsisMenuButton.click();
-  await schemaPage.handleFieldForm("new text", "new-text");
-  await fieldEditorPage.deleteFieldButton.click();
-  await fieldEditorPage.okButton.click();
-  await schemaPage.closeNotification();
-  await expect(schemaPage.fieldText("new text", "new-text")).toBeHidden();
+  await test.step("Create model and add text field", async () => {
+    await schemaPage.createModelFromSidebar();
+    await fieldEditorPage.fieldTypeListItem("Text").click();
+    await schemaPage.handleFieldForm("text");
+  });
+
+  await test.step("Update text field", async () => {
+    await fieldEditorPage.ellipsisMenuButton.click();
+    await schemaPage.handleFieldForm("new text", "new-text");
+  });
+
+  await test.step("Delete text field", async () => {
+    await fieldEditorPage.deleteFieldButton.click();
+    await fieldEditorPage.okButton.click();
+    await schemaPage.closeNotification();
+    await expect(schemaPage.fieldText("new text", "new-text")).toBeHidden();
+  });
 });
 
 test("Schema reordering has succeeded", async ({ schemaPage, fieldEditorPage }) => {
-  await schemaPage.createModelFromSidebar();
-  await fieldEditorPage.fieldTypeListItem(/Text/).click();
-  await schemaPage.handleFieldForm("text1");
-  await fieldEditorPage.fieldTypeListItem(/Text/).click();
-  await schemaPage.handleFieldForm("text2");
-  await expect(schemaPage.draggableItems.nth(0)).toContainText("text1#text1");
-  await expect(schemaPage.draggableItems.nth(1)).toContainText("text2#text2");
-  await schemaPage.grabbableItems.nth(1).dragTo(schemaPage.draggableItems.nth(0));
-  await schemaPage.closeNotification();
-  await expect(schemaPage.draggableItems.nth(0)).toContainText("text2#text2");
-  await expect(schemaPage.draggableItems.nth(1)).toContainText("text1#text1");
+  await test.step("Create model and add two text fields", async () => {
+    await schemaPage.createModelFromSidebar();
+    await fieldEditorPage.fieldTypeListItem(/Text/).click();
+    await schemaPage.handleFieldForm("text1");
+    await fieldEditorPage.fieldTypeListItem(/Text/).click();
+    await schemaPage.handleFieldForm("text2");
+  });
+
+  await test.step("Verify initial field order", async () => {
+    await expect(schemaPage.draggableItems.nth(0)).toContainText("text1#text1");
+    await expect(schemaPage.draggableItems.nth(1)).toContainText("text2#text2");
+  });
+
+  await test.step("Drag text2 above text1", async () => {
+    await schemaPage.grabbableItems.nth(1).dragTo(schemaPage.draggableItems.nth(0));
+    await schemaPage.closeNotification();
+  });
+
+  await test.step("Verify field order changed", async () => {
+    await expect(schemaPage.draggableItems.nth(0)).toContainText("text2#text2");
+    await expect(schemaPage.draggableItems.nth(1)).toContainText("text1#text1");
+  });
 });
