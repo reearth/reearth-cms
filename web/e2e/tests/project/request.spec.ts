@@ -172,7 +172,7 @@ test("Comment CRUD on Request page has succeeded", async ({ requestPage, content
   });
 });
 
-test("Creating a new request and adding to request has succeeded", async ({ requestPage }) => {
+test("Creating a new request and adding to request has succeeded", async ({ requestPage, page }) => {
   await test.step("Create a new item", async () => {
     await expect(requestPage.backButtonCapitalized).toBeVisible();
     await requestPage.backButtonCapitalized.click();
@@ -181,6 +181,7 @@ test("Creating a new request and adding to request has succeeded", async ({ requ
     await expect(requestPage.saveButton).toBeVisible();
     await requestPage.saveButton.click();
     await requestPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Add new item to existing request", async () => {
@@ -192,6 +193,7 @@ test("Creating a new request and adding to request has succeeded", async ({ requ
     await requestPage.selectCheckbox.check();
     await requestPage.okButton.click();
     await requestPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify both items appear in request", async () => {
@@ -200,6 +202,7 @@ test("Creating a new request and adding to request has succeeded", async ({ requ
     await requestPage.editButton.click();
     await expect(requestPage.collapsedModelButton("e2e model name", 0)).toBeVisible();
     await expect(requestPage.collapsedModelButton("e2e model name", 1)).toBeVisible();
+    await page.waitForTimeout(100);
   });
 });
 

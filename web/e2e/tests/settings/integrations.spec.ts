@@ -17,7 +17,7 @@ test.afterEach(async ({ integrationsPage }) => {
   await expect(integrationsPage.integrationTextById(id)).toBeHidden();
 });
 
-test("Integration CRUD and searching has succeeded", async ({ integrationsPage }) => {
+test("Integration CRUD and searching has succeeded", async ({ integrationsPage, page }) => {
   await test.step("Create integration", async () => {
     await integrationsPage.myIntegrationsMenuItem.click();
     await expect(integrationsPage.createIntegrationButton).toBeVisible();
@@ -29,6 +29,7 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage }
     await integrationsPage.descriptionInput.fill("e2e integration description");
     await integrationsPage.createButton.click();
     await integrationsPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Connect integration", async () => {
@@ -39,6 +40,7 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage }
     await integrationsPage.integrationTextById(id).click();
     await integrationsPage.connectButton.click();
     await integrationsPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify integration is connected", async () => {
@@ -47,6 +49,7 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage }
     await integrationsPage.connectIntegrationButton.click();
     await expect(integrationsPage.dialogIntegrationTextById(id)).toBeHidden();
     await integrationsPage.cancelButton.click();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Search and update role", async () => {
@@ -62,6 +65,7 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage }
     await integrationsPage.saveButton.click();
     await integrationsPage.closeNotification();
     await expect(integrationsPage.writerCell).toBeVisible();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Test search filtering", async () => {
@@ -73,6 +77,7 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage }
     await integrationsPage.searchInput.fill(id);
     await integrationsPage.searchButton.click();
     await expect(integrationsPage.integrationCellById(id)).toBeVisible();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Remove integration and verify", async () => {
@@ -84,5 +89,6 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage }
     await integrationsPage.connectIntegrationButton.click();
     await expect(integrationsPage.dialogIntegrationTextById(id)).toBeVisible();
     await integrationsPage.cancelButton.click();
+    await page.waitForTimeout(100);
   });
 });

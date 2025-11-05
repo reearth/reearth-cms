@@ -14,7 +14,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Model CRUD on Overview page has succeeded", async ({ schemaPage, projectPage }) => {
+test("Model CRUD on Overview page has succeeded", async ({ schemaPage, projectPage, page }) => {
   await test.step("Create new model from overview page", async () => {
     await expect(projectPage.noModelsYetText).toBeVisible();
     await projectPage.newModelButtonFirst.click();
@@ -24,12 +24,14 @@ test("Model CRUD on Overview page has succeeded", async ({ schemaPage, projectPa
     await projectPage.modelDescriptionInput.fill("model description");
     await schemaPage.okButton.click();
     await projectPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify model created successfully", async () => {
     await expect(projectPage.modelTitleByName("model name")).toBeVisible();
     await expect(projectPage.modelKeyTextByKey("model-key")).toBeVisible();
     await expect(projectPage.modelMenuItemByName("model name")).toBeVisible();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Update model name, description and key", async () => {
@@ -41,11 +43,13 @@ test("Model CRUD on Overview page has succeeded", async ({ schemaPage, projectPa
     await projectPage.modelKeyInput.fill("new-model-key");
     await projectPage.okButton.click();
     await projectPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify model updated successfully", async () => {
     await expect(projectPage.rootElement).toContainText("new model name");
     await expect(projectPage.rootElement).toContainText("new model description");
+    await page.waitForTimeout(100);
   });
 
   await test.step("Delete model", async () => {
@@ -53,11 +57,13 @@ test("Model CRUD on Overview page has succeeded", async ({ schemaPage, projectPa
     await projectPage.deleteText.click();
     await projectPage.deleteModelButton.click();
     await projectPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify model deleted successfully", async () => {
     await expect(projectPage.rootElement).not.toContainText("new model name");
     await expect(projectPage.noModelsYetText).toBeVisible();
+    await page.waitForTimeout(100);
   });
 });
 
@@ -69,6 +75,7 @@ test.describe("Model Export tests on Overview page", () => {
   test("Model Export as JSON on Overview page has succeeded", async ({
     schemaPage,
     projectPage,
+    page,
   }) => {
     await test.step("Create new model", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
@@ -82,6 +89,7 @@ test.describe("Model Export tests on Overview page", () => {
       await expect(projectPage.modelTitleByName("model name")).toBeVisible();
       await expect(projectPage.modelKeyTextByKey("model-key")).toBeVisible();
       await expect(projectPage.modelMenuItemByName("model name")).toBeVisible();
+      await page.waitForTimeout(100);
     });
 
     await test.step("Export model as JSON", async () => {
@@ -89,12 +97,14 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelExportLink.click();
       await projectPage.exportAsJSONText.click();
       await projectPage.closeNotification();
+      await page.waitForTimeout(100);
     });
   });
 
   test("Model Export as CSV on Overview page has succeeded", async ({
     schemaPage,
     projectPage,
+    page,
   }) => {
     await test.step("Create new model", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
@@ -105,12 +115,14 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelDescriptionInput.fill("model description");
       await schemaPage.okButton.click();
       await projectPage.closeNotification();
+      await page.waitForTimeout(100);
     });
 
     await test.step("Navigate to export and select CSV", async () => {
       await projectPage.modelsMenuItem.click();
       await projectPage.modelExportLink.click();
       await projectPage.exportAsCSVText.click();
+      await page.waitForTimeout(100);
     });
 
     await test.step("Verify CSV export warning modal and export", async () => {
@@ -121,10 +133,11 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.exportCSVButton.click();
       // Verify modal closed
       await projectPage.closeNotification();
+      await page.waitForTimeout(100);
     });
   });
 
-  test("Model Export Schema has succeeded", async ({ schemaPage, projectPage }) => {
+  test("Model Export Schema has succeeded", async ({ schemaPage, projectPage, page }) => {
     await test.step("Create new model", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
       await projectPage.newModelButtonFirst.click();
@@ -134,6 +147,7 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelDescriptionInput.fill("model description");
       await schemaPage.okButton.click();
       await projectPage.closeNotification();
+      await page.waitForTimeout(100);
     });
 
     await test.step("Export schema", async () => {
@@ -141,12 +155,14 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelExportLink.click();
       await projectPage.exportSchemaText.click();
       await projectPage.closeNotification();
+      await page.waitForTimeout(100);
     });
   });
 
   test("Model Export as GeoJSON without geometry field shows error", async ({
     schemaPage,
     projectPage,
+    page,
   }) => {
     await test.step("Create model without geometry field", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
@@ -157,6 +173,7 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelDescriptionInput.fill("model description");
       await schemaPage.okButton.click();
       await projectPage.closeNotification();
+      await page.waitForTimeout(100);
     });
 
     await test.step("Attempt GeoJSON export and verify error", async () => {
@@ -170,6 +187,7 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.okButton.click();
       // Verify modal closed
       await expect(projectPage.cannotExportGeoJSONText).not.toBeVisible();
+      await page.waitForTimeout(100);
     });
   });
 
@@ -177,6 +195,7 @@ test.describe("Model Export tests on Overview page", () => {
     schemaPage,
     projectPage,
     fieldEditorPage,
+    page,
   }) => {
     await test.step("Create model and add geometry field", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
@@ -199,6 +218,7 @@ test.describe("Model Export tests on Overview page", () => {
       await fieldEditorPage.supportTypePointCheckbox.check();
       await fieldEditorPage.okButton.click();
       await fieldEditorPage.closeNotification();
+      await page.waitForTimeout(100);
     });
 
     await test.step("Export as GeoJSON successfully", async () => {
@@ -208,6 +228,7 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.exportAsGeoJSONText.click();
       // Should export directly without modal
       await projectPage.closeNotification();
+      await page.waitForTimeout(100);
     });
   });
 
@@ -215,6 +236,7 @@ test.describe("Model Export tests on Overview page", () => {
     schemaPage,
     projectPage,
     fieldEditorPage,
+    page,
   }) => {
     await test.step("Create model and add two geometry fields", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
@@ -245,6 +267,7 @@ test.describe("Model Export tests on Overview page", () => {
       await fieldEditorPage.supportTypePointCheckbox.setChecked(true);
       await fieldEditorPage.okButton.click();
       await fieldEditorPage.closeNotification();
+      await page.waitForTimeout(100);
     });
 
     await test.step("Attempt GeoJSON export and verify warning modal", async () => {
@@ -262,22 +285,25 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.cancelButton.click();
       // Verify modal closed
       await expect(projectPage.multipleGeometryFieldsText).not.toBeVisible();
+      await page.waitForTimeout(100);
     });
   });
 });
 
-test("Creating Model by using the button on placeholder has succeeded", async ({ projectPage }) => {
+test("Creating Model by using the button on placeholder has succeeded", async ({ projectPage, page }) => {
   await test.step("Create model using placeholder button", async () => {
     await projectPage.newModelButtonLast.click();
     await expect(projectPage.dialogNewModelText).toBeVisible();
     await projectPage.modelNameInput.fill("model name");
     await projectPage.okButton.click();
     await projectPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify model created successfully", async () => {
     await expect(projectPage.modelTitleByName("model name")).toBeVisible();
     await expect(projectPage.modelKeyTextByKey("model-name")).toBeVisible();
     await expect(projectPage.modelMenuItemByName("model name")).toBeVisible();
+    await page.waitForTimeout(100);
   });
 });

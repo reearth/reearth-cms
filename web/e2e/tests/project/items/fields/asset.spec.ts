@@ -22,6 +22,7 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Asset field creating and updating has succeeded", async ({
+  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -36,6 +37,7 @@ test("Asset field creating and updating has succeeded", async ({
     await fieldEditorPage.settingsDescriptionInput.fill("asset1 description");
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify field created and navigate to new item", async () => {
@@ -44,6 +46,7 @@ test("Asset field creating and updating has succeeded", async ({
     await contentPage.newItemButton.click();
     await expect(contentPage.locator("label")).toContainText("asset1");
     await expect(contentPage.mainRole).toContainText("asset1 description");
+    await page.waitForTimeout(100);
   });
 
   await test.step("Upload first asset via URL", async () => {
@@ -54,11 +57,13 @@ test("Asset field creating and updating has succeeded", async ({
     await fieldEditorPage.urlInput.fill(uploadFileUrl_1);
     await fieldEditorPage.uploadAndLinkButton.click();
     await contentPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify first asset uploaded", async () => {
     await expect(fieldEditorPage.folderButton(uploadFileName_1)).toBeVisible();
     await expect(fieldEditorPage.filenameButton(uploadFileName_1)).toBeVisible();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Save item and verify asset appears in list", async () => {
@@ -66,6 +71,7 @@ test("Asset field creating and updating has succeeded", async ({
     await contentPage.closeNotification();
     await contentPage.backButton.click();
     await expect(contentPage.optionTextByName(uploadFileName_1)).toBeVisible();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Edit item and replace asset with second file", async () => {
@@ -77,6 +83,7 @@ test("Asset field creating and updating has succeeded", async ({
     await fieldEditorPage.urlInput.fill(uploadFileUrl_2);
     await fieldEditorPage.uploadAndLinkButton.click();
     await contentPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify second asset replaced first and save changes", async () => {
@@ -88,6 +95,7 @@ test("Asset field creating and updating has succeeded", async ({
     await contentPage.closeNotification();
     await contentPage.backButton.click();
     await expect(contentPage.optionTextByName(uploadFileName_2)).toBeVisible();
+    await page.waitForTimeout(100);
   });
 });
 
@@ -143,6 +151,7 @@ test("Previewing JSON file from content page into new tab succeeded", async ({
 
     const isViewerReady = await isCesiumViewerReady(viewerPage);
     expect(isViewerReady).toBe(true);
+    await page.waitForTimeout(100);
   });
 });
 
@@ -152,8 +161,6 @@ test("Asset field editing has succeeded", async ({
   contentPage,
   schemaPage,
 }) => {
-  test.slow();
-
   await test.step("Create asset field with default value", async () => {
     await fieldEditorPage.fieldTypeButton("Asset").click();
     await fieldEditorPage.displayNameInput.click();
@@ -210,6 +217,7 @@ test("Asset field editing has succeeded", async ({
   await test.step("Verify item saved with default asset", async () => {
     await contentPage.backButton.click();
     await expect(contentPage.optionTextByName(uploadFileName_1)).toBeVisible();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Edit field settings: rename, enable multiple values, and validations", async () => {
@@ -250,12 +258,14 @@ test("Asset field editing has succeeded", async ({
     await expect(contentPage.cssAssetByIndex(1)).toContainText(uploadFileName_1);
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify updated field in schema", async () => {
     await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText(
       "new asset1 *#new-asset1(unique)",
     );
+    await page.waitForTimeout(100);
   });
 
   await test.step("Create new item with updated field and verify multiple assets", async () => {
@@ -278,5 +288,6 @@ test("Asset field editing has succeeded", async ({
     await expect(contentPage.tooltip).toContainText(`new asset1`);
     await expect(contentPage.tooltipParagraphs.first()).toContainText(uploadFileName_2);
     await expect(contentPage.tooltipParagraphs.last()).toContainText(uploadFileName_1);
+    await page.waitForTimeout(100);
   });
 });

@@ -14,6 +14,7 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Option field creating and updating has succeeded", async ({
+  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -39,6 +40,7 @@ test("Option field creating and updating has succeeded", async ({
     await fieldEditorPage.valuesInput.nth(1).fill("second");
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify field created and navigate to new item", async () => {
@@ -47,6 +49,7 @@ test("Option field creating and updating has succeeded", async ({
     await contentPage.newItemButton.click();
     await expect(contentPage.locator("label")).toContainText("option1");
     await expect(contentPage.mainRole).toContainText("option1 description");
+    await page.waitForTimeout(100);
   });
 
   await test.step("Select 'first' option and save item", async () => {
@@ -57,11 +60,13 @@ test("Option field creating and updating has succeeded", async ({
     await expect(contentPage.rootElement.getByText("first").last()).toBeVisible();
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify option saved correctly", async () => {
     await contentPage.backButton.click();
     await expect(contentPage.optionTextByName("first")).toBeVisible();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Edit item and change option to 'second'", async () => {
@@ -72,11 +77,13 @@ test("Option field creating and updating has succeeded", async ({
     await expect(contentPage.rootElement.getByText("second").last()).toBeVisible();
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify updated option", async () => {
     await contentPage.backButton.click();
     await expect(contentPage.optionTextByName("second")).toBeVisible();
+    await page.waitForTimeout(100);
   });
 });
 
@@ -109,6 +116,7 @@ test("Option field editing has succeeded", async ({
     await expect(fieldEditorPage.optionDiv("second")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("third")).toBeVisible();
     await fieldEditorPage.optionDiv("second").click();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Delete 'second' option and add 'forth' option", async () => {
@@ -117,6 +125,7 @@ test("Option field editing has succeeded", async ({
     await fieldEditorPage.plusNewButton.click();
     await fieldEditorPage.valuesInput.nth(2).click();
     await fieldEditorPage.valuesInput.nth(2).fill("forth");
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify deleted option removed from default and set new default", async () => {
@@ -171,6 +180,7 @@ test("Option field editing has succeeded", async ({
     await fieldEditorPage.validationTab.click();
     await fieldEditorPage.requiredFieldCheckbox.check();
     await fieldEditorPage.uniqueFieldCheckbox.check();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Add second default value", async () => {
@@ -182,6 +192,7 @@ test("Option field editing has succeeded", async ({
     await expect(fieldEditorPage.optionDiv("third")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("forth")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("fifth")).toBeVisible();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Rename all option values", async () => {
@@ -194,6 +205,7 @@ test("Option field editing has succeeded", async ({
     await fieldEditorPage.valuesInput.nth(2).fill("new forth");
     await fieldEditorPage.valuesInput.nth(3).click();
     await fieldEditorPage.valuesInput.nth(3).fill("new fifth");
+    await page.waitForTimeout(100);
   });
 
   await test.step("Update default values with renamed options", async () => {
@@ -221,12 +233,14 @@ test("Option field editing has succeeded", async ({
 
   await test.step("Verify updated field in schema", async () => {
     await expect(contentPage.optionTextByName("new option1 *#new-option1(unique)")).toBeVisible();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify existing item retains old option value", async () => {
     await contentPage.contentText.click();
     await expect(contentPage.tableHead).toContainText("option1");
     await expect(contentPage.optionTextByName("third")).toBeVisible();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Create new item with multiple default values", async () => {
@@ -236,10 +250,12 @@ test("Option field editing has succeeded", async ({
     await expect(contentPage.optionTextByName("new third")).toBeVisible();
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify multiple options displayed in list view", async () => {
     await contentPage.backButton.click();
     await expect(contentPage.cellByComplexName("new first new third")).toBeVisible();
+    await page.waitForTimeout(100);
   });
 });

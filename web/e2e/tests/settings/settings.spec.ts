@@ -1,14 +1,13 @@
-// import { config } from "@reearth-cms/e2e/config/config";
+import { config } from "@reearth-cms/e2e/config/config";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
-// import { parseConfigBoolean } from "@reearth-cms/e2e/helpers/format.helper";
+import { parseConfigBoolean } from "@reearth-cms/e2e/helpers/format.helper";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-// const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
+const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 
 let workspaceName: string;
 test.beforeEach(async ({ reearth, workspacePage, settingsPage }) => {
-  // test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
-  test.skip();
+  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   workspaceName = getId();
   await workspacePage.createWorkspace(workspaceName);
@@ -16,12 +15,11 @@ test.beforeEach(async ({ reearth, workspacePage, settingsPage }) => {
 });
 
 test.afterEach(async ({ workspacePage }) => {
-  test.skip();
-  // test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
+  test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await workspacePage.deleteWorkspace();
 });
 
-test("Tiles CRUD has succeeded", async ({ settingsPage }) => {
+test("Tiles CRUD has succeeded", async ({ settingsPage, page }) => {
   await test.step("Create new tile with 'Labelled' type", async () => {
     await settingsPage.addNewTilesButton.click();
     await settingsPage.defaultTileOption.click();
@@ -29,6 +27,7 @@ test("Tiles CRUD has succeeded", async ({ settingsPage }) => {
     await settingsPage.okButton.click();
     await settingsPage.saveButton.click();
     await settingsPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Update tile to 'URL' type with custom values", async () => {
@@ -45,6 +44,7 @@ test("Tiles CRUD has succeeded", async ({ settingsPage }) => {
     await settingsPage.okButton.click();
     await settingsPage.saveButton.click();
     await settingsPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify tile updated with correct values", async () => {
@@ -57,6 +57,7 @@ test("Tiles CRUD has succeeded", async ({ settingsPage }) => {
     await expect(settingsPage.urlTextbox).toHaveValue("http://url.com");
     await expect(settingsPage.imageUrlInput).toHaveValue("http://image.com");
     await settingsPage.closeButton.click();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Delete tile", async () => {
@@ -64,10 +65,11 @@ test("Tiles CRUD has succeeded", async ({ settingsPage }) => {
     await settingsPage.saveButton.click();
     await settingsPage.closeNotification();
     await expect(settingsPage.textByName("url", true)).toBeHidden();
+    await page.waitForTimeout(100);
   });
 });
 
-test("Terrain on/off and CRUD has succeeded", async ({ settingsPage }) => {
+test("Terrain on/off and CRUD has succeeded", async ({ settingsPage, page }) => {
   await test.step("Enable terrain and add 'ArcGIS Terrain' type", async () => {
     await expect(settingsPage.terrainSwitch).toBeEnabled();
     await settingsPage.terrainSwitch.click();
@@ -79,6 +81,7 @@ test("Terrain on/off and CRUD has succeeded", async ({ settingsPage }) => {
     await settingsPage.okButton.click();
     await settingsPage.saveButton.click();
     await settingsPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Update terrain to 'Cesium Ion' type with custom values", async () => {
@@ -99,6 +102,7 @@ test("Terrain on/off and CRUD has succeeded", async ({ settingsPage }) => {
     await settingsPage.okButton.click();
     await settingsPage.saveButton.click();
     await settingsPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify terrain updated with correct values", async () => {
@@ -111,6 +115,7 @@ test("Terrain on/off and CRUD has succeeded", async ({ settingsPage }) => {
     await expect(settingsPage.terrainUrlInput).toHaveValue("http://terrain.com");
     await expect(settingsPage.imageUrlInput).toHaveValue("http://image.com");
     await settingsPage.closeButton.click();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Delete terrain", async () => {
@@ -118,6 +123,7 @@ test("Terrain on/off and CRUD has succeeded", async ({ settingsPage }) => {
     await settingsPage.saveButton.click();
     await settingsPage.closeNotification();
     await expect(settingsPage.textByName("name", true)).toBeHidden();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Disable terrain and verify UI updated", async () => {
@@ -126,12 +132,11 @@ test("Terrain on/off and CRUD has succeeded", async ({ settingsPage }) => {
     await settingsPage.closeNotification();
     await expect(settingsPage.terrainSwitch).toHaveAttribute("aria-checked", "false");
     await expect(settingsPage.addTerrainButton).toBeHidden();
+    await page.waitForTimeout(100);
   });
 });
 
-test("Tiles reordering has succeeded", async ({ settingsPage }) => {
-  test.slow();
-
+test("Tiles reordering has succeeded", async ({ settingsPage, page }) => {
   await test.step("Create two tiles and verify initial order", async () => {
     await settingsPage.addNewTilesButton.click();
     await settingsPage.okButton.click();
@@ -143,6 +148,7 @@ test("Tiles reordering has succeeded", async ({ settingsPage }) => {
     await expect(settingsPage.cardByIndex(1)).toHaveText("LABELLED");
     await settingsPage.saveButton.click();
     await settingsPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Drag first tile below second tile and verify order", async () => {
@@ -151,6 +157,7 @@ test("Tiles reordering has succeeded", async ({ settingsPage }) => {
     await expect(settingsPage.cardByIndex(1)).toHaveText("DEFAULT");
     await settingsPage.saveButton.click();
     await settingsPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify tile order persists after navigation", async () => {
@@ -158,12 +165,11 @@ test("Tiles reordering has succeeded", async ({ settingsPage }) => {
     await settingsPage.settingsMenuItem.click();
     await expect(settingsPage.cardByIndex(0)).toHaveText("LABELLED");
     await expect(settingsPage.cardByIndex(1)).toHaveText("DEFAULT");
+    await page.waitForTimeout(100);
   });
 });
 
-test("Terrain reordering has succeeded", async ({ settingsPage }) => {
-  test.slow();
-
+test("Terrain reordering has succeeded", async ({ settingsPage, page }) => {
   await test.step("Enable terrain and create two terrain items", async () => {
     await expect(settingsPage.terrainSwitch).toBeEnabled();
     await settingsPage.terrainSwitch.click();
@@ -179,6 +185,7 @@ test("Terrain reordering has succeeded", async ({ settingsPage }) => {
     await expect(settingsPage.cardByIndex(1)).toHaveText("ARC_GIS_TERRAIN");
     await settingsPage.saveButton.click();
     await settingsPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Drag first terrain below second terrain and verify order", async () => {
@@ -187,6 +194,7 @@ test("Terrain reordering has succeeded", async ({ settingsPage }) => {
     await expect(settingsPage.cardByIndex(1)).toHaveText("CESIUM_WORLD_TERRAIN");
     await settingsPage.saveButton.click();
     await settingsPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify terrain order persists after navigation", async () => {
@@ -194,5 +202,6 @@ test("Terrain reordering has succeeded", async ({ settingsPage }) => {
     await settingsPage.settingsMenuItem.click();
     await expect(settingsPage.cardByIndex(0)).toHaveText("ARC_GIS_TERRAIN");
     await expect(settingsPage.cardByIndex(1)).toHaveText("CESIUM_WORLD_TERRAIN");
+    await page.waitForTimeout(100);
   });
 });

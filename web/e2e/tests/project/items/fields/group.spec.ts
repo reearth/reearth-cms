@@ -17,8 +17,8 @@ test("Group field creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,
+  page,
 }) => {
-  test.slow();
   const groupName = "e2e group name";
   const groupKey = "e2e-group-key";
 
@@ -39,6 +39,7 @@ test("Group field creating and updating has succeeded", async ({
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
     await expect(schemaPage.groupNameByText("text1#text1")).toBeVisible();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Add group field to model with validations disabled", async () => {
@@ -61,6 +62,7 @@ test("Group field creating and updating has succeeded", async ({
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
     await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("group1#group1");
+    await page.waitForTimeout(100);
   });
 
   await test.step("Create item with group field value", async () => {
@@ -75,6 +77,7 @@ test("Group field creating and updating has succeeded", async ({
     await contentPage.closeNotification();
     await contentPage.backButton.click();
     // TO DO: check if the group field shows correctly
+    await page.waitForTimeout(100);
   });
 
   await test.step("Edit item and update group field value", async () => {
@@ -84,6 +87,7 @@ test("Group field creating and updating has succeeded", async ({
     await contentPage.fieldInput("text1").fill("new text1");
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Update group text field with validations and default value", async () => {
@@ -113,6 +117,7 @@ test("Group field creating and updating has succeeded", async ({
     await fieldEditorPage.setDefaultValueInput.fill("text1");
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify field updates applied and validate max length", async () => {
@@ -129,6 +134,7 @@ test("Group field creating and updating has succeeded", async ({
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
     await contentPage.backButton.click();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify default value appears in existing and new items", async () => {
@@ -137,6 +143,7 @@ test("Group field creating and updating has succeeded", async ({
     await contentPage.backButton.click();
     await contentPage.newItemButton.click();
     await expect(contentPage.textBoxes).toHaveValue("text1");
+    await page.waitForTimeout(100);
   });
 
   await test.step("Add multiple values to group field and test reordering", async () => {
@@ -160,17 +167,18 @@ test("Group field creating and updating has succeeded", async ({
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
     await contentPage.backButton.click();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify reordered values persisted", async () => {
     await contentPage.editButton.first().click();
     await expect(contentPage.textBoxByIndex(0)).toHaveValue("text2");
     await expect(contentPage.textBoxByIndex(1)).toHaveValue("text1");
+    await page.waitForTimeout(100);
   });
 });
 
-test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
-  test.slow();
+test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage, page }) => {
   const groupName = "e2e group name";
   const groupKey = "e2e-group-key";
 
@@ -191,6 +199,7 @@ test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage,
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
     await expect(schemaPage.groupNameByText("text1#text1")).toBeVisible();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Add group field to model and create item", async () => {
@@ -223,6 +232,7 @@ test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage,
     await contentPage.fieldInput("text1").fill("text1");
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Enable multiple values for group field", async () => {
@@ -238,6 +248,7 @@ test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage,
     await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify multiple values support and add second group instance", async () => {
@@ -261,6 +272,7 @@ test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage,
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
     await contentPage.backButton.click();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify multiple group values persisted", async () => {
@@ -272,6 +284,7 @@ test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage,
       "text1-2",
     );
     await contentPage.backButton.click();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Create new item with single group value", async () => {
@@ -284,6 +297,7 @@ test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage,
     await contentPage.backButton.click();
     await contentPage.editButton.first().click();
     await expect(contentPage.fieldInput("text1")).toHaveValue("text1");
+    await page.waitForTimeout(100);
   });
 
   await test.step("Add multiple default values to group text field", async () => {
@@ -300,6 +314,7 @@ test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage,
     await fieldEditorPage.defaultValueInput.nth(1).fill("text2");
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Create item with multiple group instances and test default values with reordering", async () => {
@@ -316,6 +331,7 @@ test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage,
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
     await contentPage.backButton.click();
+    await page.waitForTimeout(100);
   });
 
   await test.step("Verify reordered group instance values persisted", async () => {
@@ -324,5 +340,6 @@ test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage,
     await expect(contentPage.textBoxByIndex(1)).toHaveValue("text2");
     await expect(contentPage.textBoxByIndex(2)).toHaveValue("text2");
     await expect(contentPage.textBoxByIndex(3)).toHaveValue("text1");
+    await page.waitForTimeout(100);
   });
 });
