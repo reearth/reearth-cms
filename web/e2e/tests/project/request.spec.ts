@@ -190,7 +190,7 @@ test("Creating a new request and adding to request has succeeded", async ({ requ
     await expect(requestPage.addToRequestButton).toBeVisible();
     await requestPage.addToRequestButton.click();
     await expect(requestPage.selectCheckbox).toBeVisible();
-    await requestPage.selectCheckbox.check();
+    await requestPage.selectCheckbox.click();
     await requestPage.okButton.click();
     await requestPage.closeNotification();
     await page.waitForTimeout(100);

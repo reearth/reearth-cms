@@ -103,21 +103,25 @@ test("Group CRUD has succeeded", async ({ schemaPage, fieldEditorPage, page }) =
 test("Group creating from adding field has succeeded", async ({ schemaPage, fieldEditorPage, page }) => {
   await test.step("Create model and open group field dialog", async () => {
     await schemaPage.createModelFromSidebar();
+    await expect(fieldEditorPage.fieldTypeListItem("Group")).toBeVisible();
     await fieldEditorPage.fieldTypeListItem("Group").click();
+    await expect(schemaPage.addGroupButton).toBeVisible();
     await schemaPage.addGroupButton.click();
     await expect(schemaPage.newGroupDialog).toContainText("New Group");
     await expect(fieldEditorPage.okButton).toBeDisabled();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Create new group from field dialog", async () => {
+    await expect(schemaPage.groupNameInput).toBeVisible();
     await schemaPage.groupNameInput.click();
     await schemaPage.groupNameInput.fill("e2e group name");
     await schemaPage.groupKeyInput.click();
     await schemaPage.groupKeyInput.fill("e2e-group-key");
+    await expect(fieldEditorPage.okButton).toBeEnabled();
     await fieldEditorPage.okButton.click();
     await schemaPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Verify group created and field type restrictions applied", async () => {
@@ -130,17 +134,22 @@ test("Group creating from adding field has succeeded", async ({ schemaPage, fiel
   });
 
   await test.step("Add text field to model", async () => {
+    await expect(fieldEditorPage.fieldTypeListItem("Text")).toBeVisible();
     await fieldEditorPage.fieldTypeListItem("Text").click();
     await schemaPage.handleFieldForm("text");
     await page.waitForTimeout(100);
   });
 
   await test.step("Verify group can be selected for group field in model", async () => {
+    await expect(schemaPage.modelByText("e2e model name")).toBeVisible();
     await schemaPage.modelByText("e2e model name").click();
+    await expect(schemaPage.lastTextByExact("Group")).toBeVisible();
     await schemaPage.lastTextByExact("Group").click();
     await expect(schemaPage.createGroupFieldButton).toBeVisible();
+    await expect(schemaPage.groupSelectTrigger).toBeVisible();
     await schemaPage.groupSelectTrigger.click();
     await expect(schemaPage.groupNameByText("e2e group name #e2e-group-key")).toBeVisible();
+    await expect(fieldEditorPage.cancelButton).toBeVisible();
     await fieldEditorPage.cancelButton.click();
     await page.waitForTimeout(100);
   });

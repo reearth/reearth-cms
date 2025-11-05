@@ -123,26 +123,29 @@ test.describe("Project List", () => {
   test("Project list pagination", async ({ workspacePage, page }) => {
     await test.step("Check first page", async () => {
       await workspacePage.clickPagination(1);
+      await page.waitForTimeout(300);
 
       for await (const projectName of FIRST_PAGE_PROJECTS) {
         const projectCard = workspacePage.projectCardByName(projectName);
         await expect(projectCard).toBeVisible();
       }
-      await page.waitForTimeout(100);
+      await page.waitForTimeout(200);
     });
 
     await test.step("Check second page", async () => {
       await workspacePage.clickPagination(2);
+      await page.waitForTimeout(300);
 
       for await (const projectName of SECOND_PAGE_PROJECTS) {
         const projectCard = workspacePage.projectCardByName(projectName);
         await expect(projectCard).toBeVisible();
       }
-      await page.waitForTimeout(100);
+      await page.waitForTimeout(200);
     });
 
     await test.step("Check jump page", async () => {
       await workspacePage.jumpToPage(2);
+      await page.waitForTimeout(300);
 
       for await (const projectName of SECOND_PAGE_PROJECTS) {
         const projectCard = workspacePage.projectCardByName(projectName);

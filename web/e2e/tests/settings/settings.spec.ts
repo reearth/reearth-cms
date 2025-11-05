@@ -21,19 +21,27 @@ test.afterEach(async ({ workspacePage }) => {
 
 test("Tiles CRUD has succeeded", async ({ settingsPage, page }) => {
   await test.step("Create new tile with 'Labelled' type", async () => {
+    await expect(settingsPage.addNewTilesButton).toBeVisible();
     await settingsPage.addNewTilesButton.click();
+    await expect(settingsPage.defaultTileOption).toBeVisible();
     await settingsPage.defaultTileOption.click();
+    await expect(settingsPage.labelledTileOption).toBeVisible();
     await settingsPage.labelledTileOption.click();
+    await expect(settingsPage.okButton).toBeVisible();
     await settingsPage.okButton.click();
+    await expect(settingsPage.saveButton).toBeVisible();
     await settingsPage.saveButton.click();
     await settingsPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Update tile to 'URL' type with custom values", async () => {
+    await expect(settingsPage.editCardButton).toBeVisible();
     await settingsPage.editCardButton.click();
-    await expect(settingsPage.textByName("Labelled", true)).toBeVisible();
+    await expect(settingsPage.formElement.getByText("Labelled", { exact: true })).toBeVisible();
+    await expect(settingsPage.labelledTileDiv).toBeVisible();
     await settingsPage.labelledTileDiv.click();
+    await expect(settingsPage.urlTileOption).toBeVisible();
     await settingsPage.urlTileOption.click();
     await settingsPage.nameInput.click();
     await settingsPage.nameInput.fill("url");
@@ -41,31 +49,37 @@ test("Tiles CRUD has succeeded", async ({ settingsPage, page }) => {
     await settingsPage.urlInput.fill("http://url.com");
     await settingsPage.imageUrlInput.click();
     await settingsPage.imageUrlInput.fill("http://image.com");
+    await expect(settingsPage.okButton).toBeVisible();
     await settingsPage.okButton.click();
+    await expect(settingsPage.saveButton).toBeVisible();
     await settingsPage.saveButton.click();
     await settingsPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Verify tile updated with correct values", async () => {
     await expect(settingsPage.textByName("url", true)).toBeVisible();
     const targetImageEl = settingsPage.cardMetaAvatarImage;
     await expect(targetImageEl).toHaveAttribute("src", "http://image.com");
+    await expect(settingsPage.editCardButton).toBeVisible();
     await settingsPage.editCardButton.click();
     await expect(settingsPage.formElement).toContainText("URL");
     await expect(settingsPage.nameInput).toHaveValue("url");
-    await expect(settingsPage.urlTextbox).toHaveValue("http://url.com");
+    await expect(settingsPage.formElement.getByLabel("URL", { exact: true })).toHaveValue("http://url.com");
     await expect(settingsPage.imageUrlInput).toHaveValue("http://image.com");
+    await expect(settingsPage.closeButton).toBeVisible();
     await settingsPage.closeButton.click();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Delete tile", async () => {
+    await expect(settingsPage.deleteCardButton).toBeVisible();
     await settingsPage.deleteCardButton.click();
+    await expect(settingsPage.saveButton).toBeVisible();
     await settingsPage.saveButton.click();
     await settingsPage.closeNotification();
     await expect(settingsPage.textByName("url", true)).toBeHidden();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 });
 
