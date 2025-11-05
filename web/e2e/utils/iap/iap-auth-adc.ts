@@ -42,7 +42,7 @@ export class ADCIAPAuthHelper {
 
   async forceRefresh(): Promise<void> {
     this.cache = undefined;
-    await this.getIdToken();  
+    await this.getIdToken();
   }
 
   static fromEnv(): ADCIAPAuthHelper {
@@ -90,7 +90,10 @@ export const getADCIAPToken = async (): Promise<string> => {
   return ADCIAPAuthHelper.fromEnv().getIdToken();
 };
 
-export const makeADCIAPRequest = async (url: string, options: RequestInit = {}): Promise<Response> => {
+export const makeADCIAPRequest = async (
+  url: string,
+  options: RequestInit = {},
+): Promise<Response> => {
   return ADCIAPAuthHelper.fromEnv().makeAuthenticatedRequest(url, options);
 };
 

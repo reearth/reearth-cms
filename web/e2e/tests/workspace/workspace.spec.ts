@@ -4,12 +4,12 @@ import { parseConfigBoolean } from "@reearth-cms/e2e/helpers/format.helper";
 
 const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 
-test.beforeEach(async () => {
+test.beforeEach(async ({ reearth }) => {
   test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
+  await reearth.goto("/", { waitUntil: "domcontentloaded" });
 });
 
-test("Workspace CRUD has succeeded", async ({ reearth, workspacePage }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+test("Workspace CRUD has succeeded", async ({ workspacePage }) => {
   await workspacePage.createWorkspaceButton.click();
   await workspacePage.workspaceNameInput.click();
   await workspacePage.workspaceNameInput.fill("workspace name");
@@ -31,8 +31,7 @@ test("Workspace CRUD has succeeded", async ({ reearth, workspacePage }) => {
   await expect(workspacePage.workspaceTextByName("new workspace name")).toBeHidden();
 });
 
-test("Workspace Creating from tab has succeeded", async ({ reearth, workspacePage }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+test("Workspace Creating from tab has succeeded", async ({ workspacePage }) => {
   await workspacePage.firstWorkspaceLink.click();
   await workspacePage.createWorkspaceTabButton.click();
   await workspacePage.workspaceNameInput.click();
