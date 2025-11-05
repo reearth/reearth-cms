@@ -95,7 +95,9 @@ export default () => {
     async (alias: string) => {
       if (!alias) return false;
 
-      if (!workspaceId) throw new Error();
+      if (!workspaceId) {
+        throw new Error("Workspace ID is required to check project alias");
+      }
       const response = await CheckProjectAlias({ variables: { workspaceId, alias } });
       return response.data ? response.data.checkProjectAlias.available : false;
     },
