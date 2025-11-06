@@ -119,14 +119,30 @@ test.describe("Json file tests", () => {
   });
 });
 
-test("Previewing png file on modal has succeeded", async ({ assetsPage }) => {
-  await assetsPage.uploadViaUrl(pngUrl);
+test("Previewing png file on modal has succeeded", async ({ assetsPage, page }) => {
+  await test.step("Upload PNG file via URL", async () => {
+    await assetsPage.uploadViaUrl(pngUrl);
+    await page.waitForTimeout(200);
+  });
 
-  await assetsPage.editIconButton.click();
-  await expect(assetsPage.assetTypeText).toBeVisible();
+  await test.step("Open asset editor and verify asset type", async () => {
+    await expect(assetsPage.editIconButton).toBeVisible();
+    await assetsPage.editIconButton.click();
+    await expect(assetsPage.assetTypeText).toBeVisible();
+    await page.waitForTimeout(200);
+  });
 
-  await assetsPage.fullscreenButton.click();
-  await expect(assetsPage.imagePreview).toBeVisible();
+  await test.step("Open fullscreen preview and verify image", async () => {
+    await expect(assetsPage.fullscreenButton).toBeVisible();
+    await assetsPage.fullscreenButton.click();
+    await page.waitForTimeout(200);
+    await expect(assetsPage.imagePreview).toBeVisible();
+    await page.waitForTimeout(200);
+  });
 
-  await assetsPage.fullscreenCloseButton.click();
+  await test.step("Close fullscreen preview", async () => {
+    await expect(assetsPage.fullscreenCloseButton).toBeVisible();
+    await assetsPage.fullscreenCloseButton.click();
+    await page.waitForTimeout(200);
+  });
 });
