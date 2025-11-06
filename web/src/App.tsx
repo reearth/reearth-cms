@@ -1,12 +1,8 @@
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
-import {
-  Route,
-  RouterProvider,
-  createBrowserRouter,
-  createRoutesFromElements,
-} from "react-router-dom";
+import { Route, createBrowserRouter, createRoutesFromElements } from "react-router";
+import { RouterProvider } from "react-router/dom";
 
 import { AuthProvider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
@@ -43,7 +39,7 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route index element={<RootPage />} />
-      <Route path="auth">
+      <Route path="auth" element={<RootPage />}>
         <Route path="*" element={<RootPage />} />
       </Route>
       <Route path="workspace" element={<CMSPageWrapper />}>
@@ -107,12 +103,7 @@ function App() {
     <AuthProvider>
       <GqlProvider>
         <I18nProvider>
-          <RouterProvider
-            router={router}
-            future={{
-              v7_startTransition: true,
-            }}
-          />
+          <RouterProvider router={router} />
         </I18nProvider>
       </GqlProvider>
     </AuthProvider>

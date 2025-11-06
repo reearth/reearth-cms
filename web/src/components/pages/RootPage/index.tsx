@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 import { useAuth } from "@reearth-cms/auth";
 import Loading from "@reearth-cms/components/atoms/Loading";

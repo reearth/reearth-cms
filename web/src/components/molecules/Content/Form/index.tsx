@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
-import { useBlocker } from "react-router-dom";
+import { useBlocker } from "react-router";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";

@@ -379,8 +379,8 @@ export class FieldEditorPage extends BasePage {
     return this.locator(".view-lines");
   }
 
-  get editorContent(): Locator {
-    return this.getByLabel("Editor content");
+  editorContent(index = 0): Locator {
+    return this.locator(".monaco-editor").nth(index);
   }
 
   // Delete field button
@@ -493,5 +493,10 @@ export class FieldEditorPage extends BasePage {
     await this.deleteFieldButton.click();
     await this.okButton.click();
     await this.closeNotification();
+  }
+
+  async fillEditorContent(text: string, index?: number): Promise<void> {
+    await this.editorContent(index).click();
+    await this.keyboardType(text);
   }
 }

@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";

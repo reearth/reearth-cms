@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 
 import Groups from "@reearth-cms/components/molecules/Model/ModelsList/Groups";
 import ModelListBody from "@reearth-cms/components/molecules/Model/ModelsList/ModelListBody";
