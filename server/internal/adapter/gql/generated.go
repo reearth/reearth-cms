@@ -227,6 +227,10 @@ type ComplexityRoot struct {
 		ItemID func(childComplexity int) int
 	}
 
+	DeleteItemsPayload struct {
+		ItemIds func(childComplexity int) int
+	}
+
 	DeleteMePayload struct {
 		UserID func(childComplexity int) int
 	}
@@ -484,6 +488,7 @@ type ComplexityRoot struct {
 		DeleteIntegration                  func(childComplexity int, input gqlmodel.DeleteIntegrationInput) int
 		DeleteIntegrations                 func(childComplexity int, input gqlmodel.DeleteIntegrationsInput) int
 		DeleteItem                         func(childComplexity int, input gqlmodel.DeleteItemInput) int
+		DeleteItems                        func(childComplexity int, input gqlmodel.DeleteItemsInput) int
 		DeleteMe                           func(childComplexity int, input gqlmodel.DeleteMeInput) int
 		DeleteModel                        func(childComplexity int, input gqlmodel.DeleteModelInput) int
 		DeleteProject                      func(childComplexity int, input gqlmodel.DeleteProjectInput) int
@@ -1040,6 +1045,7 @@ type MutationResolver interface {
 	CreateItem(ctx context.Context, input gqlmodel.CreateItemInput) (*gqlmodel.ItemPayload, error)
 	UpdateItem(ctx context.Context, input gqlmodel.UpdateItemInput) (*gqlmodel.ItemPayload, error)
 	DeleteItem(ctx context.Context, input gqlmodel.DeleteItemInput) (*gqlmodel.DeleteItemPayload, error)
+	DeleteItems(ctx context.Context, input gqlmodel.DeleteItemsInput) (*gqlmodel.DeleteItemsPayload, error)
 	PublishItem(ctx context.Context, input gqlmodel.PublishItemInput) (*gqlmodel.PublishItemPayload, error)
 	UnpublishItem(ctx context.Context, input gqlmodel.UnpublishItemInput) (*gqlmodel.UnpublishItemPayload, error)
 	CreateView(ctx context.Context, input gqlmodel.CreateViewInput) (*gqlmodel.ViewPayload, error)
@@ -1660,6 +1666,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.DeleteItemPayload.ItemID(childComplexity), true
+
+	case "DeleteItemsPayload.itemIds":
+		if e.complexity.DeleteItemsPayload.ItemIds == nil {
+			break
+		}
+
+		return e.complexity.DeleteItemsPayload.ItemIds(childComplexity), true
 
 	case "DeleteMePayload.userId":
 		if e.complexity.DeleteMePayload.UserID == nil {
@@ -2764,6 +2777,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.DeleteItem(childComplexity, args["input"].(gqlmodel.DeleteItemInput)), true
+	case "Mutation.deleteItems":
+		if e.complexity.Mutation.DeleteItems == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteItems_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteItems(childComplexity, args["input"].(gqlmodel.DeleteItemsInput)), true
 	case "Mutation.deleteMe":
 		if e.complexity.Mutation.DeleteMe == nil {
 			break
@@ -4824,6 +4848,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputDeleteIntegrationInput,
 		ec.unmarshalInputDeleteIntegrationsInput,
 		ec.unmarshalInputDeleteItemInput,
+		ec.unmarshalInputDeleteItemsInput,
 		ec.unmarshalInputDeleteMeInput,
 		ec.unmarshalInputDeleteModelInput,
 		ec.unmarshalInputDeleteProjectInput,
@@ -5975,6 +6000,10 @@ input DeleteItemInput {
   itemId: ID!
 }
 
+input DeleteItemsInput {
+  itemIds: [ID!]!
+}
+
 input UnpublishItemInput {
   itemIds: [ID!]!
 }
@@ -6004,6 +6033,10 @@ type ItemPayload {
 
 type DeleteItemPayload {
   itemId: ID!
+}
+
+type DeleteItemsPayload {
+  itemIds: [ID!]!
 }
 
 type UnpublishItemPayload {
@@ -6036,6 +6069,7 @@ extend type Mutation {
   createItem(input: CreateItemInput!): ItemPayload
   updateItem(input: UpdateItemInput!): ItemPayload
   deleteItem(input: DeleteItemInput!): DeleteItemPayload
+  deleteItems(input: DeleteItemsInput!): DeleteItemsPayload
   publishItem(input: PublishItemInput!): PublishItemPayload
   unpublishItem(input: UnpublishItemInput!): UnpublishItemPayload
 }`, BuiltIn: false},
@@ -7428,6 +7462,17 @@ func (ec *executionContext) field_Mutation_deleteItem_args(ctx context.Context, 
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNDeleteItemInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteItemInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteItems_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNDeleteItemsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteItemsInput)
 	if err != nil {
 		return nil, err
 	}
@@ -10823,6 +10868,35 @@ func (ec *executionContext) _DeleteItemPayload_itemId(ctx context.Context, field
 func (ec *executionContext) fieldContext_DeleteItemPayload_itemId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "DeleteItemPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DeleteItemsPayload_itemIds(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DeleteItemsPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_DeleteItemsPayload_itemIds,
+		func(ctx context.Context) (any, error) {
+			return obj.ItemIds, nil
+		},
+		nil,
+		ec.marshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_DeleteItemsPayload_itemIds(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DeleteItemsPayload",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -16672,6 +16746,51 @@ func (ec *executionContext) fieldContext_Mutation_deleteItem(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteItem_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteItems(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_deleteItems,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().DeleteItems(ctx, fc.Args["input"].(gqlmodel.DeleteItemsInput))
+		},
+		nil,
+		ec.marshalODeleteItemsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteItemsPayload,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteItems(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "itemIds":
+				return ec.fieldContext_DeleteItemsPayload_itemIds(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DeleteItemsPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteItems_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -30438,6 +30557,33 @@ func (ec *executionContext) unmarshalInputDeleteItemInput(ctx context.Context, o
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputDeleteItemsInput(ctx context.Context, obj any) (gqlmodel.DeleteItemsInput, error) {
+	var it gqlmodel.DeleteItemsInput
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"itemIds"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "itemIds":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("itemIds"))
+			data, err := ec.unmarshalNID2ᚕgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐIDᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ItemIds = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputDeleteMeInput(ctx context.Context, obj any) (gqlmodel.DeleteMeInput, error) {
 	var it gqlmodel.DeleteMeInput
 	asMap := map[string]any{}
@@ -36142,6 +36288,45 @@ func (ec *executionContext) _DeleteItemPayload(ctx context.Context, sel ast.Sele
 	return out
 }
 
+var deleteItemsPayloadImplementors = []string{"DeleteItemsPayload"}
+
+func (ec *executionContext) _DeleteItemsPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.DeleteItemsPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, deleteItemsPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DeleteItemsPayload")
+		case "itemIds":
+			out.Values[i] = ec._DeleteItemsPayload_itemIds(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var deleteMePayloadImplementors = []string{"DeleteMePayload"}
 
 func (ec *executionContext) _DeleteMePayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.DeleteMePayload) graphql.Marshaler {
@@ -38609,6 +38794,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "deleteItem":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteItem(ctx, field)
+			})
+		case "deleteItems":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteItems(ctx, field)
 			})
 		case "publishItem":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -43849,6 +44038,11 @@ func (ec *executionContext) unmarshalNDeleteItemInput2githubᚗcomᚋreearthᚋr
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNDeleteItemsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteItemsInput(ctx context.Context, v any) (gqlmodel.DeleteItemsInput, error) {
+	res, err := ec.unmarshalInputDeleteItemsInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNDeleteMeInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteMeInput(ctx context.Context, v any) (gqlmodel.DeleteMeInput, error) {
 	res, err := ec.unmarshalInputDeleteMeInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -47021,6 +47215,13 @@ func (ec *executionContext) marshalODeleteItemPayload2ᚖgithubᚗcomᚋreearth�
 		return graphql.Null
 	}
 	return ec._DeleteItemPayload(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalODeleteItemsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteItemsPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.DeleteItemsPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._DeleteItemsPayload(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalODeleteMePayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐDeleteMePayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.DeleteMePayload) graphql.Marshaler {

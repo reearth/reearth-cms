@@ -489,6 +489,15 @@ export type DeleteItemPayload = {
   itemId: Scalars['ID']['output'];
 };
 
+export type DeleteItemsInput = {
+  itemIds: Array<Scalars['ID']['input']>;
+};
+
+export type DeleteItemsPayload = {
+  __typename?: 'DeleteItemsPayload';
+  itemIds: Array<Scalars['ID']['output']>;
+};
+
 export type DeleteMeInput = {
   userId: Scalars['ID']['input'];
 };
@@ -914,6 +923,7 @@ export type Mutation = {
   deleteIntegration?: Maybe<DeleteIntegrationPayload>;
   deleteIntegrations?: Maybe<DeleteIntegrationsPayload>;
   deleteItem?: Maybe<DeleteItemPayload>;
+  deleteItems?: Maybe<DeleteItemsPayload>;
   deleteMe?: Maybe<DeleteMePayload>;
   deleteModel?: Maybe<DeleteModelPayload>;
   deleteProject?: Maybe<DeleteProjectPayload>;
@@ -1097,6 +1107,11 @@ export type MutationDeleteIntegrationsArgs = {
 
 export type MutationDeleteItemArgs = {
   input: DeleteItemInput;
+};
+
+
+export type MutationDeleteItemsArgs = {
+  input: DeleteItemsInput;
 };
 
 
@@ -2578,6 +2593,13 @@ export type DeleteAssetMutationVariables = Exact<{
 
 export type DeleteAssetMutation = { __typename?: 'Mutation', deleteAsset?: { __typename?: 'DeleteAssetPayload', assetId: string } | null };
 
+export type DeleteAssetsMutationVariables = Exact<{
+  assetIds: Array<Scalars['ID']['input']> | Scalars['ID']['input'];
+}>;
+
+
+export type DeleteAssetsMutation = { __typename?: 'Mutation', deleteAssets?: { __typename?: 'DeleteAssetsPayload', assetIds?: Array<string> | null } | null };
+
 export type DecompressAssetMutationVariables = Exact<{
   assetId: Scalars['ID']['input'];
 }>;
@@ -2833,6 +2855,13 @@ export type DeleteItemMutationVariables = Exact<{
 
 export type DeleteItemMutation = { __typename?: 'Mutation', deleteItem?: { __typename?: 'DeleteItemPayload', itemId: string } | null };
 
+export type DeleteItemsMutationVariables = Exact<{
+  itemIds: Array<Scalars['ID']['input']> | Scalars['ID']['input'];
+}>;
+
+
+export type DeleteItemsMutation = { __typename?: 'Mutation', deleteItems?: { __typename?: 'DeleteItemsPayload', itemIds: Array<string> } | null };
+
 export type UpdateItemMutationVariables = Exact<{
   itemId: Scalars['ID']['input'];
   fields: Array<ItemFieldInput> | ItemFieldInput;
@@ -2946,7 +2975,7 @@ export type GetProjectsQueryVariables = Exact<{
 }>;
 
 
-export type GetProjectsQuery = { __typename?: 'Query', projects: { __typename?: 'ProjectConnection', nodes: Array<{ __typename?: 'Project', id: string, name: string, description: string, alias: string, license: string, readme: string, createdAt: Date, updatedAt: Date, requestRoles?: Array<Role> | null, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null, apiKeys?: Array<{ __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }> | null } } | null> } };
+export type GetProjectsQuery = { __typename?: 'Query', projects: { __typename?: 'ProjectConnection', totalCount: number, nodes: Array<{ __typename?: 'Project', id: string, name: string, description: string, alias: string, license: string, readme: string, createdAt: Date, updatedAt: Date, requestRoles?: Array<Role> | null, accessibility: { __typename?: 'ProjectAccessibility', visibility: ProjectVisibility, publication?: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } | null, apiKeys?: Array<{ __typename?: 'ProjectAPIKey', id: string, name: string, description: string, key: string, publication: { __typename?: 'PublicationSettings', publicModels: Array<string>, publicAssets: boolean } }> | null } } | null> } };
 
 export type CheckProjectAliasQueryVariables = Exact<{
   alias: Scalars['String']['input'];
@@ -4000,6 +4029,39 @@ export function useDeleteAssetMutation(baseOptions?: Apollo.MutationHookOptions<
 export type DeleteAssetMutationHookResult = ReturnType<typeof useDeleteAssetMutation>;
 export type DeleteAssetMutationResult = Apollo.MutationResult<DeleteAssetMutation>;
 export type DeleteAssetMutationOptions = Apollo.BaseMutationOptions<DeleteAssetMutation, DeleteAssetMutationVariables>;
+export const DeleteAssetsDocument = gql`
+    mutation DeleteAssets($assetIds: [ID!]!) {
+  deleteAssets(input: {assetIds: $assetIds}) {
+    assetIds
+  }
+}
+    `;
+export type DeleteAssetsMutationFn = Apollo.MutationFunction<DeleteAssetsMutation, DeleteAssetsMutationVariables>;
+
+/**
+ * __useDeleteAssetsMutation__
+ *
+ * To run a mutation, you first call `useDeleteAssetsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteAssetsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteAssetsMutation, { data, loading, error }] = useDeleteAssetsMutation({
+ *   variables: {
+ *      assetIds: // value for 'assetIds'
+ *   },
+ * });
+ */
+export function useDeleteAssetsMutation(baseOptions?: Apollo.MutationHookOptions<DeleteAssetsMutation, DeleteAssetsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteAssetsMutation, DeleteAssetsMutationVariables>(DeleteAssetsDocument, options);
+      }
+export type DeleteAssetsMutationHookResult = ReturnType<typeof useDeleteAssetsMutation>;
+export type DeleteAssetsMutationResult = Apollo.MutationResult<DeleteAssetsMutation>;
+export type DeleteAssetsMutationOptions = Apollo.BaseMutationOptions<DeleteAssetsMutation, DeleteAssetsMutationVariables>;
 export const DecompressAssetDocument = gql`
     mutation DecompressAsset($assetId: ID!) {
   decompressAsset(input: {assetId: $assetId}) {
@@ -5501,6 +5563,39 @@ export function useDeleteItemMutation(baseOptions?: Apollo.MutationHookOptions<D
 export type DeleteItemMutationHookResult = ReturnType<typeof useDeleteItemMutation>;
 export type DeleteItemMutationResult = Apollo.MutationResult<DeleteItemMutation>;
 export type DeleteItemMutationOptions = Apollo.BaseMutationOptions<DeleteItemMutation, DeleteItemMutationVariables>;
+export const DeleteItemsDocument = gql`
+    mutation DeleteItems($itemIds: [ID!]!) {
+  deleteItems(input: {itemIds: $itemIds}) {
+    itemIds
+  }
+}
+    `;
+export type DeleteItemsMutationFn = Apollo.MutationFunction<DeleteItemsMutation, DeleteItemsMutationVariables>;
+
+/**
+ * __useDeleteItemsMutation__
+ *
+ * To run a mutation, you first call `useDeleteItemsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteItemsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteItemsMutation, { data, loading, error }] = useDeleteItemsMutation({
+ *   variables: {
+ *      itemIds: // value for 'itemIds'
+ *   },
+ * });
+ */
+export function useDeleteItemsMutation(baseOptions?: Apollo.MutationHookOptions<DeleteItemsMutation, DeleteItemsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteItemsMutation, DeleteItemsMutationVariables>(DeleteItemsDocument, options);
+      }
+export type DeleteItemsMutationHookResult = ReturnType<typeof useDeleteItemsMutation>;
+export type DeleteItemsMutationResult = Apollo.MutationResult<DeleteItemsMutation>;
+export type DeleteItemsMutationOptions = Apollo.BaseMutationOptions<DeleteItemsMutation, DeleteItemsMutationVariables>;
 export const UpdateItemDocument = gql`
     mutation UpdateItem($itemId: ID!, $fields: [ItemFieldInput!]!, $metadataId: ID, $version: String!) {
   updateItem(
@@ -6270,6 +6365,7 @@ export const GetProjectsDocument = gql`
       }
       requestRoles
     }
+    totalCount
   }
 }
     `;
