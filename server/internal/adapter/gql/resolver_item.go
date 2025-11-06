@@ -228,6 +228,27 @@ func (r *mutationResolver) DeleteItem(ctx context.Context, input gqlmodel.Delete
 	return &gqlmodel.DeleteItemPayload{ItemID: input.ItemID}, nil
 }
 
+// DeleteItems is the resolver for the deleteItems field.
+func (r *mutationResolver) DeleteItems(ctx context.Context, input gqlmodel.DeleteItemsInput) (*gqlmodel.DeleteItemsPayload, error) {
+	itemIDs, err := gqlmodel.ToIDs[id.Item](input.ItemIds)
+	if err != nil {
+		return nil, err
+	}
+
+	deletedIDs, err := usecases(ctx).Item.BatchDelete(ctx, itemIDs, getOperator(ctx))
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert deleted IDs to gqlmodel.ID format
+	result := make([]gqlmodel.ID, 0, len(deletedIDs))
+	for _, itemID := range deletedIDs {
+		result = append(result, gqlmodel.IDFrom(itemID))
+	}
+
+	return &gqlmodel.DeleteItemsPayload{ItemIds: result}, nil
+}
+
 // PublishItem is the resolver for the publishItem field.
 func (r *mutationResolver) PublishItem(ctx context.Context, input gqlmodel.PublishItemInput) (*gqlmodel.PublishItemPayload, error) {
 	op := getOperator(ctx)
