@@ -111,13 +111,13 @@ test.describe("Project CRUD and searching has succeeded", () => {
 });
 
 test.describe("Project List", () => {
-  test.skip();
   const { PROJECT_ID_LIST, FIRST_PAGE_PROJECTS, SECOND_PAGE_PROJECTS, NAME_SEPARATOR } =
     getMultipleProjects();
 
-  test.beforeEach(async ({ projectPage }) => {
+  test.beforeEach(async ({ projectPage, page }) => {
     for await (const projectName of PROJECT_ID_LIST) {
       await projectPage.createProject(projectName);
+      await page.waitForTimeout(200);
     }
   });
 
@@ -279,12 +279,21 @@ test.describe("Project List", () => {
     });
   });
 
-  test.afterEach(async ({ workspacePage, projectPage }) => {
+  test.afterEach(async ({ workspacePage, projectPage, page }) => {
     for await (const projectName of PROJECT_ID_LIST) {
+      await workspacePage.goto("/", { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(200);
       await workspacePage.searchProjectsInput.fill(projectName);
       await workspacePage.searchButton.click();
-      await projectPage.gotoProject(projectName);
-      await projectPage.deleteProject();
+      await page.waitForTimeout(200);
+      const projectCard = workspacePage.projectCardByName(projectName);
+      const isVisible = await projectCard.isVisible().catch(() => false);
+      if (isVisible) {
+        await projectPage.gotoProject(projectName);
+        await page.waitForTimeout(200);
+        await projectPage.deleteProject();
+        await page.waitForTimeout(200);
+      }
     }
   });
 });
