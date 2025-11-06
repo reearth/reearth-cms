@@ -80,6 +80,10 @@ input DeleteItemInput {
   itemId: ID!
 }
 
+input DeleteItemsInput {
+  itemIds: [ID!]!
+}
+
 input UnpublishItemInput {
   itemIds: [ID!]!
 }
@@ -109,6 +113,10 @@ type ItemPayload {
 
 type DeleteItemPayload {
   itemId: ID!
+}
+
+type DeleteItemsPayload {
+  itemIds: [ID!]!
 }
 
 type UnpublishItemPayload {
@@ -141,6 +149,7 @@ extend type Mutation {
   createItem(input: CreateItemInput!): ItemPayload
   updateItem(input: UpdateItemInput!): ItemPayload
   deleteItem(input: DeleteItemInput!): DeleteItemPayload
+  deleteItems(input: DeleteItemsInput!): DeleteItemsPayload
   publishItem(input: PublishItemInput!): PublishItemPayload
   unpublishItem(input: UnpublishItemInput!): UnpublishItemPayload
 }
