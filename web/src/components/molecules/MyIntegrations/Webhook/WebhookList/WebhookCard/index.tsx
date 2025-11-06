@@ -7,6 +7,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Space from "@reearth-cms/components/atoms/Space";
 import Switch from "@reearth-cms/components/atoms/Switch";
 import { Webhook } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   webhook: Webhook;
@@ -21,6 +22,7 @@ const WebhookCard: React.FC<Props> = ({
   onWebhookUpdate,
   onWebhookSelect,
 }) => {
+  const t = useT();
   const [isLoading, setIsLoading] = useState(false);
   const [isUpdateLoading, setIsUpdateLoading] = useState(false);
 
@@ -52,8 +54,8 @@ const WebhookCard: React.FC<Props> = ({
           <WebhookTitle>{webhook.name}</WebhookTitle>
           <SwitchWrapper>
             <Switch
-              checkedChildren="ON"
-              unCheckedChildren="OFF"
+              checkedChildren={t("ON")}
+              unCheckedChildren={t("OFF")}
               checked={webhook.active}
               onClick={handleWebhookUpdate}
               loading={isUpdateLoading}

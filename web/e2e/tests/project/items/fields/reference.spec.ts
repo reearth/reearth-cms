@@ -281,7 +281,8 @@ test("Two-way reference field editing has succeeded", async ({
   await expect(contentPage.cellByTextExact("text1").locator("span").first()).toBeVisible();
   await expect(contentPage.cellByTextExact("text2").locator("span").first()).toBeVisible();
   await contentPage.editButton.first().click();
-  await fieldEditorPage.referToItemButton.click();
+  await expect(fieldEditorPage.replaceItemButton).toBeVisible();
+  await fieldEditorPage.replaceItemButton.click();
   await fieldEditorPage.rowButton(0).hover();
   await fieldEditorPage.rowButton(0).click();
   await fieldEditorPage.okButton.click();
