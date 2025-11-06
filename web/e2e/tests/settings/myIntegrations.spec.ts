@@ -31,14 +31,14 @@ test("MyIntegration CRUD has succeeded", async ({ integrationsPage, page }) => {
     await integrationsPage.descriptionInput.fill(newDescription);
     await integrationsPage.saveButton.click();
     await integrationsPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Verify updated integration details", async () => {
     await expect(integrationsPage.rootElement).toContainText(newIntegrationName);
     await integrationsPage.backButton.click();
     await expect(integrationsPage.mainElement).toContainText(newDescription);
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Delete integration", async () => {
@@ -50,7 +50,7 @@ test("MyIntegration CRUD has succeeded", async ({ integrationsPage, page }) => {
     await page.waitForLoadState("domcontentloaded");
     await page.waitForTimeout(200);
     await expect(integrationsPage.integrationLinkByText(newDescription)).toBeHidden();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 });
 

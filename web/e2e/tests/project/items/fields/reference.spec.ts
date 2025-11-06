@@ -37,7 +37,7 @@ test("One-way reference field creating and updating has succeeded", async ({
     await fieldEditorPage.displayNameInput.fill("boolean");
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Create two reference items with text values", async () => {
@@ -53,7 +53,7 @@ test("One-way reference field creating and updating has succeeded", async ({
     await contentPage.fieldInput("text").fill("text2");
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Create one-way reference field with validations", async () => {
@@ -87,7 +87,7 @@ test("One-way reference field creating and updating has succeeded", async ({
     await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText(
       "ref *#ref(unique)",
     );
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Verify reference field settings are locked after creation", async () => {
@@ -106,7 +106,7 @@ test("One-way reference field creating and updating has succeeded", async ({
     await fieldEditorPage.displayNameInput.fill("ref");
     await expect(fieldEditorPage.confirmButton).toBeDisabled();
     await fieldEditorPage.closeButton.first().click();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Create new item and test reference field with search", async () => {
@@ -130,7 +130,7 @@ test("One-way reference field creating and updating has succeeded", async ({
     await fieldEditorPage.rowButton(0).hover();
     await fieldEditorPage.rowButton(0).click();
     await expect(fieldEditorPage.referenceText("text1")).toBeVisible();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Clear reference and select again", async () => {
@@ -145,7 +145,7 @@ test("One-way reference field creating and updating has succeeded", async ({
     await contentPage.closeNotification();
     await contentPage.backButton.click();
     await expect(contentPage.cellSpanByText("text1")).toBeVisible();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Edit item and replace reference value", async () => {
@@ -159,7 +159,7 @@ test("One-way reference field creating and updating has succeeded", async ({
     await contentPage.closeNotification();
     await contentPage.backButton.click();
     await expect(contentPage.cellSpanByText("text2")).toBeVisible();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 });
 
@@ -195,7 +195,7 @@ test("Two-way reference field editing has succeeded", async ({
     await contentPage.fieldInput("text").fill("reference text2");
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Add text field to main model and create two-way reference", async () => {
@@ -212,7 +212,7 @@ test("Two-way reference field editing has succeeded", async ({
     await fieldEditorPage.modelOption("ref model #ref-model").click();
     await fieldEditorPage.twoWayReferenceCheckbox.check();
     await fieldEditorPage.nextButton.click();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Configure first reference field (ref1) with validation", async () => {
@@ -228,7 +228,7 @@ test("Two-way reference field editing has succeeded", async ({
     await fieldEditorPage.makeFieldRequiredCheckbox.check();
     await expect(fieldEditorPage.setFieldAsUniqueCheckbox).toBeDisabled();
     await fieldEditorPage.nextButton.click();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Configure second reference field (ref2) with validation", async () => {
@@ -240,7 +240,7 @@ test("Two-way reference field editing has succeeded", async ({
     await fieldEditorPage.descriptionInput.fill("ref2 description");
     await fieldEditorPage.validationTab.click();
     await fieldEditorPage.makeFieldRequiredCheckbox.check();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Navigate between ref1 and ref2 to verify settings persist", async () => {
@@ -258,7 +258,7 @@ test("Two-way reference field editing has succeeded", async ({
     await expect(fieldEditorPage.makeFieldRequiredCheckbox).toBeChecked();
     await fieldEditorPage.confirmButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Verify two-way reference fields created and test editing restrictions", async () => {
@@ -290,7 +290,7 @@ test("Two-way reference field editing has succeeded", async ({
     await fieldEditorPage.nextButton.click();
     await expect(fieldEditorPage.confirmButton).toBeDisabled();
     await fieldEditorPage.closeButton.first().click();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Create two items in main model with references", async () => {
@@ -322,7 +322,7 @@ test("Two-way reference field editing has succeeded", async ({
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
     await contentPage.backButton.click();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Verify two-way reference appears in ref model", async () => {
@@ -332,7 +332,7 @@ test("Two-way reference field editing has succeeded", async ({
     await expect(contentPage.tableHead).toContainText("ref2");
     await expect(contentPage.cellByTextExact("text1").locator("span").first()).toBeVisible();
     await expect(contentPage.cellByTextExact("text2").locator("span").first()).toBeVisible();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Edit ref model item and verify two-way sync", async () => {
@@ -352,6 +352,6 @@ test("Two-way reference field editing has succeeded", async ({
     await expect(
       contentPage.cellByTextExact("reference text2").locator("span").first(),
     ).toBeVisible();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 });

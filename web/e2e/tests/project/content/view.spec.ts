@@ -34,7 +34,7 @@ test("Create a new view", async ({
     await projectPage.contentMenuItem.click();
     await contentPage.createItemWithField("text", "text1");
     await contentPage.createItemWithField("text", "text2");
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Create a new view named 'view1'", async () => {
@@ -42,13 +42,13 @@ test("Create a new view", async ({
     await contentPage.viewNameInput.fill("view1");
     await contentPage.okButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Verify view is created and selected", async () => {
     await expect(contentPage.viewByName("view1")).toBeVisible();
     await expect(contentPage.tab(0)).toHaveAttribute("aria-selected", "true");
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 });
 
@@ -64,7 +64,7 @@ test("Rename an existing view", async ({
     await schemaPage.handleFieldForm("text");
     await projectPage.contentMenuItem.click();
     await contentPage.createItemWithField("text", "text1");
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Create initial view", async () => {
@@ -72,7 +72,7 @@ test("Rename an existing view", async ({
     await contentPage.viewNameInput.fill("view1");
     await contentPage.okButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Rename view to 'renamed view'", async () => {
@@ -82,12 +82,12 @@ test("Rename an existing view", async ({
     await contentPage.viewNameInput.fill("renamed view");
     await contentPage.okButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Verify view was renamed", async () => {
     await expect(contentPage.viewByName("renamed view")).toBeVisible();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 });
 
@@ -103,7 +103,7 @@ test("Cancel view deletion", async ({
     await schemaPage.handleFieldForm("text");
     await projectPage.contentMenuItem.click();
     await contentPage.createItemWithField("text", "text1");
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Create initial view", async () => {
@@ -111,7 +111,7 @@ test("Cancel view deletion", async ({
     await contentPage.viewNameInput.fill("view1");
     await contentPage.okButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Attempt to delete view but cancel", async () => {
@@ -120,12 +120,12 @@ test("Cancel view deletion", async ({
     await contentPage.removeButton.click();
     await contentPage.closeNotification(false);
     await contentPage.cancelButton.click();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Verify view still exists", async () => {
     await expect(contentPage.viewByName("view1")).toBeVisible();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 });
 
@@ -143,19 +143,19 @@ test("Apply sorting to view", async ({
     await contentPage.createItemWithField("text", "text2");
     await contentPage.createItemWithField("text", "sample1");
     await contentPage.createItemWithField("text", "sample2");
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Apply ascending sort to text column", async () => {
     await contentPage.textColumnHeader().click();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Verify items are sorted alphabetically", async () => {
     await expect(contentPage.sortUpIcon).toHaveClass(/active/);
     await expect(contentPage.tableRow(0)).toContainText("sample1");
     await expect(contentPage.tableRow(1)).toContainText("sample2");
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 });
 
@@ -172,7 +172,7 @@ test("Apply filter to view", async ({
     await projectPage.contentMenuItem.click();
     await contentPage.createItemWithField("text", "text1");
     await contentPage.createItemWithField("text", "sample1");
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Add filter: text contains 'text'", async () => {
@@ -184,12 +184,12 @@ test("Apply filter to view", async ({
     await contentPage.filterValueInput.click();
     await contentPage.filterValueInput.fill("text");
     await contentPage.confirmButton.click();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Verify filtered results", async () => {
     await expect(contentPage.tableRow(0)).toContainText("text1");
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 });
 
@@ -205,23 +205,23 @@ test("Toggle column visibility in view settings", async ({
     await schemaPage.handleFieldForm("text");
     await projectPage.contentMenuItem.click();
     await contentPage.createItemWithField("text", "text1");
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Open settings and verify status column is visible", async () => {
     await contentPage.settingsButton.click();
     await expect(contentPage.statusColumnHeader).toBeVisible();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Hide status column", async () => {
     await contentPage.statusCheckbox.click();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Verify status column is hidden", async () => {
     await expect(contentPage.statusColumnHeader).toBeHidden();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 });
 
@@ -239,13 +239,13 @@ test("Save view with custom sorting and filtering", async ({
     await contentPage.createItemWithField("text", "text1");
     await contentPage.createItemWithField("text", "text2");
     await contentPage.createItemWithField("text", "sample1");
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Apply sorting", async () => {
     await contentPage.textColumnHeader().click();
     await expect(contentPage.sortUpIcon).toHaveClass(/active/);
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Apply filter: text contains 'text'", async () => {
@@ -256,13 +256,13 @@ test("Save view with custom sorting and filtering", async ({
     await contentPage.filterValueInput.click();
     await contentPage.filterValueInput.fill("text");
     await contentPage.confirmButton.click();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Hide status column", async () => {
     await contentPage.settingsButton.click();
     await contentPage.statusCheckbox.click();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Save as new view", async () => {
@@ -271,7 +271,7 @@ test("Save view with custom sorting and filtering", async ({
     await contentPage.viewNameInput.fill("filtered view");
     await contentPage.okButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Verify view saved with all customizations", async () => {
@@ -280,7 +280,7 @@ test("Save view with custom sorting and filtering", async ({
     await expect(contentPage.tableRow(0)).toContainText("text1");
     await expect(contentPage.tableRow(1)).toContainText("text2");
     await expect(contentPage.statusColumnHeader).toBeHidden();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 });
 
@@ -299,7 +299,7 @@ test("Switch between views preserves individual view settings", async ({
     await contentPage.createItemWithField("text", "text2");
     await contentPage.createItemWithField("text", "sample1");
     await contentPage.createItemWithField("text", "sample2");
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Create first view with no customization", async () => {
@@ -307,7 +307,7 @@ test("Switch between views preserves individual view settings", async ({
     await contentPage.viewNameInput.fill("view1");
     await contentPage.okButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Apply sorting, filtering, and hide column", async () => {
@@ -319,10 +319,10 @@ test("Switch between views preserves individual view settings", async ({
     await contentPage.filterValueInput.click();
     await contentPage.filterValueInput.fill("text");
     await contentPage.confirmButton.click();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
     await contentPage.settingsButton.click();
     await contentPage.statusCheckbox.click();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Save as second view with customizations", async () => {
@@ -331,7 +331,7 @@ test("Switch between views preserves individual view settings", async ({
     await contentPage.viewNameInput.fill("view2");
     await contentPage.okButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Verify view2 has customizations", async () => {
@@ -339,7 +339,7 @@ test("Switch between views preserves individual view settings", async ({
     await expect(contentPage.sortUpIcon).toHaveClass(/active/);
     await expect(contentPage.tableRow(0)).toContainText("text1");
     await expect(contentPage.statusColumnHeader).toBeHidden();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Switch to view1 and verify it has no customizations", async () => {
@@ -349,7 +349,7 @@ test("Switch between views preserves individual view settings", async ({
     await expect(contentPage.filterCloseButton("text")).toBeHidden();
     await expect(contentPage.tableRow(0)).toContainText("sample2");
     await expect(contentPage.statusColumnHeader).toBeVisible();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 });
 
@@ -366,7 +366,7 @@ test("Update view settings", async ({
     await projectPage.contentMenuItem.click();
     await contentPage.createItemWithField("text", "text1");
     await contentPage.createItemWithField("text", "sample1");
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Create initial view", async () => {
@@ -374,14 +374,14 @@ test("Update view settings", async ({
     await contentPage.viewNameInput.fill("view1");
     await contentPage.okButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Apply descending sort", async () => {
     await contentPage.textColumnHeader().first().click();
     await contentPage.textColumnHeader().first().click();
     await expect(contentPage.tableRow(0)).toContainText("text1");
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Apply filter: text ends with '1'", async () => {
@@ -392,14 +392,14 @@ test("Update view settings", async ({
     await contentPage.filterValueInput.click();
     await contentPage.filterValueInput.fill("1");
     await contentPage.confirmButton.click();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Update the view with new settings", async () => {
     await contentPage.viewTabMoreIcon("view1").click();
     await contentPage.updateViewButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Create another view to switch context", async () => {
@@ -407,7 +407,7 @@ test("Update view settings", async ({
     await contentPage.viewNameInput.fill("view2");
     await contentPage.okButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Switch back to view1 and verify updated settings persisted", async () => {
@@ -415,7 +415,7 @@ test("Update view settings", async ({
     await expect(contentPage.sortDownIcon).toHaveClass(/active/);
     await expect(contentPage.tableRow(0)).toContainText("text1");
     await expect(contentPage.tableRow(1)).toContainText("sample1");
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 });
 
@@ -432,7 +432,7 @@ test("Delete view and switch to remaining view", async ({
     await projectPage.contentMenuItem.click();
     await contentPage.createItemWithField("text", "text1");
     await contentPage.createItemWithField("text", "text2");
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Create first view", async () => {
@@ -440,7 +440,7 @@ test("Delete view and switch to remaining view", async ({
     await contentPage.viewNameInput.fill("view1");
     await contentPage.okButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Apply customizations for second view", async () => {
@@ -452,10 +452,10 @@ test("Delete view and switch to remaining view", async ({
     await contentPage.filterValueInput.click();
     await contentPage.filterValueInput.fill("text");
     await contentPage.confirmButton.click();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
     await contentPage.settingsButton.click();
     await contentPage.statusCheckbox.click();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Save as second view", async () => {
@@ -463,7 +463,7 @@ test("Delete view and switch to remaining view", async ({
     await contentPage.viewNameInput.fill("view2");
     await contentPage.okButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Delete view1", async () => {
@@ -472,7 +472,7 @@ test("Delete view and switch to remaining view", async ({
     await contentPage.removeViewButton.click();
     await contentPage.removeButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Verify view1 is deleted and view2 is active with settings preserved", async () => {
@@ -482,7 +482,7 @@ test("Delete view and switch to remaining view", async ({
     await expect(contentPage.sortUpIcon).toHaveClass(/active/);
     await expect(contentPage.tableRow(0)).toContainText("text1");
     await expect(contentPage.tableRow(1)).toContainText("text2");
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 });
 
@@ -490,7 +490,7 @@ test("View reordering has succeeded", async ({ page, projectPage, contentPage })
   await test.step("Navigate to content page", async () => {
     await projectPage.contentMenuItem.click();
     await projectPage.modelMenuItemClick(projectPage.modelName).click();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Create view1", async () => {
@@ -498,7 +498,7 @@ test("View reordering has succeeded", async ({ page, projectPage, contentPage })
     await contentPage.viewNameInput.fill("view1");
     await contentPage.okButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Create view2", async () => {
@@ -506,25 +506,25 @@ test("View reordering has succeeded", async ({ page, projectPage, contentPage })
     await contentPage.viewNameInput.fill("view2");
     await contentPage.okButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Verify initial view order", async () => {
     await expect(contentPage.viewTab(0)).toContainText("view1");
     await expect(contentPage.viewTab(1)).toContainText("view2");
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Drag view1 to position after view2", async () => {
     await contentPage.viewTab(0).dragTo(contentPage.viewTab(1));
     await contentPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Verify view order changed", async () => {
     await expect(contentPage.viewTab(0)).toContainText("view2");
     await expect(contentPage.viewTab(1)).toContainText("view1");
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Create view3", async () => {
@@ -532,13 +532,13 @@ test("View reordering has succeeded", async ({ page, projectPage, contentPage })
     await contentPage.viewNameInput.fill("view3");
     await contentPage.okButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 
   await test.step("Verify final view order with view3 at end", async () => {
     await expect(contentPage.viewTab(0)).toContainText("view2");
     await expect(contentPage.viewTab(1)).toContainText("view1");
     await expect(contentPage.viewTab(2)).toContainText("view3");
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(200);
   });
 });
