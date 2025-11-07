@@ -105,7 +105,7 @@
     "aws-amplify": "5.3.21",
     "cesium": "1.129.0",
     "cesium-mvt-imagery-provider": "1.4.2",
-    "dayjs": "1.11.19",
+    "dayjs": "1.11.13",
     "firebase": "10.13.1",
     "firebaseui": "6.1.0",
     "formik": "2.4.6",
