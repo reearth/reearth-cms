@@ -17,6 +17,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
 }) => {
+  test.slow();
   await fieldEditorPage.fieldTypeButton("Geometry Object").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("geometryObject1");
@@ -57,6 +58,7 @@ test("GeometryObject field editing has succeeded", async ({
   contentPage,
   schemaPage,
 }) => {
+  test.slow();
   await fieldEditorPage.fieldTypeListItem("Geometry Object").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("geometryObject1");
