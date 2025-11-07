@@ -181,7 +181,7 @@ test("Creating a new request and adding to request has succeeded", async ({ requ
     await expect(requestPage.saveButton).toBeVisible();
     await requestPage.saveButton.click();
     await requestPage.closeNotification();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
   });
 
   await test.step("Add new item to existing request", async () => {
@@ -193,7 +193,7 @@ test("Creating a new request and adding to request has succeeded", async ({ requ
     await requestPage.selectCheckbox.click();
     await requestPage.okButton.click();
     await requestPage.closeNotification();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
   });
 
   await test.step("Verify both items appear in request", async () => {
@@ -202,7 +202,7 @@ test("Creating a new request and adding to request has succeeded", async ({ requ
     await requestPage.editButton.click();
     await expect(requestPage.collapsedModelButton("e2e model name", 0)).toBeVisible();
     await expect(requestPage.collapsedModelButton("e2e model name", 1)).toBeVisible();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
   });
 });
 

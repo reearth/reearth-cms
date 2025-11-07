@@ -28,7 +28,7 @@ test("Checkbox metadata creating and updating has succeeded", async ({
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
     await expect(fieldEditorPage.fieldText("checkbox1", "checkbox1")).toBeVisible();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
   });
 
   await test.step("Verify metadata field settings", async () => {
@@ -44,7 +44,7 @@ test("Checkbox metadata creating and updating has succeeded", async ({
     await fieldEditorPage.defaultValueTab.click();
     await expect(fieldEditorPage.setDefaultValueCheckbox).not.toBeChecked();
     await fieldEditorPage.cancelButton.click();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
   });
 
   await test.step("Create item with default checkbox value", async () => {
@@ -56,7 +56,7 @@ test("Checkbox metadata creating and updating has succeeded", async ({
     await contentPage.closeNotification();
     await expect(contentPage.itemInformationHeading).toBeVisible();
     await expect(contentPage.fieldInput("checkbox1")).not.toBeChecked();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
   });
 
   await test.step("Update checkbox from table view to checked", async () => {
@@ -64,7 +64,7 @@ test("Checkbox metadata creating and updating has succeeded", async ({
     await contentPage.lastCellCheckbox.check();
     await contentPage.closeNotification();
     await expect(contentPage.lastCellCheckbox).toBeChecked();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
   });
 
   await test.step("Update checkbox from edit view to unchecked", async () => {
@@ -73,13 +73,13 @@ test("Checkbox metadata creating and updating has succeeded", async ({
     await contentPage.fieldInput("checkbox1").uncheck();
     await contentPage.closeNotification();
     await expect(contentPage.fieldInput("checkbox1")).not.toBeChecked();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
   });
 
   await test.step("Verify updated checkbox in table view", async () => {
     await contentPage.backButtonRole.click();
     await expect(contentPage.lastCellCheckbox).not.toBeChecked();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
   });
 });
 
@@ -99,7 +99,7 @@ test("Checkbox metadata editing has succeeded", async ({
     await fieldEditorPage.setDefaultValueCheckbox.check();
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
   });
 
   await test.step("Verify field in content and create item with default value", async () => {
@@ -109,7 +109,7 @@ test("Checkbox metadata editing has succeeded", async ({
     await expect(contentPage.fieldInput("checkbox1")).toBeChecked();
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
   });
 
   await test.step("Update metadata with multiple values", async () => {
@@ -129,7 +129,7 @@ test("Checkbox metadata editing has succeeded", async ({
     await contentPage.closeNotification();
     await expect(schemaPage.getByText("new checkbox1")).toBeVisible();
     await expect(schemaPage.getByText("#new-checkbox1")).toBeVisible();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
   });
 
   await test.step("Verify updated metadata in content and create new item", async () => {
@@ -145,7 +145,7 @@ test("Checkbox metadata editing has succeeded", async ({
     await contentPage.closeNotification();
     await expect(contentPage.checkboxByIndex(0)).toBeChecked();
     await expect(contentPage.checkboxByIndex(1)).toBeChecked();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
   });
 
   await test.step("Update checkbox from tooltip in table view", async () => {
@@ -155,7 +155,7 @@ test("Checkbox metadata editing has succeeded", async ({
     await expect(contentPage.tooltipCheckboxByIndex(1)).toBeChecked();
     await contentPage.tooltipCheckboxByIndex(0).uncheck();
     await contentPage.closeNotification();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
   });
 
   await test.step("Add third value from edit view", async () => {
@@ -167,7 +167,7 @@ test("Checkbox metadata editing has succeeded", async ({
     await expect(contentPage.checkboxByIndex(0)).not.toBeChecked();
     await expect(contentPage.checkboxByIndex(1)).toBeChecked();
     await expect(contentPage.checkboxByIndex(2)).not.toBeChecked();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
   });
 
   await test.step("Verify all three values in table view", async () => {
@@ -176,6 +176,6 @@ test("Checkbox metadata editing has succeeded", async ({
     await expect(contentPage.tooltipCheckboxByIndex(0)).not.toBeChecked();
     await expect(contentPage.tooltipCheckboxByIndex(1)).toBeChecked();
     await expect(contentPage.tooltipCheckboxByIndex(2)).not.toBeChecked();
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
   });
 });
