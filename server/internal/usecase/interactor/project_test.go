@@ -1291,8 +1291,8 @@ func TestProject_StarProject(t *testing.T) {
 			name:  "star project owned by another user",
 			seeds: project.List{p1.Clone()},
 			args: args{
-				idOrAlias: project.IDOrAlias(p1.ID().String()),
-				operator:  otherUserOp,
+				pIdOrAlias: project.IDOrAlias(p1.ID().String()),
+				operator:   otherUserOp,
 			},
 			want: func() *project.Project {
 				p := p1.Clone()
