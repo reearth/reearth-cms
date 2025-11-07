@@ -1245,6 +1245,9 @@ func TestProject_StarProject(t *testing.T) {
 	u1 := user.New().Name("user1").NewID().Email("user1@test.com").Workspace(wid1).MustBuild()
 	u1ID := u1.ID()
 
+	u2 := user.New().Name("user2").NewID().Email("user2@test.com").Workspace(wid2).MustBuild()
+	u2ID := u2.ID()
+
 	pid1 := id.NewProjectID()
 	p1 := project.New().ID(pid1).Workspace(wid1).Alias("test-project").MustBuild()
 
@@ -1254,6 +1257,14 @@ func TestProject_StarProject(t *testing.T) {
 	validOp := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
 			User:               lo.ToPtr(u1ID),
+			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2},
+			WritableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2},
+		},
+	}
+
+	otherUserOp := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(u2ID),
 			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2},
 			WritableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2},
 		},
@@ -1276,6 +1287,21 @@ func TestProject_StarProject(t *testing.T) {
 		mockProjectErr bool
 		wantErr        error
 	}{
+		{
+			name:  "star project owned by another user",
+			seeds: project.List{p1.Clone()},
+			args: args{
+				idOrAlias: project.IDOrAlias(p1.ID().String()),
+				operator:  otherUserOp,
+			},
+			want: func() *project.Project {
+				p := p1.Clone()
+				p.Star(u2ID)
+				p.SetUpdatedAt(now)
+				return p
+			}(),
+			wantErr: nil,
+		},
 		{
 			name:  "star project by ID",
 			seeds: project.List{p1.Clone()},

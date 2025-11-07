@@ -587,7 +587,7 @@ func (i *Project) StarProject(ctx context.Context, wsIdOrAlias accountdomain.Wor
 		return nil, rerror.ErrNotFound
 	}
 
-	return Run1(ctx, op, i.repos, Usecase().WithWritableWorkspaces(p.Workspace()).Transaction(),
+	return Run1(ctx, op, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ *project.Project, err error) {
 			if slices.Contains(p.StarredBy(), userID.String()) {
 				p.Unstar(*userID)

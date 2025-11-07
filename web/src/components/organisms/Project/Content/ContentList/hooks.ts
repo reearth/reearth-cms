@@ -33,7 +33,7 @@ import {
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
 import {
   Item as GQLItem,
-  useDeleteItemMutation,
+  useDeleteItemsMutation,
   Comment as GQLComment,
   useSearchItemQuery,
   Asset as GQLAsset,
@@ -542,27 +542,22 @@ export default () => {
     ],
   );
 
-  const [deleteItemMutation, { loading: deleteLoading }] = useDeleteItemMutation();
+  const [deleteItemsMutation, { loading: deleteLoading }] = useDeleteItemsMutation();
   const handleItemDelete = useCallback(
     (itemIds: string[]) =>
       (async () => {
-        const results = await Promise.all(
-          itemIds.map(async itemId => {
-            const result = await deleteItemMutation({
-              variables: { itemId },
-              refetchQueries: ["SearchItem"],
-            });
-            if (result.errors) {
-              Notification.error({ message: t("Failed to delete one or more items.") });
-            }
-          }),
-        );
-        if (results) {
-          Notification.success({ message: t("One or more items were successfully deleted!") });
-          setSelectedItems({ selectedRows: [] });
+        const result = await deleteItemsMutation({
+          variables: { itemIds },
+          refetchQueries: ["SearchItem"],
+        });
+        if (result.errors || !result.data?.deleteItems) {
+          Notification.error({ message: t("Failed to delete one or more items.") });
+          return;
         }
+        Notification.success({ message: t("One or more items were successfully deleted!") });
+        setSelectedItems({ selectedRows: [] });
       })(),
-    [t, deleteItemMutation],
+    [t, deleteItemsMutation],
   );
 
   const handleItemSelect = useCallback(
