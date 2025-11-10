@@ -1215,10 +1215,10 @@ func TestProject_StarProject(t *testing.T) {
 	u2ID := u2.ID()
 
 	pid1 := id.NewProjectID()
-	p1 := project.New().ID(pid1).Workspace(wid1).Alias("test-project").MustBuild()
+	p1 := project.New().ID(pid1).Workspace(wid1).Alias("test-project").UpdatedAt(now.Add(-time.Hour)).MustBuild()
 
 	pid3 := id.NewProjectID()
-	p3 := project.New().ID(pid3).Workspace(wid2).MustBuild()
+	p3 := project.New().ID(pid3).Workspace(wid2).UpdatedAt(now.Add(-time.Hour)).MustBuild()
 
 	validOp := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
@@ -1262,7 +1262,7 @@ func TestProject_StarProject(t *testing.T) {
 			want: func() *project.Project {
 				p := p1.Clone()
 				p.Star(u2ID)
-				p.SetUpdatedAt(now)
+				p.SetUpdatedAt(now.Add(-time.Hour)) // Should preserve original timestamp
 				return p
 			}(),
 			wantErr: nil,
@@ -1277,7 +1277,7 @@ func TestProject_StarProject(t *testing.T) {
 			want: func() *project.Project {
 				p := p1.Clone()
 				p.Star(u1ID)
-				p.SetUpdatedAt(now)
+				p.SetUpdatedAt(now.Add(-time.Hour))
 				return p
 			}(),
 			wantErr: nil,
@@ -1292,7 +1292,7 @@ func TestProject_StarProject(t *testing.T) {
 			want: func() *project.Project {
 				p := p1.Clone()
 				p.Star(u1ID)
-				p.SetUpdatedAt(now)
+				p.SetUpdatedAt(now.Add(-time.Hour))
 				return p
 			}(),
 			wantErr: nil,
@@ -1307,7 +1307,7 @@ func TestProject_StarProject(t *testing.T) {
 			want: func() *project.Project {
 				p := p3.Clone()
 				p.Star(u1ID)
-				p.SetUpdatedAt(now)
+				p.SetUpdatedAt(now.Add(-time.Hour))
 				return p
 			}(),
 			wantErr: nil,
@@ -1352,10 +1352,28 @@ func TestProject_StarProject(t *testing.T) {
 			want:           nil,
 			wantErr:        errors.New("test"),
 		},
+		{
+			name: "updated_at should not change when starring",
+			seeds: project.List{func() *project.Project {
+				p := p1.Clone()
+				p.SetUpdatedAt(now.Add(-time.Hour)) // Set to an hour ago
+				return p
+			}()},
+			args: args{
+				idOrAlias: project.IDOrAlias(pid1.String()),
+				operator:  validOp,
+			},
+			want: func() *project.Project {
+				p := p1.Clone()
+				p.Star(u1ID)
+				p.SetUpdatedAt(now.Add(-time.Hour)) // Should remain the same
+				return p
+			}(),
+			wantErr: nil,
+		},
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			// Removed t.Parallel() to fix user ID consistency issue in unstar test
 
@@ -1386,8 +1404,10 @@ func TestProject_StarProject(t *testing.T) {
 				assert.Len(t, got.StarredBy(), 1)
 			}
 
-			// Verify that UpdatedAt was set (should be recent)
-			assert.True(t, got.UpdatedAt().After(now.Add(-time.Second)))
+			// Verify that UpdatedAt was NOT updated when starring (should remain 1 hour ago)
+			expectedTime := now.Add(-time.Hour)
+			assert.True(t, got.UpdatedAt().Equal(expectedTime) || got.UpdatedAt().Equal(expectedTime.Truncate(time.Microsecond)),
+				"UpdatedAt should remain unchanged: expected %v, got %v", expectedTime, got.UpdatedAt())
 
 			dbGot, err := db.Project.FindByID(ctx, got.ID())
 			assert.NoError(t, err)
@@ -1398,8 +1418,9 @@ func TestProject_StarProject(t *testing.T) {
 				assert.Len(t, dbGot.StarredBy(), 1)
 			}
 
-			// Verify that UpdatedAt was persisted correctly
-			assert.True(t, dbGot.UpdatedAt().After(now.Add(-time.Second)))
+			// Verify that UpdatedAt was NOT updated in the database when starring (should remain 1 hour ago)
+			assert.True(t, dbGot.UpdatedAt().Equal(expectedTime) || dbGot.UpdatedAt().Equal(expectedTime.Truncate(time.Microsecond)),
+				"Database UpdatedAt should remain unchanged: expected %v, got %v", expectedTime, dbGot.UpdatedAt())
 		})
 	}
 }
