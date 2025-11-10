@@ -37,103 +37,76 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Read versions successfully", async ({ contentPage, page }) => {
+test("Read versions successfully", async ({ contentPage }) => {
   const requestStatus = contentPage.requestStatusElement;
+  await expect(contentPage.textByRegex(dateReg)).toBeVisible();
+  await expect(contentPage.currentVersionText).toBeVisible();
+  await expect(contentPage.textByRegex(/Created by .*/)).toBeVisible();
+  await expect(requestStatus).toHaveCSS("background-color", getRgb(stateColors.DRAFT));
+  await requestStatus.hover();
+  await expect(contentPage.tooltipByName("DRAFT")).toBeVisible();
 
-  await test.step("Verify initial DRAFT version", async () => {
-    await expect(contentPage.textByRegex(dateReg)).toBeVisible();
-    await expect(contentPage.currentVersionText).toBeVisible();
-    await expect(contentPage.textByRegex(/Created by .*/)).toBeVisible();
-    await expect(requestStatus).toHaveCSS("background-color", getRgb(stateColors.DRAFT));
-    await requestStatus.hover();
-    await expect(contentPage.tooltipByName("DRAFT")).toBeVisible();
-  });
+  await contentPage.createRequest(requestTitle);
+  const request = contentPage.requestLink(requestTitle);
+  await expect(request).toBeVisible();
+  await expect(requestStatus).toHaveCSS("background-color", getRgb(stateColors.REVIEW));
+  await requestStatus.hover();
+  await expect(contentPage.tooltipByName("REVIEW")).toBeVisible();
+  const itemId = contentPage.url().split("/").at(-1) as string;
+  await request.click();
+  await contentPage.approveButton.click();
+  await contentPage.closeNotification();
+  await contentPage.itemIdButton(itemId).click();
+  await contentPage.versionHistoryTab.click();
+  await expect(request).toBeHidden();
+  await expect(requestStatus).toHaveCSS("background-color", getRgb(stateColors.PUBLIC));
+  await requestStatus.hover();
+  await expect(contentPage.tooltipByName("PUBLIC")).toBeVisible();
 
-  await test.step("Create request and verify REVIEW status", async () => {
-    await contentPage.createRequest(requestTitle);
-    const request = contentPage.requestLink(requestTitle);
-    await expect(request).toBeVisible();
-    await expect(requestStatus).toHaveCSS("background-color", getRgb(stateColors.REVIEW));
-    await requestStatus.hover();
-    await expect(contentPage.tooltipByName("REVIEW")).toBeVisible();
-  });
+  await contentPage.fieldInput(fieldName).fill("2");
+  await contentPage.saveButton.click();
+  await contentPage.closeNotification();
 
-  await test.step("Approve request and verify PUBLIC status", async () => {
-    const request = contentPage.requestLink(requestTitle);
-    const itemId = contentPage.url().split("/").at(-1) as string;
-    await request.click();
-    await contentPage.approveButton.click();
-    await contentPage.closeNotification();
-    await page.waitForTimeout(300);
-    await contentPage.itemIdButton(itemId).click();
-    await contentPage.versionHistoryTab.click();
-    await expect(request).toBeHidden();
-    await expect(requestStatus).toHaveCSS("background-color", getRgb(stateColors.PUBLIC));
-    await requestStatus.hover();
-    await expect(contentPage.tooltipByName("PUBLIC")).toBeVisible();
-  });
-
-  await test.step("Update item and verify multiple versions with different statuses", async () => {
-    await contentPage.fieldInput(fieldName).fill("2");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
-    await page.waitForTimeout(300);
-
-    await expect(contentPage.textByRegex(dateReg)).toHaveCount(2);
-    await expect(contentPage.textByRegex(/Updated by .*/)).toBeVisible();
-    await expect(requestStatus.first()).toHaveCSS("background-color", getRgb(stateColors.DRAFT));
-    await expect(requestStatus.last()).toHaveCSS("background-color", getRgb(stateColors.PUBLIC));
-  });
+  await expect(contentPage.textByRegex(dateReg)).toHaveCount(2);
+  await expect(contentPage.textByRegex(/Updated by .*/)).toBeVisible();
+  await expect(requestStatus.first()).toHaveCSS("background-color", getRgb(stateColors.DRAFT));
+  await expect(requestStatus.last()).toHaveCSS("background-color", getRgb(stateColors.PUBLIC));
 });
 
 test.describe("Version details", () => {
-  test.beforeEach(async ({ contentPage, page }) => {
+  test.beforeEach(async ({ contentPage }) => {
     await expect(contentPage.fieldInput(fieldName)).toHaveValue("1");
     await contentPage.fieldInput(fieldName).fill("2");
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(300);
     await expect(contentPage.textByRegex(dateReg)).toHaveCount(2);
     await expect(contentPage.fieldInput(fieldName)).toHaveValue("2");
 
     await contentPage.textByRegex(dateReg).last().click();
   });
 
-  test("Read a version details successfully", async ({ contentPage, page }) => {
-    await test.step("View version details and compare values", async () => {
-      await expect(contentPage.versionHistoryTab).toBeHidden();
-      await expect(contentPage.fieldInput(fieldName).first()).toHaveValue("2");
-      await expect(contentPage.fieldInput(fieldName).last()).toHaveValue("1");
-    });
+  test("Read a version details successfully", async ({ contentPage }) => {
+    await expect(contentPage.versionHistoryTab).toBeHidden();
+    await expect(contentPage.fieldInput(fieldName).first()).toHaveValue("2");
+    await expect(contentPage.fieldInput(fieldName).last()).toHaveValue("1");
 
-    await test.step("Navigate back to version history", async () => {
-      await contentPage.backButtonLast.click();
-      await page.waitForTimeout(300);
-      await expect(contentPage.versionHistoryTab).toBeVisible();
-    });
+    await contentPage.backButtonLast.click();
+    await expect(contentPage.versionHistoryTab).toBeVisible();
   });
 
-  test("Restore a version successfully", async ({ contentPage, page }) => {
+  test("Restore a version successfully", async ({ contentPage }) => {
     const saveButton = contentPage.saveButton;
-
-    await test.step("Restore older version", async () => {
-      await expect(saveButton).toBeDisabled();
-      await contentPage.restoreButton.click();
-      await contentPage.restoreButtonAlert.click();
-      await page.waitForTimeout(300);
-      await expect(saveButton).toBeEnabled();
-      await expect(contentPage.versionHistoryTab).toBeVisible();
-      await expect(contentPage.fieldInput(fieldName)).toHaveValue("1");
-    });
-
-    await test.step("Restore back to current version", async () => {
-      await contentPage.currentVersionTextExact.click();
-      await contentPage.restoreButtonMain.click();
-      await contentPage.restoreButtonAlertFirst.click();
-      await page.waitForTimeout(300);
-      await expect(saveButton).toBeDisabled();
-      await expect(contentPage.versionHistoryTab).toBeVisible();
-      await expect(contentPage.fieldInput(fieldName)).toHaveValue("2");
-    });
+    await expect(saveButton).toBeDisabled();
+    await contentPage.restoreButton.click();
+    await contentPage.restoreButtonAlert.click();
+    await expect(saveButton).toBeEnabled();
+    await expect(contentPage.versionHistoryTab).toBeVisible();
+    await expect(contentPage.fieldInput(fieldName)).toHaveValue("1");
+    await contentPage.currentVersionTextExact.click();
+    await contentPage.restoreButtonMain.click();
+    await contentPage.restoreButtonAlertFirst.click();
+    await expect(saveButton).toBeDisabled();
+    await expect(contentPage.versionHistoryTab).toBeVisible();
+    await expect(contentPage.fieldInput(fieldName)).toHaveValue("2");
   });
 });

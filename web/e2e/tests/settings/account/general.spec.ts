@@ -25,36 +25,23 @@ test.afterEach(async ({ reearth, settingsPage }) => {
   }
 });
 
-test("Name and email updating has succeeded", async ({ reearth, settingsPage, page }) => {
+test("Name and email updating has succeeded", async ({ reearth, settingsPage }) => {
   test.skip(process.env.ENV !== "oss", "This test is only for oss");
+  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+  await settingsPage.textByName("Account").click();
 
-  await test.step("Navigate to account settings", async () => {
-    await reearth.goto("/", { waitUntil: "domcontentloaded" });
-    await settingsPage.textByName("Account").click();
-    await page.waitForTimeout(300);
-  });
+  await settingsPage.accountNameInputExact.click();
+  await settingsPage.accountNameInputExact.fill("new name");
+  await settingsPage.yourEmailInputExact.click();
+  await settingsPage.yourEmailInputExact.fill("test@test.com");
+  await settingsPage.formSubmitButton.click();
+  await settingsPage.closeNotification();
 
-  await test.step("Update name and email to new values", async () => {
-    await settingsPage.accountNameInputExact.click();
-    await settingsPage.accountNameInputExact.fill("new name");
-    await settingsPage.yourEmailInputExact.click();
-    await settingsPage.yourEmailInputExact.fill("test@test.com");
-    await settingsPage.formSubmitButton.click();
-    await settingsPage.closeNotification();
-    await page.waitForTimeout(300);
-  });
-
-  await test.step("Restore original name and email", async () => {
-    await settingsPage.accountNameInputExact.click();
-    await settingsPage.accountNameInputExact.fill(originalUsername);
-    await settingsPage.yourEmailInputExact.click();
-    await settingsPage.yourEmailInputExact.fill(originalEmail);
-    await settingsPage.formSubmitButton.click();
-    await settingsPage.closeNotification();
-    await page.waitForTimeout(300);
-  });
-
-  await test.step("Verify name is displayed in header", async () => {
-    await expect(settingsPage.headerElement).toContainText(originalUsername);
-  });
+  await settingsPage.accountNameInputExact.click();
+  await settingsPage.accountNameInputExact.fill(originalUsername);
+  await settingsPage.yourEmailInputExact.click();
+  await settingsPage.yourEmailInputExact.fill(originalEmail);
+  await settingsPage.formSubmitButton.click();
+  await settingsPage.closeNotification();
+  await expect(settingsPage.headerElement).toContainText(originalUsername);
 });

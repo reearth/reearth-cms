@@ -15,24 +15,13 @@ test.afterEach(async ({ workspacePage }) => {
   await workspacePage.deleteWorkspace();
 });
 
-test("Searching current members has succeeded", async ({ memberPage, page }) => {
-  await test.step("Navigate to member settings and verify member visibility", async () => {
-    await memberPage.memberMenuItem.click();
-    await page.waitForTimeout(300);
-    await expect(memberPage.cellByText("OWNER")).toBeVisible();
-  });
-
-  await test.step("Search for non-existent member", async () => {
-    await memberPage.searchInput.click();
-    await memberPage.searchInput.fill("no member");
-    await memberPage.searchButton.click();
-    await page.waitForTimeout(300);
-    await expect(memberPage.cellByText("OWNER")).toBeHidden();
-  });
-
-  await test.step("Clear search and verify member reappears", async () => {
-    await memberPage.clearSearchButton.click();
-    await page.waitForTimeout(300);
-    await expect(memberPage.cellByText("OWNER")).toBeVisible();
-  });
+test("Searching current members has succeeded", async ({ memberPage }) => {
+  await memberPage.memberMenuItem.click();
+  await expect(memberPage.cellByText("OWNER")).toBeVisible();
+  await memberPage.searchInput.click();
+  await memberPage.searchInput.fill("no member");
+  await memberPage.searchButton.click();
+  await expect(memberPage.cellByText("OWNER")).toBeHidden();
+  await memberPage.clearSearchButton.click();
+  await expect(memberPage.cellByText("OWNER")).toBeVisible();
 });
