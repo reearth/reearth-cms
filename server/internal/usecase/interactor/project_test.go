@@ -1203,7 +1203,7 @@ func TestProject_CheckProjectLimits(t *testing.T) {
 
 func TestProject_StarProject(t *testing.T) {
 	now := util.Now()
-	defer util.MockNow(now)
+	defer util.MockNow(now)()
 
 	wid1 := accountdomain.NewWorkspaceID()
 	wid2 := accountdomain.NewWorkspaceID()
