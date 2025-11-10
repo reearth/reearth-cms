@@ -25,32 +25,59 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test.describe("Zip Upload Tests", () => {
-  test("Uploading and auto-unzipping ZIP file from URL tab succeeds", async ({ assetsPage }) => {
-    await assetsPage.uploadButton.click();
-    await assetsPage.urlTab.click();
-    const urlInput = assetsPage.urlInput;
-    await urlInput.fill(zipUrl);
-    const autoUnzipCheckbox = assetsPage.autoUnzipCheckbox;
-    await autoUnzipCheckbox.setChecked(true);
-    await expect(autoUnzipCheckbox).toBeChecked();
-    await assetsPage.submitUploadButton.click();
-    await expect(assetsPage.lastNotification).toContainText("Successfully added asset!");
-    await assetsPage.closeNotification();
+  test("Uploading and auto-unzipping ZIP file from URL tab succeeds", async ({
+    assetsPage,
+    page,
+  }) => {
+    await test.step("Open upload dialog and navigate to URL tab", async () => {
+      await assetsPage.uploadButton.click();
+      await assetsPage.urlTab.click();
+      await page.waitForTimeout(300);
+    });
+
+    await test.step("Configure ZIP upload with auto-unzip option", async () => {
+      const urlInput = assetsPage.urlInput;
+      await urlInput.fill(zipUrl);
+      const autoUnzipCheckbox = assetsPage.autoUnzipCheckbox;
+      await autoUnzipCheckbox.click();
+      await expect(autoUnzipCheckbox).toBeChecked();
+      await page.waitForTimeout(300);
+    });
+
+    await test.step("Submit upload and verify success", async () => {
+      await assetsPage.submitUploadButton.click();
+      await expect(assetsPage.lastNotification).toContainText("Successfully added asset!");
+      await assetsPage.closeNotification();
+      await page.waitForTimeout(300);
+    });
   });
 
-  test("Uploading and auto-unzipping ZIP file via Local tab succeeds", async ({ assetsPage }) => {
-    await assetsPage.uploadButton.click();
-    await assetsPage.localTab.click();
-    const uploadInput = assetsPage.fileInput;
-    await uploadInput.setInputFiles(localZipPath);
-    const autoUnzipCheckbox = assetsPage.autoUnzipCheckbox;
-    await autoUnzipCheckbox.setChecked(true);
-    await expect(autoUnzipCheckbox).toBeChecked();
-    await assetsPage.submitUploadButton.click();
-    await expect(assetsPage.lastNotification).toContainText(
-      "Successfully added one or more assets!",
-    );
+  test("Uploading and auto-unzipping ZIP file via Local tab succeeds", async ({
+    assetsPage,
+    page,
+  }) => {
+    await test.step("Open upload dialog and navigate to Local tab", async () => {
+      await assetsPage.uploadButton.click();
+      await assetsPage.localTab.click();
+      await page.waitForTimeout(300);
+    });
 
-    await assetsPage.closeNotification();
+    await test.step("Configure ZIP file upload with auto-unzip option", async () => {
+      const uploadInput = assetsPage.fileInput;
+      await uploadInput.setInputFiles(localZipPath);
+      const autoUnzipCheckbox = assetsPage.autoUnzipCheckbox;
+      await autoUnzipCheckbox.click();
+      await expect(autoUnzipCheckbox).toBeChecked();
+      await page.waitForTimeout(300);
+    });
+
+    await test.step("Submit upload and verify success", async () => {
+      await assetsPage.submitUploadButton.click();
+      await expect(assetsPage.lastNotification).toContainText(
+        "Successfully added one or more assets!",
+      );
+      await assetsPage.closeNotification();
+      await page.waitForTimeout(300);
+    });
   });
 });
