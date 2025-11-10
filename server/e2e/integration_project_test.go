@@ -4,35 +4,62 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearthx/account/accountdomain"
 )
+
+func iAPIProjectFilter(e *httpexpect.Expect, workspaceId accountdomain.WorkspaceID) *httpexpect.Request {
+	endpoint := "/api/{workspaceId}/projects"
+	return e.GET(endpoint, workspaceId)
+}
+
+func iAPIProjectCreate(e *httpexpect.Expect, workspaceId accountdomain.WorkspaceID) *httpexpect.Request {
+	endpoint := "/api/{workspaceId}/projects"
+	return e.POST(endpoint, workspaceId)
+}
+
+func iAPIProjectGet(e *httpexpect.Expect, workspaceId accountdomain.WorkspaceID, projectId id.ProjectID) *httpexpect.Request {
+	endpoint := "/api/{workspaceId}/projects/{projectId}"
+	return e.GET(endpoint, workspaceId, projectId)
+}
+
+func iAPIProjectUpdate(e *httpexpect.Expect, workspaceId accountdomain.WorkspaceID, projectId id.ProjectID) *httpexpect.Request {
+	endpoint := "/api/{workspaceId}/projects/{projectId}"
+	return e.PATCH(endpoint, workspaceId, projectId)
+}
+
+func iAPIProjectDelete(e *httpexpect.Expect, workspaceId accountdomain.WorkspaceID, projectId id.ProjectID) *httpexpect.Request {
+	endpoint := "/api/{workspaceId}/projects/{projectId}"
+	return e.DELETE(endpoint, workspaceId, projectId)
+}
 
 // GET /{workspaceId}}/projects
 func TestIntegrationProjectFilterAPI(t *testing.T) {
-	endpoint := "/api/{workspaceId}/projects"
+
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
-	e.GET(endpoint, id.NewWorkspaceID()).
+	iAPIProjectFilter(e, accountdomain.NewWorkspaceID()).
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET(endpoint, id.NewWorkspaceID()).
+	iAPIProjectFilter(e, accountdomain.NewWorkspaceID()).
 		WithHeader("authorization", "secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET(endpoint, id.NewWorkspaceID()).
+	iAPIProjectFilter(e, accountdomain.NewWorkspaceID()).
 		WithHeader("authorization", "Bearer secret_abc").
 		Expect().
 		Status(http.StatusUnauthorized)
 
-	e.GET(endpoint, id.NewWorkspaceID()).
+	iAPIProjectFilter(e, accountdomain.NewWorkspaceID()).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
 
-	res := e.GET(endpoint, wId0).
+	res := iAPIProjectFilter(e, wId0).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -50,16 +77,15 @@ func TestIntegrationProjectFilterAPI(t *testing.T) {
 // POST /{workspaceId}/projects
 func TestIntegrationProjectCreateAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
-	endpoint := "/api/{workspaceId}/projects"
 
 	// Unauthorized
-	e.POST(endpoint, id.NewWorkspaceID).
+	iAPIProjectCreate(e, accountdomain.NewWorkspaceID()).
 		WithJSON(map[string]any{"name": "Unauthorized Project"}).
 		Expect().
 		Status(http.StatusUnauthorized)
 
 	// Valid creation
-	res := e.POST(endpoint, wId0).
+	res := iAPIProjectCreate(e, wId0).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{
 			"name":         "Test Project",
@@ -83,15 +109,14 @@ func TestIntegrationProjectCreateAPI(t *testing.T) {
 // GET /{workspaceId}/projects/{projectId}
 func TestIntegrationProjectGetAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
-	endpoint := "/api/{workspaceId}/projects/{projectId}"
 
 	// Unauthorized
-	e.GET(endpoint, wId0, pid).
+	iAPIProjectGet(e, wId0, pid).
 		Expect().
 		Status(http.StatusUnauthorized)
 
 	// Authorized fetch
-	res := e.GET(endpoint, wId0, pid).
+	res := iAPIProjectGet(e, wId0, pid).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -105,10 +130,9 @@ func TestIntegrationProjectGetAPI(t *testing.T) {
 // PATCH /{workspaceId}/projects/{projectId}
 func TestIntegrationProjectUpdateAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
-	endpoint := "/api/{workspaceId}/projects/{projectId}"
 
 	// Unauthorized
-	e.PATCH(endpoint, wId0, pid).
+	iAPIProjectUpdate(e, wId0, pid).
 		WithJSON(map[string]any{
 			"name": "Updated Name",
 		}).
@@ -116,7 +140,7 @@ func TestIntegrationProjectUpdateAPI(t *testing.T) {
 		Status(http.StatusUnauthorized)
 
 	// Authorized update public scope
-	res := e.PATCH(endpoint, wId0, pid).
+	res := iAPIProjectUpdate(e, wId0, pid).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{
 			"name":          "Updated Project Name",
@@ -139,7 +163,7 @@ func TestIntegrationProjectUpdateAPI(t *testing.T) {
 		Keys().ContainsAll("id", "createdAt", "updatedAt")
 
 	// Authorized update limited scope
-	res = e.PATCH(endpoint, wId0, pid).
+	res = iAPIProjectUpdate(e, wId0, pid).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{
 			"name":          "Updated Project Name 2",
@@ -167,7 +191,7 @@ func TestIntegrationProjectDeleteAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
 	// First, create a project to delete
-	createRes := e.POST("/api/{workspaceId}/projects", wId0).
+	createRes := iAPIProjectCreate(e, wId0).
 		WithHeader("authorization", "Bearer "+secret).
 		WithJSON(map[string]any{
 			"name":  "Temp Project",
@@ -181,12 +205,12 @@ func TestIntegrationProjectDeleteAPI(t *testing.T) {
 	projectIDToDelete := createRes.Value("id").String().Raw()
 
 	// Unauthorized
-	e.DELETE("/api/{workspaceId}/projects/{projectId}", wId0, projectIDToDelete).
+	iAPIProjectDelete(e, wId0, id.MustProjectID(projectIDToDelete)).
 		Expect().
 		Status(http.StatusUnauthorized)
 
 	// Authorized delete
-	del := e.DELETE("/api/{workspaceId}/projects/{projectId}", wId0, projectIDToDelete).
+	del := iAPIProjectDelete(e, wId0, id.MustProjectID(projectIDToDelete)).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusOK).
@@ -196,7 +220,7 @@ func TestIntegrationProjectDeleteAPI(t *testing.T) {
 	del.HasValue("id", projectIDToDelete)
 
 	// Verify the project is deleted
-	e.GET("/api/{workspaceId}/projects/{projectId}", wId0, projectIDToDelete).
+	iAPIProjectGet(e, wId0, id.MustProjectID(projectIDToDelete)).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
 		Status(http.StatusNotFound)
