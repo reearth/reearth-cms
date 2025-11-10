@@ -139,7 +139,7 @@ export class ContentPage extends BasePage {
 
   // Table sorting and filtering
   textColumnHeader(): Locator {
-    return this.getByText("text", { exact: true });
+    return this.locator("thead").getByText("text");
   }
   get columnHeaderText(): Locator {
     return this.getByRole("columnheader", { name: "text" });
@@ -464,7 +464,7 @@ export class ContentPage extends BasePage {
   }
 
   get editorContent(): Locator {
-    return this.getByLabel("Editor content;Press Alt+F1");
+    return this.locator(".monaco-editor");
   }
 
   // Table column selection
@@ -700,5 +700,10 @@ export class ContentPage extends BasePage {
   getCurrentItemId(): string {
     const url = this.page.url();
     return url.split("/").at(-1) as string;
+  }
+
+  async fillEditorContent(text: string): Promise<void> {
+    await this.editorContent.click();
+    await this.keyboardType(text);
   }
 }

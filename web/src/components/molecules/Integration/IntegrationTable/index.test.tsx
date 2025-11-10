@@ -156,9 +156,9 @@ describe("Integration table", () => {
       />,
     );
 
-    expect(screen.getByText("Name")).toBeInTheDocument();
-    expect(screen.getByText("Role")).toBeInTheDocument();
-    expect(screen.getByText("Creator")).toBeInTheDocument();
+    expect(screen.getByText("Name", { selector: ".ant-table-cell" })).toBeVisible();
+    expect(screen.getByText("Role", { selector: ".ant-table-cell" })).toBeVisible();
+    expect(screen.getByText("Creator", { selector: ".ant-table-cell" })).toBeVisible();
     expect(screen.getByText(name)).toBeVisible();
     expect(screen.getByText(role)).toBeVisible();
     expect(screen.getByText(creatorName)).toBeVisible();
@@ -185,7 +185,9 @@ describe("Integration table", () => {
       />,
     );
 
-    await user.click(screen.getByLabelText("Select all"));
+    const selectAllEl = screen.getAllByLabelText("Select all")[0];
+    expect(selectAllEl).toBeInTheDocument();
+    await user.click(selectAllEl);
     await user.click(screen.getByRole("button", { name: "delete Remove" }));
     expect(onIntegrationRemoveMock).toHaveBeenCalled();
   });
@@ -209,7 +211,9 @@ describe("Integration table", () => {
       />,
     );
 
-    await user.click(screen.getByLabelText("Select all"));
+    const selectAllEl = screen.getAllByLabelText("Select all")[0];
+    expect(selectAllEl).toBeInTheDocument();
+    await user.click(selectAllEl);
     expect(screen.getByLabelText("loading")).toBeVisible();
   });
 
@@ -258,7 +262,9 @@ describe("Integration table", () => {
 
     expect(screen.getByRole("button", { name: "setting" })).toBeDisabled();
 
-    await user.click(screen.getByLabelText("Select all"));
+    const selectAllEl = screen.getAllByLabelText("Select all")[0];
+    expect(selectAllEl).toBeInTheDocument();
+    await user.click(selectAllEl);
     expect(screen.getByRole("button", { name: "delete Remove" })).toBeDisabled();
   });
 });

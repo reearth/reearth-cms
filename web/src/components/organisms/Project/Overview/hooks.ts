@@ -1,6 +1,6 @@
 import fileDownload from "js-file-download";
 import { useCallback, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
