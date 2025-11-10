@@ -46,6 +46,7 @@ test.describe("Zip Upload Tests", () => {
 
     await test.step("Submit upload and verify success", async () => {
       await assetsPage.submitUploadButton.click();
+      await page.waitForTimeout(500);
       await expect(assetsPage.lastNotification).toContainText("Successfully added asset!");
       await assetsPage.closeNotification();
       await page.waitForTimeout(300);
@@ -73,6 +74,7 @@ test.describe("Zip Upload Tests", () => {
 
     await test.step("Submit upload and verify success", async () => {
       await assetsPage.submitUploadButton.click();
+      await page.waitForTimeout(500);
       await expect(assetsPage.lastNotification).toContainText(
         "Successfully added one or more assets!",
       );
