@@ -111,8 +111,6 @@ test.describe("Project CRUD and searching has succeeded", () => {
 });
 
 test.describe("Project List", () => {
-  test.skip();
-
   const { PROJECT_ID_LIST, FIRST_PAGE_PROJECTS, SECOND_PAGE_PROJECTS, NAME_SEPARATOR } =
     getMultipleProjects();
 
