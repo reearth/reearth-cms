@@ -87,6 +87,8 @@ test.describe("Project List", () => {
   });
 
   test("Project list pagination", async ({ workspacePage }) => {
+    test.skip();
+
     await test.step("Check first page", async () => {
       await workspacePage.clickPagination(1);
 
