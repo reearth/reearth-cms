@@ -1262,7 +1262,7 @@ func TestProject_StarProject(t *testing.T) {
 			want: func() *project.Project {
 				p := p1.Clone()
 				p.Star(u2ID)
-				p.SetUpdatedAt(now.Add(-time.Hour)) // Should preserve original timestamp
+				p.SetUpdatedAt(now.Add(-time.Hour))
 				return p
 			}(),
 			wantErr: nil,
