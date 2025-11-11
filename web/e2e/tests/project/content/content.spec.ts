@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Item CRUD and searching has succeeded", async ({
+test("@smoke Item CRUD and searching has succeeded", async ({
   page,
   contentPage,
   fieldEditorPage,
@@ -75,7 +75,7 @@ test("Item CRUD and searching has succeeded", async ({
   });
 });
 
-test("Publishing and Unpublishing item from edit page has succeeded", async ({
+test("@smoke Publishing and Unpublishing item from edit page has succeeded", async ({
   page,
   contentPage,
   fieldEditorPage,

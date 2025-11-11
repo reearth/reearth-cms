@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Model CRUD has succeeded", async ({ schemaPage, fieldEditorPage, page }) => {
+test("@smoke Model CRUD has succeeded", async ({ schemaPage, fieldEditorPage, page }) => {
   const modelName = "model name";
   const modelKey = "model-key";
   const newModelName = "new model name";

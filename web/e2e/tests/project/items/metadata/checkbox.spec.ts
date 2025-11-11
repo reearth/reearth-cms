@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Checkbox metadata creating and updating has succeeded", async ({
+test("@smoke Checkbox metadata creating and updating has succeeded", async ({
   page,
   fieldEditorPage,
   contentPage,

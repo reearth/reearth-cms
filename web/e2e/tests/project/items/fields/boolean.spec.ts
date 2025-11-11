@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Boolean field creating and updating has succeeded", async ({
+test("@smoke Boolean field creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
 }) => {
