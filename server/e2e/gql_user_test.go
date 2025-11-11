@@ -190,7 +190,7 @@ func TestDeleteMe(t *testing.T) {
 }
 
 func TestMe(t *testing.T) {
-	// Check if AccountsAPI is available
+	// Check if Accounts is available
 	accountsAPIHost := os.Getenv("REEARTH_ACCOUNTS_API_HOST")
 	if accountsAPIHost == "" {
 		accountsAPIHost = "http://localhost:8099/graphql"
@@ -209,8 +209,8 @@ func TestMe(t *testing.T) {
 	}
 
 	if accountsAPIAvailable {
-		// Test successful cases when AccountsAPI is available
-		t.Log("Testing with AccountsAPI available")
+		// Test successful cases when Accounts is available
+		t.Log("Testing with Accounts available")
 		o := e.POST("/api/graphql").
 			WithHeader("authorization", "Bearer test").
 			WithHeader("Content-Type", "application/json").
@@ -237,8 +237,8 @@ func TestMe(t *testing.T) {
 		o.Value("myWorkspaceId").String().IsEqual(wId2.String())
 		o.Value("profilePictureUrl").String().IsEqual("")
 	} else {
-		// Test error cases when AccountsAPI is not available
-		t.Log("Testing without AccountsAPI - expecting errors")
+		// Test error cases when Accounts is not available
+		t.Log("Testing without Accounts - expecting errors")
 		e.POST("/api/graphql").
 			WithHeader("authorization", "Bearer test").
 			WithHeader("Content-Type", "application/json").

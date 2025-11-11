@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	"github.com/gavv/httpexpect/v2"
-	"github.com/reearth/reearth-accounts/server/pkg/gqlclient"
 	"github.com/reearth/reearth-cms/server/internal/app"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/account"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo"
@@ -178,20 +178,20 @@ func StartServerWithRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder S
 	// Configure test accounts API
 	setupTestAccountsAPI(t, cfg)
 
-	// Create gateway container and initialize AccountsAPI if configured
+	// Create gateway container and initialize Accounts if configured
 	gateway := &gateway.Container{File: f}
-	
-	// Initialize AccountsAPI client if enabled (similar to repo.go:168-179)
+
+	// Initialize Accounts client if enabled (similar to repo.go:168-179)
 	if cfg.Account_Api.Enabled && cfg.Account_Api.Host != "" {
 		timeout := cfg.Account_Api.Timeout
 		if timeout == 0 {
 			timeout = 30 // Default 30 seconds
 		}
 		transport := app.DynamicAuthTransport{}
-		gateway.AccountsAPI = gqlclient.NewClient(cfg.Account_Api.Host, timeout, transport)
-		t.Logf("Test AccountsAPI client created: %s (timeout: %ds)", cfg.Account_Api.Host, timeout)
+		gateway.Accounts = account.New(cfg.Account_Api.Host, timeout, transport)
+		t.Logf("Test Accounts client created: %s (timeout: %ds)", cfg.Account_Api.Host, timeout)
 	} else {
-		t.Log("AccountsAPI not configured for tests")
+		t.Log("Accounts not configured for tests")
 	}
 	accountGateways := &accountgateway.Container{
 		Mailer: mailer.New(ctx, &mailer.Config{}),

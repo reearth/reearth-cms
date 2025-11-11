@@ -85,7 +85,7 @@ func (r *queryResolver) Me(ctx context.Context) (*gqlmodel.Me, error) {
 		return nil, errors.New("no gateways available")
 	}
 
-	usr, err = g.AccountsAPI.UserRepo.FindMe(ctx)
+	usr, err = g.Accounts.FindMe(ctx)
 	if err != nil {
 		return nil, err
 	}
