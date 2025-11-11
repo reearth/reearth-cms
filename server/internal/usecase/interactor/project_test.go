@@ -1414,6 +1414,7 @@ func TestProject_StarProject(t *testing.T) {
 				return p
 			}()},
 			args: args{
+				wIdOrAlias: workspace.IDOrAlias(wid1.String()),
 				pIdOrAlias: project.IDOrAlias(pid1.String()),
 				operator:   validOp,
 			},
@@ -1438,9 +1439,18 @@ func TestProject_StarProject(t *testing.T) {
 			}
 			err := db.Workspace.SaveAll(ctx, workspace.List{w1, w2})
 			assert.NoError(t, err)
-			for _, p := range tc.seeds {
-				err := db.Project.Save(ctx, p)
-				assert.NoError(t, err)
+
+			// Ensure the seeded project is saved for 'updated_at_should_not_change_when_starring'
+			if tc.name == "updated_at_should_not_change_when_starring" {
+				for _, p := range tc.seeds {
+					err := db.Project.Save(ctx, p)
+					assert.NoError(t, err)
+				}
+			} else {
+				for _, p := range tc.seeds {
+					err := db.Project.Save(ctx, p)
+					assert.NoError(t, err)
+				}
 			}
 
 			projectUC := NewProject(db, nil)
