@@ -595,7 +595,6 @@ func (i *Project) StarProject(ctx context.Context, wsIdOrAlias accountdomain.Wor
 				p.Star(*userID)
 			}
 
-			p.SetUpdatedAt(util.Now())
 			if err := i.repos.Project.Save(ctx, p); err != nil {
 				return nil, err
 			}
