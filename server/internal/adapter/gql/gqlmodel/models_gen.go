@@ -451,6 +451,14 @@ type DeleteItemPayload struct {
 	ItemID ID `json:"itemId"`
 }
 
+type DeleteItemsInput struct {
+	ItemIds []ID `json:"itemIds"`
+}
+
+type DeleteItemsPayload struct {
+	ItemIds []ID `json:"itemIds"`
+}
+
 type DeleteMeInput struct {
 	UserID ID `json:"userId"`
 }

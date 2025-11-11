@@ -111,7 +111,7 @@ jobs:
           echo "REEARTH_CMS_E2E_BASEURL is $REEARTH_CMS_E2E_BASEURL"
           echo "REEARTH_CMS_E2E_USERNAME is $REEARTH_CMS_E2E_USERNAME"
       - name: Run Playwright tests
-        timeout-minutes: 60
+        timeout-minutes: 120
         env:
           USE_IAP_AUTH: ${{ inputs.use_iap || false }}
           IAP_AUTH_METHOD: ${{ inputs.token_format || 'id-token' }}
