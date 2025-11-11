@@ -27,201 +27,147 @@ import (
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// delete assets in batch
-	// (DELETE /assets)
-	AssetBatchDelete(ctx echo.Context) error
-	// delete asset
-	// (DELETE /assets/{assetId})
-	AssetDelete(ctx echo.Context, assetId AssetIdParam) error
-	// get asset
-	// (GET /assets/{assetId})
-	AssetGet(ctx echo.Context, assetId AssetIdParam) error
-	// get asset comments
-	// (GET /assets/{assetId}/comments)
-	AssetCommentList(ctx echo.Context, assetId AssetIdParam) error
-	// create asset comments
-	// (POST /assets/{assetId}/comments)
-	AssetCommentCreate(ctx echo.Context, assetId AssetIdParam) error
-	// delete asset comments
-	// (DELETE /assets/{assetId}/comments/{commentId})
-	AssetCommentDelete(ctx echo.Context, assetId AssetIdParam, commentId CommentIdParam) error
-	// Update AssetComment
-	// (PATCH /assets/{assetId}/comments/{commentId})
-	AssetCommentUpdate(ctx echo.Context, assetId AssetIdParam, commentId CommentIdParam) error
-	// publish asset
-	// (POST /assets/{assetId}/publish)
-	AssetPublish(ctx echo.Context, assetId AssetIdParam) error
-	// publish asset
-	// (POST /assets/{assetId}/unpublish)
-	AssetUnpublish(ctx echo.Context, assetId AssetIdParam) error
-	// get asset content
-	// (GET /assets/{uuid1}/{uuid2}/{filename})
-	AssetContentGet(ctx echo.Context, uuid1 string, uuid2 string, filename string) error
-	// Delete a group.
-	// (DELETE /groups/{groupId})
-	GroupDelete(ctx echo.Context, groupId GroupIdParam) error
-	// Retrieve a specific group.
-	// (GET /groups/{groupId})
-	GroupGet(ctx echo.Context, groupId GroupIdParam) error
-	// Update a group's details.
-	// (PATCH /groups/{groupId})
-	GroupUpdate(ctx echo.Context, groupId GroupIdParam) error
-	// delete an item
-	// (DELETE /items/{itemId})
-	ItemDelete(ctx echo.Context, itemId ItemIdParam) error
-	// Returns an item.
-	// (GET /items/{itemId})
-	ItemGet(ctx echo.Context, itemId ItemIdParam, params ItemGetParams) error
-	// Update an item.
-	// (PATCH /items/{itemId})
-	ItemUpdate(ctx echo.Context, itemId ItemIdParam) error
-	// get an item comment
-	// (GET /items/{itemId}/comments)
-	ItemCommentList(ctx echo.Context, itemId ItemIdParam) error
-	// create an item comment
-	// (POST /items/{itemId}/comments)
-	ItemCommentCreate(ctx echo.Context, itemId ItemIdParam) error
-	// delete item comment
-	// (DELETE /items/{itemId}/comments/{commentId})
-	ItemCommentDelete(ctx echo.Context, itemId ItemIdParam, commentId CommentIdParam) error
-	// Update Item Comment
-	// (PATCH /items/{itemId}/comments/{commentId})
-	ItemCommentUpdate(ctx echo.Context, itemId ItemIdParam, commentId CommentIdParam) error
-	// publish item
-	// (POST /items/{itemId}/publish)
-	ItemPublish(ctx echo.Context, itemId ItemIdParam, params ItemPublishParams) error
-	// delete a model
-	// (DELETE /models/{modelId})
-	ModelDelete(ctx echo.Context, modelId ModelIdParam) error
-	// Returns a model.
-	// (GET /models/{modelId})
-	ModelGet(ctx echo.Context, modelId ModelIdParam) error
-	// Update a model.
-	// (PATCH /models/{modelId})
-	ModelUpdate(ctx echo.Context, modelId ModelIdParam) error
-	// Copy schema and items of a selected model
-	// (POST /models/{modelId}/copy)
-	CopyModel(ctx echo.Context, modelId ModelIdParam) error
-	// Import data under the selected model
-	// (PUT /models/{modelId}/import)
-	ModelImport(ctx echo.Context, modelId ModelIdParam) error
-	// Returns a list of items.
-	// (GET /models/{modelId}/items)
-	ItemFilter(ctx echo.Context, modelId ModelIdParam, params ItemFilterParams) error
-	// create an item
-	// (POST /models/{modelId}/items)
-	ItemCreate(ctx echo.Context, modelId ModelIdParam) error
-	// Returns a CSV that has a list of items as features.
-	// (GET /models/{modelId}/items.csv)
-	ItemsAsCSV(ctx echo.Context, modelId ModelIdParam, params ItemsAsCSVParams) error
-	// Returns a GeoJSON that has a list of items as features.
-	// (GET /models/{modelId}/items.geojson)
-	ItemsAsGeoJSON(ctx echo.Context, modelId ModelIdParam, params ItemsAsGeoJSONParams) error
-	// Returns a metadata schema as json by model ID
-	// (GET /models/{modelId}/metadata_schema.json)
-	MetadataSchemaByModelAsJSON(ctx echo.Context, modelId ModelIdParam) error
-	// Returns a schema as json by model ID
-	// (GET /models/{modelId}/schema.json)
-	SchemaByModelAsJSON(ctx echo.Context, modelId ModelIdParam) error
-	// Returns a list of groups in a project.
-	// (GET /projects/{projectIdOrAlias}/groups)
-	GroupFilter(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params GroupFilterParams) error
-	// Create a new group in a project.
-	// (POST /projects/{projectIdOrAlias}/groups)
-	GroupCreate(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params GroupCreateParams) error
-	// Delete a group within a project.
-	// (DELETE /projects/{projectIdOrAlias}/groups/{groupIdOrKey})
-	GroupDeleteWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, groupIdOrKey GroupIdOrKeyParam) error
-	// Retrieve a group within a project.
-	// (GET /projects/{projectIdOrAlias}/groups/{groupIdOrKey})
-	GroupGetWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, groupIdOrKey GroupIdOrKeyParam) error
-	// Update a group's details within a project.
-	// (PATCH /projects/{projectIdOrAlias}/groups/{groupIdOrKey})
-	GroupUpdateWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, groupIdOrKey GroupIdOrKeyParam) error
-	// Returns a list of models.
-	// (GET /projects/{projectIdOrAlias}/models)
-	ModelFilter(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params ModelFilterParams) error
-	// create a model
-	// (POST /projects/{projectIdOrAlias}/models)
-	ModelCreate(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params ModelCreateParams) error
-	// Delete a model.
-	// (DELETE /projects/{projectIdOrAlias}/models/{modelIdOrKey})
-	ModelDeleteWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
-	// Returns a model.
-	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey})
-	ModelGetWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
-	// Update a model.
-	// (PATCH /projects/{projectIdOrAlias}/models/{modelIdOrKey})
-	ModelUpdateWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
-	// create a field
-	// (POST /projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields)
-	FieldCreateWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
-	// Delete a field.
-	// (DELETE /projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields/{fieldIdOrKey})
-	FieldDeleteWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, fieldIdOrKey FieldIdOrKeyParam) error
-	// update a field
-	// (PATCH /projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields/{fieldIdOrKey})
-	FieldUpdateWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, fieldIdOrKey FieldIdOrKeyParam) error
-	// Returns a list of items.
-	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items)
-	ItemFilterWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, params ItemFilterWithProjectParams) error
-	// Create an Item.
-	// (POST /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items)
-	ItemCreateWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
-	// Returns a CSV that has a list of items as features.
-	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.csv)
-	ItemsWithProjectAsCSV(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, params ItemsWithProjectAsCSVParams) error
-	// Returns a GeoJSON that has a list of items as features.
-	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson)
-	ItemsWithProjectAsGeoJSON(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, params ItemsWithProjectAsGeoJSONParams) error
-	// Returns a metadata schema as json by project and model ID
-	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/metadata_schema.json)
-	MetadataSchemaByModelWithProjectAsJSON(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
-	// Returns a schema as json by project and model ID
-	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/schema.json)
-	SchemaByModelWithProjectAsJSON(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
-	// Returns a schema.
-	// (GET /projects/{projectIdOrAlias}/schemata)
-	SchemaFilter(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params SchemaFilterParams) error
-	// Returns a schema as json by project and schema ID
-	// (GET /projects/{projectIdOrAlias}/schemata/{schemaId}/schema.json)
-	SchemaByIDWithProjectAsJSON(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, schemaId SchemaIdParam) error
-	// Returns a list of assets.
-	// (GET /projects/{projectId}/assets)
-	AssetFilter(ctx echo.Context, projectId ProjectIdParam, params AssetFilterParams) error
-	// Create an new asset.
-	// (POST /projects/{projectId}/assets)
-	AssetCreate(ctx echo.Context, projectId ProjectIdParam) error
-	// Upload an asset.
-	// (POST /projects/{projectId}/assets/uploads)
-	AssetUploadCreate(ctx echo.Context, projectId ProjectIdParam) error
-	// create a field
-	// (POST /schemata/{schemaId}/fields)
-	FieldCreate(ctx echo.Context, schemaId SchemaIdParam) error
-	// delete a field
-	// (DELETE /schemata/{schemaId}/fields/{fieldIdOrKey})
-	FieldDelete(ctx echo.Context, schemaId SchemaIdParam, fieldIdOrKey FieldIdOrKeyParam) error
-	// update a field
-	// (PATCH /schemata/{schemaId}/fields/{fieldIdOrKey})
-	FieldUpdate(ctx echo.Context, schemaId SchemaIdParam, fieldIdOrKey FieldIdOrKeyParam) error
-	// Returns a schema as json by schema ID
-	// (GET /schemata/{schemaId}/schema.json)
-	SchemaByIDAsJSON(ctx echo.Context, schemaId SchemaIdParam) error
 	// Returns a list of projects.
-	// (GET /{workspaceId}/projects)
-	ProjectFilter(ctx echo.Context, workspaceId WorkspaceIdParam, params ProjectFilterParams) error
+	// (GET /{workspaceIdOrAlias}/projects)
+	ProjectFilter(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, params ProjectFilterParams) error
 	// Create a project
-	// (POST /{workspaceId}/projects)
-	ProjectCreate(ctx echo.Context, workspaceId WorkspaceIdParam, params ProjectCreateParams) error
+	// (POST /{workspaceIdOrAlias}/projects)
+	ProjectCreate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, params ProjectCreateParams) error
 	// Delete a project
-	// (DELETE /{workspaceId}/projects/{projectId})
-	ProjectDelete(ctx echo.Context, workspaceId WorkspaceIdParam, projectId ProjectIdParam) error
+	// (DELETE /{workspaceIdOrAlias}/projects/{projectIdOrAlias})
+	ProjectDelete(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam) error
 	// Returns a project.
-	// (GET /{workspaceId}/projects/{projectId})
-	ProjectGet(ctx echo.Context, workspaceId WorkspaceIdParam, projectId ProjectIdParam) error
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias})
+	ProjectGet(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam) error
 	// Update a project.
-	// (PATCH /{workspaceId}/projects/{projectId})
-	ProjectUpdate(ctx echo.Context, workspaceId WorkspaceIdParam, projectId ProjectIdParam) error
+	// (PATCH /{workspaceIdOrAlias}/projects/{projectIdOrAlias})
+	ProjectUpdate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam) error
+	// delete assets in batch
+	// (DELETE /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets)
+	AssetBatchDelete(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam) error
+	// Returns a list of assets.
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets)
+	AssetFilter(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, params AssetFilterParams) error
+	// Create an new asset.
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets)
+	AssetCreate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam) error
+	// Upload an asset.
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/uploads)
+	AssetUploadCreate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam) error
+	// delete asset
+	// (DELETE /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId})
+	AssetDelete(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, assetId AssetIdParam) error
+	// get asset
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId})
+	AssetGet(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, assetId AssetIdParam) error
+	// get asset comments
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/comments)
+	AssetCommentList(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, assetId AssetIdParam) error
+	// create asset comments
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/comments)
+	AssetCommentCreate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, assetId AssetIdParam) error
+	// delete asset comments
+	// (DELETE /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/comments/{commentId})
+	AssetCommentDelete(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, assetId AssetIdParam, commentId CommentIdParam) error
+	// Update AssetComment
+	// (PATCH /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/comments/{commentId})
+	AssetCommentUpdate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, assetId AssetIdParam, commentId CommentIdParam) error
+	// publish asset
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/publish)
+	AssetPublish(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, assetId AssetIdParam) error
+	// publish asset
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/unpublish)
+	AssetUnpublish(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, assetId AssetIdParam) error
+	// get asset content
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{uuid1}/{uuid2}/{filename})
+	AssetContentGet(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, uuid1 string, uuid2 string, filename string) error
+	// Returns a list of groups in a project.
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups)
+	GroupFilter(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, params GroupFilterParams) error
+	// Create a new group in a project.
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups)
+	GroupCreate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, params GroupCreateParams) error
+	// Delete a group within a project.
+	// (DELETE /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups/{groupIdOrKey})
+	GroupDelete(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, groupIdOrKey GroupIdOrKeyParam) error
+	// Retrieve a group within a project.
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups/{groupIdOrKey})
+	GroupGet(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, groupIdOrKey GroupIdOrKeyParam) error
+	// Update a group's details within a project.
+	// (PATCH /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups/{groupIdOrKey})
+	GroupUpdate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, groupIdOrKey GroupIdOrKeyParam) error
+	// Returns a list of models.
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models)
+	ModelFilter(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, params ModelFilterParams) error
+	// create a model
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models)
+	ModelCreate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, params ModelCreateParams) error
+	// Delete a model.
+	// (DELETE /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey})
+	ModelDelete(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
+	// Returns a model.
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey})
+	ModelGet(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
+	// Update a model.
+	// (PATCH /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey})
+	ModelUpdate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
+	// Copy schema and items of a selected model
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/copy)
+	ModelCopy(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
+	// Import data under the selected model
+	// (PUT /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/import)
+	ModelImport(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
+	// Returns a list of items.
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items)
+	ItemFilter(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, params ItemFilterParams) error
+	// create an item
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items)
+	ItemCreate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
+	// Returns a CSV that has a list of items as features.
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.csv)
+	ItemsAsCSV(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, params ItemsAsCSVParams) error
+	// Returns a GeoJSON that has a list of items as features.
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson)
+	ItemsAsGeoJSON(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, params ItemsAsGeoJSONParams) error
+	// delete an item
+	// (DELETE /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId})
+	ItemDelete(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, itemId ItemIdParam) error
+	// Returns an item.
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId})
+	ItemGet(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, itemId ItemIdParam, params ItemGetParams) error
+	// Update an item.
+	// (PATCH /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId})
+	ItemUpdate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, itemId ItemIdParam) error
+	// get an item comment
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments)
+	ItemCommentList(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, itemId ItemIdParam) error
+	// create an item comment
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments)
+	ItemCommentCreate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, itemId ItemIdParam) error
+	// delete item comment
+	// (DELETE /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments/{commentId})
+	ItemCommentDelete(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, itemId ItemIdParam, commentId CommentIdParam) error
+	// Update Item Comment
+	// (PATCH /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments/{commentId})
+	ItemCommentUpdate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, itemId ItemIdParam, commentId CommentIdParam) error
+	// publish item
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/publish)
+	ItemPublish(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, itemId ItemIdParam, params ItemPublishParams) error
+	// Returns a metadata schema as json by project and model ID
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/metadata_schema.json)
+	MetadataSchemaByModelAsJSON(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
+	// Returns a schema as json by project and model ID
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/schema.json)
+	SchemaByModelAsJSON(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error
+	// create a field
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/schemata/{schemaId}/fields)
+	FieldCreate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, schemaId SchemaIdParam) error
+	// delete a field
+	// (DELETE /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/schemata/{schemaId}/fields/{fieldIdOrKey})
+	FieldDelete(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, schemaId SchemaIdParam, fieldIdOrKey FieldIdOrKeyParam) error
+	// update a field
+	// (PATCH /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/schemata/{schemaId}/fields/{fieldIdOrKey})
+	FieldUpdate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, schemaId SchemaIdParam, fieldIdOrKey FieldIdOrKeyParam) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -229,20 +175,354 @@ type ServerInterfaceWrapper struct {
 	Handler ServerInterface
 }
 
-// AssetBatchDelete converts echo context to params.
-func (w *ServerInterfaceWrapper) AssetBatchDelete(ctx echo.Context) error {
+// ProjectFilter converts echo context to params.
+func (w *ServerInterfaceWrapper) ProjectFilter(ctx echo.Context) error {
 	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ProjectFilterParams
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
+	}
+
+	// ------------- Optional query parameter "perPage" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
+	}
+
+	// ------------- Optional query parameter "sort" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "sort", ctx.QueryParams(), &params.Sort)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter sort: %s", err))
+	}
+
+	// ------------- Optional query parameter "dir" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "dir", ctx.QueryParams(), &params.Dir)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dir: %s", err))
+	}
+
+	// ------------- Optional query parameter "keyword" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "keyword", ctx.QueryParams(), &params.Keyword)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter keyword: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ProjectFilter(ctx, workspaceIdOrAlias, params)
+	return err
+}
+
+// ProjectCreate converts echo context to params.
+func (w *ServerInterfaceWrapper) ProjectCreate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params ProjectCreateParams
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
+	}
+
+	// ------------- Optional query parameter "perPage" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
+	}
+
+	// ------------- Optional query parameter "sort" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "sort", ctx.QueryParams(), &params.Sort)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter sort: %s", err))
+	}
+
+	// ------------- Optional query parameter "dir" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "dir", ctx.QueryParams(), &params.Dir)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dir: %s", err))
+	}
+
+	// ------------- Optional query parameter "keyword" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "keyword", ctx.QueryParams(), &params.Keyword)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter keyword: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ProjectCreate(ctx, workspaceIdOrAlias, params)
+	return err
+}
+
+// ProjectDelete converts echo context to params.
+func (w *ServerInterfaceWrapper) ProjectDelete(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.AssetBatchDelete(ctx)
+	err = w.Handler.ProjectDelete(ctx, workspaceIdOrAlias, projectIdOrAlias)
+	return err
+}
+
+// ProjectGet converts echo context to params.
+func (w *ServerInterfaceWrapper) ProjectGet(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ProjectGet(ctx, workspaceIdOrAlias, projectIdOrAlias)
+	return err
+}
+
+// ProjectUpdate converts echo context to params.
+func (w *ServerInterfaceWrapper) ProjectUpdate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ProjectUpdate(ctx, workspaceIdOrAlias, projectIdOrAlias)
+	return err
+}
+
+// AssetBatchDelete converts echo context to params.
+func (w *ServerInterfaceWrapper) AssetBatchDelete(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.AssetBatchDelete(ctx, workspaceIdOrAlias, projectIdOrAlias)
+	return err
+}
+
+// AssetFilter converts echo context to params.
+func (w *ServerInterfaceWrapper) AssetFilter(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params AssetFilterParams
+	// ------------- Optional query parameter "sort" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "sort", ctx.QueryParams(), &params.Sort)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter sort: %s", err))
+	}
+
+	// ------------- Optional query parameter "dir" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "dir", ctx.QueryParams(), &params.Dir)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dir: %s", err))
+	}
+
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
+	}
+
+	// ------------- Optional query parameter "perPage" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
+	}
+
+	// ------------- Optional query parameter "keyword" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "keyword", ctx.QueryParams(), &params.Keyword)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter keyword: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.AssetFilter(ctx, workspaceIdOrAlias, projectIdOrAlias, params)
+	return err
+}
+
+// AssetCreate converts echo context to params.
+func (w *ServerInterfaceWrapper) AssetCreate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.AssetCreate(ctx, workspaceIdOrAlias, projectIdOrAlias)
+	return err
+}
+
+// AssetUploadCreate converts echo context to params.
+func (w *ServerInterfaceWrapper) AssetUploadCreate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.AssetUploadCreate(ctx, workspaceIdOrAlias, projectIdOrAlias)
 	return err
 }
 
 // AssetDelete converts echo context to params.
 func (w *ServerInterfaceWrapper) AssetDelete(ctx echo.Context) error {
 	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
 	// ------------- Path parameter "assetId" -------------
 	var assetId AssetIdParam
 
@@ -252,13 +532,29 @@ func (w *ServerInterfaceWrapper) AssetDelete(ctx echo.Context) error {
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.AssetDelete(ctx, assetId)
+	err = w.Handler.AssetDelete(ctx, workspaceIdOrAlias, projectIdOrAlias, assetId)
 	return err
 }
 
 // AssetGet converts echo context to params.
 func (w *ServerInterfaceWrapper) AssetGet(ctx echo.Context) error {
 	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
 	// ------------- Path parameter "assetId" -------------
 	var assetId AssetIdParam
 
@@ -268,13 +564,29 @@ func (w *ServerInterfaceWrapper) AssetGet(ctx echo.Context) error {
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.AssetGet(ctx, assetId)
+	err = w.Handler.AssetGet(ctx, workspaceIdOrAlias, projectIdOrAlias, assetId)
 	return err
 }
 
 // AssetCommentList converts echo context to params.
 func (w *ServerInterfaceWrapper) AssetCommentList(ctx echo.Context) error {
 	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
 	// ------------- Path parameter "assetId" -------------
 	var assetId AssetIdParam
 
@@ -286,13 +598,29 @@ func (w *ServerInterfaceWrapper) AssetCommentList(ctx echo.Context) error {
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.AssetCommentList(ctx, assetId)
+	err = w.Handler.AssetCommentList(ctx, workspaceIdOrAlias, projectIdOrAlias, assetId)
 	return err
 }
 
 // AssetCommentCreate converts echo context to params.
 func (w *ServerInterfaceWrapper) AssetCommentCreate(ctx echo.Context) error {
 	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
 	// ------------- Path parameter "assetId" -------------
 	var assetId AssetIdParam
 
@@ -304,13 +632,29 @@ func (w *ServerInterfaceWrapper) AssetCommentCreate(ctx echo.Context) error {
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.AssetCommentCreate(ctx, assetId)
+	err = w.Handler.AssetCommentCreate(ctx, workspaceIdOrAlias, projectIdOrAlias, assetId)
 	return err
 }
 
 // AssetCommentDelete converts echo context to params.
 func (w *ServerInterfaceWrapper) AssetCommentDelete(ctx echo.Context) error {
 	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
 	// ------------- Path parameter "assetId" -------------
 	var assetId AssetIdParam
 
@@ -330,13 +674,29 @@ func (w *ServerInterfaceWrapper) AssetCommentDelete(ctx echo.Context) error {
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.AssetCommentDelete(ctx, assetId, commentId)
+	err = w.Handler.AssetCommentDelete(ctx, workspaceIdOrAlias, projectIdOrAlias, assetId, commentId)
 	return err
 }
 
 // AssetCommentUpdate converts echo context to params.
 func (w *ServerInterfaceWrapper) AssetCommentUpdate(ctx echo.Context) error {
 	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
 	// ------------- Path parameter "assetId" -------------
 	var assetId AssetIdParam
 
@@ -356,13 +716,29 @@ func (w *ServerInterfaceWrapper) AssetCommentUpdate(ctx echo.Context) error {
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.AssetCommentUpdate(ctx, assetId, commentId)
+	err = w.Handler.AssetCommentUpdate(ctx, workspaceIdOrAlias, projectIdOrAlias, assetId, commentId)
 	return err
 }
 
 // AssetPublish converts echo context to params.
 func (w *ServerInterfaceWrapper) AssetPublish(ctx echo.Context) error {
 	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
 	// ------------- Path parameter "assetId" -------------
 	var assetId AssetIdParam
 
@@ -374,13 +750,29 @@ func (w *ServerInterfaceWrapper) AssetPublish(ctx echo.Context) error {
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.AssetPublish(ctx, assetId)
+	err = w.Handler.AssetPublish(ctx, workspaceIdOrAlias, projectIdOrAlias, assetId)
 	return err
 }
 
 // AssetUnpublish converts echo context to params.
 func (w *ServerInterfaceWrapper) AssetUnpublish(ctx echo.Context) error {
 	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
 	// ------------- Path parameter "assetId" -------------
 	var assetId AssetIdParam
 
@@ -392,13 +784,29 @@ func (w *ServerInterfaceWrapper) AssetUnpublish(ctx echo.Context) error {
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.AssetUnpublish(ctx, assetId)
+	err = w.Handler.AssetUnpublish(ctx, workspaceIdOrAlias, projectIdOrAlias, assetId)
 	return err
 }
 
 // AssetContentGet converts echo context to params.
 func (w *ServerInterfaceWrapper) AssetContentGet(ctx echo.Context) error {
 	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
 	// ------------- Path parameter "uuid1" -------------
 	var uuid1 string
 
@@ -424,348 +832,545 @@ func (w *ServerInterfaceWrapper) AssetContentGet(ctx echo.Context) error {
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.AssetContentGet(ctx, uuid1, uuid2, filename)
+	err = w.Handler.AssetContentGet(ctx, workspaceIdOrAlias, projectIdOrAlias, uuid1, uuid2, filename)
+	return err
+}
+
+// GroupFilter converts echo context to params.
+func (w *ServerInterfaceWrapper) GroupFilter(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GroupFilterParams
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
+	}
+
+	// ------------- Optional query parameter "perPage" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
+	}
+
+	// ------------- Optional query parameter "sort" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "sort", ctx.QueryParams(), &params.Sort)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter sort: %s", err))
+	}
+
+	// ------------- Optional query parameter "dir" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "dir", ctx.QueryParams(), &params.Dir)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dir: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GroupFilter(ctx, workspaceIdOrAlias, projectIdOrAlias, params)
+	return err
+}
+
+// GroupCreate converts echo context to params.
+func (w *ServerInterfaceWrapper) GroupCreate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params GroupCreateParams
+	// ------------- Optional query parameter "page" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
+	}
+
+	// ------------- Optional query parameter "perPage" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
+	}
+
+	// ------------- Optional query parameter "sort" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "sort", ctx.QueryParams(), &params.Sort)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter sort: %s", err))
+	}
+
+	// ------------- Optional query parameter "dir" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "dir", ctx.QueryParams(), &params.Dir)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dir: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GroupCreate(ctx, workspaceIdOrAlias, projectIdOrAlias, params)
 	return err
 }
 
 // GroupDelete converts echo context to params.
 func (w *ServerInterfaceWrapper) GroupDelete(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "groupId" -------------
-	var groupId GroupIdParam
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "groupId", ctx.Param("groupId"), &groupId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter groupId: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "groupIdOrKey" -------------
+	var groupIdOrKey GroupIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "groupIdOrKey", ctx.Param("groupIdOrKey"), &groupIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter groupIdOrKey: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.GroupDelete(ctx, groupId)
+	err = w.Handler.GroupDelete(ctx, workspaceIdOrAlias, projectIdOrAlias, groupIdOrKey)
 	return err
 }
 
 // GroupGet converts echo context to params.
 func (w *ServerInterfaceWrapper) GroupGet(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "groupId" -------------
-	var groupId GroupIdParam
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "groupId", ctx.Param("groupId"), &groupId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter groupId: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "groupIdOrKey" -------------
+	var groupIdOrKey GroupIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "groupIdOrKey", ctx.Param("groupIdOrKey"), &groupIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter groupIdOrKey: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.GroupGet(ctx, groupId)
+	err = w.Handler.GroupGet(ctx, workspaceIdOrAlias, projectIdOrAlias, groupIdOrKey)
 	return err
 }
 
 // GroupUpdate converts echo context to params.
 func (w *ServerInterfaceWrapper) GroupUpdate(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "groupId" -------------
-	var groupId GroupIdParam
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "groupId", ctx.Param("groupId"), &groupId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter groupId: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "groupIdOrKey" -------------
+	var groupIdOrKey GroupIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "groupIdOrKey", ctx.Param("groupIdOrKey"), &groupIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter groupIdOrKey: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.GroupUpdate(ctx, groupId)
+	err = w.Handler.GroupUpdate(ctx, workspaceIdOrAlias, projectIdOrAlias, groupIdOrKey)
 	return err
 }
 
-// ItemDelete converts echo context to params.
-func (w *ServerInterfaceWrapper) ItemDelete(ctx echo.Context) error {
+// ModelFilter converts echo context to params.
+func (w *ServerInterfaceWrapper) ModelFilter(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "itemId" -------------
-	var itemId ItemIdParam
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
 
-	ctx.Set(BearerAuthScopes, []string{})
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
 
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ItemDelete(ctx, itemId)
-	return err
-}
-
-// ItemGet converts echo context to params.
-func (w *ServerInterfaceWrapper) ItemGet(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "itemId" -------------
-	var itemId ItemIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params ItemGetParams
-	// ------------- Optional query parameter "ref" -------------
+	var params ModelFilterParams
+	// ------------- Optional query parameter "page" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "ref", ctx.QueryParams(), &params.Ref)
+	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter ref: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
 	}
 
-	// ------------- Optional query parameter "asset" -------------
+	// ------------- Optional query parameter "perPage" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "asset", ctx.QueryParams(), &params.Asset)
+	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter asset: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
+	}
+
+	// ------------- Optional query parameter "sort" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "sort", ctx.QueryParams(), &params.Sort)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter sort: %s", err))
+	}
+
+	// ------------- Optional query parameter "dir" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "dir", ctx.QueryParams(), &params.Dir)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dir: %s", err))
+	}
+
+	// ------------- Optional query parameter "keyword" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "keyword", ctx.QueryParams(), &params.Keyword)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter keyword: %s", err))
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ItemGet(ctx, itemId, params)
+	err = w.Handler.ModelFilter(ctx, workspaceIdOrAlias, projectIdOrAlias, params)
 	return err
 }
 
-// ItemUpdate converts echo context to params.
-func (w *ServerInterfaceWrapper) ItemUpdate(ctx echo.Context) error {
+// ModelCreate converts echo context to params.
+func (w *ServerInterfaceWrapper) ModelCreate(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "itemId" -------------
-	var itemId ItemIdParam
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
 
-	ctx.Set(BearerAuthScopes, []string{})
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
 
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ItemUpdate(ctx, itemId)
-	return err
-}
-
-// ItemCommentList converts echo context to params.
-func (w *ServerInterfaceWrapper) ItemCommentList(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "itemId" -------------
-	var itemId ItemIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ItemCommentList(ctx, itemId)
-	return err
-}
-
-// ItemCommentCreate converts echo context to params.
-func (w *ServerInterfaceWrapper) ItemCommentCreate(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "itemId" -------------
-	var itemId ItemIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ItemCommentCreate(ctx, itemId)
-	return err
-}
-
-// ItemCommentDelete converts echo context to params.
-func (w *ServerInterfaceWrapper) ItemCommentDelete(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "itemId" -------------
-	var itemId ItemIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
-	}
-
-	// ------------- Path parameter "commentId" -------------
-	var commentId CommentIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "commentId", ctx.Param("commentId"), &commentId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter commentId: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ItemCommentDelete(ctx, itemId, commentId)
-	return err
-}
-
-// ItemCommentUpdate converts echo context to params.
-func (w *ServerInterfaceWrapper) ItemCommentUpdate(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "itemId" -------------
-	var itemId ItemIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
-	}
-
-	// ------------- Path parameter "commentId" -------------
-	var commentId CommentIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "commentId", ctx.Param("commentId"), &commentId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter commentId: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ItemCommentUpdate(ctx, itemId, commentId)
-	return err
-}
-
-// ItemPublish converts echo context to params.
-func (w *ServerInterfaceWrapper) ItemPublish(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "itemId" -------------
-	var itemId ItemIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params ItemPublishParams
-	// ------------- Optional query parameter "asset" -------------
+	var params ModelCreateParams
+	// ------------- Optional query parameter "page" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "asset", ctx.QueryParams(), &params.Asset)
+	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter asset: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
+	}
+
+	// ------------- Optional query parameter "perPage" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
+	}
+
+	// ------------- Optional query parameter "sort" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "sort", ctx.QueryParams(), &params.Sort)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter sort: %s", err))
+	}
+
+	// ------------- Optional query parameter "dir" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "dir", ctx.QueryParams(), &params.Dir)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dir: %s", err))
+	}
+
+	// ------------- Optional query parameter "keyword" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "keyword", ctx.QueryParams(), &params.Keyword)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter keyword: %s", err))
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ItemPublish(ctx, itemId, params)
+	err = w.Handler.ModelCreate(ctx, workspaceIdOrAlias, projectIdOrAlias, params)
 	return err
 }
 
 // ModelDelete converts echo context to params.
 func (w *ServerInterfaceWrapper) ModelDelete(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "modelId" -------------
-	var modelId ModelIdParam
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ModelDelete(ctx, modelId)
+	err = w.Handler.ModelDelete(ctx, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 	return err
 }
 
 // ModelGet converts echo context to params.
 func (w *ServerInterfaceWrapper) ModelGet(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "modelId" -------------
-	var modelId ModelIdParam
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ModelGet(ctx, modelId)
+	err = w.Handler.ModelGet(ctx, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 	return err
 }
 
 // ModelUpdate converts echo context to params.
 func (w *ServerInterfaceWrapper) ModelUpdate(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "modelId" -------------
-	var modelId ModelIdParam
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ModelUpdate(ctx, modelId)
+	err = w.Handler.ModelUpdate(ctx, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 	return err
 }
 
-// CopyModel converts echo context to params.
-func (w *ServerInterfaceWrapper) CopyModel(ctx echo.Context) error {
+// ModelCopy converts echo context to params.
+func (w *ServerInterfaceWrapper) ModelCopy(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "modelId" -------------
-	var modelId ModelIdParam
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.CopyModel(ctx, modelId)
+	err = w.Handler.ModelCopy(ctx, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 	return err
 }
 
 // ModelImport converts echo context to params.
 func (w *ServerInterfaceWrapper) ModelImport(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "modelId" -------------
-	var modelId ModelIdParam
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ModelImport(ctx, modelId)
+	err = w.Handler.ModelImport(ctx, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 	return err
 }
 
 // ItemFilter converts echo context to params.
 func (w *ServerInterfaceWrapper) ItemFilter(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "modelId" -------------
-	var modelId ModelIdParam
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{})
@@ -822,37 +1427,69 @@ func (w *ServerInterfaceWrapper) ItemFilter(ctx echo.Context) error {
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ItemFilter(ctx, modelId, params)
+	err = w.Handler.ItemFilter(ctx, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, params)
 	return err
 }
 
 // ItemCreate converts echo context to params.
 func (w *ServerInterfaceWrapper) ItemCreate(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "modelId" -------------
-	var modelId ModelIdParam
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ItemCreate(ctx, modelId)
+	err = w.Handler.ItemCreate(ctx, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 	return err
 }
 
 // ItemsAsCSV converts echo context to params.
 func (w *ServerInterfaceWrapper) ItemsAsCSV(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "modelId" -------------
-	var modelId ModelIdParam
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{})
@@ -881,19 +1518,35 @@ func (w *ServerInterfaceWrapper) ItemsAsCSV(ctx echo.Context) error {
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ItemsAsCSV(ctx, modelId, params)
+	err = w.Handler.ItemsAsCSV(ctx, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, params)
 	return err
 }
 
 // ItemsAsGeoJSON converts echo context to params.
 func (w *ServerInterfaceWrapper) ItemsAsGeoJSON(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "modelId" -------------
-	var modelId ModelIdParam
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{})
@@ -922,553 +1575,91 @@ func (w *ServerInterfaceWrapper) ItemsAsGeoJSON(ctx echo.Context) error {
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ItemsAsGeoJSON(ctx, modelId, params)
+	err = w.Handler.ItemsAsGeoJSON(ctx, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, params)
 	return err
 }
 
-// MetadataSchemaByModelAsJSON converts echo context to params.
-func (w *ServerInterfaceWrapper) MetadataSchemaByModelAsJSON(ctx echo.Context) error {
+// ItemDelete converts echo context to params.
+func (w *ServerInterfaceWrapper) ItemDelete(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "modelId" -------------
-	var modelId ModelIdParam
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
 
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MetadataSchemaByModelAsJSON(ctx, modelId)
-	return err
-}
-
-// SchemaByModelAsJSON converts echo context to params.
-func (w *ServerInterfaceWrapper) SchemaByModelAsJSON(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "modelId" -------------
-	var modelId ModelIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "modelId", ctx.Param("modelId"), &modelId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelId: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.SchemaByModelAsJSON(ctx, modelId)
-	return err
-}
-
-// GroupFilter converts echo context to params.
-func (w *ServerInterfaceWrapper) GroupFilter(ctx echo.Context) error {
-	var err error
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
 	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
+	}
+
+	// ------------- Path parameter "itemId" -------------
+	var itemId ItemIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ItemDelete(ctx, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
+	return err
+}
+
+// ItemGet converts echo context to params.
+func (w *ServerInterfaceWrapper) ItemGet(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
+	}
+
+	// ------------- Path parameter "itemId" -------------
+	var itemId ItemIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params GroupFilterParams
-	// ------------- Optional query parameter "page" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
-	}
-
-	// ------------- Optional query parameter "perPage" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
-	}
-
-	// ------------- Optional query parameter "sort" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "sort", ctx.QueryParams(), &params.Sort)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter sort: %s", err))
-	}
-
-	// ------------- Optional query parameter "dir" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "dir", ctx.QueryParams(), &params.Dir)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dir: %s", err))
-	}
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.GroupFilter(ctx, projectIdOrAlias, params)
-	return err
-}
-
-// GroupCreate converts echo context to params.
-func (w *ServerInterfaceWrapper) GroupCreate(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "projectIdOrAlias" -------------
-	var projectIdOrAlias ProjectIdOrAliasParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GroupCreateParams
-	// ------------- Optional query parameter "page" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
-	}
-
-	// ------------- Optional query parameter "perPage" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
-	}
-
-	// ------------- Optional query parameter "sort" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "sort", ctx.QueryParams(), &params.Sort)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter sort: %s", err))
-	}
-
-	// ------------- Optional query parameter "dir" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "dir", ctx.QueryParams(), &params.Dir)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dir: %s", err))
-	}
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.GroupCreate(ctx, projectIdOrAlias, params)
-	return err
-}
-
-// GroupDeleteWithProject converts echo context to params.
-func (w *ServerInterfaceWrapper) GroupDeleteWithProject(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "projectIdOrAlias" -------------
-	var projectIdOrAlias ProjectIdOrAliasParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
-	}
-
-	// ------------- Path parameter "groupIdOrKey" -------------
-	var groupIdOrKey GroupIdOrKeyParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "groupIdOrKey", ctx.Param("groupIdOrKey"), &groupIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter groupIdOrKey: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.GroupDeleteWithProject(ctx, projectIdOrAlias, groupIdOrKey)
-	return err
-}
-
-// GroupGetWithProject converts echo context to params.
-func (w *ServerInterfaceWrapper) GroupGetWithProject(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "projectIdOrAlias" -------------
-	var projectIdOrAlias ProjectIdOrAliasParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
-	}
-
-	// ------------- Path parameter "groupIdOrKey" -------------
-	var groupIdOrKey GroupIdOrKeyParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "groupIdOrKey", ctx.Param("groupIdOrKey"), &groupIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter groupIdOrKey: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.GroupGetWithProject(ctx, projectIdOrAlias, groupIdOrKey)
-	return err
-}
-
-// GroupUpdateWithProject converts echo context to params.
-func (w *ServerInterfaceWrapper) GroupUpdateWithProject(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "projectIdOrAlias" -------------
-	var projectIdOrAlias ProjectIdOrAliasParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
-	}
-
-	// ------------- Path parameter "groupIdOrKey" -------------
-	var groupIdOrKey GroupIdOrKeyParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "groupIdOrKey", ctx.Param("groupIdOrKey"), &groupIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter groupIdOrKey: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.GroupUpdateWithProject(ctx, projectIdOrAlias, groupIdOrKey)
-	return err
-}
-
-// ModelFilter converts echo context to params.
-func (w *ServerInterfaceWrapper) ModelFilter(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "projectIdOrAlias" -------------
-	var projectIdOrAlias ProjectIdOrAliasParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params ModelFilterParams
-	// ------------- Optional query parameter "page" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
-	}
-
-	// ------------- Optional query parameter "perPage" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
-	}
-
-	// ------------- Optional query parameter "sort" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "sort", ctx.QueryParams(), &params.Sort)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter sort: %s", err))
-	}
-
-	// ------------- Optional query parameter "dir" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "dir", ctx.QueryParams(), &params.Dir)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dir: %s", err))
-	}
-
-	// ------------- Optional query parameter "keyword" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "keyword", ctx.QueryParams(), &params.Keyword)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter keyword: %s", err))
-	}
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ModelFilter(ctx, projectIdOrAlias, params)
-	return err
-}
-
-// ModelCreate converts echo context to params.
-func (w *ServerInterfaceWrapper) ModelCreate(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "projectIdOrAlias" -------------
-	var projectIdOrAlias ProjectIdOrAliasParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params ModelCreateParams
-	// ------------- Optional query parameter "page" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
-	}
-
-	// ------------- Optional query parameter "perPage" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
-	}
-
-	// ------------- Optional query parameter "sort" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "sort", ctx.QueryParams(), &params.Sort)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter sort: %s", err))
-	}
-
-	// ------------- Optional query parameter "dir" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "dir", ctx.QueryParams(), &params.Dir)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dir: %s", err))
-	}
-
-	// ------------- Optional query parameter "keyword" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "keyword", ctx.QueryParams(), &params.Keyword)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter keyword: %s", err))
-	}
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ModelCreate(ctx, projectIdOrAlias, params)
-	return err
-}
-
-// ModelDeleteWithProject converts echo context to params.
-func (w *ServerInterfaceWrapper) ModelDeleteWithProject(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "projectIdOrAlias" -------------
-	var projectIdOrAlias ProjectIdOrAliasParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
-	}
-
-	// ------------- Path parameter "modelIdOrKey" -------------
-	var modelIdOrKey ModelIdOrKeyParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ModelDeleteWithProject(ctx, projectIdOrAlias, modelIdOrKey)
-	return err
-}
-
-// ModelGetWithProject converts echo context to params.
-func (w *ServerInterfaceWrapper) ModelGetWithProject(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "projectIdOrAlias" -------------
-	var projectIdOrAlias ProjectIdOrAliasParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
-	}
-
-	// ------------- Path parameter "modelIdOrKey" -------------
-	var modelIdOrKey ModelIdOrKeyParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ModelGetWithProject(ctx, projectIdOrAlias, modelIdOrKey)
-	return err
-}
-
-// ModelUpdateWithProject converts echo context to params.
-func (w *ServerInterfaceWrapper) ModelUpdateWithProject(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "projectIdOrAlias" -------------
-	var projectIdOrAlias ProjectIdOrAliasParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
-	}
-
-	// ------------- Path parameter "modelIdOrKey" -------------
-	var modelIdOrKey ModelIdOrKeyParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ModelUpdateWithProject(ctx, projectIdOrAlias, modelIdOrKey)
-	return err
-}
-
-// FieldCreateWithProject converts echo context to params.
-func (w *ServerInterfaceWrapper) FieldCreateWithProject(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "projectIdOrAlias" -------------
-	var projectIdOrAlias ProjectIdOrAliasParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
-	}
-
-	// ------------- Path parameter "modelIdOrKey" -------------
-	var modelIdOrKey ModelIdOrKeyParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.FieldCreateWithProject(ctx, projectIdOrAlias, modelIdOrKey)
-	return err
-}
-
-// FieldDeleteWithProject converts echo context to params.
-func (w *ServerInterfaceWrapper) FieldDeleteWithProject(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "projectIdOrAlias" -------------
-	var projectIdOrAlias ProjectIdOrAliasParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
-	}
-
-	// ------------- Path parameter "modelIdOrKey" -------------
-	var modelIdOrKey ModelIdOrKeyParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
-	}
-
-	// ------------- Path parameter "fieldIdOrKey" -------------
-	var fieldIdOrKey FieldIdOrKeyParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "fieldIdOrKey", ctx.Param("fieldIdOrKey"), &fieldIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fieldIdOrKey: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.FieldDeleteWithProject(ctx, projectIdOrAlias, modelIdOrKey, fieldIdOrKey)
-	return err
-}
-
-// FieldUpdateWithProject converts echo context to params.
-func (w *ServerInterfaceWrapper) FieldUpdateWithProject(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "projectIdOrAlias" -------------
-	var projectIdOrAlias ProjectIdOrAliasParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
-	}
-
-	// ------------- Path parameter "modelIdOrKey" -------------
-	var modelIdOrKey ModelIdOrKeyParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
-	}
-
-	// ------------- Path parameter "fieldIdOrKey" -------------
-	var fieldIdOrKey FieldIdOrKeyParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "fieldIdOrKey", ctx.Param("fieldIdOrKey"), &fieldIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter fieldIdOrKey: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.FieldUpdateWithProject(ctx, projectIdOrAlias, modelIdOrKey, fieldIdOrKey)
-	return err
-}
-
-// ItemFilterWithProject converts echo context to params.
-func (w *ServerInterfaceWrapper) ItemFilterWithProject(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "projectIdOrAlias" -------------
-	var projectIdOrAlias ProjectIdOrAliasParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
-	}
-
-	// ------------- Path parameter "modelIdOrKey" -------------
-	var modelIdOrKey ModelIdOrKeyParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params ItemFilterWithProjectParams
-	// ------------- Optional query parameter "sort" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "sort", ctx.QueryParams(), &params.Sort)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter sort: %s", err))
-	}
-
-	// ------------- Optional query parameter "dir" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "dir", ctx.QueryParams(), &params.Dir)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dir: %s", err))
-	}
-
-	// ------------- Optional query parameter "page" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
-	}
-
-	// ------------- Optional query parameter "perPage" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
-	}
-
+	var params ItemGetParams
 	// ------------- Optional query parameter "ref" -------------
 
 	err = runtime.BindQueryParameter("form", true, false, "ref", ctx.QueryParams(), &params.Ref)
@@ -1484,13 +1675,21 @@ func (w *ServerInterfaceWrapper) ItemFilterWithProject(ctx echo.Context) error {
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ItemFilterWithProject(ctx, projectIdOrAlias, modelIdOrKey, params)
+	err = w.Handler.ItemGet(ctx, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId, params)
 	return err
 }
 
-// ItemCreateWithProject converts echo context to params.
-func (w *ServerInterfaceWrapper) ItemCreateWithProject(ctx echo.Context) error {
+// ItemUpdate converts echo context to params.
+func (w *ServerInterfaceWrapper) ItemUpdate(ctx echo.Context) error {
 	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
@@ -1505,18 +1704,34 @@ func (w *ServerInterfaceWrapper) ItemCreateWithProject(ctx echo.Context) error {
 	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
+	}
+
+	// ------------- Path parameter "itemId" -------------
+	var itemId ItemIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ItemCreateWithProject(ctx, projectIdOrAlias, modelIdOrKey)
+	err = w.Handler.ItemUpdate(ctx, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
 	return err
 }
 
-// ItemsWithProjectAsCSV converts echo context to params.
-func (w *ServerInterfaceWrapper) ItemsWithProjectAsCSV(ctx echo.Context) error {
+// ItemCommentList converts echo context to params.
+func (w *ServerInterfaceWrapper) ItemCommentList(ctx echo.Context) error {
 	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
@@ -1531,90 +1746,227 @@ func (w *ServerInterfaceWrapper) ItemsWithProjectAsCSV(ctx echo.Context) error {
 	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
+	}
+
+	// ------------- Path parameter "itemId" -------------
+	var itemId ItemIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ItemCommentList(ctx, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
+	return err
+}
+
+// ItemCommentCreate converts echo context to params.
+func (w *ServerInterfaceWrapper) ItemCommentCreate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
+	}
+
+	// ------------- Path parameter "itemId" -------------
+	var itemId ItemIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ItemCommentCreate(ctx, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId)
+	return err
+}
+
+// ItemCommentDelete converts echo context to params.
+func (w *ServerInterfaceWrapper) ItemCommentDelete(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
+	}
+
+	// ------------- Path parameter "itemId" -------------
+	var itemId ItemIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
+	}
+
+	// ------------- Path parameter "commentId" -------------
+	var commentId CommentIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "commentId", ctx.Param("commentId"), &commentId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter commentId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ItemCommentDelete(ctx, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId, commentId)
+	return err
+}
+
+// ItemCommentUpdate converts echo context to params.
+func (w *ServerInterfaceWrapper) ItemCommentUpdate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
+	}
+
+	// ------------- Path parameter "itemId" -------------
+	var itemId ItemIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
+	}
+
+	// ------------- Path parameter "commentId" -------------
+	var commentId CommentIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "commentId", ctx.Param("commentId"), &commentId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter commentId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.ItemCommentUpdate(ctx, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId, commentId)
+	return err
+}
+
+// ItemPublish converts echo context to params.
+func (w *ServerInterfaceWrapper) ItemPublish(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "modelIdOrKey" -------------
+	var modelIdOrKey ModelIdOrKeyParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
+	}
+
+	// ------------- Path parameter "itemId" -------------
+	var itemId ItemIdParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "itemId", ctx.Param("itemId"), &itemId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter itemId: %s", err))
 	}
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Parameter object where we will unmarshal all parameters from the context
-	var params ItemsWithProjectAsCSVParams
-	// ------------- Optional query parameter "page" -------------
+	var params ItemPublishParams
+	// ------------- Optional query parameter "asset" -------------
 
-	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
+	err = runtime.BindQueryParameter("form", true, false, "asset", ctx.QueryParams(), &params.Asset)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
-	}
-
-	// ------------- Optional query parameter "perPage" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
-	}
-
-	// ------------- Optional query parameter "ref" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "ref", ctx.QueryParams(), &params.Ref)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter ref: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter asset: %s", err))
 	}
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ItemsWithProjectAsCSV(ctx, projectIdOrAlias, modelIdOrKey, params)
+	err = w.Handler.ItemPublish(ctx, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey, itemId, params)
 	return err
 }
 
-// ItemsWithProjectAsGeoJSON converts echo context to params.
-func (w *ServerInterfaceWrapper) ItemsWithProjectAsGeoJSON(ctx echo.Context) error {
+// MetadataSchemaByModelAsJSON converts echo context to params.
+func (w *ServerInterfaceWrapper) MetadataSchemaByModelAsJSON(ctx echo.Context) error {
 	var err error
-	// ------------- Path parameter "projectIdOrAlias" -------------
-	var projectIdOrAlias ProjectIdOrAliasParam
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
 
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
 	}
 
-	// ------------- Path parameter "modelIdOrKey" -------------
-	var modelIdOrKey ModelIdOrKeyParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "modelIdOrKey", ctx.Param("modelIdOrKey"), &modelIdOrKey, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter modelIdOrKey: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params ItemsWithProjectAsGeoJSONParams
-	// ------------- Optional query parameter "page" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
-	}
-
-	// ------------- Optional query parameter "perPage" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
-	}
-
-	// ------------- Optional query parameter "ref" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "ref", ctx.QueryParams(), &params.Ref)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter ref: %s", err))
-	}
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ItemsWithProjectAsGeoJSON(ctx, projectIdOrAlias, modelIdOrKey, params)
-	return err
-}
-
-// MetadataSchemaByModelWithProjectAsJSON converts echo context to params.
-func (w *ServerInterfaceWrapper) MetadataSchemaByModelWithProjectAsJSON(ctx echo.Context) error {
-	var err error
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
@@ -1634,13 +1986,21 @@ func (w *ServerInterfaceWrapper) MetadataSchemaByModelWithProjectAsJSON(ctx echo
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.MetadataSchemaByModelWithProjectAsJSON(ctx, projectIdOrAlias, modelIdOrKey)
+	err = w.Handler.MetadataSchemaByModelAsJSON(ctx, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 	return err
 }
 
-// SchemaByModelWithProjectAsJSON converts echo context to params.
-func (w *ServerInterfaceWrapper) SchemaByModelWithProjectAsJSON(ctx echo.Context) error {
+// SchemaByModelAsJSON converts echo context to params.
+func (w *ServerInterfaceWrapper) SchemaByModelAsJSON(ctx echo.Context) error {
 	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
 	// ------------- Path parameter "projectIdOrAlias" -------------
 	var projectIdOrAlias ProjectIdOrAliasParam
 
@@ -1660,185 +2020,29 @@ func (w *ServerInterfaceWrapper) SchemaByModelWithProjectAsJSON(ctx echo.Context
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.SchemaByModelWithProjectAsJSON(ctx, projectIdOrAlias, modelIdOrKey)
-	return err
-}
-
-// SchemaFilter converts echo context to params.
-func (w *ServerInterfaceWrapper) SchemaFilter(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "projectIdOrAlias" -------------
-	var projectIdOrAlias ProjectIdOrAliasParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params SchemaFilterParams
-	// ------------- Optional query parameter "sort" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "sort", ctx.QueryParams(), &params.Sort)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter sort: %s", err))
-	}
-
-	// ------------- Optional query parameter "dir" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "dir", ctx.QueryParams(), &params.Dir)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dir: %s", err))
-	}
-
-	// ------------- Optional query parameter "page" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
-	}
-
-	// ------------- Optional query parameter "perPage" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
-	}
-
-	// ------------- Optional query parameter "keyword" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "keyword", ctx.QueryParams(), &params.Keyword)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter keyword: %s", err))
-	}
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.SchemaFilter(ctx, projectIdOrAlias, params)
-	return err
-}
-
-// SchemaByIDWithProjectAsJSON converts echo context to params.
-func (w *ServerInterfaceWrapper) SchemaByIDWithProjectAsJSON(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "projectIdOrAlias" -------------
-	var projectIdOrAlias ProjectIdOrAliasParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
-	}
-
-	// ------------- Path parameter "schemaId" -------------
-	var schemaId SchemaIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "schemaId", ctx.Param("schemaId"), &schemaId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter schemaId: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.SchemaByIDWithProjectAsJSON(ctx, projectIdOrAlias, schemaId)
-	return err
-}
-
-// AssetFilter converts echo context to params.
-func (w *ServerInterfaceWrapper) AssetFilter(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "projectId" -------------
-	var projectId ProjectIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectId", ctx.Param("projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params AssetFilterParams
-	// ------------- Optional query parameter "sort" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "sort", ctx.QueryParams(), &params.Sort)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter sort: %s", err))
-	}
-
-	// ------------- Optional query parameter "dir" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "dir", ctx.QueryParams(), &params.Dir)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dir: %s", err))
-	}
-
-	// ------------- Optional query parameter "page" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
-	}
-
-	// ------------- Optional query parameter "perPage" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
-	}
-
-	// ------------- Optional query parameter "keyword" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "keyword", ctx.QueryParams(), &params.Keyword)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter keyword: %s", err))
-	}
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.AssetFilter(ctx, projectId, params)
-	return err
-}
-
-// AssetCreate converts echo context to params.
-func (w *ServerInterfaceWrapper) AssetCreate(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "projectId" -------------
-	var projectId ProjectIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectId", ctx.Param("projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.AssetCreate(ctx, projectId)
-	return err
-}
-
-// AssetUploadCreate converts echo context to params.
-func (w *ServerInterfaceWrapper) AssetUploadCreate(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "projectId" -------------
-	var projectId ProjectIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectId", ctx.Param("projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.AssetUploadCreate(ctx, projectId)
+	err = w.Handler.SchemaByModelAsJSON(ctx, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 	return err
 }
 
 // FieldCreate converts echo context to params.
 func (w *ServerInterfaceWrapper) FieldCreate(ctx echo.Context) error {
 	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
 	// ------------- Path parameter "schemaId" -------------
 	var schemaId SchemaIdParam
 
@@ -1850,13 +2054,29 @@ func (w *ServerInterfaceWrapper) FieldCreate(ctx echo.Context) error {
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.FieldCreate(ctx, schemaId)
+	err = w.Handler.FieldCreate(ctx, workspaceIdOrAlias, projectIdOrAlias, schemaId)
 	return err
 }
 
 // FieldDelete converts echo context to params.
 func (w *ServerInterfaceWrapper) FieldDelete(ctx echo.Context) error {
 	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
 	// ------------- Path parameter "schemaId" -------------
 	var schemaId SchemaIdParam
 
@@ -1876,13 +2096,29 @@ func (w *ServerInterfaceWrapper) FieldDelete(ctx echo.Context) error {
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.FieldDelete(ctx, schemaId, fieldIdOrKey)
+	err = w.Handler.FieldDelete(ctx, workspaceIdOrAlias, projectIdOrAlias, schemaId, fieldIdOrKey)
 	return err
 }
 
 // FieldUpdate converts echo context to params.
 func (w *ServerInterfaceWrapper) FieldUpdate(ctx echo.Context) error {
 	var err error
+	// ------------- Path parameter "workspaceIdOrAlias" -------------
+	var workspaceIdOrAlias WorkspaceIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "workspaceIdOrAlias", ctx.Param("workspaceIdOrAlias"), &workspaceIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceIdOrAlias: %s", err))
+	}
+
+	// ------------- Path parameter "projectIdOrAlias" -------------
+	var projectIdOrAlias ProjectIdOrAliasParam
+
+	err = runtime.BindStyledParameterWithOptions("simple", "projectIdOrAlias", ctx.Param("projectIdOrAlias"), &projectIdOrAlias, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectIdOrAlias: %s", err))
+	}
+
 	// ------------- Path parameter "schemaId" -------------
 	var schemaId SchemaIdParam
 
@@ -1902,213 +2138,7 @@ func (w *ServerInterfaceWrapper) FieldUpdate(ctx echo.Context) error {
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.FieldUpdate(ctx, schemaId, fieldIdOrKey)
-	return err
-}
-
-// SchemaByIDAsJSON converts echo context to params.
-func (w *ServerInterfaceWrapper) SchemaByIDAsJSON(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "schemaId" -------------
-	var schemaId SchemaIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "schemaId", ctx.Param("schemaId"), &schemaId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter schemaId: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.SchemaByIDAsJSON(ctx, schemaId)
-	return err
-}
-
-// ProjectFilter converts echo context to params.
-func (w *ServerInterfaceWrapper) ProjectFilter(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "workspaceId" -------------
-	var workspaceId WorkspaceIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceId", ctx.Param("workspaceId"), &workspaceId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceId: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params ProjectFilterParams
-	// ------------- Optional query parameter "page" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
-	}
-
-	// ------------- Optional query parameter "perPage" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
-	}
-
-	// ------------- Optional query parameter "sort" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "sort", ctx.QueryParams(), &params.Sort)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter sort: %s", err))
-	}
-
-	// ------------- Optional query parameter "dir" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "dir", ctx.QueryParams(), &params.Dir)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dir: %s", err))
-	}
-
-	// ------------- Optional query parameter "keyword" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "keyword", ctx.QueryParams(), &params.Keyword)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter keyword: %s", err))
-	}
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ProjectFilter(ctx, workspaceId, params)
-	return err
-}
-
-// ProjectCreate converts echo context to params.
-func (w *ServerInterfaceWrapper) ProjectCreate(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "workspaceId" -------------
-	var workspaceId WorkspaceIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceId", ctx.Param("workspaceId"), &workspaceId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceId: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params ProjectCreateParams
-	// ------------- Optional query parameter "page" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "page", ctx.QueryParams(), &params.Page)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter page: %s", err))
-	}
-
-	// ------------- Optional query parameter "perPage" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "perPage", ctx.QueryParams(), &params.PerPage)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter perPage: %s", err))
-	}
-
-	// ------------- Optional query parameter "sort" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "sort", ctx.QueryParams(), &params.Sort)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter sort: %s", err))
-	}
-
-	// ------------- Optional query parameter "dir" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "dir", ctx.QueryParams(), &params.Dir)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter dir: %s", err))
-	}
-
-	// ------------- Optional query parameter "keyword" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "keyword", ctx.QueryParams(), &params.Keyword)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter keyword: %s", err))
-	}
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ProjectCreate(ctx, workspaceId, params)
-	return err
-}
-
-// ProjectDelete converts echo context to params.
-func (w *ServerInterfaceWrapper) ProjectDelete(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "workspaceId" -------------
-	var workspaceId WorkspaceIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceId", ctx.Param("workspaceId"), &workspaceId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceId: %s", err))
-	}
-
-	// ------------- Path parameter "projectId" -------------
-	var projectId ProjectIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectId", ctx.Param("projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ProjectDelete(ctx, workspaceId, projectId)
-	return err
-}
-
-// ProjectGet converts echo context to params.
-func (w *ServerInterfaceWrapper) ProjectGet(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "workspaceId" -------------
-	var workspaceId WorkspaceIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceId", ctx.Param("workspaceId"), &workspaceId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceId: %s", err))
-	}
-
-	// ------------- Path parameter "projectId" -------------
-	var projectId ProjectIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectId", ctx.Param("projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ProjectGet(ctx, workspaceId, projectId)
-	return err
-}
-
-// ProjectUpdate converts echo context to params.
-func (w *ServerInterfaceWrapper) ProjectUpdate(ctx echo.Context) error {
-	var err error
-	// ------------- Path parameter "workspaceId" -------------
-	var workspaceId WorkspaceIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "workspaceId", ctx.Param("workspaceId"), &workspaceId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter workspaceId: %s", err))
-	}
-
-	// ------------- Path parameter "projectId" -------------
-	var projectId ProjectIdParam
-
-	err = runtime.BindStyledParameterWithOptions("simple", "projectId", ctx.Param("projectId"), &projectId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter projectId: %s", err))
-	}
-
-	ctx.Set(BearerAuthScopes, []string{})
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.ProjectUpdate(ctx, workspaceId, projectId)
+	err = w.Handler.FieldUpdate(ctx, workspaceIdOrAlias, projectIdOrAlias, schemaId, fieldIdOrKey)
 	return err
 }
 
@@ -2140,71 +2170,53 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
-	router.DELETE(baseURL+"/assets", wrapper.AssetBatchDelete)
-	router.DELETE(baseURL+"/assets/:assetId", wrapper.AssetDelete)
-	router.GET(baseURL+"/assets/:assetId", wrapper.AssetGet)
-	router.GET(baseURL+"/assets/:assetId/comments", wrapper.AssetCommentList)
-	router.POST(baseURL+"/assets/:assetId/comments", wrapper.AssetCommentCreate)
-	router.DELETE(baseURL+"/assets/:assetId/comments/:commentId", wrapper.AssetCommentDelete)
-	router.PATCH(baseURL+"/assets/:assetId/comments/:commentId", wrapper.AssetCommentUpdate)
-	router.POST(baseURL+"/assets/:assetId/publish", wrapper.AssetPublish)
-	router.POST(baseURL+"/assets/:assetId/unpublish", wrapper.AssetUnpublish)
-	router.GET(baseURL+"/assets/:uuid1/:uuid2/:filename", wrapper.AssetContentGet)
-	router.DELETE(baseURL+"/groups/:groupId", wrapper.GroupDelete)
-	router.GET(baseURL+"/groups/:groupId", wrapper.GroupGet)
-	router.PATCH(baseURL+"/groups/:groupId", wrapper.GroupUpdate)
-	router.DELETE(baseURL+"/items/:itemId", wrapper.ItemDelete)
-	router.GET(baseURL+"/items/:itemId", wrapper.ItemGet)
-	router.PATCH(baseURL+"/items/:itemId", wrapper.ItemUpdate)
-	router.GET(baseURL+"/items/:itemId/comments", wrapper.ItemCommentList)
-	router.POST(baseURL+"/items/:itemId/comments", wrapper.ItemCommentCreate)
-	router.DELETE(baseURL+"/items/:itemId/comments/:commentId", wrapper.ItemCommentDelete)
-	router.PATCH(baseURL+"/items/:itemId/comments/:commentId", wrapper.ItemCommentUpdate)
-	router.POST(baseURL+"/items/:itemId/publish", wrapper.ItemPublish)
-	router.DELETE(baseURL+"/models/:modelId", wrapper.ModelDelete)
-	router.GET(baseURL+"/models/:modelId", wrapper.ModelGet)
-	router.PATCH(baseURL+"/models/:modelId", wrapper.ModelUpdate)
-	router.POST(baseURL+"/models/:modelId/copy", wrapper.CopyModel)
-	router.PUT(baseURL+"/models/:modelId/import", wrapper.ModelImport)
-	router.GET(baseURL+"/models/:modelId/items", wrapper.ItemFilter)
-	router.POST(baseURL+"/models/:modelId/items", wrapper.ItemCreate)
-	router.GET(baseURL+"/models/:modelId/items.csv", wrapper.ItemsAsCSV)
-	router.GET(baseURL+"/models/:modelId/items.geojson", wrapper.ItemsAsGeoJSON)
-	router.GET(baseURL+"/models/:modelId/metadata_schema.json", wrapper.MetadataSchemaByModelAsJSON)
-	router.GET(baseURL+"/models/:modelId/schema.json", wrapper.SchemaByModelAsJSON)
-	router.GET(baseURL+"/projects/:projectIdOrAlias/groups", wrapper.GroupFilter)
-	router.POST(baseURL+"/projects/:projectIdOrAlias/groups", wrapper.GroupCreate)
-	router.DELETE(baseURL+"/projects/:projectIdOrAlias/groups/:groupIdOrKey", wrapper.GroupDeleteWithProject)
-	router.GET(baseURL+"/projects/:projectIdOrAlias/groups/:groupIdOrKey", wrapper.GroupGetWithProject)
-	router.PATCH(baseURL+"/projects/:projectIdOrAlias/groups/:groupIdOrKey", wrapper.GroupUpdateWithProject)
-	router.GET(baseURL+"/projects/:projectIdOrAlias/models", wrapper.ModelFilter)
-	router.POST(baseURL+"/projects/:projectIdOrAlias/models", wrapper.ModelCreate)
-	router.DELETE(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey", wrapper.ModelDeleteWithProject)
-	router.GET(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey", wrapper.ModelGetWithProject)
-	router.PATCH(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey", wrapper.ModelUpdateWithProject)
-	router.POST(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/fields", wrapper.FieldCreateWithProject)
-	router.DELETE(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/fields/:fieldIdOrKey", wrapper.FieldDeleteWithProject)
-	router.PATCH(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/fields/:fieldIdOrKey", wrapper.FieldUpdateWithProject)
-	router.GET(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/items", wrapper.ItemFilterWithProject)
-	router.POST(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/items", wrapper.ItemCreateWithProject)
-	router.GET(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/items.csv", wrapper.ItemsWithProjectAsCSV)
-	router.GET(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/items.geojson", wrapper.ItemsWithProjectAsGeoJSON)
-	router.GET(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/metadata_schema.json", wrapper.MetadataSchemaByModelWithProjectAsJSON)
-	router.GET(baseURL+"/projects/:projectIdOrAlias/models/:modelIdOrKey/schema.json", wrapper.SchemaByModelWithProjectAsJSON)
-	router.GET(baseURL+"/projects/:projectIdOrAlias/schemata", wrapper.SchemaFilter)
-	router.GET(baseURL+"/projects/:projectIdOrAlias/schemata/:schemaId/schema.json", wrapper.SchemaByIDWithProjectAsJSON)
-	router.GET(baseURL+"/projects/:projectId/assets", wrapper.AssetFilter)
-	router.POST(baseURL+"/projects/:projectId/assets", wrapper.AssetCreate)
-	router.POST(baseURL+"/projects/:projectId/assets/uploads", wrapper.AssetUploadCreate)
-	router.POST(baseURL+"/schemata/:schemaId/fields", wrapper.FieldCreate)
-	router.DELETE(baseURL+"/schemata/:schemaId/fields/:fieldIdOrKey", wrapper.FieldDelete)
-	router.PATCH(baseURL+"/schemata/:schemaId/fields/:fieldIdOrKey", wrapper.FieldUpdate)
-	router.GET(baseURL+"/schemata/:schemaId/schema.json", wrapper.SchemaByIDAsJSON)
-	router.GET(baseURL+"/:workspaceId/projects", wrapper.ProjectFilter)
-	router.POST(baseURL+"/:workspaceId/projects", wrapper.ProjectCreate)
-	router.DELETE(baseURL+"/:workspaceId/projects/:projectId", wrapper.ProjectDelete)
-	router.GET(baseURL+"/:workspaceId/projects/:projectId", wrapper.ProjectGet)
-	router.PATCH(baseURL+"/:workspaceId/projects/:projectId", wrapper.ProjectUpdate)
+	router.GET(baseURL+"/:workspaceIdOrAlias/projects", wrapper.ProjectFilter)
+	router.POST(baseURL+"/:workspaceIdOrAlias/projects", wrapper.ProjectCreate)
+	router.DELETE(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias", wrapper.ProjectDelete)
+	router.GET(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias", wrapper.ProjectGet)
+	router.PATCH(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias", wrapper.ProjectUpdate)
+	router.DELETE(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets", wrapper.AssetBatchDelete)
+	router.GET(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets", wrapper.AssetFilter)
+	router.POST(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets", wrapper.AssetCreate)
+	router.POST(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/uploads", wrapper.AssetUploadCreate)
+	router.DELETE(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId", wrapper.AssetDelete)
+	router.GET(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId", wrapper.AssetGet)
+	router.GET(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId/comments", wrapper.AssetCommentList)
+	router.POST(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId/comments", wrapper.AssetCommentCreate)
+	router.DELETE(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId/comments/:commentId", wrapper.AssetCommentDelete)
+	router.PATCH(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId/comments/:commentId", wrapper.AssetCommentUpdate)
+	router.POST(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId/publish", wrapper.AssetPublish)
+	router.POST(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:assetId/unpublish", wrapper.AssetUnpublish)
+	router.GET(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/assets/:uuid1/:uuid2/:filename", wrapper.AssetContentGet)
+	router.GET(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/groups", wrapper.GroupFilter)
+	router.POST(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/groups", wrapper.GroupCreate)
+	router.DELETE(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/groups/:groupIdOrKey", wrapper.GroupDelete)
+	router.GET(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/groups/:groupIdOrKey", wrapper.GroupGet)
+	router.PATCH(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/groups/:groupIdOrKey", wrapper.GroupUpdate)
+	router.GET(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models", wrapper.ModelFilter)
+	router.POST(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models", wrapper.ModelCreate)
+	router.DELETE(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey", wrapper.ModelDelete)
+	router.GET(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey", wrapper.ModelGet)
+	router.PATCH(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey", wrapper.ModelUpdate)
+	router.POST(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/copy", wrapper.ModelCopy)
+	router.PUT(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/import", wrapper.ModelImport)
+	router.GET(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items", wrapper.ItemFilter)
+	router.POST(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items", wrapper.ItemCreate)
+	router.GET(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items.csv", wrapper.ItemsAsCSV)
+	router.GET(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items.geojson", wrapper.ItemsAsGeoJSON)
+	router.DELETE(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/:itemId", wrapper.ItemDelete)
+	router.GET(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/:itemId", wrapper.ItemGet)
+	router.PATCH(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/:itemId", wrapper.ItemUpdate)
+	router.GET(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/:itemId/comments", wrapper.ItemCommentList)
+	router.POST(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/:itemId/comments", wrapper.ItemCommentCreate)
+	router.DELETE(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/:itemId/comments/:commentId", wrapper.ItemCommentDelete)
+	router.PATCH(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/:itemId/comments/:commentId", wrapper.ItemCommentUpdate)
+	router.POST(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/items/:itemId/publish", wrapper.ItemPublish)
+	router.GET(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/metadata_schema.json", wrapper.MetadataSchemaByModelAsJSON)
+	router.GET(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/models/:modelIdOrKey/schema.json", wrapper.SchemaByModelAsJSON)
+	router.POST(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/schemata/:schemaId/fields", wrapper.FieldCreate)
+	router.DELETE(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/schemata/:schemaId/fields/:fieldIdOrKey", wrapper.FieldDelete)
+	router.PATCH(baseURL+"/:workspaceIdOrAlias/projects/:projectIdOrAlias/schemata/:schemaId/fields/:fieldIdOrKey", wrapper.FieldUpdate)
 
 }
 
@@ -2214,8 +2226,263 @@ type NotFoundErrorResponse struct {
 type UnauthorizedErrorResponse struct {
 }
 
+type ProjectFilterRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	Params             ProjectFilterParams
+}
+
+type ProjectFilterResponseObject interface {
+	VisitProjectFilterResponse(w http.ResponseWriter) error
+}
+
+type ProjectFilter200JSONResponse struct {
+	Page       *int       `json:"page,omitempty"`
+	PerPage    *int       `json:"perPage,omitempty"`
+	Projects   *[]Project `json:"projects,omitempty"`
+	TotalCount *int       `json:"totalCount,omitempty"`
+}
+
+func (response ProjectFilter200JSONResponse) VisitProjectFilterResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ProjectFilter400Response struct {
+}
+
+func (response ProjectFilter400Response) VisitProjectFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ProjectFilter401Response = UnauthorizedErrorResponse
+
+func (response ProjectFilter401Response) VisitProjectFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ProjectFilter404Response = NotFoundErrorResponse
+
+func (response ProjectFilter404Response) VisitProjectFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ProjectFilter500Response struct {
+}
+
+func (response ProjectFilter500Response) VisitProjectFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type ProjectCreateRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	Params             ProjectCreateParams
+	Body               *ProjectCreateJSONRequestBody
+}
+
+type ProjectCreateResponseObject interface {
+	VisitProjectCreateResponse(w http.ResponseWriter) error
+}
+
+type ProjectCreate201JSONResponse Project
+
+func (response ProjectCreate201JSONResponse) VisitProjectCreateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ProjectCreate400Response struct {
+}
+
+func (response ProjectCreate400Response) VisitProjectCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ProjectCreate401Response = UnauthorizedErrorResponse
+
+func (response ProjectCreate401Response) VisitProjectCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ProjectCreate404Response struct {
+}
+
+func (response ProjectCreate404Response) VisitProjectCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ProjectCreate500Response struct {
+}
+
+func (response ProjectCreate500Response) VisitProjectCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type ProjectDeleteRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+}
+
+type ProjectDeleteResponseObject interface {
+	VisitProjectDeleteResponse(w http.ResponseWriter) error
+}
+
+type ProjectDelete200JSONResponse struct {
+	Id id.ProjectID `json:"id"`
+}
+
+func (response ProjectDelete200JSONResponse) VisitProjectDeleteResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ProjectDelete400Response struct {
+}
+
+func (response ProjectDelete400Response) VisitProjectDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ProjectDelete401Response = UnauthorizedErrorResponse
+
+func (response ProjectDelete401Response) VisitProjectDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ProjectDelete404Response struct {
+}
+
+func (response ProjectDelete404Response) VisitProjectDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ProjectDelete500Response struct {
+}
+
+func (response ProjectDelete500Response) VisitProjectDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type ProjectGetRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+}
+
+type ProjectGetResponseObject interface {
+	VisitProjectGetResponse(w http.ResponseWriter) error
+}
+
+type ProjectGet200JSONResponse Project
+
+func (response ProjectGet200JSONResponse) VisitProjectGetResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ProjectGet400Response struct {
+}
+
+func (response ProjectGet400Response) VisitProjectGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ProjectGet401Response = UnauthorizedErrorResponse
+
+func (response ProjectGet401Response) VisitProjectGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ProjectGet404Response struct {
+}
+
+func (response ProjectGet404Response) VisitProjectGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ProjectGet500Response struct {
+}
+
+func (response ProjectGet500Response) VisitProjectGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type ProjectUpdateRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	Body               *ProjectUpdateJSONRequestBody
+}
+
+type ProjectUpdateResponseObject interface {
+	VisitProjectUpdateResponse(w http.ResponseWriter) error
+}
+
+type ProjectUpdate200JSONResponse Project
+
+func (response ProjectUpdate200JSONResponse) VisitProjectUpdateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ProjectUpdate400Response struct {
+}
+
+func (response ProjectUpdate400Response) VisitProjectUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ProjectUpdate401Response = UnauthorizedErrorResponse
+
+func (response ProjectUpdate401Response) VisitProjectUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ProjectUpdate404Response struct {
+}
+
+func (response ProjectUpdate404Response) VisitProjectUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ProjectUpdate500Response struct {
+}
+
+func (response ProjectUpdate500Response) VisitProjectUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
 type AssetBatchDeleteRequestObject struct {
-	Body *AssetBatchDeleteJSONRequestBody
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	Body               *AssetBatchDeleteJSONRequestBody
 }
 
 type AssetBatchDeleteResponseObject interface {
@@ -2256,8 +2523,149 @@ func (response AssetBatchDelete404Response) VisitAssetBatchDeleteResponse(w http
 	return nil
 }
 
+type AssetFilterRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	Params             AssetFilterParams
+}
+
+type AssetFilterResponseObject interface {
+	VisitAssetFilterResponse(w http.ResponseWriter) error
+}
+
+type AssetFilter200JSONResponse struct {
+	Items      *[]Asset `json:"items,omitempty"`
+	Page       *int     `json:"page,omitempty"`
+	PerPage    *int     `json:"perPage,omitempty"`
+	TotalCount *int     `json:"totalCount,omitempty"`
+}
+
+func (response AssetFilter200JSONResponse) VisitAssetFilterResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type AssetFilter400Response struct {
+}
+
+func (response AssetFilter400Response) VisitAssetFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type AssetFilter401Response = UnauthorizedErrorResponse
+
+func (response AssetFilter401Response) VisitAssetFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type AssetFilter404Response struct {
+}
+
+func (response AssetFilter404Response) VisitAssetFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type AssetCreateRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	JSONBody           *AssetCreateJSONRequestBody
+	MultipartBody      *multipart.Reader
+}
+
+type AssetCreateResponseObject interface {
+	VisitAssetCreateResponse(w http.ResponseWriter) error
+}
+
+type AssetCreate200JSONResponse Asset
+
+func (response AssetCreate200JSONResponse) VisitAssetCreateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type AssetCreate400Response struct {
+}
+
+func (response AssetCreate400Response) VisitAssetCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type AssetCreate401Response = UnauthorizedErrorResponse
+
+func (response AssetCreate401Response) VisitAssetCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type AssetCreate404Response struct {
+}
+
+func (response AssetCreate404Response) VisitAssetCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type AssetUploadCreateRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	Body               *AssetUploadCreateJSONRequestBody
+}
+
+type AssetUploadCreateResponseObject interface {
+	VisitAssetUploadCreateResponse(w http.ResponseWriter) error
+}
+
+type AssetUploadCreate200JSONResponse struct {
+	ContentEncoding *string `json:"contentEncoding,omitempty"`
+	ContentLength   *int    `json:"contentLength,omitempty"`
+	ContentType     *string `json:"contentType,omitempty"`
+	Next            *string `json:"next,omitempty"`
+	Token           *string `json:"token,omitempty"`
+	Url             *string `json:"url,omitempty"`
+}
+
+func (response AssetUploadCreate200JSONResponse) VisitAssetUploadCreateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type AssetUploadCreate400Response struct {
+}
+
+func (response AssetUploadCreate400Response) VisitAssetUploadCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type AssetUploadCreate401Response = UnauthorizedErrorResponse
+
+func (response AssetUploadCreate401Response) VisitAssetUploadCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type AssetUploadCreate404Response struct {
+}
+
+func (response AssetUploadCreate404Response) VisitAssetUploadCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type AssetDeleteRequestObject struct {
-	AssetId AssetIdParam `json:"assetId"`
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	AssetId            AssetIdParam            `json:"assetId"`
 }
 
 type AssetDeleteResponseObject interface {
@@ -2299,7 +2707,9 @@ func (response AssetDelete404Response) VisitAssetDeleteResponse(w http.ResponseW
 }
 
 type AssetGetRequestObject struct {
-	AssetId AssetIdParam `json:"assetId"`
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	AssetId            AssetIdParam            `json:"assetId"`
 }
 
 type AssetGetResponseObject interface {
@@ -2339,7 +2749,9 @@ func (response AssetGet404Response) VisitAssetGetResponse(w http.ResponseWriter)
 }
 
 type AssetCommentListRequestObject struct {
-	AssetId AssetIdParam `json:"assetId"`
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	AssetId            AssetIdParam            `json:"assetId"`
 }
 
 type AssetCommentListResponseObject interface {
@@ -2381,8 +2793,10 @@ func (response AssetCommentList404Response) VisitAssetCommentListResponse(w http
 }
 
 type AssetCommentCreateRequestObject struct {
-	AssetId AssetIdParam `json:"assetId"`
-	Body    *AssetCommentCreateJSONRequestBody
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	AssetId            AssetIdParam            `json:"assetId"`
+	Body               *AssetCommentCreateJSONRequestBody
 }
 
 type AssetCommentCreateResponseObject interface {
@@ -2422,8 +2836,10 @@ func (response AssetCommentCreate404Response) VisitAssetCommentCreateResponse(w 
 }
 
 type AssetCommentDeleteRequestObject struct {
-	AssetId   AssetIdParam   `json:"assetId"`
-	CommentId CommentIdParam `json:"commentId"`
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	AssetId            AssetIdParam            `json:"assetId"`
+	CommentId          CommentIdParam          `json:"commentId"`
 }
 
 type AssetCommentDeleteResponseObject interface {
@@ -2465,9 +2881,11 @@ func (response AssetCommentDelete404Response) VisitAssetCommentDeleteResponse(w 
 }
 
 type AssetCommentUpdateRequestObject struct {
-	AssetId   AssetIdParam   `json:"assetId"`
-	CommentId CommentIdParam `json:"commentId"`
-	Body      *AssetCommentUpdateJSONRequestBody
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	AssetId            AssetIdParam            `json:"assetId"`
+	CommentId          CommentIdParam          `json:"commentId"`
+	Body               *AssetCommentUpdateJSONRequestBody
 }
 
 type AssetCommentUpdateResponseObject interface {
@@ -2507,7 +2925,9 @@ func (response AssetCommentUpdate404Response) VisitAssetCommentUpdateResponse(w 
 }
 
 type AssetPublishRequestObject struct {
-	AssetId AssetIdParam `json:"assetId"`
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	AssetId            AssetIdParam            `json:"assetId"`
 }
 
 type AssetPublishResponseObject interface {
@@ -2547,7 +2967,9 @@ func (response AssetPublish404Response) VisitAssetPublishResponse(w http.Respons
 }
 
 type AssetUnpublishRequestObject struct {
-	AssetId AssetIdParam `json:"assetId"`
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	AssetId            AssetIdParam            `json:"assetId"`
 }
 
 type AssetUnpublishResponseObject interface {
@@ -2587,9 +3009,11 @@ func (response AssetUnpublish404Response) VisitAssetUnpublishResponse(w http.Res
 }
 
 type AssetContentGetRequestObject struct {
-	Uuid1    string `json:"uuid1"`
-	Uuid2    string `json:"uuid2"`
-	Filename string `json:"filename"`
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	Uuid1              string                  `json:"uuid1"`
+	Uuid2              string                  `json:"uuid2"`
+	Filename           string                  `json:"filename"`
 }
 
 type AssetContentGetResponseObject interface {
@@ -2638,8 +3062,108 @@ func (response AssetContentGet404Response) VisitAssetContentGetResponse(w http.R
 	return nil
 }
 
+type GroupFilterRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	Params             GroupFilterParams
+}
+
+type GroupFilterResponseObject interface {
+	VisitGroupFilterResponse(w http.ResponseWriter) error
+}
+
+type GroupFilter200JSONResponse struct {
+	Groups     *[]Group `json:"groups,omitempty"`
+	Page       *int     `json:"page,omitempty"`
+	PerPage    *int     `json:"perPage,omitempty"`
+	TotalCount *int     `json:"totalCount,omitempty"`
+}
+
+func (response GroupFilter200JSONResponse) VisitGroupFilterResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GroupFilter400Response struct {
+}
+
+func (response GroupFilter400Response) VisitGroupFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type GroupFilter401Response = UnauthorizedErrorResponse
+
+func (response GroupFilter401Response) VisitGroupFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type GroupFilter404Response struct {
+}
+
+func (response GroupFilter404Response) VisitGroupFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type GroupFilter500Response struct {
+}
+
+func (response GroupFilter500Response) VisitGroupFilterResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type GroupCreateRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	Params             GroupCreateParams
+	Body               *GroupCreateJSONRequestBody
+}
+
+type GroupCreateResponseObject interface {
+	VisitGroupCreateResponse(w http.ResponseWriter) error
+}
+
+type GroupCreate201JSONResponse Group
+
+func (response GroupCreate201JSONResponse) VisitGroupCreateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type GroupCreate400Response struct {
+}
+
+func (response GroupCreate400Response) VisitGroupCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type GroupCreate401Response = UnauthorizedErrorResponse
+
+func (response GroupCreate401Response) VisitGroupCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type GroupCreate500Response struct {
+}
+
+func (response GroupCreate500Response) VisitGroupCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
 type GroupDeleteRequestObject struct {
-	GroupId GroupIdParam `json:"groupId"`
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	GroupIdOrKey       GroupIdOrKeyParam       `json:"groupIdOrKey"`
 }
 
 type GroupDeleteResponseObject interface {
@@ -2689,7 +3213,9 @@ func (response GroupDelete500Response) VisitGroupDeleteResponse(w http.ResponseW
 }
 
 type GroupGetRequestObject struct {
-	GroupId GroupIdParam `json:"groupId"`
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	GroupIdOrKey       GroupIdOrKeyParam       `json:"groupIdOrKey"`
 }
 
 type GroupGetResponseObject interface {
@@ -2737,8 +3263,10 @@ func (response GroupGet500Response) VisitGroupGetResponse(w http.ResponseWriter)
 }
 
 type GroupUpdateRequestObject struct {
-	GroupId GroupIdParam `json:"groupId"`
-	Body    *GroupUpdateJSONRequestBody
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	GroupIdOrKey       GroupIdOrKeyParam       `json:"groupIdOrKey"`
+	Body               *GroupUpdateJSONRequestBody
 }
 
 type GroupUpdateResponseObject interface {
@@ -2785,357 +3313,100 @@ func (response GroupUpdate500Response) VisitGroupUpdateResponse(w http.ResponseW
 	return nil
 }
 
-type ItemDeleteRequestObject struct {
-	ItemId ItemIdParam `json:"itemId"`
+type ModelFilterRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	Params             ModelFilterParams
 }
 
-type ItemDeleteResponseObject interface {
-	VisitItemDeleteResponse(w http.ResponseWriter) error
+type ModelFilterResponseObject interface {
+	VisitModelFilterResponse(w http.ResponseWriter) error
 }
 
-type ItemDelete200JSONResponse struct {
-	Id *id.ItemID `json:"id,omitempty"`
+type ModelFilter200JSONResponse struct {
+	Models     *[]Model `json:"models,omitempty"`
+	Page       *int     `json:"page,omitempty"`
+	PerPage    *int     `json:"perPage,omitempty"`
+	TotalCount *int     `json:"totalCount,omitempty"`
 }
 
-func (response ItemDelete200JSONResponse) VisitItemDeleteResponse(w http.ResponseWriter) error {
+func (response ModelFilter200JSONResponse) VisitModelFilterResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type ItemDelete400Response struct {
+type ModelFilter400Response struct {
 }
 
-func (response ItemDelete400Response) VisitItemDeleteResponse(w http.ResponseWriter) error {
+func (response ModelFilter400Response) VisitModelFilterResponse(w http.ResponseWriter) error {
 	w.WriteHeader(400)
 	return nil
 }
 
-type ItemDelete401Response = UnauthorizedErrorResponse
+type ModelFilter401Response = UnauthorizedErrorResponse
 
-func (response ItemDelete401Response) VisitItemDeleteResponse(w http.ResponseWriter) error {
+func (response ModelFilter401Response) VisitModelFilterResponse(w http.ResponseWriter) error {
 	w.WriteHeader(401)
 	return nil
 }
 
-type ItemDelete404Response struct {
+type ModelFilter404Response struct {
 }
 
-func (response ItemDelete404Response) VisitItemDeleteResponse(w http.ResponseWriter) error {
+func (response ModelFilter404Response) VisitModelFilterResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
 
-type ItemGetRequestObject struct {
-	ItemId ItemIdParam `json:"itemId"`
-	Params ItemGetParams
+type ModelFilter500Response struct {
 }
 
-type ItemGetResponseObject interface {
-	VisitItemGetResponse(w http.ResponseWriter) error
-}
-
-type ItemGet200JSONResponse VersionedItem
-
-func (response ItemGet200JSONResponse) VisitItemGetResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ItemGet400Response struct {
-}
-
-func (response ItemGet400Response) VisitItemGetResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ItemGet401Response = UnauthorizedErrorResponse
-
-func (response ItemGet401Response) VisitItemGetResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ItemGet404Response struct {
-}
-
-func (response ItemGet404Response) VisitItemGetResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type ItemGet500Response struct {
-}
-
-func (response ItemGet500Response) VisitItemGetResponse(w http.ResponseWriter) error {
+func (response ModelFilter500Response) VisitModelFilterResponse(w http.ResponseWriter) error {
 	w.WriteHeader(500)
 	return nil
 }
 
-type ItemUpdateRequestObject struct {
-	ItemId ItemIdParam `json:"itemId"`
-	Body   *ItemUpdateJSONRequestBody
+type ModelCreateRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	Params             ModelCreateParams
+	Body               *ModelCreateJSONRequestBody
 }
 
-type ItemUpdateResponseObject interface {
-	VisitItemUpdateResponse(w http.ResponseWriter) error
+type ModelCreateResponseObject interface {
+	VisitModelCreateResponse(w http.ResponseWriter) error
 }
 
-type ItemUpdate200JSONResponse VersionedItem
+type ModelCreate200JSONResponse Model
 
-func (response ItemUpdate200JSONResponse) VisitItemUpdateResponse(w http.ResponseWriter) error {
+func (response ModelCreate200JSONResponse) VisitModelCreateResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type ItemUpdate400Response struct {
+type ModelCreate400Response struct {
 }
 
-func (response ItemUpdate400Response) VisitItemUpdateResponse(w http.ResponseWriter) error {
+func (response ModelCreate400Response) VisitModelCreateResponse(w http.ResponseWriter) error {
 	w.WriteHeader(400)
 	return nil
 }
 
-type ItemUpdate401Response = UnauthorizedErrorResponse
+type ModelCreate401Response = UnauthorizedErrorResponse
 
-func (response ItemUpdate401Response) VisitItemUpdateResponse(w http.ResponseWriter) error {
+func (response ModelCreate401Response) VisitModelCreateResponse(w http.ResponseWriter) error {
 	w.WriteHeader(401)
-	return nil
-}
-
-type ItemUpdate404Response struct {
-}
-
-func (response ItemUpdate404Response) VisitItemUpdateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type ItemUpdate500Response struct {
-}
-
-func (response ItemUpdate500Response) VisitItemUpdateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type ItemCommentListRequestObject struct {
-	ItemId ItemIdParam `json:"itemId"`
-}
-
-type ItemCommentListResponseObject interface {
-	VisitItemCommentListResponse(w http.ResponseWriter) error
-}
-
-type ItemCommentList200JSONResponse struct {
-	Comments *[]Comment `json:"comments,omitempty"`
-}
-
-func (response ItemCommentList200JSONResponse) VisitItemCommentListResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ItemCommentList400Response struct {
-}
-
-func (response ItemCommentList400Response) VisitItemCommentListResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ItemCommentList401Response = UnauthorizedErrorResponse
-
-func (response ItemCommentList401Response) VisitItemCommentListResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ItemCommentList404Response struct {
-}
-
-func (response ItemCommentList404Response) VisitItemCommentListResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type ItemCommentCreateRequestObject struct {
-	ItemId ItemIdParam `json:"itemId"`
-	Body   *ItemCommentCreateJSONRequestBody
-}
-
-type ItemCommentCreateResponseObject interface {
-	VisitItemCommentCreateResponse(w http.ResponseWriter) error
-}
-
-type ItemCommentCreate200JSONResponse Comment
-
-func (response ItemCommentCreate200JSONResponse) VisitItemCommentCreateResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ItemCommentCreate400Response struct {
-}
-
-func (response ItemCommentCreate400Response) VisitItemCommentCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ItemCommentCreate401Response = UnauthorizedErrorResponse
-
-func (response ItemCommentCreate401Response) VisitItemCommentCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ItemCommentCreate404Response struct {
-}
-
-func (response ItemCommentCreate404Response) VisitItemCommentCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type ItemCommentDeleteRequestObject struct {
-	ItemId    ItemIdParam    `json:"itemId"`
-	CommentId CommentIdParam `json:"commentId"`
-}
-
-type ItemCommentDeleteResponseObject interface {
-	VisitItemCommentDeleteResponse(w http.ResponseWriter) error
-}
-
-type ItemCommentDelete200JSONResponse struct {
-	Id *id.CommentID `json:"id,omitempty"`
-}
-
-func (response ItemCommentDelete200JSONResponse) VisitItemCommentDeleteResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ItemCommentDelete400Response struct {
-}
-
-func (response ItemCommentDelete400Response) VisitItemCommentDeleteResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ItemCommentDelete401Response = UnauthorizedErrorResponse
-
-func (response ItemCommentDelete401Response) VisitItemCommentDeleteResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ItemCommentDelete404Response struct {
-}
-
-func (response ItemCommentDelete404Response) VisitItemCommentDeleteResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type ItemCommentUpdateRequestObject struct {
-	ItemId    ItemIdParam    `json:"itemId"`
-	CommentId CommentIdParam `json:"commentId"`
-	Body      *ItemCommentUpdateJSONRequestBody
-}
-
-type ItemCommentUpdateResponseObject interface {
-	VisitItemCommentUpdateResponse(w http.ResponseWriter) error
-}
-
-type ItemCommentUpdate200JSONResponse Comment
-
-func (response ItemCommentUpdate200JSONResponse) VisitItemCommentUpdateResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ItemCommentUpdate400Response struct {
-}
-
-func (response ItemCommentUpdate400Response) VisitItemCommentUpdateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ItemCommentUpdate401Response = UnauthorizedErrorResponse
-
-func (response ItemCommentUpdate401Response) VisitItemCommentUpdateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ItemCommentUpdate404Response struct {
-}
-
-func (response ItemCommentUpdate404Response) VisitItemCommentUpdateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type ItemPublishRequestObject struct {
-	ItemId ItemIdParam `json:"itemId"`
-	Params ItemPublishParams
-}
-
-type ItemPublishResponseObject interface {
-	VisitItemPublishResponse(w http.ResponseWriter) error
-}
-
-type ItemPublish200JSONResponse VersionedItem
-
-func (response ItemPublish200JSONResponse) VisitItemPublishResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ItemPublish400Response struct {
-}
-
-func (response ItemPublish400Response) VisitItemPublishResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ItemPublish401Response = UnauthorizedErrorResponse
-
-func (response ItemPublish401Response) VisitItemPublishResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ItemPublish404Response struct {
-}
-
-func (response ItemPublish404Response) VisitItemPublishResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
 	return nil
 }
 
 type ModelDeleteRequestObject struct {
-	ModelId ModelIdParam `json:"modelId"`
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	ModelIdOrKey       ModelIdOrKeyParam       `json:"modelIdOrKey"`
 }
 
 type ModelDeleteResponseObject interface {
@@ -3143,7 +3414,7 @@ type ModelDeleteResponseObject interface {
 }
 
 type ModelDelete200JSONResponse struct {
-	Id *id.ModelID `json:"id,omitempty"`
+	Id id.ModelID `json:"id"`
 }
 
 func (response ModelDelete200JSONResponse) VisitModelDeleteResponse(w http.ResponseWriter) error {
@@ -3168,8 +3439,26 @@ func (response ModelDelete401Response) VisitModelDeleteResponse(w http.ResponseW
 	return nil
 }
 
+type ModelDelete404Response struct {
+}
+
+func (response ModelDelete404Response) VisitModelDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ModelDelete500Response struct {
+}
+
+func (response ModelDelete500Response) VisitModelDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
 type ModelGetRequestObject struct {
-	ModelId ModelIdParam `json:"modelId"`
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	ModelIdOrKey       ModelIdOrKeyParam       `json:"modelIdOrKey"`
 }
 
 type ModelGetResponseObject interface {
@@ -3217,8 +3506,10 @@ func (response ModelGet500Response) VisitModelGetResponse(w http.ResponseWriter)
 }
 
 type ModelUpdateRequestObject struct {
-	ModelId ModelIdParam `json:"modelId"`
-	Body    *ModelUpdateJSONRequestBody
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	ModelIdOrKey       ModelIdOrKeyParam       `json:"modelIdOrKey"`
+	Body               *ModelUpdateJSONRequestBody
 }
 
 type ModelUpdateResponseObject interface {
@@ -3249,58 +3540,78 @@ func (response ModelUpdate401Response) VisitModelUpdateResponse(w http.ResponseW
 	return nil
 }
 
-type CopyModelRequestObject struct {
-	ModelId ModelIdParam `json:"modelId"`
-	Body    *CopyModelJSONRequestBody
+type ModelUpdate404Response struct {
 }
 
-type CopyModelResponseObject interface {
-	VisitCopyModelResponse(w http.ResponseWriter) error
+func (response ModelUpdate404Response) VisitModelUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
 }
 
-type CopyModel200JSONResponse Model
+type ModelUpdate500Response struct {
+}
 
-func (response CopyModel200JSONResponse) VisitCopyModelResponse(w http.ResponseWriter) error {
+func (response ModelUpdate500Response) VisitModelUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type ModelCopyRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	ModelIdOrKey       ModelIdOrKeyParam       `json:"modelIdOrKey"`
+	Body               *ModelCopyJSONRequestBody
+}
+
+type ModelCopyResponseObject interface {
+	VisitModelCopyResponse(w http.ResponseWriter) error
+}
+
+type ModelCopy200JSONResponse Model
+
+func (response ModelCopy200JSONResponse) VisitModelCopyResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 
 	return json.NewEncoder(w).Encode(response)
 }
 
-type CopyModel400Response struct {
+type ModelCopy400Response struct {
 }
 
-func (response CopyModel400Response) VisitCopyModelResponse(w http.ResponseWriter) error {
+func (response ModelCopy400Response) VisitModelCopyResponse(w http.ResponseWriter) error {
 	w.WriteHeader(400)
 	return nil
 }
 
-type CopyModel401Response = UnauthorizedErrorResponse
+type ModelCopy401Response = UnauthorizedErrorResponse
 
-func (response CopyModel401Response) VisitCopyModelResponse(w http.ResponseWriter) error {
+func (response ModelCopy401Response) VisitModelCopyResponse(w http.ResponseWriter) error {
 	w.WriteHeader(401)
 	return nil
 }
 
-type CopyModel404Response = NotFoundErrorResponse
+type ModelCopy404Response = NotFoundErrorResponse
 
-func (response CopyModel404Response) VisitCopyModelResponse(w http.ResponseWriter) error {
+func (response ModelCopy404Response) VisitModelCopyResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
 	return nil
 }
 
-type CopyModel500Response struct {
+type ModelCopy500Response struct {
 }
 
-func (response CopyModel500Response) VisitCopyModelResponse(w http.ResponseWriter) error {
+func (response ModelCopy500Response) VisitModelCopyResponse(w http.ResponseWriter) error {
 	w.WriteHeader(500)
 	return nil
 }
 
 type ModelImportRequestObject struct {
-	ModelId       ModelIdParam `json:"modelId"`
-	JSONBody      *ModelImportJSONRequestBody
-	MultipartBody *multipart.Reader
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	ModelIdOrKey       ModelIdOrKeyParam       `json:"modelIdOrKey"`
+	JSONBody           *ModelImportJSONRequestBody
+	MultipartBody      *multipart.Reader
 }
 
 type ModelImportResponseObject interface {
@@ -3338,6 +3649,14 @@ func (response ModelImport401Response) VisitModelImportResponse(w http.ResponseW
 	return nil
 }
 
+type ModelImport404Response struct {
+}
+
+func (response ModelImport404Response) VisitModelImportResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type ModelImport500Response struct {
 }
 
@@ -3347,9 +3666,11 @@ func (response ModelImport500Response) VisitModelImportResponse(w http.ResponseW
 }
 
 type ItemFilterRequestObject struct {
-	ModelId ModelIdParam `json:"modelId"`
-	Params  ItemFilterParams
-	Body    *ItemFilterJSONRequestBody
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	ModelIdOrKey       ModelIdOrKeyParam       `json:"modelIdOrKey"`
+	Params             ItemFilterParams
+	Body               *ItemFilterJSONRequestBody
 }
 
 type ItemFilterResponseObject interface {
@@ -3402,8 +3723,10 @@ func (response ItemFilter500Response) VisitItemFilterResponse(w http.ResponseWri
 }
 
 type ItemCreateRequestObject struct {
-	ModelId ModelIdParam `json:"modelId"`
-	Body    *ItemCreateJSONRequestBody
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	ModelIdOrKey       ModelIdOrKeyParam       `json:"modelIdOrKey"`
+	Body               *ItemCreateJSONRequestBody
 }
 
 type ItemCreateResponseObject interface {
@@ -3434,9 +3757,19 @@ func (response ItemCreate401Response) VisitItemCreateResponse(w http.ResponseWri
 	return nil
 }
 
+type ItemCreate404Response struct {
+}
+
+func (response ItemCreate404Response) VisitItemCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type ItemsAsCSVRequestObject struct {
-	ModelId ModelIdParam `json:"modelId"`
-	Params  ItemsAsCSVParams
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	ModelIdOrKey       ModelIdOrKeyParam       `json:"modelIdOrKey"`
+	Params             ItemsAsCSVParams
 }
 
 type ItemsAsCSVResponseObject interface {
@@ -3494,8 +3827,10 @@ func (response ItemsAsCSV500Response) VisitItemsAsCSVResponse(w http.ResponseWri
 }
 
 type ItemsAsGeoJSONRequestObject struct {
-	ModelId ModelIdParam `json:"modelId"`
-	Params  ItemsAsGeoJSONParams
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	ModelIdOrKey       ModelIdOrKeyParam       `json:"modelIdOrKey"`
+	Params             ItemsAsGeoJSONParams
 }
 
 type ItemsAsGeoJSONResponseObject interface {
@@ -3552,8 +3887,383 @@ func (response ItemsAsGeoJSON500Response) VisitItemsAsGeoJSONResponse(w http.Res
 	return nil
 }
 
+type ItemDeleteRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	ModelIdOrKey       ModelIdOrKeyParam       `json:"modelIdOrKey"`
+	ItemId             ItemIdParam             `json:"itemId"`
+}
+
+type ItemDeleteResponseObject interface {
+	VisitItemDeleteResponse(w http.ResponseWriter) error
+}
+
+type ItemDelete200JSONResponse struct {
+	Id *id.ItemID `json:"id,omitempty"`
+}
+
+func (response ItemDelete200JSONResponse) VisitItemDeleteResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ItemDelete400Response struct {
+}
+
+func (response ItemDelete400Response) VisitItemDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ItemDelete401Response = UnauthorizedErrorResponse
+
+func (response ItemDelete401Response) VisitItemDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ItemDelete404Response struct {
+}
+
+func (response ItemDelete404Response) VisitItemDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ItemGetRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	ModelIdOrKey       ModelIdOrKeyParam       `json:"modelIdOrKey"`
+	ItemId             ItemIdParam             `json:"itemId"`
+	Params             ItemGetParams
+}
+
+type ItemGetResponseObject interface {
+	VisitItemGetResponse(w http.ResponseWriter) error
+}
+
+type ItemGet200JSONResponse VersionedItem
+
+func (response ItemGet200JSONResponse) VisitItemGetResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ItemGet400Response struct {
+}
+
+func (response ItemGet400Response) VisitItemGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ItemGet401Response = UnauthorizedErrorResponse
+
+func (response ItemGet401Response) VisitItemGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ItemGet404Response struct {
+}
+
+func (response ItemGet404Response) VisitItemGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ItemGet500Response struct {
+}
+
+func (response ItemGet500Response) VisitItemGetResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type ItemUpdateRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	ModelIdOrKey       ModelIdOrKeyParam       `json:"modelIdOrKey"`
+	ItemId             ItemIdParam             `json:"itemId"`
+	Body               *ItemUpdateJSONRequestBody
+}
+
+type ItemUpdateResponseObject interface {
+	VisitItemUpdateResponse(w http.ResponseWriter) error
+}
+
+type ItemUpdate200JSONResponse VersionedItem
+
+func (response ItemUpdate200JSONResponse) VisitItemUpdateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ItemUpdate400Response struct {
+}
+
+func (response ItemUpdate400Response) VisitItemUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ItemUpdate401Response = UnauthorizedErrorResponse
+
+func (response ItemUpdate401Response) VisitItemUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ItemUpdate404Response struct {
+}
+
+func (response ItemUpdate404Response) VisitItemUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ItemUpdate500Response struct {
+}
+
+func (response ItemUpdate500Response) VisitItemUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
+type ItemCommentListRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	ModelIdOrKey       ModelIdOrKeyParam       `json:"modelIdOrKey"`
+	ItemId             ItemIdParam             `json:"itemId"`
+}
+
+type ItemCommentListResponseObject interface {
+	VisitItemCommentListResponse(w http.ResponseWriter) error
+}
+
+type ItemCommentList200JSONResponse struct {
+	Comments *[]Comment `json:"comments,omitempty"`
+}
+
+func (response ItemCommentList200JSONResponse) VisitItemCommentListResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ItemCommentList400Response struct {
+}
+
+func (response ItemCommentList400Response) VisitItemCommentListResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ItemCommentList401Response = UnauthorizedErrorResponse
+
+func (response ItemCommentList401Response) VisitItemCommentListResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ItemCommentList404Response struct {
+}
+
+func (response ItemCommentList404Response) VisitItemCommentListResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ItemCommentCreateRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	ModelIdOrKey       ModelIdOrKeyParam       `json:"modelIdOrKey"`
+	ItemId             ItemIdParam             `json:"itemId"`
+	Body               *ItemCommentCreateJSONRequestBody
+}
+
+type ItemCommentCreateResponseObject interface {
+	VisitItemCommentCreateResponse(w http.ResponseWriter) error
+}
+
+type ItemCommentCreate200JSONResponse Comment
+
+func (response ItemCommentCreate200JSONResponse) VisitItemCommentCreateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ItemCommentCreate400Response struct {
+}
+
+func (response ItemCommentCreate400Response) VisitItemCommentCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ItemCommentCreate401Response = UnauthorizedErrorResponse
+
+func (response ItemCommentCreate401Response) VisitItemCommentCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ItemCommentCreate404Response struct {
+}
+
+func (response ItemCommentCreate404Response) VisitItemCommentCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ItemCommentDeleteRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	ModelIdOrKey       ModelIdOrKeyParam       `json:"modelIdOrKey"`
+	ItemId             ItemIdParam             `json:"itemId"`
+	CommentId          CommentIdParam          `json:"commentId"`
+}
+
+type ItemCommentDeleteResponseObject interface {
+	VisitItemCommentDeleteResponse(w http.ResponseWriter) error
+}
+
+type ItemCommentDelete200JSONResponse struct {
+	Id *id.CommentID `json:"id,omitempty"`
+}
+
+func (response ItemCommentDelete200JSONResponse) VisitItemCommentDeleteResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ItemCommentDelete400Response struct {
+}
+
+func (response ItemCommentDelete400Response) VisitItemCommentDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ItemCommentDelete401Response = UnauthorizedErrorResponse
+
+func (response ItemCommentDelete401Response) VisitItemCommentDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ItemCommentDelete404Response struct {
+}
+
+func (response ItemCommentDelete404Response) VisitItemCommentDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ItemCommentUpdateRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	ModelIdOrKey       ModelIdOrKeyParam       `json:"modelIdOrKey"`
+	ItemId             ItemIdParam             `json:"itemId"`
+	CommentId          CommentIdParam          `json:"commentId"`
+	Body               *ItemCommentUpdateJSONRequestBody
+}
+
+type ItemCommentUpdateResponseObject interface {
+	VisitItemCommentUpdateResponse(w http.ResponseWriter) error
+}
+
+type ItemCommentUpdate200JSONResponse Comment
+
+func (response ItemCommentUpdate200JSONResponse) VisitItemCommentUpdateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ItemCommentUpdate400Response struct {
+}
+
+func (response ItemCommentUpdate400Response) VisitItemCommentUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ItemCommentUpdate401Response = UnauthorizedErrorResponse
+
+func (response ItemCommentUpdate401Response) VisitItemCommentUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ItemCommentUpdate404Response struct {
+}
+
+func (response ItemCommentUpdate404Response) VisitItemCommentUpdateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
+type ItemPublishRequestObject struct {
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	ModelIdOrKey       ModelIdOrKeyParam       `json:"modelIdOrKey"`
+	ItemId             ItemIdParam             `json:"itemId"`
+	Params             ItemPublishParams
+}
+
+type ItemPublishResponseObject interface {
+	VisitItemPublishResponse(w http.ResponseWriter) error
+}
+
+type ItemPublish200JSONResponse VersionedItem
+
+func (response ItemPublish200JSONResponse) VisitItemPublishResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ItemPublish400Response struct {
+}
+
+func (response ItemPublish400Response) VisitItemPublishResponse(w http.ResponseWriter) error {
+	w.WriteHeader(400)
+	return nil
+}
+
+type ItemPublish401Response = UnauthorizedErrorResponse
+
+func (response ItemPublish401Response) VisitItemPublishResponse(w http.ResponseWriter) error {
+	w.WriteHeader(401)
+	return nil
+}
+
+type ItemPublish404Response struct {
+}
+
+func (response ItemPublish404Response) VisitItemPublishResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type MetadataSchemaByModelAsJSONRequestObject struct {
-	ModelId ModelIdParam `json:"modelId"`
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	ModelIdOrKey       ModelIdOrKeyParam       `json:"modelIdOrKey"`
 }
 
 type MetadataSchemaByModelAsJSONResponseObject interface {
@@ -3601,7 +4311,9 @@ func (response MetadataSchemaByModelAsJSON500Response) VisitMetadataSchemaByMode
 }
 
 type SchemaByModelAsJSONRequestObject struct {
-	ModelId ModelIdParam `json:"modelId"`
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	ModelIdOrKey       ModelIdOrKeyParam       `json:"modelIdOrKey"`
 }
 
 type SchemaByModelAsJSONResponseObject interface {
@@ -3648,1150 +4360,11 @@ func (response SchemaByModelAsJSON500Response) VisitSchemaByModelAsJSONResponse(
 	return nil
 }
 
-type GroupFilterRequestObject struct {
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	Params           GroupFilterParams
-}
-
-type GroupFilterResponseObject interface {
-	VisitGroupFilterResponse(w http.ResponseWriter) error
-}
-
-type GroupFilter200JSONResponse struct {
-	Groups     *[]Group `json:"groups,omitempty"`
-	Page       *int     `json:"page,omitempty"`
-	PerPage    *int     `json:"perPage,omitempty"`
-	TotalCount *int     `json:"totalCount,omitempty"`
-}
-
-func (response GroupFilter200JSONResponse) VisitGroupFilterResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GroupFilter400Response struct {
-}
-
-func (response GroupFilter400Response) VisitGroupFilterResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type GroupFilter401Response = UnauthorizedErrorResponse
-
-func (response GroupFilter401Response) VisitGroupFilterResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type GroupFilter404Response struct {
-}
-
-func (response GroupFilter404Response) VisitGroupFilterResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type GroupFilter500Response struct {
-}
-
-func (response GroupFilter500Response) VisitGroupFilterResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type GroupCreateRequestObject struct {
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	Params           GroupCreateParams
-	Body             *GroupCreateJSONRequestBody
-}
-
-type GroupCreateResponseObject interface {
-	VisitGroupCreateResponse(w http.ResponseWriter) error
-}
-
-type GroupCreate201JSONResponse Group
-
-func (response GroupCreate201JSONResponse) VisitGroupCreateResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(201)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GroupCreate400Response struct {
-}
-
-func (response GroupCreate400Response) VisitGroupCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type GroupCreate401Response = UnauthorizedErrorResponse
-
-func (response GroupCreate401Response) VisitGroupCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type GroupCreate500Response struct {
-}
-
-func (response GroupCreate500Response) VisitGroupCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type GroupDeleteWithProjectRequestObject struct {
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	GroupIdOrKey     GroupIdOrKeyParam     `json:"groupIdOrKey"`
-}
-
-type GroupDeleteWithProjectResponseObject interface {
-	VisitGroupDeleteWithProjectResponse(w http.ResponseWriter) error
-}
-
-type GroupDeleteWithProject200JSONResponse struct {
-	Id *id.GroupID `json:"id,omitempty"`
-}
-
-func (response GroupDeleteWithProject200JSONResponse) VisitGroupDeleteWithProjectResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GroupDeleteWithProject400Response struct {
-}
-
-func (response GroupDeleteWithProject400Response) VisitGroupDeleteWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type GroupDeleteWithProject401Response = UnauthorizedErrorResponse
-
-func (response GroupDeleteWithProject401Response) VisitGroupDeleteWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type GroupDeleteWithProject404Response struct {
-}
-
-func (response GroupDeleteWithProject404Response) VisitGroupDeleteWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type GroupDeleteWithProject500Response struct {
-}
-
-func (response GroupDeleteWithProject500Response) VisitGroupDeleteWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type GroupGetWithProjectRequestObject struct {
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	GroupIdOrKey     GroupIdOrKeyParam     `json:"groupIdOrKey"`
-}
-
-type GroupGetWithProjectResponseObject interface {
-	VisitGroupGetWithProjectResponse(w http.ResponseWriter) error
-}
-
-type GroupGetWithProject200JSONResponse Group
-
-func (response GroupGetWithProject200JSONResponse) VisitGroupGetWithProjectResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GroupGetWithProject400Response struct {
-}
-
-func (response GroupGetWithProject400Response) VisitGroupGetWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type GroupGetWithProject401Response = UnauthorizedErrorResponse
-
-func (response GroupGetWithProject401Response) VisitGroupGetWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type GroupGetWithProject404Response struct {
-}
-
-func (response GroupGetWithProject404Response) VisitGroupGetWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type GroupGetWithProject500Response struct {
-}
-
-func (response GroupGetWithProject500Response) VisitGroupGetWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type GroupUpdateWithProjectRequestObject struct {
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	GroupIdOrKey     GroupIdOrKeyParam     `json:"groupIdOrKey"`
-	Body             *GroupUpdateWithProjectJSONRequestBody
-}
-
-type GroupUpdateWithProjectResponseObject interface {
-	VisitGroupUpdateWithProjectResponse(w http.ResponseWriter) error
-}
-
-type GroupUpdateWithProject200JSONResponse Group
-
-func (response GroupUpdateWithProject200JSONResponse) VisitGroupUpdateWithProjectResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type GroupUpdateWithProject400Response struct {
-}
-
-func (response GroupUpdateWithProject400Response) VisitGroupUpdateWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type GroupUpdateWithProject401Response = UnauthorizedErrorResponse
-
-func (response GroupUpdateWithProject401Response) VisitGroupUpdateWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type GroupUpdateWithProject404Response struct {
-}
-
-func (response GroupUpdateWithProject404Response) VisitGroupUpdateWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type GroupUpdateWithProject500Response struct {
-}
-
-func (response GroupUpdateWithProject500Response) VisitGroupUpdateWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type ModelFilterRequestObject struct {
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	Params           ModelFilterParams
-}
-
-type ModelFilterResponseObject interface {
-	VisitModelFilterResponse(w http.ResponseWriter) error
-}
-
-type ModelFilter200JSONResponse struct {
-	Models     *[]Model `json:"models,omitempty"`
-	Page       *int     `json:"page,omitempty"`
-	PerPage    *int     `json:"perPage,omitempty"`
-	TotalCount *int     `json:"totalCount,omitempty"`
-}
-
-func (response ModelFilter200JSONResponse) VisitModelFilterResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ModelFilter400Response struct {
-}
-
-func (response ModelFilter400Response) VisitModelFilterResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ModelFilter401Response = UnauthorizedErrorResponse
-
-func (response ModelFilter401Response) VisitModelFilterResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ModelFilter404Response struct {
-}
-
-func (response ModelFilter404Response) VisitModelFilterResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type ModelFilter500Response struct {
-}
-
-func (response ModelFilter500Response) VisitModelFilterResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type ModelCreateRequestObject struct {
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	Params           ModelCreateParams
-	Body             *ModelCreateJSONRequestBody
-}
-
-type ModelCreateResponseObject interface {
-	VisitModelCreateResponse(w http.ResponseWriter) error
-}
-
-type ModelCreate200JSONResponse Model
-
-func (response ModelCreate200JSONResponse) VisitModelCreateResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ModelCreate400Response struct {
-}
-
-func (response ModelCreate400Response) VisitModelCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ModelCreate401Response = UnauthorizedErrorResponse
-
-func (response ModelCreate401Response) VisitModelCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ModelDeleteWithProjectRequestObject struct {
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	ModelIdOrKey     ModelIdOrKeyParam     `json:"modelIdOrKey"`
-}
-
-type ModelDeleteWithProjectResponseObject interface {
-	VisitModelDeleteWithProjectResponse(w http.ResponseWriter) error
-}
-
-type ModelDeleteWithProject200JSONResponse struct {
-	Id *id.ModelID `json:"id,omitempty"`
-}
-
-func (response ModelDeleteWithProject200JSONResponse) VisitModelDeleteWithProjectResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ModelDeleteWithProject400Response struct {
-}
-
-func (response ModelDeleteWithProject400Response) VisitModelDeleteWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ModelDeleteWithProject401Response = UnauthorizedErrorResponse
-
-func (response ModelDeleteWithProject401Response) VisitModelDeleteWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ModelDeleteWithProject404Response struct {
-}
-
-func (response ModelDeleteWithProject404Response) VisitModelDeleteWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type ModelDeleteWithProject500Response struct {
-}
-
-func (response ModelDeleteWithProject500Response) VisitModelDeleteWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type ModelGetWithProjectRequestObject struct {
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	ModelIdOrKey     ModelIdOrKeyParam     `json:"modelIdOrKey"`
-}
-
-type ModelGetWithProjectResponseObject interface {
-	VisitModelGetWithProjectResponse(w http.ResponseWriter) error
-}
-
-type ModelGetWithProject200JSONResponse Model
-
-func (response ModelGetWithProject200JSONResponse) VisitModelGetWithProjectResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ModelGetWithProject400Response struct {
-}
-
-func (response ModelGetWithProject400Response) VisitModelGetWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ModelGetWithProject401Response = UnauthorizedErrorResponse
-
-func (response ModelGetWithProject401Response) VisitModelGetWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ModelGetWithProject404Response struct {
-}
-
-func (response ModelGetWithProject404Response) VisitModelGetWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type ModelGetWithProject500Response struct {
-}
-
-func (response ModelGetWithProject500Response) VisitModelGetWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type ModelUpdateWithProjectRequestObject struct {
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	ModelIdOrKey     ModelIdOrKeyParam     `json:"modelIdOrKey"`
-	Body             *ModelUpdateWithProjectJSONRequestBody
-}
-
-type ModelUpdateWithProjectResponseObject interface {
-	VisitModelUpdateWithProjectResponse(w http.ResponseWriter) error
-}
-
-type ModelUpdateWithProject200JSONResponse Model
-
-func (response ModelUpdateWithProject200JSONResponse) VisitModelUpdateWithProjectResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ModelUpdateWithProject400Response struct {
-}
-
-func (response ModelUpdateWithProject400Response) VisitModelUpdateWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ModelUpdateWithProject401Response = UnauthorizedErrorResponse
-
-func (response ModelUpdateWithProject401Response) VisitModelUpdateWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ModelUpdateWithProject404Response struct {
-}
-
-func (response ModelUpdateWithProject404Response) VisitModelUpdateWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type ModelUpdateWithProject500Response struct {
-}
-
-func (response ModelUpdateWithProject500Response) VisitModelUpdateWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type FieldCreateWithProjectRequestObject struct {
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	ModelIdOrKey     ModelIdOrKeyParam     `json:"modelIdOrKey"`
-	Body             *FieldCreateWithProjectJSONRequestBody
-}
-
-type FieldCreateWithProjectResponseObject interface {
-	VisitFieldCreateWithProjectResponse(w http.ResponseWriter) error
-}
-
-type FieldCreateWithProject200JSONResponse SchemaField
-
-func (response FieldCreateWithProject200JSONResponse) VisitFieldCreateWithProjectResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type FieldCreateWithProject400Response struct {
-}
-
-func (response FieldCreateWithProject400Response) VisitFieldCreateWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type FieldCreateWithProject401Response = UnauthorizedErrorResponse
-
-func (response FieldCreateWithProject401Response) VisitFieldCreateWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type FieldDeleteWithProjectRequestObject struct {
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	ModelIdOrKey     ModelIdOrKeyParam     `json:"modelIdOrKey"`
-	FieldIdOrKey     FieldIdOrKeyParam     `json:"fieldIdOrKey"`
-}
-
-type FieldDeleteWithProjectResponseObject interface {
-	VisitFieldDeleteWithProjectResponse(w http.ResponseWriter) error
-}
-
-type FieldDeleteWithProject200JSONResponse struct {
-	Id *id.FieldID `json:"id,omitempty"`
-}
-
-func (response FieldDeleteWithProject200JSONResponse) VisitFieldDeleteWithProjectResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type FieldDeleteWithProject400Response struct {
-}
-
-func (response FieldDeleteWithProject400Response) VisitFieldDeleteWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type FieldDeleteWithProject401Response = UnauthorizedErrorResponse
-
-func (response FieldDeleteWithProject401Response) VisitFieldDeleteWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type FieldDeleteWithProject404Response struct {
-}
-
-func (response FieldDeleteWithProject404Response) VisitFieldDeleteWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type FieldDeleteWithProject500Response struct {
-}
-
-func (response FieldDeleteWithProject500Response) VisitFieldDeleteWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type FieldUpdateWithProjectRequestObject struct {
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	ModelIdOrKey     ModelIdOrKeyParam     `json:"modelIdOrKey"`
-	FieldIdOrKey     FieldIdOrKeyParam     `json:"fieldIdOrKey"`
-	Body             *FieldUpdateWithProjectJSONRequestBody
-}
-
-type FieldUpdateWithProjectResponseObject interface {
-	VisitFieldUpdateWithProjectResponse(w http.ResponseWriter) error
-}
-
-type FieldUpdateWithProject200JSONResponse SchemaField
-
-func (response FieldUpdateWithProject200JSONResponse) VisitFieldUpdateWithProjectResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type FieldUpdateWithProject400Response struct {
-}
-
-func (response FieldUpdateWithProject400Response) VisitFieldUpdateWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type FieldUpdateWithProject401Response = UnauthorizedErrorResponse
-
-func (response FieldUpdateWithProject401Response) VisitFieldUpdateWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ItemFilterWithProjectRequestObject struct {
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	ModelIdOrKey     ModelIdOrKeyParam     `json:"modelIdOrKey"`
-	Params           ItemFilterWithProjectParams
-}
-
-type ItemFilterWithProjectResponseObject interface {
-	VisitItemFilterWithProjectResponse(w http.ResponseWriter) error
-}
-
-type ItemFilterWithProject200JSONResponse struct {
-	Items      *[]VersionedItem `json:"items,omitempty"`
-	Page       *int             `json:"page,omitempty"`
-	PerPage    *int             `json:"perPage,omitempty"`
-	TotalCount *int             `json:"totalCount,omitempty"`
-}
-
-func (response ItemFilterWithProject200JSONResponse) VisitItemFilterWithProjectResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ItemFilterWithProject400Response struct {
-}
-
-func (response ItemFilterWithProject400Response) VisitItemFilterWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ItemFilterWithProject401Response = UnauthorizedErrorResponse
-
-func (response ItemFilterWithProject401Response) VisitItemFilterWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ItemFilterWithProject404Response struct {
-}
-
-func (response ItemFilterWithProject404Response) VisitItemFilterWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type ItemFilterWithProject500Response struct {
-}
-
-func (response ItemFilterWithProject500Response) VisitItemFilterWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type ItemCreateWithProjectRequestObject struct {
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	ModelIdOrKey     ModelIdOrKeyParam     `json:"modelIdOrKey"`
-	Body             *ItemCreateWithProjectJSONRequestBody
-}
-
-type ItemCreateWithProjectResponseObject interface {
-	VisitItemCreateWithProjectResponse(w http.ResponseWriter) error
-}
-
-type ItemCreateWithProject200JSONResponse VersionedItem
-
-func (response ItemCreateWithProject200JSONResponse) VisitItemCreateWithProjectResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ItemCreateWithProject400Response struct {
-}
-
-func (response ItemCreateWithProject400Response) VisitItemCreateWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ItemCreateWithProject401Response = UnauthorizedErrorResponse
-
-func (response ItemCreateWithProject401Response) VisitItemCreateWithProjectResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ItemsWithProjectAsCSVRequestObject struct {
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	ModelIdOrKey     ModelIdOrKeyParam     `json:"modelIdOrKey"`
-	Params           ItemsWithProjectAsCSVParams
-}
-
-type ItemsWithProjectAsCSVResponseObject interface {
-	VisitItemsWithProjectAsCSVResponse(w http.ResponseWriter) error
-}
-
-type ItemsWithProjectAsCSV200TextcsvResponse struct {
-	Body          io.Reader
-	ContentLength int64
-}
-
-func (response ItemsWithProjectAsCSV200TextcsvResponse) VisitItemsWithProjectAsCSVResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "text/csv")
-	if response.ContentLength != 0 {
-		w.Header().Set("Content-Length", fmt.Sprint(response.ContentLength))
-	}
-	w.WriteHeader(200)
-
-	if closer, ok := response.Body.(io.ReadCloser); ok {
-		defer closer.Close()
-	}
-	_, err := io.Copy(w, response.Body)
-	return err
-}
-
-type ItemsWithProjectAsCSV400Response struct {
-}
-
-func (response ItemsWithProjectAsCSV400Response) VisitItemsWithProjectAsCSVResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ItemsWithProjectAsCSV401Response = UnauthorizedErrorResponse
-
-func (response ItemsWithProjectAsCSV401Response) VisitItemsWithProjectAsCSVResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ItemsWithProjectAsCSV404Response struct {
-}
-
-func (response ItemsWithProjectAsCSV404Response) VisitItemsWithProjectAsCSVResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type ItemsWithProjectAsCSV500Response struct {
-}
-
-func (response ItemsWithProjectAsCSV500Response) VisitItemsWithProjectAsCSVResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type ItemsWithProjectAsGeoJSONRequestObject struct {
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	ModelIdOrKey     ModelIdOrKeyParam     `json:"modelIdOrKey"`
-	Params           ItemsWithProjectAsGeoJSONParams
-}
-
-type ItemsWithProjectAsGeoJSONResponseObject interface {
-	VisitItemsWithProjectAsGeoJSONResponse(w http.ResponseWriter) error
-}
-
-type ItemsWithProjectAsGeoJSON200JSONResponse GeoJSON
-
-func (response ItemsWithProjectAsGeoJSON200JSONResponse) VisitItemsWithProjectAsGeoJSONResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ItemsWithProjectAsGeoJSON400Response struct {
-}
-
-func (response ItemsWithProjectAsGeoJSON400Response) VisitItemsWithProjectAsGeoJSONResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ItemsWithProjectAsGeoJSON401Response = UnauthorizedErrorResponse
-
-func (response ItemsWithProjectAsGeoJSON401Response) VisitItemsWithProjectAsGeoJSONResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ItemsWithProjectAsGeoJSON404Response struct {
-}
-
-func (response ItemsWithProjectAsGeoJSON404Response) VisitItemsWithProjectAsGeoJSONResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type ItemsWithProjectAsGeoJSON500Response struct {
-}
-
-func (response ItemsWithProjectAsGeoJSON500Response) VisitItemsWithProjectAsGeoJSONResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type MetadataSchemaByModelWithProjectAsJSONRequestObject struct {
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	ModelIdOrKey     ModelIdOrKeyParam     `json:"modelIdOrKey"`
-}
-
-type MetadataSchemaByModelWithProjectAsJSONResponseObject interface {
-	VisitMetadataSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error
-}
-
-type MetadataSchemaByModelWithProjectAsJSON200JSONResponse JSONSchema
-
-func (response MetadataSchemaByModelWithProjectAsJSON200JSONResponse) VisitMetadataSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type MetadataSchemaByModelWithProjectAsJSON400Response struct {
-}
-
-func (response MetadataSchemaByModelWithProjectAsJSON400Response) VisitMetadataSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type MetadataSchemaByModelWithProjectAsJSON401Response = UnauthorizedErrorResponse
-
-func (response MetadataSchemaByModelWithProjectAsJSON401Response) VisitMetadataSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type MetadataSchemaByModelWithProjectAsJSON404Response struct {
-}
-
-func (response MetadataSchemaByModelWithProjectAsJSON404Response) VisitMetadataSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type MetadataSchemaByModelWithProjectAsJSON500Response struct {
-}
-
-func (response MetadataSchemaByModelWithProjectAsJSON500Response) VisitMetadataSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type SchemaByModelWithProjectAsJSONRequestObject struct {
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	ModelIdOrKey     ModelIdOrKeyParam     `json:"modelIdOrKey"`
-}
-
-type SchemaByModelWithProjectAsJSONResponseObject interface {
-	VisitSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error
-}
-
-type SchemaByModelWithProjectAsJSON200JSONResponse JSONSchema
-
-func (response SchemaByModelWithProjectAsJSON200JSONResponse) VisitSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type SchemaByModelWithProjectAsJSON400Response struct {
-}
-
-func (response SchemaByModelWithProjectAsJSON400Response) VisitSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type SchemaByModelWithProjectAsJSON401Response = UnauthorizedErrorResponse
-
-func (response SchemaByModelWithProjectAsJSON401Response) VisitSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type SchemaByModelWithProjectAsJSON404Response struct {
-}
-
-func (response SchemaByModelWithProjectAsJSON404Response) VisitSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type SchemaByModelWithProjectAsJSON500Response struct {
-}
-
-func (response SchemaByModelWithProjectAsJSON500Response) VisitSchemaByModelWithProjectAsJSONResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type SchemaFilterRequestObject struct {
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	Params           SchemaFilterParams
-}
-
-type SchemaFilterResponseObject interface {
-	VisitSchemaFilterResponse(w http.ResponseWriter) error
-}
-
-type SchemaFilter200JSONResponse struct {
-	Models     *[]Model `json:"models,omitempty"`
-	Page       *int     `json:"page,omitempty"`
-	PerPage    *int     `json:"perPage,omitempty"`
-	TotalCount *int     `json:"totalCount,omitempty"`
-}
-
-func (response SchemaFilter200JSONResponse) VisitSchemaFilterResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type SchemaFilter400Response struct {
-}
-
-func (response SchemaFilter400Response) VisitSchemaFilterResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type SchemaFilter401Response = UnauthorizedErrorResponse
-
-func (response SchemaFilter401Response) VisitSchemaFilterResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type SchemaFilter404Response struct {
-}
-
-func (response SchemaFilter404Response) VisitSchemaFilterResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type SchemaFilter500Response struct {
-}
-
-func (response SchemaFilter500Response) VisitSchemaFilterResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type SchemaByIDWithProjectAsJSONRequestObject struct {
-	ProjectIdOrAlias ProjectIdOrAliasParam `json:"projectIdOrAlias"`
-	SchemaId         SchemaIdParam         `json:"schemaId"`
-}
-
-type SchemaByIDWithProjectAsJSONResponseObject interface {
-	VisitSchemaByIDWithProjectAsJSONResponse(w http.ResponseWriter) error
-}
-
-type SchemaByIDWithProjectAsJSON200JSONResponse JSONSchema
-
-func (response SchemaByIDWithProjectAsJSON200JSONResponse) VisitSchemaByIDWithProjectAsJSONResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type SchemaByIDWithProjectAsJSON400Response struct {
-}
-
-func (response SchemaByIDWithProjectAsJSON400Response) VisitSchemaByIDWithProjectAsJSONResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type SchemaByIDWithProjectAsJSON401Response = UnauthorizedErrorResponse
-
-func (response SchemaByIDWithProjectAsJSON401Response) VisitSchemaByIDWithProjectAsJSONResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type SchemaByIDWithProjectAsJSON404Response struct {
-}
-
-func (response SchemaByIDWithProjectAsJSON404Response) VisitSchemaByIDWithProjectAsJSONResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type SchemaByIDWithProjectAsJSON500Response struct {
-}
-
-func (response SchemaByIDWithProjectAsJSON500Response) VisitSchemaByIDWithProjectAsJSONResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type AssetFilterRequestObject struct {
-	ProjectId ProjectIdParam `json:"projectId"`
-	Params    AssetFilterParams
-}
-
-type AssetFilterResponseObject interface {
-	VisitAssetFilterResponse(w http.ResponseWriter) error
-}
-
-type AssetFilter200JSONResponse struct {
-	Items      *[]Asset `json:"items,omitempty"`
-	Page       *int     `json:"page,omitempty"`
-	PerPage    *int     `json:"perPage,omitempty"`
-	TotalCount *int     `json:"totalCount,omitempty"`
-}
-
-func (response AssetFilter200JSONResponse) VisitAssetFilterResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type AssetFilter400Response struct {
-}
-
-func (response AssetFilter400Response) VisitAssetFilterResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type AssetFilter401Response = UnauthorizedErrorResponse
-
-func (response AssetFilter401Response) VisitAssetFilterResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type AssetFilter404Response struct {
-}
-
-func (response AssetFilter404Response) VisitAssetFilterResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type AssetCreateRequestObject struct {
-	ProjectId     ProjectIdParam `json:"projectId"`
-	JSONBody      *AssetCreateJSONRequestBody
-	MultipartBody *multipart.Reader
-}
-
-type AssetCreateResponseObject interface {
-	VisitAssetCreateResponse(w http.ResponseWriter) error
-}
-
-type AssetCreate200JSONResponse Asset
-
-func (response AssetCreate200JSONResponse) VisitAssetCreateResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type AssetCreate400Response struct {
-}
-
-func (response AssetCreate400Response) VisitAssetCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type AssetCreate401Response = UnauthorizedErrorResponse
-
-func (response AssetCreate401Response) VisitAssetCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type AssetCreate404Response struct {
-}
-
-func (response AssetCreate404Response) VisitAssetCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type AssetUploadCreateRequestObject struct {
-	ProjectId ProjectIdParam `json:"projectId"`
-	Body      *AssetUploadCreateJSONRequestBody
-}
-
-type AssetUploadCreateResponseObject interface {
-	VisitAssetUploadCreateResponse(w http.ResponseWriter) error
-}
-
-type AssetUploadCreate200JSONResponse struct {
-	ContentEncoding *string `json:"contentEncoding,omitempty"`
-	ContentLength   *int    `json:"contentLength,omitempty"`
-	ContentType     *string `json:"contentType,omitempty"`
-	Next            *string `json:"next,omitempty"`
-	Token           *string `json:"token,omitempty"`
-	Url             *string `json:"url,omitempty"`
-}
-
-func (response AssetUploadCreate200JSONResponse) VisitAssetUploadCreateResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type AssetUploadCreate400Response struct {
-}
-
-func (response AssetUploadCreate400Response) VisitAssetUploadCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type AssetUploadCreate401Response = UnauthorizedErrorResponse
-
-func (response AssetUploadCreate401Response) VisitAssetUploadCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type AssetUploadCreate404Response struct {
-}
-
-func (response AssetUploadCreate404Response) VisitAssetUploadCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
 type FieldCreateRequestObject struct {
-	SchemaId SchemaIdParam `json:"schemaId"`
-	Body     *FieldCreateJSONRequestBody
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	SchemaId           SchemaIdParam           `json:"schemaId"`
+	Body               *FieldCreateJSONRequestBody
 }
 
 type FieldCreateResponseObject interface {
@@ -4822,9 +4395,19 @@ func (response FieldCreate401Response) VisitFieldCreateResponse(w http.ResponseW
 	return nil
 }
 
+type FieldCreate404Response struct {
+}
+
+func (response FieldCreate404Response) VisitFieldCreateResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type FieldDeleteRequestObject struct {
-	SchemaId     SchemaIdParam     `json:"schemaId"`
-	FieldIdOrKey FieldIdOrKeyParam `json:"fieldIdOrKey"`
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	SchemaId           SchemaIdParam           `json:"schemaId"`
+	FieldIdOrKey       FieldIdOrKeyParam       `json:"fieldIdOrKey"`
 }
 
 type FieldDeleteResponseObject interface {
@@ -4857,10 +4440,20 @@ func (response FieldDelete401Response) VisitFieldDeleteResponse(w http.ResponseW
 	return nil
 }
 
+type FieldDelete404Response struct {
+}
+
+func (response FieldDelete404Response) VisitFieldDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(404)
+	return nil
+}
+
 type FieldUpdateRequestObject struct {
-	SchemaId     SchemaIdParam     `json:"schemaId"`
-	FieldIdOrKey FieldIdOrKeyParam `json:"fieldIdOrKey"`
-	Body         *FieldUpdateJSONRequestBody
+	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
+	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
+	SchemaId           SchemaIdParam           `json:"schemaId"`
+	FieldIdOrKey       FieldIdOrKeyParam       `json:"fieldIdOrKey"`
+	Body               *FieldUpdateJSONRequestBody
 }
 
 type FieldUpdateResponseObject interface {
@@ -4891,504 +4484,157 @@ func (response FieldUpdate401Response) VisitFieldUpdateResponse(w http.ResponseW
 	return nil
 }
 
-type SchemaByIDAsJSONRequestObject struct {
-	SchemaId SchemaIdParam `json:"schemaId"`
+type FieldUpdate404Response struct {
 }
 
-type SchemaByIDAsJSONResponseObject interface {
-	VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error
-}
-
-type SchemaByIDAsJSON200JSONResponse JSONSchema
-
-func (response SchemaByIDAsJSON200JSONResponse) VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type SchemaByIDAsJSON400Response struct {
-}
-
-func (response SchemaByIDAsJSON400Response) VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type SchemaByIDAsJSON401Response = UnauthorizedErrorResponse
-
-func (response SchemaByIDAsJSON401Response) VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type SchemaByIDAsJSON404Response struct {
-}
-
-func (response SchemaByIDAsJSON404Response) VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error {
+func (response FieldUpdate404Response) VisitFieldUpdateResponse(w http.ResponseWriter) error {
 	w.WriteHeader(404)
-	return nil
-}
-
-type SchemaByIDAsJSON500Response struct {
-}
-
-func (response SchemaByIDAsJSON500Response) VisitSchemaByIDAsJSONResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type ProjectFilterRequestObject struct {
-	WorkspaceId WorkspaceIdParam `json:"workspaceId"`
-	Params      ProjectFilterParams
-}
-
-type ProjectFilterResponseObject interface {
-	VisitProjectFilterResponse(w http.ResponseWriter) error
-}
-
-type ProjectFilter200JSONResponse struct {
-	Page       *int       `json:"page,omitempty"`
-	PerPage    *int       `json:"perPage,omitempty"`
-	Projects   *[]Project `json:"projects,omitempty"`
-	TotalCount *int       `json:"totalCount,omitempty"`
-}
-
-func (response ProjectFilter200JSONResponse) VisitProjectFilterResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ProjectFilter400Response struct {
-}
-
-func (response ProjectFilter400Response) VisitProjectFilterResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ProjectFilter401Response = UnauthorizedErrorResponse
-
-func (response ProjectFilter401Response) VisitProjectFilterResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ProjectFilter404Response = NotFoundErrorResponse
-
-func (response ProjectFilter404Response) VisitProjectFilterResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type ProjectFilter500Response struct {
-}
-
-func (response ProjectFilter500Response) VisitProjectFilterResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type ProjectCreateRequestObject struct {
-	WorkspaceId WorkspaceIdParam `json:"workspaceId"`
-	Params      ProjectCreateParams
-	Body        *ProjectCreateJSONRequestBody
-}
-
-type ProjectCreateResponseObject interface {
-	VisitProjectCreateResponse(w http.ResponseWriter) error
-}
-
-type ProjectCreate201JSONResponse Project
-
-func (response ProjectCreate201JSONResponse) VisitProjectCreateResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(201)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ProjectCreate400Response struct {
-}
-
-func (response ProjectCreate400Response) VisitProjectCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ProjectCreate401Response = UnauthorizedErrorResponse
-
-func (response ProjectCreate401Response) VisitProjectCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ProjectCreate404Response struct {
-}
-
-func (response ProjectCreate404Response) VisitProjectCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type ProjectCreate500Response struct {
-}
-
-func (response ProjectCreate500Response) VisitProjectCreateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type ProjectDeleteRequestObject struct {
-	WorkspaceId WorkspaceIdParam `json:"workspaceId"`
-	ProjectId   ProjectIdParam   `json:"projectId"`
-}
-
-type ProjectDeleteResponseObject interface {
-	VisitProjectDeleteResponse(w http.ResponseWriter) error
-}
-
-type ProjectDelete200JSONResponse struct {
-	Id *id.ProjectID `json:"id,omitempty"`
-}
-
-func (response ProjectDelete200JSONResponse) VisitProjectDeleteResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ProjectDelete400Response struct {
-}
-
-func (response ProjectDelete400Response) VisitProjectDeleteResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ProjectDelete401Response = UnauthorizedErrorResponse
-
-func (response ProjectDelete401Response) VisitProjectDeleteResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ProjectDelete404Response struct {
-}
-
-func (response ProjectDelete404Response) VisitProjectDeleteResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type ProjectDelete500Response struct {
-}
-
-func (response ProjectDelete500Response) VisitProjectDeleteResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type ProjectGetRequestObject struct {
-	WorkspaceId WorkspaceIdParam `json:"workspaceId"`
-	ProjectId   ProjectIdParam   `json:"projectId"`
-}
-
-type ProjectGetResponseObject interface {
-	VisitProjectGetResponse(w http.ResponseWriter) error
-}
-
-type ProjectGet200JSONResponse Project
-
-func (response ProjectGet200JSONResponse) VisitProjectGetResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ProjectGet400Response struct {
-}
-
-func (response ProjectGet400Response) VisitProjectGetResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ProjectGet401Response = UnauthorizedErrorResponse
-
-func (response ProjectGet401Response) VisitProjectGetResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ProjectGet404Response struct {
-}
-
-func (response ProjectGet404Response) VisitProjectGetResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type ProjectGet500Response struct {
-}
-
-func (response ProjectGet500Response) VisitProjectGetResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
-	return nil
-}
-
-type ProjectUpdateRequestObject struct {
-	WorkspaceId WorkspaceIdParam `json:"workspaceId"`
-	ProjectId   ProjectIdParam   `json:"projectId"`
-	Body        *ProjectUpdateJSONRequestBody
-}
-
-type ProjectUpdateResponseObject interface {
-	VisitProjectUpdateResponse(w http.ResponseWriter) error
-}
-
-type ProjectUpdate200JSONResponse Project
-
-func (response ProjectUpdate200JSONResponse) VisitProjectUpdateResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type ProjectUpdate400Response struct {
-}
-
-func (response ProjectUpdate400Response) VisitProjectUpdateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(400)
-	return nil
-}
-
-type ProjectUpdate401Response = UnauthorizedErrorResponse
-
-func (response ProjectUpdate401Response) VisitProjectUpdateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(401)
-	return nil
-}
-
-type ProjectUpdate404Response struct {
-}
-
-func (response ProjectUpdate404Response) VisitProjectUpdateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(404)
-	return nil
-}
-
-type ProjectUpdate500Response struct {
-}
-
-func (response ProjectUpdate500Response) VisitProjectUpdateResponse(w http.ResponseWriter) error {
-	w.WriteHeader(500)
 	return nil
 }
 
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
-	// delete assets in batch
-	// (DELETE /assets)
-	AssetBatchDelete(ctx context.Context, request AssetBatchDeleteRequestObject) (AssetBatchDeleteResponseObject, error)
-	// delete asset
-	// (DELETE /assets/{assetId})
-	AssetDelete(ctx context.Context, request AssetDeleteRequestObject) (AssetDeleteResponseObject, error)
-	// get asset
-	// (GET /assets/{assetId})
-	AssetGet(ctx context.Context, request AssetGetRequestObject) (AssetGetResponseObject, error)
-	// get asset comments
-	// (GET /assets/{assetId}/comments)
-	AssetCommentList(ctx context.Context, request AssetCommentListRequestObject) (AssetCommentListResponseObject, error)
-	// create asset comments
-	// (POST /assets/{assetId}/comments)
-	AssetCommentCreate(ctx context.Context, request AssetCommentCreateRequestObject) (AssetCommentCreateResponseObject, error)
-	// delete asset comments
-	// (DELETE /assets/{assetId}/comments/{commentId})
-	AssetCommentDelete(ctx context.Context, request AssetCommentDeleteRequestObject) (AssetCommentDeleteResponseObject, error)
-	// Update AssetComment
-	// (PATCH /assets/{assetId}/comments/{commentId})
-	AssetCommentUpdate(ctx context.Context, request AssetCommentUpdateRequestObject) (AssetCommentUpdateResponseObject, error)
-	// publish asset
-	// (POST /assets/{assetId}/publish)
-	AssetPublish(ctx context.Context, request AssetPublishRequestObject) (AssetPublishResponseObject, error)
-	// publish asset
-	// (POST /assets/{assetId}/unpublish)
-	AssetUnpublish(ctx context.Context, request AssetUnpublishRequestObject) (AssetUnpublishResponseObject, error)
-	// get asset content
-	// (GET /assets/{uuid1}/{uuid2}/{filename})
-	AssetContentGet(ctx context.Context, request AssetContentGetRequestObject) (AssetContentGetResponseObject, error)
-	// Delete a group.
-	// (DELETE /groups/{groupId})
-	GroupDelete(ctx context.Context, request GroupDeleteRequestObject) (GroupDeleteResponseObject, error)
-	// Retrieve a specific group.
-	// (GET /groups/{groupId})
-	GroupGet(ctx context.Context, request GroupGetRequestObject) (GroupGetResponseObject, error)
-	// Update a group's details.
-	// (PATCH /groups/{groupId})
-	GroupUpdate(ctx context.Context, request GroupUpdateRequestObject) (GroupUpdateResponseObject, error)
-	// delete an item
-	// (DELETE /items/{itemId})
-	ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error)
-	// Returns an item.
-	// (GET /items/{itemId})
-	ItemGet(ctx context.Context, request ItemGetRequestObject) (ItemGetResponseObject, error)
-	// Update an item.
-	// (PATCH /items/{itemId})
-	ItemUpdate(ctx context.Context, request ItemUpdateRequestObject) (ItemUpdateResponseObject, error)
-	// get an item comment
-	// (GET /items/{itemId}/comments)
-	ItemCommentList(ctx context.Context, request ItemCommentListRequestObject) (ItemCommentListResponseObject, error)
-	// create an item comment
-	// (POST /items/{itemId}/comments)
-	ItemCommentCreate(ctx context.Context, request ItemCommentCreateRequestObject) (ItemCommentCreateResponseObject, error)
-	// delete item comment
-	// (DELETE /items/{itemId}/comments/{commentId})
-	ItemCommentDelete(ctx context.Context, request ItemCommentDeleteRequestObject) (ItemCommentDeleteResponseObject, error)
-	// Update Item Comment
-	// (PATCH /items/{itemId}/comments/{commentId})
-	ItemCommentUpdate(ctx context.Context, request ItemCommentUpdateRequestObject) (ItemCommentUpdateResponseObject, error)
-	// publish item
-	// (POST /items/{itemId}/publish)
-	ItemPublish(ctx context.Context, request ItemPublishRequestObject) (ItemPublishResponseObject, error)
-	// delete a model
-	// (DELETE /models/{modelId})
-	ModelDelete(ctx context.Context, request ModelDeleteRequestObject) (ModelDeleteResponseObject, error)
-	// Returns a model.
-	// (GET /models/{modelId})
-	ModelGet(ctx context.Context, request ModelGetRequestObject) (ModelGetResponseObject, error)
-	// Update a model.
-	// (PATCH /models/{modelId})
-	ModelUpdate(ctx context.Context, request ModelUpdateRequestObject) (ModelUpdateResponseObject, error)
-	// Copy schema and items of a selected model
-	// (POST /models/{modelId}/copy)
-	CopyModel(ctx context.Context, request CopyModelRequestObject) (CopyModelResponseObject, error)
-	// Import data under the selected model
-	// (PUT /models/{modelId}/import)
-	ModelImport(ctx context.Context, request ModelImportRequestObject) (ModelImportResponseObject, error)
-	// Returns a list of items.
-	// (GET /models/{modelId}/items)
-	ItemFilter(ctx context.Context, request ItemFilterRequestObject) (ItemFilterResponseObject, error)
-	// create an item
-	// (POST /models/{modelId}/items)
-	ItemCreate(ctx context.Context, request ItemCreateRequestObject) (ItemCreateResponseObject, error)
-	// Returns a CSV that has a list of items as features.
-	// (GET /models/{modelId}/items.csv)
-	ItemsAsCSV(ctx context.Context, request ItemsAsCSVRequestObject) (ItemsAsCSVResponseObject, error)
-	// Returns a GeoJSON that has a list of items as features.
-	// (GET /models/{modelId}/items.geojson)
-	ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONRequestObject) (ItemsAsGeoJSONResponseObject, error)
-	// Returns a metadata schema as json by model ID
-	// (GET /models/{modelId}/metadata_schema.json)
-	MetadataSchemaByModelAsJSON(ctx context.Context, request MetadataSchemaByModelAsJSONRequestObject) (MetadataSchemaByModelAsJSONResponseObject, error)
-	// Returns a schema as json by model ID
-	// (GET /models/{modelId}/schema.json)
-	SchemaByModelAsJSON(ctx context.Context, request SchemaByModelAsJSONRequestObject) (SchemaByModelAsJSONResponseObject, error)
-	// Returns a list of groups in a project.
-	// (GET /projects/{projectIdOrAlias}/groups)
-	GroupFilter(ctx context.Context, request GroupFilterRequestObject) (GroupFilterResponseObject, error)
-	// Create a new group in a project.
-	// (POST /projects/{projectIdOrAlias}/groups)
-	GroupCreate(ctx context.Context, request GroupCreateRequestObject) (GroupCreateResponseObject, error)
-	// Delete a group within a project.
-	// (DELETE /projects/{projectIdOrAlias}/groups/{groupIdOrKey})
-	GroupDeleteWithProject(ctx context.Context, request GroupDeleteWithProjectRequestObject) (GroupDeleteWithProjectResponseObject, error)
-	// Retrieve a group within a project.
-	// (GET /projects/{projectIdOrAlias}/groups/{groupIdOrKey})
-	GroupGetWithProject(ctx context.Context, request GroupGetWithProjectRequestObject) (GroupGetWithProjectResponseObject, error)
-	// Update a group's details within a project.
-	// (PATCH /projects/{projectIdOrAlias}/groups/{groupIdOrKey})
-	GroupUpdateWithProject(ctx context.Context, request GroupUpdateWithProjectRequestObject) (GroupUpdateWithProjectResponseObject, error)
-	// Returns a list of models.
-	// (GET /projects/{projectIdOrAlias}/models)
-	ModelFilter(ctx context.Context, request ModelFilterRequestObject) (ModelFilterResponseObject, error)
-	// create a model
-	// (POST /projects/{projectIdOrAlias}/models)
-	ModelCreate(ctx context.Context, request ModelCreateRequestObject) (ModelCreateResponseObject, error)
-	// Delete a model.
-	// (DELETE /projects/{projectIdOrAlias}/models/{modelIdOrKey})
-	ModelDeleteWithProject(ctx context.Context, request ModelDeleteWithProjectRequestObject) (ModelDeleteWithProjectResponseObject, error)
-	// Returns a model.
-	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey})
-	ModelGetWithProject(ctx context.Context, request ModelGetWithProjectRequestObject) (ModelGetWithProjectResponseObject, error)
-	// Update a model.
-	// (PATCH /projects/{projectIdOrAlias}/models/{modelIdOrKey})
-	ModelUpdateWithProject(ctx context.Context, request ModelUpdateWithProjectRequestObject) (ModelUpdateWithProjectResponseObject, error)
-	// create a field
-	// (POST /projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields)
-	FieldCreateWithProject(ctx context.Context, request FieldCreateWithProjectRequestObject) (FieldCreateWithProjectResponseObject, error)
-	// Delete a field.
-	// (DELETE /projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields/{fieldIdOrKey})
-	FieldDeleteWithProject(ctx context.Context, request FieldDeleteWithProjectRequestObject) (FieldDeleteWithProjectResponseObject, error)
-	// update a field
-	// (PATCH /projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields/{fieldIdOrKey})
-	FieldUpdateWithProject(ctx context.Context, request FieldUpdateWithProjectRequestObject) (FieldUpdateWithProjectResponseObject, error)
-	// Returns a list of items.
-	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items)
-	ItemFilterWithProject(ctx context.Context, request ItemFilterWithProjectRequestObject) (ItemFilterWithProjectResponseObject, error)
-	// Create an Item.
-	// (POST /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items)
-	ItemCreateWithProject(ctx context.Context, request ItemCreateWithProjectRequestObject) (ItemCreateWithProjectResponseObject, error)
-	// Returns a CSV that has a list of items as features.
-	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.csv)
-	ItemsWithProjectAsCSV(ctx context.Context, request ItemsWithProjectAsCSVRequestObject) (ItemsWithProjectAsCSVResponseObject, error)
-	// Returns a GeoJSON that has a list of items as features.
-	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson)
-	ItemsWithProjectAsGeoJSON(ctx context.Context, request ItemsWithProjectAsGeoJSONRequestObject) (ItemsWithProjectAsGeoJSONResponseObject, error)
-	// Returns a metadata schema as json by project and model ID
-	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/metadata_schema.json)
-	MetadataSchemaByModelWithProjectAsJSON(ctx context.Context, request MetadataSchemaByModelWithProjectAsJSONRequestObject) (MetadataSchemaByModelWithProjectAsJSONResponseObject, error)
-	// Returns a schema as json by project and model ID
-	// (GET /projects/{projectIdOrAlias}/models/{modelIdOrKey}/schema.json)
-	SchemaByModelWithProjectAsJSON(ctx context.Context, request SchemaByModelWithProjectAsJSONRequestObject) (SchemaByModelWithProjectAsJSONResponseObject, error)
-	// Returns a schema.
-	// (GET /projects/{projectIdOrAlias}/schemata)
-	SchemaFilter(ctx context.Context, request SchemaFilterRequestObject) (SchemaFilterResponseObject, error)
-	// Returns a schema as json by project and schema ID
-	// (GET /projects/{projectIdOrAlias}/schemata/{schemaId}/schema.json)
-	SchemaByIDWithProjectAsJSON(ctx context.Context, request SchemaByIDWithProjectAsJSONRequestObject) (SchemaByIDWithProjectAsJSONResponseObject, error)
-	// Returns a list of assets.
-	// (GET /projects/{projectId}/assets)
-	AssetFilter(ctx context.Context, request AssetFilterRequestObject) (AssetFilterResponseObject, error)
-	// Create an new asset.
-	// (POST /projects/{projectId}/assets)
-	AssetCreate(ctx context.Context, request AssetCreateRequestObject) (AssetCreateResponseObject, error)
-	// Upload an asset.
-	// (POST /projects/{projectId}/assets/uploads)
-	AssetUploadCreate(ctx context.Context, request AssetUploadCreateRequestObject) (AssetUploadCreateResponseObject, error)
-	// create a field
-	// (POST /schemata/{schemaId}/fields)
-	FieldCreate(ctx context.Context, request FieldCreateRequestObject) (FieldCreateResponseObject, error)
-	// delete a field
-	// (DELETE /schemata/{schemaId}/fields/{fieldIdOrKey})
-	FieldDelete(ctx context.Context, request FieldDeleteRequestObject) (FieldDeleteResponseObject, error)
-	// update a field
-	// (PATCH /schemata/{schemaId}/fields/{fieldIdOrKey})
-	FieldUpdate(ctx context.Context, request FieldUpdateRequestObject) (FieldUpdateResponseObject, error)
-	// Returns a schema as json by schema ID
-	// (GET /schemata/{schemaId}/schema.json)
-	SchemaByIDAsJSON(ctx context.Context, request SchemaByIDAsJSONRequestObject) (SchemaByIDAsJSONResponseObject, error)
 	// Returns a list of projects.
-	// (GET /{workspaceId}/projects)
+	// (GET /{workspaceIdOrAlias}/projects)
 	ProjectFilter(ctx context.Context, request ProjectFilterRequestObject) (ProjectFilterResponseObject, error)
 	// Create a project
-	// (POST /{workspaceId}/projects)
+	// (POST /{workspaceIdOrAlias}/projects)
 	ProjectCreate(ctx context.Context, request ProjectCreateRequestObject) (ProjectCreateResponseObject, error)
 	// Delete a project
-	// (DELETE /{workspaceId}/projects/{projectId})
+	// (DELETE /{workspaceIdOrAlias}/projects/{projectIdOrAlias})
 	ProjectDelete(ctx context.Context, request ProjectDeleteRequestObject) (ProjectDeleteResponseObject, error)
 	// Returns a project.
-	// (GET /{workspaceId}/projects/{projectId})
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias})
 	ProjectGet(ctx context.Context, request ProjectGetRequestObject) (ProjectGetResponseObject, error)
 	// Update a project.
-	// (PATCH /{workspaceId}/projects/{projectId})
+	// (PATCH /{workspaceIdOrAlias}/projects/{projectIdOrAlias})
 	ProjectUpdate(ctx context.Context, request ProjectUpdateRequestObject) (ProjectUpdateResponseObject, error)
+	// delete assets in batch
+	// (DELETE /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets)
+	AssetBatchDelete(ctx context.Context, request AssetBatchDeleteRequestObject) (AssetBatchDeleteResponseObject, error)
+	// Returns a list of assets.
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets)
+	AssetFilter(ctx context.Context, request AssetFilterRequestObject) (AssetFilterResponseObject, error)
+	// Create an new asset.
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets)
+	AssetCreate(ctx context.Context, request AssetCreateRequestObject) (AssetCreateResponseObject, error)
+	// Upload an asset.
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/uploads)
+	AssetUploadCreate(ctx context.Context, request AssetUploadCreateRequestObject) (AssetUploadCreateResponseObject, error)
+	// delete asset
+	// (DELETE /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId})
+	AssetDelete(ctx context.Context, request AssetDeleteRequestObject) (AssetDeleteResponseObject, error)
+	// get asset
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId})
+	AssetGet(ctx context.Context, request AssetGetRequestObject) (AssetGetResponseObject, error)
+	// get asset comments
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/comments)
+	AssetCommentList(ctx context.Context, request AssetCommentListRequestObject) (AssetCommentListResponseObject, error)
+	// create asset comments
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/comments)
+	AssetCommentCreate(ctx context.Context, request AssetCommentCreateRequestObject) (AssetCommentCreateResponseObject, error)
+	// delete asset comments
+	// (DELETE /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/comments/{commentId})
+	AssetCommentDelete(ctx context.Context, request AssetCommentDeleteRequestObject) (AssetCommentDeleteResponseObject, error)
+	// Update AssetComment
+	// (PATCH /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/comments/{commentId})
+	AssetCommentUpdate(ctx context.Context, request AssetCommentUpdateRequestObject) (AssetCommentUpdateResponseObject, error)
+	// publish asset
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/publish)
+	AssetPublish(ctx context.Context, request AssetPublishRequestObject) (AssetPublishResponseObject, error)
+	// publish asset
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/unpublish)
+	AssetUnpublish(ctx context.Context, request AssetUnpublishRequestObject) (AssetUnpublishResponseObject, error)
+	// get asset content
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{uuid1}/{uuid2}/{filename})
+	AssetContentGet(ctx context.Context, request AssetContentGetRequestObject) (AssetContentGetResponseObject, error)
+	// Returns a list of groups in a project.
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups)
+	GroupFilter(ctx context.Context, request GroupFilterRequestObject) (GroupFilterResponseObject, error)
+	// Create a new group in a project.
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups)
+	GroupCreate(ctx context.Context, request GroupCreateRequestObject) (GroupCreateResponseObject, error)
+	// Delete a group within a project.
+	// (DELETE /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups/{groupIdOrKey})
+	GroupDelete(ctx context.Context, request GroupDeleteRequestObject) (GroupDeleteResponseObject, error)
+	// Retrieve a group within a project.
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups/{groupIdOrKey})
+	GroupGet(ctx context.Context, request GroupGetRequestObject) (GroupGetResponseObject, error)
+	// Update a group's details within a project.
+	// (PATCH /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups/{groupIdOrKey})
+	GroupUpdate(ctx context.Context, request GroupUpdateRequestObject) (GroupUpdateResponseObject, error)
+	// Returns a list of models.
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models)
+	ModelFilter(ctx context.Context, request ModelFilterRequestObject) (ModelFilterResponseObject, error)
+	// create a model
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models)
+	ModelCreate(ctx context.Context, request ModelCreateRequestObject) (ModelCreateResponseObject, error)
+	// Delete a model.
+	// (DELETE /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey})
+	ModelDelete(ctx context.Context, request ModelDeleteRequestObject) (ModelDeleteResponseObject, error)
+	// Returns a model.
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey})
+	ModelGet(ctx context.Context, request ModelGetRequestObject) (ModelGetResponseObject, error)
+	// Update a model.
+	// (PATCH /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey})
+	ModelUpdate(ctx context.Context, request ModelUpdateRequestObject) (ModelUpdateResponseObject, error)
+	// Copy schema and items of a selected model
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/copy)
+	ModelCopy(ctx context.Context, request ModelCopyRequestObject) (ModelCopyResponseObject, error)
+	// Import data under the selected model
+	// (PUT /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/import)
+	ModelImport(ctx context.Context, request ModelImportRequestObject) (ModelImportResponseObject, error)
+	// Returns a list of items.
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items)
+	ItemFilter(ctx context.Context, request ItemFilterRequestObject) (ItemFilterResponseObject, error)
+	// create an item
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items)
+	ItemCreate(ctx context.Context, request ItemCreateRequestObject) (ItemCreateResponseObject, error)
+	// Returns a CSV that has a list of items as features.
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.csv)
+	ItemsAsCSV(ctx context.Context, request ItemsAsCSVRequestObject) (ItemsAsCSVResponseObject, error)
+	// Returns a GeoJSON that has a list of items as features.
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson)
+	ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONRequestObject) (ItemsAsGeoJSONResponseObject, error)
+	// delete an item
+	// (DELETE /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId})
+	ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error)
+	// Returns an item.
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId})
+	ItemGet(ctx context.Context, request ItemGetRequestObject) (ItemGetResponseObject, error)
+	// Update an item.
+	// (PATCH /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId})
+	ItemUpdate(ctx context.Context, request ItemUpdateRequestObject) (ItemUpdateResponseObject, error)
+	// get an item comment
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments)
+	ItemCommentList(ctx context.Context, request ItemCommentListRequestObject) (ItemCommentListResponseObject, error)
+	// create an item comment
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments)
+	ItemCommentCreate(ctx context.Context, request ItemCommentCreateRequestObject) (ItemCommentCreateResponseObject, error)
+	// delete item comment
+	// (DELETE /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments/{commentId})
+	ItemCommentDelete(ctx context.Context, request ItemCommentDeleteRequestObject) (ItemCommentDeleteResponseObject, error)
+	// Update Item Comment
+	// (PATCH /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments/{commentId})
+	ItemCommentUpdate(ctx context.Context, request ItemCommentUpdateRequestObject) (ItemCommentUpdateResponseObject, error)
+	// publish item
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/publish)
+	ItemPublish(ctx context.Context, request ItemPublishRequestObject) (ItemPublishResponseObject, error)
+	// Returns a metadata schema as json by project and model ID
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/metadata_schema.json)
+	MetadataSchemaByModelAsJSON(ctx context.Context, request MetadataSchemaByModelAsJSONRequestObject) (MetadataSchemaByModelAsJSONResponseObject, error)
+	// Returns a schema as json by project and model ID
+	// (GET /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/schema.json)
+	SchemaByModelAsJSON(ctx context.Context, request SchemaByModelAsJSONRequestObject) (SchemaByModelAsJSONResponseObject, error)
+	// create a field
+	// (POST /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/schemata/{schemaId}/fields)
+	FieldCreate(ctx context.Context, request FieldCreateRequestObject) (FieldCreateResponseObject, error)
+	// delete a field
+	// (DELETE /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/schemata/{schemaId}/fields/{fieldIdOrKey})
+	FieldDelete(ctx context.Context, request FieldDeleteRequestObject) (FieldDeleteResponseObject, error)
+	// update a field
+	// (PATCH /{workspaceIdOrAlias}/projects/{projectIdOrAlias}/schemata/{schemaId}/fields/{fieldIdOrKey})
+	FieldUpdate(ctx context.Context, request FieldUpdateRequestObject) (FieldUpdateResponseObject, error)
 }
 
 type StrictHandlerFunc = strictecho.StrictEchoHandlerFunc
@@ -5403,9 +4649,154 @@ type strictHandler struct {
 	middlewares []StrictMiddlewareFunc
 }
 
+// ProjectFilter operation middleware
+func (sh *strictHandler) ProjectFilter(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, params ProjectFilterParams) error {
+	var request ProjectFilterRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.Params = params
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ProjectFilter(ctx.Request().Context(), request.(ProjectFilterRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ProjectFilter")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ProjectFilterResponseObject); ok {
+		return validResponse.VisitProjectFilterResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ProjectCreate operation middleware
+func (sh *strictHandler) ProjectCreate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, params ProjectCreateParams) error {
+	var request ProjectCreateRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.Params = params
+
+	var body ProjectCreateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ProjectCreate(ctx.Request().Context(), request.(ProjectCreateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ProjectCreate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ProjectCreateResponseObject); ok {
+		return validResponse.VisitProjectCreateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ProjectDelete operation middleware
+func (sh *strictHandler) ProjectDelete(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam) error {
+	var request ProjectDeleteRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ProjectDelete(ctx.Request().Context(), request.(ProjectDeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ProjectDelete")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ProjectDeleteResponseObject); ok {
+		return validResponse.VisitProjectDeleteResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ProjectGet operation middleware
+func (sh *strictHandler) ProjectGet(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam) error {
+	var request ProjectGetRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ProjectGet(ctx.Request().Context(), request.(ProjectGetRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ProjectGet")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ProjectGetResponseObject); ok {
+		return validResponse.VisitProjectGetResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ProjectUpdate operation middleware
+func (sh *strictHandler) ProjectUpdate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam) error {
+	var request ProjectUpdateRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+
+	var body ProjectUpdateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ProjectUpdate(ctx.Request().Context(), request.(ProjectUpdateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ProjectUpdate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ProjectUpdateResponseObject); ok {
+		return validResponse.VisitProjectUpdateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
 // AssetBatchDelete operation middleware
-func (sh *strictHandler) AssetBatchDelete(ctx echo.Context) error {
+func (sh *strictHandler) AssetBatchDelete(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam) error {
 	var request AssetBatchDeleteRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
 
 	var body AssetBatchDeleteJSONRequestBody
 	if err := ctx.Bind(&body); err != nil {
@@ -5432,1464 +4823,12 @@ func (sh *strictHandler) AssetBatchDelete(ctx echo.Context) error {
 	return nil
 }
 
-// AssetDelete operation middleware
-func (sh *strictHandler) AssetDelete(ctx echo.Context, assetId AssetIdParam) error {
-	var request AssetDeleteRequestObject
-
-	request.AssetId = assetId
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.AssetDelete(ctx.Request().Context(), request.(AssetDeleteRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "AssetDelete")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(AssetDeleteResponseObject); ok {
-		return validResponse.VisitAssetDeleteResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// AssetGet operation middleware
-func (sh *strictHandler) AssetGet(ctx echo.Context, assetId AssetIdParam) error {
-	var request AssetGetRequestObject
-
-	request.AssetId = assetId
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.AssetGet(ctx.Request().Context(), request.(AssetGetRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "AssetGet")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(AssetGetResponseObject); ok {
-		return validResponse.VisitAssetGetResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// AssetCommentList operation middleware
-func (sh *strictHandler) AssetCommentList(ctx echo.Context, assetId AssetIdParam) error {
-	var request AssetCommentListRequestObject
-
-	request.AssetId = assetId
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.AssetCommentList(ctx.Request().Context(), request.(AssetCommentListRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "AssetCommentList")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(AssetCommentListResponseObject); ok {
-		return validResponse.VisitAssetCommentListResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// AssetCommentCreate operation middleware
-func (sh *strictHandler) AssetCommentCreate(ctx echo.Context, assetId AssetIdParam) error {
-	var request AssetCommentCreateRequestObject
-
-	request.AssetId = assetId
-
-	var body AssetCommentCreateJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.AssetCommentCreate(ctx.Request().Context(), request.(AssetCommentCreateRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "AssetCommentCreate")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(AssetCommentCreateResponseObject); ok {
-		return validResponse.VisitAssetCommentCreateResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// AssetCommentDelete operation middleware
-func (sh *strictHandler) AssetCommentDelete(ctx echo.Context, assetId AssetIdParam, commentId CommentIdParam) error {
-	var request AssetCommentDeleteRequestObject
-
-	request.AssetId = assetId
-	request.CommentId = commentId
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.AssetCommentDelete(ctx.Request().Context(), request.(AssetCommentDeleteRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "AssetCommentDelete")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(AssetCommentDeleteResponseObject); ok {
-		return validResponse.VisitAssetCommentDeleteResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// AssetCommentUpdate operation middleware
-func (sh *strictHandler) AssetCommentUpdate(ctx echo.Context, assetId AssetIdParam, commentId CommentIdParam) error {
-	var request AssetCommentUpdateRequestObject
-
-	request.AssetId = assetId
-	request.CommentId = commentId
-
-	var body AssetCommentUpdateJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.AssetCommentUpdate(ctx.Request().Context(), request.(AssetCommentUpdateRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "AssetCommentUpdate")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(AssetCommentUpdateResponseObject); ok {
-		return validResponse.VisitAssetCommentUpdateResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// AssetPublish operation middleware
-func (sh *strictHandler) AssetPublish(ctx echo.Context, assetId AssetIdParam) error {
-	var request AssetPublishRequestObject
-
-	request.AssetId = assetId
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.AssetPublish(ctx.Request().Context(), request.(AssetPublishRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "AssetPublish")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(AssetPublishResponseObject); ok {
-		return validResponse.VisitAssetPublishResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// AssetUnpublish operation middleware
-func (sh *strictHandler) AssetUnpublish(ctx echo.Context, assetId AssetIdParam) error {
-	var request AssetUnpublishRequestObject
-
-	request.AssetId = assetId
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.AssetUnpublish(ctx.Request().Context(), request.(AssetUnpublishRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "AssetUnpublish")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(AssetUnpublishResponseObject); ok {
-		return validResponse.VisitAssetUnpublishResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// AssetContentGet operation middleware
-func (sh *strictHandler) AssetContentGet(ctx echo.Context, uuid1 string, uuid2 string, filename string) error {
-	var request AssetContentGetRequestObject
-
-	request.Uuid1 = uuid1
-	request.Uuid2 = uuid2
-	request.Filename = filename
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.AssetContentGet(ctx.Request().Context(), request.(AssetContentGetRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "AssetContentGet")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(AssetContentGetResponseObject); ok {
-		return validResponse.VisitAssetContentGetResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// GroupDelete operation middleware
-func (sh *strictHandler) GroupDelete(ctx echo.Context, groupId GroupIdParam) error {
-	var request GroupDeleteRequestObject
-
-	request.GroupId = groupId
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.GroupDelete(ctx.Request().Context(), request.(GroupDeleteRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GroupDelete")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(GroupDeleteResponseObject); ok {
-		return validResponse.VisitGroupDeleteResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// GroupGet operation middleware
-func (sh *strictHandler) GroupGet(ctx echo.Context, groupId GroupIdParam) error {
-	var request GroupGetRequestObject
-
-	request.GroupId = groupId
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.GroupGet(ctx.Request().Context(), request.(GroupGetRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GroupGet")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(GroupGetResponseObject); ok {
-		return validResponse.VisitGroupGetResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// GroupUpdate operation middleware
-func (sh *strictHandler) GroupUpdate(ctx echo.Context, groupId GroupIdParam) error {
-	var request GroupUpdateRequestObject
-
-	request.GroupId = groupId
-
-	var body GroupUpdateJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.GroupUpdate(ctx.Request().Context(), request.(GroupUpdateRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GroupUpdate")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(GroupUpdateResponseObject); ok {
-		return validResponse.VisitGroupUpdateResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ItemDelete operation middleware
-func (sh *strictHandler) ItemDelete(ctx echo.Context, itemId ItemIdParam) error {
-	var request ItemDeleteRequestObject
-
-	request.ItemId = itemId
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ItemDelete(ctx.Request().Context(), request.(ItemDeleteRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ItemDelete")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ItemDeleteResponseObject); ok {
-		return validResponse.VisitItemDeleteResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ItemGet operation middleware
-func (sh *strictHandler) ItemGet(ctx echo.Context, itemId ItemIdParam, params ItemGetParams) error {
-	var request ItemGetRequestObject
-
-	request.ItemId = itemId
-	request.Params = params
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ItemGet(ctx.Request().Context(), request.(ItemGetRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ItemGet")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ItemGetResponseObject); ok {
-		return validResponse.VisitItemGetResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ItemUpdate operation middleware
-func (sh *strictHandler) ItemUpdate(ctx echo.Context, itemId ItemIdParam) error {
-	var request ItemUpdateRequestObject
-
-	request.ItemId = itemId
-
-	var body ItemUpdateJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ItemUpdate(ctx.Request().Context(), request.(ItemUpdateRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ItemUpdate")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ItemUpdateResponseObject); ok {
-		return validResponse.VisitItemUpdateResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ItemCommentList operation middleware
-func (sh *strictHandler) ItemCommentList(ctx echo.Context, itemId ItemIdParam) error {
-	var request ItemCommentListRequestObject
-
-	request.ItemId = itemId
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ItemCommentList(ctx.Request().Context(), request.(ItemCommentListRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ItemCommentList")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ItemCommentListResponseObject); ok {
-		return validResponse.VisitItemCommentListResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ItemCommentCreate operation middleware
-func (sh *strictHandler) ItemCommentCreate(ctx echo.Context, itemId ItemIdParam) error {
-	var request ItemCommentCreateRequestObject
-
-	request.ItemId = itemId
-
-	var body ItemCommentCreateJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ItemCommentCreate(ctx.Request().Context(), request.(ItemCommentCreateRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ItemCommentCreate")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ItemCommentCreateResponseObject); ok {
-		return validResponse.VisitItemCommentCreateResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ItemCommentDelete operation middleware
-func (sh *strictHandler) ItemCommentDelete(ctx echo.Context, itemId ItemIdParam, commentId CommentIdParam) error {
-	var request ItemCommentDeleteRequestObject
-
-	request.ItemId = itemId
-	request.CommentId = commentId
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ItemCommentDelete(ctx.Request().Context(), request.(ItemCommentDeleteRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ItemCommentDelete")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ItemCommentDeleteResponseObject); ok {
-		return validResponse.VisitItemCommentDeleteResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ItemCommentUpdate operation middleware
-func (sh *strictHandler) ItemCommentUpdate(ctx echo.Context, itemId ItemIdParam, commentId CommentIdParam) error {
-	var request ItemCommentUpdateRequestObject
-
-	request.ItemId = itemId
-	request.CommentId = commentId
-
-	var body ItemCommentUpdateJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ItemCommentUpdate(ctx.Request().Context(), request.(ItemCommentUpdateRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ItemCommentUpdate")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ItemCommentUpdateResponseObject); ok {
-		return validResponse.VisitItemCommentUpdateResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ItemPublish operation middleware
-func (sh *strictHandler) ItemPublish(ctx echo.Context, itemId ItemIdParam, params ItemPublishParams) error {
-	var request ItemPublishRequestObject
-
-	request.ItemId = itemId
-	request.Params = params
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ItemPublish(ctx.Request().Context(), request.(ItemPublishRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ItemPublish")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ItemPublishResponseObject); ok {
-		return validResponse.VisitItemPublishResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ModelDelete operation middleware
-func (sh *strictHandler) ModelDelete(ctx echo.Context, modelId ModelIdParam) error {
-	var request ModelDeleteRequestObject
-
-	request.ModelId = modelId
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ModelDelete(ctx.Request().Context(), request.(ModelDeleteRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ModelDelete")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ModelDeleteResponseObject); ok {
-		return validResponse.VisitModelDeleteResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ModelGet operation middleware
-func (sh *strictHandler) ModelGet(ctx echo.Context, modelId ModelIdParam) error {
-	var request ModelGetRequestObject
-
-	request.ModelId = modelId
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ModelGet(ctx.Request().Context(), request.(ModelGetRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ModelGet")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ModelGetResponseObject); ok {
-		return validResponse.VisitModelGetResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ModelUpdate operation middleware
-func (sh *strictHandler) ModelUpdate(ctx echo.Context, modelId ModelIdParam) error {
-	var request ModelUpdateRequestObject
-
-	request.ModelId = modelId
-
-	var body ModelUpdateJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ModelUpdate(ctx.Request().Context(), request.(ModelUpdateRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ModelUpdate")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ModelUpdateResponseObject); ok {
-		return validResponse.VisitModelUpdateResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// CopyModel operation middleware
-func (sh *strictHandler) CopyModel(ctx echo.Context, modelId ModelIdParam) error {
-	var request CopyModelRequestObject
-
-	request.ModelId = modelId
-
-	var body CopyModelJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.CopyModel(ctx.Request().Context(), request.(CopyModelRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "CopyModel")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(CopyModelResponseObject); ok {
-		return validResponse.VisitCopyModelResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ModelImport operation middleware
-func (sh *strictHandler) ModelImport(ctx echo.Context, modelId ModelIdParam) error {
-	var request ModelImportRequestObject
-
-	request.ModelId = modelId
-	if strings.HasPrefix(ctx.Request().Header.Get("Content-Type"), "application/json") {
-		var body ModelImportJSONRequestBody
-		if err := ctx.Bind(&body); err != nil {
-			return err
-		}
-		request.JSONBody = &body
-	}
-	if strings.HasPrefix(ctx.Request().Header.Get("Content-Type"), "multipart/form-data") {
-		if reader, err := ctx.Request().MultipartReader(); err != nil {
-			return err
-		} else {
-			request.MultipartBody = reader
-		}
-	}
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ModelImport(ctx.Request().Context(), request.(ModelImportRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ModelImport")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ModelImportResponseObject); ok {
-		return validResponse.VisitModelImportResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ItemFilter operation middleware
-func (sh *strictHandler) ItemFilter(ctx echo.Context, modelId ModelIdParam, params ItemFilterParams) error {
-	var request ItemFilterRequestObject
-
-	request.ModelId = modelId
-	request.Params = params
-
-	var body ItemFilterJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ItemFilter(ctx.Request().Context(), request.(ItemFilterRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ItemFilter")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ItemFilterResponseObject); ok {
-		return validResponse.VisitItemFilterResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ItemCreate operation middleware
-func (sh *strictHandler) ItemCreate(ctx echo.Context, modelId ModelIdParam) error {
-	var request ItemCreateRequestObject
-
-	request.ModelId = modelId
-
-	var body ItemCreateJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ItemCreate(ctx.Request().Context(), request.(ItemCreateRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ItemCreate")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ItemCreateResponseObject); ok {
-		return validResponse.VisitItemCreateResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ItemsAsCSV operation middleware
-func (sh *strictHandler) ItemsAsCSV(ctx echo.Context, modelId ModelIdParam, params ItemsAsCSVParams) error {
-	var request ItemsAsCSVRequestObject
-
-	request.ModelId = modelId
-	request.Params = params
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ItemsAsCSV(ctx.Request().Context(), request.(ItemsAsCSVRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ItemsAsCSV")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ItemsAsCSVResponseObject); ok {
-		return validResponse.VisitItemsAsCSVResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ItemsAsGeoJSON operation middleware
-func (sh *strictHandler) ItemsAsGeoJSON(ctx echo.Context, modelId ModelIdParam, params ItemsAsGeoJSONParams) error {
-	var request ItemsAsGeoJSONRequestObject
-
-	request.ModelId = modelId
-	request.Params = params
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ItemsAsGeoJSON(ctx.Request().Context(), request.(ItemsAsGeoJSONRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ItemsAsGeoJSON")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ItemsAsGeoJSONResponseObject); ok {
-		return validResponse.VisitItemsAsGeoJSONResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// MetadataSchemaByModelAsJSON operation middleware
-func (sh *strictHandler) MetadataSchemaByModelAsJSON(ctx echo.Context, modelId ModelIdParam) error {
-	var request MetadataSchemaByModelAsJSONRequestObject
-
-	request.ModelId = modelId
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.MetadataSchemaByModelAsJSON(ctx.Request().Context(), request.(MetadataSchemaByModelAsJSONRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "MetadataSchemaByModelAsJSON")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(MetadataSchemaByModelAsJSONResponseObject); ok {
-		return validResponse.VisitMetadataSchemaByModelAsJSONResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// SchemaByModelAsJSON operation middleware
-func (sh *strictHandler) SchemaByModelAsJSON(ctx echo.Context, modelId ModelIdParam) error {
-	var request SchemaByModelAsJSONRequestObject
-
-	request.ModelId = modelId
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.SchemaByModelAsJSON(ctx.Request().Context(), request.(SchemaByModelAsJSONRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "SchemaByModelAsJSON")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(SchemaByModelAsJSONResponseObject); ok {
-		return validResponse.VisitSchemaByModelAsJSONResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// GroupFilter operation middleware
-func (sh *strictHandler) GroupFilter(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params GroupFilterParams) error {
-	var request GroupFilterRequestObject
-
-	request.ProjectIdOrAlias = projectIdOrAlias
-	request.Params = params
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.GroupFilter(ctx.Request().Context(), request.(GroupFilterRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GroupFilter")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(GroupFilterResponseObject); ok {
-		return validResponse.VisitGroupFilterResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// GroupCreate operation middleware
-func (sh *strictHandler) GroupCreate(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params GroupCreateParams) error {
-	var request GroupCreateRequestObject
-
-	request.ProjectIdOrAlias = projectIdOrAlias
-	request.Params = params
-
-	var body GroupCreateJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.GroupCreate(ctx.Request().Context(), request.(GroupCreateRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GroupCreate")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(GroupCreateResponseObject); ok {
-		return validResponse.VisitGroupCreateResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// GroupDeleteWithProject operation middleware
-func (sh *strictHandler) GroupDeleteWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, groupIdOrKey GroupIdOrKeyParam) error {
-	var request GroupDeleteWithProjectRequestObject
-
-	request.ProjectIdOrAlias = projectIdOrAlias
-	request.GroupIdOrKey = groupIdOrKey
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.GroupDeleteWithProject(ctx.Request().Context(), request.(GroupDeleteWithProjectRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GroupDeleteWithProject")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(GroupDeleteWithProjectResponseObject); ok {
-		return validResponse.VisitGroupDeleteWithProjectResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// GroupGetWithProject operation middleware
-func (sh *strictHandler) GroupGetWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, groupIdOrKey GroupIdOrKeyParam) error {
-	var request GroupGetWithProjectRequestObject
-
-	request.ProjectIdOrAlias = projectIdOrAlias
-	request.GroupIdOrKey = groupIdOrKey
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.GroupGetWithProject(ctx.Request().Context(), request.(GroupGetWithProjectRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GroupGetWithProject")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(GroupGetWithProjectResponseObject); ok {
-		return validResponse.VisitGroupGetWithProjectResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// GroupUpdateWithProject operation middleware
-func (sh *strictHandler) GroupUpdateWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, groupIdOrKey GroupIdOrKeyParam) error {
-	var request GroupUpdateWithProjectRequestObject
-
-	request.ProjectIdOrAlias = projectIdOrAlias
-	request.GroupIdOrKey = groupIdOrKey
-
-	var body GroupUpdateWithProjectJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.GroupUpdateWithProject(ctx.Request().Context(), request.(GroupUpdateWithProjectRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "GroupUpdateWithProject")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(GroupUpdateWithProjectResponseObject); ok {
-		return validResponse.VisitGroupUpdateWithProjectResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ModelFilter operation middleware
-func (sh *strictHandler) ModelFilter(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params ModelFilterParams) error {
-	var request ModelFilterRequestObject
-
-	request.ProjectIdOrAlias = projectIdOrAlias
-	request.Params = params
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ModelFilter(ctx.Request().Context(), request.(ModelFilterRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ModelFilter")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ModelFilterResponseObject); ok {
-		return validResponse.VisitModelFilterResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ModelCreate operation middleware
-func (sh *strictHandler) ModelCreate(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params ModelCreateParams) error {
-	var request ModelCreateRequestObject
-
-	request.ProjectIdOrAlias = projectIdOrAlias
-	request.Params = params
-
-	var body ModelCreateJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ModelCreate(ctx.Request().Context(), request.(ModelCreateRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ModelCreate")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ModelCreateResponseObject); ok {
-		return validResponse.VisitModelCreateResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ModelDeleteWithProject operation middleware
-func (sh *strictHandler) ModelDeleteWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
-	var request ModelDeleteWithProjectRequestObject
-
-	request.ProjectIdOrAlias = projectIdOrAlias
-	request.ModelIdOrKey = modelIdOrKey
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ModelDeleteWithProject(ctx.Request().Context(), request.(ModelDeleteWithProjectRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ModelDeleteWithProject")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ModelDeleteWithProjectResponseObject); ok {
-		return validResponse.VisitModelDeleteWithProjectResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ModelGetWithProject operation middleware
-func (sh *strictHandler) ModelGetWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
-	var request ModelGetWithProjectRequestObject
-
-	request.ProjectIdOrAlias = projectIdOrAlias
-	request.ModelIdOrKey = modelIdOrKey
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ModelGetWithProject(ctx.Request().Context(), request.(ModelGetWithProjectRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ModelGetWithProject")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ModelGetWithProjectResponseObject); ok {
-		return validResponse.VisitModelGetWithProjectResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ModelUpdateWithProject operation middleware
-func (sh *strictHandler) ModelUpdateWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
-	var request ModelUpdateWithProjectRequestObject
-
-	request.ProjectIdOrAlias = projectIdOrAlias
-	request.ModelIdOrKey = modelIdOrKey
-
-	var body ModelUpdateWithProjectJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ModelUpdateWithProject(ctx.Request().Context(), request.(ModelUpdateWithProjectRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ModelUpdateWithProject")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ModelUpdateWithProjectResponseObject); ok {
-		return validResponse.VisitModelUpdateWithProjectResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// FieldCreateWithProject operation middleware
-func (sh *strictHandler) FieldCreateWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
-	var request FieldCreateWithProjectRequestObject
-
-	request.ProjectIdOrAlias = projectIdOrAlias
-	request.ModelIdOrKey = modelIdOrKey
-
-	var body FieldCreateWithProjectJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.FieldCreateWithProject(ctx.Request().Context(), request.(FieldCreateWithProjectRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "FieldCreateWithProject")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(FieldCreateWithProjectResponseObject); ok {
-		return validResponse.VisitFieldCreateWithProjectResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// FieldDeleteWithProject operation middleware
-func (sh *strictHandler) FieldDeleteWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, fieldIdOrKey FieldIdOrKeyParam) error {
-	var request FieldDeleteWithProjectRequestObject
-
-	request.ProjectIdOrAlias = projectIdOrAlias
-	request.ModelIdOrKey = modelIdOrKey
-	request.FieldIdOrKey = fieldIdOrKey
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.FieldDeleteWithProject(ctx.Request().Context(), request.(FieldDeleteWithProjectRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "FieldDeleteWithProject")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(FieldDeleteWithProjectResponseObject); ok {
-		return validResponse.VisitFieldDeleteWithProjectResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// FieldUpdateWithProject operation middleware
-func (sh *strictHandler) FieldUpdateWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, fieldIdOrKey FieldIdOrKeyParam) error {
-	var request FieldUpdateWithProjectRequestObject
-
-	request.ProjectIdOrAlias = projectIdOrAlias
-	request.ModelIdOrKey = modelIdOrKey
-	request.FieldIdOrKey = fieldIdOrKey
-
-	var body FieldUpdateWithProjectJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.FieldUpdateWithProject(ctx.Request().Context(), request.(FieldUpdateWithProjectRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "FieldUpdateWithProject")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(FieldUpdateWithProjectResponseObject); ok {
-		return validResponse.VisitFieldUpdateWithProjectResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ItemFilterWithProject operation middleware
-func (sh *strictHandler) ItemFilterWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, params ItemFilterWithProjectParams) error {
-	var request ItemFilterWithProjectRequestObject
-
-	request.ProjectIdOrAlias = projectIdOrAlias
-	request.ModelIdOrKey = modelIdOrKey
-	request.Params = params
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ItemFilterWithProject(ctx.Request().Context(), request.(ItemFilterWithProjectRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ItemFilterWithProject")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ItemFilterWithProjectResponseObject); ok {
-		return validResponse.VisitItemFilterWithProjectResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ItemCreateWithProject operation middleware
-func (sh *strictHandler) ItemCreateWithProject(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
-	var request ItemCreateWithProjectRequestObject
-
-	request.ProjectIdOrAlias = projectIdOrAlias
-	request.ModelIdOrKey = modelIdOrKey
-
-	var body ItemCreateWithProjectJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ItemCreateWithProject(ctx.Request().Context(), request.(ItemCreateWithProjectRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ItemCreateWithProject")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ItemCreateWithProjectResponseObject); ok {
-		return validResponse.VisitItemCreateWithProjectResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ItemsWithProjectAsCSV operation middleware
-func (sh *strictHandler) ItemsWithProjectAsCSV(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, params ItemsWithProjectAsCSVParams) error {
-	var request ItemsWithProjectAsCSVRequestObject
-
-	request.ProjectIdOrAlias = projectIdOrAlias
-	request.ModelIdOrKey = modelIdOrKey
-	request.Params = params
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ItemsWithProjectAsCSV(ctx.Request().Context(), request.(ItemsWithProjectAsCSVRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ItemsWithProjectAsCSV")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ItemsWithProjectAsCSVResponseObject); ok {
-		return validResponse.VisitItemsWithProjectAsCSVResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ItemsWithProjectAsGeoJSON operation middleware
-func (sh *strictHandler) ItemsWithProjectAsGeoJSON(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, params ItemsWithProjectAsGeoJSONParams) error {
-	var request ItemsWithProjectAsGeoJSONRequestObject
-
-	request.ProjectIdOrAlias = projectIdOrAlias
-	request.ModelIdOrKey = modelIdOrKey
-	request.Params = params
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ItemsWithProjectAsGeoJSON(ctx.Request().Context(), request.(ItemsWithProjectAsGeoJSONRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ItemsWithProjectAsGeoJSON")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ItemsWithProjectAsGeoJSONResponseObject); ok {
-		return validResponse.VisitItemsWithProjectAsGeoJSONResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// MetadataSchemaByModelWithProjectAsJSON operation middleware
-func (sh *strictHandler) MetadataSchemaByModelWithProjectAsJSON(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
-	var request MetadataSchemaByModelWithProjectAsJSONRequestObject
-
-	request.ProjectIdOrAlias = projectIdOrAlias
-	request.ModelIdOrKey = modelIdOrKey
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.MetadataSchemaByModelWithProjectAsJSON(ctx.Request().Context(), request.(MetadataSchemaByModelWithProjectAsJSONRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "MetadataSchemaByModelWithProjectAsJSON")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(MetadataSchemaByModelWithProjectAsJSONResponseObject); ok {
-		return validResponse.VisitMetadataSchemaByModelWithProjectAsJSONResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// SchemaByModelWithProjectAsJSON operation middleware
-func (sh *strictHandler) SchemaByModelWithProjectAsJSON(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
-	var request SchemaByModelWithProjectAsJSONRequestObject
-
-	request.ProjectIdOrAlias = projectIdOrAlias
-	request.ModelIdOrKey = modelIdOrKey
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.SchemaByModelWithProjectAsJSON(ctx.Request().Context(), request.(SchemaByModelWithProjectAsJSONRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "SchemaByModelWithProjectAsJSON")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(SchemaByModelWithProjectAsJSONResponseObject); ok {
-		return validResponse.VisitSchemaByModelWithProjectAsJSONResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// SchemaFilter operation middleware
-func (sh *strictHandler) SchemaFilter(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, params SchemaFilterParams) error {
-	var request SchemaFilterRequestObject
-
-	request.ProjectIdOrAlias = projectIdOrAlias
-	request.Params = params
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.SchemaFilter(ctx.Request().Context(), request.(SchemaFilterRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "SchemaFilter")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(SchemaFilterResponseObject); ok {
-		return validResponse.VisitSchemaFilterResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// SchemaByIDWithProjectAsJSON operation middleware
-func (sh *strictHandler) SchemaByIDWithProjectAsJSON(ctx echo.Context, projectIdOrAlias ProjectIdOrAliasParam, schemaId SchemaIdParam) error {
-	var request SchemaByIDWithProjectAsJSONRequestObject
-
-	request.ProjectIdOrAlias = projectIdOrAlias
-	request.SchemaId = schemaId
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.SchemaByIDWithProjectAsJSON(ctx.Request().Context(), request.(SchemaByIDWithProjectAsJSONRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "SchemaByIDWithProjectAsJSON")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(SchemaByIDWithProjectAsJSONResponseObject); ok {
-		return validResponse.VisitSchemaByIDWithProjectAsJSONResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
 // AssetFilter operation middleware
-func (sh *strictHandler) AssetFilter(ctx echo.Context, projectId ProjectIdParam, params AssetFilterParams) error {
+func (sh *strictHandler) AssetFilter(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, params AssetFilterParams) error {
 	var request AssetFilterRequestObject
 
-	request.ProjectId = projectId
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
 	request.Params = params
 
 	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
@@ -6912,10 +4851,11 @@ func (sh *strictHandler) AssetFilter(ctx echo.Context, projectId ProjectIdParam,
 }
 
 // AssetCreate operation middleware
-func (sh *strictHandler) AssetCreate(ctx echo.Context, projectId ProjectIdParam) error {
+func (sh *strictHandler) AssetCreate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam) error {
 	var request AssetCreateRequestObject
 
-	request.ProjectId = projectId
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
 	if strings.HasPrefix(ctx.Request().Header.Get("Content-Type"), "application/json") {
 		var body AssetCreateJSONRequestBody
 		if err := ctx.Bind(&body); err != nil {
@@ -6951,10 +4891,11 @@ func (sh *strictHandler) AssetCreate(ctx echo.Context, projectId ProjectIdParam)
 }
 
 // AssetUploadCreate operation middleware
-func (sh *strictHandler) AssetUploadCreate(ctx echo.Context, projectId ProjectIdParam) error {
+func (sh *strictHandler) AssetUploadCreate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam) error {
 	var request AssetUploadCreateRequestObject
 
-	request.ProjectId = projectId
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
 
 	var body AssetUploadCreateJSONRequestBody
 	if err := ctx.Bind(&body); err != nil {
@@ -6981,10 +4922,1062 @@ func (sh *strictHandler) AssetUploadCreate(ctx echo.Context, projectId ProjectId
 	return nil
 }
 
+// AssetDelete operation middleware
+func (sh *strictHandler) AssetDelete(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, assetId AssetIdParam) error {
+	var request AssetDeleteRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.AssetId = assetId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AssetDelete(ctx.Request().Context(), request.(AssetDeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AssetDelete")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(AssetDeleteResponseObject); ok {
+		return validResponse.VisitAssetDeleteResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// AssetGet operation middleware
+func (sh *strictHandler) AssetGet(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, assetId AssetIdParam) error {
+	var request AssetGetRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.AssetId = assetId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AssetGet(ctx.Request().Context(), request.(AssetGetRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AssetGet")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(AssetGetResponseObject); ok {
+		return validResponse.VisitAssetGetResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// AssetCommentList operation middleware
+func (sh *strictHandler) AssetCommentList(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, assetId AssetIdParam) error {
+	var request AssetCommentListRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.AssetId = assetId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AssetCommentList(ctx.Request().Context(), request.(AssetCommentListRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AssetCommentList")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(AssetCommentListResponseObject); ok {
+		return validResponse.VisitAssetCommentListResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// AssetCommentCreate operation middleware
+func (sh *strictHandler) AssetCommentCreate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, assetId AssetIdParam) error {
+	var request AssetCommentCreateRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.AssetId = assetId
+
+	var body AssetCommentCreateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AssetCommentCreate(ctx.Request().Context(), request.(AssetCommentCreateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AssetCommentCreate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(AssetCommentCreateResponseObject); ok {
+		return validResponse.VisitAssetCommentCreateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// AssetCommentDelete operation middleware
+func (sh *strictHandler) AssetCommentDelete(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, assetId AssetIdParam, commentId CommentIdParam) error {
+	var request AssetCommentDeleteRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.AssetId = assetId
+	request.CommentId = commentId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AssetCommentDelete(ctx.Request().Context(), request.(AssetCommentDeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AssetCommentDelete")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(AssetCommentDeleteResponseObject); ok {
+		return validResponse.VisitAssetCommentDeleteResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// AssetCommentUpdate operation middleware
+func (sh *strictHandler) AssetCommentUpdate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, assetId AssetIdParam, commentId CommentIdParam) error {
+	var request AssetCommentUpdateRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.AssetId = assetId
+	request.CommentId = commentId
+
+	var body AssetCommentUpdateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AssetCommentUpdate(ctx.Request().Context(), request.(AssetCommentUpdateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AssetCommentUpdate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(AssetCommentUpdateResponseObject); ok {
+		return validResponse.VisitAssetCommentUpdateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// AssetPublish operation middleware
+func (sh *strictHandler) AssetPublish(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, assetId AssetIdParam) error {
+	var request AssetPublishRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.AssetId = assetId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AssetPublish(ctx.Request().Context(), request.(AssetPublishRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AssetPublish")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(AssetPublishResponseObject); ok {
+		return validResponse.VisitAssetPublishResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// AssetUnpublish operation middleware
+func (sh *strictHandler) AssetUnpublish(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, assetId AssetIdParam) error {
+	var request AssetUnpublishRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.AssetId = assetId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AssetUnpublish(ctx.Request().Context(), request.(AssetUnpublishRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AssetUnpublish")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(AssetUnpublishResponseObject); ok {
+		return validResponse.VisitAssetUnpublishResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// AssetContentGet operation middleware
+func (sh *strictHandler) AssetContentGet(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, uuid1 string, uuid2 string, filename string) error {
+	var request AssetContentGetRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.Uuid1 = uuid1
+	request.Uuid2 = uuid2
+	request.Filename = filename
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.AssetContentGet(ctx.Request().Context(), request.(AssetContentGetRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "AssetContentGet")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(AssetContentGetResponseObject); ok {
+		return validResponse.VisitAssetContentGetResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// GroupFilter operation middleware
+func (sh *strictHandler) GroupFilter(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, params GroupFilterParams) error {
+	var request GroupFilterRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.Params = params
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GroupFilter(ctx.Request().Context(), request.(GroupFilterRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GroupFilter")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GroupFilterResponseObject); ok {
+		return validResponse.VisitGroupFilterResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// GroupCreate operation middleware
+func (sh *strictHandler) GroupCreate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, params GroupCreateParams) error {
+	var request GroupCreateRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.Params = params
+
+	var body GroupCreateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GroupCreate(ctx.Request().Context(), request.(GroupCreateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GroupCreate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GroupCreateResponseObject); ok {
+		return validResponse.VisitGroupCreateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// GroupDelete operation middleware
+func (sh *strictHandler) GroupDelete(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, groupIdOrKey GroupIdOrKeyParam) error {
+	var request GroupDeleteRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.GroupIdOrKey = groupIdOrKey
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GroupDelete(ctx.Request().Context(), request.(GroupDeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GroupDelete")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GroupDeleteResponseObject); ok {
+		return validResponse.VisitGroupDeleteResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// GroupGet operation middleware
+func (sh *strictHandler) GroupGet(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, groupIdOrKey GroupIdOrKeyParam) error {
+	var request GroupGetRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.GroupIdOrKey = groupIdOrKey
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GroupGet(ctx.Request().Context(), request.(GroupGetRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GroupGet")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GroupGetResponseObject); ok {
+		return validResponse.VisitGroupGetResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// GroupUpdate operation middleware
+func (sh *strictHandler) GroupUpdate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, groupIdOrKey GroupIdOrKeyParam) error {
+	var request GroupUpdateRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.GroupIdOrKey = groupIdOrKey
+
+	var body GroupUpdateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.GroupUpdate(ctx.Request().Context(), request.(GroupUpdateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "GroupUpdate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(GroupUpdateResponseObject); ok {
+		return validResponse.VisitGroupUpdateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ModelFilter operation middleware
+func (sh *strictHandler) ModelFilter(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, params ModelFilterParams) error {
+	var request ModelFilterRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.Params = params
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ModelFilter(ctx.Request().Context(), request.(ModelFilterRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ModelFilter")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ModelFilterResponseObject); ok {
+		return validResponse.VisitModelFilterResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ModelCreate operation middleware
+func (sh *strictHandler) ModelCreate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, params ModelCreateParams) error {
+	var request ModelCreateRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.Params = params
+
+	var body ModelCreateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ModelCreate(ctx.Request().Context(), request.(ModelCreateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ModelCreate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ModelCreateResponseObject); ok {
+		return validResponse.VisitModelCreateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ModelDelete operation middleware
+func (sh *strictHandler) ModelDelete(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
+	var request ModelDeleteRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ModelDelete(ctx.Request().Context(), request.(ModelDeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ModelDelete")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ModelDeleteResponseObject); ok {
+		return validResponse.VisitModelDeleteResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ModelGet operation middleware
+func (sh *strictHandler) ModelGet(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
+	var request ModelGetRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ModelGet(ctx.Request().Context(), request.(ModelGetRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ModelGet")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ModelGetResponseObject); ok {
+		return validResponse.VisitModelGetResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ModelUpdate operation middleware
+func (sh *strictHandler) ModelUpdate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
+	var request ModelUpdateRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+
+	var body ModelUpdateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ModelUpdate(ctx.Request().Context(), request.(ModelUpdateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ModelUpdate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ModelUpdateResponseObject); ok {
+		return validResponse.VisitModelUpdateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ModelCopy operation middleware
+func (sh *strictHandler) ModelCopy(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
+	var request ModelCopyRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+
+	var body ModelCopyJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ModelCopy(ctx.Request().Context(), request.(ModelCopyRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ModelCopy")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ModelCopyResponseObject); ok {
+		return validResponse.VisitModelCopyResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ModelImport operation middleware
+func (sh *strictHandler) ModelImport(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
+	var request ModelImportRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+	if strings.HasPrefix(ctx.Request().Header.Get("Content-Type"), "application/json") {
+		var body ModelImportJSONRequestBody
+		if err := ctx.Bind(&body); err != nil {
+			return err
+		}
+		request.JSONBody = &body
+	}
+	if strings.HasPrefix(ctx.Request().Header.Get("Content-Type"), "multipart/form-data") {
+		if reader, err := ctx.Request().MultipartReader(); err != nil {
+			return err
+		} else {
+			request.MultipartBody = reader
+		}
+	}
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ModelImport(ctx.Request().Context(), request.(ModelImportRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ModelImport")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ModelImportResponseObject); ok {
+		return validResponse.VisitModelImportResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ItemFilter operation middleware
+func (sh *strictHandler) ItemFilter(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, params ItemFilterParams) error {
+	var request ItemFilterRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+	request.Params = params
+
+	var body ItemFilterJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ItemFilter(ctx.Request().Context(), request.(ItemFilterRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ItemFilter")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ItemFilterResponseObject); ok {
+		return validResponse.VisitItemFilterResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ItemCreate operation middleware
+func (sh *strictHandler) ItemCreate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
+	var request ItemCreateRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+
+	var body ItemCreateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ItemCreate(ctx.Request().Context(), request.(ItemCreateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ItemCreate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ItemCreateResponseObject); ok {
+		return validResponse.VisitItemCreateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ItemsAsCSV operation middleware
+func (sh *strictHandler) ItemsAsCSV(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, params ItemsAsCSVParams) error {
+	var request ItemsAsCSVRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+	request.Params = params
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ItemsAsCSV(ctx.Request().Context(), request.(ItemsAsCSVRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ItemsAsCSV")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ItemsAsCSVResponseObject); ok {
+		return validResponse.VisitItemsAsCSVResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ItemsAsGeoJSON operation middleware
+func (sh *strictHandler) ItemsAsGeoJSON(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, params ItemsAsGeoJSONParams) error {
+	var request ItemsAsGeoJSONRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+	request.Params = params
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ItemsAsGeoJSON(ctx.Request().Context(), request.(ItemsAsGeoJSONRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ItemsAsGeoJSON")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ItemsAsGeoJSONResponseObject); ok {
+		return validResponse.VisitItemsAsGeoJSONResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ItemDelete operation middleware
+func (sh *strictHandler) ItemDelete(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, itemId ItemIdParam) error {
+	var request ItemDeleteRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+	request.ItemId = itemId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ItemDelete(ctx.Request().Context(), request.(ItemDeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ItemDelete")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ItemDeleteResponseObject); ok {
+		return validResponse.VisitItemDeleteResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ItemGet operation middleware
+func (sh *strictHandler) ItemGet(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, itemId ItemIdParam, params ItemGetParams) error {
+	var request ItemGetRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+	request.ItemId = itemId
+	request.Params = params
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ItemGet(ctx.Request().Context(), request.(ItemGetRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ItemGet")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ItemGetResponseObject); ok {
+		return validResponse.VisitItemGetResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ItemUpdate operation middleware
+func (sh *strictHandler) ItemUpdate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, itemId ItemIdParam) error {
+	var request ItemUpdateRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+	request.ItemId = itemId
+
+	var body ItemUpdateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ItemUpdate(ctx.Request().Context(), request.(ItemUpdateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ItemUpdate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ItemUpdateResponseObject); ok {
+		return validResponse.VisitItemUpdateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ItemCommentList operation middleware
+func (sh *strictHandler) ItemCommentList(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, itemId ItemIdParam) error {
+	var request ItemCommentListRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+	request.ItemId = itemId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ItemCommentList(ctx.Request().Context(), request.(ItemCommentListRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ItemCommentList")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ItemCommentListResponseObject); ok {
+		return validResponse.VisitItemCommentListResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ItemCommentCreate operation middleware
+func (sh *strictHandler) ItemCommentCreate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, itemId ItemIdParam) error {
+	var request ItemCommentCreateRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+	request.ItemId = itemId
+
+	var body ItemCommentCreateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ItemCommentCreate(ctx.Request().Context(), request.(ItemCommentCreateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ItemCommentCreate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ItemCommentCreateResponseObject); ok {
+		return validResponse.VisitItemCommentCreateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ItemCommentDelete operation middleware
+func (sh *strictHandler) ItemCommentDelete(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, itemId ItemIdParam, commentId CommentIdParam) error {
+	var request ItemCommentDeleteRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+	request.ItemId = itemId
+	request.CommentId = commentId
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ItemCommentDelete(ctx.Request().Context(), request.(ItemCommentDeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ItemCommentDelete")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ItemCommentDeleteResponseObject); ok {
+		return validResponse.VisitItemCommentDeleteResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ItemCommentUpdate operation middleware
+func (sh *strictHandler) ItemCommentUpdate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, itemId ItemIdParam, commentId CommentIdParam) error {
+	var request ItemCommentUpdateRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+	request.ItemId = itemId
+	request.CommentId = commentId
+
+	var body ItemCommentUpdateJSONRequestBody
+	if err := ctx.Bind(&body); err != nil {
+		return err
+	}
+	request.Body = &body
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ItemCommentUpdate(ctx.Request().Context(), request.(ItemCommentUpdateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ItemCommentUpdate")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ItemCommentUpdateResponseObject); ok {
+		return validResponse.VisitItemCommentUpdateResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// ItemPublish operation middleware
+func (sh *strictHandler) ItemPublish(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam, itemId ItemIdParam, params ItemPublishParams) error {
+	var request ItemPublishRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+	request.ItemId = itemId
+	request.Params = params
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.ItemPublish(ctx.Request().Context(), request.(ItemPublishRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ItemPublish")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(ItemPublishResponseObject); ok {
+		return validResponse.VisitItemPublishResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// MetadataSchemaByModelAsJSON operation middleware
+func (sh *strictHandler) MetadataSchemaByModelAsJSON(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
+	var request MetadataSchemaByModelAsJSONRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.MetadataSchemaByModelAsJSON(ctx.Request().Context(), request.(MetadataSchemaByModelAsJSONRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "MetadataSchemaByModelAsJSON")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(MetadataSchemaByModelAsJSONResponseObject); ok {
+		return validResponse.VisitMetadataSchemaByModelAsJSONResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
+// SchemaByModelAsJSON operation middleware
+func (sh *strictHandler) SchemaByModelAsJSON(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, modelIdOrKey ModelIdOrKeyParam) error {
+	var request SchemaByModelAsJSONRequestObject
+
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
+	request.ModelIdOrKey = modelIdOrKey
+
+	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
+		return sh.ssi.SchemaByModelAsJSON(ctx.Request().Context(), request.(SchemaByModelAsJSONRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "SchemaByModelAsJSON")
+	}
+
+	response, err := handler(ctx, request)
+
+	if err != nil {
+		return err
+	} else if validResponse, ok := response.(SchemaByModelAsJSONResponseObject); ok {
+		return validResponse.VisitSchemaByModelAsJSONResponse(ctx.Response())
+	} else if response != nil {
+		return fmt.Errorf("unexpected response type: %T", response)
+	}
+	return nil
+}
+
 // FieldCreate operation middleware
-func (sh *strictHandler) FieldCreate(ctx echo.Context, schemaId SchemaIdParam) error {
+func (sh *strictHandler) FieldCreate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, schemaId SchemaIdParam) error {
 	var request FieldCreateRequestObject
 
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
 	request.SchemaId = schemaId
 
 	var body FieldCreateJSONRequestBody
@@ -7013,9 +6006,11 @@ func (sh *strictHandler) FieldCreate(ctx echo.Context, schemaId SchemaIdParam) e
 }
 
 // FieldDelete operation middleware
-func (sh *strictHandler) FieldDelete(ctx echo.Context, schemaId SchemaIdParam, fieldIdOrKey FieldIdOrKeyParam) error {
+func (sh *strictHandler) FieldDelete(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, schemaId SchemaIdParam, fieldIdOrKey FieldIdOrKeyParam) error {
 	var request FieldDeleteRequestObject
 
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
 	request.SchemaId = schemaId
 	request.FieldIdOrKey = fieldIdOrKey
 
@@ -7039,9 +6034,11 @@ func (sh *strictHandler) FieldDelete(ctx echo.Context, schemaId SchemaIdParam, f
 }
 
 // FieldUpdate operation middleware
-func (sh *strictHandler) FieldUpdate(ctx echo.Context, schemaId SchemaIdParam, fieldIdOrKey FieldIdOrKeyParam) error {
+func (sh *strictHandler) FieldUpdate(ctx echo.Context, workspaceIdOrAlias WorkspaceIdOrAliasParam, projectIdOrAlias ProjectIdOrAliasParam, schemaId SchemaIdParam, fieldIdOrKey FieldIdOrKeyParam) error {
 	var request FieldUpdateRequestObject
 
+	request.WorkspaceIdOrAlias = workspaceIdOrAlias
+	request.ProjectIdOrAlias = projectIdOrAlias
 	request.SchemaId = schemaId
 	request.FieldIdOrKey = fieldIdOrKey
 
@@ -7070,264 +6067,89 @@ func (sh *strictHandler) FieldUpdate(ctx echo.Context, schemaId SchemaIdParam, f
 	return nil
 }
 
-// SchemaByIDAsJSON operation middleware
-func (sh *strictHandler) SchemaByIDAsJSON(ctx echo.Context, schemaId SchemaIdParam) error {
-	var request SchemaByIDAsJSONRequestObject
-
-	request.SchemaId = schemaId
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.SchemaByIDAsJSON(ctx.Request().Context(), request.(SchemaByIDAsJSONRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "SchemaByIDAsJSON")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(SchemaByIDAsJSONResponseObject); ok {
-		return validResponse.VisitSchemaByIDAsJSONResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ProjectFilter operation middleware
-func (sh *strictHandler) ProjectFilter(ctx echo.Context, workspaceId WorkspaceIdParam, params ProjectFilterParams) error {
-	var request ProjectFilterRequestObject
-
-	request.WorkspaceId = workspaceId
-	request.Params = params
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ProjectFilter(ctx.Request().Context(), request.(ProjectFilterRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ProjectFilter")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ProjectFilterResponseObject); ok {
-		return validResponse.VisitProjectFilterResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ProjectCreate operation middleware
-func (sh *strictHandler) ProjectCreate(ctx echo.Context, workspaceId WorkspaceIdParam, params ProjectCreateParams) error {
-	var request ProjectCreateRequestObject
-
-	request.WorkspaceId = workspaceId
-	request.Params = params
-
-	var body ProjectCreateJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ProjectCreate(ctx.Request().Context(), request.(ProjectCreateRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ProjectCreate")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ProjectCreateResponseObject); ok {
-		return validResponse.VisitProjectCreateResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ProjectDelete operation middleware
-func (sh *strictHandler) ProjectDelete(ctx echo.Context, workspaceId WorkspaceIdParam, projectId ProjectIdParam) error {
-	var request ProjectDeleteRequestObject
-
-	request.WorkspaceId = workspaceId
-	request.ProjectId = projectId
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ProjectDelete(ctx.Request().Context(), request.(ProjectDeleteRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ProjectDelete")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ProjectDeleteResponseObject); ok {
-		return validResponse.VisitProjectDeleteResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ProjectGet operation middleware
-func (sh *strictHandler) ProjectGet(ctx echo.Context, workspaceId WorkspaceIdParam, projectId ProjectIdParam) error {
-	var request ProjectGetRequestObject
-
-	request.WorkspaceId = workspaceId
-	request.ProjectId = projectId
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ProjectGet(ctx.Request().Context(), request.(ProjectGetRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ProjectGet")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ProjectGetResponseObject); ok {
-		return validResponse.VisitProjectGetResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// ProjectUpdate operation middleware
-func (sh *strictHandler) ProjectUpdate(ctx echo.Context, workspaceId WorkspaceIdParam, projectId ProjectIdParam) error {
-	var request ProjectUpdateRequestObject
-
-	request.WorkspaceId = workspaceId
-	request.ProjectId = projectId
-
-	var body ProjectUpdateJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.ProjectUpdate(ctx.Request().Context(), request.(ProjectUpdateRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "ProjectUpdate")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(ProjectUpdateResponseObject); ok {
-		return validResponse.VisitProjectUpdateResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"H4sIAAAAAAAC/+x9W2/buLbwXxH0fcB5UePOzN4vecskaeHptAmSdIqDQVEw0rLNHVnykFTS7MD//YCL",
-	"pERZ1M2WYyfxS2JbJLXIdSPXjU9+mM4XaQKJ4P7xk78gjMxBAMNvhHMQ4+hS/ii/R8BDRheCpol/7I/P",
-	"vHTiiRl4HGIIBUQedvADn8rnCyJmfuAnZA7+sRnLD3wG/2SUQeQfC5ZB4PNwBnMixxePC9mUC0aTqR/4",
-	"P99N03f6RxodneAQZ/5yGajhagC7XkBIJxS49zADMQOm4PIiIohHGHgwv4UogsijCcLPgGex4AbwfzJg",
-	"jyuQ+zac/5/BxD/2/9+oWLyRespH2PocXyAnIWEN0/kckl4Lqbu4lzIfb5PFPNWDqOWcUIijcXTBPsFj",
-	"A5TMu4NHAyz2MUs4TyOIuadf7wTbfsfakKtWRx9wrDM1lpzAlKXZoucEsI+ZwIKl/4GwZsXt0dcGHQc5",
-	"cgDdSha9Ad2EMD7iEIosqIB5H7KV7d2AqZE2gWssR1Bg3cHjQ8rq4NJPvXwgF1PrRn49APJFSNU9qQr7",
-	"dEKWPfraK4ODlKhKD9uKtd6AboK9zziEQt+CTKEGuq8cIk+kmqIUZGQKNUjUjwogIpiQLBb+8S+BP6cJ",
-	"nWdz/GzgSARMgSkggF0OBocayw3Kv98H/pz81LC8f98OmUKFJIyTmBLeSHhEtjAYbUTi6rBrY1MPhDSn",
-	"RipB3V1adAO3Ec4VKrvUnRSdMZh0Qy/xGEzkat4Dq0Gx1PhO9PoxEcDlJCCROP27+GGR3cY09L8HDsmi",
-	"RuqyWtiwpGbdC2ZG3IRLr9UYavl4ysQZZS1LGMGEJoDApSwC5kWUQSgbmRkw4Is04eDFlIvAe6Bx7N2C",
-	"R6dJyqTOmFidKfeSVHgLBhwSAVENNiLKarAhgbRwQfAb/uhGQ8pE3wm6plUDpxy+BtCQAREQndiUY/+W",
-	"LSL92Qn4Q8ru+IKE0Ifh8k5uCrLG7Mx0JAzTLBFROic0OfqWjyBJCFlQLRIeJ76k4kOaJdE5YymrAnyD",
-	"i/pPBlzCyoCnGQvBeyCKJiayq78M/K8JycQsZfS/UDfUSRgC555I7yCRNDWnnNNkKlmcJvckppHFhAjb",
-	"R0j/uL74YvFIequFkz1d+Y8fmcbLwJf/r1fZq6Gr1V6eYhBOektjKh7x/MXSBTBB1YKRBf0Ej/hR7p94",
-	"69kD28uBDXYYI/hdiSKilqd5EKvpNQhBkymXI9xTG05DsZdff/9zfOoH/uXV+K+Tm3M3sRak9Lc9TpBP",
-	"sOill25pnlUXpYTpyqYt8GnU5Sh5Of4Ej5JKcTfpHEhxhePBpou5siI0MiyoYCm/wLk0eCKtkgsLZ/Qe",
-	"zn8KRlACXwsiMm7jawFJZDbFPxYsnTLgcicQpYl8/YTQGCIHEuUhNhGQiBv83bEohew6fvInKZsTFMdE",
-	"wDtBcW6VLhMaQ9sCYpvOWDUGgibkMbin8GDmYRaGzvX2Tv7/we/l6FNI1d8fv0U/bmgMXH+d30vmRl38",
-	"4zeJvZDfS5Gd3CXpQ+JcvmI70z4NaxeTbyKKXrdpGgNJkMtTQeJr+l97pkk2v5UbSVuDdMZIxmL3QahC",
-	"r/b2TPYKapSXYxe0QseFrcRCB4nlkFLxIFXGHGqIUplJqqyAGqJ9tUmC4lE1X6WJjOvtoIApE6TMjRXO",
-	"GIorOlF62XpTWdgwTSJq5NPKyiRRZ31SDONQKbeEK7osj6+tPO18DXF0jRuTFKlVjkGEUuYGAfBPRmLJ",
-	"dEkqztVnFwLuSZxJxDmXQrLLXkFZ4eMV9jKgWS8znV08NM9iQRdKkG5vjjQJ4ywCfpI8qomOSz/kj5Ft",
-	"7cdx3LwYhg4rBLbZqiRZHJPbba8KzBdCr8c5fnTufhzAoYjeKmhTFDzsZkYSP/Bj4Fx/tB5cMCTXm9Rq",
-	"UfzWhYaNstkMWQryzSWShnOr6yqFPaGJZvfT4hsXhAn+jeKBCpLIfExScW0/krRinnZZ4hol3HOJUdls",
-	"dWFuYZIyqdDIRKDaVD9csIvE/Kg/p5ObGeXfAO7yL5/TBBdHfftfIKx5bbpo0k0WzMW1OEB1DdHi3tF8",
-	"nZvWO2p57eVoOqQIvWdpwh/OEjc3bcqyjOkmeukOuVjdaUdms0jT5IwIsL5+VTuueRrRiT4A6Rb2T7oV",
-	"V6cbg5nAn4Mg+OKOcticP8qTDGc0jhgknWWSOaKsiqO2E1P9EYWImfMBd2/1XXPLybLf4RmXsrvBQf1X",
-	"a+5YgU5EbjFF/5P4uqeqbr5cnhtqcuNqTxtq5dxkWWntI5Q+/tvoMcaA3KWqceMS7+h3q1LyOkfyXvif",
-	"bIR549ELfMo/gyAREcR90J3rpx8GAs+MN1ZeyT6gGl+YixxTRqc0IfEawzKYAIMkhGhsZtZpioh5xwx7",
-	"H/5dQkR5G4agq0GMdrkPsV5SxISLz6gqIOoOnSGH655Sodyvp3R4sWJtIOIy3r+qhWLVKN5o8i41XgY+",
-	"OkSHssUMQrYlDMU0hIT33BAwIFHtI3SYXKUxdBcaeumvir6DiJCSV6rV8tbgOKq3j5cVpFnMfIWCFR8W",
-	"0Y7uMpUErY62CpXaS2XtZa/OT87Or/zA/3Y1vsEPn0/GX25Oxl/wy8U3+d9pDnb4BSqMoBqhUZu79aJq",
-	"gXKxjP3ukrTR6lIaPygD5FqtQv48905kiJ2oLeLWFsGCihg+mLNi12PSsnYxP7iPnUOdH23zYZW+GiSS",
-	"IRKnX6LfodTF7ziE2QLnTy14NXAuKiyGtlhVwE/J7fLfCQO5n2Y0nN2oX+eE3UXpg5Qp4QzCu9v0px/k",
-	"gZ+ROoKiJTnwlTfd+AXwJKoPYtYuLveKqHNY4AuiPUpzEOzxwjiIzQ/nEZUnbqfRAxh3WvIXhJmw3ZxF",
-	"ct7KsmIZq/aCgjEYTJokh6OHBU/L21xErXurbS5q+zi+mPjHf3fa5raQlIZMtisv1bq76zK0Lmm5MsHv",
-	"GFYAYcaoeER5ogC4BcKAnWTqYI/DI8/gz8XKzYRYqMAJmkzSalzDFZwTJmbvTj9fe2N0S6EK8U4ux74W",
-	"Pa2tcvz5vxy9P3qv7XkJWVD/2P/t6P3Rb74yQSDgKp5Z2w5iEMhTyoJG00SKRx/1we9EhLMz1SLflfye",
-	"Rih1LA8ZWSyM4hv9hysyqtMaKmT8rJdms1zAbbgqyx3BMlgNWPn1/fsNwKfRNiEvE4bCkgpFWgb+vxTg",
-	"KwFBKvLFxNh4eay/p2yC2O+XOpbIF2ZUjb/Bnv+qvvFLEbZjsQUyu80Qf39ffg98ns3nhD1iDJckI0/P",
-	"iSberSQuJUS5lOVmByJH1QQ6etIJBstWUrWodEBc98xfeB0YdaLMhSip6UQNPj5il42Q0ZqQ8fJXeAqi",
-	"aXntxJ0aXVo0GZUSe5bfXWw00rEVyslRizwdiPCnioEckKPs13d0DapYkPXlp8m6eS1yNCeZfGIV2ime",
-	"bExEgb9IeQuZnOI5cLANQn3kzXNo+07EWCW1l09X6jTfh7QaBczoKU9oa1fempB2psMbA6+qyDZ6MSmv",
-	"1uvaoz2HeAla269kWaJAwn1jIyF9XURvXiKpNfBOXh2RmolZ+O4vptDoyWer2dHD6sdL/ZLDPnhDlGts",
-	"1W+VnTjOkmfB8tf8NQc8Pyees4xGvyzV/1+Xo6cJjSEhc1i2nW0QHb3Pp2koQLzjgoHKyyrwlhtMb2lC",
-	"MFFsVUtUsCZm4KnWnn6dSevSiH45J1czgU4n2BUV9bVIZ2soMoGI7pEAuZT7irXf9Otmb/qgqbDD2wzB",
-	"9nohHuvR/8BHT7owQOMGGyOxdraztusOtO6rsbHHM/TrTrI4fvTUrKKjPeIIBWUpefHfbsgEsITEHgd2",
-	"D8wDNWofeXim9+OqVsSRxWIIRMkGt+pTEBlLuBeBIDTGXHJrFAeFbNlepzxmtTjXYL5RNF+BYBTuJaK5",
-	"qnITNmK8316mVI+kdIByHRg4Si0plgLvDh4DL2We1a6dkAY+e7UF6/SMLt31ga2WD25m4OmgFbO8b5IX",
-	"9OlO09j/8EI0OFhB6kI0I4+eVCmaRk04FjDfmSK0Ct30sC+ZQNDXYVZKTCkhg0jlt29VYrpjVeBg+gUq",
-	"rn4iMa8h0sECZdUkk7PammRYiUqoUsXJPpPDVpXjKhFUyacf+u0CWK0KsZn6BtZ2eQ2APsXohgvwHzYi",
-	"f9e69sBRzSq2nqGqerXdcSz7vhK/sXzDq3QbK4xbdShLiN/Er1MRqU57qUUjB6fxa3IadyesBtHS1WVs",
-	"UdHL8xiX1um17OyfRaoM6Sy2SOjgK7Z9xa+LPPW8JLa907Vk09oexJ6ku3LKrFefz+BTbt03Y1VSBYcp",
-	"D/xqXI81FgpJGqoa9uhJJws36ijMrtqZdrLr8nbWTboM6Q4wuY4tKS+aajCl89najUmqZ/U4jwNs2Q2i",
-	"l9hxFPX+uL744uEhxUsnXsaBoRWev1l7T4EnB4r7CeNS8ewOFp9GEjk4ODahcAWVJPEXIW6qFFEhRpdq",
-	"GIXp4rH/pqFKp859wGm6ePysxd8wRDgAke0HUeWmyJ2JzOae5WrJWxSjkkZMmXGSqF2aDgPIK0fXqlAn",
-	"SdP5ImViCKLORM2GaaxeMZw1/XcS3k0ZqixnTrO5v6ZXIp+J97Lq8kH6B8fiBQiSK+HX5ASjaf1Tbd62",
-	"IAIqlactgLlgRMD0sVzGkQMrih7gB/yltWxzcX2PnpP1Amf9NJWoTZgYyQ7vTG2fOgSYWlytEXJveFG3",
-	"na+qCvKfplnJKJFfTRHomTY3kcKj4Xlt+aSmGhUJPHwYtByEDp+ohbPLYaiiUJTU83RZup0olm2pCCVt",
-	"1QVaWRIBK98r0FM7GAS2HL5iytW6oj56oGLmTWgsQJILKiq8joEmU7e/9QO27e3wL26E6GCLKV2R0aF9",
-	"cfNNl8b2DTUd2q8bqtDeunTfkgptGELpKmz2KPm6jc3kigwcsjyEuulIDtJ0409+FVF7Q6z3ngutvO37",
-	"YBMBdjAk1MmcIQJIOp7T0MswrJ/zEOmxXqTHXnHF+h7WjpZppY2PQn7fQSOfXv/liRkR3oxUFTTh3gSI",
-	"yBhwt0LmJ/z0+q/eCvmZdGZ7wJ6An2KkF2qjlJ4TfTWhRxNcUj3EmxW6fciq7JErbpCTlLWxdG5gkCmk",
-	"RtC0MIm+HGozRjE3TL1YZumWD9ckqfNLtlwMZBa5KCz2NlmnL7GVVUKQX3u2HdYxW4cf+tbejhxkuuVG",
-	"Se7Jnt7to76zdHxW9beUSvH+rozeJ1wz0da2E/Z1bi0mgjfsneuEz9x4UC7GrK7Y2xKB9qPLHuR4IMP9",
-	"I8NO1LcFqtObFD56Wr2Cd6nTc3sYw1QH7xbiNJnKPaRIlS1O33mf36pbk3OXW8UGNJoUk+h0MtSJbS/O",
-	"WrKCgvLF2fuUg6frET9bRqqbRGniEZsYN85Odd+LvWur6wb24lprEC7RwOag4YNHbE+WdX3peo6rX54n",
-	"b1YXIt9p3uzW/Pja/uMl8KAm2M6D3fRTXj7ign2Cx5VoxvI8VCAjN1m56LZBKLoqKDXANypml/nh/lCK",
-	"4uWWoigooFkXdK9NUS58YMbvswn6CGJAAjsUs9i8mEUvUnmmbYMt8wYviVERjGELzaoXrJLtIaz0UDdj",
-	"qLoZ3divbccwzy+j6XiiVR1qIqi3cVydV6/L6RBRenDuvxrnfkFxG6cLvLoz6RrBQO4zLC7p3p9hDwkQ",
-	"w8cfNIcDtuuO3D7f9bTZkoWzDyfKXml2cqOiTNM0emvSuorRwbP2nunod0jg20kC39oa2RY6Q6b/HY5s",
-	"r0ER7kMVppbMwt6adVSEiO6Wx5wbSIw3VRvIbbDQehdiDn3v5U7ZrpQks88Zk2vtQhW0Ba/o+OXNeGX0",
-	"hP+77E2NchMzULB4NKoqCoRqH3aoDVfRukjDzOjN7k9xAY5c9LXLHUt7J5t+W4sf4Zy2t405yODXKYMz",
-	"s2EZWAY/a+ZgmeAPSYTbrXd8SMM7mAO6puHlaR+7tw7ok0t5KU7zRKxxbTXo7R1sDnl/byzvr0puddyy",
-	"gdZ9ngxBix8OyYKHZMH9ShYcVHdsworPmotYYslXlZbYT4Ec0hG3nY5oMej6aYl7wKTDZz3qN+PRtV8G",
-	"ZIl7D1lo+50MWYPmoRMj94BFNs277MQQB0Z4YemYLfT/ouhezU7VPOxE3kc19HuIgB3IrqbpTXXgb53v",
-	"jiqMJchz8tTLtZCvxL92FQSjJ/VpiLIDtqDUTxv03/jsoPxelvKzcbpz7WfItoXgl/q2/R7uOdWhn38O",
-	"iyu/udKejgKcO/K1qWsnX9peQFPa67ifr46RbJV+oiY8gKOsq7MLs84REORghkBi8JPJuceHNRy9nTv+",
-	"zpMwxYtPXUEm/I4uzkDOngHnOpI2ggnJYuEfT0jMIfCTLI7JbQzKQRW44k3SO3AH4WYs7hZr27tYepfp",
-	"6TY3OhymWkW9e8H1Tiu1ujLPffGDFkx1vP/y2b5w8+Wc1sjxLXp6lC3ilOjoXydnjznP8H1fr/5EniYe",
-	"ErsnUk91lg+buPortsp5e2MJ9HzCQbf5E5KpmLkr2bcxWJgxnrJd35Wyk6kn8FM4HwwgLN38rQnyNdxD",
-	"WGGsRg53HS/XDetf3el3iMw/hIIeQkEHCMevp+LGgPvaUPr9j59/ibiMSrHvQ4S+r0ic7UWvH+TUQU4N",
-	"ELK+DWNuFwPuwWq7p1bbbVhqXQbXp4eU3fEFCQGvmtbHuh621rzLKpFpv8A23IwDmwTtWXeyVZqdssNa",
-	"uV1XYw7p4XbJBlK0zzaXZsX6s4vFGYfqOytcPfAhjcSUcOf2p60gQUxDSDj0sYZIoElU+wjnc5XG0Fse",
-	"XBV9h8pTGK56bS6zOmysbOO6Jevekm7OvQ9F7KhDpNRrUNsw2nS21IPt7HSp39+ngpBxKD8QbgrSlqrU",
-	"vtnM7UZSaS0uVFulUw/yEbZaVaivfHijcsGJr11tNhyu1JaqQm1ENrBRg6BUoLc0xrVtcbSVGi+Dw65g",
-	"+yaXvlxvytzuH/ebuymet3BSsxBYLpf/FwAA///UgopICOUAAA==",
+	"H4sIAAAAAAAC/+w9W2/bOLN/RdA5wHlR43b3+17y5jZp4d3tBblscbAICkYa2/wiUV6SSuoN/N8/8CZR",
+	"FnWz5dhO8pLYFkkNh3PncPjoh2mySAkQzvzTR3+BKEqAA5XfEGPAJ9E38aP4HgELKV5wnBL/1J+ceenU",
+	"43PwGMQQcog82cEPfCyeLxCf+4FPUAL+qRnLD3wKf2eYQuSfcppB4LNwDgkS4/PlQjRlnGIy8wP/55tZ",
+	"+kb/iKOTsRzizF+tAjVcDWCXCwjxFAPzHubA50AVXF6EOPIQBQ+SW4giiDxMJPwUWBZzZgD/OwO6XIPc",
+	"t+H8XwpT/9T/n1GBvJF6ykay9bl8gZiEgDVMkwRIL0TqLm5U5uNtg8wPehCFzimGOJpEX+nvsGyAknp3",
+	"sDTAyj4GhUkaQcw8/Xon2PY7NoZctTr5KMc6U2OJCcxomi16TkD2MRNY0PQ/ENZg3B59Y9DlICc20JhD",
+	"0ocqRHs3gGqkbehhIkZQxHAHy4eU1sGln3r5QC6e0Y38egDEiyTR9Fw02afTotmjb4wZOUhp0RZoBjXA",
+	"XjOIPJ7qBVMQohnU4Eg/KuCIYIqymPun7wI/wQQnWSI/m0UiHGZAFRBAvw0GhxrLDcq/3wZ+gn5qWN6+",
+	"bYdMLYnA+zjGiDWuKxItzMo2Lub6sBsvqB5ILqkaSUBNYdoNl8ijMBWg3wOtwadQDk5c+jHiwMQEgQgE",
+	"/lX8sMhuYxz6N4GDS9RIXeSEbFiSyG5kmhG3kReXagwlMVhK+RmmLSiMYIoJSOBSGgH1IkwhFI3MDCiw",
+	"RUoYeDFmPPAecBx7t+DhGUmpkH9TqzNmHkm5t6DAgHCIalYjwrRmNQSQ1log+U3+6F6GlPK+E3RNqwZO",
+	"MXwNoCEFxCEa25Rj/5YtIv3ZCfhDSu/YAoWwAU/mfd2EVB16Y5JCYZhmhEdpgjA5+Z4PbLGp5FOFSWme",
+	"fkn5xzQj0TmlKa1O50pi/u8MmNCdFFia0RC8B6QIZyq6+qvAvyYo4/OU4n+gbqhxGAJjHk/vgAjCSzBj",
+	"mMwEujC5RzGOLE6VsH2C9LfLr1+sWae3WrrZsxb/2IlpvAp88f9yHWENXa32wiqWcOJbHGO+lPY8TRdA",
+	"OVYIQwv8OyzlR2EwsFZbVrYXA5tFohTJ70peIYWe5kGsppfAOSYzJka4xzachqy/Xb//Y/LBD/xvF5M/",
+	"x1fnboouKOwve5wgn2DRS6NuZZ5VkVJa6YqVEvg46uKafJv8DkshDaX55BxI8YzjwbbIXMMIjgyDKljK",
+	"L3CiRno4VXKh4Rzfw/lPTpEU05cc8YzZ67UAEhkr8MeCpjMKTMiAKCXi9VOEY4gciyicIsKB8Cv5uwMp",
+	"hYA7ffSnKU2QlNmIwxuO5dwqXaY4hjYEyjadV9U4nE2LR+Eew4OZh0EMTrTBJf7/YPdi9Bmk6u+PX6Mf",
+	"VzgGpr8m94K5pcL+8atYvZDdC7lO7kj6QJzoy+2hDtP4ptueFcRm9bpN0xgQkVyechRf4n/smZIsuRWm",
+	"na1mOq9IRmO35V+h12I+qldQo+EcptIaHRe+t7UcKBZDCn0kqTJmUEOUyu2usoLUEO3YRkSKR9V8nSYy",
+	"pm1GDjPKUZkbK5wxFFd0ovRyNKCC2DAlETbyaQ0zJOqsT4phHCrlFjFFl+XxddSgna8hji6ljZ5KahVj",
+	"IK6UuVkA+DtDsWA6kvJz9dm1APcozsTCOVEh2OWgoKzw8Rp7GdCsl5nOLh5KspjjhRKku5sjJmGcRcDG",
+	"ZKkmOin9kD+WbGs/juNmZBg6rBDYdlghWRyj211jBZIF1/g4lx+d1o8DOCmidwraTAoeejVHxA/8GBjT",
+	"H60HX6kk16vUalH81oWGjbLZbrEU5NtLJA3nTvEqhD3CRLP7h+Ib44hy9h1LdwtIZD6SlF/ajwStmKdd",
+	"UFyjhHuiWCqbnSLmFqYpFQoNTblUm+qHr/QrMT/qz+n0ao7Zd4C7/MvnlEjkqG//D4g246aLJt0GYS6u",
+	"lQNUcSijxB3jtZ9kWPqss5bXUfMmJ4Vrm6Vp/eQspXHTpizLK91EL90h5+uWdmSMRZySM8TB+nqtLK4k",
+	"jfBUO0C6hf2TbsWUd2NWJvAT4Ei+uKMcNv5HeZLhHMcRBdJZJhkXZV0ctXlM9S4K4nPnA+Y29V1zy8my",
+	"n/MsUdk94KD+K5w7MNCJyC2m6O+Jb+pVddsbZHmgJo/A9gy0VvwmK5Rru1Da/beXxwQD8i06vTYu8S43",
+	"mqqUvIlL3mv9p1utvNnCCnzMPgNHEeLI7egm+unHgcAz403UNlwfUPUulZMcU4pnmKB4g2EpTIECCSGa",
+	"mJl1mqJceccMezv/LiGitiSGoKtBgnafJeobJUWMGP8sVQVE3aEz5HDZUyqU+/WUDkcr1gYiLrN9WI1Q",
+	"rAfFG0PepcarwJfbIUPFYgYh29IKxTgEwnoaBBRQVPtIbphcpDF0Fxoa9RdF30FESGnrauP9o8b4eFlB",
+	"GmTmGCpDYIhhfZ8laN2Nq1CpjSrLlr04H5+dX/iB//1iciU/fB5PvlyNJ1/kl6/fxX9nONixL1BhBNVI",
+	"BrWZWy+qFlIulle/uyRtjLqUxg/KALmwVcifp7ZEhrBEbRG3sQjmmMfw0fiKXd2kVS0yP7rdzqH8Rzt8",
+	"WKWvBolkiMS5L9HPKXXxuxzCmMD5UwteDZyLCouhLVbl8FNwu/g3piDsaYrD+ZX6NUH0LkofhEwJ5xDe",
+	"3aY//SBPJIyUCyojyYGvEkvMvoD0RLUjZllx+a6I8sMCnyO9o5QAp8uvZoPY/HAeYeFxO4MeQJkzkr9A",
+	"1KSB5iyS81aWFWisxgsKxqAwbZIcjh4WPC1vcxG17q3MXKnt4/jr1D/9q5OZ20JSGjLRroyqTa3rMrQu",
+	"abk2wRuZVgBhRjFfSnmiALgFRIGOM+XYy+Elz8ifC8zNOV+oxAlMpmk1r+ECzhHl8zcfPl96E7ktJVWI",
+	"N/428bXoaW2Vr5//7uTtyVsdzyNogf1T/9eTtye/+ioEIQEfPVZzRlbGgFABMLUVvQ4ozyhhHpIpNF46",
+	"9fIuJgCHUyKkq6+l50ccc81DVsrIL2/fSv1RbLGhxcJoztF/mKLDOrUjk+hOHxtT4PLcvA4NrVn3sbNc",
+	"XCS3bj8IC6j03rfOHL316OS6ZeqPvd8uv37x5OglZK8C/18KhWupQyoLxuTbeHkeuafig7Lfu7r55Us0",
+	"qubiyJ7/au9ZTgZaBf6/3XByoATFHgN6D9QD1dpiMik6bPb662Z1E/gsSxJEl42keKLkMpOJLAZjNzIA",
+	"V2TV1wimosmoLl+rTlxZXYvc1C6N7RzSDu2LBLiOjfOMwA7tSznHAuGLlElSdjL3B2n/+bm78j6Nllvw",
+	"db2P1+awHY375eb6cqreqiIs3/VCaifRVStsFFwm8VBb+J4l8vYmeMpv/GLnDu5KyCgC95CVFO2QLKug",
+	"RZ+OHtfzplcK3Bg41HLXmXo8qOrsG9mo2vA3HfTWVZFGLvM81UQjj2XSYZ9mcbx8aaSkVrONlII2u8vk",
+	"zdfZW5+ka7MVxQwpP16o3HCu155tEueBEKniEQ/njmx6GUDrQHKq4XBWwI7ixC/chtifDNCR2AOUBZqA",
+	"vSeRCS5+GsiYUKddWZNNIaO77wWnW2bFIOyqkrN7xamthO6nJ+11g2iXkJeJSK2SOn10kAqxDzlH2p5R",
+	"c8LEu5VqpKBps5/QbtMYB16P9YD53JvKuBEmMw+RSB3jwmRW1UHyLXmQqZ823aknvdMYQMVNH5IjeoVS",
+	"VTDddTRp2CDdsIG1Z8WJdYx0UmHGXAUfiuWpg0tlNORON4EHXTJCyAAqp1mKSsiHNTJh4NiU7nZOwtQc",
+	"aqnm8d3hxRkIJFBhlKoB8/Oj8riLncKujmW6jv/cgdtErT3HU81zVRtqiPLRNKXJG5ODtc302hIfTd5l",
+	"vn10iwmSZ2s3w5TjQEWFsXdp52rRVic9jl9wGEYjBac1yowtTNNRtohTFFWK2xyU4Jkwlkl0XF/8IUUO",
+	"0keNeeop+MXDJqFzLVvtQfToNn8AmZWSjC0N2nrSM6NMZYd3dX93wZB7mTqBn+5zfgOIYrf00PR0/DLk",
+	"usoXO5Efj7pw1arVyd1b2Nyui/U8LFCns9fo4jnWY8cR6RYtfSwYngkrtx69+9aZ7R1LRepWN4Pw+kgf",
+	"BLcTUlymvmr1h6rqMqj6KV7f8RyjOri+eXjIlJx7Ls5pTtf5xKoaIn9ylJRelyNhk+ZuLMLOBsjT7Q3k",
+	"DFAl7+On5VD7S93JeVgpOHrMS062m0Ga8vZmDTWWsqhSh7EwSBm9zytO/lxlYHv7tdqrpW3neuIdeGf5",
+	"KMWm3jYcPzvGMBOz1vsJZKk868LmhxCHGtbS+KYn9upqbUmXmkLqvbFhCDEjz5YUr/OpvRLjQRNjluHo",
+	"3Ur9/2U1epziGAhKYNXmb8v16x3YSUMO/A3jFFTZ02KhW7eMqsvM5+Cp1p5+nck3yrekjyXkYyZwsKGf",
+	"NYvkuqh13HDTgCSuHnVoV1u96Zft3vRRU36Htxkm6fXCzeJh8pRhn9NYqoN3C3FKZpjMPJ6qktT6Koao",
+	"PplT1mvZxWmtYhKdQmjqZOWxJZSM15egXBn/5ACTHsnTJkJX8ePMhPykqOU4vOBDPedVa55J7A4cjGzL",
+	"q+5Z/WntxIlVQPlmz2entGRyH3cxKUnqdpH9sPvOT0EReChua2lm3y303ejRvudlLdJZnpyKbgrxosB6",
+	"wHwuQeuq8PYWHs3Lo3XRLrJx6fSUOVJ1SIpFQUme9DDV2rI3K5RGIyoCjnAsb1zIyScsj9/Hktrxrnet",
+	"LFKLoCfzQqnjAjjFcN+bPg7f4Kher9V6gItJshVqNPDuYBl4KfWsdore3dIzbKHxgcPzwxsSe43pN5oL",
+	"5kzUPs2FfbNpfiBKIuH/ChHciV03MjCSvKRWR4dadajSv6ydtQtvOakW/WoiMlXK8fi85XJdk4wBlSKK",
+	"vdyDwlWKMySv67S9usQHUfpErsbBu9B71XxaKHU4HpyLr6fm+U3SfvKr/CqMuYUuGj3a92N2cHYNHDU6",
+	"aW8ObV57cvOSIfpO0ejFlgbJF9Yh+lsMliaa2LEv2sbur2retU5Hqd2rNwV3KSDSRJuvPuSRa9J9slWV",
+	"wnaomkdhulgeR7JODZs22LNiakPx4AA8dhg8ld8z8dJrbQryMNdaI6IuwDeRcnMp/hMYxyOcLFLKj5oH",
+	"szoWnKi5DVeW5z0K72ZUimBnNW+d0dev6I1J1LJupIP0NybL9kuQXKWuTTVsWbf899qK5RxxqNy5bAHM",
+	"OEUcZsvyBYYMaFHuX36Qv7ReWGymn8/JesHNABUVelRDeLFI3XVtJ3VffR62rIY11UybmwhZ1/C89uKg",
+	"ptsZCDx8HPQiBL2fUAtnj6hsof+UuPX0hWwvzLZU8tgTbO5lJAKqtn+fVN0Zwui4WaHUcq/yWRMOyYur",
+	"nkVh2i/vfZu6XEMoc7WaPS5R3X1lDjzkhQuv21VHu10ll9/2vNVNHEcdzmqsSkY8MUO3JB14W2g68LWI",
+	"w1yzuO+Y2JosOX523WQvikjGc7Dd0ObHScjuO5ggHy7/9PgccW+OqhYJYt4UEM8oMDffsDH7cPlnbwvk",
+	"iYyE9vKaHH7ykUbUVoeaxp565mEiUaqHeLFapg9ZlTjBqrIvKOt41dHg/DyD1MjbFp7+BKkUpFvxtR7k",
+	"eHm72wHGJoVlUODkd4Pk4iq1l8npfYmtrPcC3yD5ldMNp48esbyvurFUjEDf3lJGzDXZ/erDmKuxn0dZ",
+	"mFpDri3jQ3V0y12V8NGPDTYNitzs1dQ/ZHJ4ArFZEMEzcb/bOymh1jn5pIlNhr64Rp4Z71K24jy5hSja",
+	"7EbkVy//RbN+la53HQHI7Yj2apwyBvY8inGKNzzLWpyKcPIyYut+85HVoRtGhTgToyxifi3f+ZzKd3bn",
+	"gN2L0q4lPS1iPL6KniV0PxfP7VWK2lJ0yAqgFq2/FgC1C4A+Lz7S8xKr7X3Ypyw+qjqMT8Gqa+GdevPo",
+	"CWqOtvqBssqWggOiZxIcNFUfd7/Ha4IGPxS+TzpuDZlueVI480RP73aZ3/uNiE6S8yZn1aM/ur/KTH2/",
+	"lNlzY6Z3inZGTGJ8nQzblv/4gk+o9V7bPAeytKp+4L/uyBg+68deG3LVKzcdHjf1ZqIXzTwKWxyNHtUn",
+	"YZ4V8fHDR4SBus14kjH6gaNKd7VnQGKOFzG4z38ULo7rKdc35jVaaIJR5dV6e/eiSockjuKA36CBLT2f",
+	"QpboraANLcZ6Zhw9yv/uohUOSt9byEq+vWvA6rmShwnE1ZNHcHyitb2DTaKtMSeJioGjTa8C+aUK5MzU",
+	"JagXyKvVfwMAAP//G32nD/S/AAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
