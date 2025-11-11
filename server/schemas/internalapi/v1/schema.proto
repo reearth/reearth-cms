@@ -137,13 +137,13 @@ message SortInfo {
 }
 
 message ProjectRequest {
-  string workspace_id_or_alias = 1;
-  string project_id_or_alias = 2;
+  string project_id_or_alias = 1;
+  string workspace_id_or_alias = 2;
 }
 
 message AliasAvailabilityRequest {
-  string workspace_id = 1;
-  string alias = 2;
+  string alias = 1;
+  string workspace_id = 2;
 }
 
 message CreateProjectRequest {
@@ -194,9 +194,9 @@ message ListAssetsRequest {
 }
 
 message ModelRequest {
-  string workspace_id_or_alias = 1;
-  string project_id_or_alias = 2;
-  string model_id_or_alias = 3;
+  string project_id_or_alias = 1;
+  string model_id_or_alias = 2;
+  string workspace_id_or_alias = 3;
 }
 
 message ListModelsRequest {
@@ -207,8 +207,8 @@ message ListModelsRequest {
 }
 
 message ListItemsRequest {
-  string project_id = 1;
-  string model_id = 2;
+  string model_id = 1;
+  string project_id = 2;
   optional string keyword = 3;
 
   optional PageInfo page_info = 100;
