@@ -145,6 +145,9 @@ const Schema: React.FC<Props> = ({
   const t = useT();
   const [tab, setTab] = useState<Tab>("fields");
 
+  const hasFields = useMemo(() => data && data.schema.fields.length > 0, [data]);
+  const disableImport = useMemo(() => !hasUpdateRight || hasFields, [hasUpdateRight, hasFields]);
+
   const handleSchemaImport = useCallback(() => {
     if (data?.schema.fields && data.schema.fields.length > 0) {
       Modal.confirm({
@@ -175,10 +178,14 @@ const Schema: React.FC<Props> = ({
       },
       {
         key: "import",
-        label: t("Import"),
+        label: (
+          <Tooltip title={disableImport ? t("Only empty schemas can be imported into") : undefined}>
+            {t("Import")}
+          </Tooltip>
+        ),
         icon: <StyledIcon icon="import" />,
         onClick: handleSchemaImport,
-        disabled: !hasUpdateRight,
+        disabled: disableImport,
       },
       {
         key: "delete",
@@ -189,7 +196,15 @@ const Schema: React.FC<Props> = ({
         disabled: !hasDeleteRight,
       },
     ],
-    [handleSchemaImport, hasDeleteRight, hasUpdateRight, onDeletionModalOpen, onModalOpen, t],
+    [
+      handleSchemaImport,
+      hasDeleteRight,
+      hasUpdateRight,
+      onDeletionModalOpen,
+      onModalOpen,
+      t,
+      disableImport,
+    ],
   );
 
   const DropdownMenu = useCallback(
