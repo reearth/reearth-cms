@@ -2,6 +2,7 @@ import fileDownload from "js-file-download";
 import { useState, useCallback, Key, useMemo, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
+import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
 import { UploadFile as RawUploadFile, RcFile } from "@reearth-cms/components/atoms/Upload";
@@ -64,6 +65,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   });
   const [selectedAssetId, setSelectedAssetId] = useState<string>();
   const [fileList, setFileList] = useState<RawUploadFile[]>([]);
+  const [alertList, setAlertList] = useState<AlertProps[]>([]);
   const [uploadUrl, setUploadUrl] = useState({
     url: "",
     autoUnzip: true,
@@ -463,6 +465,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     assetList,
     selection,
     fileList,
+    alertList,
     uploading,
     guessSchemaFieldsLoading,
     uploadModalVisibility,
@@ -495,6 +498,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     setImportFields,
     handleSelect,
     setFileList,
+    setAlertList,
     setUploadModalVisibility,
     handleAssetsCreate,
     handleAssetCreateFromUrl,

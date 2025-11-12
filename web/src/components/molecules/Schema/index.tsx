@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { Dispatch, SetStateAction, useCallback, useMemo, useState } from "react";
 
+import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -8,6 +9,7 @@ import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/co
 import Modal from "@reearth-cms/components/atoms/Modal";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Tabs, { TabsProps } from "@reearth-cms/components/atoms/Tabs";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
@@ -46,6 +48,7 @@ type Props = {
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
   fileList: UploadFile[];
+  alertList?: AlertProps[];
   uploadType: UploadType;
   uploadUrl: { url: string; autoUnzip: boolean };
   uploading: boolean;
@@ -56,6 +59,7 @@ type Props = {
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
+  setAlertList: (alertList: AlertProps[]) => void;
   totalCount: number;
   onSearchTerm: (term?: string) => void;
   onAssetsReload: () => void;
@@ -103,6 +107,7 @@ const Schema: React.FC<Props> = ({
   hasUpdateRight,
   hasDeleteRight,
   fileList,
+  alertList,
   uploadType,
   uploadUrl,
   uploading,
@@ -113,6 +118,7 @@ const Schema: React.FC<Props> = ({
   setUploadUrl,
   setUploadType,
   setFileList,
+  setAlertList,
   totalCount,
   onSearchTerm,
   onAssetsReload,
@@ -319,6 +325,7 @@ const Schema: React.FC<Props> = ({
             onUploadModalOpen={onUploadModalOpen}
             onUploadModalCancel={onUploadModalCancel}
             fileList={fileList}
+            alertList={alertList}
             totalCount={totalCount}
             selectedAsset={selectedAsset}
             uploadType={uploadType}
@@ -331,6 +338,7 @@ const Schema: React.FC<Props> = ({
             setUploadUrl={setUploadUrl}
             setUploadType={setUploadType}
             setFileList={setFileList}
+            setAlertList={setAlertList}
             hasCreateRight={hasCreateRight}
             uploadModalVisibility={uploadModalVisibility}
             onSearchTerm={onSearchTerm}

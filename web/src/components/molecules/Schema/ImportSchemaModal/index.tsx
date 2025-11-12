@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
 
+import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -15,6 +16,8 @@ import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { defaultTypePropertyGet } from "@reearth-cms/components/organisms/Project/Schema/helpers";
 import { Trans, useT } from "@reearth-cms/i18n";
+import { FileUtils } from "@reearth-cms/utils/file";
+import { ObjectUtils } from "@reearth-cms/utils/object";
 
 import { fieldTypes } from "../fieldTypes";
 import { CreateFieldInput, SchemaFieldType } from "../types";
@@ -37,6 +40,7 @@ type Props = {
   totalCount: number;
   selectedAsset?: ItemAsset;
   fileList: RawUploadFile[];
+  alertList?: AlertProps[];
   uploadType: UploadType;
   uploadUrl: { url: string; autoUnzip: boolean };
   uploading: boolean;
@@ -57,6 +61,7 @@ type Props = {
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
+  setAlertList: (alertList: AlertProps[]) => void;
   onSearchTerm: (term?: string) => void;
   onAssetsReload: () => void;
   onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
@@ -83,6 +88,7 @@ const ImportSchemaModal: React.FC<Props> = ({
   totalCount,
   selectedAsset,
   fileList,
+  alertList,
   uploadType,
   uploadUrl,
   uploading,
@@ -93,6 +99,7 @@ const ImportSchemaModal: React.FC<Props> = ({
   setUploadUrl,
   setUploadType,
   setFileList,
+  setAlertList,
   hasCreateRight,
   uploadModalVisibility,
   onUploadModalOpen,
@@ -178,6 +185,17 @@ const ImportSchemaModal: React.FC<Props> = ({
     }));
   }, []);
 
+  const raiseIllegalFileAlert = useCallback(() => {
+    setAlertList([
+      {
+        message: t("The uploaded file is empty or invalid"),
+        type: "error",
+        closable: true,
+        showIcon: true,
+      },
+    ]);
+  }, [setAlertList, t]);
+
   const uploadProps: UploadProps = {
     name: "file",
     multiple: false,
@@ -188,9 +206,31 @@ const ImportSchemaModal: React.FC<Props> = ({
     listType: "picture",
     onRemove: () => {
       setFileList([]);
+      setAlertList([]);
     },
     beforeUpload: file => {
       setFileList([file]);
+      if (file.size === 0) {
+        raiseIllegalFileAlert();
+        return;
+      }
+
+      FileUtils.parseTextFile(file, content => {
+        if (content) {
+          const jsonValidation = ObjectUtils.safeJSONParse(content);
+
+          if (
+            (jsonValidation.isValid && ObjectUtils.isEmpty(jsonValidation.data)) ||
+            !jsonValidation.isValid
+          ) {
+            raiseIllegalFileAlert();
+            return;
+          }
+
+          setAlertList([]);
+        }
+      });
+
       return false;
     },
     fileList,
@@ -299,6 +339,7 @@ const ImportSchemaModal: React.FC<Props> = ({
           uploadProps={uploadProps}
           uploading={uploading}
           fileList={fileList}
+          alertList={alertList}
           uploadUrl={uploadUrl}
           uploadType={uploadType}
           setUploadUrl={setUploadUrl}

@@ -6765,6 +6765,11 @@
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
 
+"@placemarkio/check-geojson@0.1.14":
+  version "0.1.14"
+  resolved "https://registry.yarnpkg.com/@placemarkio/check-geojson/-/check-geojson-0.1.14.tgz#57cc8a10c90f0b310a2cc0d2a82f51dcd24c58be"
+  integrity sha512-PZvNKzt6STytUw21TUkqU+TG6dbwTWb1ACosvInBYTBm37zsr8C74J6crBTQ3BWkyd6YeitYd4HibJzBEyk6Aw==
+
 "@playwright/test@1.56.0":
   version "1.56.0"
   resolved "https://registry.yarnpkg.com/@playwright/test/-/test-1.56.0.tgz#891fe101bddf3eee3dd609e7a145f705dc0f3054"

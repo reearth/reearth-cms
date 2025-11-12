@@ -43,6 +43,7 @@ const ProjectSchema: React.FC = () => {
         page={importHooks.page}
         pageSize={importHooks.pageSize}
         assetList={importHooks.assetList}
+        alertList={importHooks.alertList}
         loading={importHooks.loading}
         guessSchemaFieldsLoading={importHooks.guessSchemaFieldsLoading}
         selectedAsset={importHooks.selectedAsset}
@@ -57,6 +58,7 @@ const ProjectSchema: React.FC = () => {
         setUploadUrl={importHooks.setUploadUrl}
         setUploadType={importHooks.setUploadType}
         setFileList={importHooks.setFileList}
+        setAlertList={importHooks.setAlertList}
         uploadModalVisibility={importHooks.uploadModalVisibility}
         totalCount={importHooks.totalCount}
         hasCreateRight={schemaHooks.hasCreateRight}
