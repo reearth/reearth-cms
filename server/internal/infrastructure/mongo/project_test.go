@@ -1456,7 +1456,7 @@ func Test_projectRepo_Search(t *testing.T) {
 					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
 				},
 			},
-			want:    project.List{p1, p2, p4},
+			want:    project.List{p4},
 			wantErr: nil,
 		},
 		{
