@@ -182,15 +182,14 @@ func TestInternalListProjectsAPI(t *testing.T) {
 		l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{
 			WorkspaceIds: []string{wId0.String()},
 			PublicOnly:   false,
-			Topics:       []string{"topic1", "topic2"},
+			Topics:       []string{"topic1", "topic3"},
 		})
 		assert.NoError(t, err)
 
-		assert.Equal(t, int64(2), l.TotalCount)
-		assert.Equal(t, 2, len(l.Projects))
+		assert.Equal(t, int64(1), l.TotalCount)
+		assert.Equal(t, 1, len(l.Projects))
 
 		assert.Equal(t, pid.String(), l.Projects[0].Id)
-		assert.Equal(t, pid2.String(), l.Projects[1].Id)
 	})
 
 	t.Run("List Projects with non-existence topics", func(t *testing.T) {

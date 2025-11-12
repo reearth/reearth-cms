@@ -118,7 +118,7 @@ func (r *ProjectRepo) Search(ctx context.Context, f interfaces.ProjectFilter) (p
 		for i, topic := range f.Topics {
 			regexPatterns[i] = primitive.Regex{Pattern: fmt.Sprintf("^%s$", regexp.QuoteMeta(topic)), Options: "i"}
 		}
-		filter["topics"] = bson.M{"$elemMatch": bson.M{"$in": regexPatterns}}
+		filter["topics"] = bson.M{"$all": regexPatterns}
 	}
 
 	return r.paginate(ctx, filter, f.Sort, f.Pagination)
