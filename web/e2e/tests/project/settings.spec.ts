@@ -12,7 +12,7 @@ test.beforeEach(async ({ reearth }) => {
 });
 
 test.describe("Project General Settings", () => {
-  test("Update project general settings", async ({ page, projectSettingsPage, projectPage }) => {
+  test("@smoke Update project general settings", async ({ page, projectSettingsPage, projectPage }) => {
     await test.step("Project creation setup", async () => {
       await projectPage.createProject(EXIST_PROJECT_NAME);
       await projectSettingsPage.goto("/");
