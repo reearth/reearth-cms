@@ -24,6 +24,7 @@ const (
 	contextUsecases ContextKey = "usecases"
 	contextGateways ContextKey = "gateways"
 	contextAcRepos  ContextKey = "ac-repos"
+	contextJWTToken ContextKey = "jwtToken"
 )
 
 func AttachUser(ctx context.Context, u *user.User) context.Context {
@@ -129,4 +130,11 @@ func GetAuthInfo(ctx context.Context) *appx.AuthInfo {
 		}
 	}
 	return nil
+}
+
+func GetJWTToken(ctx context.Context) string {
+	if token, ok := ctx.Value(contextJWTToken).(string); ok {
+		return token
+	}
+	return ""
 }

@@ -36,8 +36,8 @@ func TestToWorkspace(t *testing.T) {
 			name: "ok",
 			arg:  w,
 			want: &Workspace{
-				ID:   IDFrom(w.ID()),
-				Name: "workspace",
+				ID:    IDFrom(w.ID()),
+				Name:  "workspace",
 				Alias: lo.ToPtr(""),
 				Members: []WorkspaceMember{
 					&WorkspaceUserMember{
