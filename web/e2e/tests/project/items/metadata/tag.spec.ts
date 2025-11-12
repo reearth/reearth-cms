@@ -18,7 +18,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Tag metadata creating and updating has succeeded", async ({
+test("@smoke Tag metadata creating and updating has succeeded", async ({
   page,
   fieldEditorPage,
   contentPage,

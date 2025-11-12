@@ -14,7 +14,7 @@ test.describe("Project CRUD and searching has succeeded", () => {
   const NEW_PROJECT_NAME = `new ${PROJECT_NAME}`;
   const NEW_PROJECT_DESCRIPTION = `new ${PROJECT_DESCRIPTION}`;
 
-  test("Create project", async ({ workspacePage, page }) => {
+  test("@smoke Create project", async ({ workspacePage, page }) => {
     await test.step("Open new project dialog and fill details", async () => {
       const newProjectButton = workspacePage.newProjectButtonLast;
       await newProjectButton.click();
@@ -59,7 +59,7 @@ test.describe("Project CRUD and searching has succeeded", () => {
     });
   });
 
-  test("Update project", async ({ projectPage, projectSettingsPage, page }) => {
+  test("@smoke Update project", async ({ projectPage, projectSettingsPage, page }) => {
     await test.step("Navigate to project settings and update name and description", async () => {
       await projectPage.gotoProject(PROJECT_NAME);
       await projectSettingsPage.goToProjectSettings();
@@ -91,7 +91,7 @@ test.describe("Project CRUD and searching has succeeded", () => {
     });
   });
 
-  test("Delete project", async ({ projectPage, workspacePage, projectSettingsPage, page }) => {
+  test("@smoke Delete project", async ({ projectPage, workspacePage, projectSettingsPage, page }) => {
     await test.step("Navigate to project settings and delete project", async () => {
       await projectPage.gotoProject(NEW_PROJECT_NAME);
       await projectSettingsPage.goToProjectSettings();

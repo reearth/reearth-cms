@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Int field creating and updating has succeeded", async ({
+test("@smoke Int field creating and updating has succeeded", async ({
   page,
   fieldEditorPage,
   projectPage,

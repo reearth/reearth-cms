@@ -24,7 +24,7 @@ test.describe("Json file tests", () => {
     await assetsPage.uploadViaUrl(jsonUrl);
   });
 
-  test("Asset CRUD and Searching has succeeded", async ({ assetsPage }) => {
+  test("@smoke Asset CRUD and Searching has succeeded", async ({ assetsPage }) => {
     await expect(assetsPage.rowByText(jsonName)).toBeVisible();
 
     // search no result
