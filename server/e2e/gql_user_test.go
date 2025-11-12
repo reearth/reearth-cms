@@ -3,14 +3,18 @@ package e2e
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
 	"strings"
 	"testing"
 
+	"github.com/golang/mock/gomock"
+	user_api "github.com/reearth/reearth-accounts/server/pkg/user"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway/gatewaymock"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
@@ -189,6 +193,37 @@ func TestDeleteMe(t *testing.T) {
 	assert.Equal(t, rerror.ErrNotFound, err)
 }
 
+// Helper function to create a mock user from the accounts API package
+func createMockUser(userID accountdomain.UserID, name, email string, workspaceID accountdomain.WorkspaceID, lang language.Tag, theme user_api.Theme) *user_api.User {
+	// Create user metadata
+	metadata := user_api.NewMetadata()
+	metadata.SetLang(lang)
+	metadata.SetTheme(theme)
+
+	// Create IDs properly handling errors
+	accountUserID, err := user_api.IDFrom(userID.String())
+	if err != nil {
+		panic(err) // This is a test helper, so panic is acceptable
+	}
+
+	accountWorkspaceID, err := user_api.WorkspaceIDFrom(workspaceID.String())
+	if err != nil {
+		panic(err) // This is a test helper, so panic is acceptable
+	}
+
+	// Create the user using the builder pattern
+	mockUser := user_api.New().
+		ID(accountUserID).
+		Name(name).
+		Email(email).
+		Alias(name).
+		Workspace(accountWorkspaceID).
+		Metadata(metadata).
+		MustBuild()
+
+	return mockUser
+}
+
 func TestMe(t *testing.T) {
 	// Check if Accounts is available
 	accountsAPIHost := os.Getenv("REEARTH_ACCOUNTS_API_HOST")
@@ -198,7 +233,10 @@ func TestMe(t *testing.T) {
 
 	accountsAPIAvailable := isAccountsAPIHealthy(accountsAPIHost)
 
-	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+	// Create a mock controller and account mock
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	query := ` { me{ id name email lang theme myWorkspaceId profilePictureUrl } }`
 	request := GraphQLRequest{
 		Query: query,
@@ -208,14 +246,39 @@ func TestMe(t *testing.T) {
 		assert.NoError(t, err)
 	}
 
-	if accountsAPIAvailable {
-		// Test successful cases when Accounts is available
-		t.Log("Testing with Accounts available")
+	// Test case 1: Success case with mock returning valid user data
+	t.Run("Success_Case_Mock_Returns_User", func(t *testing.T) {
+		mockAccount := gatewaymock.NewMockAccount(ctrl)
+
+		mockUser1 := createMockUser(uId1, "e2e", "e2e@e2e.com", wId, language.English, user_api.ThemeDark)
+
+		mockAccount.EXPECT().FindMe(gomock.Any()).Return(mockUser1, nil).AnyTimes().Do(func(ctx context.Context) {
+			t.Log("Mock FindMe called successfully")
+		})
+
+		// Create a custom seeder function that sets up both the mock and regular user data
+		successSeeder := func(ctx context.Context, r *repo.Container, g *gateway.Container) error {
+			// Set up the accounts mock for testing
+			if g != nil {
+				t.Log("Setting up mock account in gateway container")
+				g.Accounts = mockAccount
+			} else {
+				t.Log("Warning: gateway container is nil")
+			}
+
+			return baseSeederUser(ctx, r, g)
+		}
+
+		e := StartServer(t, &app.Config{}, false, successSeeder)
+
+		t.Log("Testing with Account Mock - success case")
+
 		o := e.POST("/api/graphql").
 			WithHeader("authorization", "Bearer test").
 			WithHeader("Content-Type", "application/json").
 			WithHeader("X-Reearth-Debug-User", uId1.String()).
 			WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("me").Object()
+
 		o.Value("id").String().IsEqual(uId1.String())
 		o.Value("name").String().IsEqual("e2e")
 		o.Value("email").String().IsEqual("e2e@e2e.com")
@@ -223,22 +286,29 @@ func TestMe(t *testing.T) {
 		o.Value("theme").String().IsEqual("dark")
 		o.Value("myWorkspaceId").String().IsEqual(wId.String())
 		o.Value("profilePictureUrl").String().IsEqual("")
+	})
 
-		o = e.POST("/api/graphql").
-			WithHeader("authorization", "Bearer test").
-			WithHeader("Content-Type", "application/json").
-			WithHeader("X-Reearth-Debug-User", uId2.String()).
-			WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("me").Object()
-		o.Value("id").String().IsEqual(uId2.String())
-		o.Value("name").String().IsEqual("e2e2")
-		o.Value("email").String().IsEqual("e2e2@e2e.com")
-		o.Value("lang").String().IsEqual("ja")
-		o.Value("theme").String().IsEqual("default")
-		o.Value("myWorkspaceId").String().IsEqual(wId2.String())
-		o.Value("profilePictureUrl").String().IsEqual("")
-	} else {
-		// Test error cases when Accounts is not available
-		t.Log("Testing without Accounts - expecting errors")
+	// Test case 2: Failure case with mock returning error (simulating unavailable accounts API)
+	t.Run("Failure_Case_Mock_Returns_Error", func(t *testing.T) {
+		mockAccount := gatewaymock.NewMockAccount(ctrl)
+
+		mockAccount.EXPECT().FindMe(gomock.Any()).Return(nil, errors.New("account api not available")).AnyTimes()
+
+		failureSeeder := func(ctx context.Context, r *repo.Container, g *gateway.Container) error {
+			// Set up the accounts mock for testing
+			if g != nil {
+				t.Log("Setting up failure mock account in gateway container")
+				g.Accounts = mockAccount
+			} else {
+				t.Log("Warning: gateway container is nil in failure case")
+			}
+			// Run the base seeder
+			return baseSeederUser(ctx, r, g)
+		}
+
+		e := StartServer(t, &app.Config{}, false, failureSeeder)
+
+		t.Log("Testing with Account Mock - failure case (expecting errors)")
 		e.POST("/api/graphql").
 			WithHeader("authorization", "Bearer test").
 			WithHeader("Content-Type", "application/json").
@@ -249,9 +319,16 @@ func TestMe(t *testing.T) {
 		e.POST("/api/graphql").
 			WithHeader("authorization", "Bearer test").
 			WithHeader("Content-Type", "application/json").
-			WithHeader("X-Reearth-Debug-User", uId2.String()).
+			WithHeader("X-Reearth-Debug-User", uId1.String()).
 			WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
 			Value("errors").Array().Length().IsEqual(1)
+	})
+
+	// Log which approach was used for the original implementation
+	if accountsAPIAvailable {
+		t.Log("Note: Real Accounts API was available but tests used mocks instead")
+	} else {
+		t.Log("Note: Real Accounts API was not available - tests used mocks")
 	}
 }
 

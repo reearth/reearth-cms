@@ -181,13 +181,13 @@ func StartServerWithRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder S
 	// Create gateway container and initialize Accounts if configured
 	gateway := &gateway.Container{File: f}
 
-	// Initialize Accounts client if enabled (similar to repo.go:168-179)
+	// Initialize Accounts client if enabled
 	if cfg.Account_Api.Enabled && cfg.Account_Api.Host != "" {
 		timeout := cfg.Account_Api.Timeout
 		if timeout == 0 {
 			timeout = 30 // Default 30 seconds
 		}
-		transport := app.DynamicAuthTransport{}
+		transport := app.NewDynamicAuthTransport()
 		gateway.Accounts = account.New(cfg.Account_Api.Host, timeout, transport)
 		t.Logf("Test Accounts client created: %s (timeout: %ds)", cfg.Account_Api.Host, timeout)
 	} else {

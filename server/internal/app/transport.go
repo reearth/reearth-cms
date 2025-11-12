@@ -4,14 +4,26 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/reearth/reearth-accounts/server/pkg/gqlclient"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearthx/log"
 )
 
-// DynamicAuthTransport handles JWT token extraction from request context
-type DynamicAuthTransport struct{}
+// dynamicAuthTransport handles JWT token extraction from request context
+type dynamicAuthTransport struct {
+	transport *gqlclient.AccountsTransport
+}
 
-func (t DynamicAuthTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+func NewDynamicAuthTransport() *dynamicAuthTransport {
+	return &dynamicAuthTransport{
+		transport: gqlclient.NewAccountsTransport(
+			http.DefaultTransport,
+			gqlclient.InternalServiceCMSAPI,
+		),
+	}
+}
+
+func (t dynamicAuthTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	ctx := req.Context()
 
 	// Add JWT token to request if available
@@ -22,7 +34,7 @@ func (t DynamicAuthTransport) RoundTrip(req *http.Request) (*http.Response, erro
 		log.Warnfc(ctx, "[Accounts API] Making unauthenticated request to %s (no JWT token found)", req.URL.String())
 	}
 
-	resp, err := http.DefaultTransport.RoundTrip(req)
+	resp, err := t.transport.RoundTrip(req)
 	if err != nil {
 		log.Errorfc(req.Context(), "[Accounts API] Request failed: %v", err)
 		return nil, err

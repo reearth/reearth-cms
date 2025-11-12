@@ -171,15 +171,12 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 		if timeout == 0 {
 			timeout = 30 // Default 30 seconds
 		}
-		transport := DynamicAuthTransport{}
+		transport := NewDynamicAuthTransport()
 		gateways.Accounts = account.New(conf.Account_Api.Host, timeout, transport)
 		log.Infof("accounts api: external GraphQL API configured: %s (timeout: %ds)", conf.Account_Api.Host, timeout)
 	} else {
 		log.Infof("accounts api: not configured or disabled")
 	}
-
-	// Note: Can't test Accounts connection here since there's no user authentication context
-	// during application startup. The API will be tested when actual user requests are made.
 
 	return cmsRepos, gateways, acRepos, acGateways
 }
