@@ -145,7 +145,8 @@ const ContentListMolecule: React.FC<Props> = ({
                     type="primary"
                     onClick={onItemAdd}
                     icon={<Icon icon="plus" />}
-                    disabled={!model || !hasCreateRight}>
+                    disabled={!model || !hasCreateRight}
+                    data-testid="content-new-item-button">
                     {t("New Item")}
                   </Button>
                 }

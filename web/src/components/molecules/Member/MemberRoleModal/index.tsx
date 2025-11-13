@@ -61,11 +61,17 @@ const MemberRoleModal: React.FC<Props> = ({ open, member, loading, onClose, onUp
       title={t("Role Settings")}
       open={open}
       onCancel={handleClose}
+      data-testid="member-role-modal"
       footer={[
-        <Button onClick={handleClose} disabled={loading}>
+        <Button onClick={handleClose} disabled={loading} data-testid="member-role-cancel-button">
           {t("Cancel")}
         </Button>,
-        <Button type="primary" loading={loading} onClick={handleSubmit} disabled={isDisabled}>
+        <Button
+          type="primary"
+          loading={loading}
+          onClick={handleSubmit}
+          disabled={isDisabled}
+          data-testid="member-role-ok-button">
           {t("OK")}
         </Button>,
       ]}>
@@ -84,7 +90,10 @@ const MemberRoleModal: React.FC<Props> = ({ open, member, loading, onClose, onUp
               message: t("Please input the appropriate role for this member!"),
             },
           ]}>
-          <Select placeholder={t("select role")} onSelect={handleSelect}>
+          <Select
+            placeholder={t("select role")}
+            onSelect={handleSelect}
+            data-testid="member-role-select">
             <Option value="OWNER">{t("Owner")}</Option>
             <Option value="MAINTAINER">{t("Maintainer")}</Option>
             <Option value="WRITER">{t("Writer")}</Option>

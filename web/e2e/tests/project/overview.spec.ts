@@ -14,7 +14,11 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Model CRUD on Overview page has succeeded", async ({ schemaPage, projectPage, page }) => {
+test("@smoke Model CRUD on Overview page has succeeded", async ({
+  schemaPage,
+  projectPage,
+  page,
+}) => {
   await test.step("Create new model from overview page", async () => {
     await expect(projectPage.noModelsYetText).toBeVisible();
     await projectPage.newModelButtonFirst.click();

@@ -50,8 +50,13 @@ const IntegrationConnectModal: React.FC<Props> = ({
       title={t("Connect Integration")}
       open={open}
       onCancel={onClose}
+      data-testid="integration-connect-modal"
       footer={[
-        <Button key="back" onClick={onClose} disabled={loading}>
+        <Button
+          key="back"
+          onClick={onClose}
+          disabled={loading}
+          data-testid="integration-connect-cancel-button">
           {t("Cancel")}
         </Button>,
         <Button
@@ -59,7 +64,8 @@ const IntegrationConnectModal: React.FC<Props> = ({
           type="primary"
           disabled={!selectedIntegration}
           onClick={handleConnect}
-          loading={loading}>
+          loading={loading}
+          data-testid="integration-connect-ok-button">
           {t("Connect")}
         </Button>,
       ]}>

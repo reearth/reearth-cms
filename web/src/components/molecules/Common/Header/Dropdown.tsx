@@ -29,7 +29,9 @@ const Dropdown: React.FC<Props> = ({
       trigger={["click"]}
       dropdownRender={menu => <StyledDropdownMenu>{menu}</StyledDropdownMenu>}
       {...props}>
-      <a onClick={e => e.preventDefault()}>
+      <a
+        onClick={e => e.preventDefault()}
+        data-testid={personal ? "header-account-dropdown" : "header-workspace-dropdown"}>
         <Space>
           <UserAvatar
             username={name ?? ""}

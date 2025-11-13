@@ -4,41 +4,49 @@ import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { BasePage } from "./base.page";
 
 export class AssetsPage extends BasePage {
-  // Toolbar / Actions
+  // Asset management - Main toolbar and actions
   get uploadButton(): Locator {
-    return this.getByRole("button", { name: "upload Upload Asset" });
+    return this.getByTestId("asset-upload-button");
   }
   get searchInput(): Locator {
-    return this.getByPlaceholder("input search text");
-  }
-  get searchButton(): Locator {
-    return this.getByRole("button", { name: "search" });
+    return this.getByTestId("asset-search-input");
   }
   get downloadButton(): Locator {
-    return this.getByRole("button", { name: "download Download" });
+    return this.getByTestId("asset-download-button");
   }
   get deleteButton(): Locator {
-    return this.getByText("Delete");
+    return this.getByTestId("asset-delete-button");
   }
 
   // Upload modal
+  get uploadModal(): Locator {
+    return this.getByTestId("asset-upload-modal");
+  }
+  get urlInput(): Locator {
+    return this.getByTestId("asset-upload-url-input");
+  }
+  get autoUnzipCheckbox(): Locator {
+    return this.getByTestId("asset-upload-auto-unzip-checkbox");
+  }
+  get submitUploadButton(): Locator {
+    return this.getByTestId("asset-upload-submit-button");
+  }
+  get cancelUploadButton(): Locator {
+    return this.getByTestId("asset-upload-cancel-button");
+  }
+
+  // Legacy locators (kept for backwards compatibility with existing tests)
   get urlTab(): Locator {
     return this.getByRole("tab", { name: "URL" });
   }
   get localTab(): Locator {
     return this.getByRole("tab", { name: "Local" });
   }
-  get urlInput(): Locator {
-    return this.getByPlaceholder("Please input a valid URL");
-  }
   get fileInput(): Locator {
     return this.locator(".ant-upload input[type='file']");
   }
-  get autoUnzipCheckbox(): Locator {
-    return this.getByRole("checkbox", { name: "Auto Unzip" });
-  }
-  get submitUploadButton(): Locator {
-    return this.getByRole("button", { name: "Upload", exact: true });
+  get searchButton(): Locator {
+    return this.getByRole("button", { name: "search" });
   }
 
   // Grid / Rows

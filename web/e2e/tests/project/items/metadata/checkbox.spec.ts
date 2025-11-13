@@ -48,7 +48,7 @@ test("@smoke Checkbox metadata creating and updating has succeeded", async ({
   });
 
   await test.step("Create item with default checkbox value", async () => {
-    await schemaPage.contentMenuItem.click();
+    await schemaPage.navContentMenuItem.click();
     await contentPage.newItemButton.click();
     await expect(contentPage.fieldInput("checkbox1")).toBeVisible();
     await expect(contentPage.fieldDescriptionText("checkbox1 description")).toBeVisible();
@@ -103,7 +103,7 @@ test("Checkbox metadata editing has succeeded", async ({
   });
 
   await test.step("Verify field in content and create item with default value", async () => {
-    await schemaPage.contentMenuItem.click();
+    await schemaPage.navContentMenuItem.click();
     await expect(contentPage.columnHeaderWithEdit("checkbox1")).toBeVisible();
     await contentPage.newItemButton.click();
     await expect(contentPage.fieldInput("checkbox1")).toBeChecked();
@@ -133,7 +133,7 @@ test("Checkbox metadata editing has succeeded", async ({
   });
 
   await test.step("Verify updated metadata in content and create new item", async () => {
-    await schemaPage.contentMenuItem.click();
+    await schemaPage.navContentMenuItem.click();
     await expect(contentPage.columnHeaderWithEdit("new checkbox1")).toBeVisible();
     await expect(contentPage.lastCellCheckbox).toBeChecked();
     await contentPage.newItemButton.click();

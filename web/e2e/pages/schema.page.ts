@@ -6,21 +6,33 @@ import { BasePage } from "./base.page";
 export class SchemaPage extends BasePage {
   // Navigation
   get schemaMenuItem(): Locator {
-    return this.getByRole("menuitem", { name: "Schema" });
+    return this.getByTestId("nav-schema-menuitem");
+  }
+  get modelsMenuItem(): Locator {
+    return this.getByTestId("nav-models-menuitem");
+  }
+  get assetMenuItem(): Locator {
+    return this.getByTestId("nav-asset-menuitem");
+  }
+  get requestMenuItem(): Locator {
+    return this.getByTestId("nav-request-menuitem");
+  }
+  get settingsMenuItem(): Locator {
+    return this.getByTestId("nav-settings-menuitem");
   }
 
   // Model actions
   get plusAddButton(): Locator {
-    return this.getByRole("button", { name: "plus Add" });
+    return this.getByTestId("schema-model-create-button");
   }
   get firstPlusAddButton(): Locator {
-    return this.getByRole("button", { name: "plus Add" }).first();
+    return this.getByTestId("schema-model-create-button").first();
   }
   get modelNameInput(): Locator {
-    return this.locator("#name");
+    return this.getByTestId("schema-model-name-input");
   }
   get modelKeyInput(): Locator {
-    return this.locator("#key");
+    return this.getByTestId("schema-model-key-input");
   }
   get modelNameLabel(): Locator {
     return this.getByLabel("Model name");
@@ -30,6 +42,9 @@ export class SchemaPage extends BasePage {
   }
   modelMenuItem(name: string): Locator {
     return this.getByRole("menuitem", { name });
+  }
+  modelMenuItemByKey(key: string): Locator {
+    return this.getByTestId(`schema-model-item-${key}`);
   }
   modelMenuItems(): Locator {
     return this.getByRole("main").getByRole("menuitem");
@@ -43,13 +58,16 @@ export class SchemaPage extends BasePage {
     return this.getByLabel("New Group");
   }
   get groupNameInput(): Locator {
-    return this.getByLabel("New Group").locator("#name");
+    return this.getByTestId("schema-group-name-input");
   }
   get groupKeyInput(): Locator {
-    return this.getByLabel("New Group").locator("#key");
+    return this.getByTestId("schema-group-key-input");
   }
   groupMenuItem(name: string): Locator {
     return this.getByRole("menuitem", { name });
+  }
+  groupMenuItemByKey(key: string): Locator {
+    return this.getByTestId(`schema-group-item-${key}`);
   }
   get groupMenuItems(): Locator {
     return this.getByRole("main").getByRole("menu").last().getByRole("menuitem");
@@ -143,8 +161,8 @@ export class SchemaPage extends BasePage {
   }
 
   // Navigation menu items
-  get contentMenuItem(): Locator {
-    return this.getByRole("menuitem", { name: "Content" });
+  get navContentMenuItem(): Locator {
+    return this.getByTestId("nav-content-menuitem");
   }
 
   // Boolean metadata specific

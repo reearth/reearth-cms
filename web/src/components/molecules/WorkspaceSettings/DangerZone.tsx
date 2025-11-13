@@ -39,7 +39,8 @@ const DangerZone: React.FC<Props> = ({ hasDeleteRight, onWorkspaceDelete }) => {
         onClick={handleWorkspaceDeleteConfirmation}
         type="primary"
         danger
-        disabled={!hasDeleteRight}>
+        disabled={!hasDeleteRight}
+        data-testid="workspace-settings-delete-button">
         {t("Remove Workspace")}
       </Button>
     </ContentSection>

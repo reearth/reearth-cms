@@ -47,7 +47,8 @@ const CreateProjectButton: React.FC<Props> = ({
         onClick={handleProjectModalOpen}
         type="primary"
         icon={<Icon icon="plus" />}
-        disabled={!hasCreateRight}>
+        disabled={!hasCreateRight}
+        data-testid="workspace-new-project-button">
         {t("New Project")}
       </Button>
       <ProjectCreationModal

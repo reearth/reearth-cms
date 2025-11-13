@@ -71,8 +71,13 @@ const IntegrationSettingsModal: React.FC<Props> = ({
       title={t("Integration Setting")}
       open={open}
       onCancel={onClose}
+      data-testid="integration-settings-modal"
       footer={[
-        <Button key="back" onClick={onClose} disabled={loading}>
+        <Button
+          key="back"
+          onClick={onClose}
+          disabled={loading}
+          data-testid="integration-settings-cancel-button">
           {t("Cancel")}
         </Button>,
         <Button
@@ -80,7 +85,8 @@ const IntegrationSettingsModal: React.FC<Props> = ({
           type="primary"
           onClick={handleSubmit}
           disabled={isDisabled}
-          loading={loading}>
+          loading={loading}
+          data-testid="integration-settings-save-button">
           {t("Save")}
         </Button>,
       ]}>
@@ -109,7 +115,10 @@ const IntegrationSettingsModal: React.FC<Props> = ({
               message: t("Please input the appropriate role for this integration!"),
             },
           ]}>
-          <StyledSelect placeholder={t("select role")} onSelect={handleSelect}>
+          <StyledSelect
+            placeholder={t("select role")}
+            onSelect={handleSelect}
+            data-testid="integration-role-select">
             <Option value="READER">{t("Reader")}</Option>
             <Option value="WRITER">{t("Writer")}</Option>
             <Option value="MAINTAINER">{t("Maintainer")}</Option>

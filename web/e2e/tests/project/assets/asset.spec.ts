@@ -12,7 +12,7 @@ test.beforeEach(async ({ reearth, projectPage }) => {
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
-  await projectPage.assetMenuItem.click();
+  await projectPage.navAssetMenuItem.click();
 });
 
 test.afterEach(async ({ projectPage }) => {

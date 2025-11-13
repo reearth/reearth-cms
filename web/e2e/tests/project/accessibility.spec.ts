@@ -13,7 +13,8 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("@smoke Update settings on Accessibility page has succeeded", async ({ projectPage }) => {
-  await projectPage.accessibilityMenuItem.click();
+  await projectPage.navAccessibilityMenuItem.click();
+
   await expect(projectPage.accessibilityHeadingFirst).toBeVisible();
   await expect(projectPage.accessApiText).toBeVisible();
   await expect(projectPage.apiKeyText).toBeVisible();

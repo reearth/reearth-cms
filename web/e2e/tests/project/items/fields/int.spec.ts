@@ -35,7 +35,7 @@ test("@smoke Int field creating and updating has succeeded", async ({
   });
 
   await test.step("Create item with int value", async () => {
-    await projectPage.contentMenuItem.click();
+    await projectPage.navContentMenuItem.click();
     await contentPage.newItemButton.click();
     await expect(contentPage.firstLabel).toContainText("int1");
     await expect(contentPage.mainRole).toContainText("int1 description");

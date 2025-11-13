@@ -180,8 +180,13 @@ const FieldModal: React.FC<Props> = ({
       width={572}
       open={open}
       onCancel={handleModalReset}
+      data-testid="schema-field-modal"
       footer={[
-        <Button key="cancel" onClick={handleModalReset} disabled={fieldLoading}>
+        <Button
+          key="cancel"
+          onClick={handleModalReset}
+          disabled={fieldLoading}
+          data-testid="schema-field-cancel-button">
           {t("Cancel")}
         </Button>,
         <Button
@@ -189,7 +194,8 @@ const FieldModal: React.FC<Props> = ({
           type="primary"
           loading={fieldLoading}
           onClick={handleSubmit}
-          disabled={buttonDisabled}>
+          disabled={buttonDisabled}
+          data-testid="schema-field-save-button">
           {t("OK")}
         </Button>,
       ]}>
@@ -200,12 +206,16 @@ const FieldModal: React.FC<Props> = ({
         requiredMark={requiredMark}
         onValuesChange={handleValuesChange}>
         <Tabs activeKey={activeTab} onChange={handleTabChange}>
-          <TabPane tab={t("Settings")} key="settings" forceRender>
+          <TabPane
+            tab={t("Settings")}
+            key="settings"
+            forceRender
+            data-testid="schema-field-settings-tab">
             <Form.Item
               name="title"
               label={t("Display name")}
               rules={[{ required: true, message: t("Please input the display name of field!") }]}>
-              <Input onChange={handleNameChange} />
+              <Input onChange={handleNameChange} data-testid="schema-field-displayname-input" />
             </Form.Item>
             <Form.Item
               name="key"
@@ -222,10 +232,20 @@ const FieldModal: React.FC<Props> = ({
                   },
                 },
               ]}>
-              <Input onChange={handleKeyChange} showCount maxLength={Constant.KEY.MAX_LENGTH} />
+              <Input
+                onChange={handleKeyChange}
+                showCount
+                maxLength={Constant.KEY.MAX_LENGTH}
+                data-testid="schema-field-key-input"
+              />
             </Form.Item>
             <Form.Item name="description" label={t("Description")}>
-              <TextArea rows={3} showCount maxLength={1000} />
+              <TextArea
+                rows={3}
+                showCount
+                maxLength={1000}
+                data-testid="schema-field-description-input"
+              />
             </Form.Item>
             {selectedType === "Select" && (
               <Form.Item
@@ -323,7 +343,9 @@ const FieldModal: React.FC<Props> = ({
               name="multiple"
               valuePropName="checked"
               extra={t("Stores a list of values instead of a single value")}>
-              <Checkbox onChange={(e: CheckboxChangeEvent) => handleMultipleChange(e)}>
+              <Checkbox
+                onChange={(e: CheckboxChangeEvent) => handleMultipleChange(e)}
+                data-testid="schema-field-multiple-checkbox">
                 {t("Support multiple values")}
               </Checkbox>
             </Form.Item>
@@ -332,25 +354,37 @@ const FieldModal: React.FC<Props> = ({
               hidden={isTitleDisabled}
               valuePropName="checked"
               extra={t("Only one field can be used as the title")}>
-              <Checkbox>{t("Use as title")}</Checkbox>
+              <Checkbox data-testid="schema-field-title-checkbox">{t("Use as title")}</Checkbox>
             </Form.Item>
           </TabPane>
-          <TabPane tab={t("Validation")} key="validation" forceRender>
+          <TabPane
+            tab={t("Validation")}
+            key="validation"
+            forceRender
+            data-testid="schema-field-validation-tab">
             <FieldValidationInputs selectedType={selectedType} min={min} max={max} />
             <Form.Item
               name="required"
               valuePropName="checked"
               extra={t("Prevents saving an entry if this field is empty")}>
-              <Checkbox disabled={isRequiredDisabled}>{t("Make field required")}</Checkbox>
+              <Checkbox disabled={isRequiredDisabled} data-testid="schema-field-required-checkbox">
+                {t("Make field required")}
+              </Checkbox>
             </Form.Item>
             <Form.Item
               name="unique"
               valuePropName="checked"
               extra={t("Ensures that multiple entries can't have the same value for this field")}>
-              <Checkbox disabled={isUniqueDisabled}>{t("Set field as unique")}</Checkbox>
+              <Checkbox disabled={isUniqueDisabled} data-testid="schema-field-unique-checkbox">
+                {t("Set field as unique")}
+              </Checkbox>
             </Form.Item>
           </TabPane>
-          <TabPane tab={t("Default value")} key="defaultValue" forceRender>
+          <TabPane
+            tab={t("Default value")}
+            key="defaultValue"
+            forceRender
+            data-testid="schema-field-defaultvalue-tab">
             <FieldDefaultInputs
               multiple={multipleValue}
               selectedValues={selectedValues}
