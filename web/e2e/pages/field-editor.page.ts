@@ -6,21 +6,21 @@ import { BasePage } from "./base.page";
 export class FieldEditorPage extends BasePage {
   // Field form elements
   get displayNameInput(): Locator {
-    return this.getByLabel("Display name");
+    return this.getByTestId("schema-field-displayname-input");
   }
   get settingsKeyInput(): Locator {
-    return this.getByLabel("Settings").locator("#key");
+    return this.getByTestId("schema-field-key-input");
   }
   get settingsDescriptionInput(): Locator {
-    return this.getByLabel("Settings").locator("#description");
+    return this.getByTestId("schema-field-description-input");
   }
 
   // Tabs
   get defaultValueTab(): Locator {
-    return this.getByRole("tab", { name: "Default value" });
+    return this.getByTestId("schema-field-defaultvalue-tab");
   }
   get validationTab(): Locator {
-    return this.getByRole("tab", { name: "Validation" });
+    return this.getByTestId("schema-field-validation-tab");
   }
 
   // Default value tab
@@ -33,10 +33,10 @@ export class FieldEditorPage extends BasePage {
     return this.getByLabel("Set maximum length");
   }
   get requiredFieldCheckbox(): Locator {
-    return this.getByLabel("Make field required");
+    return this.getByTestId("schema-field-required-checkbox");
   }
   get uniqueFieldCheckbox(): Locator {
-    return this.getByLabel("Set field as unique");
+    return this.getByTestId("schema-field-unique-checkbox");
   }
   get minValueInput(): Locator {
     return this.getByLabel("Set minimum value");
@@ -47,18 +47,23 @@ export class FieldEditorPage extends BasePage {
 
   // Field options
   get supportMultipleValuesCheckbox(): Locator {
-    return this.getByLabel("Support multiple values");
+    return this.getByTestId("schema-field-multiple-checkbox");
   }
   get useAsTitleCheckbox(): Locator {
-    return this.getByLabel("Use as title");
+    return this.getByTestId("schema-field-title-checkbox");
   }
 
   // Form buttons
   get okButton(): Locator {
-    return this.getByRole("button", { name: "OK" });
+    return this.getByTestId("schema-field-save-button");
   }
   get cancelButton(): Locator {
-    return this.getByRole("button", { name: "Cancel" });
+    return this.getByTestId("schema-field-cancel-button");
+  }
+
+  // Field type selection
+  fieldTypeByName(type: string): Locator {
+    return this.getByTestId(`schema-field-type-${type.toLowerCase()}`);
   }
 
   // Additional field settings
@@ -118,7 +123,7 @@ export class FieldEditorPage extends BasePage {
   }
 
   get settingsTab(): Locator {
-    return this.getByRole("tab", { name: "Settings" });
+    return this.getByTestId("schema-field-settings-tab");
   }
 
   get setOptionsLabel(): Locator {

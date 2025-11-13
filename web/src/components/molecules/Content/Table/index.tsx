@@ -576,6 +576,7 @@ const ContentTable: React.FC<Props> = ({
             }}
             defaultValue={searchTerm}
             key={`${modelKey}${currentView.id}`}
+            data-testid="content-search-input"
           />
           <StyledFilterWrapper>
             <StyledFilterSpace size={[0, 8]}>
@@ -602,7 +603,10 @@ const ContentTable: React.FC<Props> = ({
                 setInputValue("");
                 setItems(defaultItems);
               }}>
-              <StyledFilterButton type="text" icon={<Icon icon="plus" />}>
+              <StyledFilterButton
+                type="text"
+                icon={<Icon icon="plus" />}
+                data-testid="content-filter-add-button">
                 {t("Filter")}
               </StyledFilterButton>
             </Dropdown>

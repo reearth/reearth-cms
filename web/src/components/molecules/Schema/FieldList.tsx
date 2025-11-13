@@ -114,7 +114,10 @@ const FieldList: React.FC<Props> = ({
           <>
             <FieldCategoryTitle>{item.title}</FieldCategoryTitle>
             {item.fields.map(field => (
-              <List.Item key={field} onClick={hasCreateRight ? () => addField(field) : undefined}>
+              <List.Item
+                key={field}
+                onClick={hasCreateRight ? () => addField(field) : undefined}
+                data-testid={`schema-field-type-${field.toLowerCase()}`}>
                 <Meta
                   avatar={<Icon icon={fieldTypes[field].icon} color={fieldTypes[field].color} />}
                   title={t(fieldTypes[field].title)}

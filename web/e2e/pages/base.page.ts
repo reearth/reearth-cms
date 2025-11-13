@@ -147,4 +147,41 @@ export abstract class BasePage {
   async keypress(key: string, delay?: number): Promise<void> {
     await this.page.keyboard.press(key, { delay });
   }
+
+  // Common navigation menu items (available on all pages)
+  get navModelsMenuItem(): Locator {
+    return this.getByTestId("nav-models-menuitem");
+  }
+
+  get navSchemaMenuItem(): Locator {
+    return this.getByTestId("nav-schema-menuitem");
+  }
+
+  get navContentMenuItem(): Locator {
+    return this.getByTestId("nav-content-menuitem");
+  }
+
+  get navAssetMenuItem(): Locator {
+    return this.getByTestId("nav-asset-menuitem");
+  }
+
+  get navRequestMenuItem(): Locator {
+    return this.getByTestId("nav-request-menuitem");
+  }
+
+  get navAccessibilityMenuItem(): Locator {
+    return this.getByTestId("nav-accessibility-menuitem");
+  }
+
+  get navReadmeMenuItem(): Locator {
+    return this.getByTestId("nav-readme-menuitem");
+  }
+
+  get navLicenseMenuItem(): Locator {
+    return this.getByTestId("nav-license-menuitem");
+  }
+
+  get navSettingsMenuItem(): Locator {
+    return this.getByTestId("nav-settings-menuitem");
+  }
 }

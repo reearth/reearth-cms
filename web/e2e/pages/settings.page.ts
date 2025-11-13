@@ -4,10 +4,13 @@ import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { BasePage } from "./base.page";
 
 export class SettingsPage extends BasePage {
-  // Navigation
+  // Navigation - use navSettingsMenuItem from BasePage
+
+  // Aliases for backwards compatibility (map old names to BasePage navigation)
   get settingsMenuItem(): Locator {
-    return this.getByText("Settings").first();
+    return this.navSettingsMenuItem;
   }
+
   get homeMenuItem(): Locator {
     return this.getByText("Home");
   }

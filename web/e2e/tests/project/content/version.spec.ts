@@ -24,7 +24,7 @@ test.beforeEach(async ({ reearth, fieldEditorPage, projectPage, contentPage, sch
   await projectPage.createModelFromOverview();
   await fieldEditorPage.fieldTypeButton("Text").click();
   await schemaPage.handleFieldForm(fieldName);
-  await projectPage.contentMenuItem.click();
+  await projectPage.navContentMenuItem.click();
   await contentPage.newItemButton.click();
   await contentPage.fieldInput(fieldName).fill("1");
   await contentPage.saveButton.click();

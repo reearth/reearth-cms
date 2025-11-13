@@ -46,7 +46,8 @@ const UploadAsset: React.FC<Props> = ({
         type="primary"
         icon={<Icon icon="upload" />}
         onClick={displayUploadModal}
-        disabled={!hasCreateRight}>
+        disabled={!hasCreateRight}
+        data-testid="asset-upload-button">
         {t("Upload Asset")}
       </Button>
       <UploadModal

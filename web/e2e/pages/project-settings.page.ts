@@ -27,7 +27,7 @@ export class ProjectSettingsPage extends BasePage {
 
   // actions
   public async goToProjectSettings(): Promise<void> {
-    await this.getByText("Settings", { exact: true }).click();
+    await this.navSettingsMenuItem.click();
   }
 
   public async saveSettings(): Promise<void> {

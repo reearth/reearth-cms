@@ -47,7 +47,9 @@ const GroupsList: React.FC<Props> = ({
         ?.sort((a, b) => a.order - b.order)
         .map(group => ({
           label: (
-            <div ref={group.id === selectedKey ? scrollToSelected : undefined}>
+            <div
+              ref={group.id === selectedKey ? scrollToSelected : undefined}
+              data-testid={`schema-group-item-${group.key}`}>
               {collapsed ? (
                 <Tooltip placement="right" title={group.name}>
                   <span>
@@ -94,7 +96,8 @@ const GroupsList: React.FC<Props> = ({
               onClick={onModalOpen}
               icon={<Icon icon="plus" />}
               type="link"
-              disabled={!hasCreateRight}>
+              disabled={!hasCreateRight}
+              data-testid="schema-group-create-button">
               {!collapsed && t("Add")}
             </SchemaAddButton>
           </SchemaAction>

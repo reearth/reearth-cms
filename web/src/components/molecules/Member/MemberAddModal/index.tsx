@@ -163,8 +163,13 @@ const MemberAddModal: React.FC<Props> = ({
       title={t("Add member")}
       open={open}
       onCancel={handleClose}
+      data-testid="member-add-modal"
       footer={[
-        <Button key="back" onClick={handleClose} disabled={addLoading}>
+        <Button
+          key="back"
+          onClick={handleClose}
+          disabled={addLoading}
+          data-testid="member-add-cancel-button">
           {t("Cancel")}
         </Button>,
         <Button
@@ -172,7 +177,8 @@ const MemberAddModal: React.FC<Props> = ({
           type="primary"
           onClick={handleSubmit}
           loading={addLoading}
-          disabled={selectedUsers.length === 0}>
+          disabled={selectedUsers.length === 0}
+          data-testid="member-add-ok-button">
           {t("Add to workspace")}
         </Button>,
       ]}>
@@ -201,6 +207,7 @@ const MemberAddModal: React.FC<Props> = ({
                 allowClear
                 loading={searchLoading}
                 placeholder={t("Email address or user name")}
+                data-testid="member-add-search-input"
               />
             </AutoComplete>
           </Form.Item>
@@ -213,7 +220,10 @@ const MemberAddModal: React.FC<Props> = ({
                 </UserInfo>
                 <Actions>
                   <FormItemRole name={[user.id]}>
-                    <Select defaultValue={"READER"} popupMatchSelectWidth={105}>
+                    <Select
+                      defaultValue={"READER"}
+                      popupMatchSelectWidth={105}
+                      data-testid="member-add-role-select">
                       <Option value="OWNER">{t("Owner")}</Option>
                       <Option value="MAINTAINER">{t("Maintainer")}</Option>
                       <Option value="WRITER">{t("Writer")}</Option>
@@ -225,6 +235,7 @@ const MemberAddModal: React.FC<Props> = ({
                     shape="circle"
                     onClick={() => handleMemberRemove(user.id)}
                     icon={<Icon icon="close" />}
+                    data-testid="member-add-remove-selected-button"
                   />
                 </Actions>
               </SelectedUser>
