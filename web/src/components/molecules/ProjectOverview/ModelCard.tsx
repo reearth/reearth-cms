@@ -35,25 +35,6 @@ const ModelCard: React.FC<Props> = ({
   const t = useT();
   const { Meta } = Card;
 
-  const OptionsMenuItems = useMemo(
-    () => [
-      {
-        key: "edit",
-        label: t("Edit"),
-        onClick: () => onModelUpdateModalOpen(model),
-        disabled: !hasUpdateRight,
-      },
-      {
-        key: "delete",
-        label: t("Delete"),
-        onClick: () => onModelDeletionModalOpen(model),
-        danger: true,
-        disabled: !hasDeleteRight,
-      },
-    ],
-    [t, hasUpdateRight, hasDeleteRight, onModelUpdateModalOpen, model, onModelDeletionModalOpen],
-  );
-
   const handleCSVExport = useCallback(
     async (exportType: ExportFormat) => {
       Modal.confirm({
@@ -146,6 +127,22 @@ const ModelCard: React.FC<Props> = ({
     [handleCSVExport, handleGeoJSONExport, model.id, onModelExport],
   );
 
+  const ImportMenuItems = useMemo(
+    () => [
+      {
+        key: "schema",
+        label: t("Import Schema"),
+        // onClick: () => handleModelExportClick(ExportFormat.Schema),
+      },
+      {
+        key: "content",
+        label: t("Import Content"),
+        // onClick: () => handleModelExportClick(ExportFormat.Json),
+      },
+    ],
+    [t],
+  );
+
   const ExportMenuItems = useMemo(
     () => [
       {
@@ -176,16 +173,49 @@ const ModelCard: React.FC<Props> = ({
     [t, handleModelExportClick, exportLoading],
   );
 
+  const OptionsMenuItems = useMemo(
+    () => [
+      {
+        key: "edit",
+        label: t("Edit"),
+        onClick: () => onModelUpdateModalOpen(model),
+        disabled: !hasUpdateRight,
+      },
+      {
+        key: "import",
+        label: t("Import"),
+        children: ImportMenuItems,
+      },
+      {
+        key: "export",
+        label: t("Export"),
+        children: ExportMenuItems,
+      },
+      {
+        key: "delete",
+        label: t("Delete"),
+        onClick: () => onModelDeletionModalOpen(model),
+        danger: true,
+        disabled: !hasDeleteRight,
+      },
+    ],
+    [
+      t,
+      hasUpdateRight,
+      hasDeleteRight,
+      onModelUpdateModalOpen,
+      model,
+      onModelDeletionModalOpen,
+      ImportMenuItems,
+      ExportMenuItems,
+    ],
+  );
+
   return (
     <StyledCard
       actions={[
         <Icon icon="unorderedList" key="schema" onClick={() => onSchemaNavigate(model.id)} />,
         <Icon icon="table" key="content" onClick={() => onContentNavigate(model.id)} />,
-        <Dropdown key="export" menu={{ items: ExportMenuItems }} trigger={["click"]}>
-          <a onClick={e => e.preventDefault()}>
-            <Icon icon="download" />
-          </a>
-        </Dropdown>,
         <Dropdown key="options" menu={{ items: OptionsMenuItems }} trigger={["click"]}>
           <a onClick={e => e.preventDefault()}>
             <Icon icon="ellipsis" />
