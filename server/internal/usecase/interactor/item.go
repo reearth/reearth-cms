@@ -24,6 +24,14 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+const (
+	// batchItemReferenceProcessingLimit is the maximum number of items to process per batch
+	// when clearing reference fields during batch deletion operations
+	batchItemReferenceProcessingLimit = 10000
+	// batchModelProcessingLimit is the maximum number of models to process per batch
+	batchModelProcessingLimit = 1000
+)
+
 type Item struct {
 	repos       *repo.Container
 	gateways    *gateway.Container
@@ -660,7 +668,7 @@ func (i Item) handleReferenceFields(ctx context.Context, s schema.Schema, itm *i
 
 func (i Item) handleReferenceField(ctx context.Context, sf schema.Field, iID item.ID, newF, oldF *item.Field) error {
 	fr, ok := schema.FieldReferenceFromTypeProperty(sf.TypeProperty())
-	if !ok || !fr.IsTowWay() || newF.Value().Equal(oldF.Value()) {
+	if !ok || !fr.IsTwoWay() || newF.Value().Equal(oldF.Value()) {
 		return nil
 	}
 
@@ -860,6 +868,275 @@ func (i Item) getReferencedItems(ctx context.Context, fields []*item.Field) ([]i
 	return i.repos.Item.FindByIDs(ctx, ids, nil)
 }
 
+// ReferenceFieldUpdate represents a reference field update operation
+type ReferenceFieldUpdate struct {
+	ItemID              id.ItemID
+	SchemaField         schema.Field
+	FieldReference      schema.FieldReference
+	NewField            *item.Field
+	OldField            *item.Field
+	OldReferencedItemID id.ItemID
+	NewReferencedItemID id.ItemID
+}
+
+// batchHandleReferenceFields handles batch reference fields
+func (i Item) batchHandleReferenceFields(ctx context.Context, items item.VersionedList, schemaMap map[id.SchemaID]*schema.Schema) error {
+	// Clear reference fields in deleted items and collect two-way reference updates
+	twoWayRefUpdates := make([]ReferenceFieldUpdate, 0)
+	allReferencedIDs := make(map[id.ItemID]bool)
+	deletedItemIDs := make(id.ItemIDList, 0, len(items))
+	deletedItemSchemas := make(map[id.SchemaID]bool)
+
+	// Process each deleted item
+	for _, itm := range items {
+		if itm == nil {
+			continue
+		}
+
+		itemValue := itm.Value()
+		deletedItemIDs = deletedItemIDs.Add(itemValue.ID())
+		deletedItemSchemas[itemValue.Schema()] = true
+
+		s := schemaMap[itemValue.Schema()]
+		if s == nil {
+			continue
+		}
+
+		oldFields := itemValue.Fields()
+		itemValue.ClearReferenceFields()
+
+		// Handle two-way references
+		for _, sf := range s.FieldsByType(value.TypeReference) {
+			newF := itemValue.Field(sf.ID())
+			oldF := oldFields.Field(sf.ID())
+
+			// For deletion, oldF should have the reference, newF will be nil after clearing
+			if oldF == nil {
+				continue
+			}
+
+			fr, ok := schema.FieldReferenceFromTypeProperty(sf.TypeProperty())
+			if !ok || !fr.IsTwoWay() {
+				continue
+			}
+
+			// Process the two-way reference
+			var oldRefID, newRefID id.ItemID
+			if oldRefId, ok := oldF.Value().First().ValueReference(); ok {
+				oldRefID = oldRefId
+				allReferencedIDs[oldRefID] = true
+			}
+
+			twoWayRefUpdates = append(twoWayRefUpdates, ReferenceFieldUpdate{
+				ItemID:              itemValue.ID(),
+				SchemaField:         *sf,
+				FieldReference:      *fr,
+				NewField:            newF,
+				OldField:            oldF,
+				OldReferencedItemID: oldRefID,
+				NewReferencedItemID: newRefID,
+			})
+		}
+	}
+
+	allItemsToSave := make(map[id.ItemID]*item.Item)
+
+	// Handle two-way references
+	if len(twoWayRefUpdates) > 0 {
+		referencedIDList := make(id.ItemIDList, 0, len(allReferencedIDs))
+		for refID := range allReferencedIDs {
+			if !refID.IsNil() {
+				// Check if the referenced item is also being deleted
+				// If so, skip clearing its reference since it will be deleted anyway
+				if deletedItemIDs.Has(refID) {
+					continue
+				}
+				referencedIDList = referencedIDList.Add(refID)
+			}
+		}
+
+		if len(referencedIDList) > 0 {
+			refItems, err := i.repos.Item.FindByIDs(ctx, referencedIDList, nil)
+			if err != nil {
+				return err
+			}
+
+			refItemsMap := make(map[id.ItemID]*item.Item, len(refItems))
+			for _, refItm := range refItems {
+				refItemsMap[refItm.Value().ID()] = refItm.Value()
+			}
+
+			for _, update := range twoWayRefUpdates {
+				if !update.OldReferencedItemID.IsNil() {
+					if oldRefItm, exists := refItemsMap[update.OldReferencedItemID]; exists {
+						// Clear the corresponding field (the back-reference)
+						if update.FieldReference.CorrespondingFieldID() != nil {
+							correspondingFieldID := *update.FieldReference.CorrespondingFieldID()
+
+							// Clear the corresponding reference field
+							existingField := oldRefItm.Field(correspondingFieldID)
+							if existingField != nil {
+								// Clear the field completely to remove the reference to the deleted item
+								oldRefItm.ClearField(correspondingFieldID)
+								// Save the item even if it ends up with 0 fields after clearing
+								// The save logic will handle items with 0 fields appropriately
+								allItemsToSave[update.OldReferencedItemID] = oldRefItm
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Handle one-way references using schema-centric approach (no project iteration)
+	oneWayItems, err := i.findAndClearOneWayReferencesSchemaOptimized(ctx, deletedItemIDs, deletedItemSchemas)
+	if err != nil {
+		return err
+	}
+
+	for id, item := range oneWayItems {
+		allItemsToSave[id] = item
+	}
+
+	if len(allItemsToSave) > 0 {
+		itemList := make(item.List, 0, len(allItemsToSave))
+		for _, itm := range allItemsToSave {
+			if itm != nil && len(itm.Fields()) > 0 {
+				itemList = append(itemList, itm)
+			}
+		}
+		if len(itemList) > 0 {
+			return i.repos.Item.SaveAll(ctx, itemList)
+		}
+	}
+
+	return nil
+}
+
+// findAndClearOneWayReferencesSchemaOptimized finds items that reference deleted items
+// Optimized: Only checks schemas that actually have reference fields pointing to deleted item schemas
+func (i Item) findAndClearOneWayReferencesSchemaOptimized(ctx context.Context, deletedItemIDs id.ItemIDList, deletedItemSchemas map[id.SchemaID]bool) (map[id.ItemID]*item.Item, error) {
+	if len(deletedItemIDs) == 0 {
+		return nil, nil
+	}
+
+	itemsToSave := make(map[id.ItemID]*item.Item)
+
+	// Get the project from one of the deleted item schemas
+	var projectID id.ProjectID
+	for schemaID := range deletedItemSchemas {
+		schema, err := i.repos.Schema.FindByID(ctx, schemaID)
+		if err != nil {
+			continue
+		}
+		projectID = schema.Project()
+		break
+	}
+
+	if projectID.IsNil() {
+		return itemsToSave, nil // No context found
+	}
+
+	// Get all models in this project
+	models, _, err := i.repos.Model.FindByProject(ctx, projectID, &usecasex.Pagination{
+		Offset: &usecasex.OffsetPagination{Offset: 0, Limit: batchModelProcessingLimit},
+	})
+	if err != nil {
+		return itemsToSave, err
+	}
+
+	// Get all schema IDs from models
+	schemaIDs := make([]id.SchemaID, 0, len(models))
+	for _, model := range models {
+		schemaIDs = append(schemaIDs, model.Schema())
+	}
+
+	// Batch fetch all schemas
+	schemas, err := i.repos.Schema.FindByIDs(ctx, schemaIDs)
+	if err != nil {
+		return itemsToSave, err
+	}
+
+	// nly process schemas that have reference fields pointing to deleted schemas
+	var relevantSchemas []*schema.Schema
+	for _, s := range schemas {
+		// Check if this schema has reference fields pointing to any deleted schemas
+		referencedSchemas := s.ReferencedSchemas()
+		hasRelevantRef := false
+
+		for _, refSchemaID := range referencedSchemas {
+			if deletedItemSchemas[refSchemaID] {
+				hasRelevantRef = true
+				break
+			}
+		}
+
+		if hasRelevantRef {
+			relevantSchemas = append(relevantSchemas, s)
+		}
+	}
+
+	// Process only relevant schemas
+	for _, schema := range relevantSchemas {
+		refFields := schema.FieldsByType(value.TypeReference)
+
+		pagination := usecasex.OffsetPagination{
+			Offset: 0,
+			Limit:  batchItemReferenceProcessingLimit,
+		}.Wrap()
+
+		itemsInSchema, _, err := i.repos.Item.FindBySchema(ctx, schema.ID(), nil, nil, pagination)
+		if err != nil {
+			continue
+		}
+
+		// Process items in batch - check all reference fields at once
+		for _, itm := range itemsInSchema {
+			if itm == nil || deletedItemIDs.Has(itm.Value().ID()) {
+				continue
+			}
+
+			itemValue := itm.Value()
+			updated := false
+
+			// Check all reference fields (we already filtered schemas above)
+			for _, refField := range refFields {
+				field := itemValue.Field(refField.ID())
+				if field == nil {
+					continue
+				}
+
+				// Check if any values reference deleted items and build new values list
+				newValues := make([]any, 0, field.Value().Len())
+				hasDeletedRef := false
+
+				for _, val := range field.Value().Values() {
+					if refID, ok := val.ValueReference(); ok && deletedItemIDs.Has(refID) {
+						hasDeletedRef = true
+					} else {
+						newValues = append(newValues, val.Value())
+					}
+				}
+
+				if hasDeletedRef {
+					// Update field with cleaned values
+					newMultiple := value.NewMultiple(value.TypeReference, newValues)
+					newField := item.NewField(refField.ID(), newMultiple, field.ItemGroup())
+					itemValue.UpdateFields([]*item.Field{newField})
+					updated = true
+				}
+			}
+
+			if updated {
+				itemsToSave[itemValue.ID()] = itemValue
+			}
+		}
+	}
+
+	return itemsToSave, nil
+}
+
 func (i Item) BatchDelete(ctx context.Context, itemIDs id.ItemIDList, operator *usecase.Operator) (result id.ItemIDList, err error) {
 	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return itemIDs, interfaces.ErrInvalidOperator
@@ -873,6 +1150,7 @@ func (i Item) BatchDelete(ctx context.Context, itemIDs id.ItemIDList, operator *
 		ctx, operator, i.repos,
 		Usecase().Transaction(),
 		func(ctx context.Context) (id.ItemIDList, error) {
+			// 1. Batch fetch items to be deleted
 			items, err := i.repos.Item.FindByIDs(ctx, itemIDs, nil)
 			if err != nil {
 				return itemIDs, err
@@ -886,44 +1164,57 @@ func (i Item) BatchDelete(ctx context.Context, itemIDs id.ItemIDList, operator *
 				return itemIDs, nil
 			}
 
-			// TODO: Optimize batch deletion performance
-			// - Batch MongoDB queries: Currently FindByID is called per item for schema lookup
-			// - Batch reference field handling: handleReferenceFields is called per item
-			// - Batch Remove operations: Consider implementing a BatchRemove repository method
-			// Delete each item with proper reference handling
+			// 2. Single pass: collect schemas, metadata IDs, and check permissions
+			schemaIDs := make([]id.SchemaID, 0, len(items))
+			var metadataIDs id.ItemIDList
+
 			for _, itm := range items {
 				if itm == nil {
 					continue
 				}
 
-				s, err := i.repos.Schema.FindByID(ctx, itm.Value().Schema())
-				if err != nil {
-					return itemIDs, err
-				}
+				itemValue := itm.Value()
 
-				if !operator.CanUpdate(itm.Value()) {
+				if !operator.CanUpdate(itemValue) {
 					return itemIDs, interfaces.ErrOperationDenied
 				}
 
-				oldFields := itm.Value().Fields()
-				itm.Value().ClearReferenceFields()
-				if err := i.handleReferenceFields(ctx, *s, itm.Value(), oldFields); err != nil {
-					return itemIDs, err
-				}
+				schemaIDs = append(schemaIDs, itemValue.Schema())
 
-				// If this item has a metadata item, remove the metadata item first
-				if itm.Value().MetadataItem() != nil {
-					err = i.repos.Item.Remove(ctx, *itm.Value().MetadataItem())
-					if err != nil {
-						return itemIDs, err
-					}
+				if itemValue.MetadataItem() != nil {
+					metadataIDs = metadataIDs.Add(*itemValue.MetadataItem())
 				}
+			}
 
-				// Remove the main item
-				err = i.repos.Item.Remove(ctx, itm.Value().ID())
+			// 3. Batch fetch schemas for deleted items
+			schemas, err := i.repos.Schema.FindByIDs(ctx, lo.Uniq(schemaIDs))
+			if err != nil {
+				return itemIDs, err
+			}
+
+			// Create schema map for quick lookup
+			schemaMap := make(map[id.SchemaID]*schema.Schema)
+			for _, s := range schemas {
+				schemaMap[s.ID()] = s
+			}
+
+			// 4. Batch handle reference fields
+			if err := i.batchHandleReferenceFields(ctx, items, schemaMap); err != nil {
+				return itemIDs, err
+			}
+
+			// 5. Batch remove metadata items (if any)
+			if len(metadataIDs) > 0 {
+				err = i.repos.Item.BatchRemove(ctx, metadataIDs)
 				if err != nil {
 					return itemIDs, err
 				}
+			}
+
+			// 6. Batch remove main items
+			err = i.repos.Item.BatchRemove(ctx, itemIDs)
+			if err != nil {
+				return itemIDs, err
 			}
 
 			return itemIDs, nil

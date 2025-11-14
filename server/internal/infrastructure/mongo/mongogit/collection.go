@@ -281,6 +281,10 @@ func (c *Collection) RemoveOne(ctx context.Context, filter any) error {
 	return c.client.RemoveAll(ctx, filter)
 }
 
+func (c *Collection) RemoveMany(ctx context.Context, filter any) error {
+	return c.client.RemoveAll(ctx, filter)
+}
+
 func (c *Collection) Empty(ctx context.Context) error {
 	return c.client.Client().Drop(ctx)
 }

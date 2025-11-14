@@ -217,6 +217,35 @@ func (r *Item) Remove(_ context.Context, itemID id.ItemID) error {
 	return nil
 }
 
+func (r *Item) BatchRemove(_ context.Context, itemIDs id.ItemIDList) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	if len(itemIDs) == 0 {
+		return nil
+	}
+
+	// Load all items once and check permissions
+	itemsToDelete := make([]id.ItemID, 0, len(itemIDs))
+	for _, itemID := range itemIDs {
+		item, _ := r.data.Load(itemID, version.Latest.OrVersion())
+		if item != nil {
+			if !r.f.CanWrite(item.Value().Project()) {
+				return repo.ErrOperationDenied
+			}
+			itemsToDelete = append(itemsToDelete, itemID)
+		}
+		// Note: Non-existent items are silently ignored (consistent with individual Remove behavior)
+	}
+
+	// Delete all valid items using batch operation
+	if len(itemsToDelete) > 0 {
+		r.data.DeleteAll(itemsToDelete...)
+	}
+	return nil
+}
+
 func (r *Item) IsArchived(_ context.Context, itemID id.ItemID) (bool, error) {
 	if r.err != nil {
 		return false, r.err

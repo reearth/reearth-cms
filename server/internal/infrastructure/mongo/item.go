@@ -234,6 +234,13 @@ func (r *Item) Remove(ctx context.Context, id id.ItemID) error {
 	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{"id": id.String()}))
 }
 
+func (r *Item) BatchRemove(ctx context.Context, ids id.ItemIDList) error {
+	if len(ids) == 0 {
+		return nil
+	}
+	return r.client.RemoveMany(ctx, r.writeFilter(bson.M{"id": bson.M{"$in": ids.Strings()}}))
+}
+
 func (r *Item) Archive(ctx context.Context, id id.ItemID, pid id.ProjectID, b bool) error {
 	if !r.f.CanWrite(pid) {
 		return repo.ErrOperationDenied

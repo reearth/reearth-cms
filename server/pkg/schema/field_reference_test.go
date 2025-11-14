@@ -36,9 +36,9 @@ func TestFieldReference_IsTowWay(t *testing.T) {
 	s := id.NewSchemaID()
 	cf := id.NewFieldID().Ref()
 	f := NewReference(m, s, cf, nil)
-	assert.True(t, f.IsTowWay())
+	assert.True(t, f.IsTwoWay())
 	f = NewReference(m, s, nil, nil)
-	assert.False(t, f.IsTowWay())
+	assert.False(t, f.IsTwoWay())
 }
 
 func TestFieldReference_Model(t *testing.T) {
