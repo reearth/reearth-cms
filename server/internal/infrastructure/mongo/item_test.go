@@ -301,6 +301,105 @@ func TestItem_Remove(t *testing.T) {
 	assert.Equal(t, rerror.ErrNotFound, err)
 }
 
+func TestItem_BatchRemove(t *testing.T) {
+
+	id1 := id.NewItemID()
+	id2 := id.NewItemID()
+	id3 := id.NewItemID()
+	sid := id.NewSchemaID()
+	pid := id.NewProjectID()
+	sfid := schema.NewFieldID()
+	fs := []*item.Field{item.NewField(sfid, value.TypeBool.Value(true).AsMultiple(), nil)}
+
+	i1 := item.New().ID(id1).Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i2 := item.New().ID(id2).Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+	i3 := item.New().ID(id3).Fields(fs).Schema(sid).Model(id.NewModelID()).Project(pid).Thread(id.NewThreadID().Ref()).MustBuild()
+
+	tests := []struct {
+		Name     string
+		ToRemove id.ItemIDList
+		Seeds    item.List
+		Expected []id.ItemID
+	}{
+		{
+			Name:     "remove multiple items",
+			ToRemove: id.ItemIDList{id1, id2},
+			Seeds:    item.List{i1, i2, i3},
+			Expected: []id.ItemID{id3},
+		},
+		{
+			Name:     "remove all items",
+			ToRemove: id.ItemIDList{id1, id2, id3},
+			Seeds:    item.List{i1, i2, i3},
+			Expected: []id.ItemID{},
+		},
+		{
+			Name:     "remove empty list",
+			ToRemove: id.ItemIDList{},
+			Seeds:    item.List{i1, i2, i3},
+			Expected: []id.ItemID{id1, id2, id3},
+		},
+		{
+			Name:     "remove non-existent items",
+			ToRemove: id.ItemIDList{id.NewItemID()},
+			Seeds:    item.List{i1, i2, i3},
+			Expected: []id.ItemID{id1, id2, id3},
+		},
+	}
+
+	init := mongotest.Connect(t)
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.Name, func(tt *testing.T) {
+			tt.Parallel()
+
+			client := mongox.NewClientWithDatabase(init(tt))
+			r := NewItem(client).Filtered(repo.ProjectFilter{
+				Readable: []id.ProjectID{pid},
+				Writable: []id.ProjectID{pid},
+			})
+			ctx := context.Background()
+
+			// Save all test items
+			for _, i := range tc.Seeds {
+				err := r.Save(ctx, i)
+				assert.NoError(tt, err)
+			}
+
+			// Execute batch remove
+			err := r.BatchRemove(ctx, tc.ToRemove)
+			assert.NoError(tt, err)
+
+			// Verify remaining items
+			for _, expectedID := range tc.Expected {
+				got, err := r.FindByID(ctx, expectedID, nil)
+				assert.NoError(tt, err)
+				assert.NotNil(tt, got)
+				assert.Equal(tt, expectedID, got.Value().ID())
+			}
+
+			// Verify removed items are gone
+			for _, removedID := range tc.ToRemove {
+				if !contains(tc.Expected, removedID) {
+					got, err := r.FindByID(ctx, removedID, nil)
+					assert.Nil(tt, got)
+					assert.Equal(tt, rerror.ErrNotFound, err)
+				}
+			}
+		})
+	}
+}
+
+func contains(slice []id.ItemID, item id.ItemID) bool {
+	for _, s := range slice {
+		if s == item {
+			return true
+		}
+	}
+	return false
+}
+
 func TestItem_Archive(t *testing.T) {
 	iid := id.NewItemID()
 	pid := id.NewProjectID()

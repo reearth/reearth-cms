@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -354,6 +355,410 @@ func deleteItem(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
 		JSON()
 
 	return res.Path("$.data.deleteItem.itemId").Raw().(string), res
+}
+
+func batchDeleteItems(e *httpexpect.Expect, itemIDs []string) ([]string, *httpexpect.Value) {
+	requestBody := GraphQLRequest{
+		Query: `mutation DeleteItems($itemIds: [ID!]!) {
+				  deleteItems(input: {itemIds: $itemIds}) {
+					itemIds
+					__typename
+				  }
+				}`,
+		Variables: map[string]any{
+			"itemIds": itemIDs,
+		},
+	}
+
+	res := e.POST("/api/graphql").
+		WithHeader("Origin", "https://example.com").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithHeader("Content-Type", "application/json").
+		WithJSON(requestBody).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	deletedIDs := res.Path("$.data.deleteItems.itemIds").Raw().([]any)
+	result := make([]string, 0, len(deletedIDs))
+	for _, id := range deletedIDs {
+		if str, ok := id.(string); ok {
+			result = append(result, str)
+		}
+	}
+	return result, res
+}
+
+func TestBatchDeleteItems(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	pId, _ := createProject(e, wId.String(), "batch-delete-test", "Batch Delete Test", "batch-delete-test")
+	mId, _ := createModel(e, pId, "test-model", "Test Model", "test-model")
+	fids := createFieldOfEachType(t, e, mId)
+	sId, _, _ := getModel(e, mId)
+
+	// Test case 1: Create multiple items and batch delete them
+	t.Run("success - batch delete multiple items", func(t *testing.T) {
+
+		iid1, _ := createItem(e, mId, sId, nil, []map[string]any{
+			{"schemaFieldId": fids.textFId, "value": "item1", "type": "Text"},
+		})
+		iid2, _ := createItem(e, mId, sId, nil, []map[string]any{
+			{"schemaFieldId": fids.textFId, "value": "item2", "type": "Text"},
+		})
+		iid3, _ := createItem(e, mId, sId, nil, []map[string]any{
+			{"schemaFieldId": fids.textFId, "value": "item3", "type": "Text"},
+		})
+
+		_, res1 := getItem(e, iid1)
+		res1.Path("$.data.node.id").IsEqual(iid1)
+		_, res2 := getItem(e, iid2)
+		res2.Path("$.data.node.id").IsEqual(iid2)
+		_, res3 := getItem(e, iid3)
+		res3.Path("$.data.node.id").IsEqual(iid3)
+
+		deletedIDs, deleteRes := batchDeleteItems(e, []string{iid1, iid2, iid3})
+
+		assert.Len(t, deletedIDs, 3)
+		assert.Contains(t, deletedIDs, iid1)
+		assert.Contains(t, deletedIDs, iid2)
+		assert.Contains(t, deletedIDs, iid3)
+		deleteRes.Path("$.data.deleteItems.itemIds").Array().Length().IsEqual(3)
+
+		e.POST("/api/graphql").
+			WithHeader("Origin", "https://example.com").
+			WithHeader("X-Reearth-Debug-User", uId1.String()).
+			WithHeader("Content-Type", "application/json").
+			WithJSON(GraphQLRequest{
+				Query:     `query GetItem($id: ID!) { node(id: $id, type: Item) { id } }`,
+				Variables: map[string]any{"id": iid1},
+			}).
+			Expect().
+			Status(http.StatusOK).
+			JSON().
+			Path("$.data.node").IsNull()
+	})
+
+	// Test case 2: Batch delete single item
+	t.Run("success - batch delete single item", func(t *testing.T) {
+
+		iid, _ := createItem(e, mId, sId, nil, []map[string]any{
+			{"schemaFieldId": fids.textFId, "value": "single-item", "type": "Text"},
+		})
+
+		_, res := getItem(e, iid)
+		res.Path("$.data.node.id").IsEqual(iid)
+
+		deletedIDs, deleteRes := batchDeleteItems(e, []string{iid})
+
+		assert.Len(t, deletedIDs, 1)
+		assert.Equal(t, iid, deletedIDs[0])
+		deleteRes.Path("$.data.deleteItems.itemIds").Array().Length().IsEqual(1)
+		deleteRes.Path("$.data.deleteItems.itemIds").Array().Value(0).IsEqual(iid)
+	})
+
+	// Test case 3: Empty item list
+	t.Run("error - empty item list", func(t *testing.T) {
+
+		e.POST("/api/graphql").
+			WithHeader("Origin", "https://example.com").
+			WithHeader("X-Reearth-Debug-User", uId1.String()).
+			WithHeader("Content-Type", "application/json").
+			WithJSON(GraphQLRequest{
+				Query: `mutation DeleteItems($itemIds: [ID!]!) {
+					deleteItems(input: {itemIds: $itemIds}) {
+						itemIds
+					}
+				}`,
+				Variables: map[string]any{
+					"itemIds": []string{},
+				},
+			}).
+			Expect().
+			Status(http.StatusOK).
+			JSON().
+			Path("$.errors").Array().Length().Gt(0) // Expect error for empty list
+	})
+
+	// Test case 4: Partial not found (some items exist, some don't)
+	t.Run("error - partial not found", func(t *testing.T) {
+
+		iid, _ := createItem(e, mId, sId, nil, []map[string]any{
+			{"schemaFieldId": fids.textFId, "value": "existing-item", "type": "Text"},
+		})
+
+		nonExistentID := id.NewItemID().String()
+
+		e.POST("/api/graphql").
+			WithHeader("Origin", "https://example.com").
+			WithHeader("X-Reearth-Debug-User", uId1.String()).
+			WithHeader("Content-Type", "application/json").
+			WithJSON(GraphQLRequest{
+				Query: `mutation DeleteItems($itemIds: [ID!]!) {
+					deleteItems(input: {itemIds: $itemIds}) {
+						itemIds
+					}
+				}`,
+				Variables: map[string]any{
+					"itemIds": []string{iid, nonExistentID},
+				},
+			}).
+			Expect().
+			Status(http.StatusOK).
+			JSON().
+			Path("$.errors").Array().Length().Gt(0) // Expect error for partial not found
+
+		deleteItem(e, iid)
+	})
+
+	// Test case 5: Large batch delete
+	t.Run("success - large batch delete", func(t *testing.T) {
+		// Create 10 items
+		itemIDs := make([]string, 10)
+		for i := 0; i < 10; i++ {
+			iid, _ := createItem(e, mId, sId, nil, []map[string]any{
+				{"schemaFieldId": fids.textFId, "value": fmt.Sprintf("batch-item-%d", i), "type": "Text"},
+			})
+			itemIDs[i] = iid
+		}
+
+		deletedIDs, deleteRes := batchDeleteItems(e, itemIDs)
+
+		assert.Len(t, deletedIDs, 10)
+		deleteRes.Path("$.data.deleteItems.itemIds").Array().Length().IsEqual(10)
+
+		for _, itemID := range itemIDs {
+			assert.Contains(t, deletedIDs, itemID)
+		}
+	})
+
+	// Test case 6: Batch delete items with one-way reference fields
+	t.Run("success - batch delete with one-way reference fields", func(t *testing.T) {
+
+		refMId, _ := createModel(e, pId, "ref-model", "Reference Model", "ref-model")
+		refFids := createFieldOfEachType(t, e, refMId)
+		refSId, _, _ := getModel(e, refMId)
+
+		refFieldId, _ := createField(e, mId, "one_way_ref", "One Way Reference", "one-way-ref",
+			false, false, false, false, "Reference",
+			map[string]any{
+				"reference": map[string]any{
+					"modelId":            refMId,
+					"schemaId":           refSId,
+					"correspondingField": nil, // One-way reference
+				},
+			})
+
+		refItem1, _ := createItem(e, refMId, refSId, nil, []map[string]any{
+			{"schemaFieldId": refFids.textFId, "value": "referenced-item-1", "type": "Text"},
+		})
+		refItem2, _ := createItem(e, refMId, refSId, nil, []map[string]any{
+			{"schemaFieldId": refFids.textFId, "value": "referenced-item-2", "type": "Text"},
+		})
+
+		mainItem1, _ := createItem(e, mId, sId, nil, []map[string]any{
+			{"schemaFieldId": fids.textFId, "value": "main-item-1", "type": "Text"},
+			{"schemaFieldId": refFieldId, "value": refItem1, "type": "Reference"},
+		})
+		mainItem2, _ := createItem(e, mId, sId, nil, []map[string]any{
+			{"schemaFieldId": fids.textFId, "value": "main-item-2", "type": "Text"},
+			{"schemaFieldId": refFieldId, "value": refItem2, "type": "Reference"},
+		})
+
+		deletedIDs, deleteRes := batchDeleteItems(e, []string{mainItem1, mainItem2})
+
+		assert.Len(t, deletedIDs, 2)
+		assert.Contains(t, deletedIDs, mainItem1)
+		assert.Contains(t, deletedIDs, mainItem2)
+		deleteRes.Path("$.data.deleteItems.itemIds").Array().Length().IsEqual(2)
+
+		_, refRes1 := getItem(e, refItem1)
+		refRes1.Path("$.data.node.id").IsEqual(refItem1)
+		_, refRes2 := getItem(e, refItem2)
+		refRes2.Path("$.data.node.id").IsEqual(refItem2)
+
+		deleteItem(e, refItem1)
+		deleteItem(e, refItem2)
+	})
+
+	// Test case 7: Batch delete items with two-way reference fields
+	t.Run("success - batch delete with two-way reference fields", func(t *testing.T) {
+
+		twoWayMId, _ := createModel(e, pId, "two-way-model", "Two Way Model", "two-way-model")
+		twoWayFids := createFieldOfEachType(t, e, twoWayMId)
+		twoWaySId, _, _ := getModel(e, twoWayMId)
+
+		twoWayRefFieldId, _ := createField(e, mId, "two_way_ref", "Two Way Reference", "two-way-ref",
+			false, false, false, false, "Reference",
+			map[string]any{
+				"reference": map[string]any{
+					"modelId":  twoWayMId,
+					"schemaId": twoWaySId,
+					"correspondingField": map[string]any{
+						"title":       "Back Reference",
+						"key":         "back-ref",
+						"description": "Back reference field",
+						"required":    false,
+					},
+				},
+			})
+
+		twoWayRefItem1, _ := createItem(e, twoWayMId, twoWaySId, nil, []map[string]any{
+			{"schemaFieldId": twoWayFids.textFId, "value": "two-way-ref-1", "type": "Text"},
+		})
+		twoWayRefItem2, _ := createItem(e, twoWayMId, twoWaySId, nil, []map[string]any{
+			{"schemaFieldId": twoWayFids.textFId, "value": "two-way-ref-2", "type": "Text"},
+		})
+
+		twoWayMainItem1, _ := createItem(e, mId, sId, nil, []map[string]any{
+			{"schemaFieldId": fids.textFId, "value": "two-way-main-1", "type": "Text"},
+			{"schemaFieldId": twoWayRefFieldId, "value": twoWayRefItem1, "type": "Reference"},
+		})
+		twoWayMainItem2, _ := createItem(e, mId, sId, nil, []map[string]any{
+			{"schemaFieldId": fids.textFId, "value": "two-way-main-2", "type": "Text"},
+			{"schemaFieldId": twoWayRefFieldId, "value": twoWayRefItem2, "type": "Reference"},
+		})
+
+		// Verify two-way references are established
+		_, mainRes1 := getItem(e, twoWayMainItem1)
+		// Find the reference field in main item by iterating through fields
+		mainFields := mainRes1.Path("$.data.node.fields").Array().Raw()
+		var mainRefField interface{}
+		for _, field := range mainFields {
+			fieldMap := field.(map[string]interface{})
+			if fieldMap["schemaFieldId"] == twoWayRefFieldId {
+				mainRefField = fieldMap["value"]
+				break
+			}
+		}
+		assert.Equal(t, twoWayRefItem1, mainRefField)
+
+		_, refRes1 := getItem(e, twoWayRefItem1)
+		// Find the back-reference field in referenced item (last field added automatically)
+		backRefValue := refRes1.Path("$.data.node.fields[-1:].value").Array().Raw()
+		assert.Len(t, backRefValue, 1)
+		assert.Equal(t, twoWayMainItem1, backRefValue[0])
+
+		deletedIDs, deleteRes := batchDeleteItems(e, []string{twoWayMainItem1, twoWayMainItem2})
+
+		assert.Len(t, deletedIDs, 2)
+		assert.Contains(t, deletedIDs, twoWayMainItem1)
+		assert.Contains(t, deletedIDs, twoWayMainItem2)
+		deleteRes.Path("$.data.deleteItems.itemIds").Array().Length().IsEqual(2)
+
+		_, refRes1After := getItem(e, twoWayRefItem1)
+		refRes1After.Path("$.data.node.id").IsEqual(twoWayRefItem1)
+
+		// Check if back-reference is cleared (should be null after main item deletion)
+		backRefValueAfter := refRes1After.Path("$.data.node.fields[-1:].value").Array().Raw()
+		assert.Len(t, backRefValueAfter, 1)
+		// Reference should be cleared to null after main item deletion
+		assert.Nil(t, backRefValueAfter[0])
+
+		_, refRes2After := getItem(e, twoWayRefItem2)
+		refRes2After.Path("$.data.node.id").IsEqual(twoWayRefItem2)
+
+		deleteItem(e, twoWayRefItem1)
+		deleteItem(e, twoWayRefItem2)
+	})
+
+	// Test case 8: Batch delete referenced items (should clear references in referring items)
+	t.Run("success - batch delete referenced items clears references", func(t *testing.T) {
+		// Create referenced items
+		targetItem1, _ := createItem(e, mId, sId, nil, []map[string]any{
+			{"schemaFieldId": fids.textFId, "value": "target-item-1", "type": "Text"},
+		})
+		targetItem2, _ := createItem(e, mId, sId, nil, []map[string]any{
+			{"schemaFieldId": fids.textFId, "value": "target-item-2", "type": "Text"},
+		})
+
+		selfRefFieldId, _ := createField(e, mId, "self_ref", "Self Reference", "self-ref",
+			false, false, false, false, "Reference",
+			map[string]any{
+				"reference": map[string]any{
+					"modelId":            mId,
+					"schemaId":           sId,
+					"correspondingField": nil, // One-way self-reference
+				},
+			})
+
+		referringItem1, _ := createItem(e, mId, sId, nil, []map[string]any{
+			{"schemaFieldId": fids.textFId, "value": "referring-item-1", "type": "Text"},
+			{"schemaFieldId": selfRefFieldId, "value": targetItem1, "type": "Reference"},
+		})
+		referringItem2, _ := createItem(e, mId, sId, nil, []map[string]any{
+			{"schemaFieldId": fids.textFId, "value": "referring-item-2", "type": "Text"},
+			{"schemaFieldId": selfRefFieldId, "value": targetItem2, "type": "Reference"},
+		})
+
+		_, refRes1 := getItem(e, referringItem1)
+
+		// Find the self-reference field value by iterating through fields
+		refFields1 := refRes1.Path("$.data.node.fields").Array().Raw()
+		var selfRefValue1 interface{}
+		for _, field := range refFields1 {
+			fieldMap := field.(map[string]interface{})
+			if fieldMap["schemaFieldId"] == selfRefFieldId {
+				selfRefValue1 = fieldMap["value"]
+				break
+			}
+		}
+		assert.Equal(t, targetItem1, selfRefValue1)
+
+		_, refRes2 := getItem(e, referringItem2)
+		refFields2 := refRes2.Path("$.data.node.fields").Array().Raw()
+		var selfRefValue2 interface{}
+		for _, field := range refFields2 {
+			fieldMap := field.(map[string]interface{})
+			if fieldMap["schemaFieldId"] == selfRefFieldId {
+				selfRefValue2 = fieldMap["value"]
+				break
+			}
+		}
+		assert.Equal(t, targetItem2, selfRefValue2)
+
+		deletedIDs, deleteRes := batchDeleteItems(e, []string{targetItem1, targetItem2})
+
+		assert.Len(t, deletedIDs, 2)
+		assert.Contains(t, deletedIDs, targetItem1)
+		assert.Contains(t, deletedIDs, targetItem2)
+		deleteRes.Path("$.data.deleteItems.itemIds").Array().Length().IsEqual(2)
+
+		// Verify referring items still exist and check reference field behavior
+		_, referringRes1After := getItem(e, referringItem1)
+		referringRes1After.Path("$.data.node.id").IsEqual(referringItem1)
+
+		// Check self-reference field - should be cleared to null when target is deleted
+		selfRefFields1After := referringRes1After.Path("$.data.node.fields").Array().Raw()
+		var selfRefValueAfter1 interface{}
+		for _, field := range selfRefFields1After {
+			fieldMap := field.(map[string]interface{})
+			if fieldMap["schemaFieldId"] == selfRefFieldId {
+				selfRefValueAfter1 = fieldMap["value"]
+				break
+			}
+		}
+
+		assert.Nil(t, selfRefValueAfter1)
+
+		_, referringRes2After := getItem(e, referringItem2)
+		referringRes2After.Path("$.data.node.id").IsEqual(referringItem2)
+
+		selfRefFields2After := referringRes2After.Path("$.data.node.fields").Array().Raw()
+		var selfRefValueAfter2 interface{}
+		for _, field := range selfRefFields2After {
+			fieldMap := field.(map[string]interface{})
+			if fieldMap["schemaFieldId"] == selfRefFieldId {
+				selfRefValueAfter2 = fieldMap["value"]
+				break
+			}
+		}
+
+		assert.Nil(t, selfRefValueAfter2)
+
+		deleteItem(e, referringItem1)
+		deleteItem(e, referringItem2)
+	})
 }
 
 func TestCreateItem(t *testing.T) {
