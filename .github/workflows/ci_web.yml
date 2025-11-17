@@ -9,8 +9,9 @@ jobs:
       template_values: '{"PORT": 8080, "REAL_IP_HEADER": "${{ vars.WEB_REAL_IP_HEADER }}"}' # Ref: https://github.com/reearth/reearth-cms/blob/main/web/Dockerfile#L35
       working_directory: web
 
-  ci:
-    name: ci
+  # Quick checks that fail fast
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -22,18 +23,107 @@ jobs:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: '**/yarn.lock'
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: web/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
       - name: Install
-        run: yarn install
+        run: yarn install --frozen-lockfile --prefer-offline
       - name: Lint
         run: yarn run lint
+
+  translations:
+    name: Check translations
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: yarn
+          cache-dependency-path: '**/yarn.lock'
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: web/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+      - name: Install
+        run: yarn install --frozen-lockfile --prefer-offline
+      - name: Check translations
+        run: yarn i18n --fail-on-update
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: yarn
+          cache-dependency-path: '**/yarn.lock'
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: web/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+      - name: Install
+        run: yarn install --frozen-lockfile --prefer-offline
       - name: Test
-        run: yarn run coverage
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ] || [ "${{ github.ref_name }}" = "release" ]; then
+            yarn run coverage
+          else
+            yarn run test
+          fi
       - name: Send coverage report
+        if: github.ref_name == 'main' || github.ref_name == 'release'
         uses: codecov/codecov-action@v5
         with:
           flags: web
-      - name: Check translations
-        run: yarn i18n --fail-on-update
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: yarn
+          cache-dependency-path: '**/yarn.lock'
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: web/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+      - name: Cache TypeScript
+        uses: actions/cache@v4
+        with:
+          path: web/node_modules/.cache
+          key: ${{ runner.os }}-typescript-${{ hashFiles('web/tsconfig.json') }}
+          restore-keys: |
+            ${{ runner.os }}-typescript-
+      - name: Install
+        run: yarn install --frozen-lockfile --prefer-offline
       - name: Build
         run: yarn build
       - name: Pack

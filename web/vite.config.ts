@@ -52,6 +52,65 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    target: "esnext",
+    minify: "esbuild",
+    cssCodeSplit: true,
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          if (id.includes("node_modules")) {
+            if (id.includes("@ant-design") || id.includes("antd")) {
+              if (id.includes("@ant-design/icons")) {
+                return "vendor-icons";
+              }
+              if (id.includes("@ant-design/pro")) {
+                return "vendor-ant-pro";
+              }
+              return "vendor-antd";
+            }
+            if (id.includes("monaco-editor") || id.includes("@monaco-editor")) {
+              return "vendor-monaco";
+            }
+            if (id.includes("cesium") || id.includes("resium")) {
+              return "vendor-cesium";
+            }
+            if (id.includes("ol/") || id.includes("ol-")) {
+              return "vendor-openlayers";
+            }
+            if (id.includes("@apollo") || id.includes("graphql") || id.includes("graphiql")) {
+              return "vendor-graphql";
+            }
+            if (
+              id.includes("react") ||
+              id.includes("react-dom") ||
+              id.includes("react-router") ||
+              id.includes("scheduler")
+            ) {
+              return "vendor-react";
+            }
+            if (id.includes("firebase")) {
+              return "vendor-firebase";
+            }
+            if (id.includes("aws-amplify")) {
+              return "vendor-aws";
+            }
+            if (id.includes("@auth0")) {
+              return "vendor-auth";
+            }
+            if (id.includes("jotai") || id.includes("formik")) {
+              return "vendor-state";
+            }
+
+            return "vendor";
+          }
+        },
+        chunkFileNames: "assets/[name]-[hash].js",
+        entryFileNames: "assets/[name]-[hash].js",
+        assetFileNames: "assets/[name]-[hash].[ext]",
+      },
+    },
+  },
   test: {
     environment: "jsdom",
     setupFiles: "./src/test/setup.ts",
