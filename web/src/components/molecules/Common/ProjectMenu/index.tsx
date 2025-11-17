@@ -16,27 +16,27 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
 
   const topItems: ItemType[] = [
     {
-      label: t("Models"),
+      label: <span data-testid="nav-models-menuitem">{t("Models")}</span>,
       key: "models",
       icon: <Icon icon="block" />,
     },
     {
-      label: t("Schema"),
+      label: <span data-testid="nav-schema-menuitem">{t("Schema")}</span>,
       key: "schema",
       icon: <Icon icon="unorderedList" />,
     },
     {
-      label: t("Content"),
+      label: <span data-testid="nav-content-menuitem">{t("Content")}</span>,
       key: "content",
       icon: <Icon icon="table" />,
     },
     {
-      label: t("Asset"),
+      label: <span data-testid="nav-asset-menuitem">{t("Asset")}</span>,
       key: "asset",
       icon: <Icon icon="file" />,
     },
     {
-      label: t("Request"),
+      label: <span data-testid="nav-request-menuitem">{t("Request")}</span>,
       key: "request",
       icon: <Icon icon="pullRequest" />,
     },
@@ -51,22 +51,22 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
 
   const items: ItemType[] = [
     {
-      label: t("Accessibility"),
+      label: <span data-testid="nav-accessibility-menuitem">{t("Accessibility")}</span>,
       key: "accessibility",
       icon: <Icon icon="send" />,
     },
     {
-      label: t("Readme"),
+      label: <span data-testid="nav-readme-menuitem">{t("Readme")}</span>,
       key: "readme",
       icon: <Icon icon="read" />,
     },
     {
-      label: t("License"),
+      label: <span data-testid="nav-license-menuitem">{t("License")}</span>,
       key: "license",
       icon: <Icon icon="copyright" />,
     },
     {
-      label: t("Settings"),
+      label: <span data-testid="nav-settings-menuitem">{t("Settings")}</span>,
       key: "settings",
       icon: <Icon icon="settings" />,
     },
@@ -88,6 +88,7 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
         inlineCollapsed={inlineCollapsed}
         mode="inline"
         items={topItems}
+        data-testid="project-menu-top"
       />
       <Menu
         onClick={onClick}
@@ -95,6 +96,7 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
         inlineCollapsed={inlineCollapsed}
         mode="inline"
         items={items}
+        data-testid="project-menu-bottom"
       />
     </>
   );

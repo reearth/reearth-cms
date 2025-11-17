@@ -380,11 +380,7 @@ const FieldModal: React.FC<Props> = ({
               </Checkbox>
             </Form.Item>
           </TabPane>
-          <TabPane
-            tab={t("Default value")}
-            key="defaultValue"
-            forceRender
-            data-testid="schema-field-defaultvalue-tab">
+          <TabPane tab={t("Default value")} key="defaultValue" forceRender>
             <FieldDefaultInputs
               multiple={multipleValue}
               selectedValues={selectedValues}

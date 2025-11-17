@@ -36,7 +36,9 @@ const FileItem: React.FC<Props> = ({ file, remove }) => {
               setChecked(checked => !checked);
               if (!file?.skipDecompression) file.skipDecompression = true;
               else file.skipDecompression = !file.skipDecompression;
-            }}>
+            }}
+            data-testid="asset-upload-auto-unzip-checkbox"
+            >
             {t("Auto Unzip")}
           </Checkbox>
         )}

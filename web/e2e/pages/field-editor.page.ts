@@ -17,10 +17,10 @@ export class FieldEditorPage extends BasePage {
 
   // Tabs
   get defaultValueTab(): Locator {
-    return this.getByTestId("schema-field-defaultvalue-tab");
+    return this.getByRole("tab", { name: "Default value" });
   }
   get validationTab(): Locator {
-    return this.getByTestId("schema-field-validation-tab");
+    return this.getByRole("tab", { name: "Validation" });
   }
 
   // Default value tab
@@ -123,7 +123,7 @@ export class FieldEditorPage extends BasePage {
   }
 
   get settingsTab(): Locator {
-    return this.getByTestId("schema-field-settings-tab");
+    return this.getByRole("tab", { name: "Settings" });
   }
 
   get setOptionsLabel(): Locator {

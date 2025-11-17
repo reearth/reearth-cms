@@ -6,7 +6,7 @@ import { BasePage } from "./base.page";
 export class IntegrationsPage extends BasePage {
   // Workspace Integrations - Main table and actions
   get connectIntegrationButton(): Locator {
-    return this.getByTestId("integration-connect-button");
+    return this.getByTestId("integration-connect-button").first();
   }
   get searchInput(): Locator {
     return this.getByTestId("integration-search-input");
@@ -133,7 +133,7 @@ export class IntegrationsPage extends BasePage {
 
   // Aliases for backwards compatibility (map old names to new data-testid locators)
   get createIntegrationButton(): Locator {
-    return this.getByRole("button", { name: "plus new integration" });
+    return this.getByRole("button", { name: "plus Create new integration" });
   }
   get integrationNameInput(): Locator {
     return this.myIntegrationNameInput;
@@ -166,7 +166,7 @@ export class IntegrationsPage extends BasePage {
     return this.getByRole("button", { name: "OK" });
   }
   get removeIntegrationButton(): Locator {
-    return this.getByRole("button", { name: "delete" });
+    return this.getByTestId("remove-integration");
   }
   get urlInput(): Locator {
     return this.webhookUrlInput;

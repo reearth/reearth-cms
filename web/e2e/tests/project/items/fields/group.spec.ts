@@ -91,7 +91,6 @@ test("Group field creating and updating has succeeded", async ({
   });
 
   await test.step("Update group text field with validations and default value", async () => {
-    await schemaPage.schemaSpanText.click();
     await schemaPage.metaDataTab.click();
     await schemaPage.groupMenuItem("e2e group name").locator("span").click();
     await schemaPage.fieldEditButton.click();

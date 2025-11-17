@@ -14,6 +14,12 @@ export class AssetsPage extends BasePage {
   get downloadButton(): Locator {
     return this.getByTestId("asset-download-button");
   }
+  get editPageDownloadButton(): Locator {
+    return this.getByTestId("asset-edit-download-button");
+  }
+  get editPageDownloadButtonIconOnly(): Locator {
+    return this.getByTestId("asset-edit-download-button-icon");
+  }
   get deleteButton(): Locator {
     return this.getByTestId("asset-delete-button");
   }
@@ -27,6 +33,9 @@ export class AssetsPage extends BasePage {
   }
   get autoUnzipCheckbox(): Locator {
     return this.getByTestId("asset-upload-auto-unzip-checkbox");
+  }
+  get autoUnzipCheckboxURLTab(): Locator {
+    return this.getByTestId("asset-upload-auto-unzip-checkbox-url-tab");
   }
   get submitUploadButton(): Locator {
     return this.getByTestId("asset-upload-submit-button");

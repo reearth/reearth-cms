@@ -91,7 +91,7 @@ test.describe("Json file tests", () => {
     // details download
     await assetsPage.editIconButton.click();
     const detailsDownload = page.waitForEvent("download");
-    await assetsPage.downloadButton.click();
+    await assetsPage.editPageDownloadButton.click();
     const d2 = await detailsDownload;
     expect(d2.suggestedFilename()).toEqual(jsonName);
     await assetsPage.closeNotification();

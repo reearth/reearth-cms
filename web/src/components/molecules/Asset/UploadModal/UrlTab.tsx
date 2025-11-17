@@ -57,7 +57,7 @@ const UrlTab: React.FC<Props> = ({ uploadUrl, setUploadUrl }) => {
               autoUnzip: !uploadUrl.autoUnzip,
             });
           }}
-          data-testid="asset-upload-auto-unzip-checkbox">
+          data-testid="asset-upload-auto-unzip-checkbox-url-tab">
           {t("Auto Unzip")}
         </Checkbox>
       )}

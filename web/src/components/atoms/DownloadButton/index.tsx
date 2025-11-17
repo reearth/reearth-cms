@@ -23,11 +23,12 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
 }) => {
   const t = useT();
   return onlyIcon ? (
-    <IconWrapper role="button" onClick={onDownload}>
+    <IconWrapper role="button" onClick={onDownload} data-testid="asset-edit-download-button-icon">
       <Icon icon="download" />
     </IconWrapper>
   ) : (
     <Button
+      data-testid="asset-edit-download-button"
       icon={displayDefaultIcon && <Icon icon="download" />}
       disabled={disabled}
       onClick={onDownload}

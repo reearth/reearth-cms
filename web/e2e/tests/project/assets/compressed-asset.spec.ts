@@ -30,7 +30,7 @@ test.describe("Zip Upload Tests", () => {
     await assetsPage.urlTab.click();
     const urlInput = assetsPage.urlInput;
     await urlInput.fill(zipUrl);
-    const autoUnzipCheckbox = assetsPage.autoUnzipCheckbox;
+    const autoUnzipCheckbox = assetsPage.autoUnzipCheckboxURLTab;
     await autoUnzipCheckbox.setChecked(true);
     await expect(autoUnzipCheckbox).toBeChecked();
     await assetsPage.submitUploadButton.click();
