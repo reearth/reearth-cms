@@ -42,7 +42,6 @@ jobs:
           TAG: ${{ inputs.new_tag_short }}
           NAME: ${{ inputs.name }}
           SHA: ${{ inputs.sha_short }}
-          IMAGE_NAME: ${{ env.IMAGE_NAME }}
         run: |
           if [[ -n $TAG ]]; then
             PLATFORMS=linux/amd64,linux/arm64

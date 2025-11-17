@@ -24,7 +24,7 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 FROM nginx:1.29-alpine
 WORKDIR /usr/share/nginx/html
 
-# Quiet the Nginx startup logs.
+# Quite the Nginx startup logs.
 ENV NGINX_ENTRYPOINT_QUIET_LOGS=true
 
 # Default to Cloud Run port.
