@@ -1,6 +1,7 @@
 name: ci-web
 on:
   workflow_call:
+  workflow_dispatch:
 jobs:
   validate-nginx-config:
     uses: reearth/actions/.github/workflows/validate-nginx-config.yml@e05fcd1efc6c985c7c0c906cff1452ee634232c8
@@ -9,7 +10,6 @@ jobs:
       template_values: '{"PORT": 8080, "REAL_IP_HEADER": "${{ vars.WEB_REAL_IP_HEADER }}"}' # Ref: https://github.com/reearth/reearth-cms/blob/main/web/Dockerfile#L35
       working_directory: web
 
-  # Quick checks that fail fast
   lint:
     name: Lint
     runs-on: ubuntu-latest
