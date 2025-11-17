@@ -1,7 +1,13 @@
 name: ci-web
+
 on:
   workflow_call:
   workflow_dispatch:
+
+concurrency:
+  group: ci-web-${{ github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   validate-nginx-config:
     uses: reearth/actions/.github/workflows/validate-nginx-config.yml@e05fcd1efc6c985c7c0c906cff1452ee634232c8
@@ -10,78 +16,27 @@ jobs:
       template_values: '{"PORT": 8080, "REAL_IP_HEADER": "${{ vars.WEB_REAL_IP_HEADER }}"}' # Ref: https://github.com/reearth/reearth-cms/blob/main/web/Dockerfile#L35
       working_directory: web
 
-  lint:
-    name: Lint
+  ci:
+    name: ci
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: web
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v6
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Setup Node
+        uses: actions/setup-node@v6
         with:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: '**/yarn.lock'
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: web/node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
-      - name: Install
+      - name: Install dependencies
         run: yarn install --frozen-lockfile --prefer-offline
       - name: Lint
         run: yarn run lint
-
-  translations:
-    name: Check translations
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: web
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v6
-        with:
-          node-version: lts/*
-          cache: yarn
-          cache-dependency-path: '**/yarn.lock'
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: web/node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
-      - name: Install
-        run: yarn install --frozen-lockfile --prefer-offline
       - name: Check translations
         run: yarn i18n --fail-on-update
-
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: web
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v6
-        with:
-          node-version: lts/*
-          cache: yarn
-          cache-dependency-path: '**/yarn.lock'
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: web/node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
-      - name: Install
-        run: yarn install --frozen-lockfile --prefer-offline
       - name: Test
         run: |
           if [ "${{ github.ref_name }}" = "main" ] || [ "${{ github.ref_name }}" = "release" ]; then
@@ -94,43 +49,17 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           flags: web
-
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: web
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v6
-        with:
-          node-version: lts/*
-          cache: yarn
-          cache-dependency-path: '**/yarn.lock'
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: web/node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
-      - name: Cache TypeScript
-        uses: actions/cache@v4
-        with:
-          path: web/node_modules/.cache
-          key: ${{ runner.os }}-typescript-${{ hashFiles('web/tsconfig.json') }}
-          restore-keys: |
-            ${{ runner.os }}-typescript-
-      - name: Install
-        run: yarn install --frozen-lockfile --prefer-offline
       - name: Build
         run: yarn build
-      - name: Pack
+      - name: Pack artifact
         if: github.ref_name == 'main' || github.ref_name == 'release'
-        run: mv dist reearth-cms-web && tar -zcvf reearth-cms-web.tar.gz reearth-cms-web
-      - uses: actions/upload-artifact@v5
+        run: |
+          mv dist reearth-cms-web
+          tar -zcvf reearth-cms-web.tar.gz reearth-cms-web
+
+      - name: Upload artifact
         if: github.ref_name == 'main' || github.ref_name == 'release'
+        uses: actions/upload-artifact@v5
         with:
           name: reearth-cms-web
           path: web/reearth-cms-web.tar.gz
