@@ -319,7 +319,7 @@ func TestItem_BatchRemove(t *testing.T) {
 		Name     string
 		ToRemove id.ItemIDList
 		Seeds    item.List
-		Expected []id.ItemID
+		Expected id.ItemIDList
 	}{
 		{
 			Name:     "remove multiple items",
@@ -381,7 +381,7 @@ func TestItem_BatchRemove(t *testing.T) {
 
 			// Verify removed items are gone
 			for _, removedID := range tc.ToRemove {
-				if !contains(tc.Expected, removedID) {
+				if !tc.Expected.Has(removedID) {
 					got, err := r.FindByID(ctx, removedID, nil)
 					assert.Nil(tt, got)
 					assert.Equal(tt, rerror.ErrNotFound, err)
@@ -389,15 +389,6 @@ func TestItem_BatchRemove(t *testing.T) {
 			}
 		})
 	}
-}
-
-func contains(slice []id.ItemID, item id.ItemID) bool {
-	for _, s := range slice {
-		if s == item {
-			return true
-		}
-	}
-	return false
 }
 
 func TestItem_Archive(t *testing.T) {
