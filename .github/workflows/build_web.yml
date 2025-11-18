@@ -16,6 +16,26 @@ on:
         required: true
       DOCKERHUB_TOKEN:
         required: true
+  workflow_dispatch:
+    inputs:
+      sha_short:
+        description: 'Short SHA for the build'
+        required: false
+        type: string
+        default: 'manual'
+      new_tag:
+        description: 'New tag (leave empty for non-release builds)'
+        required: false
+        type: string
+      new_tag_short:
+        description: 'Short version of new tag'
+        required: false
+        type: string
+      name:
+        description: 'Build name/identifier'
+        required: false
+        type: string
+        default: 'manual-test'
 
 jobs:
   docker:
