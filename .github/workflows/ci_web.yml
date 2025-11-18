@@ -1,7 +1,6 @@
 name: ci-web
 on:
   workflow_call:
-  workflow_dispatch:
 jobs:
   validate-nginx-config:
     uses: reearth/actions/.github/workflows/validate-nginx-config.yml@e05fcd1efc6c985c7c0c906cff1452ee634232c8
