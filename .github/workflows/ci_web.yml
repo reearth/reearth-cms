@@ -1,7 +1,6 @@
 name: ci-web
 on:
   workflow_call:
-  workflow_dispatch:
 jobs:
   validate-nginx-config:
     uses: reearth/actions/.github/workflows/validate-nginx-config.yml@e05fcd1efc6c985c7c0c906cff1452ee634232c8
@@ -11,7 +10,7 @@ jobs:
       working_directory: web
 
   lint:
-    name: Lint
+    name: lint
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -37,8 +36,8 @@ jobs:
       - name: Lint
         run: yarn run lint
 
-  translations:
-    name: Check translations
+  i18n:
+    name: i18n
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -65,7 +64,7 @@ jobs:
         run: yarn i18n --fail-on-update
 
   test:
-    name: Test
+    name: test
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -102,7 +101,7 @@ jobs:
           flags: web
 
   build:
-    name: Build
+    name: build
     runs-on: ubuntu-latest
     defaults:
       run:
