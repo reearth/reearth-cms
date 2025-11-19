@@ -10,7 +10,7 @@ test.beforeEach(async ({ reearth, fieldEditorPage, projectPage, contentPage, sch
 
   await fieldEditorPage.fieldTypeButton("Text").click();
   await schemaPage.handleFieldForm("text");
-  await projectPage.navContentMenuItem.click();
+  await projectPage.contentMenuItem.click();
   await contentPage.newItemButton.click();
   await contentPage.fieldInput("text").fill("test");
   await contentPage.saveButton.click();
@@ -19,7 +19,7 @@ test.beforeEach(async ({ reearth, fieldEditorPage, projectPage, contentPage, sch
   await schemaPage.metaDataTab.click();
   await schemaPage.booleanListItem.click();
   await schemaPage.handleFieldForm("boolean");
-  await projectPage.navContentMenuItem.click();
+  await projectPage.contentMenuItem.click();
 });
 
 test.afterEach(async ({ projectPage }) => {

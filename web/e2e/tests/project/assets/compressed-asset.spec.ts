@@ -17,7 +17,7 @@ test.beforeEach(async ({ reearth, projectPage }) => {
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
-  await projectPage.navAssetMenuItem.click();
+  await projectPage.assetMenuItem.click();
 });
 
 test.afterEach(async ({ projectPage }) => {
@@ -30,7 +30,7 @@ test.describe("Zip Upload Tests", () => {
     await assetsPage.urlTab.click();
     const urlInput = assetsPage.urlInput;
     await urlInput.fill(zipUrl);
-    const autoUnzipCheckbox = assetsPage.autoUnzipCheckboxURLTab;
+    const autoUnzipCheckbox = assetsPage.autoUnzipCheckbox;
     await autoUnzipCheckbox.setChecked(true);
     await expect(autoUnzipCheckbox).toBeChecked();
     await assetsPage.submitUploadButton.click();

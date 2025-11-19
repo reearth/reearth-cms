@@ -18,12 +18,12 @@ export class LoginPage {
   logoutButton: Locator;
 
   constructor(private page: Page) {
-    // Custom login form (external - can't modify)
+    // Custom login form
     this.emailInput = this.page.getByPlaceholder("username/email");
     this.passwordInput = this.page.getByPlaceholder("your password");
     this.loginButton = this.page.getByText("LOG IN");
 
-    // Auth0 login form (external - can't modify)
+    // Auth0 login form
     this.auth0EmailInput = this.page.getByLabel("Email address");
     this.auth0PasswordInput = this.page.getByLabel("Password");
     this.auth0ContinueButton = this.page.getByRole("button", { name: "Continue", exact: true });
@@ -31,8 +31,8 @@ export class LoginPage {
       name: "Continue without passkeys",
     });
 
-    // User menu (using data-testid)
-    this.userMenuLink = this.page.getByTestId("header-account-dropdown");
+    // User menu
+    this.userMenuLink = this.page.locator("a").nth(1);
     this.logoutButton = this.page.getByText("Logout");
   }
 

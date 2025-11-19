@@ -4,11 +4,9 @@ import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { BasePage } from "./base.page";
 
 export class RequestPage extends BasePage {
-  // Navigation - use navRequestMenuItem from BasePage
-
-  // Aliases for backwards compatibility (map old names to BasePage navigation)
+  // Navigation
   get requestMenuItem(): Locator {
-    return this.navRequestMenuItem;
+    return this.getByText("Request", { exact: true });
   }
 
   // Request management

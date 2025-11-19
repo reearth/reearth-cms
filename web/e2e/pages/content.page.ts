@@ -11,10 +11,10 @@ export class ContentPage extends BasePage {
 
   // Item creation and editing
   get newItemButton(): Locator {
-    return this.getByTestId("content-new-item-button");
+    return this.getByRole("button", { name: "plus New Item" });
   }
   get saveButton(): Locator {
-    return this.getByTestId("content-save-button");
+    return this.getByRole("button", { name: "Save" });
   }
   get backButton(): Locator {
     return this.getByLabel("Back");
@@ -22,13 +22,10 @@ export class ContentPage extends BasePage {
 
   // Search
   get searchInput(): Locator {
-    return this.getByTestId("content-search-input");
+    return this.getByPlaceholder("input search text");
   }
   get searchButton(): Locator {
     return this.getByRole("button", { name: "search" });
-  }
-  get filterAddButton(): Locator {
-    return this.getByTestId("content-filter-add-button");
   }
 
   // Table actions
@@ -44,7 +41,7 @@ export class ContentPage extends BasePage {
 
   // Publishing
   get publishButton(): Locator {
-    return this.getByTestId("content-publish-button");
+    return this.getByRole("button", { name: "Publish" });
   }
   get unpublishButton(): Locator {
     return this.getByText("Unpublish");

@@ -172,10 +172,7 @@ test("Comment CRUD on Request page has succeeded", async ({ requestPage, content
   });
 });
 
-test("Creating a new request and adding to request has succeeded", async ({
-  requestPage,
-  page,
-}) => {
+test("Creating a new request and adding to request has succeeded", async ({ requestPage, page }) => {
   await test.step("Create a new item", async () => {
     await expect(requestPage.backButtonCapitalized).toBeVisible();
     await requestPage.backButtonCapitalized.click();

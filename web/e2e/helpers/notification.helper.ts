@@ -5,9 +5,7 @@ export async function closeNotification(page: Page, isSuccess = true) {
 
   // Wait for the notification to appear and verify its type
   const notification = page.getByRole("alert").last();
-  await expect(notification.getByRole("img")).toHaveAttribute("aria-label", text, {
-    timeout: 10000,
-  });
+  await expect(notification.getByRole("img")).toHaveAttribute("aria-label", text, { timeout: 10000 });
 
   // Find and click the close button
   const closeButton = page

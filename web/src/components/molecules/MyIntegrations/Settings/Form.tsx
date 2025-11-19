@@ -103,15 +103,10 @@ const MyIntegrationForm: React.FC<Props> = ({
                 message: t("Please input the title of the integration!"),
               },
             ]}>
-            <Input data-testid="myintegration-name-input" />
+            <Input />
           </Form.Item>
           <Form.Item name="description" label={t("Description")}>
-            <TextArea
-              rows={3}
-              showCount
-              maxLength={100}
-              data-testid="myintegration-description-input"
-            />
+            <TextArea rows={3} showCount maxLength={100} />
           </Form.Item>
           <StyledFormItem
             label={t("Integration Token")}
@@ -129,12 +124,8 @@ const MyIntegrationForm: React.FC<Props> = ({
                   }}
                 />
               }
-              data-testid="myintegration-token-input"
             />
-            <Button
-              onClick={handleRegenerateToken}
-              loading={regenerateLoading}
-              data-testid="myintegration-regenerate-button">
+            <Button onClick={handleRegenerateToken} loading={regenerateLoading}>
               {t("Re-generate")}
             </Button>
           </StyledFormItem>
@@ -143,8 +134,7 @@ const MyIntegrationForm: React.FC<Props> = ({
               type="primary"
               onClick={handleSubmit}
               disabled={isDisabled}
-              loading={updateIntegrationLoading}
-              data-testid="myintegration-save-button">
+              loading={updateIntegrationLoading}>
               {t("Save")}
             </Button>
           </Form.Item>

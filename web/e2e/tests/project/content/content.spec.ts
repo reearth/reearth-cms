@@ -23,7 +23,7 @@ test("@smoke Item CRUD and searching has succeeded", async ({
   await test.step("Create text field and navigate to content", async () => {
     await fieldEditorPage.fieldTypeButton("Text").click();
     await schemaPage.handleFieldForm("text");
-    await projectPage.navContentMenuItem.click();
+    await projectPage.contentMenuItem.click();
     await page.waitForTimeout(300);
   });
 

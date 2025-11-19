@@ -12,7 +12,7 @@ test.beforeEach(async ({ reearth, projectPage }) => {
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
-  await projectPage.navAssetMenuItem.click();
+  await projectPage.assetMenuItem.click();
 });
 
 test.afterEach(async ({ projectPage }) => {
@@ -91,7 +91,7 @@ test.describe("Json file tests", () => {
     // details download
     await assetsPage.editIconButton.click();
     const detailsDownload = page.waitForEvent("download");
-    await assetsPage.editPageDownloadButton.click();
+    await assetsPage.downloadButton.click();
     const d2 = await detailsDownload;
     expect(d2.suggestedFilename()).toEqual(jsonName);
     await assetsPage.closeNotification();

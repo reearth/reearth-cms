@@ -91,12 +91,7 @@ test.describe("Project CRUD and searching has succeeded", () => {
     });
   });
 
-  test("@smoke Delete project", async ({
-    projectPage,
-    workspacePage,
-    projectSettingsPage,
-    page,
-  }) => {
+  test("@smoke Delete project", async ({ projectPage, workspacePage, projectSettingsPage, page }) => {
     await test.step("Navigate to project settings and delete project", async () => {
       await projectPage.gotoProject(NEW_PROJECT_NAME);
       await projectSettingsPage.goToProjectSettings();

@@ -40,7 +40,11 @@ export const PreviewTypeSelect: React.FC<Props> = ({ onTypeChange, value, hasUpd
     { name: t("Unknown Type"), value: "UNKNOWN" },
   ];
   return (
-    <StyledSelect value={value} onChange={onTypeChange} disabled={!hasUpdateRight}>
+    <StyledSelect
+      value={value}
+      onChange={onTypeChange}
+      disabled={!hasUpdateRight}
+      data-testid="asset-type-select">
       {previewTypeList.map((type, index) => (
         <Select.Option key={index} value={type.value}>
           {type.name}

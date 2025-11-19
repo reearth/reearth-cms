@@ -4,58 +4,41 @@ import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { BasePage } from "./base.page";
 
 export class AssetsPage extends BasePage {
-  // Asset management - Main toolbar and actions
+  // Toolbar / Actions
   get uploadButton(): Locator {
-    return this.getByTestId("asset-upload-button");
+    return this.getByRole("button", { name: "upload Upload Asset" });
   }
   get searchInput(): Locator {
-    return this.getByTestId("asset-search-input");
+    return this.getByPlaceholder("input search text");
+  }
+  get searchButton(): Locator {
+    return this.getByRole("button", { name: "search" });
   }
   get downloadButton(): Locator {
-    return this.getByTestId("asset-download-button");
-  }
-  get editPageDownloadButton(): Locator {
-    return this.getByTestId("asset-edit-download-button");
-  }
-  get editPageDownloadButtonIconOnly(): Locator {
-    return this.getByTestId("asset-edit-download-button-icon");
+    return this.getByRole("button", { name: "download Download" });
   }
   get deleteButton(): Locator {
-    return this.getByTestId("asset-delete-button");
+    return this.getByText("Delete");
   }
 
   // Upload modal
-  get uploadModal(): Locator {
-    return this.getByTestId("asset-upload-modal");
-  }
-  get urlInput(): Locator {
-    return this.getByTestId("asset-upload-url-input");
-  }
-  get autoUnzipCheckbox(): Locator {
-    return this.getByTestId("asset-upload-auto-unzip-checkbox");
-  }
-  get autoUnzipCheckboxURLTab(): Locator {
-    return this.getByTestId("asset-upload-auto-unzip-checkbox-url-tab");
-  }
-  get submitUploadButton(): Locator {
-    return this.getByTestId("asset-upload-submit-button");
-  }
-  get cancelUploadButton(): Locator {
-    return this.getByTestId("asset-upload-cancel-button");
-  }
-
-  // Legacy locators (kept for backwards compatibility with existing tests)
   get urlTab(): Locator {
     return this.getByRole("tab", { name: "URL" });
   }
   get localTab(): Locator {
     return this.getByRole("tab", { name: "Local" });
   }
+  get urlInput(): Locator {
+    return this.getByPlaceholder("Please input a valid URL");
+  }
   get fileInput(): Locator {
     return this.locator(".ant-upload input[type='file']");
   }
-  get searchButton(): Locator {
-    return this.getByRole("button", { name: "search" });
+  get autoUnzipCheckbox(): Locator {
+    return this.getByRole("checkbox", { name: "Auto Unzip" });
+  }
+  get submitUploadButton(): Locator {
+    return this.getByRole("button", { name: "Upload", exact: true });
   }
 
   // Grid / Rows

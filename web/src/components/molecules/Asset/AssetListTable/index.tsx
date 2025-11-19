@@ -266,7 +266,6 @@ const AssetListTable: React.FC<Props> = ({
             onSearchTerm(value);
           }}
           defaultValue={searchTerm}
-          data-testid="asset-search-input"
         />
       ),
     }),
@@ -286,7 +285,6 @@ const AssetListTable: React.FC<Props> = ({
             type="link"
             disabled={disabled}
             onDownload={() => onAssetDownload(selected)}
-            data-testid="asset-download-button"
           />
           <Button
             type="link"
@@ -295,8 +293,7 @@ const AssetListTable: React.FC<Props> = ({
             onClick={() => onAssetDelete(props.selectedRowKeys)}
             danger
             loading={deleteLoading}
-            disabled={!hasDeleteRight}
-            data-testid="asset-delete-button">
+            disabled={!hasDeleteRight}>
             {t("Delete")}
           </Button>
         </Space>

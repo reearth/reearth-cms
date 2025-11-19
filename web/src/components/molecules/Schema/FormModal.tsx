@@ -181,13 +181,8 @@ const FormModal: React.FC<Props> = ({
       open={open}
       onCancel={handleClose}
       title={title}
-      data-testid={isModel ? "schema-model-form-modal" : "schema-group-form-modal"}
       footer={[
-        <Button
-          key="cancel"
-          onClick={handleClose}
-          disabled={isLoading}
-          data-testid={isModel ? "schema-model-cancel-button" : "schema-group-cancel-button"}>
+        <Button key="cancel" onClick={handleClose} disabled={isLoading}>
           {t("Cancel")}
         </Button>,
         <Button
@@ -195,8 +190,7 @@ const FormModal: React.FC<Props> = ({
           type="primary"
           loading={isLoading}
           onClick={handleSubmit}
-          disabled={isDisabled}
-          data-testid={isModel ? "schema-model-save-button" : "schema-group-save-button"}>
+          disabled={isDisabled}>
           {t("OK")}
         </Button>,
       ]}>
@@ -210,18 +204,10 @@ const FormModal: React.FC<Props> = ({
               message: nameMessage,
             },
           ]}>
-          <Input
-            onChange={handleNameChange}
-            data-testid={isModel ? "schema-model-name-input" : "schema-group-name-input"}
-          />
+          <Input onChange={handleNameChange} />
         </Form.Item>
         <Form.Item name="description" label={descriptionLabel}>
-          <TextArea
-            rows={4}
-            data-testid={
-              isModel ? "schema-model-description-input" : "schema-group-description-input"
-            }
-          />
+          <TextArea rows={4} />
         </Form.Item>
         <Form.Item
           name="key"
@@ -236,12 +222,7 @@ const FormModal: React.FC<Props> = ({
               },
             },
           ]}>
-          <Input
-            onChange={handleKeyChange}
-            showCount
-            maxLength={Constant.KEY.MAX_LENGTH}
-            data-testid={isModel ? "schema-model-key-input" : "schema-group-key-input"}
-          />
+          <Input onChange={handleKeyChange} showCount maxLength={Constant.KEY.MAX_LENGTH} />
         </Form.Item>
       </Form>
     </Modal>

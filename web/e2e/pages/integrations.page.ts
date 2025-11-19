@@ -4,69 +4,35 @@ import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { BasePage } from "./base.page";
 
 export class IntegrationsPage extends BasePage {
-  // Workspace Integrations - Main table and actions
-  get connectIntegrationButton(): Locator {
-    return this.getByTestId("integration-connect-button").first();
-  }
-  get searchInput(): Locator {
-    return this.getByTestId("integration-search-input");
-  }
-  get settingsButton(): Locator {
-    return this.getByTestId("integration-settings-button");
-  }
-  get removeButton(): Locator {
-    return this.getByTestId("integration-remove-button");
+  // Navigation
+  get myIntegrationsMenuItem(): Locator {
+    return this.getByText("My Integrations");
   }
 
-  // Integration Connect Modal
-  get integrationConnectModal(): Locator {
-    return this.getByTestId("integration-connect-modal");
+  // Integration management
+  get createIntegrationButton(): Locator {
+    return this.getByRole("button", { name: "plus Create new integration" });
   }
-  get integrationConnectOkButton(): Locator {
-    return this.getByTestId("integration-connect-ok-button");
+  get integrationNameInput(): Locator {
+    return this.getByLabel("Integration Name");
   }
-  get integrationConnectCancelButton(): Locator {
-    return this.getByTestId("integration-connect-cancel-button");
+  get descriptionInput(): Locator {
+    return this.getByLabel("Description");
   }
-
-  // Integration Settings Modal
-  get integrationSettingsModal(): Locator {
-    return this.getByTestId("integration-settings-modal");
+  get createButton(): Locator {
+    return this.getByRole("button", { name: "Create", exact: true });
   }
-  get integrationRoleSelect(): Locator {
-    return this.getByTestId("integration-role-select");
+  get saveButton(): Locator {
+    return this.getByRole("button", { name: "Save" });
   }
-  get integrationSettingsSaveButton(): Locator {
-    return this.getByTestId("integration-settings-save-button");
+  get removeIntegrationButton(): Locator {
+    return this.getByRole("button", { name: "Remove Integration" });
   }
-  get integrationSettingsCancelButton(): Locator {
-    return this.getByTestId("integration-settings-cancel-button");
+  get okButton(): Locator {
+    return this.getByRole("button", { name: "OK" });
   }
-
-  // My Integrations - Creation and management
-  get myIntegrationNameInput(): Locator {
-    return this.getByTestId("myintegration-name-input");
-  }
-  get myIntegrationDescriptionInput(): Locator {
-    return this.getByTestId("myintegration-description-input");
-  }
-  get myIntegrationCreateModal(): Locator {
-    return this.getByTestId("myintegration-create-modal");
-  }
-  get myIntegrationCreateOkButton(): Locator {
-    return this.getByTestId("myintegration-create-ok-button");
-  }
-  get myIntegrationCreateCancelButton(): Locator {
-    return this.getByTestId("myintegration-create-cancel-button");
-  }
-  get myIntegrationTokenInput(): Locator {
-    return this.getByTestId("myintegration-token-input");
-  }
-  get myIntegrationRegenerateButton(): Locator {
-    return this.getByTestId("myintegration-regenerate-button");
-  }
-  get myIntegrationSaveButton(): Locator {
-    return this.getByTestId("myintegration-save-button");
+  get backButton(): Locator {
+    return this.getByLabel("Back");
   }
 
   // Webhook management
@@ -80,22 +46,25 @@ export class IntegrationsPage extends BasePage {
     return this.getByRole("button", { name: "plus new webhook" }).first();
   }
   get webhookNameInput(): Locator {
-    return this.getByTestId("webhook-name-input");
+    return this.getByRole("tabpanel").getByLabel("Name");
   }
-  get webhookUrlInput(): Locator {
-    return this.getByTestId("webhook-url-input");
+  get urlInput(): Locator {
+    return this.getByLabel("Url");
   }
-  get webhookSecretInput(): Locator {
-    return this.getByTestId("webhook-secret-input");
+  get secretInput(): Locator {
+    return this.getByLabel("Secret");
   }
-  get webhookSaveButton(): Locator {
-    return this.getByTestId("webhook-save-button");
+  get createCheckbox(): Locator {
+    return this.getByLabel("Create");
   }
-  get webhookBackButton(): Locator {
-    return this.getByTestId("webhook-back-button");
+  get uploadCheckbox(): Locator {
+    return this.getByLabel("Upload");
   }
-  get webhookTriggerCheckboxGroup(): Locator {
-    return this.getByTestId("webhook-trigger-checkboxgroup");
+  get arrowLeftButton(): Locator {
+    return this.getByRole("button", { name: "arrow-left" });
+  }
+  get settingButton(): Locator {
+    return this.getByRole("button", { name: "setting" });
   }
   get webhookSwitch(): Locator {
     return this.getByRole("switch", { name: "OFF" });
@@ -104,123 +73,99 @@ export class IntegrationsPage extends BasePage {
     return this.getByRole("button", { name: "delete" });
   }
 
-  // Dynamic webhook trigger checkbox
-  webhookTriggerCheckbox(triggerName: string): Locator {
-    return this.getByTestId(`webhook-trigger-${triggerName.toLowerCase()}-checkbox`);
+  // Content areas
+  get rootElement(): Locator {
+    return this.locator("#root");
+  }
+  get mainElement(): Locator {
+    return this.getByRole("main");
+  }
+  get tabPanel(): Locator {
+    return this.getByRole("tabpanel");
+  }
+  get webhookLabel(): Locator {
+    return this.getByLabel("Webhook");
   }
 
-  // Legacy locators (kept for backwards compatibility with existing tests)
+  // Dynamic text locators
+  integrationTextByName(name: string, description: string): Locator {
+    return this.getByText(`${name}${description}`, { exact: true });
+  }
+
+  integrationLinkByText(text: string): Locator {
+    return this.getByText(text);
+  }
+
+  // Switch elements
+  get webhookSwitchElement(): Locator {
+    return this.getByRole("switch");
+  }
+
+  // Input fields in tabpanel
+  get tabpanelNameInput(): Locator {
+    return this.getByRole("tabpanel").getByLabel("Name");
+  }
+
+  // New locators for integration management
   get integrationsMenuItem(): Locator {
     return this.getByText("Integrations", { exact: true });
   }
-  get myIntegrationsMenuItem(): Locator {
-    return this.getByText("My Integrations");
+
+  get connectIntegrationButton(): Locator {
+    return this.getByRole("button", { name: "api Connect Integration" }).first();
   }
+
+  get connectButton(): Locator {
+    return this.getByRole("button", { name: "Connect", exact: true });
+  }
+
+  get cancelButton(): Locator {
+    return this.getByRole("button", { name: "Cancel", exact: true });
+  }
+
+  get searchInput(): Locator {
+    return this.getByPlaceholder("input search text");
+  }
+
+  get searchButton(): Locator {
+    return this.getByRole("button", { name: "search" });
+  }
+
+  get settingSvgButton(): Locator {
+    return this.getByRole("cell", { name: "setting" }).locator("svg");
+  }
+
   get readerRoleOption(): Locator {
     return this.locator("div")
       .filter({ hasText: /^Reader$/ })
       .nth(4);
   }
+
   get writerRoleOption(): Locator {
     return this.getByTitle("Writer");
   }
+
   get writerCell(): Locator {
     return this.getByRole("cell", { name: "WRITER" });
   }
+
   get selectAllCheckbox(): Locator {
     return this.getByLabel("", { exact: true });
   }
 
-  // Aliases for backwards compatibility (map old names to new data-testid locators)
-  get createIntegrationButton(): Locator {
-    return this.getByRole("button", { name: "plus Create new integration" });
-  }
-  get integrationNameInput(): Locator {
-    return this.myIntegrationNameInput;
-  }
-  get descriptionInput(): Locator {
-    return this.myIntegrationDescriptionInput;
-  }
-  get createButton(): Locator {
-    return this.myIntegrationCreateOkButton;
-  }
-  get connectButton(): Locator {
-    return this.integrationConnectOkButton;
-  }
-  get cancelButton(): Locator {
-    return this.integrationConnectCancelButton;
-  }
-  get searchButton(): Locator {
-    return this.getByRole("button", { name: "search" });
-  }
-  get settingSvgButton(): Locator {
-    return this.settingsButton;
-  }
-  get saveButton(): Locator {
-    return this.integrationSettingsSaveButton;
-  }
   get removeText(): Locator {
-    return this.removeButton;
-  }
-  get okButton(): Locator {
-    return this.getByRole("button", { name: "OK" });
-  }
-  get removeIntegrationButton(): Locator {
-    return this.getByTestId("remove-integration");
-  }
-  get urlInput(): Locator {
-    return this.webhookUrlInput;
-  }
-  get secretInput(): Locator {
-    return this.webhookSecretInput;
-  }
-  get arrowLeftButton(): Locator {
-    return this.webhookBackButton;
-  }
-  get settingButton(): Locator {
-    return this.getByRole("button", { name: "setting" });
-  }
-  get tabpanelNameInput(): Locator {
-    return this.webhookNameInput;
-  }
-  get createCheckbox(): Locator {
-    return this.webhookTriggerCheckbox("onitemcreate");
-  }
-  get uploadCheckbox(): Locator {
-    return this.webhookTriggerCheckbox("onassetupload");
-  }
-  get rootElement(): Locator {
-    return this.locator("main");
-  }
-  get backButton(): Locator {
-    return this.getByLabel("Back");
-  }
-  get mainElement(): Locator {
-    return this.locator("main");
-  }
-  get tabPanel(): Locator {
-    return this.getByRole("tabpanel");
-  }
-  get webhookSwitchElement(): Locator {
-    return this.webhookSwitch;
-  }
-  get webhookLabel(): Locator {
-    return this.getByText("Webhook");
+    return this.getByText("Remove");
   }
 
   // Dynamic locators for integration-specific content
-  integrationTextByName(name: string, description: string): Locator {
-    return this.getByText(`${name}${description}`, { exact: true });
-  }
-  integrationLinkByText(text: string): Locator {
-    return this.getByText(text);
-  }
   integrationTextById(id: string): Locator {
     return this.getByText(id, { exact: true }).first();
   }
+
   integrationCellById(id: string): Locator {
     return this.getByRole("cell", { name: id, exact: true });
   }
+
   dialogIntegrationTextById(id: string): Locator {
     return this.getByRole("dialog").getByText(id, { exact: true });
   }

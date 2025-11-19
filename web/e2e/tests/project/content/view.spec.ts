@@ -31,7 +31,7 @@ test("Create a new view", async ({
   await test.step("Setup: Create text field and content items", async () => {
     await fieldEditorPage.fieldTypeButton("Text").click();
     await schemaPage.handleFieldForm("text");
-    await projectPage.navContentMenuItem.click();
+    await projectPage.contentMenuItem.click();
     await contentPage.createItemWithField("text", "text1");
     await contentPage.createItemWithField("text", "text2");
     await page.waitForTimeout(300);
@@ -62,7 +62,7 @@ test("Rename an existing view", async ({
   await test.step("Setup: Create text field and content item", async () => {
     await fieldEditorPage.fieldTypeButton("Text").click();
     await schemaPage.handleFieldForm("text");
-    await projectPage.navContentMenuItem.click();
+    await projectPage.contentMenuItem.click();
     await contentPage.createItemWithField("text", "text1");
     await page.waitForTimeout(300);
   });
@@ -101,7 +101,7 @@ test("Cancel view deletion", async ({
   await test.step("Setup: Create text field and content item", async () => {
     await fieldEditorPage.fieldTypeButton("Text").click();
     await schemaPage.handleFieldForm("text");
-    await projectPage.navContentMenuItem.click();
+    await projectPage.contentMenuItem.click();
     await contentPage.createItemWithField("text", "text1");
     await page.waitForTimeout(300);
   });
@@ -139,7 +139,7 @@ test("Apply sorting to view", async ({
   await test.step("Setup: Create text field and content items", async () => {
     await fieldEditorPage.fieldTypeButton("Text").click();
     await schemaPage.handleFieldForm("text");
-    await projectPage.navContentMenuItem.click();
+    await projectPage.contentMenuItem.click();
     await contentPage.createItemWithField("text", "text2");
     await contentPage.createItemWithField("text", "sample1");
     await contentPage.createItemWithField("text", "sample2");
@@ -169,7 +169,7 @@ test("Apply filter to view", async ({
   await test.step("Setup: Create text field and content items", async () => {
     await fieldEditorPage.fieldTypeButton("Text").click();
     await schemaPage.handleFieldForm("text");
-    await projectPage.navContentMenuItem.click();
+    await projectPage.contentMenuItem.click();
     await contentPage.createItemWithField("text", "text1");
     await contentPage.createItemWithField("text", "sample1");
     await page.waitForTimeout(300);
@@ -203,7 +203,7 @@ test("Toggle column visibility in view settings", async ({
   await test.step("Setup: Create text field and content item", async () => {
     await fieldEditorPage.fieldTypeButton("Text").click();
     await schemaPage.handleFieldForm("text");
-    await projectPage.navContentMenuItem.click();
+    await projectPage.contentMenuItem.click();
     await contentPage.createItemWithField("text", "text1");
     await page.waitForTimeout(300);
   });
@@ -235,7 +235,7 @@ test("Save view with custom sorting and filtering", async ({
   await test.step("Setup: Create text field and content items", async () => {
     await fieldEditorPage.fieldTypeButton("Text").click();
     await schemaPage.handleFieldForm("text");
-    await projectPage.navContentMenuItem.click();
+    await projectPage.contentMenuItem.click();
     await contentPage.createItemWithField("text", "text1");
     await contentPage.createItemWithField("text", "text2");
     await contentPage.createItemWithField("text", "sample1");
@@ -294,7 +294,7 @@ test("Switch between views preserves individual view settings", async ({
   await test.step("Setup: Create text field and content items", async () => {
     await fieldEditorPage.fieldTypeButton("Text").click();
     await schemaPage.handleFieldForm("text");
-    await projectPage.navContentMenuItem.click();
+    await projectPage.contentMenuItem.click();
     await contentPage.createItemWithField("text", "text1");
     await contentPage.createItemWithField("text", "text2");
     await contentPage.createItemWithField("text", "sample1");
@@ -363,7 +363,7 @@ test("Update view settings", async ({
   await test.step("Setup: Create text field and content items", async () => {
     await fieldEditorPage.fieldTypeButton("Text").click();
     await schemaPage.handleFieldForm("text");
-    await projectPage.navContentMenuItem.click();
+    await projectPage.contentMenuItem.click();
     await contentPage.createItemWithField("text", "text1");
     await contentPage.createItemWithField("text", "sample1");
     await page.waitForTimeout(300);
@@ -429,7 +429,7 @@ test("Delete view and switch to remaining view", async ({
   await test.step("Setup: Create text field and content items", async () => {
     await fieldEditorPage.fieldTypeButton("Text").click();
     await schemaPage.handleFieldForm("text");
-    await projectPage.navContentMenuItem.click();
+    await projectPage.contentMenuItem.click();
     await contentPage.createItemWithField("text", "text1");
     await contentPage.createItemWithField("text", "text2");
     await page.waitForTimeout(300);
@@ -488,7 +488,7 @@ test("Delete view and switch to remaining view", async ({
 
 test("View reordering has succeeded", async ({ page, projectPage, contentPage }) => {
   await test.step("Navigate to content page", async () => {
-    await projectPage.navContentMenuItem.click();
+    await projectPage.contentMenuItem.click();
     await projectPage.modelMenuItemClick(projectPage.modelName).click();
     await page.waitForTimeout(300);
   });

@@ -130,7 +130,6 @@ const WebhookForm: React.FC<Props> = ({
         size="small"
         color="default"
         variant="link"
-        data-testid="webhook-back-button"
       />
       <StyledForm
         form={form}
@@ -150,7 +149,7 @@ const WebhookForm: React.FC<Props> = ({
                   message: t("Please input the name of the webhook!"),
                 },
               ]}>
-              <Input data-testid="webhook-name-input" />
+              <Input />
             </Form.Item>
             <Form.Item
               name="url"
@@ -165,7 +164,7 @@ const WebhookForm: React.FC<Props> = ({
                   },
                 },
               ]}>
-              <Input data-testid="webhook-url-input" />
+              <Input />
             </Form.Item>
             <Form.Item
               name="secret"
@@ -177,15 +176,10 @@ const WebhookForm: React.FC<Props> = ({
                   message: t("Please input secret!"),
                 },
               ]}>
-              <Input data-testid="webhook-secret-input" />
+              <Input />
             </Form.Item>
             <Form.Item>
-              <Button
-                type="primary"
-                onClick={handleSubmit}
-                disabled={isDisabled}
-                loading={loading}
-                data-testid="webhook-save-button">
+              <Button type="primary" onClick={handleSubmit} disabled={isDisabled} loading={loading}>
                 {t("Save")}
               </Button>
             </Form.Item>
@@ -196,16 +190,12 @@ const WebhookForm: React.FC<Props> = ({
           <Col span={11}>
             <CheckboxTitle>{t("Trigger Event")}</CheckboxTitle>
             <Form.Item name="trigger">
-              <StyledCheckboxGroup data-testid="webhook-trigger-checkboxgroup">
+              <StyledCheckboxGroup>
                 <CheckboxLabel>{t("Item")}</CheckboxLabel>
                 <Row>
                   {itemOptions.map(item => (
                     <Col key={item.value}>
-                      <Checkbox
-                        value={item.value}
-                        data-testid={`webhook-trigger-${item.value.toLowerCase()}-checkbox`}>
-                        {item.label}
-                      </Checkbox>
+                      <Checkbox value={item.value}>{item.label}</Checkbox>
                     </Col>
                   ))}
                 </Row>
@@ -213,11 +203,7 @@ const WebhookForm: React.FC<Props> = ({
                 <Row>
                   {assetOptions.map(item => (
                     <Col key={item.value}>
-                      <Checkbox
-                        value={item.value}
-                        data-testid={`webhook-trigger-${item.value.toLowerCase()}-checkbox`}>
-                        {item.label}
-                      </Checkbox>
+                      <Checkbox value={item.value}>{item.label}</Checkbox>
                     </Col>
                   ))}
                 </Row>

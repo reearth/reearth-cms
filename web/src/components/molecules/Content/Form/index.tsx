@@ -680,11 +680,7 @@ const ContentForm: React.FC<Props> = ({
             onBack={onBack}
             extra={
               <>
-                <Button
-                  onClick={handleSubmit}
-                  loading={loading}
-                  disabled={isDisabled}
-                  data-testid="content-save-button">
+                <Button onClick={handleSubmit} loading={loading} disabled={isDisabled}>
                   {t("Save")}
                 </Button>
                 {itemId && (
@@ -703,8 +699,7 @@ const ContentForm: React.FC<Props> = ({
                           type="primary"
                           onClick={handlePublishSubmit}
                           loading={publishLoading}
-                          disabled={isInReview || item?.status === "PUBLIC" || !hasPublishRight}
-                          data-testid="content-publish-button">
+                          disabled={isInReview || item?.status === "PUBLIC" || !hasPublishRight}>
                           {t("Publish")}
                         </Button>
                       </Tooltip>

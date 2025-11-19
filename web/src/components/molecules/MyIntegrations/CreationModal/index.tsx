@@ -73,13 +73,8 @@ const IntegrationCreationModal: React.FC<Props> = ({
       onCancel={handleClose}
       onOk={handleSubmit}
       title={t("New Integration")}
-      data-testid="myintegration-create-modal"
       footer={[
-        <Button
-          key="back"
-          onClick={handleClose}
-          disabled={loading}
-          data-testid="myintegration-create-cancel-button">
+        <Button key="back" onClick={handleClose} disabled={loading}>
           {t("Cancel")}
         </Button>,
         <Button
@@ -87,8 +82,7 @@ const IntegrationCreationModal: React.FC<Props> = ({
           type="primary"
           onClick={handleSubmit}
           disabled={isDisabled}
-          loading={loading}
-          data-testid="myintegration-create-ok-button">
+          loading={loading}>
           {t("Create")}
         </Button>,
       ]}>
@@ -106,15 +100,10 @@ const IntegrationCreationModal: React.FC<Props> = ({
               message: t("Please input the title of the integration!"),
             },
           ]}>
-          <Input data-testid="myintegration-name-input" />
+          <Input />
         </Form.Item>
         <Form.Item name="description" label={t("Description")}>
-          <TextArea
-            rows={3}
-            showCount
-            maxLength={100}
-            data-testid="myintegration-description-input"
-          />
+          <TextArea rows={3} showCount maxLength={100} />
         </Form.Item>
       </Form>
     </Modal>

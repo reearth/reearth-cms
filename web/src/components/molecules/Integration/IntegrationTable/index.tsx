@@ -85,7 +85,6 @@ const IntegrationTable: React.FC<Props> = ({
             onClick={() => onIntegrationSettingsModalOpen(integrationMember)}
             icon={<Icon size={18} icon="settings" />}
             disabled={!hasUpdateRight}
-            data-testid="integration-settings-button"
           />
         ),
         width: 48,
@@ -104,7 +103,6 @@ const IntegrationTable: React.FC<Props> = ({
           onSearch={(value: string) => {
             onSearchTerm(value);
           }}
-          data-testid="integration-search-input"
         />
       ),
     }),
@@ -152,8 +150,7 @@ const IntegrationTable: React.FC<Props> = ({
           onClick={() => handleRemove(props.selectedRowKeys)}
           danger
           loading={deleteLoading}
-          disabled={!hasDeleteRight}
-          data-testid="integration-remove-button">
+          disabled={!hasDeleteRight}>
           {t("Remove")}
         </Button>
       </Space>
@@ -167,8 +164,7 @@ const IntegrationTable: React.FC<Props> = ({
         type="primary"
         onClick={onIntegrationConnectModalOpen}
         icon={<Icon icon="api" />}
-        disabled={!hasConnectRight}
-        data-testid="integration-connect-button">
+        disabled={!hasConnectRight}>
         {t("Connect Integration")}
       </Button>
     ),

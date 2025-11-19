@@ -58,22 +58,16 @@ const UploadModal: React.FC<Props> = ({
       onCancel={onCancel}
       closable={!uploading}
       maskClosable={!uploading}
-      data-testid="asset-upload-modal"
       footer={
         <>
-          <Button
-            type="default"
-            disabled={uploading}
-            onClick={onCancel}
-            data-testid="asset-upload-cancel-button">
+          <Button type="default" disabled={uploading} onClick={onCancel}>
             {t("Cancel")}
           </Button>
           <Button
             type="primary"
             onClick={onUpload}
             disabled={fileList?.length === 0 && !uploadUrl.url}
-            loading={uploading}
-            data-testid="asset-upload-submit-button">
+            loading={uploading}>
             {uploading ? t("Uploading") : alsoLink ? t("Upload and Link") : t("Upload")}
           </Button>
         </>

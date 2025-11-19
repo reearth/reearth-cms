@@ -41,36 +41,42 @@ const WorkspaceMenu: React.FC<Props> = ({
         key: "members",
         icon: <Icon icon="userGroupAdd" />,
         show: "notPersonal" as MenuShowType,
+        "data-testid": "workspace-menu-members",
       },
       {
         label: t("Integrations"),
         key: "integrations",
         icon: <Icon icon="api" />,
         show: "both" as MenuShowType,
+        "data-testid": "workspace-menu-integrations",
       },
       {
         label: t("My Integrations"),
         key: "myIntegrations",
         icon: <Icon icon="myIntegrations" />,
         show: "personal" as MenuShowType,
+        "data-testid": "workspace-menu-myintegrations",
       },
       {
         label: t("Settings"),
         key: "settings",
         icon: <Icon icon="settings" />,
         show: "both" as MenuShowType,
+        "data-testid": "workspace-menu-settings",
       },
       {
         label: t("Workspace Settings"),
         key: "workspaceSettings",
         icon: <Icon size={"1em"} icon="workspaceSettings" />,
         show: "notPersonal" as MenuShowType,
+        "data-testid": "workspace-menu-workspace-settings",
       },
       {
         label: t("Account Settings"),
         key: "account",
         icon: <Icon icon="user" />,
         show: "personal" as MenuShowType,
+        "data-testid": "workspace-menu-account",
       },
     ];
 

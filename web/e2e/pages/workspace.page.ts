@@ -7,19 +7,13 @@ import { BasePage } from "./base.page";
 export class WorkspacePage extends BasePage {
   // Workspace creation
   get createWorkspaceButton(): Locator {
-    return this.getByTestId("workspace-create-button");
-  }
-  get createWorkspaceTabButton(): Locator {
-    return this.getByRole("tab", { name: "workspace plus Create Workspace" });
+    return this.getByRole("button", { name: "Create a Workspace" });
   }
   get workspaceNameInput(): Locator {
-    return this.getByTestId("workspace-name-input");
+    return this.getByLabel("Workspace name");
   }
-  get workspaceCreateOkButton(): Locator {
-    return this.getByTestId("workspace-create-ok-button");
-  }
-  get workspaceCreateCancelButton(): Locator {
-    return this.getByTestId("workspace-create-cancel-button");
+  get createWorkspaceTabButton(): Locator {
+    return this.getByText("Create Workspace");
   }
 
   // Workspace settings
@@ -27,13 +21,13 @@ export class WorkspacePage extends BasePage {
     return this.getByText("Workspace Settings", { exact: true });
   }
   get workspaceNameSettingsInput(): Locator {
-    return this.getByTestId("workspace-settings-name-input");
+    return this.getByLabel("Workspace Name");
   }
   get saveChangesButton(): Locator {
-    return this.getByTestId("workspace-settings-save-button");
+    return this.getByRole("button", { name: "Save changes" });
   }
   get removeWorkspaceButton(): Locator {
-    return this.getByTestId("workspace-settings-delete-button");
+    return this.getByRole("button", { name: "Remove Workspace" });
   }
 
   // Common buttons
@@ -50,26 +44,14 @@ export class WorkspacePage extends BasePage {
   }
 
   // Project management from workspace level
-  get newProjectButton(): Locator {
-    return this.getByTestId("workspace-new-project-button");
-  }
   get newProjectButtonLast(): Locator {
-    return this.getByTestId("workspace-new-project-button").last();
+    return this.getByRole("button", { name: "plus New Project" }).last();
   }
   get projectNameInput(): Locator {
-    return this.getByTestId("project-name-input");
-  }
-  get projectAliasInput(): Locator {
-    return this.getByTestId("project-alias-input");
+    return this.getByLabel("Project name");
   }
   get projectDescriptionInput(): Locator {
-    return this.getByTestId("project-description-input");
-  }
-  get projectCreateOkButton(): Locator {
-    return this.getByTestId("project-create-ok-button");
-  }
-  get projectCreateCancelButton(): Locator {
-    return this.getByTestId("project-create-cancel-button");
+    return this.getByLabel("Project description");
   }
   get searchProjectsInput(): Locator {
     return this.getByPlaceholder("search projects");
@@ -132,17 +114,17 @@ export class WorkspacePage extends BasePage {
   // ========== Action Methods (POM Pattern) ==========
 
   async createWorkspace(name: string): Promise<void> {
-    await this.createWorkspaceButton.click();
-    await this.workspaceNameInput.click();
-    await this.workspaceNameInput.fill(name);
-    await this.workspaceCreateOkButton.click();
+    await this.getByRole("button", { name: "Create a Workspace" }).click();
+    await this.getByLabel("Workspace name").click();
+    await this.getByLabel("Workspace name").fill(name);
+    await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
   }
 
   async deleteWorkspace(): Promise<void> {
-    await this.workspaceSettingsButton.click();
-    await this.removeWorkspaceButton.click();
-    await this.okButton.click();
+    await this.getByText("Workspace Settings", { exact: true }).click();
+    await this.getByRole("button", { name: "Remove Workspace" }).click();
+    await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
   }
 

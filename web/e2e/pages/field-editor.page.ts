@@ -6,13 +6,13 @@ import { BasePage } from "./base.page";
 export class FieldEditorPage extends BasePage {
   // Field form elements
   get displayNameInput(): Locator {
-    return this.getByTestId("schema-field-displayname-input");
+    return this.getByLabel("Display name");
   }
   get settingsKeyInput(): Locator {
-    return this.getByTestId("schema-field-key-input");
+    return this.getByLabel("Settings").locator("#key");
   }
   get settingsDescriptionInput(): Locator {
-    return this.getByTestId("schema-field-description-input");
+    return this.getByLabel("Settings").locator("#description");
   }
 
   // Tabs
@@ -33,10 +33,10 @@ export class FieldEditorPage extends BasePage {
     return this.getByLabel("Set maximum length");
   }
   get requiredFieldCheckbox(): Locator {
-    return this.getByTestId("schema-field-required-checkbox");
+    return this.getByLabel("Make field required");
   }
   get uniqueFieldCheckbox(): Locator {
-    return this.getByTestId("schema-field-unique-checkbox");
+    return this.getByLabel("Set field as unique");
   }
   get minValueInput(): Locator {
     return this.getByLabel("Set minimum value");
@@ -47,23 +47,18 @@ export class FieldEditorPage extends BasePage {
 
   // Field options
   get supportMultipleValuesCheckbox(): Locator {
-    return this.getByTestId("schema-field-multiple-checkbox");
+    return this.getByLabel("Support multiple values");
   }
   get useAsTitleCheckbox(): Locator {
-    return this.getByTestId("schema-field-title-checkbox");
+    return this.getByLabel("Use as title");
   }
 
   // Form buttons
   get okButton(): Locator {
-    return this.getByTestId("schema-field-save-button");
+    return this.getByRole("button", { name: "OK" });
   }
   get cancelButton(): Locator {
-    return this.getByTestId("schema-field-cancel-button");
-  }
-
-  // Field type selection
-  fieldTypeByName(type: string): Locator {
-    return this.getByTestId(`schema-field-type-${type.toLowerCase()}`);
+    return this.getByRole("button", { name: "Cancel" });
   }
 
   // Additional field settings

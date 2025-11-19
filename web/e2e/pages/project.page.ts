@@ -5,15 +5,15 @@ import { BasePage } from "./base.page";
 
 export class ProjectPage extends BasePage {
   readonly modelName = "e2e model name";
-  // Navigation menu items are now inherited from BasePage
-  // - navSchemaMenuItem, navContentMenuItem, navAssetMenuItem, etc.
-
-  // Aliases for backwards compatibility (map old names to BasePage navigation)
-  get modelsMenuItem(): Locator {
-    return this.navModelsMenuItem;
-  }
+  // Navigation menu items
   get schemaMenuItem(): Locator {
-    return this.navSchemaMenuItem;
+    return this.getByRole("menuitem", { name: "Schema" });
+  }
+  get contentMenuItem(): Locator {
+    return this.getByRole("menuitem", { name: "Content" });
+  }
+  get assetMenuItem(): Locator {
+    return this.getByRole("menuitem", { name: "Asset" });
   }
 
   // Common buttons
@@ -43,7 +43,9 @@ export class ProjectPage extends BasePage {
   get modelKeyInput(): Locator {
     return this.getByLabel("Model key");
   }
-  // Use navModelsMenuItem from BasePage instead
+  get modelsMenuItem(): Locator {
+    return this.getByText("Models").first();
+  }
   get modelExportLink(): Locator {
     return this.getByRole("list").locator("a").nth(0);
   }
@@ -132,7 +134,9 @@ export class ProjectPage extends BasePage {
   get deleteProjectButton(): Locator {
     return this.getByRole("button", { name: "Delete Project" });
   }
-  // Use navSettingsMenuItem from BasePage instead
+  get settingsMenuItem(): Locator {
+    return this.getByText("Settings").first();
+  }
   get nameInput(): Locator {
     return this.getByLabel("Name");
   }
@@ -158,7 +162,9 @@ export class ProjectPage extends BasePage {
   }
 
   // Accessibility page locators
-  // Use navAccessibilityMenuItem from BasePage instead
+  get accessibilityMenuItem(): Locator {
+    return this.getByText("Accessibility");
+  }
   get accessibilityHeadingFirst(): Locator {
     return this.getByText("Accessibility").first();
   }
@@ -194,34 +200,24 @@ export class ProjectPage extends BasePage {
     // Close any open modals/dialogs before attempting to delete
     // Check if modal is present and stable (not animating)
     const modalWrap = this.page.locator(".ant-modal-wrap");
-    const isModalVisible = await modalWrap
-      .first()
-      .isVisible({ timeout: 500 })
-      .catch(() => false);
+    const isModalVisible = await modalWrap.first().isVisible({ timeout: 500 }).catch(() => false);
 
     if (isModalVisible) {
       // Check if modal is actually blocking (has pointer-events)
-      const modalStyle = await modalWrap
-        .first()
-        .evaluate(el => window.getComputedStyle(el).pointerEvents)
-        .catch(() => "auto");
+      const modalStyle = await modalWrap.first().evaluate((el) =>
+        window.getComputedStyle(el).pointerEvents
+      ).catch(() => "auto");
 
       if (modalStyle !== "none") {
         // Try to close the modal using close button
         const modalClose = this.page.locator(".ant-modal-close");
-        const isCloseButtonVisible = await modalClose
-          .first()
-          .isVisible({ timeout: 500 })
-          .catch(() => false);
+        const isCloseButtonVisible = await modalClose.first().isVisible({ timeout: 500 }).catch(() => false);
 
         if (isCloseButtonVisible) {
           try {
             await modalClose.first().click({ timeout: 2000 });
             // Wait for modal to fully disappear
-            await modalWrap
-              .first()
-              .waitFor({ state: "hidden", timeout: 2000 })
-              .catch(() => {});
+            await modalWrap.first().waitFor({ state: "hidden", timeout: 2000 }).catch(() => {});
           } catch {
             // If clicking fails, try ESC key as fallback
             await this.page.keyboard.press("Escape");
@@ -235,7 +231,7 @@ export class ProjectPage extends BasePage {
       }
     }
 
-    await this.navSettingsMenuItem.click();
+    await this.getByText("Settings").first().click();
     await this.getByRole("button", { name: "Delete Project" }).click();
     await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();

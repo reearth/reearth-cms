@@ -154,8 +154,7 @@ const MemberTable: React.FC<Props> = ({
             <ActionButton
               type="link"
               onClick={() => onRoleModalOpen(member)}
-              disabled={!hasChangeRoleRight || member.userId === userId}
-              data-testid="member-change-role-button">
+              disabled={!hasChangeRoleRight || member.userId === userId}>
               {t("Change Role?")}
             </ActionButton>
             <Divider type="vertical" />
@@ -165,8 +164,7 @@ const MemberTable: React.FC<Props> = ({
                 onClick={() => {
                   leaveConfirm(member.userId);
                 }}
-                disabled={!isAbleToLeave}
-                data-testid="member-leave-button">
+                disabled={!isAbleToLeave}>
                 {t("Leave")}
               </ActionButton>
             ) : (
@@ -175,8 +173,7 @@ const MemberTable: React.FC<Props> = ({
                 onClick={() => {
                   handleMemberDelete([member.user]);
                 }}
-                disabled={!hasRemoveRight}
-                data-testid="member-remove-individual-button">
+                disabled={!hasRemoveRight}>
                 {t("Remove")}
               </ActionButton>
             )}
@@ -205,7 +202,6 @@ const MemberTable: React.FC<Props> = ({
           onSearch={(value: string) => {
             onSearchTerm(value);
           }}
-          data-testid="member-search-input"
         />
       ),
     }),
@@ -242,8 +238,7 @@ const MemberTable: React.FC<Props> = ({
         icon={<Icon icon="userGroupDelete" />}
         onClick={() => handleMemberDelete(props.selectedRows)}
         danger
-        disabled={!hasRemoveRight}
-        data-testid="member-remove-button">
+        disabled={!hasRemoveRight}>
         {t("Remove")}
       </Button>
     ),
@@ -267,8 +262,7 @@ const MemberTable: React.FC<Props> = ({
             type="primary"
             onClick={onMemberAddModalOpen}
             icon={<Icon icon="userGroupAdd" />}
-            disabled={!hasInviteRight}
-            data-testid="member-add-button">
+            disabled={!hasInviteRight}>
             {t("New Member")}
           </Button>
         }

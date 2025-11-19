@@ -45,7 +45,6 @@ const UrlTab: React.FC<Props> = ({ uploadUrl, setUploadUrl }) => {
               url: e.target.value,
             })
           }
-          data-testid="asset-upload-url-input"
         />
       </Form.Item>
       {isCompressedFile && (
@@ -56,8 +55,7 @@ const UrlTab: React.FC<Props> = ({ uploadUrl, setUploadUrl }) => {
               ...uploadUrl,
               autoUnzip: !uploadUrl.autoUnzip,
             });
-          }}
-          data-testid="asset-upload-auto-unzip-checkbox-url-tab">
+          }}>
           {t("Auto Unzip")}
         </Checkbox>
       )}

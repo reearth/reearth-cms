@@ -70,9 +70,7 @@ const ModelsList: React.FC<Props> = ({
         })
         .map(model => ({
           label: (
-            <div
-              ref={model.id === selectedKey ? scrollToSelected : undefined}
-              data-testid={`schema-model-item-${model.key}`}>
+            <div ref={model.id === selectedKey ? scrollToSelected : undefined}>
               {collapsed ? (
                 <Tooltip placement="right" title={model.name}>
                   <span>
@@ -101,8 +99,7 @@ const ModelsList: React.FC<Props> = ({
               onClick={onModalOpen}
               icon={<Icon icon="plus" />}
               type="link"
-              disabled={!hasCreateRight}
-              data-testid="schema-model-create-button">
+              disabled={!hasCreateRight}>
               {!collapsed && t("Add")}
             </SchemaAddButton>
           </SchemaAction>

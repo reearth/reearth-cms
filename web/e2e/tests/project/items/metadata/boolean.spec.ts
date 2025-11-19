@@ -48,7 +48,7 @@ test("Boolean metadata creating and updating has succeeded", async ({
   });
 
   await test.step("Create item with default boolean value", async () => {
-    await schemaPage.navContentMenuItem.click();
+    await schemaPage.contentMenuItem.click();
     await contentPage.newItemButton.click();
     await expect(contentPage.fieldInput("boolean1")).toBeVisible();
     await expect(contentPage.fieldDescriptionText("boolean1 description")).toBeVisible();
@@ -103,7 +103,7 @@ test("Boolean metadata editing has succeeded", async ({
   });
 
   await test.step("Verify field in content and create item with default value", async () => {
-    await schemaPage.navContentMenuItem.click();
+    await schemaPage.contentMenuItem.click();
     await expect(contentPage.columnHeaderWithEdit("boolean1")).toBeVisible();
     await contentPage.newItemButton.click();
     await expect(contentPage.fieldInput("boolean1")).toHaveAttribute("aria-checked", "true");
@@ -133,7 +133,7 @@ test("Boolean metadata editing has succeeded", async ({
   });
 
   await test.step("Verify updated metadata in content and create new item", async () => {
-    await schemaPage.navContentMenuItem.click();
+    await schemaPage.contentMenuItem.click();
     await expect(contentPage.columnHeaderWithEdit("new boolean1")).toBeVisible();
     await expect(contentPage.checkSwitch).toBeVisible();
     await contentPage.newItemButton.click();

@@ -22,9 +22,7 @@ const CreateWorkspaceButton: React.FC<Props> = ({ onWorkspaceCreate }) => {
 
   return (
     <>
-      <Button onClick={handleWorkspaceModalOpen} data-testid="workspace-create-button">
-        {t("Create a Workspace")}
-      </Button>
+      <Button onClick={handleWorkspaceModalOpen}>{t("Create a Workspace")}</Button>
       <WorkspaceCreationModal
         open={workspaceModalShown}
         onClose={handleWorkspaceModalClose}
