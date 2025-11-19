@@ -24,13 +24,6 @@ jobs:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: "**/yarn.lock"
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: web/node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('web/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
       - name: Install dependencies
         run: yarn install --frozen-lockfile --prefer-offline
       - name: Lint
@@ -51,13 +44,6 @@ jobs:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: "**/yarn.lock"
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: web/node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('web/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
       - name: Install dependencies
         run: yarn install --frozen-lockfile --prefer-offline
       - name: Check translations
@@ -78,13 +64,6 @@ jobs:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: "**/yarn.lock"
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: web/node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('web/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
       - name: Install dependencies
         run: yarn install --frozen-lockfile --prefer-offline
       - name: Test
@@ -115,13 +94,6 @@ jobs:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: "**/yarn.lock"
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: web/node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('web/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
       - name: Cache TypeScript
         uses: actions/cache@v4
         with:
