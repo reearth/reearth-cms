@@ -151,7 +151,8 @@ const ResiumViewer: React.FC<Props> = ({
         onClick={handleClick}
         infoBox={false}
         hidden={isLoading}
-        ref={viewerRef}>
+        ref={viewerRef}
+        data-testid="asset-preview-canvas">
         {children}
       </StyledViewer>
       <InfoBox

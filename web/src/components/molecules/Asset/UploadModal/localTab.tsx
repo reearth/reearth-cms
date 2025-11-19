@@ -16,6 +16,7 @@ const LocalTab: React.FC<Props> = ({ uploadProps }) => {
   return (
     <div>
       <Dragger
+        data-testid="asset-upload-file-input"
         itemRender={(
           _originNode: ReactElement,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any

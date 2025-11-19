@@ -32,7 +32,7 @@ export class AssetsPage extends BasePage {
     return this.getByPlaceholder("Please input a valid URL");
   }
   get fileInput(): Locator {
-    return this.locator(".ant-upload input[type='file']");
+    return this.getByTestId("asset-upload-file-input");
   }
   get autoUnzipCheckbox(): Locator {
     return this.getByRole("checkbox", { name: "Auto Unzip" });
@@ -43,7 +43,7 @@ export class AssetsPage extends BasePage {
 
   // Grid / Rows
   get assetRows(): Locator {
-    return this.locator(".ant-table-tbody .ant-table-row");
+    return this.getByTestId("asset-table-row");
   }
   rowByText(text: string | RegExp): Locator {
     return this.assetRows.filter({ hasText: text });
@@ -55,7 +55,7 @@ export class AssetsPage extends BasePage {
 
   // Details
   get editIconButton(): Locator {
-    return this.getByLabel("edit").locator("svg");
+    return this.getByTestId("asset-edit-button");
   }
   get backButton(): Locator {
     return this.getByLabel("Back");
@@ -63,9 +63,7 @@ export class AssetsPage extends BasePage {
 
   // Type select on details
   get typeSelectTrigger(): Locator {
-    return this.locator("div")
-      .filter({ hasText: /^Unknown Type$/ })
-      .nth(1);
+    return this.getByTestId("asset-type-select");
   }
   typeOption(name: string): Locator {
     return this.getByText(name);
@@ -76,7 +74,7 @@ export class AssetsPage extends BasePage {
 
   // Preview
   get canvas(): Locator {
-    return this.locator("canvas");
+    return this.getByTestId("asset-preview-canvas");
   }
   get fullscreenButton(): Locator {
     return this.getByLabel("fullscreen");
@@ -98,7 +96,7 @@ export class AssetsPage extends BasePage {
 
   // Notifications
   get lastNotification(): Locator {
-    return this.locator(".ant-notification-notice").last();
+    return this.getByTestId("notification").last();
   }
 
   // Asset detail page locators

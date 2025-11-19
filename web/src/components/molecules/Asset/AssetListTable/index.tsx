@@ -95,7 +95,12 @@ const AssetListTable: React.FC<Props> = ({
         title: "",
         hideInSetting: true,
         render: (_, asset) => (
-          <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(asset.id)} />
+          <Icon
+            icon="edit"
+            color={"#1890ff"}
+            onClick={() => onEdit(asset.id)}
+            data-testid="asset-edit-button"
+          />
         ),
         key: "EDIT_ICON",
         align: "center",
@@ -344,6 +349,9 @@ const AssetListTable: React.FC<Props> = ({
       onChange={(pagination, _, sorter) => {
         handleChange(pagination, sorter);
       }}
+      onRow={() => ({
+        "data-testid": "asset-table-row",
+      })}
       heightOffset={73}
     />
   );
