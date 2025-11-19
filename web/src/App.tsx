@@ -1,17 +1,13 @@
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
-import {
-  Route,
-  RouterProvider,
-  createBrowserRouter,
-  createRoutesFromElements,
-} from "react-router-dom";
+import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider, } from "react-router-dom";
 
 import { AuthProvider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
 import AccountSettings from "@reearth-cms/components/organisms/Account";
 import Accessibility from "@reearth-cms/components/organisms/Project/Accessibility/Accessibility";
+import AccessibilityDocs from "@reearth-cms/components/organisms/Project/Accessibility/AccessibilityDocs";
 import APIKeyDetails from "@reearth-cms/components/organisms/Project/Accessibility/APIKeyDetails";
 import Asset from "@reearth-cms/components/organisms/Project/Asset/Asset";
 import AssetList from "@reearth-cms/components/organisms/Project/Asset/AssetList";
@@ -64,6 +60,10 @@ const router = createBrowserRouter(
         <Route
           path=":workspaceId/project/:projectId/accessibility/:keyId"
           element={<APIKeyDetails />}
+        />
+        <Route
+          path=":workspaceId/project/:projectId/accessibility/docs"
+          element={<AccessibilityDocs />}
         />
         <Route path=":workspaceId/project/:projectId/readme" element={<Readme />} />
         <Route path=":workspaceId/project/:projectId/license" element={<License />} />
