@@ -19,6 +19,7 @@ const ApiDocs: FC<Props> = ({ specUrl, className }) => {
           hideModels: false,
           hideDownloadButton: false,
           darkMode: false,
+          forceDarkModeState: "light",
           hideDarkModeToggle: true,
           hideClientButton: true,
           showToolbar: "never",
