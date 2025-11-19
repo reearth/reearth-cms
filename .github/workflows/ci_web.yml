@@ -67,14 +67,8 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile --prefer-offline
       - name: Test
-        run: |
-          if [ "${{ github.ref_name }}" = "main" ] || [ "${{ github.ref_name }}" = "release" ]; then
-            yarn run coverage
-          else
-            yarn run test
-          fi
+        run: yarn run coverage
       - name: Send coverage report
-        if: github.ref_name == 'main' || github.ref_name == 'release'
         uses: codecov/codecov-action@v5
         with:
           flags: web
