@@ -9,7 +9,7 @@ export type Props = {
 
 const ApiDocs: FC<Props> = ({ specUrl, className }) => {
   return (
-    <div className={className} style={{}}>
+    <div className={className}>
       <ApiReferenceReact
         configuration={{
           spec: {
