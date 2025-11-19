@@ -973,14 +973,35 @@ func (i Item) batchHandleReferenceFields(ctx context.Context, items item.Version
 						if update.FieldReference.CorrespondingFieldID() != nil {
 							correspondingFieldID := *update.FieldReference.CorrespondingFieldID()
 
-							// Clear the corresponding reference field
+							// Filter the corresponding reference field to remove only the deleted item
 							existingField := oldRefItm.Field(correspondingFieldID)
 							if existingField != nil {
-								// Clear the field completely to remove the reference to the deleted item
-								oldRefItm.ClearField(correspondingFieldID)
-								// Save the item even if it ends up with 0 fields after clearing
-								// The save logic will handle items with 0 fields appropriately
-								allItemsToSave[update.OldReferencedItemID] = oldRefItm
+								// Build new values list excluding the deleted item reference
+								newValues := make([]any, 0, existingField.Value().Len())
+								hasDeletedRef := false
+
+								for _, val := range existingField.Value().Values() {
+									if refID, ok := val.ValueReference(); ok && refID == update.ItemID {
+										// This is the reference to the deleted item, skip it
+										hasDeletedRef = true
+									} else {
+										// Keep other references
+										newValues = append(newValues, val.Value())
+									}
+								}
+
+								if hasDeletedRef {
+									// Update field with cleaned values (or clear if empty)
+									if len(newValues) > 0 {
+										newMultiple := value.NewMultiple(value.TypeReference, newValues)
+										newField := item.NewField(correspondingFieldID, newMultiple, existingField.ItemGroup())
+										oldRefItm.UpdateFields([]*item.Field{newField})
+									} else {
+										// If no references remain, clear the field
+										oldRefItm.ClearField(correspondingFieldID)
+									}
+									allItemsToSave[update.OldReferencedItemID] = oldRefItm
+								}
 							}
 						}
 					}
