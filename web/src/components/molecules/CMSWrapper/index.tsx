@@ -66,15 +66,8 @@ const CMSWrapper: React.FC<Props> = ({
             uploaderState={uploaderState}
           />
         )}
-        {/* <Test /> */}
 
-        <ReloadModal
-          title="Cancel upload?"
-          cancelText="Cancel upload"
-          okText="Continue upload"
-          shouldPreventReload={shouldPreventReload}>
-          Your file hasn't finished uploading yet. Are you sure you want to cancel?
-        </ReloadModal>
+        <ReloadModal shouldPreventReload={shouldPreventReload}></ReloadModal>
       </Wrapper>
     </DragConstraint>
   );
