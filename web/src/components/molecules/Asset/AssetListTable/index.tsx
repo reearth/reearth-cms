@@ -349,9 +349,6 @@ const AssetListTable: React.FC<Props> = ({
       onChange={(pagination, _, sorter) => {
         handleChange(pagination, sorter);
       }}
-      onRow={() => ({
-        "data-testid": "asset-table-row",
-      })}
       heightOffset={73}
     />
   );
