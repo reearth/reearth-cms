@@ -6,6 +6,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Steps from "@reearth-cms/components/atoms/Step";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import {
   UploadProps,
   UploadFile,
@@ -15,12 +16,12 @@ import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { defaultTypePropertyGet } from "@reearth-cms/components/organisms/Project/Schema/helpers";
-import { Trans, useT } from "@reearth-cms/i18n";
+import { useT } from "@reearth-cms/i18n";
 import { FileUtils } from "@reearth-cms/utils/file";
 import { ObjectUtils } from "@reearth-cms/utils/object";
 
 import { fieldTypes } from "../fieldTypes";
-import { CreateFieldInput, SchemaFieldType } from "../types";
+import { CreateFieldInput, ImportFieldInput, SchemaFieldType } from "../types";
 
 import FileSelectionStep from "./FileSelectionStep";
 import ImportingStep from "./ImportingStep";
@@ -54,10 +55,10 @@ type Props = {
   onUploadModalCancel: () => void;
   toSchemaPreviewStep: () => void;
   toImportingStep: (fields: CreateFieldInput[]) => Promise<void>;
-  fields: CreateFieldInput[];
+  fields: ImportFieldInput[];
   guessSchemaFieldsError?: boolean;
   fieldsCreationError?: boolean;
-  setFields: Dispatch<SetStateAction<CreateFieldInput[]>>;
+  setFields: Dispatch<SetStateAction<ImportFieldInput[]>>;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
@@ -120,8 +121,10 @@ const ImportSchemaModal: React.FC<Props> = ({
 }) => {
   const t = useT();
 
+  const hasImportFields = useMemo(() => fields.some(field => !field.hidden), [fields]);
+
   const handleFieldReorder = useCallback(
-    (list: CreateFieldInput[], startIndex: number, endIndex: number) => {
+    (list: ImportFieldInput[], startIndex: number, endIndex: number) => {
       const result = Array.from(list);
       const [removed] = result.splice(startIndex, 1);
       result.splice(endIndex, 0, removed);
@@ -138,9 +141,11 @@ const ImportSchemaModal: React.FC<Props> = ({
     [handleFieldReorder, setFields],
   );
 
-  const handleFieldDelete = useCallback(
+  const handleToggleFieldHide = useCallback(
     (key: string) => {
-      setFields(prev => prev.filter(item => item.key !== key));
+      setFields(prev =>
+        prev.map(item => (item.key === key ? { ...item, hidden: !item.hidden } : item)),
+      );
     },
     [setFields],
   );
@@ -156,21 +161,6 @@ const ImportSchemaModal: React.FC<Props> = ({
       );
     },
     [setFields],
-  );
-
-  const confirmFieldDeletion = useCallback(
-    (fieldId: string, name: string) => {
-      Modal.confirm({
-        content: <Trans i18nKey="Are you sure you want to delete this field?" values={{ name }} />,
-        icon: <Icon icon="exclamationCircle" />,
-        cancelText: t("Cancel"),
-        maskClosable: true,
-        onOk() {
-          handleFieldDelete(fieldId);
-        },
-      });
-    },
-    [handleFieldDelete, t],
   );
 
   const fieldTypeOptions = useMemo(() => {
@@ -274,7 +264,7 @@ const ImportSchemaModal: React.FC<Props> = ({
           fieldTypeOptions={fieldTypeOptions}
           onDragEnd={handleDragEnd}
           onFieldTypeChange={handleFieldTypeChange}
-          onFieldDelete={confirmFieldDeletion}
+          onToggleFieldHide={handleToggleFieldHide}
           hasUpdateRight={hasUpdateRight}
           hasDeleteRight={hasDeleteRight}
         />
@@ -312,13 +302,26 @@ const ImportSchemaModal: React.FC<Props> = ({
             </Button>
           )}
           {currentPage === 1 && (
-            <Button
-              type="primary"
-              loading={guessSchemaFieldsLoading}
-              disabled={fields.length === 0}
-              onClick={() => toImportingStep(fields)}>
-              {t("Import Schema")}
-            </Button>
+            <Tooltip
+              title={
+                hasImportFields ? undefined : t("Schema must contain at least one field to import")
+              }>
+              <Button
+                type="primary"
+                loading={guessSchemaFieldsLoading}
+                disabled={!hasImportFields}
+                onClick={() => {
+                  return toImportingStep(
+                    fields.filter(field => {
+                      const shouldImport = !field.hidden;
+                      delete field.hidden;
+                      return shouldImport;
+                    }),
+                  );
+                }}>
+                {t("Import Schema")}
+              </Button>
+            </Tooltip>
           )}
         </>
       }

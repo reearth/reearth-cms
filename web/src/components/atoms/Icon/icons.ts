@@ -60,6 +60,9 @@ import {
   LockOutlined,
   BlockOutlined,
   ReadOutlined,
+  DownOutlined,
+  PaperClipOutlined,
+  ExclamationCircleFilled,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
@@ -92,6 +95,7 @@ import NumberNine from "./Icons/numberNine.svg";
 import Pencil from "./Icons/pencil.svg";
 import Polygon from "./Icons/polygon.svg";
 import Rectangle from "./Icons/rectangle.svg";
+import RetryFilled from "./Icons/retryFilled.svg";
 import Tag from "./Icons/tag.svg";
 import TerminalWindow from "./Icons/terminalWindow.svg";
 import TextAlignLeft from "./Icons/textAlignLeft.svg";
@@ -124,6 +128,7 @@ export default {
   plus: PlusOutlined,
   close: CloseOutlined,
   exclamationCircle: ExclamationCircleOutlined,
+  exclamationSolid: ExclamationCircleFilled,
   upload: UploadOutlined,
   message: MessageOutlined,
   inbox: InboxOutlined,
@@ -199,4 +204,7 @@ export default {
   lock: LockOutlined,
   block: BlockOutlined,
   read: ReadOutlined,
+  down: DownOutlined,
+  clip: PaperClipOutlined,
+  retry: RetryFilled,
 };

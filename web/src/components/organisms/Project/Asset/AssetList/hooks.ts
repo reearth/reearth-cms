@@ -7,7 +7,7 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
 import { UploadFile as RawUploadFile, RcFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
-import { CreateFieldInput } from "@reearth-cms/components/molecules/Schema/types";
+import { ImportFieldInput } from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
   convertSchemaFieldType,
@@ -47,7 +47,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
   const [importSchemaModalVisibility, setImportSchemaModalVisibility] = useState(false);
   const [selectFileModalVisibility, setSelectFileModalVisibility] = useState(false);
-  const [importFields, setImportFields] = useState<CreateFieldInput[]>([]);
+  const [importFields, setImportFields] = useState<ImportFieldInput[]>([]);
 
   const { workspaceId, projectId, modelId } = useParams();
   const navigate = useNavigate();
@@ -171,6 +171,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
       modelId: modelId,
       groupId: undefined,
       typeProperty: defaultTypePropertyGet(field.type),
+      hidden: false,
     }));
   }, [guessSchemaFieldsData, modelId]);
 

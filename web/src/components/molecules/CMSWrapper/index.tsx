@@ -1,8 +1,14 @@
 import styled from "@emotion/styled";
+import { motion } from "motion/react";
+import { useRef } from "react";
 
 import Content from "@reearth-cms/components/atoms/Content";
 import Layout from "@reearth-cms/components/atoms/Layout";
 import Sider from "@reearth-cms/components/atoms/Sider";
+
+import ReloadModal from "../ReloadModal";
+import Uploader from "../Uploader";
+import { UploaderQueueItem, UploaderState } from "../Uploader/types";
 
 export type InnerProps = {
   onWorkspaceModalOpen?: () => void;
@@ -14,6 +20,13 @@ export type Props = {
   sidebarComponent: React.ReactNode;
   collapsed: boolean;
   onCollapse: (collapse: boolean) => void;
+  shouldPreventReload: boolean;
+  isShowUploader: boolean;
+  uploaderState: UploaderState;
+  onUploaderOpen: (isOpen: boolean) => void;
+  onRetry: (id: UploaderQueueItem["id"]) => void;
+  onCancel: (id: UploaderQueueItem["id"]) => void;
+  onCancelAll: () => void;
 };
 
 const CMSWrapper: React.FC<Props> = ({
@@ -22,23 +35,56 @@ const CMSWrapper: React.FC<Props> = ({
   headerComponent,
   collapsed,
   onCollapse,
+  shouldPreventReload,
+  isShowUploader,
+  uploaderState,
+  onUploaderOpen,
+  onRetry,
+  onCancel,
+  onCancelAll,
 }) => {
+  const constraintsRef = useRef<HTMLDivElement>(null);
+
   return (
-    <Wrapper>
-      <HeaderWrapper>{headerComponent}</HeaderWrapper>
-      <BodyWrapper>
-        <CMSSidebar collapsible collapsed={collapsed} onCollapse={onCollapse} collapsedWidth={54}>
-          {sidebarComponent}
-        </CMSSidebar>
-        <ContentWrapper>{contentComponent}</ContentWrapper>
-      </BodyWrapper>
-    </Wrapper>
+    <DragConstraint ref={constraintsRef}>
+      <Wrapper>
+        <HeaderWrapper>{headerComponent}</HeaderWrapper>
+        <BodyWrapper>
+          <CMSSidebar collapsible collapsed={collapsed} onCollapse={onCollapse} collapsedWidth={54}>
+            {sidebarComponent}
+          </CMSSidebar>
+          <ContentWrapper>{contentComponent}</ContentWrapper>
+        </BodyWrapper>
+
+        {isShowUploader && (
+          <Uploader
+            constraintsRef={constraintsRef}
+            onUploaderOpen={onUploaderOpen}
+            onRetry={onRetry}
+            onCancel={onCancel}
+            onCancelAll={onCancelAll}
+            uploaderState={uploaderState}
+          />
+        )}
+        {/* <Test /> */}
+
+        <ReloadModal
+          title="Cancel upload?"
+          cancelText="Cancel upload"
+          okText="Continue upload"
+          shouldPreventReload={shouldPreventReload}>
+          Your file hasn't finished uploading yet. Are you sure you want to cancel?
+        </ReloadModal>
+      </Wrapper>
+    </DragConstraint>
   );
 };
 
 const Wrapper = styled(Layout)`
   height: 100vh;
 `;
+
+const DragConstraint = styled(motion.div)``;
 
 const BodyWrapper = styled(Layout)`
   margin-top: 48px;

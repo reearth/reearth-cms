@@ -8,16 +8,17 @@ import List from "@reearth-cms/components/atoms/List";
 import Row from "@reearth-cms/components/atoms/Row";
 import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { useT } from "@reearth-cms/i18n";
 
-import { CreateFieldInput, SchemaFieldType } from "../types";
+import { ImportFieldInput, SchemaFieldType } from "../types";
 
 type Props = {
-  fields: CreateFieldInput[];
+  fields: ImportFieldInput[];
   fieldTypeOptions: { value: string; label: JSX.Element }[];
   onDragEnd: (fromIndex: number, toIndex: number) => void;
   onFieldTypeChange: (id: string, value: SchemaFieldType) => void;
-  onFieldDelete: (id: string, name: string) => void;
+  onToggleFieldHide: (id: string) => void;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
 };
@@ -27,7 +28,7 @@ const SchemaPreviewStep: React.FC<Props> = ({
   fieldTypeOptions,
   onDragEnd,
   onFieldTypeChange,
-  onFieldDelete,
+  onToggleFieldHide,
   hasUpdateRight,
   hasDeleteRight,
 }) => {
@@ -67,11 +68,11 @@ const SchemaPreviewStep: React.FC<Props> = ({
               <List.Item.Meta
                 title={
                   <Row>
-                    <Col span={1}>
+                    <VerticalCenterCol span={1}>
                       <FieldThumbnail>
                         {hasUpdateRight && <DragIcon icon="menu" className="grabbable" />}
                       </FieldThumbnail>
-                    </Col>
+                    </VerticalCenterCol>
                     <AlignLeftCol span={11}>
                       <ItemTitle>
                         <ItemTitleHeading>{field.title}</ItemTitleHeading>
@@ -88,16 +89,26 @@ const SchemaPreviewStep: React.FC<Props> = ({
                         options={fieldTypeOptions}
                       />
                     </AlignLeftCol>
-                    <Col span={1}>
+                    <VerticalCenterCol span={1}>
                       <Button
                         type="text"
                         shape="circle"
                         size="small"
-                        onClick={() => onFieldDelete(field.key, field.title)}
-                        icon={<Icon icon="delete" color="#8c8c8c" />}
+                        onClick={() => onToggleFieldHide(field.key)}
+                        icon={
+                          field.hidden ? (
+                            <Icon icon="eyeInvisible" color="#8c8c8c" />
+                          ) : (
+                            <Tooltip title={t("Don't import")}>
+                              <span>
+                                <Icon icon="eye" color="#8c8c8c" />
+                              </span>
+                            </Tooltip>
+                          )
+                        }
                         disabled={!hasDeleteRight}
                       />
-                    </Col>
+                    </VerticalCenterCol>
                   </Row>
                 }
               />
@@ -132,6 +143,13 @@ const HeaderCol = styled(Col)`
 
 const AlignLeftCol = styled(Col)`
   text-align: left;
+  display: flex;
+  align-items: center;
+`;
+
+const VerticalCenterCol = styled(Col)`
+  display: flex;
+  align-items: center;
 `;
 
 const FieldTypeSelect = styled(Select)`

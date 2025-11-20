@@ -24,6 +24,7 @@ import {
   Tab,
   SelectedSchemaType,
   CreateFieldInput,
+  ImportFieldInput,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -52,10 +53,10 @@ type Props = {
   uploadType: UploadType;
   uploadUrl: { url: string; autoUnzip: boolean };
   uploading: boolean;
-  importFields: CreateFieldInput[];
+  importFields: ImportFieldInput[];
   guessSchemaFieldsError?: boolean;
   fieldsCreationError?: boolean;
-  setImportFields: Dispatch<SetStateAction<CreateFieldInput[]>>;
+  setImportFields: Dispatch<SetStateAction<ImportFieldInput[]>>;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
