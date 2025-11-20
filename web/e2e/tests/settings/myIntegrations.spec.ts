@@ -29,7 +29,7 @@ test("MyIntegration CRUD has succeeded", async ({ integrationsPage, page }) => {
     await integrationsPage.integrationNameInput.fill(newIntegrationName);
     await integrationsPage.descriptionInput.click();
     await integrationsPage.descriptionInput.fill(newDescription);
-    await integrationsPage.integrationSettingsSaveButton.click();
+    await integrationsPage.saveButton.click();
     await integrationsPage.closeNotification();
     await page.waitForTimeout(300);
   });
