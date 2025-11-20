@@ -58,7 +58,7 @@ jobs:
       run:
         working-directory: web
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           repository: reearth/reearth-cms
           ref: ${{ inputs.branch || 'main' }}
