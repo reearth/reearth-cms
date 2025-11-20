@@ -507,10 +507,10 @@ Terrain: 地形
 The first one in the list will be the default Terrain.: リストの最初の地形がデフォルトの地形となります。
 Add new Terrain option: 新しい地形を追加
 Uploading file..._other: '{{count}}個のファイルをアップロード中…'
-Cancel upload?: アップロードをキャンセルしますか?
-Your file hasn't finished uploading yet. Are you sure you want to cancel upload?: アップロードが完了せずにキャンセルしてもよろしいですか?
-Keep uploading: 続行する
-Cancel upload: キャンセルする
+Cancel upload?: アップロードを取り消しますか?
+Your file hasn't finished uploading yet. Are you sure you want to cancel upload?: アップロードが完了せずに取り消してもよろしいですか?
+Keep uploading: 続ける
+Cancel upload: 取り消す
 Minimize: 最小化
 Retry: 再試行
 Upload canceled: アップロードがキャンセルされました
