@@ -43,7 +43,7 @@ export class AssetsPage extends BasePage {
 
   // Grid / Rows
   get assetRows(): Locator {
-    return this.getByTestId("asset-table-row");
+    return this.locator(".ant-table-tbody .ant-table-row");
   }
   rowByText(text: string | RegExp): Locator {
     return this.assetRows.filter({ hasText: text });
@@ -55,7 +55,7 @@ export class AssetsPage extends BasePage {
 
   // Details
   get editIconButton(): Locator {
-    return this.getByTestId("asset-edit-button");
+    return this.getByRole("cell", { name: "edit" });
   }
   get backButton(): Locator {
     return this.getByLabel("Back");
@@ -74,7 +74,7 @@ export class AssetsPage extends BasePage {
 
   // Preview
   get canvas(): Locator {
-    return this.getByTestId("asset-preview-canvas");
+    return this.locator("canvas");
   }
   get fullscreenButton(): Locator {
     return this.getByLabel("fullscreen");

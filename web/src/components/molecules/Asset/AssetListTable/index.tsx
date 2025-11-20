@@ -92,15 +92,10 @@ const AssetListTable: React.FC<Props> = ({
   const columns: StretchColumn<Asset>[] = useMemo(
     () => [
       {
-        title: "",
+        title: <span data-testid="asset-edit-button" />,
         hideInSetting: true,
         render: (_, asset) => (
-          <Icon
-            icon="edit"
-            color={"#1890ff"}
-            onClick={() => onEdit(asset.id)}
-            data-testid="asset-edit-button"
-          />
+          <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(asset.id)} />
         ),
         key: "EDIT_ICON",
         align: "center",
