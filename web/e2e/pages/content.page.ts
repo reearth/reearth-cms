@@ -33,7 +33,7 @@ export class ContentPage extends BasePage {
     return this.getByLabel("", { exact: true });
   }
   get editButton(): Locator {
-    return this.getByRole("cell").getByLabel("edit").locator("svg");
+    return this.getByTestId("content-edit-button");
   }
   get deleteButton(): Locator {
     return this.getByText("Delete");
@@ -87,10 +87,10 @@ export class ContentPage extends BasePage {
     return this.getByRole("cell", { name: text, exact });
   }
   get cellEditButton(): Locator {
-    return this.getByRole("cell").getByLabel("edit").locator("svg");
+    return this.getByTestId("content-edit-button");
   }
   cellEditButtonByIndex(index: number): Locator {
-    return this.getByRole("cell").getByLabel("edit").locator("svg").nth(index);
+    return this.getByTestId("content-edit-button").nth(index);
   }
 
   // Link elements
@@ -100,12 +100,12 @@ export class ContentPage extends BasePage {
 
   // Tooltip interactions
   get tooltipEditButton(): Locator {
-    return this.getByRole("tooltip", { name: "edit" }).locator("svg");
+    return this.getByTestId("content-tooltip-edit-button");
   }
 
   // Table body element
   get tableBodyElement(): Locator {
-    return this.locator(".ant-table-body");
+    return this.getByTestId("content-table-body");
   }
 
   // Views management
@@ -122,7 +122,7 @@ export class ContentPage extends BasePage {
     return this.getByRole("button", { name: "Cancel" });
   }
   get moreButton(): Locator {
-    return this.getByLabel("more").locator("svg");
+    return this.getByTestId("content-more-button");
   }
   get renameViewButton(): Locator {
     return this.getByText("Rename");
@@ -145,13 +145,13 @@ export class ContentPage extends BasePage {
     return this.getByRole("columnheader", { name: "text" });
   }
   get sortUpIcon(): Locator {
-    return this.columnHeaderText.locator("div").locator(".anticon-caret-up");
+    return this.getByTestId("sort-up-icon");
   }
   get sortDownIcon(): Locator {
-    return this.columnHeaderText.locator("div").locator(".anticon-caret-down");
+    return this.getByTestId("sort-down-icon");
   }
   tableRow(index: number): Locator {
-    return this.locator(".ant-table-row").nth(index);
+    return this.getByTestId("content-table-row").nth(index);
   }
   get statusColumnHeader(): Locator {
     return this.getByRole("columnheader", { name: "Status" });
@@ -185,10 +185,10 @@ export class ContentPage extends BasePage {
 
   // Settings
   get settingsButton(): Locator {
-    return this.getByRole("main").getByLabel("setting").locator("svg");
+    return this.getByTestId("content-settings-button");
   }
   get statusCheckbox(): Locator {
-    return this.locator(".ant-tree-checkbox").first();
+    return this.getByTestId("status-tree-checkbox").first();
   }
 
   // Tabs and views
@@ -209,7 +209,7 @@ export class ContentPage extends BasePage {
 
   // Table headers and structure
   get tableBodyRows(): Locator {
-    return this.locator("tbody > tr.ant-table-row");
+    return this.getByTestId("content-table-row");
   }
 
   // Root element reference
@@ -283,7 +283,7 @@ export class ContentPage extends BasePage {
 
   // Asset field specific
   cssAssetByIndex(index: number): Locator {
-    return this.locator(".css-7g0azd").nth(index);
+    return this.getByTestId("asset-field-item").nth(index);
   }
 
   get tooltip(): Locator {
@@ -296,7 +296,7 @@ export class ContentPage extends BasePage {
 
   // Table row controls for assets
   get antTableRowTd(): Locator {
-    return this.locator(".ant-table-row > td");
+    return this.getByTestId("content-table-row").locator("td");
   }
 
   // Tag metadata specific
@@ -320,7 +320,7 @@ export class ContentPage extends BasePage {
 
   // Text metadata specific
   get antTableBody(): Locator {
-    return this.locator(".ant-table-body");
+    return this.getByTestId("content-table-body");
   }
 
   get tooltipTextboxes(): Locator {
@@ -383,16 +383,16 @@ export class ContentPage extends BasePage {
 
   // Table column selection
   tableColumnButton(childIndex: number): Locator {
-    return this.locator(`.ant-table-row > td:nth-child(${childIndex})`).getByRole("button");
+    return this.getByTestId("content-table-row").locator(`td:nth-child(${childIndex})`).getByRole("button");
   }
 
   // Multi-value text containers
   get firstTextContainer(): Locator {
-    return this.locator("div:nth-child(1) > .css-1ago99h");
+    return this.getByTestId("multi-value-text-container").first();
   }
 
   get secondTextContainer(): Locator {
-    return this.locator("div:nth-child(2) > .css-1ago99h");
+    return this.getByTestId("multi-value-text-container").nth(1);
   }
 
   // Required field validation
@@ -460,7 +460,7 @@ export class ContentPage extends BasePage {
 
   // Geometry field specific elements
   get viewLinesEditor(): Locator {
-    return this.locator(".view-lines");
+    return this.getByTestId("geometry-editor-view-lines");
   }
 
   get editorContent(): Locator {
@@ -469,12 +469,12 @@ export class ContentPage extends BasePage {
 
   // Table column selection
   nthTableColumnButton(index: number): Locator {
-    return this.locator(`.ant-table-row > td:nth-child(${index})`).getByRole("button");
+    return this.getByTestId("content-table-row").locator(`td:nth-child(${index})`).getByRole("button");
   }
 
   // Ant row button by index
   antRowButton(index: number): Locator {
-    return this.locator(".ant-row").getByRole("button").nth(index);
+    return this.getByTestId("form-row").getByRole("button").nth(index);
   }
 
   // Unique field label
@@ -559,8 +559,8 @@ export class ContentPage extends BasePage {
     await this.getByRole("menuitem", { name: "New Request" }).click();
     await this.getByLabel("Title").last().click();
     await this.getByLabel("Title").last().fill(title);
-    await this.page.click(".ant-select-selector");
-    const firstItem = this.page.locator(".ant-select-item").first();
+    await this.getByTestId("select-reviewer").click();
+    const firstItem = this.getByTestId("select-item").first();
     await firstItem.click();
     await this.getByLabel("Description").click();
     await this.getByRole("button", { name: "OK" }).click();
@@ -568,8 +568,8 @@ export class ContentPage extends BasePage {
   }
 
   async createComment(content: string): Promise<void> {
-    await this.page.locator("#content").click();
-    await this.page.locator("#content").fill(content);
+    await this.getByTestId("comment-content-input").click();
+    await this.getByTestId("comment-content-input").fill(content);
     await this.getByRole("button", { name: "Comment" }).click();
     await this.closeNotification();
   }
