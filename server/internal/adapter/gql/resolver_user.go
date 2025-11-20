@@ -77,7 +77,6 @@ func (r *mutationResolver) DeleteMe(ctx context.Context, input gqlmodel.DeleteMe
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*gqlmodel.Me, error) {
 	g := gateways(ctx)
-
 	if g != nil && g.Accounts != nil {
 		usr, err := g.Accounts.FindMe(ctx)
 		if err != nil {
