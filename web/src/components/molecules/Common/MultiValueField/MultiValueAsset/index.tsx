@@ -71,7 +71,7 @@ const MultiValueAsset: React.FC<Props> = ({
     <div>
       {Array.isArray(value) &&
         value?.map((valueItem, key) => (
-          <FieldWrapper key={key}>
+          <FieldWrapper key={key} data-testid="asset-field-item">
             {!disabled && (
               <>
                 <FieldButton

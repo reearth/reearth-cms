@@ -66,7 +66,7 @@ const MultiValueField: React.FC<Props> = ({
     <div>
       {Array.isArray(value) &&
         value?.map((valueItem, key) => (
-          <FieldWrapper key={key}>
+          <FieldWrapper key={key} data-testid="multi-value-text-container">
             {!props.disabled && (
               <>
                 <FieldButton

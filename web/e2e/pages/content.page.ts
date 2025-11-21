@@ -33,7 +33,7 @@ export class ContentPage extends BasePage {
     return this.getByLabel("", { exact: true });
   }
   get editButton(): Locator {
-    return this.getByTestId("content-edit-button");
+    return this.getByRole("cell", { name: "edit" });
   }
   get deleteButton(): Locator {
     return this.getByText("Delete");
@@ -87,10 +87,10 @@ export class ContentPage extends BasePage {
     return this.getByRole("cell", { name: text, exact });
   }
   get cellEditButton(): Locator {
-    return this.getByTestId("content-edit-button");
+    return this.getByRole("cell", { name: "edit" });
   }
   cellEditButtonByIndex(index: number): Locator {
-    return this.getByTestId("content-edit-button").nth(index);
+    return this.editButton.nth(index);
   }
 
   // Link elements
@@ -100,12 +100,12 @@ export class ContentPage extends BasePage {
 
   // Tooltip interactions
   get tooltipEditButton(): Locator {
-    return this.getByTestId("content-tooltip-edit-button");
+    return this.getByRole("tooltip", { name: "edit" }).locator("svg");
   }
 
   // Table body element
   get tableBodyElement(): Locator {
-    return this.getByTestId("content-table-body");
+    return this.locator(".ant-table-body");
   }
 
   // Views management
@@ -122,7 +122,7 @@ export class ContentPage extends BasePage {
     return this.getByRole("button", { name: "Cancel" });
   }
   get moreButton(): Locator {
-    return this.getByTestId("content-more-button");
+    return this.getByLabel("more").locator("svg");
   }
   get renameViewButton(): Locator {
     return this.getByText("Rename");
@@ -145,13 +145,13 @@ export class ContentPage extends BasePage {
     return this.getByRole("columnheader", { name: "text" });
   }
   get sortUpIcon(): Locator {
-    return this.getByTestId("sort-up-icon");
+    return this.columnHeaderText.locator("div").locator(".anticon-caret-up");
   }
   get sortDownIcon(): Locator {
-    return this.getByTestId("sort-down-icon");
+    return this.columnHeaderText.locator("div").locator(".anticon-caret-down");
   }
   tableRow(index: number): Locator {
-    return this.getByTestId("content-table-row").nth(index);
+    return this.locator(".ant-table-row").nth(index);
   }
   get statusColumnHeader(): Locator {
     return this.getByRole("columnheader", { name: "Status" });
@@ -185,10 +185,10 @@ export class ContentPage extends BasePage {
 
   // Settings
   get settingsButton(): Locator {
-    return this.getByTestId("content-settings-button");
+    return this.getByRole("main").getByLabel("setting").locator("svg");
   }
   get statusCheckbox(): Locator {
-    return this.getByTestId("status-tree-checkbox").first();
+    return this.locator(".ant-tree-checkbox").first();
   }
 
   // Tabs and views
@@ -209,7 +209,7 @@ export class ContentPage extends BasePage {
 
   // Table headers and structure
   get tableBodyRows(): Locator {
-    return this.getByTestId("content-table-row");
+    return this.locator("tbody > tr.ant-table-row");
   }
 
   // Root element reference
@@ -296,7 +296,7 @@ export class ContentPage extends BasePage {
 
   // Table row controls for assets
   get antTableRowTd(): Locator {
-    return this.getByTestId("content-table-row").locator("td");
+    return this.locator(".ant-table-row > td");
   }
 
   // Tag metadata specific
@@ -320,7 +320,7 @@ export class ContentPage extends BasePage {
 
   // Text metadata specific
   get antTableBody(): Locator {
-    return this.getByTestId("content-table-body");
+    return this.locator(".ant-table-body");
   }
 
   get tooltipTextboxes(): Locator {
@@ -383,7 +383,7 @@ export class ContentPage extends BasePage {
 
   // Table column selection
   tableColumnButton(childIndex: number): Locator {
-    return this.getByTestId("content-table-row").locator(`td:nth-child(${childIndex})`).getByRole("button");
+    return this.locator(`.ant-table-row > td:nth-child(${childIndex})`).getByRole("button");
   }
 
   // Multi-value text containers
@@ -469,7 +469,7 @@ export class ContentPage extends BasePage {
 
   // Table column selection
   nthTableColumnButton(index: number): Locator {
-    return this.getByTestId("content-table-row").locator(`td:nth-child(${index})`).getByRole("button");
+    return this.locator(`.ant-table-row > td:nth-child(${index})`).getByRole("button");
   }
 
   // Ant row button by index
@@ -559,8 +559,8 @@ export class ContentPage extends BasePage {
     await this.getByRole("menuitem", { name: "New Request" }).click();
     await this.getByLabel("Title").last().click();
     await this.getByLabel("Title").last().fill(title);
-    await this.getByTestId("select-reviewer").click();
-    const firstItem = this.getByTestId("select-item").first();
+    await this.page.click(".ant-select-selector");
+    const firstItem = this.page.locator(".ant-select-item").first();
     await firstItem.click();
     await this.getByLabel("Description").click();
     await this.getByRole("button", { name: "OK" }).click();

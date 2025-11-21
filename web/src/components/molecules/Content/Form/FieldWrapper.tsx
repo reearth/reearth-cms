@@ -37,7 +37,7 @@ const FieldWrapper: React.FC<Props> = ({
   );
 
   return (
-    <Wrapper key={field.id} isFullWidth={isFullWidth}>
+    <Wrapper key={field.id} isFullWidth={isFullWidth} data-testid="form-row">
       <Field
         field={field}
         disabled={disabled}

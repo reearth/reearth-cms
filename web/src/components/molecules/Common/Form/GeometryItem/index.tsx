@@ -498,7 +498,7 @@ const GeometryItem: React.FC<Props> = ({
           maxConstraints={[maxWidth, 0]}
           onResize={onResize}
           handle={<span className="react-resizable-handle" />}>
-          <EditorWrapper hasError={hasError} width={width}>
+          <EditorWrapper hasError={hasError} width={width} data-testid="geometry-editor-view-lines">
             <EditorButtons>
               <Tooltip title={t("Value copied!!")} trigger={"click"}>
                 <EditorButton
