@@ -67,7 +67,7 @@ const CMSWrapper: React.FC<Props> = ({
           />
         )}
 
-        <ReloadModal shouldPreventReload={shouldPreventReload}></ReloadModal>
+        <ReloadModal shouldPreventReload={shouldPreventReload} />
       </Wrapper>
     </DragConstraint>
   );

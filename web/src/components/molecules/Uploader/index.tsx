@@ -30,10 +30,27 @@ type Props = {
   onCancelAll: () => void;
 };
 
+const checkCorner = (x: number, y: number): Corner => {
+  const { innerWidth, innerHeight } = window;
+  const shouldGoTop = y <= innerHeight / 2;
+  const shouldGoLeft = x <= innerWidth / 2;
+
+  if (shouldGoTop && shouldGoLeft) {
+    return "topLeft";
+  } else if (shouldGoTop && !shouldGoLeft) {
+    return "topRight";
+  } else if (!shouldGoTop && shouldGoLeft) {
+    return "bottomLeft";
+  } else {
+    return "bottomRight";
+  }
+};
+
 const Uploader: React.FC<Props> = props => {
   const t = useT();
   const [corner, setCorner] = useState<Corner>("bottomRight");
-  const uploaderWrapperRef = useRef<HTMLDivElement>(null);
+  const uploaderWrapperRef = useRef<HTMLDivElement | null>(null);
+  const cardRef = useRef<HTMLDivElement | null>(null);
   const dragStart = useRef({ x: 0, y: 0 });
   const dragControls = useDragControls();
   const animationControls = useAnimationControls();
@@ -48,58 +65,45 @@ const Uploader: React.FC<Props> = props => {
     [t, uploadingFileCount],
   );
 
-  const moveToCorner = (corner: Corner) => {
-    if (!uploaderWrapperRef.current) return;
+  const moveToCorner = useCallback(
+    (corner: Corner) => {
+      if (!uploaderWrapperRef.current) return;
 
-    const { innerWidth, innerHeight } = window;
-    const { offsetWidth, offsetHeight } = uploaderWrapperRef.current;
+      const { innerWidth, innerHeight } = window;
+      const { offsetWidth, offsetHeight } = uploaderWrapperRef.current;
 
-    const positions: Record<Corner, { x: number; y: number }> = {
-      topLeft: {
-        x: -(innerWidth - offsetWidth - UPLOADER_PADDING - offsetWidth / 2),
-        y: -(innerHeight - offsetHeight - UPLOADER_PADDING - offsetHeight / 2),
-      },
-      topRight: {
-        x: 0,
-        y: -(innerHeight - offsetHeight - UPLOADER_PADDING - offsetHeight / 2),
-      },
-      bottomLeft: {
-        x: -(innerWidth - offsetWidth - UPLOADER_PADDING - offsetWidth / 2),
-        y: 0,
-      },
-      bottomRight: {
-        x: 0,
-        y: 0,
-      },
-    };
+      const positions: Record<Corner, { x: number; y: number }> = {
+        topLeft: {
+          x: -(innerWidth - offsetWidth - UPLOADER_PADDING - offsetWidth / 2),
+          y: -(innerHeight - offsetHeight - UPLOADER_PADDING - offsetHeight / 2),
+        },
+        topRight: {
+          x: 0,
+          y: -(innerHeight - offsetHeight - UPLOADER_PADDING - offsetHeight / 2),
+        },
+        bottomLeft: {
+          x: -(innerWidth - offsetWidth - UPLOADER_PADDING - offsetWidth / 2),
+          y: 0,
+        },
+        bottomRight: {
+          x: 0,
+          y: 0,
+        },
+      };
 
-    animationControls.start({
-      x: positions[corner].x,
-      y: positions[corner].y,
-      transition: {
-        type: "spring",
-        stiffness: 150,
-        damping: 20,
-        duration: 0.5,
-      },
-    });
-  };
-
-  const checkCorner = (x: number, y: number): Corner => {
-    const { innerWidth, innerHeight } = window;
-    const shouldGoTop = y <= innerHeight / 2;
-    const shouldGoLeft = x <= innerWidth / 2;
-
-    if (shouldGoTop && shouldGoLeft) {
-      return "topLeft";
-    } else if (shouldGoTop && !shouldGoLeft) {
-      return "topRight";
-    } else if (!shouldGoTop && shouldGoLeft) {
-      return "bottomLeft";
-    } else {
-      return "bottomRight";
-    }
-  };
+      animationControls.start({
+        x: positions[corner].x,
+        y: positions[corner].y,
+        transition: {
+          type: "spring",
+          stiffness: 150,
+          damping: 20,
+          duration: 0.5,
+        },
+      });
+    },
+    [animationControls],
+  );
 
   const handleDragEnd: ComponentProps<typeof UploaderWrapper>["onDragEnd"] = event => {
     if (event instanceof PointerEvent || event instanceof MouseEvent) {
@@ -135,6 +139,19 @@ const Uploader: React.FC<Props> = props => {
       },
     });
   }, [props, cancelModalCommonProps]);
+
+  const cardVariants: Variants = {
+    open: {
+      width: "300px",
+      height: cardRef.current ? cardRef.current.scrollHeight : "auto",
+      opacity: 1,
+    },
+    closed: {
+      width: 0,
+      height: 0,
+      opacity: 0,
+    },
+  };
 
   return (
     <UploaderWrapper
@@ -172,9 +189,12 @@ const Uploader: React.FC<Props> = props => {
           <Icon icon="upload" size={26} color="#ffffff" />
         </Badge>
       </UploadIcon>
+
       <Card
         data-testId="Card"
+        ref={cardRef}
         data-corner={corner}
+        layout="size"
         initial="closed"
         variants={cardVariants}
         animate={props.uploaderState.isOpen ? "open" : "closed"}>
@@ -223,8 +243,6 @@ const Card = styled(motion.div)`
   display: flex;
   flex-direction: column;
   max-height: 90vh;
-  /* height: 100px; */
-  /* width: 100px; */
   position: absolute;
   z-index: 30;
   background: #ffffff;
@@ -328,17 +346,6 @@ const uploadIconVariants: Variants = {
   },
   closed: {
     opacity: 100,
-  },
-};
-
-const cardVariants: Variants = {
-  open: {
-    width: "300px",
-    height: "300px",
-  },
-  closed: {
-    width: 0,
-    height: 0,
   },
 };
 

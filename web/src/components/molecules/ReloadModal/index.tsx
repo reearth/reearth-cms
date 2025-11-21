@@ -20,6 +20,9 @@ const ReloadModal: React.FC<Props> = ({ shouldPreventReload = false }) => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [shouldPreventReload]);
+
+  // eslint-disable-next-line react/jsx-no-useless-fragment
+  return <></>;
 };
 
 export default ReloadModal;
