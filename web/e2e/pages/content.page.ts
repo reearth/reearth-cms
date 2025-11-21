@@ -460,7 +460,7 @@ export class ContentPage extends BasePage {
 
   // Geometry field specific elements
   get viewLinesEditor(): Locator {
-    return this.getByTestId("geometry-editor-view-lines");
+    return this.locator(".view-lines");
   }
 
   get editorContent(): Locator {
