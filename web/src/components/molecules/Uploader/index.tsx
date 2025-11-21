@@ -19,7 +19,12 @@ const DRAG_THRESHOLD = 5;
 const UPLOADER_PADDING = 20;
 const SNAP_DELAY_TIME = 300;
 
-type Corner = "topLeft" | "topRight" | "bottomLeft" | "bottomRight";
+enum Corner {
+  TopLeft = "TOP_LEFT",
+  TopRight = "TOP_RIGHT",
+  BottomLeft = "BOTTOM_LEFT",
+  BottomRight = "BOTTOM_RIGHT",
+}
 
 type Props = {
   uploaderState: UploaderState;
@@ -36,21 +41,20 @@ const checkCorner = (x: number, y: number): Corner => {
   const shouldGoLeft = x <= innerWidth / 2;
 
   if (shouldGoTop && shouldGoLeft) {
-    return "topLeft";
+    return Corner.TopLeft;
   } else if (shouldGoTop && !shouldGoLeft) {
-    return "topRight";
+    return Corner.TopRight;
   } else if (!shouldGoTop && shouldGoLeft) {
-    return "bottomLeft";
+    return Corner.BottomLeft;
   } else {
-    return "bottomRight";
+    return Corner.BottomRight;
   }
 };
 
 const Uploader: React.FC<Props> = props => {
   const t = useT();
-  const [corner, setCorner] = useState<Corner>("bottomRight");
+  const [corner, setCorner] = useState<Corner>(Corner.BottomRight);
   const uploaderWrapperRef = useRef<HTMLDivElement | null>(null);
-  const cardRef = useRef<HTMLDivElement | null>(null);
   const dragStart = useRef({ x: 0, y: 0 });
   const dragControls = useDragControls();
   const animationControls = useAnimationControls();
@@ -61,7 +65,12 @@ const Uploader: React.FC<Props> = props => {
   );
 
   const titleMessage = useMemo(
-    () => t("Uploading file...", { count: uploadingFileCount }),
+    () =>
+      uploadingFileCount === 0
+        ? ""
+        : uploadingFileCount === 1
+          ? t("Uploading file..._one")
+          : t("Uploading file..._other", { count: uploadingFileCount }),
     [t, uploadingFileCount],
   );
 
@@ -73,19 +82,19 @@ const Uploader: React.FC<Props> = props => {
       const { offsetWidth, offsetHeight } = uploaderWrapperRef.current;
 
       const positions: Record<Corner, { x: number; y: number }> = {
-        topLeft: {
+        [Corner.TopLeft]: {
           x: -(innerWidth - offsetWidth - UPLOADER_PADDING - offsetWidth / 2),
           y: -(innerHeight - offsetHeight - UPLOADER_PADDING - offsetHeight / 2),
         },
-        topRight: {
+        [Corner.TopRight]: {
           x: 0,
           y: -(innerHeight - offsetHeight - UPLOADER_PADDING - offsetHeight / 2),
         },
-        bottomLeft: {
+        [Corner.BottomLeft]: {
           x: -(innerWidth - offsetWidth - UPLOADER_PADDING - offsetWidth / 2),
           y: 0,
         },
-        bottomRight: {
+        [Corner.BottomRight]: {
           x: 0,
           y: 0,
         },
@@ -140,19 +149,6 @@ const Uploader: React.FC<Props> = props => {
     });
   }, [props, cancelModalCommonProps]);
 
-  const cardVariants: Variants = {
-    open: {
-      width: "300px",
-      height: cardRef.current ? cardRef.current.scrollHeight : "auto",
-      opacity: 1,
-    },
-    closed: {
-      width: 0,
-      height: 0,
-      opacity: 0,
-    },
-  };
-
   return (
     <UploaderWrapper
       data-testId="UploaderWrapper"
@@ -192,7 +188,6 @@ const Uploader: React.FC<Props> = props => {
 
       <Card
         data-testId="Card"
-        ref={cardRef}
         data-corner={corner}
         layout="size"
         initial="closed"
@@ -213,11 +208,7 @@ const Uploader: React.FC<Props> = props => {
             </Tooltip>
           </TitleSuffix>
         </CardHead>
-        <CardBody
-          data-testId="CardBody"
-          initial="closed"
-          variants={cardBodyVariants}
-          animate={props.uploaderState.isOpen ? "open" : "closed"}>
+        <CardBody data-testId="CardBody">
           {props.uploaderState.queue.map((queue, _index) => (
             <QueueItem
               key={queue.id}
@@ -251,24 +242,24 @@ const Card = styled(motion.div)`
     0 1px 2px -2px rgba(0, 0, 0, 0.16),
     0 3px 6px 0 rgba(0, 0, 0, 0.12),
     0 5px 12px 4px rgba(0, 0, 0, 0.09);
-  overflow: hidden;
+  overflow-y: scroll;
 
-  &[data-corner="bottomRight"] {
+  &[data-corner="${Corner.BottomRight}"] {
     bottom: 0;
     right: 0;
   }
 
-  &[data-corner="bottomLeft"] {
+  &[data-corner="${Corner.BottomLeft}"] {
     bottom: 0;
     left: 0;
   }
 
-  &[data-corner="topRight"] {
+  &[data-corner="${Corner.TopRight}"] {
     top: 0;
     right: 0;
   }
 
-  &[data-corner="topLeft"] {
+  &[data-corner="${Corner.TopLeft}"] {
     top: 0;
     left: 0;
   }
@@ -279,13 +270,22 @@ const CardHead = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 14px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+  z-index: 10;
 `;
 
-const CardBody = styled(motion.div)`
+const CardBody = styled.div`
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  overflow-y: scroll;
+
+  padding: 0 14px 14px 14px;
 `;
 
 const Title = styled.div`
@@ -349,18 +349,16 @@ const uploadIconVariants: Variants = {
   },
 };
 
-const cardBodyVariants: Variants = {
+const cardVariants: Variants = {
   open: {
-    width: 300,
+    width: "300px",
     height: "auto",
-    opacity: 100,
-    padding: "0 14px 14px 14px",
+    opacity: 1,
   },
   closed: {
     width: 0,
     height: 0,
     opacity: 0,
-    padding: 0,
   },
 };
 
