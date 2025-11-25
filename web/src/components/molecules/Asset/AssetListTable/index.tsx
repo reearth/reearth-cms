@@ -92,7 +92,7 @@ const AssetListTable: React.FC<Props> = ({
   const columns: StretchColumn<Asset>[] = useMemo(
     () => [
       {
-        title: "",
+        title: <span data-testid="asset-edit-button" />,
         hideInSetting: true,
         render: (_, asset) => (
           <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(asset.id)} />
@@ -344,6 +344,9 @@ const AssetListTable: React.FC<Props> = ({
       onChange={(pagination, _, sorter) => {
         handleChange(pagination, sorter);
       }}
+      onRow={() => ({
+        "data-testid": "asset-table-row" as any,
+      } as any)}
       heightOffset={73}
     />
   );
