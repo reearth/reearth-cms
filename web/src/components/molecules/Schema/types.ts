@@ -41,6 +41,10 @@ export type CreateFieldInput = {
   typeProperty: TypeProperty;
 };
 
+export type ImportFieldInput = CreateFieldInput & {
+  hidden?: boolean;
+};
+
 export type GroupField = Field & { type: Exclude<SchemaFieldType, "Group"> };
 
 export type MetadataField = Field & {

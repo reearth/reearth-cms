@@ -14,6 +14,7 @@ import {
   Metadata,
 } from "@reearth-cms/components/molecules/Content/types";
 import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
   ConditionInput,
@@ -81,6 +82,8 @@ export default () => {
     showPublishAction,
   } = useContentHooks();
   const t = useT();
+  const [isImportContentModalOpen, setIsImportContentModalOpen] = useState(false);
+  const [dataChecking, setDataChecking] = useState(false);
 
   const navigate = useNavigate();
   const { modelId } = useParams();
@@ -607,6 +610,33 @@ export default () => {
     [handleAddItemToRequest],
   );
 
+  const currentModelFields = useMemo<Model["schema"]["fields"]>(
+    () => (currentModel ? currentModel.schema.fields : []),
+    [currentModel],
+  );
+
+  const handleImportContentModalOpen = useCallback(() => {
+    setIsImportContentModalOpen(true);
+  }, []);
+
+  const handleImportContentModalClose = useCallback(() => {
+    setIsImportContentModalOpen(false);
+  }, []);
+
+  const handleImportSchemaFileChange = async (fileContent: string): Promise<null> => {
+    setDataChecking(true);
+    console.log("fileContent", fileContent);
+
+    // todo: PR#1707 add schema data check logic here
+
+    return new Promise<null>((resolve, _reject) => {
+      setTimeout(() => {
+        resolve(null);
+        setDataChecking(false);
+      }, 3000);
+    });
+  };
+
   return {
     currentModel,
     loading,
@@ -659,5 +689,10 @@ export default () => {
     handleContentTableChange,
     handleRequestSearchTerm,
     handleRequestTableReload,
+    isImportContentModalOpen,
+    handleImportContentModalOpen,
+    handleImportContentModalClose,
+    dataChecking,
+    handleImportSchemaFileChange,
   };
 };

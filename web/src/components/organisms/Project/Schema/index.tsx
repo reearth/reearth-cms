@@ -38,11 +38,12 @@ const ProjectSchema: React.FC = () => {
         data={schemaHooks.data}
         collapsed={schemaHooks.collapsed}
         selectedSchemaType={schemaHooks.selectedSchemaType}
-        workspaceId={schemaHooks.workspaceId}
-        projectId={schemaHooks.projectId}
+        // workspaceId={schemaHooks.workspaceId}
+        // projectId={schemaHooks.projectId}
         page={importHooks.page}
         pageSize={importHooks.pageSize}
         assetList={importHooks.assetList}
+        alertList={importHooks.alertList}
         loading={importHooks.loading}
         guessSchemaFieldsLoading={importHooks.guessSchemaFieldsLoading}
         selectedAsset={importHooks.selectedAsset}
@@ -57,6 +58,7 @@ const ProjectSchema: React.FC = () => {
         setUploadUrl={importHooks.setUploadUrl}
         setUploadType={importHooks.setUploadType}
         setFileList={importHooks.setFileList}
+        setAlertList={importHooks.setAlertList}
         uploadModalVisibility={importHooks.uploadModalVisibility}
         totalCount={importHooks.totalCount}
         hasCreateRight={schemaHooks.hasCreateRight}
@@ -102,6 +104,11 @@ const ProjectSchema: React.FC = () => {
         onFieldReorder={schemaHooks.handleFieldOrder}
         onFieldDelete={schemaHooks.handleFieldDelete}
         fieldsCreationLoading={schemaHooks.fieldsCreationLoading}
+        dataChecking={importHooks.dataChecking}
+        onFileContentChange={async fileContent => {
+          await importHooks.handleImportSchemaFileChange(fileContent);
+          toSchemaPreviewStep();
+        }}
       />
       <FormModal
         data={schemaHooks.data}

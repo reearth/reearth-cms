@@ -2,11 +2,12 @@ import fileDownload from "js-file-download";
 import { useState, useCallback, Key, useMemo, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
+import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
 import { UploadFile as RawUploadFile, RcFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
-import { CreateFieldInput } from "@reearth-cms/components/molecules/Schema/types";
+import { ImportFieldInput } from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
   convertSchemaFieldType,
@@ -46,7 +47,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
   const [importSchemaModalVisibility, setImportSchemaModalVisibility] = useState(false);
   const [selectFileModalVisibility, setSelectFileModalVisibility] = useState(false);
-  const [importFields, setImportFields] = useState<CreateFieldInput[]>([]);
+  const [importFields, setImportFields] = useState<ImportFieldInput[]>([]);
 
   const { workspaceId, projectId, modelId } = useParams();
   const navigate = useNavigate();
@@ -64,6 +65,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   });
   const [selectedAssetId, setSelectedAssetId] = useState<string>();
   const [fileList, setFileList] = useState<RawUploadFile[]>([]);
+  const [alertList, setAlertList] = useState<AlertProps[]>([]);
   const [uploadUrl, setUploadUrl] = useState({
     url: "",
     autoUnzip: true,
@@ -79,6 +81,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   );
 
   const [uploading, setUploading] = useState(false);
+  const [dataChecking, setDataChecking] = useState(false);
   const [createAssetMutation] = useCreateAssetMutation();
   const [createAssetUploadMutation] = useCreateAssetUploadMutation();
 
@@ -169,6 +172,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
       modelId: modelId,
       groupId: undefined,
       typeProperty: defaultTypePropertyGet(field.type),
+      hidden: false,
     }));
   }, [guessSchemaFieldsData, modelId]);
 
@@ -201,6 +205,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     setFileList([]);
     setUploadUrl({ url: "", autoUnzip: true });
     setUploadType("local");
+    setAlertList([]);
   }, []);
 
   const handleSelectFileModalCancel = useCallback(() => {
@@ -455,6 +460,20 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     }
   };
 
+  const handleImportSchemaFileChange = async (fileContent: string): Promise<null> => {
+    setDataChecking(true);
+    console.log("fileContent", fileContent);
+
+    // todo: PR#1707 add content data check logic here
+
+    return new Promise<null>((resolve, _reject) => {
+      setTimeout(() => {
+        resolve(null);
+        setDataChecking(false);
+      }, 3000);
+    });
+  };
+
   return {
     importFields,
     guessSchemaFieldsError: !!guessSchemaFieldsError,
@@ -463,6 +482,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     assetList,
     selection,
     fileList,
+    alertList,
     uploading,
     guessSchemaFieldsLoading,
     uploadModalVisibility,
@@ -495,6 +515,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     setImportFields,
     handleSelect,
     setFileList,
+    setAlertList,
     setUploadModalVisibility,
     handleAssetsCreate,
     handleAssetCreateFromUrl,
@@ -506,5 +527,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     handleAssetsReload,
     handleNavigateToAsset,
     handleGetAsset,
+    dataChecking,
+    handleImportSchemaFileChange,
   };
 };

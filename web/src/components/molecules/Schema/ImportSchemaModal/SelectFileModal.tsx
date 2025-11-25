@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { useRef, useCallback, useMemo } from "react";
 
+import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -26,6 +27,7 @@ type Props = {
   linkedAsset?: ItemAsset;
   assetList?: Asset[];
   fileList?: UploadFile<File>[];
+  alertList?: AlertProps[];
   loading?: boolean;
   uploading?: boolean;
   uploadProps: UploadProps;
@@ -53,6 +55,7 @@ const SelectFileModal: React.FC<Props> = ({
   linkedAsset,
   assetList,
   fileList,
+  alertList,
   loading,
   uploadProps,
   uploadModalVisibility,
@@ -224,6 +227,7 @@ const SelectFileModal: React.FC<Props> = ({
           key={1}
           alsoLink
           fileList={fileList}
+          alertList={alertList}
           uploading={uploading}
           uploadProps={uploadProps}
           uploadModalVisibility={uploadModalVisibility}

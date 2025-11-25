@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { useCallback } from "react";
 
+import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
@@ -18,6 +19,7 @@ type Props = {
   visible?: boolean;
   uploadProps: UploadProps;
   fileList?: UploadFile<File>[];
+  alertList?: AlertProps[];
   uploading?: boolean;
   uploadUrl: { url: string; autoUnzip: boolean };
   uploadType?: UploadType;
@@ -34,6 +36,7 @@ const UploadModal: React.FC<Props> = ({
   uploadProps,
   uploading,
   fileList,
+  alertList,
   uploadUrl,
   uploadType,
   setUploadUrl,
@@ -84,7 +87,7 @@ const UploadModal: React.FC<Props> = ({
       </div>
       <Tabs activeKey={uploadType} onChange={handleTabChange}>
         <TabPane tab={t("Local")} key="local">
-          <LocalTab uploadProps={uploadProps} />
+          <LocalTab uploadProps={uploadProps} alertList={alertList} />
         </TabPane>
         <TabPane tab={t("URL")} key="url">
           <UrlTab uploadUrl={uploadUrl} setUploadUrl={setUploadUrl} />
