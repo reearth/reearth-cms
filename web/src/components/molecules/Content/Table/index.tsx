@@ -826,6 +826,9 @@ const ContentTable: React.FC<Props> = ({
                   : undefined,
             );
           }}
+          onRow={() => ({
+            "data-testid": "content-table-row" as any,
+          } as any)}
           heightOffset={102}
         />
       ) : null}

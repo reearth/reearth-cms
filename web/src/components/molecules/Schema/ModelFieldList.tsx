@@ -149,6 +149,7 @@ const ModelFieldList: React.FC<Props> = ({
                     onClick={() => handleFieldUpdateModalOpen(item)}
                     icon={<Icon icon="ellipsis" color="#8c8c8c" />}
                     disabled={!hasUpdateRight}
+                    data-testid="field-ellipsis-menu-button"
                   />,
                 ]}>
                 <List.Item.Meta

@@ -388,11 +388,11 @@ export class ContentPage extends BasePage {
 
   // Multi-value text containers
   get firstTextContainer(): Locator {
-    return this.getByTestId("multi-value-text-container").first();
+    return this.locator("div:nth-child(1) > .css-1ago99h");
   }
 
   get secondTextContainer(): Locator {
-    return this.getByTestId("multi-value-text-container").nth(1);
+    return this.locator("div:nth-child(2) > .css-1ago99h");
   }
 
   // Required field validation
@@ -469,7 +469,7 @@ export class ContentPage extends BasePage {
 
   // Table column selection
   nthTableColumnButton(index: number): Locator {
-    return this.locator(`.ant-table-row > td:nth-child(${index})`).getByRole("button");
+    return this.getByTestId("content-table-row").locator(`td:nth-child(${index})`).getByRole("button");
   }
 
   // Ant row button by index
