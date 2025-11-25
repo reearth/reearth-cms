@@ -1,39 +1,34 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
 
-import Alert, { AlertProps } from "@reearth-cms/components/atoms/Alert";
+import Alert, { type AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Loading from "@reearth-cms/components/atoms/Loading";
-import Upload, {
-  UploadFile as RawUploadFile,
-  UploadFile,
-  UploadProps,
-} from "@reearth-cms/components/atoms/Upload";
+import Modal from "@reearth-cms/components/atoms/Modal";
+import Upload, { UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { Trans, useT } from "@reearth-cms/i18n";
+import { Constant } from "@reearth-cms/utils/constant";
 import { FileUtils } from "@reearth-cms/utils/file";
 import { ObjectUtils } from "@reearth-cms/utils/object";
+import { useCallback, useState } from "react";
 
 const { Dragger } = Upload;
 
 type Props = {
-  fileList: RawUploadFile[];
-  alertList?: AlertProps[];
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setAlertList: (alertList: AlertProps[]) => void;
+  isOpen: boolean;
+  dataChecking: boolean;
+  onClose: () => void;
   onFileContentChange: (fileContent: string) => void;
-  dataChecking?: boolean;
 };
 
-const FileSelectionStep: React.FC<Props> = ({
-  fileList,
-  alertList = [],
-  setFileList,
-  setAlertList,
+const ContentImportModal: React.FC<Props> = ({
+  isOpen,
+  dataChecking,
+  onClose,
   onFileContentChange,
-  dataChecking = false,
 }) => {
   const t = useT();
+  const [alertList, setAlertList] = useState<AlertProps[]>([]);
 
   const raiseIllegalFileAlert = useCallback(() => {
     setAlertList([
@@ -69,15 +64,11 @@ const FileSelectionStep: React.FC<Props> = ({
   }, [setAlertList, t]);
 
   const uploadProps: UploadProps = {
-    name: "importSchemaFile",
+    name: "importContentFile",
     multiple: true,
     directory: false,
     showUploadList: false,
     listType: "picture",
-    onRemove: () => {
-      setFileList([]);
-      setAlertList([]);
-    },
     beforeUpload: (file, fileList) => {
       const extension = FileUtils.getExtension(file.name);
 
@@ -90,8 +81,6 @@ const FileSelectionStep: React.FC<Props> = ({
         raiseSingleFileAlert();
         return;
       }
-
-      setFileList([file]);
 
       if (file.size === 0) {
         raiseIllegalFileAlert();
@@ -117,38 +106,47 @@ const FileSelectionStep: React.FC<Props> = ({
 
       return false;
     },
-    fileList,
   };
 
   return (
-    <>
+    <Modal
+      styles={{ body: { height: "70vh" } }}
+      title={t("Import content")}
+      open={isOpen}
+      onCancel={onClose}
+      footer={null}>
       {dataChecking ? (
         <LoadingWrapper data-testId="LoadingWrapper">
           <Loading spinnerSize="large" />
           <p>{t("Checking the data file...")}</p>
         </LoadingWrapper>
       ) : (
-        <Dragger {...uploadProps} data-testId="ImportSchemaFileSelect">
+        <Dragger {...uploadProps}>
           <p className="ant-upload-drag-icon">
             <Icon icon="inbox" />
           </p>
-          <p className="ant-upload-text">
-            <Trans
-              i18nKey="Choose or drag & drop a file"
-              components={{ l: <TemplateFileLink type="link">Choose</TemplateFileLink> }}
-            />
+          <p className="ant-upload-text">{t("Click or drag files to this area to upload")}</p>
+          <p className="ant-upload-hint">
+            {t(
+              "Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema with field names and types. File can contain a maximum of {{count}} records.",
+              { count: Constant.IMPORT.MAX_CONTENT_RECORDS },
+            )}
           </p>
-          <p className="ant-upload-hint">{t("Only JSON or GeoJSON format is supported")}</p>
-          <p>
+          <p className="ant-upload-hint">
             <Trans
-              i18nKey="You can also download file templates: JSON | GeoJSON"
+              i18nKey="You can also download file templates: CSV | JSON | GeoJSON"
               components={{
                 l1: (
-                  <TemplateFileLink type="link" href="/templates/template.json" download>
-                    JSON
+                  <TemplateFileLink type="link" href="/templates/template.csv" download>
+                    CSV
                   </TemplateFileLink>
                 ),
                 l2: (
+                  <TemplateFileLink type="link" href="/templates/template.geojson" download>
+                    GeoJSON
+                  </TemplateFileLink>
+                ),
+                l3: (
                   <TemplateFileLink type="link" href="/templates/template.geojson" download>
                     GeoJSON
                   </TemplateFileLink>
@@ -157,7 +155,7 @@ const FileSelectionStep: React.FC<Props> = ({
             />
           </p>
           {alertList.map((alert, index) => (
-            <StyledAlert
+            <Alert
               {...alert}
               key={alert?.message?.toString() || index}
               onClick={e => e.stopPropagation()}
@@ -165,21 +163,11 @@ const FileSelectionStep: React.FC<Props> = ({
           ))}
         </Dragger>
       )}
-    </>
+    </Modal>
   );
 };
 
-export default FileSelectionStep;
-
-const TemplateFileLink = styled(Button)`
-  padding: 0;
-  text-decoration: underline;
-`;
-
-const StyledAlert = styled(Alert)`
-  margin: 0 auto;
-  width: fit-content;
-`;
+export default ContentImportModal;
 
 const LoadingWrapper = styled.div`
   height: 100%;
@@ -188,4 +176,9 @@ const LoadingWrapper = styled.div`
   align-items: center;
   justify-content: center;
   gap: 24px;
+`;
+
+const TemplateFileLink = styled(Button)`
+  padding: 0;
+  text-decoration: underline;
 `;

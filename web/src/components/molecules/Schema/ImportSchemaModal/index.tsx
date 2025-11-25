@@ -29,8 +29,6 @@ import SchemaPreviewStep from "./SchemaPreviewStep";
 import SelectFileModal from "./SelectFileModal";
 
 type Props = {
-  workspaceId?: string;
-  projectId?: string;
   visible: boolean;
   selectFileModalVisibility: boolean;
   currentPage: number;
@@ -72,11 +70,11 @@ type Props = {
   onSelectFile: () => void;
   onSelectFileModalCancel: () => void;
   onModalClose: () => void;
+  dataChecking: boolean;
+  onFileContentChange: (fileContent: string) => void;
 };
 
 const ImportSchemaModal: React.FC<Props> = ({
-  workspaceId,
-  projectId,
   visible,
   selectFileModalVisibility,
   currentPage,
@@ -118,6 +116,8 @@ const ImportSchemaModal: React.FC<Props> = ({
   onSelectFile,
   onSelectFileModalCancel,
   onModalClose,
+  dataChecking,
+  onFileContentChange,
 }) => {
   const t = useT();
 
@@ -175,57 +175,6 @@ const ImportSchemaModal: React.FC<Props> = ({
     }));
   }, []);
 
-  const raiseIllegalFileAlert = useCallback(() => {
-    setAlertList([
-      {
-        message: t("The uploaded file is empty or invalid"),
-        type: "error",
-        closable: true,
-        showIcon: true,
-      },
-    ]);
-  }, [setAlertList, t]);
-
-  const uploadProps: UploadProps = {
-    name: "file",
-    multiple: false,
-    maxCount: 1,
-    directory: false,
-    showUploadList: true,
-    accept: ".geojson,.json",
-    listType: "picture",
-    onRemove: () => {
-      setFileList([]);
-      setAlertList([]);
-    },
-    beforeUpload: file => {
-      setFileList([file]);
-      if (file.size === 0) {
-        raiseIllegalFileAlert();
-        return;
-      }
-
-      FileUtils.parseTextFile(file, content => {
-        if (content) {
-          const jsonValidation = ObjectUtils.safeJSONParse(content);
-
-          if (
-            (jsonValidation.isValid && ObjectUtils.isEmpty(jsonValidation.data)) ||
-            !jsonValidation.isValid
-          ) {
-            raiseIllegalFileAlert();
-            return;
-          }
-
-          setAlertList([]);
-        }
-      });
-
-      return false;
-    },
-    fileList,
-  };
-
   const handleAssetUpload = useCallback(async () => {
     let result;
     if (uploadType === "url" && uploadUrl) {
@@ -249,10 +198,12 @@ const ImportSchemaModal: React.FC<Props> = ({
       title: "Select file",
       content: (
         <FileSelectionStep
-          selectedAsset={selectedAsset}
-          onSelectFile={onSelectFile}
-          workspaceId={workspaceId}
-          projectId={projectId}
+          fileList={fileList}
+          setFileList={setFileList}
+          alertList={alertList}
+          setAlertList={setAlertList}
+          onFileContentChange={onFileContentChange}
+          dataChecking={dataChecking}
         />
       ),
     },
@@ -293,14 +244,6 @@ const ImportSchemaModal: React.FC<Props> = ({
       width="70vw"
       footer={
         <>
-          {currentPage === 0 && (
-            <Button
-              type="primary"
-              disabled={!selectedAsset || guessSchemaFieldsError}
-              onClick={toSchemaPreviewStep}>
-              {t("Next")}
-            </Button>
-          )}
           {currentPage === 1 && (
             <Tooltip
               title={
@@ -333,33 +276,6 @@ const ImportSchemaModal: React.FC<Props> = ({
       <>
         <HiddenSteps current={currentPage} items={items} />
         <StepsContent>{stepComponents[currentPage].content}</StepsContent>
-        <SelectFileModal
-          visible={selectFileModalVisibility}
-          onModalClose={onSelectFileModalCancel}
-          linkedAsset={selectedAsset}
-          assetList={assetList}
-          loading={loading}
-          uploadProps={uploadProps}
-          uploading={uploading}
-          fileList={fileList}
-          alertList={alertList}
-          uploadUrl={uploadUrl}
-          uploadType={uploadType}
-          setUploadUrl={setUploadUrl}
-          setUploadType={setUploadType}
-          onUploadModalOpen={onUploadModalOpen}
-          hasCreateRight={hasCreateRight}
-          uploadModalVisibility={uploadModalVisibility}
-          page={page}
-          pageSize={pageSize}
-          totalCount={totalCount}
-          onAssetSelect={onAssetSelect}
-          onSearchTerm={onSearchTerm}
-          onAssetsReload={onAssetsReload}
-          onAssetTableChange={onAssetTableChange}
-          onUploadModalCancel={onUploadModalCancel}
-          onUploadAndLink={handleUploadAndLink}
-        />
       </>
     </StyledModal>
   );

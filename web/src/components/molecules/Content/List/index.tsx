@@ -67,6 +67,7 @@ type Props = {
   hasPublishRight: boolean;
   hasRequestUpdateRight: boolean;
   showPublishAction: boolean;
+  onImportModalOpen: () => void;
 };
 
 const ContentListMolecule: React.FC<Props> = ({
@@ -118,6 +119,7 @@ const ContentListMolecule: React.FC<Props> = ({
   hasPublishRight,
   hasRequestUpdateRight,
   showPublishAction,
+  onImportModalOpen,
 }) => {
   const t = useT();
 
@@ -141,13 +143,22 @@ const ContentListMolecule: React.FC<Props> = ({
                 title={model?.name}
                 subTitle={model?.key ? `#${model.key}` : null}
                 extra={
-                  <Button
-                    type="primary"
-                    onClick={onItemAdd}
-                    icon={<Icon icon="plus" />}
-                    disabled={!model || !hasCreateRight}>
-                    {t("New Item")}
-                  </Button>
+                  <>
+                    <Button
+                      type="default"
+                      onClick={onImportModalOpen}
+                      icon={<Icon icon="import" />}
+                      disabled={!model || !hasCreateRight}>
+                      {t("Import content")}
+                    </Button>
+                    <Button
+                      type="primary"
+                      onClick={onItemAdd}
+                      icon={<Icon icon="plus" />}
+                      disabled={!model || !hasCreateRight}>
+                      {t("New Item")}
+                    </Button>
+                  </>
                 }
               />
               {viewsMenu}
@@ -193,6 +204,7 @@ const ContentListMolecule: React.FC<Props> = ({
                 hasPublishRight={hasPublishRight}
                 hasRequestUpdateRight={hasRequestUpdateRight}
                 showPublishAction={showPublishAction}
+                onImportModalOpen={onImportModalOpen}
               />
             </>
           )}

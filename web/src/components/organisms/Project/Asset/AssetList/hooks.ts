@@ -81,6 +81,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   );
 
   const [uploading, setUploading] = useState(false);
+  const [dataChecking, setDataChecking] = useState(false);
   const [createAssetMutation] = useCreateAssetMutation();
   const [createAssetUploadMutation] = useCreateAssetUploadMutation();
 
@@ -204,6 +205,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     setFileList([]);
     setUploadUrl({ url: "", autoUnzip: true });
     setUploadType("local");
+    setAlertList([]);
   }, []);
 
   const handleSelectFileModalCancel = useCallback(() => {
@@ -458,6 +460,20 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     }
   };
 
+  const handleImportSchemaFileChange = async (fileContent: string): Promise<null> => {
+    setDataChecking(true);
+    console.log("fileContent", fileContent);
+
+    // todo: PR#1707 add content data check logic here
+
+    return new Promise<null>((resolve, _reject) => {
+      setTimeout(() => {
+        resolve(null);
+        setDataChecking(false);
+      }, 3000);
+    });
+  };
+
   return {
     importFields,
     guessSchemaFieldsError: !!guessSchemaFieldsError,
@@ -511,5 +527,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     handleAssetsReload,
     handleNavigateToAsset,
     handleGetAsset,
+    dataChecking,
+    handleImportSchemaFileChange,
   };
 };

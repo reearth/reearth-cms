@@ -38,8 +38,8 @@ const ProjectSchema: React.FC = () => {
         data={schemaHooks.data}
         collapsed={schemaHooks.collapsed}
         selectedSchemaType={schemaHooks.selectedSchemaType}
-        workspaceId={schemaHooks.workspaceId}
-        projectId={schemaHooks.projectId}
+        // workspaceId={schemaHooks.workspaceId}
+        // projectId={schemaHooks.projectId}
         page={importHooks.page}
         pageSize={importHooks.pageSize}
         assetList={importHooks.assetList}
@@ -104,6 +104,11 @@ const ProjectSchema: React.FC = () => {
         onFieldReorder={schemaHooks.handleFieldOrder}
         onFieldDelete={schemaHooks.handleFieldDelete}
         fieldsCreationLoading={schemaHooks.fieldsCreationLoading}
+        dataChecking={importHooks.dataChecking}
+        onFileContentChange={async fileContent => {
+          await importHooks.handleImportSchemaFileChange(fileContent);
+          toSchemaPreviewStep();
+        }}
       />
       <FormModal
         data={schemaHooks.data}

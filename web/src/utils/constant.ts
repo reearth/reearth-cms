@@ -9,4 +9,8 @@ export abstract class Constant {
   public static readonly KEY = {
     MAX_LENGTH: 32,
   };
+
+  public static readonly IMPORT = {
+    MAX_CONTENT_RECORDS: 2_000,
+  };
 }

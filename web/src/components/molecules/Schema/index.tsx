@@ -33,8 +33,8 @@ import { ItemAsset } from "../Content/types";
 import ImportSchemaModal from "./ImportSchemaModal";
 
 type Props = {
-  workspaceId?: string;
-  projectId?: string;
+  // workspaceId?: string;
+  // projectId?: string;
   data?: Model | Group;
   collapsed: boolean;
   page: number;
@@ -89,11 +89,13 @@ type Props = {
   currentImportSchemaModalPage: number;
   toSchemaPreviewStep: () => void;
   toImportingStep: (fields: CreateFieldInput[]) => Promise<void>;
+  dataChecking: boolean;
+  onFileContentChange: (fileContent: string) => Promise<void>;
 };
 
 const Schema: React.FC<Props> = ({
-  workspaceId,
-  projectId,
+  // workspaceId,
+  // projectId,
   data,
   collapsed,
   page,
@@ -148,31 +150,14 @@ const Schema: React.FC<Props> = ({
   currentImportSchemaModalPage,
   toSchemaPreviewStep,
   toImportingStep,
+  dataChecking,
+  onFileContentChange,
 }) => {
   const t = useT();
   const [tab, setTab] = useState<Tab>("fields");
 
   const hasFields = useMemo(() => data && data.schema.fields.length > 0, [data]);
   const disableImport = useMemo(() => !hasUpdateRight || hasFields, [hasUpdateRight, hasFields]);
-
-  const handleSchemaImport = useCallback(() => {
-    if (data?.schema.fields && data.schema.fields.length > 0) {
-      Modal.confirm({
-        title: t("Are you sure you want to overwrite current schema?"),
-        content: (
-          <>{t("Importing a new schema will replace the existing fields and cannot be undone.")}</>
-        ),
-        icon: <Icon icon="exclamationCircle" />,
-        cancelText: t("Cancel"),
-        okText: t("Continue"),
-        onOk() {
-          onSchemaImportModalOpen();
-        },
-      });
-    } else {
-      onSchemaImportModalOpen();
-    }
-  }, [data?.schema.fields, onSchemaImportModalOpen, t]);
 
   const dropdownItems = useMemo(
     () => [
@@ -191,7 +176,7 @@ const Schema: React.FC<Props> = ({
           </Tooltip>
         ),
         icon: <StyledIcon icon="import" />,
-        onClick: handleSchemaImport,
+        onClick: onSchemaImportModalOpen,
         disabled: disableImport,
       },
       {
@@ -204,7 +189,7 @@ const Schema: React.FC<Props> = ({
       },
     ],
     [
-      handleSchemaImport,
+      onSchemaImportModalOpen,
       hasDeleteRight,
       hasUpdateRight,
       onDeletionModalOpen,
@@ -236,7 +221,7 @@ const Schema: React.FC<Props> = ({
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
             onFieldDelete={onFieldDelete}
-            onSchemaImport={handleSchemaImport}
+            onSchemaImport={onSchemaImportModalOpen}
           />
         </div>
       ),
@@ -308,8 +293,6 @@ const Schema: React.FC<Props> = ({
             </>
           )}
           <ImportSchemaModal
-            workspaceId={workspaceId}
-            projectId={projectId}
             page={page}
             pageSize={pageSize}
             assetList={assetList}
@@ -351,6 +334,8 @@ const Schema: React.FC<Props> = ({
             onSelectFile={onSelectFileModalOpen}
             onSelectFileModalCancel={onSelectFileModalCancel}
             onModalClose={onSchemaImportModalCancel}
+            dataChecking={dataChecking}
+            onFileContentChange={onFileContentChange}
           />
         </Content>
       }

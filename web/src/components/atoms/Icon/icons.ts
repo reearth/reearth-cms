@@ -55,7 +55,6 @@ import {
   SortAscendingOutlined,
   FilterOutlined,
   CommentOutlined,
-  ImportOutlined,
   SaveOutlined,
   LockOutlined,
   BlockOutlined,
@@ -79,6 +78,7 @@ import Date from "./Icons/date.svg";
 import Dot from "./Icons/dot.svg";
 import EditorCopy from "./Icons/editorCopy.svg";
 import Group from "./Icons/group.svg";
+import Import from "./Icons/import.svg";
 import InfinityIcon from "./Icons/infinity.svg";
 import Key from "./Icons/key.svg";
 import LineSegments from "./Icons/lineSegments.svg";
@@ -199,7 +199,7 @@ export default {
   circle: Circle,
   rectangle: Rectangle,
   comment: CommentOutlined,
-  import: ImportOutlined,
+  import: Import,
   save: SaveOutlined,
   lock: LockOutlined,
   block: BlockOutlined,
