@@ -129,7 +129,7 @@ func getItem(e *httpexpect.Expect, iID string) (string, *httpexpect.Value) {
 					__typename
 				  }
 				}
-				
+
 				fragment threadFragment on Thread {
 				  id
 				  workspaceId
@@ -240,12 +240,12 @@ func SearchItem(e *httpexpect.Expect, query, sort, filter, pagination map[string
 					  hasNextPage
 					  hasPreviousPage
 					  startCursor
-					  endCursor	
+					  endCursor
 					  __typename
 					}
 				  }
 				}
-				
+
 				fragment threadFragment on Thread {
 				  id
 				  workspaceId
@@ -900,13 +900,19 @@ func TestOneWayReferenceFields(t *testing.T) {
 		{"schemaFieldId": m2refFId, "value": m1i1id, "type": "Reference"},
 	})
 
-	m2i1ver, _ /*res*/ := getItem(e, m2i1id)
+	m2i1ver1, _ /*res*/ := getItem(e, m2i1id)
 	// test skipped cause of: "Filters are not (yet) implemented" error
 	// res.Path(fmt.Sprintf("$.data.node.fields[?(@.schemaFieldId == '%s')].value", m1i1id)).Array().IsEqual([]string{m1i1id})
 
 	deleteItem(e, m1i1id)
 
-	updateItem(e, m2i1id, m2i1ver, []map[string]any{
+	// a new version, the reference field should be cleared after the referenced item is deleted
+	m2i1ver2, _ /*res*/ := getItem(e, m2i1id)
+	assert.False(t, m2i1ver1 == m2i1ver2)
+	// test skipped cause of: "Filters are not (yet) implemented" error
+	// res.Path(fmt.Sprintf("$.data.node.fields[?(@.schemaFieldId == '%s')].value", m1i1id)).Array().IsEqual([]string{m1i1id})
+
+	updateItem(e, m2i1id, m2i1ver2, []map[string]any{
 		{"schemaFieldId": m2fids.textFId, "value": "test edited", "type": "Text"},
 	})
 
