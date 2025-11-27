@@ -69,7 +69,5 @@ jobs:
             GITHUB_SHA=${{ inputs.sha_short }}
             VERSION=${{ steps.options.outputs.version }}
           tags: ${{ steps.options.outputs.tags }}
-          cache-from: |
-            type=gha,scope=web-${{ github.ref_name }}
-            type=gha,scope=web-main
-          cache-to: type=gha,mode=max,scope=web-${{ github.ref_name }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

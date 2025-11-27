@@ -68,10 +68,8 @@ jobs:
           push: true
           build-args: VERSION=${{ steps.options.outputs.version }}
           tags: ${{ steps.options.outputs.tags }}
-          cache-from: |
-            type=gha,scope=worker-${{ github.ref_name }}
-            type=gha,scope=worker-main
-          cache-to: type=gha,mode=max,scope=worker-${{ github.ref_name }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   docker_decompressor:
     runs-on: ubuntu-latest
@@ -123,10 +121,8 @@ jobs:
           push: true
           build-args: VERSION=${{ steps.options.outputs.version }}
           tags: ${{ steps.options.outputs.tags }}
-          cache-from: |
-            type=gha,scope=decompressor-${{ github.ref_name }}
-            type=gha,scope=decompressor-main
-          cache-to: type=gha,mode=max,scope=decompressor-${{ github.ref_name }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   docker_copier:
     runs-on: ubuntu-latest
@@ -178,7 +174,5 @@ jobs:
           push: true
           build-args: VERSION=${{ steps.options.outputs.version }}
           tags: ${{ steps.options.outputs.tags }}
-          cache-from: |
-            type=gha,scope=copier-${{ github.ref_name }}
-            type=gha,scope=copier-main
-          cache-to: type=gha,mode=max,scope=copier-${{ github.ref_name }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

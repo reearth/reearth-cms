@@ -67,7 +67,5 @@ jobs:
           push: true
           build-args: VERSION=${{ steps.options.outputs.version }}
           tags: ${{ steps.options.outputs.tags }}
-          cache-from: |
-            type=gha,scope=server-${{ github.ref_name }}
-            type=gha,scope=server-main
-          cache-to: type=gha,mode=max,scope=server-${{ github.ref_name }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
