@@ -1456,7 +1456,7 @@ func Test_projectRepo_Search(t *testing.T) {
 					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
 				},
 			},
-			want:    project.List{p1, p2, p4},
+			want:    project.List{p4},
 			wantErr: nil,
 		},
 		{
@@ -1495,6 +1495,42 @@ func Test_projectRepo_Search(t *testing.T) {
 				},
 			},
 			want:    project.List{p1},
+			wantErr: nil,
+		},
+		{
+			name:  "search by multiple topics requiring ALL to match",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					Topics:     []string{"topic1", "abc"},
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p1},
+			wantErr: nil,
+		},
+		{
+			name:  "search by multiple topics with no projects having all topics",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					Topics:     []string{"topic1", "nonexistent"},
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    nil,
+			wantErr: nil,
+		},
+		{
+			name:  "search by three topics requiring ALL to match",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					Topics:     []string{"topic1", "topic2", "xyz"},
+					Pagination: usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p4},
 			wantErr: nil,
 		},
 	}
