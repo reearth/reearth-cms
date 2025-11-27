@@ -21,8 +21,8 @@ jobs:
         with:
           node-version: lts/*
           cache: yarn
-          cache-dependency-path: "**/yarn.lock"
-      - name: Install dependencies
+          cache-dependency-path: '**/yarn.lock'
+      - name: Install
         run: yarn install --frozen-lockfile --prefer-offline
       - name: Lint
         run: yarn run lint
@@ -41,8 +41,8 @@ jobs:
         with:
           node-version: lts/*
           cache: yarn
-          cache-dependency-path: "**/yarn.lock"
-      - name: Install dependencies
+          cache-dependency-path: '**/yarn.lock'
+      - name: Install
         run: yarn install --frozen-lockfile --prefer-offline
       - name: Check translations
         run: yarn i18n --fail-on-update
@@ -61,8 +61,8 @@ jobs:
         with:
           node-version: lts/*
           cache: yarn
-          cache-dependency-path: "**/yarn.lock"
-      - name: Install dependencies
+          cache-dependency-path: '**/yarn.lock'
+      - name: Install
         run: yarn install --frozen-lockfile --prefer-offline
       - name: Test
         run: yarn run coverage
@@ -85,7 +85,7 @@ jobs:
         with:
           node-version: lts/*
           cache: yarn
-          cache-dependency-path: "**/yarn.lock"
+          cache-dependency-path: '**/yarn.lock'
       - name: Cache TypeScript
         uses: actions/cache@v4
         with:
@@ -93,11 +93,11 @@ jobs:
           key: ${{ runner.os }}-typescript-${{ hashFiles('web/tsconfig.json') }}
           restore-keys: |
             ${{ runner.os }}-typescript-
-      - name: Install dependencies
+      - name: Install
         run: yarn install --frozen-lockfile --prefer-offline
       - name: Build
         run: yarn build
-      - name: Pack artifact
+      - name: Pack
         if: github.ref_name == 'main' || github.ref_name == 'release'
         run: |
           mv dist reearth-cms-web
