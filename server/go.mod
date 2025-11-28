@@ -30,7 +30,7 @@ require (
 	github.com/paulmach/go.geojson v1.5.0
 	github.com/ravilushqa/otelgqlgen v0.19.0
 	github.com/reearth/reearth-accounts/server v0.0.0-20251119082024-35f7b70d4717
-	github.com/reearth/reearthx v0.0.0-20251014121624-4213c8bf1a32
+	github.com/reearth/reearthx v0.0.0-20251128044232-3067c04f34da
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
 	github.com/samber/lo v1.52.0
 	github.com/sendgrid/sendgrid-go v3.16.1+incompatible
