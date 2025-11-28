@@ -356,6 +356,8 @@ github.com/reearth/reearth-accounts/server v0.0.0-20251119082024-35f7b70d4717 h1
 github.com/reearth/reearth-accounts/server v0.0.0-20251119082024-35f7b70d4717/go.mod h1:Sb7QPlYvqtsm8dXynRs5mezChJaKGzbtD9Cmssd6rP0=
 github.com/reearth/reearthx v0.0.0-20251014121624-4213c8bf1a32 h1:YdDi5QLcHJYSitVUnsedF84kGCpgLAdyFwmHstUwaYk=
 github.com/reearth/reearthx v0.0.0-20251014121624-4213c8bf1a32/go.mod h1:z4JjOCy4MZZglLSrJx+btJ1ZLltESDZfSWJCnONwRS4=
+github.com/reearth/reearthx v0.0.0-20251128044232-3067c04f34da h1:eolcPfhTG4aTAi6yoBpDlE1yyrnHUGDf8D7lIxg7dZQ=
+github.com/reearth/reearthx v0.0.0-20251128044232-3067c04f34da/go.mod h1:z4JjOCy4MZZglLSrJx+btJ1ZLltESDZfSWJCnONwRS4=
 github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68 h1:Jknsfy5cqCH6qAuoU1qNZ51hfBJfMSJYwsH9j9mdVnw=
 github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68/go.mod h1:9CDhL7uDVy8vEVDNPJzxq89dPaPBWP6hxQcC8woBHus=
 github.com/rogpeppe/go-internal v1.14.1 h1:UQB4HGPB6osV0SQTLymcB4TgvyWu6ZyliaW0tI/otEQ=
