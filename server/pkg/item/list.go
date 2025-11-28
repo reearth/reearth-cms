@@ -41,6 +41,16 @@ func (l List) IDs() IDList {
 	})
 }
 
+func (l List) MetadataIDs() IDList {
+	return lo.FilterMap(l, func(i *Item, _ int) (ID, bool) {
+		id := i.MetadataItem()
+		if id == nil {
+			return ID{}, false
+		}
+		return *i.MetadataItem(), true
+	})
+}
+
 func (l List) AssetIDs(s *schema.Schema) AssetIDList {
 	if l == nil {
 		return nil
@@ -50,6 +60,14 @@ func (l List) AssetIDs(s *schema.Schema) AssetIDList {
 		assetIDs = assetIDs.AddUniq(i.AssetIDsBySchema(s)...)
 	}
 	return assetIDs
+}
+
+func (l List) ToMap() map[ID]*Item {
+	m := make(map[ID]*Item, len(l))
+	for _, i := range l {
+		m[i.ID()] = i
+	}
+	return m
 }
 
 func (l List) Clone() List {

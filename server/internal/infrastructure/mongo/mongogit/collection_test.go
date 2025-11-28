@@ -750,6 +750,102 @@ func TestCollection_RemoveOne(t *testing.T) {
 	assert.Equal(t, "hoge", data["foo"])
 }
 
+func TestCollection_RemoveMany(t *testing.T) {
+	tests := []struct {
+		name           string
+		setupDocs      []any
+		filter         bson.M
+		expectedCount  int64
+		verifyRemoved  []bson.M
+		verifyRemained []struct {
+			filter   bson.M
+			expected bson.M
+		}
+	}{
+		{
+			name: "remove multiple documents matching specific criteria",
+			setupDocs: []any{
+				bson.M{"id": "xxx", metaKey: true},
+				bson.M{"id": "xxx", "foo": "bar"},
+				bson.M{"id": "yyy", "foo": "hoge"},
+				bson.M{"id": "zzz", "foo": "test"},
+			},
+			filter:        bson.M{"id": "xxx"},
+			expectedCount: 2,
+			verifyRemoved: []bson.M{
+				{"id": "xxx", metaKey: true},
+				{"id": "xxx"},
+			},
+			verifyRemained: []struct {
+				filter   bson.M
+				expected bson.M
+			}{
+				{bson.M{"id": "yyy"}, bson.M{"foo": "hoge"}},
+				{bson.M{"id": "zzz"}, bson.M{"foo": "test"}},
+			},
+		},
+		{
+			name: "remove all documents with empty filter",
+			setupDocs: []any{
+				bson.M{"id": "xxx", "foo": "bar"},
+				bson.M{"id": "yyy", "foo": "hoge"},
+			},
+			filter:        bson.M{},
+			expectedCount: 0,
+		},
+		{
+			name: "no matches - documents remain unchanged",
+			setupDocs: []any{
+				bson.M{"id": "xxx", "foo": "bar"},
+				bson.M{"id": "yyy", "foo": "hoge"},
+			},
+			filter:        bson.M{"id": "nonexistent"},
+			expectedCount: 2,
+			verifyRemained: []struct {
+				filter   bson.M
+				expected bson.M
+			}{
+				{bson.M{"id": "xxx"}, bson.M{"foo": "bar"}},
+				{bson.M{"id": "yyy"}, bson.M{"foo": "hoge"}},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			col := initCollection(t)
+			c := col.Client().Client()
+
+			if len(tt.setupDocs) > 0 {
+				_, _ = c.InsertMany(ctx, tt.setupDocs)
+			}
+
+			assert.NoError(t, col.RemoveMany(ctx, tt.filter))
+
+			count, err := c.CountDocuments(ctx, bson.M{})
+			assert.NoError(t, err)
+			assert.Equal(t, tt.expectedCount, count)
+
+			for _, removedFilter := range tt.verifyRemoved {
+				got := c.FindOne(ctx, removedFilter)
+				assert.Equal(t, mongo.ErrNoDocuments, got.Err())
+			}
+
+			for _, remained := range tt.verifyRemained {
+				got := c.FindOne(ctx, remained.filter)
+				var data bson.M
+				assert.NoError(t, got.Decode(&data))
+				for key, value := range remained.expected {
+					assert.Equal(t, value, data[key])
+				}
+			}
+		})
+	}
+}
+
 func TestCollection_Empty(t *testing.T) {
 	ctx := context.Background()
 	col := initCollection(t)
