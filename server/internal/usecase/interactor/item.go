@@ -25,14 +25,6 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-const (
-	// batchItemReferenceProcessingLimit is the maximum number of items to process per batch
-	// when clearing reference fields during batch deletion operations
-	batchItemReferenceProcessingLimit = 10000
-	// batchModelProcessingLimit is the maximum number of models to process per batch
-	batchModelProcessingLimit = 1000
-)
-
 type Item struct {
 	repos       *repo.Container
 	gateways    *gateway.Container
@@ -844,173 +836,109 @@ func (i Item) getReferencedItems(ctx context.Context, fields []*item.Field) ([]i
 	return i.repos.Item.FindByIDs(ctx, ids, nil)
 }
 
-// ReferenceFieldUpdate represents a reference field update operation
-type ReferenceFieldUpdate struct {
-	ItemID               id.ItemID
-	ReferencedItemID     id.ItemID
-	CorrespondingFieldID id.FieldID
+func refFields(s schema.Schema, refSchemaID schema.ID) item.FieldIDList {
+	return lo.FilterMap(s.FieldsByType(value.TypeReference), func(refField *schema.Field, _ int) (item.FieldID, bool) {
+		var rf *schema.FieldReference
+		refField.TypeProperty().Match(schema.TypePropertyMatch{
+			Reference: func(f *schema.FieldReference) {
+				rf = f
+			},
+		})
+		if rf == nil || rf.Schema() != refSchemaID {
+			return item.FieldID{}, false
+		}
+		return refField.ID(), true
+	})
 }
 
-// batchHandleReferenceFields handles batch reference fields
-func (i Item) batchHandleReferenceFields(ctx context.Context, items item.List, sp schema.Package) error {
-	// Clear reference fields in deleted items and collect two-way reference updates
-	twoWayRefUpdates := make([]ReferenceFieldUpdate, 0)
-	allItemsToSave := item.List{}
+func (i Item) handelRelatedReferenceFields(ctx context.Context, itemIDs id.ItemIDList, sp schema.Package) error {
+	if len(itemIDs) == 0 {
+		return nil
+	}
 
-	// Process each deleted item
-	for _, itm := range items {
-		if itm == nil {
-			continue
+	p := usecasex.CursorPagination{First: lo.ToPtr(int64(100))}.Wrap()
+	for {
+		models, pageInfo, err := i.repos.Model.FindByProject(ctx, sp.Schema().Project(), p)
+		if err != nil {
+			return err
 		}
 
-		// Handle two-way references
-		for _, sf := range sp.Schema().FieldsByType(value.TypeReference) {
-			rfField := itm.Field(sf.ID())
+		sIDs := lo.Map(models, func(m *model.Model, _ int) id.SchemaID {
+			return m.Schema()
+		})
 
-			if rfField == nil {
+		schemas, err := i.repos.Schema.FindByIDs(ctx, sIDs)
+		if err != nil {
+			return err
+		}
+
+		for _, s := range schemas {
+			if !s.ReferencedSchemas().Has(sp.Schema().ID()) {
 				continue
 			}
-
-			fr, ok := schema.FieldReferenceFromTypeProperty(sf.TypeProperty())
-			if !ok || !fr.IsTwoWay() {
-				continue
-			}
-
-			refItmID, ok := rfField.Value().First().ValueReference()
-			if !ok {
-				continue
-			}
-
-			// if the referenced item is also being deleted, skip processing
-			if items.IDs().Has(refItmID) {
-				continue
-			}
-
-			cfId := fr.CorrespondingFieldID()
-			if cfId == nil {
-				continue
-			}
-
-			twoWayRefUpdates = append(twoWayRefUpdates, ReferenceFieldUpdate{
-				ItemID:               itm.ID(),
-				ReferencedItemID:     refItmID,
-				CorrespondingFieldID: *cfId,
+			m, ok := lo.Find(models, func(m *model.Model) bool {
+				return m.Schema() == s.ID()
 			})
-		}
-	}
-
-	refIDs := lo.Map(twoWayRefUpdates, func(update ReferenceFieldUpdate, _ int) id.ItemID {
-		return update.ReferencedItemID
-	})
-
-	refItems, err := i.repos.Item.FindByIDs(ctx, refIDs, nil)
-	if err != nil {
-		return err
-	}
-
-	refItemsMap := refItems.Unwrap().ToMap()
-
-	for _, update := range twoWayRefUpdates {
-		refItm, exists := refItemsMap[update.ReferencedItemID]
-		if !exists {
-			continue
+			if !ok {
+				return rerror.ErrInternalBy(fmt.Errorf("model not found for schema %s", s.ID()))
+			}
+			refFields(*s, sp.Schema().ID())
+			err = i.clearRelatedReferenceFields(ctx, m.ID(), s, refFields(*s, sp.Schema().ID()), itemIDs)
+			if err != nil {
+				return err
+			}
 		}
 
-		correspondingField := refItm.Field(update.CorrespondingFieldID)
-		if correspondingField == nil {
-			continue
+		if !pageInfo.HasNextPage {
+			break
 		}
-
-		if correspondingField.Value().IsEmpty() {
-			continue
-		}
-
-		// Since the reference fields does not support multiple values, we can clear the field directly
-		refItm.ClearField(update.CorrespondingFieldID)
-		allItemsToSave = append(allItemsToSave, refItm)
-	}
-
-	// Handle one-way references using schema-centric approach (no project iteration)
-	oneWayItems, err := i.findAndClearOneWayReferencesSchemaOptimized(ctx, items.IDs(), sp)
-	if err != nil {
-		return err
-	}
-	allItemsToSave = append(allItemsToSave, oneWayItems...)
-
-	if len(allItemsToSave) > 0 {
-		return i.repos.Item.SaveAll(ctx, allItemsToSave)
+		p = usecasex.CursorPagination{First: lo.ToPtr(int64(100)), After: pageInfo.EndCursor}.Wrap()
 	}
 
 	return nil
 }
 
-// findAndClearOneWayReferencesSchemaOptimized finds items that reference deleted items
-// Optimized: Only checks schemas that actually have reference fields pointing to deleted item schemas
-func (i Item) findAndClearOneWayReferencesSchemaOptimized(ctx context.Context, deletedItemIDs id.ItemIDList, sp schema.Package) (item.List, error) {
-	if len(deletedItemIDs) == 0 {
-		return nil, nil
+func (i Item) clearRelatedReferenceFields(ctx context.Context, modelID id.ModelID, _ *schema.Schema, refFieldIDs item.FieldIDList, itemIDs id.ItemIDList) error {
+	if len(itemIDs) == 0 || len(refFieldIDs) == 0 {
+		return nil
 	}
 
-	itemsToSave := item.List{}
+	// loop through itemIDs in batches to avoid large queries
+	batchSize := 100
+	for start := 0; start < len(itemIDs); start += batchSize {
+		end := start + batchSize
+		if end > len(itemIDs) {
+			end = len(itemIDs)
+		}
+		batchIDs := itemIDs[start:end]
 
-	// Get all models in this project
-	models, _, err := i.repos.Model.FindByProject(ctx, sp.Schema().Project(), &usecasex.Pagination{
-		Offset: &usecasex.OffsetPagination{Offset: 0, Limit: batchModelProcessingLimit},
-	})
-	if err != nil {
-		return nil, err
-	}
+		filter := lo.FlatMap(batchIDs, func(id id.ItemID, _ int) []repo.FieldAndValue {
+			return lo.Map(refFieldIDs, func(fieldID item.FieldID, _ int) repo.FieldAndValue {
+				return repo.FieldAndValue{
+					Field: fieldID,
+					Value: value.NewMultiple(value.TypeReference, []any{id}),
+				}
+			})
+		})
 
-	sIDs := lo.Map(models, func(m *model.Model, _ int) id.SchemaID {
-		return m.Schema()
-	})
-
-	schemas, err := i.repos.Schema.FindByIDs(ctx, sIDs)
-	if err != nil {
-		return nil, err
-	}
-
-	relevantSchemas := lo.Filter(schemas, func(s *schema.Schema, _ int) bool {
-		return s.ReferencedSchemas().Has(sp.Schema().ID())
-	})
-
-	// Process only relevant schemas
-	for _, s := range relevantSchemas {
-		refFields := s.FieldsByType(value.TypeReference)
-
-		pagination := usecasex.OffsetPagination{
-			Offset: 0,
-			Limit:  batchItemReferenceProcessingLimit,
-		}.Wrap()
-
-		// TODO: filter only items that have reference fields populated (if supported by repo)
-		itemsInSchema, _, err := i.repos.Item.FindBySchema(ctx, s.ID(), nil, nil, pagination)
+		ivl, err := i.repos.Item.FindByModelAndValue(ctx, modelID, filter, nil)
 		if err != nil {
-			continue
+			return err
 		}
 
-		// Process items in batch - check all reference fields at once
-		for _, itm := range itemsInSchema {
-			if itm == nil || deletedItemIDs.Has(itm.Value().ID()) {
-				continue
-			}
-
-			itemValue := itm.Value()
+		updates := lo.FilterMap(ivl.Unwrap(), func(itm *item.Item, _ int) (*item.Item, bool) {
 			updated := false
-
-			// Check all reference fields (we already filtered schemas above)
-			for _, refField := range refFields {
-				field := itemValue.Field(refField.ID())
+			for _, refFieldID := range refFieldIDs {
+				field := itm.Field(refFieldID)
 				if field == nil {
 					continue
 				}
 
-				// Check if any values reference deleted items and build new values list
 				newValues := make([]any, 0, field.Value().Len())
 				hasDeletedRef := false
 
 				for _, val := range field.Value().Values() {
-					if refID, ok := val.ValueReference(); ok && deletedItemIDs.Has(refID) {
+					if refID, ok := val.ValueReference(); ok && itemIDs.Has(refID) {
 						hasDeletedRef = true
 					} else {
 						newValues = append(newValues, val.Value())
@@ -1018,21 +946,21 @@ func (i Item) findAndClearOneWayReferencesSchemaOptimized(ctx context.Context, d
 				}
 
 				if hasDeletedRef {
-					// Update field with cleaned values
 					newMultiple := value.NewMultiple(value.TypeReference, newValues)
-					newField := item.NewField(refField.ID(), newMultiple, field.ItemGroup())
-					itemValue.UpdateFields([]*item.Field{newField})
+					newField := item.NewField(refFieldID, newMultiple, field.ItemGroup())
+					itm.UpdateFields([]*item.Field{newField})
 					updated = true
 				}
 			}
+			return itm, updated
+		})
 
-			if updated {
-				itemsToSave = append(itemsToSave, itemValue)
-			}
+		if err := i.repos.Item.SaveAll(ctx, updates); err != nil {
+			return err
 		}
 	}
 
-	return itemsToSave, nil
+	return nil
 }
 
 func (i Item) BatchDelete(ctx context.Context, iIDs id.ItemIDList, sp schema.Package, operator *usecase.Operator) (result id.ItemIDList, err error) {
@@ -1044,50 +972,48 @@ func (i Item) BatchDelete(ctx context.Context, iIDs id.ItemIDList, sp schema.Pac
 		return nil, interfaces.ErrEmptyIDsList
 	}
 
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
-		func(ctx context.Context) (id.ItemIDList, error) {
-			vList, err := i.repos.Item.FindByIDs(ctx, iIDs, nil)
-			if err != nil {
-				return nil, err
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (id.ItemIDList, error) {
+		vList, err := i.repos.Item.FindByIDs(ctx, iIDs, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(iIDs) != len(vList) {
+			if len(vList) == 0 {
+				return nil, rerror.ErrNotFound
 			}
+			return nil, interfaces.ErrPartialNotFound
+		}
 
-			if len(iIDs) != len(vList) {
-				if len(vList) == 0 {
-					return nil, rerror.ErrNotFound
-				}
-				return nil, interfaces.ErrPartialNotFound
+		iList := vList.Unwrap()
+
+		// check permissions and all items are related to the same model
+		for _, itm := range iList {
+			if itm == nil {
+				continue
 			}
-
-			iList := vList.Unwrap()
-
-			// check permissions and all items are related to the same model
-			for _, itm := range iList {
-				if itm == nil {
-					continue
-				}
-				if itm.Model() != iList[0].Model() {
-					return nil, interfaces.ErrItemsShouldBeOnSameModel
-				}
-				if !operator.CanUpdate(itm) {
-					return nil, interfaces.ErrOperationDenied
-				}
+			if itm.Model() != iList[0].Model() {
+				return nil, interfaces.ErrItemsShouldBeOnSameModel
 			}
-
-			if err := i.batchHandleReferenceFields(ctx, iList, sp); err != nil {
-				return nil, err
+			if !operator.CanUpdate(itm) {
+				return nil, interfaces.ErrOperationDenied
 			}
+		}
 
-			err = i.repos.Item.BatchRemove(ctx, iList.MetadataIDs())
-			if err != nil {
-				return nil, err
-			}
+		if err := i.handelRelatedReferenceFields(ctx, iList.IDs(), sp); err != nil {
+			return nil, err
+		}
 
-			err = i.repos.Item.BatchRemove(ctx, iIDs)
-			if err != nil {
-				return nil, err
-			}
+		err = i.repos.Item.BatchRemove(ctx, iList.MetadataIDs())
+		if err != nil {
+			return nil, err
+		}
 
-			return iIDs, nil
-		},
-	)
+		err = i.repos.Item.BatchRemove(ctx, iIDs)
+		if err != nil {
+			return nil, err
+		}
+
+		return iIDs, nil
+	})
 }
