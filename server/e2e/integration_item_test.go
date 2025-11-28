@@ -182,7 +182,7 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		ImageURL(lo.Must(url.Parse("https://test.com"))).
 		Workspace(w.ID()).
 		Alias(palias).
-		Topics([]string{"topic1"}).
+		Topics([]string{"topic1", "topic3"}).
 		MustBuild()
 	if err := r.Project.Save(ctx, p); err != nil {
 		return err
