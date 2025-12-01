@@ -115,12 +115,13 @@ func Lang(ctx context.Context, lang *language.Tag) string {
 		return "en" // default language
 	}
 
-	l := u.Metadata().Lang()
-	if l.IsRoot() {
-		return "en" // default language
+	if metadata := u.Metadata(); metadata != nil {
+		if l := metadata.Lang(); !l.IsRoot() {
+			return l.String()
+		}
 	}
 
-	return l.String()
+	return "en" // default language
 }
 
 func GetAuthInfo(ctx context.Context) *appx.AuthInfo {

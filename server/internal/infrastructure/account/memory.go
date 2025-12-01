@@ -10,6 +10,7 @@ import (
 	accountdomainuser "github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
+	"golang.org/x/text/language"
 )
 
 type memoryAccount struct {
@@ -24,7 +25,19 @@ func NewInMemory(users user.List) gateway.Account {
 
 func NewInMemory2(users accountdomainuser.List) gateway.Account {
 	ul := lo.Map(users, func(pu *accountdomainuser.User, _ int) *user.User {
-		m := user.MetadataFrom(pu.Metadata().PhotoURL(), pu.Metadata().Description(), pu.Metadata().Website(), pu.Metadata().Lang(), user.Theme(pu.Metadata().Theme()))
+		var photoURL, description, website string
+		var lang language.Tag
+		var theme user.Theme
+
+		if metadata := pu.Metadata(); metadata != nil {
+			photoURL = metadata.PhotoURL()
+			description = metadata.Description()
+			website = metadata.Website()
+			lang = metadata.Lang()
+			theme = user.Theme(metadata.Theme())
+		}
+
+		m := user.MetadataFrom(photoURL, description, website, lang, theme)
 
 		ub := user.New().
 			ID(id.UserID(pu.ID())).
