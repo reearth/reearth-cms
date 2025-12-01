@@ -271,9 +271,14 @@ resolver:
 **Generate Code:**
 
 ```bash
+# Generate all code (GraphQL, OpenAPI, mocks, etc.)
 go generate ./...
-# or
+
+# Only generate GraphQL code
 make gql
+
+# Only generate OpenAPI code
+make oapi
 ```
 
 ### Dependency Injection
