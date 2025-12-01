@@ -197,18 +197,11 @@ internal/adapter/gql/
 ├── gqlmodel/              # GraphQL model definitions
 │   ├── convert_*.go      # Conversion between domain and GraphQL models
 │   └── models_gen.go     # Generated GraphQL types
-├── resolver/             # GraphQL resolvers
-│   ├── item.go          # Item queries and mutations
-│   ├── schema.go        # Schema queries and mutations
-│   └── ...
-├── loader/              # DataLoader for N+1 query prevention
-└── schema.graphql       # GraphQL schema definition
-```
-
-**Example Resolver:**
-
-```go
-// internal/adapter/gql/resolver/item.go
+├── resolver_item.go      # Item queries and mutations
+├── resolver_schema.go    # Schema queries and mutations
+├── ...                   # Other resolver files
+├── loader/               # DataLoader for N+1 query prevention
+└── schema.graphql        # GraphQL schema definition
 func (r *mutationResolver) CreateItem(ctx context.Context, input gqlmodel.CreateItemInput) (*gqlmodel.ItemPayload, error) {
     // 1. Convert GraphQL input to use case input
     usecaseInput := gqlmodel.ToCreateItemInput(input)
