@@ -110,3 +110,17 @@ jobs:
             --region ${{ secrets.GC_REGION }} \
             --platform managed \
             --quiet
+
+  e2e_web:
+    needs: [deploy_server, deploy_web]
+    if: inputs.run_smoke_tests && needs.deploy_server.result == 'success' && needs.deploy_web.result == 'success'
+    uses: ./.github/workflows/e2e_web.yml
+    with:
+      api_url: ${{ vars.REEARTH_CMS_API }}
+      base_url: ${{ vars.REEARTH_CMS_E2E_BASEURL }}
+      branch: main
+      use_iap: true
+      iap_target_audience: ${{ vars.IAP_TARGET_AUDIENCE }}
+      token_format: id_token
+      smoke_only: true
+    secrets: inherit

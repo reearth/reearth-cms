@@ -6,6 +6,11 @@ on:
         description: "Target branch"
         required: false
         default: "main"
+      smoke_only:
+        description: "Run smoke tests only"
+        type: boolean
+        required: false
+        default: false
   schedule:
     - cron: "0 3 * * 1-5"
   workflow_call:
@@ -34,6 +39,11 @@ on:
         required: false
         type: string
         default: "id_token"
+      smoke_only:
+        description: "Run smoke tests only"
+        type: boolean
+        required: false
+        default: false
     secrets:
       REEARTH_WEB_E2E_USERNAME:
         required: true
@@ -116,7 +126,7 @@ jobs:
           USE_IAP_AUTH: ${{ inputs.use_iap || false }}
           IAP_AUTH_METHOD: ${{ inputs.token_format || 'id-token' }}
           IAP_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
-        run: yarn e2e
+        run: ${{ inputs.smoke_only && 'yarn e2e-smoke' || 'yarn e2e' }}
       - uses: actions/upload-artifact@v5
         if: failure()
         with:
