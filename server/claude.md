@@ -795,10 +795,11 @@ The project uses code generation for:
 go generate ./...
 ```
 
-Or use the Makefile:
+Or use the Makefile targets:
 
 ```bash
-make generate
+make gql     # For GraphQL code generation
+make oapi    # For OpenAPI code generation
 ```
 
 ## 📊 Project Statistics
