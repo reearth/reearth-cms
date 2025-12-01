@@ -265,7 +265,12 @@ exec:
 model:
   filename: internal/adapter/gql/gqlmodel/models_gen.go
 resolver:
-  filename: internal/adapter/gql/resolver/resolver.go
+  layout: follow-schema
+  dir: internal/adapter/gql
+  package: gql
+  filename: internal/adapter/gql/resolver.go
+  filename_template: resolver_{name}.go
+  type: Resolver
 ```
 
 **Generate Code:**
@@ -600,7 +605,7 @@ type MyFeaturePayload {
 #### Step 6: Implement GraphQL Resolver (`internal/adapter/gql/`)
 
 ```go
-// internal/adapter/gql/resolver/myfeature.go
+// internal/adapter/gql/resolver_myfeature.go
 func (r *mutationResolver) CreateMyFeature(ctx context.Context, name string) (*gqlmodel.MyFeaturePayload, error) {
     feature, err := r.usecases.MyFeature.Create(ctx, name)
     if err != nil {
@@ -804,7 +809,7 @@ make oapi    # For OpenAPI code generation
 
 - **Domain Packages:** 21 (in `pkg/`)
 - **Use Case Interactors:** ~15 (in `internal/usecase/interactor/`)
-- **GraphQL Resolvers:** ~30 (in `internal/adapter/gql/resolver/`)
+- **GraphQL Resolvers:** ~30 (in `internal/adapter/gql/`)
 - **Repository Implementations:** MongoDB, In-Memory
 - **Storage Backends:** S3, GCS, Local Filesystem
 
