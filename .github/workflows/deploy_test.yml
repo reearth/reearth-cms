@@ -112,8 +112,6 @@ jobs:
             --quiet
 
   e2e_web:
-    needs: [deploy_server, deploy_web]
-    if: needs.deploy_server.result == 'success' && needs.deploy_web.result == 'success'
     uses: ./.github/workflows/e2e_web.yml
     with:
       api_url: ${{ vars.REEARTH_CMS_API }}
