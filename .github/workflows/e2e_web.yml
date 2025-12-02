@@ -38,7 +38,7 @@ on:
         description: "Token format for authentication"
         required: false
         type: string
-        default: "id_token"
+        default: "id-token"
       smoke_only:
         description: "Run smoke tests only"
         type: boolean
