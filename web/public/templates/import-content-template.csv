@@ -1,0 +1,4 @@
+id,name,isActive,createdAt
+001,Alice Smith,true,2025-01-10T09:15:00Z
+002,Bob Chen,false,2025-02-18T14:30:00Z
+003,Carlos Ruiz,true,2025-03-02T08:00:00Z

@@ -9,13 +9,11 @@
         ],
         "type": "Point"
       },
-      "id": "01kbchbvncejahmwrdbf8p74jc",
       "properties": {
         "text-1": "text111",
         "textarea-1": "textarea111",
         "markdown-text-1": "markdown111",
         "asset-1": {
-          "id": "01k9v5yedaf8n2efqjt4e4b4jp",
           "url": "",
           "type": "asset"
         },
@@ -36,13 +34,11 @@
         ],
         "type": "Point"
       },
-      "id": "01kbchecynpjwddn60ng4dqvax",
       "properties": {
         "text-1": "text2",
         "textarea-1": "textarea2",
         "markdown-text-1": "markdown2",
         "asset-1": {
-          "id": "01k9tyv0axrvrm8x638bgdy59z",
           "url": "",
           "type": "asset"
         },

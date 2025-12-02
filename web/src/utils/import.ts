@@ -9,6 +9,8 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { ObjectUtils } from "@reearth-cms/utils/object";
 
+import { Constant } from "./constant";
+
 interface FieldBase {
   title: string;
   description?: string;
@@ -106,7 +108,10 @@ export abstract class ImportUtils {
     const csvObject = this.convertCSVToJSON(csvString);
 
     const fieldSchema = this.getDynamicFieldValidator(targetSchema.schema.fields, "CSV");
-    const schemaValidation = fieldSchema.array().safeParse(csvObject);
+    const schemaValidation = fieldSchema
+      .array()
+      .max(Constant.IMPORT.MAX_CONTENT_RECORDS)
+      .safeParse(csvObject);
 
     if (schemaValidation.success) {
       return { isValid: true, data: schemaValidation.data };
@@ -124,7 +129,10 @@ export abstract class ImportUtils {
       return { isValid: false, error: importContentValidation.error.message };
 
     const fieldSchema = this.getDynamicFieldValidator(targetSchema.schema.fields, "JSON");
-    const schemaValidation = fieldSchema.array().safeParse(importContentValidation.data.results);
+    const schemaValidation = fieldSchema
+      .array()
+      .max(Constant.IMPORT.MAX_CONTENT_RECORDS)
+      .safeParse(importContentValidation.data.results);
 
     if (schemaValidation.success) {
       return { isValid: true, data: schemaValidation.data };
@@ -147,7 +155,10 @@ export abstract class ImportUtils {
 
     const fieldSchema = this.getDynamicFieldValidator(targetSchema.schema.fields, "GEOJSON");
     const test = geoJsonValidation.data.features.map(feature => feature.properties);
-    const schemaValidation = fieldSchema.array().safeParse(test);
+    const schemaValidation = fieldSchema
+      .array()
+      .max(Constant.IMPORT.MAX_CONTENT_RECORDS)
+      .safeParse(test);
 
     if (schemaValidation.success) {
       return { isValid: true, data: schemaValidation.data };
@@ -285,7 +296,7 @@ export abstract class ImportUtils {
   });
 
   private static readonly IMPORT_CONTENT_JSON_VALIDATOR: z.ZodSchema<ImportContentJSON> = z.object({
-    results: z.record(z.string(), z.unknown()).array(),
+    results: z.record(z.string(), z.unknown()).array().max(Constant.IMPORT.MAX_CONTENT_RECORDS),
     totalCount: z.int().nonnegative(),
   });
 
