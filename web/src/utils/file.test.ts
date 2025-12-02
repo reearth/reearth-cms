@@ -26,8 +26,4 @@ describe("FileUtils", () => {
       expect(FileUtils.getExtension(undefined)).toBe("");
     });
   });
-
-  describe("parseTextFile", () => {});
-
-  describe.skip("validateGeoJson", () => {});
 });

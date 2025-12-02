@@ -1,6 +1,3 @@
-import { check, getIssues, type HintIssue } from "@placemarkio/check-geojson";
-import { type GeoJSON } from "geojson";
-
 import { RcFile } from "@reearth-cms/components/atoms/Upload";
 
 /* eslint-disable @typescript-eslint/no-extraneous-class */
@@ -33,22 +30,17 @@ export abstract class FileUtils {
     reader.readAsText(file);
   }
 
-  public static validateGeoJson(
-    raw: Record<string, unknown> | string,
-  ): { isValid: true; data: GeoJSON } | { isValid: false; errors: string[] } {
-    const parseRaw: string = typeof raw === "string" ? raw : JSON.stringify(raw);
-    const issues: HintIssue[] = getIssues(parseRaw);
+  public static async readInput(input: string | ArrayBuffer | Blob): Promise<string> {
+    if (typeof input === "string") return input;
 
-    if (issues.length > 0) {
-      return {
-        isValid: false,
-        errors: issues.map(issue => issue.message),
-      };
-    } else {
-      return {
-        isValid: true,
-        data: check(parseRaw),
-      };
+    if (input instanceof Blob) {
+      return await input.text();
     }
+
+    if (input instanceof ArrayBuffer) {
+      return new TextDecoder("utf-8").decode(input);
+    }
+
+    throw new Error("Unsupported input type. Provide a string, ArrayBuffer, or Blob.");
   }
 }

@@ -1,4 +1,7 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
+import type { GeoJSON } from "geojson";
+import { check, getIssues, HintIssue } from "@placemarkio/check-geojson";
+
 export abstract class ObjectUtils {
   public static shallowEqual(
     obj1: Record<string, unknown>,
@@ -25,5 +28,32 @@ export abstract class ObjectUtils {
       if (Object.hasOwn(obj, prop)) return false;
     }
     return true;
+  }
+
+  public static isPlainObject(value: unknown): value is Record<string, any> {
+    return typeof value === "object" && value !== null && !Array.isArray(value);
+  }
+
+  public static isValidKey(key: string): boolean {
+    return /^[A-Za-z0-9_]+$/.test(key);
+  }
+
+  public static validateGeoJson(
+    raw: Record<string, unknown> | string | GeoJSON,
+  ): { isValid: true; data: GeoJSON } | { isValid: false; errors: string[] } {
+    const parseRaw: string = typeof raw === "string" ? raw : JSON.stringify(raw);
+    const issues: HintIssue[] = getIssues(parseRaw);
+
+    if (issues.length > 0) {
+      return {
+        isValid: false,
+        errors: issues.map(issue => issue.message),
+      };
+    } else {
+      return {
+        isValid: true,
+        data: check(parseRaw),
+      };
+    }
   }
 }
