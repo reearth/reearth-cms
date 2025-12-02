@@ -289,7 +289,7 @@ export abstract class ImportUtils {
     totalCount: z.int().nonnegative(),
   });
 
-  private static convertCSVToJSON(csvString: string): unknown[] {
+  public static convertCSVToJSON(csvString: string): unknown[] {
     const result = Papa.parse(csvString, {
       header: true,
       skipEmptyLines: true,

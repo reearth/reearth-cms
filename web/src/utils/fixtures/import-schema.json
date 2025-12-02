@@ -1,0 +1,83 @@
+{
+  "$id": "01kb1tnfhs2c834tzpwgcsmyft",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "grand-slam-model",
+  "type": "object",
+  "properties": {
+    "asset-1": {
+      "title": "asset-1",
+      "description": "asset 1 desc",
+      "type": "string",
+      "format": "binary"
+    },
+    "bool-1": {
+      "title": "bool-1",
+      "description": "bool 1 desc",
+      "type": "boolean"
+    },
+    "date-1": {
+      "title": "date-1",
+      "description": "date 1 desc",
+      "type": "string",
+      "format": "date-time"
+    },
+    "float-1": {
+      "title": "float-1",
+      "description": "float 1 desc",
+      "type": "number",
+      "maximum": 0.5,
+      "minimum": -0.5
+    },
+    "geo-edi-1": {
+      "title": "geo-edi-1",
+      "description": "geo edi 1 desc",
+      "type": "object"
+    },
+    "geo-obj-1": {
+      "title": "geo-obj-1",
+      "description": "geo obj 1 desc",
+      "type": "object"
+    },
+    "int-1": {
+      "title": "int-1",
+      "description": "int 1 desc",
+      "type": "integer",
+      "maximum": 10,
+      "minimum": -10
+    },
+    "markdown-1": {
+      "title": "markdown-1",
+      "description": "markdown 1 desc",
+      "type": "string",
+      "maxLength": 500
+    },
+    "model-ref-1": {
+      "title": "model-ref-1",
+      "description": "model ref 1 desc",
+      "type": "string"
+    },
+    "opt-1": {
+      "title": "opt-1",
+      "description": "opt 1 desc",
+      "type": "string"
+    },
+    "text-1": {
+      "title": "text-1",
+      "description": "text desc 1",
+      "type": "string",
+      "maxLength": 32
+    },
+    "textarea-1": {
+      "title": "textarea-1",
+      "description": "textarea 1 desc",
+      "type": "string",
+      "maxLength": 150
+    },
+    "url-1": {
+      "title": "url-1",
+      "description": "url 1 desc",
+      "type": "string",
+      "format": "uri"
+    }
+  }
+}

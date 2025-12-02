@@ -1,0 +1,58 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "geometry": {
+        "coordinates": [
+          139.6917,
+          35.6895
+        ],
+        "type": "Point"
+      },
+      "id": "01kbchbvncejahmwrdbf8p74jc",
+      "properties": {
+        "text-1": "text111",
+        "textarea-1": "textarea111",
+        "markdown-text-1": "markdown111",
+        "asset-1": {
+          "id": "01k9v5yedaf8n2efqjt4e4b4jp",
+          "url": "",
+          "type": "asset"
+        },
+        "date-1": "2025-12-01T00:00:00+09:00",
+        "boolean-1": true,
+        "option-1": "a",
+        "int-1": 111,
+        "float-1": 1.11,
+        "url-1": "http://111.com/"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          139.6917,
+          35.6895
+        ],
+        "type": "Point"
+      },
+      "id": "01kbchecynpjwddn60ng4dqvax",
+      "properties": {
+        "text-1": "text2",
+        "textarea-1": "textarea2",
+        "markdown-text-1": "markdown2",
+        "asset-1": {
+          "id": "01k9tyv0axrvrm8x638bgdy59z",
+          "url": "",
+          "type": "asset"
+        },
+        "date-1": "2025-12-02T00:00:00+09:00",
+        "option-1": "b",
+        "int-1": 222,
+        "float-1": 2.22,
+        "url-1": "http://222.com/"
+      },
+      "type": "Feature"
+    }
+  ]
+}

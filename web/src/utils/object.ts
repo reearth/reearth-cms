@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
-import type { GeoJSON } from "geojson";
 import { check, getIssues, HintIssue } from "@placemarkio/check-geojson";
+import type { GeoJSON } from "geojson";
 
 export abstract class ObjectUtils {
   public static shallowEqual(
@@ -16,7 +16,7 @@ export abstract class ObjectUtils {
     str: string,
   ): { isValid: true; data: T } | { isValid: false; error: string } {
     try {
-      const data = JSON.parse(str) as T;
+      const data = JSON.parse(str);
       return { isValid: true, data };
     } catch (e) {
       return { isValid: false, error: e instanceof Error ? e.message : "Invalid JSON" };
@@ -30,7 +30,7 @@ export abstract class ObjectUtils {
     return true;
   }
 
-  public static isPlainObject(value: unknown): value is Record<string, any> {
+  public static isPlainObject(value: unknown): value is Record<string, unknown> {
     return typeof value === "object" && value !== null && !Array.isArray(value);
   }
 

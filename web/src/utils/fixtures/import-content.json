@@ -1,0 +1,42 @@
+{
+  "results": [
+    {
+      "boolean-1": true,
+      "date-1": "2025-12-01T00:00:00+09:00",
+      "float-1": 1.11,
+      "geo-obj-1": {
+        "coordinates": [
+          139.6917,
+          35.6895
+        ],
+        "type": "Point"
+      },
+      "id": "01kbchbvncejahmwrdbf8p74jc",
+      "int-1": 111,
+      "markdown-text-1": "markdown111",
+      "option-1": "a",
+      "text-1": "text111",
+      "textarea-1": "textarea111",
+      "url-1": "http://111.com/"
+    },
+    {
+      "date-1": "2025-12-02T00:00:00+09:00",
+      "float-1": 2.22,
+      "geo-obj-1": {
+        "coordinates": [
+          139.6917,
+          35.6895
+        ],
+        "type": "Point"
+      },
+      "id": "01kbchecynpjwddn60ng4dqvax",
+      "int-1": 222,
+      "markdown-text-1": "markdown2",
+      "option-1": "b",
+      "text-1": "text2",
+      "textarea-1": "textarea2",
+      "url-1": "http://222.com/"
+    }
+  ],
+  "totalCount": 2
+}

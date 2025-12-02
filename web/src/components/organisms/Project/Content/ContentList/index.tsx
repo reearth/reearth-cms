@@ -1,3 +1,4 @@
+import ContentImportModal from "@reearth-cms/components/molecules/Content/ContentImportModal";
 import ContentListMolecule from "@reearth-cms/components/molecules/Content/List";
 import CommentsPanel from "@reearth-cms/components/organisms/Common/CommentsPanel";
 import ViewsMenu from "@reearth-cms/components/organisms/Project/Content/ViewsMenu";
@@ -5,7 +6,6 @@ import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
-import ContentImportModal from "@reearth-cms/components/molecules/Content/ContentImportModal";
 
 const ContentList: React.FC = () => {
   const t = useT();
