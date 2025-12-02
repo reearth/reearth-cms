@@ -120,4 +120,6 @@ jobs:
       base_url: ${{ vars.REEARTH_CMS_E2E_BASEURL }}
       branch: main
       smoke_only: true
-    secrets: inherit
+    secrets:
+      REEARTH_WEB_E2E_USERNAME: ${{ secrets.REEARTH_WEB_E2E_USERNAME }}
+      REEARTH_WEB_E2E_PASSWORD: ${{ secrets.REEARTH_WEB_E2E_PASSWORD }}
