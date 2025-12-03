@@ -232,7 +232,7 @@ func TestItem_AssetIDsBySchema(t *testing.T) {
 		expected AssetIDList
 	}{
 		{
-			name: "nil schema package",
+			name: "empty schema package",
 			item: &Item{
 				fields: []*Field{
 					{field: assetFieldID, value: value.New(value.TypeAsset, aid1).AsMultiple()},
