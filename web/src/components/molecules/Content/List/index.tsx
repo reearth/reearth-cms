@@ -5,6 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
@@ -17,8 +18,8 @@ import {
   CurrentView,
 } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
+
 import { Field } from "../../Schema/types";
-import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 
 type Props = {
   commentsPanel: JSX.Element;
