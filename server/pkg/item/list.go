@@ -51,13 +51,13 @@ func (l List) MetadataIDs() IDList {
 	})
 }
 
-func (l List) AssetIDs(s *schema.Schema) AssetIDList {
+func (l List) AssetIDs(sp schema.Package) AssetIDList {
 	if l == nil {
 		return nil
 	}
 	assetIDs := make(AssetIDList, 0)
 	for _, i := range l {
-		assetIDs = assetIDs.AddUniq(i.AssetIDsBySchema(s)...)
+		assetIDs = assetIDs.AddUniq(i.AssetIDsBySchema(sp)...)
 	}
 	return assetIDs
 }

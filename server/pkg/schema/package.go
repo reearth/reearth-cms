@@ -2,6 +2,7 @@ package schema
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/samber/lo"
 )
 
@@ -116,4 +117,18 @@ func (p *Package) FieldByIDOrKey(fID *id.FieldID, k *id.Key) *Field {
 		}
 	}
 	return nil
+}
+
+func (p *Package) FieldsByType(t value.Type) FieldList {
+	if p == nil {
+		return nil
+	}
+	fl := FieldList{}
+	if p.schema != nil {
+		fl = append(fl, p.schema.FieldsByType(t)...)
+	}
+	gf := lo.FlatMap(p.GroupSchemas(), func(s *Schema, _ int) []*Field {
+		return s.FieldsByType(t)
+	})
+	return append(fl, gf...)
 }

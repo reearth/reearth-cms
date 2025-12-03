@@ -210,6 +210,103 @@ func TestItem_AssetIDs(t *testing.T) {
 	}).AssetIDs())
 }
 
+func TestItem_AssetIDsBySchema(t *testing.T) {
+	t.Parallel()
+
+	aid1, aid2, aid3 := id.NewAssetID(), id.NewAssetID(), id.NewAssetID()
+	assetFieldID := id.NewFieldID()
+	textFieldID := id.NewFieldID()
+	multiAssetFieldID := id.NewFieldID()
+
+	// Create schema with asset and text fields
+	wid := accountdomain.NewWorkspaceID()
+	assetField := schema.NewField(schema.NewAsset().TypeProperty()).ID(assetFieldID).Key(id.RandomKey()).MustBuild()
+	textField := schema.NewField(schema.NewText(nil).TypeProperty()).ID(textFieldID).Key(id.RandomKey()).MustBuild()
+	multiAssetField := schema.NewField(schema.NewAsset().TypeProperty()).ID(multiAssetFieldID).Key(id.RandomKey()).Multiple(true).MustBuild()
+	s := schema.New().NewID().Workspace(wid).Project(id.NewProjectID()).Fields([]*schema.Field{assetField, textField, multiAssetField}).MustBuild()
+
+	tests := []struct {
+		name     string
+		item     *Item
+		pkg      schema.Package
+		expected AssetIDList
+	}{
+		{
+			name: "nil schema package",
+			item: &Item{
+				fields: []*Field{
+					{field: assetFieldID, value: value.New(value.TypeAsset, aid1).AsMultiple()},
+				},
+			},
+			pkg:      schema.Package{},
+			expected: nil,
+		},
+		{
+			name: "single asset field",
+			item: &Item{
+				fields: []*Field{
+					{field: assetFieldID, value: value.New(value.TypeAsset, aid1).AsMultiple()},
+					{field: textFieldID, value: value.New(value.TypeText, "test").AsMultiple()},
+				},
+			},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: AssetIDList{aid1},
+		},
+		{
+			name: "multiple asset field",
+			item: &Item{
+				fields: []*Field{
+					{field: multiAssetFieldID, value: value.NewMultiple(value.TypeAsset, []any{aid1, aid2})},
+				},
+			},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: AssetIDList{aid1, aid2},
+		},
+		{
+			name: "mixed fields",
+			item: &Item{
+				fields: []*Field{
+					{field: assetFieldID, value: value.New(value.TypeAsset, aid1).AsMultiple()},
+					{field: textFieldID, value: value.New(value.TypeText, "test").AsMultiple()},
+					{field: multiAssetFieldID, value: value.NewMultiple(value.TypeAsset, []any{aid2, aid3})},
+				},
+			},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: AssetIDList{aid1, aid2, aid3},
+		},
+		{
+			name: "no asset fields in item",
+			item: &Item{
+				fields: []*Field{
+					{field: textFieldID, value: value.New(value.TypeText, "test").AsMultiple()},
+				},
+			},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: AssetIDList{},
+		},
+		{
+			name: "item has asset field not in schema (deleted field)",
+			item: &Item{
+				fields: []*Field{
+					{field: NewFieldID(), value: value.New(value.TypeAsset, aid1).AsMultiple()},
+				},
+			},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: AssetIDList{},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			result := tt.item.AssetIDsBySchema(tt.pkg)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
 func TestItem_User(t *testing.T) {
 	f1 := NewField(id.NewFieldID(), value.TypeText.Value("foo").AsMultiple(), nil)
 	uid := accountdomain.NewUserID()
