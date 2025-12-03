@@ -1,3 +1,6 @@
+import { readFileSync } from "fs";
+import { join } from "path";
+
 import { expect, test, describe } from "vitest";
 import * as z from "zod";
 
@@ -23,19 +26,45 @@ describe("Constant", () => {
 
     test("Check alias max length is larger then min length", () => {
       const diff = Constant.PROJECT_ALIAS.MAX_LENGTH > Constant.PROJECT_ALIAS.MIN_LENGTH;
-      expect(diff).toBeTruthy();
+      expect(diff).toBe(true);
+    });
+  });
+
+  describe("Validate key constants", () => {
+    test("Validate max length", () => {
+      const MAX_LENGTH_VALIDATOR = z.int().nonnegative();
+
+      const maxLengthValidation = MAX_LENGTH_VALIDATOR.safeParse(Constant.KEY.MAX_LENGTH);
+
+      if (!maxLengthValidation.success) throw z.prettifyError(maxLengthValidation.error);
     });
   });
 
   describe("Validate import constants", () => {
     test("Validate max import content record", () => {
-      const MAX_IMPORT_CONTENT_RECORD_VALIDATOR = z.number().nonnegative().int();
+      const MAX_IMPORT_CONTENT_RECORD_VALIDATOR = z.int().nonnegative();
       const importContentRecordValidation = MAX_IMPORT_CONTENT_RECORD_VALIDATOR.safeParse(
         Constant.IMPORT.MAX_CONTENT_RECORDS,
       );
 
       if (!importContentRecordValidation.success)
         throw z.prettifyError(importContentRecordValidation.error);
+    });
+  });
+
+  describe("Validate public files", () => {
+    test("Check files existed", () => {
+      const filePaths: string[] = Object.values(Constant.PUBLIC_FILE);
+
+      filePaths.forEach(_filePath => {
+        const filePath = join("public", _filePath);
+
+        try {
+          readFileSync(filePath, "utf-8");
+        } catch (err) {
+          throw Error(String(err));
+        }
+      });
     });
   });
 });

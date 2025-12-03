@@ -89,9 +89,22 @@ export interface ImportContentJSON {
 }
 
 export abstract class ImportUtils {
-  public static parseImportSchema(
+  public static validateSchemaFromJSON(
     json: Record<string, unknown>,
   ): { isValid: true; data: ImportSchema } | { isValid: false; error: string } {
+    const validation = this.IMPORT_SCHEMA_VALIDATOR.safeParse(json);
+
+    if (validation.success) {
+      return { isValid: true, data: validation.data };
+    } else {
+      return { isValid: false, error: validation.error.message };
+    }
+  }
+
+  public static validateSchemaFromGeoJSON(
+    json: Record<string, unknown>,
+  ): { isValid: true; data: ImportSchema } | { isValid: false; error: string } {
+    // TODO: implement THIS!!
     const validation = this.IMPORT_SCHEMA_VALIDATOR.safeParse(json);
 
     if (validation.success) {

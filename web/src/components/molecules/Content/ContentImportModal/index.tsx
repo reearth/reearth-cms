@@ -137,17 +137,26 @@ const ContentImportModal: React.FC<Props> = ({
               i18nKey="You can also download file templates: CSV | JSON | GeoJSON"
               components={{
                 l1: (
-                  <TemplateFileLink type="link" href="/templates/template.csv" download>
+                  <TemplateFileLink
+                    type="link"
+                    href={Constant.PUBLIC_FILE.IMPORT_CONTENT_CSV}
+                    download>
                     CSV
                   </TemplateFileLink>
                 ),
                 l2: (
-                  <TemplateFileLink type="link" href="/templates/template.geojson" download>
-                    GeoJSON
+                  <TemplateFileLink
+                    type="link"
+                    href={Constant.PUBLIC_FILE.IMPORT_CONTENT_JSON}
+                    download>
+                    JSON
                   </TemplateFileLink>
                 ),
                 l3: (
-                  <TemplateFileLink type="link" href="/templates/template.geojson" download>
+                  <TemplateFileLink
+                    type="link"
+                    href={Constant.PUBLIC_FILE.IMPORT_CONTENT_GEO_JSON}
+                    download>
                     GeoJSON
                   </TemplateFileLink>
                 ),

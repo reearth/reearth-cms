@@ -1,32 +1,40 @@
-[
-  {
-    "id": "001",
-    "name": "Alice Smith",
-    "isActive": true,
-    "createdAt": "2025-01-10T09:15:00Z",
-    "location": {
-      "type": "Point",
-      "coordinates": [0, 0]
+{
+  "results": [
+    {
+      "boolean-1": true,
+      "date-1": "2025-12-01T00:00:00+09:00",
+      "float-1": 1.11,
+      "geo-obj-1": {
+        "coordinates": [
+          139.6917,
+          35.6895
+        ],
+        "type": "Point"
+      },
+      "int-1": 111,
+      "markdown-text-1": "markdown111",
+      "option-1": "a",
+      "text-1": "text111",
+      "textarea-1": "textarea111",
+      "url-1": "http://111.com/"
+    },
+    {
+      "date-1": "2025-12-02T00:00:00+09:00",
+      "float-1": 2.22,
+      "geo-obj-1": {
+        "coordinates": [
+          139.6917,
+          35.6895
+        ],
+        "type": "Point"
+      },
+      "int-1": 222,
+      "markdown-text-1": "markdown2",
+      "option-1": "b",
+      "text-1": "text2",
+      "textarea-1": "textarea2",
+      "url-1": "http://222.com/"
     }
-  },
-  {
-    "id": "002",
-    "name": "Bob Chen",
-    "isActive": false,
-    "createdAt": "2025-02-18T14:30:00Z",
-    "location": {
-      "type": "Point",
-      "coordinates": [0, 0]
-    }
-  },
-  {
-    "id": "003",
-    "name": "Carlos Ruiz",
-    "isActive": true,
-    "createdAt": "2025-03-02T08:00:00Z",
-    "location": {
-      "type": "Point",
-      "coordinates": [0, 0]
-    }
-  }
-]
+  ],
+  "totalCount": 2
+}

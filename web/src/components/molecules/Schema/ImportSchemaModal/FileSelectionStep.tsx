@@ -11,6 +11,7 @@ import Upload, {
   UploadProps,
 } from "@reearth-cms/components/atoms/Upload";
 import { Trans, useT } from "@reearth-cms/i18n";
+import { Constant } from "@reearth-cms/utils/constant";
 import { FileUtils } from "@reearth-cms/utils/file";
 import { ObjectUtils } from "@reearth-cms/utils/object";
 
@@ -144,12 +145,18 @@ const FileSelectionStep: React.FC<Props> = ({
               i18nKey="You can also download file templates: JSON | GeoJSON"
               components={{
                 l1: (
-                  <TemplateFileLink type="link" href="/templates/template.json" download>
+                  <TemplateFileLink
+                    type="link"
+                    href={Constant.PUBLIC_FILE.IMPORT_SCHEMA_JSON}
+                    download>
                     JSON
                   </TemplateFileLink>
                 ),
                 l2: (
-                  <TemplateFileLink type="link" href="/templates/template.geojson" download>
+                  <TemplateFileLink
+                    type="link"
+                    href={Constant.PUBLIC_FILE.IMPORT_SCHEMA_GEO_JSON}
+                    download>
                     GeoJSON
                   </TemplateFileLink>
                 ),

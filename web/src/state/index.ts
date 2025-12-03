@@ -3,7 +3,7 @@ import { atomWithStorage } from "jotai/utils";
 
 import { UserRights } from "@reearth-cms/components/molecules/Member/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { UploaderState, UploadStatus } from "@reearth-cms/components/molecules/Uploader/types";
+import { UploaderState } from "@reearth-cms/components/molecules/Uploader/types";
 import { Workspace, Project } from "@reearth-cms/components/molecules/Workspace/types";
 
 const workspace = atom<Workspace | undefined>(undefined);
