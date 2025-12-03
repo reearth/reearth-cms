@@ -67,6 +67,8 @@ const ContentList: React.FC = () => {
     handleImportContentModalClose,
     handleImportSchemaFileChange,
     dataChecking,
+    modelFields,
+    hasModelFields,
   } = useHooks();
 
   return (
@@ -146,6 +148,8 @@ const ContentList: React.FC = () => {
         hasRequestUpdateRight={hasRequestUpdateRight}
         showPublishAction={showPublishAction}
         onImportModalOpen={handleImportContentModalOpen}
+        modelFields={modelFields}
+        hasModelFields={hasModelFields}
       />
       <ContentImportModal
         isOpen={isImportContentModalOpen}

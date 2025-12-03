@@ -17,6 +17,8 @@ import {
   CurrentView,
 } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
+import { Field } from "../../Schema/types";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 
 type Props = {
   commentsPanel: JSX.Element;
@@ -68,6 +70,8 @@ type Props = {
   hasRequestUpdateRight: boolean;
   showPublishAction: boolean;
   onImportModalOpen: () => void;
+  modelFields: Field[];
+  hasModelFields: boolean;
 };
 
 const ContentListMolecule: React.FC<Props> = ({
@@ -120,6 +124,8 @@ const ContentListMolecule: React.FC<Props> = ({
   hasRequestUpdateRight,
   showPublishAction,
   onImportModalOpen,
+  modelFields,
+  hasModelFields,
 }) => {
   const t = useT();
 
@@ -144,13 +150,15 @@ const ContentListMolecule: React.FC<Props> = ({
                 subTitle={model?.key ? `#${model.key}` : null}
                 extra={
                   <>
-                    <Button
-                      type="default"
-                      onClick={onImportModalOpen}
-                      icon={<Icon icon="import" />}
-                      disabled={!model || !hasCreateRight}>
-                      {t("Import content")}
-                    </Button>
+                    <Tooltip title={!hasModelFields ? t("Please create a schema first") : null}>
+                      <Button
+                        type="default"
+                        onClick={onImportModalOpen}
+                        icon={<Icon icon="import" />}
+                        disabled={!model || !hasCreateRight || !hasModelFields}>
+                        {t("Import content")}
+                      </Button>
+                    </Tooltip>
                     <Button
                       type="primary"
                       onClick={onItemAdd}

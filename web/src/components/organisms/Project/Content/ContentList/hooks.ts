@@ -610,10 +610,12 @@ export default () => {
     [handleAddItemToRequest],
   );
 
-  const currentModelFields = useMemo<Model["schema"]["fields"]>(
+  const modelFields = useMemo<Model["schema"]["fields"]>(
     () => (currentModel ? currentModel.schema.fields : []),
     [currentModel],
   );
+
+  const hasModelFields = useMemo<boolean>(() => modelFields.length > 0, [modelFields.length]);
 
   const handleImportContentModalOpen = useCallback(() => {
     setIsImportContentModalOpen(true);
@@ -694,5 +696,7 @@ export default () => {
     handleImportContentModalClose,
     dataChecking,
     handleImportSchemaFileChange,
+    modelFields,
+    hasModelFields,
   };
 };
