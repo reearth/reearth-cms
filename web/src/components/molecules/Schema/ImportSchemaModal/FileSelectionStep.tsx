@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { useCallback } from "react";
 
 import Alert, { AlertProps } from "@reearth-cms/components/atoms/Alert";
-import Button from "@reearth-cms/components/atoms/Button";
+import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Loading from "@reearth-cms/components/atoms/Loading";
 import Upload, {
@@ -25,6 +25,12 @@ type Props = {
   onFileContentChange: (fileContent: string) => void;
   dataChecking?: boolean;
 };
+
+const TemplateLink = ({ href, children }: ButtonProps) => (
+  <StyledButton onClick={event => event.stopPropagation()} type="link" href={href} download>
+    {children}
+  </StyledButton>
+);
 
 const FileSelectionStep: React.FC<Props> = ({
   fileList,
@@ -136,7 +142,7 @@ const FileSelectionStep: React.FC<Props> = ({
           <p className="ant-upload-text">
             <Trans
               i18nKey="Choose or drag & drop a file"
-              components={{ l: <TemplateFileLink type="link">Choose</TemplateFileLink> }}
+              components={{ l: <StyledButton type="link">Choose</StyledButton> }}
             />
           </p>
           <p className="ant-upload-hint">{t("Only JSON or GeoJSON format is supported")}</p>
@@ -145,20 +151,12 @@ const FileSelectionStep: React.FC<Props> = ({
               i18nKey="You can also download file templates: JSON | GeoJSON"
               components={{
                 l1: (
-                  <TemplateFileLink
-                    type="link"
-                    href={Constant.PUBLIC_FILE.IMPORT_SCHEMA_JSON}
-                    download>
-                    JSON
-                  </TemplateFileLink>
+                  <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_SCHEMA_JSON}>JSON</TemplateLink>
                 ),
                 l2: (
-                  <TemplateFileLink
-                    type="link"
-                    href={Constant.PUBLIC_FILE.IMPORT_SCHEMA_GEO_JSON}
-                    download>
+                  <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_SCHEMA_GEO_JSON}>
                     GeoJSON
-                  </TemplateFileLink>
+                  </TemplateLink>
                 ),
               }}
             />
@@ -178,7 +176,7 @@ const FileSelectionStep: React.FC<Props> = ({
 
 export default FileSelectionStep;
 
-const TemplateFileLink = styled(Button)`
+const StyledButton = styled(Button)`
   padding: 0;
   text-decoration: underline;
 `;

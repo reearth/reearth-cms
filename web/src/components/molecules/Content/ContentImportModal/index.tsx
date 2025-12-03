@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { useCallback, useState } from "react";
 
 import Alert, { type AlertProps } from "@reearth-cms/components/atoms/Alert";
-import Button from "@reearth-cms/components/atoms/Button";
+import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Loading from "@reearth-cms/components/atoms/Loading";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -20,6 +20,12 @@ type Props = {
   onClose: () => void;
   onFileContentChange: (fileContent: string) => void;
 };
+
+const TemplateLink = ({ href, children }: ButtonProps) => (
+  <StyledButton onClick={event => event.stopPropagation()} type="link" href={href} download>
+    {children}
+  </StyledButton>
+);
 
 const ContentImportModal: React.FC<Props> = ({
   isOpen,
@@ -136,29 +142,14 @@ const ContentImportModal: React.FC<Props> = ({
             <Trans
               i18nKey="You can also download file templates: CSV | JSON | GeoJSON"
               components={{
-                l1: (
-                  <TemplateFileLink
-                    type="link"
-                    href={Constant.PUBLIC_FILE.IMPORT_CONTENT_CSV}
-                    download>
-                    CSV
-                  </TemplateFileLink>
-                ),
+                l1: <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_CSV}>CSV</TemplateLink>,
                 l2: (
-                  <TemplateFileLink
-                    type="link"
-                    href={Constant.PUBLIC_FILE.IMPORT_CONTENT_JSON}
-                    download>
-                    JSON
-                  </TemplateFileLink>
+                  <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_JSON}>JSON</TemplateLink>
                 ),
                 l3: (
-                  <TemplateFileLink
-                    type="link"
-                    href={Constant.PUBLIC_FILE.IMPORT_CONTENT_GEO_JSON}
-                    download>
+                  <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_GEO_JSON}>
                     GeoJSON
-                  </TemplateFileLink>
+                  </TemplateLink>
                 ),
               }}
             />
@@ -187,7 +178,7 @@ const LoadingWrapper = styled.div`
   gap: 24px;
 `;
 
-const TemplateFileLink = styled(Button)`
+const StyledButton = styled(Button)`
   padding: 0;
   text-decoration: underline;
 `;
