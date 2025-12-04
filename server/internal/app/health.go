@@ -98,13 +98,56 @@ func gcsCheck(ctx context.Context, bucketName string) (checkErr error) {
 		}
 	}(client)
 
-	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 4*time.Second)
 	defer cancel()
 
-	_, err = client.Bucket(bucketName).Attrs(ctx)
+	bucket := client.Bucket(bucketName)
+
+	// Check bucket access
+	_, err = bucket.Attrs(ctx)
 	if err != nil {
 		return fmt.Errorf("GCS bucket access failed: %v", err)
 	}
+
+	// Test upload, get, and delete permissions with a small test file
+	testObjectName := ".health-check-test"
+	testContent := []byte("health-check")
+
+	// Upload test file
+	writer := bucket.Object(testObjectName).NewWriter(ctx)
+	if _, err := writer.Write(testContent); err != nil {
+		writer.Close()
+		return fmt.Errorf("GCS upload permission failed: %v", err)
+	}
+	if err := writer.Close(); err != nil {
+		return fmt.Errorf("GCS upload permission failed: %v", err)
+	}
+
+	// Read test file
+	reader, err := bucket.Object(testObjectName).NewReader(ctx)
+	if err != nil {
+		// Cleanup attempt even if read fails
+		_ = bucket.Object(testObjectName).Delete(ctx)
+		return fmt.Errorf("GCS read permission failed: %v", err)
+	}
+	readContent, err := io.ReadAll(reader)
+	reader.Close()
+	if err != nil {
+		// Cleanup attempt even if read fails
+		_ = bucket.Object(testObjectName).Delete(ctx)
+		return fmt.Errorf("GCS read permission failed: %v", err)
+	}
+	if string(readContent) != string(testContent) {
+		// Cleanup attempt
+		_ = bucket.Object(testObjectName).Delete(ctx)
+		return fmt.Errorf("GCS read verification failed: content mismatch")
+	}
+
+	// Delete test file
+	if err := bucket.Object(testObjectName).Delete(ctx); err != nil {
+		return fmt.Errorf("GCS delete permission failed: %v", err)
+	}
+
 	return nil
 }
 
