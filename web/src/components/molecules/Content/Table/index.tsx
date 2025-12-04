@@ -155,7 +155,12 @@ const ContentTable: React.FC<Props> = ({
         title: "",
         hideInSetting: true,
         render: (_, contentField) => (
-          <Icon icon="edit" color={"#1890ff"} onClick={() => onItemEdit(contentField.id)} />
+          <Icon
+            icon="edit"
+            color={"#1890ff"}
+            onClick={() => onItemEdit(contentField.id)}
+            data-testid="content-edit-button"
+          />
         ),
         dataIndex: "editIcon",
         fieldType: "EDIT_ICON",
@@ -821,6 +826,9 @@ const ContentTable: React.FC<Props> = ({
                   : undefined,
             );
           }}
+          onRow={() => ({
+            "data-testid": "content-table-row" as any,
+          } as any)}
           heightOffset={102}
         />
       ) : null}

@@ -173,7 +173,7 @@ export class FieldEditorPage extends BasePage {
   }
 
   get antTableRow(): Locator {
-    return this.locator(".ant-table-row");
+    return this.getByTestId("asset-table-row");
   }
 
   get arrowUpButton(): Locator {
@@ -304,7 +304,7 @@ export class FieldEditorPage extends BasePage {
 
   // Field management
   get ellipsisMenuButton(): Locator {
-    return this.getByRole("img", { name: "ellipsis" }).locator("svg");
+    return this.getByTestId("field-ellipsis-menu-button");
   }
   get ellipsisButton(): Locator {
     return this.getByRole("button", { name: "ellipsis" });
