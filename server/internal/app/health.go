@@ -116,7 +116,7 @@ func gcsCheck(ctx context.Context, bucketName string) (checkErr error) {
 	// Upload test file
 	writer := bucket.Object(testObjectName).NewWriter(ctx)
 	if _, err := writer.Write(testContent); err != nil {
-		writer.Close()
+		_ = writer.Close()
 		return fmt.Errorf("GCS upload permission failed: %v", err)
 	}
 	if err := writer.Close(); err != nil {
@@ -131,7 +131,7 @@ func gcsCheck(ctx context.Context, bucketName string) (checkErr error) {
 		return fmt.Errorf("GCS read permission failed: %v", err)
 	}
 	readContent, err := io.ReadAll(reader)
-	reader.Close()
+	_ = reader.Close()
 	if err != nil {
 		// Cleanup attempt even if read fails
 		_ = bucket.Object(testObjectName).Delete(ctx)
