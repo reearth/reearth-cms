@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
-import { GeoJSON } from "geojson";
-import { Dispatch, SetStateAction, useCallback, useMemo, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
 
 import Alert, { type AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
@@ -111,7 +110,7 @@ const ContentImportModal: React.FC<Props> = ({
 
       setAlertList(newAlertList);
     },
-    [setAlertList, t],
+    [setAlertList],
   );
 
   const handleStartLoading = useCallback(() => onSetDataChecking(true), [onSetDataChecking]);
@@ -196,13 +195,7 @@ const ContentImportModal: React.FC<Props> = ({
 
       return false;
     },
-    [
-      handleEndLoading,
-      handleStartLoading,
-      raiseIllegalFileAlert,
-      raiseIllegalFileFormatAlert,
-      raiseSingleFileAlert,
-    ],
+    [handleEndLoading, handleStartLoading, modelFields, onFileContentChange, raiseIllegalFileAlert, raiseIllegalFileFormatAlert, raiseSingleFileAlert, schemaValidationAlert, setAlertList],
   );
 
   const uploadProps: UploadProps = useMemo(
