@@ -8,26 +8,20 @@ export abstract class FileUtils {
     return filename.toLowerCase().slice(filename.lastIndexOf(".") + 1, filename.length);
   }
 
-  public static parseTextFile(
-    file: RcFile,
-    handleContent: (content: string | null) => void,
-    handleError?: (error: DOMException | null | undefined) => void,
-  ): void {
-    const reader = new FileReader();
+  public static parseTextFile(file: RcFile): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
 
-    reader.onload = event => {
-      if (event.target && typeof event.target.result === "string") {
-        handleContent(event.target.result);
-      } else {
-        handleContent(null);
-      }
-    };
+      reader.onload = event => {
+        resolve(event.target?.result as string);
+      };
 
-    reader.onerror = event => {
-      if (handleError) handleError(event.target?.error);
-    };
+      reader.onerror = error => {
+        reject(error);
+      };
 
-    reader.readAsText(file);
+      reader.readAsText(file);
+    });
   }
 
   public static async readInput(input: string | ArrayBuffer | Blob): Promise<string> {

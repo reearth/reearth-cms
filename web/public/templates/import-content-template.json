@@ -5,7 +5,10 @@
       "date-1": "2025-12-01T00:00:00+09:00",
       "float-1": 1.11,
       "geo-obj-1": {
-        "coordinates": [139.6917, 35.6895],
+        "coordinates": [
+          139.6917,
+          35.6895
+        ],
         "type": "Point"
       },
       "int-1": 111,
@@ -16,10 +19,14 @@
       "url-1": "http://111.com/"
     },
     {
+      "boolean-1": false,
       "date-1": "2025-12-02T00:00:00+09:00",
       "float-1": 2.22,
       "geo-obj-1": {
-        "coordinates": [139.6917, 35.6895],
+        "coordinates": [
+          139.6917,
+          35.6895
+        ],
         "type": "Point"
       },
       "int-1": 222,

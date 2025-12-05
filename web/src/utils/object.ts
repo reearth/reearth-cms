@@ -2,6 +2,8 @@
 import { check, getIssues, HintIssue } from "@placemarkio/check-geojson";
 import type { GeoJSON } from "geojson";
 
+import { PerformanceTimer } from "@reearth-cms/utils/performance";
+
 export abstract class ObjectUtils {
   public static shallowEqual(
     obj1: Record<string, unknown>,
@@ -12,15 +14,27 @@ export abstract class ObjectUtils {
     return keys1.length === keys2.length && keys1.every(key => obj1[key] === obj2[key]);
   }
 
-  public static safeJSONParse<T = Record<string, unknown>>(
+  public static async safeJSONParse<T = Record<string, unknown>>(
     str: string,
-  ): { isValid: true; data: T } | { isValid: false; error: string } {
-    try {
-      const data = JSON.parse(str);
-      return { isValid: true, data };
-    } catch (e) {
-      return { isValid: false, error: e instanceof Error ? e.message : "Invalid JSON" };
-    }
+  ): Promise<{ isValid: true; data: T } | { isValid: false; error: string }> {
+    return new Promise<{ isValid: true; data: T } | { isValid: false; error: string }>(
+      (resolve, _reject) => {
+        setTimeout(() => {
+          const timer = new PerformanceTimer("safeJSONParse");
+          try {
+            const data = JSON.parse(str) as T;
+            resolve({ isValid: true, data });
+          } catch (error) {
+            resolve({
+              isValid: false,
+              error: error instanceof Error ? error.message : "Invalid JSON",
+            });
+          } finally {
+            timer.log();
+          }
+        }, 0);
+      },
+    );
   }
 
   public static isEmpty(obj: Record<string, unknown>): boolean {
@@ -34,26 +48,34 @@ export abstract class ObjectUtils {
     return typeof value === "object" && value !== null && !Array.isArray(value);
   }
 
-  public static isValidKey(key: string): boolean {
-    return /^[A-Za-z0-9_]+$/.test(key);
-  }
-
   public static validateGeoJson(
     raw: Record<string, unknown> | string | GeoJSON,
-  ): { isValid: true; data: GeoJSON } | { isValid: false; errors: string[] } {
-    const parseRaw: string = typeof raw === "string" ? raw : JSON.stringify(raw);
-    const issues: HintIssue[] = getIssues(parseRaw);
+  ): Promise<{ isValid: true; data: GeoJSON } | { isValid: false; error: string }> {
+    return new Promise<{ isValid: true; data: GeoJSON } | { isValid: false; error: string }>(
+      (resolve, reject) => {
+        setTimeout(() => {
+          const timer = new PerformanceTimer("validateGeoJson");
 
-    if (issues.length > 0) {
-      return {
-        isValid: false,
-        errors: issues.map(issue => issue.message),
-      };
-    } else {
-      return {
-        isValid: true,
-        data: check(parseRaw),
-      };
-    }
+          const parseRaw: string = typeof raw === "string" ? raw : JSON.stringify(raw);
+          const issues: HintIssue[] = getIssues(parseRaw);
+
+          if (issues.length > 0) {
+            reject({
+              isValid: false,
+              error: JSON.stringify(
+                issues.map(issue => issue.message),
+                null,
+                2,
+              ),
+            });
+          } else {
+            const data = check(parseRaw);
+            resolve({ isValid: true, data });
+          }
+
+          timer.log();
+        }, 0);
+      },
+    );
   }
 }

@@ -3,7 +3,10 @@
   "features": [
     {
       "geometry": {
-        "coordinates": [139.6917, 35.6895],
+        "coordinates": [
+          139.6917,
+          35.6895
+        ],
         "type": "Point"
       },
       "properties": {
@@ -25,7 +28,10 @@
     },
     {
       "geometry": {
-        "coordinates": [139.6917, 35.6895],
+        "coordinates": [
+          139.6917,
+          35.6895
+        ],
         "type": "Point"
       },
       "properties": {
@@ -37,6 +43,7 @@
           "type": "asset"
         },
         "date-1": "2025-12-02T00:00:00+09:00",
+        "boolean-1": false,
         "option-1": "b",
         "int-1": 222,
         "float-1": 2.22,

@@ -85,7 +85,7 @@ const FileSelectionStep: React.FC<Props> = ({
       setFileList([]);
       setAlertList([]);
     },
-    beforeUpload: (file, fileList) => {
+    beforeUpload: async (file, fileList) => {
       const extension = FileUtils.getExtension(file.name);
 
       if (!["geojson", "json"].includes(extension)) {
@@ -105,22 +105,18 @@ const FileSelectionStep: React.FC<Props> = ({
         return;
       }
 
-      FileUtils.parseTextFile(file, content => {
-        if (content) {
-          const jsonValidation = ObjectUtils.safeJSONParse(content);
+      try {
+        const content = await FileUtils.parseTextFile(file);
 
-          if (
-            (jsonValidation.isValid && ObjectUtils.isEmpty(jsonValidation.data)) ||
-            !jsonValidation.isValid
-          ) {
-            raiseIllegalFileAlert();
-            return;
-          }
+        const jsonValidation = await ObjectUtils.safeJSONParse(content);
 
-          setAlertList([]);
-          onFileContentChange(content);
-        }
-      });
+        if (ObjectUtils.isEmpty(jsonValidation)) return void raiseIllegalFileAlert();
+
+        setAlertList([]);
+        onFileContentChange(content);
+      } catch (err) {
+        console.error(err);
+      }
 
       return false;
     },
@@ -148,15 +144,10 @@ const FileSelectionStep: React.FC<Props> = ({
           <p className="ant-upload-hint">{t("Only JSON or GeoJSON format is supported")}</p>
           <p>
             <Trans
-              i18nKey="You can also download file templates: JSON | GeoJSON"
+              i18nKey="You can also download file templates: JSON"
               components={{
                 l1: (
                   <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_SCHEMA_JSON}>JSON</TemplateLink>
-                ),
-                l2: (
-                  <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_SCHEMA_GEO_JSON}>
-                    GeoJSON
-                  </TemplateLink>
                 ),
               }}
             />

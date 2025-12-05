@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 
-import { GeoJSON } from "geojson";
+import { FeatureCollection } from "geojson";
 import { expect, test, describe } from "vitest";
 
 import { Model } from "@reearth-cms/components/molecules/Model/types";
@@ -19,13 +19,13 @@ import { ImportContentJSON, ImportUtils } from "@reearth-cms/utils/import";
 import { Constant } from "./constant";
 import { ObjectUtils } from "./object";
 
-function readFromJSONFile<T>(
+async function readFromJSONFile<T>(
   staticFileDirectory: string,
-): ReturnType<typeof ObjectUtils.safeJSONParse<T>> {
+): Promise<ReturnType<typeof ObjectUtils.safeJSONParse<T>>> {
   const filePath = join("public", staticFileDirectory);
   const fileContent = readFileSync(filePath, "utf-8");
 
-  return ObjectUtils.safeJSONParse(fileContent);
+  return await ObjectUtils.safeJSONParse(fileContent);
 }
 
 function readFromCSVFile(staticFileDirectory: string): string {
@@ -329,41 +329,101 @@ function getExpectedSchema(): Model {
 
 describe("Testing schema & content import from static files", () => {
   describe("Validate schema data from static files", () => {
-    test("Validate schema from JSON file", () => {
-      const result = readFromJSONFile<Record<string, unknown>>(
+    test("Validate schema from JSON file", async () => {
+      const result = await readFromJSONFile<Record<string, unknown>>(
         Constant.PUBLIC_FILE.IMPORT_SCHEMA_JSON,
       );
-      if (!result.isValid) throw new Error(result.error);
 
-      const parsedData = ImportUtils.validateSchemaFromJSON(result.data);
-      expect(parsedData.isValid).toBe(true);
+      expect(result.isValid).toBe(true);
+
+      if (result.isValid) {
+        const parsedData = ImportUtils.validateSchemaFromJSON(result.data);
+        expect(parsedData.isValid).toBe(true);
+      }
     });
   });
 
   describe("Validate content data from static files", () => {
     const expectedSchema = getExpectedSchema();
 
-    test("Validate CSV file", () => {
+    test("Validate CSV file", async () => {
       const csvString = readFromCSVFile(Constant.PUBLIC_FILE.IMPORT_CONTENT_CSV);
 
-      const validation = ImportUtils.validateContentFromCSV(csvString, expectedSchema);
-      expect(validation.isValid).toBe(true);
+      const csvValidation = await ImportUtils.convertCSVToJSON(csvString);
+
+      expect(csvValidation.isValid).toBe(true);
+
+      if (!csvValidation.isValid) return;
+
+      const contentValidation = await ImportUtils.validateContentFromCSV(
+        csvValidation.data,
+        expectedSchema.schema.fields,
+      );
+
+      expect(contentValidation.isValid).toBe(true);
     });
 
-    test("Validate JSON file", () => {
-      const result = readFromJSONFile<ImportContentJSON>(Constant.PUBLIC_FILE.IMPORT_CONTENT_JSON);
-      if (!result.isValid) throw new Error(result.error);
+    test("Validate JSON file", async () => {
+      const result = await readFromJSONFile<ImportContentJSON>(
+        Constant.PUBLIC_FILE.IMPORT_CONTENT_JSON,
+      );
 
-      const validation = ImportUtils.validateContentFromJSON(result.data, expectedSchema);
-      expect(validation.isValid).toBe(true);
+      expect(result.isValid).toBe(true);
+
+      if (result.isValid) {
+        const contentValidation = await ImportUtils.validateContentFromJSON(
+          result.data,
+          expectedSchema.schema.fields,
+        );
+        expect(contentValidation.isValid).toBe(true);
+      }
     });
 
-    test("Validate GeoJSON file", () => {
-      const result = readFromJSONFile<GeoJSON>(Constant.PUBLIC_FILE.IMPORT_CONTENT_GEO_JSON);
-      if (!result.isValid) throw new Error(result.error);
+    test("Validate GeoJSON file", async () => {
+      const result = await readFromJSONFile<FeatureCollection>(
+        Constant.PUBLIC_FILE.IMPORT_CONTENT_GEO_JSON,
+      );
 
-      const validation = ImportUtils.validateContentFromGeoJson(result.data, expectedSchema);
-      expect(validation.isValid).toBe(true);
+      expect(result.isValid).toBe(true);
+
+      if (result.isValid) {
+        const contentValidation = await ImportUtils.validateContentFromGeoJson(
+          result.data,
+          expectedSchema.schema.fields,
+        );
+        expect(contentValidation.isValid).toBe(true);
+      }
+    });
+  });
+
+  describe("Test convertCSVToJSON method", () => {
+    test.skip("Test illegal CSV string", async () => {
+      const illegalCSVString = `name,age,city
+        "John Doe,25,New York
+        Jane Smith,30,Boston`;
+
+      try {
+        await ImportUtils.convertCSVToJSON(illegalCSVString);
+        // throw Error(JSON.stringify(result, null, 2));
+      } catch (error) {
+        throw Error(String(error));
+      }
+    });
+
+    test("Test legal CSV string", async () => {
+      const illegalCSVString = `name,age,city,occupation
+      "John Doe",25,"New York","Software Engineer"
+      "Jane Smith",30,Boston,"Data Analyst"
+      Bob Johnson,35,"Los Angeles",Designer
+      "Alice ""Al"" Williams",28,Chicago,"Product Manager"
+      Michael Brown,42,Seattle,Consultant
+      "Sarah Davis",31,"San Francisco","UX Researcher"`;
+
+      try {
+        await ImportUtils.convertCSVToJSON(illegalCSVString);
+      } catch (error) {
+        throw Error(String(error));
+      }
     });
   });
 });

@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-import { useCallback, useState } from "react";
+import { GeoJSON } from "geojson";
+import { Dispatch, SetStateAction, useCallback, useMemo, useState } from "react";
 
 import Alert, { type AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
@@ -7,9 +8,11 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Loading from "@reearth-cms/components/atoms/Loading";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Upload, { UploadProps } from "@reearth-cms/components/atoms/Upload";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 import { FileUtils } from "@reearth-cms/utils/file";
+import { ErrorMeta, ImportContentJSON, ImportUtils } from "@reearth-cms/utils/import";
 import { ObjectUtils } from "@reearth-cms/utils/object";
 
 const { Dragger } = Upload;
@@ -17,8 +20,18 @@ const { Dragger } = Upload;
 type Props = {
   isOpen: boolean;
   dataChecking: boolean;
+  modelFields: Model["schema"]["fields"];
+  onSetDataChecking: (isChecking: boolean) => void;
   onClose: () => void;
-  onFileContentChange: (fileContent: string) => void;
+  onFileContentChange: ({
+    fileContent,
+    extension,
+  }: {
+    fileContent: Record<string, unknown>[];
+    extension: "csv" | "json" | "geojson";
+  }) => void;
+  alertList: AlertProps[];
+  setAlertList: Dispatch<SetStateAction<AlertProps[]>>;
 };
 
 const TemplateLink = ({ href, children }: ButtonProps) => (
@@ -30,11 +43,14 @@ const TemplateLink = ({ href, children }: ButtonProps) => (
 const ContentImportModal: React.FC<Props> = ({
   isOpen,
   dataChecking,
+  modelFields,
+  onSetDataChecking,
   onClose,
   onFileContentChange,
+  alertList,
+  setAlertList,
 }) => {
   const t = useT();
-  const [alertList, setAlertList] = useState<AlertProps[]>([]);
 
   const raiseIllegalFileAlert = useCallback(() => {
     setAlertList([
@@ -69,50 +85,137 @@ const ContentImportModal: React.FC<Props> = ({
     ]);
   }, [setAlertList, t]);
 
-  const uploadProps: UploadProps = {
-    name: "importContentFile",
-    multiple: true,
-    directory: false,
-    showUploadList: false,
-    listType: "picture",
-    beforeUpload: (file, fileList) => {
+  const schemaValidationAlert = useCallback(
+    (errorMeta: ErrorMeta) => {
+      const partialAlertProps: Pick<AlertProps, "type" | "closable" | "showIcon"> = {
+        type: "error",
+        closable: true,
+        showIcon: true,
+      };
+
+      const newAlertList: AlertProps[] = [];
+
+      console.log("errorMeta", errorMeta);
+
+      if (errorMeta.exceedLimit)
+        newAlertList.push({
+          ...partialAlertProps,
+          message: "too larrrrrge!",
+        });
+
+      if (errorMeta.mismatchFields.size > 0)
+        newAlertList.push({
+          ...partialAlertProps,
+          message: `fields mismatch: ${Array.from(errorMeta.mismatchFields).join(", ")}`,
+        });
+
+      setAlertList(newAlertList);
+    },
+    [setAlertList, t],
+  );
+
+  const handleStartLoading = useCallback(() => onSetDataChecking(true), [onSetDataChecking]);
+  const handleEndLoading = useCallback(() => onSetDataChecking(false), [onSetDataChecking]);
+
+  const handleBeforeUpload = useCallback<Required<UploadProps>["beforeUpload"]>(
+    async (file, fileList) => {
+      setAlertList([]);
+
       const extension = FileUtils.getExtension(file.name);
 
-      if (!["geojson", "json"].includes(extension)) {
-        raiseIllegalFileFormatAlert();
-        return;
-      }
+      if (!["geojson", "json", "csv"].includes(extension))
+        return void raiseIllegalFileFormatAlert();
 
-      if (fileList.length > 1) {
-        raiseSingleFileAlert();
-        return;
-      }
+      if (fileList.length > 1) return void raiseSingleFileAlert();
 
-      if (file.size === 0) {
-        raiseIllegalFileAlert();
-        return;
-      }
+      if (file.size === 0) return void raiseIllegalFileAlert();
 
-      FileUtils.parseTextFile(file, content => {
-        if (content) {
-          const jsonValidation = ObjectUtils.safeJSONParse(content);
+      try {
+        handleStartLoading();
+        const content = await FileUtils.parseTextFile(file);
 
-          if (
-            (jsonValidation.isValid && ObjectUtils.isEmpty(jsonValidation.data)) ||
-            !jsonValidation.isValid
-          ) {
-            raiseIllegalFileAlert();
-            return;
-          }
+        switch (extension) {
+          case "json":
+            {
+              const jsonValidation = await ObjectUtils.safeJSONParse<ImportContentJSON>(content);
+              if (!jsonValidation.isValid) return void raiseIllegalFileAlert();
 
-          setAlertList([]);
-          onFileContentChange(content);
+              const jsonContentValidation = await ImportUtils.validateContentFromJSON(
+                jsonValidation.data,
+                modelFields,
+              );
+
+              if (!jsonContentValidation.isValid) {
+                return void schemaValidationAlert(jsonContentValidation.error);
+              }
+
+              onFileContentChange({ fileContent: jsonContentValidation.data, extension });
+            }
+            break;
+
+          case "geojson":
+            {
+              const geoJSONValidation = await ObjectUtils.validateGeoJson(content);
+              if (!geoJSONValidation.isValid) return void raiseIllegalFileAlert();
+
+              const geoJSONContentValidation = await ImportUtils.validateContentFromGeoJson(
+                geoJSONValidation.data,
+                modelFields,
+              );
+
+              if (!geoJSONContentValidation.isValid)
+                return void schemaValidationAlert(geoJSONContentValidation.error);
+
+              onFileContentChange({ fileContent: geoJSONContentValidation.data, extension });
+            }
+            break;
+
+          case "csv":
+            {
+              const csvValidation = await ImportUtils.convertCSVToJSON(content);
+              if (!csvValidation.isValid) return void raiseIllegalFileAlert();
+
+              const csvContentValidation = await ImportUtils.validateContentFromCSV(
+                csvValidation.data,
+                modelFields,
+              );
+
+              if (!csvContentValidation.isValid)
+                return void schemaValidationAlert(csvContentValidation.error);
+              onFileContentChange({ fileContent: csvContentValidation.data, extension });
+            }
+            break;
+
+          default:
         }
-      });
+      } catch (error) {
+        console.error(error);
+      } finally {
+        handleEndLoading();
+      }
 
       return false;
     },
-  };
+    [
+      handleEndLoading,
+      handleStartLoading,
+      raiseIllegalFileAlert,
+      raiseIllegalFileFormatAlert,
+      raiseSingleFileAlert,
+    ],
+  );
+
+  const uploadProps: UploadProps = useMemo(
+    () => ({
+      name: "importContentFile",
+      multiple: true,
+      directory: false,
+      showUploadList: false,
+      listType: "picture",
+      beforeUpload: handleBeforeUpload,
+    }),
+    [handleBeforeUpload],
+  );
 
   return (
     <Modal

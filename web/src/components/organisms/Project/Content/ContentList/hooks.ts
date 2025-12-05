@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, useRef, Key } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
+import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { checkIfEmpty } from "@reearth-cms/components/molecules/Content/Form/fields/utils";
 import { renderField } from "@reearth-cms/components/molecules/Content/RenderField";
@@ -84,6 +85,7 @@ export default () => {
   const t = useT();
   const [isImportContentModalOpen, setIsImportContentModalOpen] = useState(false);
   const [dataChecking, setDataChecking] = useState(false);
+  const [alertList, setAlertList] = useState<AlertProps[]>([]);
 
   const navigate = useNavigate();
   const { modelId } = useParams();
@@ -623,19 +625,27 @@ export default () => {
 
   const handleImportContentModalClose = useCallback(() => {
     setIsImportContentModalOpen(false);
+    setAlertList([]);
   }, []);
 
-  const handleImportSchemaFileChange = async (fileContent: string): Promise<null> => {
-    setDataChecking(true);
-    console.log("fileContent", fileContent);
+  const handleImportContentFileChange = async ({
+    fileContent: _fileContent,
+    extension: _extension,
+  }: {
+    fileContent: Record<string, unknown>[];
+    extension: "csv" | "json" | "geojson";
+  }): Promise<null> => {
+    // console.log("fileContent", fileContent);
+    // console.log("extension", extension);
 
     // todo: PR#1707 add schema data check logic here
-
+    console.log("success, go to backend");
     return new Promise<null>((resolve, _reject) => {
-      setTimeout(() => {
-        resolve(null);
-        setDataChecking(false);
-      }, 3000);
+      resolve(null);
+      // setTimeout(() => {
+      //   resolve(null);
+      //   setDataChecking(false);
+      // }, 3000);
     });
   };
 
@@ -695,8 +705,11 @@ export default () => {
     handleImportContentModalOpen,
     handleImportContentModalClose,
     dataChecking,
-    handleImportSchemaFileChange,
+    setDataChecking,
+    handleImportContentFileChange,
     modelFields,
     hasModelFields,
+    alertList,
+    setAlertList,
   };
 };

@@ -152,6 +152,7 @@ Workspace Settings: ワークスペース設定
 The uploaded file is empty or invalid: アップロードされたファイルが空であるか無効です
 Only one file can be uploaded at a time: 一度に1つのファイルのみアップロード可能です
 File format is not supported: ファイル拡張子はサポートされていません
+'{{count}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored._other': '{{count, number}}つのフィールドがスキーマと一致しておりません。インポートを続行いただけますが、一致しないフィールドは無視されます。'
 Import content: コンテンツのインポート
 Checking the data file...: ファイルのコンテンツを確認中…
 Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema with field names and types. File can contain a maximum of {{count}} records._other: >-

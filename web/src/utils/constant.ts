@@ -19,6 +19,5 @@ export abstract class Constant {
     IMPORT_CONTENT_JSON: "/templates/import-content-template.json",
     IMPORT_CONTENT_GEO_JSON: "/templates/import-content-template.geojson",
     IMPORT_SCHEMA_JSON: "/templates/import-schema-template.json",
-    IMPORT_SCHEMA_GEO_JSON: "/templates/import-schema-template.geojson",
   };
 }

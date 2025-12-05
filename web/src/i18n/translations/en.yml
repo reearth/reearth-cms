@@ -152,10 +152,12 @@ Workspace Settings: ''
 The uploaded file is empty or invalid: ''
 Only one file can be uploaded at a time: ''
 File format is not supported: ''
+'{{count}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored._one': '{{count, number}} field do not match the schema. You can continue the import, but the unmatched fields will be ignored.'
+'{{count}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored._other': '{{count, number}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored.'
 Import content: ''
 Checking the data file...: ''
-Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema with field names and types. File can contain a maximum of {{count}} records._one: ''
-Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema with field names and types. File can contain a maximum of {{count}} records._other: ''
+Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema with field names and types. File can contain a maximum of {{count}} records._one: 'Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema with field names and types. File can contain a maximum of {{count, number}} record.'
+Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema with field names and types. File can contain a maximum of {{count}} records._other: 'Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema with field names and types. File can contain a maximum of {{count, number}} records.'
 'You can also download file templates: CSV | JSON | GeoJSON': >-
   You can also download file templates: <l1>CSV</l1> | <l2>JSON</l2> |
   <l3>GeoJSON</l3>
