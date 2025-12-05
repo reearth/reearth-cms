@@ -1,15 +1,16 @@
 import { t } from "@reearth-cms/i18n";
 
-import type { FieldType } from "./types";
+import type { SchemaFieldType } from "./types";
 
-export const fieldTypes: {
-  [key in FieldType]: {
+export const fieldTypes: Record<
+  SchemaFieldType,
+  {
     icon: string;
     title: string;
     description: string;
     color: string;
-  };
-} = {
+  }
+> = {
   Text: {
     icon: "textT",
     title: "Text",

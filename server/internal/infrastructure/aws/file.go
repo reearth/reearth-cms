@@ -27,19 +27,25 @@ import (
 )
 
 const (
-	s3AssetBasePath string        = "assets"
-	fileSizeLimit   int64         = 10 * 1024 * 1024 * 1024 // 10GB
-	expires         time.Duration = time.Minute * 15
+	s3AssetBasePath string = "assets"
+	fileSizeLimit   int64  = 10 * 1024 * 1024 * 1024 // 10GB
+	expires                = time.Minute * 15
 )
+
+type contextKey string
+
+const workspaceContextKey contextKey = "workspace"
 
 type fileRepo struct {
 	bucketName   string
-	baseURL      *url.URL
+	publicBase   *url.URL
+	privateBase  *url.URL
 	cacheControl string
 	s3Client     *s3.Client
+	public       bool
 }
 
-func NewFile(ctx context.Context, bucketName, baseURL, cacheControl string) (gateway.File, error) {
+func NewFile(ctx context.Context, bucketName, baseURL, cacheControl string, replaceUploadURL bool) (gateway.File, error) {
 	if bucketName == "" {
 		return nil, errors.New("bucket name is empty")
 	}
@@ -61,10 +67,27 @@ func NewFile(ctx context.Context, bucketName, baseURL, cacheControl string) (gat
 
 	return &fileRepo{
 		bucketName:   bucketName,
-		baseURL:      u,
+		publicBase:   u,
+		privateBase:  nil,
 		cacheControl: cacheControl,
 		s3Client:     s3.NewFromConfig(cfg),
+		public:       true,
 	}, nil
+}
+
+func NewFileWithACL(ctx context.Context, bucketName, publicBase, privateBase, cacheControl string, replaceUploadURL bool) (gateway.File, error) {
+	f, err := NewFile(ctx, bucketName, publicBase, cacheControl, replaceUploadURL)
+	if err != nil {
+		return nil, err
+	}
+	u, err := url.Parse(privateBase)
+	if err != nil {
+		return nil, rerror.NewE(i18n.T("invalid base URL"))
+	}
+	fr := f.(*fileRepo)
+	fr.privateBase = u
+	fr.public = false
+	return fr, nil
 }
 
 func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string, headers map[string]string) (io.ReadCloser, map[string]string, error) {
@@ -133,12 +156,43 @@ func (f *fileRepo) DeleteAsset(ctx context.Context, u string, fn string) error {
 	return f.delete(ctx, p)
 }
 
-func (f *fileRepo) GetURL(a *asset.Asset) string {
-	return getURL(f.baseURL.String(), a.UUID(), a.FileName())
+func (f *fileRepo) PublishAsset(ctx context.Context, u string, fn string) error {
+	if f.public {
+		return gateway.ErrUnsupportedOperation
+	}
+	return f.publish(ctx, getS3ObjectPath(u, fn), true)
+}
+
+func (f *fileRepo) UnpublishAsset(ctx context.Context, u string, fn string) error {
+	if f.public {
+		return gateway.ErrUnsupportedOperation
+	}
+	return f.publish(ctx, getS3ObjectPath(u, fn), false)
+}
+
+func (f *fileRepo) GetAccessInfoResolver() asset.AccessInfoResolver {
+	return func(a *asset.Asset) *asset.AccessInfo {
+		base := f.privateBase
+		publiclyAccessible := f.public || a.Public()
+		if publiclyAccessible {
+			base = f.publicBase
+		}
+		return &asset.AccessInfo{
+			Url:    getURL(base, a.UUID(), a.FileName()),
+			Public: publiclyAccessible,
+		}
+	}
+}
+
+func (f *fileRepo) GetAccessInfo(a *asset.Asset) *asset.AccessInfo {
+	if a == nil {
+		return nil
+	}
+	return f.GetAccessInfoResolver()(a)
 }
 
 func (f *fileRepo) GetBaseURL() string {
-	return f.baseURL.String()
+	return f.publicBase.String()
 }
 
 func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.IssueUploadAssetParam) (*gateway.UploadAssetLink, error) {
@@ -270,13 +324,12 @@ func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.Fi
 		return nil, err
 	}
 
-	file := &file.File{
+	return &file.File{
 		Content:     nil,
 		Name:        u.FileName(),
 		Size:        lo.FromPtr(obj.ContentLength),
 		ContentType: lo.FromPtr(obj.ContentType),
-	}
-	return file, nil
+	}, nil
 }
 
 func (f *fileRepo) Read(ctx context.Context, filename string, headers map[string]string) (io.ReadCloser, map[string]string, error) {
@@ -377,14 +430,22 @@ func (f *fileRepo) Upload(ctx context.Context, file *file.File, filename string)
 	}
 	body := bytes.NewReader(ba)
 
-	_, err = f.s3Client.PutObject(ctx, &s3.PutObjectInput{
+	input := &s3.PutObjectInput{
 		Bucket:          aws.String(f.bucketName),
 		CacheControl:    aws.String(f.cacheControl),
 		ContentEncoding: lo.EmptyableToPtr(file.ContentEncoding),
 		ContentType:     aws.String(file.ContentType),
 		Key:             aws.String(filename),
 		Body:            body,
-	})
+	}
+
+	if workspace := getWorkspaceFromContext(ctx); workspace != "" {
+		input.Metadata = map[string]string{
+			"X-Reearth-Workspace-ID": workspace,
+		}
+	}
+
+	_, err = f.s3Client.PutObject(ctx, input)
 	if err != nil {
 		return 0, gateway.ErrFailedToUploadFile
 	}
@@ -411,6 +472,29 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 		Key:    aws.String(filename),
 	})
 	if err != nil {
+		return rerror.ErrInternalBy(err)
+	}
+
+	return nil
+}
+
+func (f *fileRepo) publish(ctx context.Context, filename string, public bool) error {
+	if filename == "" {
+		return gateway.ErrInvalidFile
+	}
+	acl := types.ObjectCannedACLPrivate
+	if public {
+		acl = types.ObjectCannedACLPublicRead
+	}
+	_, err := f.s3Client.PutObjectAcl(ctx, &s3.PutObjectAclInput{
+		Bucket: aws.String(f.bucketName),
+		Key:    aws.String(filename),
+		ACL:    acl,
+	})
+	if err != nil {
+		if errors.Is(err, &types.NoSuchKey{}) {
+			return gateway.ErrFileNotFound
+		}
 		return rerror.ErrInternalBy(err)
 	}
 
@@ -507,9 +591,8 @@ func isValidUUID(u string) bool {
 	return err == nil
 }
 
-func getURL(host, uuid, fName string) string {
-	baseURL, _ := url.Parse(host)
-	return baseURL.JoinPath(s3AssetBasePath, uuid[:2], uuid[2:], fName).String()
+func getURL(host *url.URL, uuid, fName string) string {
+	return host.JoinPath(s3AssetBasePath, uuid[:2], uuid[2:], fName).String()
 }
 
 type uploadCursor struct {
@@ -538,4 +621,13 @@ func parseUploadCursor(c string) (*uploadCursor, error) {
 		UploadID: uploadID,
 		Part:     part,
 	}, nil
+}
+
+func getWorkspaceFromContext(ctx context.Context) string {
+	if v := ctx.Value(workspaceContextKey); v != nil {
+		if ws, ok := v.(string); ok {
+			return ws
+		}
+	}
+	return ""
 }

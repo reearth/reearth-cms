@@ -2,9 +2,12 @@ import { Cartesian3 } from "cesium";
 import { useCallback, useEffect } from "react";
 import { useCesium } from "resium";
 
+import { useAuthHeader } from "@reearth-cms/gql";
+
 import mapPin from "./mapPin.svg";
 
 type Props = {
+  isAssetPublic?: boolean;
   url: string;
 };
 
@@ -14,20 +17,26 @@ type GeoObj = {
   [x: string]: string | undefined;
 };
 
-export const Imagery: React.FC<Props> = ({ url }) => {
+export const Imagery: React.FC<Props> = ({ isAssetPublic, url }) => {
   const { viewer } = useCesium();
+  const { getHeader } = useAuthHeader();
 
   const dataFetch = useCallback(async () => {
-    const res = await fetch(url, {
-      method: "GET",
-    });
-    if (res.status !== 200) {
-      return;
+    try {
+      const res = await fetch(url, {
+        method: "GET",
+        headers: isAssetPublic ? {} : await getHeader(),
+      });
+      if (!res.ok) {
+        throw new Error("Error loading CSV data");
+      }
+      return await res.text();
+    } catch (err) {
+      console.error(err);
     }
-    return await res.text();
-  }, [url]);
+  }, [getHeader, isAssetPublic, url]);
 
-  const csvTextToObjects = useCallback((text: string) => {
+  const parseCsv = useCallback((text: string): GeoObj[] => {
     const result: GeoObj[] = [];
     const lines = text.split(/\r\n|\n|\r/);
     const headers = lines[0].split(",");
@@ -43,8 +52,9 @@ export const Imagery: React.FC<Props> = ({ url }) => {
     return result;
   }, []);
 
-  const pointAdd = useCallback(
-    (objects: GeoObj[]) => {
+  const addPointsToViewer = useCallback(
+    async (objects: GeoObj[]) => {
+      viewer?.entities.removeAll();
       for (const obj of objects) {
         if (obj.lng && obj.lat) {
           viewer?.entities.add({
@@ -59,21 +69,18 @@ export const Imagery: React.FC<Props> = ({ url }) => {
           });
         }
       }
-      viewer?.zoomTo(viewer.entities);
+      viewer?.zoomTo(viewer?.entities);
     },
     [viewer],
   );
 
-  const pointRender = useCallback(async () => {
-    const text = await dataFetch();
-    if (text) {
-      pointAdd(csvTextToObjects(text));
-    }
-  }, [csvTextToObjects, dataFetch, pointAdd]);
-
   useEffect(() => {
-    pointRender();
-  }, [pointRender]);
+    const loadAndRenderData = async () => {
+      const text = await dataFetch();
+      if (text) await addPointsToViewer(parseCsv(text));
+    };
+    loadAndRenderData();
+  }, [dataFetch, parseCsv, addPointsToViewer, viewer]);
 
   return null;
 };

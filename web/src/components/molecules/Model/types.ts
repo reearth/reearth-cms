@@ -8,6 +8,12 @@ export type Model = {
   schemaId: string;
   schema: Schema;
   metadataSchema: MetaDataSchema;
-  public: boolean;
   order?: number;
 };
+
+export enum ExportFormat {
+  Csv = "CSV",
+  Geojson = "GEOJSON",
+  Json = "JSON",
+  Schema = "SCHEMA",
+}

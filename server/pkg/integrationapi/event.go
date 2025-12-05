@@ -3,7 +3,6 @@ package integrationapi
 import (
 	"time"
 
-	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/operator"
 )
@@ -38,12 +37,12 @@ type ProjectIdAlias struct {
 	Alias string `json:"alias"`
 }
 
-func NewEventWith(e *event.Event[any], override any, urlResolver asset.URLResolver) (Event, error) {
+func NewEventWith(e *event.Event[any], override any) (Event, error) {
 	if override == nil {
 		override = e.Object()
 	}
 
-	d, err := New(override, urlResolver)
+	d, err := New(override)
 	if err != nil {
 		return Event{}, err
 	}

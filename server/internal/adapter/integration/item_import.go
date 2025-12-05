@@ -2,12 +2,14 @@ package integration
 
 import (
 	"context"
+	"errors"
 
 	"github.com/oapi-codegen/runtime"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearthx/rerror"
 	"github.com/samber/lo"
 )
 
@@ -15,11 +17,19 @@ func (s *Server) ModelImport(ctx context.Context, request ModelImportRequestObje
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ModelImport404Response{}, err
+		}
+		return ModelImport400Response{}, err
+	}
+
 	// run as background
 	if request.JSONBody != nil && lo.FromPtrOr(request.JSONBody.AsBackground, false) {
 		err := uc.Item.TriggerImportJob(ctx,
 			request.JSONBody.AssetId,
-			request.ModelId,
+			wp.Model.ID(),
 			string(request.JSONBody.Format),
 			string(request.JSONBody.Strategy),
 			lo.FromPtr(request.JSONBody.GeometryFieldKey),
@@ -32,7 +42,7 @@ func (s *Server) ModelImport(ctx context.Context, request ModelImportRequestObje
 		return nil, nil
 	}
 
-	sp, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
+	sp, err := uc.Schema.FindByModel(ctx, wp.Model.ID(), op)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +79,7 @@ func (s *Server) ModelImport(ctx context.Context, request ModelImportRequestObje
 		cp.Reader = fc
 	}
 
-	cp.ModelID = request.ModelId
+	cp.ModelID = wp.Model.ID()
 	cp.SP = *sp
 
 	res, err := uc.Item.Import(ctx, cp, op)
@@ -78,19 +88,13 @@ func (s *Server) ModelImport(ctx context.Context, request ModelImportRequestObje
 	}
 
 	return ModelImport200JSONResponse{
-		ModelId:       request.ModelId.Ref(),
+		ModelId:       wp.Model.ID().Ref(),
 		IgnoredCount:  &res.Ignored,
 		InsertedCount: &res.Inserted,
 		UpdatedCount:  &res.Updated,
 		ItemsCount:    &res.Total,
 		NewFields: lo.ToPtr(lo.Map(res.NewFields, func(f *schema.Field, _ int) integrationapi.SchemaField {
-			return integrationapi.SchemaField{
-				Id:       f.ID().Ref(),
-				Key:      lo.ToPtr(f.Key().String()),
-				Multiple: lo.ToPtr(f.Multiple()),
-				Required: lo.ToPtr(f.Required()),
-				Type:     lo.ToPtr(integrationapi.ValueType(f.Type())),
-			}
+			return integrationapi.NewSchemaField(f)
 		})),
 	}, nil
 }

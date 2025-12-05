@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/stretchr/testify/assert"
 )
@@ -85,12 +84,12 @@ func TestProject_UpdateName(t *testing.T) {
 
 func TestProject_Publication(t *testing.T) {
 	p := &Project{}
-	pp := &Publication{
-		scope:       PublicationScopePublic,
-		assetPublic: true,
+	pp := Accessibility{
+		visibility: VisibilityPublic,
+		apiKeys:    nil,
 	}
-	p.SetPublication(pp)
-	assert.Equal(t, pp, p.Publication())
+	p.SetAccessibility(pp)
+	assert.Equal(t, &pp, p.Accessibility())
 }
 
 func TestProject_UpdateDescription(t *testing.T) {
@@ -99,17 +98,65 @@ func TestProject_UpdateDescription(t *testing.T) {
 	assert.Equal(t, "aaa", p.Description())
 }
 
-func TestProject_UpdateTeam(t *testing.T) {
-	p := &Project{}
-	p.UpdateTeam(accountdomain.NewWorkspaceID())
-	assert.NotNil(t, p.Workspace())
-}
-
 func TestProject_SetRequestRoles(t *testing.T) {
 	p := &Project{}
 	r := []workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer}
 	p.SetRequestRoles(r)
 	assert.Equal(t, p.RequestRoles(), r)
+}
+
+func TestProject_SetTopics(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []string
+		expected []string
+	}{
+		{
+			name:     "nil topics",
+			input:    nil,
+			expected: []string{}, // SetTopics always initializes the slice
+		},
+		{
+			name:     "empty topics",
+			input:    []string{},
+			expected: []string{}, // SetTopics always initializes the slice
+		},
+		{
+			name:     "topics with spaces",
+			input:    []string{" topic1 ", "  topic2  "},
+			expected: []string{"topic1", "topic2"},
+		},
+		{
+			name:     "topics with empty strings",
+			input:    []string{"topic1", "", "topic2", "   ", "topic3"},
+			expected: []string{"topic1", "topic2", "topic3"},
+		},
+		{
+			name:     "duplicate topics",
+			input:    []string{"topic1", "topic2", "topic1", "topic2", "topic3"},
+			expected: []string{"topic1", "topic2", "topic3"},
+		},
+		{
+			name:     "mixed case with spaces, empties, and duplicates",
+			input:    []string{" topic1 ", "", "Topic1", "   ", " topic2  ", "topic2"},
+			expected: []string{"topic1", "Topic1", "topic2"},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			p := &Project{}
+			p.SetTopics(tt.input)
+			assert.Equal(t, tt.expected, p.Topics())
+		})
+	}
+
+	t.Run("nil receiver", func(t *testing.T) {
+		var p *Project
+		p.SetTopics([]string{"topic1"}) // should not panic
+	})
 }
 
 func TestProject_UpdateAlias(t *testing.T) {
@@ -148,13 +195,12 @@ func TestProject_UpdateAlias(t *testing.T) {
 }
 
 func TestProject_Clone(t *testing.T) {
-	pub := &Publication{}
+	pub := &Accessibility{}
 	r := []workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer}
-	p := New().NewID().Name("a").Publication(pub).RequestRoles(r).MustBuild()
+	p := New().NewID().Name("a").Accessibility(pub).RequestRoles(r).MustBuild()
 
 	got := p.Clone()
 	assert.Equal(t, p, got)
 	assert.NotSame(t, p, got)
-	assert.NotSame(t, p, got.publication)
 	assert.Nil(t, (*Project)(nil).Clone())
 }

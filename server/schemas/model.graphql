@@ -9,10 +9,15 @@ type Model implements Node {
   project: Project!
   schema: Schema!
   metadataSchema: Schema
-  public: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
   order: Int
+}
+
+enum ExportFormat{
+  JSON
+  CSV
+  GEOJSON
 }
 
 # Inputs
@@ -28,7 +33,6 @@ input UpdateModelInput {
   name: String
   description: String
   key: String
-  public: Boolean!
 }
 
 input UpdateModelsOrderInput {
@@ -39,13 +43,13 @@ input DeleteModelInput {
   modelId: ID!
 }
 
-input PublishModelInput {
+input ExportModelInput {
   modelId: ID!
-  status: Boolean!
+  format: ExportFormat!
 }
 
-input PublishModelsInput {
-  models: [PublishModelInput!]!
+input ExportModelSchemaInput {
+  modelId: ID!
 }
 
 # Payloads
@@ -57,13 +61,14 @@ type DeleteModelPayload {
   modelId: ID!
 }
 
-type PublishModelPayload {
+type ExportModelPayload {
   modelId: ID!
-  status: Boolean!
+  url: URL!
 }
 
-type PublishModelsPayload {
-  models: [PublishModelPayload!]!
+type ExportModelSchemaPayload {
+  modelId: ID!
+  url: URL!
 }
 
 type ModelsPayload {
@@ -83,7 +88,7 @@ type ModelEdge {
 }
 
 extend type Query {
-  models(projectId: ID!, pagination: Pagination): ModelConnection!
+  models(projectId: ID!, keyword: String, sort: Sort, pagination: Pagination): ModelConnection!
   checkModelKeyAvailability(projectId: ID!, key: String!): KeyAvailability!
 }
 
@@ -92,6 +97,6 @@ extend type Mutation {
   updateModel(input: UpdateModelInput!): ModelPayload
   updateModelsOrder(input: UpdateModelsOrderInput!): ModelsPayload
   deleteModel(input: DeleteModelInput!): DeleteModelPayload
-  publishModel(input: PublishModelInput!): PublishModelPayload
-  publishModels(input: PublishModelsInput!): PublishModelsPayload
+  exportModel(input: ExportModelInput!): ExportModelPayload
+  exportModelSchema(input: ExportModelSchemaInput!): ExportModelSchemaPayload
 }

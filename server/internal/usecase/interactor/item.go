@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
@@ -14,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/request"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -24,9 +24,6 @@ import (
 	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
-
-const maxPerPage = 100
-const defaultPerPage int64 = 50
 
 type Item struct {
 	repos       *repo.Container
@@ -101,13 +98,13 @@ func (i Item) ItemStatus(ctx context.Context, itemsIds id.ItemIDList, _ *usecase
 	return res, nil
 }
 
-func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
-	m, err := i.repos.Model.FindByID(ctx, modelID)
+func (i Item) FindPublicByModel(ctx context.Context, modelID id.ModelID, p *usecasex.Pagination, _ *usecase.Operator) (item.List, *usecasex.PageInfo, error) {
+	items, pi, err := i.repos.Item.FindByModel(ctx, modelID, version.Public.Ref(), nil, p)
 	if err != nil {
 		return nil, nil, err
 	}
-	// TODO: check operation for projects that publication type is limited
-	return i.repos.Item.FindByModel(ctx, m.ID(), version.Public.Ref(), nil, p)
+
+	return items.Unwrap(), pi, nil
 }
 
 func (i Item) FindBySchema(ctx context.Context, schemaID id.SchemaID, sort *usecasex.Sort, p *usecasex.Pagination, _ *usecase.Operator) (item.VersionedList, *usecasex.PageInfo, error) {
@@ -431,37 +428,12 @@ func (i Item) Update(ctx context.Context, param interfaces.UpdateItemParam, oper
 	})
 }
 
-func (i Item) Delete(ctx context.Context, itemID id.ItemID, operator *usecase.Operator) error {
-	if operator.AcOperator.User == nil && operator.Integration == nil {
-		return interfaces.ErrInvalidOperator
+func (i Item) Delete(ctx context.Context, itemID id.ItemID, sp schema.Package, operator *usecase.Operator) error {
+	_, err := i.BatchDelete(ctx, []id.ItemID{itemID}, sp, operator)
+	if errors.Is(err, interfaces.ErrPartialNotFound) {
+		return rerror.ErrNotFound
 	}
-
-	return Run0(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) error {
-		itm, err := i.repos.Item.FindByID(ctx, itemID, nil)
-		if err != nil {
-			return err
-		}
-		s, err := i.repos.Schema.FindByID(ctx, itm.Value().Schema())
-		if err != nil {
-			return err
-		}
-		if !operator.CanUpdate(itm.Value()) {
-			return interfaces.ErrOperationDenied
-		}
-
-		oldFields := itm.Value().Fields()
-		itm.Value().ClearReferenceFields()
-		if err := i.handleReferenceFields(ctx, *s, itm.Value(), oldFields); err != nil {
-			return err
-		}
-		if itm.Value().MetadataItem() != nil {
-			err = i.repos.Item.Remove(ctx, itemID)
-			if err != nil {
-				return err
-			}
-		}
-		return i.repos.Item.Remove(ctx, itemID)
-	})
+	return err
 }
 
 func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *usecase.Operator) (item.VersionedList, error) {
@@ -580,7 +552,12 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 			}
 		}
 
-		for _, itm := range items {
+		updated, err := i.repos.Item.FindByIDs(ctx, itemIDs, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, itm := range updated {
 			refItems, err := i.getReferencedItems(ctx, itm.Value().Fields())
 			if err != nil {
 				return nil, err
@@ -603,7 +580,7 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 			}
 		}
 
-		return items, nil
+		return updated, nil
 	})
 }
 
@@ -659,7 +636,7 @@ func (i Item) handleReferenceFields(ctx context.Context, s schema.Schema, itm *i
 
 func (i Item) handleReferenceField(ctx context.Context, sf schema.Field, iID item.ID, newF, oldF *item.Field) error {
 	fr, ok := schema.FieldReferenceFromTypeProperty(sf.TypeProperty())
-	if !ok || !fr.IsTowWay() || newF.Value().Equal(oldF.Value()) {
+	if !ok || !fr.IsTwoWay() || newF.Value().Equal(oldF.Value()) {
 		return nil
 	}
 
@@ -859,81 +836,184 @@ func (i Item) getReferencedItems(ctx context.Context, fields []*item.Field) ([]i
 	return i.repos.Item.FindByIDs(ctx, ids, nil)
 }
 
-// ItemsAsCSV exports items data in content to csv file by schema package.
-func (i Item) ItemsAsCSV(ctx context.Context, schemaPackage *schema.Package, page *int, perPage *int, operator *usecase.Operator) (interfaces.ExportItemsToCSVResponse, error) {
-	if operator.AcOperator.User == nil && operator.Integration == nil {
-		return interfaces.ExportItemsToCSVResponse{}, interfaces.ErrInvalidOperator
-	}
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (interfaces.ExportItemsToCSVResponse, error) {
-
-		// fromPagination
-		paginationOffset := fromPagination(page, perPage)
-
-		items, _, err := i.repos.Item.FindBySchema(ctx, schemaPackage.Schema().ID(), nil, nil, paginationOffset)
-		if err != nil {
-			return interfaces.ExportItemsToCSVResponse{}, err
+func refFields(s schema.Schema, refSchemaID schema.ID) item.FieldIDList {
+	return lo.FilterMap(s.FieldsByType(value.TypeReference), func(refField *schema.Field, _ int) (item.FieldID, bool) {
+		var rf *schema.FieldReference
+		refField.TypeProperty().Match(schema.TypePropertyMatch{
+			Reference: func(f *schema.FieldReference) {
+				rf = f
+			},
+		})
+		if rf == nil || rf.Schema() != refSchemaID {
+			return item.FieldID{}, false
 		}
-
-		pr, pw := io.Pipe()
-		err = csvFromItems(pw, items, schemaPackage.Schema())
-		if err != nil {
-			return interfaces.ExportItemsToCSVResponse{}, err
-		}
-
-		return interfaces.ExportItemsToCSVResponse{
-			PipeReader: pr,
-		}, nil
+		return refField.ID(), true
 	})
 }
 
-// ItemsAsGeoJSON converts items to Geo JSON type given the schema package
-func (i Item) ItemsAsGeoJSON(ctx context.Context, schemaPackage *schema.Package, page *int, perPage *int, operator *usecase.Operator) (interfaces.ExportItemsToGeoJSONResponse, error) {
-
-	if operator.AcOperator.User == nil && operator.Integration == nil {
-		return interfaces.ExportItemsToGeoJSONResponse{}, interfaces.ErrInvalidOperator
+func (i Item) handelRelatedReferenceFields(ctx context.Context, itemIDs id.ItemIDList, sp schema.Package) error {
+	if len(itemIDs) == 0 {
+		return nil
 	}
 
-	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (interfaces.ExportItemsToGeoJSONResponse, error) {
-
-		// fromPagination
-		paginationOffset := fromPagination(page, perPage)
-
-		items, pi, err := i.repos.Item.FindBySchema(ctx, schemaPackage.Schema().ID(), nil, nil, paginationOffset)
+	p := usecasex.CursorPagination{First: lo.ToPtr(int64(100))}.Wrap()
+	for {
+		models, pageInfo, err := i.repos.Model.FindByProject(ctx, sp.Schema().Project(), p)
 		if err != nil {
-			return interfaces.ExportItemsToGeoJSONResponse{}, err
+			return err
 		}
 
-		featureCollections, err := featureCollectionFromItems(items, schemaPackage.Schema())
+		sIDs := lo.Map(models, func(m *model.Model, _ int) id.SchemaID {
+			return m.Schema()
+		})
+
+		schemas, err := i.repos.Schema.FindByIDs(ctx, sIDs)
 		if err != nil {
-			return interfaces.ExportItemsToGeoJSONResponse{}, err
+			return err
 		}
 
-		return interfaces.ExportItemsToGeoJSONResponse{
-			FeatureCollections: featureCollections,
-			PageInfo:           pi,
-		}, nil
-	})
-}
-
-func fromPagination(page, perPage *int) *usecasex.Pagination {
-	p := int64(1)
-	if page != nil && *page > 0 {
-		p = int64(*page)
-	}
-
-	pp := defaultPerPage
-	if perPage != nil {
-		if ppr := *perPage; 1 <= ppr {
-			if ppr > maxPerPage {
-				pp = int64(maxPerPage)
-			} else {
-				pp = int64(ppr)
+		for _, s := range schemas {
+			if !s.ReferencedSchemas().Has(sp.Schema().ID()) {
+				continue
+			}
+			m, ok := lo.Find(models, func(m *model.Model) bool {
+				return m.Schema() == s.ID()
+			})
+			if !ok {
+				return rerror.ErrInternalBy(fmt.Errorf("model not found for schema %s", s.ID()))
+			}
+			refFields(*s, sp.Schema().ID())
+			err = i.clearRelatedReferenceFields(ctx, m.ID(), s, refFields(*s, sp.Schema().ID()), itemIDs)
+			if err != nil {
+				return err
 			}
 		}
+
+		if !pageInfo.HasNextPage {
+			break
+		}
+		p = usecasex.CursorPagination{First: lo.ToPtr(int64(100)), After: pageInfo.EndCursor}.Wrap()
 	}
 
-	return usecasex.OffsetPagination{
-		Offset: (p - 1) * pp,
-		Limit:  pp,
-	}.Wrap()
+	return nil
+}
+
+func (i Item) clearRelatedReferenceFields(ctx context.Context, modelID id.ModelID, _ *schema.Schema, refFieldIDs item.FieldIDList, itemIDs id.ItemIDList) error {
+	if len(itemIDs) == 0 || len(refFieldIDs) == 0 {
+		return nil
+	}
+
+	// loop through itemIDs in batches to avoid large queries
+	batchSize := 100
+	for start := 0; start < len(itemIDs); start += batchSize {
+		end := start + batchSize
+		if end > len(itemIDs) {
+			end = len(itemIDs)
+		}
+		batchIDs := itemIDs[start:end]
+
+		filter := lo.FlatMap(batchIDs, func(id id.ItemID, _ int) []repo.FieldAndValue {
+			return lo.Map(refFieldIDs, func(fieldID item.FieldID, _ int) repo.FieldAndValue {
+				return repo.FieldAndValue{
+					Field: fieldID,
+					Value: value.NewMultiple(value.TypeReference, []any{id}),
+				}
+			})
+		})
+
+		ivl, err := i.repos.Item.FindByModelAndValue(ctx, modelID, filter, nil)
+		if err != nil {
+			return err
+		}
+
+		updates := lo.FilterMap(ivl.Unwrap(), func(itm *item.Item, _ int) (*item.Item, bool) {
+			updated := false
+			for _, refFieldID := range refFieldIDs {
+				field := itm.Field(refFieldID)
+				if field == nil {
+					continue
+				}
+
+				newValues := make([]any, 0, field.Value().Len())
+				hasDeletedRef := false
+
+				for _, val := range field.Value().Values() {
+					if refID, ok := val.ValueReference(); ok && itemIDs.Has(refID) {
+						hasDeletedRef = true
+					} else {
+						newValues = append(newValues, val.Value())
+					}
+				}
+
+				if hasDeletedRef {
+					newMultiple := value.NewMultiple(value.TypeReference, newValues)
+					newField := item.NewField(refFieldID, newMultiple, field.ItemGroup())
+					itm.UpdateFields([]*item.Field{newField})
+					updated = true
+				}
+			}
+			return itm, updated
+		})
+
+		if err := i.repos.Item.SaveAll(ctx, updates); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (i Item) BatchDelete(ctx context.Context, iIDs id.ItemIDList, sp schema.Package, operator *usecase.Operator) (result id.ItemIDList, err error) {
+	if !operator.IsUserOrIntegration() {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
+	if len(iIDs) == 0 {
+		return nil, interfaces.ErrEmptyIDsList
+	}
+
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (id.ItemIDList, error) {
+		vList, err := i.repos.Item.FindByIDs(ctx, iIDs, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(iIDs) != len(vList) {
+			if len(vList) == 0 {
+				return nil, rerror.ErrNotFound
+			}
+			return nil, interfaces.ErrPartialNotFound
+		}
+
+		iList := vList.Unwrap()
+
+		// check permissions and all items are related to the same model
+		for _, itm := range iList {
+			if itm == nil {
+				continue
+			}
+			if itm.Model() != iList[0].Model() {
+				return nil, interfaces.ErrItemsShouldBeOnSameModel
+			}
+			if !operator.CanUpdate(itm) {
+				return nil, interfaces.ErrOperationDenied
+			}
+		}
+
+		if err := i.handelRelatedReferenceFields(ctx, iList.IDs(), sp); err != nil {
+			return nil, err
+		}
+
+		err = i.repos.Item.BatchRemove(ctx, iList.MetadataIDs())
+		if err != nil {
+			return nil, err
+		}
+
+		err = i.repos.Item.BatchRemove(ctx, iIDs)
+		if err != nil {
+			return nil, err
+		}
+
+		return iIDs, nil
+	})
 }

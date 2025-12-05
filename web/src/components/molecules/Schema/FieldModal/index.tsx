@@ -21,20 +21,20 @@ import FieldValidationInputs from "@reearth-cms/components/molecules/Schema/Fiel
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import {
   Field,
-  FieldType,
+  SchemaFieldType,
   Group,
   FormValues,
   Tag,
   SelectedSchemaType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
-import { MAX_KEY_LENGTH } from "@reearth-cms/utils/regex";
+import { Constant } from "@reearth-cms/utils/constant";
 
 import useHooks from "./hooks";
 
 type Props = {
   groups?: Group[];
-  selectedType: FieldType;
+  selectedType: SchemaFieldType;
   selectedSchemaType: SelectedSchemaType;
   isMeta: boolean;
   open: boolean;
@@ -222,7 +222,7 @@ const FieldModal: React.FC<Props> = ({
                   },
                 },
               ]}>
-              <Input onChange={handleKeyChange} showCount maxLength={MAX_KEY_LENGTH} />
+              <Input onChange={handleKeyChange} showCount maxLength={Constant.KEY.MAX_LENGTH} />
             </Form.Item>
             <Form.Item name="description" label={t("Description")}>
               <TextArea rows={3} showCount maxLength={1000} />

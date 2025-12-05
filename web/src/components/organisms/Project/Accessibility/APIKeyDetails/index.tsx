@@ -1,0 +1,52 @@
+import APIKeyDetailsMolecule from "@reearth-cms/components/molecules/Accessibility/APIKeyDetails";
+
+import useHooks from "./hooks";
+
+const APIKeyDetails: React.FC = () => {
+  const {
+    apiUrl,
+    keyId,
+    currentProject,
+    currentKey,
+    createLoading,
+    hasPublishRight,
+    hasCreateRight,
+    hasUpdateRight,
+    initialValues,
+    isNewKey,
+    keyModels,
+    updateLoading,
+    regenerateLoading,
+    topRef,
+    handleAPIKeyCreate,
+    handleAPIKeyUpdate,
+    handleAPIKeyRegenerate,
+    handleBack,
+  } = useHooks();
+
+  return (
+    <div ref={topRef}>
+      <APIKeyDetailsMolecule
+        apiUrl={apiUrl}
+        currentProject={currentProject}
+        currentKey={currentKey}
+        hasCreateRight={hasCreateRight}
+        hasUpdateRight={hasUpdateRight}
+        hasPublishRight={hasPublishRight}
+        initialValues={initialValues}
+        isNewKey={isNewKey}
+        keyModels={keyModels}
+        keyId={keyId}
+        createLoading={createLoading}
+        updateLoading={updateLoading}
+        regenerateLoading={regenerateLoading}
+        onAPIKeyCreate={handleAPIKeyCreate}
+        onAPIKeyUpdate={handleAPIKeyUpdate}
+        onAPIKeyRegenerate={handleAPIKeyRegenerate}
+        onBack={handleBack}
+      />
+    </div>
+  );
+};
+
+export default APIKeyDetails;

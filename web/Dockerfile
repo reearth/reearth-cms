@@ -1,4 +1,4 @@
-FROM node:22.14.0-slim AS builder
+FROM node:24.11.0-slim AS builder
 WORKDIR /app
 
 ARG NODE_OPTIONS="--max-old-space-size=4096"
@@ -17,10 +17,11 @@ RUN --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=tsconfig.json,target=tsconfig.json \
     --mount=type=bind,source=vite.config.ts,target=vite.config.ts \
     --mount=type=bind,source=src,target=src \
+    --mount=type=bind,source=public,target=public \
     --mount=type=cache,target=/root/.yarn,sharing=locked \
     yarn build
 
-FROM nginx:1.27-alpine
+FROM nginx:1.29-alpine
 WORKDIR /usr/share/nginx/html
 
 # Quite the Nginx startup logs.
@@ -46,6 +47,8 @@ ENV REEARTH_CMS_COVER_IMAGE_URL=null
 ENV REEARTH_CMS_EDITOR_URL=null
 ENV REEARTH_CMS_LOGO_URL=null
 ENV REEARTH_CMS_MULTI_TENANT=null
+ENV REEARTH_CMS_DISABLE_WORKSPACE_UI=null
+ENV REEARTH_CMS_DASHBOARD_BASE_URL=null
 
 RUN --mount=type=cache,target=/var/cache/apk \
     apk add --no-cache jq

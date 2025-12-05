@@ -12,7 +12,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
@@ -27,6 +26,12 @@ func TestNewItem(t *testing.T) {
 		NewUUID().
 		MustBuild()
 	af := asset.NewFile().Name("name.json").Path("name.json").Size(1).Build()
+	as.SetAccessInfoResolver(func(_ *asset.Asset) *asset.AccessInfo {
+		return &asset.AccessInfo{
+			Public: true,
+			Url:    "https://example.com/" + as.ID().String() + af.Path(),
+		}
+	})
 	s2 := schema.New().
 		NewID().
 		Project(id.NewProjectID()).
@@ -38,7 +43,7 @@ func TestNewItem(t *testing.T) {
 
 	g := group.New().
 		NewID().
-		Name("test group").
+		Name("WPMContext group").
 		Project(id.NewProjectID()).
 		Key(id.NewKey("group1")).
 		Schema(s2.ID()).
@@ -83,9 +88,7 @@ func TestNewItem(t *testing.T) {
 			},
 			"ggggg": resGroup,
 		}),
-	}, NewItem(it, schema.NewPackage(s, nil, map[id.GroupID]*schema.Schema{id.NewGroupID(): s2}, nil), asset.List{as}, func(a *asset.Asset) string {
-		return "https://example.com/" + a.ID().String() + af.Path()
-	}, nil))
+	}, NewItem(it, schema.NewPackage(s, nil, map[id.GroupID]*schema.Schema{id.NewGroupID(): s2}, nil), asset.List{as}, nil))
 
 	// no assets
 	assert.Equal(t, Item{
@@ -94,7 +97,7 @@ func TestNewItem(t *testing.T) {
 			"aaaaa": "aaaa",
 			"ggggg": resGroup,
 		}),
-	}, NewItem(it, schema.NewPackage(s, nil, map[id.GroupID]*schema.Schema{id.NewGroupID(): s2}, nil), nil, nil, nil))
+	}, NewItem(it, schema.NewPackage(s, nil, map[id.GroupID]*schema.Schema{id.NewGroupID(): s2}, nil), nil, nil))
 }
 
 func TestNewItem_Multiple(t *testing.T) {
@@ -107,6 +110,12 @@ func TestNewItem_Multiple(t *testing.T) {
 		NewUUID().
 		MustBuild()
 	af := asset.NewFile().Name("name.json").Path("name.json").Size(1).ContentType("application/json").Build()
+	as.SetAccessInfoResolver(func(_ *asset.Asset) *asset.AccessInfo {
+		return &asset.AccessInfo{
+			Public: true,
+			Url:    "https://example.com/" + as.ID().String() + af.Path(),
+		}
+	})
 	s := schema.New().
 		NewID().
 		Project(id.NewProjectID()).
@@ -138,9 +147,7 @@ func TestNewItem_Multiple(t *testing.T) {
 				URL:  "https://example.com/" + as.ID().String() + af.Path(),
 			}},
 		}),
-	}, NewItem(it, schema.NewPackage(s, nil, nil, nil), asset.List{as}, func(a *asset.Asset) string {
-		return "https://example.com/" + a.ID().String() + af.Path()
-	}, nil))
+	}, NewItem(it, schema.NewPackage(s, nil, nil, nil), asset.List{as}, nil))
 
 	// no assets
 	assert.Equal(t, Item{
@@ -148,7 +155,7 @@ func TestNewItem_Multiple(t *testing.T) {
 		Fields: ItemFields(map[string]any{
 			"aaaaa": []any{"aaaa"},
 		}),
-	}, NewItem(it, schema.NewPackage(s, nil, nil, nil), nil, nil, nil))
+	}, NewItem(it, schema.NewPackage(s, nil, nil, nil), nil, nil))
 }
 
 func TestItem_MarshalJSON(t *testing.T) {
@@ -176,61 +183,4 @@ func TestItem_MarshalJSON(t *testing.T) {
 			"url":  "https://example.com",
 		},
 	}, v)
-}
-
-func TestNewListResult(t *testing.T) {
-	assert.Equal(t, ListResult[any]{
-		Results:    []any{},
-		TotalCount: 1010,
-		HasMore:    lo.ToPtr(true),
-		Limit:      lo.ToPtr(int64(100)),
-		Offset:     lo.ToPtr(int64(250)),
-		Page:       lo.ToPtr(int64(3)),
-	}, NewListResult[any](nil, &usecasex.PageInfo{
-		TotalCount: 1010,
-	}, usecasex.OffsetPagination{
-		Offset: 250,
-		Limit:  100,
-	}.Wrap()))
-
-	assert.Equal(t, ListResult[any]{
-		Results:    []any{},
-		TotalCount: 150,
-		HasMore:    lo.ToPtr(false),
-		Limit:      lo.ToPtr(int64(100)),
-		Offset:     lo.ToPtr(int64(100)),
-		Page:       lo.ToPtr(int64(2)),
-	}, NewListResult[any](nil, &usecasex.PageInfo{
-		TotalCount: 150,
-	}, usecasex.OffsetPagination{
-		Offset: 100,
-		Limit:  100,
-	}.Wrap()))
-
-	assert.Equal(t, ListResult[any]{
-		Results:    []any{},
-		TotalCount: 50,
-		HasMore:    lo.ToPtr(false),
-		Limit:      lo.ToPtr(int64(50)),
-		Offset:     lo.ToPtr(int64(0)),
-		Page:       lo.ToPtr(int64(1)),
-	}, NewListResult[any](nil, &usecasex.PageInfo{
-		TotalCount: 50,
-	}, usecasex.OffsetPagination{
-		Offset: 0,
-		Limit:  50,
-	}.Wrap()))
-
-	assert.Equal(t, ListResult[any]{
-		Results:    []any{},
-		TotalCount: 50,
-		HasMore:    lo.ToPtr(true),
-		NextCursor: lo.ToPtr("cur"),
-	}, NewListResult[any](nil, &usecasex.PageInfo{
-		TotalCount:  50,
-		EndCursor:   usecasex.Cursor("cur").Ref(),
-		HasNextPage: true,
-	}, usecasex.CursorPagination{
-		First: lo.ToPtr(int64(100)),
-	}.Wrap()))
 }

@@ -49,7 +49,6 @@ func TestNewModel(t *testing.T) {
 				Key:              util.ToPtrIfNotEmpty(model1.Key().String()),
 				Name:             util.ToPtrIfNotEmpty(model1.Name()),
 				Description:      util.ToPtrIfNotEmpty(model1.Description()),
-				Public:           util.ToPtrIfNotEmpty(model1.Public()),
 				ProjectId:        model1.Project().Ref(),
 				SchemaId:         model1.Schema().Ref(),
 				Schema:           util.ToPtrIfNotEmpty(NewSchema(schemaPackage1.Schema())),
@@ -72,7 +71,6 @@ func TestNewModel(t *testing.T) {
 				Key:              util.ToPtrIfNotEmpty(model2.Key().String()),
 				Name:             util.ToPtrIfNotEmpty(model2.Name()),
 				Description:      util.ToPtrIfNotEmpty(model2.Description()),
-				Public:           util.ToPtrIfNotEmpty(model2.Public()),
 				ProjectId:        model2.Project().Ref(),
 				SchemaId:         model2.Schema().Ref(),
 				Schema:           util.ToPtrIfNotEmpty(NewSchema(schemaPackage2.Schema())),
@@ -139,6 +137,61 @@ func TestNewItemFieldChanges(t *testing.T) {
 			t.Parallel()
 			result := NewItemFieldChanges(test.args.change)
 			assert.Equal(t, test.want, result)
+		})
+	}
+}
+
+func TestNewSchemaField(t *testing.T) {
+	fID := id.NewFieldID()
+	type args struct {
+		f *schema.Field
+	}
+	tests := []struct {
+		name string
+		args args
+		want SchemaField
+	}{
+		{
+			name: "success",
+			args: args{
+				f: schema.NewField(schema.NewText(nil).TypeProperty()).ID(fID).Key(id.NewKey("test1")).MustBuild(),
+			},
+			want: SchemaField{
+				Id:       fID,
+				Key:      "test1",
+				Multiple: false,
+				Name:     "",
+				Required: false,
+				Type:     "text",
+			},
+		},
+		{
+			name: "success2",
+			args: args{
+				f: schema.NewField(schema.NewText(nil).TypeProperty()).
+					ID(fID).
+					Key(id.NewKey("test1")).
+					Name("test name").
+					Multiple(true).
+					Required(true).
+					MustBuild(),
+			},
+			want: SchemaField{
+				Id:       fID,
+				Key:      "test1",
+				Multiple: true,
+				Name:     "test name",
+				Required: true,
+				Type:     "text",
+			},
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, NewSchemaField(tt.args.f))
 		})
 	}
 }

@@ -5,13 +5,14 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { Role } from "@reearth-cms/components/molecules/Member/types";
 import useHooks from "@reearth-cms/components/organisms/Workspace/hooks";
 import {
-  useUpdateProjectMutation,
-  useDeleteProjectMutation,
+  ProjectVisibility,
   Role as GQLRole,
   useCheckProjectAliasLazyQuery,
+  useDeleteProjectMutation,
+  useUpdateProjectMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace, useUserRights, useProject } from "@reearth-cms/state";
+import { useProject, useUserRights, useWorkspace } from "@reearth-cms/state";
 
 export default () => {
   const { projectsRefetch } = useHooks();
@@ -25,6 +26,10 @@ export default () => {
   const [userRights] = useUserRights();
   const hasUpdateRight = useMemo(() => !!userRights?.project.update, [userRights?.project.update]);
   const hasDeleteRight = useMemo(() => !!userRights?.project.delete, [userRights?.project.delete]);
+  const hasPublishRight = useMemo(
+    () => !!userRights?.project.publish,
+    [userRights?.project.publish],
+  );
 
   const [updateProjectMutation] = useUpdateProjectMutation({
     refetchQueries: ["GetProject"],
@@ -90,19 +95,45 @@ export default () => {
     async (alias: string) => {
       if (!alias) return false;
 
-      const response = await CheckProjectAlias({ variables: { alias } });
+      if (!workspaceId) {
+        throw new Error("Workspace ID is required to check project alias");
+      }
+      const response = await CheckProjectAlias({ variables: { workspaceId, alias } });
       return response.data ? response.data.checkProjectAlias.available : false;
     },
-    [CheckProjectAlias],
+    [CheckProjectAlias, workspaceId],
+  );
+
+  const handleProjectVisibilityChange = useCallback(
+    async (visibility: string) => {
+      if (!projectId || !visibility) return;
+      const result = await updateProjectMutation({
+        variables: {
+          projectId,
+          accessibility: {
+            visibility:
+              visibility === "PUBLIC" ? ProjectVisibility.Public : ProjectVisibility.Private,
+          },
+        },
+      });
+      if (result.errors || !result.data?.updateProject) {
+        Notification.error({ message: t("Failed to update project visibility.") });
+        return;
+      }
+      Notification.success({ message: t("Successfully updated project visibility!") });
+    },
+    [projectId, t, updateProjectMutation],
   );
 
   return {
     project: currentProject,
     hasUpdateRight,
     hasDeleteRight,
+    hasPublishRight,
     handleProjectUpdate,
     handleProjectRequestRolesUpdate,
     handleProjectDelete,
     handleProjectAliasCheck,
+    handleProjectVisibilityChange,
   };
 };

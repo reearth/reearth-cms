@@ -1,6 +1,16 @@
 name: Web E2E test
 on:
   workflow_dispatch:
+    inputs:
+      branch:
+        description: "Target branch"
+        required: false
+        default: "main"
+      smoke_only:
+        description: "Run smoke tests only"
+        type: boolean
+        required: false
+        default: false
   schedule:
     - cron: "0 3 * * 1-5"
   workflow_call:
@@ -14,11 +24,34 @@ on:
       branch:
         required: true
         type: string
+      use_iap:
+        description: "Enable IAP authentication"
+        required: false
+        type: boolean
+        default: false
+      iap_target_audience:
+        description: "IAP OAuth client ID"
+        required: false
+        type: string
+        default: ""
+      token_format:
+        description: "Token format for authentication"
+        required: false
+        type: string
+        default: "id-token"
+      smoke_only:
+        description: "Run smoke tests only"
+        type: boolean
+        required: false
+        default: false
     secrets:
       REEARTH_WEB_E2E_USERNAME:
         required: true
       REEARTH_WEB_E2E_PASSWORD:
         required: true
+      GC_WORKLOAD_IDENTITY_PROVIDER:
+        description: "Workload Identity Federation provider"
+        required: false
 env:
   REEARTH_CMS_API: ${{ inputs.api_url || vars.REEARTH_CMS_API }}
   REEARTH_CMS_E2E_BASEURL: ${{ inputs.base_url || vars.REEARTH_CMS_E2E_BASEURL }}
@@ -28,15 +61,18 @@ jobs:
   e2e:
     name: playwright
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     defaults:
       run:
         working-directory: web
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: reearth/reearth-cms
           ref: ${{ inputs.branch || 'main' }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: lts/*
           cache: yarn
@@ -51,22 +87,47 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: "${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}"
+          key: "${{ runner.os }}-playwright-chromium-${{ steps.playwright-version.outputs.version }}"
           restore-keys: |
-            ${{ runner.os }}-playwright-
+            ${{ runner.os }}-playwright-chromium-
       - name: Install Playwright system dependencies and browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: yarn playwright install --with-deps chromium
       - name: Install Playwright system dependencies
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: yarn playwright install-deps chromium
+      - name: Authenticate to Google Cloud
+        id: auth
+        if: ${{ inputs.use_iap }}
+        uses: google-github-actions/auth@v3
+        with:
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ secrets.GC_WORKLOAD_IDENTITY_PROVIDER }}
+          token_format: ${{ inputs.token_format }}
+          id_token_audience: ${{ inputs.iap_target_audience }}
+          id_token_include_email: true
+      - name: Verify IAP Authentication
+        if: ${{ inputs.use_iap }}
+        run: |
+          if [ -z "${{ steps.auth.outputs.id_token }}" ] && [ -z "${{ steps.auth.outputs.access_token }}" ]; then
+            echo "Failed to generate authentication token"
+            exit 1
+          else
+            echo "Authentication token generated successfully"
+          fi
       - name: Echo info
         run: |
           echo "REEARTH_CMS_API is $REEARTH_CMS_API"
           echo "REEARTH_CMS_E2E_BASEURL is $REEARTH_CMS_E2E_BASEURL"
+          echo "REEARTH_CMS_E2E_USERNAME is $REEARTH_CMS_E2E_USERNAME"
       - name: Run Playwright tests
-        run: yarn e2e
-      - uses: actions/upload-artifact@v4
+        timeout-minutes: 120
+        env:
+          USE_IAP_AUTH: ${{ inputs.use_iap || false }}
+          IAP_AUTH_METHOD: ${{ inputs.token_format || 'id-token' }}
+          IAP_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
+        run: ${{ inputs.smoke_only && 'yarn e2e-smoke' || 'yarn e2e' }}
+      - uses: actions/upload-artifact@v5
         if: failure()
         with:
           name: test-results

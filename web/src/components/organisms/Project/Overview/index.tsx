@@ -6,17 +6,21 @@ import useHooks from "./hooks";
 
 const ProjectOverview: React.FC = () => {
   const {
-    currentProject,
     models,
     modelModalShown,
     selectedModel,
     modelDeletionModalShown,
     deleteLoading,
+    exportLoading,
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
+    handleProjectUpdate,
+    handleHomeNavigation,
     handleSchemaNavigation,
     handleContentNavigation,
+    handleModelSearch,
+    handleModelSort,
     handleModelKeyCheck,
     handleModelModalOpen,
     handleModelModalReset,
@@ -25,23 +29,28 @@ const ProjectOverview: React.FC = () => {
     handleModelDeletionModalClose,
     handleModelUpdateModalOpen,
     handleModelDelete,
+    handleModelExport,
     handleModelUpdate,
   } = useHooks();
 
   return (
     <>
       <ProjectOverviewMolecule
-        projectName={currentProject?.name}
-        projectDescription={currentProject?.description}
         models={models}
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
+        exportLoading={exportLoading}
+        onProjectUpdate={handleProjectUpdate}
+        onModelSearch={handleModelSearch}
+        onModelSort={handleModelSort}
+        onHomeNavigation={handleHomeNavigation}
         onSchemaNavigate={handleSchemaNavigation}
         onContentNavigate={handleContentNavigation}
         onModelModalOpen={handleModelModalOpen}
         onModelDeletionModalOpen={handleModelDeletionModalOpen}
         onModelUpdateModalOpen={handleModelUpdateModalOpen}
+        onModelExport={handleModelExport}
       />
       <FormModal
         data={selectedModel}

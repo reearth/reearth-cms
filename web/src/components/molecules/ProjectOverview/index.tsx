@@ -4,53 +4,63 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 
+import { SortBy, UpdateProjectInput } from "../Workspace/types";
+
 import ModelCard from "./ModelCard";
+import ProjectHeader from "./ProjectHeader";
 
 type Props = {
-  projectName?: string;
-  projectDescription?: string;
   models?: Model[];
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
+  exportLoading?: boolean;
+  onProjectUpdate: (data: UpdateProjectInput) => Promise<void>;
+  onModelSearch: (value: string) => void;
+  onModelSort: (sort: SortBy) => void;
   onModelModalOpen: () => void;
+  onHomeNavigation: () => void;
   onSchemaNavigate: (modelId: string) => void;
   onContentNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
   onModelUpdateModalOpen: (model: Model) => Promise<void>;
+  onModelExport: (modelId?: string, format?: ExportFormat) => Promise<void>;
 };
 
 const ProjectOverview: React.FC<Props> = ({
-  projectName,
-  projectDescription,
   models,
   hasCreateRight,
   hasUpdateRight,
   hasDeleteRight,
+  exportLoading,
+  onModelSearch,
+  onModelSort,
   onModelModalOpen,
   onSchemaNavigate,
   onContentNavigate,
   onModelDeletionModalOpen,
   onModelUpdateModalOpen,
+  onModelExport,
 }) => {
   const t = useT();
 
   return (
-    <InnerContent title={projectName} subtitle={projectDescription} flexChildren>
-      <ContentSection
-        title={t("Models")}
-        headerActions={
-          <Button
-            type="primary"
-            icon={<Icon icon="plus" />}
-            onClick={onModelModalOpen}
-            disabled={!hasCreateRight}>
-            {t("New Model")}
-          </Button>
-        }>
+    <InnerContent
+      title={t("Models")}
+      extra={
+        <Button
+          type="primary"
+          icon={<Icon icon="plus" />}
+          onClick={onModelModalOpen}
+          disabled={!hasCreateRight}>
+          {t("New Model")}
+        </Button>
+      }>
+      <ContentSection>
+        <ProjectHeader onModelSearch={onModelSearch} onModelSort={onModelSort} />
         {models?.length ? (
           <GridArea>
             {models.map(m => (
@@ -59,10 +69,12 @@ const ProjectOverview: React.FC<Props> = ({
                 model={m}
                 hasUpdateRight={hasUpdateRight}
                 hasDeleteRight={hasDeleteRight}
+                exportLoading={exportLoading}
                 onSchemaNavigate={onSchemaNavigate}
                 onContentNavigate={onContentNavigate}
                 onModelDeletionModalOpen={onModelDeletionModalOpen}
                 onModelUpdateModalOpen={onModelUpdateModalOpen}
+                onModelExport={onModelExport}
               />
             ))}
           </GridArea>
@@ -94,6 +106,7 @@ const ProjectOverview: React.FC<Props> = ({
 export default ProjectOverview;
 
 const GridArea = styled.div`
+  margin-top: 12px;
   display: grid;
   gap: 24px;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));

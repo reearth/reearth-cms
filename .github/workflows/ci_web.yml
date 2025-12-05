@@ -3,44 +3,111 @@ on:
   workflow_call:
 jobs:
   validate-nginx-config:
-    uses: reearth/actions/.github/workflows/validate-nginx-config.yml@17238456475855fb77a0c0675be338845aa7036d
+    uses: reearth/actions/.github/workflows/validate-nginx-config.yml@e05fcd1efc6c985c7c0c906cff1452ee634232c8
     with:
       template_directory: docker
       template_values: '{"PORT": 8080, "REAL_IP_HEADER": "${{ vars.WEB_REAL_IP_HEADER }}"}' # Ref: https://github.com/reearth/reearth-cms/blob/main/web/Dockerfile#L35
       working_directory: web
 
-  ci:
-    name: ci
+  lint:
+    name: lint
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: web
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup Node
+        uses: actions/setup-node@v6
         with:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: '**/yarn.lock'
       - name: Install
-        run: yarn install
+        run: yarn install --frozen-lockfile --prefer-offline
       - name: Lint
         run: yarn run lint
+
+  i18n:
+    name: i18n
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: yarn
+          cache-dependency-path: '**/yarn.lock'
+      - name: Install
+        run: yarn install --frozen-lockfile --prefer-offline
+      - name: Check translations
+        run: yarn i18n --fail-on-update
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: yarn
+          cache-dependency-path: '**/yarn.lock'
+      - name: Install
+        run: yarn install --frozen-lockfile --prefer-offline
       - name: Test
         run: yarn run coverage
       - name: Send coverage report
         uses: codecov/codecov-action@v5
         with:
           flags: web
-      - name: Check translations
-        run: yarn i18n --fail-on-update
+
+  build:
+    name: build
+    needs: [lint, test, i18n]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: yarn
+          cache-dependency-path: '**/yarn.lock'
+      - name: Cache TypeScript
+        uses: actions/cache@v4
+        with:
+          path: web/node_modules/.cache
+          key: ${{ runner.os }}-typescript-${{ hashFiles('web/tsconfig.json', 'web/package.json', 'web/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-typescript-
+      - name: Install
+        run: yarn install --frozen-lockfile --prefer-offline
       - name: Build
         run: yarn build
       - name: Pack
         if: github.ref_name == 'main' || github.ref_name == 'release'
-        run: mv dist reearth-cms-web && tar -zcvf reearth-cms-web.tar.gz reearth-cms-web
-      - uses: actions/upload-artifact@v4
+        run: |
+          mv dist reearth-cms-web
+          tar -zcvf reearth-cms-web.tar.gz reearth-cms-web
+      - name: Upload artifact
         if: github.ref_name == 'main' || github.ref_name == 'release'
+        uses: actions/upload-artifact@v5
         with:
           name: reearth-cms-web
           path: web/reearth-cms-web.tar.gz

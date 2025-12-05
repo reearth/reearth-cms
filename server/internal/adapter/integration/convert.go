@@ -2,6 +2,7 @@ package integration
 
 import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
 	"github.com/reearth/reearth-cms/server/pkg/item"
@@ -50,9 +51,9 @@ func Page(p usecasex.OffsetPagination) int {
 }
 
 func fromItemFieldParam(f integrationapi.Field, _ *schema.Field) interfaces.ItemFieldParam {
-	var v any = f.Value
+	var v = f.Value
 	if f.Value != nil {
-		v = *f.Value
+		v = f.Value
 	}
 
 	var k *id.Key
@@ -168,24 +169,24 @@ func tagNameToId(sf *schema.Field, field *integrationapi.Field) {
 		},
 	})
 	if !sf.Multiple() {
-		name := lo.FromPtr(field.Value).(string)
+		name := field.Value.(string)
 		tag := tagList.FindByName(name)
 		if tag != nil {
 			var v any = tag.ID()
-			field.Value = &v
+			field.Value = v
 		}
 	} else {
-		names := lo.FromPtr(field.Value).([]string)
+		names := field.Value.([]string)
 		tagIDs := util.Map(names, func(n string) id.TagID {
 			t := lo.FromPtr(tagList.FindByName(n))
 			return t.ID()
 		})
 		var v any = tagIDs
-		field.Value = &v
+		field.Value = v
 	}
 }
 
-func fromQuery(sp schema.Package, req ItemFilterRequestObject) *item.Query {
+func fromQuery(sp schema.Package, mId model.ID, req ItemFilterRequestObject) *item.Query {
 	var s *view.Sort
 	if req.Params.Sort != nil {
 		s = fromSort(sp, *req.Params.Sort, req.Params.Dir)
@@ -196,21 +197,21 @@ func fromQuery(sp schema.Package, req ItemFilterRequestObject) *item.Query {
 		c = fromCondition(sp, *req.Body.Filter)
 	}
 
-	return item.NewQuery(sp.Schema().Project(), req.ModelId, sp.Schema().ID().Ref(), lo.FromPtr(req.Params.Keyword), nil).
+	return item.NewQuery(sp.Schema().Project(), mId, sp.Schema().ID().Ref(), lo.FromPtr(req.Params.Keyword), nil).
 		WithSort(s).
 		WithFilter(c)
 }
 
 func fromSort(_ schema.Package, sort integrationapi.ItemFilterParamsSort, dir *integrationapi.ItemFilterParamsDir) *view.Sort {
 	if dir == nil {
-		dir = lo.ToPtr(integrationapi.ItemFilterParamsDirAsc)
+		dir = lo.ToPtr(integrationapi.Asc)
 	}
 	d := view.DirectionDesc
-	if *dir == integrationapi.ItemFilterParamsDirAsc {
+	if *dir == integrationapi.Asc {
 		d = view.DirectionAsc
 	}
 	switch sort {
-	case integrationapi.ItemFilterParamsSortCreatedAt:
+	case integrationapi.CreatedAt:
 		return &view.Sort{
 			Field: view.FieldSelector{
 				Type: view.FieldTypeCreationDate,
@@ -218,7 +219,7 @@ func fromSort(_ schema.Package, sort integrationapi.ItemFilterParamsSort, dir *i
 			},
 			Direction: d,
 		}
-	case integrationapi.ItemFilterParamsSortUpdatedAt:
+	case integrationapi.UpdatedAt:
 		return &view.Sort{
 			Field: view.FieldSelector{
 				Type: view.FieldTypeModificationDate,
@@ -230,23 +231,59 @@ func fromSort(_ schema.Package, sort integrationapi.ItemFilterParamsSort, dir *i
 	return nil
 }
 
-func toModelSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirParam) *model.Sort {
-	direction := model.DirectionDesc
-	if dir != nil && *dir == integrationapi.SortDirParamAsc {
-		direction = model.DirectionAsc
-	}
+func toProjectSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirParam) *usecasex.Sort {
+	reverted := dir == nil || *dir == integrationapi.SortDirParamDesc
 
-	column := model.ColumnCreatedAt
+	column := "id"
 	if sort != nil {
 		switch *sort {
 		case integrationapi.SortParamCreatedAt:
-			column = model.ColumnCreatedAt
+			column = "id"
 		case integrationapi.SortParamUpdatedAt:
-			column = model.ColumnUpdatedAt
+			column = "updatedat"
 		}
 	}
 
-	return &model.Sort{
+	return &usecasex.Sort{
+		Key:      column,
+		Reverted: reverted,
+	}
+}
+
+func toModelSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirParam) *usecasex.Sort {
+	reverted := dir == nil || *dir == integrationapi.SortDirParamDesc
+
+	column := "order"
+	if sort != nil {
+		switch *sort {
+		case integrationapi.SortParamCreatedAt:
+			column = "id"
+		case integrationapi.SortParamUpdatedAt:
+			column = "updatedat"
+		}
+	}
+
+	return &usecasex.Sort{
+		Key:      column,
+		Reverted: reverted,
+	}
+}
+
+func toGroupSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirParam) *group.Sort {
+	direction := group.DirectionDesc
+	if dir != nil && *dir == integrationapi.SortDirParamAsc {
+		direction = group.DirectionAsc
+	}
+
+	column := group.ColumnCreatedAt
+	if sort != nil {
+		switch *sort {
+		case integrationapi.SortParamCreatedAt:
+			column = group.ColumnCreatedAt
+		}
+	}
+
+	return &group.Sort{
 		Column:    column,
 		Direction: direction,
 	}
@@ -272,7 +309,6 @@ func fromRequestRoles(roles []integrationapi.ProjectRequestRole) ([]workspace.Ro
 	return result, true
 }
 
-
 func fromRequestRole(r integrationapi.ProjectRequestRole) (*workspace.Role, bool) {
 	switch r {
 	case integrationapi.OWNER:
@@ -288,14 +324,12 @@ func fromRequestRole(r integrationapi.ProjectRequestRole) (*workspace.Role, bool
 	}
 }
 
-func fromProjectPublicationScope(p integrationapi.ProjectPublicationScope) *project.PublicationScope {
+func fromProjectVisibility(p integrationapi.AccessibilityVisibility) *project.Visibility {
 	switch p {
 	case integrationapi.PUBLIC:
-		return lo.ToPtr(project.PublicationScopePublic)
+		return lo.ToPtr(project.VisibilityPublic)
 	case integrationapi.PRIVATE:
-		return lo.ToPtr(project.PublicationScopePrivate)
-	case integrationapi.LIMITED:
-		return lo.ToPtr(project.PublicationScopeLimited)
+		return lo.ToPtr(project.VisibilityPrivate)
 	default:
 		return nil
 	}

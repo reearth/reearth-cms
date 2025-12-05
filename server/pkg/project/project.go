@@ -3,6 +3,7 @@ package project
 import (
 	"net/url"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -10,6 +11,7 @@ import (
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/util"
+	"github.com/samber/lo"
 	"golang.org/x/exp/slices"
 )
 
@@ -19,15 +21,20 @@ var (
 )
 
 type Project struct {
-	id           ID
-	workspaceID  accountdomain.WorkspaceID
-	name         string
-	description  string
-	alias        string
-	imageURL     *url.URL
-	updatedAt    time.Time
-	publication  *Publication
-	requestRoles []workspace.Role
+	id            ID
+	workspaceID   accountdomain.WorkspaceID
+	alias         string
+	name          string
+	description   string
+	readme        string
+	license       string
+	imageURL      *url.URL
+	starCount     int64
+	starredBy     []string
+	topics        []string
+	updatedAt     time.Time
+	accessibility *Accessibility
+	requestRoles  []workspace.Role
 }
 
 func (p *Project) ID() ID {
@@ -46,6 +53,14 @@ func (p *Project) Description() string {
 	return p.description
 }
 
+func (p *Project) Readme() string {
+	return p.readme
+}
+
+func (p *Project) License() string {
+	return p.license
+}
+
 func (p *Project) Alias() string {
 	return p.alias
 }
@@ -59,6 +74,18 @@ func (p *Project) ImageURL() *url.URL {
 	return &imageURL2
 }
 
+func (p *Project) StarCount() int64 {
+	return p.starCount
+}
+
+func (p *Project) StarredBy() []string {
+	return p.starredBy
+}
+
+func (p *Project) Topics() []string {
+	return p.topics
+}
+
 func (p *Project) Workspace() accountdomain.WorkspaceID {
 	return p.workspaceID
 }
@@ -67,8 +94,8 @@ func (p *Project) CreatedAt() time.Time {
 	return p.id.Timestamp()
 }
 
-func (p *Project) Publication() *Publication {
-	return p.publication
+func (p *Project) Accessibility() *Accessibility {
+	return p.accessibility
 }
 
 func (p *Project) RequestRoles() []workspace.Role {
@@ -89,8 +116,8 @@ func (p *Project) SetImageURL(imageURL *url.URL) {
 	}
 }
 
-func (p *Project) SetPublication(publication *Publication) {
-	p.publication = publication
+func (p *Project) SetAccessibility(accessibility Accessibility) {
+	p.accessibility = accessibility.Clone()
 }
 
 func (p *Project) UpdateName(name string) {
@@ -99,6 +126,58 @@ func (p *Project) UpdateName(name string) {
 
 func (p *Project) UpdateDescription(description string) {
 	p.description = description
+}
+
+func (p *Project) UpdateReadMe(readme string) {
+	p.readme = readme
+}
+
+func (p *Project) UpdateLicense(license string) {
+	p.license = license
+}
+
+func (p *Project) Star(uId accountdomain.UserID) {
+	if p == nil {
+		return
+	}
+	uIdStr := uId.String()
+	for _, id := range p.starredBy {
+		if id == uIdStr {
+			return // already starred
+		}
+	}
+	p.starCount++
+	p.starredBy = append(p.starredBy, uIdStr)
+}
+
+func (p *Project) Unstar(uId accountdomain.UserID) {
+	if p == nil {
+		return
+	}
+	uIdStr := uId.String()
+	for i, id := range p.starredBy {
+		if id == uIdStr {
+			p.starCount--
+			p.starredBy = append(p.starredBy[:i], p.starredBy[i+1:]...)
+			return
+		}
+	}
+}
+
+func (p *Project) SetTopics(topics []string) {
+	if p == nil {
+		return
+	}
+
+	trimmed := lo.Map(topics, func(s string, _ int) string {
+		return strings.TrimSpace(s)
+	})
+
+	nonEmpty := lo.Filter(trimmed, func(s string, _ int) bool {
+		return s != ""
+	})
+
+	p.topics = lo.Uniq(nonEmpty)
 }
 
 func (p *Project) SetRequestRoles(sr []workspace.Role) {
@@ -114,25 +193,21 @@ func (p *Project) UpdateAlias(alias string) error {
 	return nil
 }
 
-func (p *Project) UpdateTeam(team accountdomain.WorkspaceID) {
-	p.workspaceID = team
-}
-
 func (p *Project) Clone() *Project {
 	if p == nil {
 		return nil
 	}
 
 	return &Project{
-		id:           p.id.Clone(),
-		workspaceID:  p.workspaceID.Clone(),
-		name:         p.name,
-		description:  p.description,
-		alias:        p.alias,
-		imageURL:     util.CopyURL(p.imageURL),
-		updatedAt:    p.updatedAt,
-		publication:  p.publication.Clone(),
-		requestRoles: p.requestRoles,
+		id:            p.id.Clone(),
+		workspaceID:   p.workspaceID.Clone(),
+		name:          p.name,
+		description:   p.description,
+		alias:         p.alias,
+		imageURL:      util.CopyURL(p.imageURL),
+		updatedAt:     p.updatedAt,
+		accessibility: p.accessibility.Clone(),
+		requestRoles:  p.requestRoles,
 	}
 }
 

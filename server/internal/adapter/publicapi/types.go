@@ -6,54 +6,12 @@ import (
 	"path"
 	"reflect"
 
-	"github.com/iancoleman/orderedmap"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
-	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
-
-type ListResult[T any] struct {
-	Results    []T   `json:"results"`
-	TotalCount int64 `json:"totalCount"`
-	HasMore    *bool `json:"hasMore,omitempty"`
-	// offset base
-	Limit  *int64 `json:"limit,omitempty"`
-	Offset *int64 `json:"offset,omitempty"`
-	Page   *int64 `json:"page,omitempty"`
-	// cursor base
-	NextCursor *string `json:"nextCursor,omitempty"`
-}
-
-func NewListResult[T any](results []T, pi *usecasex.PageInfo, p *usecasex.Pagination) ListResult[T] {
-	if results == nil {
-		results = []T{}
-	}
-
-	r := ListResult[T]{
-		Results:    results,
-		TotalCount: pi.TotalCount,
-	}
-
-	if p.Cursor != nil {
-		r.NextCursor = pi.EndCursor.StringRef()
-		r.HasMore = &pi.HasNextPage
-	} else if p.Offset != nil {
-		page := p.Offset.Offset/p.Offset.Limit + 1
-		r.Limit = lo.ToPtr(p.Offset.Limit)
-		r.Offset = lo.ToPtr(p.Offset.Offset)
-		r.Page = lo.ToPtr(page)
-		r.HasMore = lo.ToPtr((page+1)*p.Offset.Limit < pi.TotalCount)
-	}
-
-	return r
-}
-
-type ListParam struct {
-	Pagination *usecasex.Pagination
-}
 
 type Item struct {
 	ID     string
@@ -67,14 +25,14 @@ func (i Item) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m)
 }
 
-func NewItem(i *item.Item, sp *schema.Package, assets asset.List, urlResolver asset.URLResolver, refItems []Item) Item {
+func NewItem(i *item.Item, sp *schema.Package, assets asset.List, refItems []Item) Item {
 	gsf := schema.FieldList{}
 	for _, groupSchema := range sp.GroupSchemas() {
 		gsf = append(gsf, groupSchema.Fields().Clone()...)
 	}
 	itm := Item{
 		ID:     i.ID().String(),
-		Fields: NewItemFields(i.Fields(), sp.Schema().Fields(), gsf, refItems, assets, urlResolver),
+		Fields: NewItemFields(i.Fields(), sp.Schema().Fields(), gsf, refItems, assets),
 	}
 
 	return itm
@@ -95,7 +53,7 @@ func (i ItemFields) DropEmptyFields() ItemFields {
 	return i
 }
 
-func NewItemFields(fields item.Fields, sfields schema.FieldList, groupFields schema.FieldList, refItems []Item, assets asset.List, urlResolver asset.URLResolver) ItemFields {
+func NewItemFields(fields item.Fields, sfields schema.FieldList, groupFields schema.FieldList, refItems []Item, assets asset.List) ItemFields {
 	return ItemFields(lo.SliceToMap(fields, func(f *item.Field) (k string, val any) {
 		sf := sfields.Find(f.FieldID())
 		if sf == nil {
@@ -117,7 +75,7 @@ func NewItemFields(fields item.Fields, sfields schema.FieldList, groupFields sch
 					continue
 				}
 				if as, ok := lo.Find(assets, func(a *asset.Asset) bool { return a != nil && a.ID() == aid }); ok {
-					itemAssets = append(itemAssets, NewItemAsset(as, urlResolver))
+					itemAssets = append(itemAssets, NewItemAsset(as))
 				}
 			}
 
@@ -144,13 +102,44 @@ func NewItemFields(fields item.Fields, sfields schema.FieldList, groupFields sch
 					continue
 				}
 				gf := fields.FieldsByGroup(itgID)
-				igf := NewItemFields(gf, groupFields, nil, nil, assets, urlResolver)
+				igf := NewItemFields(gf, groupFields, nil, nil, assets)
 				res = append(res, igf)
 			}
 			if sf.Multiple() {
 				val = res
 			} else if len(res) == 1 {
 				val = res[0]
+			}
+		} else if sf.Type() == value.TypeGeometryObject || sf.Type() == value.TypeGeometryEditor {
+			// Parse geometry JSON strings into actual JSON objects
+			if sf.Multiple() {
+				var geoValues []any
+				for _, v := range f.Value().Values() {
+					if geoStr, ok := v.Value().(string); ok && geoStr != "" {
+						var geoJSON any
+						if err := json.Unmarshal([]byte(geoStr), &geoJSON); err == nil {
+							geoValues = append(geoValues, geoJSON)
+						} else {
+							geoValues = append(geoValues, geoStr) // fallback to string if parsing fails
+						}
+					} else {
+						geoValues = append(geoValues, nil) // explicitly handle non-string values
+					}
+				}
+				val = geoValues
+			} else {
+				if first := f.Value().First(); first != nil {
+					if geoStr, ok := first.Value().(string); ok && geoStr != "" {
+						var geoJSON any
+						if err := json.Unmarshal([]byte(geoStr), &geoJSON); err == nil {
+							val = geoJSON
+						} else {
+							val = geoStr // fallback to string if parsing fails
+						}
+					} else {
+						val = first.Value() // fallback to the original value if not a non-empty string
+					}
+				}
 			}
 		} else if sf.Multiple() {
 			val = f.Value().Interface()
@@ -170,12 +159,13 @@ type Asset struct {
 	Files       []string `json:"files,omitempty"`
 }
 
-func NewAsset(a *asset.Asset, f *asset.File, urlResolver asset.URLResolver) Asset {
-	u := ""
+func NewAsset(a *asset.Asset, f *asset.File) Asset {
+	// TODO: how to handle public api with asset url management
+	ai := a.AccessInfo()
+
 	var files []string
-	if urlResolver != nil {
-		u = urlResolver(a)
-		base, _ := url.Parse(u)
+	if ai.Url != "" {
+		base, _ := url.Parse(ai.Url)
 		base.Path = path.Dir(base.Path)
 
 		files = lo.Map(f.FilePaths(), func(p string, _ int) string {
@@ -188,7 +178,7 @@ func NewAsset(a *asset.Asset, f *asset.File, urlResolver asset.URLResolver) Asse
 	return Asset{
 		Type:        "asset",
 		ID:          a.ID().String(),
-		URL:         u,
+		URL:         ai.Url,
 		ContentType: f.ContentType(),
 		Files:       files,
 	}
@@ -200,141 +190,11 @@ type ItemAsset struct {
 	URL  string `json:"url,omitempty"`
 }
 
-func NewItemAsset(a *asset.Asset, urlResolver asset.URLResolver) ItemAsset {
-	u := ""
-	if urlResolver != nil {
-		u = urlResolver(a)
-	}
-
+func NewItemAsset(a *asset.Asset) ItemAsset {
+	ai := a.AccessInfo()
 	return ItemAsset{
 		Type: "asset",
 		ID:   a.ID().String(),
-		URL:  u,
+		URL:  ai.Url,
 	}
-}
-
-type SchemaJSON struct {
-	Id          *string                         `json:"$id,omitempty"`
-	Schema      *string                         `json:"$schema,omitempty"`
-	Description *string                         `json:"description,omitempty"`
-	Properties  map[string]SchemaJSONProperties `json:"properties"`
-	Title       *string                         `json:"title,omitempty"`
-	Type        string                          `json:"type"`
-}
-
-type SchemaJSONProperties struct {
-	Description *string     `json:"description,omitempty"`
-	Format      *string     `json:"format,omitempty"`
-	Items       *SchemaJSON `json:"items,omitempty"`
-	MaxLength   *int        `json:"maxLength,omitempty"`
-	Maximum     *float64    `json:"maximum,omitempty"`
-	Minimum     *float64    `json:"minimum,omitempty"`
-	Title       *string     `json:"title,omitempty"`
-	Type        string      `json:"type"`
-}
-
-// GeoJSON
-type GeoJSON = FeatureCollection
-
-type FeatureCollectionType string
-
-const FeatureCollectionTypeFeatureCollection FeatureCollectionType = "FeatureCollection"
-
-type FeatureCollection struct {
-	Features *[]Feature             `json:"features,omitempty"`
-	Type     *FeatureCollectionType `json:"type,omitempty"`
-}
-
-type FeatureType string
-
-const FeatureTypeFeature FeatureType = "Feature"
-
-type Feature struct {
-	Geometry   *Geometry              `json:"geometry,omitempty"`
-	Id         *string                `json:"id,omitempty"`
-	Properties *orderedmap.OrderedMap `json:"properties,omitempty"`
-	Type       *FeatureType           `json:"type,omitempty"`
-}
-
-type GeometryCollectionType string
-
-const GeometryCollectionTypeGeometryCollection GeometryCollectionType = "GeometryCollection"
-
-type GeometryCollection struct {
-	Geometries *[]Geometry             `json:"geometries,omitempty"`
-	Type       *GeometryCollectionType `json:"type,omitempty"`
-}
-
-type GeometryType string
-
-const (
-	GeometryTypeGeometryCollection GeometryType = "GeometryCollection"
-	GeometryTypeLineString         GeometryType = "LineString"
-	GeometryTypeMultiLineString    GeometryType = "MultiLineString"
-	GeometryTypeMultiPoint         GeometryType = "MultiPoint"
-	GeometryTypeMultiPolygon       GeometryType = "MultiPolygon"
-	GeometryTypePoint              GeometryType = "Point"
-	GeometryTypePolygon            GeometryType = "Polygon"
-)
-
-type Geometry struct {
-	Coordinates *Geometry_Coordinates `json:"coordinates,omitempty"`
-	Geometries  *[]Geometry           `json:"geometries,omitempty"`
-	Type        *GeometryType         `json:"type,omitempty"`
-}
-type Geometry_Coordinates struct {
-	union json.RawMessage
-}
-
-type LineString = []Point
-type MultiLineString = []LineString
-type MultiPoint = []Point
-type MultiPolygon = []Polygon
-type Point = []float64
-type Polygon = [][]Point
-
-func (t Geometry_Coordinates) AsPoint() (Point, error) {
-	var body Point
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-func (t Geometry_Coordinates) AsMultiPoint() (MultiPoint, error) {
-	var body MultiPoint
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-func (t Geometry_Coordinates) AsLineString() (LineString, error) {
-	var body LineString
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-func (t Geometry_Coordinates) AsMultiLineString() (MultiLineString, error) {
-	var body MultiLineString
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-func (t Geometry_Coordinates) AsPolygon() (Polygon, error) {
-	var body Polygon
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-func (t Geometry_Coordinates) AsMultiPolygon() (MultiPolygon, error) {
-	var body MultiPolygon
-	err := json.Unmarshal(t.union, &body)
-	return body, err
-}
-
-func (t Geometry_Coordinates) MarshalJSON() ([]byte, error) {
-	b, err := t.union.MarshalJSON()
-	return b, err
-}
-
-func (t *Geometry_Coordinates) UnmarshalJSON(b []byte) error {
-	err := t.union.UnmarshalJSON(b)
-	return err
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/types"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -28,20 +29,26 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 	pid := id.NewProjectID()
 	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString, schema.GeometryObjectSupportedTypePolygon}
 	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString, schema.GeometryEditorSupportedTypePolygon}
+
 	sf1 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("LineString").Key(id.RandomKey()).MustBuild()
-	sf2 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("Name").Key(id.RandomKey()).Multiple(true).MustBuild()
+	key2 := id.RandomKey()
+	sf2 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("Name").Key(key2).Multiple(true).MustBuild()
 	sf3 := schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name("Polygon").Key(id.RandomKey()).MustBuild()
 	in4, _ := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
 	tp4 := in4.TypeProperty()
-	sf4 := schema.NewField(tp4).NewID().Name("Age").Key(id.RandomKey()).MustBuild()
-	sf5 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("IsMarried").Key(id.RandomKey()).MustBuild()
+	key4 := id.RandomKey()
+	sf4 := schema.NewField(tp4).NewID().Name("Age").Key(key4).MustBuild()
+	key5 := id.RandomKey()
+	sf5 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("IsMarried").Key(key5).MustBuild()
 	fi1 := item.NewField(sf1.ID(), value.TypeGeometryObject.Value("{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}").AsMultiple(), nil)
 	fi2 := item.NewField(sf2.ID(), value.MultipleFrom(value.TypeText, []*value.Value{value.TypeText.Value("a"), value.TypeText.Value("b"), value.TypeText.Value("c")}), nil)
 	fi3 := item.NewField(sf3.ID(), value.TypeGeometryEditor.Value("{\"coordinates\": [[[138.90306434425662,36.11737907906834],[138.90306434425662,36.33622175736386],[138.67187898370287,36.33622175736386],[138.67187898370287,36.11737907906834],[138.90306434425662,36.11737907906834]]],\"type\": \"Polygon\"}").AsMultiple(), nil)
 	fi4 := item.NewField(sf4.ID(), value.TypeInteger.Value(30).AsMultiple(), nil)
 	fi5 := item.NewField(sf5.ID(), value.TypeBool.Value(true).AsMultiple(), nil)
 	s1 := schema.New().ID(sid).Fields([]*schema.Field{sf1, sf2, sf3, sf4, sf5}).Workspace(accountdomain.NewWorkspaceID()).TitleField(sf1.ID().Ref()).Project(pid).MustBuild()
+	sp1 := schema.NewPackage(s1, nil, nil, nil)
 	s2 := schema.New().ID(sid).Fields([]*schema.Field{sf2}).Workspace(accountdomain.NewWorkspaceID()).TitleField(sf2.ID().Ref()).Project(pid).MustBuild()
+	sp2 := schema.NewPackage(s2, nil, nil, nil)
 	i1 := item.New().
 		ID(iid).
 		Schema(sid).
@@ -68,46 +75,44 @@ func TestFeatureCollectionFromItems(t *testing.T) {
 	vi2 := version.MustBeValue(v2, nil, version.NewRefs(version.Latest), util.Now(), i2)
 
 	// with geometry fields
-	ver1 := item.VersionedList{vi1}
+	ver1 := item.List{vi1.Value()}
 	lineString := [][]float64{
 		{139.65439725962517, 36.34793305387103},
 		{139.61688622815393, 35.910803456352724},
 	}
 	jsonBytes, err := json.Marshal(lineString)
 	assert.Nil(t, err)
-	c := Geometry_Coordinates{
-		union: jsonBytes,
-	}
-	g := Geometry{
-		Type:        lo.ToPtr(GeometryTypeLineString),
+	c := types.GeometryCoordinates(jsonBytes)
+	g := types.Geometry{
+		Type:        lo.ToPtr(types.GeometryTypeLineString),
 		Coordinates: &c,
 	}
 	p := orderedmap.New()
-	p.Set("Name", []any{"a", "b", "c"})
-	p.Set("Age", int64(30))
-	p.Set("IsMarried", true)
+	p.Set(key2.String(), []any{"a", "b", "c"})
+	p.Set(key4.String(), int64(30))
+	p.Set(key5.String(), true)
 
-	f := Feature{
-		Type:       lo.ToPtr(FeatureTypeFeature),
+	f := types.Feature{
+		Type:       lo.ToPtr(types.FeatureTypeFeature),
 		Geometry:   &g,
 		Properties: p,
 		Id:         vi1.Value().ID().Ref().StringRef(),
 	}
 
-	expected1 := &FeatureCollection{
-		Type:     lo.ToPtr(FeatureCollectionTypeFeatureCollection),
-		Features: &[]Feature{f},
+	expected1 := &types.FeatureCollection{
+		Type:     lo.ToPtr(types.FeatureCollectionTypeFeatureCollection),
+		Features: &[]types.Feature{f},
 	}
 
-	fc1, err1 := FeatureCollectionFromItems(ver1, s1)
+	fc1, err1 := FeatureCollectionFromItems(ver1, sp1, nil)
 	assert.Nil(t, err1)
 	assert.Equal(t, expected1, fc1)
 
 	// no geometry fields
-	ver2 := item.VersionedList{vi2}
+	ver2 := item.List{vi2.Value()}
 	expectErr2 := noGeometryFieldError
 
-	fc, err := FeatureCollectionFromItems(ver2, s2)
+	fc, err := FeatureCollectionFromItems(ver2, sp2, nil)
 	assert.Equal(t, expectErr2, err)
 	assert.Nil(t, fc)
 }
@@ -123,7 +128,7 @@ func TestExtractGeometry(t *testing.T) {
 	geometry1, ok1 := extractGeometry(fi1)
 	assert.True(t, ok1)
 	assert.NotNil(t, geometry1)
-	assert.Equal(t, GeometryTypeLineString, *geometry1.Type)
+	assert.Equal(t, types.GeometryTypeLineString, *geometry1.Type)
 
 	// Test with non-geometry field
 	geometry2, ok2 := extractGeometry(fi2)
@@ -142,18 +147,22 @@ func TestExtractProperties(t *testing.T) {
 	gst := schema.GeometryObjectSupportedTypeList{schema.GeometryObjectSupportedTypePoint, schema.GeometryObjectSupportedTypeLineString, schema.GeometryObjectSupportedTypePolygon}
 	gest := schema.GeometryEditorSupportedTypeList{schema.GeometryEditorSupportedTypePoint, schema.GeometryEditorSupportedTypeLineString, schema.GeometryEditorSupportedTypePolygon}
 	sf1 := schema.NewField(schema.NewGeometryObject(gst).TypeProperty()).NewID().Name("LineString").Key(id.RandomKey()).MustBuild()
-	sf2 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("Name").Key(id.RandomKey()).Multiple(true).MustBuild()
+	key2 := id.RandomKey()
+	sf2 := schema.NewField(schema.NewText(lo.ToPtr(10)).TypeProperty()).NewID().Name("Name").Key(key2).Multiple(true).MustBuild()
 	sf3 := schema.NewField(schema.NewGeometryEditor(gest).TypeProperty()).NewID().Name("Polygon").Key(id.RandomKey()).MustBuild()
 	in4, _ := schema.NewInteger(lo.ToPtr(int64(1)), lo.ToPtr(int64(100)))
 	tp4 := in4.TypeProperty()
-	sf4 := schema.NewField(tp4).NewID().Name("Age").Key(id.RandomKey()).MustBuild()
-	sf5 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("IsMarried").Key(id.RandomKey()).MustBuild()
+	key4 := id.RandomKey()
+	sf4 := schema.NewField(tp4).NewID().Name("Age").Key(key4).MustBuild()
+	key5 := id.RandomKey()
+	sf5 := schema.NewField(schema.NewBool().TypeProperty()).NewID().Name("IsMarried").Key(key5).MustBuild()
 	fi1 := item.NewField(sf1.ID(), value.TypeGeometryObject.Value("{\"coordinates\":[[139.65439725962517,36.34793305387103],[139.61688622815393,35.910803456352724]],\"type\":\"LineString\"}").AsMultiple(), nil)
 	fi2 := item.NewField(sf2.ID(), value.MultipleFrom(value.TypeText, []*value.Value{value.TypeText.Value("a"), value.TypeText.Value("b"), value.TypeText.Value("c")}), nil)
 	fi3 := item.NewField(sf3.ID(), value.TypeGeometryEditor.Value("{\"coordinates\": [[[138.90306434425662,36.11737907906834],[138.90306434425662,36.33622175736386],[138.67187898370287,36.33622175736386],[138.67187898370287,36.11737907906834],[138.90306434425662,36.11737907906834]]],\"type\": \"Polygon\"}").AsMultiple(), nil)
 	fi4 := item.NewField(sf4.ID(), value.TypeInteger.Value(30).AsMultiple(), nil)
 	fi5 := item.NewField(sf5.ID(), value.TypeBool.Value(true).AsMultiple(), nil)
 	s1 := schema.New().ID(sid).Fields([]*schema.Field{sf1, sf2, sf3, sf4, sf5}).Workspace(accountdomain.NewWorkspaceID()).TitleField(sf1.ID().Ref()).Project(pid).MustBuild()
+	sp1 := schema.NewPackage(s1, nil, nil, nil)
 	i1 := item.New().
 		ID(iid).
 		Schema(sid).
@@ -176,28 +185,28 @@ func TestExtractProperties(t *testing.T) {
 		MustBuild()
 
 	// Test with item containing geometry fields and non geometry fields
-	properties1 := extractProperties(i1, s1)
+	properties1 := extractProperties(i1, sp1, nil)
 	expectedProperties1 := orderedmap.New()
 
-	expectedProperties1.Set("Name", []any{"a", "b", "c"})
-	expectedProperties1.Set("Age", int64(30))
-	expectedProperties1.Set("IsMarried", true)
+	expectedProperties1.Set(key2.String(), []any{"a", "b", "c"})
+	expectedProperties1.Set(key4.String(), int64(30))
+	expectedProperties1.Set(key5.String(), true)
 
 	assert.NotNil(t, properties1)
 	assert.Equal(t, expectedProperties1, properties1)
 
 	// Test with item containing only geometry fields
-	properties3 := extractProperties(i2, s1)
+	properties3 := extractProperties(i2, sp1, nil)
 	expectedProperties3 := orderedmap.New()
 	assert.NotNil(t, properties3)
 	assert.Equal(t, expectedProperties3, properties3)
 
 	// Test with nil item
-	properties4 := extractProperties(nil, s1)
+	properties4 := extractProperties(nil, sp1, nil)
 	assert.Nil(t, properties4)
 
 	// Test with nil schema
-	properties5 := extractProperties(i1, nil)
+	properties5 := extractProperties(i1, nil, nil)
 	assert.Nil(t, properties5)
 }
 
@@ -210,7 +219,7 @@ func TestStringToGeometry(t *testing.T) {
 	geo, err := stringToGeometry(validGeoStringPoint)
 	assert.NoError(t, err)
 	assert.NotNil(t, geo)
-	assert.Equal(t, GeometryTypePoint, *geo.Type)
+	assert.Equal(t, types.GeometryTypePoint, *geo.Type)
 	expected := []float64{139.7112596, 35.6424892}
 	actual, err := geo.Coordinates.AsPoint()
 	assert.NoError(t, err)
@@ -262,11 +271,12 @@ func TestToGeoJsonSingleValue(t *testing.T) {
 	assert.Equal(t, "https://reearth.io", s3)
 	assert.True(t, ok3)
 
+	aid := id.NewAssetID()
 	sf4 := schema.NewField(schema.NewAsset().TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
-	if4 := item.NewField(sf4.ID(), value.TypeAsset.Value(id.NewAssetID()).AsMultiple(), nil)
+	if4 := item.NewField(sf4.ID(), value.TypeAsset.Value(aid).AsMultiple(), nil)
 	s4, ok4 := toGeoJsonSingleValue(if4.Value().First())
-	assert.Empty(t, s4)
-	assert.False(t, ok4)
+	assert.Equal(t, aid, s4)
+	assert.True(t, ok4)
 
 	gid := id.NewGroupID()
 	igid := id.NewItemGroupID()

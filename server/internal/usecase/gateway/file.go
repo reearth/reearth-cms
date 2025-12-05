@@ -51,6 +51,11 @@ type IssueUploadAssetParam struct {
 	ExpiresAt       time.Time
 
 	Cursor string
+
+	// Metadata for gcsproxy
+	Workspace string
+	Project   string
+	Public    bool
 }
 
 func (p IssueUploadAssetParam) GetOrGuessContentType() string {
@@ -68,7 +73,10 @@ type File interface {
 	Upload(context.Context, *file.File, string) (int64, error)
 	DeleteAsset(context.Context, string, string) error
 	DeleteAssets(context.Context, []string) error
-	GetURL(*asset.Asset) string
+	PublishAsset(context.Context, string, string) error
+	UnpublishAsset(context.Context, string, string) error
+	GetAccessInfoResolver() asset.AccessInfoResolver
+	GetAccessInfo(*asset.Asset) *asset.AccessInfo
 	GetBaseURL() string
 	IssueUploadAssetLink(context.Context, IssueUploadAssetParam) (*UploadAssetLink, error)
 	UploadedAsset(context.Context, *asset.Upload) (*file.File, error)
@@ -82,4 +90,5 @@ func init() {
 	lo.Must0(mime.AddExtensionType(".bz2", "application/x-bzip2"))
 	lo.Must0(mime.AddExtensionType(".tar", "application/x-tar"))
 	lo.Must0(mime.AddExtensionType(".rar", "application/vnd.rar"))
+	lo.Must0(mime.AddExtensionType(".geojson", "application/geo+json"))
 }

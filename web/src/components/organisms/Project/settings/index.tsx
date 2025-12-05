@@ -7,10 +7,12 @@ const ProjectSettings: React.FC = () => {
     project,
     hasUpdateRight,
     hasDeleteRight,
+    hasPublishRight,
     handleProjectDelete,
     handleProjectUpdate,
     handleProjectRequestRolesUpdate,
     handleProjectAliasCheck,
+    handleProjectVisibilityChange,
   } = useHooks();
 
   return (
@@ -18,10 +20,12 @@ const ProjectSettings: React.FC = () => {
       project={project}
       hasUpdateRight={hasUpdateRight}
       hasDeleteRight={hasDeleteRight}
+      hasPublishRight={hasPublishRight}
       onProjectDelete={handleProjectDelete}
       onProjectUpdate={handleProjectUpdate}
       onProjectRequestRolesUpdate={handleProjectRequestRolesUpdate}
       onProjectAliasCheck={handleProjectAliasCheck}
+      onProjectVisibilityChange={handleProjectVisibilityChange}
     />
   );
 };

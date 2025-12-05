@@ -16,7 +16,6 @@ import {
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
-import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
 import {
   Asset,
@@ -54,6 +53,7 @@ type Props = {
   onSelect: (selectedRowKeys: Key[], selectedRows: Asset[]) => void;
   onAssetsReload: () => void;
   onAssetDelete: (assetIds: string[]) => Promise<void>;
+  onAssetDownload: (selected: Asset[]) => Promise<void>;
   onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
 };
 
@@ -78,6 +78,7 @@ const AssetListTable: React.FC<Props> = ({
   onSelect,
   onAssetsReload,
   onAssetDelete,
+  onAssetDownload,
   onAssetTableChange,
 }) => {
   const t = useT();
@@ -176,12 +177,7 @@ const AssetListTable: React.FC<Props> = ({
         title: t("Created By"),
         dataIndex: "createdBy",
         key: "createdBy",
-        render: (_, item) => (
-          <Space>
-            <UserAvatar username={item.createdBy.name} size={"small"} />
-            {item.createdBy.name}
-          </Space>
-        ),
+        render: (_, item) => <span>{item.createdBy.name}</span>,
         width: 105,
         minWidth: 105,
         ellipsis: true,
@@ -279,13 +275,16 @@ const AssetListTable: React.FC<Props> = ({
   const alertOptions = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
+      const selected = props.selectedRows as Asset[];
+      const disabled = !selected || selected.length <= 0;
       return (
         <Space size={4}>
           <DownloadButton
             displayDefaultIcon
             size="small"
             type="link"
-            selected={props.selectedRows}
+            disabled={disabled}
+            onDownload={() => onAssetDownload(selected)}
           />
           <Button
             type="link"
@@ -300,7 +299,7 @@ const AssetListTable: React.FC<Props> = ({
         </Space>
       );
     },
-    [deleteLoading, hasDeleteRight, onAssetDelete, t],
+    [deleteLoading, hasDeleteRight, onAssetDelete, onAssetDownload, t],
   );
 
   const handleChange = useCallback(

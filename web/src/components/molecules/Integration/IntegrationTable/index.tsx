@@ -12,7 +12,6 @@ import {
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
-import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
 import { useT, Trans } from "@reearth-cms/i18n";
@@ -28,7 +27,6 @@ type Props = {
   pageSize: number;
   onTableChange: (page: number, pageSize: number) => void;
   loading: boolean;
-  onReload: () => void;
   hasConnectRight: boolean;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
@@ -45,7 +43,6 @@ const IntegrationTable: React.FC<Props> = ({
   pageSize,
   onTableChange,
   loading,
-  onReload,
   hasConnectRight,
   hasUpdateRight,
   hasDeleteRight,
@@ -78,12 +75,7 @@ const IntegrationTable: React.FC<Props> = ({
         key: "creator",
         width: 250,
         minWidth: 100,
-        render: (_, item) => (
-          <Space>
-            <UserAvatar username={item.createdBy?.name} size="small" />
-            {item.createdBy?.name}
-          </Space>
-        ),
+        render: (_, item) => item.createdBy?.name,
       },
       {
         key: "action",
@@ -166,14 +158,6 @@ const IntegrationTable: React.FC<Props> = ({
     [deleteLoading, handleRemove, hasDeleteRight, t],
   );
 
-  const options = useMemo(
-    () => ({
-      fullScreen: true,
-      reload: onReload,
-    }),
-    [onReload],
-  );
-
   const ConnectButton = useCallback(
     () => (
       <Button
@@ -214,7 +198,7 @@ const IntegrationTable: React.FC<Props> = ({
             tableAlertOptionRender={alertOptions}
             search={false}
             rowKey="id"
-            options={options}
+            options={false}
             pagination={pagination}
             toolbar={toolbar}
             rowSelection={rowSelection}

@@ -1,22 +1,21 @@
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
-import {
-  Route,
-  RouterProvider,
-  createBrowserRouter,
-  createRoutesFromElements,
-} from "react-router-dom";
+import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider, } from "react-router-dom";
 
 import { AuthProvider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
 import AccountSettings from "@reearth-cms/components/organisms/Account";
-import Accessibility from "@reearth-cms/components/organisms/Project/Accessibility";
+import Accessibility from "@reearth-cms/components/organisms/Project/Accessibility/Accessibility";
+import AccessibilityDocs from "@reearth-cms/components/organisms/Project/Accessibility/AccessibilityDocs";
+import APIKeyDetails from "@reearth-cms/components/organisms/Project/Accessibility/APIKeyDetails";
 import Asset from "@reearth-cms/components/organisms/Project/Asset/Asset";
 import AssetList from "@reearth-cms/components/organisms/Project/Asset/AssetList";
 import ContentDetails from "@reearth-cms/components/organisms/Project/Content/ContentDetails";
 import Content from "@reearth-cms/components/organisms/Project/Content/ContentList";
+import License from "@reearth-cms/components/organisms/Project/License";
 import ProjectOverview from "@reearth-cms/components/organisms/Project/Overview";
+import Readme from "@reearth-cms/components/organisms/Project/Readme";
 import RequestDetails from "@reearth-cms/components/organisms/Project/Request/RequestDetails";
 import RequestList from "@reearth-cms/components/organisms/Project/Request/RequestList";
 import Schema from "@reearth-cms/components/organisms/Project/Schema";
@@ -52,20 +51,22 @@ const router = createBrowserRouter(
           element={<MyIntegrationDetails />}
         />
         <Route path=":workspaceId/integrations" element={<Integration />} />
-        {/* <Route
-                    path=":workspaceId/role"
-                    element={<div>Role page - GOTTA DO THIS PAGE!!!</div>}
-                  />
-                  <Route
-                    path=":workspaceId/apiKey"
-                    element={<div>API Key page - GOTTA DO THIS PAGE!!!</div>}
-                  /> */}
         <Route path=":workspaceId/settings" element={<Settings />} />
         <Route path=":workspaceId/workspaceSettings" element={<WorkspaceSettings />} />
         <Route path=":workspaceId/project/:projectId" element={<ProjectOverview />} />
         <Route path=":workspaceId/project/:projectId/schema" element={<Schema />} />
         <Route path=":workspaceId/project/:projectId/schema/:modelId" element={<Schema />} />
         <Route path=":workspaceId/project/:projectId/accessibility" element={<Accessibility />} />
+        <Route
+          path=":workspaceId/project/:projectId/accessibility/:keyId"
+          element={<APIKeyDetails />}
+        />
+        <Route
+          path=":workspaceId/project/:projectId/accessibility/docs"
+          element={<AccessibilityDocs />}
+        />
+        <Route path=":workspaceId/project/:projectId/readme" element={<Readme />} />
+        <Route path=":workspaceId/project/:projectId/license" element={<License />} />
         <Route path=":workspaceId/project/:projectId/settings" element={<ProjectSettings />} />
         <Route path=":workspaceId/project/:projectId/content" element={<Content />} />
         <Route path=":workspaceId/project/:projectId/content/:modelId" element={<Content />} />

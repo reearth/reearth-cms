@@ -14,13 +14,13 @@ var (
 	ErrUnsupportedEntity = rerror.NewE(i18n.T("unsupported entity"))
 )
 
-func New(obj any, urlResolver asset.URLResolver) (res any, err error) {
+func New(obj any) (res any, err error) {
 	// note: version (v) is not used currently
 	switch o := obj.(type) {
 	case *event.Event[any]:
-		res, err = NewEventWith(o, nil, urlResolver)
+		res, err = NewEventWith(o, nil)
 	case *asset.Asset:
-		res = NewAsset(o, nil, urlResolver(o), true)
+		res = NewAsset(o, nil, true)
 	case *asset.File:
 		res = NewAssetFile(o, true)
 	case *item.Item:

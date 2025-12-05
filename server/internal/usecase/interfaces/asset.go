@@ -40,14 +40,17 @@ type CreateAssetUploadParam struct {
 }
 
 var (
-	ErrCreateAssetFailed error = rerror.NewE(i18n.T("failed to create asset"))
-	ErrFileNotIncluded   error = rerror.NewE(i18n.T("file not included"))
+	ErrCreateAssetFailed                   error = rerror.NewE(i18n.T("failed to create asset"))
+	ErrFileNotIncluded                     error = rerror.NewE(i18n.T("file not included"))
+	ErrDataTransferUploadSizeLimitExceeded error = rerror.NewE(i18n.T("data transfer upload size limit exceeded"))
+	ErrAssetUploadSizeLimitExceeded        error = rerror.NewE(i18n.T("asset upload size limit exceeded"))
 )
 
 type AssetFilter struct {
-	Sort       *usecasex.Sort
-	Keyword    *string
-	Pagination *usecasex.Pagination
+	Sort         *usecasex.Sort
+	Keyword      *string
+	Pagination   *usecasex.Pagination
+	ContentTypes []string
 }
 
 type AssetUpload struct {
@@ -59,21 +62,29 @@ type AssetUpload struct {
 	Next            string
 }
 
+type ExportAssetsParams struct {
+	ProjectID    id.ProjectID
+	Filter       AssetFilter
+	IncludeFiles bool
+}
+
 type Asset interface {
 	FindByID(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
+	FindByUUID(context.Context, string, *usecase.Operator) (*asset.Asset, error)
 	FindByIDs(context.Context, []id.AssetID, *usecase.Operator) (asset.List, error)
-	FindByProject(context.Context, id.ProjectID, AssetFilter, *usecase.Operator) (asset.List, *usecasex.PageInfo, error)
+	Search(context.Context, id.ProjectID, AssetFilter, *usecase.Operator) (asset.List, *usecasex.PageInfo, error)
+	Export(context.Context, ExportAssetsParams, io.Writer, *usecase.Operator) error
 	FindFileByID(context.Context, id.AssetID, *usecase.Operator) (*asset.File, error)
 	FindFilesByIDs(context.Context, id.AssetIDList, *usecase.Operator) (map[id.AssetID]*asset.File, error)
 	DownloadByID(context.Context, id.AssetID, map[string]string, *usecase.Operator) (io.ReadCloser, map[string]string, error)
-	GetURL(*asset.Asset) string
 	Create(context.Context, CreateAssetParam, *usecase.Operator) (*asset.Asset, *asset.File, error)
 	Update(context.Context, UpdateAssetParam, *usecase.Operator) (*asset.Asset, error)
 	UpdateFiles(context.Context, id.AssetID, *asset.ArchiveExtractionStatus, *usecase.Operator) (*asset.Asset, error)
 	Delete(context.Context, id.AssetID, *usecase.Operator) (id.AssetID, error)
-	// BatchDelete deletes assets in batch based on multiple asset IDs
 	BatchDelete(context.Context, id.AssetIDList, *usecase.Operator) ([]id.AssetID, error)
-	DecompressByID(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
+	Decompress(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
+	Publish(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
+	Unpublish(context.Context, id.AssetID, *usecase.Operator) (*asset.Asset, error)
 	CreateUpload(context.Context, CreateAssetUploadParam, *usecase.Operator) (*AssetUpload, error)
 	RetryDecompression(context.Context, string) error
 }

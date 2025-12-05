@@ -29,32 +29,55 @@ const (
 	fileSizeLimit    int64  = 10 * 1024 * 1024 * 1024 // 10GB
 )
 
+const workspaceContextKey = "workspace"
+
 type fileRepo struct {
-	bucketName   string
-	base         *url.URL
-	cacheControl string
+	bucketName       string
+	publicBase       *url.URL
+	privateBase      *url.URL
+	cacheControl     string
+	public           bool
+	replaceUploadURL bool
 }
 
-func NewFile(bucketName, base, cacheControl string) (gateway.File, error) {
+func NewFile(bucketName, publicBase, cacheControl string, replaceUploadURL bool) (gateway.File, error) {
 	if bucketName == "" {
 		return nil, rerror.NewE(i18n.T("bucket name is empty"))
 	}
 
 	var u *url.URL
-	if base == "" {
-		base = fmt.Sprintf("https://storage.googleapis.com/%s", bucketName)
+	if publicBase == "" {
+		publicBase = fmt.Sprintf("https://storage.googleapis.com/%s", bucketName)
 	}
 
-	u, err := url.Parse(base)
+	u, err := url.Parse(publicBase)
 	if err != nil {
 		return nil, rerror.NewE(i18n.T("invalid base URL"))
 	}
 
 	return &fileRepo{
-		bucketName:   bucketName,
-		base:         u,
-		cacheControl: cacheControl,
+		bucketName:       bucketName,
+		publicBase:       u,
+		privateBase:      nil,
+		cacheControl:     cacheControl,
+		public:           true,
+		replaceUploadURL: replaceUploadURL,
 	}, nil
+}
+
+func NewFileWithACL(bucketName, publicBase, privateBase, cacheControl string, replaceUploadURL bool) (gateway.File, error) {
+	f, err := NewFile(bucketName, publicBase, cacheControl, replaceUploadURL)
+	if err != nil {
+		return nil, err
+	}
+	u, err := url.Parse(privateBase)
+	if err != nil {
+		return nil, rerror.NewE(i18n.T("invalid base URL"))
+	}
+	fr := f.(*fileRepo)
+	fr.privateBase = u
+	fr.public = false
+	return fr, nil
 }
 
 func (f *fileRepo) ReadAsset(ctx context.Context, u string, fn string, h map[string]string) (io.ReadCloser, map[string]string, error) {
@@ -80,7 +103,7 @@ func (f *fileRepo) GetAssetFiles(ctx context.Context, u string) ([]gateway.FileE
 	var fileEntries []gateway.FileEntry
 	for {
 		attrs, err := it.Next()
-		if err == iterator.Done {
+		if errors.Is(err, iterator.Done) {
 			break
 		}
 
@@ -151,49 +174,117 @@ func (f *fileRepo) DeleteAssets(ctx context.Context, UUIDs []string) error {
 	return f.batchDelete(ctx, paths)
 }
 
-func (f *fileRepo) GetURL(a *asset.Asset) string {
-	return getURL(f.base, a.UUID(), a.FileName())
+func (f *fileRepo) PublishAsset(ctx context.Context, u string, fn string) error {
+	if f.public {
+		return gateway.ErrUnsupportedOperation
+	}
+	p := getGCSObjectPath(u, fn)
+	if p == "" {
+		return gateway.ErrInvalidFile
+	}
+
+	return f.publish(ctx, p, true)
+}
+
+func (f *fileRepo) UnpublishAsset(ctx context.Context, u string, fn string) error {
+	if f.public {
+		return gateway.ErrUnsupportedOperation
+	}
+	p := getGCSObjectPath(u, fn)
+	if p == "" {
+		return gateway.ErrInvalidFile
+	}
+
+	return f.publish(ctx, p, false)
+}
+
+func (f *fileRepo) GetAccessInfoResolver() asset.AccessInfoResolver {
+	return func(a *asset.Asset) *asset.AccessInfo {
+		base := f.privateBase
+		publiclyAccessible := f.public || a.Public()
+		if publiclyAccessible {
+			base = f.publicBase
+		}
+		return &asset.AccessInfo{
+			Url:    getURL(base, a.UUID(), url.PathEscape(a.FileName())),
+			Public: publiclyAccessible,
+		}
+	}
+}
+
+func (f *fileRepo) GetAccessInfo(a *asset.Asset) *asset.AccessInfo {
+	if a == nil {
+		return nil
+	}
+	return f.GetAccessInfoResolver()(a)
 }
 
 func (f *fileRepo) GetBaseURL() string {
-	return f.base.String()
+	return f.publicBase.String()
 }
 
 func (f *fileRepo) IssueUploadAssetLink(ctx context.Context, param gateway.IssueUploadAssetParam) (*gateway.UploadAssetLink, error) {
-	uuid := param.UUID
 	contentType := param.GetOrGuessContentType()
 	if err := validateContentEncoding(param.ContentEncoding); err != nil {
 		return nil, err
 	}
 
-	p := getGCSObjectPath(uuid, param.Filename)
+	p := getGCSObjectPath(param.UUID, param.Filename)
 	if p == "" {
 		return nil, gateway.ErrInvalidFile
 	}
+
 	bucket, err := f.bucket(ctx)
 	if err != nil {
 		return nil, err
 	}
 	opt := &storage.SignedURLOptions{
+		Scheme:      storage.SigningSchemeV4,
 		Method:      http.MethodPut,
 		Expires:     param.ExpiresAt,
 		ContentType: contentType,
+		QueryParameters: map[string][]string{
+			"reearth-x-workspace": {param.Workspace},
+			"reearth-x-project":   {param.Project},
+			"reearth-x-public":    {fmt.Sprintf("%v", param.Public)},
+		},
 	}
+
+	var headers []string
 	if param.ContentEncoding != "" {
-		opt.Headers = []string{"Content-Encoding: " + param.ContentEncoding}
+		headers = append(headers, "Content-Encoding: "+param.ContentEncoding)
+	}
+
+	if len(headers) > 0 {
+		opt.Headers = headers
 	}
 	uploadURL, err := bucket.SignedURL(p, opt)
 	if err != nil {
 		log.Errorf("gcs: failed to issue signed url: %v", err)
 		return nil, gateway.ErrUnsupportedOperation
 	}
+
 	return &gateway.UploadAssetLink{
-		URL:             uploadURL,
+		URL:             f.toPublicUrl(uploadURL),
 		ContentType:     contentType,
 		ContentLength:   param.ContentLength,
 		ContentEncoding: param.ContentEncoding,
 		Next:            "",
 	}, nil
+}
+
+func (f *fileRepo) toPublicUrl(uploadURL string) string {
+	// Replace storage.googleapis.com with custom asset base URL if configured and enabled
+	if f.replaceUploadURL && f.publicBase != nil && f.publicBase.Host != "" && f.publicBase.Host != "storage.googleapis.com" {
+		parsedURL, err := url.Parse(uploadURL)
+		if err == nil {
+			parsedURL.Scheme = f.publicBase.Scheme
+			parsedURL.Host = f.publicBase.Host
+			parsedURL.Path = path.Join(f.publicBase.Path, parsedURL.Path)
+			uploadURL = parsedURL.String()
+		}
+	}
+	return uploadURL
 }
 
 func (f *fileRepo) UploadedAsset(ctx context.Context, u *asset.Upload) (*file.File, error) {
@@ -314,6 +405,13 @@ func (f *fileRepo) Upload(ctx context.Context, file *file.File, objectName strin
 	writer := object.NewWriter(ctx)
 	writer.CacheControl = f.cacheControl
 
+	if workspace := getWorkspaceFromContext(ctx); workspace != "" {
+		if writer.Metadata == nil {
+			writer.Metadata = make(map[string]string)
+		}
+		writer.Metadata["X-Reearth-Workspace-ID"] = workspace
+	}
+
 	if file.ContentType == "" {
 		writer.ContentType = getContentType(file.Name)
 	} else {
@@ -368,6 +466,34 @@ func (f *fileRepo) delete(ctx context.Context, filename string) error {
 		}
 
 		log.Errorf("gcs: delete err: %+v\n", err)
+		return rerror.ErrInternalBy(err)
+	}
+	return nil
+}
+
+func (f *fileRepo) publish(ctx context.Context, filename string, public bool) error {
+	if filename == "" {
+		return gateway.ErrInvalidFile
+	}
+
+	bucket, err := f.bucket(ctx)
+	if err != nil {
+		log.Errorf("gcs: get bucket err: %+v\n", err)
+		return rerror.ErrInternalBy(err)
+	}
+
+	object := bucket.Object(filename)
+	if public {
+		err = object.ACL().Set(ctx, storage.AllUsers, storage.RoleReader)
+	} else {
+		err = object.ACL().Delete(ctx, storage.AllUsers)
+	}
+	if err != nil {
+		if errors.Is(err, storage.ErrObjectNotExist) {
+			return gateway.ErrFileNotFound
+		}
+
+		log.Errorf("gcs: acl err: %+v\n", err)
 		return rerror.ErrInternalBy(err)
 	}
 	return nil
@@ -485,9 +611,12 @@ func getGCSObjectPathFolder(uuid string) string {
 func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
 	client, err := storage.NewClient(ctx)
 	if err != nil {
+		log.Errorf("gcs: failed to initialize client: %v", err)
 		return nil, err
 	}
+
 	bucket := client.Bucket(f.bucketName)
+
 	return bucket, nil
 }
 
@@ -537,3 +666,14 @@ func hasAcceptEncoding(accept, encoding string) bool {
 	}
 	return false
 }
+
+func getWorkspaceFromContext(ctx context.Context) string {
+	if v := ctx.Value(contextKey(workspaceContextKey)); v != nil {
+		if ws, ok := v.(string); ok {
+			return ws
+		}
+	}
+	return ""
+}
+
+type contextKey string

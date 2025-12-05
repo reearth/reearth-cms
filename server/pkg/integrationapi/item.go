@@ -27,16 +27,19 @@ func NewVersionedItem(i item.Versioned, sp *schema.Package, cc *ConvertContext) 
 	ii := NewItem(i.Value(), sp, cc)
 	return VersionedItem{
 		Id:              ii.Id,
+		ModelId:         ii.ModelId,
+		MetadataItemId:  ii.MetadataItem(),
+		OriginalItemId:  ii.OriginalItem(),
+		IsMetadata:      lo.ToPtr(i.Value().IsMetadata()),
+		Fields:          ii.Fields,
+		MetadataFields:  mf,
+		ReferencedItems: newReferencedItems(i, sp, cc),
 		CreatedAt:       ii.CreatedAt,
 		UpdatedAt:       ii.UpdatedAt,
-		Fields:          ii.Fields,
-		ModelId:         ii.ModelId,
-		Parents:         &ps,
-		MetadataFields:  mf,
-		IsMetadata:      lo.ToPtr(i.Value().IsMetadata()),
-		Refs:            &rs,
+
 		Version:         lo.ToPtr(types.UUID(i.Version())),
-		ReferencedItems: newReferencedItems(i, sp, cc),
+		Parents:         &ps,
+		Refs:            &rs,
 	}
 }
 
@@ -74,10 +77,12 @@ func NewItem(i *item.Item, sp *schema.Package, cc *ConvertContext) Item {
 	return Item{
 		Id:             i.ID().Ref(),
 		ModelId:        i.Model().Ref().StringRef(),
-		Fields:         NewFields(i, sp, cc),
 		MetadataItemId: i.MetadataItem(),
 		OriginalItemId: i.OriginalItem(),
 		IsMetadata:     lo.ToPtr(i.IsMetadata()),
+		Fields:         NewFields(i, sp, cc),
+		MetadataFields:  nil,
+		ReferencedItems: nil,
 		CreatedAt:      lo.ToPtr(i.ID().Timestamp()),
 		UpdatedAt:      lo.ToPtr(i.Timestamp()),
 	}

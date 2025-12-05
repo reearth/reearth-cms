@@ -210,6 +210,103 @@ func TestItem_AssetIDs(t *testing.T) {
 	}).AssetIDs())
 }
 
+func TestItem_AssetIDsBySchema(t *testing.T) {
+	t.Parallel()
+
+	aid1, aid2, aid3 := id.NewAssetID(), id.NewAssetID(), id.NewAssetID()
+	assetFieldID := id.NewFieldID()
+	textFieldID := id.NewFieldID()
+	multiAssetFieldID := id.NewFieldID()
+
+	// Create schema with asset and text fields
+	wid := accountdomain.NewWorkspaceID()
+	assetField := schema.NewField(schema.NewAsset().TypeProperty()).ID(assetFieldID).Key(id.RandomKey()).MustBuild()
+	textField := schema.NewField(schema.NewText(nil).TypeProperty()).ID(textFieldID).Key(id.RandomKey()).MustBuild()
+	multiAssetField := schema.NewField(schema.NewAsset().TypeProperty()).ID(multiAssetFieldID).Key(id.RandomKey()).Multiple(true).MustBuild()
+	s := schema.New().NewID().Workspace(wid).Project(id.NewProjectID()).Fields([]*schema.Field{assetField, textField, multiAssetField}).MustBuild()
+
+	tests := []struct {
+		name     string
+		item     *Item
+		pkg      schema.Package
+		expected AssetIDList
+	}{
+		{
+			name: "empty schema package",
+			item: &Item{
+				fields: []*Field{
+					{field: assetFieldID, value: value.New(value.TypeAsset, aid1).AsMultiple()},
+				},
+			},
+			pkg:      schema.Package{},
+			expected: nil,
+		},
+		{
+			name: "single asset field",
+			item: &Item{
+				fields: []*Field{
+					{field: assetFieldID, value: value.New(value.TypeAsset, aid1).AsMultiple()},
+					{field: textFieldID, value: value.New(value.TypeText, "test").AsMultiple()},
+				},
+			},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: AssetIDList{aid1},
+		},
+		{
+			name: "multiple asset field",
+			item: &Item{
+				fields: []*Field{
+					{field: multiAssetFieldID, value: value.NewMultiple(value.TypeAsset, []any{aid1, aid2})},
+				},
+			},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: AssetIDList{aid1, aid2},
+		},
+		{
+			name: "mixed fields",
+			item: &Item{
+				fields: []*Field{
+					{field: assetFieldID, value: value.New(value.TypeAsset, aid1).AsMultiple()},
+					{field: textFieldID, value: value.New(value.TypeText, "test").AsMultiple()},
+					{field: multiAssetFieldID, value: value.NewMultiple(value.TypeAsset, []any{aid2, aid3})},
+				},
+			},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: AssetIDList{aid1, aid2, aid3},
+		},
+		{
+			name: "no asset fields in item",
+			item: &Item{
+				fields: []*Field{
+					{field: textFieldID, value: value.New(value.TypeText, "test").AsMultiple()},
+				},
+			},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: AssetIDList{},
+		},
+		{
+			name: "item has asset field not in schema (deleted field)",
+			item: &Item{
+				fields: []*Field{
+					{field: NewFieldID(), value: value.New(value.TypeAsset, aid1).AsMultiple()},
+				},
+			},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: AssetIDList{},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			result := tt.item.AssetIDsBySchema(tt.pkg)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
 func TestItem_User(t *testing.T) {
 	f1 := NewField(id.NewFieldID(), value.TypeText.Value("foo").AsMultiple(), nil)
 	uid := accountdomain.NewUserID()
@@ -362,4 +459,86 @@ func TestGetFirstGeometryField(t *testing.T) {
 	geometry4, ok4 := i4.GetFirstGeometryField()
 	assert.False(t, ok4)
 	assert.Nil(t, geometry4)
+}
+
+func TestItem_Clone(t *testing.T) {
+	now := time.Now()
+	itemID := NewID()
+	schemaID := id.NewSchemaID()
+	modelID := id.NewModelID()
+	projectID := id.NewProjectID()
+	threadID := id.NewThreadID()
+	userID := id.NewUserID()
+	integrationID := id.NewIntegrationID()
+	metadataItemID := id.NewItemID()
+	originalItemID := id.NewItemID()
+
+	field1 := &Field{
+		field: NewFieldID(),
+		value: nil,
+	}
+	field2 := &Field{
+		field: NewFieldID(),
+		value: nil,
+	}
+
+	tests := []struct {
+		name string
+		item *Item
+	}{
+		{
+			name: "nil item",
+			item: nil,
+		},
+		{
+			name: "item with fields",
+			item: &Item{
+				id:                   itemID,
+				schema:               schemaID,
+				model:                modelID,
+				project:              projectID,
+				fields:               []*Field{field1, field2},
+				timestamp:            now,
+				thread:               &threadID,
+				isMetadata:           true,
+				user:                 (*UserID)(&userID),
+				updatedByUser:        (*UserID)(&userID),
+				updatedByIntegration: &integrationID,
+				integration:          &integrationID,
+				metadataItem:         &metadataItemID,
+				originalItem:         &originalItemID,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cloned := tt.item.Clone()
+			if tt.item == nil {
+				assert.Nil(t, cloned)
+				return
+			}
+			assert.NotNil(t, cloned)
+			assert.Equal(t, tt.item.id, cloned.id)
+			assert.Equal(t, tt.item.schema, cloned.schema)
+			assert.Equal(t, tt.item.model, cloned.model)
+			assert.Equal(t, tt.item.project, cloned.project)
+			assert.Equal(t, tt.item.timestamp, cloned.timestamp)
+			assert.Equal(t, tt.item.thread, cloned.thread)
+			assert.Equal(t, tt.item.isMetadata, cloned.isMetadata)
+			assert.Equal(t, tt.item.user, cloned.user)
+			assert.Equal(t, tt.item.updatedByUser, cloned.updatedByUser)
+			assert.Equal(t, tt.item.updatedByIntegration, cloned.updatedByIntegration)
+			assert.Equal(t, tt.item.integration, cloned.integration)
+			assert.Equal(t, tt.item.metadataItem, cloned.metadataItem)
+			assert.Equal(t, tt.item.originalItem, cloned.originalItem)
+			assert.Len(t, cloned.fields, len(tt.item.fields))
+			// Ensure fields are deep cloned
+			for i := range tt.item.fields {
+				if tt.item.fields[i] != nil {
+					assert.NotSame(t, tt.item.fields[i], cloned.fields[i])
+				}
+			}
+		})
+	}
 }

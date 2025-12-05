@@ -14,7 +14,7 @@ type GroupSchema = Schema & { fields: GroupField[] };
 
 export type Field = {
   id: string;
-  type: FieldType;
+  type: SchemaFieldType;
   title: string;
   key: string;
   description: string;
@@ -26,10 +26,25 @@ export type Field = {
   typeProperty?: TypeProperty;
 };
 
-export type GroupField = Field & { type: Exclude<FieldType, "Group"> };
+export type CreateFieldInput = {
+  modelId?: string;
+  groupId?: string;
+  type: SchemaFieldType;
+  title: string;
+  metadata?: boolean;
+  description?: string;
+  key: string;
+  multiple: boolean;
+  unique: boolean;
+  required: boolean;
+  isTitle: boolean;
+  typeProperty: TypeProperty;
+};
+
+export type GroupField = Field & { type: Exclude<SchemaFieldType, "Group"> };
 
 export type MetadataField = Field & {
-  type: Extract<FieldType, "Tag" | "Bool" | "Checkbox" | "Date" | "Text" | "URL">;
+  type: Extract<SchemaFieldType, "Tag" | "Bool" | "Checkbox" | "Date" | "Text" | "URL">;
 };
 
 export type FieldProps = {
@@ -40,24 +55,27 @@ export type FieldProps = {
   onItemHeightChange?: (id: string, height: number) => void;
 };
 
-export type FieldType =
-  | "Text"
-  | "TextArea"
-  // | "RichText"
-  | "MarkdownText"
-  | "Asset"
-  | "Date"
-  | "Bool"
-  | "Select"
-  | "Tag"
-  | "Integer"
-  | "Number"
-  | "Reference"
-  | "Checkbox"
-  | "URL"
-  | "Group"
-  | "GeometryObject"
-  | "GeometryEditor";
+export const SchemaFieldType = {
+  Text: "Text",
+  TextArea: "TextArea",
+  // RichText: "RichText",
+  MarkdownText: "MarkdownText",
+  Asset: "Asset",
+  Date: "Date",
+  Bool: "Bool",
+  Select: "Select",
+  Tag: "Tag",
+  Integer: "Integer",
+  Number: "Number",
+  Reference: "Reference",
+  Checkbox: "Checkbox",
+  URL: "URL",
+  Group: "Group",
+  GeometryObject: "GeometryObject",
+  GeometryEditor: "GeometryEditor",
+} as const;
+
+export type SchemaFieldType = (typeof SchemaFieldType)[keyof typeof SchemaFieldType];
 
 export type Tag = {
   id: string;
@@ -78,7 +96,7 @@ export type EditorSupportedType = "POINT" | "LINESTRING" | "POLYGON" | "ANY";
 
 export type CorrespondingField = {
   id: string;
-  type: FieldType;
+  type: SchemaFieldType;
   title: string;
   key: Key;
   description: string;
@@ -169,7 +187,7 @@ export type FormValues = {
   unique: boolean;
   isTitle: boolean;
   required: boolean;
-  type?: FieldType;
+  type?: SchemaFieldType;
   typeProperty: FieldTypePropertyInput;
 };
 

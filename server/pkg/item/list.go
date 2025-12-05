@@ -1,6 +1,7 @@
 package item
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/samber/lo"
 )
@@ -25,9 +26,56 @@ func (l List) Item(iID ID) (*Item, bool) {
 	})
 }
 
+func (l List) FilterByIds(ids IDList) List {
+	if l == nil {
+		return nil
+	}
+	return lo.Filter(l, func(i *Item, _ int) bool {
+		return ids.Has(i.ID())
+	})
+}
+
 func (l List) IDs() IDList {
 	return lo.Map(l, func(i *Item, _ int) ID {
 		return i.ID()
+	})
+}
+
+func (l List) MetadataIDs() IDList {
+	return lo.FilterMap(l, func(i *Item, _ int) (ID, bool) {
+		id := i.MetadataItem()
+		if id == nil {
+			return ID{}, false
+		}
+		return *i.MetadataItem(), true
+	})
+}
+
+func (l List) AssetIDs(sp schema.Package) AssetIDList {
+	if l == nil {
+		return nil
+	}
+	assetIDs := make(AssetIDList, 0)
+	for _, i := range l {
+		assetIDs = assetIDs.AddUniq(i.AssetIDsBySchema(sp)...)
+	}
+	return assetIDs
+}
+
+func (l List) ToMap() map[ID]*Item {
+	m := make(map[ID]*Item, len(l))
+	for _, i := range l {
+		m[i.ID()] = i
+	}
+	return m
+}
+
+func (l List) Clone() List {
+	if l == nil {
+		return nil
+	}
+	return lo.Map(l, func(i *Item, _ int) *Item {
+		return i.Clone()
 	})
 }
 

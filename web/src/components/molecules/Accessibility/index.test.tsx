@@ -7,14 +7,15 @@ import Accessibility from ".";
 describe("Accessibility", () => {
   const user = userEvent.setup();
 
+  const hasCreateRight = true;
+  const hasUpdateRight = true;
+  const hasDeleteRight = true;
   const hasPublishRight = true;
-  const token = "";
   const model1Id = "model1Id";
   const model1Name = "model1Name";
   const model1Key = "model1Key";
   const models = [{ id: model1Id, name: model1Name, key: model1Key }];
   const updateLoading = false;
-  const regenerateLoading = false;
   const apiUrl = "https://test.com/api/";
   const alias = "alias";
   const initialValues = {
@@ -23,10 +24,19 @@ describe("Accessibility", () => {
     assetPublic: false,
     models: { [model1Id]: false },
   };
+  const onAPIKeyNew = () => {
+    return Promise.resolve();
+  };
+  const onAPIKeyEdit = () => {
+    return Promise.resolve();
+  };
+  const onAPIKeyDelete = () => {
+    return Promise.resolve();
+  };
   const onPublicUpdate = () => {
     return Promise.resolve();
   };
-  const onRegenerateToken = () => {
+  const onSettingsPageOpen = () => {
     return Promise.resolve();
   };
 
@@ -34,29 +44,27 @@ describe("Accessibility", () => {
     render(
       <Accessibility
         initialValues={initialValues}
+        hasCreateRight={hasCreateRight}
+        hasUpdateRight={hasUpdateRight}
+        hasDeleteRight={hasDeleteRight}
         hasPublishRight={hasPublishRight}
-        token={token}
         models={models}
         updateLoading={updateLoading}
-        regenerateLoading={regenerateLoading}
         apiUrl={apiUrl}
         alias={alias}
+        onAPIKeyNew={onAPIKeyNew}
+        onAPIKeyDelete={onAPIKeyDelete}
+        onAPIKeyEdit={onAPIKeyEdit}
         onPublicUpdate={onPublicUpdate}
-        onRegenerateToken={onRegenerateToken}
+        onSettingsPageOpen={onSettingsPageOpen}
       />,
     );
 
-    const scopeSelect = screen.getByRole("combobox");
-    const switches = screen.getAllByRole("switch");
+    let switches = screen.getAllByRole("switch");
+    switches = screen.getAllByRole("switch");
     const model1Switch = switches[0];
     const assetSwitch = switches[switches.length - 1];
     const saveButton = screen.getByRole("button", { name: "Save changes" });
-
-    expect(screen.getByText("Private")).toBeVisible();
-    expect(screen.getByDisplayValue(alias)).toBeVisible();
-    expect(screen.getByDisplayValue(alias)).toBeDisabled();
-    expect(screen.queryByTestId("token")).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Re-generate" })).not.toBeInTheDocument();
 
     expect(screen.getByText(model1Name)).toBeVisible();
     expect(model1Switch).not.toBeChecked();
@@ -66,45 +74,33 @@ describe("Accessibility", () => {
     expect(screen.getByText(`${apiUrl}assets`)).toBeVisible();
 
     expect(saveButton).toHaveAttribute("disabled");
-
-    await user.click(scopeSelect);
-    await expect.poll(() => screen.getByRole("listbox")).toBeVisible();
-    expect(screen.getByText("Limited")).toBeVisible();
-    expect(screen.getByText("Public")).toBeVisible();
   });
 
   test("Toggle save button successfully", async () => {
     render(
       <Accessibility
         initialValues={initialValues}
+        hasCreateRight={hasCreateRight}
+        hasUpdateRight={hasUpdateRight}
+        hasDeleteRight={hasDeleteRight}
         hasPublishRight={hasPublishRight}
-        token={token}
         models={models}
         updateLoading={updateLoading}
-        regenerateLoading={regenerateLoading}
         apiUrl={apiUrl}
         alias={alias}
+        onAPIKeyNew={onAPIKeyNew}
+        onAPIKeyDelete={onAPIKeyDelete}
+        onAPIKeyEdit={onAPIKeyEdit}
         onPublicUpdate={onPublicUpdate}
-        onRegenerateToken={onRegenerateToken}
+        onSettingsPageOpen={onSettingsPageOpen}
       />,
     );
 
-    const scopeSelect = screen.getByRole("combobox");
+    let switches = screen.getAllByRole("switch");
     const saveButton = screen.getByRole("button", { name: "Save changes" });
-    const switches = screen.getAllByRole("switch");
+    switches = screen.getAllByRole("switch");
     const model1Switch = switches[0];
     const assetSwitch = switches[switches.length - 1];
-
-    await user.click(scopeSelect);
-    await user.click(await screen.findByText("Limited"));
-    expect(screen.getAllByText("Limited")[1]).toBeVisible();
-    await expect.poll(() => saveButton).not.toHaveAttribute("disabled");
-
-    await user.click(scopeSelect);
-    await user.click(await screen.findByText("Private"));
-
-    expect(screen.getAllByText("Private")[1]).toBeVisible();
-    await expect.poll(() => saveButton).toHaveAttribute("disabled");
 
     await user.click(model1Switch);
     await expect.poll(() => model1Switch).toBeChecked();
@@ -122,63 +118,31 @@ describe("Accessibility", () => {
     await expect.poll(() => saveButton).toHaveAttribute("disabled");
   });
 
-  test("Set up limited scope and token is displayed successfully", () => {
-    render(
-      <Accessibility
-        initialValues={{
-          scope: "LIMITED",
-          alias,
-          assetPublic: true,
-          models: { [model1Id]: true },
-        }}
-        hasPublishRight={hasPublishRight}
-        token={"token"}
-        models={models}
-        updateLoading={updateLoading}
-        regenerateLoading={regenerateLoading}
-        apiUrl={apiUrl}
-        alias={alias}
-        onPublicUpdate={onPublicUpdate}
-        onRegenerateToken={onRegenerateToken}
-      />,
-    );
-
-    const tokenInput = screen.queryByTestId("token");
-    const regenerateButton = screen.queryByRole("button", { name: "Re-generate" });
-    const switches = screen.getAllByRole("switch");
-    const model1Switch = switches[0];
-    const assetSwitch = switches[switches.length - 1];
-
-    expect(screen.getAllByText("Limited")[0]).toBeVisible();
-    expect(tokenInput).toBeVisible();
-    expect(tokenInput).toBeDisabled();
-    expect(regenerateButton).toBeVisible();
-    expect(model1Switch).toBeChecked();
-    expect(assetSwitch).toBeChecked();
-  });
-
-  test("Disable switch and button according to user right successfully", () => {
+  test("Disable switch and button according to user right successfully", async () => {
     render(
       <Accessibility
         initialValues={initialValues}
+        hasCreateRight={hasCreateRight}
+        hasUpdateRight={hasUpdateRight}
+        hasDeleteRight={hasDeleteRight}
         hasPublishRight={false}
-        token={token}
         models={models}
         updateLoading={updateLoading}
-        regenerateLoading={regenerateLoading}
         apiUrl={apiUrl}
         alias={alias}
+        onAPIKeyNew={onAPIKeyNew}
+        onAPIKeyDelete={onAPIKeyDelete}
+        onAPIKeyEdit={onAPIKeyEdit}
         onPublicUpdate={onPublicUpdate}
-        onRegenerateToken={onRegenerateToken}
+        onSettingsPageOpen={onSettingsPageOpen}
       />,
     );
 
-    const scopeSelect = screen.getByRole("combobox");
-    const switches = screen.getAllByRole("switch");
+    let switches = screen.getAllByRole("switch");
+    switches = screen.getAllByRole("switch");
     const model1Switch = switches[0];
     const assetSwitch = switches[switches.length - 1];
 
-    expect(scopeSelect).toBeDisabled();
     expect(model1Switch).toBeDisabled();
     expect(assetSwitch).toBeDisabled();
   });

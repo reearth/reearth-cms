@@ -25,7 +25,7 @@ var (
 		"project,size,id",
 		"!createdat,!id",
 	}
-	assetUniqueIndexes = []string{"id"}
+	assetUniqueIndexes = []string{"id", "uuid"}
 )
 
 type Asset struct {
@@ -61,7 +61,13 @@ func (r *Asset) FindByID(ctx context.Context, id id.AssetID) (*asset.Asset, erro
 	})
 }
 
-func (r *Asset) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset.Asset, error) {
+func (r *Asset) FindByUUID(ctx context.Context, uuid string) (*asset.Asset, error) {
+	return r.findOne(ctx, bson.M{
+		"uuid": uuid,
+	})
+}
+
+func (r *Asset) FindByIDs(ctx context.Context, ids id.AssetIDList) (asset.List, error) {
 	if len(ids) == 0 {
 		return nil, nil
 	}
@@ -79,24 +85,28 @@ func (r *Asset) FindByIDs(ctx context.Context, ids id.AssetIDList) ([]*asset.Ass
 	return filterAssets(ids, res), nil
 }
 
-func (r *Asset) FindByProject(ctx context.Context, id id.ProjectID, uFilter repo.AssetFilter) ([]*asset.Asset, *usecasex.PageInfo, error) {
-	if !r.f.CanRead(id) {
+func (r *Asset) Search(ctx context.Context, pID id.ProjectID, filter repo.AssetFilter) (asset.List, *usecasex.PageInfo, error) {
+	if !r.f.CanRead(pID) {
 		return nil, usecasex.EmptyPageInfo(), nil
 	}
 
-	var filter interface{} = bson.M{
-		"project": id.String(),
+	filters := bson.M{
+		"project": pID.String(),
 	}
 
-	if uFilter.Keyword != nil && *uFilter.Keyword != "" {
-		filter = mongox.And(filter, "", bson.M{
-			"filename": bson.M{
-				"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*uFilter.Keyword)), Options: "i"},
-			},
-		})
+	if filter.Keyword != nil && *filter.Keyword != "" {
+		filters["filename"] = bson.M{
+			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*filter.Keyword)), Options: "i"},
+		}
 	}
 
-	return r.paginate(ctx, filter, uFilter.Sort, uFilter.Pagination)
+	if len(filter.ContentTypes) > 0 {
+		filters["file.contenttype"] = bson.M{
+			"$in": filter.ContentTypes,
+		}
+	}
+
+	return r.paginate(ctx, filters, filter.Sort, filter.Pagination)
 }
 
 func (r *Asset) UpdateProject(ctx context.Context, from, to id.ProjectID) error {
@@ -143,7 +153,7 @@ func (r *Asset) BatchDelete(ctx context.Context, ids id.AssetIDList) error {
 	return r.client.RemoveAll(ctx, r.writeFilter(filter))
 }
 
-func (r *Asset) paginate(ctx context.Context, filter interface{}, sort *usecasex.Sort, pagination *usecasex.Pagination) ([]*asset.Asset, *usecasex.PageInfo, error) {
+func (r *Asset) paginate(ctx context.Context, filter any, sort *usecasex.Sort, pagination *usecasex.Pagination) ([]*asset.Asset, *usecasex.PageInfo, error) {
 	c := mongodoc.NewAssetConsumer()
 	pageInfo, err := r.client.Paginate(ctx, r.readFilter(filter), sort, pagination, c, options.Find().SetProjection(bson.M{"file": 0}))
 	if err != nil {

@@ -8,6 +8,8 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/internal/app"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/account"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
@@ -18,15 +20,23 @@ import (
 	"golang.org/x/text/language"
 )
 
-func baseSeederUser(ctx context.Context, r *repo.Container) error {
+func baseSeederUser(ctx context.Context, r *repo.Container, g *gateway.Container) error {
 	auth := user.ReearthSub(uId1.String())
+
+	u1m := user.NewMetadata()
+	u1m.SetTheme(user.ThemeDark)
+	u1m.SetLang(language.English)
+
+	u2m := user.NewMetadata()
+	u2m.SetTheme(user.ThemeDefault)
+	u2m.SetLang(language.Japanese)
+
 	u := user.New().ID(uId1).
 		Name("e2e").
 		Email("e2e@e2e.com").
 		Auths([]user.Auth{*auth}).
-		Theme(user.ThemeDark).
-		Lang(language.English).
 		Workspace(wId).
+		Metadata(u1m).
 		MustBuild()
 	if err := r.User.Save(ctx, u); err != nil {
 		return err
@@ -34,8 +44,8 @@ func baseSeederUser(ctx context.Context, r *repo.Container) error {
 	u2 := user.New().ID(uId2).
 		Name("e2e2").
 		Workspace(wId2).
-		Lang(language.Japanese).
 		Email("e2e2@e2e.com").
+		Metadata(u2m).
 		MustBuild()
 	if err := r.User.Save(ctx, u2); err != nil {
 		return err
@@ -44,6 +54,7 @@ func baseSeederUser(ctx context.Context, r *repo.Container) error {
 		Name("e2e3").
 		Workspace(wId2).
 		Email("e2e3@e2e.com").
+		Metadata(u2m).
 		MustBuild()
 	if err := r.User.Save(ctx, u3); err != nil {
 		return err
@@ -52,10 +63,12 @@ func baseSeederUser(ctx context.Context, r *repo.Container) error {
 		Name("e2e4").
 		Workspace(wId).
 		Email("e2e4@e2e.com").
+		Metadata(u2m).
 		MustBuild()
 	if err := r.User.Save(ctx, u4); err != nil {
 		return err
 	}
+	g.Accounts = account.NewInMemory2(user.List{u, u2, u3, u4})
 	roleOwner := workspace.Member{
 		Role:      workspace.RoleOwner,
 		InvitedBy: uId1,
@@ -69,8 +82,10 @@ func baseSeederUser(ctx context.Context, r *repo.Container) error {
 		InvitedBy: uId2,
 	}
 
+	wMetadata := workspace.NewMetadata()
 	w := workspace.New().ID(wId).
 		Name("e2e").
+		Alias("test-workspace").
 		Members(map[idx.ID[accountdomain.User]]workspace.Member{
 			uId1: roleOwner,
 			uId4: roleMaintainer,
@@ -78,6 +93,7 @@ func baseSeederUser(ctx context.Context, r *repo.Container) error {
 		Integrations(map[idx.ID[accountdomain.Integration]]workspace.Member{
 			iId1: roleOwner,
 		}).
+		Metadata(wMetadata).
 		MustBuild()
 	if err := r.Workspace.Save(ctx, w); err != nil {
 		return err
@@ -92,6 +108,7 @@ func baseSeederUser(ctx context.Context, r *repo.Container) error {
 		Integrations(map[idx.ID[accountdomain.Integration]]workspace.Member{
 			iId1: roleOwner,
 		}).
+		Metadata(wMetadata).
 		MustBuild()
 	if err := r.Workspace.Save(ctx, w2); err != nil {
 		return err
@@ -174,7 +191,7 @@ func TestDeleteMe(t *testing.T) {
 
 func TestMe(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
-	query := ` { me{ id name email lang theme myWorkspaceId } }`
+	query := ` { me{ id name email lang theme myWorkspaceId profilePictureUrl } }`
 	request := GraphQLRequest{
 		Query: query,
 	}
@@ -187,12 +204,14 @@ func TestMe(t *testing.T) {
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("me").Object()
+
 	o.Value("id").String().IsEqual(uId1.String())
 	o.Value("name").String().IsEqual("e2e")
 	o.Value("email").String().IsEqual("e2e@e2e.com")
 	o.Value("lang").String().IsEqual("en")
 	o.Value("theme").String().IsEqual("dark")
 	o.Value("myWorkspaceId").String().IsEqual(wId.String())
+	o.Value("profilePictureUrl").String().IsEqual("")
 
 	o = e.POST("/api/graphql").
 		WithHeader("authorization", "Bearer test").
@@ -205,6 +224,7 @@ func TestMe(t *testing.T) {
 	o.Value("lang").String().IsEqual("ja")
 	o.Value("theme").String().IsEqual("default")
 	o.Value("myWorkspaceId").String().IsEqual(wId2.String())
+	o.Value("profilePictureUrl").String().IsEqual("")
 }
 
 func TestUserByNameOrEmail(t *testing.T) {

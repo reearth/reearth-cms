@@ -144,6 +144,13 @@ func (r *Item) FindByModelAndValue(ctx context.Context, modelID id.ModelID, fiel
 	return r.find(ctx, bson.M{"$or": filters}, ref)
 }
 
+func (r *Item) CountByModel(ctx context.Context, modelID id.ModelID) (int, error) {
+	count, err := r.client.Count(ctx, r.readFilter(bson.M{
+		"modelid": modelID.String(),
+	}), version.Eq(version.Latest.OrVersion()))
+	return int(count), err
+}
+
 func (r *Item) FindByAssets(ctx context.Context, al id.AssetIDList, ref *version.Ref) (item.VersionedList, error) {
 	if al.Len() == 0 {
 		return nil, nil
@@ -227,6 +234,13 @@ func (r *Item) Remove(ctx context.Context, id id.ItemID) error {
 	return r.client.RemoveOne(ctx, r.writeFilter(bson.M{"id": id.String()}))
 }
 
+func (r *Item) BatchRemove(ctx context.Context, ids id.ItemIDList) error {
+	if len(ids) == 0 {
+		return nil
+	}
+	return r.client.RemoveMany(ctx, r.writeFilter(bson.M{"id": bson.M{"$in": ids.Strings()}}))
+}
+
 func (r *Item) Archive(ctx context.Context, id id.ItemID, pid id.ProjectID, b bool) error {
 	if !r.f.CanWrite(pid) {
 		return repo.ErrOperationDenied
@@ -280,7 +294,7 @@ func (r *Item) findOne(ctx context.Context, filter any, ref *version.Ref) (item.
 }
 
 func (r *Item) Copy(ctx context.Context, params repo.CopyParams) (*string, *string, error) {
-	filter, err := json.Marshal(bson.M{"schema": params.OldSchema.String() , "__r": bson.M{"$in": []string{"latest"}}})
+	filter, err := json.Marshal(bson.M{"schema": params.OldSchema.String(), "__r": bson.M{"$in": []string{"latest"}}})
 	if err != nil {
 		return nil, nil, err
 	}

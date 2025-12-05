@@ -7,6 +7,7 @@ import Settings from ".";
 describe("Settings", () => {
   const user = userEvent.setup();
 
+  const loading = false;
   const workspaceSettings = {
     tiles: {
       resources: [],
@@ -17,14 +18,29 @@ describe("Settings", () => {
     },
   };
   const hasUpdateRight = true;
-  const loading = false;
+  const updateLoading = false;
   const onWorkspaceSettingsUpdate = () => {
     return Promise.resolve();
   };
 
+  test("Loading is displayed successfully", () => {
+    render(
+      <Settings
+        loading={true}
+        workspaceSettings={workspaceSettings}
+        hasUpdateRight={hasUpdateRight}
+        updateLoading={updateLoading}
+        onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
+      />,
+    );
+
+    expect(screen.getByTestId("loading")).toBeVisible();
+  });
+
   test("Cards are displayed successfully", async () => {
     render(
       <Settings
+        loading={loading}
         workspaceSettings={{
           tiles: {
             resources: [
@@ -57,7 +73,7 @@ describe("Settings", () => {
           },
         }}
         hasUpdateRight={hasUpdateRight}
-        loading={loading}
+        updateLoading={updateLoading}
         onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
       />,
     );
@@ -76,9 +92,10 @@ describe("Settings", () => {
   test("Loading on button are displayed successfully", () => {
     render(
       <Settings
+        loading={loading}
         workspaceSettings={workspaceSettings}
         hasUpdateRight={hasUpdateRight}
-        loading={true}
+        updateLoading={true}
         onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
       />,
     );
@@ -89,9 +106,10 @@ describe("Settings", () => {
   test("Action is correctly disabled based on user right", () => {
     render(
       <Settings
+        loading={loading}
         workspaceSettings={workspaceSettings}
         hasUpdateRight={false}
-        loading={loading}
+        updateLoading={updateLoading}
         onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
       />,
     );
@@ -107,9 +125,10 @@ describe("Settings", () => {
 
     render(
       <Settings
+        loading={loading}
         workspaceSettings={workspaceSettings}
         hasUpdateRight={hasUpdateRight}
-        loading={loading}
+        updateLoading={updateLoading}
         onWorkspaceSettingsUpdate={updateMock}
       />,
     );
@@ -134,9 +153,10 @@ describe("Settings", () => {
 
     render(
       <Settings
+        loading={loading}
         workspaceSettings={workspaceSettings}
         hasUpdateRight={hasUpdateRight}
-        loading={loading}
+        updateLoading={updateLoading}
         onWorkspaceSettingsUpdate={updateMock}
       />,
     );
@@ -161,6 +181,7 @@ describe("Settings", () => {
 
     const { container } = render(
       <Settings
+        loading={loading}
         workspaceSettings={{
           tiles: {
             resources: [
@@ -181,7 +202,7 @@ describe("Settings", () => {
           },
         }}
         hasUpdateRight={hasUpdateRight}
-        loading={loading}
+        updateLoading={updateLoading}
         onWorkspaceSettingsUpdate={updateMock}
       />,
     );
@@ -210,6 +231,7 @@ describe("Settings", () => {
 
     const { container } = render(
       <Settings
+        loading={loading}
         workspaceSettings={{
           tiles: {
             resources: [],
@@ -232,7 +254,7 @@ describe("Settings", () => {
           },
         }}
         hasUpdateRight={hasUpdateRight}
-        loading={loading}
+        updateLoading={updateLoading}
         onWorkspaceSettingsUpdate={updateMock}
       />,
     );
@@ -261,6 +283,7 @@ describe("Settings", () => {
 
     render(
       <Settings
+        loading={loading}
         workspaceSettings={{
           tiles: {
             resources: [
@@ -281,7 +304,7 @@ describe("Settings", () => {
           },
         }}
         hasUpdateRight={hasUpdateRight}
-        loading={loading}
+        updateLoading={updateLoading}
         onWorkspaceSettingsUpdate={updateMock}
       />,
     );
@@ -303,6 +326,7 @@ describe("Settings", () => {
 
     render(
       <Settings
+        loading={loading}
         workspaceSettings={{
           tiles: {
             resources: [],
@@ -325,7 +349,7 @@ describe("Settings", () => {
           },
         }}
         hasUpdateRight={hasUpdateRight}
-        loading={loading}
+        updateLoading={updateLoading}
         onWorkspaceSettingsUpdate={updateMock}
       />,
     );

@@ -2,29 +2,37 @@ Copy: コピー
 Copied: コピーしました
 Download: ダウンロード
 Loading: ローディング中
-Oops!: ""
+Oops!: ''
 PAGE NOT FOUND ON SERVER: ページが見つかりません。
 Go back Home: ホームへ戻る
 ITEM NOT FOUND ON SERVER: データが見つかりません。
+Enable: 有効
 Model: モデル
-Switch: 切り替え
 End point: エンドポイント
 Assets: アセット
-Private: 非公開
-Limited: 限定公開
-Public: 公開
-Accessibility: 公開設定
-Control the visibility scope of the Content API: コンテンツAPIの公開範囲を制御
-Public Scope: 公開範囲
-Choose your project public method.: プロジェクトの公開範囲を選択してください。
-Project Alias: プロジェクトエイリアス
-Edit Project Alias in Project Setting.: プロジェクト設定にてプロジェクトエイリアスを編集することができます。
-Token: トークン
+Access API: アクセスAPI
+Once Access API is enabled, anyone with the endpoint can access it. If a model is exposed via Access API, it cannot be restricted through API Key settings.: ''
+Save changes: 変更を保存
+Are you sure you want to delete this API key?: ''
+This action is not reversible.: ''
+Delete: 削除
+Cancel: キャンセル
+Edit: 編集
+Name: 名前
+Key: キー
+New Key: 新しいキー
+Please transfer your project to private to use the API key: キーを使用するには、プロジェクトを非公開にしてください
+Customize your API key to control the visibility of your models: モデルの公開範囲を制御するには、API キーをカスタマイズしてください
+Change project visibility: プロジェクトの公開範囲を変更
+Description: 説明
+You can write some here to describe this record.: このレコードの説明をここに記入できます。
+API Key: ''
 This is your secret token, please use as your env value.: これは秘密のトークンです。環境変数の値として使用してください。
 Re-generate: 再生成
-Save changes: 変更を保存
+Permissions: ''
+Accessibility: 公開設定
+Control the visibility scope of the Content API: コンテンツAPIの公開範囲を制御
 Are you sure you want to delete your account?: 本当にアカウントを削除してよろしいですか？
-Cancel: キャンセル
 Danger Zone: 重要操作
 Delete Personal Account: アカウントを削除
 Permanently removes your personal account and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: アカウントとそれに関連するすべてのコンテンツを削除します。この操作は取り消すことができません。よろしいですか？
@@ -44,7 +52,7 @@ This will change the UI language: UIの言語設定を変更します。
 Language: 言語
 Copy URL: URLをコピー
 URL copied!!: URLをコピーしました！
-Unzip: ""
+Unzip: ''
 Asset Type: アセットの種類
 Asset Information: アセットの情報
 Created at: 作成日時
@@ -54,13 +62,13 @@ Linked to: リンク先
 Asset: アセット
 Source Code: ソースコード
 Render: レンダー
-PNG/JPEG/TIFF/GIF: ""
-SVG: ""
-GEOJSON/KML/CZML: ""
-3D Tiles: ""
-MVT: ""
-GLTF/GLB: ""
-CSV: ""
+PNG/JPEG/TIFF/GIF: ''
+SVG: ''
+GEOJSON/KML/CZML: ''
+3D Tiles: ''
+MVT: ''
+GLTF/GLB: ''
+CSV: ''
 Unknown Type: 不明
 Decompressing...: 解凍中
 Failed to decompress. Please check the file and try again.: 解凍に失敗しました。 ファイルを確認して、もう一度お試しください。
@@ -75,9 +83,8 @@ Preview Type: プレビュータイプ
 Status: ステータス
 Created At: 作成日時
 Created By: 作成者
-ID: ""
+ID: ''
 input search text: 検索
-Delete: 削除
 Upload Asset: アセットをアップロード
 Auto Unzip: 自動解凍
 Remove file: ファイルを削除
@@ -88,12 +95,15 @@ Upload and Link: アップロードとリンク
 Upload: アップロード
 Asset Uploader: アセットアップローダー
 Local: ローカル
-URL: ""
+URL: ''
 Please input the URL of the asset!: アセットのURLを入力してください!
 Please input a valid URL: 有効なURLを入力してください
 Could not display svg: svgを表示できませんでした。
+Myself: 自分
 Comment: コメント
 Comments: コメント
+No comments.: コメントはありません。
+Please click the comment bubble in the table to check comments.: コメントを確認するには、表のコメントアイコンををクリックしてください。
 Cannot edit in read-only editor: 読み取り専用エディタでは編集ができません
 You are entering a new value: 新しい値を入力しようとしています
 This action will replace the previously entered value. Do you want to continue?: この操作は以前に入力された値を置き換えます。続けますか？
@@ -106,31 +116,37 @@ Personal Account: パーソナルアカウント
 Workspaces: ワークスペース
 Create Workspace: ワークスペースを作成
 Logout: ログアウト
-Re:Earth CMS: Re:Earth CMS
 Go to Editor: エディタへ移動
 Link Asset: アセットをリンク
+Choose a license template: ライセンステンプレートを選択
 New: 追加
 Tag: タグ
-OK: ""
+OK: ''
 Project name: プロジェクト名
 Please input the name of project!: プロジェクト名を入力してください
 Project alias: プロジェクトエイリアス
-Project alias must be unique and at least 5 characters long. It can only contain letters, numbers, underscores, and dashes.: プロジェクトエイリアスは5文字以上かつ一意である必要があります。半角英数字、アンダースコア、ダッシュのみを含むことができます。
-Project alias is not valid: 無効なプロジェクトのエイリアスです
+Used to create the project URL. Must be unique and at least {{min}} characters long, only lowercase letters, numbers, and hyphens are allowed.: プロジェクトURLの作成に使用されます。一意である必要があり、{{min}}文字以上の小文字の英字、数字、ハイフンのみを使用できます
+Project visibility: プロジェクトの公開範囲
+Public projects are visible to everyone. Private projects are only accessible to workspace members.: 公開プロジェクトは誰でも閲覧可能です。非公開プロジェクトはワークスペースのメンバーのみがアクセスできます。
+Please choose the visibility settings of the project!: プロジェクトの公開範囲を選択してください！
+Public: 公開
+Private: 非公開
 Project description: プロジェクト概要
-Home: ホーム
-Overview: 概要
+Project license: プロジェクトのライセンス
+Models: モデル
 Schema: スキーマ
 Content: コンテンツ
 Request: リクエスト
+Readme: README
+License: ライセンス
 Settings: 設定
 Workspace name: ワークスペース名
 Please input the title of the new workspace!: 新しいワークスペースの名前を入力してください!
+Home: ホーム
 Member: メンバー
 Integrations: インテグレーション
 My Integrations: マイインテグレーション
-Workspace: ワークスペース
-Account: アカウント
+Workspace Settings: ワークスペース設定
 Please input field!: フィールドを入力してください。
 Please select an option!: オプションを選択してください。
 URL is not valid: 無効なURLです
@@ -167,7 +183,6 @@ Reviewers: レビュワー
 New Item: 新規アイテム
 We found some referenced items that not been published yet. Please select to publish the items.: まだ公開されていない参照アイテムが見つかりました。公開するアイテムを選択してください。
 Please input the title of your request!: リクエストのタイトルを入力してください。
-Description: 説明
 Please select a reviewer!: レビュワーを選択してください。
 Reviewer: レビュワー
 We found some referenced items that not published yet. Please select to add the items to the same request.: まだ公開されていない参照アイテムが見つかりました。同じリクエストに追加する場合は選択してください。
@@ -200,8 +215,8 @@ Descending: 降順
 Confirm: 確認
 Publish items: アイテムを公開
 All selected items will be published. You can unpublish them anytime.: 選択したアイテムはすべて公開されます。アイテムはいつでも非公開にすることができます。
-"No": いいえ
-"Yes": はい
+'No': いいえ
+'Yes': はい
 Filter: フィルター
 Add Filter: 絞り込む
 Add Sort: 並び替える
@@ -219,12 +234,13 @@ Reader: 閲覧者
 Writer: 編集者
 Maintainer: メンテナー
 Owner: オーナー
-Name: 名前
 Creator: 作成者
 Remove: 削除
 No Integration yet: まだインテグレーションはありません
 Create a new: 新規作成
 readDocument: または<l>Re:Earth CMSの使い方</l>をまずお読みください
+License defines whether others can legally use and share your project & data: ライセンスは、他の人があなたのプロジェクトやデータを合法的に使用・共有できるかどうかを定義します
+Save Changes: 変更を保存
 Add member: メンバー追加
 Add to workspace: ワークスペースに追加
 Search user: ユーザー検索
@@ -238,7 +254,6 @@ Are you sure to remove this member?: 本当にメンバーをこのワークス�
 Remove this member from workspace means this member will not view any content of this workspace.: メンバーをワークスペースから削除すると、そのメンバーはワークスペース内のいかなるコンテンツも閲覧することができなくなります。
 Are you sure to leave this workspace?: 本当にこのワークスペースを離れてもよろしいですか？
 Leave this workspace means you will not view any content of this workspace.: ワークスペースを離れると、ワークスペース内のいかなるコンテンツも閲覧することができなくなります。
-Thumbnail: サムネイル
 Email: メールアドレス
 Action: 操作
 Change Role?: ロールを変更
@@ -252,7 +267,7 @@ GROUPS: グループ
 Add: 追加
 MODELS: モデル
 My Integration: マイインテグレーション
-Webhook: ""
+Webhook: ''
 New Integration: 新規インテグレーション
 Create: 作成
 Integration Name: インテグレーション名
@@ -286,21 +301,46 @@ New Webhook: 新規Webhook
 No Webhook yet: Webhookはまだありません
 No Projects Yet: プロジェクトがありません
 Create a new project: 新規プロジェクトを作成
-New Project: 新規プロジェクト
-Models: モデル
 New Model: 新規モデル
 No Models yet: モデルはまだありません
 Create a new model: 新しいモデルを作成する
-Edit: 編集
+Export as CSV: CSV形式でエクスポート
+CSV export only supports simple fields (text, number, date).: CSVエクスポートは単純なフィールド（テキスト、数値、日付）のみをサポートします。
+Relations, arrays, objects, and geometry fields are not included.: リレーション、配列、オブジェクト、ジオメトリフィールドは含まれません。
+For a complete export with all fields, please use the JSON export option.: すべてのフィールドを含む完全なエクスポートには、JSONエクスポートオプションを使用してください。
+Export CSV: ''
+Cannot export GeoJSON: GeoJSONをエクスポートできません
+No Geometry field was found in this model, so GeoJSON export is not available.: このモデルにジオメトリフィールドが見つからないため、GeoJSONエクスポートは利用できません。
+Multiple Geometry fields detected: 複数のジオメトリフィールドが検出されました
+This model has multiple Geometry fields.: このモデルには複数のジオメトリフィールドがあります。
+'GeoJSON format supports only one geometry field. ': ''
+Only the first Geometry field will be exported. Please adjust your data if needed.: 最初のジオメトリフィールドのみがエクスポートされます。必要に応じてデータを調整してください。
+Export Anyway: とにかくエクスポート
+Export Schema: スキーマをエクスポート
+Export as JSON: JSON形式でエクスポート
+Export as GeoJSON: GeoJSON形式でエクスポート
+Last Modified: ''
+search models: モデルを検索
+Sort by: 並び替え
 Are you sure you want to delete this project?: 本当にプロジェクトを削除してもよろしいですか？
+Are you sure you want to set this project to public?: ''
+Are you sure you want to set this project to private?: ''
+All published content will be accessible to everyone.: ''
+Published content will no longer be visible, but you can access it using an API key.: ''
+This action is not reversible, so please continue with caution.: ''
 Delete Project: プロジェクトを削除
 Permanently removes your project and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: プロジェクトとその内容をRe:Earth CMSから完全に削除します。このアクションは元に戻せません。
 Alias: エイリアス
 A simpler way to access to the project.: プロジェクトにアクセスするためのシンプルな方法です。
 Write something here to describe this record.: このレコードの説明を入力してください。
+'{{field}} field is required!': '{{field}}フィールドは必須項目です!'
+Project alias is already taken: プロジェクトのエイリアスは既に使用されています
+Your alias must be between {{min}} and {{max}} characters long.: エイリアスは{{min}}文字以上、{{max}}文字以内で入力してください
+Alias is invalid. Please use lowercase alphanumeric, hyphen and underscore characters only.: エイリアスが無効です。小文字の英数字、ハイフン、アンダースコアのみを使用してください。
 Project Settings: プロジェクト設定
 Need request: リクエストの要否
 If this option is chosen, all new model within the project will default follow it.: このオプションが選択された場合、プロジェクト内のすべての新しいモデルはデフォルトでそれに従います。
+README is a crucial document helping people quickly understand your project: README は、他の人があなたのプロジェクトをすばやく理解するのに役立つ重要なドキュメントです
 Leave your comment...: コメントを入力してください。
 Add Comment: コメントを追加
 Close: クローズ
@@ -331,8 +371,8 @@ Relation: 関係
 Group: グループ
 Add Field: フィールドを追加
 optional: 任意
-Update Field: "{{field}}フィールドを更新"
-Create Field: "{{field}}フィールドを作成"
+Update Field: '{{field}}フィールドを更新'
+Create Field: '{{field}}フィールドを作成'
 Previous: 戻る
 Next: 次へ
 Reference setting: 参照設定
@@ -418,11 +458,27 @@ Model key: モデルキー
 Group key: グループキー
 Model key must be unique and at least 3 characters long. It can only contain letters, numbers, underscores, and dashes.: モデルキーは3文字以上かつ一意である必要があります。半角英数字、アンダースコア、ダッシュのみを含むことができます。
 Group key must be unique and at least 3 characters long. It can only contain letters, numbers, underscores, and dashes.: グループキーは3文字以上かつ一意である必要があります。半角英数字、アンダースコア、ダッシュのみを含むことができます。
-Fields: フィールド
+Select file: ファイルを選択
+Notes: メモ
+importSchemaNotes: >-
+  対応ファイル形式はJSONまたはGeoJSONのみです。テンプレートは <l1>JSON</l1> | <l2>GeoJSON</l2>
+  からダウンロードできます。
+Import not successful.: インポートに失敗しました。
+Importing...: インポート中...
+Import successful!: インポートに成功しました！
 Are you sure you want to delete this field?: 本当に<strong>{{name}}</strong>を削除してもよろしいですか？
+Import Schema: スキーマのインポート
+Schema preview: スキーマのプレビュー
+Here is the schema generated by your file. Please confirm the type of each field. If it does not match your expectations, you can modify the field type.: アップロードされたファイルから生成されたスキーマです。各フィールドの型を確認してください。期待する内容と異なる場合は、フィールドの型を変更できます。
+Field Name: ファイル名
+Field Type: ファイルタイプ
+Are you sure you want to overwrite current schema?: 現在のスキーマを上書きしてもよろしいですか？
+Importing a new schema will replace the existing fields and cannot be undone.: 新しいスキーマをインポートすると、既存のフィールドは置き換えられ、元に戻すことはできません。
+Import: インポート
+Fields: フィールド
 Publish Status: 公開ステータス
 Empty Schema design.: スキーマ設定が空です。
-Please add some field from right panel.: 右のパネルからフィールドを追加してください。
+importSchema: 右のパネルからフィールドを追加するか、JSONまたはGEOJSONから<l>インポート</l>できます。
 New Tiles: 新しいタイル
 New Terrain: 新しい地形
 Update Tiles: タイルを更新
@@ -442,7 +498,6 @@ The first one in the list will be the default Tile.: リストの最初のタイ
 Add new Tiles option: 新しいタイルを追加
 Terrain: 地形
 The first one in the list will be the default Terrain.: リストの最初の地形がデフォルトの地形となります。
-Enable: 有効
 Add new Terrain option: 新しい地形を追加
 New View: 新しいビュー
 Update View: ビューを更新します
@@ -455,16 +510,17 @@ Are you sure you want to delete this view?: 本当にこのビューを削除し
 Deleting the view is a permanent action. However, the contents will remain unaffected.: ビューの削除は元に戻せませんが、コンテンツは影響を受けません。
 Please proceed with caution as this action cannot be undone.: この操作は元に戻せませんので、注意して行ってください。
 Save as new view: 新しいビューとして保存します
-Welcome to Re:Earth CMS !: ようこそ！Re:Earth CMSへ
-search projects: 検索
+New Project: 新規プロジェクト
 Create a Workspace: 新規ワークスペース
+Welcome to Re:Earth CMS, {{username}}!: Re:Earth CMSへようこそ、{{username}}さん！
+Re:Earth CMS is a robust tool for collecting, creating, storing, and managing data, specifically designed for GIS applications.: Re:Earth CMS は、GIS アプリケーション向けに特化して設計された、データの収集、作成、保存、管理を行うための強力なツールです。
+search projects: 検索
 Are you sure you want to delete this workspace?: このワークスペースを削除します。よろしいですか？
 Remove Workspace: ワークスペースを削除
 Permanently removes the current workspace and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.: 現在のワークスペースを削除します。ワークスペースに関連するすべてのデータが削除されます。この操作を取り消すことはできません。
 Workspace Name: ワークスペース名
 This is the name that will be visible within Re:Earth and Re:Earth CMS. This could be your company's name, department's name, the theme of your projects, etc.: ワークスペース名はワークスペースを判別するために表示されます。あなたの会社名、部署名、その他プロジェクトのテーマなどを利用することをお勧めします。
 Please input a new workspace name!: 新しいワークスペース名を入力してください。
-Workspace Settings: ワークスペース設定
 Failed to update user.: ユーザーの更新に失敗しました。
 Successfully updated user!: ユーザーの更新に成功しました。
 Failed to update language.: 言語設定の更新に失敗しました。
@@ -482,20 +538,29 @@ Failed to delete comment.: コメントの削除に失敗しました。
 Successfully deleted comment!: コメントの削除に成功しました。
 Successfully updated publication settings!: 公開設定の更新に成功しました。
 Failed to update publication settings.: 公開設定の更新に失敗しました。
-The attempt to re-generate the Public API Token has failed.: 公開APIトークンの再生成に失敗しました。
-Public API Token has been re-generated!: 公開APIトークンの再生成に成功しました！
+API Key deleted successfully.: APIキーの削除に成功しました。
+Failed to delete API Key.: APIキーの削除に失敗しました。
+Failed to create API Key.: APIキーの作成に失敗しました。
+API Key created successfully.: APIキーの作成に成功しました。
+Failed to update API Key.: APIキーの更新に失敗しました。
+API Key updated successfully.: APIキーの更新に成功しました。
+Failed to re-generate API Key.: APIキーの再生成に失敗しました。
+API Key re-generated successfully.: APIキーの再生成に成功しました。
 Failed to update asset.: アセットの更新に失敗しました。
 Asset was successfully updated!: アセットの更新に成功しました。
 Failed to decompress asset.: アセットの解凍に失敗しました。
 Asset is being decompressed!: アセットは解凍中です！
+Download successful: ダウンロードに成功しました！
+Download failed: ダウンロードに失敗しました。
 Failed to add one or more assets.: アセットの追加に失敗しました。
 Successfully added one or more assets!: アセットの追加に成功しました。
 Successfully added asset!: アセットの追加に成功しました。
 Failed to add asset.: アセットを追加に失敗しました。
 Failed to delete one or more assets.: アセットの削除に失敗しました。
 One or more assets were successfully deleted!: アセットの削除に成功しました。
-No comments.: コメントはありません。
-Please click the comment bubble in the table to check comments.: コメントを確認するには、表のコメントアイコンををクリックしてください。
+All downloads failed: すべてのダウンロードに失敗しました。
+Some downloads failed: 一部のダウンロードに失敗しました。
+All downloads completed successfully: すべてのダウンロードが正常に完了しました！
 Failed to upload file: ファイルのアップロードに失敗しました。
 Failed to create item.: アイテムの作成に失敗しました。
 Successfully created Item!: アイテムの作成に成功しました。
@@ -503,8 +568,7 @@ Failed to update item.: アイテムの更新に失敗しました。
 Successfully updated Item!: アイテムの更新に成功しました。
 Failed to create request.: リクエストの作成に失敗しました。
 Successfully created request!: リクエストの作成に成功しました。
-Required field error: "{{field}}フィールドは必須項目です!"
-Maximum length error: "{{field}}フィールドの文字数が最大数を超えています!"
+Maximum length error: '{{field}}フィールドの文字数が最大数を超えています!'
 Failed to delete one or more items.: アイテムの削除に失敗しました。
 One or more items were successfully deleted!: アイテムの削除に成功しました。
 One of the items already exists in the request.: アイテムのいずれかがすでにリクエストに存在します。
@@ -524,6 +588,8 @@ Failed to delete view.: ビューの削除に失敗しました。
 Successfully deleted view!: ビューの削除に成功しました!
 Failed to update views order.: ビューの順序更新に失敗しました。
 Successfully updated views order!: ビューの順序変更に成功しました!
+Failed to update Project.: プロジェクトの更新に失敗しました。
+Successfully updated Project!: プロジェクトの更新に成功しました。
 Failed to create model.: モデルの作成に失敗しました。
 Successfully created model!: モデルの作成に成功しました。
 Failed to update models order.: モデルの順序更新に失敗しました。
@@ -536,6 +602,9 @@ Failed to delete model.: モデルの削除に失敗しました。
 Successfully deleted model!: モデルの削除に成功しました。
 Failed to update model.: モデルの更新に失敗しました。
 Successfully updated model!: モデルの更新に成功しました。
+Failed to export schema.: スキーマのエクスポートに失敗しました。
+Failed to export model data.: モデルデータのエクスポートに失敗しました。
+Export failed: エクスポートに失敗しました
 Successfully updated request!: リクエストの更新に成功しました。
 Failed to delete one or more requests.: リクエストの削除に失敗しました。
 One or more requests were successfully closed!: リクエストのクローズに成功しました。
@@ -557,20 +626,24 @@ Successfully updated group!: グループの更新に成功しました！
 No available Group: グループなし
 Please create a Group first to use the field: フィールドを使用するには、まずグループを作成してください。
 Create Group: グループを作成
+Failed to create fields.: フィールドの作成に失敗しました。
+Successfully created fields!: フィールドの作成に成功しました。
 Failed to update project.: プロジェクトの更新に失敗しました。
 Successfully updated project!: プロジェクトの更新に成功しました。
 Failed to update request roles.: リクエストロールの更新に失敗しました。
 Successfully updated request roles!: リクエストロールの更新に成功しました。
 Failed to delete project.: プロジェクトの削除に失敗しました。
 Successfully deleted project!: プロジェクトの削除に成功しました。
+Failed to update project visibility.: ''
+Successfully updated project visibility!: ''
 Failed to update workspace.: ワークスペースの更新に失敗しました。
 Successfully updated workspace!: ワークスペースの更新に成功しました。
 Failed to connect integration.: インテグレーションの接続に失敗しました。
 Successfully connected integration to the workspace!: インテグレーションの接続に成功しました。
 Failed to update workspace integration.: ワークスペースのインテグレーションの更新に失敗しました。
 Successfully updated workspace integration!: ワークスペースのインテグレーションの更新に成功しました。
-Failed to delete one or more integrations.: インテグレーションの削除に失敗しました。
 One or more integrations were successfully deleted!: インテグレーションの削除に成功しました。
+Failed to delete one or more integrations.: インテグレーションの削除に失敗しました。
 Failed to add one or more members.: メンバーの追加に失敗しました。
 Successfully added member(s) to the workspace!: メンバーの追加に成功しました。
 Failed to update member's role.: メンバーのロールの更新に失敗しました。

@@ -8,7 +8,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gavv/httpexpect/v2"
 	"github.com/reearth/reearth-cms/server/internal/app"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/workspacesettings"
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -35,12 +37,16 @@ var (
 	rid2 = workspacesettings.NewResourceID()
 )
 
-func baseSeederWorkspace(ctx context.Context, r *repo.Container) error {
+func baseSeederWorkspace(ctx context.Context, r *repo.Container, _ *gateway.Container) error {
+	metadata := user.NewMetadata()
+	metadata.SetTheme(user.ThemeDark)
+	metadata.SetLang(language.English)
+
 	u := user.New().ID(uId1).
 		Name("e2e").
 		Email("e2e@e2e.com").
 		Workspace(wId).
-		Lang(language.English).
+		Metadata(metadata).
 		MustBuild()
 	if err := r.User.Save(ctx, u); err != nil {
 		return err
@@ -49,6 +55,7 @@ func baseSeederWorkspace(ctx context.Context, r *repo.Container) error {
 		Name("e2e2").
 		Email("e2e2@e2e.com").
 		Workspace(wId2).
+		Metadata(metadata).
 		MustBuild()
 	if err := r.User.Save(ctx, u2); err != nil {
 		return err
@@ -57,6 +64,7 @@ func baseSeederWorkspace(ctx context.Context, r *repo.Container) error {
 		Name("e2e3").
 		Email("e2e3@e2e.com").
 		Workspace(wId2).
+		Metadata(metadata).
 		MustBuild()
 	if err := r.User.Save(ctx, u3); err != nil {
 		return err
@@ -70,6 +78,7 @@ func baseSeederWorkspace(ctx context.Context, r *repo.Container) error {
 		InvitedBy: uId1,
 	}
 
+	wMetadata := workspace.NewMetadata()
 	w := workspace.New().ID(wId).
 		Name("e2e").
 		Members(map[idx.ID[accountdomain.User]]workspace.Member{
@@ -79,6 +88,7 @@ func baseSeederWorkspace(ctx context.Context, r *repo.Container) error {
 			iId1: roleOwner,
 			iId3: roleReader,
 		}).
+		Metadata(wMetadata).
 		MustBuild()
 	if err := r.Workspace.Save(ctx, w); err != nil {
 		return err
@@ -93,6 +103,7 @@ func baseSeederWorkspace(ctx context.Context, r *repo.Container) error {
 		Integrations(map[idx.ID[accountdomain.Integration]]workspace.Member{
 			iId1: roleOwner,
 		}).
+		Metadata(wMetadata).
 		MustBuild()
 	if err := r.Workspace.Save(ctx, w2); err != nil {
 		return err
@@ -403,6 +414,53 @@ func TestRemoveIntegrationFromWorkspace(t *testing.T) {
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().
 		Value("errors").Array().Value(0).Object().Value("message").IsEqual("target user does not exist in the workspace")
+}
+
+func removeIntegrationsFromWorkspace(e *httpexpect.Expect, wId string, integrationIds []string) *httpexpect.Value {
+	query := fmt.Sprintf(`mutation { removeIntegrationsFromWorkspace(input: {workspaceId: "%s", integrationIds: ["%s"]}){ workspace{ id } }}`,
+		wId, strings.Join(integrationIds, "\", \""))
+	request := GraphQLRequest{
+		Query: query,
+	}
+	jsonData, err := json.Marshal(request)
+	if err != nil {
+		panic(err)
+	}
+
+	res := e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithBytes(jsonData).
+		Expect().
+		Status(http.StatusOK).
+		JSON()
+
+	return res
+}
+
+func TestRemoveIntegrationsFromWorkspace(t *testing.T) {
+	e, _, ar := StartServerWithRepos(t, &app.Config{}, true, baseSeederWorkspace)
+
+	w, err := ar.Workspace.FindByID(context.Background(), wId)
+	assert.NoError(t, err)
+	assert.True(t, w.Members().HasIntegration(iId1))
+	assert.True(t, w.Members().HasIntegration(iId3))
+
+	integrationIds := []string{iId1.String(), iId3.String()}
+	removeIntegrationsFromWorkspace(e, wId.String(), integrationIds)
+
+	w, err = ar.Workspace.FindByID(context.Background(), wId)
+	assert.Nil(t, err)
+	assert.False(t, w.Members().HasIntegration(iId1))
+	assert.False(t, w.Members().HasIntegration(iId3))
+
+	// Expected error message format includes the list of integration IDs
+	expectedErrorMsg := fmt.Sprintf("target user does not exist in the workspace: [%s %s]", iId1, iId3)
+
+	res := removeIntegrationsFromWorkspace(e, wId.String(), integrationIds)
+	res.Object().
+		Value("errors").Array().Value(0).Object().Value("message").IsEqual(expectedErrorMsg)
 }
 
 func TestUpdateIntegrationOfWorkspace(t *testing.T) {

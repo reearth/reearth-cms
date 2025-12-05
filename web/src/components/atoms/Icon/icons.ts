@@ -50,10 +50,16 @@ import {
   EyeOutlined,
   EyeInvisibleOutlined,
   CopyOutlined,
+  CopyrightOutlined,
   ReloadOutlined,
   SortAscendingOutlined,
   FilterOutlined,
   CommentOutlined,
+  ImportOutlined,
+  SaveOutlined,
+  LockOutlined,
+  BlockOutlined,
+  ReadOutlined,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
@@ -165,6 +171,7 @@ export default {
   eye: EyeOutlined,
   eyeInvisible: EyeInvisibleOutlined,
   copy: CopyOutlined,
+  copyright: CopyrightOutlined,
   terminalWindow: TerminalWindow,
   date: Date,
   tag: Tag,
@@ -187,4 +194,9 @@ export default {
   circle: Circle,
   rectangle: Rectangle,
   comment: CommentOutlined,
+  import: ImportOutlined,
+  save: SaveOutlined,
+  lock: LockOutlined,
+  block: BlockOutlined,
+  read: ReadOutlined,
 };

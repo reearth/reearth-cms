@@ -1,21 +1,30 @@
+import fileDownload from "js-file-download";
 import { useState, useCallback, Key, useMemo, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
-import { UploadFile as RawUploadFile } from "@reearth-cms/components/atoms/Upload";
+import { UploadFile as RawUploadFile, RcFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
+import { CreateFieldInput } from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
+import {
+  convertSchemaFieldType,
+  defaultTypePropertyGet,
+} from "@reearth-cms/components/organisms/Project/Schema/helpers";
+import { useAuthHeader } from "@reearth-cms/gql";
 import {
   useGetAssetsLazyQuery,
   useCreateAssetMutation,
-  useDeleteAssetMutation,
+  useDeleteAssetsMutation,
   Asset as GQLAsset,
   SortDirection as GQLSortDirection,
   AssetSortType as GQLSortType,
   useGetAssetsItemsLazyQuery,
   useCreateAssetUploadMutation,
   useGetAssetLazyQuery,
+  ContentTypesEnum,
+  useGuessSchemaFieldsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
@@ -24,19 +33,22 @@ import { uploadFiles } from "./upload";
 
 type UploadType = "local" | "url";
 
-type UploadFile = File & {
+type UploadFile = RcFile & {
   skipDecompression?: boolean;
 };
 
-export default (isItemsRequired: boolean) => {
+export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = []) => {
   const t = useT();
   const [userRights] = useUserRights();
   const [userId] = useUserId();
   const hasCreateRight = useMemo(() => !!userRights?.asset.create, [userRights?.asset.create]);
   const [hasDeleteRight, setHasDeleteRight] = useState(false);
   const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
+  const [importSchemaModalVisibility, setImportSchemaModalVisibility] = useState(false);
+  const [selectFileModalVisibility, setSelectFileModalVisibility] = useState(false);
+  const [importFields, setImportFields] = useState<CreateFieldInput[]>([]);
 
-  const { workspaceId, projectId } = useParams();
+  const { workspaceId, projectId, modelId } = useParams();
   const navigate = useNavigate();
   const location: {
     state?: {
@@ -112,6 +124,7 @@ export default (isItemsRequired: boolean) => {
           }
         : { sortBy: "DATE" as GQLSortType, direction: "DESC" as GQLSortDirection },
       keyword: searchTerm,
+      contentTypes: contentTypes,
     },
     notifyOnNetworkStatusChange: true,
     skip: !projectId,
@@ -127,6 +140,42 @@ export default (isItemsRequired: boolean) => {
     }
   }, [getAssets, isItemsRequired]);
 
+  const {
+    data: guessSchemaFieldsData,
+    loading: guessSchemaFieldsLoading,
+    error: guessSchemaFieldsError,
+  } = useGuessSchemaFieldsQuery({
+    fetchPolicy: "cache-and-network",
+    variables: {
+      modelId: modelId ?? "",
+      assetId: selectedAssetId ?? "",
+    },
+    skip: !modelId || !selectedAssetId,
+  });
+
+  const parsedFields = useMemo(() => {
+    const fields = guessSchemaFieldsData?.guessSchemaFields?.fields;
+    if (!fields || fields.length === 0) return [];
+    return fields.map(field => ({
+      title: field.name,
+      metadata: false,
+      description: "",
+      key: field.name,
+      multiple: false,
+      unique: false,
+      isTitle: false,
+      required: false,
+      type: convertSchemaFieldType(field.type),
+      modelId: modelId,
+      groupId: undefined,
+      typeProperty: defaultTypePropertyGet(field.type),
+    }));
+  }, [guessSchemaFieldsData, modelId]);
+
+  useEffect(() => {
+    setImportFields(parsedFields);
+  }, [parsedFields]);
+
   const assetList = useMemo(
     () =>
       (data?.assets.nodes
@@ -135,12 +184,48 @@ export default (isItemsRequired: boolean) => {
     [data?.assets.nodes],
   );
 
+  const handleUploadModalOpen = useCallback(() => {
+    setUploadModalVisibility(true);
+  }, [setUploadModalVisibility]);
+
+  const handleSelectFileModalOpen = useCallback(() => {
+    setSelectFileModalVisibility(true);
+  }, []);
+
+  const handleSchemaImportModalOpen = useCallback(async () => {
+    setImportSchemaModalVisibility(true);
+  }, []);
+
   const handleUploadModalCancel = useCallback(() => {
     setUploadModalVisibility(false);
     setFileList([]);
     setUploadUrl({ url: "", autoUnzip: true });
     setUploadType("local");
-  }, [setUploadModalVisibility, setFileList, setUploadUrl, setUploadType]);
+  }, []);
+
+  const handleSelectFileModalCancel = useCallback(() => {
+    setSelectFileModalVisibility(false);
+    setSearchTerm("");
+    setPage(1);
+    setSort(undefined);
+    handleUploadModalCancel();
+  }, [handleUploadModalCancel]);
+
+  const handleAssetSelect = useCallback(
+    (id?: string) => {
+      setSelectedAssetId(id);
+      setCollapsed(false);
+    },
+    [setCollapsed, setSelectedAssetId],
+  );
+
+  const handleSchemaImportModalCancel = useCallback(() => {
+    setImportSchemaModalVisibility(false);
+    handleAssetSelect(undefined);
+    setImportFields([]);
+    setSelectedAssetId(undefined);
+    handleUploadModalCancel();
+  }, [handleAssetSelect, handleUploadModalCancel]);
 
   const handleAssetsCreate = useCallback(
     async (files: RawUploadFile[]) => {
@@ -152,7 +237,7 @@ export default (isItemsRequired: boolean) => {
       try {
         results = (
           await uploadFiles<UploadFile, Asset | undefined>(
-            files as unknown as UploadFile[], // TODO: refactor
+            files as UploadFile[],
             async ({ contentLength, contentEncoding, cursor, filename }) => {
               const result = await createAssetUploadMutation({
                 variables: {
@@ -250,27 +335,22 @@ export default (isItemsRequired: boolean) => {
     [projectId, createAssetMutation, t, refetch, handleUploadModalCancel],
   );
 
-  const [deleteAssetMutation, { loading: deleteLoading }] = useDeleteAssetMutation();
+  const [deleteAssetsMutation, { loading: deleteLoading }] = useDeleteAssetsMutation();
   const handleAssetDelete = useCallback(
     async (assetIds: string[]) => {
       if (!projectId) return;
-      const results = await Promise.all(
-        assetIds.map(async assetId => {
-          const result = await deleteAssetMutation({
-            variables: { assetId },
-          });
-          if (result.errors) {
-            Notification.error({ message: t("Failed to delete one or more assets.") });
-          }
-        }),
-      );
-      if (results) {
-        await refetch();
-        Notification.success({ message: t("One or more assets were successfully deleted!") });
-        setSelection({ selectedRowKeys: [] });
+      const result = await deleteAssetsMutation({
+        variables: { assetIds },
+      });
+      if (result.errors || !result.data?.deleteAssets) {
+        Notification.error({ message: t("Failed to delete one or more assets.") });
+        return;
       }
+      await refetch();
+      Notification.success({ message: t("One or more assets were successfully deleted!") });
+      setSelection({ selectedRowKeys: [] });
     },
-    [t, deleteAssetMutation, refetch, projectId],
+    [t, deleteAssetsMutation, refetch, projectId],
   );
 
   const handleSearchTerm = useCallback((term?: string) => {
@@ -293,14 +373,6 @@ export default (isItemsRequired: boolean) => {
       });
     },
     [navigate, workspaceId, projectId, searchTerm, sort, columns, page, pageSize],
-  );
-
-  const handleAssetSelect = useCallback(
-    (id: string) => {
-      setSelectedAssetId(id);
-      setCollapsed(false);
-    },
-    [setCollapsed, setSelectedAssetId],
   );
 
   const handleAssetItemSelect = useCallback(
@@ -339,11 +411,60 @@ export default (isItemsRequired: boolean) => {
     setColumns(cols);
   }, []);
 
+  const { getHeader } = useAuthHeader();
+  const handleMultipleAssetDownload = async (selected: Asset[]) => {
+    if (!selected?.length) return;
+
+    const headers = await getHeader();
+    const failedAssets: string[] = [];
+    await Promise.allSettled(
+      selected.map(async (s: Asset) => {
+        try {
+          const response = await fetch(s.url, {
+            method: "GET",
+            ...(s.public ? {} : { headers }),
+          });
+          if (!response.ok) {
+            throw new Error(`Failed to download ${s.fileName}: HTTP ${response.status}`);
+          }
+          const blob = await response.blob();
+          fileDownload(blob, s.fileName);
+        } catch (err) {
+          console.error("Download error:", err);
+          failedAssets.push(s.fileName);
+        }
+      }),
+    );
+
+    if (failedAssets.length === selected.length) {
+      Notification.error({
+        message: t("All downloads failed"),
+        description: failedAssets.join(", "),
+      });
+    } else if (failedAssets.length > 0) {
+      Notification.warning({
+        message: t("Some downloads failed"),
+        description: t(
+          `Success: ${selected.length - failedAssets.length}, Failed: ${failedAssets.join(", ")}`,
+        ),
+      });
+    } else {
+      Notification.success({
+        message: t("All downloads completed successfully"),
+      });
+    }
+  };
+
   return {
+    importFields,
+    guessSchemaFieldsError: !!guessSchemaFieldsError,
+    importSchemaModalVisibility,
+    selectFileModalVisibility,
     assetList,
     selection,
     fileList,
     uploading,
+    guessSchemaFieldsLoading,
     uploadModalVisibility,
     loading,
     deleteLoading,
@@ -359,13 +480,19 @@ export default (isItemsRequired: boolean) => {
     columns,
     hasCreateRight,
     hasDeleteRight,
+    handleUploadModalOpen,
+    handleSelectFileModalOpen,
+    handleSchemaImportModalOpen,
+    handleUploadModalCancel,
+    handleSelectFileModalCancel,
+    handleSchemaImportModalCancel,
     handleColumnsChange,
     handleToggleCommentMenu,
     handleAssetItemSelect,
     handleAssetSelect,
-    handleUploadModalCancel,
     setUploadUrl,
     setUploadType,
+    setImportFields,
     handleSelect,
     setFileList,
     setUploadModalVisibility,
@@ -373,6 +500,7 @@ export default (isItemsRequired: boolean) => {
     handleAssetCreateFromUrl,
     handleAssetTableChange,
     handleAssetDelete,
+    handleMultipleAssetDownload,
     handleSearchTerm,
     handleAssetsGet,
     handleAssetsReload,

@@ -2,9 +2,11 @@ package interactor
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"net/url"
 	"path"
 	"strings"
 	"time"
@@ -18,12 +20,17 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/task"
+	"github.com/reearth/reearth-cms/server/pkg/types"
+	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
 )
+
+type contextKey string
 
 type Asset struct {
 	repos       *repo.Container
@@ -39,19 +46,198 @@ func NewAsset(r *repo.Container, g *gateway.Container) interfaces.Asset {
 }
 
 func (i *Asset) FindByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (*asset.Asset, error) {
-	return i.repos.Asset.FindByID(ctx, aid)
+	a, err := i.repos.Asset.FindByID(ctx, aid)
+	if err != nil {
+		return nil, err
+	}
+	if a != nil {
+		a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+	}
+	return a, nil
+}
+
+func (i *Asset) FindByUUID(ctx context.Context, uuid string, _ *usecase.Operator) (*asset.Asset, error) {
+	a, err := i.repos.Asset.FindByUUID(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+	if a != nil {
+		a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+	}
+	return a, nil
 }
 
 func (i *Asset) FindByIDs(ctx context.Context, assets []id.AssetID, _ *usecase.Operator) (asset.List, error) {
-	return i.repos.Asset.FindByIDs(ctx, assets)
+	al, err := i.repos.Asset.FindByIDs(ctx, assets)
+	if err != nil {
+		return nil, err
+	}
+	if al != nil {
+		al.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+	}
+	return al, nil
 }
 
-func (i *Asset) FindByProject(ctx context.Context, pid id.ProjectID, filter interfaces.AssetFilter, _ *usecase.Operator) (asset.List, *usecasex.PageInfo, error) {
-	return i.repos.Asset.FindByProject(ctx, pid, repo.AssetFilter{
-		Sort:       filter.Sort,
-		Keyword:    filter.Keyword,
-		Pagination: filter.Pagination,
+func (i *Asset) Search(ctx context.Context, projectID id.ProjectID, filter interfaces.AssetFilter, _ *usecase.Operator) (asset.List, *usecasex.PageInfo, error) {
+	al, pi, err := i.repos.Asset.Search(ctx, projectID, repo.AssetFilter{
+		Sort:         filter.Sort,
+		Keyword:      filter.Keyword,
+		Pagination:   filter.Pagination,
+		ContentTypes: filter.ContentTypes,
 	})
+	if err != nil {
+		return nil, nil, err
+	}
+	if al != nil {
+		al.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+	}
+	return al, pi, nil
+}
+
+func (i *Asset) Export(ctx context.Context, params interfaces.ExportAssetsParams, w io.Writer, _ *usecase.Operator) error {
+
+	_, err := w.Write([]byte(`{"results":[`))
+	if err != nil {
+		return err
+	}
+
+	j := json.NewEncoder(w)
+
+	batchConfig := defaultBatchConfig()
+
+	pagination := usecasex.CursorPagination{First: &batchConfig.BatchSize}.Wrap()
+	if params.Filter.Pagination != nil {
+		pagination = params.Filter.Pagination
+	}
+
+	totalProcessed := 0
+	pageInfo := &usecasex.PageInfo{}
+	for {
+		assets, pi, err := i.repos.Asset.Search(ctx, params.ProjectID, repo.AssetFilter{
+			Pagination:   pagination,
+			Sort:         params.Filter.Sort,
+			Keyword:      params.Filter.Keyword,
+			ContentTypes: params.Filter.ContentTypes,
+		})
+		if err != nil {
+			return rerror.ErrInternalBy(err)
+		}
+		pageInfo = pi
+
+		assets.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+		if len(assets) == 0 {
+			break
+		}
+
+		var fileMap map[id.AssetID]*asset.File
+		if params.IncludeFiles {
+			fileMap, err = i.FindFilesByIDs(ctx, assets.IDs(), nil)
+			if err != nil {
+				return err
+			}
+		}
+
+		res := lo.Map(assets, func(a *asset.Asset, _ int) types.Asset {
+			var files []string
+			f := fileMap[a.ID()]
+
+			if params.IncludeFiles {
+				ai := a.AccessInfo()
+				if ai.Url != "" {
+					base, _ := url.Parse(ai.Url)
+					base.Path = path.Dir(base.Path)
+
+					files = lo.Map(f.FilePaths(), func(p string, _ int) string {
+						b := *base
+						b.Path = path.Join(b.Path, p)
+						return b.String()
+					})
+				}
+			}
+
+			return types.Asset{
+				Type:        "asset",
+				ID:          a.ID().String(),
+				URL:         a.AccessInfo().Url,
+				ContentType: f.ContentType(),
+				Files:       files,
+			}
+		})
+
+		// Write assets as JSON
+		for _, a := range res {
+			if totalProcessed > 0 {
+				_, err = w.Write([]byte(","))
+				if err != nil {
+					return err
+				}
+			}
+			if err := j.Encode(a); err != nil {
+				return err
+			}
+			totalProcessed += 1
+		}
+
+		// Check if we have more pages
+		if pageInfo == nil || !pageInfo.HasNextPage {
+			break
+		}
+
+		// if an exact page is requested, stop after one batch
+		if params.Filter.Pagination != nil {
+			break
+		}
+
+		// Update pagination for next batch
+		pagination.Cursor.After = pageInfo.EndCursor
+	}
+
+	_, err = w.Write([]byte("],"))
+	if err != nil {
+		return err
+	}
+
+	props := map[string]any{
+		"totalCount": pageInfo.TotalCount,
+	}
+
+	if params.Filter.Pagination != nil {
+		props["hasMore"] = pageInfo.HasNextPage
+		if params.Filter.Pagination.Cursor != nil {
+			props["nextCursor"] = pageInfo.EndCursor
+			// props["limit"] = req.Options.Pagination
+		}
+		if params.Filter.Pagination.Offset != nil {
+			props["page"] = (params.Filter.Pagination.Offset.Offset / params.Filter.Pagination.Offset.Limit) + 1
+			props["offset"] = params.Filter.Pagination.Offset.Offset
+			props["limit"] = params.Filter.Pagination.Offset.Limit
+		}
+	}
+
+	ii := 0
+	for key, value := range props {
+		// Marshal the value
+		valueBytes, err := json.Marshal(value)
+		if err != nil {
+			return err
+		}
+
+		// Write key-value pair
+		if ii > 0 {
+			if _, err := w.Write([]byte(",")); err != nil {
+				return err
+			}
+		}
+
+		entry := fmt.Sprintf(`"%s":%s`, key, valueBytes)
+		if _, err := w.Write([]byte(entry)); err != nil {
+			return err
+		}
+		ii++
+	}
+
+	_, err = w.Write([]byte(`}`))
+	return err
 }
 
 func (i *Asset) FindFileByID(ctx context.Context, aid id.AssetID, _ *usecase.Operator) (*asset.File, error) {
@@ -96,10 +282,6 @@ func (i *Asset) DownloadByID(ctx context.Context, aid id.AssetID, headers map[st
 	return f, headers, nil
 }
 
-func (i *Asset) GetURL(a *asset.Asset) string {
-	return i.gateways.File.GetURL(a)
-}
-
 func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op *usecase.Operator) (result *asset.Asset, afile *asset.File, err error) {
 	if op.AcOperator.User == nil && op.Integration == nil {
 		return nil, nil, interfaces.ErrInvalidOperator
@@ -127,7 +309,46 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 
 		var size int64
 		file = inp.File
-		uuid, size, err = i.gateways.File.UploadAsset(ctx, inp.File)
+
+		visibility := project.VisibilityPublic
+		if prj.Accessibility() != nil && prj.Accessibility().Visibility() != "" {
+			visibility = prj.Accessibility().Visibility()
+		}
+
+		var checkType gateway.PolicyCheckType
+		if visibility == project.VisibilityPublic {
+			checkType = gateway.PolicyCheckPublicDataTransferUpload
+		} else {
+			checkType = gateway.PolicyCheckPrivateDataTransferUpload
+		}
+
+		if i.gateways != nil && i.gateways.PolicyChecker != nil {
+			policyReq := gateway.PolicyCheckRequest{
+				WorkspaceID: prj.Workspace(),
+				CheckType:   checkType,
+				Value:       file.Size,
+			}
+			policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+			if err != nil {
+				return nil, nil, rerror.NewE(i18n.T("policy check failed"))
+			}
+			if !policyResp.Allowed {
+				return nil, nil, interfaces.ErrDataTransferUploadSizeLimitExceeded
+			}
+
+			policyReq.CheckType = gateway.PolicyCheckUploadAssetsSize
+
+			policyResp, err = i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+			if err != nil {
+				return nil, nil, rerror.NewE(i18n.T("policy check failed"))
+			}
+			if !policyResp.Allowed {
+				return nil, nil, interfaces.ErrAssetUploadSizeLimitExceeded
+			}
+		}
+
+		ctxWithWorkspace := context.WithValue(ctx, contextKey("workspace"), prj.Workspace().String())
+		uuid, size, err = i.gateways.File.UploadAsset(ctxWithWorkspace, inp.File)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -189,6 +410,8 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 				return nil, nil, err
 			}
 
+			a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+
 			f := asset.NewFile().
 				Name(file.Name).
 				Path(file.Name).
@@ -232,7 +455,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 	return a, f, nil
 }
 
-func (i *Asset) DecompressByID(ctx context.Context, aId id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
+func (i *Asset) Decompress(ctx context.Context, aId id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
 	if operator.AcOperator.User == nil && operator.Integration == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
@@ -245,6 +468,8 @@ func (i *Asset) DecompressByID(ctx context.Context, aId id.AssetID, operator *us
 			if err != nil {
 				return nil, err
 			}
+
+			a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
 
 			if !operator.CanUpdate(a) {
 				return nil, interfaces.ErrOperationDenied
@@ -268,6 +493,74 @@ func (i *Asset) DecompressByID(ctx context.Context, aId id.AssetID, operator *us
 			return a, nil
 		},
 	)
+}
+
+func (i *Asset) Publish(ctx context.Context, aId id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*asset.Asset, error) {
+		a, err := i.repos.Asset.FindByID(ctx, aId)
+		if err != nil {
+			return nil, err
+		}
+
+		if a != nil {
+			a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+		}
+
+		if !operator.CanUpdate(a) {
+			return nil, interfaces.ErrOperationDenied
+		}
+
+		err = i.gateways.File.PublishAsset(ctx, a.UUID(), a.FileName())
+		if err != nil {
+			return nil, err
+		}
+
+		a.UpdatePublic(true)
+
+		if err := i.repos.Asset.Save(ctx, a); err != nil {
+			return nil, err
+		}
+
+		return a, nil
+	})
+}
+
+func (i *Asset) Unpublish(ctx context.Context, aId id.AssetID, operator *usecase.Operator) (*asset.Asset, error) {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
+		return nil, interfaces.ErrInvalidOperator
+	}
+
+	return Run1(ctx, operator, i.repos, Usecase().Transaction(), func(ctx context.Context) (*asset.Asset, error) {
+		a, err := i.repos.Asset.FindByID(ctx, aId)
+		if err != nil {
+			return nil, err
+		}
+
+		if a != nil {
+			a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+		}
+
+		if !operator.CanUpdate(a) {
+			return nil, interfaces.ErrOperationDenied
+		}
+
+		err = i.gateways.File.UnpublishAsset(ctx, a.UUID(), a.FileName())
+		if err != nil {
+			return nil, err
+		}
+
+		a.UpdatePublic(false)
+
+		if err := i.repos.Asset.Save(ctx, a); err != nil {
+			return nil, err
+		}
+
+		return a, nil
+	})
 }
 
 type wrappedUploadCursor struct {
@@ -355,6 +648,47 @@ func (i *Asset) CreateUpload(ctx context.Context, inp interfaces.CreateAssetUplo
 		return nil, interfaces.ErrOperationDenied
 	}
 
+	param.Workspace = prj.Workspace().String()
+	param.Project = prj.ID().String()
+	param.Public = prj.Accessibility() == nil || prj.Accessibility().Visibility() == project.VisibilityPublic
+
+	visibility := project.VisibilityPublic
+	if prj.Accessibility() != nil && prj.Accessibility().Visibility() != "" {
+		visibility = prj.Accessibility().Visibility()
+	}
+
+	var checkType gateway.PolicyCheckType
+	if visibility == project.VisibilityPublic {
+		checkType = gateway.PolicyCheckPublicDataTransferUpload
+	} else {
+		checkType = gateway.PolicyCheckPrivateDataTransferUpload
+	}
+
+	if i.gateways != nil && i.gateways.PolicyChecker != nil {
+		policyReq := gateway.PolicyCheckRequest{
+			WorkspaceID: prj.Workspace(),
+			CheckType:   checkType,
+			Value:       param.ContentLength,
+		}
+		policyResp, err := i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+		if err != nil {
+			return nil, rerror.NewE(i18n.T("policy check failed"))
+		}
+		if !policyResp.Allowed {
+			return nil, interfaces.ErrDataTransferUploadSizeLimitExceeded
+		}
+
+		policyReq.CheckType = gateway.PolicyCheckUploadAssetsSize
+
+		policyResp, err = i.gateways.PolicyChecker.CheckPolicy(ctx, policyReq)
+		if err != nil {
+			return nil, rerror.NewE(i18n.T("policy check failed"))
+		}
+		if !policyResp.Allowed {
+			return nil, interfaces.ErrAssetUploadSizeLimitExceeded
+		}
+	}
+
 	uploadLink, err := i.gateways.File.IssueUploadAssetLink(ctx, *param)
 	if errors.Is(err, gateway.ErrUnsupportedOperation) {
 		return nil, rerror.ErrNotFound
@@ -424,6 +758,10 @@ func (i *Asset) Update(ctx context.Context, inp interfaces.UpdateAssetParam, ope
 				return nil, err
 			}
 
+			if a != nil {
+				a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+			}
+
 			if !operator.CanUpdate(a) {
 				return nil, interfaces.ErrOperationDenied
 			}
@@ -456,6 +794,10 @@ func (i *Asset) UpdateFiles(ctx context.Context, aid id.AssetID, s *asset.Archiv
 					return nil, err
 				}
 				return nil, fmt.Errorf("failed to find an asset: %v", err)
+			}
+
+			if a != nil {
+				a.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
 			}
 
 			if !op.CanUpdate(a) {

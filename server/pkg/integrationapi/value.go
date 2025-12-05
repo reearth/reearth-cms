@@ -1,6 +1,7 @@
 package integrationapi
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -129,4 +130,23 @@ func NewValue(v *value.Value, sf *schema.Field, cc *ConvertContext) any {
 		}
 	}
 	return v.Interface()
+}
+
+type AssetContext struct {
+	Map   asset.Map
+	Files map[asset.ID]*asset.File
+	All   bool
+}
+
+func (c *AssetContext) ResolveAsset(id asset.ID) *Asset {
+	if c.Map != nil {
+		if a, ok := c.Map[id]; ok {
+			var f *asset.File
+			if c.Files != nil {
+				f = c.Files[id]
+			}
+			return NewAsset(a, f, c.All)
+		}
+	}
+	return nil
 }

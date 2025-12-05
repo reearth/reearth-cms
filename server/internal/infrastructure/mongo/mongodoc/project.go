@@ -13,21 +13,39 @@ import (
 )
 
 type ProjectDocument struct {
-	ID           string
-	UpdatedAt    time.Time
-	Name         string
-	Description  string
-	Alias        string
-	ImageURL     string
-	Workspace    string
-	Publication  *ProjectPublicationDocument
-	RequestRoles []string
+	ID            string
+	UpdatedAt     time.Time
+	Name          string
+	Description   string
+	License       string
+	Readme        string
+	Alias         string
+	ImageURL      string
+	StarCount     int64
+	StarredBy     []string
+	Topics        []string
+	Workspace     string
+	Accessibility *ProjectAccessibilityDocument
+	RequestRoles  []string
 }
 
-type ProjectPublicationDocument struct {
-	AssetPublic bool
-	Scope       string
-	Token       *string
+type PublicationSettingsDocument struct {
+	PublicModels []string
+	PublicAssets bool
+}
+
+type ProjectAccessibilityDocument struct {
+	Visibility  string
+	Publication *PublicationSettingsDocument
+	Keys        []APIKeyDocument
+}
+
+type APIKeyDocument struct {
+	ID          string
+	Name        string
+	Description string
+	Key         string
+	Publication *PublicationSettingsDocument
 }
 
 func NewProject(project *project.Project) (*ProjectDocument, string) {
@@ -39,30 +57,61 @@ func NewProject(project *project.Project) (*ProjectDocument, string) {
 	}
 
 	return &ProjectDocument{
-		ID:           pid,
-		UpdatedAt:    project.UpdatedAt(),
-		Name:         project.Name(),
-		Description:  project.Description(),
-		Alias:        project.Alias(),
-		ImageURL:     imageURL,
-		Workspace:    project.Workspace().String(),
-		Publication:  NewProjectPublication(project.Publication()),
-		RequestRoles: fromRequestRoles(project.RequestRoles()),
+		ID:            pid,
+		UpdatedAt:     project.UpdatedAt(),
+		Name:          project.Name(),
+		Description:   project.Description(),
+		License:       project.License(),
+		Readme:        project.Readme(),
+		Alias:         project.Alias(),
+		ImageURL:      imageURL,
+		StarCount:     project.StarCount(),
+		StarredBy:     project.StarredBy(),
+		Topics:        project.Topics(),
+		Workspace:     project.Workspace().String(),
+		Accessibility: NewProjectAccessibility(project.Accessibility()),
+		RequestRoles:  fromRequestRoles(project.RequestRoles()),
 	}, pid
 }
 
-func NewProjectPublication(p *project.Publication) *ProjectPublicationDocument {
+func NewProjectPublicationSettings(p *project.PublicationSettings) *PublicationSettingsDocument {
 	if p == nil {
 		return nil
 	}
-	t := lo.ToPtr(p.Token())
-	if p.Token() == "" {
-		t = nil
+	return &PublicationSettingsDocument{
+		PublicModels: p.PublicModels().Strings(),
+		PublicAssets: p.PublicAssets(),
 	}
-	return &ProjectPublicationDocument{
-		AssetPublic: p.AssetPublic(),
-		Scope:       string(p.Scope()),
-		Token:       t,
+}
+
+func NewProjectAccessibility(p *project.Accessibility) *ProjectAccessibilityDocument {
+	if p == nil {
+		return nil
+	}
+	var keys []APIKeyDocument
+	if len(p.ApiKeys()) > 0 {
+		keys = lo.Map(p.ApiKeys(), func(at *project.APIKey, _ int) APIKeyDocument {
+			return *NewAccessTokenDocument(at)
+		})
+	}
+	return &ProjectAccessibilityDocument{
+		Visibility:  p.Visibility().String(),
+		Publication: NewProjectPublicationSettings(p.Publication()),
+		Keys:        keys,
+	}
+}
+
+func NewAccessTokenDocument(at *project.APIKey) *APIKeyDocument {
+	if at == nil {
+		return nil
+	}
+
+	return &APIKeyDocument{
+		ID:          at.ID().String(),
+		Name:        at.Name(),
+		Description: at.Description(),
+		Key:         at.Key(),
+		Publication: NewProjectPublicationSettings(at.Publication()),
 	}
 }
 
@@ -88,23 +137,67 @@ func (d *ProjectDocument) Model() (*project.Project, error) {
 		UpdatedAt(d.UpdatedAt).
 		Name(d.Name).
 		Description(d.Description).
+		License(d.License).
+		Readme(d.Readme).
 		Alias(d.Alias).
 		Workspace(tid).
 		ImageURL(imageURL).
-		Publication(d.Publication.Model()).
+		StarCount(d.StarCount).
+		StarredBy(d.StarredBy).
+		Topics(d.Topics).
+		Accessibility(d.Accessibility.Model()).
 		RequestRoles(toRequestRoles(d.RequestRoles)).
 		Build()
 }
 
-func (d *ProjectPublicationDocument) Model() *project.Publication {
+func (d *PublicationSettingsDocument) Model() *project.PublicationSettings {
 	if d == nil {
 		return nil
 	}
-	if d.Token != nil {
-		return project.NewPublicationWithToken(project.PublicationScope(d.Scope), d.AssetPublic, *d.Token)
-	} else {
-		return project.NewPublication(project.PublicationScope(d.Scope), d.AssetPublic)
+
+	var mIds project.ModelIDList
+	if len(d.PublicModels) > 0 {
+		var err error
+		mIds, err = id.ModelIDListFrom(d.PublicModels)
+		if err != nil {
+			return nil
+		}
 	}
+
+	return project.NewPublicationSettings(mIds, d.PublicAssets)
+}
+
+func (d *ProjectAccessibilityDocument) Model() *project.Accessibility {
+	if d == nil {
+		return project.NewPublicAccessibility()
+	}
+	var keys project.APIKeys
+	if len(d.Keys) > 0 {
+		keys = lo.Map(d.Keys, func(t APIKeyDocument, _ int) *project.APIKey {
+			return t.Model()
+		})
+	}
+
+	return project.NewAccessibility(project.Visibility(d.Visibility), d.Publication.Model(), keys)
+}
+
+func (d *APIKeyDocument) Model() *project.APIKey {
+	if d == nil {
+		return nil
+	}
+
+	atId, err := project.AccessTokenIDFrom(d.ID)
+	if err != nil {
+		return nil
+	}
+
+	return project.NewAPIKeyBuilder().
+		ID(atId).
+		Name(d.Name).
+		Description(d.Description).
+		Key(d.Key).
+		Publication(d.Publication.Model()).
+		Build()
 }
 
 type ProjectConsumer = mongox.SliceFuncConsumer[*ProjectDocument, *project.Project]

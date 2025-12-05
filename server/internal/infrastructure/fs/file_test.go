@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -12,27 +11,24 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
-	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/file"
-	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewFile(t *testing.T) {
-	f, err := NewFile(mockFs(), "")
+	f, err := NewFile(mockFs(), "", false)
 	assert.NoError(t, err)
 	assert.NotNil(t, f)
 
-	f1, err := NewFile(mockFs(), "htp:#$%&''()00lde/fdaslk")
+	f1, err := NewFile(mockFs(), "htp:#$%&''()00lde/fdaslk", false)
 	assert.Equal(t, err, ErrInvalidBaseURL)
 	assert.Nil(t, f1)
 }
 
 func TestFile_ReadAsset(t *testing.T) {
-	f, _ := NewFile(mockFs(), "")
+	f, _ := NewFile(mockFs(), "", false)
 	u := "5130c89f-8f67-4766-b127-49ee6796d464"
 
 	r, h, err := f.ReadAsset(context.Background(), u, "xxx.txt", nil)
@@ -65,7 +61,7 @@ func TestFile_ReadAsset(t *testing.T) {
 
 func TestFile_GetAssetFiles(t *testing.T) {
 	fs := mockFs()
-	f, _ := NewFile(fs, "")
+	f, _ := NewFile(fs, "", false)
 
 	files, err := f.GetAssetFiles(context.Background(), "5130c89f-8f67-4766-b127-49ee6796d464")
 	assert.NoError(t, err)
@@ -77,7 +73,7 @@ func TestFile_GetAssetFiles(t *testing.T) {
 
 func TestFile_UploadAsset(t *testing.T) {
 	fs := mockFs()
-	f, _ := NewFile(fs, "https://example.com/assets")
+	f, _ := NewFile(fs, "https://example.com/assets", false)
 
 	u, _, err := f.UploadAsset(context.Background(), &file.File{
 		Name:    "aaa.txt",
@@ -113,7 +109,7 @@ func TestFile_DeleteAsset(t *testing.T) {
 	u := newUUID()
 	n := "aaa.txt"
 	fs := mockFs()
-	f, _ := NewFile(fs, "https://example.com/assets")
+	f, _ := NewFile(fs, "https://example.com/assets", false)
 	err := f.DeleteAsset(context.Background(), u, n)
 	assert.NoError(t, err)
 
@@ -123,7 +119,7 @@ func TestFile_DeleteAsset(t *testing.T) {
 	u1 := ""
 	n1 := ""
 	fs1 := mockFs()
-	f1, _ := NewFile(fs1, "https://example.com/assets")
+	f1, _ := NewFile(fs1, "https://example.com/assets", false)
 	err1 := f1.DeleteAsset(context.Background(), u1, n1)
 	assert.Same(t, gateway.ErrInvalidFile, err1)
 }
@@ -166,7 +162,7 @@ func TestFile_DeleteAssets(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			fs := mockFs()
-			f, _ := NewFile(fs, "xxx.txt")
+			f, _ := NewFile(fs, "xxx.txt", false)
 
 			err := f.DeleteAssets(context.Background(), tt.args.ids)
 			assert.Equal(t, tt.want, err)
@@ -176,28 +172,6 @@ func TestFile_DeleteAssets(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestFile_GetURL(t *testing.T) {
-	host := "https://example.com"
-	fs := mockFs()
-	r, err := NewFile(fs, host)
-	assert.NoError(t, err)
-
-	u := newUUID()
-	n := "xxx.yyy"
-	a := asset.New().NewID().
-		Project(id.NewProjectID()).
-		CreatedByUser(accountdomain.NewUserID()).
-		Size(1000).FileName(n).
-		UUID(u).
-		Thread(id.NewThreadID().Ref()).
-		MustBuild()
-
-	expected, err := url.JoinPath(host, assetDir, u[:2], u[2:], url.PathEscape(n))
-	assert.NoError(t, err)
-	actual := r.GetURL(a)
-	assert.Equal(t, expected, actual)
 }
 
 func TestFile_GetFSObjectPath(t *testing.T) {
