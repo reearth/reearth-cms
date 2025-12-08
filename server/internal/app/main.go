@@ -32,7 +32,6 @@ func Start(debug bool, version string) {
 	// Init repositories
 	repos, gateways, acRepos, acGateways := InitReposAndGateways(ctx, conf)
 
-	// Create application context
 	appCtx := &ApplicationContext{
 		Config:     conf,
 		Debug:      debug,
@@ -163,7 +162,6 @@ func (w *WebServer) GrpcShutdown(ctx context.Context) error {
 }
 
 func runInitialHealthCheck(ctx context.Context, appCtx *ApplicationContext) error {
-	// Run health check for GCS if configured
 	if appCtx.Config.GCS.BucketName != "" {
 		log.Infof("health check: testing GCS connection and permissions...")
 		if err := gcsCheck(ctx, appCtx.Config.GCS.BucketName); err != nil {
@@ -171,6 +169,5 @@ func runInitialHealthCheck(ctx context.Context, appCtx *ApplicationContext) erro
 		}
 		log.Infof("health check: GCS connection and permissions OK")
 	}
-
 	return nil
 }
