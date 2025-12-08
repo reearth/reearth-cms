@@ -102,18 +102,16 @@ func gcsCheck(ctx context.Context, bucketName string) (checkErr error) {
 	ctx, cancel := context.WithTimeout(ctx, 4*time.Second)
 	defer cancel()
 
-	bucket := client.Bucket(bucketName)
-
 	// check bucket access
+	bucket := client.Bucket(bucketName)
 	if _, err := bucket.Attrs(ctx); err != nil {
 		return fmt.Errorf("GCS bucket access failed: %w", err)
 	}
 
+	// upload
 	testObjectName := fmt.Sprintf(".health-check-test-%d", time.Now().UnixNano())
 	testContent := []byte("health-check")
 	obj := bucket.Object(testObjectName)
-
-	// upload
 	writer := obj.NewWriter(ctx)
 	if _, err := writer.Write(testContent); err != nil {
 		_ = writer.Close()
