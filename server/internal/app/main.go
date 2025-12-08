@@ -45,7 +45,6 @@ func Start(debug bool, version string) {
 }
 
 type WebServer struct {
-	config         *Config
 	debug          bool
 	appAddress     string
 	appServer      *echo.Echo
@@ -65,8 +64,7 @@ type ApplicationContext struct {
 
 func NewServer(ctx context.Context, appCtx *ApplicationContext) *WebServer {
 	w := &WebServer{
-		config: appCtx.Config,
-		debug:  appCtx.Debug,
+		debug: appCtx.Debug,
 	}
 	if appCtx.Config.Server.Active {
 		port := appCtx.Config.Port
@@ -97,13 +95,6 @@ func NewServer(ctx context.Context, appCtx *ApplicationContext) *WebServer {
 
 func (w *WebServer) Run(ctx context.Context) {
 	defer log.Infof("server: shutdown")
-
-	// Run initial health check
-	if err := w.runInitialHealthCheck(ctx); err != nil {
-		log.Warnf("initial health check failed: %v", err)
-	} else {
-		log.Infof("initial health check passed")
-	}
 
 	debugLog := ""
 	if w.debug {
@@ -157,17 +148,6 @@ func (w *WebServer) HttpShutdown(ctx context.Context) error {
 func (w *WebServer) GrpcShutdown(ctx context.Context) error {
 	if w.internalServer != nil {
 		w.internalServer.GracefulStop()
-	}
-	return nil
-}
-
-func (w *WebServer) runInitialHealthCheck(ctx context.Context) error {
-	if w.config.GCS.BucketName != "" {
-		log.Infof("health check: testing GCS connection and permissions...")
-		if err := gcsCheck(ctx, w.config.GCS.BucketName); err != nil {
-			return err
-		}
-		log.Infof("health check: GCS connection and permissions OK")
 	}
 	return nil
 }

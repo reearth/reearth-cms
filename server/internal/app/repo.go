@@ -93,6 +93,13 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 		if err != nil {
 			log.Fatalf("file: failed to init GCS storage: %s\n", err.Error())
 		}
+
+		// Verify GCS permissions
+		log.Infof("file: verifying GCS permissions...")
+		if err := gcsCheck(ctx, conf.GCS.BucketName); err != nil {
+			log.Fatalf("file: GCS permission check failed: %v\n", err)
+		}
+		log.Infof("file: GCS permissions verified")
 	} else if conf.S3.BucketName != "" {
 		log.Infof("file: S3 storage is used: %s", conf.S3.BucketName)
 		if conf.Asset_Public {
