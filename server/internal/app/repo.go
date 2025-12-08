@@ -85,6 +85,7 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	privateBase := conf.Host
 	if conf.GCS.BucketName != "" {
 		log.Infof("file: GCS storage is used: %s", conf.GCS.BucketName)
+		// init GCS storage
 		if conf.Asset_Public {
 			fileRepo, err = gcp.NewFile(conf.GCS.BucketName, conf.AssetBaseURL, conf.GCS.PublicationCacheControl, conf.AssetUploadURLReplacement)
 		} else {
@@ -93,9 +94,7 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 		if err != nil {
 			log.Fatalf("file: failed to init GCS storage: %s\n", err.Error())
 		}
-
-		// Verify GCS permissions
-		log.Infof("file: verifying GCS permissions...")
+		// verify GCS permissions
 		if err := gcsCheck(ctx, conf.GCS.BucketName); err != nil {
 			log.Fatalf("file: GCS permission check failed: %v\n", err)
 		}
