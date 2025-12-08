@@ -32,7 +32,8 @@ func Start(debug bool, version string) {
 	// Init repositories
 	repos, gateways, acRepos, acGateways := InitReposAndGateways(ctx, conf)
 
-	appCtx := &ApplicationContext{
+	// Start web server
+	NewServer(ctx, &ApplicationContext{
 		Config:     conf,
 		Debug:      debug,
 		Version:    version,
@@ -40,20 +41,11 @@ func Start(debug bool, version string) {
 		Gateways:   gateways,
 		AcRepos:    acRepos,
 		AcGateways: acGateways,
-	}
-
-	// Run initial health check
-	if err := runInitialHealthCheck(ctx, appCtx); err != nil {
-		log.Warnf("initial health check failed: %v", err)
-	} else {
-		log.Infof("initial health check passed")
-	}
-
-	// Start web server
-	NewServer(ctx, appCtx).Run(ctx)
+	}).Run(ctx)
 }
 
 type WebServer struct {
+	config         *Config
 	debug          bool
 	appAddress     string
 	appServer      *echo.Echo
@@ -73,7 +65,8 @@ type ApplicationContext struct {
 
 func NewServer(ctx context.Context, appCtx *ApplicationContext) *WebServer {
 	w := &WebServer{
-		debug: appCtx.Debug,
+		config: appCtx.Config,
+		debug:  appCtx.Debug,
 	}
 	if appCtx.Config.Server.Active {
 		port := appCtx.Config.Port
@@ -104,6 +97,13 @@ func NewServer(ctx context.Context, appCtx *ApplicationContext) *WebServer {
 
 func (w *WebServer) Run(ctx context.Context) {
 	defer log.Infof("server: shutdown")
+
+	// Run initial health check
+	if err := w.runInitialHealthCheck(ctx); err != nil {
+		log.Warnf("initial health check failed: %v", err)
+	} else {
+		log.Infof("initial health check passed")
+	}
 
 	debugLog := ""
 	if w.debug {
@@ -161,10 +161,10 @@ func (w *WebServer) GrpcShutdown(ctx context.Context) error {
 	return nil
 }
 
-func runInitialHealthCheck(ctx context.Context, appCtx *ApplicationContext) error {
-	if appCtx.Config.GCS.BucketName != "" {
+func (w *WebServer) runInitialHealthCheck(ctx context.Context) error {
+	if w.config.GCS.BucketName != "" {
 		log.Infof("health check: testing GCS connection and permissions...")
-		if err := gcsCheck(ctx, appCtx.Config.GCS.BucketName); err != nil {
+		if err := gcsCheck(ctx, w.config.GCS.BucketName); err != nil {
 			return err
 		}
 		log.Infof("health check: GCS connection and permissions OK")
