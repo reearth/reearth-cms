@@ -102,6 +102,7 @@ import TextAlignLeft from "./Icons/textAlignLeft.svg";
 import Text from "./Icons/textT.svg";
 import Trash from "./Icons/trash.svg";
 import Unzip from "./Icons/unzip.svg";
+import WarningSolid from "./Icons/warningSolid.svg";
 import WorkspaceSettings from "./Icons/workspaceSettings.svg";
 
 export default {
@@ -207,4 +208,5 @@ export default {
   down: DownOutlined,
   clip: PaperClipOutlined,
   retry: RetryFilled,
+  warningSolid: WarningSolid,
 };
