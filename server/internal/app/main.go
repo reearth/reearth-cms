@@ -32,8 +32,8 @@ func Start(debug bool, version string) {
 	// Init repositories
 	repos, gateways, acRepos, acGateways := InitReposAndGateways(ctx, conf)
 
-	// Create application context
-	appCtx := &ApplicationContext{
+	// Start web server
+	NewServer(ctx, &ApplicationContext{
 		Config:     conf,
 		Debug:      debug,
 		Version:    version,
@@ -41,17 +41,7 @@ func Start(debug bool, version string) {
 		Gateways:   gateways,
 		AcRepos:    acRepos,
 		AcGateways: acGateways,
-	}
-
-	// Run initial health check
-	if err := runInitialHealthCheck(ctx, appCtx); err != nil {
-		log.Warnf("initial health check failed: %v", err)
-	} else {
-		log.Infof("initial health check passed")
-	}
-
-	// Start web server
-	NewServer(ctx, appCtx).Run(ctx)
+	}).Run(ctx)
 }
 
 type WebServer struct {
@@ -159,18 +149,5 @@ func (w *WebServer) GrpcShutdown(ctx context.Context) error {
 	if w.internalServer != nil {
 		w.internalServer.GracefulStop()
 	}
-	return nil
-}
-
-func runInitialHealthCheck(ctx context.Context, appCtx *ApplicationContext) error {
-	// Run health check for GCS if configured
-	if appCtx.Config.GCS.BucketName != "" {
-		log.Infof("health check: testing GCS connection and permissions...")
-		if err := gcsCheck(ctx, appCtx.Config.GCS.BucketName); err != nil {
-			return err
-		}
-		log.Infof("health check: GCS connection and permissions OK")
-	}
-
 	return nil
 }
