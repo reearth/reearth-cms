@@ -1,7 +1,6 @@
 package app
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -13,7 +12,6 @@ import (
 	"github.com/hellofresh/health-go/v5/checks/mongo"
 	"github.com/labstack/echo/v4"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
-	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearthx/log"
 )
 
@@ -42,7 +40,7 @@ func HealthCheck(conf *Config, ver string, fileRepo gateway.File) echo.HandlerFu
 			Name:      "storage",
 			Timeout:   time.Second * 5,
 			SkipOnErr: false,
-			Check:     func(ctx context.Context) error { return storageCheck(ctx, fileRepo) },
+			Check:     fileRepo.Check,
 		})
 	}
 
@@ -86,53 +84,6 @@ func HealthCheck(conf *Config, ver string, fileRepo gateway.File) echo.HandlerFu
 		h.Handler().ServeHTTP(c.Response(), c.Request())
 		return nil
 	}
-}
-
-func storageCheck(ctx context.Context, fileRepo gateway.File) error {
-	testFileName := fmt.Sprintf(".health-check-test-%d", time.Now().UnixNano())
-	testContent := []byte("health-check")
-
-	// upload
-	f := &file.File{
-		Content: io.NopCloser(bytes.NewReader(testContent)),
-		Name:    testFileName,
-		Size:    int64(len(testContent)),
-	}
-
-	uploadedPath, size, err := fileRepo.UploadAsset(ctx, f)
-	if err != nil {
-		return fmt.Errorf("storage upload permission failed: %w", err)
-	}
-	if size != int64(len(testContent)) {
-		_ = fileRepo.DeleteAsset(ctx, uploadedPath, testFileName)
-		return fmt.Errorf("storage upload verification failed: size mismatch (expected %d, got %d)", len(testContent), size)
-	}
-
-	// read
-	reader, _, err := fileRepo.ReadAsset(ctx, uploadedPath, testFileName, nil)
-	if err != nil {
-		_ = fileRepo.DeleteAsset(ctx, uploadedPath, testFileName)
-		return fmt.Errorf("storage read permission failed: %w", err)
-	}
-	defer func() { _ = reader.Close() }()
-
-	readContent, err := io.ReadAll(reader)
-	if err != nil {
-		_ = fileRepo.DeleteAsset(ctx, uploadedPath, testFileName)
-		return fmt.Errorf("storage read permission failed: %w", err)
-	}
-
-	if !bytes.Equal(readContent, testContent) {
-		_ = fileRepo.DeleteAsset(ctx, uploadedPath, testFileName)
-		return fmt.Errorf("storage read verification failed: content mismatch")
-	}
-
-	// delete
-	if err := fileRepo.DeleteAsset(ctx, uploadedPath, testFileName); err != nil {
-		return fmt.Errorf("storage delete permission failed: %w", err)
-	}
-
-	return nil
 }
 
 func authServerPingCheck(issuerURL string) (checkErr error) {

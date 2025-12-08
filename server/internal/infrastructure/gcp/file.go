@@ -677,3 +677,59 @@ func getWorkspaceFromContext(ctx context.Context) string {
 }
 
 type contextKey string
+
+// Check verifies GCS connectivity and permissions by uploading, reading, and deleting a test file
+func (f *fileRepo) Check(ctx context.Context) error {
+	client, err := storage.NewClient(ctx)
+	if err != nil {
+		return fmt.Errorf("GCS client creation failed: %w", err)
+	}
+	defer func() { _ = client.Close() }()
+
+	bucket := client.Bucket(f.bucketName)
+
+	// Check bucket access
+	if _, err := bucket.Attrs(ctx); err != nil {
+		return fmt.Errorf("GCS bucket access failed: %w", err)
+	}
+
+	// Test upload, read, and delete permissions
+	testObjectName := fmt.Sprintf(".health-check-test-%d", uuid.New().ID())
+	testContent := []byte("health-check")
+	obj := bucket.Object(testObjectName)
+
+	// Upload
+	writer := obj.NewWriter(ctx)
+	if _, err := writer.Write(testContent); err != nil {
+		_ = writer.Close()
+		return fmt.Errorf("GCS upload permission failed: %w", err)
+	}
+	if err := writer.Close(); err != nil {
+		return fmt.Errorf("GCS upload permission failed (close): %w", err)
+	}
+
+	// Read
+	reader, err := obj.NewReader(ctx)
+	if err != nil {
+		_ = obj.Delete(ctx)
+		return fmt.Errorf("GCS read permission failed: %w", err)
+	}
+	readContent, err := io.ReadAll(reader)
+	_ = reader.Close()
+	if err != nil {
+		_ = obj.Delete(ctx)
+		return fmt.Errorf("GCS read permission failed: %w", err)
+	}
+
+	if string(readContent) != string(testContent) {
+		_ = obj.Delete(ctx)
+		return fmt.Errorf("GCS read verification failed: content mismatch")
+	}
+
+	// Delete
+	if err := obj.Delete(ctx); err != nil {
+		return fmt.Errorf("GCS delete permission failed: %w", err)
+	}
+
+	return nil
+}
