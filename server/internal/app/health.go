@@ -9,15 +9,16 @@ import (
 	"net/url"
 	"time"
 
-	"cloud.google.com/go/storage"
 	"github.com/hellofresh/health-go/v5"
 	"github.com/hellofresh/health-go/v5/checks/mongo"
 	"github.com/labstack/echo/v4"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/pkg/file"
 	"github.com/reearth/reearthx/log"
 )
 
 // HealthCheck returns an echo.HandlerFunc that serves the health check endpoint
-func HealthCheck(conf *Config, ver string) echo.HandlerFunc {
+func HealthCheck(conf *Config, ver string, fileRepo gateway.File) echo.HandlerFunc {
 	checks := []health.Config{
 		{
 			Name:      "db",
@@ -36,12 +37,12 @@ func HealthCheck(conf *Config, ver string) echo.HandlerFunc {
 		})
 	}
 
-	if conf.GCS.BucketName != "" {
+	if fileRepo != nil {
 		checks = append(checks, health.Config{
-			Name:      "gcs",
+			Name:      "storage",
 			Timeout:   time.Second * 5,
 			SkipOnErr: false,
-			Check:     func(ctx context.Context) error { return gcsCheck(ctx, conf.GCS.BucketName) },
+			Check:     func(ctx context.Context) error { return storageCheck(ctx, fileRepo) },
 		})
 	}
 
@@ -87,62 +88,48 @@ func HealthCheck(conf *Config, ver string) echo.HandlerFunc {
 	}
 }
 
-func gcsCheck(ctx context.Context, bucketName string) (checkErr error) {
-	client, err := storage.NewClient(ctx)
-	if err != nil {
-		return fmt.Errorf("GCS client creation failed: %v", err)
-	}
-	defer func(client *storage.Client) {
-		err := client.Close()
-		if err != nil {
-			checkErr = fmt.Errorf("GCS client close failed: %v", err)
-		}
-	}(client)
-
-	ctx, cancel := context.WithTimeout(ctx, 4*time.Second)
-	defer cancel()
-
-	// check bucket access
-	bucket := client.Bucket(bucketName)
-	if _, err := bucket.Attrs(ctx); err != nil {
-		return fmt.Errorf("GCS bucket access failed: %w", err)
-	}
+func storageCheck(ctx context.Context, fileRepo gateway.File) error {
+	testFileName := fmt.Sprintf(".health-check-test-%d", time.Now().UnixNano())
+	testContent := []byte("health-check")
 
 	// upload
-	testObjectName := fmt.Sprintf(".health-check-test-%d", time.Now().UnixNano())
-	testContent := []byte("health-check")
-	obj := bucket.Object(testObjectName)
-	writer := obj.NewWriter(ctx)
-	if _, err := writer.Write(testContent); err != nil {
-		_ = writer.Close()
-		return fmt.Errorf("GCS upload permission failed: %w", err)
+	f := &file.File{
+		Content: io.NopCloser(bytes.NewReader(testContent)),
+		Name:    testFileName,
+		Size:    int64(len(testContent)),
 	}
-	if err := writer.Close(); err != nil {
-		return fmt.Errorf("GCS upload permission failed (close): %w", err)
+
+	uploadedPath, size, err := fileRepo.UploadAsset(ctx, f)
+	if err != nil {
+		return fmt.Errorf("storage upload permission failed: %w", err)
+	}
+	if size != int64(len(testContent)) {
+		_ = fileRepo.DeleteAsset(ctx, uploadedPath, testFileName)
+		return fmt.Errorf("storage upload verification failed: size mismatch (expected %d, got %d)", len(testContent), size)
 	}
 
 	// read
-	reader, err := obj.NewReader(ctx)
+	reader, _, err := fileRepo.ReadAsset(ctx, uploadedPath, testFileName, nil)
 	if err != nil {
-		_ = obj.Delete(ctx)
-		return fmt.Errorf("GCS read permission failed: %w", err)
+		_ = fileRepo.DeleteAsset(ctx, uploadedPath, testFileName)
+		return fmt.Errorf("storage read permission failed: %w", err)
 	}
 	defer func() { _ = reader.Close() }()
 
 	readContent, err := io.ReadAll(reader)
 	if err != nil {
-		_ = obj.Delete(ctx)
-		return fmt.Errorf("GCS read permission failed: %w", err)
+		_ = fileRepo.DeleteAsset(ctx, uploadedPath, testFileName)
+		return fmt.Errorf("storage read permission failed: %w", err)
 	}
 
 	if !bytes.Equal(readContent, testContent) {
-		_ = obj.Delete(ctx)
-		return fmt.Errorf("GCS read verification failed: content mismatch")
+		_ = fileRepo.DeleteAsset(ctx, uploadedPath, testFileName)
+		return fmt.Errorf("storage read verification failed: content mismatch")
 	}
 
 	// delete
-	if err := obj.Delete(ctx); err != nil {
-		return fmt.Errorf("GCS delete permission failed: %w", err)
+	if err := fileRepo.DeleteAsset(ctx, uploadedPath, testFileName); err != nil {
+		return fmt.Errorf("storage delete permission failed: %w", err)
 	}
 
 	return nil
