@@ -72,6 +72,8 @@ const ContentList: React.FC = () => {
     hasModelFields,
     alertList,
     setAlertList,
+    validateImportResult,
+    setValidateImportResult,
   } = useHooks();
 
   return (
@@ -163,6 +165,8 @@ const ContentList: React.FC = () => {
         onFileContentChange={handleImportContentFileChange}
         alertList={alertList}
         setAlertList={setAlertList}
+        validateImportResult={validateImportResult}
+        setValidateImportResult={setValidateImportResult}
       />
     </>
   );

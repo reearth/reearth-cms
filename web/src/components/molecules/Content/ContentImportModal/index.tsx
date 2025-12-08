@@ -1,13 +1,18 @@
+import { gold, red } from "@ant-design/colors";
 import styled from "@emotion/styled";
 import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
 
 import Alert, { type AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
+import Flex from "@reearth-cms/components/atoms/Flex";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Loading from "@reearth-cms/components/atoms/Loading";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Space from "@reearth-cms/components/atoms/Space";
+import Typography from "@reearth-cms/components/atoms/Typography";
 import Upload, { UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { ValidateImportResult } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 import { FileUtils } from "@reearth-cms/utils/file";
@@ -31,6 +36,8 @@ type Props = {
   }) => void;
   alertList: AlertProps[];
   setAlertList: Dispatch<SetStateAction<AlertProps[]>>;
+  validateImportResult: ValidateImportResult | null;
+  setValidateImportResult: Dispatch<SetStateAction<ValidateImportResult | null>>;
 };
 
 const TemplateLink = ({ href, children }: ButtonProps) => (
@@ -48,6 +55,8 @@ const ContentImportModal: React.FC<Props> = ({
   onFileContentChange,
   alertList,
   setAlertList,
+  validateImportResult,
+  setValidateImportResult,
 }) => {
   const t = useT();
 
@@ -86,31 +95,77 @@ const ContentImportModal: React.FC<Props> = ({
 
   const schemaValidationAlert = useCallback(
     (errorMeta: ErrorMeta) => {
-      const partialAlertProps: Pick<AlertProps, "type" | "closable" | "showIcon"> = {
-        type: "error",
-        closable: true,
-        showIcon: true,
-      };
+      // const partialAlertProps: Pick<AlertProps, "type" | "closable" | "showIcon"> = {
+      //   type: "error",
+      //   closable: true,
+      //   showIcon: true,
+      // };
 
-      const newAlertList: AlertProps[] = [];
+      setAlertList([]);
 
-      console.log("errorMeta", errorMeta);
+      // console.log("errorMeta", errorMeta);
 
-      if (errorMeta.exceedLimit)
-        newAlertList.push({
-          ...partialAlertProps,
-          message: "too larrrrrge!",
-        });
-
-      if (errorMeta.mismatchFields.size > 0)
-        newAlertList.push({
-          ...partialAlertProps,
-          message: `fields mismatch: ${Array.from(errorMeta.mismatchFields).join(", ")}`,
-        });
-
-      setAlertList(newAlertList);
+      if (errorMeta.exceedLimit) {
+        // case: above limit + some mismatch (exceedLimit = true, mismatchFields.size > 0)
+        if (errorMeta.mismatchFields.size > 0) {
+          setValidateImportResult({
+            type: "error",
+            title: t("Data file is too large and some fields don't match the schema."),
+            description: t(
+              "The data file can contain a maximum of {{max}} records. Please split the file and re-upload it. And {{count}} fields do not match the schema.",
+              { max: Constant.IMPORT.MAX_CONTENT_RECORDS, count: errorMeta.mismatchFields.size },
+            ),
+            hint: t("Unmatched field hint", {
+              count: errorMeta.mismatchFields.size,
+              fields: Array.from(errorMeta.mismatchFields),
+            }),
+          });
+        }
+        // case: above limit, full match (exceedLimit = true, mismatchFields.size = 0)
+        else {
+          setValidateImportResult({
+            type: "error",
+            title: t("Data file is too large."),
+            description: t(
+              "The data file can contain a maximum of {{max}} records. Please split the file and re-upload it",
+              { max: Constant.IMPORT.MAX_CONTENT_RECORDS },
+            ),
+          });
+        }
+      } else {
+        // case: below limit, some mismatch (exceedLimit = false, mismatchFields.size > 0)
+        if (
+          errorMeta.mismatchFields.size > 0 &&
+          errorMeta.mismatchFields.size < errorMeta.modelFieldCount
+        ) {
+          console.log("errorMeta", errorMeta);
+          setValidateImportResult({
+            type: "warning",
+            title: t("Some fields don't match the schema"),
+            description: t(
+              "{{count}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored.",
+              { count: errorMeta.mismatchFields.size },
+            ),
+            hint: t("Unmatched field hint", {
+              count: errorMeta.mismatchFields.size,
+              fields: Array.from(errorMeta.mismatchFields),
+            }),
+            canForwardToImport: true,
+          });
+        }
+        // case: below limit, no match (exceedLimit = false, mismatchFields.size = modelFieldCount)
+        else {
+          setValidateImportResult({
+            type: "error",
+            title: t("No matching fields found"),
+            description: t(
+              "The data file does not match the schema. None of the fields could be recognized. Please update the file or use a different schema to continue.",
+            ),
+          });
+        }
+      }
     },
-    [setAlertList],
+    [setAlertList, setValidateImportResult, t],
   );
 
   const handleStartLoading = useCallback(() => onSetDataChecking(true), [onSetDataChecking]);
@@ -118,16 +173,25 @@ const ContentImportModal: React.FC<Props> = ({
 
   const handleBeforeUpload = useCallback<Required<UploadProps>["beforeUpload"]>(
     async (file, fileList) => {
+      setValidateImportResult(null);
       setAlertList([]);
 
       const extension = FileUtils.getExtension(file.name);
 
-      if (!["geojson", "json", "csv"].includes(extension))
-        return void raiseIllegalFileFormatAlert();
+      if (!["geojson", "json", "csv"].includes(extension)) {
+        raiseIllegalFileFormatAlert();
+        return;
+      }
 
-      if (fileList.length > 1) return void raiseSingleFileAlert();
+      if (fileList.length > 1) {
+        raiseSingleFileAlert();
+        return;
+      }
 
-      if (file.size === 0) return void raiseIllegalFileAlert();
+      if (file.size === 0) {
+        raiseIllegalFileAlert();
+        return;
+      }
 
       try {
         handleStartLoading();
@@ -137,7 +201,10 @@ const ContentImportModal: React.FC<Props> = ({
           case "json":
             {
               const jsonValidation = await ObjectUtils.safeJSONParse<ImportContentJSON>(content);
-              if (!jsonValidation.isValid) return void raiseIllegalFileAlert();
+              if (!jsonValidation.isValid) {
+                raiseIllegalFileAlert();
+                return;
+              }
 
               const jsonContentValidation = await ImportUtils.validateContentFromJSON(
                 jsonValidation.data,
@@ -145,7 +212,8 @@ const ContentImportModal: React.FC<Props> = ({
               );
 
               if (!jsonContentValidation.isValid) {
-                return void schemaValidationAlert(jsonContentValidation.error);
+                schemaValidationAlert(jsonContentValidation.error);
+                return;
               }
 
               onFileContentChange({ fileContent: jsonContentValidation.data, extension });
@@ -155,15 +223,20 @@ const ContentImportModal: React.FC<Props> = ({
           case "geojson":
             {
               const geoJSONValidation = await ObjectUtils.validateGeoJson(content);
-              if (!geoJSONValidation.isValid) return void raiseIllegalFileAlert();
+              if (!geoJSONValidation.isValid) {
+                raiseIllegalFileAlert();
+                return;
+              }
 
               const geoJSONContentValidation = await ImportUtils.validateContentFromGeoJson(
                 geoJSONValidation.data,
                 modelFields,
               );
 
-              if (!geoJSONContentValidation.isValid)
-                return void schemaValidationAlert(geoJSONContentValidation.error);
+              if (!geoJSONContentValidation.isValid) {
+                schemaValidationAlert(geoJSONContentValidation.error);
+                return;
+              }
 
               onFileContentChange({ fileContent: geoJSONContentValidation.data, extension });
             }
@@ -172,15 +245,21 @@ const ContentImportModal: React.FC<Props> = ({
           case "csv":
             {
               const csvValidation = await ImportUtils.convertCSVToJSON(content);
-              if (!csvValidation.isValid) return void raiseIllegalFileAlert();
+              if (!csvValidation.isValid) {
+                raiseIllegalFileAlert();
+                return;
+              }
 
               const csvContentValidation = await ImportUtils.validateContentFromCSV(
                 csvValidation.data,
                 modelFields,
               );
 
-              if (!csvContentValidation.isValid)
-                return void schemaValidationAlert(csvContentValidation.error);
+              if (!csvContentValidation.isValid) {
+                schemaValidationAlert(csvContentValidation.error);
+                return;
+              }
+
               onFileContentChange({ fileContent: csvContentValidation.data, extension });
             }
             break;
@@ -195,10 +274,21 @@ const ContentImportModal: React.FC<Props> = ({
 
       return false;
     },
-    [handleEndLoading, handleStartLoading, modelFields, onFileContentChange, raiseIllegalFileAlert, raiseIllegalFileFormatAlert, raiseSingleFileAlert, schemaValidationAlert, setAlertList],
+    [
+      handleEndLoading,
+      handleStartLoading,
+      modelFields,
+      onFileContentChange,
+      raiseIllegalFileAlert,
+      raiseIllegalFileFormatAlert,
+      raiseSingleFileAlert,
+      schemaValidationAlert,
+      setAlertList,
+      setValidateImportResult,
+    ],
   );
 
-  const uploadProps: UploadProps = useMemo(
+  const uploadProps = useMemo<UploadProps>(
     () => ({
       name: "importContentFile",
       multiple: true,
@@ -210,6 +300,17 @@ const ContentImportModal: React.FC<Props> = ({
     [handleBeforeUpload],
   );
 
+  const importErrorIcon = useMemo<string | undefined>(() => {
+    switch (validateImportResult?.type) {
+      case "error":
+        return red.primary;
+      case "warning":
+        return gold.primary;
+      default:
+        return undefined;
+    }
+  }, [validateImportResult]);
+
   return (
     <Modal
       styles={{ body: { height: "70vh" } }}
@@ -217,47 +318,85 @@ const ContentImportModal: React.FC<Props> = ({
       open={isOpen}
       onCancel={onClose}
       footer={null}>
-      {dataChecking ? (
-        <LoadingWrapper data-testId="LoadingWrapper">
-          <Loading spinnerSize="large" />
-          <p>{t("Checking the data file...")}</p>
-        </LoadingWrapper>
+      {!validateImportResult ? (
+        <>
+          {dataChecking ? (
+            <LoadingWrapper data-testId="LoadingWrapper">
+              <Loading spinnerSize="large" />
+              <p>{t("Checking the data file...")}</p>
+            </LoadingWrapper>
+          ) : (
+            <Dragger {...uploadProps}>
+              <p className="ant-upload-drag-icon">
+                <Icon icon="inbox" />
+              </p>
+              <p className="ant-upload-text">{t("Click or drag files to this area to upload")}</p>
+              <p className="ant-upload-hint">
+                {t(
+                  "Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema with field names and types. File can contain a maximum of {{max}} records.",
+                  { max: Constant.IMPORT.MAX_CONTENT_RECORDS },
+                )}
+              </p>
+              <p className="ant-upload-hint">
+                <Trans
+                  i18nKey="You can also download file templates: CSV | JSON | GeoJSON"
+                  components={{
+                    l1: (
+                      <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_CSV}>
+                        CSV
+                      </TemplateLink>
+                    ),
+                    l2: (
+                      <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_JSON}>
+                        JSON
+                      </TemplateLink>
+                    ),
+                    l3: (
+                      <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_GEO_JSON}>
+                        GeoJSON
+                      </TemplateLink>
+                    ),
+                  }}
+                />
+              </p>
+              {alertList.map((alert, index) => (
+                <Alert
+                  {...alert}
+                  key={alert?.message?.toString() || index}
+                  onClick={e => e.stopPropagation()}
+                />
+              ))}
+            </Dragger>
+          )}
+        </>
       ) : (
-        <Dragger {...uploadProps}>
-          <p className="ant-upload-drag-icon">
-            <Icon icon="inbox" />
-          </p>
-          <p className="ant-upload-text">{t("Click or drag files to this area to upload")}</p>
-          <p className="ant-upload-hint">
-            {t(
-              "Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema with field names and types. File can contain a maximum of {{count}} records.",
-              { count: Constant.IMPORT.MAX_CONTENT_RECORDS },
+        <StyledFlex data-testId="errorWrapper" vertical justify="center" align="center">
+          <Icon data-testId="errorIcon" icon="warningSolid" color={importErrorIcon} />
+          <Typography.Title data-testId="errorTitle" level={4}>
+            {validateImportResult.title}
+          </Typography.Title>
+          <Typography.Paragraph data-testId="errorDescription">
+            {validateImportResult.description}
+          </Typography.Paragraph>
+          <Space>
+            <Button
+              type="default"
+              onClick={() => {
+                setAlertList([]);
+                setValidateImportResult(null);
+              }}>
+              Go Back
+            </Button>
+            {validateImportResult.canForwardToImport && (
+              <Button type="primary">Import Anyway</Button>
             )}
-          </p>
-          <p className="ant-upload-hint">
-            <Trans
-              i18nKey="You can also download file templates: CSV | JSON | GeoJSON"
-              components={{
-                l1: <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_CSV}>CSV</TemplateLink>,
-                l2: (
-                  <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_JSON}>JSON</TemplateLink>
-                ),
-                l3: (
-                  <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_GEO_JSON}>
-                    GeoJSON
-                  </TemplateLink>
-                ),
-              }}
-            />
-          </p>
-          {alertList.map((alert, index) => (
-            <Alert
-              {...alert}
-              key={alert?.message?.toString() || index}
-              onClick={e => e.stopPropagation()}
-            />
-          ))}
-        </Dragger>
+          </Space>
+          {validateImportResult.hint && (
+            <Typography.Paragraph type="secondary" data-testId="errorHint">
+              {validateImportResult.hint}
+            </Typography.Paragraph>
+          )}
+        </StyledFlex>
       )}
     </Modal>
   );
@@ -277,4 +416,8 @@ const LoadingWrapper = styled.div`
 const StyledButton = styled(Button)`
   padding: 0;
   text-decoration: underline;
+`;
+
+const StyledFlex = styled(Flex)`
+  height: 100%;
 `;

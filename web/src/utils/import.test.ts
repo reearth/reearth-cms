@@ -21,8 +21,9 @@ import { ObjectUtils } from "./object";
 
 async function readFromJSONFile<T>(
   staticFileDirectory: string,
+  baseDirectory = "public",
 ): Promise<ReturnType<typeof ObjectUtils.safeJSONParse<T>>> {
-  const filePath = join("public", staticFileDirectory);
+  const filePath = join(baseDirectory, staticFileDirectory);
   const fileContent = readFileSync(filePath, "utf-8");
 
   return await ObjectUtils.safeJSONParse(fileContent);
@@ -346,37 +347,136 @@ describe("Testing schema & content import from static files", () => {
   describe("Validate content data from static files", () => {
     const expectedSchema = getExpectedSchema();
 
-    test("Validate CSV file", async () => {
-      const csvString = readFromCSVFile(Constant.PUBLIC_FILE.IMPORT_CONTENT_CSV);
+    describe("CSV files", () => {
+      test("Validate CSV file", async () => {
+        const csvString = readFromCSVFile(Constant.PUBLIC_FILE.IMPORT_CONTENT_CSV);
 
-      const csvValidation = await ImportUtils.convertCSVToJSON(csvString);
+        const csvValidation = await ImportUtils.convertCSVToJSON(csvString);
 
-      expect(csvValidation.isValid).toBe(true);
+        expect(csvValidation.isValid).toBe(true);
 
-      if (!csvValidation.isValid) return;
+        if (!csvValidation.isValid) return;
 
-      const contentValidation = await ImportUtils.validateContentFromCSV(
-        csvValidation.data,
-        expectedSchema.schema.fields,
-      );
-
-      expect(contentValidation.isValid).toBe(true);
-    });
-
-    test("Validate JSON file", async () => {
-      const result = await readFromJSONFile<ImportContentJSON>(
-        Constant.PUBLIC_FILE.IMPORT_CONTENT_JSON,
-      );
-
-      expect(result.isValid).toBe(true);
-
-      if (result.isValid) {
-        const contentValidation = await ImportUtils.validateContentFromJSON(
-          result.data,
+        const contentValidation = await ImportUtils.validateContentFromCSV(
+          csvValidation.data,
           expectedSchema.schema.fields,
         );
+
         expect(contentValidation.isValid).toBe(true);
-      }
+      });
+    });
+
+    describe("JSON files", () => {
+      test("Validate JSON file", async () => {
+        const result = await readFromJSONFile<ImportContentJSON>(
+          Constant.PUBLIC_FILE.IMPORT_CONTENT_JSON,
+        );
+
+        expect(result.isValid).toBe(true);
+
+        if (result.isValid) {
+          const contentValidation = await ImportUtils.validateContentFromJSON(
+            result.data,
+            expectedSchema.schema.fields,
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(contentValidation.isValid).toBe(true);
+        }
+      });
+
+      test("Validate JSON error case: records above limit, fields mismatch", async () => {
+        const result = await readFromJSONFile<ImportContentJSON>(
+          Constant.PUBLIC_FILE.TEST_IMPORT_CONTENT_ABOVE_LIMIT_MISMATCH,
+          "src",
+        );
+
+        expect(result.isValid).toBe(true);
+
+        if (result.isValid) {
+          const contentValidation = await ImportUtils.validateContentFromJSON(
+            result.data,
+            expectedSchema.schema.fields,
+          );
+
+          expect(contentValidation.isValid).toBe(false);
+
+          if (!contentValidation.isValid) {
+            expect(contentValidation.error.exceedLimit).toBe(true);
+            expect(contentValidation.error.mismatchFields.size).toBeGreaterThan(0);
+          }
+        }
+      });
+
+      test("Validate JSON error case: records above limit, fields match", async () => {
+        const result = await readFromJSONFile<ImportContentJSON>(
+          Constant.PUBLIC_FILE.TEST_IMPORT_CONTENT_ABOVE_LIMIT_MATCH,
+          "src",
+        );
+
+        expect(result.isValid).toBe(true);
+
+        if (result.isValid) {
+          const contentValidation = await ImportUtils.validateContentFromJSON(
+            result.data,
+            expectedSchema.schema.fields,
+          );
+
+          expect(contentValidation.isValid).toBe(false);
+
+          if (!contentValidation.isValid) {
+            expect(contentValidation.error.exceedLimit).toBe(true);
+            expect(contentValidation.error.mismatchFields.size).toBe(0);
+          }
+        }
+      });
+
+      test("Validate JSON error case: records below limit, fields mismatch", async () => {
+        const result = await readFromJSONFile<ImportContentJSON>(
+          Constant.PUBLIC_FILE.TEST_IMPORT_CONTENT_BELOW_LIMIT_MISMATCH,
+          "src",
+        );
+
+        expect(result.isValid).toBe(true);
+
+        if (result.isValid) {
+          const contentValidation = await ImportUtils.validateContentFromJSON(
+            result.data,
+            expectedSchema.schema.fields,
+          );
+
+          expect(contentValidation.isValid).toBe(false);
+
+          if (!contentValidation.isValid) {
+            expect(contentValidation.error.exceedLimit).toBe(false);
+            expect(contentValidation.error.mismatchFields.size).toBeGreaterThan(0);
+          }
+        }
+      });
+
+      test("Validate JSON error case: records below limit, fields no match", async () => {
+        const result = await readFromJSONFile<ImportContentJSON>(
+          Constant.PUBLIC_FILE.TEST_IMPORT_CONTENT_BELOW_LIMIT_NOMATCH,
+          "src",
+        );
+
+        expect(result.isValid).toBe(true);
+
+        if (result.isValid) {
+          const contentValidation = await ImportUtils.validateContentFromJSON(
+            result.data,
+            expectedSchema.schema.fields,
+          );
+
+          expect(contentValidation.isValid).toBe(false);
+
+          if (!contentValidation.isValid) {
+            expect(contentValidation.error.exceedLimit).toBe(false);
+            expect(contentValidation.error.mismatchFields.size).toEqual(
+              contentValidation.error.modelFieldCount,
+            );
+          }
+        }
+      });
     });
 
     test("Validate GeoJSON file", async () => {

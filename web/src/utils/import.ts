@@ -85,6 +85,7 @@ type ContentSourceFormat = "CSV" | "JSON" | "GEOJSON";
 export interface ErrorMeta {
   exceedLimit: boolean;
   mismatchFields: Set<PropertyKey>;
+  modelFieldCount: number;
 }
 
 export interface ImportContentJSON {
@@ -112,23 +113,24 @@ export abstract class ImportUtils {
   public static async validateContentFromCSV<T = unknown>(
     csvList: T[],
     modelFields: Model["schema"]["fields"],
+    maxRecordLimit = Constant.IMPORT.MAX_CONTENT_RECORDS,
   ): Promise<
     { isValid: true; data: Record<string, unknown>[] } | { isValid: false; error: ErrorMeta }
   > {
     const timer = new PerformanceTimer("validateContentFromCSV");
 
     try {
-      const fieldSchema = this.getDynamicFieldValidator(modelFields, "CSV");
+      const { validator, acceptImportFieldCount } = this.getValidatorMeta(modelFields, "CSV");
 
-      const schemaValidation = fieldSchema
-        .array()
-        .max(Constant.IMPORT.MAX_CONTENT_RECORDS)
-        .safeParse(csvList);
+      const validation = validator.array().max(maxRecordLimit).safeParse(csvList);
 
-      if (schemaValidation.success) {
-        return { isValid: true, data: schemaValidation.data };
+      if (validation.success) {
+        return { isValid: true, data: validation.data };
       } else {
-        return { isValid: false, error: this.getErrorMeta(schemaValidation) };
+        return {
+          isValid: false,
+          error: this.getErrorMeta(validation, acceptImportFieldCount),
+        };
       }
     } catch (error) {
       throw Error(String(error));
@@ -140,6 +142,7 @@ export abstract class ImportUtils {
   public static async validateContentFromJSON(
     importContent: ImportContentJSON,
     modelFields: Model["schema"]["fields"],
+    maxRecordLimit = Constant.IMPORT.MAX_CONTENT_RECORDS,
   ): Promise<
     { isValid: true; data: ImportContentJSON["results"] } | { isValid: false; error: ErrorMeta }
   > {
@@ -148,17 +151,17 @@ export abstract class ImportUtils {
     >((resolve, _reject) => {
       const timer = new PerformanceTimer("validateContentFromJSON");
 
-      const fieldSchema = this.getDynamicFieldValidator(modelFields, "JSON");
+      const { validator, acceptImportFieldCount } = this.getValidatorMeta(modelFields, "JSON");
 
-      const schemaValidation = fieldSchema
-        .array()
-        .max(Constant.IMPORT.MAX_CONTENT_RECORDS)
-        .safeParse(importContent.results);
+      const validation = validator.array().max(maxRecordLimit).safeParse(importContent.results);
 
-      if (schemaValidation.success) {
-        resolve({ isValid: true, data: schemaValidation.data });
+      if (validation.success) {
+        resolve({ isValid: true, data: validation.data });
       } else {
-        resolve({ isValid: false, error: this.getErrorMeta(schemaValidation) });
+        resolve({
+          isValid: false,
+          error: this.getErrorMeta(validation, acceptImportFieldCount),
+        });
       }
       timer.log();
     });
@@ -167,6 +170,7 @@ export abstract class ImportUtils {
   public static async validateContentFromGeoJson(
     raw: GeoJSON,
     modelFields: Model["schema"]["fields"],
+    maxRecordLimit = Constant.IMPORT.MAX_CONTENT_RECORDS,
   ): Promise<
     { isValid: true; data: Record<string, unknown>[] } | { isValid: false; error: ErrorMeta }
   > {
@@ -177,29 +181,30 @@ export abstract class ImportUtils {
 
       if (raw.type !== "FeatureCollection") return void reject("Not feature collection");
 
-      const fieldSchema = this.getDynamicFieldValidator(modelFields, "GEOJSON");
+      const { validator, acceptImportFieldCount } = this.getValidatorMeta(modelFields, "GEOJSON");
       const properties = raw.features.map(feature => feature.properties);
 
-      const schemaValidation = fieldSchema
-        .array()
-        .max(Constant.IMPORT.MAX_CONTENT_RECORDS)
-        .safeParse(properties);
+      const validation = validator.array().max(maxRecordLimit).safeParse(properties);
 
-      if (schemaValidation.success) {
-        resolve({ isValid: true, data: schemaValidation.data });
+      if (validation.success) {
+        resolve({ isValid: true, data: validation.data });
       } else {
-        resolve({ isValid: false, error: this.getErrorMeta(schemaValidation) });
+        resolve({
+          isValid: false,
+          error: this.getErrorMeta(validation, acceptImportFieldCount),
+        });
       }
 
       timer.log();
     });
   }
 
-  private static getDynamicFieldValidator(
+  private static getValidatorMeta(
     fieldData: Model["schema"]["fields"],
     sourceFormat: ContentSourceFormat,
   ) {
     const validateObj: Record<string, unknown> = {};
+    let acceptImportFieldCount = 0;
 
     fieldData.forEach(field => {
       switch (field.type) {
@@ -211,34 +216,63 @@ export abstract class ImportUtils {
             stringField = stringField.max(field.typeProperty.maxLength);
           }
           validateObj[field.key] = stringField;
+          acceptImportFieldCount++;
+
           break;
         }
         case "Date":
           validateObj[field.key] = z.coerce.date();
+          acceptImportFieldCount++;
+
           break;
+
         case "Bool":
           validateObj[field.key] = z.boolean();
+          acceptImportFieldCount++;
+
           break;
+
         case "Integer": {
           let intField: ZodCoercedNumber<unknown> = z.coerce.number().int();
           if (field.typeProperty?.max) intField = intField.max(field.typeProperty.max);
           if (field.typeProperty?.min) intField = intField.min(field.typeProperty.min);
 
           validateObj[field.key] = intField;
-          break;
-        }
-        case "Number": {
-          let floatField: ZodNumber = z.coerce.number();
-          if (field.typeProperty?.numberMax)
-            floatField = floatField.max(field.typeProperty.numberMax);
-          if (field.typeProperty?.min) floatField = floatField.min(field.typeProperty.min);
+          acceptImportFieldCount++;
 
-          validateObj[field.key] = floatField;
           break;
         }
+
+        case "Number":
+          {
+            let floatField: ZodNumber = z.coerce.number();
+            if (field.typeProperty?.numberMax)
+              floatField = floatField.max(field.typeProperty.numberMax);
+            if (field.typeProperty?.min) floatField = floatField.min(field.typeProperty.min);
+
+            validateObj[field.key] = floatField;
+            acceptImportFieldCount++;
+          }
+
+          break;
+
+        case "Select": {
+          if (field.typeProperty?.values) {
+            validateObj[field.key] = z.union(
+              field.typeProperty.values.map(value => z.literal(value)),
+            );
+            acceptImportFieldCount++;
+          }
+
+          break;
+        }
+
         case "URL":
           validateObj[field.key] = z.url();
+          acceptImportFieldCount++;
+
           break;
+
         case "GeometryObject": {
           // CSV file cannot contain geometry object
           if (sourceFormat === "JSON") {
@@ -250,6 +284,7 @@ export abstract class ImportUtils {
               },
               { error: "Invalid GeometryObject format." },
             );
+            acceptImportFieldCount++;
           }
 
           break;
@@ -258,7 +293,7 @@ export abstract class ImportUtils {
       }
     });
 
-    return z.object(validateObj);
+    return { validator: z.object(validateObj), acceptImportFieldCount };
   }
 
   private static readonly FIELD_BASE_VALIDATOR: z.ZodSchema<FieldBase> = z.object({
@@ -333,17 +368,16 @@ export abstract class ImportUtils {
 
   private static getErrorMeta(
     schemaValidation: z.ZodSafeParseError<Record<string, unknown>[]>,
+    modelFieldCount: number,
   ): ErrorMeta {
-    console.log(schemaValidation.error.issues);
     return schemaValidation.error.issues.reduce<ErrorMeta>(
       (acc, curr, _index, _arr) => {
         if (curr.code === "too_big") return { ...acc, exceedLimit: true };
-        if (curr.code === "invalid_type")
+        if ((curr.code === "invalid_type" || curr.code === "invalid_union") && curr.path[1])
           return { ...acc, mismatchFields: acc.mismatchFields.add(curr.path[1]) };
-
         return acc;
       },
-      { exceedLimit: false, mismatchFields: new Set<PropertyKey>() },
+      { exceedLimit: false, mismatchFields: new Set<PropertyKey>(), modelFieldCount },
     );
   }
 

@@ -152,12 +152,28 @@ Workspace Settings: ''
 The uploaded file is empty or invalid: ''
 Only one file can be uploaded at a time: ''
 File format is not supported: ''
-'{{count}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored._one': '{{count, number}} field do not match the schema. You can continue the import, but the unmatched fields will be ignored.'
-'{{count}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored._other': '{{count, number}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored.'
+Data file is too large and some fields don't match the schema.: ''
+The data file can contain a maximum of {{max}} records. Please split the file and re-upload it. And {{count}} fields do not match the schema._one: ''
+The data file can contain a maximum of {{max}} records. Please split the file and re-upload it. And {{count}} fields do not match the schema._other: ''
+Unmatched field hint_one: 'Unmatched field is: {{fields, list}}.'
+Unmatched field hint_other: 'Unmatched fields are: {{fields, list}}.'
+Data file is too large.: ''
+The data file can contain a maximum of {{max}} records. Please split the file and re-upload it: ''
+Some fields don't match the schema: ''
+'{{count}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored._one': >-
+  {{count, number}} field do not match the schema. You can continue the import,
+  but the unmatched fields will be ignored.
+'{{count}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored._other': >-
+  {{count, number}} fields do not match the schema. You can continue the import,
+  but the unmatched fields will be ignored.
+No matching fields found: ''
+The data file does not match the schema. None of the fields could be recognized. Please update the file or use a different schema to continue.: ''
 Import content: ''
 Checking the data file...: ''
-Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema with field names and types. File can contain a maximum of {{count}} records._one: 'Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema with field names and types. File can contain a maximum of {{count, number}} record.'
-Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema with field names and types. File can contain a maximum of {{count}} records._other: 'Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema with field names and types. File can contain a maximum of {{count, number}} records.'
+Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema with field names and types. File can contain a maximum of {{max}} records.: >-
+  Upload a data file in CSV, JSON, or GeoJSON formats. File must match the
+  schema with field names and types. File can contain a maximum of {{max,
+  number}} records.
 'You can also download file templates: CSV | JSON | GeoJSON': >-
   You can also download file templates: <l1>CSV</l1> | <l2>JSON</l2> |
   <l3>GeoJSON</l3>
@@ -481,7 +497,7 @@ Model key must be unique and at least 3 characters long. It can only contain let
 Group key must be unique and at least 3 characters long. It can only contain letters, numbers, underscores, and dashes.: ''
 Choose or drag & drop a file: <l>Choose</l> or drag & drop a file
 Only JSON or GeoJSON format is supported: ''
-'You can also download file templates: JSON | GeoJSON': 'You can also download file templates: <l1>JSON</l1> | <l2>GeoJSON</l2>'
+'You can also download file templates: JSON': 'You can also download file templates: <l1>JSON</l1>'
 Import not successful.: ''
 Importing...: ''
 Import successful!: ''

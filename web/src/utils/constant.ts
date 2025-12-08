@@ -11,7 +11,10 @@ export abstract class Constant {
   };
 
   public static readonly IMPORT = {
-    MAX_CONTENT_RECORDS: 2_000,
+    MAX_CONTENT_RECORDS: 2,
+
+    // CONSTANTS FOR TEST USE ONLY BELOW
+    TEST_MAX_CONTENT_RECORDS: 2,
   };
 
   public static readonly PUBLIC_FILE = {
@@ -19,5 +22,14 @@ export abstract class Constant {
     IMPORT_CONTENT_JSON: "/templates/import-content-template.json",
     IMPORT_CONTENT_GEO_JSON: "/templates/import-content-template.geojson",
     IMPORT_SCHEMA_JSON: "/templates/import-schema-template.json",
+
+    // FILE DIRECTORIES FOR TEST USE ONLY BELOW
+    TEST_IMPORT_CONTENT_ABOVE_LIMIT_MISMATCH:
+      "/test/test-files/import-content-above-limit-mismatch.json",
+    TEST_IMPORT_CONTENT_ABOVE_LIMIT_MATCH: "/test/test-files/import-content-above-limit-match.json",
+    TEST_IMPORT_CONTENT_BELOW_LIMIT_MISMATCH:
+      "/test/test-files/import-content-below-limit-mismatch.json",
+    TEST_IMPORT_CONTENT_BELOW_LIMIT_NOMATCH:
+      "/test/test-files/import-content-below-limit-nomatch.json",
   };
 }

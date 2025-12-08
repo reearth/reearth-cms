@@ -59,6 +59,25 @@ const defaultViewSort: ItemSort = {
   },
 };
 
+export type ValidateImportResult = {
+  type: "warning" | "error";
+  title: string;
+  description: string;
+  canForwardToImport?: boolean;
+  hint?: string;
+};
+
+// export type ImportState = {
+//   step: 'SELECT_FILE' | 'CHECKING' | 'RESULT';
+//   fileError: AlertProps[];
+//   checkResult: ValidateImportResult;
+// }
+
+// export type ImportAction =
+//   | { type: 'TO_CHECKING' }
+//   | { type: 'TO_SELECT_FILE' }
+//   | { type: 'TO_RESULT' }
+
 export default () => {
   const {
     currentModel,
@@ -86,6 +105,9 @@ export default () => {
   const [isImportContentModalOpen, setIsImportContentModalOpen] = useState(false);
   const [dataChecking, setDataChecking] = useState(false);
   const [alertList, setAlertList] = useState<AlertProps[]>([]);
+  const [validateImportResult, setValidateImportResult] = useState<ValidateImportResult | null>(
+    null,
+  );
 
   const navigate = useNavigate();
   const { modelId } = useParams();
@@ -626,6 +648,7 @@ export default () => {
   const handleImportContentModalClose = useCallback(() => {
     setIsImportContentModalOpen(false);
     setAlertList([]);
+    setValidateImportResult(null);
   }, []);
 
   const handleImportContentFileChange = async ({
@@ -711,5 +734,7 @@ export default () => {
     hasModelFields,
     alertList,
     setAlertList,
+    validateImportResult,
+    setValidateImportResult,
   };
 };

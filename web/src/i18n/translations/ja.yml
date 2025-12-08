@@ -152,10 +152,20 @@ Workspace Settings: ワークスペース設定
 The uploaded file is empty or invalid: アップロードされたファイルが空であるか無効です
 Only one file can be uploaded at a time: 一度に1つのファイルのみアップロード可能です
 File format is not supported: ファイル拡張子はサポートされていません
+Data file is too large and some fields don't match the schema.: データファイルがシステム上限を超えて、また一部のフィールドがスキーマと一致しません
+The data file can contain a maximum of {{max}} records. Please split the file and re-upload it. And {{count}} fields do not match the schema._other: >-
+  データファイルには最大{{max, number}}件のレコードを含めることができます。 ファイルを分割して再度アップロードしてください。
+  また、{{count, number}}個のフィールドがスキーマと一致しません。
+Unmatched field hint_other: '一致しないフィールド: {{fields, list}}'
+Data file is too large.: ファイルがシステム上限を超えています
+The data file can contain a maximum of {{max}} records. Please split the file and re-upload it: データファイルには最大{{max, number}}件のレコードを含めることができます。ファイルを分割して再度アップロードしてください。
+Some fields don't match the schema: 一部のフィールドがスキーマと一致しません
 '{{count}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored._other': '{{count, number}}つのフィールドがスキーマと一致しておりません。インポートを続行いただけますが、一致しないフィールドは無視されます。'
+No matching fields found: 一致するフィールドが見つかりません
+The data file does not match the schema. None of the fields could be recognized. Please update the file or use a different schema to continue.: ''
 Import content: コンテンツのインポート
 Checking the data file...: ファイルのコンテンツを確認中…
-Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema with field names and types. File can contain a maximum of {{count}} records._other: >-
+Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema with field names and types. File can contain a maximum of {{max}} records.: >-
   CSV、JSON、またはGeoJSON形式のデータファイルをアップロードしてください。ファイルはフィールド名およびデータ型がスキーマと一致している必要があります。ファイルには最大{{count,
   number}}件のレコードを含めることが可能です。
 'You can also download file templates: CSV | JSON | GeoJSON': 'ファイルテンプレートもダウンロードできます: <l1>CSV</l1> | <l2>JSON</l2> | <l3>GeoJSON</l3>'
@@ -479,7 +489,7 @@ Model key must be unique and at least 3 characters long. It can only contain let
 Group key must be unique and at least 3 characters long. It can only contain letters, numbers, underscores, and dashes.: グループキーは3文字以上かつ一意である必要があります。半角英数字、アンダースコア、ダッシュのみを含むことができます。
 Choose or drag & drop a file: ファイルを選択またはドラッグ&ドロップ
 Only JSON or GeoJSON format is supported: JSONまたはGeoJSON形式のみサポートされています
-'You can also download file templates: JSON | GeoJSON': 'ファイルテンプレートをダウンロードすることもできます: <l1>JSON</l1> | <l2>GeoJSON</l2>'
+'You can also download file templates: JSON': 'ファイルテンプレートをダウンロードすることもできます: <l1>JSON</l1>'
 Import not successful.: インポートに失敗しました。
 Importing...: インポート中...
 Import successful!: インポートに成功しました！
