@@ -85,7 +85,6 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	privateBase := conf.Host
 	if conf.GCS.BucketName != "" {
 		log.Infof("file: GCS storage is used: %s", conf.GCS.BucketName)
-		// init GCS storage
 		if conf.Asset_Public {
 			fileRepo, err = gcp.NewFile(conf.GCS.BucketName, conf.AssetBaseURL, conf.GCS.PublicationCacheControl, conf.AssetUploadURLReplacement)
 		} else {
