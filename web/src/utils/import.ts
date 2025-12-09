@@ -3,7 +3,17 @@
 import { getIssues, HintIssue } from "@placemarkio/check-geojson";
 import type { GeoJSON } from "geojson";
 import Papa, { ParseResult } from "papaparse";
-import { z, ZodCoercedNumber, ZodNumber, ZodString } from "zod";
+import {
+  z,
+  ZodBoolean,
+  ZodCoercedDate,
+  ZodCoercedNumber,
+  ZodJSONSchema,
+  ZodNumber,
+  ZodOptional,
+  ZodString,
+  ZodURL,
+} from "zod";
 
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { PerformanceTimer } from "@reearth-cms/utils/performance";
@@ -13,6 +23,7 @@ import { Constant } from "./constant";
 interface FieldBase {
   title: string;
   description?: string;
+  required: boolean;
 }
 
 interface FieldTextBase extends FieldBase {
@@ -211,31 +222,46 @@ export abstract class ImportUtils {
         case "Text":
         case "TextArea":
         case "MarkdownText": {
-          let stringField: ZodString = z.string();
-          if (field.typeProperty?.maxLength) {
+          let stringField: ZodString | ZodOptional<ZodString> = z.string();
+
+          if (field.typeProperty?.maxLength)
             stringField = stringField.max(field.typeProperty.maxLength);
-          }
+
+          if (field.required) stringField = stringField.optional();
+
           validateObj[field.key] = stringField;
           acceptImportFieldCount++;
 
           break;
         }
-        case "Date":
-          validateObj[field.key] = z.coerce.date();
+        case "Date": {
+          let dateField: ZodCoercedDate | ZodOptional<ZodCoercedDate> = z.coerce.date();
+
+          if (field.required) dateField = dateField.optional();
+
+          validateObj[field.key] = dateField;
           acceptImportFieldCount++;
 
           break;
+        }
 
-        case "Bool":
-          validateObj[field.key] = z.boolean();
+        case "Bool": {
+          let booleanField: ZodBoolean | ZodOptional<ZodBoolean> = z.boolean();
+
+          if (field.required) booleanField = booleanField.optional();
+
+          validateObj[field.key] = booleanField;
           acceptImportFieldCount++;
 
           break;
+        }
 
         case "Integer": {
-          let intField: ZodCoercedNumber<unknown> = z.coerce.number().int();
+          let intField: ZodCoercedNumber | ZodOptional<ZodCoercedNumber> = z.coerce.number().int();
+
           if (field.typeProperty?.max) intField = intField.max(field.typeProperty.max);
           if (field.typeProperty?.min) intField = intField.min(field.typeProperty.min);
+          if (field.required) intField = intField.optional();
 
           validateObj[field.key] = intField;
           acceptImportFieldCount++;
@@ -243,40 +269,52 @@ export abstract class ImportUtils {
           break;
         }
 
-        case "Number":
-          {
-            let floatField: ZodNumber = z.coerce.number();
-            if (field.typeProperty?.numberMax)
-              floatField = floatField.max(field.typeProperty.numberMax);
-            if (field.typeProperty?.min) floatField = floatField.min(field.typeProperty.min);
+        case "Number": {
+          let floatField: ZodNumber | ZodOptional<ZodNumber> = z.coerce.number();
 
-            validateObj[field.key] = floatField;
-            acceptImportFieldCount++;
-          }
+          if (field.typeProperty?.numberMax)
+            floatField = floatField.max(field.typeProperty.numberMax);
+          if (field.typeProperty?.min) floatField = floatField.min(field.typeProperty.min);
+          if (field.required) floatField = floatField.optional();
+
+          validateObj[field.key] = floatField;
+          acceptImportFieldCount++;
 
           break;
+        }
 
         case "Select": {
           if (field.typeProperty?.values) {
-            validateObj[field.key] = z.union(
+            let optionField:
+              | z.ZodUnion<z.ZodLiteral<string>[]>
+              | ZodOptional<z.ZodUnion<z.ZodLiteral<string>[]>> = z.union(
               field.typeProperty.values.map(value => z.literal(value)),
             );
+
+            if (field.required) optionField = optionField.optional();
+
+            validateObj[field.key] = optionField;
             acceptImportFieldCount++;
           }
 
           break;
         }
 
-        case "URL":
-          validateObj[field.key] = z.url();
+        case "URL": {
+          let urlField: ZodURL | ZodOptional<ZodURL> = z.url();
+
+          if (field.required) urlField = urlField.optional();
+
+          validateObj[field.key] = urlField;
           acceptImportFieldCount++;
 
           break;
+        }
 
         case "GeometryObject": {
           // CSV file cannot contain geometry object
           if (sourceFormat === "JSON") {
-            validateObj[field.key] = z.json().refine(
+            let geoObjField: ZodJSONSchema | ZodOptional<ZodJSONSchema> = z.json().refine(
               val => {
                 if (!val) return false;
                 const issues: HintIssue[] = getIssues(JSON.stringify(val));
@@ -284,6 +322,10 @@ export abstract class ImportUtils {
               },
               { error: "Invalid GeometryObject format." },
             );
+
+            if (field.required) geoObjField = geoObjField.optional();
+
+            validateObj[field.key] = geoObjField;
             acceptImportFieldCount++;
           }
 
@@ -299,6 +341,7 @@ export abstract class ImportUtils {
   private static readonly FIELD_BASE_VALIDATOR: z.ZodSchema<FieldBase> = z.object({
     title: z.string(),
     description: z.string().optional(),
+    required: z.boolean(),
   });
 
   private static readonly IMPORT_SCHEMA_VALIDATOR: z.ZodSchema<ImportSchema> = z.object({

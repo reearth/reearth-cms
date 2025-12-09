@@ -4,76 +4,89 @@
       "title": "asset-1",
       "description": "asset 1 desc",
       "type": "string",
-      "format": "binary"
+      "format": "binary",
+      "required": true
     },
     "bool-1": {
       "title": "bool-1",
       "description": "bool 1 desc",
-      "type": "boolean"
+      "type": "boolean",
+      "required": true
     },
     "date-1": {
       "title": "date-1",
       "description": "date 1 desc",
       "type": "string",
-      "format": "date-time"
+      "format": "date-time",
+      "required": true
     },
     "float-1": {
       "title": "float-1",
       "description": "float 1 desc",
       "type": "number",
       "maximum": 0.5,
-      "minimum": -0.5
+      "minimum": -0.5,
+      "required": true
     },
     "geo-edi-1": {
       "title": "geo-edi-1",
       "description": "geo edi 1 desc",
-      "type": "object"
+      "type": "object",
+      "required": true
     },
     "geo-obj-1": {
       "title": "geo-obj-1",
       "description": "geo obj 1 desc",
-      "type": "object"
+      "type": "object",
+      "required": true
     },
     "int-1": {
       "title": "int-1",
       "description": "int 1 desc",
       "type": "integer",
       "maximum": 10,
-      "minimum": -10
+      "minimum": -10,
+      "required": true
     },
     "markdown-1": {
       "title": "markdown-1",
       "description": "markdown 1 desc",
       "type": "string",
-      "maxLength": 500
+      "maxLength": 500,
+      "required": true
     },
     "model-ref-1": {
       "title": "model-ref-1",
       "description": "model ref 1 desc",
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "opt-1": {
       "title": "opt-1",
       "description": "opt 1 desc",
-      "type": "string"
+      "type": "string",
+      "required": true
     },
     "text-1": {
       "title": "text-1",
       "description": "text desc 1",
       "type": "string",
-      "maxLength": 32
+      "maxLength": 32,
+      "required": true
     },
     "textarea-1": {
       "title": "textarea-1",
       "description": "textarea 1 desc",
       "type": "string",
-      "maxLength": 150
+      "maxLength": 150,
+      "required": true
     },
     "url-1": {
       "title": "url-1",
       "description": "url 1 desc",
       "type": "string",
-      "format": "uri"
+      "format": "uri",
+      "required": true
     }
   }
 }

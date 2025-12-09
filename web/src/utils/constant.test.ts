@@ -52,12 +52,26 @@ describe("Constant", () => {
     });
   });
 
-  describe("Validate public files", () => {
-    test("Check files existed", () => {
+  describe("Validate static files", () => {
+    test("Check public files exist", () => {
       const filePaths: string[] = Object.values(Constant.PUBLIC_FILE);
 
       filePaths.forEach(_filePath => {
         const filePath = join("public", _filePath);
+
+        try {
+          readFileSync(filePath, "utf-8");
+        } catch (err) {
+          throw Error(String(err));
+        }
+      });
+    });
+
+    test("Check test files exist", () => {
+      const filePaths: string[] = Object.values(Constant.TEST_FILE);
+
+      filePaths.forEach(_filePath => {
+        const filePath = join("src", _filePath);
 
         try {
           readFileSync(filePath, "utf-8");

@@ -1,0 +1,4 @@
+boolean-1,date-1,float-1,geo-obj-1/coordinates/0,geo-obj-1/coordinates/1,geo-obj-1/type,int-1,markdown-text-1,option-1,textarea-1,url-1,text-1
+true,2025-12-01T00:00:00+09:00,1.11,139.6917,35.6895,Point,111,markdown111,a,textarea111,http://111.com/,
+false,2025-12-02T00:00:00+09:00,2.22,139.6917,35.6895,Point,222,markdown2,b,,http://222.com/,text2
+false,2025-12-02T00:00:00+09:00,3.33,139.6917,35.6895,Point,333,markdown3,b,textarea3,,text3
