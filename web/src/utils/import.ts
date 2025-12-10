@@ -415,9 +415,22 @@ export abstract class ImportUtils {
   ): ErrorMeta {
     return schemaValidation.error.issues.reduce<ErrorMeta>(
       (acc, curr, _index, _arr) => {
-        if (curr.code === "too_big") return { ...acc, exceedLimit: true };
-        if ((curr.code === "invalid_type" || curr.code === "invalid_union") && curr.path[1])
+        // exceed limit records
+        if (curr.code === "too_big" && curr.origin === "array")
+          return { ...acc, exceedLimit: true };
+
+        // illegal key, invalid type
+        if (
+          curr.path[1] &&
+          // invalid type, invalid key
+          (curr.code === "invalid_type" ||
+            // invalid option (for select)
+            curr.code === "invalid_union" ||
+            // number out of range (too big or too small)
+            ((curr.code === "too_big" || curr.code === "too_small") && curr.origin === "number"))
+        )
           return { ...acc, mismatchFields: acc.mismatchFields.add(curr.path[1]) };
+
         return acc;
       },
       { exceedLimit: false, mismatchFields: new Set<PropertyKey>(), modelFieldCount },

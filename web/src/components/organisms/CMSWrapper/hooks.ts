@@ -228,7 +228,7 @@ export default () => {
 
   const handleUploaderOpen = useCallback(
     (isOpen: boolean) => {
-      setUploaderState(prev => ({ ...prev, isOpen }));
+      setUploaderState(prev => ({ ...prev, isOpen, showBadge: false }));
     },
     [setUploaderState],
   );

@@ -18,6 +18,7 @@ import { Constant } from "@reearth-cms/utils/constant";
 import { FileUtils } from "@reearth-cms/utils/file";
 import { ErrorMeta, ImportContentJSON, ImportUtils } from "@reearth-cms/utils/import";
 import { ObjectUtils } from "@reearth-cms/utils/object";
+import { useLocation } from "react-router-dom";
 
 const { Dragger } = Upload;
 
@@ -31,8 +32,10 @@ type Props = {
     fileContent,
     extension,
   }: {
+    fileName: string;
     fileContent: Record<string, unknown>[];
     extension: "csv" | "json" | "geojson";
+    url: string;
   }) => void;
   alertList: AlertProps[];
   setAlertList: Dispatch<SetStateAction<AlertProps[]>>;
@@ -59,6 +62,7 @@ const ContentImportModal: React.FC<Props> = ({
   setValidateImportResult,
 }) => {
   const t = useT();
+  const location = useLocation();
 
   const raiseIllegalFileAlert = useCallback(() => {
     setAlertList([
@@ -103,7 +107,7 @@ const ContentImportModal: React.FC<Props> = ({
 
       setAlertList([]);
 
-      // console.log("errorMeta", errorMeta);
+      console.log("errorMeta", errorMeta);
 
       if (errorMeta.exceedLimit) {
         // case: above limit + some mismatch (exceedLimit = true, mismatchFields.size > 0)
@@ -176,7 +180,8 @@ const ContentImportModal: React.FC<Props> = ({
       setValidateImportResult(null);
       setAlertList([]);
 
-      const extension = FileUtils.getExtension(file.name);
+      const fileName = file.name;
+      const extension = FileUtils.getExtension(fileName);
 
       if (!["geojson", "json", "csv"].includes(extension)) {
         raiseIllegalFileFormatAlert();
@@ -216,7 +221,12 @@ const ContentImportModal: React.FC<Props> = ({
                 return;
               }
 
-              onFileContentChange({ fileContent: jsonContentValidation.data, extension });
+              onFileContentChange({
+                fileContent: jsonContentValidation.data,
+                extension,
+                fileName,
+                url: location.pathname,
+              });
             }
             break;
 
@@ -238,7 +248,12 @@ const ContentImportModal: React.FC<Props> = ({
                 return;
               }
 
-              onFileContentChange({ fileContent: geoJSONContentValidation.data, extension });
+              onFileContentChange({
+                fileContent: geoJSONContentValidation.data,
+                extension,
+                fileName,
+                url: location.pathname,
+              });
             }
             break;
 
@@ -260,7 +275,12 @@ const ContentImportModal: React.FC<Props> = ({
                 return;
               }
 
-              onFileContentChange({ fileContent: csvContentValidation.data, extension });
+              onFileContentChange({
+                fileContent: csvContentValidation.data,
+                extension,
+                fileName,
+                url: location.pathname,
+              });
             }
             break;
 

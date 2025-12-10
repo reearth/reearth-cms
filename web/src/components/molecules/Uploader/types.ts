@@ -9,7 +9,8 @@ export enum UploadStatus {
 export type UploaderQueueItem = {
   id: string;
   status: UploadStatus;
-  title: string;
+  fileName: string;
+  fileContent: Record<string, unknown>[];
   progress: number; // 0~100
   url: string;
   error: string | null;

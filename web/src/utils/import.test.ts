@@ -60,7 +60,7 @@ function getExpectedSchema(): Model {
           order: 0,
           typeProperty: {
             defaultValue: null,
-            maxLength: null,
+            maxLength: 10,
             __typename: "SchemaFieldText",
           },
           createdAt: new Date(),
@@ -80,7 +80,7 @@ function getExpectedSchema(): Model {
           order: 1,
           typeProperty: {
             defaultValue: null,
-            maxLength: null,
+            maxLength: 30,
             __typename: "SchemaFieldTextArea",
           },
           createdAt: new Date(),
@@ -100,7 +100,7 @@ function getExpectedSchema(): Model {
           order: 2,
           typeProperty: {
             defaultValue: null,
-            maxLength: null,
+            maxLength: 50,
             __typename: "SchemaFieldMarkdown",
           },
           createdAt: new Date(),
@@ -197,8 +197,8 @@ function getExpectedSchema(): Model {
           order: 7,
           typeProperty: {
             defaultValue: null,
-            min: null,
-            max: null,
+            min: -10,
+            max: 10,
             __typename: "SchemaFieldInteger",
           },
           createdAt: new Date(),
@@ -218,8 +218,8 @@ function getExpectedSchema(): Model {
           order: 8,
           typeProperty: {
             defaultValue: null,
-            min: null,
-            max: null,
+            min: -5.5,
+            max: 5.5,
             __typename: "SchemaFieldNumber",
           },
           createdAt: new Date(),
@@ -360,6 +360,7 @@ describe("Testing schema & content import from static files", () => {
         const contentValidation = await ImportUtils.validateContentFromCSV(
           csvValidation.data,
           expectedSchema.schema.fields,
+          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
         expect(contentValidation.isValid).toBe(true);
@@ -380,6 +381,7 @@ describe("Testing schema & content import from static files", () => {
         const contentValidation = await ImportUtils.validateContentFromCSV(
           csvValidation.data,
           expectedSchema.schema.fields,
+          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
         expect(contentValidation.isValid).toBe(false);
@@ -405,6 +407,7 @@ describe("Testing schema & content import from static files", () => {
         const contentValidation = await ImportUtils.validateContentFromCSV(
           csvValidation.data,
           expectedSchema.schema.fields,
+          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
         expect(contentValidation.isValid).toBe(false);
@@ -430,6 +433,7 @@ describe("Testing schema & content import from static files", () => {
         const contentValidation = await ImportUtils.validateContentFromCSV(
           csvValidation.data,
           expectedSchema.schema.fields,
+          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
         expect(contentValidation.isValid).toBe(false);
@@ -455,6 +459,7 @@ describe("Testing schema & content import from static files", () => {
         const contentValidation = await ImportUtils.validateContentFromCSV(
           csvValidation.data,
           expectedSchema.schema.fields,
+          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
         expect(contentValidation.isValid).toBe(false);
@@ -499,6 +504,7 @@ describe("Testing schema & content import from static files", () => {
         const contentValidation = await ImportUtils.validateContentFromJSON(
           result.data,
           expectedSchema.schema.fields,
+          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
         expect(contentValidation.isValid).toBe(false);
@@ -522,6 +528,7 @@ describe("Testing schema & content import from static files", () => {
         const contentValidation = await ImportUtils.validateContentFromJSON(
           result.data,
           expectedSchema.schema.fields,
+          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
         expect(contentValidation.isValid).toBe(false);
@@ -545,6 +552,7 @@ describe("Testing schema & content import from static files", () => {
         const contentValidation = await ImportUtils.validateContentFromJSON(
           result.data,
           expectedSchema.schema.fields,
+          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
         expect(contentValidation.isValid).toBe(false);
@@ -568,6 +576,7 @@ describe("Testing schema & content import from static files", () => {
         const contentValidation = await ImportUtils.validateContentFromJSON(
           result.data,
           expectedSchema.schema.fields,
+          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
         expect(contentValidation.isValid).toBe(false);
@@ -611,6 +620,7 @@ describe("Testing schema & content import from static files", () => {
         const contentValidation = await ImportUtils.validateContentFromGeoJson(
           result.data,
           expectedSchema.schema.fields,
+          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
         expect(contentValidation.isValid).toBe(false);
@@ -634,6 +644,7 @@ describe("Testing schema & content import from static files", () => {
         const contentValidation = await ImportUtils.validateContentFromGeoJson(
           result.data,
           expectedSchema.schema.fields,
+          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
         expect(contentValidation.isValid).toBe(false);
@@ -657,6 +668,7 @@ describe("Testing schema & content import from static files", () => {
         const contentValidation = await ImportUtils.validateContentFromGeoJson(
           result.data,
           expectedSchema.schema.fields,
+          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
         expect(contentValidation.isValid).toBe(false);
@@ -680,6 +692,7 @@ describe("Testing schema & content import from static files", () => {
         const contentValidation = await ImportUtils.validateContentFromGeoJson(
           result.data,
           expectedSchema.schema.fields,
+          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
         expect(contentValidation.isValid).toBe(false);

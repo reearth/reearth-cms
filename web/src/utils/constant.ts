@@ -11,7 +11,7 @@ export abstract class Constant {
   };
 
   public static readonly IMPORT = {
-    MAX_CONTENT_RECORDS: 2,
+    MAX_CONTENT_RECORDS: 2_000,
 
     // CONSTANTS FOR TEST USE ONLY BELOW
     TEST_MAX_CONTENT_RECORDS: 2,

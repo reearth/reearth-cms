@@ -158,7 +158,7 @@ The data file can contain a maximum of {{max}} records. Please split the file an
 Unmatched field hint_one: 'Unmatched field is: {{fields, list}}.'
 Unmatched field hint_other: 'Unmatched fields are: {{fields, list}}.'
 Data file is too large.: ''
-The data file can contain a maximum of {{max}} records. Please split the file and re-upload it: ''
+The data file can contain a maximum of {{max}} records. Please split the file and re-upload it.: The data file can contain a maximum of {{max, number}} records. Please split the file and re-upload it.
 Some fields don't match the schema: ''
 '{{count}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored._one': >-
   {{count, number}} field do not match the schema. You can continue the import,

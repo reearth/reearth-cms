@@ -85,10 +85,10 @@ const QueueItem: React.FC<Props> = ({ queue, onRetry, onCancel }) => {
           <ActionIcon icon="clip" color="#8C8C8C" />
           {queue.status === UploadStatus.Completed ? (
             <Link to={queue.url} target="_blank">
-              {queue.title}
+              {queue.fileName}
             </Link>
           ) : (
-            <div>{queue.title}</div>
+            <div>{queue.fileName}</div>
           )}
         </UpperLeft>
         <UpperRight onPointerUp={event => event.stopPropagation()}>{renderStatusIcons}</UpperRight>

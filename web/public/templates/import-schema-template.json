@@ -24,8 +24,8 @@
       "title": "float-1",
       "description": "float 1 desc",
       "type": "number",
-      "maximum": 0.5,
-      "minimum": -0.5,
+      "maximum": 5.5,
+      "minimum": -5.5,
       "required": true
     },
     "geo-edi-1": {
@@ -52,7 +52,7 @@
       "title": "markdown-1",
       "description": "markdown 1 desc",
       "type": "string",
-      "maxLength": 500,
+      "maxLength": 50,
       "required": true
     },
     "model-ref-1": {
@@ -71,14 +71,14 @@
       "title": "text-1",
       "description": "text desc 1",
       "type": "string",
-      "maxLength": 32,
+      "maxLength": 10,
       "required": true
     },
     "textarea-1": {
       "title": "textarea-1",
       "description": "textarea 1 desc",
       "type": "string",
-      "maxLength": 150,
+      "maxLength": 30,
       "required": true
     },
     "url-1": {

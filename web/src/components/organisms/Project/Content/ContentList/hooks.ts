@@ -17,6 +17,7 @@ import {
 import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
+import { UploadStatus } from "@reearth-cms/components/molecules/Uploader/types";
 import {
   ConditionInput,
   ItemSort,
@@ -48,7 +49,8 @@ import {
   ItemFieldInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useUserId, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
+import { useUserId, useCollapsedModelMenu, useUserRights, useUploader } from "@reearth-cms/state";
+import { newID } from "@reearth-cms/utils/id";
 
 import { fileName } from "./utils";
 
@@ -102,12 +104,16 @@ export default () => {
     showPublishAction,
   } = useContentHooks();
   const t = useT();
+
+  // TODO: move states below into machine
   const [isImportContentModalOpen, setIsImportContentModalOpen] = useState(false);
   const [dataChecking, setDataChecking] = useState(false);
   const [alertList, setAlertList] = useState<AlertProps[]>([]);
   const [validateImportResult, setValidateImportResult] = useState<ValidateImportResult | null>(
     null,
   );
+  // TODO: move states above into machine
+  const [_uploader, setUploader] = useUploader();
 
   const navigate = useNavigate();
   const { modelId } = useParams();
@@ -651,26 +657,48 @@ export default () => {
     setValidateImportResult(null);
   }, []);
 
-  const handleImportContentFileChange = async ({
-    fileContent: _fileContent,
-    extension: _extension,
-  }: {
-    fileContent: Record<string, unknown>[];
-    extension: "csv" | "json" | "geojson";
-  }): Promise<null> => {
-    // console.log("fileContent", fileContent);
-    // console.log("extension", extension);
+  const handleQueueToUploader = useCallback(
+    (payload: { fileName: string; fileContent: Record<string, unknown>[]; url: string }) => {
+      setUploader(prev => ({
+        ...prev,
+        showBadge: true,
+        isOpen: true,
+        queue: [
+          {
+            id: newID(),
+            status: UploadStatus.InProgress,
+            fileName: payload.fileName,
+            fileContent: payload.fileContent,
+            progress: 0,
+            url: payload.url,
+            error: null,
+          },
+          ...prev.queue,
+        ],
+      }));
+    },
+    [setUploader],
+  );
 
-    // todo: PR#1707 add schema data check logic here
-    console.log("success, go to backend");
-    return new Promise<null>((resolve, _reject) => {
-      resolve(null);
-      // setTimeout(() => {
-      //   resolve(null);
-      //   setDataChecking(false);
-      // }, 3000);
-    });
-  };
+  const handleImportContentFileChange = useCallback(
+    ({
+      fileName,
+      fileContent,
+      extension: _extension,
+      url,
+    }: {
+      fileName: string;
+      fileContent: Record<string, unknown>[];
+      extension: "csv" | "json" | "geojson";
+      url: string;
+    }) => {
+      handleQueueToUploader({ fileName, fileContent, url });
+      handleImportContentModalClose();
+
+      // console.log("success, go to backend");
+    },
+    [handleImportContentModalClose, handleQueueToUploader],
+  );
 
   return {
     currentModel,

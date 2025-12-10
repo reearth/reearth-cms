@@ -11,7 +11,7 @@
         ],
         "type": "Point"
       },
-      "int-2": 111,
+      "int-2": 1,
       "markdown-text-2": "markdown111",
       "option-2": "a",
       "textarea-2": "textarea111",
@@ -28,7 +28,7 @@
         ],
         "type": "Point"
       },
-      "int-2": 222,
+      "int-2": 2,
       "markdown-text-2": "markdown2",
       "option-2": "b",
       "text-2": "text2",
