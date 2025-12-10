@@ -10,7 +10,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -309,35 +308,38 @@ func (f *fileRepo) DeleteAssets(_ context.Context, folders []string) error {
 	return nil
 }
 
-// Check verifies filesystem connectivity and permissions by creating, reading, and deleting a test file
+// Check verifies filesystem storage connectivity and permissions by uploading, reading, and deleting a test file
 func (f *fileRepo) Check(ctx context.Context) error {
-	testFileName := fmt.Sprintf(".health-check-test-%d", time.Now().UnixNano())
+	testFileName := fmt.Sprintf(".health-check-test-%d", uuid.New().ID())
 	testContent := []byte("health-check")
 	testPath := filepath.Join(getFSObjectFolderPath(testFileName), testFileName)
 
-	// Create directory
+	// Ensure directory exists
 	dir := filepath.Dir(testPath)
 	if err := f.fs.MkdirAll(dir, 0755); err != nil {
-		return fmt.Errorf("filesystem write permission check failed: %w", err)
+		return fmt.Errorf("filesystem directory creation failed: %w", err)
 	}
 
-	// Write test
+	// Upload (write)
 	if err := afero.WriteFile(f.fs, testPath, testContent, 0644); err != nil {
-		return fmt.Errorf("filesystem write permission check failed: %w", err)
+		return fmt.Errorf("filesystem upload permission failed: %w", err)
 	}
 
-	// Read test
+	// Read
 	readContent, err := afero.ReadFile(f.fs, testPath)
 	if err != nil {
-		return fmt.Errorf("filesystem read permission check failed: %w", err)
-	}
-	if string(readContent) != string(testContent) {
-		return fmt.Errorf("filesystem read permission check failed: content mismatch")
+		_ = f.fs.Remove(testPath)
+		return fmt.Errorf("filesystem read permission failed: %w", err)
 	}
 
-	// Delete test
-	if err := f.fs.RemoveAll(filepath.Dir(testPath)); err != nil {
-		return fmt.Errorf("filesystem delete permission check failed: %w", err)
+	if string(readContent) != string(testContent) {
+		_ = f.fs.Remove(testPath)
+		return fmt.Errorf("filesystem read verification failed: content mismatch")
+	}
+
+	// Delete
+	if err := f.fs.RemoveAll(dir); err != nil {
+		return fmt.Errorf("filesystem delete permission failed: %w", err)
 	}
 
 	return nil

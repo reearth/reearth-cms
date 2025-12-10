@@ -12,7 +12,6 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-	"time"
 
 	"cloud.google.com/go/storage"
 	"github.com/google/uuid"
@@ -677,6 +676,8 @@ func getWorkspaceFromContext(ctx context.Context) string {
 	return ""
 }
 
+type contextKey string
+
 // Check verifies GCS connectivity and permissions by uploading, reading, and deleting a test file
 func (f *fileRepo) Check(ctx context.Context) error {
 	client, err := storage.NewClient(ctx)
@@ -693,40 +694,42 @@ func (f *fileRepo) Check(ctx context.Context) error {
 	}
 
 	// Test upload, read, and delete permissions
-	testObjectName := fmt.Sprintf(".health-check-test-%d", time.Now().UnixNano())
+	testObjectName := fmt.Sprintf(".health-check-test-%d", uuid.New().ID())
 	testContent := []byte("health-check")
 	obj := bucket.Object(testObjectName)
 
-	// Upload test
+	// Upload
 	writer := obj.NewWriter(ctx)
 	if _, err := writer.Write(testContent); err != nil {
 		_ = writer.Close()
-		return fmt.Errorf("GCS write permission check failed: %w", err)
+		return fmt.Errorf("GCS upload permission failed: %w", err)
 	}
 	if err := writer.Close(); err != nil {
-		return fmt.Errorf("GCS write permission check failed: %w", err)
+		return fmt.Errorf("GCS upload permission failed (close): %w", err)
 	}
 
-	// Read test
+	// Read
 	reader, err := obj.NewReader(ctx)
 	if err != nil {
-		return fmt.Errorf("GCS read permission check failed: %w", err)
+		_ = obj.Delete(ctx)
+		return fmt.Errorf("GCS read permission failed: %w", err)
 	}
 	readContent, err := io.ReadAll(reader)
 	_ = reader.Close()
 	if err != nil {
-		return fmt.Errorf("GCS read permission check failed: %w", err)
-	}
-	if string(readContent) != string(testContent) {
-		return fmt.Errorf("GCS read permission check failed: content mismatch")
+		_ = obj.Delete(ctx)
+		return fmt.Errorf("GCS read permission failed: %w", err)
 	}
 
-	// Delete test
+	if string(readContent) != string(testContent) {
+		_ = obj.Delete(ctx)
+		return fmt.Errorf("GCS read verification failed: content mismatch")
+	}
+
+	// Delete
 	if err := obj.Delete(ctx); err != nil {
-		return fmt.Errorf("GCS delete permission check failed: %w", err)
+		return fmt.Errorf("GCS delete permission failed: %w", err)
 	}
 
 	return nil
 }
-
-type contextKey string

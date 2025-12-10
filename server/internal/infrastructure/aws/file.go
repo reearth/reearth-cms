@@ -634,43 +634,44 @@ func getWorkspaceFromContext(ctx context.Context) string {
 
 // Check verifies S3 connectivity and permissions by uploading, reading, and deleting a test file
 func (f *fileRepo) Check(ctx context.Context) error {
-	testObjectName := fmt.Sprintf(".health-check-test-%d", time.Now().UnixNano())
+	// Test upload, read, and delete permissions
+	testObjectName := fmt.Sprintf(".health-check-test-%d", uuid.New().ID())
 	testContent := []byte("health-check")
 
-	// Upload test
+	// Upload
 	_, err := f.s3Client.PutObject(ctx, &s3.PutObjectInput{
 		Bucket: aws.String(f.bucketName),
 		Key:    aws.String(testObjectName),
 		Body:   bytes.NewReader(testContent),
 	})
 	if err != nil {
-		return fmt.Errorf("S3 write permission check failed: %w", err)
+		return fmt.Errorf("S3 upload permission failed: %w", err)
 	}
 
-	// Read test
-	getResult, err := f.s3Client.GetObject(ctx, &s3.GetObjectInput{
+	// Read
+	result, err := f.s3Client.GetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(f.bucketName),
 		Key:    aws.String(testObjectName),
 	})
 	if err != nil {
-		return fmt.Errorf("S3 read permission check failed: %w", err)
+		_ = f.delete(ctx, testObjectName)
+		return fmt.Errorf("S3 read permission failed: %w", err)
 	}
-	readContent, err := io.ReadAll(getResult.Body)
-	_ = getResult.Body.Close()
+	readContent, err := io.ReadAll(result.Body)
+	_ = result.Body.Close()
 	if err != nil {
-		return fmt.Errorf("S3 read permission check failed: %w", err)
+		_ = f.delete(ctx, testObjectName)
+		return fmt.Errorf("S3 read permission failed: %w", err)
 	}
+
 	if string(readContent) != string(testContent) {
-		return fmt.Errorf("S3 read permission check failed: content mismatch")
+		_ = f.delete(ctx, testObjectName)
+		return fmt.Errorf("S3 read verification failed: content mismatch")
 	}
 
-	// Delete test
-	_, err = f.s3Client.DeleteObject(ctx, &s3.DeleteObjectInput{
-		Bucket: aws.String(f.bucketName),
-		Key:    aws.String(testObjectName),
-	})
-	if err != nil {
-		return fmt.Errorf("S3 delete permission check failed: %w", err)
+	// Delete
+	if err := f.delete(ctx, testObjectName); err != nil {
+		return fmt.Errorf("S3 delete permission failed: %w", err)
 	}
 
 	return nil
