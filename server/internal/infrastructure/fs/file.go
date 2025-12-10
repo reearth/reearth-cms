@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -305,5 +306,39 @@ func (f *fileRepo) DeleteAssets(_ context.Context, folders []string) error {
 	if len(errs) > 0 {
 		return rerror.ErrInternalBy(fmt.Errorf("batch deletion errors: %v", errs))
 	}
+	return nil
+}
+
+// Check verifies filesystem connectivity and permissions by creating, reading, and deleting a test file
+func (f *fileRepo) Check(ctx context.Context) error {
+	testFileName := fmt.Sprintf(".health-check-test-%d", time.Now().UnixNano())
+	testContent := []byte("health-check")
+	testPath := filepath.Join(getFSObjectFolderPath(testFileName), testFileName)
+
+	// Create directory
+	dir := filepath.Dir(testPath)
+	if err := f.fs.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("filesystem write permission check failed: %w", err)
+	}
+
+	// Write test
+	if err := afero.WriteFile(f.fs, testPath, testContent, 0644); err != nil {
+		return fmt.Errorf("filesystem write permission check failed: %w", err)
+	}
+
+	// Read test
+	readContent, err := afero.ReadFile(f.fs, testPath)
+	if err != nil {
+		return fmt.Errorf("filesystem read permission check failed: %w", err)
+	}
+	if string(readContent) != string(testContent) {
+		return fmt.Errorf("filesystem read permission check failed: content mismatch")
+	}
+
+	// Delete test
+	if err := f.fs.RemoveAll(filepath.Dir(testPath)); err != nil {
+		return fmt.Errorf("filesystem delete permission check failed: %w", err)
+	}
+
 	return nil
 }

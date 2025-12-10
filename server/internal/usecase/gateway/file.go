@@ -80,6 +80,7 @@ type File interface {
 	GetBaseURL() string
 	IssueUploadAssetLink(context.Context, IssueUploadAssetParam) (*UploadAssetLink, error)
 	UploadedAsset(context.Context, *asset.Upload) (*file.File, error)
+	Check(context.Context) error
 }
 
 func init() {
