@@ -28,8 +28,8 @@ func NewVersionedItem(i item.Versioned, sp *schema.Package, cc *ConvertContext) 
 	return VersionedItem{
 		Id:              ii.Id,
 		ModelId:         ii.ModelId,
-		MetadataItemId:  ii.MetadataItem(),
-		OriginalItemId:  ii.OriginalItem(),
+		MetadataItemId:  ii.MetadataItemId,
+		OriginalItemId:  ii.OriginalItemId,
 		IsMetadata:      lo.ToPtr(i.Value().IsMetadata()),
 		Fields:          ii.Fields,
 		MetadataFields:  mf,
@@ -37,9 +37,9 @@ func NewVersionedItem(i item.Versioned, sp *schema.Package, cc *ConvertContext) 
 		CreatedAt:       ii.CreatedAt,
 		UpdatedAt:       ii.UpdatedAt,
 
-		Version:         lo.ToPtr(types.UUID(i.Version())),
-		Parents:         &ps,
-		Refs:            &rs,
+		Version: lo.ToPtr(types.UUID(i.Version())),
+		Parents: &ps,
+		Refs:    &rs,
 	}
 }
 
@@ -75,21 +75,21 @@ func newReferencedItems(i item.Versioned, sp *schema.Package, cc *ConvertContext
 
 func NewItem(i *item.Item, sp *schema.Package, cc *ConvertContext) Item {
 	return Item{
-		Id:             i.ID().Ref(),
-		ModelId:        i.Model().Ref().StringRef(),
-		MetadataItemId: i.MetadataItem(),
-		OriginalItemId: i.OriginalItem(),
-		IsMetadata:     lo.ToPtr(i.IsMetadata()),
-		Fields:         NewFields(i, sp, cc),
+		Id:              i.ID().Ref(),
+		ModelId:         i.Model().Ref().StringRef(),
+		MetadataItemId:  i.MetadataItem(),
+		OriginalItemId:  i.OriginalItem(),
+		IsMetadata:      lo.ToPtr(i.IsMetadata()),
+		Fields:          NewFields(i, sp, cc),
 		MetadataFields:  nil,
 		ReferencedItems: nil,
-		CreatedAt:      lo.ToPtr(i.ID().Timestamp()),
-		UpdatedAt:      lo.ToPtr(i.Timestamp()),
+		CreatedAt:       lo.ToPtr(i.ID().Timestamp()),
+		UpdatedAt:       lo.ToPtr(i.Timestamp()),
 	}
 }
 
 func NewFields(i *item.Item, sp *schema.Package, cc *ConvertContext) *[]Field {
-	f := lo.Map(i.NormalizedFields(sp), func(f *item.Field, _ int) Field {
+	f := lo.Map(i.NormalizedFields(sp, false), func(f *item.Field, _ int) Field {
 		sf := sp.Field(f.FieldID())
 		return Field{
 			Id:    f.FieldID().Ref(),

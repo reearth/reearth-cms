@@ -10,11 +10,10 @@ import (
 )
 
 type ConvertContext struct {
-	aMap     asset.Map
-	aFiles   map[asset.ID]*asset.File
-	aBaseURL func(a *asset.Asset) string
-	aEmbed   bool
-	afEmbed  bool
+	aMap    asset.Map
+	aFiles  map[asset.ID]*asset.File
+	aEmbed  bool
+	afEmbed bool
 
 	loaders Loaders
 	rItems  item.VersionedList
@@ -22,17 +21,15 @@ type ConvertContext struct {
 }
 
 type Loaders struct {
-	Asset    func([]id.AssetID) (asset.List, error)
-	AssetURL func(*asset.Asset) string
-	Item     func([]id.ItemID) (item.VersionedList, error)
+	Asset func([]id.AssetID) (asset.List, error)
+	Item  func([]id.ItemID) (item.VersionedList, error)
 }
 
 func NewCC(il item.VersionedList, embedAssets, embedAssetsFiles bool, l Loaders) (*ConvertContext, error) {
 	cc := &ConvertContext{
-		aFiles:   make(map[asset.ID]*asset.File),
-		aBaseURL: l.AssetURL,
-		aEmbed:   embedAssets,
-		loaders:  l,
+		aFiles:  make(map[asset.ID]*asset.File),
+		aEmbed:  embedAssets,
+		loaders: l,
 	}
 	if il == nil {
 		return cc, nil
@@ -115,14 +112,9 @@ func (c *ConvertContext) ResolveAsset(id asset.ID) *Asset {
 		return nil
 	}
 
-	url := ""
-	if c.aBaseURL != nil {
-		url = c.aBaseURL(a)
-	}
-
 	f := c.aFiles[id]
 
-	return NewAsset(a, f, url, c.aEmbed)
+	return NewAsset(a, f, c.aEmbed)
 }
 
 func (c *ConvertContext) ResolveMetaItem(id item.ID) item.Versioned {

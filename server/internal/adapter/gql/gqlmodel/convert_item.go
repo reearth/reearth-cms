@@ -36,7 +36,7 @@ func ToItem(vi item.Versioned, sp *schema.Package) *Item {
 }
 func toItemFields(item *item.Item, sp *schema.Package) []*ItemField {
 	var res []*ItemField
-	for _, f := range item.NormalizedFields(sp) {
+	for _, f := range item.NormalizedFields(sp, false) {
 		v := ToValue(f.Value(), sp.Field(f.FieldID()).Multiple())
 		res = append(res, &ItemField{
 			ItemGroupID:   IDFromRef(f.ItemGroup()),

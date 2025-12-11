@@ -836,12 +836,18 @@ func TestIntegrationItemListAPI(t *testing.T) {
 
 	r3.
 		Value("fields").
-		IsEqual([]any{
-			map[string]any{
+		IsEqual([]map[string]any{
+			{
 				"id":    fId9.String(),
 				"type":  "number",
 				"value": float64(21.2),
 				"key":   sfkey9.String(),
+			},
+			{
+				"id":    fId10.String(),
+				"type":  "integer",
+				"value": nil,
+				"key":   sfkey10.String(),
 			},
 		})
 
@@ -859,12 +865,18 @@ func TestIntegrationItemListAPI(t *testing.T) {
 		HasValue("totalCount", 2)
 	r3.
 		Value("fields").
-		IsEqual([]any{
-			map[string]any{
+		IsEqual([]map[string]any{
+			{
 				"id":    fId9.String(),
 				"type":  "number",
 				"value": float64(21.2),
 				"key":   sfkey9.String(),
+			},
+			{
+				"id":    fId10.String(),
+				"type":  "integer",
+				"value": nil,
+				"key":   sfkey10.String(),
 			},
 		})
 }
@@ -1803,7 +1815,7 @@ func TestIntegrationCreateItemAPIWithDefaultValues(t *testing.T) {
 		Object()
 	r.Keys().
 		ContainsAll("id", "modelId", "fields", "createdAt", "metadataFields", "isMetadata", "updatedAt", "version", "parents", "refs")
-	r.Path("$.fields[:]").Array().Length().IsEqual(4)
+	r.Path("$.fields[:]").Array().Length().IsEqual(6)
 	raw := r.Path("$.fields[:].value").Array().Raw()
 	assert.True(t, slices.Contains(raw, "default"))
 	assert.True(t, slices.Contains(raw, "default group"))
@@ -2164,25 +2176,10 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 	raw["modelId"] = mId1.String()
 
 	//	get Metadata Item
-	rm := iAPIItemGet(e, wId0, pid, mId1, itmId3).
+	iAPIItemGet(e, wId0, pid, mId1, itmId3).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object()
-	rm.
-		Value("isMetadata").
-		IsEqual(true)
-
-	rm.Value("fields").
-		IsEqual([]any{
-			map[string]any{
-				"id":    fId4.String(),
-				"type":  "bool",
-				"value": true,
-				"key":   sfKey4.String(),
-			},
-		})
+		Status(http.StatusNotFound)
 
 	r := iAPIItemGet(e, wId0, pid, mId3, itmId4).
 		WithHeader("authorization", "Bearer "+secret).

@@ -48,15 +48,15 @@ func (i *Item) Fields() Fields {
 	return slices.Clone(i.fields)
 }
 
-func (i *Item) NormalizedFields(sp *schema.Package) Fields {
+func (i *Item) NormalizedFields(sp *schema.Package, omitEmpty bool) Fields {
 	if sp == nil {
 		return nil
 	}
-	nf := lo.Map(sp.Schema().Fields(), func(sf *schema.Field, _ int) *Field {
+	nf := lo.FilterMap(sp.Schema().Fields(), func(sf *schema.Field, _ int) (*Field, bool) {
 		if f := i.Field(sf.ID()); f != nil {
-			return f
+			return f, !(omitEmpty && f.Value().IsEmpty())
 		}
-		return NewField(sf.ID(), value.NewMultiple(sf.Type(), nil), nil)
+		return NewField(sf.ID(), value.NewMultiple(sf.Type(), nil), nil), !omitEmpty
 	})
 	for _, gsf := range sp.Schema().FieldsByType(value.TypeGroup) {
 		var gID schema.GroupID
@@ -109,6 +109,7 @@ func (i *Item) Timestamp() time.Time {
 func (i *Item) MetadataItem() *ID {
 	return i.metadataItem
 }
+
 func (i *Item) IsMetadata() bool {
 	return i.isMetadata
 }
