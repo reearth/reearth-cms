@@ -119,7 +119,9 @@ func baseSeederUser(ctx context.Context, r *repo.Container, g *gateway.Container
 
 func TestUpdateMe(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
-	query := `mutation { updateMe(input: {name: "updated",email:"hoge@test.com",lang: "ja",theme: DEFAULT,password: "Ajsownndww1",passwordConfirmation: "Ajsownndww1"}){ me{ id name email lang theme } }}`
+	
+	// Test updateMe for user 1 - full update
+	query := `mutation { updateMe(input: {name: "updated",email:"hoge@test.com",lang: "ja",theme: DEFAULT,password: "Ajsownndww1",passwordConfirmation: "Ajsownndww1"}){ me{ id name email lang theme myWorkspaceId profilePictureUrl } }}`
 	request := GraphQLRequest{
 		Query: query,
 	}
@@ -132,10 +134,60 @@ func TestUpdateMe(t *testing.T) {
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("updateMe").Object().Value("me").Object()
+	
+	o.Value("id").String().IsEqual(uId1.String())
 	o.Value("name").String().IsEqual("updated")
 	o.Value("email").String().IsEqual("hoge@test.com")
 	o.Value("lang").String().IsEqual("ja")
 	o.Value("theme").String().IsEqual("default")
+	o.Value("myWorkspaceId").String().IsEqual(wId.String())
+	o.Value("profilePictureUrl").String().IsEqual("")
+
+	// Test partial update for user 2 - only name and theme
+	query2 := `mutation { updateMe(input: {name: "user2-updated", theme: LIGHT}){ me{ id name email lang theme myWorkspaceId profilePictureUrl } }}`
+	request2 := GraphQLRequest{
+		Query: query2,
+	}
+	jsonData2, err := json.Marshal(request2)
+	if err != nil {
+		assert.NoError(t, err)
+	}
+	o2 := e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId2.String()).
+		WithBytes(jsonData2).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("updateMe").Object().Value("me").Object()
+	
+	o2.Value("id").String().IsEqual(uId2.String())
+	o2.Value("name").String().IsEqual("user2-updated")
+	o2.Value("email").String().IsEqual("e2e2@e2e.com") // Should remain unchanged
+	o2.Value("lang").String().IsEqual("ja") // Should remain unchanged
+	o2.Value("theme").String().IsEqual("light")
+	o2.Value("myWorkspaceId").String().IsEqual(wId2.String())
+	o2.Value("profilePictureUrl").String().IsEqual("")
+
+	// Test update with only email for user 3
+	query3 := `mutation { updateMe(input: {email: "newemail@example.com"}){ me{ id name email lang theme myWorkspaceId profilePictureUrl } }}`
+	request3 := GraphQLRequest{
+		Query: query3,
+	}
+	jsonData3, err := json.Marshal(request3)
+	if err != nil {
+		assert.NoError(t, err)
+	}
+	o3 := e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId3.String()).
+		WithBytes(jsonData3).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("updateMe").Object().Value("me").Object()
+	
+	o3.Value("id").String().IsEqual(uId3.String())
+	o3.Value("name").String().IsEqual("e2e3") // Should remain unchanged
+	o3.Value("email").String().IsEqual("newemail@example.com")
+	o3.Value("lang").String().IsEqual("ja") // Should remain unchanged
+	o3.Value("theme").String().IsEqual("default") // Should remain unchanged
+	o3.Value("myWorkspaceId").String().IsEqual(wId2.String())
+	o3.Value("profilePictureUrl").String().IsEqual("")
 }
 
 func TestRemoveMyAuth(t *testing.T) {
