@@ -155,7 +155,6 @@ func TestFromRole(t *testing.T) {
 }
 
 func TestToWorkspaceFromAPI(t *testing.T) {
-	t.Parallel()
 
 	// Create mock IDs
 	wid := id.NewWorkspaceID()
@@ -248,7 +247,7 @@ func TestToWorkspaceFromAPI(t *testing.T) {
 			t.Parallel()
 
 			result := ToWorkspaceFromAPI(tt.arg)
-			
+
 			if tt.want == nil {
 				assert.Nil(t, result)
 				return
@@ -266,7 +265,7 @@ func TestToWorkspaceFromAPI(t *testing.T) {
 				// Count members by type
 				userMembers := 0
 				integrationMembers := 0
-				
+
 				for _, member := range result.Members {
 					switch m := member.(type) {
 					case *WorkspaceUserMember:
@@ -280,7 +279,7 @@ func TestToWorkspaceFromAPI(t *testing.T) {
 						assert.True(t, m.Active)
 					}
 				}
-				
+
 				assert.Equal(t, tt.expectedUserCount, userMembers)
 				assert.Equal(t, tt.expectedIntCount, integrationMembers)
 			} else {
