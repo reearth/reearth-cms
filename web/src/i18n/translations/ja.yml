@@ -488,7 +488,7 @@ Group key: グループキー
 Model key must be unique and at least 3 characters long. It can only contain letters, numbers, underscores, and dashes.: モデルキーは3文字以上かつ一意である必要があります。半角英数字、アンダースコア、ダッシュのみを含むことができます。
 Group key must be unique and at least 3 characters long. It can only contain letters, numbers, underscores, and dashes.: グループキーは3文字以上かつ一意である必要があります。半角英数字、アンダースコア、ダッシュのみを含むことができます。
 Choose or drag & drop a file: ファイルを選択またはドラッグ&ドロップ
-Only JSON or GeoJSON format is supported: JSONまたはGeoJSON形式のみサポートされています
+Only JSON format is supported: JSON形式のみサポートされています
 'You can also download file templates: JSON': 'ファイルテンプレートをダウンロードすることもできます: <l1>JSON</l1>'
 Import not successful.: インポートに失敗しました。
 Importing...: インポート中...

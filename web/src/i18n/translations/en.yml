@@ -496,7 +496,7 @@ Group key: ''
 Model key must be unique and at least 3 characters long. It can only contain letters, numbers, underscores, and dashes.: ''
 Group key must be unique and at least 3 characters long. It can only contain letters, numbers, underscores, and dashes.: ''
 Choose or drag & drop a file: <l>Choose</l> or drag & drop a file
-Only JSON or GeoJSON format is supported: ''
+Only JSON format is supported: ''
 'You can also download file templates: JSON': 'You can also download file templates: <l1>JSON</l1>'
 Import not successful.: ''
 Importing...: ''

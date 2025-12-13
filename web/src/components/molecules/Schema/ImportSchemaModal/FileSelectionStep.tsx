@@ -141,7 +141,7 @@ const FileSelectionStep: React.FC<Props> = ({
               components={{ l: <StyledButton type="link">Choose</StyledButton> }}
             />
           </p>
-          <p className="ant-upload-hint">{t("Only JSON or GeoJSON format is supported")}</p>
+          <p className="ant-upload-hint">{t("Only JSON format is supported")}</p>
           <p>
             <Trans
               i18nKey="You can also download file templates: JSON"
