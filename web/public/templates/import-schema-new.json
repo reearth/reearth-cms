@@ -1,0 +1,654 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/import-schema",
+  "title": "Import Schema",
+  "description": "Schema for validating CMS import configurations",
+  "type": "object",
+  "required": [
+    "properties"
+  ],
+  "properties": {
+    "properties": {
+      "asset-field-key": {
+        "title": "asset-1",
+        "description": "this is asset field",
+        "type": "Asset",
+        "defaultValue": "01kazd9mamxh62j62gz425v0wk",
+        "required": true,
+        "multiple": false,
+        "unique": false
+      },
+      "asset-field-key-multi": {
+        "title": "asset-1",
+        "description": "this is asset field with multiple value",
+        "type": "Asset",
+        "defaultValue": [
+          "01kazd9mamxh62j62gz425v0wk",
+          "01kazd9mamxh62j62gz425v0w1"
+        ],
+        "required": true,
+        "multiple": true,
+        "unique": false
+      },
+      "boolean-field-key": {
+        "title": "boolean-1",
+        "description": "this is boolean field",
+        "type": "Bool",
+        "defaultValue": true,
+        "required": true,
+        "multiple": false,
+        "unique": false
+      },
+      "boolean-field-key-multi": {
+        "title": "boolean-1",
+        "description": "this is boolean field with multiple value",
+        "type": "Bool",
+        "defaultValue": [
+          true,
+          false
+        ],
+        "required": true,
+        "multiple": true,
+        "unique": false
+      },
+      "date-field-key": {
+        "title": "date-1",
+        "description": "this is date field",
+        "type": "Date",
+        "format": "date-time",
+        "defaultValue": "2025-12-01T00:00:00+09:00",
+        "required": true,
+        "multiple": false,
+        "unique": false
+      },
+      "date-field-key-mutli": {
+        "title": "date-1",
+        "description": "this is date field with multiple value",
+        "type": "Date",
+        "format": "date-time",
+        "defaultValue": [
+          "2025-12-01T00:00:00+09:00",
+          "2025-12-02T00:00:00+09:00"
+        ],
+        "required": true,
+        "multiple": true,
+        "unique": false
+      },
+      "number-field-key": {
+        "title": "number-1",
+        "description": "this is number field",
+        "type": "Number",
+        "maximum": 5.5,
+        "minimum": -5.5,
+        "defaultValue": 1.5,
+        "required": true,
+        "multiple": false,
+        "unique": false
+      },
+      "number-field-key-multi": {
+        "title": "number-1",
+        "description": "this is float field with multiple value",
+        "type": "Number",
+        "maximum": 5.5,
+        "minimum": -5.5,
+        "defaultValue": [
+          1.5,
+          -1.5
+        ],
+        "required": true,
+        "multiple": true,
+        "unique": false
+      },
+      "int-field-key": {
+        "title": "int-1",
+        "description": "this is int field",
+        "type": "Integer",
+        "maximum": 10,
+        "minimum": -10,
+        "defaultValue": 5,
+        "required": true,
+        "multiple": false,
+        "unique": false
+      },
+      "int-field-key-multi": {
+        "title": "int-1",
+        "description": "this is int field with multiple value",
+        "type": "Integer",
+        "maximum": 10,
+        "minimum": -10,
+        "defaultValue": [
+          5,
+          -5
+        ],
+        "required": true,
+        "multiple": true,
+        "unique": false
+      },
+      "markdown-text-field-key": {
+        "title": "markdown-text-1",
+        "description": "this is markdown text field",
+        "type": "MarkdownText",
+        "maxLength": 100,
+        "defaultValue": "# H1 \n # H2 \n hello world",
+        "required": true,
+        "multiple": false,
+        "unique": false
+      },
+      "markdown-text-field-key-multi": {
+        "title": "markdown-text-1",
+        "description": "this is markdown text field with multiple value",
+        "type": "MarkdownText",
+        "maxLength": 100,
+        "defaultValue": [
+          "# H1 \n # H2 \n hello world",
+          "# H1 \n # H2 \n hola mundo"
+        ],
+        "required": true,
+        "multiple": true,
+        "unique": false
+      },
+      "select-field-key": {
+        "title": "select-1",
+        "description": "this is option field",
+        "type": "Select",
+        "values": [
+          "red",
+          "green",
+          "blue"
+        ],
+        "defaultValue": "green",
+        "required": true,
+        "multiple": false,
+        "unique": false
+      },
+      "select-field-key-multi": {
+        "title": "select-1",
+        "description": "this is option field with multiple value",
+        "type": "Select",
+        "values": [
+          "red",
+          "green",
+          "blue"
+        ],
+        "defaultValue": [
+          "green",
+          "blue"
+        ],
+        "required": true,
+        "multiple": true,
+        "unique": false
+      },
+      "text-field-key": {
+        "title": "text-1",
+        "description": "this is text field",
+        "type": "Text",
+        "maxLength": 10,
+        "defaultValue": "hello world",
+        "required": true,
+        "multiple": false,
+        "unique": false
+      },
+      "text-field-key-multi": {
+        "title": "text-1",
+        "description": "this is text field with multiple value",
+        "type": "Text",
+        "maxLength": 10,
+        "defaultValue": [
+          "hello",
+          "world"
+        ],
+        "required": true,
+        "multiple": true,
+        "unique": false
+      },
+      "textarea-field-key": {
+        "title": "textarea-1",
+        "description": "this is textarea field",
+        "type": "TextArea",
+        "maxLength": 10,
+        "defaultValue": "hello \n world",
+        "required": true,
+        "multiple": false,
+        "unique": false
+      },
+      "textarea-field-key-multi": {
+        "title": "textarea-1",
+        "description": "this is textarea field with multiple value",
+        "type": "TextArea",
+        "maxLength": 10,
+        "defaultValue": [
+          "hello \n world",
+          "hola \n mundo"
+        ],
+        "required": true,
+        "multiple": true,
+        "unique": false
+      },
+      "url-field-key": {
+        "title": "url-1",
+        "description": "this url field",
+        "type": "URL",
+        "defaultValue": "https://hello.com/",
+        "required": true,
+        "multiple": false,
+        "unique": false
+      },
+      "url-field-key-multi": {
+        "title": "url-1",
+        "description": "this url field with multiple value",
+        "type": "URL",
+        "defaultValue": [
+          "https://hello.com/",
+          "https://world.com"
+        ],
+        "required": true,
+        "multiple": true,
+        "unique": false
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "fieldBase": {
+      "type": "object",
+      "required": [
+        "title",
+        "description",
+        "type",
+        "required",
+        "multiple",
+        "unique"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "Text",
+            "TextArea",
+            "MarkdownText",
+            "Asset",
+            "Date",
+            "Bool",
+            "Select",
+            "Tag",
+            "Integer",
+            "Number",
+            "Reference",
+            "URL",
+            "GeometryObject",
+            "GeometryEditor"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "multiple": {
+          "type": "boolean"
+        },
+        "unique": {
+          "type": "boolean"
+        }
+      }
+    },
+    "fieldText": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "Text"
+            },
+            "maxLength": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "defaultValue": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "fieldTextArea": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "TextArea"
+            },
+            "maxLength": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "defaultValue": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "fieldMarkdownText": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "MarkdownText"
+            },
+            "maxLength": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "defaultValue": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "fieldAsset": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "Asset"
+            },
+            "defaultValue": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "fieldBoolean": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "Bool"
+            },
+            "defaultValue": {
+              "oneOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "boolean"
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "fieldDate": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "Date"
+            },
+            "defaultValue": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "fieldNumber": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "Number"
+            },
+            "maximum": {
+              "type": "number"
+            },
+            "minimum": {
+              "type": "number"
+            },
+            "defaultValue": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "fieldInteger": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "Integer"
+            },
+            "maximum": {
+              "type": "integer"
+            },
+            "minimum": {
+              "type": "integer"
+            },
+            "defaultValue": {
+              "oneOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "fieldSelect": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "required": [
+            "values"
+          ],
+          "properties": {
+            "type": {
+              "const": "Select"
+            },
+            "values": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "defaultValue": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "fieldUrl": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "URL"
+            },
+            "defaultValue": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "format": "uri"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "importSchemaField": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/fieldText"
+        },
+        {
+          "$ref": "#/$defs/fieldTextArea"
+        },
+        {
+          "$ref": "#/$defs/fieldMarkdownText"
+        },
+        {
+          "$ref": "#/$defs/fieldAsset"
+        },
+        {
+          "$ref": "#/$defs/fieldBoolean"
+        },
+        {
+          "$ref": "#/$defs/fieldDate"
+        },
+        {
+          "$ref": "#/$defs/fieldNumber"
+        },
+        {
+          "$ref": "#/$defs/fieldInteger"
+        },
+        {
+          "$ref": "#/$defs/fieldSelect"
+        },
+        {
+          "$ref": "#/$defs/fieldUrl"
+        }
+      ]
+    }
+  }
+}

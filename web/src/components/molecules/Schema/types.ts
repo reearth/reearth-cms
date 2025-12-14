@@ -111,7 +111,7 @@ export type CorrespondingField = {
 };
 
 export type TypeProperty = {
-  defaultValue?: string | string[] | boolean | boolean[] | null;
+  defaultValue?: string | string[] | boolean | boolean[] | number | number[] | null;
   maxLength?: number;
   assetDefaultValue?: string | string[] | null;
   selectDefaultValue?: string | string[] | null;

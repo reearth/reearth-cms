@@ -12,6 +12,7 @@ import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverte
 import {
   convertSchemaFieldType,
   defaultTypePropertyGet,
+  defaultTypePropertyGet2,
 } from "@reearth-cms/components/organisms/Project/Schema/helpers";
 import { useAuthHeader } from "@reearth-cms/gql";
 import {
@@ -31,6 +32,9 @@ import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
 
 import { uploadFiles } from "./upload";
+import { ImportSchema, ImportUtils } from "@reearth-cms/utils/import";
+import { ObjectUtils } from "@reearth-cms/utils/object";
+import { calcGeneratorDuration } from "motion";
 
 type UploadType = "local" | "url";
 
@@ -460,18 +464,38 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     }
   };
 
-  const handleImportSchemaFileChange = async (fileContent: string): Promise<null> => {
+  const handleImportSchemaFileChange = async (fileContent: string): Promise<unknown> => {
     setDataChecking(true);
-    console.log("fileContent", fileContent);
+    const parsedJSON = await ObjectUtils.safeJSONParse(fileContent);
+    setDataChecking(false);
 
-    // todo: PR#1707 add content data check logic here
+    if (!parsedJSON.isValid) return { isValid: false, error: parsedJSON.error };
 
-    return new Promise<null>((resolve, _reject) => {
-      setTimeout(() => {
-        resolve(null);
-        setDataChecking(false);
-      }, 3000);
-    });
+    const importSchema = ImportUtils.validateSchemaFromJSON(parsedJSON.data);
+
+    if (!importSchema.isValid) return { isValid: false, error: importSchema.error };
+
+    const fields: ImportFieldInput[] = Object.entries(importSchema.data.properties).map(
+      ([key, value]) => ({
+        title: key,
+        metadata: false,
+        description: value.description,
+        key,
+        multiple: value.multiple,
+        unique: value.unique,
+        isTitle: false,
+        required: value.required,
+        type: value.type,
+        modelId: modelId,
+        groupId: undefined,
+        typeProperty: defaultTypePropertyGet2(value),
+        hidden: false,
+      }),
+    );
+
+    setImportFields(fields);
+
+    // return ImportUtils.validateSchemaFromJSON(parsedJSON.data);
   };
 
   return {

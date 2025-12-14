@@ -206,6 +206,34 @@ export default () => {
     [schemaId, isMeta, selectedSchemaType, deleteFieldMutation, t],
   );
 
+  const handleAllFieldDelete = useCallback(
+    async (fieldIds: string[]) => {
+      if (!schemaId) return;
+
+      const deletePromises = fieldIds.map(fieldId => {
+        const options = {
+          variables: {
+            fieldId,
+            metadata: isMeta,
+            modelId: selectedSchemaType === "model" ? schemaId : undefined,
+            groupId: selectedSchemaType === "group" ? schemaId : undefined,
+          },
+        };
+        return deleteFieldMutation(options);
+      });
+
+      const results = await Promise.all(deletePromises);
+      const errors = results.filter(item => !!item.errors);
+
+      if (errors.length > 0) {
+        Notification.error({ message: "Failed to delete all fields." });
+        return;
+      }
+      Notification.success({ message: "Successfully deleted all fields!" });
+    },
+    [schemaId, isMeta, selectedSchemaType, deleteFieldMutation],
+  );
+
   const handleFieldUpdate = useCallback(
     async (data: FormValues) => {
       if (!schemaId || !data.fieldId) return;
@@ -348,7 +376,7 @@ export default () => {
         Modal.error({
           title: t("Group cannot be deleted"),
           content: `
-          ${group?.name}${t("is used in", { modelNames })}  
+          ${group?.name}${t("is used in", { modelNames })}
           ${t("If you want to delete it, please delete the field that uses it first.")}`,
         });
         return;
@@ -643,6 +671,7 @@ export default () => {
     handleFieldUpdate,
     handleFieldOrder,
     handleFieldDelete,
+    handleAllFieldDelete,
     handleKeyCheck,
     handleModalOpen,
     handleDeletionModalOpen,

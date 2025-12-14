@@ -26,11 +26,19 @@ const ProjectSchema: React.FC = () => {
 
   const toImportingStep = useCallback(
     async (fields: CreateFieldInput[]) => {
+      console.log("fields", fields);
       await schemaHooks.handleFieldsCreate(fields);
+      // await new Promise(resolve => {
+      //   setTimeout(resolve, 3000);
+      // });
       setCurrentImportSchemaModalPage(2);
     },
     [schemaHooks],
   );
+
+  const toFileSelectionStep = useCallback(() => {
+    setCurrentImportSchemaModalPage(0);
+  }, []);
 
   return (
     <>
@@ -86,6 +94,7 @@ const ProjectSchema: React.FC = () => {
         currentImportSchemaModalPage={currentImportSchemaModalPage}
         toSchemaPreviewStep={toSchemaPreviewStep}
         toImportingStep={toImportingStep}
+        toFileSelectionStep={toFileSelectionStep}
         modelsMenu={
           <ModelsMenu
             title={t("Schema")}
@@ -103,10 +112,11 @@ const ProjectSchema: React.FC = () => {
         onFieldUpdateModalOpen={schemaHooks.handleFieldUpdateModalOpen}
         onFieldReorder={schemaHooks.handleFieldOrder}
         onFieldDelete={schemaHooks.handleFieldDelete}
+        onAllFieldsDelete={schemaHooks.handleAllFieldDelete}
         fieldsCreationLoading={schemaHooks.fieldsCreationLoading}
         dataChecking={importHooks.dataChecking}
         onFileContentChange={async fileContent => {
-          await importHooks.handleImportSchemaFileChange(fileContent);
+          const parsedFileContent = await importHooks.handleImportSchemaFileChange(fileContent);
           toSchemaPreviewStep();
         }}
       />

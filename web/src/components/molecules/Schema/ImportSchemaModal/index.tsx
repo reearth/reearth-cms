@@ -27,6 +27,7 @@ import FileSelectionStep from "./FileSelectionStep";
 import ImportingStep from "./ImportingStep";
 import SchemaPreviewStep from "./SchemaPreviewStep";
 import SelectFileModal from "./SelectFileModal";
+import Flex from "@reearth-cms/components/atoms/Flex";
 
 type Props = {
   visible: boolean;
@@ -53,6 +54,7 @@ type Props = {
   onUploadModalCancel: () => void;
   toSchemaPreviewStep: () => void;
   toImportingStep: (fields: CreateFieldInput[]) => Promise<void>;
+  toFileSelectionStep: () => void;
   fields: ImportFieldInput[];
   guessSchemaFieldsError?: boolean;
   fieldsCreationError?: boolean;
@@ -80,6 +82,7 @@ const ImportSchemaModal: React.FC<Props> = ({
   currentPage,
   toSchemaPreviewStep,
   toImportingStep,
+  toFileSelectionStep,
   assetList,
   loading,
   guessSchemaFieldsLoading,
@@ -241,30 +244,42 @@ const ImportSchemaModal: React.FC<Props> = ({
       centered
       open={visible}
       onCancel={onModalClose}
+      maskClosable={false}
       width="70vw"
       footer={
         <>
           {currentPage === 1 && (
-            <Tooltip
-              title={
-                hasImportFields ? undefined : t("Schema must contain at least one field to import")
-              }>
+            <Flex justify="space-between">
               <Button
-                type="primary"
-                loading={guessSchemaFieldsLoading}
-                disabled={!hasImportFields}
+                type="default"
                 onClick={() => {
-                  return toImportingStep(
-                    fields.filter(field => {
-                      const shouldImport = !field.hidden;
-                      delete field.hidden;
-                      return shouldImport;
-                    }),
-                  );
+                  toFileSelectionStep();
                 }}>
-                {t("Import Schema")}
+                {t("Back")}
               </Button>
-            </Tooltip>
+              <Tooltip
+                title={
+                  hasImportFields
+                    ? undefined
+                    : t("Schema must contain at least one field to import")
+                }>
+                <Button
+                  type="primary"
+                  loading={guessSchemaFieldsLoading}
+                  disabled={!hasImportFields}
+                  onClick={() => {
+                    return toImportingStep(
+                      fields.filter(field => {
+                        const shouldImport = !field.hidden;
+                        delete field.hidden;
+                        return shouldImport;
+                      }),
+                    );
+                  }}>
+                  {t("Import Schema")}
+                </Button>
+              </Tooltip>
+            </Flex>
           )}
         </>
       }

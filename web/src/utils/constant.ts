@@ -56,4 +56,7 @@ export abstract class Constant {
     TEST_IMPORT_CONTENT_GEO_JSON_BELOW_LIMIT_NOMATCH:
       "/test/test-files/import-content-below-limit-nomatch.geojson",
   };
+
+  public static readonly IS_DEV: boolean =
+    !process.env.NODE_ENV || process.env.NODE_ENV === "development";
 }

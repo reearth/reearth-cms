@@ -30,6 +30,8 @@ import { useT } from "@reearth-cms/i18n";
 import { ItemAsset } from "../Content/types";
 
 import ImportSchemaModal from "./ImportSchemaModal";
+import { red } from "@ant-design/colors";
+import { Constant } from "@reearth-cms/utils/constant";
 
 type Props = {
   // workspaceId?: string;
@@ -76,6 +78,7 @@ type Props = {
   onFieldUpdateModalOpen: (field: Field) => void;
   onFieldCreationModalOpen: (fieldType: SchemaFieldType) => void;
   onFieldDelete: (fieldId: string) => Promise<void>;
+  onAllFieldsDelete: (fieldIds: string[]) => Promise<void>;
   importSchemaModalVisibility: boolean;
   selectFileModalVisibility: boolean;
   uploadModalVisibility: boolean;
@@ -88,6 +91,7 @@ type Props = {
   currentImportSchemaModalPage: number;
   toSchemaPreviewStep: () => void;
   toImportingStep: (fields: CreateFieldInput[]) => Promise<void>;
+  toFileSelectionStep: () => void;
   dataChecking: boolean;
   onFileContentChange: (fileContent: string) => Promise<void>;
 };
@@ -137,6 +141,7 @@ const Schema: React.FC<Props> = ({
   onFieldUpdateModalOpen,
   onFieldCreationModalOpen,
   onFieldDelete,
+  onAllFieldsDelete,
   uploadModalVisibility,
   importSchemaModalVisibility,
   selectFileModalVisibility,
@@ -149,6 +154,7 @@ const Schema: React.FC<Props> = ({
   currentImportSchemaModalPage,
   toSchemaPreviewStep,
   toImportingStep,
+  toFileSelectionStep,
   dataChecking,
   onFileContentChange,
 }) => {
@@ -272,7 +278,23 @@ const Schema: React.FC<Props> = ({
                 title={data.name}
                 subTitle={`#${data.key}`}
                 style={{ backgroundColor: "#fff" }}
-                extra={[<DropdownMenu key="more" />]}
+                extra={[
+                  Constant.IS_DEV && (
+                    <Button
+                      type="text"
+                      shape="circle"
+                      size="small"
+                      onClick={() =>
+                        data?.schema?.fields &&
+                        onAllFieldsDelete(data.schema.fields.map(field => field.id))
+                      }
+                      icon={<Icon icon="delete" color={red.primary} />}
+                      disabled={!hasDeleteRight}
+                    />
+                  ),
+
+                  <DropdownMenu key="more" />,
+                ]}
               />
               {selectedSchemaType === "model" && (
                 <StyledTabs activeKey={tab} items={items} onChange={handleTabChange} />
@@ -303,6 +325,7 @@ const Schema: React.FC<Props> = ({
             currentPage={currentImportSchemaModalPage}
             toSchemaPreviewStep={toSchemaPreviewStep}
             toImportingStep={toImportingStep}
+            toFileSelectionStep={toFileSelectionStep}
             hasUpdateRight={hasUpdateRight}
             hasDeleteRight={hasDeleteRight}
             onUploadModalOpen={onUploadModalOpen}

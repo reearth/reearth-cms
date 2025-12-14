@@ -339,9 +339,18 @@ describe("Testing schema & content import from static files", () => {
 
       if (!result.isValid) return;
 
-      const parsedData = ImportUtils.validateSchemaFromJSON(result.data);
-      expect(parsedData.isValid).toBe(true);
+      const validation = ImportUtils.validateSchemaFromJSON(result.data);
+
+      expect(validation.isValid).toBe(true);
     });
+
+    describe("Validate field type from schema", () => {});
+
+    describe("Validate multiple from schema", () => {});
+
+    describe("Validate text fields with default value and maxLength from schema", () => {});
+
+    describe("Validate number fields with default value, min, max from schema", () => {});
   });
 
   describe("Validate content data from static files", () => {

@@ -16,78 +16,106 @@ import {
 } from "zod";
 
 import { Model } from "@reearth-cms/components/molecules/Model/types";
+import {
+  type SchemaFieldType,
+  SchemaFieldType as SchemaFieldTypeConst,
+} from "@reearth-cms/components/molecules/Schema/types";
 import { PerformanceTimer } from "@reearth-cms/utils/performance";
 
 import { Constant } from "./constant";
 
 interface FieldBase {
   title: string;
-  description?: string;
+  description: string;
+  type: SchemaFieldType;
   required: boolean;
+  multiple: boolean;
+  unique: boolean;
 }
 
 interface FieldTextBase extends FieldBase {
-  type: "string";
   maxLength?: number;
+  defaultValue?: string | string[];
 }
 
 interface FieldNumberBase extends FieldBase {
   maximum?: number;
   minimum?: number;
+  defaultValue?: number | number[];
+}
+
+interface FieldText extends FieldTextBase {
+  type: "Text";
+}
+
+interface FieldTextArea extends FieldTextBase {
+  type: "TextArea";
+}
+
+interface FieldMarkdownText extends FieldTextBase {
+  type: "MarkdownText";
 }
 
 interface FieldAsset extends FieldBase {
-  type: "string";
-  format: "binary";
+  type: "Asset";
+  defaultValue?: string | string[];
 }
 
 interface FieldBoolean extends FieldBase {
-  type: "boolean";
+  type: "Bool";
+  defaultValue?: boolean | boolean[];
 }
 
-interface FieldDateTime extends FieldBase {
-  type: "string";
-  format: "date-time";
+interface FieldDate extends FieldBase {
+  type: "Date";
+  defaultValue?: string | string[];
 }
 
-interface FieldFloat extends FieldNumberBase {
-  type: "number";
+interface FieldNumber extends FieldNumberBase {
+  type: "Number";
+  defaultValue?: number | number[];
 }
 
-interface FieldGeoEditor extends FieldBase {
-  type: "object";
+interface FieldInteger extends FieldNumberBase {
+  type: "Integer";
+  defaultValue?: number | number[];
 }
 
-interface FieldGeoObject extends FieldBase {
-  type: "object";
-}
+// interface FieldGeoObject extends FieldBase {
+//   type: "GeometryObject";
+//   defaultValue?: GeoJSON;
+// }
 
-interface FieldInt extends FieldNumberBase {
-  type: "integer";
-}
+// interface FieldGeoEditor extends FieldBase {
+//   type: "GeometryEditor";
+// }
 
-interface FieldOption extends FieldBase {
-  type: "string";
+interface FieldSelect extends FieldBase {
+  type: "Select";
+  values: string[];
+  defaultValue?: string | string[];
 }
 
 interface FieldUrl extends FieldBase {
-  type: "string";
-  format: "uri";
+  type: "URL";
+  defaultValue?: string | string[];
 }
 
-type ImportSchemaField =
-  | FieldTextBase
-  | FieldFloat
-  | FieldInt
+export type ImportSchemaField =
+  | FieldText
+  | FieldTextArea
+  | FieldMarkdownText
+  | FieldNumber
+  | FieldInteger
   | FieldBoolean
-  | FieldDateTime
+  | FieldDate
   | FieldAsset
-  | FieldOption
-  | FieldUrl
-  | FieldGeoEditor
-  | FieldGeoObject;
+  | FieldSelect
+  | FieldUrl;
+// | FieldGeoEditor
+// | FieldGeoObject;
 
-interface ImportSchema {
+export interface ImportSchema {
   properties: Record<string, ImportSchemaField>;
 }
 
@@ -340,9 +368,19 @@ export abstract class ImportUtils {
 
   private static readonly FIELD_BASE_VALIDATOR: z.ZodSchema<FieldBase> = z.object({
     title: z.string(),
-    description: z.string().optional(),
+    description: z.string(),
+    type: z.union(Object.values(SchemaFieldTypeConst).map(value => z.literal(value))),
     required: z.boolean(),
+    multiple: z.boolean(),
+    unique: z.boolean(),
   });
+
+  private static readonly FIELD_TEXT_BASE_VALIDATOR: z.ZodSchema<FieldTextBase> = z
+    .object({
+      maxLength: z.int().nonnegative().optional(),
+      defaultValue: z.union([z.string(), z.string().array()]),
+    })
+    .and(this.FIELD_BASE_VALIDATOR);
 
   private static readonly IMPORT_SCHEMA_VALIDATOR: z.ZodSchema<ImportSchema> = z.object({
     properties: z.record(
@@ -350,54 +388,75 @@ export abstract class ImportUtils {
       z.union([
         z
           .object({
-            type: z.literal("string"),
-            format: z.literal("binary"),
+            type: z.literal("Text"),
+          })
+          .and(this.FIELD_TEXT_BASE_VALIDATOR),
+        z
+          .object({
+            type: z.literal("TextArea"),
+          })
+          .and(this.FIELD_TEXT_BASE_VALIDATOR),
+        z
+          .object({
+            type: z.literal("MarkdownText"),
+          })
+          .and(this.FIELD_TEXT_BASE_VALIDATOR),
+        z
+          .object({
+            type: z.literal("Asset"),
+            defaultValue: z.union([z.string(), z.string().array()]).optional(),
           })
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
-            type: z.literal("boolean"),
+            type: z.literal("Bool"),
+            defaultValue: z.union([z.boolean(), z.boolean().array()]).optional(),
           })
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
-            type: z.literal("string"),
-            format: z.literal("date-time"),
+            type: z.literal("Date"),
+            defaultValue: z.union([z.string(), z.string().array()]).optional(),
           })
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
-            type: z.literal("number"),
+            type: z.literal("Number"),
             maximum: z.number().optional(),
+            minimum: z.number().optional(),
+            defaultValue: z.union([z.number(), z.number().array()]).optional(),
           })
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
-            type: z.literal("object"),
-          })
-          .and(this.FIELD_BASE_VALIDATOR),
-        z
-          .object({
-            type: z.literal("integer"),
+            type: z.literal("Integer"),
             maximum: z.int().optional(),
             minimum: z.int().optional(),
+            defaultValue: z.union([z.int(), z.int().array()]).optional(),
+          })
+          .and(this.FIELD_BASE_VALIDATOR),
+        // z
+        //   .object({
+        //     type: z.literal("GeometryObject"),
+        //     defaultValue: GeoJSONSchema.optional(), // TODO: fix THIS!
+        //   })
+        //   .and(this.FIELD_BASE_VALIDATOR),
+        // z
+        //   .object({
+        //     type: z.literal("GeometryEditor"),
+        //   })
+        //   .and(this.FIELD_BASE_VALIDATOR),
+        z
+          .object({
+            type: z.literal("Select"),
+            values: z.string().array(),
+            defaultValue: z.union([z.string(), z.string().array()]).optional(),
           })
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
-            type: z.literal("string"),
-          })
-          .and(this.FIELD_BASE_VALIDATOR),
-        z
-          .object({
-            type: z.literal("string"),
-            maxLength: z.int().nonnegative().optional(),
-          })
-          .and(this.FIELD_BASE_VALIDATOR),
-        z
-          .object({
-            type: z.literal("string"),
-            format: z.literal("uri"),
+            type: z.literal("URL"),
+            defaultValue: z.union([z.url(), z.url().array()]).optional(),
           })
           .and(this.FIELD_BASE_VALIDATOR),
       ]),
