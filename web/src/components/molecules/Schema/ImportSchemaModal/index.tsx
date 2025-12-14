@@ -276,7 +276,7 @@ const ImportSchemaModal: React.FC<Props> = ({
                       }),
                     );
                   }}>
-                  {t("Import Schema")}
+                  {t("Import")}
                 </Button>
               </Tooltip>
             </Flex>

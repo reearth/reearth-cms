@@ -105,11 +105,7 @@ const SchemaPreviewStep: React.FC<Props> = ({
                         onClick={() => onToggleFieldHide(field.key)}
                         icon={
                           field.hidden ? (
-                            <Tooltip title={t("Import This Field")}>
-                              <span>
-                                <Icon icon="eyeInvisible" color="#8c8c8c" />
-                              </span>
-                            </Tooltip>
+                            <Icon icon="eyeInvisible" color="#8c8c8c" />
                           ) : (
                             <Tooltip title={t("Don't import")}>
                               <span>
