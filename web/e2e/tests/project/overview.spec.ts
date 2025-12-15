@@ -14,45 +14,12 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test.skip("Model CRUD on Overview page has succeeded", async ({ schemaPage, projectPage }) => {
-  await expect(projectPage.noModelsYetText).toBeVisible();
-  await projectPage.newModelButtonFirst.click();
-  await expect(projectPage.newModelLabelText).toBeVisible();
-  await schemaPage.modelKeyInput.fill("model key");
-  await schemaPage.modelNameInput.fill("model name");
-  await projectPage.modelDescriptionInput.fill("model description");
-  await schemaPage.okButton.click();
-  await projectPage.closeNotification();
-  await expect(projectPage.modelTitleByName("model name")).toBeVisible();
-  await expect(projectPage.modelKeyTextByKey("model-key")).toBeVisible();
-  await expect(projectPage.modelMenuItemByName("model name")).toBeVisible();
-  await projectPage.modelsMenuItem.click();
-  await projectPage.modelListLink.click();
-  await projectPage.editText.click();
-  await projectPage.modelNameInput.fill("new model name");
-  await projectPage.modelDescriptionInput.fill("new model description");
-  await projectPage.modelKeyInput.fill("new-model-key");
-  await projectPage.okButton.click();
-  await projectPage.closeNotification();
-  await expect(projectPage.rootElement).toContainText("new model name");
-  await expect(projectPage.rootElement).toContainText("new model description");
-  await projectPage.modelListLink.click();
-  await projectPage.deleteText.click();
-  await projectPage.deleteModelButton.click();
-  await projectPage.closeNotification();
-  await expect(projectPage.rootElement).not.toContainText("new model name");
-  await expect(projectPage.noModelsYetText).toBeVisible();
-});
-
-test.describe.skip("Model Export tests on Overview page", () => {
-  test.beforeEach(async () => {
-    test.skip(!isCI, "This test runs only in CI environment");
-  });
-
-  test("Model Export as JSON on Overview page has succeeded", async ({
-    schemaPage,
-    projectPage,
-  }) => {
+test("@smoke Model CRUD on Overview page has succeeded", async ({
+  schemaPage,
+  projectPage,
+  page,
+}) => {
+  await test.step("Create new model from overview page", async () => {
     await expect(projectPage.noModelsYetText).toBeVisible();
     await projectPage.newModelButtonFirst.click();
     await expect(projectPage.newModelLabelText).toBeVisible();
