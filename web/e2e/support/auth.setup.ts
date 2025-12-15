@@ -7,7 +7,7 @@ import { createIAPContext } from "../utils/iap/iap-auth";
 
 const { userName, password } = config;
 
-test("authenticate", async () => {
+test("@smoke authenticate", async () => {
   expect(userName).toBeTruthy();
   expect(password).toBeTruthy();
 

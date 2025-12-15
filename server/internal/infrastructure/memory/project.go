@@ -91,7 +91,7 @@ func (r *Project) FindByID(_ context.Context, pid id.ProjectID) (*project.Projec
 	return nil, rerror.ErrNotFound
 }
 
-func (r *Project) FindByIDOrAlias(_ context.Context, q project.IDOrAlias) (*project.Project, error) {
+func (r *Project) FindByIDOrAlias(_ context.Context, wId accountdomain.WorkspaceID, q project.IDOrAlias) (*project.Project, error) {
 	if r.err != nil {
 		return nil, r.err
 	}
@@ -103,7 +103,10 @@ func (r *Project) FindByIDOrAlias(_ context.Context, q project.IDOrAlias) (*proj
 	}
 
 	p := r.data.Find(func(k id.ProjectID, v *project.Project) bool {
-		return (pid != nil && k == *pid || alias != nil && v.Alias() == *alias) && r.f.CanRead(v.Workspace())
+		return r.f.CanRead(v.Workspace()) &&
+			v.Workspace() == wId &&
+			(pid != nil && k == *pid || alias != nil && v.Alias() == *alias)
+
 	})
 
 	if p != nil {
@@ -112,7 +115,7 @@ func (r *Project) FindByIDOrAlias(_ context.Context, q project.IDOrAlias) (*proj
 	return nil, rerror.ErrNotFound
 }
 
-func (r *Project) IsAliasAvailable(_ context.Context, name string) (bool, error) {
+func (r *Project) IsAliasAvailable(_ context.Context, wId accountdomain.WorkspaceID, name string) (bool, error) {
 	if r.err != nil {
 		return false, r.err
 	}
@@ -123,7 +126,7 @@ func (r *Project) IsAliasAvailable(_ context.Context, name string) (bool, error)
 
 	// no need to filter by workspace, because alias is unique across all workspaces
 	p := r.data.Find(func(_ id.ProjectID, v *project.Project) bool {
-		return v.Alias() == name
+		return v.Workspace() == wId && v.Alias() == name
 	})
 
 	if p != nil {

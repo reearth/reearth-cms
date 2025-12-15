@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: go setup
         uses: actions/setup-go@v6
         with:
@@ -16,9 +16,9 @@ jobs:
           check-latest: true
           cache-dependency-path: 'server/go.sum'
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v8
+        uses: golangci/golangci-lint-action@v9
         with:
-          version: v2.1.0
+          version: v2.6.2
           working-directory: server
           args: --config=../.golangci.yml
           skip-cache: true
@@ -45,7 +45,7 @@ jobs:
         working-directory: server
     steps:
       - name: checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: go setup
         uses: actions/setup-go@v6
         with:
@@ -65,7 +65,7 @@ jobs:
           - 27017:27017
     steps:
       - name: checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: go setup
         uses: actions/setup-go@v6
         with:
