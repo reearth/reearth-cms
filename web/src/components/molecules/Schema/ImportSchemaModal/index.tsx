@@ -3,22 +3,17 @@ import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
 
 import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
+import Flex from "@reearth-cms/components/atoms/Flex";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Steps from "@reearth-cms/components/atoms/Step";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import {
-  UploadProps,
-  UploadFile,
-  UploadFile as RawUploadFile,
-} from "@reearth-cms/components/atoms/Upload";
+import { UploadFile, UploadFile as RawUploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { defaultTypePropertyGet } from "@reearth-cms/components/organisms/Project/Schema/helpers";
 import { useT } from "@reearth-cms/i18n";
-import { FileUtils } from "@reearth-cms/utils/file";
-import { ObjectUtils } from "@reearth-cms/utils/object";
 
 import { fieldTypes } from "../fieldTypes";
 import { CreateFieldInput, ImportFieldInput, SchemaFieldType } from "../types";
@@ -26,8 +21,6 @@ import { CreateFieldInput, ImportFieldInput, SchemaFieldType } from "../types";
 import FileSelectionStep from "./FileSelectionStep";
 import ImportingStep from "./ImportingStep";
 import SchemaPreviewStep from "./SchemaPreviewStep";
-import SelectFileModal from "./SelectFileModal";
-import Flex from "@reearth-cms/components/atoms/Flex";
 
 type Props = {
   visible: boolean;
@@ -78,46 +71,20 @@ type Props = {
 
 const ImportSchemaModal: React.FC<Props> = ({
   visible,
-  selectFileModalVisibility,
   currentPage,
-  toSchemaPreviewStep,
   toImportingStep,
   toFileSelectionStep,
-  assetList,
-  loading,
   guessSchemaFieldsLoading,
   fieldsCreationLoading,
-  totalCount,
-  selectedAsset,
   fileList,
   alertList,
-  uploadType,
-  uploadUrl,
-  uploading,
   fields,
-  guessSchemaFieldsError,
   fieldsCreationError,
   setFields,
-  setUploadUrl,
-  setUploadType,
   setFileList,
   setAlertList,
-  hasCreateRight,
-  uploadModalVisibility,
-  onUploadModalOpen,
-  onUploadModalCancel,
-  page,
-  pageSize,
-  onSearchTerm,
-  onAssetsReload,
-  onAssetTableChange,
-  onAssetSelect,
-  onAssetsCreate,
-  onAssetCreateFromUrl,
   hasUpdateRight,
   hasDeleteRight,
-  onSelectFile,
-  onSelectFileModalCancel,
   onModalClose,
   dataChecking,
   onFileContentChange,
@@ -177,24 +144,6 @@ const ImportSchemaModal: React.FC<Props> = ({
       ),
     }));
   }, []);
-
-  const handleAssetUpload = useCallback(async () => {
-    let result;
-    if (uploadType === "url" && uploadUrl) {
-      result = await onAssetCreateFromUrl?.(uploadUrl.url, uploadUrl.autoUnzip);
-    } else if (fileList && fileList.length > 0) {
-      const assets = await onAssetsCreate?.(fileList);
-      result = assets?.[0];
-    }
-    onUploadModalCancel();
-    return result ?? undefined;
-  }, [uploadType, uploadUrl, fileList, onAssetCreateFromUrl, onAssetsCreate, onUploadModalCancel]);
-
-  const handleUploadAndLink = useCallback(async () => {
-    const asset = await handleAssetUpload();
-    if (asset) onAssetSelect(asset.id);
-    onUploadModalCancel();
-  }, [handleAssetUpload, onUploadModalCancel, onAssetSelect]);
 
   const stepComponents = [
     {

@@ -1,3 +1,4 @@
+import { FetchResult } from "@apollo/client";
 import { Modal } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -42,7 +43,6 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
-import { FetchResult } from "@apollo/client";
 
 export default () => {
   const t = useT();

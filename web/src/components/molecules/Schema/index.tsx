@@ -26,12 +26,11 @@ import {
   ImportFieldInput,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { Constant } from "@reearth-cms/utils/constant";
 
 import { ItemAsset } from "../Content/types";
 
 import ImportSchemaModal from "./ImportSchemaModal";
-import { red } from "@ant-design/colors";
-import { Constant } from "@reearth-cms/utils/constant";
 
 type Props = {
   // workspaceId?: string;

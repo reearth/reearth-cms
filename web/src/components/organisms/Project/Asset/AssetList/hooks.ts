@@ -30,11 +30,10 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
+import { ImportUtils } from "@reearth-cms/utils/import";
+import { ObjectUtils } from "@reearth-cms/utils/object";
 
 import { uploadFiles } from "./upload";
-import { ImportSchema, ImportUtils } from "@reearth-cms/utils/import";
-import { ObjectUtils } from "@reearth-cms/utils/object";
-import { calcGeneratorDuration } from "motion";
 
 type UploadType = "local" | "url";
 

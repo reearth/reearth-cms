@@ -116,7 +116,7 @@ const ProjectSchema: React.FC = () => {
         fieldsCreationLoading={schemaHooks.fieldsCreationLoading}
         dataChecking={importHooks.dataChecking}
         onFileContentChange={async fileContent => {
-          const parsedFileContent = await importHooks.handleImportSchemaFileChange(fileContent);
+          await importHooks.handleImportSchemaFileChange(fileContent);
           toSchemaPreviewStep();
         }}
       />

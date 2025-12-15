@@ -1,6 +1,7 @@
 import { gold, red } from "@ant-design/colors";
 import styled from "@emotion/styled";
 import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 
 import Alert, { type AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
@@ -18,7 +19,6 @@ import { Constant } from "@reearth-cms/utils/constant";
 import { FileUtils } from "@reearth-cms/utils/file";
 import { ErrorMeta, ImportContentJSON, ImportUtils } from "@reearth-cms/utils/import";
 import { ObjectUtils } from "@reearth-cms/utils/object";
-import { useLocation } from "react-router-dom";
 
 const { Dragger } = Upload;
 
@@ -305,6 +305,7 @@ const ContentImportModal: React.FC<Props> = ({
       schemaValidationAlert,
       setAlertList,
       setValidateImportResult,
+      location.pathname,
     ],
   );
 

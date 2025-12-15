@@ -125,7 +125,6 @@ const ContentListMolecule: React.FC<Props> = ({
   hasRequestUpdateRight,
   showPublishAction,
   onImportModalOpen,
-  modelFields,
   hasModelFields,
 }) => {
   const t = useT();
