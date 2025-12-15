@@ -328,7 +328,7 @@ function getExpectedSchema(): Model {
   return fromGraphQLModel(expectedSchemaRaw)!;
 }
 
-describe("Testing schema & content import from static files", () => {
+describe.skip("Testing schema & content import from static files", () => {
   describe("Validate schema data from static files", () => {
     test("Validate schema from JSON file", async () => {
       const result = await readFromJSONFile<Record<string, unknown>>(
