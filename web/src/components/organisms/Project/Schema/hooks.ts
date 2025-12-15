@@ -221,7 +221,6 @@ export default () => {
         },
       }));
 
-
       const errors: FetchResult<DeleteFieldMutation>["errors"][] = [];
 
       for await (const option of options) {

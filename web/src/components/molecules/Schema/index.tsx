@@ -281,16 +281,18 @@ const Schema: React.FC<Props> = ({
                 extra={[
                   Constant.IS_DEV && (
                     <Button
-                      type="text"
-                      shape="circle"
+                      type="default"
+                      shape="default"
                       size="small"
+                      color="red"
+                      variant="outlined"
                       onClick={() =>
                         data?.schema?.fields &&
                         onAllFieldsDelete(data.schema.fields.map(field => field.id))
                       }
-                      icon={<Icon icon="delete" color={red.primary} />}
-                      disabled={!hasDeleteRight}
-                    />
+                      disabled={!hasDeleteRight}>
+                      Delete All Fields (Dev Only)
+                    </Button>
                   ),
 
                   <DropdownMenu key="more" />,
