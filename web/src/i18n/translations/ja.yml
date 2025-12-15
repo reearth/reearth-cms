@@ -527,7 +527,8 @@ Add new Tiles option: 新しいタイルを追加
 Terrain: 地形
 The first one in the list will be the default Terrain.: リストの最初の地形がデフォルトの地形となります。
 Add new Terrain option: 新しい地形を追加
-Uploading file..._other: '{{count}}個のファイルをアップロード中…'
+Uploading file..._one: アップロード中…
+Uploading file..._other_other: ''
 Cancel upload?: アップロードを中止しますか?
 Your file hasn't finished uploading yet. Are you sure you want to cancel upload?: ファイルのアップロードはまだ完了していません。今すぐ中止してもよろしいですか？
 Keep uploading: 続ける
@@ -706,4 +707,4 @@ Failed to create project.: プロジェクトの作成に失敗しました。
 Successfully created project!: プロジェクトの作成に成功しました。
 Failed to delete workspace.: ワークスペースの削除に失敗しました。
 Successfully deleted workspace!: ワークスペースの削除に成功しました。
-Uploading file..._one: アップロード中…
+Uploading file..._other: '{{count}}個のファイルをアップロード中…'

@@ -158,7 +158,7 @@ The data file can contain a maximum of {{max}} records. Please split the file an
 Unmatched field hint_one: 'Unmatched field is: {{fields, list}}.'
 Unmatched field hint_other: 'Unmatched fields are: {{fields, list}}.'
 Data file is too large.: ''
-The data file can contain a maximum of {{max}} records. Please split the file and re-upload it.: The data file can contain a maximum of {{max, number}} records. Please split the file and re-upload it.
+The data file can contain a maximum of {{max}} records. Please split the file and re-upload it: ''
 Some fields don't match the schema: ''
 '{{count}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored._one': >-
   {{count, number}} field do not match the schema. You can continue the import,
@@ -536,7 +536,8 @@ Terrain: ''
 The first one in the list will be the default Terrain.: ''
 Add new Terrain option: ''
 Uploading file..._one: Uploading...
-Uploading file..._other: Uploading {{count}} files...
+Uploading file..._other_one: ''
+Uploading file..._other_other: ''
 Cancel upload?: ''
 Your file hasn't finished uploading yet. Are you sure you want to cancel upload?: ''
 Keep uploading: ''
@@ -715,3 +716,4 @@ Failed to create project.: ''
 Successfully created project!: ''
 Failed to delete workspace.: ''
 Successfully deleted workspace!: ''
+Uploading file..._other: Uploading {{count}} files...
