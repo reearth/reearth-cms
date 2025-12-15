@@ -94,6 +94,7 @@ const SchemaPreviewStep: React.FC<Props> = ({
                         value={field.type}
                         onChange={value => onFieldTypeChange(field.key, value as SchemaFieldType)}
                         options={fieldTypeOptions}
+                        disabled
                       />
                     </AlignLeftCol>
                     {/*<AlignLeftCol span={2}>{field.multiple ? "Yes" : "No"}</AlignLeftCol>*/}

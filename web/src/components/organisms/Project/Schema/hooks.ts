@@ -38,9 +38,11 @@ import {
   useCreateFieldsMutation,
   SchemaFieldType as GQLSchemaFieldType,
   SchemaFieldTypePropertyInput,
+  DeleteFieldMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
+import { FetchResult } from "@apollo/client";
 
 export default () => {
   const t = useT();
@@ -210,20 +212,22 @@ export default () => {
     async (fieldIds: string[]) => {
       if (!schemaId) return;
 
-      const deletePromises = fieldIds.map(fieldId => {
-        const options = {
-          variables: {
-            fieldId,
-            metadata: isMeta,
-            modelId: selectedSchemaType === "model" ? schemaId : undefined,
-            groupId: selectedSchemaType === "group" ? schemaId : undefined,
-          },
-        };
-        return deleteFieldMutation(options);
-      });
+      const options = fieldIds.map(fieldId => ({
+        variables: {
+          fieldId,
+          metadata: isMeta,
+          modelId: selectedSchemaType === "model" ? schemaId : undefined,
+          groupId: selectedSchemaType === "group" ? schemaId : undefined,
+        },
+      }));
 
-      const results = await Promise.all(deletePromises);
-      const errors = results.filter(item => !!item.errors);
+
+      const errors: FetchResult<DeleteFieldMutation>["errors"][] = [];
+
+      for await (const option of options) {
+        const result = await deleteFieldMutation(option);
+        if (result.errors) errors.push(result.errors);
+      }
 
       if (errors.length > 0) {
         Notification.error({ message: "Failed to delete all fields." });
