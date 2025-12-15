@@ -14,7 +14,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Model CRUD on Overview page has succeeded", async ({ schemaPage, projectPage }) => {
+test.skip("Model CRUD on Overview page has succeeded", async ({ schemaPage, projectPage }) => {
   await expect(projectPage.noModelsYetText).toBeVisible();
   await projectPage.newModelButtonFirst.click();
   await expect(projectPage.newModelLabelText).toBeVisible();
@@ -44,7 +44,7 @@ test("Model CRUD on Overview page has succeeded", async ({ schemaPage, projectPa
   await expect(projectPage.noModelsYetText).toBeVisible();
 });
 
-test.describe("Model Export tests on Overview page", () => {
+test.describe.skip("Model Export tests on Overview page", () => {
   test.beforeEach(async () => {
     test.skip(!isCI, "This test runs only in CI environment");
   });

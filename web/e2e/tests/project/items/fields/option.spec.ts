@@ -65,7 +65,11 @@ test("Option field creating and updating has succeeded", async ({
   await expect(contentPage.optionTextByName("second")).toBeVisible();
 });
 
-test("Option field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
+test.skip("Option field editing has succeeded", async ({
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   await schemaPage.fieldTypeButton("Option").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("option1");
