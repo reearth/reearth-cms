@@ -68,17 +68,6 @@ export type ValidateImportResult = {
   hint?: string;
 };
 
-// export type ImportState = {
-//   step: 'SELECT_FILE' | 'CHECKING' | 'RESULT';
-//   fileError: AlertProps[];
-//   checkResult: ValidateImportResult;
-// }
-
-// export type ImportAction =
-//   | { type: 'TO_CHECKING' }
-//   | { type: 'TO_SELECT_FILE' }
-//   | { type: 'TO_RESULT' }
-
 export default () => {
   const {
     currentModel,

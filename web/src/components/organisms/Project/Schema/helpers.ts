@@ -4,7 +4,7 @@ import {
   ObjectSupportedType,
   TypeProperty,
 } from "@reearth-cms/components/molecules/Schema/types";
-import { ImportSchemaField } from "@reearth-cms/utils/import";
+import { ImportSchemaField2 } from "@reearth-cms/utils/importSchema";
 
 export function convertSchemaFieldType(s: string): SchemaFieldType {
   switch (s) {
@@ -145,7 +145,7 @@ export function defaultTypePropertyGet(
 }
 
 export function defaultTypePropertyGet2(
-  field: ImportSchemaField,
+  field: ImportSchemaField2,
 ): Record<
   string,
   TypeProperty & { supportedTypes?: ObjectSupportedType[] | EditorSupportedType[] }

@@ -382,7 +382,7 @@ const ContentImportModal: React.FC<Props> = ({
                 />
               </p>
               {/* TODO: demo use */}
-              <TemplateLink href={Constant.TEST_FILE.IMPORT_CONTENT_JSON_FOR_DEMO}>
+              <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_JSON_FOR_DEMO}>
                 JSON file for demo
               </TemplateLink>
               {alertList.map((alert, index) => (
