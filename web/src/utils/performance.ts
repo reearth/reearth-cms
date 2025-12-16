@@ -1,3 +1,5 @@
+import { Constant } from "./constant";
+
 export class PerformanceTimer {
   private start: number;
   private readonly label: string;
@@ -16,6 +18,8 @@ export class PerformanceTimer {
   }
 
   public log(): void {
-    console.log(`${this.label}: ${this.elapsed().toFixed(2)}ms`);
+    if (Constant.IS_DEV) {
+      console.log(`[Performance] ${this.label}: ${this.elapsed().toFixed(2)}ms`);
+    }
   }
 }

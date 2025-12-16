@@ -3,16 +3,16 @@
     {
       "boolean-1": true,
       "date-1": "2025-12-01T00:00:00+09:00",
-      "float-1": 1.11,
+      "float-1": 10.5,
       "geo-obj-1": {
         "coordinates": [139.6917, 35.6895],
         "type": "Point"
       },
-      "int-1": 1,
-      "markdown-text-1": "md1",
-      "select-1": "a",
-      "text-1": "text111",
-      "textarea-1": "textarea1",
+      "int-1": 20,
+      "markdown-text-1": "123456789012345",
+      "option-1": "d",
+      "text-1": "123456789012345",
+      "textarea-1": "123456789012345",
       "url-1": "http://111.com/"
     }
   ],

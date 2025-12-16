@@ -152,6 +152,10 @@ const FileSelectionStep: React.FC<Props> = ({
               }}
             />
           </p>
+          {/* TODO: demo use */}
+          <TemplateLink href={Constant.TEST_FILE.IMPORT_SCHEMA_JSON_FOR_DEMO}>
+            JSON file for demo
+          </TemplateLink>
           {alertList.map((alert, index) => (
             <StyledAlert
               {...alert}

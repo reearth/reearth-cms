@@ -17,7 +17,6 @@ import {
 import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
-import { UploadStatus } from "@reearth-cms/components/molecules/Uploader/types";
 import {
   ConditionInput,
   ItemSort,
@@ -50,7 +49,7 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useCollapsedModelMenu, useUserRights, useUploader } from "@reearth-cms/state";
-import { newID } from "@reearth-cms/utils/id";
+import { ImportContentJSON2 } from "@reearth-cms/utils/importContent";
 
 import { fileName } from "./utils";
 
@@ -113,7 +112,7 @@ export default () => {
     null,
   );
   // TODO: move states above into machine
-  const [_uploader, setUploader] = useUploader();
+  const [_uploader, _setUploader] = useUploader();
 
   const navigate = useNavigate();
   const { modelId } = useParams();
@@ -222,7 +221,7 @@ export default () => {
 
   const [updateItemMutation] = useUpdateItemMutation();
   const [getItem] = useGetItemLazyQuery({ fetchPolicy: "no-cache" });
-  const [createNewItem] = useCreateItemMutation();
+  const [createNewItem] = useCreateItemMutation({ refetchQueries: ["SearchItem"] });
 
   const itemIdToMetadata = useRef(new Map<string, Metadata>());
   const metadataVersionSet = useCallback(
@@ -657,47 +656,98 @@ export default () => {
     setValidateImportResult(null);
   }, []);
 
-  const handleQueueToUploader = useCallback(
-    (payload: { fileName: string; fileContent: Record<string, unknown>[]; url: string }) => {
-      setUploader(prev => ({
-        ...prev,
-        showBadge: true,
-        isOpen: true,
-        queue: [
-          {
-            id: newID(),
-            status: UploadStatus.InProgress,
-            fileName: payload.fileName,
-            fileContent: payload.fileContent,
-            progress: 0,
-            url: payload.url,
-            error: null,
-          },
-          ...prev.queue,
-        ],
-      }));
-    },
-    [setUploader],
-  );
+  // const handleQueueToUploader = useCallback(
+  //   (payload: { fileName: string; fileContent: Record<string, unknown>[]; url: string }) => {
+  //     setUploader(prev => ({
+  //       ...prev,
+  //       showBadge: true,
+  //       isOpen: true,
+  //       queue: [
+  //         {
+  //           id: newID(),
+  //           status: UploadStatus.InProgress,
+  //           fileName: payload.fileName,
+  //           fileContent: payload.fileContent,
+  //           progress: 0,
+  //           url: payload.url,
+  //           error: null,
+  //         },
+  //         ...prev.queue,
+  //       ],
+  //     }));
+  //   },
+  //   [setUploader],
+  // );
 
   const handleImportContentFileChange = useCallback(
-    ({
-      fileName,
+    async ({
+      fileName: _fileName,
       fileContent,
       extension: _extension,
-      url,
+      url: _url,
     }: {
       fileName: string;
-      fileContent: Record<string, unknown>[];
+      fileContent: ImportContentJSON2["results"];
       extension: "csv" | "json" | "geojson";
       url: string;
     }) => {
-      handleQueueToUploader({ fileName, fileContent, url });
-      handleImportContentModalClose();
+      // handleQueueToUploader({ fileName, fileContent, url });
+      if (_extension !== "json") {
+        alert("only support json for now");
+        return;
+      }
 
-      // console.log("success, go to backend");
+      if (!currentModel) return;
+
+      const targetFields = currentModel.schema.fields;
+
+      const reqList = Object.values(fileContent).reduce(
+        (acc, curr) => {
+          const one = Object.entries(curr).reduce(
+            (_acc, _curr) => {
+              const [key, value] = _curr;
+              const findField = targetFields.find(_item => key === _item.key);
+              // const modelField = modelFields.get(item.key);
+              if (findField) {
+                return [
+                  ..._acc,
+                  {
+                    value,
+                    schemaFieldId: findField.id,
+                    type: findField.type,
+                  },
+                ];
+              }
+
+              return _acc;
+            },
+            [] as Record<string, any>[],
+          );
+
+          return [...acc, one];
+        },
+        [] as Record<string, any>[],
+      );
+
+      // go to backend
+      for await (const reqItem of reqList) {
+        const result = await createNewItem({
+          variables: {
+            modelId: currentModel.id,
+            schemaId: currentModel.schema.id,
+            fields: reqItem as ItemFieldInput[],
+          },
+        });
+        if (result.errors) {
+          Notification.error({ message: "Import failed" });
+        } else {
+          Notification.success({ message: "Import success" });
+        }
+      }
+
+      handleImportContentModalClose();
     },
-    [handleImportContentModalClose, handleQueueToUploader],
+    [createNewItem, currentModel, handleImportContentModalClose],
   );
 
   return {

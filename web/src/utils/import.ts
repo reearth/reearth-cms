@@ -1,28 +1,13 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 /* eslint-disable @typescript-eslint/no-extraneous-class */
-import { getIssues, HintIssue } from "@placemarkio/check-geojson";
-import type { GeoJSON } from "geojson";
 import Papa, { ParseResult } from "papaparse";
-import {
-  z,
-  ZodBoolean,
-  ZodCoercedDate,
-  ZodCoercedNumber,
-  ZodJSONSchema,
-  ZodNumber,
-  ZodOptional,
-  ZodString,
-  ZodURL,
-} from "zod";
+import { z } from "zod";
 
-import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
   type SchemaFieldType,
   SchemaFieldType as SchemaFieldTypeConst,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { PerformanceTimer } from "@reearth-cms/utils/performance";
-
-import { Constant } from "./constant";
 
 interface FieldBase {
   title: string;
@@ -119,18 +104,18 @@ export interface ImportSchema {
   properties: Record<string, ImportSchemaField>;
 }
 
-type ContentSourceFormat = "CSV" | "JSON" | "GEOJSON";
+// type ContentSourceFormat = "CSV" | "JSON" | "GEOJSON";
 
-export interface ErrorMeta {
-  exceedLimit: boolean;
-  mismatchFields: Set<PropertyKey>;
-  modelFieldCount: number;
-}
+// export interface ErrorMeta {
+//   exceedLimit: boolean;
+//   mismatchFields: Set<PropertyKey>;
+//   modelFieldCount: number;
+// }
 
-export interface ImportContentJSON {
-  results: Record<string, unknown>[];
-  totalCount: number;
-}
+// export interface ImportContentJSON {
+//   results: Record<string, unknown>[];
+//   totalCount: number;
+// }
 
 export abstract class ImportUtils {
   public static validateSchemaFromJSON(
@@ -149,222 +134,222 @@ export abstract class ImportUtils {
     }
   }
 
-  public static async validateContentFromCSV<T = unknown>(
-    csvList: T[],
-    modelFields: Model["schema"]["fields"],
-    maxRecordLimit = Constant.IMPORT.MAX_CONTENT_RECORDS,
-  ): Promise<
-    { isValid: true; data: Record<string, unknown>[] } | { isValid: false; error: ErrorMeta }
-  > {
-    const timer = new PerformanceTimer("validateContentFromCSV");
+  // public static async validateContentFromCSV<T = unknown>(
+  //   csvList: T[],
+  //   modelFields: Model["schema"]["fields"],
+  //   maxRecordLimit = Constant.IMPORT.MAX_CONTENT_RECORDS,
+  // ): Promise<
+  //   { isValid: true; data: Record<string, unknown>[] } | { isValid: false; error: ErrorMeta }
+  // > {
+  //   const timer = new PerformanceTimer("validateContentFromCSV");
 
-    try {
-      const { validator, acceptImportFieldCount } = this.getValidatorMeta(modelFields, "CSV");
+  //   try {
+  //     const { validator, acceptImportFieldCount } = this.getValidatorMeta(modelFields, "CSV");
 
-      const validation = validator.array().max(maxRecordLimit).safeParse(csvList);
+  //     const validation = validator.array().max(maxRecordLimit).safeParse(csvList);
 
-      if (validation.success) {
-        return { isValid: true, data: validation.data };
-      } else {
-        return {
-          isValid: false,
-          error: this.getErrorMeta(validation, acceptImportFieldCount),
-        };
-      }
-    } catch (error) {
-      throw Error(String(error));
-    } finally {
-      timer.log();
-    }
-  }
+  //     if (validation.success) {
+  //       return { isValid: true, data: validation.data };
+  //     } else {
+  //       return {
+  //         isValid: false,
+  //         error: this.getErrorMeta(validation, acceptImportFieldCount),
+  //       };
+  //     }
+  //   } catch (error) {
+  //     throw Error(String(error));
+  //   } finally {
+  //     timer.log();
+  //   }
+  // }
 
-  public static async validateContentFromJSON(
-    importContent: ImportContentJSON,
-    modelFields: Model["schema"]["fields"],
-    maxRecordLimit = Constant.IMPORT.MAX_CONTENT_RECORDS,
-  ): Promise<
-    { isValid: true; data: ImportContentJSON["results"] } | { isValid: false; error: ErrorMeta }
-  > {
-    return new Promise<
-      { isValid: true; data: ImportContentJSON["results"] } | { isValid: false; error: ErrorMeta }
-    >((resolve, _reject) => {
-      const timer = new PerformanceTimer("validateContentFromJSON");
+  // public static async validateContentFromJSON(
+  //   importContent: ImportContentJSON,
+  //   modelFields: Model["schema"]["fields"],
+  //   maxRecordLimit = Constant.IMPORT.MAX_CONTENT_RECORDS,
+  // ): Promise<
+  //   { isValid: true; data: ImportContentJSON["results"] } | { isValid: false; error: ErrorMeta }
+  // > {
+  //   return new Promise<
+  //     { isValid: true; data: ImportContentJSON["results"] } | { isValid: false; error: ErrorMeta }
+  //   >((resolve, _reject) => {
+  //     const timer = new PerformanceTimer("validateContentFromJSON");
 
-      const { validator, acceptImportFieldCount } = this.getValidatorMeta(modelFields, "JSON");
+  //     const { validator, acceptImportFieldCount } = this.getValidatorMeta(modelFields, "JSON");
 
-      const validation = validator.array().max(maxRecordLimit).safeParse(importContent.results);
+  //     const validation = validator.array().max(maxRecordLimit).safeParse(importContent.results);
 
-      if (validation.success) {
-        resolve({ isValid: true, data: validation.data });
-      } else {
-        resolve({
-          isValid: false,
-          error: this.getErrorMeta(validation, acceptImportFieldCount),
-        });
-      }
-      timer.log();
-    });
-  }
+  //     if (validation.success) {
+  //       resolve({ isValid: true, data: validation.data });
+  //     } else {
+  //       resolve({
+  //         isValid: false,
+  //         error: this.getErrorMeta(validation, acceptImportFieldCount),
+  //       });
+  //     }
+  //     timer.log();
+  //   });
+  // }
 
-  public static async validateContentFromGeoJson(
-    raw: GeoJSON,
-    modelFields: Model["schema"]["fields"],
-    maxRecordLimit = Constant.IMPORT.MAX_CONTENT_RECORDS,
-  ): Promise<
-    { isValid: true; data: Record<string, unknown>[] } | { isValid: false; error: ErrorMeta }
-  > {
-    return new Promise<
-      { isValid: true; data: Record<string, unknown>[] } | { isValid: false; error: ErrorMeta }
-    >((resolve, reject) => {
-      const timer = new PerformanceTimer("validateContentFromGeoJson");
+  // public static async validateContentFromGeoJson(
+  //   raw: GeoJSON,
+  //   modelFields: Model["schema"]["fields"],
+  //   maxRecordLimit = Constant.IMPORT.MAX_CONTENT_RECORDS,
+  // ): Promise<
+  //   { isValid: true; data: Record<string, unknown>[] } | { isValid: false; error: ErrorMeta }
+  // > {
+  //   return new Promise<
+  //     { isValid: true; data: Record<string, unknown>[] } | { isValid: false; error: ErrorMeta }
+  //   >((resolve, reject) => {
+  //     const timer = new PerformanceTimer("validateContentFromGeoJson");
 
-      if (raw.type !== "FeatureCollection") return void reject("Not feature collection");
+  //     if (raw.type !== "FeatureCollection") return void reject("Not feature collection");
 
-      const { validator, acceptImportFieldCount } = this.getValidatorMeta(modelFields, "GEOJSON");
-      const properties = raw.features.map(feature => feature.properties);
+  //     const { validator, acceptImportFieldCount } = this.getValidatorMeta(modelFields, "GEOJSON");
+  //     const properties = raw.features.map(feature => feature.properties);
 
-      const validation = validator.array().max(maxRecordLimit).safeParse(properties);
+  //     const validation = validator.array().max(maxRecordLimit).safeParse(properties);
 
-      if (validation.success) {
-        resolve({ isValid: true, data: validation.data });
-      } else {
-        resolve({
-          isValid: false,
-          error: this.getErrorMeta(validation, acceptImportFieldCount),
-        });
-      }
+  //     if (validation.success) {
+  //       resolve({ isValid: true, data: validation.data });
+  //     } else {
+  //       resolve({
+  //         isValid: false,
+  //         error: this.getErrorMeta(validation, acceptImportFieldCount),
+  //       });
+  //     }
 
-      timer.log();
-    });
-  }
+  //     timer.log();
+  //   });
+  // }
 
-  private static getValidatorMeta(
-    fieldData: Model["schema"]["fields"],
-    sourceFormat: ContentSourceFormat,
-  ) {
-    const validateObj: Record<string, unknown> = {};
-    let acceptImportFieldCount = 0;
+  // private static getValidatorMeta(
+  //   fieldData: Model["schema"]["fields"],
+  //   sourceFormat: ContentSourceFormat,
+  // ) {
+  //   const validateObj: Record<string, unknown> = {};
+  //   let acceptImportFieldCount = 0;
 
-    fieldData.forEach(field => {
-      switch (field.type) {
-        case "Text":
-        case "TextArea":
-        case "MarkdownText": {
-          let stringField: ZodString | ZodOptional<ZodString> = z.string();
+  //   fieldData.forEach(field => {
+  //     switch (field.type) {
+  //       case "Text":
+  //       case "TextArea":
+  //       case "MarkdownText": {
+  //         let stringField: ZodString | ZodOptional<ZodString> = z.string();
 
-          if (field.typeProperty?.maxLength)
-            stringField = stringField.max(field.typeProperty.maxLength);
+  //         if (field.typeProperty?.maxLength)
+  //           stringField = stringField.max(field.typeProperty.maxLength);
 
-          if (field.required) stringField = stringField.optional();
+  //         if (field.required) stringField = stringField.optional();
 
-          validateObj[field.key] = stringField;
-          acceptImportFieldCount++;
+  //         validateObj[field.key] = stringField;
+  //         acceptImportFieldCount++;
 
-          break;
-        }
-        case "Date": {
-          let dateField: ZodCoercedDate | ZodOptional<ZodCoercedDate> = z.coerce.date();
+  //         break;
+  //       }
+  //       case "Date": {
+  //         let dateField: ZodCoercedDate | ZodOptional<ZodCoercedDate> = z.coerce.date();
 
-          if (field.required) dateField = dateField.optional();
+  //         if (field.required) dateField = dateField.optional();
 
-          validateObj[field.key] = dateField;
-          acceptImportFieldCount++;
+  //         validateObj[field.key] = dateField;
+  //         acceptImportFieldCount++;
 
-          break;
-        }
+  //         break;
+  //       }
 
-        case "Bool": {
-          let booleanField: ZodBoolean | ZodOptional<ZodBoolean> = z.boolean();
+  //       case "Bool": {
+  //         let booleanField: ZodBoolean | ZodOptional<ZodBoolean> = z.boolean();
 
-          if (field.required) booleanField = booleanField.optional();
+  //         if (field.required) booleanField = booleanField.optional();
 
-          validateObj[field.key] = booleanField;
-          acceptImportFieldCount++;
+  //         validateObj[field.key] = booleanField;
+  //         acceptImportFieldCount++;
 
-          break;
-        }
+  //         break;
+  //       }
 
-        case "Integer": {
-          let intField: ZodCoercedNumber | ZodOptional<ZodCoercedNumber> = z.coerce.number().int();
+  //       case "Integer": {
+  //         let intField: ZodCoercedNumber | ZodOptional<ZodCoercedNumber> = z.coerce.number().int();
 
-          if (field.typeProperty?.max) intField = intField.max(field.typeProperty.max);
-          if (field.typeProperty?.min) intField = intField.min(field.typeProperty.min);
-          if (field.required) intField = intField.optional();
+  //         if (field.typeProperty?.max) intField = intField.max(field.typeProperty.max);
+  //         if (field.typeProperty?.min) intField = intField.min(field.typeProperty.min);
+  //         if (field.required) intField = intField.optional();
 
-          validateObj[field.key] = intField;
-          acceptImportFieldCount++;
+  //         validateObj[field.key] = intField;
+  //         acceptImportFieldCount++;
 
-          break;
-        }
+  //         break;
+  //       }
 
-        case "Number": {
-          let floatField: ZodNumber | ZodOptional<ZodNumber> = z.coerce.number();
+  //       case "Number": {
+  //         let floatField: ZodNumber | ZodOptional<ZodNumber> = z.coerce.number();
 
-          if (field.typeProperty?.numberMax)
-            floatField = floatField.max(field.typeProperty.numberMax);
-          if (field.typeProperty?.min) floatField = floatField.min(field.typeProperty.min);
-          if (field.required) floatField = floatField.optional();
+  //         if (field.typeProperty?.numberMax)
+  //           floatField = floatField.max(field.typeProperty.numberMax);
+  //         if (field.typeProperty?.min) floatField = floatField.min(field.typeProperty.min);
+  //         if (field.required) floatField = floatField.optional();
 
-          validateObj[field.key] = floatField;
-          acceptImportFieldCount++;
+  //         validateObj[field.key] = floatField;
+  //         acceptImportFieldCount++;
 
-          break;
-        }
+  //         break;
+  //       }
 
-        case "Select": {
-          if (field.typeProperty?.values) {
-            let optionField:
-              | z.ZodUnion<z.ZodLiteral<string>[]>
-              | ZodOptional<z.ZodUnion<z.ZodLiteral<string>[]>> = z.union(
-              field.typeProperty.values.map(value => z.literal(value)),
-            );
+  //       case "Select": {
+  //         if (field.typeProperty?.values) {
+  //           let optionField:
+  //             | z.ZodUnion<z.ZodLiteral<string>[]>
+  //             | ZodOptional<z.ZodUnion<z.ZodLiteral<string>[]>> = z.union(
+  //             field.typeProperty.values.map(value => z.literal(value)),
+  //           );
 
-            if (field.required) optionField = optionField.optional();
+  //           if (field.required) optionField = optionField.optional();
 
-            validateObj[field.key] = optionField;
-            acceptImportFieldCount++;
-          }
+  //           validateObj[field.key] = optionField;
+  //           acceptImportFieldCount++;
+  //         }
 
-          break;
-        }
+  //         break;
+  //       }
 
-        case "URL": {
-          let urlField: ZodURL | ZodOptional<ZodURL> = z.url();
+  //       case "URL": {
+  //         let urlField: ZodURL | ZodOptional<ZodURL> = z.url();
 
-          if (field.required) urlField = urlField.optional();
+  //         if (field.required) urlField = urlField.optional();
 
-          validateObj[field.key] = urlField;
-          acceptImportFieldCount++;
+  //         validateObj[field.key] = urlField;
+  //         acceptImportFieldCount++;
 
-          break;
-        }
+  //         break;
+  //       }
 
-        case "GeometryObject": {
-          // CSV file cannot contain geometry object
-          if (sourceFormat === "JSON") {
-            let geoObjField: ZodJSONSchema | ZodOptional<ZodJSONSchema> = z.json().refine(
-              val => {
-                if (!val) return false;
-                const issues: HintIssue[] = getIssues(JSON.stringify(val));
-                return !(issues.length > 0);
-              },
-              { error: "Invalid GeometryObject format." },
-            );
+  //       case "GeometryObject": {
+  //         // CSV file cannot contain geometry object
+  //         if (sourceFormat === "JSON") {
+  //           let geoObjField: ZodJSONSchema | ZodOptional<ZodJSONSchema> = z.json().refine(
+  //             val => {
+  //               if (!val) return false;
+  //               const issues: HintIssue[] = getIssues(JSON.stringify(val));
+  //               return !(issues.length > 0);
+  //             },
+  //             { error: "Invalid GeometryObject format." },
+  //           );
 
-            if (field.required) geoObjField = geoObjField.optional();
+  //           if (field.required) geoObjField = geoObjField.optional();
 
-            validateObj[field.key] = geoObjField;
-            acceptImportFieldCount++;
-          }
+  //           validateObj[field.key] = geoObjField;
+  //           acceptImportFieldCount++;
+  //         }
 
-          break;
-        }
-        default:
-      }
-    });
+  //         break;
+  //       }
+  //       default:
+  //     }
+  //   });
 
-    return { validator: z.object(validateObj), acceptImportFieldCount };
-  }
+  //   return { validator: z.object(validateObj), acceptImportFieldCount };
+  // }
 
   private static readonly FIELD_BASE_VALIDATOR: z.ZodSchema<FieldBase> = z.object({
     title: z.string(),
@@ -463,38 +448,38 @@ export abstract class ImportUtils {
     ),
   });
 
-  private static readonly IMPORT_CONTENT_JSON_VALIDATOR: z.ZodSchema<ImportContentJSON> = z.object({
-    results: z.record(z.string(), z.unknown()).array().max(Constant.IMPORT.MAX_CONTENT_RECORDS),
-    totalCount: z.int().nonnegative(),
-  });
+  // private static readonly IMPORT_CONTENT_JSON_VALIDATOR: z.ZodSchema<ImportContentJSON> = z.object({
+  //   results: z.record(z.string(), z.unknown()).array().max(Constant.IMPORT.MAX_CONTENT_RECORDS),
+  //   totalCount: z.int().nonnegative(),
+  // });
 
-  private static getErrorMeta(
-    schemaValidation: z.ZodSafeParseError<Record<string, unknown>[]>,
-    modelFieldCount: number,
-  ): ErrorMeta {
-    return schemaValidation.error.issues.reduce<ErrorMeta>(
-      (acc, curr, _index, _arr) => {
-        // exceed limit records
-        if (curr.code === "too_big" && curr.origin === "array")
-          return { ...acc, exceedLimit: true };
+  // private static getErrorMeta(
+  //   schemaValidation: z.ZodSafeParseError<Record<string, unknown>[]>,
+  //   modelFieldCount: number,
+  // ): ErrorMeta {
+  //   return schemaValidation.error.issues.reduce<ErrorMeta>(
+  //     (acc, curr, _index, _arr) => {
+  //       // exceed limit records
+  //       if (curr.code === "too_big" && curr.origin === "array")
+  //         return { ...acc, exceedLimit: true };
 
-        // illegal key, invalid type
-        if (
-          curr.path[1] &&
-          // invalid type, invalid key
-          (curr.code === "invalid_type" ||
-            // invalid option (for select)
-            curr.code === "invalid_union" ||
-            // number out of range (too big or too small)
-            ((curr.code === "too_big" || curr.code === "too_small") && curr.origin === "number"))
-        )
-          return { ...acc, mismatchFields: acc.mismatchFields.add(curr.path[1]) };
+  //       // illegal key, invalid type
+  //       if (
+  //         curr.path[1] &&
+  //         // invalid type, invalid key
+  //         (curr.code === "invalid_type" ||
+  //           // invalid option (for select)
+  //           curr.code === "invalid_union" ||
+  //           // number out of range (too big or too small)
+  //           ((curr.code === "too_big" || curr.code === "too_small") && curr.origin === "number"))
+  //       )
+  //         return { ...acc, mismatchFields: acc.mismatchFields.add(curr.path[1]) };
 
-        return acc;
-      },
-      { exceedLimit: false, mismatchFields: new Set<PropertyKey>(), modelFieldCount },
-    );
-  }
+  //       return acc;
+  //     },
+  //     { exceedLimit: false, mismatchFields: new Set<PropertyKey>(), modelFieldCount },
+  //   );
+  // }
 
   public static convertCSVToJSON<T = unknown>(
     csvString: string,

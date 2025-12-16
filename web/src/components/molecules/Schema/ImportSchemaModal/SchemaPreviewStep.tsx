@@ -1,4 +1,3 @@
-import { gray } from "@ant-design/colors";
 import styled from "@emotion/styled";
 import ReactDragListView from "react-drag-listview";
 
@@ -228,12 +227,12 @@ const FieldThumbnail = styled.div`
   }
 `;
 
-const ItemTitle = styled.p`
-  color: rgba(0, 0, 0, 0.85);
-  margin: 0;
-  display: flex;
-  justify-content: start;
-`;
+// const ItemTitle = styled.p`
+//   color: rgba(0, 0, 0, 0.85);
+//   margin: 0;
+//   display: flex;
+//   justify-content: start;
+// `;
 
 const ItemTitleHeading = styled.span`
   text-overflow: ellipsis;
