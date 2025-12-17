@@ -130,9 +130,15 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 		return res.Into(), fmt.Errorf("expected array start, got %v", t)
 	}
 
-	count, jsonChunk := 0, make([]map[string]any, 0)
+	count, totalCount, jsonChunk := 0, 0, make([]map[string]any, 0)
 	for decoder.More() {
 		count++
+		totalCount++
+
+		// Check max record limit
+		if totalCount > interfaces.MaxImportRecordCount {
+			return res.Into(), interfaces.ErrImportTooManyRecords
+		}
 
 		var obj map[string]any
 		if err := decoder.Decode(&obj); err != nil {
@@ -334,6 +340,12 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 				return nil, nil, err
 			}
 
+			// Apply default values for missing fields on new items
+			if action == interfaces.ImportStrategyTypeInsert {
+				fields = append(fields, missingFieldsWithDefaultValues(fields, s)...)
+				// TODO: Handle default values for groups fields
+			}
+
 			if err := i.checkUnique(ctx, fields, s, m.ID(), nil); err != nil {
 				return nil, nil, err
 			}
@@ -414,6 +426,37 @@ func (i Item) updateSchema(ctx context.Context, s *schema.Schema, params []inter
 	}
 	log.Infof("schema %s updated, %v new field saved.", s.ID(), len(params))
 	return fields, nil
+}
+
+// missingFieldsWithDefaultValues adds default values for schema fields that are missing in the imported data.
+func missingFieldsWithDefaultValues(importedFields item.Fields, s *schema.Schema) item.Fields {
+	fields := importedFields.Clone()
+	// Build set of existing field IDs
+	existingFieldIDs := make(map[id.FieldID]struct{})
+	for _, f := range fields {
+		existingFieldIDs[f.FieldID()] = struct{}{}
+	}
+
+	newFields := item.Fields{}
+
+	// Check each schema field for default values
+	for _, sf := range s.Fields() {
+		// Skip if field already has a value from import
+		if _, exists := existingFieldIDs[sf.ID()]; exists {
+			continue
+		}
+
+		// Skip if no default value
+		defaultVal := sf.DefaultValue()
+		if defaultVal == nil {
+			continue
+		}
+
+		// Create item field with default value
+		newFields = append(newFields, item.NewField(sf.ID(), defaultVal, nil))
+	}
+
+	return newFields
 }
 
 func itemsParamsFrom(chunk []map[string]any, isGeoJson bool, geoField *string, sp schema.Package) ([]interfaces.ImportItemParam, error) {
