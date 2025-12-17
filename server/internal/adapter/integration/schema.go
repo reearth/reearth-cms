@@ -20,55 +20,17 @@ var (
 	ErrInvalidTypeProperty = errors.New("invalid type property")
 )
 
-func (s *Server) SchemaFilter(ctx context.Context, request SchemaFilterRequestObject) (SchemaFilterResponseObject, error) {
-	uc := adapter.Usecases(ctx)
-	op := adapter.Operator(ctx)
-
-	prj, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return SchemaFilter404Response{}, err
-		}
-		return nil, err
-	}
-
-	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	params := interfaces.FindByProjectAndKeywordParam{
-		ProjectID:  prj.ID(),
-		Keyword:    request.Params.Keyword,
-		Sort:       toModelSort(request.Params.Sort, request.Params.Dir),
-		Pagination: p,
-	}
-
-	ms, pi, err := uc.Model.FindByProjectAndKeyword(ctx, params, op)
-	if err != nil {
-		return nil, err
-	}
-
-	models := make([]integrationapi.Model, 0, len(ms))
-	for _, m := range ms {
-		sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
-		if err != nil {
-			return nil, err
-		}
-		lastModified, err := uc.Item.LastModifiedByModel(ctx, m.ID(), op)
-		if err != nil && !errors.Is(err, rerror.ErrNotFound) {
-			return nil, err
-		}
-		models = append(models, integrationapi.NewModel(m, sp, lastModified))
-	}
-
-	return SchemaFilter200JSONResponse{
-		Models:     &models,
-		Page:       lo.ToPtr(Page(*p.Offset)),
-		PerPage:    lo.ToPtr(int(p.Offset.Limit)),
-		TotalCount: lo.ToPtr(int(pi.TotalCount)),
-	}, nil
-}
-
 func (s *Server) FieldCreate(ctx context.Context, request FieldCreateRequestObject) (FieldCreateResponseObject, error) {
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
+
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, nil)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return FieldCreate404Response{}, err
+		}
+		return FieldCreate400Response{}, err
+	}
 
 	sch, err := uc.Schema.FindByID(ctx, request.SchemaId, op)
 	if err != nil {
@@ -81,6 +43,10 @@ func (s *Server) FieldCreate(ctx context.Context, request FieldCreateRequestObje
 	m, err := uc.Model.FindBySchema(ctx, sch.ID(), op)
 	if err != nil {
 		return FieldCreate400Response{}, err
+	}
+
+	if m.Project() != wp.Project.ID() {
+		return FieldCreate400Response{}, rerror.ErrNotFound
 	}
 
 	tp, dv, err := FromSchemaTypeProperty(*request.Body.Type, *request.Body.Multiple)
@@ -110,64 +76,17 @@ func (s *Server) FieldCreate(ctx context.Context, request FieldCreateRequestObje
 	return FieldCreate200JSONResponse(integrationapi.NewSchemaField(f)), err
 }
 
-func (s *Server) FieldCreateWithProject(ctx context.Context, request FieldCreateWithProjectRequestObject) (FieldCreateWithProjectResponseObject, error) {
-	uc := adapter.Usecases(ctx)
-	op := adapter.Operator(ctx)
-
-	p, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return FieldCreateWithProject400Response{}, err
-		}
-		return FieldCreateWithProject400Response{}, err
-	}
-
-	m, err := uc.Model.FindByIDOrKey(ctx, p.ID(), request.ModelIdOrKey, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return FieldCreateWithProject400Response{}, err
-		}
-		return FieldCreateWithProject400Response{}, err
-	}
-
-	sch, err := uc.Schema.FindByModel(ctx, m.ID(), op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return FieldCreateWithProject400Response{}, err
-		}
-		return FieldCreateWithProject400Response{}, err
-	}
-
-	tp, dv, err := FromSchemaTypeProperty(*request.Body.Type, *request.Body.Multiple)
-	if err != nil {
-		return nil, err
-	}
-
-	param := interfaces.CreateFieldParam{
-		ModelID:      m.ID().Ref(),
-		SchemaID:     sch.Schema().ID(),
-		Type:         integrationapi.FromValueType(request.Body.Type),
-		Name:         *request.Body.Key,
-		Description:  nil,
-		Key:          *request.Body.Key,
-		Multiple:     *request.Body.Multiple,
-		Unique:       false,
-		Required:     *request.Body.Required,
-		IsTitle:      false,
-		TypeProperty: tp,
-		DefaultValue: dv,
-	}
-	f, err := uc.Schema.CreateField(ctx, param, op)
-	if err != nil {
-		return FieldCreateWithProject400Response{}, err
-	}
-
-	return FieldCreateWithProject200JSONResponse(integrationapi.NewSchemaField(f)), err
-}
-
 func (s *Server) FieldUpdate(ctx context.Context, request FieldUpdateRequestObject) (FieldUpdateResponseObject, error) {
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
+
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, nil)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return FieldUpdate404Response{}, err
+		}
+		return FieldUpdate400Response{}, err
+	}
 
 	sch, err := uc.Schema.FindByID(ctx, request.SchemaId, op)
 	if err != nil {
@@ -182,10 +101,14 @@ func (s *Server) FieldUpdate(ctx context.Context, request FieldUpdateRequestObje
 		return FieldUpdate400Response{}, err
 	}
 
+	if m.Project() != wp.Project.ID() {
+		return FieldUpdate404Response{}, rerror.ErrNotFound
+	}
+
 	idOrKey := (*string)(&request.FieldIdOrKey)
 	f := sch.FieldByIDOrKey(id.FieldIDFromRef(idOrKey), id.NewKeyFromPtr(idOrKey))
 	if f == nil {
-		return FieldUpdate400Response{}, rerror.ErrNotFound
+		return FieldUpdate404Response{}, rerror.ErrNotFound
 	}
 
 	param := interfaces.UpdateFieldParam{
@@ -210,70 +133,17 @@ func (s *Server) FieldUpdate(ctx context.Context, request FieldUpdateRequestObje
 	return FieldUpdate200JSONResponse(integrationapi.NewSchemaField(f)), err
 }
 
-func (s *Server) FieldUpdateWithProject(ctx context.Context, request FieldUpdateWithProjectRequestObject) (FieldUpdateWithProjectResponseObject, error) {
-	uc := adapter.Usecases(ctx)
-	op := adapter.Operator(ctx)
-
-	p, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return FieldUpdateWithProject400Response{}, err
-		}
-		return FieldUpdateWithProject400Response{}, err
-	}
-
-	m, err := uc.Model.FindByIDOrKey(ctx, p.ID(), request.ModelIdOrKey, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return FieldUpdateWithProject400Response{}, err
-		}
-		return FieldUpdateWithProject400Response{}, err
-	}
-
-	sch, err := uc.Schema.FindByModel(ctx, m.ID(), op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return FieldUpdateWithProject400Response{}, err
-		}
-		return FieldUpdateWithProject400Response{}, err
-	}
-
-	idOrKey := (*string)(&request.FieldIdOrKey)
-	f := sch.FieldByIDOrKey(id.FieldIDFromRef(idOrKey), id.NewKeyFromPtr(idOrKey))
-	if f == nil {
-		return FieldUpdateWithProject400Response{}, rerror.ErrNotFound
-	}
-
-	tp, dv, err := FromSchemaTypeProperty(*request.Body.Type, *request.Body.Multiple)
-	if err != nil {
-		return nil, err
-	}
-
-	param := interfaces.UpdateFieldParam{
-		FieldID:      f.ID(),
-		ModelID:      m.ID().Ref(),
-		SchemaID:     sch.Schema().ID(),
-		Name:         request.Body.Key,
-		Description:  nil,
-		Key:          request.Body.Key,
-		Multiple:     request.Body.Multiple,
-		Unique:       lo.ToPtr(false),
-		Required:     request.Body.Required,
-		IsTitle:      lo.ToPtr(false),
-		TypeProperty: tp,
-		DefaultValue: dv,
-	}
-	f, err = uc.Schema.UpdateField(ctx, param, op)
-	if err != nil {
-		return FieldUpdateWithProject400Response{}, err
-	}
-
-	return FieldUpdateWithProject200JSONResponse(integrationapi.NewSchemaField(f)), err
-}
-
 func (s *Server) FieldDelete(ctx context.Context, request FieldDeleteRequestObject) (FieldDeleteResponseObject, error) {
 	uc := adapter.Usecases(ctx)
 	op := adapter.Operator(ctx)
+
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, nil)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return FieldDelete404Response{}, err
+		}
+		return FieldDelete400Response{}, err
+	}
 
 	sch, err := uc.Schema.FindByID(ctx, request.SchemaId, op)
 	if err != nil {
@@ -281,6 +151,15 @@ func (s *Server) FieldDelete(ctx context.Context, request FieldDeleteRequestObje
 			return FieldDelete400Response{}, err
 		}
 		return FieldDelete400Response{}, err
+	}
+
+	m, err := uc.Model.FindBySchema(ctx, sch.ID(), op)
+	if err != nil {
+		return FieldDelete400Response{}, err
+	}
+
+	if m.Project() != wp.Project.ID() {
+		return FieldDelete404Response{}, rerror.ErrNotFound
 	}
 
 	idOrKey := (*string)(&request.FieldIdOrKey)
@@ -295,50 +174,6 @@ func (s *Server) FieldDelete(ctx context.Context, request FieldDeleteRequestObje
 	}
 
 	return FieldDelete200JSONResponse{
-		Id: f.ID().Ref(),
-	}, err
-}
-
-func (s *Server) FieldDeleteWithProject(ctx context.Context, request FieldDeleteWithProjectRequestObject) (FieldDeleteWithProjectResponseObject, error) {
-	uc := adapter.Usecases(ctx)
-	op := adapter.Operator(ctx)
-
-	p, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return FieldDeleteWithProject400Response{}, err
-		}
-		return FieldDeleteWithProject400Response{}, err
-	}
-
-	m, err := uc.Model.FindByIDOrKey(ctx, p.ID(), request.ModelIdOrKey, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return FieldDeleteWithProject400Response{}, err
-		}
-		return FieldDeleteWithProject400Response{}, err
-	}
-
-	sch, err := uc.Schema.FindByModel(ctx, m.ID(), op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return FieldDeleteWithProject400Response{}, err
-		}
-		return FieldDeleteWithProject400Response{}, err
-	}
-
-	idOrKey := (*string)(&request.FieldIdOrKey)
-	f := sch.FieldByIDOrKey(id.FieldIDFromRef(idOrKey), id.NewKeyFromPtr(idOrKey))
-	if f == nil {
-		return FieldDeleteWithProject400Response{}, rerror.ErrNotFound
-	}
-
-	err = uc.Schema.DeleteField(ctx, sch.Schema().ID(), f.ID(), op)
-	if err != nil {
-		return FieldDeleteWithProject400Response{}, err
-	}
-
-	return FieldDeleteWithProject200JSONResponse{
 		Id: f.ID().Ref(),
 	}, err
 }

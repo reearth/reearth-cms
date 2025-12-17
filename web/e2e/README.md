@@ -22,6 +22,9 @@ yarn install
 # Run all tests
 yarn e2e
 
+# Run smoke tests only (faster, recommended for local development)
+yarn e2e-smoke
+
 # Run specific test file
 yarn playwright test tests/project/schema.spec.ts
 
@@ -36,7 +39,37 @@ yarn playwright test --headed
 
 # List all tests
 yarn playwright test --list
+
+# List smoke tests only
+yarn playwright test --list --grep @smoke
 ```
+
+### Smoke Tests
+
+Smoke tests are a subset of critical tests tagged with `@smoke` that verify core functionality. These tests:
+
+- Run faster than the full test suite (~25 tests vs 100+ tests)
+- Cover critical user journeys and core features
+- Are executed automatically in CI/CD pipelines
+- Should be run before pushing changes
+
+**Smoke Test Selection Criteria:**
+Tests are tagged with `@smoke` if they verify:
+
+- **Core CRUD operations**: Creating, reading, updating, and deleting workspaces, projects, models, content items, and assets
+- **Essential field types**: Text, boolean, date, integer, option, and asset field interactions
+- **Critical metadata operations**: Tag and checkbox metadata management
+- **Content publishing**: Publishing and unpublishing workflows
+- **Version management**: Version history and restoration
+- **Comment system**: Creating, updating, and deleting comments
+- **User requests**: Request creation and approval workflows
+
+Note: Authentication (login) is tested via global setup and is implicitly verified by all smoke tests.
+
+**When to use:**
+
+- `yarn e2e-smoke`: For quick validation during local development
+- `yarn e2e`: Before submitting PRs or for comprehensive testing
 
 ## ⚙️ Configuration
 

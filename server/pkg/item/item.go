@@ -220,11 +220,8 @@ func (i *Item) AssetIDs() AssetIDList {
 	})
 }
 
-func (i *Item) AssetIDsBySchema(s *schema.Schema) AssetIDList {
-	if s == nil {
-		return nil
-	}
-	sAssetsFields := s.FieldsByType(value.TypeAsset)
+func (i *Item) AssetIDsBySchema(sp schema.Package) AssetIDList {
+	sAssetsFields := sp.FieldsByType(value.TypeAsset)
 	if len(sAssetsFields) == 0 {
 		return nil
 	}

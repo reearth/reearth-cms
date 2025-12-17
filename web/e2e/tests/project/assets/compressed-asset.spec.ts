@@ -12,10 +12,7 @@ const localZipPath = path.resolve(__dirname, "./mock-assets/test.zip");
 const zipName = "20214_chino-shi_2022_mvt_1_op_urf_UseDistrict.zip";
 const zipUrl = `https://assets.cms.plateau.reearth.io/assets/ff/5caafa-1c09-46b7-868e-9f4b62f59c68/${zipName}`;
 
-const isCI = !!process.env.CI;
-
 test.beforeEach(async ({ reearth, projectPage }) => {
-  test.skip(!isCI, "This test runs only in CI environment");
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
@@ -24,7 +21,6 @@ test.beforeEach(async ({ reearth, projectPage }) => {
 });
 
 test.afterEach(async ({ projectPage }) => {
-  test.skip(!isCI, "This test runs only in CI environment");
   await projectPage.deleteProject();
 });
 

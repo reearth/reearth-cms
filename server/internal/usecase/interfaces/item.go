@@ -18,6 +18,11 @@ import (
 	"github.com/reearth/reearthx/usecasex"
 )
 
+const (
+	MaxImportFileSize    = 10 * 1024 * 1024 // 10 MB
+	MaxImportRecordCount = 2000
+)
+
 var (
 	ErrItemFieldRequired        = rerror.NewE(i18n.T("item field required"))
 	ErrInvalidField             = rerror.NewE(i18n.T("invalid field"))
@@ -27,6 +32,8 @@ var (
 	ErrItemMissing              = rerror.NewE(i18n.T("one or more items not found"))
 	ErrItemConflicted           = rerror.NewE(i18n.T("item has been changed before you change it"))
 	ErrMetadataMismatch         = rerror.NewE(i18n.T("metadata item and schema mismatch"))
+	ErrImportFileTooLarge       = rerror.NewE(i18n.T("import file is too large (max 10MB)"))
+	ErrImportTooManyRecords     = rerror.NewE(i18n.T("import file contains too many records (max 2000)"))
 )
 
 type ItemFieldParam struct {
@@ -137,8 +144,8 @@ type Item interface {
 	IsItemReferenced(context.Context, id.ItemID, id.FieldID, *usecase.Operator) (bool, error)
 	Create(context.Context, CreateItemParam, *usecase.Operator) (item.Versioned, error)
 	Update(context.Context, UpdateItemParam, *usecase.Operator) (item.Versioned, error)
-	Delete(context.Context, id.ItemID, *usecase.Operator) error
-	BatchDelete(context.Context, id.ItemIDList, *usecase.Operator) (id.ItemIDList, error)
+	Delete(context.Context, id.ItemID, schema.Package, *usecase.Operator) error
+	BatchDelete(context.Context, id.ItemIDList, schema.Package, *usecase.Operator) (id.ItemIDList, error)
 	Publish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 	Unpublish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 	Import(context.Context, ImportItemsParam, *usecase.Operator) (ImportItemsResponse, error)
