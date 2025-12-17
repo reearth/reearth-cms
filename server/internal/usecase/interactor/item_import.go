@@ -428,7 +428,7 @@ func (i Item) updateSchema(ctx context.Context, s *schema.Schema, params []inter
 	return fields, nil
 }
 
-// missingFieldsWithDefaultValues adds default values for schema fields that are missing in the imported data.
+// missingFieldsWithDefaultValues returns a list of fields with default values for schema fields that are missing in the imported data.
 func missingFieldsWithDefaultValues(importedFields item.Fields, s *schema.Schema) item.Fields {
 	// Build set of existing field IDs
 	existingFieldIDs := make(map[id.FieldID]struct{})
