@@ -442,25 +442,27 @@ func TestProjectRepo_FindByIDs(t *testing.T) {
 }
 
 func TestProjectRepo_IsAliasAvailable(t *testing.T) {
-	tid1 := accountdomain.NewWorkspaceID()
-	id1 := id.NewProjectID()
+	wId1 := accountdomain.NewWorkspaceID()
+	pId1 := id.NewProjectID()
 	p1 := project.New().
-		ID(id1).
-		Workspace(tid1).
+		ID(pId1).
+		Workspace(wId1).
 		Alias("xyz123").
 		UpdatedAt(time.Now().Add(-time.Hour)).
 		MustBuild()
 
-	id2 := id.NewProjectID()
+	wId2 := accountdomain.NewWorkspaceID()
+	pId2 := id.NewProjectID()
 	p2 := project.New().
-		ID(id2).
-		Workspace(accountdomain.NewWorkspaceID()).
+		ID(pId2).
+		Workspace(wId2).
 		Alias("xyz321").
 		MustBuild()
 
 	tests := []struct {
 		name    string
 		seeds   project.List
+		wId     accountdomain.WorkspaceID
 		arg     string
 		filter  *repo.WorkspaceFilter
 		want    bool
@@ -468,7 +470,7 @@ func TestProjectRepo_IsAliasAvailable(t *testing.T) {
 		mockErr bool
 	}{
 		{
-			name:    "Not found in empty db",
+			name:    "available in empty db",
 			seeds:   project.List{},
 			arg:     "xyz123",
 			filter:  nil,
@@ -476,68 +478,85 @@ func TestProjectRepo_IsAliasAvailable(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name: "Not found",
+			name: "available with different workspace & alias",
 			seeds: project.List{
-				project.New().NewID().Alias("abc123").MustBuild(),
+				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Alias("abc123").MustBuild(),
 			},
+			wId:     accountdomain.NewWorkspaceID(),
 			arg:     "xyz123",
 			filter:  nil,
 			want:    true,
 			wantErr: nil,
 		},
 		{
-			name: "public Found",
+			name: "available with same alias but different workspace",
 			seeds: project.List{
 				p1,
 			},
+			wId:     accountdomain.NewWorkspaceID(),
+			arg:     "xyz123",
+			filter:  nil,
+			want:    true,
+			wantErr: nil,
+		},
+		{
+			name: "not available with same workspace & alias",
+			seeds: project.List{
+				p1,
+			},
+			wId:     wId1,
 			arg:     "xyz123",
 			filter:  nil,
 			want:    false,
 			wantErr: nil,
 		},
 		{
-			name: "limited Found",
+			name: "not available with same workspace & alias 2",
 			seeds: project.List{
 				p2,
 			},
+			wId:     wId2,
 			arg:     "xyz321",
 			want:    false,
 			filter:  nil,
 			wantErr: nil,
 		},
 		{
-			name: "Found 2",
+			name: "not available with multi projects containing same workspace & alias",
 			seeds: project.List{
 				p1,
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
+			wId:     wId1,
 			arg:     "xyz123",
 			filter:  nil,
 			want:    false,
 			wantErr: nil,
 		},
 		{
-			name: "Filtered should Found",
+			name: "not available with multi projects containing same workspace & alias 3 (even if repo filter is applied)",
 			seeds: project.List{
 				p1,
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
+			wId:     wId1,
 			arg:     "xyz123",
 			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{accountdomain.NewWorkspaceID()}, Writable: []accountdomain.WorkspaceID{}},
 			want:    false,
 			wantErr: nil,
 		},
 		{
-			name: "Filtered should Found",
+			name: "not available with multi projects containing same workspace & alias 4 (with correct repo filter)",
 			seeds: project.List{
 				p1,
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
 			},
+			wId:     wId1,
 			arg:     "xyz123",
-			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{tid1}, Writable: []accountdomain.WorkspaceID{}},
+			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{wId1}, Writable: []accountdomain.WorkspaceID{}},
 			want:    false,
 			wantErr: nil,
 		},
@@ -567,7 +586,7 @@ func TestProjectRepo_IsAliasAvailable(t *testing.T) {
 				r = r.Filtered(*tc.filter)
 			}
 
-			got, err := r.IsAliasAvailable(ctx, tc.arg)
+			got, err := r.IsAliasAvailable(ctx, tc.wId, tc.arg)
 			if tc.wantErr != nil {
 				assert.ErrorIs(t, err, tc.wantErr)
 				return

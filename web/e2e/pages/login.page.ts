@@ -32,7 +32,7 @@ export class LoginPage {
     });
 
     // User menu
-    this.userMenuLink = this.page.getByTestId("user-menu");
+    this.userMenuLink = this.page.locator("a").nth(1);
     this.logoutButton = this.page.getByText("Logout");
   }
 
