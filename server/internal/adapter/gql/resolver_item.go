@@ -6,12 +6,14 @@ package gql
 
 import (
 	"context"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/util"
 	"github.com/samber/lo"
@@ -308,6 +310,63 @@ func (r *mutationResolver) UnpublishItem(ctx context.Context, input gqlmodel.Unp
 	}
 	return &gqlmodel.UnpublishItemPayload{
 		Items: lo.Map(res, func(t item.Versioned, _ int) *gqlmodel.Item { return gqlmodel.ToItem(t, s, nil) }),
+	}, nil
+}
+
+// ImportItems is the resolver for the importItems field.
+func (r *mutationResolver) ImportItems(ctx context.Context, input gqlmodel.ImportItemsInput) (*gqlmodel.ImportItemsPayload, error) {
+	op := getOperator(ctx)
+
+	// Validate file size (max 10MB)
+	if input.File.Size > interfaces.MaxImportFileSize {
+		return nil, interfaces.ErrImportFileTooLarge
+	}
+
+	mid, err := gqlmodel.ToID[id.Model](input.ModelID)
+	if err != nil {
+		return nil, err
+	}
+
+	sp, err := usecases(ctx).Schema.FindByModel(ctx, mid, op)
+	if err != nil {
+		return nil, err
+	}
+
+	// Detect format from filename
+	format := interfaces.ImportFormatTypeJSON
+	if strings.HasSuffix(strings.ToLower(input.File.Filename), ".geojson") {
+		format = interfaces.ImportFormatTypeGeoJSON
+	}
+
+	// Auto-detect first geometry field for GeoJSON import when geoField is not specified
+	geoField := input.GeoField
+	if format == interfaces.ImportFormatTypeGeoJSON && geoField == nil {
+		geoFields := sp.Schema().FieldsByType(value.TypeGeometryObject)
+		if len(geoFields) > 0 {
+			key := geoFields[0].Key().String()
+			geoField = &key
+		}
+	}
+
+	res, err := usecases(ctx).Item.Import(ctx, interfaces.ImportItemsParam{
+		ModelID:      mid,
+		SP:           *sp,
+		Strategy:     interfaces.ImportStrategyTypeInsert,
+		Format:       format,
+		MutateSchema: false,
+		Reader:       input.File.File,
+		GeoField:     geoField,
+	}, op)
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.ImportItemsPayload{
+		ModelID:       input.ModelID,
+		TotalCount:    res.Total,
+		InsertedCount: res.Inserted,
+		UpdatedCount:  res.Updated,
+		IgnoredCount:  res.Ignored,
 	}, nil
 }
 
