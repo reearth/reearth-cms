@@ -11,7 +11,7 @@ import Loading from "@reearth-cms/components/atoms/Loading";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Space from "@reearth-cms/components/atoms/Space";
 import Typography from "@reearth-cms/components/atoms/Typography";
-import Upload, { UploadProps } from "@reearth-cms/components/atoms/Upload";
+import Upload, { RcFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { ValidateImportResult } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { Trans, useT } from "@reearth-cms/i18n";
@@ -32,14 +32,12 @@ type Props = {
   modelFields: Model["schema"]["fields"];
   onSetDataChecking: (isChecking: boolean) => void;
   onClose: () => void;
-  onFileContentChange: ({
-    fileContent,
-    extension,
-  }: {
+  onFileContentChange: (payload: {
     fileName: string;
     fileContent: ImportContentJSON2["results"];
     extension: "csv" | "json" | "geojson";
     url: string;
+    raw: RcFile;
   }) => void;
   alertList: AlertProps[];
   setAlertList: Dispatch<SetStateAction<AlertProps[]>>;
@@ -229,6 +227,7 @@ const ContentImportModal: React.FC<Props> = ({
               extension,
               fileName,
               url: location.pathname,
+              raw: file,
             });
             break;
           }
@@ -333,6 +332,21 @@ const ContentImportModal: React.FC<Props> = ({
     }
   }, [validateImportResult]);
 
+  const handleFileUpdate = async (e: any) => {
+    e.preventDefault();
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    onFileContentChange({
+      fileName: "test.json",
+      fileContent: [],
+      extension: "json",
+      url: "123",
+      raw: file,
+    });
+  };
+
   return (
     <Modal
       styles={{ body: { height: "70vh" } }}
@@ -340,6 +354,8 @@ const ContentImportModal: React.FC<Props> = ({
       open={isOpen}
       onCancel={onClose}
       footer={null}>
+      <input type="file" onChange={handleFileUpdate} />
+      <hr />
       {!validateImportResult ? (
         <>
           {dataChecking ? (

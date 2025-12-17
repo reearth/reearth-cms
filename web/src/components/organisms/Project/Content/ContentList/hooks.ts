@@ -1,3 +1,4 @@
+import { RcFile } from "antd/es/upload";
 import { useCallback, useEffect, useMemo, useState, useRef, Key } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
@@ -46,6 +47,7 @@ import {
   View as GQLView,
   useGetViewsQuery,
   ItemFieldInput,
+  useImportItemsMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useCollapsedModelMenu, useUserRights, useUploader } from "@reearth-cms/state";
@@ -211,6 +213,7 @@ export default () => {
   const [updateItemMutation] = useUpdateItemMutation();
   const [getItem] = useGetItemLazyQuery({ fetchPolicy: "no-cache" });
   const [createNewItem] = useCreateItemMutation({ refetchQueries: ["SearchItem"] });
+  const [importItemMutation] = useImportItemsMutation();
 
   const itemIdToMetadata = useRef(new Map<string, Metadata>());
   const metadataVersionSet = useCallback(
@@ -674,11 +677,13 @@ export default () => {
       fileContent,
       extension: _extension,
       url: _url,
+      raw,
     }: {
       fileName: string;
       fileContent: ImportContentJSON2["results"];
       extension: "csv" | "json" | "geojson";
       url: string;
+      raw: RcFile;
     }) => {
       // handleQueueToUploader({ fileName, fileContent, url });
       if (_extension !== "json") {
@@ -718,25 +723,39 @@ export default () => {
         [] as Record<string, any>[],
       );
 
-      // go to backend
-      for await (const reqItem of reqList) {
-        const result = await createNewItem({
-          variables: {
+      // console.log("raw: ", raw);
+
+      const res = await importItemMutation({
+        variables: {
+          importItemsInput: {
+            file: raw,
             modelId: currentModel.id,
-            schemaId: currentModel.schema.id,
-            fields: reqItem as ItemFieldInput[],
+            // geoField: "location",
           },
-        });
-        if (result.errors) {
-          Notification.error({ message: "Import failed" });
-        } else {
-          Notification.success({ message: "Import success" });
-        }
-      }
+        },
+      });
+
+      console.log("res", res);
+
+      // go to backend
+      // for await (const reqItem of reqList) {
+      //   const result = await createNewItem({
+      //     variables: {
+      //       modelId: currentModel.id,
+      //       schemaId: currentModel.schema.id,
+      //       fields: reqItem as ItemFieldInput[],
+      //     },
+      //   });
+      //   if (result.errors) {
+      //     Notification.error({ message: "Import failed" });
+      //   } else {
+      //     Notification.success({ message: "Import success" });
+      //   }
+      // }
 
       handleImportContentModalClose();
     },
-    [createNewItem, currentModel, handleImportContentModalClose],
+    [currentModel, handleImportContentModalClose, importItemMutation],
   );
 
   return {
