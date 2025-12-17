@@ -100,13 +100,13 @@ const DangerZone: React.FC<Props> = ({
           "Permanently removes your project and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.",
         )}
       </Text>
-      <Button
+      <StyledButton
         onClick={handleProjectDeleteConfirmation}
         type="primary"
         danger
         disabled={!hasDeleteRight}>
         {t("Delete Project")}
-      </Button>
+      </StyledButton>
     </ContentSection>
   );
 };
@@ -131,4 +131,8 @@ const Text = styled.p`
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
+`;
+
+const StyledButton = styled(Button)`
+  width: fit-content;
 `;

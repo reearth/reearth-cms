@@ -4,6 +4,7 @@ import {
   ObjectSupportedType,
   TypeProperty,
 } from "@reearth-cms/components/molecules/Schema/types";
+import { ImportSchemaField } from "@reearth-cms/utils/import";
 
 export function convertSchemaFieldType(s: string): SchemaFieldType {
   switch (s) {
@@ -139,6 +140,80 @@ export function defaultTypePropertyGet(
     default:
       return {
         text: { defaultValue: "", maxLength: undefined },
+      };
+  }
+}
+
+export function defaultTypePropertyGet2(
+  field: ImportSchemaField,
+): Record<
+  string,
+  TypeProperty & { supportedTypes?: ObjectSupportedType[] | EditorSupportedType[] }
+> {
+  switch (field.type) {
+    case "Text":
+      return {
+        text: {
+          defaultValue: field.defaultValue,
+          maxLength: field.maxLength,
+        },
+      };
+    case "TextArea":
+      return {
+        textArea: {
+          defaultValue: field.defaultValue,
+          maxLength: field.maxLength,
+        },
+      };
+    case "MarkdownText":
+      return {
+        markdownText: {
+          defaultValue: field.defaultValue,
+          maxLength: field.maxLength,
+        },
+      };
+    case "Asset":
+      return {
+        asset: {
+          defaultValue: field.defaultValue,
+        },
+      };
+    case "Bool":
+      return {
+        bool: { defaultValue: field.defaultValue },
+      };
+    case "Date":
+      return {
+        date: { defaultValue: field.defaultValue },
+      };
+    case "Number":
+      return {
+        number: {
+          defaultValue: field.defaultValue,
+          min: field.minimum,
+          max: field.maximum,
+        },
+      };
+    case "Integer":
+      return {
+        integer: {
+          defaultValue: field.defaultValue,
+          min: field.minimum,
+          max: field.maximum,
+        },
+      };
+    case "Select":
+      return {
+        select: {
+          defaultValue: field.defaultValue,
+          values: field.values,
+        },
+      };
+    case "URL":
+      return {
+        url: {
+          defaultValue: field.defaultValue,
+        },
       };
   }
 }

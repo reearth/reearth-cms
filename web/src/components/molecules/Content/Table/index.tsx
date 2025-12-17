@@ -13,6 +13,7 @@ import React, {
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import Empty from "@reearth-cms/components/atoms/Empty";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
@@ -42,7 +43,7 @@ import {
   CurrentView,
   metaColumn,
 } from "@reearth-cms/components/molecules/View/types";
-import { useT } from "@reearth-cms/i18n";
+import { Trans, useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
@@ -91,6 +92,7 @@ export type Props = {
   hasPublishRight: boolean;
   hasRequestUpdateRight: boolean;
   showPublishAction: boolean;
+  onImportModalOpen: () => void;
 };
 
 const ContentTable: React.FC<Props> = ({
@@ -135,6 +137,7 @@ const ContentTable: React.FC<Props> = ({
   hasPublishRight,
   hasRequestUpdateRight,
   showPublishAction,
+  onImportModalOpen,
 }) => {
   const [currentWorkspace] = useWorkspace();
   const t = useT();
@@ -822,6 +825,22 @@ const ContentTable: React.FC<Props> = ({
             );
           }}
           heightOffset={102}
+          locale={{
+            emptyText: (
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("No Content Data")}>
+                <Trans
+                  i18nKey="Please add some items manually or import from JSON/GeoJSON/CSV"
+                  components={{
+                    l: (
+                      <ImportButton type="link" onClick={onImportModalOpen}>
+                        import
+                      </ImportButton>
+                    ),
+                  }}
+                />
+              </Empty>
+            ),
+          }}
         />
       ) : null}
       <LinkItemRequestModal
@@ -887,6 +906,10 @@ const IconWrapper = styled.span`
 
 const InputWrapper = styled.div`
   padding: 8px 10px;
+`;
+
+const ImportButton = styled(Button)`
+  padding: 0;
 `;
 
 const Wrapper = styled.div`
