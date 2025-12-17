@@ -594,6 +594,20 @@ type GuessSchemaFieldsInput struct {
 	ModelID ID `json:"modelId"`
 }
 
+type ImportItemsInput struct {
+	ModelID  ID             `json:"modelId"`
+	File     graphql.Upload `json:"file"`
+	GeoField *string        `json:"geoField,omitempty"`
+}
+
+type ImportItemsPayload struct {
+	ModelID       ID  `json:"modelId"`
+	TotalCount    int `json:"totalCount"`
+	InsertedCount int `json:"insertedCount"`
+	UpdatedCount  int `json:"updatedCount"`
+	IgnoredCount  int `json:"ignoredCount"`
+}
+
 type Integration struct {
 	ID          ID                 `json:"id"`
 	Name        string             `json:"name"`
