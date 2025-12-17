@@ -1,25 +1,29 @@
-import { test, expect } from "vitest";
+import { test, expect, describe } from "vitest";
 
-import { getExtension } from "./file";
+import { FileUtils } from "./file";
 
-test("getExtension function returns correct extension when filename has extension", () => {
-  expect(getExtension("file.txt")).toBe("txt");
-  expect(getExtension("document.pdf")).toBe("pdf");
-  expect(getExtension("image.jpeg")).toBe("jpeg");
-});
+describe("FileUtils", () => {
+  describe("getExtension", () => {
+    test("FileUtils.getExtension function returns correct extension when filename has extension", () => {
+      expect(FileUtils.getExtension("file.txt")).toBe("txt");
+      expect(FileUtils.getExtension("document.pdf")).toBe("pdf");
+      expect(FileUtils.getExtension("image.jpeg")).toBe("jpeg");
+    });
 
-test("getExtension function returns empty string when filename does not have an extension", () => {
-  expect(getExtension("filename")).toBe("");
-  expect(getExtension("anotherfile")).toBe("");
-  expect(getExtension("noextension")).toBe("");
-});
+    test("FileUtils.getExtension function returns empty string when filename does not have an extension", () => {
+      expect(FileUtils.getExtension("filename")).toBe("");
+      expect(FileUtils.getExtension("anotherfile")).toBe("");
+      expect(FileUtils.getExtension("noextension")).toBe("");
+    });
 
-test("getExtension function returns correct extension when filename has multiple dots", () => {
-  expect(getExtension("archive.tar.gz")).toBe("gz");
-  expect(getExtension("backup.tar.gz")).toBe("gz");
-  expect(getExtension("code.min.js")).toBe("js");
-});
+    test("FileUtils.getExtension function returns correct extension when filename has multiple dots", () => {
+      expect(FileUtils.getExtension("archive.tar.gz")).toBe("gz");
+      expect(FileUtils.getExtension("backup.tar.gz")).toBe("gz");
+      expect(FileUtils.getExtension("code.min.js")).toBe("js");
+    });
 
-test("getExtension function returns empty string when filename is undefined or null", () => {
-  expect(getExtension(undefined)).toBe("");
+    test("FileUtils.getExtension function returns empty string when filename is undefined or null", () => {
+      expect(FileUtils.getExtension(undefined)).toBe("");
+    });
+  });
 });
