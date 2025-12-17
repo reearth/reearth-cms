@@ -9,7 +9,7 @@ import {
 
 import { PerformanceTimer } from "./performance";
 
-interface FieldBase2 {
+interface FieldBase {
   title: string;
   description: string;
   type: SchemaFieldType;
@@ -19,26 +19,26 @@ interface FieldBase2 {
 }
 
 // field common properties
-interface FieldTextBase extends FieldBase2 {
+interface FieldTextBase extends FieldBase {
   maxLength?: number;
   multiple: false;
   defaultValue?: string;
 }
 
-interface FieldTextBaseMulti extends FieldBase2 {
+interface FieldTextBaseMulti extends FieldBase {
   maxLength?: number;
   multiple: true;
   defaultValue?: string[];
 }
 
-interface FieldNumberBase extends FieldBase2 {
+interface FieldNumberBase extends FieldBase {
   maximum?: number;
   minimum?: number;
   multiple: false;
   defaultValue?: number;
 }
 
-interface FieldNumberBaseMulti extends FieldBase2 {
+interface FieldNumberBaseMulti extends FieldBase {
   maximum?: number;
   minimum?: number;
   multiple: true;
@@ -78,13 +78,13 @@ interface FieldURLMulti extends FieldTextBaseMulti {
   type: "URL";
 }
 
-interface FieldAsset extends FieldBase2 {
+interface FieldAsset extends FieldBase {
   type: "Asset";
   multiple: false;
   defaultValue?: string;
 }
 
-interface FieldAssetMulti extends FieldBase2 {
+interface FieldAssetMulti extends FieldBase {
   type: "Asset";
   multiple: true;
   defaultValue?: string[];
@@ -106,45 +106,45 @@ interface FieldNumberMulti extends FieldNumberBaseMulti {
   type: "Number";
 }
 
-interface FieldBoolean extends FieldBase2 {
+interface FieldBoolean extends FieldBase {
   type: "Bool";
   multiple: false;
   defaultValue?: boolean;
 }
 
-interface FieldBooleanMulti extends FieldBase2 {
+interface FieldBooleanMulti extends FieldBase {
   type: "Bool";
   multiple: true;
   defaultValue?: boolean[];
 }
 
-interface FieldDate extends FieldBase2 {
+interface FieldDate extends FieldBase {
   type: "Date";
   multiple: false;
   defaultValue?: string;
 }
 
-interface FieldDateMulti extends FieldBase2 {
+interface FieldDateMulti extends FieldBase {
   type: "Date";
   multiple: true;
   defaultValue?: string[];
 }
 
-interface FieldSelect extends FieldBase2 {
+interface FieldSelect extends FieldBase {
   type: "Select";
   multiple: false;
   defaultValue?: string;
   values: string[];
 }
 
-interface FieldSelectMulti extends FieldBase2 {
+interface FieldSelectMulti extends FieldBase {
   type: "Select";
   multiple: true;
   defaultValue?: string[];
   values: string[];
 }
 
-export type ImportSchemaField2 =
+export type ImportSchemaField =
   | FieldText
   | FieldTextMulti
   | FieldTextArea
@@ -166,14 +166,14 @@ export type ImportSchemaField2 =
   | FieldDate
   | FieldDateMulti;
 
-export interface ImportSchema2 {
-  properties: Record<string, ImportSchemaField2>;
+export interface ImportSchema {
+  properties: Record<string, ImportSchemaField>;
 }
 
 export abstract class ImportSchemaUtils {
   public static validateSchemaFromJSON(
     json: Record<string, unknown>,
-  ): { isValid: true; data: ImportSchema2 } | { isValid: false; error: string } {
+  ): { isValid: true; data: ImportSchema } | { isValid: false; error: string } {
     const timer = new PerformanceTimer("validateSchemaFromJSON");
 
     const validation = this.IMPORT_SCHEMA_VALIDATOR.safeParse(json);
@@ -187,7 +187,7 @@ export abstract class ImportSchemaUtils {
     }
   }
 
-  private static readonly FIELD_BASE_VALIDATOR: z.ZodType<FieldBase2> = z.object({
+  private static readonly FIELD_BASE_VALIDATOR: z.ZodType<FieldBase> = z.object({
     title: z.string(),
     description: z.string(),
     type: z.union(Object.values(SchemaFieldTypeConst).map(value => z.literal(value))),
@@ -212,7 +212,7 @@ export abstract class ImportSchemaUtils {
     })
     .and(this.FIELD_BASE_VALIDATOR);
 
-  private static readonly IMPORT_SCHEMA_VALIDATOR: z.ZodType<ImportSchema2> = z.object({
+  private static readonly IMPORT_SCHEMA_VALIDATOR: z.ZodType<ImportSchema> = z.object({
     properties: z.record(
       z.string(),
       z.union([
