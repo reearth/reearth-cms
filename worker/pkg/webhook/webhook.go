@@ -56,7 +56,8 @@ func Send(ctx context.Context, w *Webhook) error {
 	correlationID := fmt.Sprintf("%s_%d", w.EventID, now.Unix())
 	log.Infof("webhook debug [%s]: sending request to %s", correlationID, w.URL)
 	log.Infof("webhook debug: headers: %v", req.Header)
-	log.Infof("webhook debug: body: %s", string(b))
+	// Log body preview (truncated to avoid sensitive data exposure)
+	log.Infof("webhook debug: body_preview: %s", truncateString(string(b), 200))
 	log.Infof("webhook debug: signature: %s", signature)
 
 	client := &http.Client{Timeout: 30 * time.Second}
@@ -72,22 +73,31 @@ func Send(ctx context.Context, w *Webhook) error {
 	}(res.Body)
 
 	// Read response body for debugging
-	responseBody, _ := io.ReadAll(res.Body)
+	responseBody, err := io.ReadAll(res.Body)
+	if err != nil {
+		log.Errorf("webhook debug: failed to read response body: %v", err)
+		responseBody = []byte("ERROR_READING_RESPONSE_BODY")
+	}
 
 	// Log response details
 	log.Infof("webhook debug: response status=%d", res.StatusCode)
 	log.Infof("webhook debug: response headers: %v", res.Header)
-	log.Infof("webhook debug: response body: %s", string(responseBody))
+	log.Infof("webhook debug: response body: %s", truncateString(string(responseBody), 500))
 
 	if res.StatusCode > 300 {
 		// Detailed error analysis for 400s
 		if res.StatusCode == 400 {
 			log.Errorf("webhook 400 analysis [%s]: url=%s, signature=%s, body_length=%d", correlationID, w.URL, signature, len(b))
-			log.Errorf("webhook 400 analysis: response_body=%s", string(responseBody))
+			log.Errorf("webhook 400 analysis: response_body=%s", truncateString(string(responseBody), 500))
 
 			// Check common 400 causes
-			if len(string(responseBody)) > 0 {
-				log.Errorf("webhook 400 cause: %s", string(responseBody))
+			responseStr := string(responseBody)
+			if len(responseStr) > 0 && responseStr != "ERROR_READING_RESPONSE_BODY" {
+				log.Errorf("webhook 400 cause: %s", truncateString(responseStr, 300))
+			} else if responseStr == "ERROR_READING_RESPONSE_BODY" {
+				log.Errorf("webhook 400 cause: Unable to read response body - connection issue or malformed response")
+			} else {
+				log.Errorf("webhook 400 cause: Empty response body from external API")
 			}
 		}
 		return fmt.Errorf("ERROR: id=%s, url=%s, status=%d", w.EventID, w.URL, res.StatusCode)
@@ -115,11 +125,20 @@ func Sign(payload, secret []byte, t time.Time, v string) string {
 	s := hex.EncodeToString(mac.Sum(nil))
 	signature := fmt.Sprintf("%s,t=%d,%s", v, t.Unix(), s)
 
-	// Debug signature generation
+	// Debug signature generation (without exposing secret)
 	log.Infof("webhook signature debug: version=%s, timestamp=%d, secret_length=%d", v, t.Unix(), len(secret))
 	log.Infof("webhook signature debug: signature_payload=%s", signaturePayload)
-	log.Infof("webhook signature debug: body_hash_input=%s", string(payload))
+	// Don't log the full body as it may contain sensitive data
+	log.Infof("webhook signature debug: body_length=%d, body_preview=%s", len(payload), truncateString(string(payload), 100))
 	log.Infof("webhook signature debug: final_signature=%s", signature)
 
 	return signature
+}
+
+// truncateString safely truncates strings for logging without exposing sensitive data
+func truncateString(s string, maxLen int) string {
+	if len(s) <= maxLen {
+		return s
+	}
+	return s[:maxLen] + "...[truncated]"
 }
