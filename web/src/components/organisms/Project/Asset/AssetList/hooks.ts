@@ -30,7 +30,7 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
-import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
+import { ImportSchema, ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
 import { ObjectUtils } from "@reearth-cms/utils/object";
 
 import { uploadFiles } from "./upload";
@@ -465,7 +465,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
 
   const handleImportSchemaFileChange = async (fileContent: string): Promise<unknown> => {
     setDataChecking(true);
-    const parsedJSON = await ObjectUtils.safeJSONParse(fileContent);
+    const parsedJSON = await ObjectUtils.safeJSONParse<ImportSchema>(fileContent);
     setDataChecking(false);
 
     if (!parsedJSON.isValid) return { isValid: false, error: parsedJSON.error };
