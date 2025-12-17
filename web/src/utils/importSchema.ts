@@ -46,125 +46,133 @@ interface FieldNumberBaseMulti extends FieldBase {
 }
 
 // fields
-interface FieldText extends FieldTextBase {
+export interface FieldText extends FieldTextBase {
   type: "Text";
 }
 
-interface FieldTextMulti extends FieldTextBaseMulti {
+export interface FieldTextMulti extends FieldTextBaseMulti {
   type: "Text";
 }
 
-interface FieldTextArea extends FieldTextBase {
+export interface FieldTextArea extends FieldTextBase {
   type: "TextArea";
 }
 
-interface FieldTextAreaMulti extends FieldTextBaseMulti {
+export interface FieldTextAreaMulti extends FieldTextBaseMulti {
   type: "TextArea";
 }
 
-interface FieldMarkdownText extends FieldTextBase {
+export interface FieldMarkdownText extends FieldTextBase {
   type: "MarkdownText";
 }
 
-interface FieldMarkdownTextMulti extends FieldTextBaseMulti {
+export interface FieldMarkdownTextMulti extends FieldTextBaseMulti {
   type: "MarkdownText";
 }
 
-interface FieldURL extends FieldTextBase {
+export interface FieldURL extends FieldBase {
   type: "URL";
+  multiple: false;
+  defaultValue?: string;
 }
 
-interface FieldURLMulti extends FieldTextBaseMulti {
+export interface FieldURLMulti extends FieldBase {
   type: "URL";
+  multiple: true;
+  defaultValue?: string[];
 }
 
-interface FieldAsset extends FieldBase {
+export interface FieldAsset extends FieldBase {
   type: "Asset";
   multiple: false;
   defaultValue?: string;
 }
 
-interface FieldAssetMulti extends FieldBase {
+export interface FieldAssetMulti extends FieldBase {
   type: "Asset";
   multiple: true;
   defaultValue?: string[];
 }
 
-interface FieldInteger extends FieldNumberBase {
+export interface FieldInteger extends FieldNumberBase {
   type: "Integer";
 }
 
-interface FieldIntegerMulti extends FieldNumberBaseMulti {
+export interface FieldIntegerMulti extends FieldNumberBaseMulti {
   type: "Integer";
 }
 
-interface FieldNumber extends FieldNumberBase {
+export interface FieldNumber extends FieldNumberBase {
   type: "Number";
 }
 
-interface FieldNumberMulti extends FieldNumberBaseMulti {
+export interface FieldNumberMulti extends FieldNumberBaseMulti {
   type: "Number";
 }
 
-interface FieldBoolean extends FieldBase {
+export interface FieldBoolean extends FieldBase {
   type: "Bool";
   multiple: false;
   defaultValue?: boolean;
 }
 
-interface FieldBooleanMulti extends FieldBase {
+export interface FieldBooleanMulti extends FieldBase {
   type: "Bool";
   multiple: true;
   defaultValue?: boolean[];
 }
 
-interface FieldDate extends FieldBase {
+export interface FieldDate extends FieldBase {
   type: "Date";
   multiple: false;
   defaultValue?: string;
 }
 
-interface FieldDateMulti extends FieldBase {
+export interface FieldDateMulti extends FieldBase {
   type: "Date";
   multiple: true;
   defaultValue?: string[];
 }
 
-interface FieldSelect extends FieldBase {
+export interface FieldSelect extends FieldBase {
   type: "Select";
   multiple: false;
   defaultValue?: string;
   values: string[];
 }
 
-interface FieldSelectMulti extends FieldBase {
+export interface FieldSelectMulti extends FieldBase {
   type: "Select";
   multiple: true;
   defaultValue?: string[];
   values: string[];
 }
 
-export type ImportSchemaField =
+export type ImportSchemaFieldSingle =
   | FieldText
-  | FieldTextMulti
   | FieldTextArea
-  | FieldTextAreaMulti
   | FieldMarkdownText
-  | FieldMarkdownTextMulti
   | FieldURL
-  | FieldURLMulti
   | FieldAsset
-  | FieldAssetMulti
   | FieldSelect
-  | FieldSelectMulti
   | FieldInteger
-  | FieldIntegerMulti
   | FieldNumber
-  | FieldNumberMulti
   | FieldBoolean
+  | FieldDate;
+
+export type ImportSchemaFieldMulti =
+  | FieldTextMulti
+  | FieldTextAreaMulti
+  | FieldMarkdownTextMulti
+  | FieldURLMulti
+  | FieldAssetMulti
+  | FieldSelectMulti
+  | FieldIntegerMulti
+  | FieldNumberMulti
   | FieldBooleanMulti
-  | FieldDate
   | FieldDateMulti;
+
+export type ImportSchemaField = ImportSchemaFieldSingle | ImportSchemaFieldMulti;
 
 export interface ImportSchema {
   properties: Record<string, ImportSchemaField>;
@@ -172,7 +180,7 @@ export interface ImportSchema {
 
 export abstract class ImportSchemaUtils {
   public static validateSchemaFromJSON(
-    json: Record<string, unknown>,
+    json: ImportSchema,
   ): { isValid: true; data: ImportSchema } | { isValid: false; error: string } {
     const timer = new PerformanceTimer("validateSchemaFromJSON");
 
@@ -202,6 +210,18 @@ export abstract class ImportSchemaUtils {
       multiple: z.literal(false),
       defaultValue: z.string().optional(),
     })
+    .superRefine((values, context) => {
+      const { defaultValue, maxLength } = values;
+      if (defaultValue && maxLength && defaultValue.length > maxLength) {
+        context.addIssue({
+          code: "too_big",
+          origin: "string",
+          maximum: maxLength,
+          message: "defaultValue should be less than maxLength",
+          input: defaultValue,
+        });
+      }
+    })
     .and(this.FIELD_BASE_VALIDATOR);
 
   private static readonly FIELD_TEXT_BASE_MULTI_VALIDATOR: z.ZodType<FieldTextBaseMulti> = z
@@ -209,6 +229,18 @@ export abstract class ImportSchemaUtils {
       maxLength: z.int().nonnegative().optional(),
       multiple: z.literal(true),
       defaultValue: z.string().array().optional(),
+    })
+    .superRefine((values, context) => {
+      const { defaultValue, maxLength } = values;
+      if (defaultValue && maxLength && defaultValue.some(value => value.length > maxLength)) {
+        context.addIssue({
+          code: "too_big",
+          origin: "string",
+          maximum: maxLength,
+          message: "each defaultValue item should be less than maxLength",
+          input: defaultValue,
+        });
+      }
     })
     .and(this.FIELD_BASE_VALIDATOR);
 
@@ -278,14 +310,14 @@ export abstract class ImportSchemaUtils {
           .object({
             type: z.literal(SchemaFieldType.Date),
             multiple: z.literal(false),
-            defaultValue: z.string().optional(),
+            defaultValue: z.iso.datetime({ offset: true }).optional(),
           })
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
             type: z.literal(SchemaFieldType.Date),
             multiple: z.literal(true),
-            defaultValue: z.string().array().optional(),
+            defaultValue: z.iso.datetime({ offset: true }).array().optional(),
           })
           .and(this.FIELD_BASE_VALIDATOR),
         z
@@ -296,6 +328,29 @@ export abstract class ImportSchemaUtils {
             defaultValue: z.number().optional(),
             multiple: z.literal(false),
           })
+          .superRefine((values, context) => {
+            const { maximum, minimum, defaultValue } = values;
+
+            if (minimum && defaultValue && defaultValue < minimum) {
+              context.addIssue({
+                code: "too_small",
+                origin: "number",
+                minimum,
+                message: "defaultValue should be greater than minimum",
+                input: defaultValue,
+              });
+            }
+
+            if (maximum && defaultValue && defaultValue > maximum) {
+              context.addIssue({
+                code: "too_big",
+                origin: "number",
+                maximum,
+                message: "defaultValue should be less than maximum",
+                input: defaultValue,
+              });
+            }
+          })
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
@@ -304,6 +359,29 @@ export abstract class ImportSchemaUtils {
             minimum: z.number().optional(),
             defaultValue: z.number().array().optional(),
             multiple: z.literal(true),
+          })
+          .superRefine((values, context) => {
+            const { maximum, minimum, defaultValue } = values;
+
+            if (minimum && defaultValue && defaultValue.some(value => value < minimum)) {
+              context.addIssue({
+                code: "too_small",
+                origin: "number",
+                minimum,
+                message: "each defaultValue item should be greater than minimum",
+                input: defaultValue,
+              });
+            }
+
+            if (maximum && defaultValue && defaultValue.some(value => value > maximum)) {
+              context.addIssue({
+                code: "too_big",
+                origin: "number",
+                maximum,
+                message: "each defaultValue item should be less than maximum",
+                input: defaultValue,
+              });
+            }
           })
           .and(this.FIELD_BASE_VALIDATOR),
         z
@@ -314,6 +392,29 @@ export abstract class ImportSchemaUtils {
             defaultValue: z.int().optional(),
             multiple: z.literal(false),
           })
+          .superRefine((values, context) => {
+            const { maximum, minimum, defaultValue } = values;
+
+            if (minimum && defaultValue && defaultValue < minimum) {
+              context.addIssue({
+                code: "too_small",
+                origin: "int",
+                minimum,
+                message: "defaultValue should be greater than minimum",
+                input: defaultValue,
+              });
+            }
+
+            if (maximum && defaultValue && defaultValue > maximum) {
+              context.addIssue({
+                code: "too_big",
+                origin: "int",
+                maximum,
+                message: "defaultValue should be less than maximum",
+                input: defaultValue,
+              });
+            }
+          })
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
@@ -322,6 +423,29 @@ export abstract class ImportSchemaUtils {
             minimum: z.int().optional(),
             defaultValue: z.int().array().optional(),
             multiple: z.literal(true),
+          })
+          .superRefine((values, context) => {
+            const { maximum, minimum, defaultValue } = values;
+
+            if (minimum && defaultValue && defaultValue.some(value => value < minimum)) {
+              context.addIssue({
+                code: "too_small",
+                origin: "int",
+                minimum,
+                message: "each defaultValue item should be greater than minimum",
+                input: defaultValue,
+              });
+            }
+
+            if (maximum && defaultValue && defaultValue.some(value => value > maximum)) {
+              context.addIssue({
+                code: "too_big",
+                origin: "int",
+                maximum,
+                message: "each defaultValue item should be less than maximum",
+                input: defaultValue,
+              });
+            }
           })
           .and(this.FIELD_BASE_VALIDATOR),
         // z
@@ -342,6 +466,18 @@ export abstract class ImportSchemaUtils {
             defaultValue: z.string().optional(),
             multiple: z.literal(false),
           })
+          .superRefine((value, context) => {
+            const { defaultValue, values } = value;
+            const valuesSet = new Set(values);
+            if (defaultValue && !valuesSet.has(defaultValue)) {
+              context.addIssue({
+                code: "invalid_value",
+                message: "defaultValue should be in one of values",
+                input: value,
+                values,
+              });
+            }
+          })
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
@@ -349,6 +485,18 @@ export abstract class ImportSchemaUtils {
             values: z.string().array(),
             defaultValue: z.string().array().optional(),
             multiple: z.literal(true),
+          })
+          .superRefine((value, context) => {
+            const { defaultValue, values } = value;
+            const valuesSet = new Set(values);
+            if (defaultValue && defaultValue.some(_value => !valuesSet.has(_value))) {
+              context.addIssue({
+                code: "invalid_value",
+                message: "defaultValue should be in one of values",
+                input: value,
+                values,
+              });
+            }
           })
           .and(this.FIELD_BASE_VALIDATOR),
         z
