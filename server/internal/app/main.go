@@ -44,8 +44,12 @@ func Start(debug bool, version string) {
 	}
 
 	// Run initial health check
-	if err := RunInitialHealthCheck(ctx, appCtx.Config, appCtx.Gateways.File); err != nil {
-		log.Fatalf("initial health check failed: %v", err)
+	if appCtx.Config.HealthCheck.RunOnInit {
+		if err := RunInitialHealthCheck(ctx, appCtx.Config, appCtx.Gateways.File); err != nil {
+			log.Fatalf("initial health check failed: %v", err)
+		}
+	} else {
+		log.Infof("health check: initial health check disabled")
 	}
 
 	// Start web server
