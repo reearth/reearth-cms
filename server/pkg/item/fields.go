@@ -47,3 +47,9 @@ func (f Fields) Filter(fIds FieldIDList) Fields {
 		return fIds.Has(f.FieldID())
 	})
 }
+
+func (f Fields) Clone() Fields {
+	return lo.Map(f, func(f *Field, _ int) *Field {
+		return f.Clone()
+	})
+}
