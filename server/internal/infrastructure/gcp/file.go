@@ -26,8 +26,9 @@ import (
 )
 
 const (
-	gcsAssetBasePath string = "assets"
-	fileSizeLimit    int64  = 10 * 1024 * 1024 * 1024 // 10GB
+	gcsAssetBasePath      string = "assets"
+	fileSizeLimit         int64  = 10 * 1024 * 1024 * 1024 // 10GB
+	healthCheckTempFolder string = ".temp-health-check"
 )
 
 const workspaceContextKey = "workspace"
@@ -689,13 +690,13 @@ func (f *fileRepo) Check(ctx context.Context) (err error) {
 		return fmt.Errorf("GCS bucket access failed: %w", err)
 	}
 
-	healthCheckDir := ".temp-health-check"
-	testFileName := fmt.Sprintf("%s/%s", healthCheckDir, uuid.New().String())
+	testFileName := fmt.Sprintf("%s/%s", healthCheckTempFolder, uuid.New().String())
 	testContent := []byte("ok")
 	obj := bucket.Object(testFileName)
 
+	// delete or cleanup
 	defer func() {
-		if delErr := f.deleteHealthCheckDir(ctx, bucket, healthCheckDir); delErr != nil && err == nil {
+		if delErr := f.deleteHealthCheckDir(ctx, bucket, healthCheckTempFolder); delErr != nil && err == nil {
 			err = fmt.Errorf("GCS delete permission failed: %w", delErr)
 		}
 	}()

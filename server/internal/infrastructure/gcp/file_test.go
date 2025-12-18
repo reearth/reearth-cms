@@ -411,3 +411,17 @@ func TestFileRepo_ValidateContentEncoding(t *testing.T) {
 		})
 	}
 }
+
+func TestFileRepo_Check(t *testing.T) {
+	t.Run("validates constant is defined", func(t *testing.T) {
+		assert.NotEmpty(t, healthCheckTempFolder)
+		assert.Equal(t, ".temp-health-check", healthCheckTempFolder)
+	})
+
+	t.Run("check method exists and has correct signature", func(t *testing.T) {
+		f := &fileRepo{bucketName: "test-bucket"}
+		err := f.Check(context.Background())
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "GCS")
+	})
+}
