@@ -146,12 +146,14 @@ const FileSelectionStep: React.FC<Props> = ({
             <Trans
               i18nKey="You can also download file templates: JSON"
               components={{
-                l1: (
-                  <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_SCHEMA_JSON}>JSON</TemplateLink>
-                ),
+                l: <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_SCHEMA_JSON}>JSON</TemplateLink>,
               }}
             />
           </p>
+          {/* TODO: demo use */}
+          <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_SCHEMA_JSON_FOR_DEMO}>
+            JSON file for demo
+          </TemplateLink>
           {alertList.map((alert, index) => (
             <StyledAlert
               {...alert}

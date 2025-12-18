@@ -11,13 +11,17 @@ import Loading from "@reearth-cms/components/atoms/Loading";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Space from "@reearth-cms/components/atoms/Space";
 import Typography from "@reearth-cms/components/atoms/Typography";
-import Upload, { UploadProps } from "@reearth-cms/components/atoms/Upload";
+import Upload, { RcFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { ValidateImportResult } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 import { FileUtils } from "@reearth-cms/utils/file";
-import { ErrorMeta, ImportContentJSON, ImportUtils } from "@reearth-cms/utils/import";
+import {
+  ImportContentUtils,
+  ImportContentJSON2,
+  ValidationErrorMeta2,
+} from "@reearth-cms/utils/importContent";
 import { ObjectUtils } from "@reearth-cms/utils/object";
 
 const { Dragger } = Upload;
@@ -28,14 +32,12 @@ type Props = {
   modelFields: Model["schema"]["fields"];
   onSetDataChecking: (isChecking: boolean) => void;
   onClose: () => void;
-  onFileContentChange: ({
-    fileContent,
-    extension,
-  }: {
+  onFileContentChange: (payload: {
     fileName: string;
-    fileContent: Record<string, unknown>[];
+    fileContent: ImportContentJSON2["results"];
     extension: "csv" | "json" | "geojson";
     url: string;
+    raw: RcFile;
   }) => void;
   alertList: AlertProps[];
   setAlertList: Dispatch<SetStateAction<AlertProps[]>>;
@@ -98,7 +100,7 @@ const ContentImportModal: React.FC<Props> = ({
   }, [setAlertList, t]);
 
   const schemaValidationAlert = useCallback(
-    (errorMeta: ErrorMeta) => {
+    (errorMeta: ValidationErrorMeta2) => {
       // const partialAlertProps: Pick<AlertProps, "type" | "closable" | "showIcon"> = {
       //   type: "error",
       //   closable: true,
@@ -111,17 +113,20 @@ const ContentImportModal: React.FC<Props> = ({
 
       if (errorMeta.exceedLimit) {
         // case: above limit + some mismatch (exceedLimit = true, mismatchFields.size > 0)
-        if (errorMeta.mismatchFields.size > 0) {
+        if (errorMeta.typeMismatchFieldKeys.size > 0) {
           setValidateImportResult({
             type: "error",
             title: t("Data file is too large and some fields don't match the schema."),
             description: t(
               "The data file can contain a maximum of {{max}} records. Please split the file and re-upload it. And {{count}} fields do not match the schema.",
-              { max: Constant.IMPORT.MAX_CONTENT_RECORDS, count: errorMeta.mismatchFields.size },
+              {
+                max: Constant.IMPORT.MAX_CONTENT_RECORDS,
+                count: errorMeta.typeMismatchFieldKeys.size,
+              },
             ),
             hint: t("Unmatched field hint", {
-              count: errorMeta.mismatchFields.size,
-              fields: Array.from(errorMeta.mismatchFields),
+              count: errorMeta.typeMismatchFieldKeys.size,
+              fields: Array.from(errorMeta.typeMismatchFieldKeys),
             }),
           });
         }
@@ -138,21 +143,18 @@ const ContentImportModal: React.FC<Props> = ({
         }
       } else {
         // case: below limit, some mismatch (exceedLimit = false, mismatchFields.size > 0)
-        if (
-          errorMeta.mismatchFields.size > 0 &&
-          errorMeta.mismatchFields.size < errorMeta.modelFieldCount
-        ) {
+        if (errorMeta.typeMismatchFieldKeys.size > 0) {
           console.log("errorMeta", errorMeta);
           setValidateImportResult({
             type: "warning",
             title: t("Some fields don't match the schema"),
             description: t(
               "{{count}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored.",
-              { count: errorMeta.mismatchFields.size },
+              { count: errorMeta.typeMismatchFieldKeys.size },
             ),
             hint: t("Unmatched field hint", {
-              count: errorMeta.mismatchFields.size,
-              fields: Array.from(errorMeta.mismatchFields),
+              count: errorMeta.typeMismatchFieldKeys.size,
+              fields: Array.from(errorMeta.typeMismatchFieldKeys),
             }),
             canForwardToImport: true,
           });
@@ -202,87 +204,87 @@ const ContentImportModal: React.FC<Props> = ({
         handleStartLoading();
         const content = await FileUtils.parseTextFile(file);
 
+        const demoTemp = JSON.stringify({ results: JSON.parse(content), totalCount: 1 });
+
         switch (extension) {
-          case "json":
-            {
-              const jsonValidation = await ObjectUtils.safeJSONParse<ImportContentJSON>(content);
-              if (!jsonValidation.isValid) {
-                raiseIllegalFileAlert();
-                return;
-              }
-
-              const jsonContentValidation = await ImportUtils.validateContentFromJSON(
-                jsonValidation.data,
-                modelFields,
-              );
-
-              if (!jsonContentValidation.isValid) {
-                schemaValidationAlert(jsonContentValidation.error);
-                return;
-              }
-
-              onFileContentChange({
-                fileContent: jsonContentValidation.data,
-                extension,
-                fileName,
-                url: location.pathname,
-              });
+          case "json": {
+            const jsonValidation = await ObjectUtils.safeJSONParse<ImportContentJSON2>(demoTemp);
+            if (!jsonValidation.isValid) {
+              raiseIllegalFileAlert();
+              return;
             }
-            break;
 
-          case "geojson":
-            {
-              const geoJSONValidation = await ObjectUtils.validateGeoJson(content);
-              if (!geoJSONValidation.isValid) {
-                raiseIllegalFileAlert();
-                return;
-              }
+            const jsonContentValidation = await ImportContentUtils.validateContentFromJSON(
+              jsonValidation.data.results,
+              modelFields,
+            );
 
-              const geoJSONContentValidation = await ImportUtils.validateContentFromGeoJson(
-                geoJSONValidation.data,
-                modelFields,
-              );
-
-              if (!geoJSONContentValidation.isValid) {
-                schemaValidationAlert(geoJSONContentValidation.error);
-                return;
-              }
-
-              onFileContentChange({
-                fileContent: geoJSONContentValidation.data,
-                extension,
-                fileName,
-                url: location.pathname,
-              });
+            if (!jsonContentValidation.isValid) {
+              schemaValidationAlert(jsonContentValidation.error);
+              return;
             }
+
+            onFileContentChange({
+              fileContent: jsonContentValidation.data,
+              extension,
+              fileName,
+              url: location.pathname,
+              raw: file,
+            });
             break;
+          }
 
-          case "csv":
-            {
-              const csvValidation = await ImportUtils.convertCSVToJSON(content);
-              if (!csvValidation.isValid) {
-                raiseIllegalFileAlert();
-                return;
-              }
+          // case "geojson": {
+          //   const geoJSONValidation = await ObjectUtils.validateGeoJson(content);
+          //   if (!geoJSONValidation.isValid) {
+          //     raiseIllegalFileAlert();
+          //     return;
+          //   }
 
-              const csvContentValidation = await ImportUtils.validateContentFromCSV(
-                csvValidation.data,
-                modelFields,
-              );
+          //   const geoJSONContentValidation = await ImportContentUtils.validateContentFromGeoJson(
+          //     geoJSONValidation.data,
+          //     modelFields,
+          //   );
 
-              if (!csvContentValidation.isValid) {
-                schemaValidationAlert(csvContentValidation.error);
-                return;
-              }
+          //   if (!geoJSONContentValidation.isValid) {
+          //     schemaValidationAlert(geoJSONContentValidation.error);
+          //     return;
+          //   }
 
-              onFileContentChange({
-                fileContent: csvContentValidation.data,
-                extension,
-                fileName,
-                url: location.pathname,
-              });
-            }
-            break;
+          //   onFileContentChange({
+          //     fileContent: geoJSONContentValidation.data,
+          //     extension,
+          //     fileName,
+          //     url: location.pathname,
+          //   });
+          //   break;
+          // }
+
+          // case "csv": {
+          //   const csvValidation = await ImportContentUtils.convertCSVToJSON(content);
+          //   if (!csvValidation.isValid) {
+          //     raiseIllegalFileAlert();
+          //     return;
+          //   }
+
+          //   const csvContentValidation = await ImportContentUtils.validateContentFromCSV(
+          //     csvValidation.data,
+          //     modelFields,
+          //   );
+
+          //   if (!csvContentValidation.isValid) {
+          //     schemaValidationAlert(csvContentValidation.error);
+          //     return;
+          //   }
+
+          //   onFileContentChange({
+          //     fileContent: csvContentValidation.data,
+          //     extension,
+          //     fileName,
+          //     url: location.pathname,
+          //   });
+          //   break;
+          // }
 
           default:
         }
@@ -380,6 +382,10 @@ const ContentImportModal: React.FC<Props> = ({
                   }}
                 />
               </p>
+              {/* TODO: demo use */}
+              <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_JSON_FOR_DEMO}>
+                JSON file for demo
+              </TemplateLink>
               {alertList.map((alert, index) => (
                 <Alert
                   {...alert}

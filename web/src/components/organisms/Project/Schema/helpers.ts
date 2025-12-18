@@ -4,7 +4,7 @@ import {
   ObjectSupportedType,
   TypeProperty,
 } from "@reearth-cms/components/molecules/Schema/types";
-import { ImportSchemaField } from "@reearth-cms/utils/import";
+import { ImportSchemaField } from "@reearth-cms/utils/importSchema";
 
 export function convertSchemaFieldType(s: string): SchemaFieldType {
   switch (s) {
