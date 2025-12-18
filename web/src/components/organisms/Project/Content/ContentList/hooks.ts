@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { RcFile } from "antd/es/upload";
 import { useCallback, useEffect, useMemo, useState, useRef, Key } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
@@ -18,7 +19,6 @@ import {
 import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
-import { UploadStatus } from "@reearth-cms/components/molecules/Uploader/types";
 import {
   ConditionInput,
   ItemSort,
@@ -387,7 +387,6 @@ export default () => {
 
   const fieldsGet = useCallback(
     (item: Item) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result: Record<string, any> = {};
       item?.fields?.map(field => {
         result[field.schemaFieldId] = fieldValueGet(field, item);
@@ -398,7 +397,6 @@ export default () => {
   );
 
   const metadataGet = useCallback((fields?: ItemField[]) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result: Record<string, any> = {};
     fields?.forEach(field => {
       if (Array.isArray(field.value) && field.value.length > 0) {
@@ -472,7 +470,7 @@ export default () => {
       required: field.required,
       sorter: true,
       sortOrder: sortOrderGet(field.id),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       render: (el: any) => renderField(el, field),
     }));
 
@@ -491,7 +489,7 @@ export default () => {
         required: field.required,
         sorter: true,
         sortOrder: sortOrderGet(field.id),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         render: (el: any, record: ContentTableField) => {
           const update = hasRightGet(record.createdBy.id)
             ? (value?: string | string[] | boolean, index?: number) => {
