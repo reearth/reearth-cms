@@ -679,13 +679,11 @@ func getWorkspaceFromContext(ctx context.Context) string {
 }
 
 func (f *fileRepo) Check(ctx context.Context) (err error) {
-	client, err := storage.NewClient(ctx)
+	bucket, err := f.bucket(ctx)
 	if err != nil {
 		return fmt.Errorf("GCS client creation failed: %w", err)
 	}
-	defer func() { _ = client.Close() }()
 
-	bucket := client.Bucket(f.bucketName)
 	if _, err = bucket.Attrs(ctx); err != nil {
 		return fmt.Errorf("GCS bucket access failed: %w", err)
 	}
