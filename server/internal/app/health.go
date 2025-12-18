@@ -104,7 +104,7 @@ func RunInitialHealthCheck(ctx context.Context, conf *Config, fileRepo gateway.F
 
 func authServerPingCheck(issuerURL string) (checkErr error) {
 	client := http.Client{
-		Timeout: 2 * time.Second,
+		Timeout: 5 * time.Second,
 	}
 	resp, err := client.Get(issuerURL)
 	if err != nil {
