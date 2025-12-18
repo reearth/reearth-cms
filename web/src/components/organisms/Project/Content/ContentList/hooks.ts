@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { RcFile } from "antd/es/upload";
 import { useCallback, useEffect, useMemo, useState, useRef, Key } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
+import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { checkIfEmpty } from "@reearth-cms/components/molecules/Content/Form/fields/utils";
 import { renderField } from "@reearth-cms/components/molecules/Content/RenderField";
@@ -14,6 +17,7 @@ import {
   Metadata,
 } from "@reearth-cms/components/molecules/Content/types";
 import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
   ConditionInput,
@@ -44,9 +48,11 @@ import {
   View as GQLView,
   useGetViewsQuery,
   ItemFieldInput,
+  useImportItemsMutation,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useUserId, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
+import { useUserId, useCollapsedModelMenu, useUserRights, useUploader } from "@reearth-cms/state";
+import { ImportContentJSON2 } from "@reearth-cms/utils/importContent";
 
 import { fileName } from "./utils";
 
@@ -55,6 +61,14 @@ const defaultViewSort: ItemSort = {
   field: {
     type: "MODIFICATION_DATE",
   },
+};
+
+export type ValidateImportResult = {
+  type: "warning" | "error";
+  title: string;
+  description: string;
+  canForwardToImport?: boolean;
+  hint?: string;
 };
 
 export default () => {
@@ -81,6 +95,16 @@ export default () => {
     showPublishAction,
   } = useContentHooks();
   const t = useT();
+
+  // TODO: move states below into machine
+  const [isImportContentModalOpen, setIsImportContentModalOpen] = useState(false);
+  const [dataChecking, setDataChecking] = useState(false);
+  const [alertList, setAlertList] = useState<AlertProps[]>([]);
+  const [validateImportResult, setValidateImportResult] = useState<ValidateImportResult | null>(
+    null,
+  );
+  // TODO: move states above into machine
+  const [_uploader, _setUploader] = useUploader();
 
   const navigate = useNavigate();
   const { modelId } = useParams();
@@ -189,7 +213,8 @@ export default () => {
 
   const [updateItemMutation] = useUpdateItemMutation();
   const [getItem] = useGetItemLazyQuery({ fetchPolicy: "no-cache" });
-  const [createNewItem] = useCreateItemMutation();
+  const [createNewItem] = useCreateItemMutation({ refetchQueries: ["SearchItem"] });
+  const [importItemMutation] = useImportItemsMutation({ refetchQueries: ["SearchItem"] });
 
   const itemIdToMetadata = useRef(new Map<string, Metadata>());
   const metadataVersionSet = useCallback(
@@ -362,7 +387,6 @@ export default () => {
 
   const fieldsGet = useCallback(
     (item: Item) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result: Record<string, any> = {};
       item?.fields?.map(field => {
         result[field.schemaFieldId] = fieldValueGet(field, item);
@@ -373,7 +397,6 @@ export default () => {
   );
 
   const metadataGet = useCallback((fields?: ItemField[]) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result: Record<string, any> = {};
     fields?.forEach(field => {
       if (Array.isArray(field.value) && field.value.length > 0) {
@@ -447,7 +470,7 @@ export default () => {
       required: field.required,
       sorter: true,
       sortOrder: sortOrderGet(field.id),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
       render: (el: any) => renderField(el, field),
     }));
 
@@ -466,7 +489,7 @@ export default () => {
         required: field.required,
         sorter: true,
         sortOrder: sortOrderGet(field.id),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         render: (el: any, record: ContentTableField) => {
           const update = hasRightGet(record.createdBy.id)
             ? (value?: string | string[] | boolean, index?: number) => {
@@ -607,6 +630,139 @@ export default () => {
     [handleAddItemToRequest],
   );
 
+  const modelFields = useMemo<Model["schema"]["fields"]>(
+    () => (currentModel ? currentModel.schema.fields : []),
+    [currentModel],
+  );
+
+  const hasModelFields = useMemo<boolean>(() => modelFields.length > 0, [modelFields.length]);
+
+  const handleImportContentModalOpen = useCallback(() => {
+    setIsImportContentModalOpen(true);
+  }, []);
+
+  const handleImportContentModalClose = useCallback(() => {
+    setIsImportContentModalOpen(false);
+    setAlertList([]);
+    setValidateImportResult(null);
+  }, []);
+
+  // const handleQueueToUploader = useCallback(
+  //   (payload: { fileName: string; fileContent: Record<string, unknown>[]; url: string }) => {
+  //     setUploader(prev => ({
+  //       ...prev,
+  //       showBadge: true,
+  //       isOpen: true,
+  //       queue: [
+  //         {
+  //           id: newID(),
+  //           status: UploadStatus.InProgress,
+  //           fileName: payload.fileName,
+  //           fileContent: payload.fileContent,
+  //           progress: 0,
+  //           url: payload.url,
+  //           error: null,
+  //         },
+  //         ...prev.queue,
+  //       ],
+  //     }));
+  //   },
+  //   [setUploader],
+  // );
+
+  const handleImportContentFileChange = useCallback(
+    async ({
+      fileName: _fileName,
+      fileContent,
+      extension: _extension,
+      url: _url,
+      raw,
+    }: {
+      fileName: string;
+      fileContent: ImportContentJSON2["results"];
+      extension: "csv" | "json" | "geojson";
+      url: string;
+      raw: RcFile;
+    }) => {
+      // handleQueueToUploader({ fileName, fileContent, url });
+      if (_extension !== "json") {
+        alert("only support json for now");
+        return;
+      }
+
+      if (!currentModel) return;
+
+      const targetFields = currentModel.schema.fields;
+
+      const _reqList = Object.values(fileContent).reduce(
+        (acc, curr) => {
+          const one = Object.entries(curr).reduce(
+            (_acc, _curr) => {
+              const [key, value] = _curr;
+              const findField = targetFields.find(_item => key === _item.key);
+              // const modelField = modelFields.get(item.key);
+              if (findField) {
+                return [
+                  ..._acc,
+                  {
+                    value,
+                    schemaFieldId: findField.id,
+                    type: findField.type,
+                  },
+                ];
+              }
+
+              return _acc;
+            },
+            [] as Record<string, any>[],
+          );
+
+          return [...acc, one];
+        },
+        [] as Record<string, any>[],
+      );
+
+      // console.log("raw", raw);
+
+      const res = await importItemMutation({
+        variables: {
+          importItemsInput: {
+            file: raw,
+            modelId: currentModel.id,
+            // geoField: "location",
+          },
+        },
+      });
+
+      if (res.errors) {
+        Notification.error({ message: "Import failed" });
+      } else {
+        Notification.success({ message: "Import success" });
+      }
+
+      // console.log("res", res);
+
+      // go to backend
+      // for await (const reqItem of reqList) {
+      //   const result = await createNewItem({
+      //     variables: {
+      //       modelId: currentModel.id,
+      //       schemaId: currentModel.schema.id,
+      //       fields: reqItem as ItemFieldInput[],
+      //     },
+      //   });
+      //   if (result.errors) {
+      //     Notification.error({ message: "Import failed" });
+      //   } else {
+      //     Notification.success({ message: "Import success" });
+      //   }
+      // }
+
+      handleImportContentModalClose();
+    },
+    [currentModel, handleImportContentModalClose, importItemMutation],
+  );
+
   return {
     currentModel,
     loading,
@@ -659,5 +815,17 @@ export default () => {
     handleContentTableChange,
     handleRequestSearchTerm,
     handleRequestTableReload,
+    isImportContentModalOpen,
+    handleImportContentModalOpen,
+    handleImportContentModalClose,
+    dataChecking,
+    setDataChecking,
+    handleImportContentFileChange,
+    modelFields,
+    hasModelFields,
+    alertList,
+    setAlertList,
+    validateImportResult,
+    setValidateImportResult,
   };
 };

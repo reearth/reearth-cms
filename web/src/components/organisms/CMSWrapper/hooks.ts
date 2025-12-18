@@ -3,6 +3,7 @@ import { useParams, useLocation, useNavigate } from "react-router-dom";
 
 import { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Notification from "@reearth-cms/components/atoms/Notification";
+import { UploaderQueueItem, UploadStatus } from "@reearth-cms/components/molecules/Uploader/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLProject } from "@reearth-cms/components/organisms/DataConverters/project";
 import {
@@ -24,6 +25,7 @@ import {
   useUserId,
   useWorkspaceId,
   useUserRights,
+  useUploader,
 } from "@reearth-cms/state";
 import { joinPaths, splitPathname } from "@reearth-cms/utils/path";
 
@@ -44,6 +46,7 @@ export default () => {
   const [, setUserRights] = useUserRights();
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [uploaderState, setUploaderState] = useUploader();
 
   const { data, refetch } = useGetMeQuery();
 
@@ -218,12 +221,72 @@ export default () => {
     navigate(`/workspace/${currentWorkspace?.id}`);
   }, [currentWorkspace?.id, navigate]);
 
+  const isShowUploader = useMemo(
+    () => uploaderState.queue.length > 0,
+    [uploaderState.queue.length],
+  );
+
+  const handleUploaderOpen = useCallback(
+    (isOpen: boolean) => {
+      setUploaderState(prev => ({ ...prev, isOpen, showBadge: false }));
+    },
+    [setUploaderState],
+  );
+
+  const handleUploadRetry = useCallback(
+    (id: UploaderQueueItem["id"]) => {
+      setUploaderState(prev => ({
+        ...prev,
+        queue: prev.queue.map(_queue =>
+          _queue.id === id
+            ? {
+                ..._queue,
+                status: UploadStatus.InProgress,
+                progress: 0,
+                error: null,
+              }
+            : _queue,
+        ),
+      }));
+    },
+    [setUploaderState],
+  );
+
+  const handleUploadCancel = useCallback(
+    (id: UploaderQueueItem["id"]) => {
+      setUploaderState(prev => ({
+        ...prev,
+        queue: prev.queue.map(_queue =>
+          _queue.id === id ? { ..._queue, status: UploadStatus.Canceled, progress: 0 } : _queue,
+        ),
+      }));
+    },
+    [setUploaderState],
+  );
+
+  const handleCancelAll = useCallback(() => {
+    setUploaderState(prev => ({ ...prev, isOpen: false, queue: [], showBadge: false }));
+  }, [setUploaderState]);
+
+  const shouldPreventReload = useMemo<boolean>(
+    () =>
+      uploaderState.queue.filter(_queue =>
+        [UploadStatus.InProgress, UploadStatus.Failed, UploadStatus.Canceled].includes(
+          _queue.status,
+        ),
+      ).length > 0,
+    [uploaderState.queue],
+  );
+
   return {
     username,
     profilePictureUrl,
     personalWorkspace,
     workspaces,
     currentWorkspace,
+    shouldPreventReload,
+    uploaderState,
+    isShowUploader,
     workspaceModalShown,
     currentProject,
     selectedKey: subRoute,
@@ -238,6 +301,10 @@ export default () => {
     handleNavigateToSettings,
     handleWorkspaceNavigation,
     handleHomeNavigation,
+    handleUploaderOpen,
+    handleUploadRetry,
+    handleUploadCancel,
+    handleCancelAll,
     logoUrl,
   };
 };
