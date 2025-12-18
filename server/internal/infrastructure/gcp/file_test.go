@@ -414,8 +414,8 @@ func TestFileRepo_ValidateContentEncoding(t *testing.T) {
 
 func TestFileRepo_Check(t *testing.T) {
 	t.Run("validates constant is defined", func(t *testing.T) {
-		assert.NotEmpty(t, healthCheckTempFolder)
-		assert.Equal(t, ".temp-health-check", healthCheckTempFolder)
+		assert.NotEmpty(t, healthCheckDir)
+		assert.Equal(t, ".temp-health-check", healthCheckDir)
 	})
 
 	t.Run("check method exists and has correct signature", func(t *testing.T) {
