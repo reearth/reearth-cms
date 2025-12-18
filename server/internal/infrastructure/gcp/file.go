@@ -678,7 +678,7 @@ func getWorkspaceFromContext(ctx context.Context) string {
 	return ""
 }
 
-func (f *fileRepo) Check(ctx context.Context) (err error) {
+func (f *fileRepo) Check(ctx context.Context) error {
 	bucket, err := f.bucket(ctx)
 	if err != nil {
 		return fmt.Errorf("GCS client creation failed: %w", err)
@@ -686,58 +686,51 @@ func (f *fileRepo) Check(ctx context.Context) (err error) {
 	if _, err = bucket.Attrs(ctx); err != nil {
 		return fmt.Errorf("GCS bucket access failed: %w", err)
 	}
+
+	// cleanup
+	defer func() {
+		if err := f.deleteFolder(ctx, bucket, healthCheckDir+"/"); err != nil {
+			log.Warnf("gcs: failed to cleanup health check directory: %v", err)
+		}
+	}()
+
 	testFileName := fmt.Sprintf("%s/%s", healthCheckDir, uuid.New().String())
 	testContent := []byte("ok")
 	obj := bucket.Object(testFileName)
 
-	// delete or cleanup
-	defer func() {
-		if delErr := f.deleteHealthCheckDir(ctx, bucket, healthCheckDir); delErr != nil {
-			err = fmt.Errorf("GCS delete permission failed: %w", delErr)
-		}
-	}()
-
 	// upload
 	writer := obj.NewWriter(ctx)
-	if _, err = writer.Write(testContent); err != nil {
+	if _, err := writer.Write(testContent); err != nil {
 		_ = writer.Close()
 		return fmt.Errorf("GCS upload permission failed: %w", err)
 	}
-	if err = writer.Close(); err != nil {
+	if err := writer.Close(); err != nil {
 		return fmt.Errorf("GCS upload permission failed (close): %w", err)
 	}
 
 	// read
 	reader, err := obj.NewReader(ctx)
 	if err != nil {
+		_ = obj.Delete(ctx)
 		return fmt.Errorf("GCS read permission failed: %w", err)
 	}
 	defer func() { _ = reader.Close() }()
 	readContent, err := io.ReadAll(reader)
 	if err != nil {
+		_ = obj.Delete(ctx)
 		return fmt.Errorf("GCS read permission failed: %w", err)
 	}
+
 	if !bytes.Equal(readContent, testContent) {
+		_ = obj.Delete(ctx)
 		return fmt.Errorf("GCS read verification failed: content mismatch")
 	}
 
-	return
-}
-
-func (f *fileRepo) deleteHealthCheckDir(ctx context.Context, bucket *storage.BucketHandle, prefix string) error {
-	it := bucket.Objects(ctx, &storage.Query{Prefix: prefix})
-	for {
-		attrs, err := it.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			return fmt.Errorf("GCS list objects failed: %w", err)
-		}
-		if err := bucket.Object(attrs.Name).Delete(ctx); err != nil {
-			return fmt.Errorf("GCS delete permission failed: %w", err)
-		}
+	// delete
+	if err := obj.Delete(ctx); err != nil {
+		return fmt.Errorf("GCS delete permission failed: %w", err)
 	}
+
 	return nil
 }
 
