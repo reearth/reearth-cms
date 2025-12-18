@@ -38,7 +38,7 @@ func HealthCheck(conf *Config, ver string, fileRepo gateway.File) echo.HandlerFu
 	if fileRepo != nil {
 		checks = append(checks, health.Config{
 			Name:      "storage",
-			Timeout:   time.Second * 5,
+			Timeout:   time.Second * 30,
 			SkipOnErr: false,
 			Check:     fileRepo.Check,
 		})

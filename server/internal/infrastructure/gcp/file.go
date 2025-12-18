@@ -686,7 +686,6 @@ func (f *fileRepo) Check(ctx context.Context) (err error) {
 	if _, err = bucket.Attrs(ctx); err != nil {
 		return fmt.Errorf("GCS bucket access failed: %w", err)
 	}
-
 	testFileName := fmt.Sprintf("%s/%s", healthCheckDir, uuid.New().String())
 	testContent := []byte("ok")
 	obj := bucket.Object(testFileName)
@@ -714,12 +713,10 @@ func (f *fileRepo) Check(ctx context.Context) (err error) {
 		return fmt.Errorf("GCS read permission failed: %w", err)
 	}
 	defer func() { _ = reader.Close() }()
-
 	readContent, err := io.ReadAll(reader)
 	if err != nil {
 		return fmt.Errorf("GCS read permission failed: %w", err)
 	}
-
 	if !bytes.Equal(readContent, testContent) {
 		return fmt.Errorf("GCS read verification failed: content mismatch")
 	}
