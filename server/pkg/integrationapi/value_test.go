@@ -216,7 +216,7 @@ func TestToValueType(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.expected, ToValueType(tt.input))
+			assert.Equal(t, tt.expected, NewValueType(tt.input))
 		})
 	}
 }

@@ -39,11 +39,25 @@ func NewItem(r *repo.Container, g *gateway.Container) *Item {
 }
 
 func (i Item) FindByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.Versioned, error) {
-	return i.repos.Item.FindByID(ctx, itemID, nil)
+	vi, err := i.repos.Item.FindByID(ctx, itemID, nil)
+	if err != nil {
+		return nil, err
+	}
+	if vi != nil && vi.Value().IsMetadata() {
+		return nil, rerror.ErrNotFound
+	}
+	return vi, nil
 }
 
 func (i Item) FindPublicByID(ctx context.Context, itemID id.ItemID, _ *usecase.Operator) (item.Versioned, error) {
-	return i.repos.Item.FindByID(ctx, itemID, version.Public.Ref())
+	vi, err := i.repos.Item.FindByID(ctx, itemID, version.Public.Ref())
+	if err != nil {
+		return nil, err
+	}
+	if vi != nil && vi.Value().IsMetadata() {
+		return nil, rerror.ErrNotFound
+	}
+	return vi, nil
 }
 
 func (i Item) FindByIDs(ctx context.Context, ids id.ItemIDList, _ *usecase.Operator) (item.VersionedList, error) {

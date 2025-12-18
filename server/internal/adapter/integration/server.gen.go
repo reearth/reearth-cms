@@ -4260,6 +4260,14 @@ func (response ItemPublish404Response) VisitItemPublishResponse(w http.ResponseW
 	return nil
 }
 
+type ItemPublish500Response struct {
+}
+
+func (response ItemPublish500Response) VisitItemPublishResponse(w http.ResponseWriter) error {
+	w.WriteHeader(500)
+	return nil
+}
+
 type MetadataSchemaByModelAsJSONRequestObject struct {
 	WorkspaceIdOrAlias WorkspaceIdOrAliasParam `json:"workspaceIdOrAlias"`
 	ProjectIdOrAlias   ProjectIdOrAliasParam   `json:"projectIdOrAlias"`
@@ -6145,11 +6153,11 @@ var swaggerSpec = []string{
 	"mFpDri3jQ3V0y12V8NGPDTYNitzs1dQ/ZHJ4ArFZEMEzcb/bOymh1jn5pIlNhr64Rp4Z71K24jy5hSja",
 	"7EbkVy//RbN+la53HQHI7Yj2apwyBvY8inGKNzzLWpyKcPIyYut+85HVoRtGhTgToyxifi3f+ZzKd3bn",
 	"gN2L0q4lPS1iPL6KniV0PxfP7VWK2lJ0yAqgFq2/FgC1C4A+Lz7S8xKr7X3Ypyw+qjqMT8Gqa+GdevPo",
-	"CWqOtvqBssqWggOiZxIcNFUfd7/Ha4IGPxS+TzpuDZlueVI480RP73aZ3/uNiE6S8yZn1aM/ur/KTH2/",
-	"lNlzY6Z3inZGTGJ8nQzblv/4gk+o9V7bPAeytKp+4L/uyBg+68deG3LVKzcdHjf1ZqIXzTwKWxyNHtUn",
-	"YZ4V8fHDR4SBus14kjH6gaNKd7VnQGKOFzG4z38ULo7rKdc35jVaaIJR5dV6e/eiSockjuKA36CBLT2f",
-	"QpboraANLcZ6Zhw9yv/uohUOSt9byEq+vWvA6rmShwnE1ZNHcHyitb2DTaKtMSeJioGjTa8C+aUK5MzU",
-	"JagXyKvVfwMAAP//G32nD/S/AAA=",
+	"CWqOtvqBssqWggOiF+kSmhqRu98RNiGGH2p1TjpuJJlueQo580RP73aZ3xKOiE6p8yZn1YNCur/KY32/",
+	"lLl2Y6b3lXZGemJ8nTrbli35gs+z9V7bPGOytKp+4L/u3xg+68deG3LVKzcdHjf1ZqIXzTwKWxyNHtUn",
+	"YcwV0fTDR4SBus3UkhH9gWNQd7UnRmKOFzG4T4sUDpHrKdf36zXac4JR5UV8e/e5SkcqjuI44KBhMD2f",
+	"QpbojaMNLcZ6Zhw9yv/uEhcOSt9bgEu+vWt467mShwnb1ZNHcHyitb2DTaKtESqJioFjU68C+aUK5MxU",
+	"MagXyKvVfwMAAP//aJQ3vSLAAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file
