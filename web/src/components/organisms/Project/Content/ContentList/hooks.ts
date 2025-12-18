@@ -18,6 +18,7 @@ import {
 import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
+import { UploadStatus } from "@reearth-cms/components/molecules/Uploader/types";
 import {
   ConditionInput,
   ItemSort,
