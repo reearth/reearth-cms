@@ -691,7 +691,7 @@ func (f *fileRepo) Check(ctx context.Context) (err error) {
 
 	healthCheckDir := ".temp-health-check"
 	testFileName := fmt.Sprintf("%s/%s", healthCheckDir, uuid.New().String())
-	testContent := []byte("health-check")
+	testContent := []byte("ok")
 	obj := bucket.Object(testFileName)
 
 	defer func() {

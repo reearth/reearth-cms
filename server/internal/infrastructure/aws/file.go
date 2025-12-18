@@ -633,6 +633,5 @@ func getWorkspaceFromContext(ctx context.Context) string {
 }
 
 func (f *fileRepo) Check(ctx context.Context) error {
-	fmt.Println("health check not implemented for AWS S3")
 	return nil
 }

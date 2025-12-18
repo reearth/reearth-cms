@@ -309,6 +309,5 @@ func (f *fileRepo) DeleteAssets(_ context.Context, folders []string) error {
 }
 
 func (f *fileRepo) Check(ctx context.Context) error {
-	fmt.Println("health check not implemented for filesystem storage")
 	return nil
 }
