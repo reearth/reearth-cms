@@ -702,33 +702,33 @@ func (f *fileRepo) Check(ctx context.Context) error {
 	writer := obj.NewWriter(ctx)
 	if _, err := writer.Write(testContent); err != nil {
 		_ = writer.Close()
-		return fmt.Errorf("GCS upload permission failed: %w", err)
+		return fmt.Errorf("GCS upload failed: %w", err)
 	}
 	if err := writer.Close(); err != nil {
-		return fmt.Errorf("GCS upload permission failed (close): %w", err)
+		return fmt.Errorf("GCS upload failed (close): %w", err)
 	}
 
 	// read
 	reader, err := obj.NewReader(ctx)
 	if err != nil {
 		_ = obj.Delete(ctx)
-		return fmt.Errorf("GCS read permission failed: %w", err)
+		return fmt.Errorf("GCS read failed: %w", err)
 	}
 	defer func() { _ = reader.Close() }()
 	readContent, err := io.ReadAll(reader)
 	if err != nil {
 		_ = obj.Delete(ctx)
-		return fmt.Errorf("GCS read permission failed: %w", err)
+		return fmt.Errorf("GCS read failed: %w", err)
 	}
 
 	if !bytes.Equal(readContent, testContent) {
 		_ = obj.Delete(ctx)
-		return fmt.Errorf("GCS read verification failed: content mismatch")
+		return fmt.Errorf("GCS verification failed: content mismatch")
 	}
 
 	// delete
 	if err := obj.Delete(ctx); err != nil {
-		return fmt.Errorf("GCS delete permission failed: %w", err)
+		return fmt.Errorf("GCS delete failed: %w", err)
 	}
 
 	return nil
