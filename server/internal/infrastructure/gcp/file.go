@@ -1,6 +1,7 @@
 package gcp
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -27,6 +28,7 @@ import (
 const (
 	gcsAssetBasePath string = "assets"
 	fileSizeLimit    int64  = 10 * 1024 * 1024 * 1024 // 10GB
+	healthCheckDir   string = ".temp-health-check"
 )
 
 const workspaceContextKey = "workspace"
@@ -674,6 +676,62 @@ func getWorkspaceFromContext(ctx context.Context) string {
 		}
 	}
 	return ""
+}
+
+func (f *fileRepo) Check(ctx context.Context) error {
+	bucket, err := f.bucket(ctx)
+	if err != nil {
+		return fmt.Errorf("GCS client creation failed: %w", err)
+	}
+	if _, err = bucket.Attrs(ctx); err != nil {
+		return fmt.Errorf("GCS bucket access failed: %w", err)
+	}
+
+	// cleanup
+	defer func() {
+		if err := f.deleteFolder(ctx, bucket, healthCheckDir+"/"); err != nil {
+			log.Warnf("gcs: failed to cleanup health check directory: %v", err)
+		}
+	}()
+
+	testFileName := fmt.Sprintf("%s/%s", healthCheckDir, uuid.New().String())
+	testContent := []byte("ok")
+	obj := bucket.Object(testFileName)
+
+	// upload
+	writer := obj.NewWriter(ctx)
+	if _, err := writer.Write(testContent); err != nil {
+		_ = writer.Close()
+		return fmt.Errorf("GCS upload failed: %w", err)
+	}
+	if err := writer.Close(); err != nil {
+		return fmt.Errorf("GCS upload failed (close): %w", err)
+	}
+
+	// read
+	reader, err := obj.NewReader(ctx)
+	if err != nil {
+		_ = obj.Delete(ctx)
+		return fmt.Errorf("GCS read failed: %w", err)
+	}
+	defer func() { _ = reader.Close() }()
+	readContent, err := io.ReadAll(reader)
+	if err != nil {
+		_ = obj.Delete(ctx)
+		return fmt.Errorf("GCS read failed: %w", err)
+	}
+
+	if !bytes.Equal(readContent, testContent) {
+		_ = obj.Delete(ctx)
+		return fmt.Errorf("GCS verification failed: content mismatch")
+	}
+
+	// delete
+	if err := obj.Delete(ctx); err != nil {
+		return fmt.Errorf("GCS delete failed: %w", err)
+	}
+
+	return nil
 }
 
 type contextKey string

@@ -8,15 +8,15 @@ import (
 	"net/url"
 	"time"
 
-	"cloud.google.com/go/storage"
 	"github.com/hellofresh/health-go/v5"
 	"github.com/hellofresh/health-go/v5/checks/mongo"
 	"github.com/labstack/echo/v4"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearthx/log"
 )
 
 // HealthCheck returns an echo.HandlerFunc that serves the health check endpoint
-func HealthCheck(conf *Config, ver string) echo.HandlerFunc {
+func HealthCheck(conf *Config, ver string, fileRepo gateway.File) echo.HandlerFunc {
 	checks := []health.Config{
 		{
 			Name:      "db",
@@ -35,12 +35,12 @@ func HealthCheck(conf *Config, ver string) echo.HandlerFunc {
 		})
 	}
 
-	if conf.GCS.BucketName != "" {
+	if fileRepo != nil {
 		checks = append(checks, health.Config{
-			Name:      "gcs",
-			Timeout:   time.Second * 5,
+			Name:      "storage",
+			Timeout:   time.Second * 30,
 			SkipOnErr: false,
-			Check:     func(ctx context.Context) error { return gcsCheck(ctx, conf.GCS.BucketName) },
+			Check:     fileRepo.Check,
 		})
 	}
 
@@ -84,28 +84,6 @@ func HealthCheck(conf *Config, ver string) echo.HandlerFunc {
 		h.Handler().ServeHTTP(c.Response(), c.Request())
 		return nil
 	}
-}
-
-func gcsCheck(ctx context.Context, bucketName string) (checkErr error) {
-	client, err := storage.NewClient(ctx)
-	if err != nil {
-		return fmt.Errorf("GCS client creation failed: %v", err)
-	}
-	defer func(client *storage.Client) {
-		err := client.Close()
-		if err != nil {
-			checkErr = fmt.Errorf("GCS client close failed: %v", err)
-		}
-	}(client)
-
-	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
-	defer cancel()
-
-	_, err = client.Bucket(bucketName).Attrs(ctx)
-	if err != nil {
-		return fmt.Errorf("GCS bucket access failed: %v", err)
-	}
-	return nil
 }
 
 func authServerPingCheck(issuerURL string) (checkErr error) {
