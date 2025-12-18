@@ -1,6 +1,7 @@
 package gcp
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -676,9 +677,7 @@ func getWorkspaceFromContext(ctx context.Context) string {
 	return ""
 }
 
-type contextKey string
-
-func (f *fileRepo) Check(ctx context.Context) error {
+func (f *fileRepo) Check(ctx context.Context) (err error) {
 	client, err := storage.NewClient(ctx)
 	if err != nil {
 		return fmt.Errorf("GCS client creation failed: %w", err)
@@ -686,46 +685,65 @@ func (f *fileRepo) Check(ctx context.Context) error {
 	defer func() { _ = client.Close() }()
 
 	bucket := client.Bucket(f.bucketName)
-	if _, err := bucket.Attrs(ctx); err != nil {
+	if _, err = bucket.Attrs(ctx); err != nil {
 		return fmt.Errorf("GCS bucket access failed: %w", err)
 	}
 
-	testObjectName := fmt.Sprintf(".health-check-test-%d", uuid.New().ID())
+	healthCheckDir := ".temp-health-check"
+	testFileName := fmt.Sprintf("%s/%s", healthCheckDir, uuid.New().String())
 	testContent := []byte("health-check")
-	obj := bucket.Object(testObjectName)
+	obj := bucket.Object(testFileName)
+
+	defer func() {
+		if delErr := f.deleteHealthCheckDir(ctx, bucket, healthCheckDir); delErr != nil && err == nil {
+			err = fmt.Errorf("GCS delete permission failed: %w", delErr)
+		}
+	}()
 
 	// upload
 	writer := obj.NewWriter(ctx)
-	if _, err := writer.Write(testContent); err != nil {
+	if _, err = writer.Write(testContent); err != nil {
 		_ = writer.Close()
 		return fmt.Errorf("GCS upload permission failed: %w", err)
 	}
-	if err := writer.Close(); err != nil {
+	if err = writer.Close(); err != nil {
 		return fmt.Errorf("GCS upload permission failed (close): %w", err)
 	}
 
 	// read
 	reader, err := obj.NewReader(ctx)
 	if err != nil {
-		_ = obj.Delete(ctx)
 		return fmt.Errorf("GCS read permission failed: %w", err)
 	}
+	defer func() { _ = reader.Close() }()
+
 	readContent, err := io.ReadAll(reader)
-	_ = reader.Close()
 	if err != nil {
-		_ = obj.Delete(ctx)
 		return fmt.Errorf("GCS read permission failed: %w", err)
 	}
 
-	if string(readContent) != string(testContent) {
-		_ = obj.Delete(ctx)
+	if !bytes.Equal(readContent, testContent) {
 		return fmt.Errorf("GCS read verification failed: content mismatch")
-	}
-
-	// delete
-	if err := obj.Delete(ctx); err != nil {
-		return fmt.Errorf("GCS delete permission failed: %w", err)
 	}
 
 	return nil
 }
+
+func (f *fileRepo) deleteHealthCheckDir(ctx context.Context, bucket *storage.BucketHandle, prefix string) error {
+	it := bucket.Objects(ctx, &storage.Query{Prefix: prefix})
+	for {
+		attrs, err := it.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return fmt.Errorf("GCS list objects failed: %w", err)
+		}
+		if err := bucket.Object(attrs.Name).Delete(ctx); err != nil {
+			return fmt.Errorf("GCS delete permission failed: %w", err)
+		}
+	}
+	return nil
+}
+
+type contextKey string
