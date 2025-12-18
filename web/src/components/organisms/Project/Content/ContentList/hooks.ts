@@ -213,7 +213,7 @@ export default () => {
   const [updateItemMutation] = useUpdateItemMutation();
   const [getItem] = useGetItemLazyQuery({ fetchPolicy: "no-cache" });
   const [createNewItem] = useCreateItemMutation({ refetchQueries: ["SearchItem"] });
-  const [importItemMutation] = useImportItemsMutation();
+  const [importItemMutation] = useImportItemsMutation({ refetchQueries: ["SearchItem"] });
 
   const itemIdToMetadata = useRef(new Map<string, Metadata>());
   const metadataVersionSet = useCallback(
@@ -695,7 +695,7 @@ export default () => {
 
       const targetFields = currentModel.schema.fields;
 
-      const reqList = Object.values(fileContent).reduce(
+      const _reqList = Object.values(fileContent).reduce(
         (acc, curr) => {
           const one = Object.entries(curr).reduce(
             (_acc, _curr) => {
@@ -723,7 +723,7 @@ export default () => {
         [] as Record<string, any>[],
       );
 
-      // console.log("raw: ", raw);
+      // console.log("raw", raw);
 
       const res = await importItemMutation({
         variables: {
@@ -735,7 +735,13 @@ export default () => {
         },
       });
 
-      console.log("res", res);
+      if (res.errors) {
+        Notification.error({ message: "Import failed" });
+      } else {
+        Notification.success({ message: "Import success" });
+      }
+
+      // console.log("res", res);
 
       // go to backend
       // for await (const reqItem of reqList) {
