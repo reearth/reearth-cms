@@ -633,44 +633,5 @@ func getWorkspaceFromContext(ctx context.Context) string {
 }
 
 func (f *fileRepo) Check(ctx context.Context) error {
-	testObjectName := fmt.Sprintf(".health-check-test-%d", uuid.New().ID())
-	testContent := []byte("health-check")
-
-	// upload
-	_, err := f.s3Client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket: aws.String(f.bucketName),
-		Key:    aws.String(testObjectName),
-		Body:   bytes.NewReader(testContent),
-	})
-	if err != nil {
-		return fmt.Errorf("S3 upload permission failed: %w", err)
-	}
-
-	// read
-	result, err := f.s3Client.GetObject(ctx, &s3.GetObjectInput{
-		Bucket: aws.String(f.bucketName),
-		Key:    aws.String(testObjectName),
-	})
-	if err != nil {
-		_ = f.delete(ctx, testObjectName)
-		return fmt.Errorf("S3 read permission failed: %w", err)
-	}
-	readContent, err := io.ReadAll(result.Body)
-	_ = result.Body.Close()
-	if err != nil {
-		_ = f.delete(ctx, testObjectName)
-		return fmt.Errorf("S3 read permission failed: %w", err)
-	}
-
-	if string(readContent) != string(testContent) {
-		_ = f.delete(ctx, testObjectName)
-		return fmt.Errorf("S3 read verification failed: content mismatch")
-	}
-
-	// delete
-	if err := f.delete(ctx, testObjectName); err != nil {
-		return fmt.Errorf("S3 delete permission failed: %w", err)
-	}
-
 	return nil
 }

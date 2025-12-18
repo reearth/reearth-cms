@@ -1,6 +1,5 @@
-import * as Apollo from "@apollo/client";
-import { gql } from "@apollo/client";
-
+import { gql } from '@apollo/client';
+import * as Apollo from '@apollo/client';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -682,6 +681,21 @@ export type GuessSchemaFieldsInput = {
   modelId: Scalars['ID']['input'];
 };
 
+export type ImportItemsInput = {
+  file: Scalars['Upload']['input'];
+  geoField?: InputMaybe<Scalars['String']['input']>;
+  modelId: Scalars['ID']['input'];
+};
+
+export type ImportItemsPayload = {
+  __typename?: 'ImportItemsPayload';
+  ignoredCount: Scalars['Int']['output'];
+  insertedCount: Scalars['Int']['output'];
+  modelId: Scalars['ID']['output'];
+  totalCount: Scalars['Int']['output'];
+  updatedCount: Scalars['Int']['output'];
+};
+
 export type Integration = Node & {
   __typename?: 'Integration';
   config?: Maybe<IntegrationConfig>;
@@ -934,6 +948,7 @@ export type Mutation = {
   deleteWorkspace?: Maybe<DeleteWorkspacePayload>;
   exportModel?: Maybe<ExportModelPayload>;
   exportModelSchema?: Maybe<ExportModelSchemaPayload>;
+  importItems?: Maybe<ImportItemsPayload>;
   publishItem?: Maybe<PublishItemPayload>;
   regenerateAPIKey?: Maybe<ApiKeyPayload>;
   regenerateIntegrationToken?: Maybe<IntegrationPayload>;
@@ -1158,6 +1173,11 @@ export type MutationExportModelArgs = {
 
 export type MutationExportModelSchemaArgs = {
   input: ExportModelSchemaInput;
+};
+
+
+export type MutationImportItemsArgs = {
+  input: ImportItemsInput;
 };
 
 
@@ -2887,6 +2907,13 @@ export type PublishItemMutationVariables = Exact<{
 
 
 export type PublishItemMutation = { __typename?: 'Mutation', publishItem?: { __typename?: 'PublishItemPayload', items: Array<{ __typename?: 'Item', id: string, version: string, referencedItems?: Array<{ __typename?: 'Item', id: string, title?: string | null, schemaId: string, status: ItemStatus, version: string, createdAt: Date, updatedAt: Date, createdBy?: { __typename?: 'Integration', name: string } | { __typename?: 'User', name: string } | null }> | null }> } | null };
+
+export type ImportItemsMutationVariables = Exact<{
+  importItemsInput: ImportItemsInput;
+}>;
+
+
+export type ImportItemsMutation = { __typename?: 'Mutation', importItems?: { __typename?: 'ImportItemsPayload', modelId: string, totalCount: number, insertedCount: number, updatedCount: number, ignoredCount: number } | null };
 
 export type GetModelsQueryVariables = Exact<{
   projectId: Scalars['ID']['input'];
@@ -5770,6 +5797,43 @@ export function usePublishItemMutation(baseOptions?: Apollo.MutationHookOptions<
 export type PublishItemMutationHookResult = ReturnType<typeof usePublishItemMutation>;
 export type PublishItemMutationResult = Apollo.MutationResult<PublishItemMutation>;
 export type PublishItemMutationOptions = Apollo.BaseMutationOptions<PublishItemMutation, PublishItemMutationVariables>;
+export const ImportItemsDocument = gql`
+    mutation ImportItems($importItemsInput: ImportItemsInput!) {
+  importItems(input: $importItemsInput) {
+    modelId
+    totalCount
+    insertedCount
+    updatedCount
+    ignoredCount
+  }
+}
+    `;
+export type ImportItemsMutationFn = Apollo.MutationFunction<ImportItemsMutation, ImportItemsMutationVariables>;
+
+/**
+ * __useImportItemsMutation__
+ *
+ * To run a mutation, you first call `useImportItemsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useImportItemsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [importItemsMutation, { data, loading, error }] = useImportItemsMutation({
+ *   variables: {
+ *      importItemsInput: // value for 'importItemsInput'
+ *   },
+ * });
+ */
+export function useImportItemsMutation(baseOptions?: Apollo.MutationHookOptions<ImportItemsMutation, ImportItemsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ImportItemsMutation, ImportItemsMutationVariables>(ImportItemsDocument, options);
+      }
+export type ImportItemsMutationHookResult = ReturnType<typeof useImportItemsMutation>;
+export type ImportItemsMutationResult = Apollo.MutationResult<ImportItemsMutation>;
+export type ImportItemsMutationOptions = Apollo.BaseMutationOptions<ImportItemsMutation, ImportItemsMutationVariables>;
 export const GetModelsDocument = gql`
     query GetModels($projectId: ID!, $keyword: String, $sort: Sort, $pagination: Pagination) {
   models(

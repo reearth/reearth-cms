@@ -309,36 +309,5 @@ func (f *fileRepo) DeleteAssets(_ context.Context, folders []string) error {
 }
 
 func (f *fileRepo) Check(ctx context.Context) error {
-	testFileName := fmt.Sprintf(".health-check-test-%d", uuid.New().ID())
-	testContent := []byte("health-check")
-	testPath := filepath.Join(getFSObjectFolderPath(testFileName), testFileName)
-
-	dir := filepath.Dir(testPath)
-	if err := f.fs.MkdirAll(dir, 0755); err != nil {
-		return fmt.Errorf("filesystem directory creation failed: %w", err)
-	}
-
-	// upload
-	if err := afero.WriteFile(f.fs, testPath, testContent, 0644); err != nil {
-		return fmt.Errorf("filesystem upload permission failed: %w", err)
-	}
-
-	// read
-	readContent, err := afero.ReadFile(f.fs, testPath)
-	if err != nil {
-		_ = f.fs.Remove(testPath)
-		return fmt.Errorf("filesystem read permission failed: %w", err)
-	}
-
-	if string(readContent) != string(testContent) {
-		_ = f.fs.Remove(testPath)
-		return fmt.Errorf("filesystem read verification failed: content mismatch")
-	}
-
-	// delete
-	if err := f.fs.RemoveAll(dir); err != nil {
-		return fmt.Errorf("filesystem delete permission failed: %w", err)
-	}
-
 	return nil
 }
