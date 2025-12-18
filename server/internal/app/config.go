@@ -85,7 +85,7 @@ type Config struct {
 type HealthCheckConfig struct {
 	Username  string `pp:",omitempty"`
 	Password  string `pp:",omitempty"`
-	RunOnInit bool   `default:"false" pp:",omitempty"` // Run health checks on server initialization
+	RunOnInit bool   `default:"false" pp:",omitempty"`
 }
 
 type AccountAPIConfig struct {
