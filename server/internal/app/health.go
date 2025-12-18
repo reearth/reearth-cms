@@ -71,7 +71,7 @@ func healthCheck(conf *Config, ver string, fileRepo gateway.File) *health.Health
 			}
 			checks = append(checks, health.Config{
 				Name:      "auth:" + a.ISS,
-				Timeout:   time.Second * 5,
+				Timeout:   time.Second * 10,
 				SkipOnErr: false,
 				Check: func(ctx context.Context) error {
 					return authServerPingCheck(u.JoinPath(".well-known/openid-configuration").String())
