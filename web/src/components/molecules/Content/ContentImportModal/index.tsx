@@ -204,11 +204,9 @@ const ContentImportModal: React.FC<Props> = ({
         handleStartLoading();
         const content = await FileUtils.parseTextFile(file);
 
-        const demoTemp = JSON.stringify({ results: JSON.parse(content), totalCount: 1 });
-
         switch (extension) {
           case "json": {
-            const jsonValidation = await ObjectUtils.safeJSONParse<ImportContentJSON2>(demoTemp);
+            const jsonValidation = await ObjectUtils.safeJSONParse<ImportContentJSON2>(content);
             if (!jsonValidation.isValid) {
               raiseIllegalFileAlert();
               return;
@@ -399,10 +397,6 @@ const ContentImportModal: React.FC<Props> = ({
                   }}
                 />
               </p>
-              {/* TODO: demo use */}
-              <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_JSON_FOR_DEMO}>
-                JSON file for demo
-              </TemplateLink>
               {alertList.map((alert, index) => (
                 <Alert
                   {...alert}

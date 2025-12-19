@@ -43,10 +43,6 @@ export abstract class Constant {
     IMPORT_CONTENT_JSON: "/templates/import-content-template.json",
     IMPORT_CONTENT_GEO_JSON: "/templates/import-content-template.geojson",
     IMPORT_SCHEMA_JSON: "/templates/import-schema-template.json",
-
-    // TODO: demo use
-    IMPORT_SCHEMA_JSON_FOR_DEMO: "/templates/import-schema-demo.json",
-    IMPORT_CONTENT_JSON_FOR_DEMO: "/templates/import-content-demo.json",
   };
 
   // FILE DIRECTORIES FOR TEST USE ONLY BELOW
