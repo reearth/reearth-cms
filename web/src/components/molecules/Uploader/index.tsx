@@ -65,12 +65,7 @@ const Uploader: React.FC<Props> = props => {
   );
 
   const titleMessage = useMemo(
-    () =>
-      uploadingFileCount === 0
-        ? ""
-        : uploadingFileCount === 1
-          ? t("Uploading file..._one")
-          : t("Uploading file..._other", { count: uploadingFileCount }),
+    () => (uploadingFileCount === 0 ? "" : t("Uploading file...", { count: uploadingFileCount })),
     [t, uploadingFileCount],
   );
 
