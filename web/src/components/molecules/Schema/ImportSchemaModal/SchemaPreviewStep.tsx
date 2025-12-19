@@ -227,6 +227,13 @@ const FieldThumbnail = styled.div`
   }
 `;
 
+// const ItemTitle = styled.p`
+//   color: rgba(0, 0, 0, 0.85);
+//   margin: 0;
+//   display: flex;
+//   justify-content: start;
+// `;
+
 const ItemTitleHeading = styled.span`
   text-overflow: ellipsis;
   white-space: nowrap;

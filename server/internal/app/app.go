@@ -74,7 +74,7 @@ func initEcho(appCtx *ApplicationContext) *echo.Echo {
 func initApi(appCtx *ApplicationContext, api *echo.Group, usecaseMiddleware echo.MiddlewareFunc) {
 	api.Use(private)
 	api.GET("/ping", Ping())
-	api.GET("/health", HealthCheck(appCtx.Config, appCtx.Version))
+	api.GET("/health", HealthCheck(appCtx.Config, appCtx.Version, appCtx.Gateways.File))
 	api.POST(
 		"/graphql", GraphqlAPI(appCtx.Config.GraphQL, appCtx.Config.Dev),
 		middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: allowedOrigins(appCtx)}),
