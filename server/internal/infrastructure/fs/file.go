@@ -307,3 +307,7 @@ func (f *fileRepo) DeleteAssets(_ context.Context, folders []string) error {
 	}
 	return nil
 }
+
+func (f *fileRepo) Check(ctx context.Context) error {
+	return nil
+}
