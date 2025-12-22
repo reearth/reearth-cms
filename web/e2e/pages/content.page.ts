@@ -33,7 +33,7 @@ export class ContentPage extends BasePage {
     return this.getByLabel("", { exact: true });
   }
   get editButton(): Locator {
-    return this.getByRole("cell").getByLabel("edit").locator("svg");
+    return this.getByRole("cell", { name: "edit" });
   }
   get deleteButton(): Locator {
     return this.getByText("Delete");
@@ -87,10 +87,10 @@ export class ContentPage extends BasePage {
     return this.getByRole("cell", { name: text, exact });
   }
   get cellEditButton(): Locator {
-    return this.getByRole("cell").getByLabel("edit").locator("svg");
+    return this.getByRole("cell", { name: "edit" });
   }
   cellEditButtonByIndex(index: number): Locator {
-    return this.getByRole("cell").getByLabel("edit").locator("svg").nth(index);
+    return this.editButton.nth(index);
   }
 
   // Link elements
@@ -283,7 +283,7 @@ export class ContentPage extends BasePage {
 
   // Asset field specific
   cssAssetByIndex(index: number): Locator {
-    return this.locator(".css-7g0azd").nth(index);
+    return this.getByTestId("asset-field-item").nth(index);
   }
 
   get tooltip(): Locator {
@@ -469,12 +469,12 @@ export class ContentPage extends BasePage {
 
   // Table column selection
   nthTableColumnButton(index: number): Locator {
-    return this.locator(`.ant-table-row > td:nth-child(${index})`).getByRole("button");
+    return this.getByTestId("content-table-row").locator(`td:nth-child(${index})`).getByRole("button");
   }
 
   // Ant row button by index
   antRowButton(index: number): Locator {
-    return this.locator(".ant-row").getByRole("button").nth(index);
+    return this.getByTestId("form-row").getByRole("button").nth(index);
   }
 
   // Unique field label
@@ -568,8 +568,8 @@ export class ContentPage extends BasePage {
   }
 
   async createComment(content: string): Promise<void> {
-    await this.page.locator("#content").click();
-    await this.page.locator("#content").fill(content);
+    await this.getByTestId("comment-content-input").click();
+    await this.getByTestId("comment-content-input").fill(content);
     await this.getByRole("button", { name: "Comment" }).click();
     await this.closeNotification();
   }

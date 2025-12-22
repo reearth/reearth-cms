@@ -42,7 +42,12 @@ const Editor: React.FC<EditorProps> = ({ isInputDisabled, onCommentCreate }) => 
   return (
     <Form form={form}>
       <StyledFormItem name="content">
-        <TextArea autoSize={{ maxRows: 4 }} onChange={handleChange} disabled={isInputDisabled} />
+        <TextArea
+          autoSize={{ maxRows: 4 }}
+          onChange={handleChange}
+          disabled={isInputDisabled}
+          data-testid="comment-content-input"
+        />
       </StyledFormItem>
       <ButtonWrapper>
         <Button
