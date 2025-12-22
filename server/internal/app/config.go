@@ -75,13 +75,23 @@ type Config struct {
 	// Health Check Configuration
 	HealthCheck HealthCheckConfig `pp:",omitempty"`
 
+	// Account API Configuration
+	Account_Api AccountAPIConfig `pp:",omitempty"`
+
 	// Policy Checker Configuration
 	Policy_Checker PolicyCheckerConfig `pp:",omitempty"`
 }
 
 type HealthCheckConfig struct {
-	Username string `pp:",omitempty"`
-	Password string `pp:",omitempty"`
+	Username  string `pp:",omitempty"`
+	Password  string `pp:",omitempty"`
+	RunOnInit bool   `default:"true" pp:",omitempty"`
+}
+
+type AccountAPIConfig struct {
+	Enabled bool   `pp:",omitempty"`
+	Host    string `pp:",omitempty"`
+	Timeout int    `pp:",omitempty"`
 }
 
 type PolicyCheckerConfig struct {

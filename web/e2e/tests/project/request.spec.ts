@@ -21,7 +21,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Request creating, searching, updating reviewer, and approving has succeeded", async ({
+test("@smoke Request creating, searching, updating reviewer, and approving has succeeded", async ({
   requestPage,
 }) => {
   await test.step("Navigate to request page and verify request is visible", async () => {

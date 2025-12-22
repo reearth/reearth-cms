@@ -483,7 +483,12 @@ func (s *Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject
 		return ItemDelete400Response{}, rerror.ErrNotFound
 	}
 
-	err = uc.Item.Delete(ctx, request.ItemId, op)
+	sp, err := uc.Schema.FindByModel(ctx, i.Value().Model(), op)
+	if err != nil {
+		return ItemDelete400Response{}, err
+	}
+
+	err = uc.Item.Delete(ctx, request.ItemId, *sp, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemDelete400Response{}, err

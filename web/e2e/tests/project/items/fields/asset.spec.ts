@@ -21,7 +21,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Asset field creating and updating has succeeded", async ({
+test("@smoke Asset field creating and updating has succeeded", async ({
   page,
   fieldEditorPage,
   contentPage,

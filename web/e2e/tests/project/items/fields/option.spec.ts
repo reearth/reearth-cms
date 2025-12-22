@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Option field creating and updating has succeeded", async ({
+test("@smoke Option field creating and updating has succeeded", async ({
   page,
   fieldEditorPage,
   contentPage,

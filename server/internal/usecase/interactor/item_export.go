@@ -96,7 +96,7 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 		}
 
 		// Extract and load assets for this batch
-		assetIDs := items.AssetIDs(params.SchemaPackage.Schema())
+		assetIDs := items.AssetIDs(params.SchemaPackage)
 		var assets asset.List
 		if len(assetIDs) > 0 && params.Options.IncludeAssets {
 			assets, err = i.repos.Asset.FindByIDs(ctx, assetIDs)

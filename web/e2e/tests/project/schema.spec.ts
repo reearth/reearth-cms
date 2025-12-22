@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Model CRUD has succeeded", async ({ schemaPage, fieldEditorPage, page }) => {
+test("@smoke Model CRUD has succeeded", async ({ schemaPage, fieldEditorPage, page }) => {
   const modelName = "model name";
   const modelKey = "model-key";
   const newModelName = "new model name";
@@ -72,7 +72,7 @@ test("Model reordering has succeeded", async ({ schemaPage, page }) => {
   });
 });
 
-test("Group CRUD has succeeded", async ({ schemaPage, fieldEditorPage, page }) => {
+test("@smoke Group CRUD has succeeded", async ({ schemaPage, fieldEditorPage, page }) => {
   const groupName = "e2e group name";
   const groupKey = "e2e-group-key";
   const updateGroupName = "new e2e group name";

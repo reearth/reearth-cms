@@ -52,6 +52,7 @@ func Echo(e *echo.Group) {
 
 	e.GET("/:workspace/:project/:sub-route", SubRoute())
 	e.GET("/:workspace/:project/:model/:item", ItemOrAsset())
+	e.GET("/:workspace/:project", OpenAPISchema())
 }
 
 // SubRoute since echo supports only / separated params, we need to route inside the handler
@@ -242,4 +243,23 @@ func intParams(c echo.Context, params ...string) (int64, bool) {
 		}
 	}
 	return 0, false
+}
+
+func OpenAPISchema() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		ctx := c.Request().Context()
+		ctrl := GetController(ctx)
+
+		ws, p := c.Param("workspace"), c.Param("project")
+
+		res, err := ctrl.GetOpenAPISchema(ctx, ws, p)
+		if err != nil {
+			if errors.Is(err, rerror.ErrNotFound) {
+				return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
+			}
+			return err
+		}
+
+		return c.JSON(http.StatusOK, res)
+	}
 }
