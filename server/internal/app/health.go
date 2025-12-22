@@ -17,6 +17,25 @@ import (
 
 // HealthCheck returns an echo.HandlerFunc that serves the health check endpoint
 func HealthCheck(conf *Config, ver string, fileRepo gateway.File) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// Optional HTTP Basic Auth
+		if conf.HealthCheck.Username != "" && conf.HealthCheck.Password != "" {
+			username, password, ok := c.Request().BasicAuth()
+			if !ok || username != conf.HealthCheck.Username || password != conf.HealthCheck.Password {
+				return c.JSON(http.StatusUnauthorized, map[string]string{
+					"error": "unauthorized",
+				})
+			}
+		}
+
+		// Serve the health check
+		h := healthCheck(conf, ver, fileRepo)
+		h.Handler().ServeHTTP(c.Response(), c.Request())
+		return nil
+	}
+}
+
+func healthCheck(conf *Config, ver string, fileRepo gateway.File) *health.Health {
 	checks := []health.Config{
 		{
 			Name:      "db",
@@ -52,7 +71,7 @@ func HealthCheck(conf *Config, ver string, fileRepo gateway.File) echo.HandlerFu
 			}
 			checks = append(checks, health.Config{
 				Name:      "auth:" + a.ISS,
-				Timeout:   time.Second * 5,
+				Timeout:   time.Second * 10,
 				SkipOnErr: false,
 				Check: func(ctx context.Context) error {
 					return authServerPingCheck(u.JoinPath(".well-known/openid-configuration").String())
@@ -68,27 +87,24 @@ func HealthCheck(conf *Config, ver string, fileRepo gateway.File) echo.HandlerFu
 	if err != nil {
 		log.Fatalf("failed to create health check: %v", err)
 	}
+	return h
+}
 
-	return func(c echo.Context) error {
-		// Optional HTTP Basic Auth
-		if conf.HealthCheck.Username != "" && conf.HealthCheck.Password != "" {
-			username, password, ok := c.Request().BasicAuth()
-			if !ok || username != conf.HealthCheck.Username || password != conf.HealthCheck.Password {
-				return c.JSON(http.StatusUnauthorized, map[string]string{
-					"error": "unauthorized",
-				})
-			}
-		}
-
-		// Serve the health check
-		h.Handler().ServeHTTP(c.Response(), c.Request())
-		return nil
+// RunInitialHealthCheck performs health checks on initialization
+func RunInitialHealthCheck(ctx context.Context, conf *Config, fileRepo gateway.File) error {
+	log.Infof("health check: running initial health checks...")
+	h := healthCheck(conf, "init-check", fileRepo)
+	result := h.Measure(ctx)
+	if len(result.Failures) > 0 {
+		return fmt.Errorf("initial health check failed: %v", result.Failures)
 	}
+	log.Infof("health check: all checks passed")
+	return nil
 }
 
 func authServerPingCheck(issuerURL string) (checkErr error) {
 	client := http.Client{
-		Timeout: 2 * time.Second,
+		Timeout: 5 * time.Second,
 	}
 	resp, err := client.Get(issuerURL)
 	if err != nil {
