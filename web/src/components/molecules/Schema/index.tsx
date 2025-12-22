@@ -1,14 +1,13 @@
 import styled from "@emotion/styled";
 import { Dispatch, SetStateAction, useCallback, useMemo, useState } from "react";
 
-import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
+import Modal from "@reearth-cms/components/atoms/Modal";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Tabs, { TabsProps } from "@reearth-cms/components/atoms/Tabs";
-import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
@@ -23,18 +22,16 @@ import {
   Tab,
   SelectedSchemaType,
   CreateFieldInput,
-  ImportFieldInput,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
-import { Constant } from "@reearth-cms/utils/constant";
 
 import { ItemAsset } from "../Content/types";
 
 import ImportSchemaModal from "./ImportSchemaModal";
 
 type Props = {
-  // workspaceId?: string;
-  // projectId?: string;
+  workspaceId?: string;
+  projectId?: string;
   data?: Model | Group;
   collapsed: boolean;
   page: number;
@@ -49,18 +46,16 @@ type Props = {
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
   fileList: UploadFile[];
-  alertList?: AlertProps[];
   uploadType: UploadType;
   uploadUrl: { url: string; autoUnzip: boolean };
   uploading: boolean;
-  importFields: ImportFieldInput[];
+  importFields: CreateFieldInput[];
   guessSchemaFieldsError?: boolean;
   fieldsCreationError?: boolean;
-  setImportFields: Dispatch<SetStateAction<ImportFieldInput[]>>;
+  setImportFields: Dispatch<SetStateAction<CreateFieldInput[]>>;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
   setFileList: (fileList: UploadFile<File>[]) => void;
-  setAlertList: (alertList: AlertProps[]) => void;
   totalCount: number;
   onSearchTerm: (term?: string) => void;
   onAssetsReload: () => void;
@@ -77,7 +72,6 @@ type Props = {
   onFieldUpdateModalOpen: (field: Field) => void;
   onFieldCreationModalOpen: (fieldType: SchemaFieldType) => void;
   onFieldDelete: (fieldId: string) => Promise<void>;
-  onAllFieldsDelete: (fieldIds: string[]) => Promise<void>;
   importSchemaModalVisibility: boolean;
   selectFileModalVisibility: boolean;
   uploadModalVisibility: boolean;
@@ -90,14 +84,11 @@ type Props = {
   currentImportSchemaModalPage: number;
   toSchemaPreviewStep: () => void;
   toImportingStep: (fields: CreateFieldInput[]) => Promise<void>;
-  toFileSelectionStep: () => void;
-  dataChecking: boolean;
-  onFileContentChange: (fileContent: string) => Promise<void>;
 };
 
 const Schema: React.FC<Props> = ({
-  // workspaceId,
-  // projectId,
+  workspaceId,
+  projectId,
   data,
   collapsed,
   page,
@@ -112,7 +103,6 @@ const Schema: React.FC<Props> = ({
   hasUpdateRight,
   hasDeleteRight,
   fileList,
-  alertList,
   uploadType,
   uploadUrl,
   uploading,
@@ -123,7 +113,6 @@ const Schema: React.FC<Props> = ({
   setUploadUrl,
   setUploadType,
   setFileList,
-  setAlertList,
   totalCount,
   onSearchTerm,
   onAssetsReload,
@@ -140,7 +129,6 @@ const Schema: React.FC<Props> = ({
   onFieldUpdateModalOpen,
   onFieldCreationModalOpen,
   onFieldDelete,
-  onAllFieldsDelete,
   uploadModalVisibility,
   importSchemaModalVisibility,
   selectFileModalVisibility,
@@ -153,15 +141,28 @@ const Schema: React.FC<Props> = ({
   currentImportSchemaModalPage,
   toSchemaPreviewStep,
   toImportingStep,
-  toFileSelectionStep,
-  dataChecking,
-  onFileContentChange,
 }) => {
   const t = useT();
   const [tab, setTab] = useState<Tab>("fields");
 
-  const hasFields = useMemo(() => data && data.schema.fields.length > 0, [data]);
-  const disableImport = useMemo(() => !hasUpdateRight || hasFields, [hasUpdateRight, hasFields]);
+  const handleSchemaImport = useCallback(() => {
+    if (data?.schema.fields && data.schema.fields.length > 0) {
+      Modal.confirm({
+        title: t("Are you sure you want to overwrite current schema?"),
+        content: (
+          <>{t("Importing a new schema will replace the existing fields and cannot be undone.")}</>
+        ),
+        icon: <Icon icon="exclamationCircle" />,
+        cancelText: t("Cancel"),
+        okText: t("Continue"),
+        onOk() {
+          onSchemaImportModalOpen();
+        },
+      });
+    } else {
+      onSchemaImportModalOpen();
+    }
+  }, [data?.schema.fields, onSchemaImportModalOpen, t]);
 
   const dropdownItems = useMemo(
     () => [
@@ -174,14 +175,10 @@ const Schema: React.FC<Props> = ({
       },
       {
         key: "import",
-        label: (
-          <Tooltip title={disableImport ? t("Only empty schemas can be imported into") : undefined}>
-            {t("Import")}
-          </Tooltip>
-        ),
+        label: t("Import"),
         icon: <StyledIcon icon="import" />,
-        onClick: onSchemaImportModalOpen,
-        disabled: disableImport,
+        onClick: handleSchemaImport,
+        disabled: !hasUpdateRight,
       },
       {
         key: "delete",
@@ -192,15 +189,7 @@ const Schema: React.FC<Props> = ({
         disabled: !hasDeleteRight,
       },
     ],
-    [
-      onSchemaImportModalOpen,
-      hasDeleteRight,
-      hasUpdateRight,
-      onDeletionModalOpen,
-      onModalOpen,
-      t,
-      disableImport,
-    ],
+    [handleSchemaImport, hasDeleteRight, hasUpdateRight, onDeletionModalOpen, onModalOpen, t],
   );
 
   const DropdownMenu = useCallback(
@@ -225,7 +214,7 @@ const Schema: React.FC<Props> = ({
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
             onFieldDelete={onFieldDelete}
-            onSchemaImport={onSchemaImportModalOpen}
+            onSchemaImport={handleSchemaImport}
           />
         </div>
       ),
@@ -277,25 +266,7 @@ const Schema: React.FC<Props> = ({
                 title={data.name}
                 subTitle={`#${data.key}`}
                 style={{ backgroundColor: "#fff" }}
-                extra={[
-                  Constant.IS_DEV && (
-                    <Button
-                      type="default"
-                      shape="default"
-                      size="small"
-                      color="red"
-                      variant="outlined"
-                      onClick={() =>
-                        data?.schema?.fields &&
-                        onAllFieldsDelete(data.schema.fields.map(field => field.id))
-                      }
-                      disabled={!hasDeleteRight}>
-                      Delete All Fields (Dev Only)
-                    </Button>
-                  ),
-
-                  <DropdownMenu key="more" />,
-                ]}
+                extra={[<DropdownMenu key="more" />]}
               />
               {selectedSchemaType === "model" && (
                 <StyledTabs activeKey={tab} items={items} onChange={handleTabChange} />
@@ -315,6 +286,8 @@ const Schema: React.FC<Props> = ({
             </>
           )}
           <ImportSchemaModal
+            workspaceId={workspaceId}
+            projectId={projectId}
             page={page}
             pageSize={pageSize}
             assetList={assetList}
@@ -326,13 +299,11 @@ const Schema: React.FC<Props> = ({
             currentPage={currentImportSchemaModalPage}
             toSchemaPreviewStep={toSchemaPreviewStep}
             toImportingStep={toImportingStep}
-            toFileSelectionStep={toFileSelectionStep}
             hasUpdateRight={hasUpdateRight}
             hasDeleteRight={hasDeleteRight}
             onUploadModalOpen={onUploadModalOpen}
             onUploadModalCancel={onUploadModalCancel}
             fileList={fileList}
-            alertList={alertList}
             totalCount={totalCount}
             selectedAsset={selectedAsset}
             uploadType={uploadType}
@@ -345,7 +316,6 @@ const Schema: React.FC<Props> = ({
             setUploadUrl={setUploadUrl}
             setUploadType={setUploadType}
             setFileList={setFileList}
-            setAlertList={setAlertList}
             hasCreateRight={hasCreateRight}
             uploadModalVisibility={uploadModalVisibility}
             onSearchTerm={onSearchTerm}
@@ -357,8 +327,6 @@ const Schema: React.FC<Props> = ({
             onSelectFile={onSelectFileModalOpen}
             onSelectFileModalCancel={onSelectFileModalCancel}
             onModalClose={onSchemaImportModalCancel}
-            dataChecking={dataChecking}
-            onFileContentChange={onFileContentChange}
           />
         </Content>
       }

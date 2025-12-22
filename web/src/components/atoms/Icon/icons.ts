@@ -55,13 +55,11 @@ import {
   SortAscendingOutlined,
   FilterOutlined,
   CommentOutlined,
+  ImportOutlined,
   SaveOutlined,
   LockOutlined,
   BlockOutlined,
   ReadOutlined,
-  DownOutlined,
-  PaperClipOutlined,
-  ExclamationCircleFilled,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
@@ -78,7 +76,6 @@ import Date from "./Icons/date.svg";
 import Dot from "./Icons/dot.svg";
 import EditorCopy from "./Icons/editorCopy.svg";
 import Group from "./Icons/group.svg";
-import Import from "./Icons/import.svg";
 import InfinityIcon from "./Icons/infinity.svg";
 import Key from "./Icons/key.svg";
 import LineSegments from "./Icons/lineSegments.svg";
@@ -95,14 +92,12 @@ import NumberNine from "./Icons/numberNine.svg";
 import Pencil from "./Icons/pencil.svg";
 import Polygon from "./Icons/polygon.svg";
 import Rectangle from "./Icons/rectangle.svg";
-import RetryFilled from "./Icons/retryFilled.svg";
 import Tag from "./Icons/tag.svg";
 import TerminalWindow from "./Icons/terminalWindow.svg";
 import TextAlignLeft from "./Icons/textAlignLeft.svg";
 import Text from "./Icons/textT.svg";
 import Trash from "./Icons/trash.svg";
 import Unzip from "./Icons/unzip.svg";
-import WarningSolid from "./Icons/warningSolid.svg";
 import WorkspaceSettings from "./Icons/workspaceSettings.svg";
 
 export default {
@@ -129,7 +124,6 @@ export default {
   plus: PlusOutlined,
   close: CloseOutlined,
   exclamationCircle: ExclamationCircleOutlined,
-  exclamationSolid: ExclamationCircleFilled,
   upload: UploadOutlined,
   message: MessageOutlined,
   inbox: InboxOutlined,
@@ -200,13 +194,9 @@ export default {
   circle: Circle,
   rectangle: Rectangle,
   comment: CommentOutlined,
-  import: Import,
+  import: ImportOutlined,
   save: SaveOutlined,
   lock: LockOutlined,
   block: BlockOutlined,
   read: ReadOutlined,
-  down: DownOutlined,
-  clip: PaperClipOutlined,
-  retry: RetryFilled,
-  warningSolid: WarningSolid,
 };

@@ -25,7 +25,7 @@ import {
 } from "@reearth-cms/components/molecules/Asset/types";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { useT } from "@reearth-cms/i18n";
-import { FileUtils } from "@reearth-cms/utils/file";
+import { getExtension } from "@reearth-cms/utils/file";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
 import { compressedFileFormats } from "../../Common/Asset";
@@ -153,7 +153,7 @@ const AssetListTable: React.FC<Props> = ({
         dataIndex: "archiveExtractionStatus",
         key: "archiveExtractionStatus",
         render: (_, asset) => {
-          const assetExtension = FileUtils.getExtension(asset.fileName);
+          const assetExtension = getExtension(asset.fileName);
           return (
             compressedFileFormats.includes(assetExtension) && (
               <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
