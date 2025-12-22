@@ -4,7 +4,9 @@
   "title": "Import Schema",
   "description": "Schema for validating CMS import configurations",
   "type": "object",
-  "required": ["properties"],
+  "required": [
+    "properties"
+  ],
   "properties": {
     "properties": {
       "asset-field-key": {
@@ -20,7 +22,10 @@
         "title": "asset-1",
         "description": "this is asset field with multiple value",
         "type": "Asset",
-        "defaultValue": ["01kazd9mamxh62j62gz425v0wk", "01kazd9mamxh62j62gz425v0w1"],
+        "defaultValue": [
+          "01kazd9mamxh62j62gz425v0wk",
+          "01kazd9mamxh62j62gz425v0w1"
+        ],
         "required": true,
         "multiple": true,
         "unique": false
@@ -38,7 +43,10 @@
         "title": "boolean-1",
         "description": "this is boolean field with multiple value",
         "type": "Bool",
-        "defaultValue": [true, false],
+        "defaultValue": [
+          true,
+          false
+        ],
         "required": true,
         "multiple": true,
         "unique": false
@@ -58,7 +66,10 @@
         "description": "this is date field with multiple value",
         "type": "Date",
         "format": "date-time",
-        "defaultValue": ["2025-12-01T00:00:00+09:00", "2025-12-02T00:00:00+09:00"],
+        "defaultValue": [
+          "2025-12-01T00:00:00+09:00",
+          "2025-12-02T00:00:00+09:00"
+        ],
         "required": true,
         "multiple": true,
         "unique": false
@@ -80,7 +91,10 @@
         "type": "Number",
         "maximum": 5.5,
         "minimum": -5.5,
-        "defaultValue": [1.5, -1.5],
+        "defaultValue": [
+          1.5,
+          -1.5
+        ],
         "required": true,
         "multiple": true,
         "unique": false
@@ -102,7 +116,10 @@
         "type": "Integer",
         "maximum": 10,
         "minimum": -10,
-        "defaultValue": [5, -5],
+        "defaultValue": [
+          5,
+          -5
+        ],
         "required": true,
         "multiple": true,
         "unique": false
@@ -122,7 +139,10 @@
         "description": "this is markdown text field with multiple value",
         "type": "MarkdownText",
         "maxLength": 100,
-        "defaultValue": ["# H1 \n # H2 \n hello world", "# H1 \n # H2 \n hola mundo"],
+        "defaultValue": [
+          "# H1 \n # H2 \n hello world",
+          "# H1 \n # H2 \n hola mundo"
+        ],
         "required": true,
         "multiple": true,
         "unique": false
@@ -131,7 +151,11 @@
         "title": "select-1",
         "description": "this is option field",
         "type": "Select",
-        "values": ["red", "green", "blue"],
+        "values": [
+          "red",
+          "green",
+          "blue"
+        ],
         "defaultValue": "green",
         "required": true,
         "multiple": false,
@@ -141,8 +165,15 @@
         "title": "select-1",
         "description": "this is option field with multiple value",
         "type": "Select",
-        "values": ["red", "green", "blue"],
-        "defaultValue": ["green", "blue"],
+        "values": [
+          "red",
+          "green",
+          "blue"
+        ],
+        "defaultValue": [
+          "green",
+          "blue"
+        ],
         "required": true,
         "multiple": true,
         "unique": false
@@ -162,7 +193,10 @@
         "description": "this is text field with multiple value",
         "type": "Text",
         "maxLength": 10,
-        "defaultValue": ["hello", "world"],
+        "defaultValue": [
+          "hello",
+          "world"
+        ],
         "required": true,
         "multiple": true,
         "unique": false
@@ -182,7 +216,10 @@
         "description": "this is textarea field with multiple value",
         "type": "TextArea",
         "maxLength": 10,
-        "defaultValue": ["hello \n world", "hola \n mundo"],
+        "defaultValue": [
+          "hello \n world",
+          "hola \n mundo"
+        ],
         "required": true,
         "multiple": true,
         "unique": false
@@ -200,7 +237,10 @@
         "title": "url-1",
         "description": "this url field with multiple value",
         "type": "URL",
-        "defaultValue": ["https://hello.com/", "https://world.com"],
+        "defaultValue": [
+          "https://hello.com/",
+          "https://world.com"
+        ],
         "required": true,
         "multiple": true,
         "unique": false
@@ -211,7 +251,14 @@
   "$defs": {
     "fieldBase": {
       "type": "object",
-      "required": ["title", "description", "type", "required", "multiple", "unique"],
+      "required": [
+        "title",
+        "description",
+        "type",
+        "required",
+        "multiple",
+        "unique"
+      ],
       "properties": {
         "title": {
           "type": "string",
@@ -506,7 +553,9 @@
           "$ref": "#/$defs/fieldBase"
         },
         {
-          "required": ["values"],
+          "required": [
+            "values"
+          ],
           "properties": {
             "type": {
               "const": "Select"

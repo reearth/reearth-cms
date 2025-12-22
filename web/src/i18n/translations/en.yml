@@ -158,9 +158,7 @@ The data file can contain a maximum of {{max}} records. Please split the file an
 Unmatched field hint_one: 'Unmatched field is: {{fields, list}}.'
 Unmatched field hint_other: 'Unmatched fields are: {{fields, list}}.'
 Data file is too large.: ''
-The data file can contain a maximum of {{max}} records. Please split the file and re-upload it: >-
-  The data file can contain a maximum of {{max, number}} records. Please split
-  the file and re-upload it.
+The data file can contain a maximum of {{max}} records. Please split the file and re-upload it: ''
 Some fields don't match the schema: ''
 '{{count}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored._one': >-
   {{count, number}} field do not match the schema. You can continue the import,
@@ -176,7 +174,9 @@ Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema 
   Upload a data file in CSV, JSON, or GeoJSON formats. File must match the
   schema with field names and types. File can contain a maximum of {{max,
   number}} records.
-'You can also download file templates: CSV | JSON | GeoJSON': ''
+'You can also download file templates: CSV | JSON | GeoJSON': >-
+  You can also download file templates: <l1>CSV</l1> | <l2>JSON</l2> |
+  <l3>GeoJSON</l3>
 Please input field!: ''
 Please select an option!: ''
 URL is not valid: ''
@@ -497,7 +497,7 @@ Model key must be unique and at least 3 characters long. It can only contain let
 Group key must be unique and at least 3 characters long. It can only contain letters, numbers, underscores, and dashes.: ''
 Choose or drag & drop a file: <l>Choose</l> or drag & drop a file
 Only JSON format is supported: ''
-'You can also download file templates: JSON': 'You can also download file templates: <l>JSON</l>'
+'You can also download file templates: JSON': 'You can also download file templates: <l1>JSON</l1>'
 Import not successful.: ''
 Importing...: ''
 Import successful!: ''
@@ -535,7 +535,7 @@ Add new Tiles option: ''
 Terrain: ''
 The first one in the list will be the default Terrain.: ''
 Add new Terrain option: ''
-Uploading file..._one: ''
+Uploading file..._one: Uploading...
 Uploading file..._other_one: ''
 Uploading file..._other_other: ''
 Cancel upload?: ''
@@ -716,3 +716,4 @@ Failed to create project.: ''
 Successfully created project!: ''
 Failed to delete workspace.: ''
 Successfully deleted workspace!: ''
+Uploading file..._other: Uploading {{count}} files...

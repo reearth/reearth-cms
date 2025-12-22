@@ -3,13 +3,16 @@
   "features": [
     {
       "geometry": {
-        "coordinates": [139.6917, 35.6895],
+        "coordinates": [
+          139.6917,
+          35.6895
+        ],
         "type": "Point"
       },
       "properties": {
         "text-1": "text111",
-        "textarea-1": "textarea1",
-        "markdown-text-1": "markdown1",
+        "textarea-1": "textarea111",
+        "markdown-text-1": "markdown111",
         "asset-1": {
           "url": "",
           "type": "asset"
@@ -25,7 +28,10 @@
     },
     {
       "geometry": {
-        "coordinates": [139.6917, 35.6895],
+        "coordinates": [
+          139.6917,
+          35.6895
+        ],
         "type": "Point"
       },
       "properties": {
