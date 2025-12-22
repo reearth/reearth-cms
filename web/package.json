@@ -58,7 +58,7 @@
     "@types/mapbox__vector-tile": "1.3.4",
     "@types/node": "22.5.1",
     "@types/object-hash": "3.0.6",
-    "@types/papaparse": "5.5.1",
+    "@types/papaparse": "^5.5.1",
     "@types/react": "18.3.4",
     "@types/react-dom": "18.3.0",
     "@types/react-resizable": "3.0.8",
@@ -133,7 +133,7 @@
     "motion": "12.23.24",
     "object-hash": "3.0.0",
     "ol": "10.1.0",
-    "papaparse": "5.5.3",
+    "papaparse": "^5.5.3",
     "rc-field-form": "2.4.0",
     "rc-menu": "9.15.1",
     "rc-table": "7.47.5",
@@ -149,7 +149,6 @@
     "remark-gfm": "4.0.0",
     "resium": "1.18.3",
     "runes2": "1.1.4",
-    "ulid": "2.3.0",
-    "xstate": "5.24.0"
+    "ulid": "2.3.0"
   }
 }

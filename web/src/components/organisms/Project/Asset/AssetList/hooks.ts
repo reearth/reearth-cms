@@ -30,7 +30,7 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
-import { ImportSchema, ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
+import { ImportUtils } from "@reearth-cms/utils/import";
 import { ObjectUtils } from "@reearth-cms/utils/object";
 
 import { uploadFiles } from "./upload";
@@ -465,12 +465,12 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
 
   const handleImportSchemaFileChange = async (fileContent: string): Promise<unknown> => {
     setDataChecking(true);
-    const parsedJSON = await ObjectUtils.safeJSONParse<ImportSchema>(fileContent);
+    const parsedJSON = await ObjectUtils.safeJSONParse(fileContent);
     setDataChecking(false);
 
     if (!parsedJSON.isValid) return { isValid: false, error: parsedJSON.error };
 
-    const importSchema = ImportSchemaUtils.validateSchemaFromJSON(parsedJSON.data);
+    const importSchema = ImportUtils.validateSchemaFromJSON(parsedJSON.data);
 
     if (!importSchema.isValid) return { isValid: false, error: importSchema.error };
 
@@ -493,6 +493,8 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     );
 
     setImportFields(fields);
+
+    // return ImportUtils.validateSchemaFromJSON(parsedJSON.data);
   };
 
   return {
