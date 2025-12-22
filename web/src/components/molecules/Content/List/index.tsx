@@ -5,7 +5,6 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
-import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
@@ -18,8 +17,6 @@ import {
   CurrentView,
 } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
-
-import { Field } from "../../Schema/types";
 
 type Props = {
   commentsPanel: JSX.Element;
@@ -70,9 +67,6 @@ type Props = {
   hasPublishRight: boolean;
   hasRequestUpdateRight: boolean;
   showPublishAction: boolean;
-  onImportModalOpen: () => void;
-  modelFields: Field[];
-  hasModelFields: boolean;
 };
 
 const ContentListMolecule: React.FC<Props> = ({
@@ -124,8 +118,6 @@ const ContentListMolecule: React.FC<Props> = ({
   hasPublishRight,
   hasRequestUpdateRight,
   showPublishAction,
-  onImportModalOpen,
-  hasModelFields,
 }) => {
   const t = useT();
 
@@ -149,24 +141,13 @@ const ContentListMolecule: React.FC<Props> = ({
                 title={model?.name}
                 subTitle={model?.key ? `#${model.key}` : null}
                 extra={
-                  <>
-                    <Tooltip title={!hasModelFields ? t("Please create a schema first") : null}>
-                      <Button
-                        type="default"
-                        onClick={onImportModalOpen}
-                        icon={<Icon icon="import" />}
-                        disabled={!model || !hasCreateRight || !hasModelFields}>
-                        {t("Import content")}
-                      </Button>
-                    </Tooltip>
-                    <Button
-                      type="primary"
-                      onClick={onItemAdd}
-                      icon={<Icon icon="plus" />}
-                      disabled={!model || !hasCreateRight}>
-                      {t("New Item")}
-                    </Button>
-                  </>
+                  <Button
+                    type="primary"
+                    onClick={onItemAdd}
+                    icon={<Icon icon="plus" />}
+                    disabled={!model || !hasCreateRight}>
+                    {t("New Item")}
+                  </Button>
                 }
               />
               {viewsMenu}
@@ -212,7 +193,6 @@ const ContentListMolecule: React.FC<Props> = ({
                 hasPublishRight={hasPublishRight}
                 hasRequestUpdateRight={hasRequestUpdateRight}
                 showPublishAction={showPublishAction}
-                onImportModalOpen={onImportModalOpen}
               />
             </>
           )}

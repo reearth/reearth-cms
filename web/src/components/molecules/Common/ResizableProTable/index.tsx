@@ -28,7 +28,6 @@ const ResizableProTable: React.FC<Props> = ({
   columnsState,
   showSorterTooltip,
   heightOffset,
-  locale,
 }) => {
   const [resizableColumns, setResizableColumns] = useState<ProColumns<any, "text">[]>(
     columns ?? [],
@@ -102,7 +101,6 @@ const ResizableProTable: React.FC<Props> = ({
       showSorterTooltip={showSorterTooltip}
       scroll={{ x: "", y: "" }}
       heightOffset={heightOffset}
-      locale={locale}
     />
   );
 };
