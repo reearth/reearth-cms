@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 import { getIssues, HintIssue } from "@placemarkio/check-geojson";
+import { GeoJsonProperties, GeoJSON } from "geojson";
 import Papa, { ParseResult } from "papaparse";
 import z from "zod";
 
@@ -27,7 +28,7 @@ export interface ValidationErrorMeta {
 export type ContentSourceFormat = "CSV" | "JSON" | "GEOJSON";
 
 export abstract class ImportContentUtils {
-  public static async validateContentFromJSON(
+  public static async validateContent(
     importContentList: ImportContentJSON["results"],
     modelFields: Model["schema"]["fields"],
     sourceFormat: ContentSourceFormat,
@@ -579,5 +580,31 @@ export abstract class ImportContentUtils {
         }, 0);
       },
     );
+  }
+
+  public static convertGeoJSONToJSON(
+    raw: GeoJSON,
+  ): Promise<
+    { isValid: true; data: Record<string, ItemValue>[] } | { isValid: false; error: string }
+  > {
+    return new Promise<
+      { isValid: true; data: Record<string, ItemValue>[] } | { isValid: false; error: string }
+    >((resolve, _reject) => {
+      const timer = new PerformanceTimer("convertGeoJSONToJSON");
+
+      if (raw.type !== "FeatureCollection") {
+        resolve({ isValid: false, error: "Not feature collection" });
+        timer.log();
+        return;
+      }
+
+      const propertiesFromCollection = raw.features.reduce<NonNullable<GeoJsonProperties>[]>(
+        (acc, curr) => (curr.properties ? [...acc, curr.properties] : acc),
+        [],
+      );
+
+      timer.log();
+      resolve({ isValid: true, data: propertiesFromCollection });
+    });
   }
 }

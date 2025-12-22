@@ -212,7 +212,7 @@ const ContentImportModal: React.FC<Props> = ({
               return;
             }
 
-            const jsonContentValidation = await ImportContentUtils.validateContentFromJSON(
+            const jsonContentValidation = await ImportContentUtils.validateContent(
               jsonValidation.data.results,
               modelFields,
               "JSON",

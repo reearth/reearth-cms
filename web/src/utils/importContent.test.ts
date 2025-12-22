@@ -1,6 +1,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 
+import { FeatureCollection } from "geojson";
 import { describe, expect, test } from "vitest";
 
 import { Field, SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
@@ -38,6 +39,20 @@ async function readFromCSVFile(
   return await ImportContentUtils.convertCSVToJSON<ImportContentResultItem>(fileContent);
 }
 
+async function readFromGeoJSONFile(
+  staticFileDirectory: string,
+  baseDirectory = "public",
+): ReturnType<typeof ImportContentUtils.convertGeoJSONToJSON> {
+  const filePath = join(baseDirectory, staticFileDirectory);
+  const fileContent = readFileSync(filePath, "utf-8");
+
+  const validation = await ObjectUtils.safeJSONParse<FeatureCollection>(fileContent);
+
+  if (!validation.isValid) return { isValid: false, error: validation.error };
+
+  return await ImportContentUtils.convertGeoJSONToJSON(validation.data);
+}
+
 const DEFAULT_COMMON_FIELD: Pick<Field, "id" | "description" | "title" | "isTitle" | "unique"> = {
   id: "",
   description: "",
@@ -47,10 +62,11 @@ const DEFAULT_COMMON_FIELD: Pick<Field, "id" | "description" | "title" | "isTitl
 };
 
 describe("Testing content import from static files", () => {
-  describe.only("Validate import content files", () => {
+  describe("Validate import content files", () => {
     test.each<{ fileDir: string; format: ContentSourceFormat }>([
       { fileDir: Constant.PUBLIC_FILE.IMPORT_CONTENT_JSON, format: "JSON" },
       { fileDir: Constant.PUBLIC_FILE.IMPORT_CONTENT_CSV, format: "CSV" },
+      { fileDir: Constant.PUBLIC_FILE.IMPORT_CONTENT_GEO_JSON, format: "GEOJSON" },
     ])("[Pass case] Check import content template file ($format)", async ({ fileDir, format }) => {
       const fields = [
         {
@@ -112,20 +128,17 @@ describe("Testing content import from static files", () => {
       };
 
       switch (format) {
-        case "JSON": {
+        case "JSON":
           result = await readFromJSONFile(fileDir);
-
           break;
-        }
 
-        case "CSV": {
+        case "CSV":
           result = await readFromCSVFile(fileDir);
           break;
-        }
 
-        // case "GEOJSON": {
-        //   break;
-        // }
+        case "GEOJSON":
+          result = await readFromGeoJSONFile(fileDir);
+          break;
 
         default:
       }
@@ -134,7 +147,7 @@ describe("Testing content import from static files", () => {
 
       if (!result.isValid) return;
 
-      const contentValidation = await ImportContentUtils.validateContentFromJSON(
+      const contentValidation = await ImportContentUtils.validateContent(
         result.data,
         fields,
         format,
@@ -238,7 +251,7 @@ describe("Testing content import from static files", () => {
           },
         ];
 
-        const contentValidation = await ImportContentUtils.validateContentFromJSON(
+        const contentValidation = await ImportContentUtils.validateContent(
           contentList,
           fields,
           "JSON",
@@ -339,7 +352,7 @@ describe("Testing content import from static files", () => {
           },
         ];
 
-        const contentValidation = await ImportContentUtils.validateContentFromJSON(
+        const contentValidation = await ImportContentUtils.validateContent(
           contentList,
           fields,
           "JSON",
@@ -443,7 +456,7 @@ describe("Testing content import from static files", () => {
           },
         ];
 
-        const contentValidation = await ImportContentUtils.validateContentFromJSON(
+        const contentValidation = await ImportContentUtils.validateContent(
           contentList,
           fields,
           "JSON",
@@ -543,7 +556,7 @@ describe("Testing content import from static files", () => {
           },
         ];
 
-        const contentValidation = await ImportContentUtils.validateContentFromJSON(
+        const contentValidation = await ImportContentUtils.validateContent(
           contentList,
           fields,
           "JSON",
@@ -649,7 +662,7 @@ describe("Testing content import from static files", () => {
           },
         ];
 
-        const contentValidation = await ImportContentUtils.validateContentFromJSON(
+        const contentValidation = await ImportContentUtils.validateContent(
           contentList,
           fields,
           "JSON",
@@ -755,7 +768,7 @@ describe("Testing content import from static files", () => {
           },
         ];
 
-        const contentValidation = await ImportContentUtils.validateContentFromJSON(
+        const contentValidation = await ImportContentUtils.validateContent(
           contentList,
           fields,
           "JSON",
@@ -869,7 +882,7 @@ describe("Testing content import from static files", () => {
           },
         ];
 
-        const contentValidation = await ImportContentUtils.validateContentFromJSON(
+        const contentValidation = await ImportContentUtils.validateContent(
           contentList,
           fields,
           "JSON",
@@ -984,7 +997,7 @@ describe("Testing content import from static files", () => {
           },
         ];
 
-        const contentValidation = await ImportContentUtils.validateContentFromJSON(
+        const contentValidation = await ImportContentUtils.validateContent(
           contentList,
           fields,
           "JSON",
@@ -1100,7 +1113,7 @@ describe("Testing content import from static files", () => {
           },
         ];
 
-        const contentValidation = await ImportContentUtils.validateContentFromJSON(
+        const contentValidation = await ImportContentUtils.validateContent(
           contentList,
           fields,
           "JSON",
@@ -1164,7 +1177,7 @@ describe("Testing content import from static files", () => {
           },
         ];
 
-        const contentValidation = await ImportContentUtils.validateContentFromJSON(
+        const contentValidation = await ImportContentUtils.validateContent(
           contentList,
           fields,
           "JSON",
@@ -1234,7 +1247,7 @@ describe("Testing content import from static files", () => {
           },
         ];
 
-        const contentValidation = await ImportContentUtils.validateContentFromJSON(
+        const contentValidation = await ImportContentUtils.validateContent(
           contentList,
           fields,
           "JSON",
@@ -1306,7 +1319,7 @@ describe("Testing content import from static files", () => {
           },
         ];
 
-        const contentValidation = await ImportContentUtils.validateContentFromJSON(
+        const contentValidation = await ImportContentUtils.validateContent(
           contentList,
           fields,
           "JSON",
@@ -1388,7 +1401,7 @@ describe("Testing content import from static files", () => {
           },
         ];
 
-        const contentValidation = await ImportContentUtils.validateContentFromJSON(
+        const contentValidation = await ImportContentUtils.validateContent(
           contentList,
           fields,
           "JSON",
@@ -1452,7 +1465,7 @@ describe("Testing content import from static files", () => {
           },
         ];
 
-        const contentValidation = await ImportContentUtils.validateContentFromJSON(
+        const contentValidation = await ImportContentUtils.validateContent(
           contentList,
           fields,
           "JSON",
@@ -1516,7 +1529,7 @@ describe("Testing content import from static files", () => {
           },
         ];
 
-        const contentValidation = await ImportContentUtils.validateContentFromJSON(
+        const contentValidation = await ImportContentUtils.validateContent(
           contentList,
           fields,
           "JSON",
@@ -1630,7 +1643,7 @@ describe("Testing content import from static files", () => {
           },
         ];
 
-        const contentValidation = await ImportContentUtils.validateContentFromJSON(
+        const contentValidation = await ImportContentUtils.validateContent(
           contentList,
           fields,
           "JSON",
@@ -1746,7 +1759,7 @@ describe("Testing content import from static files", () => {
           },
         ];
 
-        const contentValidation = await ImportContentUtils.validateContentFromJSON(
+        const contentValidation = await ImportContentUtils.validateContent(
           contentList,
           fields,
           "JSON",
@@ -1899,7 +1912,7 @@ describe("Testing content import from static files", () => {
             },
           ];
 
-          const contentValidation = await ImportContentUtils.validateContentFromJSON(
+          const contentValidation = await ImportContentUtils.validateContent(
             contentList,
             fields,
             "JSON",
@@ -2049,7 +2062,7 @@ describe("Testing content import from static files", () => {
             },
           ];
 
-          const contentValidation = await ImportContentUtils.validateContentFromJSON(
+          const contentValidation = await ImportContentUtils.validateContent(
             contentList,
             fields,
             "JSON",
@@ -2139,7 +2152,7 @@ describe("Testing content import from static files", () => {
             },
           ];
 
-          const contentValidation = await ImportContentUtils.validateContentFromJSON(
+          const contentValidation = await ImportContentUtils.validateContent(
             contentList,
             fields,
             "JSON",
@@ -2225,7 +2238,7 @@ describe("Testing content import from static files", () => {
             },
           ];
 
-          const contentValidation = await ImportContentUtils.validateContentFromJSON(
+          const contentValidation = await ImportContentUtils.validateContent(
             contentList,
             fields,
             "JSON",
