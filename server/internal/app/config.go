@@ -83,8 +83,9 @@ type Config struct {
 }
 
 type HealthCheckConfig struct {
-	Username string `pp:",omitempty"`
-	Password string `pp:",omitempty"`
+	Username  string `pp:",omitempty"`
+	Password  string `pp:",omitempty"`
+	RunOnInit bool   `default:"true" pp:",omitempty"`
 }
 
 type AccountAPIConfig struct {

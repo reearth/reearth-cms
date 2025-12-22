@@ -1,6 +1,7 @@
 package gcp
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -27,6 +28,7 @@ import (
 const (
 	gcsAssetBasePath string = "assets"
 	fileSizeLimit    int64  = 10 * 1024 * 1024 * 1024 // 10GB
+	healthCheckDir   string = ".temp-health-check"
 )
 
 const workspaceContextKey = "workspace"
@@ -513,55 +515,51 @@ func (f *fileRepo) batchDelete(ctx context.Context, folderNames []string) error 
 
 	const numWorkers = 5 // Limit concurrency workers
 
-	// Create channels for folder names and errors
+	// Create channel for folder names
 	folderChan := make(chan string, len(folderNames))
-	errChan := make(chan error, numWorkers)
+
+	// Use mutex to safely collect errors from multiple goroutines
+	var mu sync.Mutex
+	var errs []error
 	var wg sync.WaitGroup
 
-	// Worker function to delete folders
 	worker := func() {
 		defer wg.Done()
 		for folderName := range folderChan {
+			// Check context cancellation before processing
+			if ctx.Err() != nil {
+				return
+			}
 			if err := f.deleteFolder(ctx, bucket, folderName); err != nil {
-				errChan <- fmt.Errorf("failed to delete folder %s: %w", folderName, err)
+				mu.Lock()
+				errs = append(errs, fmt.Errorf("failed to delete folder %s: %w", folderName, err))
+				mu.Unlock()
 			}
 		}
 	}
 
-	// Start worker goroutines
 	for i := 0; i < numWorkers; i++ {
 		wg.Add(1)
 		go worker()
 	}
 
-	// Send folder names to workers
 	for _, folderName := range folderNames {
 		if folderName == "" {
 			continue
 		}
 
 		if folderName[len(folderName)-1] != '/' {
-			folderName += "/" // Ensure folder names end with "/"
+			folderName += "/"
 		}
 		folderChan <- folderName
 	}
-	close(folderChan) // Close channel after sending all folder names
+	close(folderChan)
 
-	// Wait for all workers to finish
 	wg.Wait()
-	close(errChan)
 
-	// Collect errors
-	var finalErr error
-	for err := range errChan {
-		if err != nil {
-			finalErr = fmt.Errorf("batch delete encountered errors: %w", err)
-		}
-	}
-
-	if finalErr != nil {
-		log.Errorf("Batch delete completed with errors.")
-		return finalErr
+	if len(errs) > 0 {
+		log.Errorf("gcs: Batch delete completed with %d errors.", len(errs))
+		return errors.Join(errs...)
 	}
 
 	return nil
@@ -570,14 +568,16 @@ func (f *fileRepo) batchDelete(ctx context.Context, folderNames []string) error 
 func (f *fileRepo) deleteFolder(ctx context.Context, bucket *storage.BucketHandle, folderPrefix string) error {
 	it := bucket.Objects(ctx, &storage.Query{Prefix: folderPrefix})
 
+	var errs []error
 	for {
 		objAttrs, err := it.Next()
-		if err == iterator.Done {
+		if errors.Is(err, iterator.Done) {
 			break
 		}
 		if err != nil {
-			log.Errorf("gcs: list objects error: %+v\n", err)
-			return err
+			log.Errorf("gcs: failed to iterate objects: %+v", err)
+			errs = append(errs, err)
+			continue
 		}
 
 		obj := bucket.Object(objAttrs.Name)
@@ -586,8 +586,12 @@ func (f *fileRepo) deleteFolder(ctx context.Context, bucket *storage.BucketHandl
 				continue
 			}
 			log.Errorf("gcs: delete object %s error: %+v\n", objAttrs.Name, err)
-			return err
+			errs = append(errs, err)
 		}
+	}
+
+	if len(errs) > 0 {
+		return errors.Join(errs...)
 	}
 
 	return nil
@@ -674,6 +678,62 @@ func getWorkspaceFromContext(ctx context.Context) string {
 		}
 	}
 	return ""
+}
+
+func (f *fileRepo) Check(ctx context.Context) error {
+	bucket, err := f.bucket(ctx)
+	if err != nil {
+		return fmt.Errorf("GCS client creation failed: %w", err)
+	}
+	if _, err = bucket.Attrs(ctx); err != nil {
+		return fmt.Errorf("GCS bucket access failed: %w", err)
+	}
+
+	// cleanup
+	defer func() {
+		if err := f.deleteFolder(ctx, bucket, healthCheckDir+"/"); err != nil {
+			log.Warnf("gcs: failed to cleanup health check directory: %v", err)
+		}
+	}()
+
+	testFileName := fmt.Sprintf("%s/%s", healthCheckDir, uuid.New().String())
+	testContent := []byte("ok")
+	obj := bucket.Object(testFileName)
+
+	// upload
+	writer := obj.NewWriter(ctx)
+	if _, err := writer.Write(testContent); err != nil {
+		_ = writer.Close()
+		return fmt.Errorf("GCS upload failed: %w", err)
+	}
+	if err := writer.Close(); err != nil {
+		return fmt.Errorf("GCS upload failed (close): %w", err)
+	}
+
+	// read
+	reader, err := obj.NewReader(ctx)
+	if err != nil {
+		_ = obj.Delete(ctx)
+		return fmt.Errorf("GCS read failed: %w", err)
+	}
+	defer func() { _ = reader.Close() }()
+	readContent, err := io.ReadAll(reader)
+	if err != nil {
+		_ = obj.Delete(ctx)
+		return fmt.Errorf("GCS read failed: %w", err)
+	}
+
+	if !bytes.Equal(readContent, testContent) {
+		_ = obj.Delete(ctx)
+		return fmt.Errorf("GCS verification failed: content mismatch")
+	}
+
+	// delete
+	if err := obj.Delete(ctx); err != nil {
+		return fmt.Errorf("GCS delete failed: %w", err)
+	}
+
+	return nil
 }
 
 type contextKey string
