@@ -21,8 +21,10 @@ import {
   ImportContentUtils,
   ImportContentJSON,
   ValidationErrorMeta,
+  ImportContentResultItem,
 } from "@reearth-cms/utils/importContent";
 import { ObjectUtils } from "@reearth-cms/utils/object";
+import { FeatureCollection } from "geojson";
 
 const { Dragger } = Upload;
 
@@ -233,57 +235,71 @@ const ContentImportModal: React.FC<Props> = ({
             break;
           }
 
-          // case "geojson": {
-          //   const geoJSONValidation = await ObjectUtils.validateGeoJson(content);
-          //   if (!geoJSONValidation.isValid) {
-          //     raiseIllegalFileAlert();
-          //     return;
-          //   }
+          case "geojson": {
+            const geoJSONValidation = await ObjectUtils.validateGeoJson(content);
+            if (!geoJSONValidation.isValid) {
+              raiseIllegalFileAlert();
+              return;
+            }
 
-          //   const geoJSONContentValidation = await ImportContentUtils.validateContentFromGeoJson(
-          //     geoJSONValidation.data,
-          //     modelFields,
-          //   );
+            const jsonValidation = await ImportContentUtils.convertGeoJSONToJSON(
+              geoJSONValidation.data,
+            );
 
-          //   if (!geoJSONContentValidation.isValid) {
-          //     schemaValidationAlert(geoJSONContentValidation.error);
-          //     return;
-          //   }
+            if (!jsonValidation.isValid) {
+              raiseIllegalFileAlert();
+              return;
+            }
 
-          //   onFileContentChange({
-          //     fileContent: geoJSONContentValidation.data,
-          //     extension,
-          //     fileName,
-          //     url: location.pathname,
-          //   });
-          //   break;
-          // }
+            const geoJSONContentValidation = await ImportContentUtils.validateContent(
+              jsonValidation.data,
+              modelFields,
+              "GEOJSON",
+            );
 
-          // case "csv": {
-          //   const csvValidation = await ImportContentUtils.convertCSVToJSON(content);
-          //   if (!csvValidation.isValid) {
-          //     raiseIllegalFileAlert();
-          //     return;
-          //   }
+            if (!geoJSONContentValidation.isValid) {
+              schemaValidationAlert(geoJSONContentValidation.error);
+              return;
+            }
 
-          //   const csvContentValidation = await ImportContentUtils.validateContentFromCSV(
-          //     csvValidation.data,
-          //     modelFields,
-          //   );
+            onFileContentChange({
+              fileContent: geoJSONContentValidation.data,
+              extension,
+              fileName,
+              url: location.pathname,
+              raw: file,
+            });
+            break;
+          }
 
-          //   if (!csvContentValidation.isValid) {
-          //     schemaValidationAlert(csvContentValidation.error);
-          //     return;
-          //   }
+          case "csv": {
+            const csvValidation =
+              await ImportContentUtils.convertCSVToJSON<ImportContentResultItem>(content);
+            if (!csvValidation.isValid) {
+              raiseIllegalFileAlert();
+              return;
+            }
 
-          //   onFileContentChange({
-          //     fileContent: csvContentValidation.data,
-          //     extension,
-          //     fileName,
-          //     url: location.pathname,
-          //   });
-          //   break;
-          // }
+            const csvContentValidation = await ImportContentUtils.validateContent(
+              csvValidation.data,
+              modelFields,
+              "CSV",
+            );
+
+            if (!csvContentValidation.isValid) {
+              schemaValidationAlert(csvContentValidation.error);
+              return;
+            }
+
+            onFileContentChange({
+              fileContent: csvContentValidation.data,
+              extension,
+              fileName,
+              url: location.pathname,
+              raw: file,
+            });
+            break;
+          }
 
           default:
         }

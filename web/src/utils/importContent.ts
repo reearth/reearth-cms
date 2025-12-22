@@ -582,7 +582,7 @@ export abstract class ImportContentUtils {
     );
   }
 
-  public static convertGeoJSONToJSON(
+  public static async convertGeoJSONToJSON(
     raw: GeoJSON,
   ): Promise<
     { isValid: true; data: Record<string, ItemValue>[] } | { isValid: false; error: string }
