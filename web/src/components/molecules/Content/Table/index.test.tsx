@@ -47,7 +47,6 @@ const DEFAULT_PROPS: Props = {
   hasPublishRight: true,
   hasRequestUpdateRight: false,
   showPublishAction: false,
-  onImportModalOpen: vi.fn(),
 };
 
 test("ContentTable renders with default column and order", () => {

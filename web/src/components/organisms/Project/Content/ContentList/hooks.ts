@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, useRef, Key } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
-import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { checkIfEmpty } from "@reearth-cms/components/molecules/Content/Form/fields/utils";
 import { renderField } from "@reearth-cms/components/molecules/Content/RenderField";
@@ -15,9 +14,7 @@ import {
   Metadata,
 } from "@reearth-cms/components/molecules/Content/types";
 import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
-import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
-import { UploadStatus } from "@reearth-cms/components/molecules/Uploader/types";
 import {
   ConditionInput,
   ItemSort,
@@ -49,8 +46,7 @@ import {
   ItemFieldInput,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useUserId, useCollapsedModelMenu, useUserRights, useUploader } from "@reearth-cms/state";
-import { newID } from "@reearth-cms/utils/id";
+import { useUserId, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
 
 import { fileName } from "./utils";
 
@@ -60,25 +56,6 @@ const defaultViewSort: ItemSort = {
     type: "MODIFICATION_DATE",
   },
 };
-
-export type ValidateImportResult = {
-  type: "warning" | "error";
-  title: string;
-  description: string;
-  canForwardToImport?: boolean;
-  hint?: string;
-};
-
-// export type ImportState = {
-//   step: 'SELECT_FILE' | 'CHECKING' | 'RESULT';
-//   fileError: AlertProps[];
-//   checkResult: ValidateImportResult;
-// }
-
-// export type ImportAction =
-//   | { type: 'TO_CHECKING' }
-//   | { type: 'TO_SELECT_FILE' }
-//   | { type: 'TO_RESULT' }
 
 export default () => {
   const {
@@ -104,16 +81,6 @@ export default () => {
     showPublishAction,
   } = useContentHooks();
   const t = useT();
-
-  // TODO: move states below into machine
-  const [isImportContentModalOpen, setIsImportContentModalOpen] = useState(false);
-  const [dataChecking, setDataChecking] = useState(false);
-  const [alertList, setAlertList] = useState<AlertProps[]>([]);
-  const [validateImportResult, setValidateImportResult] = useState<ValidateImportResult | null>(
-    null,
-  );
-  // TODO: move states above into machine
-  const [_uploader, setUploader] = useUploader();
 
   const navigate = useNavigate();
   const { modelId } = useParams();
@@ -640,66 +607,6 @@ export default () => {
     [handleAddItemToRequest],
   );
 
-  const modelFields = useMemo<Model["schema"]["fields"]>(
-    () => (currentModel ? currentModel.schema.fields : []),
-    [currentModel],
-  );
-
-  const hasModelFields = useMemo<boolean>(() => modelFields.length > 0, [modelFields.length]);
-
-  const handleImportContentModalOpen = useCallback(() => {
-    setIsImportContentModalOpen(true);
-  }, []);
-
-  const handleImportContentModalClose = useCallback(() => {
-    setIsImportContentModalOpen(false);
-    setAlertList([]);
-    setValidateImportResult(null);
-  }, []);
-
-  const handleQueueToUploader = useCallback(
-    (payload: { fileName: string; fileContent: Record<string, unknown>[]; url: string }) => {
-      setUploader(prev => ({
-        ...prev,
-        showBadge: true,
-        isOpen: true,
-        queue: [
-          {
-            id: newID(),
-            status: UploadStatus.InProgress,
-            fileName: payload.fileName,
-            fileContent: payload.fileContent,
-            progress: 0,
-            url: payload.url,
-            error: null,
-          },
-          ...prev.queue,
-        ],
-      }));
-    },
-    [setUploader],
-  );
-
-  const handleImportContentFileChange = useCallback(
-    ({
-      fileName,
-      fileContent,
-      extension: _extension,
-      url,
-    }: {
-      fileName: string;
-      fileContent: Record<string, unknown>[];
-      extension: "csv" | "json" | "geojson";
-      url: string;
-    }) => {
-      handleQueueToUploader({ fileName, fileContent, url });
-      handleImportContentModalClose();
-
-      // console.log("success, go to backend");
-    },
-    [handleImportContentModalClose, handleQueueToUploader],
-  );
-
   return {
     currentModel,
     loading,
@@ -752,17 +659,5 @@ export default () => {
     handleContentTableChange,
     handleRequestSearchTerm,
     handleRequestTableReload,
-    isImportContentModalOpen,
-    handleImportContentModalOpen,
-    handleImportContentModalClose,
-    dataChecking,
-    setDataChecking,
-    handleImportContentFileChange,
-    modelFields,
-    hasModelFields,
-    alertList,
-    setAlertList,
-    validateImportResult,
-    setValidateImportResult,
   };
 };

@@ -1,187 +1,135 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
+import { Link } from "react-router-dom";
 
-import Alert, { AlertProps } from "@reearth-cms/components/atoms/Alert";
-import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
+import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Loading from "@reearth-cms/components/atoms/Loading";
-import Upload, {
-  UploadFile as RawUploadFile,
-  UploadFile,
-  UploadProps,
-} from "@reearth-cms/components/atoms/Upload";
-import { Trans, useT } from "@reearth-cms/i18n";
-import { Constant } from "@reearth-cms/utils/constant";
-import { FileUtils } from "@reearth-cms/utils/file";
-import { ObjectUtils } from "@reearth-cms/utils/object";
-
-const { Dragger } = Upload;
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
+import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
+import { useT, Trans } from "@reearth-cms/i18n";
 
 type Props = {
-  fileList: RawUploadFile[];
-  alertList?: AlertProps[];
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setAlertList: (alertList: AlertProps[]) => void;
-  onFileContentChange: (fileContent: string) => void;
-  dataChecking?: boolean;
+  projectId?: string;
+  workspaceId?: string;
+  selectedAsset?: ItemAsset;
+  onSelectFile: () => void;
 };
 
-const TemplateLink = ({ href, children }: ButtonProps) => (
-  <StyledButton onClick={event => event.stopPropagation()} type="link" href={href} download>
-    {children}
-  </StyledButton>
-);
-
 const FileSelectionStep: React.FC<Props> = ({
-  fileList,
-  alertList = [],
-  setFileList,
-  setAlertList,
-  onFileContentChange,
-  dataChecking = false,
+  projectId,
+  workspaceId,
+  selectedAsset,
+  onSelectFile,
 }) => {
   const t = useT();
 
-  const raiseIllegalFileAlert = useCallback(() => {
-    setAlertList([
-      {
-        message: t("The uploaded file is empty or invalid"),
-        type: "error",
-        closable: true,
-        showIcon: true,
-      },
-    ]);
-  }, [setAlertList, t]);
-
-  const raiseSingleFileAlert = useCallback(() => {
-    setAlertList([
-      {
-        message: t("Only one file can be uploaded at a time"),
-        type: "error",
-        closable: true,
-        showIcon: true,
-      },
-    ]);
-  }, [setAlertList, t]);
-
-  const raiseIllegalFileFormatAlert = useCallback(() => {
-    setAlertList([
-      {
-        message: t("File format is not supported"),
-        type: "error",
-        closable: true,
-        showIcon: true,
-      },
-    ]);
-  }, [setAlertList, t]);
-
-  const uploadProps: UploadProps = {
-    name: "importSchemaFile",
-    multiple: true,
-    directory: false,
-    showUploadList: false,
-    listType: "picture",
-    onRemove: () => {
-      setFileList([]);
-      setAlertList([]);
-    },
-    beforeUpload: async (file, fileList) => {
-      const extension = FileUtils.getExtension(file.name);
-
-      if (!["geojson", "json"].includes(extension)) {
-        raiseIllegalFileFormatAlert();
-        return;
-      }
-
-      if (fileList.length > 1) {
-        raiseSingleFileAlert();
-        return;
-      }
-
-      setFileList([file]);
-
-      if (file.size === 0) {
-        raiseIllegalFileAlert();
-        return;
-      }
-
-      try {
-        const content = await FileUtils.parseTextFile(file);
-
-        const jsonValidation = await ObjectUtils.safeJSONParse(content);
-
-        if (ObjectUtils.isEmpty(jsonValidation)) return void raiseIllegalFileAlert();
-
-        setAlertList([]);
-        onFileContentChange(content);
-      } catch (err) {
-        console.error(err);
-      }
-
-      return false;
-    },
-    fileList,
-  };
-
   return (
     <>
-      {dataChecking ? (
-        <LoadingWrapper data-testId="LoadingWrapper">
-          <Loading spinnerSize="large" />
-          <p>{t("Checking the data file...")}</p>
-        </LoadingWrapper>
-      ) : (
-        <Dragger {...uploadProps} data-testId="ImportSchemaFileSelect">
-          <p className="ant-upload-drag-icon">
-            <Icon icon="inbox" />
-          </p>
-          <p className="ant-upload-text">
-            <Trans
-              i18nKey="Choose or drag & drop a file"
-              components={{ l: <StyledButton type="link">Choose</StyledButton> }}
-            />
-          </p>
-          <p className="ant-upload-hint">{t("Only JSON format is supported")}</p>
-          <p>
-            <Trans
-              i18nKey="You can also download file templates: JSON"
-              components={{
-                l1: (
-                  <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_SCHEMA_JSON}>JSON</TemplateLink>
-                ),
-              }}
-            />
-          </p>
-          {alertList.map((alert, index) => (
-            <StyledAlert
-              {...alert}
-              key={alert?.message?.toString() || index}
-              onClick={e => e.stopPropagation()}
-            />
-          ))}
-        </Dragger>
-      )}
+      <Section>
+        <SectionTitle>{t("Select file")}</SectionTitle>
+        {selectedAsset ? (
+          <AssetWrapper>
+            <AssetDetailsWrapper>
+              <AssetButton enabled={!!selectedAsset} onClick={onSelectFile}>
+                <Icon icon="folder" size={24} />
+                <AssetName>{selectedAsset?.fileName}</AssetName>
+              </AssetButton>
+              <Tooltip title={selectedAsset.fileName}>
+                <Link
+                  to={`/workspace/${workspaceId}/project/${projectId}/asset/${selectedAsset.id}`}
+                  target="_blank">
+                  <AssetLinkedName type="link">{selectedAsset.fileName}</AssetLinkedName>
+                </Link>
+              </Tooltip>
+            </AssetDetailsWrapper>
+            <Space />
+          </AssetWrapper>
+        ) : (
+          <AssetButton onClick={onSelectFile}>
+            <Icon icon="plus" size={14} />
+            <AssetButtonTitle>{t("Select")}</AssetButtonTitle>
+          </AssetButton>
+        )}
+      </Section>
+      <Section>
+        <SectionTitle>{t("Notes")}</SectionTitle>
+        <Trans
+          i18nKey="importSchemaNotes"
+          components={{
+            l1: (
+              <TemplateFileLink type="link" href="/templates/template.json" download>
+                JSON
+              </TemplateFileLink>
+            ),
+            l2: (
+              <TemplateFileLink type="link" href="/templates/template.geojson" download>
+                GeoJSON
+              </TemplateFileLink>
+            ),
+          }}
+        />
+      </Section>
     </>
   );
 };
 
 export default FileSelectionStep;
 
-const StyledButton = styled(Button)`
-  padding: 0;
-  text-decoration: underline;
+const Section = styled.div`
+  margin-top: 24px;
 `;
 
-const StyledAlert = styled(Alert)`
-  margin: 0 auto;
-  width: fit-content;
+const SectionTitle = styled.h3``;
+
+const AssetButton = styled(Button)<{ enabled?: boolean }>`
+  width: 104px;
+  height: 104px;
+  border: 1px dashed;
+  border-color: ${({ enabled }) => (enabled ? "#d9d9d9" : "#00000040")};
+  color: ${({ enabled }) => (enabled ? "#000000D9" : "#00000040")};
+  padding: 0 5px;
+  flex-flow: column;
 `;
 
-const LoadingWrapper = styled.div`
-  height: 100%;
+const Space = styled.div`
+  flex: 1;
+`;
+
+const AssetWrapper = styled.div`
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 24px;
+  width: 100%;
+`;
+
+const AssetLinkedName = styled(Button)<{ disabled?: boolean }>`
+  color: ${({ disabled }) => (disabled ? "#00000040" : "#1890ff")};
+  margin-left: 12px;
+  span {
+    text-align: start;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-all;
+  }
+`;
+
+const AssetDetailsWrapper = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const AssetName = styled.div`
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const AssetButtonTitle = styled.div`
+  margin-top: 4px;
+`;
+
+const TemplateFileLink = styled(Button)`
+  padding: 0;
 `;

@@ -4,7 +4,7 @@ import { CesiumComponentRef } from "resium";
 
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
-import { FileUtils } from "@reearth-cms/utils/file";
+import { getExtension } from "@reearth-cms/utils/file";
 
 import CzmlComponent from "./CzmlComponent";
 import GeoJsonComponent from "./GeoJsonComponent";
@@ -25,7 +25,7 @@ const GeoViewer: React.FC<Props> = ({
   viewerRef,
   workspaceSettings,
 }) => {
-  const ext = useMemo(() => FileUtils.getExtension(url) ?? assetFileExt, [url, assetFileExt]);
+  const ext = useMemo(() => getExtension(url) ?? assetFileExt, [url, assetFileExt]);
 
   const geoComponent = useMemo(() => {
     switch (ext?.toLowerCase()) {
