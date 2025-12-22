@@ -1,0 +1,589 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/cms-schema.json",
+  "title": "CMS Schema Definition",
+  "description": "Root schema for CMS content type definitions",
+  "$defs": {
+    "fieldBase": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Human-readable field title"
+        },
+        "description": {
+          "type": "string",
+          "description": "Field description"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "Text",
+            "TextArea",
+            "MarkdownText",
+            "URL",
+            "Asset",
+            "Integer",
+            "Number",
+            "Bool",
+            "Date",
+            "Select"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "multiple": {
+          "type": "boolean"
+        },
+        "unique": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "title",
+        "description",
+        "type",
+        "required",
+        "multiple",
+        "unique"
+      ]
+    },
+    "textFieldSingle": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "enum": [
+                "Text",
+                "TextArea",
+                "MarkdownText"
+              ]
+            },
+            "multiple": {
+              "const": false
+            },
+            "maxLength": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "defaultValue": {
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "textFieldMulti": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "enum": [
+                "Text",
+                "TextArea",
+                "MarkdownText"
+              ]
+            },
+            "multiple": {
+              "const": true
+            },
+            "maxLength": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "defaultValue": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "urlFieldSingle": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "URL"
+            },
+            "multiple": {
+              "const": false
+            },
+            "defaultValue": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "urlFieldMulti": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "URL"
+            },
+            "multiple": {
+              "const": true
+            },
+            "defaultValue": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uri"
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "assetFieldSingle": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "Asset"
+            },
+            "multiple": {
+              "const": false
+            },
+            "defaultValue": {
+              "type": "string"
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "assetFieldMulti": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "Asset"
+            },
+            "multiple": {
+              "const": true
+            },
+            "defaultValue": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "numberFieldSingle": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "Number"
+            },
+            "multiple": {
+              "const": false
+            },
+            "maximum": {
+              "type": "number"
+            },
+            "minimum": {
+              "type": "number"
+            },
+            "defaultValue": {
+              "type": "number"
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "numberFieldMulti": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "Number"
+            },
+            "multiple": {
+              "const": true
+            },
+            "maximum": {
+              "type": "number"
+            },
+            "minimum": {
+              "type": "number"
+            },
+            "defaultValue": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "integerFieldSingle": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "Integer"
+            },
+            "multiple": {
+              "const": false
+            },
+            "maximum": {
+              "type": "integer"
+            },
+            "minimum": {
+              "type": "integer"
+            },
+            "defaultValue": {
+              "type": "integer"
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "integerFieldMulti": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "Integer"
+            },
+            "multiple": {
+              "const": true
+            },
+            "maximum": {
+              "type": "integer"
+            },
+            "minimum": {
+              "type": "integer"
+            },
+            "defaultValue": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "boolFieldSingle": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "Bool"
+            },
+            "multiple": {
+              "const": false
+            },
+            "defaultValue": {
+              "type": "boolean"
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "boolFieldMulti": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "Bool"
+            },
+            "multiple": {
+              "const": true
+            },
+            "defaultValue": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "dateFieldSingle": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "Date"
+            },
+            "multiple": {
+              "const": false
+            },
+            "format": {
+              "const": "date-time"
+            },
+            "defaultValue": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "dateFieldMulti": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "Date"
+            },
+            "multiple": {
+              "const": true
+            },
+            "format": {
+              "const": "date-time"
+            },
+            "defaultValue": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "selectFieldSingle": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "Select"
+            },
+            "multiple": {
+              "const": false
+            },
+            "values": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "defaultValue": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "values"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "selectFieldMulti": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/fieldBase"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "Select"
+            },
+            "multiple": {
+              "const": true
+            },
+            "values": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "defaultValue": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "values"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "anyField": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/textFieldSingle"
+        },
+        {
+          "$ref": "#/$defs/textFieldMulti"
+        },
+        {
+          "$ref": "#/$defs/urlFieldSingle"
+        },
+        {
+          "$ref": "#/$defs/urlFieldMulti"
+        },
+        {
+          "$ref": "#/$defs/assetFieldSingle"
+        },
+        {
+          "$ref": "#/$defs/assetFieldMulti"
+        },
+        {
+          "$ref": "#/$defs/numberFieldSingle"
+        },
+        {
+          "$ref": "#/$defs/numberFieldMulti"
+        },
+        {
+          "$ref": "#/$defs/integerFieldSingle"
+        },
+        {
+          "$ref": "#/$defs/integerFieldMulti"
+        },
+        {
+          "$ref": "#/$defs/boolFieldSingle"
+        },
+        {
+          "$ref": "#/$defs/boolFieldMulti"
+        },
+        {
+          "$ref": "#/$defs/dateFieldSingle"
+        },
+        {
+          "$ref": "#/$defs/dateFieldMulti"
+        },
+        {
+          "$ref": "#/$defs/selectFieldSingle"
+        },
+        {
+          "$ref": "#/$defs/selectFieldMulti"
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "properties": {
+    "$id": {
+      "type": "string",
+      "description": "Unique identifier for this schema"
+    },
+    "$schema": {
+      "type": "string",
+      "const": "https://json-schema.org/draft/2020-12/schema",
+      "description": "JSON Schema version"
+    },
+    "title": {
+      "type": "string",
+      "description": "Schema title/name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Schema description"
+    },
+    "type": {
+      "const": "object"
+    },
+    "properties": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/anyField"
+      }
+    }
+  },
+  "required": [
+    "$schema",
+    "title",
+    "type",
+    "properties"
+  ],
+  "additionalProperties": false
+}

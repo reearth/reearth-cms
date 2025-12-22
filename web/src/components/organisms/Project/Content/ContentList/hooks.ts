@@ -51,7 +51,7 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useCollapsedModelMenu, useUserRights, useUploader } from "@reearth-cms/state";
-import { ImportContentJSON2 } from "@reearth-cms/utils/importContent";
+import { ImportContentJSON } from "@reearth-cms/utils/importContent";
 
 import { fileName } from "./utils";
 
@@ -680,7 +680,7 @@ export default () => {
       raw,
     }: {
       fileName: string;
-      fileContent: ImportContentJSON2["results"];
+      fileContent: ImportContentJSON["results"];
       extension: "csv" | "json" | "geojson";
       url: string;
       raw: RcFile;

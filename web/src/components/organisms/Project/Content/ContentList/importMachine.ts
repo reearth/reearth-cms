@@ -5,7 +5,7 @@ import { RcFile } from "@reearth-cms/components/atoms/Upload";
 import { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { FileUtils } from "@reearth-cms/utils/file";
-import { ImportContentJSON2 } from "@reearth-cms/utils/importContent";
+import { ImportContentJSON } from "@reearth-cms/utils/importContent";
 import { ObjectUtils } from "@reearth-cms/utils/object";
 
 const COMMON_ALERT_PROPS: Pick<AlertProps, "type" | "closable" | "showIcon"> = {
@@ -212,7 +212,7 @@ export const importContentMachine = setup({
       if (!promiseCreator.input.file) throw Error("no file");
 
       const content = await FileUtils.parseTextFile(promiseCreator.input.file);
-      const jsonValidation = await ObjectUtils.safeJSONParse<ImportContentJSON2>(content);
+      const jsonValidation = await ObjectUtils.safeJSONParse<ImportContentJSON>(content);
       if (!jsonValidation.isValid) throw Error("invalid json");
 
       // const jsonContentValidation = await ImportContentUtils.validateContentFromJSON(

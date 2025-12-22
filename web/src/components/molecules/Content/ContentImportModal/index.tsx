@@ -19,8 +19,8 @@ import { Constant } from "@reearth-cms/utils/constant";
 import { FileUtils } from "@reearth-cms/utils/file";
 import {
   ImportContentUtils,
-  ImportContentJSON2,
-  ValidationErrorMeta2,
+  ImportContentJSON,
+  ValidationErrorMeta,
 } from "@reearth-cms/utils/importContent";
 import { ObjectUtils } from "@reearth-cms/utils/object";
 
@@ -34,7 +34,7 @@ type Props = {
   onClose: () => void;
   onFileContentChange: (payload: {
     fileName: string;
-    fileContent: ImportContentJSON2["results"];
+    fileContent: ImportContentJSON["results"];
     extension: "csv" | "json" | "geojson";
     url: string;
     raw: RcFile;
@@ -100,7 +100,7 @@ const ContentImportModal: React.FC<Props> = ({
   }, [setAlertList, t]);
 
   const schemaValidationAlert = useCallback(
-    (errorMeta: ValidationErrorMeta2) => {
+    (errorMeta: ValidationErrorMeta) => {
       // const partialAlertProps: Pick<AlertProps, "type" | "closable" | "showIcon"> = {
       //   type: "error",
       //   closable: true,
@@ -206,7 +206,7 @@ const ContentImportModal: React.FC<Props> = ({
 
         switch (extension) {
           case "json": {
-            const jsonValidation = await ObjectUtils.safeJSONParse<ImportContentJSON2>(content);
+            const jsonValidation = await ObjectUtils.safeJSONParse<ImportContentJSON>(content);
             if (!jsonValidation.isValid) {
               raiseIllegalFileAlert();
               return;
@@ -215,6 +215,7 @@ const ContentImportModal: React.FC<Props> = ({
             const jsonContentValidation = await ImportContentUtils.validateContentFromJSON(
               jsonValidation.data.results,
               modelFields,
+              "JSON",
             );
 
             if (!jsonContentValidation.isValid) {

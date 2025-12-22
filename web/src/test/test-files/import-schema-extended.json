@@ -1,6 +1,6 @@
 {
   "$id": "01kc83nc5pw2my3epa7zn28f5y",
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$schema": "https://gist.githubusercontent.com/kazettique/c155c05b9eae8e3fa66e54d1d1840093/raw/9bbc70fef3b16d2fff512379574482fd09e45572/schema-definition.json",
   "title": "all-mighty-model",
   "description": "all fields",
   "type": "object",
@@ -18,7 +18,10 @@
       "title": "asset-1",
       "description": "this is asset field with multiple value",
       "type": "Asset",
-      "defaultValue": ["01kazd9mamxh62j62gz425v0wk", "01kazd9mamxh62j62gz425v0w1"],
+      "defaultValue": [
+        "01kazd9mamxh62j62gz425v0wk",
+        "01kazd9mamxh62j62gz425v0w1"
+      ],
       "required": true,
       "multiple": true,
       "unique": false
@@ -36,7 +39,10 @@
       "title": "boolean-1",
       "description": "this is boolean field with multiple value",
       "type": "Bool",
-      "defaultValue": [true, false],
+      "defaultValue": [
+        true,
+        false
+      ],
       "required": true,
       "multiple": true,
       "unique": false
@@ -56,7 +62,10 @@
       "description": "this is date field with multiple value",
       "type": "Date",
       "format": "date-time",
-      "defaultValue": ["2025-12-01T00:00:00+09:00", "2025-12-02T00:00:00+09:00"],
+      "defaultValue": [
+        "2025-12-01T00:00:00+09:00",
+        "2025-12-02T00:00:00+09:00"
+      ],
       "required": true,
       "multiple": true,
       "unique": false
@@ -78,7 +87,10 @@
       "type": "Number",
       "maximum": 5.5,
       "minimum": -5.5,
-      "defaultValue": [1.5, -1.5],
+      "defaultValue": [
+        1.5,
+        -1.5
+      ],
       "required": true,
       "multiple": true,
       "unique": false
@@ -100,7 +112,10 @@
       "type": "Integer",
       "maximum": 10,
       "minimum": -10,
-      "defaultValue": [5, -5],
+      "defaultValue": [
+        5,
+        -5
+      ],
       "required": true,
       "multiple": true,
       "unique": false
@@ -120,7 +135,10 @@
       "description": "this is markdown text field with multiple value",
       "type": "MarkdownText",
       "maxLength": 100,
-      "defaultValue": ["# H1 \n # H2 \n hello world", "# H1 \n # H2 \n hola mundo"],
+      "defaultValue": [
+        "# H1 \n # H2 \n hello world",
+        "# H1 \n # H2 \n hola mundo"
+      ],
       "required": true,
       "multiple": true,
       "unique": false
@@ -129,7 +147,11 @@
       "title": "select-1",
       "description": "this is option field",
       "type": "Select",
-      "values": ["red", "green", "blue"],
+      "values": [
+        "red",
+        "green",
+        "blue"
+      ],
       "defaultValue": "green",
       "required": true,
       "multiple": false,
@@ -139,8 +161,15 @@
       "title": "select-1",
       "description": "this is option field with multiple value",
       "type": "Select",
-      "values": ["red", "green", "blue"],
-      "defaultValue": ["green", "blue"],
+      "values": [
+        "red",
+        "green",
+        "blue"
+      ],
+      "defaultValue": [
+        "green",
+        "blue"
+      ],
       "required": true,
       "multiple": true,
       "unique": false
@@ -160,7 +189,10 @@
       "description": "this is text field with multiple value",
       "type": "Text",
       "maxLength": 30,
-      "defaultValue": ["hello", "world"],
+      "defaultValue": [
+        "hello",
+        "world"
+      ],
       "required": true,
       "multiple": true,
       "unique": false
@@ -180,7 +212,10 @@
       "description": "this is textarea field with multiple value",
       "type": "TextArea",
       "maxLength": 30,
-      "defaultValue": ["hello \n world", "hola \n mundo"],
+      "defaultValue": [
+        "hello \n world",
+        "hola \n mundo"
+      ],
       "required": true,
       "multiple": true,
       "unique": false
@@ -198,7 +233,10 @@
       "title": "url-1",
       "description": "this url field with multiple value",
       "type": "URL",
-      "defaultValue": ["https://hello.com/", "https://world.com"],
+      "defaultValue": [
+        "https://hello.com/",
+        "https://world.com"
+      ],
       "required": true,
       "multiple": true,
       "unique": false

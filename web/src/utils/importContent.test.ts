@@ -6,17 +6,36 @@ import { describe, expect, test } from "vitest";
 import { Field, SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 
 import { Constant } from "./constant";
-import { ImportContentJSON2, ImportContentUtils } from "./importContent";
+import {
+  ContentSourceFormat,
+  ImportContentJSON,
+  ImportContentResultItem,
+  ImportContentUtils,
+} from "./importContent";
 import { ObjectUtils } from "./object";
 
-async function readFromJSONFile<T>(
+async function readFromJSONFile(
   staticFileDirectory: string,
   baseDirectory = "public",
-): Promise<ReturnType<typeof ObjectUtils.safeJSONParse<T>>> {
+): ReturnType<Awaited<typeof ObjectUtils.safeJSONParse<ImportContentJSON["results"]>>> {
   const filePath = join(baseDirectory, staticFileDirectory);
   const fileContent = readFileSync(filePath, "utf-8");
 
-  return await ObjectUtils.safeJSONParse(fileContent);
+  const validation = await ObjectUtils.safeJSONParse<ImportContentJSON>(fileContent);
+
+  return validation.isValid
+    ? { isValid: validation.isValid, data: validation.data.results }
+    : { isValid: validation.isValid, error: validation.error };
+}
+
+async function readFromCSVFile(
+  staticFileDirectory: string,
+  baseDirectory = "public",
+): ReturnType<Awaited<typeof ImportContentUtils.convertCSVToJSON<ImportContentResultItem>>> {
+  const filePath = join(baseDirectory, staticFileDirectory);
+  const fileContent = readFileSync(filePath, "utf-8");
+
+  return await ImportContentUtils.convertCSVToJSON<ImportContentResultItem>(fileContent);
 }
 
 const DEFAULT_COMMON_FIELD: Pick<Field, "id" | "description" | "title" | "isTitle" | "unique"> = {
@@ -28,8 +47,11 @@ const DEFAULT_COMMON_FIELD: Pick<Field, "id" | "description" | "title" | "isTitl
 };
 
 describe("Testing content import from static files", () => {
-  describe("Validate JSON files", () => {
-    test("[Pass case] Check import content template file", async () => {
+  describe.only("Validate import content files", () => {
+    test.each<{ fileDir: string; format: ContentSourceFormat }>([
+      { fileDir: Constant.PUBLIC_FILE.IMPORT_CONTENT_JSON, format: "JSON" },
+      { fileDir: Constant.PUBLIC_FILE.IMPORT_CONTENT_CSV, format: "CSV" },
+    ])("[Pass case] Check import content template file ($format)", async ({ fileDir, format }) => {
       const fields = [
         {
           type: SchemaFieldType.Text,
@@ -84,17 +106,38 @@ describe("Testing content import from static files", () => {
         typeProperty: {},
       }));
 
-      const result = await readFromJSONFile<ImportContentJSON2>(
-        Constant.PUBLIC_FILE.IMPORT_CONTENT_JSON,
-      );
+      let result: Awaited<ReturnType<typeof readFromJSONFile>> = {
+        isValid: false,
+        error: "test init",
+      };
+
+      switch (format) {
+        case "JSON": {
+          result = await readFromJSONFile(fileDir);
+
+          break;
+        }
+
+        case "CSV": {
+          result = await readFromCSVFile(fileDir);
+          break;
+        }
+
+        // case "GEOJSON": {
+        //   break;
+        // }
+
+        default:
+      }
 
       expect(result.isValid).toBe(true);
 
       if (!result.isValid) return;
 
       const contentValidation = await ImportContentUtils.validateContentFromJSON(
-        result.data.results,
+        result.data,
         fields,
+        format,
       );
       expect(contentValidation.isValid).toBe(true);
 
@@ -106,7 +149,9 @@ describe("Testing content import from static files", () => {
         expect(outOfRangeFieldKeys.size).toEqual(0);
       }
     });
+  });
 
+  describe("Test validateContentFromJSON method", () => {
     describe("[Pass case] Control variable: field key", () => {
       const COMMON_SETUP = {
         key: "correct-key",
@@ -196,6 +241,7 @@ describe("Testing content import from static files", () => {
         const contentValidation = await ImportContentUtils.validateContentFromJSON(
           contentList,
           fields,
+          "JSON",
           Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
         expect(contentValidation.isValid).toBe(expectedResult.isValid);
@@ -296,6 +342,7 @@ describe("Testing content import from static files", () => {
         const contentValidation = await ImportContentUtils.validateContentFromJSON(
           contentList,
           fields,
+          "JSON",
           Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
         expect(contentValidation.isValid).toBe(expectedResult.isValid);
@@ -399,6 +446,7 @@ describe("Testing content import from static files", () => {
         const contentValidation = await ImportContentUtils.validateContentFromJSON(
           contentList,
           fields,
+          "JSON",
           Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
         expect(contentValidation.isValid).toBe(expectedResult.isValid);
@@ -498,6 +546,7 @@ describe("Testing content import from static files", () => {
         const contentValidation = await ImportContentUtils.validateContentFromJSON(
           contentList,
           fields,
+          "JSON",
           Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
         expect(contentValidation.isValid).toBe(expectedResult.isValid);
@@ -603,6 +652,7 @@ describe("Testing content import from static files", () => {
         const contentValidation = await ImportContentUtils.validateContentFromJSON(
           contentList,
           fields,
+          "JSON",
           Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
         expect(contentValidation.isValid).toBe(expectedResult.isValid);
@@ -708,6 +758,7 @@ describe("Testing content import from static files", () => {
         const contentValidation = await ImportContentUtils.validateContentFromJSON(
           contentList,
           fields,
+          "JSON",
           Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
         expect(contentValidation.isValid).toBe(expectedResult.isValid);
@@ -821,6 +872,7 @@ describe("Testing content import from static files", () => {
         const contentValidation = await ImportContentUtils.validateContentFromJSON(
           contentList,
           fields,
+          "JSON",
           Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
@@ -935,6 +987,7 @@ describe("Testing content import from static files", () => {
         const contentValidation = await ImportContentUtils.validateContentFromJSON(
           contentList,
           fields,
+          "JSON",
           Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
@@ -1050,6 +1103,7 @@ describe("Testing content import from static files", () => {
         const contentValidation = await ImportContentUtils.validateContentFromJSON(
           contentList,
           fields,
+          "JSON",
           Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
@@ -1113,6 +1167,7 @@ describe("Testing content import from static files", () => {
         const contentValidation = await ImportContentUtils.validateContentFromJSON(
           contentList,
           fields,
+          "JSON",
           Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
@@ -1182,6 +1237,7 @@ describe("Testing content import from static files", () => {
         const contentValidation = await ImportContentUtils.validateContentFromJSON(
           contentList,
           fields,
+          "JSON",
           Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
@@ -1253,6 +1309,7 @@ describe("Testing content import from static files", () => {
         const contentValidation = await ImportContentUtils.validateContentFromJSON(
           contentList,
           fields,
+          "JSON",
           Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
@@ -1334,6 +1391,7 @@ describe("Testing content import from static files", () => {
         const contentValidation = await ImportContentUtils.validateContentFromJSON(
           contentList,
           fields,
+          "JSON",
           Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
@@ -1397,6 +1455,7 @@ describe("Testing content import from static files", () => {
         const contentValidation = await ImportContentUtils.validateContentFromJSON(
           contentList,
           fields,
+          "JSON",
           Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
@@ -1460,6 +1519,7 @@ describe("Testing content import from static files", () => {
         const contentValidation = await ImportContentUtils.validateContentFromJSON(
           contentList,
           fields,
+          "JSON",
           Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
 
@@ -1573,6 +1633,7 @@ describe("Testing content import from static files", () => {
         const contentValidation = await ImportContentUtils.validateContentFromJSON(
           contentList,
           fields,
+          "JSON",
           Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
         expect(contentValidation.isValid).toBe(expectedResult.isValid);
@@ -1688,6 +1749,7 @@ describe("Testing content import from static files", () => {
         const contentValidation = await ImportContentUtils.validateContentFromJSON(
           contentList,
           fields,
+          "JSON",
           Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
         );
         expect(contentValidation.isValid).toBe(expectedResult.isValid);
@@ -1840,6 +1902,7 @@ describe("Testing content import from static files", () => {
           const contentValidation = await ImportContentUtils.validateContentFromJSON(
             contentList,
             fields,
+            "JSON",
             Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
           expect(contentValidation.isValid).toBe(expectedResult.isValid);
@@ -1989,6 +2052,7 @@ describe("Testing content import from static files", () => {
           const contentValidation = await ImportContentUtils.validateContentFromJSON(
             contentList,
             fields,
+            "JSON",
             Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
           expect(contentValidation.isValid).toBe(expectedResult.isValid);
@@ -2078,6 +2142,7 @@ describe("Testing content import from static files", () => {
           const contentValidation = await ImportContentUtils.validateContentFromJSON(
             contentList,
             fields,
+            "JSON",
             Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
           expect(contentValidation.isValid).toBe(expectedResult.isValid);
@@ -2163,6 +2228,7 @@ describe("Testing content import from static files", () => {
           const contentValidation = await ImportContentUtils.validateContentFromJSON(
             contentList,
             fields,
+            "JSON",
             Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
           expect(contentValidation.isValid).toBe(expectedResult.isValid);

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 import { getIssues, HintIssue } from "@placemarkio/check-geojson";
+import Papa, { ParseResult } from "papaparse";
 import z from "zod";
 
 import { ItemValue } from "@reearth-cms/components/molecules/Content/types";
@@ -10,45 +11,38 @@ import { ObjectSupportedType } from "@reearth-cms/components/molecules/Schema/ty
 import { Constant } from "./constant";
 import { PerformanceTimer } from "./performance";
 
-// type ImportContentResultItemValue = string | string[] | number | number[] | boolean | boolean[];
+export type ImportContentResultItem = Record<string, ItemValue>;
 
-type ImportContentResultItem = Record<string, ItemValue>;
-
-export interface ImportContentJSON2 {
+export interface ImportContentJSON {
   results: ImportContentResultItem[];
   totalCount: number;
 }
 
-export interface ValidationErrorMeta2 {
+export interface ValidationErrorMeta {
   exceedLimit: boolean;
   typeMismatchFieldKeys: Set<PropertyKey>;
   outOfRangeFieldKeys: Set<string>;
 }
 
-// export interface ErrorMeta2 extends ValidationErrorMeta2 {
-//   missedFieldKeys: Set<string>;
-//   illegalFieldKeys: Set<string>;
-//   legalFieldKeys: Set<string>;
-// }
-
-type ContentSourceFormat2 = "CSV" | "JSON" | "GEOJSON";
+export type ContentSourceFormat = "CSV" | "JSON" | "GEOJSON";
 
 export abstract class ImportContentUtils {
   public static async validateContentFromJSON(
-    importContentList: ImportContentJSON2["results"],
+    importContentList: ImportContentJSON["results"],
     modelFields: Model["schema"]["fields"],
+    sourceFormat: ContentSourceFormat,
     maxRecordLimit = Constant.IMPORT.MAX_CONTENT_RECORDS,
   ): Promise<
-    | { isValid: true; data: ImportContentJSON2["results"] }
-    | { isValid: false; error: ValidationErrorMeta2 }
+    | { isValid: true; data: ImportContentJSON["results"] }
+    | { isValid: false; error: ValidationErrorMeta }
   > {
     return new Promise<
-      | { isValid: true; data: ImportContentJSON2["results"] }
-      | { isValid: false; error: ValidationErrorMeta2 }
+      | { isValid: true; data: ImportContentJSON["results"] }
+      | { isValid: false; error: ValidationErrorMeta }
     >((resolve, _reject) => {
       const timer = new PerformanceTimer("validateContentFromJSON");
 
-      const validator = this.getValidatorMeta(modelFields, "JSON");
+      const validator = this._getValidatorMeta(modelFields, sourceFormat);
 
       // console.log("=".repeat(100));
       // console.log("importContentList", importContentList);
@@ -76,9 +70,70 @@ export abstract class ImportContentUtils {
     });
   }
 
-  private static getValidatorMeta(
+  // public static async validateContentFromCSV<T = unknown>(
+  //   csvList: T[],
+  //   modelFields: Model["schema"]["fields"],
+  //   maxRecordLimit = Constant.IMPORT.MAX_CONTENT_RECORDS,
+  // ): Promise<
+  //   { isValid: true; data: Record<string, unknown>[] } | { isValid: false; error: ErrorMeta }
+  // > {
+  //   const timer = new PerformanceTimer("validateContentFromCSV");
+
+  //   try {
+  //     const validator = this._getValidatorMeta(modelFields, "CSV");
+
+  //     const validation = validator.array().max(maxRecordLimit).safeParse(csvList);
+
+  //     if (validation.success) {
+  //       return { isValid: true, data: validation.data };
+  //     } else {
+  //       return {
+  //         isValid: false,
+  //         error: this.getErrorMeta(validation, acceptImportFieldCount),
+  //       };
+  //     }
+  //   } catch (error) {
+  //     throw Error(String(error));
+  //   } finally {
+  //     timer.log();
+  //   }
+  // }
+
+  // public static async validateContentFromGeoJson(
+  //   raw: GeoJSON,
+  //   modelFields: Model["schema"]["fields"],
+  //   maxRecordLimit = Constant.IMPORT.MAX_CONTENT_RECORDS,
+  // ): Promise<
+  //   { isValid: true; data: Record<string, unknown>[] } | { isValid: false; error: ErrorMeta }
+  // > {
+  //   return new Promise<
+  //     { isValid: true; data: Record<string, unknown>[] } | { isValid: false; error: ErrorMeta }
+  //   >((resolve, reject) => {
+  //     const timer = new PerformanceTimer("validateContentFromGeoJson");
+
+  //     if (raw.type !== "FeatureCollection") return void reject("Not feature collection");
+
+  //     const { validator, acceptImportFieldCount } = this._getValidatorMeta(modelFields, "GEOJSON");
+  //     const properties = raw.features.map(feature => feature.properties);
+
+  //     const validation = validator.array().max(maxRecordLimit).safeParse(properties);
+
+  //     if (validation.success) {
+  //       resolve({ isValid: true, data: validation.data });
+  //     } else {
+  //       resolve({
+  //         isValid: false,
+  //         error: this.getErrorMeta(validation, acceptImportFieldCount),
+  //       });
+  //     }
+
+  //     timer.log();
+  //   });
+  // }
+
+  private static _getValidatorMeta(
     fieldData: Model["schema"]["fields"],
-    sourceFormat: ContentSourceFormat2,
+    sourceFormat: ContentSourceFormat,
   ): z.ZodType<ImportContentResultItem> {
     const validateObj: Record<string, unknown> = {};
     // const validateObj = {};
@@ -456,13 +511,12 @@ export abstract class ImportContentUtils {
     });
 
     return z.object(validateObj) as z.ZodType<ImportContentResultItem>;
-    // return z.object(validateObj);
   }
 
   private static getErrorMeta(
     schemaValidation: z.ZodSafeParseError<Record<string, unknown>[]>,
-  ): ValidationErrorMeta2 {
-    return schemaValidation.error.issues.reduce<ValidationErrorMeta2>(
+  ): ValidationErrorMeta {
+    return schemaValidation.error.issues.reduce<ValidationErrorMeta>(
       (acc, curr, _index, _arr) => {
         // console.log("curr5566", JSON.stringify(curr, null, 2));
         // exceed limit records
@@ -497,6 +551,32 @@ export abstract class ImportContentUtils {
         exceedLimit: false,
         typeMismatchFieldKeys: new Set(),
         outOfRangeFieldKeys: new Set(),
+      },
+    );
+  }
+
+  public static convertCSVToJSON<T extends Record<string, unknown>>(
+    csvString: string,
+  ): Promise<{ isValid: true; data: T[] } | { isValid: false; error: string }> {
+    return new Promise<{ isValid: true; data: T[] } | { isValid: false; error: string }>(
+      (resolve, reject) => {
+        setTimeout(() => {
+          const timer = new PerformanceTimer("convertCSVToJSON");
+
+          Papa.parse(csvString, {
+            header: true,
+            skipEmptyLines: true,
+            dynamicTyping: true,
+            complete(results: ParseResult<T>) {
+              resolve({ isValid: true, data: results.data });
+              timer.log();
+            },
+            error(error: Error) {
+              reject({ isValid: false, error: error.message });
+              timer.log();
+            },
+          });
+        }, 0);
       },
     );
   }
