@@ -24,7 +24,6 @@ import {
   ImportContentResultItem,
 } from "@reearth-cms/utils/importContent";
 import { ObjectUtils } from "@reearth-cms/utils/object";
-import { FeatureCollection } from "geojson";
 
 const { Dragger } = Upload;
 
@@ -349,30 +348,14 @@ const ContentImportModal: React.FC<Props> = ({
     }
   }, [validateImportResult]);
 
-  const handleFileUpdate = async (e: any) => {
-    e.preventDefault();
-    const file = e.target.files[0];
-
-    if (!file) return;
-
-    onFileContentChange({
-      fileName: "test.json",
-      fileContent: [],
-      extension: "json",
-      url: "123",
-      raw: file,
-    });
-  };
-
   return (
     <Modal
       styles={{ body: { height: "70vh" } }}
       title={t("Import content")}
       open={isOpen}
       onCancel={onClose}
+      maskClosable={false}
       footer={null}>
-      <input type="file" onChange={handleFileUpdate} />
-      <hr />
       {!validateImportResult ? (
         <>
           {dataChecking ? (

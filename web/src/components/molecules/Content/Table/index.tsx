@@ -93,6 +93,7 @@ export type Props = {
   hasRequestUpdateRight: boolean;
   showPublishAction: boolean;
   onImportModalOpen: () => void;
+  hasModelFields: boolean;
 };
 
 const ContentTable: React.FC<Props> = ({
@@ -138,6 +139,7 @@ const ContentTable: React.FC<Props> = ({
   hasRequestUpdateRight,
   showPublishAction,
   onImportModalOpen,
+  hasModelFields,
 }) => {
   const [currentWorkspace] = useWorkspace();
   const t = useT();
@@ -832,7 +834,10 @@ const ContentTable: React.FC<Props> = ({
                   i18nKey="Please add some items manually or import from JSON/GeoJSON/CSV"
                   components={{
                     l: (
-                      <ImportButton type="link" onClick={onImportModalOpen}>
+                      <ImportButton
+                        type="link"
+                        onClick={onImportModalOpen}
+                        disabled={!hasModelFields}>
                         import
                       </ImportButton>
                     ),

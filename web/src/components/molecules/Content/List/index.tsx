@@ -213,6 +213,7 @@ const ContentListMolecule: React.FC<Props> = ({
                 hasRequestUpdateRight={hasRequestUpdateRight}
                 showPublishAction={showPublishAction}
                 onImportModalOpen={onImportModalOpen}
+                hasModelFields={hasModelFields}
               />
             </>
           )}
