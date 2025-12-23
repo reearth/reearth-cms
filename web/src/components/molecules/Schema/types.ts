@@ -41,6 +41,10 @@ export type CreateFieldInput = {
   typeProperty: TypeProperty;
 };
 
+export type ImportFieldInput = CreateFieldInput & {
+  hidden?: boolean;
+};
+
 export type GroupField = Field & { type: Exclude<SchemaFieldType, "Group"> };
 
 export type MetadataField = Field & {
@@ -107,7 +111,7 @@ export type CorrespondingField = {
 };
 
 export type TypeProperty = {
-  defaultValue?: string | string[] | boolean | boolean[] | null;
+  defaultValue?: string | string[] | boolean | boolean[] | number | number[] | null;
   maxLength?: number;
   assetDefaultValue?: string | string[] | null;
   selectDefaultValue?: string | string[] | null;

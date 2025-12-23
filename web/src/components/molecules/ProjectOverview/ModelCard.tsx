@@ -2,9 +2,10 @@ import styled from "@emotion/styled";
 import { useCallback, useMemo } from "react";
 
 import Card from "@reearth-cms/components/atoms/Card";
-import Dropdown from "@reearth-cms/components/atoms/Dropdown";
+import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
@@ -35,23 +36,9 @@ const ModelCard: React.FC<Props> = ({
   const t = useT();
   const { Meta } = Card;
 
-  const OptionsMenuItems = useMemo(
-    () => [
-      {
-        key: "edit",
-        label: t("Edit"),
-        onClick: () => onModelUpdateModalOpen(model),
-        disabled: !hasUpdateRight,
-      },
-      {
-        key: "delete",
-        label: t("Delete"),
-        onClick: () => onModelDeletionModalOpen(model),
-        danger: true,
-        disabled: !hasDeleteRight,
-      },
-    ],
-    [t, hasUpdateRight, hasDeleteRight, onModelUpdateModalOpen, model, onModelDeletionModalOpen],
+  const hasModelFields = useMemo<boolean>(
+    () => model.schema.fields.length > 0,
+    [model.schema.fields],
   );
 
   const handleCSVExport = useCallback(
@@ -146,7 +133,35 @@ const ModelCard: React.FC<Props> = ({
     [handleCSVExport, handleGeoJSONExport, model.id, onModelExport],
   );
 
-  const ExportMenuItems = useMemo(
+  const ImportMenuItems = useMemo<MenuProps[]>(
+    () => [
+      {
+        key: "schema",
+        label: hasModelFields ? (
+          <Tooltip title={t("Only empty schemas can be imported into")}>
+            {t("Import Schema")}
+          </Tooltip>
+        ) : (
+          t("Import Schema")
+        ),
+        disabled: hasModelFields,
+        // onClick: () => handleModelExportClick(ExportFormat.Schema),
+      },
+      {
+        key: "content",
+        label: hasModelFields ? (
+          t("Import Content")
+        ) : (
+          <Tooltip title={t("Please create a schema first")}>{t("Import Content")}</Tooltip>
+        ),
+        disabled: !hasModelFields,
+        // onClick: () => handleModelExportClick(ExportFormat.Json),
+      },
+    ],
+    [hasModelFields, t],
+  );
+
+  const ExportMenuItems = useMemo<MenuProps[]>(
     () => [
       {
         key: "schema",
@@ -176,16 +191,49 @@ const ModelCard: React.FC<Props> = ({
     [t, handleModelExportClick, exportLoading],
   );
 
+  const OptionsMenuItems = useMemo<MenuProps["items"]>(
+    () => [
+      {
+        key: "edit",
+        label: t("Edit"),
+        onClick: () => onModelUpdateModalOpen(model),
+        disabled: !hasUpdateRight,
+      },
+      {
+        key: "import",
+        label: t("Import"),
+        children: ImportMenuItems,
+      },
+      {
+        key: "export",
+        label: t("Export"),
+        children: ExportMenuItems,
+      },
+      {
+        key: "delete",
+        label: t("Delete"),
+        onClick: () => onModelDeletionModalOpen(model),
+        danger: true,
+        disabled: !hasDeleteRight,
+      },
+    ],
+    [
+      t,
+      hasUpdateRight,
+      hasDeleteRight,
+      onModelUpdateModalOpen,
+      model,
+      onModelDeletionModalOpen,
+      ImportMenuItems,
+      ExportMenuItems,
+    ],
+  );
+
   return (
     <StyledCard
       actions={[
         <Icon icon="unorderedList" key="schema" onClick={() => onSchemaNavigate(model.id)} />,
         <Icon icon="table" key="content" onClick={() => onContentNavigate(model.id)} />,
-        <Dropdown key="export" menu={{ items: ExportMenuItems }} trigger={["click"]}>
-          <a onClick={e => e.preventDefault()}>
-            <Icon icon="download" />
-          </a>
-        </Dropdown>,
         <Dropdown key="options" menu={{ items: OptionsMenuItems }} trigger={["click"]}>
           <a onClick={e => e.preventDefault()}>
             <Icon icon="ellipsis" />

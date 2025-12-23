@@ -1,0 +1,74 @@
+{
+  "$id": "01kc83nc5pw2my3epa7zn28f5y",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "all-mighty-model",
+  "description": "all fields",
+  "type": "object",
+  "properties": {
+    "asset-1": {
+      "title": "asset-1",
+      "description": "this is asset field",
+      "type": "string",
+      "format": "binary"
+    },
+    "boolean-1": {
+      "title": "boolean-1",
+      "description": "this is boolean field",
+      "type": "boolean"
+    },
+    "date-1": {
+      "title": "date-1",
+      "description": "this is date field",
+      "type": "string",
+      "format": "date-time"
+    },
+    "float-1": {
+      "title": "float-1",
+      "description": "this is float field",
+      "type": "number",
+      "maximum": 5.5,
+      "minimum": -5.5
+    },
+    "geo-obj-1": {
+      "title": "geo-obj-1",
+      "description": "this is geo obj field",
+      "type": "object"
+    },
+    "int-1": {
+      "title": "int-1",
+      "description": "this is int field",
+      "type": "integer",
+      "maximum": 10,
+      "minimum": -10
+    },
+    "markdown-text-1": {
+      "title": "markdown-text-1",
+      "description": "this is markdown text field",
+      "type": "string",
+      "maxLength": 10
+    },
+    "option-1": {
+      "title": "option-1",
+      "description": "this is option field",
+      "type": "string"
+    },
+    "text-1": {
+      "title": "text-1",
+      "description": "this is text field",
+      "type": "string",
+      "maxLength": 10
+    },
+    "textarea-1": {
+      "title": "textarea-1",
+      "description": "this is textarea field",
+      "type": "string",
+      "maxLength": 10
+    },
+    "url-1": {
+      "title": "url-1",
+      "description": "this url field",
+      "type": "string",
+      "format": "uri"
+    }
+  }
+}

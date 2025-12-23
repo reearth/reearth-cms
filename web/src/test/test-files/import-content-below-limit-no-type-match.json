@@ -1,0 +1,20 @@
+{
+  "results": [
+    {
+      "boolean-1": 1,
+      "date-1": "https://test.com/",
+      "float-1": false,
+      "geo-obj-1": "hello",
+      "int-1": 1.1,
+      "markdown-text-1": {
+        "coordinates": [139.6917, 35.6895],
+        "type": "Point"
+      },
+      "option-1": 123,
+      "text-1": 2,
+      "textarea-1": true,
+      "url-1": "2025-12-01T00:00:00+09:00"
+    }
+  ],
+  "totalCount": 1
+}
