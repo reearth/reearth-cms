@@ -91,9 +91,9 @@ func healthCheck(conf *Config, ver string, fileRepo gateway.File) *health.Health
 }
 
 // RunInitialHealthCheck performs health checks on initialization
-func RunInitialHealthCheck(ctx context.Context, conf *Config, fileRepo gateway.File) error {
+func RunInitialHealthCheck(ctx context.Context, conf *Config, ver string, fileRepo gateway.File) error {
 	log.Infof("health check: running initial health checks...")
-	h := healthCheck(conf, "init-check", fileRepo)
+	h := healthCheck(conf, ver, fileRepo)
 	result := h.Measure(ctx)
 	if len(result.Failures) > 0 {
 		return fmt.Errorf("initial health check failed: %v", result.Failures)
