@@ -13,6 +13,10 @@ import {
   FieldBooleanMulti,
   FieldDate,
   FieldDateMulti,
+  FieldGeoEditor,
+  FieldGeoEditorMulti,
+  FieldGeoObject,
+  FieldGeoObjectMulti,
   FieldInteger,
   FieldIntegerMulti,
   FieldMarkdownText,
@@ -43,20 +47,20 @@ async function readFromJSONFile<T>(
   return await ObjectUtils.safeJSONParse(fileContent);
 }
 
-describe("Testing schema import from static files", () => {
-  describe("Validate JSON files", () => {
-    test("Validate schema from JSON file", async () => {
-      const result = await readFromJSONFile<ImportSchema>(Constant.PUBLIC_FILE.IMPORT_SCHEMA_JSON);
+describe("Test import schema", () => {
+  test("Validate schema from JSON file", async () => {
+    const result = await readFromJSONFile<ImportSchema>(Constant.PUBLIC_FILE.IMPORT_SCHEMA_JSON);
 
-      expect(result.isValid).toBe(true);
+    expect(result.isValid).toBe(true);
 
-      if (!result.isValid) return;
+    if (!result.isValid) return;
 
-      const validation = ImportSchemaUtils.validateSchemaFromJSON(result.data);
+    const validation = ImportSchemaUtils.validateSchemaFromJSON(result.data);
 
-      expect(validation.isValid).toBe(true);
-    });
+    expect(validation.isValid).toBe(true);
+  });
 
+  describe("Normal fields", () => {
     describe("[Pass case] Legal field type (full setup) from schema", () => {
       const COMMON_SCHEMA_FIELD: Pick<
         ImportSchemaField,
@@ -477,14 +481,6 @@ describe("Testing schema import from static files", () => {
           } as FieldURLMulti,
           expectedResult: EXPECTED_RESULT,
         },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
       ])(
         "$setup.type field are legal with default value & multiple: $setup.multiple",
         async ({ setup, expectedResult }) => {
@@ -641,16 +637,8 @@ describe("Testing schema import from static files", () => {
           } as FieldIntegerMulti,
           expectedResult: EXPECTED_RESULT,
         },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
       ])(
-        "$setup.type field are legal with default value & multiple: $setup.multiple",
+        "$setup.type field are illegal with default value & multiple: $setup.multiple",
         async ({ setup, expectedResult }) => {
           const parsedSetup: ImportSchema = {
             properties: { testField: setup },
@@ -873,16 +861,8 @@ describe("Testing schema import from static files", () => {
           },
           expectedResult: EXPECTED_RESULT,
         },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
       ])(
-        "$setup.type field are legal with default value & multiple: $setup.multiple",
+        "$setup.type field are illegal with default value & multiple: $setup.multiple",
         async ({ setup, expectedResult }) => {
           const parsedSetup = {
             properties: { testField: setup },
@@ -891,6 +871,1031 @@ describe("Testing schema import from static files", () => {
           const validation = ImportSchemaUtils.validateSchemaFromJSON(parsedSetup);
 
           expect(validation.isValid).toBe(expectedResult);
+        },
+      );
+    });
+  });
+
+  describe("GeometryObject field", () => {
+    describe("[Pass case] Control variable: support type, without default value", () => {
+      const COMMON_SCHEMA_FIELD: Pick<
+        ImportSchemaField,
+        "title" | "description" | "required" | "unique" | "type"
+      > = {
+        title: "test",
+        description: "test",
+        required: false,
+        unique: false,
+        type: SchemaFieldType.GeometryObject,
+      };
+
+      const EXPECTED_RESULT = true;
+
+      test.each([
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: ["POINT"],
+          } as FieldGeoObject,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: ["POINT"],
+          } as FieldGeoObjectMulti,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: ["MULTIPOINT"],
+          } as FieldGeoObject,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: ["MULTIPOINT"],
+          } as FieldGeoObjectMulti,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: ["LINESTRING"],
+          } as FieldGeoObject,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: ["LINESTRING"],
+          } as FieldGeoObjectMulti,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: ["MULTILINESTRING"],
+          } as FieldGeoObject,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: ["MULTILINESTRING"],
+          } as FieldGeoObjectMulti,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: ["POLYGON"],
+          } as FieldGeoObject,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: ["POLYGON"],
+          } as FieldGeoObjectMulti,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: ["MULTIPOLYGON"],
+          } as FieldGeoObject,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: ["MULTIPOLYGON"],
+          } as FieldGeoObjectMulti,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: ["GEOMETRYCOLLECTION"],
+          } as FieldGeoObject,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: ["GEOMETRYCOLLECTION"],
+          } as FieldGeoObjectMulti,
+          expectedResult: EXPECTED_RESULT,
+        },
+      ])(
+        "Field are legal, supportType: $setup.supportType without default value & multiple: $setup.multiple",
+        async ({ setup, expectedResult }) => {
+          const parsedSetup: ImportSchema = {
+            properties: { testField: setup },
+          };
+
+          const validation = ImportSchemaUtils.validateSchemaFromJSON(parsedSetup);
+
+          expect(validation.isValid).toBe(expectedResult);
+
+          if (!validation.isValid) return;
+
+          expect(validation.data).toEqual(parsedSetup);
+        },
+      );
+    });
+
+    describe("[Pass case] Control variable: support type, with default value", () => {
+      const COMMON_SCHEMA_FIELD: Pick<
+        ImportSchemaField,
+        "title" | "description" | "required" | "unique" | "type"
+      > = {
+        title: "test",
+        description: "test",
+        required: false,
+        unique: false,
+        type: SchemaFieldType.GeometryObject,
+      };
+
+      const COMMON_EXPECTED_RESULT = true;
+
+      test.each([
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: ["POINT"],
+            defaultValue: { type: "Point", coordinates: [139.6917, 35.6895] },
+          } as FieldGeoObject,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: ["POINT"],
+            defaultValue: [{ type: "Point", coordinates: [139.6917, 35.6895] }],
+          } as FieldGeoObjectMulti,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: ["MULTIPOINT"],
+            defaultValue: {
+              type: "MultiPoint",
+              coordinates: [
+                [139.6917, 35.6895],
+                [139.7673, 35.6812],
+                [139.7514, 35.6938],
+              ],
+            },
+          } as FieldGeoObject,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: ["MULTIPOINT"],
+            defaultValue: [
+              {
+                type: "MultiPoint",
+                coordinates: [
+                  [139.6917, 35.6895],
+                  [139.7673, 35.6812],
+                  [139.7514, 35.6938],
+                ],
+              },
+            ],
+          } as FieldGeoObjectMulti,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: ["LINESTRING"],
+            defaultValue: {
+              type: "LineString",
+              coordinates: [
+                [139.6917, 35.6895],
+                [139.7673, 35.6812],
+                [139.7514, 35.6938],
+                [139.7026, 35.658],
+              ],
+            },
+          } as FieldGeoObject,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: ["LINESTRING"],
+            defaultValue: [
+              {
+                type: "LineString",
+                coordinates: [
+                  [139.6917, 35.6895],
+                  [139.7673, 35.6812],
+                  [139.7514, 35.6938],
+                  [139.7026, 35.658],
+                ],
+              },
+            ],
+          } as FieldGeoObjectMulti,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: ["MULTILINESTRING"],
+            defaultValue: {
+              type: "MultiLineString",
+              coordinates: [
+                [
+                  [139.6917, 35.6895],
+                  [139.7673, 35.6812],
+                ],
+                [
+                  [139.7514, 35.6938],
+                  [139.7026, 35.658],
+                ],
+              ],
+            },
+          } as FieldGeoObject,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: ["MULTILINESTRING"],
+            defaultValue: [
+              {
+                type: "MultiLineString",
+                coordinates: [
+                  [
+                    [139.6917, 35.6895],
+                    [139.7673, 35.6812],
+                  ],
+                  [
+                    [139.7514, 35.6938],
+                    [139.7026, 35.658],
+                  ],
+                ],
+              },
+            ],
+          } as FieldGeoObjectMulti,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: ["POLYGON"],
+            defaultValue: {
+              type: "Polygon",
+              coordinates: [
+                [
+                  [139.6917, 35.6895],
+                  [139.7673, 35.6812],
+                  [139.7514, 35.6938],
+                  [139.7026, 35.658],
+                  [139.6917, 35.6895],
+                ],
+              ],
+            },
+          } as FieldGeoObject,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: ["POLYGON"],
+            defaultValue: [
+              {
+                type: "Polygon",
+                coordinates: [
+                  [
+                    [139.6917, 35.6895],
+                    [139.7673, 35.6812],
+                    [139.7514, 35.6938],
+                    [139.7026, 35.658],
+                    [139.6917, 35.6895],
+                  ],
+                ],
+              },
+            ],
+          } as FieldGeoObjectMulti,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: ["MULTIPOLYGON"],
+            defaultValue: {
+              type: "MultiPolygon",
+              coordinates: [
+                [
+                  [
+                    [102.0, 2.0],
+                    [103.0, 2.0],
+                    [103.0, 3.0],
+                    [102.0, 3.0],
+                    [102.0, 2.0],
+                  ],
+                ],
+                [
+                  [
+                    [100.0, 0.0],
+                    [101.0, 0.0],
+                    [101.0, 1.0],
+                    [100.0, 1.0],
+                    [100.0, 0.0],
+                  ],
+                  [
+                    [100.2, 0.2],
+                    [100.8, 0.2],
+                    [100.8, 0.8],
+                    [100.2, 0.8],
+                    [100.2, 0.2],
+                  ],
+                ],
+              ],
+            },
+          } as FieldGeoObject,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: ["MULTIPOLYGON"],
+            defaultValue: [
+              {
+                type: "MultiPolygon",
+                coordinates: [
+                  [
+                    [
+                      [102.0, 2.0],
+                      [103.0, 2.0],
+                      [103.0, 3.0],
+                      [102.0, 3.0],
+                      [102.0, 2.0],
+                    ],
+                  ],
+                  [
+                    [
+                      [100.0, 0.0],
+                      [101.0, 0.0],
+                      [101.0, 1.0],
+                      [100.0, 1.0],
+                      [100.0, 0.0],
+                    ],
+                    [
+                      [100.2, 0.2],
+                      [100.8, 0.2],
+                      [100.8, 0.8],
+                      [100.2, 0.8],
+                      [100.2, 0.2],
+                    ],
+                  ],
+                ],
+              },
+            ],
+          } as FieldGeoObjectMulti,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: ["GEOMETRYCOLLECTION"],
+            defaultValue: {
+              type: "GeometryCollection",
+              geometries: [
+                { type: "Point", coordinates: [100.0, 0.0] },
+                {
+                  type: "LineString",
+                  coordinates: [
+                    [101.0, 0.0],
+                    [102.0, 1.0],
+                  ],
+                },
+              ],
+            },
+          } as FieldGeoObject,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: ["GEOMETRYCOLLECTION"],
+            defaultValue: [
+              {
+                type: "GeometryCollection",
+                geometries: [
+                  { type: "Point", coordinates: [100.0, 0.0] },
+                  {
+                    type: "LineString",
+                    coordinates: [
+                      [101.0, 0.0],
+                      [102.0, 1.0],
+                    ],
+                  },
+                ],
+              },
+            ],
+          } as FieldGeoObjectMulti,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+      ])(
+        "Field are legal, supportType: $setup.supportType with default value & multiple: $setup.multiple",
+        async ({ setup, expectedResult }) => {
+          const parsedSetup: ImportSchema = {
+            properties: { testField: setup },
+          };
+
+          const validation = ImportSchemaUtils.validateSchemaFromJSON(parsedSetup);
+
+          expect(validation.isValid).toBe(expectedResult);
+
+          if (!validation.isValid) return;
+
+          expect(validation.data).toEqual(parsedSetup);
+        },
+      );
+    });
+
+    describe("[Fail case] Illegal defaultValue against supportType", () => {
+      const COMMON_SCHEMA_FIELD: Pick<
+        ImportSchemaField,
+        "title" | "description" | "required" | "unique" | "type"
+      > = {
+        title: "test",
+        description: "test",
+        required: false,
+        unique: false,
+        type: SchemaFieldType.GeometryObject,
+      };
+
+      const COMMON_EXPECTED_RESULT = false;
+
+      test.each([
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: ["POINT"],
+            defaultValue: {
+              type: "MultiPoint",
+              coordinates: [
+                [139.6917, 35.6895],
+                [139.7673, 35.6812],
+                [139.7514, 35.6938],
+              ],
+            },
+          } as FieldGeoObject,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: ["POINT"],
+            defaultValue: [
+              {
+                type: "MultiPoint",
+                coordinates: [
+                  [139.6917, 35.6895],
+                  [139.7673, 35.6812],
+                  [139.7514, 35.6938],
+                ],
+              },
+            ],
+          } as FieldGeoObjectMulti,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: ["MULTIPOINT"],
+            defaultValue: { type: "Point", coordinates: [139.6917, 35.6895] },
+          } as FieldGeoObject,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: ["MULTIPOINT"],
+            defaultValue: [{ type: "Point", coordinates: [139.6917, 35.6895] }],
+          } as FieldGeoObjectMulti,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: ["LINESTRING"],
+            defaultValue: { type: "Point", coordinates: [139.6917, 35.6895] },
+          } as FieldGeoObject,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: ["LINESTRING"],
+            defaultValue: [{ type: "Point", coordinates: [139.6917, 35.6895] }],
+          } as FieldGeoObjectMulti,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: ["MULTILINESTRING"],
+            defaultValue: { type: "Point", coordinates: [139.6917, 35.6895] },
+          } as FieldGeoObject,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: ["MULTILINESTRING"],
+            defaultValue: [{ type: "Point", coordinates: [139.6917, 35.6895] }],
+          } as FieldGeoObjectMulti,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: ["POLYGON"],
+            defaultValue: { type: "Point", coordinates: [139.6917, 35.6895] },
+          } as FieldGeoObject,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: ["POLYGON"],
+            defaultValue: [{ type: "Point", coordinates: [139.6917, 35.6895] }],
+          } as FieldGeoObjectMulti,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: ["MULTIPOLYGON"],
+            defaultValue: { type: "Point", coordinates: [139.6917, 35.6895] },
+          } as FieldGeoObject,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: ["MULTIPOLYGON"],
+            defaultValue: [{ type: "Point", coordinates: [139.6917, 35.6895] }],
+          } as FieldGeoObjectMulti,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: ["GEOMETRYCOLLECTION"],
+            defaultValue: { type: "Point", coordinates: [139.6917, 35.6895] },
+          } as FieldGeoObject,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: ["GEOMETRYCOLLECTION"],
+            defaultValue: [{ type: "Point", coordinates: [139.6917, 35.6895] }],
+          } as FieldGeoObjectMulti,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+      ])(
+        "Field are illegal, supportType: $setup.supportType with default value & multiple: $setup.multiple",
+        async ({ setup, expectedResult }) => {
+          const parsedSetup: ImportSchema = {
+            properties: { testField: setup },
+          };
+
+          const validation = ImportSchemaUtils.validateSchemaFromJSON(parsedSetup);
+
+          expect(validation.isValid).toBe(expectedResult);
+
+          if (!validation.isValid) return;
+
+          expect(validation.data).toEqual(parsedSetup);
+        },
+      );
+    });
+  });
+
+  describe("GeometryEditor field", () => {
+    describe("[Pass case] Control variable: support type, without default value", () => {
+      const COMMON_SCHEMA_FIELD: Pick<
+        ImportSchemaField,
+        "title" | "description" | "required" | "unique" | "type"
+      > = {
+        title: "test",
+        description: "test",
+        required: false,
+        unique: false,
+        type: SchemaFieldType.GeometryEditor,
+      };
+
+      const EXPECTED_RESULT = true;
+
+      test.each([
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: "POINT",
+          } as FieldGeoEditor,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: "POINT",
+          } as FieldGeoEditorMulti,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: "LINESTRING",
+          } as FieldGeoEditor,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: "LINESTRING",
+          } as FieldGeoEditorMulti,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: "POLYGON",
+          } as FieldGeoEditor,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: "POLYGON",
+          } as FieldGeoEditorMulti,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: "ANY",
+          } as FieldGeoEditor,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: "ANY",
+          } as FieldGeoEditorMulti,
+          expectedResult: EXPECTED_RESULT,
+        },
+      ])(
+        "Field are legal, supportType: $setup.supportType without default value & multiple: $setup.multiple",
+        async ({ setup, expectedResult }) => {
+          const parsedSetup: ImportSchema = {
+            properties: { testField: setup },
+          };
+
+          const validation = ImportSchemaUtils.validateSchemaFromJSON(parsedSetup);
+
+          expect(validation.isValid).toBe(expectedResult);
+
+          if (!validation.isValid) return;
+
+          expect(validation.data).toEqual(parsedSetup);
+        },
+      );
+    });
+
+    describe("[Pass case] Control variable: support type, with default value", () => {
+      const COMMON_SCHEMA_FIELD: Pick<
+        ImportSchemaField,
+        "title" | "description" | "required" | "unique" | "type"
+      > = {
+        title: "test",
+        description: "test",
+        required: false,
+        unique: false,
+        type: SchemaFieldType.GeometryEditor,
+      };
+
+      const COMMON_EXPECTED_RESULT = true;
+
+      test.each([
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: "POINT",
+            defaultValue: { type: "Point", coordinates: [139.6917, 35.6895] },
+          } as FieldGeoEditor,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: "POINT",
+            defaultValue: [{ type: "Point", coordinates: [139.6917, 35.6895] }],
+          } as FieldGeoEditorMulti,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: "LINESTRING",
+            defaultValue: {
+              type: "LineString",
+              coordinates: [
+                [139.6917, 35.6895],
+                [139.7673, 35.6812],
+                [139.7514, 35.6938],
+                [139.7026, 35.658],
+              ],
+            },
+          } as FieldGeoEditor,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: "LINESTRING",
+            defaultValue: [
+              {
+                type: "LineString",
+                coordinates: [
+                  [139.6917, 35.6895],
+                  [139.7673, 35.6812],
+                  [139.7514, 35.6938],
+                  [139.7026, 35.658],
+                ],
+              },
+            ],
+          } as FieldGeoEditorMulti,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: "POLYGON",
+            defaultValue: {
+              type: "Polygon",
+              coordinates: [
+                [
+                  [139.6917, 35.6895],
+                  [139.7673, 35.6812],
+                  [139.7514, 35.6938],
+                  [139.7026, 35.658],
+                  [139.6917, 35.6895],
+                ],
+              ],
+            },
+          } as FieldGeoEditor,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: "POLYGON",
+            defaultValue: [
+              {
+                type: "Polygon",
+                coordinates: [
+                  [
+                    [139.6917, 35.6895],
+                    [139.7673, 35.6812],
+                    [139.7514, 35.6938],
+                    [139.7026, 35.658],
+                    [139.6917, 35.6895],
+                  ],
+                ],
+              },
+            ],
+          } as FieldGeoEditorMulti,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: "ANY",
+            defaultValue: { type: "Point", coordinates: [139.6917, 35.6895] },
+          } as FieldGeoEditor,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: "ANY",
+            defaultValue: [
+              { type: "Point", coordinates: [139.6917, 35.6895] },
+              {
+                type: "LineString",
+                coordinates: [
+                  [139.6917, 35.6895],
+                  [139.7673, 35.6812],
+                  [139.7514, 35.6938],
+                  [139.7026, 35.658],
+                ],
+              },
+              {
+                type: "Polygon",
+                coordinates: [
+                  [
+                    [139.6917, 35.6895],
+                    [139.7673, 35.6812],
+                    [139.7514, 35.6938],
+                    [139.7026, 35.658],
+                    [139.6917, 35.6895],
+                  ],
+                ],
+              },
+            ],
+          } as FieldGeoEditorMulti,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+      ])(
+        "Field are legal, supportType: $setup.supportType with default value & multiple: $setup.multiple",
+        async ({ setup, expectedResult }) => {
+          const parsedSetup: ImportSchema = {
+            properties: { testField: setup },
+          };
+
+          const validation = ImportSchemaUtils.validateSchemaFromJSON(parsedSetup);
+
+          expect(validation.isValid).toBe(expectedResult);
+
+          if (!validation.isValid) return;
+
+          expect(validation.data).toEqual(parsedSetup);
+        },
+      );
+    });
+
+    describe("[Fail case] Illegal defaultValue against supportType", () => {
+      const COMMON_SCHEMA_FIELD: Pick<
+        ImportSchemaField,
+        "title" | "description" | "required" | "unique" | "type"
+      > = {
+        title: "test",
+        description: "test",
+        required: false,
+        unique: false,
+        type: SchemaFieldType.GeometryEditor,
+      };
+
+      const COMMON_EXPECTED_RESULT = false;
+
+      test.each([
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: "POINT",
+            defaultValue: {
+              type: "LineString",
+              coordinates: [
+                [139.6917, 35.6895],
+                [139.7673, 35.6812],
+                [139.7514, 35.6938],
+                [139.7026, 35.658],
+              ],
+            },
+          } as FieldGeoEditor,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: "POINT",
+            defaultValue: [
+              {
+                type: "LineString",
+                coordinates: [
+                  [139.6917, 35.6895],
+                  [139.7673, 35.6812],
+                  [139.7514, 35.6938],
+                  [139.7026, 35.658],
+                ],
+              },
+            ],
+          } as FieldGeoEditorMulti,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: "LINESTRING",
+            defaultValue: { type: "Point", coordinates: [139.6917, 35.6895] },
+          } as FieldGeoEditor,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: "LINESTRING",
+            defaultValue: [{ type: "Point", coordinates: [139.6917, 35.6895] }],
+          } as FieldGeoEditorMulti,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: false,
+            supportType: "POLYGON",
+            defaultValue: { type: "Point", coordinates: [139.6917, 35.6895] },
+          } as FieldGeoEditor,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            multiple: true,
+            supportType: "POLYGON",
+            defaultValue: [{ type: "Point", coordinates: [139.6917, 35.6895] }],
+          } as FieldGeoEditorMulti,
+          expectedResult: COMMON_EXPECTED_RESULT,
+        },
+      ])(
+        "Field are illegal, supportType: $setup.supportType with default value & multiple: $setup.multiple",
+        async ({ setup, expectedResult }) => {
+          const parsedSetup: ImportSchema = {
+            properties: { testField: setup },
+          };
+
+          const validation = ImportSchemaUtils.validateSchemaFromJSON(parsedSetup);
+
+          expect(validation.isValid).toBe(expectedResult);
+
+          if (!validation.isValid) return;
+
+          expect(validation.data).toEqual(parsedSetup);
         },
       );
     });

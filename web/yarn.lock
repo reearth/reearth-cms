@@ -7865,7 +7865,7 @@
     yaml "2.8.0"
     zod "4.1.11"
 
-"@scalar/api-reference-react@^0.8.5":
+"@scalar/api-reference-react@0.8.5":
   version "0.8.5"
   resolved "https://registry.yarnpkg.com/@scalar/api-reference-react/-/api-reference-react-0.8.5.tgz#b3102bc31ba7f89acbfbe7c0badd8b1bddda9656"
   integrity sha512-ZZruJPTZmY1+GdoT/yad/7FLGZcGJMKq/hKvgFZ/o8XzCgVWrkmHhd6IIC/ug2tOeA9iUgR9Eu24c8czcJotdQ==
@@ -22347,6 +22347,11 @@ zhead@^2.2.4:
   version "2.2.4"
   resolved "https://registry.yarnpkg.com/zhead/-/zhead-2.2.4.tgz#87cd1e2c3d2f465fa9f43b8db23f9716dfe6bed7"
   integrity sha512-8F0OI5dpWIA5IGG5NHUg9staDwz/ZPxZtvGVf01j7vHqSyZ0raHY+78atOVxRqb73AotX22uV1pXt3gYSstGag==
+
+zod-geojson@1.6.1:
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/zod-geojson/-/zod-geojson-1.6.1.tgz#b1bc71c4c5f5d75bdd039c5765182630e126babb"
+  integrity sha512-saxnXEOEfxumffRz8djO6NbeFHxPZ2cGgB+Ytw5ljxvL9k/cTA95FiKcPqSmWEGapLZHg3EZmDUjz/c8nQwo3g==
 
 zod@3.24.1:
   version "3.24.1"
