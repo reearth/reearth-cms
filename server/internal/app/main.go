@@ -32,26 +32,28 @@ func Start(debug bool, version string) {
 	// Init repositories
 	repos, gateways, acRepos, acGateways := InitReposAndGateways(ctx, conf)
 
-	// Create application context
-	appCtx := &ApplicationContext{
-		Config:     conf,
-		Debug:      debug,
-		Version:    version,
-		Repos:      repos,
-		Gateways:   gateways,
-		AcRepos:    acRepos,
-		AcGateways: acGateways,
-	}
+	// Create health checker instance
+	healthChecker := NewHealthChecker(conf, version, gateways.File)
 
-	// Run initial health check
-	if appCtx.Config.HealthCheck.RunOnInit && appCtx.Config.Server.Active {
-		if err := RunInitialHealthCheck(ctx, appCtx.Config, appCtx.Version, appCtx.Gateways.File); err != nil {
-			log.Fatalf("initial health check failed: %v", err)
+	// Run initial health check if enabled
+	if conf.HealthCheck.RunOnInit {
+		if err := healthChecker.Check(ctx); err != nil {
+			log.Fatalf("health check: initial health check failed: %v", err)
 		}
-	} else if appCtx.Config.InternalApi.Active {
-		log.Infof("health check: skipped for internal API server")
 	} else {
 		log.Infof("health check: initial health check disabled")
+	}
+
+	// Create application context
+	appCtx := &ApplicationContext{
+		Config:        conf,
+		Debug:         debug,
+		Version:       version,
+		Repos:         repos,
+		Gateways:      gateways,
+		AcRepos:       acRepos,
+		AcGateways:    acGateways,
+		HealthChecker: healthChecker,
 	}
 
 	// Start web server
@@ -67,13 +69,14 @@ type WebServer struct {
 }
 
 type ApplicationContext struct {
-	Config     *Config
-	Debug      bool
-	Version    string
-	Repos      *repo.Container
-	Gateways   *gateway.Container
-	AcRepos    *accountrepo.Container
-	AcGateways *accountgateway.Container
+	Config        *Config
+	Debug         bool
+	Version       string
+	Repos         *repo.Container
+	Gateways      *gateway.Container
+	AcRepos       *accountrepo.Container
+	AcGateways    *accountgateway.Container
+	HealthChecker *HealthChecker
 }
 
 func NewServer(ctx context.Context, appCtx *ApplicationContext) *WebServer {

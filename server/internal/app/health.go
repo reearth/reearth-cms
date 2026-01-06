@@ -15,27 +15,13 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
-// HealthCheck returns an echo.HandlerFunc that serves the health check endpoint
-func HealthCheck(conf *Config, ver string, fileRepo gateway.File) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		// Optional HTTP Basic Auth
-		if conf.HealthCheck.Username != "" && conf.HealthCheck.Password != "" {
-			username, password, ok := c.Request().BasicAuth()
-			if !ok || username != conf.HealthCheck.Username || password != conf.HealthCheck.Password {
-				return c.JSON(http.StatusUnauthorized, map[string]string{
-					"error": "unauthorized",
-				})
-			}
-		}
-
-		// Serve the health check
-		h := healthCheck(conf, ver, fileRepo)
-		h.Handler().ServeHTTP(c.Response(), c.Request())
-		return nil
-	}
+type HealthChecker struct {
+	health *health.Health
+	config *Config
 }
 
-func healthCheck(conf *Config, ver string, fileRepo gateway.File) *health.Health {
+// NewHealthChecker creates a new health checker instance
+func NewHealthChecker(conf *Config, ver string, fileRepo gateway.File) *HealthChecker {
 	checks := []health.Config{
 		{
 			Name:      "db",
@@ -87,19 +73,39 @@ func healthCheck(conf *Config, ver string, fileRepo gateway.File) *health.Health
 	if err != nil {
 		log.Fatalf("failed to create health check: %v", err)
 	}
-	return h
+
+	return &HealthChecker{
+		health: h,
+		config: conf,
+	}
 }
 
-// RunInitialHealthCheck performs health checks on initialization
-func RunInitialHealthCheck(ctx context.Context, conf *Config, ver string, fileRepo gateway.File) error {
-	log.Infof("health check: running initial health checks...")
-	h := healthCheck(conf, ver, fileRepo)
-	result := h.Measure(ctx)
+func (hc *HealthChecker) Check(ctx context.Context) error {
+	log.Infof("health check: running health checks...")
+	result := hc.health.Measure(ctx)
 	if len(result.Failures) > 0 {
-		return fmt.Errorf("initial health check failed: %v", result.Failures)
+		return fmt.Errorf("health check failed: %v", result.Failures)
 	}
 	log.Infof("health check: all checks passed")
 	return nil
+}
+
+func (hc *HealthChecker) Handler() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// Optional HTTP Basic Auth
+		if hc.config.HealthCheck.Username != "" && hc.config.HealthCheck.Password != "" {
+			username, password, ok := c.Request().BasicAuth()
+			if !ok || username != hc.config.HealthCheck.Username || password != hc.config.HealthCheck.Password {
+				return c.JSON(http.StatusUnauthorized, map[string]string{
+					"error": "unauthorized",
+				})
+			}
+		}
+
+		// Serve the health check
+		hc.health.Handler().ServeHTTP(c.Response(), c.Request())
+		return nil
+	}
 }
 
 func authServerPingCheck(issuerURL string) (checkErr error) {
