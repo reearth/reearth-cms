@@ -20,7 +20,24 @@ type HealthChecker struct {
 	config *Config
 }
 
-// NewHealthChecker creates a new health checker instance
+func (hc *HealthChecker) Handler() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// Optional HTTP Basic Auth
+		if hc.config.HealthCheck.Username != "" && hc.config.HealthCheck.Password != "" {
+			username, password, ok := c.Request().BasicAuth()
+			if !ok || username != hc.config.HealthCheck.Username || password != hc.config.HealthCheck.Password {
+				return c.JSON(http.StatusUnauthorized, map[string]string{
+					"error": "unauthorized",
+				})
+			}
+		}
+
+		// Serve the health check
+		hc.health.Handler().ServeHTTP(c.Response(), c.Request())
+		return nil
+	}
+}
+
 func NewHealthChecker(conf *Config, ver string, fileRepo gateway.File) *HealthChecker {
 	checks := []health.Config{
 		{
@@ -81,31 +98,13 @@ func NewHealthChecker(conf *Config, ver string, fileRepo gateway.File) *HealthCh
 }
 
 func (hc *HealthChecker) Check(ctx context.Context) error {
-	log.Infof("health check: running health checks...")
+	log.Infof("health check: running initial health checks...")
 	result := hc.health.Measure(ctx)
 	if len(result.Failures) > 0 {
-		return fmt.Errorf("health check failed: %v", result.Failures)
+		return fmt.Errorf("initial health check failed: %v", result.Failures)
 	}
 	log.Infof("health check: all checks passed")
 	return nil
-}
-
-func (hc *HealthChecker) Handler() echo.HandlerFunc {
-	return func(c echo.Context) error {
-		// Optional HTTP Basic Auth
-		if hc.config.HealthCheck.Username != "" && hc.config.HealthCheck.Password != "" {
-			username, password, ok := c.Request().BasicAuth()
-			if !ok || username != hc.config.HealthCheck.Username || password != hc.config.HealthCheck.Password {
-				return c.JSON(http.StatusUnauthorized, map[string]string{
-					"error": "unauthorized",
-				})
-			}
-		}
-
-		// Serve the health check
-		hc.health.Handler().ServeHTTP(c.Response(), c.Request())
-		return nil
-	}
 }
 
 func authServerPingCheck(issuerURL string) (checkErr error) {

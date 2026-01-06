@@ -35,17 +35,17 @@ func Start(debug bool, version string) {
 	// Create health checker instance
 	healthChecker := NewHealthChecker(conf, version, gateways.File)
 
-	// Run initial health check if enabled
+	// Run initial health check
 	if conf.HealthCheck.RunOnInit {
 		if err := healthChecker.Check(ctx); err != nil {
-			log.Fatalf("health check: initial health check failed: %v", err)
+			log.Fatalf("initial health check failed: %v", err)
 		}
 	} else {
 		log.Infof("health check: initial health check disabled")
 	}
 
-	// Create application context
-	appCtx := &ApplicationContext{
+	// Start web server
+	NewServer(ctx, &ApplicationContext{
 		Config:        conf,
 		Debug:         debug,
 		Version:       version,
@@ -54,10 +54,7 @@ func Start(debug bool, version string) {
 		AcRepos:       acRepos,
 		AcGateways:    acGateways,
 		HealthChecker: healthChecker,
-	}
-
-	// Start web server
-	NewServer(ctx, appCtx).Run(ctx)
+	}).Run(ctx)
 }
 
 type WebServer struct {
