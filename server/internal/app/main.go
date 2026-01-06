@@ -44,10 +44,12 @@ func Start(debug bool, version string) {
 	}
 
 	// Run initial health check
-	if appCtx.Config.HealthCheck.RunOnInit {
+	if appCtx.Config.HealthCheck.RunOnInit && appCtx.Config.Server.Active {
 		if err := RunInitialHealthCheck(ctx, appCtx.Config, appCtx.Version, appCtx.Gateways.File); err != nil {
 			log.Fatalf("initial health check failed: %v", err)
 		}
+	} else if appCtx.Config.InternalApi.Active {
+		log.Infof("health check: skipped for internal API server")
 	} else {
 		log.Infof("health check: initial health check disabled")
 	}
