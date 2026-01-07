@@ -1,19 +1,23 @@
-/* eslint-disable import/no-extraneous-dependencies */
 import { defineConfig } from "i18next-cli";
 
 export default defineConfig({
   locales: ["en", "ja"],
   extract: {
+    defaultNS: false,
+    extractFromComments: false,
+    functions: ["t", "*.t"],
     input: ["src/**/*.{ts,tsx}"],
-    output: "src/i18n/translations/{{language}}.yml",
-    defaultNS: "translation",
     keySeparator: false,
     nsSeparator: false,
-    functions: ["t", "*.t"],
+    output: "src/i18n/translations/{{language}}.ts",
+    outputFormat: "ts",
+    removeUnusedKeys: true,
     transComponents: ["Trans"],
   },
   types: {
-    input: ["locales/{{language}}/{{namespace}}.json"],
-    output: "src/types/i18next.d.ts",
+    enableSelector: true, // Enable type-safe key selection
+    input: ["src/i18n/translations/en.ts"],
+    output: "src/i18n/i18next.d.ts",
+    resourcesFile: "src/i18n/resources.d.ts",
   },
 });

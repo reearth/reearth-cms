@@ -1,23 +1,11 @@
-import fs from "fs";
-import path, { dirname } from "path";
-import { fileURLToPath } from "url";
-
 import i18n from "i18next";
-import yaml from "yaml";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const enPath = path.resolve(__dirname, "../../src/i18n/translations/en.yml");
-const jaPath = path.resolve(__dirname, "../../src/i18n/translations/ja.yml");
-const en = yaml.parse(fs.readFileSync(enPath, "utf-8"));
-const ja = yaml.parse(fs.readFileSync(jaPath, "utf-8"));
+import en from "@reearth-cms/i18n/translations/en";
+import ja from "@reearth-cms/i18n/translations/ja";
 
 const resources = {
-  en: {
-    translation: en,
-  },
-  ja: {
-    translation: ja,
-  },
+  en,
+  ja,
 };
 
 export const availableLanguages = Object.keys(resources);
@@ -29,6 +17,7 @@ i18n.init({
   nsSeparator: false,
   keySeparator: false,
   returnEmptyString: false,
+  // ns: "translation",
 });
 
 export { t } from "i18next";
