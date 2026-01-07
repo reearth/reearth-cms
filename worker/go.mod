@@ -1,15 +1,15 @@
 module github.com/reearth/reearth-cms/worker
 
-go 1.25.4
+go 1.25.5
 
 require (
 	cloud.google.com/go/pubsub/v2 v2.3.0
-	cloud.google.com/go/storage v1.57.2
-	github.com/aws/aws-sdk-go-v2 v1.39.6
-	github.com/aws/aws-sdk-go-v2/config v1.31.20
-	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.20.7
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.90.2
-	github.com/aws/aws-sdk-go-v2/service/sns v1.39.5
+	cloud.google.com/go/storage v1.58.0
+	github.com/aws/aws-sdk-go-v2 v1.41.0
+	github.com/aws/aws-sdk-go-v2/config v1.32.6
+	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.20.18
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.95.0
+	github.com/aws/aws-sdk-go-v2/service/sns v1.39.10
 	github.com/bodgit/sevenzip v1.6.1
 	github.com/google/uuid v1.6.0
 	github.com/hellofresh/health-go/v5 v5.5.5
@@ -17,18 +17,18 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kennygrant/sanitize v1.2.4
-	github.com/labstack/echo/v4 v4.13.4
-	github.com/oklog/ulid v1.3.1
+	github.com/labstack/echo/v4 v4.15.0
+	github.com/oklog/ulid/v2 v2.1.1
 	github.com/reearth/reearth-cms/server v0.0.0-20251119080242-b5098e0836dc
 	github.com/reearth/reearthx v0.0.0-20251014121624-4213c8bf1a32
 	github.com/robbiet480/go.sns v0.0.0-20230523235941-e8d832c79d68
 	github.com/samber/lo v1.52.0
 	github.com/spf13/afero v1.15.0
 	github.com/stretchr/testify v1.11.1
-	go.mongodb.org/mongo-driver v1.17.6
-	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.63.0
-	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.63.0
-	golang.org/x/net v0.47.0
+	go.mongodb.org/mongo-driver/v2 v2.4.1
+	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.64.0
+	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.64.0
+	golang.org/x/net v0.48.0
 )
 
 require (
