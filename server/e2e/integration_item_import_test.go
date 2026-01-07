@@ -134,7 +134,7 @@ func TestIntegrationModelImportJSONWithGeoJsonInput(t *testing.T) {
 	a.Length().IsEqual(1)
 	i := a.Value(0).Object()
 	i.Value("id").NotNull()
-	i.Value("fields").Array().Length().IsEqual(3)
+	i.Value("fields").Array().Length().IsEqual(14)
 
 	// endregion
 
@@ -250,13 +250,13 @@ func TestIntegrationModelImportJSONWithJsonInput1(t *testing.T) {
 	a.Length().IsEqual(3)
 	i := a.Value(0).Object()
 	i.Value("id").NotNull()
-	i.Value("fields").Array().Length().IsEqual(3)
+	i.Value("fields").Array().Length().IsEqual(14)
 	i = a.Value(1).Object()
 	i.Value("id").NotNull()
-	i.Value("fields").Array().Length().IsEqual(3)
+	i.Value("fields").Array().Length().IsEqual(14)
 	i = a.Value(2).Object()
 	i.Value("id").NotNull()
-	i.Value("fields").Array().Length().IsEqual(3)
+	i.Value("fields").Array().Length().IsEqual(14)
 	// endregion
 
 	// region strategy="insert" and mutateSchema=true
@@ -297,10 +297,10 @@ func TestIntegrationModelImportJSONWithJsonInput1(t *testing.T) {
 	i.Value("fields").Array().Length().IsEqual(4)
 	i = a.Value(1).Object()
 	i.Value("id").NotNull()
-	i.Value("fields").Array().Length().IsEqual(3)
+	i.Value("fields").Array().Length().IsEqual(4)
 	i = a.Value(2).Object()
 	i.Value("id").NotNull()
-	i.Value("fields").Array().Length().IsEqual(3)
+	i.Value("fields").Array().Length().IsEqual(4)
 	// endregion
 }
 
@@ -358,13 +358,13 @@ func TestIntegrationModelImportJSONWithJsonInput2(t *testing.T) {
 	a.Length().IsEqual(3)
 	i := a.Value(0).Object()
 	i.Value("id").NotNull().IsEqual(iId)
-	i.Value("fields").Array().Length().IsEqual(3)
+	i.Value("fields").Array().Length().IsEqual(14)
 	i = a.Value(1).Object()
 	i.Value("id").NotNull()
-	i.Value("fields").Array().Length().IsEqual(3)
+	i.Value("fields").Array().Length().IsEqual(14)
 	i = a.Value(2).Object()
 	i.Value("id").NotNull()
-	i.Value("fields").Array().Length().IsEqual(3)
+	i.Value("fields").Array().Length().IsEqual(14)
 	// endregion
 }
 
@@ -423,7 +423,7 @@ func TestIntegrationModelImportJSONWithJsonInput3(t *testing.T) {
 	a.Length().IsEqual(1)
 	i := a.Value(0).Object()
 	i.Value("id").NotNull().IsEqual(iId)
-	i.Value("fields").Array().Length().IsEqual(3)
+	i.Value("fields").Array().Length().IsEqual(14)
 
 	// Check that each expected field is present, regardless of order
 	fields := i.Value("fields").Array()

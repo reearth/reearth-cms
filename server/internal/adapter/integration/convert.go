@@ -123,7 +123,7 @@ func appendGroupFieldsDefaultValue(sp *schema.Package, res []interfaces.ItemFiel
 		}
 		res = append(res, interfaces.ItemFieldParam{
 			Field: gsf.ID().Ref(),
-			Key:   gsf.Key().Ref(),
+			//Key:   gsf.Key().Ref(),
 			// Type:  gsf.Type(),
 			Value: v,
 			Group: nil,
@@ -152,7 +152,7 @@ func appendDefaultValues(s *schema.Schema, res []interfaces.ItemFieldParam, igID
 		}
 		res = append(res, interfaces.ItemFieldParam{
 			Field: sf.ID().Ref(),
-			Key:   sf.Key().Ref(),
+			//Key:   sf.Key().Ref(),
 			// Type:  sf.Type(),
 			Value: v,
 			Group: igID,

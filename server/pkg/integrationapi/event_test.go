@@ -80,8 +80,8 @@ func TestNewEventWith(t *testing.T) {
 
 	ev := event.New[any]().ID(eID1).Timestamp(mockTime).Type(event.AssetCreate).Operator(operator.OperatorFromUser(u.ID())).Object(a).Project(&prj).MustBuild()
 	ev1 := event.New[any]().ID(eID1).Timestamp(mockTime).Type(event.Type("test")).Operator(operator.OperatorFromUser(u.ID())).Object("test").Project(&prj).MustBuild()
-	d1, _ := New(ev, "test")
-	d2, _ := New(ev.Object(), "test")
+	d1, _ := New(ev)
+	d2, _ := New(ev.Object())
 	type args struct {
 		event    *event.Event[any]
 		override any
@@ -148,7 +148,7 @@ func TestNewEventWith(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
-			result, err := NewEventWith(test.args.event, test.args.override, test.args.v)
+			result, err := NewEventWith(test.args.event, test.args.override)
 			assert.Equal(t, result, test.want)
 			assert.Equal(t, err, test.wantErr)
 		})

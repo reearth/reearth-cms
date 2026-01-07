@@ -100,7 +100,7 @@ var (
 	gsId    = id.NewSchemaID()
 	palias  = "PROJECT_ALIAS"
 	palias2 = "PROJECT_ALIAS_2"
-	sfKey1  = id.RandomKey()
+	sfKey1  = id.NewKey("text")
 	sfKey2  = id.NewKey("asset")
 	sfKey3  = id.RandomKey()
 	sfKey4  = id.RandomKey()
@@ -836,12 +836,18 @@ func TestIntegrationItemListAPI(t *testing.T) {
 
 	r3.
 		Value("fields").
-		IsEqual([]any{
-			map[string]any{
+		IsEqual([]map[string]any{
+			{
 				"id":    fId9.String(),
 				"type":  "number",
 				"value": float64(21.2),
 				"key":   sfkey9.String(),
+			},
+			{
+				"id":    fId10.String(),
+				"type":  "integer",
+				"value": nil,
+				"key":   sfkey10.String(),
 			},
 		})
 
@@ -859,12 +865,18 @@ func TestIntegrationItemListAPI(t *testing.T) {
 		HasValue("totalCount", 2)
 	r3.
 		Value("fields").
-		IsEqual([]any{
-			map[string]any{
+		IsEqual([]map[string]any{
+			{
 				"id":    fId9.String(),
 				"type":  "number",
 				"value": float64(21.2),
 				"key":   sfkey9.String(),
+			},
+			{
+				"id":    fId10.String(),
+				"type":  "integer",
+				"value": nil,
+				"key":   sfkey10.String(),
 			},
 		})
 }
@@ -1652,11 +1664,17 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 	r.Keys().
 		ContainsAll("id", "modelId", "fields", "createdAt", "isMetadata", "updatedAt", "version", "parents", "refs")
 	r.Value("fields").IsEqual([]any{
-		map[string]string{
+		map[string]any{
 			"id":    fId1.String(),
 			"type":  "text",
 			"value": "test value",
 			"key":   sfKey1.String(),
+		},
+		map[string]any{
+			"id":    fId2.String(),
+			"type":  "asset",
+			"value": nil,
+			"key":   sfKey2.String(),
 		},
 	})
 	r.Value("modelId").IsEqual(mId1.String())
@@ -1686,11 +1704,17 @@ func TestIntegrationCreateItemAPI(t *testing.T) {
 	obj.
 		Value("fields").
 		IsEqual([]any{
-			map[string]string{
+			map[string]any{
 				"id":    fId1.String(),
 				"type":  "text",
 				"value": "test value 2",
 				"key":   sfKey1.String(),
+			},
+			map[string]any{
+				"id":    fId2.String(),
+				"type":  "asset",
+				"value": nil,
+				"key":   sfKey2.String(),
 			},
 		})
 	obj.
@@ -1791,7 +1815,7 @@ func TestIntegrationCreateItemAPIWithDefaultValues(t *testing.T) {
 		Object()
 	r.Keys().
 		ContainsAll("id", "modelId", "fields", "createdAt", "metadataFields", "isMetadata", "updatedAt", "version", "parents", "refs")
-	r.Path("$.fields[:]").Array().Length().IsEqual(4)
+	r.Path("$.fields[:]").Array().Length().IsEqual(6)
 	raw := r.Path("$.fields[:].value").Array().Raw()
 	assert.True(t, slices.Contains(raw, "default"))
 	assert.True(t, slices.Contains(raw, "default group"))
@@ -1837,16 +1861,16 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
 	r.Value("fields").IsEqual([]interface{}{
 		map[string]string{
-			"id":    fId2.String(),
-			"key":   "asset",
-			"type":  "asset",
-			"value": aid1.String(),
-		},
-		map[string]string{
 			"id":    fId1.String(),
 			"type":  "text",
 			"value": "test value",
 			"key":   sfKey1.String(),
+		},
+		map[string]string{
+			"id":    fId2.String(),
+			"key":   "asset",
+			"type":  "asset",
+			"value": aid1.String(),
 		},
 	})
 	r.Value("modelId").IsEqual(mId1.String())
@@ -1875,16 +1899,16 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		Value("fields").
 		IsEqual([]any{
 			map[string]string{
-				"id":    fId2.String(),
-				"key":   "asset",
-				"type":  "asset",
-				"value": aid1.String(),
-			},
-			map[string]string{
 				"id":    fId1.String(),
 				"type":  "text",
 				"value": "test value 2",
 				"key":   sfKey1.String(),
+			},
+			map[string]string{
+				"id":    fId2.String(),
+				"key":   "asset",
+				"type":  "asset",
+				"value": aid1.String(),
 			},
 		})
 
@@ -1944,8 +1968,13 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		Object()
 
 	r.Value("fields").
-		Array().
-		IsEqualUnordered([]any{
+		IsEqual([]any{
+			map[string]any{
+				"id":    fId6.String(),
+				"type":  "group",
+				"value": []string{igId1.String(), igId2.String()},
+				"key":   sfKey6.String(),
+			},
 			map[string]any{
 				"group": igId1.String(),
 				"id":    fId5.String(),
@@ -1959,12 +1988,6 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 				"type":  "asset",
 				"value": []string{aid2.String(), aid1.String()},
 				"key":   sfKey5.String(),
-			},
-			map[string]any{
-				"id":    fId6.String(),
-				"type":  "group",
-				"value": []string{igId1.String(), igId2.String()},
-				"key":   sfKey6.String(),
 			},
 		})
 
@@ -1993,8 +2016,13 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 		Object()
 
 	r.Value("fields").
-		Array().
-		IsEqualUnordered([]any{
+		IsEqual([]any{
+			map[string]any{
+				"id":    fId6.String(),
+				"type":  "group",
+				"value": []string{igId1.String(), igId2.String(), igId3.String()},
+				"key":   sfKey6.String(),
+			},
 			map[string]any{
 				"group": igId1.String(),
 				"id":    fId5.String(),
@@ -2015,12 +2043,6 @@ func TestIntegrationUpdateItemAPI(t *testing.T) {
 				"type":  "asset",
 				"value": []string{aid2.String()},
 				"key":   sfKey5.String(),
-			},
-			map[string]any{
-				"id":    fId6.String(),
-				"type":  "group",
-				"value": []string{igId1.String(), igId2.String(), igId3.String()},
-				"key":   sfKey6.String(),
 			},
 		})
 
@@ -2154,25 +2176,10 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 	raw["modelId"] = mId1.String()
 
 	//	get Metadata Item
-	rm := iAPIItemGet(e, wId0, pid, mId1, itmId3).
+	iAPIItemGet(e, wId0, pid, mId1, itmId3).
 		WithHeader("authorization", "Bearer "+secret).
 		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object()
-	rm.
-		Value("isMetadata").
-		IsEqual(true)
-
-	rm.Value("fields").
-		IsEqual([]any{
-			map[string]any{
-				"id":    fId4.String(),
-				"type":  "bool",
-				"value": true,
-				"key":   sfKey4.String(),
-			},
-		})
+		Status(http.StatusNotFound)
 
 	r := iAPIItemGet(e, wId0, pid, mId3, itmId4).
 		WithHeader("authorization", "Bearer "+secret).
@@ -2182,8 +2189,13 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 		Object()
 
 	r.Value("fields").
-		Array().
-		IsEqualUnordered([]any{
+		IsEqual([]any{
+			map[string]any{
+				"id":    fId6.String(),
+				"type":  "group",
+				"value": []string{igId1.String(), igId2.String()},
+				"key":   sfKey6.String(),
+			},
 			map[string]any{
 				"group": igId1.String(),
 				"id":    fId5.String(),
@@ -2197,12 +2209,6 @@ func TestIntegrationGetItemAPI(t *testing.T) {
 				"type":  "asset",
 				"value": []string{aid2.String(), aid1.String()},
 				"key":   sfKey5.String(),
-			},
-			map[string]any{
-				"id":    fId6.String(),
-				"type":  "group",
-				"value": []string{igId1.String(), igId2.String()},
-				"key":   sfKey6.String(),
 			},
 		})
 
@@ -2308,10 +2314,24 @@ func TestIntegrationPublishItemAPI(t *testing.T) {
 func assertItem(v *httpexpect.Value, assetEmbeded bool) {
 	o := v.Object()
 	o.Value("id").IsEqual(itmId1.String())
+	o.Value("parents").IsEqual([]any{})
+	o.Value("refs").IsEqual([]string{"latest"})
+
+	f := o.Value("fields").Array()
+	f.Length().IsEqual(2)
+
+	f0 := f.Value(0).Object()
+	f0.HasValue("id", fId1.String())
+	f0.HasValue("key", "text")
+	f0.HasValue("type", "text")
+
+	f1 := f.Value(1).Object()
+	f1.HasValue("id", fId2.String())
+	f1.HasValue("key", "asset")
+	f1.HasValue("type", "asset")
+
 	if assetEmbeded {
-		a := o.Value("fields").Array()
-		a.Length().IsEqual(1)
-		a.Value(0).Object().Value("value").Object().
+		f1.Value("value").Object().
 			HasValue("id", aid1.String()).
 			NotContainsKey("contentType").
 			NotContainsKey("file").
@@ -2321,15 +2341,6 @@ func assertItem(v *httpexpect.Value, assetEmbeded bool) {
 			HasValue("totalSize", 1000).
 			HasValue("url", fmt.Sprintf("https://example.com/assets/%s/%s/aaa.jpg", auuid1[0:2], auuid1[2:]))
 	} else {
-		o.Value("fields").IsEqual([]map[string]any{
-			{
-				"id":    fId2.String(),
-				"key":   "asset",
-				"type":  "asset",
-				"value": aid1.String(),
-			},
-		})
+		f1.Value("value").IsEqual(aid1.String())
 	}
-	o.Value("parents").IsEqual([]any{})
-	o.Value("refs").IsEqual([]string{"latest"})
 }
