@@ -15,13 +15,17 @@ import (
 	"github.com/reearth/reearthx/log"
 )
 
-// HealthCheck returns an echo.HandlerFunc that serves the health check endpoint
-func HealthCheck(conf *Config, ver string, fileRepo gateway.File) echo.HandlerFunc {
+type HealthChecker struct {
+	health *health.Health
+	config *Config
+}
+
+func (hc *HealthChecker) Handler() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		// Optional HTTP Basic Auth
-		if conf.HealthCheck.Username != "" && conf.HealthCheck.Password != "" {
+		if hc.config.HealthCheck.Username != "" && hc.config.HealthCheck.Password != "" {
 			username, password, ok := c.Request().BasicAuth()
-			if !ok || username != conf.HealthCheck.Username || password != conf.HealthCheck.Password {
+			if !ok || username != hc.config.HealthCheck.Username || password != hc.config.HealthCheck.Password {
 				return c.JSON(http.StatusUnauthorized, map[string]string{
 					"error": "unauthorized",
 				})
@@ -29,13 +33,12 @@ func HealthCheck(conf *Config, ver string, fileRepo gateway.File) echo.HandlerFu
 		}
 
 		// Serve the health check
-		h := healthCheck(conf, ver, fileRepo)
-		h.Handler().ServeHTTP(c.Response(), c.Request())
+		hc.health.Handler().ServeHTTP(c.Response(), c.Request())
 		return nil
 	}
 }
 
-func healthCheck(conf *Config, ver string, fileRepo gateway.File) *health.Health {
+func NewHealthChecker(conf *Config, ver string, fileRepo gateway.File) *HealthChecker {
 	checks := []health.Config{
 		{
 			Name:      "db",
@@ -87,14 +90,16 @@ func healthCheck(conf *Config, ver string, fileRepo gateway.File) *health.Health
 	if err != nil {
 		log.Fatalf("failed to create health check: %v", err)
 	}
-	return h
+
+	return &HealthChecker{
+		health: h,
+		config: conf,
+	}
 }
 
-// RunInitialHealthCheck performs health checks on initialization
-func RunInitialHealthCheck(ctx context.Context, conf *Config, fileRepo gateway.File) error {
+func (hc *HealthChecker) Check(ctx context.Context) error {
 	log.Infof("health check: running initial health checks...")
-	h := healthCheck(conf, "init-check", fileRepo)
-	result := h.Measure(ctx)
+	result := hc.health.Measure(ctx)
 	if len(result.Failures) > 0 {
 		return fmt.Errorf("initial health check failed: %v", result.Failures)
 	}
