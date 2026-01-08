@@ -17,7 +17,7 @@ i18n.init({
   nsSeparator: false,
   keySeparator: false,
   returnEmptyString: false,
-  // ns: "translation",
+  defaultNS: false,
 });
 
 export { t } from "i18next";
