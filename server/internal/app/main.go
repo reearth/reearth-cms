@@ -32,20 +32,12 @@ func Start(debug bool, version string) {
 	// Init repositories
 	repos, gateways, acRepos, acGateways := InitReposAndGateways(ctx, conf)
 
-	// Create application context
-	appCtx := &ApplicationContext{
-		Config:     conf,
-		Debug:      debug,
-		Version:    version,
-		Repos:      repos,
-		Gateways:   gateways,
-		AcRepos:    acRepos,
-		AcGateways: acGateways,
-	}
+	// Create health checker instance
+	healthChecker := NewHealthChecker(conf, version, gateways.File)
 
 	// Run initial health check
-	if appCtx.Config.HealthCheck.RunOnInit {
-		if err := RunInitialHealthCheck(ctx, appCtx.Config, appCtx.Gateways.File); err != nil {
+	if conf.HealthCheck.RunOnInit {
+		if err := healthChecker.Check(ctx); err != nil {
 			log.Fatalf("initial health check failed: %v", err)
 		}
 	} else {
@@ -53,7 +45,16 @@ func Start(debug bool, version string) {
 	}
 
 	// Start web server
-	NewServer(ctx, appCtx).Run(ctx)
+	NewServer(ctx, &ApplicationContext{
+		Config:        conf,
+		Debug:         debug,
+		Version:       version,
+		Repos:         repos,
+		Gateways:      gateways,
+		AcRepos:       acRepos,
+		AcGateways:    acGateways,
+		HealthChecker: healthChecker,
+	}).Run(ctx)
 }
 
 type WebServer struct {
@@ -65,13 +66,14 @@ type WebServer struct {
 }
 
 type ApplicationContext struct {
-	Config     *Config
-	Debug      bool
-	Version    string
-	Repos      *repo.Container
-	Gateways   *gateway.Container
-	AcRepos    *accountrepo.Container
-	AcGateways *accountgateway.Container
+	Config        *Config
+	Debug         bool
+	Version       string
+	Repos         *repo.Container
+	Gateways      *gateway.Container
+	AcRepos       *accountrepo.Container
+	AcGateways    *accountgateway.Container
+	HealthChecker *HealthChecker
 }
 
 func NewServer(ctx context.Context, appCtx *ApplicationContext) *WebServer {
