@@ -20,6 +20,19 @@ func (l GeometryEditorSupportedTypeList) Has(st GeometryEditorSupportedType) boo
 	})
 }
 
+func (l GeometryEditorSupportedTypeList) First() GeometryEditorSupportedType {
+	if len(l) == 0 {
+		return GeometryEditorSupportedType("")
+	}
+	return l[0]
+}
+
+func (l GeometryEditorSupportedTypeList) Strings() []string {
+	return lo.Map(l, func(t GeometryEditorSupportedType, _ int) string {
+		return t.String()
+	})
+}
+
 type FieldGeometryEditor struct {
 	st GeometryEditorSupportedTypeList
 }

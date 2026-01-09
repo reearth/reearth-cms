@@ -10,9 +10,22 @@ import (
 
 type GeometryObjectSupportedTypeList []GeometryObjectSupportedType
 
+func (l GeometryObjectSupportedTypeList) First() GeometryObjectSupportedType {
+	if len(l) == 0 {
+		return GeometryObjectSupportedType("")
+	}
+	return l[0]
+}
+
 func (l GeometryObjectSupportedTypeList) Has(st GeometryObjectSupportedType) bool {
 	return slices.ContainsFunc(l, func(t GeometryObjectSupportedType) bool {
 		return t == st
+	})
+}
+
+func (l GeometryObjectSupportedTypeList) Strings() []string {
+	return lo.Map(l, func(t GeometryObjectSupportedType, _ int) string {
+		return t.String()
 	})
 }
 

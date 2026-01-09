@@ -7,6 +7,79 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestGeometryObjectSupportedTypeList_First(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		list     GeometryObjectSupportedTypeList
+		expected GeometryObjectSupportedType
+	}{
+		{
+			name:     "empty list returns empty type",
+			list:     GeometryObjectSupportedTypeList{},
+			expected: GeometryObjectSupportedType(""),
+		},
+		{
+			name:     "single element returns that element",
+			list:     GeometryObjectSupportedTypeList{GeometryObjectSupportedTypePoint},
+			expected: GeometryObjectSupportedTypePoint,
+		},
+		{
+			name:     "multiple elements returns first element",
+			list:     GeometryObjectSupportedTypeList{GeometryObjectSupportedTypePolygon, GeometryObjectSupportedTypeLineString, GeometryObjectSupportedTypePoint},
+			expected: GeometryObjectSupportedTypePolygon,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.expected, tt.list.First())
+		})
+	}
+}
+
+func TestGeometryObjectSupportedTypeList_Strings(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		list     GeometryObjectSupportedTypeList
+		expected []string
+	}{
+		{
+			name:     "empty list returns empty slice",
+			list:     GeometryObjectSupportedTypeList{},
+			expected: []string{},
+		},
+		{
+			name:     "single element",
+			list:     GeometryObjectSupportedTypeList{GeometryObjectSupportedTypePoint},
+			expected: []string{"POINT"},
+		},
+		{
+			name:     "multiple elements",
+			list:     GeometryObjectSupportedTypeList{GeometryObjectSupportedTypePoint, GeometryObjectSupportedTypeLineString, GeometryObjectSupportedTypePolygon},
+			expected: []string{"POINT", "LINESTRING", "POLYGON"},
+		},
+		{
+			name:     "all geometry types",
+			list:     GeometryObjectSupportedTypeList{GeometryObjectSupportedTypeMultiPoint, GeometryObjectSupportedTypeMultiLineString, GeometryObjectSupportedTypeMultiPolygon, GeometryObjectSupportedTypeGeometryCollection},
+			expected: []string{"MULTIPOINT", "MULTILINESTRING", "MULTIPOLYGON", "GEOMETRYCOLLECTION"},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.expected, tt.list.Strings())
+		})
+	}
+}
+
 func TestNewGeometryObject(t *testing.T) {
 	expected1 := &FieldGeometryObject{
 		st: GeometryObjectSupportedTypeList{"POINT"},

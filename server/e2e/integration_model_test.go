@@ -474,11 +474,13 @@ func TestIntegrationJSONSchemaExportAPI(t *testing.T) {
 			"$schema": "https://json-schema.org/draft/2020-12/schema",
 			"properties": map[string]any{
 				"asset": map[string]any{
-					"type":   "string",
-					"format": "binary",
+					"type":        "string",
+					"format":      "binary",
+					"x-fieldType": "asset",
 				},
 				sfKey1.String(): map[string]any{
-					"type": "string",
+					"type":        "string",
+					"x-fieldType": "text",
 				},
 			},
 			"type":        "object",
@@ -507,7 +509,8 @@ func TestIntegrationJSONSchemaExportAPI(t *testing.T) {
 			"$schema": "https://json-schema.org/draft/2020-12/schema",
 			"properties": map[string]any{
 				sfKey4.String(): map[string]any{
-					"type": "boolean",
+					"type":        "boolean",
+					"x-fieldType": "bool",
 				},
 			},
 			"type":        "object",
