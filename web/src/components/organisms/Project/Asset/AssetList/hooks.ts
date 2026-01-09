@@ -2,15 +2,17 @@ import fileDownload from "js-file-download";
 import { useState, useCallback, Key, useMemo, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
+import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
 import { UploadFile as RawUploadFile, RcFile } from "@reearth-cms/components/atoms/Upload";
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
-import { CreateFieldInput } from "@reearth-cms/components/molecules/Schema/types";
+import { ImportFieldInput } from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
   convertSchemaFieldType,
   defaultTypePropertyGet,
+  defaultTypePropertyGet2,
 } from "@reearth-cms/components/organisms/Project/Schema/helpers";
 import { useAuthHeader } from "@reearth-cms/gql";
 import {
@@ -28,6 +30,8 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
+import { ImportSchema, ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
+import { ObjectUtils } from "@reearth-cms/utils/object";
 
 import { uploadFiles } from "./upload";
 
@@ -46,7 +50,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
   const [importSchemaModalVisibility, setImportSchemaModalVisibility] = useState(false);
   const [selectFileModalVisibility, setSelectFileModalVisibility] = useState(false);
-  const [importFields, setImportFields] = useState<CreateFieldInput[]>([]);
+  const [importFields, setImportFields] = useState<ImportFieldInput[]>([]);
 
   const { workspaceId, projectId, modelId } = useParams();
   const navigate = useNavigate();
@@ -64,6 +68,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   });
   const [selectedAssetId, setSelectedAssetId] = useState<string>();
   const [fileList, setFileList] = useState<RawUploadFile[]>([]);
+  const [alertList, setAlertList] = useState<AlertProps[]>([]);
   const [uploadUrl, setUploadUrl] = useState({
     url: "",
     autoUnzip: true,
@@ -79,6 +84,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   );
 
   const [uploading, setUploading] = useState(false);
+  const [dataChecking, setDataChecking] = useState(false);
   const [createAssetMutation] = useCreateAssetMutation();
   const [createAssetUploadMutation] = useCreateAssetUploadMutation();
 
@@ -169,6 +175,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
       modelId: modelId,
       groupId: undefined,
       typeProperty: defaultTypePropertyGet(field.type),
+      hidden: false,
     }));
   }, [guessSchemaFieldsData, modelId]);
 
@@ -201,6 +208,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     setFileList([]);
     setUploadUrl({ url: "", autoUnzip: true });
     setUploadType("local");
+    setAlertList([]);
   }, []);
 
   const handleSelectFileModalCancel = useCallback(() => {
@@ -455,6 +463,38 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     }
   };
 
+  const handleImportSchemaFileChange = async (fileContent: string): Promise<unknown> => {
+    setDataChecking(true);
+    const parsedJSON = await ObjectUtils.safeJSONParse<ImportSchema>(fileContent);
+    setDataChecking(false);
+
+    if (!parsedJSON.isValid) return { isValid: false, error: parsedJSON.error };
+
+    const importSchema = ImportSchemaUtils.validateSchemaFromJSON(parsedJSON.data);
+
+    if (!importSchema.isValid) return { isValid: false, error: importSchema.error };
+
+    const fields: ImportFieldInput[] = Object.entries(importSchema.data.properties).map(
+      ([key, value]) => ({
+        title: key,
+        metadata: false,
+        description: value.description,
+        key,
+        multiple: value.multiple,
+        unique: value.unique,
+        isTitle: false,
+        required: value.required,
+        type: value.type,
+        modelId: modelId,
+        groupId: undefined,
+        typeProperty: defaultTypePropertyGet2(value),
+        hidden: false,
+      }),
+    );
+
+    setImportFields(fields);
+  };
+
   return {
     importFields,
     guessSchemaFieldsError: !!guessSchemaFieldsError,
@@ -463,6 +503,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     assetList,
     selection,
     fileList,
+    alertList,
     uploading,
     guessSchemaFieldsLoading,
     uploadModalVisibility,
@@ -495,6 +536,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     setImportFields,
     handleSelect,
     setFileList,
+    setAlertList,
     setUploadModalVisibility,
     handleAssetsCreate,
     handleAssetCreateFromUrl,
@@ -506,5 +548,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     handleAssetsReload,
     handleNavigateToAsset,
     handleGetAsset,
+    dataChecking,
+    handleImportSchemaFileChange,
   };
 };

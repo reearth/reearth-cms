@@ -437,3 +437,15 @@ export const PUBLISH_ITEM = gql`
     }
   }
 `;
+
+export const IMPORT_ITEMS = gql`
+  mutation ImportItems($input: ImportItemsInput!) {
+    importItems(input: $input) {
+      modelId
+      totalCount
+      insertedCount
+      updatedCount
+      ignoredCount
+    }
+  }
+`;

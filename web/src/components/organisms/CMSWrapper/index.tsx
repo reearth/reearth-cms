@@ -15,6 +15,9 @@ const CMSWrapper: React.FC = () => {
     personalWorkspace,
     workspaces,
     currentWorkspace,
+    shouldPreventReload,
+    uploaderState,
+    isShowUploader,
     workspaceModalShown,
     currentProject,
     selectedKey,
@@ -29,6 +32,10 @@ const CMSWrapper: React.FC = () => {
     handleNavigateToSettings,
     handleWorkspaceNavigation,
     handleHomeNavigation,
+    handleUploaderOpen,
+    handleUploadRetry,
+    handleUploadCancel,
+    handleCancelAll,
     logoUrl,
   } = useHooks();
 
@@ -36,7 +43,14 @@ const CMSWrapper: React.FC = () => {
     <>
       <CMSWrapperMolecule
         collapsed={collapsed}
+        shouldPreventReload={shouldPreventReload}
+        isShowUploader={isShowUploader}
+        uploaderState={uploaderState}
         onCollapse={handleCollapse}
+        onUploaderOpen={handleUploaderOpen}
+        onRetry={handleUploadRetry}
+        onCancel={handleUploadCancel}
+        onCancelAll={handleCancelAll}
         headerComponent={
           <MoleculeHeader
             onWorkspaceModalOpen={handleWorkspaceModalOpen}
