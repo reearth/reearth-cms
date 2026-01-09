@@ -354,6 +354,17 @@ test("My feature works correctly", async ({ myFeaturePage }) => {
 yarn e2e
 ```
 
+### Run Smoke Tests Only
+
+```bash
+yarn e2e-smoke
+```
+
+Smoke tests are a subset of ~25 critical tests that verify core functionality. They run faster than the full suite and are ideal for:
+- Quick validation during local development
+- CI/CD pipelines
+- Pre-push verification
+
 ### Run Specific Test File
 
 ```bash
@@ -378,12 +389,19 @@ yarn playwright test --debug
 yarn playwright test --list
 ```
 
+### List Smoke Tests Only
+
+```bash
+yarn playwright test --list --grep @smoke
+```
+
 ## 📊 Test Statistics
 
 - **Total Tests**: 87
+- **Smoke Tests**: ~25 (marked with `@smoke` tag)
 - **Page Objects**: 12
 - **Helper Files**: 4
-- **Test Spec Files**: 38
+- **Test Spec Files**: 39
 
 ## 🔗 Import Paths
 

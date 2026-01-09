@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import { useMemo } from "react";
 
 import DropdownAtom, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -24,15 +23,13 @@ const Dropdown: React.FC<Props> = ({
   showArrow,
   ...props
 }) => {
-  const isUserMenu = useMemo(() => !showName && !showArrow, [showName, showArrow]);
-
   return (
     <StyledDropdown
       menu={{ items }}
       trigger={["click"]}
       popupRender={menu => <StyledDropdownMenu>{menu}</StyledDropdownMenu>}
       {...props}>
-      <a onClick={e => e.preventDefault()} data-testid={isUserMenu ? "user-menu" : undefined}>
+      <a onClick={e => e.preventDefault()}>
         <Space>
           <UserAvatar
             username={name ?? ""}

@@ -8,17 +8,17 @@ import { SortBy } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLProject } from "@reearth-cms/components/organisms/DataConverters/project";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
-  useGetProjectsQuery,
+  Project as GQLProject,
+  useCheckProjectAliasLazyQuery,
+  useCheckProjectLimitsQuery,
   useCreateProjectMutation,
   useCreateWorkspaceMutation,
-  Workspace as GQLWorkspace,
-  useCheckProjectAliasLazyQuery,
-  Project as GQLProject,
   useGetMeQuery,
-  useCheckProjectLimitsQuery,
+  useGetProjectsQuery,
+  Workspace as GQLWorkspace,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace, useUserRights } from "@reearth-cms/state";
+import { useUserRights, useWorkspace } from "@reearth-cms/state";
 
 const INITIAL_PAGE = 1;
 const INITIAL_PAGE_SIZE = 10;
@@ -169,10 +169,13 @@ export default () => {
     async (alias: string) => {
       if (!alias) return false;
 
-      const response = await CheckProjectAlias({ variables: { alias } });
+      if (!workspaceId) {
+        throw new Error("Workspace ID is required to check project alias");
+      }
+      const response = await CheckProjectAlias({ variables: { workspaceId, alias } });
       return response.data ? response.data.checkProjectAlias.available : false;
     },
-    [CheckProjectAlias],
+    [CheckProjectAlias, workspaceId],
   );
 
   const { data: projectLimitsData } = useCheckProjectLimitsQuery({

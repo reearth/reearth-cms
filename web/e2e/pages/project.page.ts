@@ -197,6 +197,40 @@ export class ProjectPage extends BasePage {
   }
 
   async deleteProject(): Promise<void> {
+    // Close any open modals/dialogs before attempting to delete
+    // Check if modal is present and stable (not animating)
+    const modalWrap = this.page.locator(".ant-modal-wrap");
+    const isModalVisible = await modalWrap.first().isVisible({ timeout: 500 }).catch(() => false);
+
+    if (isModalVisible) {
+      // Check if modal is actually blocking (has pointer-events)
+      const modalStyle = await modalWrap.first().evaluate((el) =>
+        window.getComputedStyle(el).pointerEvents
+      ).catch(() => "auto");
+
+      if (modalStyle !== "none") {
+        // Try to close the modal using close button
+        const modalClose = this.page.locator(".ant-modal-close");
+        const isCloseButtonVisible = await modalClose.first().isVisible({ timeout: 500 }).catch(() => false);
+
+        if (isCloseButtonVisible) {
+          try {
+            await modalClose.first().click({ timeout: 2000 });
+            // Wait for modal to fully disappear
+            await modalWrap.first().waitFor({ state: "hidden", timeout: 2000 }).catch(() => {});
+          } catch {
+            // If clicking fails, try ESC key as fallback
+            await this.page.keyboard.press("Escape");
+            await this.page.waitForTimeout(300);
+          }
+        } else {
+          // No close button, use ESC key
+          await this.page.keyboard.press("Escape");
+          await this.page.waitForTimeout(300);
+        }
+      }
+    }
+
     await this.getByText("Settings").first().click();
     await this.getByRole("button", { name: "Delete Project" }).click();
     await this.getByRole("button", { name: "OK" }).click();

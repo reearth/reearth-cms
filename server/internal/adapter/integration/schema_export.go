@@ -10,10 +10,10 @@ import (
 )
 
 func (s *Server) SchemaByModelAsJSON(ctx context.Context, request SchemaByModelAsJSONRequestObject) (SchemaByModelAsJSONResponseObject, error) {
-	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
+	op := adapter.Operator(ctx)
 
-	m, err := uc.Model.FindByID(ctx, request.ModelId, op)
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return SchemaByModelAsJSON404Response{}, err
@@ -21,19 +21,22 @@ func (s *Server) SchemaByModelAsJSON(ctx context.Context, request SchemaByModelA
 		return SchemaByModelAsJSON400Response{}, err
 	}
 
-	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
+	sp, err := uc.Schema.FindByModel(ctx, wp.Model.ID(), op)
 	if err != nil {
-		return SchemaByModelAsJSON404Response{}, err
+		if errors.Is(err, rerror.ErrNotFound) {
+			return SchemaByModelAsJSON404Response{}, err
+		}
+		return SchemaByModelAsJSON400Response{}, err
 	}
 
-	return SchemaByModelAsJSON200JSONResponse(exporters.NewJSONSchema(m, sp, exporters.JSONSchemaExportTargetSchema)), nil
+	return SchemaByModelAsJSON200JSONResponse(exporters.NewJSONSchema(wp.Model, sp, exporters.JSONSchemaExportTargetSchema)), nil
 }
 
 func (s *Server) MetadataSchemaByModelAsJSON(ctx context.Context, request MetadataSchemaByModelAsJSONRequestObject) (MetadataSchemaByModelAsJSONResponseObject, error) {
-	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
+	op := adapter.Operator(ctx)
 
-	m, err := uc.Model.FindByID(ctx, request.ModelId, op)
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return MetadataSchemaByModelAsJSON404Response{}, err
@@ -41,126 +44,13 @@ func (s *Server) MetadataSchemaByModelAsJSON(ctx context.Context, request Metada
 		return MetadataSchemaByModelAsJSON400Response{}, err
 	}
 
-	sp, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
-	if err != nil {
-		return MetadataSchemaByModelAsJSON404Response{}, err
-	}
-
-	return MetadataSchemaByModelAsJSON200JSONResponse(exporters.NewJSONSchema(m, sp, exporters.JSONSchemaExportTargetMetadataSchema)), nil
-}
-
-func (s *Server) SchemaByModelWithProjectAsJSON(ctx context.Context, request SchemaByModelWithProjectAsJSONRequestObject) (SchemaByModelWithProjectAsJSONResponseObject, error) {
-	uc := adapter.Usecases(ctx)
-	op := adapter.Operator(ctx)
-
-	p, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
+	sch, err := uc.Schema.FindByModel(ctx, wp.Model.ID(), op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return SchemaByModelWithProjectAsJSON404Response{}, err
+			return MetadataSchemaByModelAsJSON404Response{}, err
 		}
-		return SchemaByModelWithProjectAsJSON400Response{}, err
+		return MetadataSchemaByModelAsJSON400Response{}, err
 	}
 
-	m, err := uc.Model.FindByIDOrKey(ctx, p.ID(), request.ModelIdOrKey, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return SchemaByModelWithProjectAsJSON404Response{}, err
-		}
-		return SchemaByModelWithProjectAsJSON400Response{}, err
-	}
-
-	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return SchemaByModelWithProjectAsJSON404Response{}, err
-		}
-		return SchemaByModelWithProjectAsJSON400Response{}, err
-	}
-
-	return SchemaByModelWithProjectAsJSON200JSONResponse(exporters.NewJSONSchema(m, sp, exporters.JSONSchemaExportTargetSchema)), nil
-}
-
-func (s *Server) MetadataSchemaByModelWithProjectAsJSON(ctx context.Context, request MetadataSchemaByModelWithProjectAsJSONRequestObject) (MetadataSchemaByModelWithProjectAsJSONResponseObject, error) {
-	uc := adapter.Usecases(ctx)
-	op := adapter.Operator(ctx)
-
-	p, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return MetadataSchemaByModelWithProjectAsJSON404Response{}, err
-		}
-		return MetadataSchemaByModelWithProjectAsJSON400Response{}, err
-	}
-
-	m, err := uc.Model.FindByIDOrKey(ctx, p.ID(), request.ModelIdOrKey, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return MetadataSchemaByModelWithProjectAsJSON404Response{}, err
-		}
-		return MetadataSchemaByModelWithProjectAsJSON400Response{}, err
-	}
-
-	sch, err := uc.Schema.FindByModel(ctx, m.ID(), op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return MetadataSchemaByModelWithProjectAsJSON404Response{}, err
-		}
-		return MetadataSchemaByModelWithProjectAsJSON400Response{}, err
-	}
-
-	return MetadataSchemaByModelWithProjectAsJSON200JSONResponse(exporters.NewJSONSchema(m, sch, exporters.JSONSchemaExportTargetMetadataSchema)), nil
-}
-
-func (s *Server) SchemaByIDAsJSON(ctx context.Context, request SchemaByIDAsJSONRequestObject) (SchemaByIDAsJSONResponseObject, error) {
-	uc := adapter.Usecases(ctx)
-	op := adapter.Operator(ctx)
-
-	m, err := uc.Model.FindBySchema(ctx, request.SchemaId, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return SchemaByIDAsJSON404Response{}, err
-		}
-		return SchemaByIDAsJSON400Response{}, err
-	}
-
-	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return SchemaByIDAsJSON404Response{}, err
-		}
-		return SchemaByIDAsJSON400Response{}, err
-	}
-
-	return SchemaByIDAsJSON200JSONResponse(exporters.NewJSONSchema(m, sp, exporters.JSONSchemaExportTargetSchema)), nil
-}
-
-func (s *Server) SchemaByIDWithProjectAsJSON(ctx context.Context, request SchemaByIDWithProjectAsJSONRequestObject) (SchemaByIDWithProjectAsJSONResponseObject, error) {
-	uc := adapter.Usecases(ctx)
-	op := adapter.Operator(ctx)
-
-	_, err := uc.Project.FindByIDOrAlias(ctx, request.ProjectIdOrAlias, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return SchemaByIDWithProjectAsJSON404Response{}, err
-		}
-		return SchemaByIDWithProjectAsJSON400Response{}, err
-	}
-
-	m, err := uc.Model.FindBySchema(ctx, request.SchemaId, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return SchemaByIDWithProjectAsJSON404Response{}, err
-		}
-		return SchemaByIDWithProjectAsJSON400Response{}, err
-	}
-
-	sp, err := uc.Schema.FindByModel(ctx, m.ID(), op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return SchemaByIDWithProjectAsJSON404Response{}, err
-		}
-		return SchemaByIDWithProjectAsJSON400Response{}, err
-	}
-
-	return SchemaByIDWithProjectAsJSON200JSONResponse(exporters.NewJSONSchema(m, sp, exporters.JSONSchemaExportTargetSchema)), nil
+	return MetadataSchemaByModelAsJSON200JSONResponse(exporters.NewJSONSchema(wp.Model, sch, exporters.JSONSchemaExportTargetMetadataSchema)), nil
 }

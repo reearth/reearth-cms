@@ -84,6 +84,12 @@ input DeleteItemsInput {
   itemIds: [ID!]!
 }
 
+input ImportItemsInput {
+  modelId: ID!
+  file: Upload!
+  geoField: String
+}
+
 input UnpublishItemInput {
   itemIds: [ID!]!
 }
@@ -127,6 +133,14 @@ type PublishItemPayload {
   items: [Item!]!
 }
 
+type ImportItemsPayload {
+  modelId: ID!
+  totalCount: Int!
+  insertedCount: Int!
+  updatedCount: Int!
+  ignoredCount: Int!
+}
+
 type ItemConnection {
   edges: [ItemEdge!]!
   nodes: [Item]!
@@ -152,4 +166,5 @@ extend type Mutation {
   deleteItems(input: DeleteItemsInput!): DeleteItemsPayload
   publishItem(input: PublishItemInput!): PublishItemPayload
   unpublishItem(input: UnpublishItemInput!): UnpublishItemPayload
+  importItems(input: ImportItemsInput!): ImportItemsPayload
 }
