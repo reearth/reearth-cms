@@ -1,3 +1,4 @@
+import type { GeoJSON } from "geojson";
 import { Key } from "react";
 
 export type MetaDataSchema = {
@@ -111,7 +112,7 @@ export type CorrespondingField = {
 };
 
 export type TypeProperty = {
-  defaultValue?: string | string[] | boolean | boolean[] | number | number[] | null;
+  defaultValue?: string | string[] | boolean | boolean[] | number | number[] | GeoJSON | GeoJSON[] | null;
   maxLength?: number;
   assetDefaultValue?: string | string[] | null;
   selectDefaultValue?: string | string[] | null;

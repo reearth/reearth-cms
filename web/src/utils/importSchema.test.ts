@@ -297,7 +297,7 @@ describe("Test import schema", () => {
       );
     });
 
-    describe("[Pass case] Control variable: no defaultValue, minimum, maximum, maxLength", () => {
+    describe("[Pass case] Control variables: no defaultValue, minimum, maximum, maxLength", () => {
       const COMMON_SCHEMA_FIELD: Pick<
         ImportSchemaField,
         "title" | "description" | "required" | "unique"
@@ -499,7 +499,7 @@ describe("Test import schema", () => {
       );
     });
 
-    describe("[Fail case] Control variable: defaultValue out of range", () => {
+    describe("[Fail case] Control variables: defaultValue out of range", () => {
       const COMMON_SCHEMA_FIELD: Pick<
         ImportSchemaField,
         "title" | "description" | "required" | "unique"
@@ -877,7 +877,7 @@ describe("Test import schema", () => {
   });
 
   describe("GeometryObject field", () => {
-    describe("[Pass case] Control variable: support type, without default value", () => {
+    describe("[Pass case] Control variables: support type, without default value", () => {
       const COMMON_SCHEMA_FIELD: Pick<
         ImportSchemaField,
         "title" | "description" | "required" | "unique" | "type"
@@ -1022,7 +1022,7 @@ describe("Test import schema", () => {
       );
     });
 
-    describe("[Pass case] Control variable: support type, with default value", () => {
+    describe("[Pass case] Control variables: support type, with default value", () => {
       const COMMON_SCHEMA_FIELD: Pick<
         ImportSchemaField,
         "title" | "description" | "required" | "unique" | "type"
@@ -1528,7 +1528,7 @@ describe("Test import schema", () => {
   });
 
   describe("GeometryEditor field", () => {
-    describe("[Pass case] Control variable: support type, without default value", () => {
+    describe("[Pass case] Control variables: support type, without default value", () => {
       const COMMON_SCHEMA_FIELD: Pick<
         ImportSchemaField,
         "title" | "description" | "required" | "unique" | "type"
@@ -1625,7 +1625,7 @@ describe("Test import schema", () => {
       );
     });
 
-    describe("[Pass case] Control variable: support type, with default value", () => {
+    describe("[Pass case] Control variables: support type, with default value", () => {
       const COMMON_SCHEMA_FIELD: Pick<
         ImportSchemaField,
         "title" | "description" | "required" | "unique" | "type"

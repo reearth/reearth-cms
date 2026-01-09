@@ -215,5 +215,25 @@ export function defaultTypePropertyGet2(
           defaultValue: field.defaultValue,
         },
       };
+    case "GeometryObject":
+      return {
+        geometryObject: {
+          defaultValue: field.defaultValue,
+          supportedTypes: field.supportType,
+        },
+      };
+    case "GeometryEditor":
+      return {
+        geometryEditor: {
+          defaultValue: field.defaultValue,
+          supportedTypes: [field.supportType],
+        },
+      };
+    default:
+      return {
+        text: {
+          defaultValue: undefined,
+        },
+      };
   }
 }

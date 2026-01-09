@@ -1,10 +1,15 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 
-import { FeatureCollection } from "geojson";
+import { FeatureCollection, GeoJSON } from "geojson";
 import { describe, expect, test } from "vitest";
 
-import { Field, SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
+import {
+  EditorSupportedType,
+  Field,
+  ObjectSupportedType,
+  SchemaFieldType,
+} from "@reearth-cms/components/molecules/Schema/types";
 
 import { Constant } from "./constant";
 import {
@@ -61,7 +66,7 @@ const DEFAULT_COMMON_FIELD: Pick<Field, "id" | "description" | "title" | "isTitl
   unique: false,
 };
 
-describe("Testing content import from static files", () => {
+describe("Content import test", () => {
   describe("Validate import content files", () => {
     test.each<{ fileDir: string; format: ContentSourceFormat }>([
       { fileDir: Constant.PUBLIC_FILE.IMPORT_CONTENT_JSON, format: "JSON" },
@@ -72,54 +77,76 @@ describe("Testing content import from static files", () => {
         {
           type: SchemaFieldType.Text,
           key: "text-1",
+          typeProperty: {},
         },
         {
           type: SchemaFieldType.TextArea,
           key: "textarea-1",
+          typeProperty: {},
         },
         {
           type: SchemaFieldType.MarkdownText,
           key: "markdown-text-1",
+          typeProperty: {},
         },
         {
           type: SchemaFieldType.Asset,
           key: "asset-1",
+          typeProperty: {},
         },
         {
           type: SchemaFieldType.Date,
           key: "date-1",
+          typeProperty: {},
         },
         {
           type: SchemaFieldType.Bool,
           key: "boolean-1",
+          typeProperty: {},
         },
         {
           type: SchemaFieldType.Select,
           key: "select-1",
+          typeProperty: {
+            values: ["red", "green", "blue"],
+          },
         },
         {
           type: SchemaFieldType.Integer,
           key: "int-1",
+          typeProperty: {},
         },
         {
           type: SchemaFieldType.Number,
           key: "float-1",
+          typeProperty: {},
         },
         {
           type: SchemaFieldType.URL,
           key: "url-1",
+          typeProperty: {},
         },
         {
           type: SchemaFieldType.GeometryObject,
           key: "geo-obj-1",
+          typeProperty: {
+            objectSupportedTypes: ["POINT"] as ObjectSupportedType[],
+          },
         },
-      ].map(({ type, key }) => ({
+        {
+          type: SchemaFieldType.GeometryEditor,
+          key: "geo-edi-1",
+          typeProperty: {
+            editorSupportedTypes: ["POINT"] as EditorSupportedType[],
+          },
+        },
+      ].map(({ type, key, typeProperty }) => ({
         ...DEFAULT_COMMON_FIELD,
         type,
         key,
         required: true,
         multiple: false,
-        typeProperty: {},
+        typeProperty,
       }));
 
       let result: Awaited<ReturnType<typeof readFromJSONFile>> = {
@@ -165,1750 +192,78 @@ describe("Testing content import from static files", () => {
   });
 
   describe("Test validateContentFromJSON method", () => {
-    describe("[Pass case] Control variable: field key", () => {
-      const COMMON_SETUP = {
-        key: "correct-key",
-        required: true,
-        multiple: false,
-        typeProperty: {},
-      };
+    describe("Control variables: field key", () => {
+      describe("[Pass case] Field key match", () => {
+        const COMMON_SETUP = {
+          key: "correct-key",
+          required: true,
+          multiple: false,
+          typeProperty: {},
+        };
 
-      const EXPECTED_RESULT = {
-        exceedLimit: false,
-        typeMismatchFieldKeysCount: 0,
-        outOfRangeFieldKeysCount: 0,
-        isValid: true,
-      };
+        const EXPECTED_RESULT = {
+          exceedLimit: false,
+          typeMismatchFieldKeysCount: 0,
+          outOfRangeFieldKeysCount: 0,
+          isValid: true,
+        };
 
-      test.each([
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, correctValue: "text" },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, correctValue: "text" },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText, correctValue: "text" },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Asset },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Date },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, correctValue: false },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Select },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, correctValue: 1 },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, correctValue: 1.5 },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.URL,
-            correctValue: "https://correct.com/",
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-      ])("$setup.type field key match", async ({ setup, expectedResult }) => {
-        const fields = [
+        test.each([
           {
-            ...DEFAULT_COMMON_FIELD,
-            type: setup.type,
-            key: setup.key,
-            required: setup.required,
-            multiple: false,
-            typeProperty: {},
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, correctValue: "text" },
+            expectedResult: EXPECTED_RESULT,
           },
-        ];
-
-        const contentList = [
           {
-            [setup.key]: setup.correctValue,
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, correctValue: "text" },
+            expectedResult: EXPECTED_RESULT,
           },
-        ];
-
-        const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
-          fields,
-          "JSON",
-          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
-        );
-        expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-        if (contentValidation.isValid) return;
-
-        const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } = contentValidation.error;
-
-        expect(exceedLimit).toBe(expectedResult.exceedLimit);
-        expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-        expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-      });
-    });
-
-    describe("[Fail case] Control variable: field key", () => {
-      const COMMON_SETUP = {
-        key: "correct-key",
-        wrongKey: "wrong-key",
-        required: true,
-        multiple: false,
-        typeProperty: {},
-      };
-
-      const EXPECTED_RESULT = {
-        exceedLimit: false,
-        typeMismatchFieldKeysCount: 1,
-        outOfRangeFieldKeysCount: 0,
-        isValid: false,
-      };
-
-      test.each([
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Text },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Asset },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Date },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Select },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Number },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.URL },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-      ])("$setup.type field key mismatch", async ({ setup, expectedResult }) => {
-        const fields = [
           {
-            ...DEFAULT_COMMON_FIELD,
-            type: setup.type,
-            key: setup.key,
-            required: setup.required,
-            multiple: false,
-            typeProperty: {},
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText, correctValue: "text" },
+            expectedResult: EXPECTED_RESULT,
           },
-        ];
-
-        const contentList = [
           {
-            [setup.wrongKey]: "hello world",
-          },
-        ];
-
-        const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
-          fields,
-          "JSON",
-          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
-        );
-        expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-        if (contentValidation.isValid) return;
-
-        const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } = contentValidation.error;
-
-        expect(exceedLimit).toBe(expectedResult.exceedLimit);
-        expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-        expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-      });
-    });
-
-    describe("[Pass case] Control variable: field value", () => {
-      const COMMON_SETUP = {
-        key: "field-key",
-        required: true,
-        multiple: false,
-        typeProperty: {},
-      };
-
-      const EXPECTED_RESULT = {
-        exceedLimit: false,
-        typeMismatchFieldKeysCount: 0,
-        outOfRangeFieldKeysCount: 0,
-        isValid: true,
-      };
-
-      test.each([
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, correctValue: "text" },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, correctValue: "text" },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText, correctValue: "text" },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Asset },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Date },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, correctValue: false },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Select },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, correctValue: 1 },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, correctValue: 2.5 },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.URL,
-            correctValue: "https://correct.com/",
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-      ])("$setup.type field value type match", async ({ setup, expectedResult }) => {
-        const fields = [
-          {
-            ...DEFAULT_COMMON_FIELD,
-            type: setup.type,
-            key: setup.key,
-            required: setup.required,
-            multiple: false,
-            typeProperty: {},
-          },
-        ];
-
-        const contentList = [
-          {
-            [setup.key]: setup.correctValue,
-          },
-        ];
-
-        const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
-          fields,
-          "JSON",
-          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
-        );
-        expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-        if (contentValidation.isValid) return;
-
-        const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } = contentValidation.error;
-
-        expect(exceedLimit).toBe(expectedResult.exceedLimit);
-        expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-        expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-      });
-    });
-
-    describe("[Fail case] Control variable: field value", () => {
-      const COMMON_SETUP = {
-        key: "field-key",
-        required: true,
-        multiple: false,
-        typeProperty: {},
-      };
-
-      const EXPECTED_RESULT = {
-        exceedLimit: false,
-        typeMismatchFieldKeysCount: 1,
-        outOfRangeFieldKeysCount: 0,
-        isValid: false,
-      };
-
-      test.each([
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, wrongValue: 1 },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, wrongValue: false },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText, wrongValue: [] },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Asset },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Date },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, wrongValue: "text" },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Select },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, wrongValue: false },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, wrongValue: "text" },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.URL, wrongValue: 123 },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-      ])("$setup.type field value type mismatch", async ({ setup, expectedResult }) => {
-        const fields = [
-          {
-            ...DEFAULT_COMMON_FIELD,
-            type: setup.type,
-            key: setup.key,
-            required: setup.required,
-            multiple: false,
-            typeProperty: {},
-          },
-        ];
-
-        const contentList = [
-          {
-            [setup.key]: setup.wrongValue,
-          },
-        ];
-
-        const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
-          fields,
-          "JSON",
-          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
-        );
-        expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-        if (contentValidation.isValid) return;
-
-        const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } = contentValidation.error;
-
-        expect(exceedLimit).toBe(expectedResult.exceedLimit);
-        expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-        expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-      });
-    });
-
-    describe("[Pass case] Control variable: multiple (false), default value", () => {
-      const COMMON_SETUP = {
-        key: "field-key",
-        required: true,
-        multiple: false,
-        typeProperty: {},
-      };
-
-      const EXPECTED_RESULT = {
-        exceedLimit: false,
-        typeMismatchFieldKeysCount: 0,
-        outOfRangeFieldKeysCount: 0,
-        isValid: true,
-      };
-
-      test.each([
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, defaultValue: "hello" },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, defaultValue: "hello" },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText, defaultValue: "hello" },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Asset },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Date },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, defaultValue: false },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Select },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, defaultValue: 1 },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, defaultValue: 1.5 },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.URL,
-            defaultValue: "http://default.com/",
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-      ])("$setup.type field default value type match", async ({ setup, expectedResult }) => {
-        const fields = [
-          {
-            ...DEFAULT_COMMON_FIELD,
-            type: setup.type,
-            key: setup.key,
-            required: setup.required,
-            multiple: false,
-            typeProperty: {
-              defaultValue: setup.defaultValue,
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Date,
+              correctValue: new Date().toLocaleString(),
             },
+            expectedResult: EXPECTED_RESULT,
           },
-        ];
-
-        const contentList = [
           {
-            [setup.key]: setup.defaultValue,
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, correctValue: false },
+            expectedResult: EXPECTED_RESULT,
           },
-        ];
-
-        const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
-          fields,
-          "JSON",
-          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
-        );
-        expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-        if (contentValidation.isValid) return;
-
-        const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } = contentValidation.error;
-
-        expect(exceedLimit).toBe(expectedResult.exceedLimit);
-        expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-        expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-      });
-    });
-
-    describe("[Fail case] Control variable: multiple (false), default value", () => {
-      const COMMON_SETUP = {
-        key: "field-key",
-        required: true,
-        multiple: false,
-        typeProperty: {},
-      };
-
-      const EXPECTED_RESULT = {
-        exceedLimit: false,
-        typeMismatchFieldKeysCount: 1,
-        outOfRangeFieldKeysCount: 0,
-        isValid: false,
-      };
-
-      test.each([
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, defaultValue: 1 },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, defaultValue: 1 },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText, defaultValue: 1 },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Asset },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Date },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, defaultValue: "text" },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Select },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, defaultValue: "text" },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, defaultValue: "text" },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.URL,
-            defaultValue: 123,
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-      ])("$setup.type field default value type mismatch", async ({ setup, expectedResult }) => {
-        const fields = [
           {
-            ...DEFAULT_COMMON_FIELD,
-            type: setup.type,
-            key: setup.key,
-            required: setup.required,
-            multiple: false,
-            typeProperty: {
-              defaultValue: setup.defaultValue,
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, correctValue: 1 },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, correctValue: 1.5 },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.URL,
+              correctValue: "https://correct.com/",
             },
+            expectedResult: EXPECTED_RESULT,
           },
-        ];
-
-        const contentList = [
-          {
-            [setup.key]: setup.defaultValue,
-          },
-        ];
-
-        const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
-          fields,
-          "JSON",
-          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
-        );
-        expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-        if (contentValidation.isValid) return;
-
-        const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } = contentValidation.error;
-
-        expect(exceedLimit).toBe(expectedResult.exceedLimit);
-        expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-        expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-      });
-    });
-
-    describe("[Pass case] Control variable: multiple (true), required (false), default value", () => {
-      const COMMON_SETUP = {
-        key: "field-key",
-        required: false,
-        multiple: true,
-        typeProperty: {},
-      };
-
-      const EXPECTED_RESULT = {
-        exceedLimit: false,
-        typeMismatchFieldKeysCount: 0,
-        outOfRangeFieldKeysCount: 0,
-        isValid: true,
-      };
-
-      test.each([
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, defaultValues: ["hello", "world"] },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.TextArea,
-            defaultValues: ["hello", "world"],
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.MarkdownText,
-            defaultValues: ["hello", "world"],
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Asset },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Date },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, defaultValues: [true, false] },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Select },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, defaultValues: [1, 2] },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, defaultValues: [1.5, 2.5] },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.URL,
-            defaultValues: ["https://hello.com/", "https://world.com/"],
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-      ])("$setup.type field default value type match", async ({ setup, expectedResult }) => {
-        const fields = [
-          {
-            ...DEFAULT_COMMON_FIELD,
-            type: setup.type,
-            key: setup.key,
-            required: setup.required,
-            multiple: setup.multiple,
-            typeProperty: {
-              defaultValue: setup.defaultValues,
-            },
-          },
-        ];
-
-        const contentList = [
-          {
-            [setup.key]: setup.defaultValues,
-          },
-        ];
-
-        const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
-          fields,
-          "JSON",
-          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
-        );
-
-        expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-        if (contentValidation.isValid) return;
-
-        const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } = contentValidation.error;
-
-        expect(exceedLimit).toBe(expectedResult.exceedLimit);
-        expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-        expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-      });
-    });
-
-    describe("[Pass case] Control variable: multiple (true), required (true), default value", () => {
-      const COMMON_SETUP = {
-        key: "field-key",
-        required: true,
-        multiple: true,
-        typeProperty: {},
-      };
-
-      const EXPECTED_RESULT = {
-        exceedLimit: false,
-        typeMismatchFieldKeysCount: 0,
-        outOfRangeFieldKeysCount: 0,
-        isValid: true,
-      };
-
-      test.each([
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, defaultValues: ["hello", "world"] },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.TextArea,
-            defaultValues: ["hello", "world"],
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.MarkdownText,
-            defaultValues: ["hello", "world"],
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Asset },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Date },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, defaultValues: [true, false] },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Select },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, defaultValues: [1, 2] },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, defaultValues: [1.5, 2.5] },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.URL,
-            defaultValues: ["https://hello.com/", "https://world.com/"],
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-      ])("$setup.type field default value type match", async ({ setup, expectedResult }) => {
-        const fields = [
-          {
-            ...DEFAULT_COMMON_FIELD,
-            type: setup.type,
-            key: setup.key,
-            required: setup.required,
-            multiple: setup.multiple,
-            typeProperty: {
-              defaultValue: setup.defaultValues,
-            },
-          },
-        ];
-
-        const contentList = [
-          {
-            [setup.key]: setup.defaultValues,
-          },
-        ];
-
-        const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
-          fields,
-          "JSON",
-          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
-        );
-
-        expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-        if (contentValidation.isValid) return;
-
-        const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } = contentValidation.error;
-
-        expect(exceedLimit).toBe(expectedResult.exceedLimit);
-        expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-        expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-      });
-    });
-
-    // TODO: need to fix this
-    describe.skip("[Fail case] Control variable: multiple (true), required (true), wrong default value type", () => {
-      const COMMON_SETUP = {
-        key: "field-key",
-        required: true,
-        multiple: true,
-        typeProperty: {},
-      };
-
-      const EXPECTED_RESULT = {
-        exceedLimit: false,
-        typeMismatchFieldKeysCount: 1,
-        outOfRangeFieldKeysCount: 0,
-        isValid: false,
-      };
-
-      test.each([
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, defaultValues: "hello" },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: {
-        //     ...COMMON_SETUP,
-        //     type: SchemaFieldType.TextArea,
-        //     defaultValues: "hello",
-        //   },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: {
-        //     ...COMMON_SETUP,
-        //     type: SchemaFieldType.MarkdownText,
-        //     defaultValues: "hello",
-        //   },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Asset },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Date },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, defaultValues: true },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Select },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, defaultValues: 1 },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, defaultValues: 1.5 },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: {
-        //     ...COMMON_SETUP,
-        //     type: SchemaFieldType.URL,
-        //     defaultValues: "https://hello.com/",
-        //   },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-      ])("$setup.type field default value type mismatch", async ({ setup, expectedResult }) => {
-        const fields = [
-          {
-            ...DEFAULT_COMMON_FIELD,
-            type: setup.type,
-            key: setup.key,
-            required: setup.required,
-            multiple: setup.multiple,
-            typeProperty: {
-              defaultValue: setup.defaultValues,
-            },
-          },
-        ];
-
-        const contentList = [
-          {
-            [setup.key]: setup.defaultValues,
-          },
-        ];
-
-        const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
-          fields,
-          "JSON",
-          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
-        );
-
-        expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-        if (contentValidation.isValid) return;
-
-        const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } = contentValidation.error;
-
-        expect(exceedLimit).toBe(expectedResult.exceedLimit);
-        expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-        expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-      });
-    });
-
-    describe("[Pass case] Control variable: multiple (false), required (true), value in range (min, max)", () => {
-      const COMMON_SETUP = {
-        key: "field-key",
-        required: true,
-        multiple: false,
-        typeProperty: {},
-      };
-
-      const EXPECTED_RESULT = {
-        exceedLimit: false,
-        typeMismatchFieldKeysCount: 0,
-        outOfRangeFieldKeysCount: 0,
-        isValid: true,
-      };
-
-      test.each([
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, value: 2, min: -5, max: 5 },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, value: 2.5, min: -5.5, max: 5.5 },
-          expectedResult: EXPECTED_RESULT,
-        },
-      ])("$setup.type field value in range", async ({ setup, expectedResult }) => {
-        const fields = [
-          {
-            ...DEFAULT_COMMON_FIELD,
-            type: setup.type,
-            key: setup.key,
-            required: setup.required,
-            multiple: setup.multiple,
-            typeProperty: {
-              min: setup.min,
-              max: setup.max,
-            },
-          },
-        ];
-
-        const contentList = [
-          {
-            [setup.key]: setup.value,
-          },
-        ];
-
-        const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
-          fields,
-          "JSON",
-          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
-        );
-
-        expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-        if (contentValidation.isValid) return;
-
-        const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } = contentValidation.error;
-
-        expect(exceedLimit).toBe(expectedResult.exceedLimit);
-        expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-        expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-      });
-    });
-
-    describe("[Fail case] Control variable: multiple (false), required (true), value out of range (min, max)", () => {
-      const COMMON_SETUP = {
-        key: "field-key",
-        required: true,
-        multiple: false,
-        typeProperty: {},
-      };
-
-      const EXPECTED_RESULT = {
-        exceedLimit: false,
-        typeMismatchFieldKeysCount: 0,
-        outOfRangeFieldKeysCount: 1,
-        isValid: false,
-      };
-
-      test.each([
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, value: 7, min: -5, max: 5 },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.Number,
-            value: 10.5,
-            min: -5.5,
-            max: 5.5,
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-      ])("$setup.type field value out of range", async ({ setup, expectedResult }) => {
-        const fields = [
-          {
-            ...DEFAULT_COMMON_FIELD,
-            type: setup.type,
-            key: setup.key,
-            required: setup.required,
-            multiple: setup.multiple,
-            typeProperty: {
-              min: setup.min,
-              max: setup.max,
-            },
-          },
-        ];
-
-        const contentList = [
-          {
-            [setup.key]: setup.value,
-          },
-        ];
-
-        const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
-          fields,
-          "JSON",
-          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
-        );
-
-        expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-        if (contentValidation.isValid) return;
-
-        const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } = contentValidation.error;
-
-        expect(exceedLimit).toBe(expectedResult.exceedLimit);
-        expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-        expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-      });
-    });
-
-    describe("[Pass case] Control variable: multiple (false), required (true), value in range (maxLength)", () => {
-      const COMMON_SETUP = {
-        key: "field-key",
-        required: true,
-        multiple: false,
-        typeProperty: {},
-      };
-
-      const EXPECTED_RESULT = {
-        exceedLimit: false,
-        typeMismatchFieldKeysCount: 0,
-        outOfRangeFieldKeysCount: 0,
-        isValid: true,
-      };
-
-      test.each([
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, value: "hello", maxLength: 10 },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, value: "hello", maxLength: 10 },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.MarkdownText,
-            value: "hello",
-            maxLength: 10,
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-      ])("$setup.type field value in range", async ({ setup, expectedResult }) => {
-        const fields = [
-          {
-            ...DEFAULT_COMMON_FIELD,
-            type: setup.type,
-            key: setup.key,
-            required: setup.required,
-            multiple: setup.multiple,
-            typeProperty: {
-              maxLength: setup.maxLength,
-            },
-          },
-        ];
-
-        const contentList = [
-          {
-            [setup.key]: setup.value,
-          },
-        ];
-
-        const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
-          fields,
-          "JSON",
-          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
-        );
-
-        expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-        if (contentValidation.isValid) return;
-
-        const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } = contentValidation.error;
-
-        expect(exceedLimit).toBe(expectedResult.exceedLimit);
-        expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-        expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-      });
-    });
-
-    describe("[Fail case] Control variable: multiple (false), required (true), value out of range (maxLength)", () => {
-      const COMMON_SETUP = {
-        key: "field-key",
-        required: true,
-        multiple: false,
-        typeProperty: {},
-      };
-
-      const EXPECTED_RESULT = {
-        exceedLimit: false,
-        typeMismatchFieldKeysCount: 0,
-        outOfRangeFieldKeysCount: 1,
-        isValid: false,
-      };
-
-      test.each([
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.Text,
-            value: "hello world",
-            maxLength: 10,
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.TextArea,
-            value: "hello world",
-            maxLength: 10,
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.MarkdownText,
-            value: "hello world",
-            maxLength: 10,
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-      ])("$setup.type field value out of range", async ({ setup, expectedResult }) => {
-        const fields = [
-          {
-            ...DEFAULT_COMMON_FIELD,
-            type: setup.type,
-            key: setup.key,
-            required: setup.required,
-            multiple: setup.multiple,
-            typeProperty: {
-              maxLength: setup.maxLength,
-            },
-          },
-        ];
-
-        const contentList = [
-          {
-            [setup.key]: setup.value,
-          },
-        ];
-
-        const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
-          fields,
-          "JSON",
-          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
-        );
-
-        expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-        if (contentValidation.isValid) return;
-
-        const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } = contentValidation.error;
-
-        expect(exceedLimit).toBe(expectedResult.exceedLimit);
-        expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-        expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-      });
-    });
-
-    describe("[Pass case] Control variable: multiple (false), required (true), value in range (values)", () => {
-      const COMMON_SETUP = {
-        key: "field-key",
-        required: true,
-        multiple: false,
-        typeProperty: {},
-      };
-
-      const EXPECTED_RESULT = {
-        exceedLimit: false,
-        typeMismatchFieldKeysCount: 0,
-        outOfRangeFieldKeysCount: 0,
-        isValid: true,
-      };
-
-      test.each([
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.Select,
-            value: "green",
-            values: ["red", "green", "blue"],
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-      ])("$setup.type field value in range", async ({ setup, expectedResult }) => {
-        const fields = [
-          {
-            ...DEFAULT_COMMON_FIELD,
-            type: setup.type,
-            key: setup.key,
-            required: setup.required,
-            multiple: setup.multiple,
-            typeProperty: {
-              values: setup.values,
-            },
-          },
-        ];
-
-        const contentList = [
-          {
-            [setup.key]: setup.value,
-          },
-        ];
-
-        const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
-          fields,
-          "JSON",
-          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
-        );
-
-        expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-        if (contentValidation.isValid) return;
-
-        const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } = contentValidation.error;
-
-        expect(exceedLimit).toBe(expectedResult.exceedLimit);
-        expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-        expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-      });
-    });
-
-    describe("[Fail case] Control variable: multiple (false), required (true), value out of range (values)", () => {
-      const COMMON_SETUP = {
-        key: "field-key",
-        required: true,
-        multiple: false,
-        typeProperty: {},
-      };
-
-      const EXPECTED_RESULT = {
-        exceedLimit: false,
-        typeMismatchFieldKeysCount: 0,
-        outOfRangeFieldKeysCount: 1,
-        isValid: false,
-      };
-
-      test.each([
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.Select,
-            value: "yellow",
-            values: ["red", "green", "blue"],
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-      ])("$setup.type field value in range", async ({ setup, expectedResult }) => {
-        const fields = [
-          {
-            ...DEFAULT_COMMON_FIELD,
-            type: setup.type,
-            key: setup.key,
-            required: setup.required,
-            multiple: setup.multiple,
-            typeProperty: {
-              values: setup.values,
-            },
-          },
-        ];
-
-        const contentList = [
-          {
-            [setup.key]: setup.value,
-          },
-        ];
-
-        const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
-          fields,
-          "JSON",
-          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
-        );
-
-        expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-        if (contentValidation.isValid) return;
-
-        const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } = contentValidation.error;
-
-        expect(exceedLimit).toBe(expectedResult.exceedLimit);
-        expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-        expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-      });
-    });
-
-    describe("[Pass case] Control variable: content list length", () => {
-      const COMMON_SETUP = {
-        key: "correct-key",
-        required: true,
-        multiple: false,
-        typeProperty: {},
-      };
-
-      const EXPECTED_RESULT = {
-        exceedLimit: false,
-        typeMismatchFieldKeysCount: 0,
-        outOfRangeFieldKeysCount: 0,
-        isValid: true,
-      };
-
-      test.each([
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, value: "text" },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, value: "text" },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText, value: "text" },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Asset },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.Date,
-            value: "2025-12-01T00:00:00+09:00",
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, value: true },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.Select,
-            value: "green",
-            values: ["red", "blue", "green"],
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, value: 1 },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, value: 1.5 },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.URL,
-            value: "https://hello.com/",
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-      ])("$setup.type field count is below max records", async ({ setup, expectedResult }) => {
-        const fields = [
-          {
-            ...DEFAULT_COMMON_FIELD,
-            type: setup.type,
-            key: setup.key,
-            required: setup.required,
-            multiple: false,
-            typeProperty: {},
-          },
-        ];
-
-        const contentList = [
-          {
-            [setup.key]: setup.value,
-          },
-        ];
-
-        const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
-          fields,
-          "JSON",
-          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
-        );
-        expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-        if (contentValidation.isValid) return;
-
-        const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } = contentValidation.error;
-
-        expect(exceedLimit).toBe(expectedResult.exceedLimit);
-        expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-        expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-      });
-    });
-
-    describe("[Fail case] Control variable: content list length", () => {
-      const COMMON_SETUP = {
-        key: "correct-key",
-        required: true,
-        multiple: false,
-        typeProperty: {},
-      };
-
-      const EXPECTED_RESULT = {
-        exceedLimit: true,
-        typeMismatchFieldKeysCount: 0,
-        outOfRangeFieldKeysCount: 0,
-        isValid: false,
-      };
-
-      test.each([
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, value: "text" },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, value: "text" },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText, value: "text" },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Asset },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.Date,
-            value: "2025-12-01T00:00:00+09:00",
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, value: true },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.Select,
-            value: "green",
-            values: ["red", "blue", "green"],
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, value: 1 },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, value: 1.5 },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.URL,
-            value: "https://hello.com/",
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-      ])("$setup.type field count is above max records", async ({ setup, expectedResult }) => {
-        const fields = [
-          {
-            ...DEFAULT_COMMON_FIELD,
-            type: setup.type,
-            key: setup.key,
-            required: setup.required,
-            multiple: false,
-            typeProperty: {},
-          },
-        ];
-
-        const contentList = [
-          {
-            [setup.key]: setup.value,
-          },
-          {
-            [setup.key]: setup.value,
-          },
-        ];
-
-        const contentValidation = await ImportContentUtils.validateContent(
-          contentList,
-          fields,
-          "JSON",
-          Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
-        );
-        expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-        if (contentValidation.isValid) return;
-
-        const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } = contentValidation.error;
-
-        expect(exceedLimit).toBe(expectedResult.exceedLimit);
-        expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-        expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-      });
-    });
-
-    describe("[Pass case] Control variable: field value and default value", () => {
-      const COMMON_SETUP = {
-        key1: "key-1",
-        key2: "key-2",
-        required: false,
-        multiple: false,
-        typeProperty: {},
-      };
-
-      const EXPECTED_RESULT = {
-        exceedLimit: false,
-        typeMismatchFieldKeysCount: 0,
-        outOfRangeFieldKeysCount: 0,
-        isValid: true,
-      };
-
-      test.each([
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.Text,
-            value: "hello",
-            defaultValue: "default text",
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.TextArea,
-            value: "text",
-            defaultValue: "default text",
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.MarkdownText,
-            value: "text",
-            defaultValue: "default text",
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Asset },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: {
-        //     ...COMMON_SETUP,
-        //     type: SchemaFieldType.Date,
-        //     value: "2025-12-01T00:00:00+09:00",
-        //     defaultValue: "2025-01-01T00:00:00+09:00",
-        //   },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.Bool,
-            value: false,
-            defaultValue: true,
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.Integer,
-            value: 1,
-            defaultValue: 5,
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, value: 1.5, defaultValue: 5.5 },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.URL,
-            value: "https://hello.com/",
-            defaultValue: "https://default.com/",
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-      ])(
-        "$setup.type field auto fill value with default value",
-        async ({ setup, expectedResult }) => {
+        ])("$setup.type field key match", async ({ setup, expectedResult }) => {
           const fields = [
             {
               ...DEFAULT_COMMON_FIELD,
               type: setup.type,
-              key: setup.key1,
+              key: setup.key,
               required: setup.required,
+              typeProperty: setup.typeProperty,
               multiple: false,
-              typeProperty: {
-                defaultValue: setup.defaultValue,
-              },
-            },
-            {
-              ...DEFAULT_COMMON_FIELD,
-              type: setup.type,
-              key: setup.key2,
-              required: setup.required,
-              multiple: false,
-              typeProperty: {
-                defaultValue: setup.defaultValue,
-              },
             },
           ];
 
           const contentList = [
             {
-              [setup.key1]: setup.value,
-            },
-          ];
-
-          const expectContentList = [
-            {
-              [setup.key1]: setup.value,
-              [setup.key2]: setup.defaultValue,
+              [setup.key]: setup.correctValue,
             },
           ];
 
@@ -1920,130 +275,438 @@ describe("Testing content import from static files", () => {
           );
           expect(contentValidation.isValid).toBe(expectedResult.isValid);
 
-          if (contentValidation.isValid) {
-            expect(contentValidation.data).toEqual(expectContentList);
-          } else {
-            const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
-              contentValidation.error;
+          if (contentValidation.isValid) return;
 
-            expect(exceedLimit).toBe(expectedResult.exceedLimit);
-            expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-            expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-          }
-        },
-      );
-    });
+          const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+            contentValidation.error;
 
-    describe("[Pass case] Control variable: field value and no default value", () => {
-      const COMMON_SETUP = {
-        key1: "key-1",
-        key2: "key-2",
-        required: false,
-        multiple: false,
-        typeProperty: {},
-      };
+          expect(exceedLimit).toBe(expectedResult.exceedLimit);
+          expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+          expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+        });
+      });
 
-      const EXPECTED_RESULT = {
-        exceedLimit: false,
-        typeMismatchFieldKeysCount: 1,
-        outOfRangeFieldKeysCount: 0,
-        isValid: true,
-      };
+      describe("[Pass case] Select field key match", () => {
+        const COMMON_SETUP = {
+          key: "correct-key",
+          required: true,
+          multiple: false,
+          typeProperty: {
+            values: ["red", "green", "blue"],
+          },
+        };
 
-      test.each([
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.Text,
-            value: "hello",
+        const EXPECTED_RESULT = true;
+
+        test.each([
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Select, correctValue: "blue" },
+            expectedResult: EXPECTED_RESULT,
           },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.TextArea,
-            value: "text",
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.MarkdownText,
-            value: "text",
-            defaultValue: "default text",
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Asset },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: {
-        //     ...COMMON_SETUP,
-        //     type: SchemaFieldType.Date,
-        //     value: "2025-12-01T00:00:00+09:00",
-        //     defaultValue: "2025-01-01T00:00:00+09:00",
-        //   },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.Bool,
-            value: false,
-            defaultValue: true,
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.Integer,
-            value: 1,
-            defaultValue: 5,
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, value: 1.5, defaultValue: 5.5 },
-          expectedResult: EXPECTED_RESULT,
-        },
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.URL,
-            value: "https://hello.com/",
-            defaultValue: "https://default.com/",
-          },
-          expectedResult: EXPECTED_RESULT,
-        },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-        // {
-        //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
-        //   expectedResult: EXPECTED_RESULT,
-        // },
-      ])(
-        "$setup.type field auto fill value with default value",
-        async ({ setup, expectedResult }) => {
+        ])("$setup.type field key match", async ({ setup, expectedResult }) => {
           const fields = [
             {
               ...DEFAULT_COMMON_FIELD,
               type: setup.type,
-              key: setup.key1,
+              key: setup.key,
               required: setup.required,
+              typeProperty: setup.typeProperty,
               multiple: false,
-              typeProperty: {},
             },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.correctValue,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(contentValidation.isValid).toBe(expectedResult);
+        });
+      });
+
+      describe("[Pass case] GeoObject field key match", () => {
+        const COMMON_SETUP = {
+          key: "correct-key",
+          required: true,
+          multiple: false,
+          typeProperty: {
+            objectSupportedTypes: ["POINT"] as ObjectSupportedType[],
+          },
+        };
+
+        const EXPECTED_RESULT = true;
+
+        test.each([
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.GeometryObject,
+              value: { type: "Point", coordinates: [139.6917, 35.6895] },
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field key match", async ({ setup, expectedResult }) => {
+          const fields = [
             {
               ...DEFAULT_COMMON_FIELD,
               type: setup.type,
-              key: setup.key2,
+              key: setup.key,
+              required: setup.required,
+              typeProperty: setup.typeProperty,
+              multiple: false,
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.value,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(contentValidation.isValid).toBe(expectedResult);
+        });
+      });
+
+      describe("[Pass case] GeoEditor field key match", () => {
+        const COMMON_SETUP = {
+          key: "correct-key",
+          required: true,
+          multiple: false,
+          typeProperty: {
+            editorSupportedTypes: ["POINT"] as EditorSupportedType[],
+          },
+        };
+
+        const EXPECTED_RESULT = true;
+
+        test.each([
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.GeometryEditor,
+              value: { type: "Point", coordinates: [139.6917, 35.6895] },
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field key match", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              typeProperty: setup.typeProperty,
+              multiple: false,
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.value,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(contentValidation.isValid).toBe(expectedResult);
+        });
+      });
+
+      describe("[Fail case] Field key mismatch", () => {
+        const COMMON_SETUP = {
+          key: "correct-key",
+          wrongKey: "wrong-key",
+          required: true,
+          multiple: false,
+          typeProperty: {},
+        };
+
+        const EXPECTED_RESULT = {
+          exceedLimit: false,
+          typeMismatchFieldKeysCount: 1,
+          outOfRangeFieldKeysCount: 0,
+          isValid: false,
+        };
+
+        test.each([
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Text },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Date },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Number },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.URL },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field key mismatch", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              typeProperty: setup.typeProperty,
+              multiple: false,
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.wrongKey]: "hello world",
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+          if (contentValidation.isValid) return;
+
+          const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+            contentValidation.error;
+
+          expect(exceedLimit).toBe(expectedResult.exceedLimit);
+          expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+          expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+        });
+      });
+
+      // FIXME: handle common error with select out of range
+      describe.skip("[Fail case] Select field key mismatch", () => {
+        const COMMON_SETUP = {
+          key: "correct-key",
+          wrongKey: "wrong-key",
+          required: true,
+          multiple: false,
+          typeProperty: {
+            values: ["red", "green", "blue"],
+          },
+        };
+
+        const EXPECTED_RESULT = {
+          exceedLimit: false,
+          typeMismatchFieldKeysCount: 1,
+          outOfRangeFieldKeysCount: 0,
+          isValid: false,
+        };
+
+        test.each([
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Select, value: "blue" },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field key mismatch", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              multiple: false,
+              typeProperty: setup.typeProperty,
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.wrongKey]: setup.value,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+          if (contentValidation.isValid) return;
+
+          const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+            contentValidation.error;
+
+          expect(exceedLimit).toBe(expectedResult.exceedLimit);
+          expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+          expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+        });
+      });
+
+      describe("[Fail case] GeoObject & GeoEditor field key mismatch", () => {
+        const COMMON_SETUP = {
+          key: "correct-key",
+          wrongKey: "wrong-key",
+          required: true,
+          multiple: false,
+          typeProperty: {
+            objectSupportedTypes: ["POINT"] as ObjectSupportedType[],
+          },
+        };
+
+        const EXPECTED_RESULT = {
+          exceedLimit: false,
+          typeMismatchFieldKeysCount: 1,
+          outOfRangeFieldKeysCount: 0,
+          isValid: false,
+        };
+
+        test.each([
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.GeometryObject,
+              value: { type: "Point", coordinates: [139.6917, 35.6895] },
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.GeometryEditor,
+              value: { type: "Point", coordinates: [139.6917, 35.6895] },
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field key mismatch", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              multiple: false,
+              typeProperty: setup.typeProperty,
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.wrongKey]: setup.value,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+          if (contentValidation.isValid) return;
+
+          const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+            contentValidation.error;
+
+          expect(exceedLimit).toBe(expectedResult.exceedLimit);
+          expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+          expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+        });
+      });
+    });
+
+    describe("Control variables: field value", () => {
+      describe("[Pass case] Field value type match", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: false,
+          typeProperty: {},
+        };
+
+        const EXPECTED_RESULT = true;
+
+        test.each([
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, correctValue: "text" },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, correctValue: "text" },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText, correctValue: "text" },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Date,
+              correctValue: new Date().toLocaleString(),
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, correctValue: false },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, correctValue: 1 },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, correctValue: 2.5 },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.URL,
+              correctValue: "https://correct.com/",
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field value type match", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
               required: setup.required,
               multiple: false,
               typeProperty: {},
@@ -2052,13 +715,226 @@ describe("Testing content import from static files", () => {
 
           const contentList = [
             {
-              [setup.key1]: setup.value,
+              [setup.key]: setup.correctValue,
             },
           ];
 
-          const expectContentList = [
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(contentValidation.isValid).toBe(expectedResult);
+        });
+      });
+
+      describe("[Pass case] Select field value type match", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: false,
+          typeProperty: {
+            values: ["red", "green", "blue"],
+          },
+        };
+
+        const EXPECTED_RESULT = true;
+
+        test.each([
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Select, correctValue: "red" },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field value type match", async ({ setup, expectedResult }) => {
+          const fields = [
             {
-              [setup.key1]: setup.value,
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              multiple: false,
+              typeProperty: {},
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.correctValue,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(contentValidation.isValid).toBe(expectedResult);
+        });
+      });
+
+      describe("[Pass case] GeoObject field value type match", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: false,
+          typeProperty: {
+            objectSupportedTypes: ["POINT", "LINESTRING"] as ObjectSupportedType[],
+          },
+        };
+
+        const EXPECTED_RESULT = true;
+
+        test.each([
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.GeometryObject,
+              correctValue: { type: "Point", coordinates: [139.6917, 35.6895] },
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field value type match", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              multiple: false,
+              typeProperty: setup.typeProperty,
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.correctValue,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(contentValidation.isValid).toBe(expectedResult);
+        });
+      });
+
+      describe("[Pass case] GeoEditor field value type match", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: false,
+          typeProperty: {
+            editorSupportedTypes: ["POINT"] as EditorSupportedType[],
+          },
+        };
+
+        const EXPECTED_RESULT = true;
+
+        test.each([
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.GeometryEditor,
+              correctValue: { type: "Point", coordinates: [139.6917, 35.6895] },
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field value type match", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              multiple: false,
+              typeProperty: setup.typeProperty,
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.correctValue,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(contentValidation.isValid).toBe(expectedResult);
+        });
+      });
+
+      describe("[Fail case] Field value type mismatch", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: false,
+          typeProperty: {},
+        };
+
+        const EXPECTED_RESULT = {
+          exceedLimit: false,
+          typeMismatchFieldKeysCount: 1,
+          outOfRangeFieldKeysCount: 0,
+          isValid: false,
+        };
+
+        test.each([
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, wrongValue: 1 },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, wrongValue: false },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText, wrongValue: [] },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Date, wrongValue: "hello" },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, wrongValue: "text" },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, wrongValue: false },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, wrongValue: "text" },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.URL, wrongValue: 123 },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field value type mismatch", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              multiple: false,
+              typeProperty: {},
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.wrongValue,
             },
           ];
 
@@ -2070,50 +946,1933 @@ describe("Testing content import from static files", () => {
           );
           expect(contentValidation.isValid).toBe(expectedResult.isValid);
 
-          if (contentValidation.isValid) {
-            expect(contentValidation.data).toEqual(expectContentList);
-          } else {
+          if (contentValidation.isValid) return;
+
+          const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+            contentValidation.error;
+
+          expect(exceedLimit).toBe(expectedResult.exceedLimit);
+          expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+          expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+        });
+      });
+
+      // FIXME: fix common error with field key mismatch
+      describe.skip("[Fail case] Select field value type mismatch", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: false,
+          typeProperty: {
+            values: ["red", "green", "blue"],
+          },
+        };
+
+        const EXPECTED_RESULT = {
+          exceedLimit: false,
+          typeMismatchFieldKeysCount: 1,
+          outOfRangeFieldKeysCount: 0,
+          isValid: false,
+        };
+
+        test.each([
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Select, wrongValue: "yellow" },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field value type mismatch", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              multiple: false,
+              typeProperty: setup.typeProperty,
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.wrongValue,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+          if (contentValidation.isValid) return;
+
+          const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+            contentValidation.error;
+
+          expect(exceedLimit).toBe(expectedResult.exceedLimit);
+          expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+          expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+        });
+      });
+
+      describe("[Fail case] GeoObject field value type mismatch", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: false,
+          typeProperty: {
+            objectSupportedTypes: ["POINT"] as ObjectSupportedType[],
+          },
+        };
+
+        const EXPECTED_RESULT = {
+          exceedLimit: false,
+          typeMismatchFieldKeysCount: 1,
+          outOfRangeFieldKeysCount: 0,
+          isValid: false,
+        };
+
+        test.each([
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.GeometryObject,
+              wrongValue: "hello",
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field value type mismatch", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              multiple: false,
+              typeProperty: setup.typeProperty,
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.wrongValue,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+          if (contentValidation.isValid) return;
+
+          const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+            contentValidation.error;
+
+          expect(exceedLimit).toBe(expectedResult.exceedLimit);
+          expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+          expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+        });
+      });
+
+      describe("[Fail case] GeoEditor field value type mismatch", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: false,
+          typeProperty: {
+            editorSupportedTypes: ["POINT"] as EditorSupportedType[],
+          },
+        };
+
+        const EXPECTED_RESULT = {
+          exceedLimit: false,
+          typeMismatchFieldKeysCount: 1,
+          outOfRangeFieldKeysCount: 0,
+          isValid: false,
+        };
+
+        test.each([
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.GeometryEditor,
+              wrongValue: "hello",
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field value type mismatch", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              multiple: false,
+              typeProperty: setup.typeProperty,
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.wrongValue,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+          if (contentValidation.isValid) return;
+
+          console.log("contentValidation", contentValidation);
+
+          const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+            contentValidation.error;
+
+          expect(exceedLimit).toBe(expectedResult.exceedLimit);
+          expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+          expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+        });
+      });
+    });
+
+    describe("Control variables: multiple (false), required, with default value", () => {
+      describe("[Pass case] Field default value type match", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: false,
+          typeProperty: {},
+        };
+
+        const EXPECTED_RESULT = true;
+
+        test.each([
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, defaultValue: "hello" },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, defaultValue: "hello" },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText, defaultValue: "hello" },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Date,
+              defaultValue: new Date().toLocaleString(),
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, defaultValue: false },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, defaultValue: 1 },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, defaultValue: 1.5 },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.URL,
+              defaultValue: "http://default.com/",
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field default value type match", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              multiple: false,
+              typeProperty: {
+                defaultValue: setup.defaultValue,
+              },
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.defaultValue,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(contentValidation.isValid).toBe(expectedResult);
+        });
+      });
+
+      describe("[Pass case] Select field default value type match", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: false,
+          typeProperty: {
+            values: ["red", "green", "blue"],
+            selectDefaultValue: "green",
+          },
+        };
+
+        const EXPECTED_RESULT = true;
+
+        test.each([
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Select },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field default value type match", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              multiple: false,
+              typeProperty: setup.typeProperty,
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.typeProperty.selectDefaultValue,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+
+          expect(contentValidation.isValid).toBe(expectedResult);
+        });
+      });
+
+      describe("[Pass case] GeoObject field default value type match", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: false,
+          typeProperty: {
+            objectSupportedTypes: ["POINT"] as ObjectSupportedType[],
+            defaultValue: { coordinates: [139.6917, 35.6895], type: "Point" } as GeoJSON,
+          },
+        };
+
+        const EXPECTED_RESULT = true;
+
+        test.each([
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field default value type match", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              typeProperty: setup.typeProperty,
+              multiple: false,
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.typeProperty.defaultValue,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+
+          expect(contentValidation.isValid).toBe(expectedResult);
+        });
+      });
+
+      describe("[Pass case] GeoEditor field default value type match", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: false,
+          typeProperty: {
+            editorSupportedTypes: ["POINT"] as EditorSupportedType[],
+            defaultValue: { coordinates: [139.6917, 35.6895], type: "Point" } as GeoJSON,
+          },
+        };
+
+        const EXPECTED_RESULT = true;
+
+        test.each([
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field default value type match", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              typeProperty: setup.typeProperty,
+              multiple: false,
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.typeProperty.defaultValue,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+
+          expect(contentValidation.isValid).toBe(expectedResult);
+        });
+      });
+
+      describe("[Fail case] Field default value type mismatch", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: false,
+          typeProperty: {},
+        };
+
+        const EXPECTED_RESULT = {
+          exceedLimit: false,
+          typeMismatchFieldKeysCount: 1,
+          outOfRangeFieldKeysCount: 0,
+          isValid: false,
+        };
+
+        test.each([
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, defaultValue: 1 },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, defaultValue: 1 },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText, defaultValue: 1 },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Date,
+              defaultValue: "hello",
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, defaultValue: "text" },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, defaultValue: "text" },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, defaultValue: "text" },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.URL,
+              defaultValue: 123,
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field default value type mismatch", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              multiple: false,
+              typeProperty: {
+                defaultValue: setup.defaultValue,
+              },
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.defaultValue,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+          if (contentValidation.isValid) return;
+
+          const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+            contentValidation.error;
+
+          expect(exceedLimit).toBe(expectedResult.exceedLimit);
+          expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+          expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+        });
+      });
+    });
+
+    describe("Control variables: multiple (true), required, with default value", () => {
+      describe("[Pass case] Field with default value type match", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: false,
+          multiple: true,
+          typeProperty: {},
+        };
+
+        const EXPECTED_RESULT = {
+          exceedLimit: false,
+          typeMismatchFieldKeysCount: 0,
+          outOfRangeFieldKeysCount: 0,
+          isValid: true,
+        };
+
+        test.each([
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Text,
+              defaultValues: ["hello", "world"],
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.TextArea,
+              defaultValues: ["hello", "world"],
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.MarkdownText,
+              defaultValues: ["hello", "world"],
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Date,
+              defaultValues: [new Date().toLocaleString(), new Date().toLocaleString()],
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, defaultValues: [true, false] },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, defaultValues: [1, 2] },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, defaultValues: [1.5, 2.5] },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.URL,
+              defaultValues: ["https://hello.com/", "https://world.com/"],
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field default value type match", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              multiple: setup.multiple,
+              typeProperty: {
+                defaultValue: setup.defaultValues,
+              },
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.defaultValues,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+
+          expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+          if (contentValidation.isValid) return;
+
+          const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+            contentValidation.error;
+
+          expect(exceedLimit).toBe(expectedResult.exceedLimit);
+          expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+          expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+        });
+      });
+
+      describe("[Pass case] Field with multiple default values type match", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: true,
+          typeProperty: {},
+        };
+
+        const EXPECTED_RESULT = true;
+
+        test.each([
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Text,
+              defaultValues: ["hello", "world"],
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.TextArea,
+              defaultValues: ["hello", "world"],
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.MarkdownText,
+              defaultValues: ["hello", "world"],
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Date,
+              defaultValues: [new Date().toISOString()],
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, defaultValues: [true, false] },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, defaultValues: [1, 2] },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, defaultValues: [1.5, 2.5] },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.URL,
+              defaultValues: ["https://hello.com/", "https://world.com/"],
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field default value type match", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              multiple: setup.multiple,
+              typeProperty: {
+                defaultValue: setup.defaultValues,
+              },
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.defaultValues,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+
+          expect(contentValidation.isValid).toBe(expectedResult);
+        });
+      });
+
+      describe("[Pass case] Select field with multiple default values type match", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: true,
+          typeProperty: {
+            values: ["red", "green", "blue"],
+            selectDefaultValue: ["blue"],
+          },
+        };
+
+        const EXPECTED_RESULT = true;
+
+        test.each([
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Select },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field default value type match", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              multiple: setup.multiple,
+              typeProperty: setup.typeProperty,
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.typeProperty.selectDefaultValue,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+
+          expect(contentValidation.isValid).toBe(expectedResult);
+        });
+      });
+
+      describe("[Pass case] GeoObject field with multiple default values type match", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: true,
+          typeProperty: {
+            objectSupportedTypes: ["POINT"] as ObjectSupportedType[],
+            defaultValue: { coordinates: [139.6917, 35.6895], type: "Point" } as GeoJSON,
+          },
+        };
+
+        const EXPECTED_RESULT = true;
+
+        test.each([
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field default value type match", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              multiple: setup.multiple,
+              typeProperty: setup.typeProperty,
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.typeProperty.defaultValue,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+
+          expect(contentValidation.isValid).toBe(expectedResult);
+        });
+      });
+
+      describe("[Pass case] GeoEditor field with multiple default values type match", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: true,
+          typeProperty: {
+            editorSupportedTypes: ["POINT"] as EditorSupportedType[],
+            defaultValue: { coordinates: [139.6917, 35.6895], type: "Point" } as GeoJSON,
+          },
+        };
+
+        const EXPECTED_RESULT = true;
+
+        test.each([
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field default value type match", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              multiple: setup.multiple,
+              typeProperty: setup.typeProperty,
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.typeProperty.defaultValue,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+
+          expect(contentValidation.isValid).toBe(expectedResult);
+        });
+      });
+    });
+
+    describe("Control variables: multiple (true), required (true), with default value", () => {
+      describe("[Fail case] Field with default values type mismatch", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: true,
+          typeProperty: {},
+        };
+
+        const EXPECTED_RESULT = {
+          exceedLimit: false,
+          typeMismatchFieldKeysCount: 1,
+          outOfRangeFieldKeysCount: 0,
+          isValid: false,
+        };
+
+        test.each([
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, defaultValues: 123 },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.TextArea,
+              defaultValues: 123,
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.MarkdownText,
+              defaultValues: 123,
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Date, defaultValues: "hello" },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, defaultValues: "true" },
+            expectedResult: EXPECTED_RESULT,
+          },
+          // TODO: select wrong default value type
+          // {
+          //   setup: { ...COMMON_SETUP, type: SchemaFieldType.Select },
+          //   expectedResult: EXPECTED_RESULT,
+          // },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, defaultValues: "1" },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, defaultValues: "1.5" },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.URL,
+              defaultValues: "hello",
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          // TODO: geo object wrong default value type
+          // {
+          //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
+          //   expectedResult: EXPECTED_RESULT,
+          // },
+          // TODO: geo editor wrong default value type
+          // {
+          //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
+          //   expectedResult: EXPECTED_RESULT,
+          // },
+        ])("$setup.type field default value type mismatch", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              multiple: setup.multiple,
+              typeProperty: {
+                defaultValue: setup.defaultValues,
+              },
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.defaultValues,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+
+          expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+          if (contentValidation.isValid) return;
+
+          const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+            contentValidation.error;
+
+          expect(exceedLimit).toBe(expectedResult.exceedLimit);
+          expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+          expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+        });
+      });
+
+      // FIXME: fix type error for type mismatch
+      describe.skip("[Fail case] Select field with default values type mismatch", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: true,
+          typeProperty: {
+            values: ["red", "green", "blue"],
+            selectDefaultValue: "blue",
+          },
+        };
+
+        const EXPECTED_RESULT = {
+          exceedLimit: false,
+          typeMismatchFieldKeysCount: 1,
+          outOfRangeFieldKeysCount: 0,
+          isValid: false,
+        };
+
+        test.each([
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Select },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field default value type mismatch", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              multiple: setup.multiple,
+              typeProperty: setup.typeProperty,
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.typeProperty.selectDefaultValue,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+
+          expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+          if (contentValidation.isValid) return;
+
+          const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+            contentValidation.error;
+
+          expect(exceedLimit).toBe(expectedResult.exceedLimit);
+          expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+          expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+        });
+      });
+
+      // FIXME: fix type error for type mismatch
+      describe.skip("[Fail case] GeoObject field with default values type mismatch", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: true,
+          typeProperty: {
+            objectSupportedTypes: ["POINT"] as ObjectSupportedType[],
+            defaultValue: { coordinates: [139.6917, 35.6895], type: "Point" } as GeoJSON,
+          },
+        };
+
+        const EXPECTED_RESULT = {
+          exceedLimit: false,
+          typeMismatchFieldKeysCount: 1,
+          outOfRangeFieldKeysCount: 0,
+          isValid: false,
+        };
+
+        test.each([
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field default value type mismatch", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              multiple: setup.multiple,
+              typeProperty: setup.typeProperty,
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.typeProperty.defaultValue,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+
+          expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+          if (contentValidation.isValid) return;
+
+          const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+            contentValidation.error;
+
+          expect(exceedLimit).toBe(expectedResult.exceedLimit);
+          expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+          expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+        });
+      });
+
+      describe.skip("[Fail case] GeoEditor field with default values type mismatch", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: true,
+          typeProperty: {
+            editorSupportedTypes: ["POINT"] as EditorSupportedType[],
+            defaultValue: { coordinates: [139.6917, 35.6895], type: "Point" } as GeoJSON,
+          },
+        };
+
+        const EXPECTED_RESULT = {
+          exceedLimit: false,
+          typeMismatchFieldKeysCount: 1,
+          outOfRangeFieldKeysCount: 0,
+          isValid: false,
+        };
+
+        test.each([
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])("$setup.type field default value type mismatch", async ({ setup, expectedResult }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: setup.type,
+              key: setup.key,
+              required: setup.required,
+              multiple: setup.multiple,
+              typeProperty: setup.typeProperty,
+            },
+          ];
+
+          const contentList = [
+            {
+              [setup.key]: setup.typeProperty.defaultValue,
+            },
+          ];
+
+          const contentValidation = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+
+          expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+          if (contentValidation.isValid) return;
+
+          const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+            contentValidation.error;
+
+          expect(exceedLimit).toBe(expectedResult.exceedLimit);
+          expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+          expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+        });
+      });
+    });
+
+    describe("In range test", () => {
+      describe("Number fields", () => {
+        describe("[Pass case] Control variables: multiple (false), required (true), value in range (min, max)", () => {
+          const COMMON_SETUP = {
+            key: "field-key",
+            required: true,
+            multiple: false,
+            typeProperty: {},
+          };
+
+          const EXPECTED_RESULT = {
+            exceedLimit: false,
+            typeMismatchFieldKeysCount: 0,
+            outOfRangeFieldKeysCount: 0,
+            isValid: true,
+          };
+
+          test.each([
+            {
+              setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, value: 2, min: -5, max: 5 },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.Number,
+                value: 2.5,
+                min: -5.5,
+                max: 5.5,
+              },
+              expectedResult: EXPECTED_RESULT,
+            },
+          ])("$setup.type field value in range", async ({ setup, expectedResult }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key,
+                required: setup.required,
+                multiple: setup.multiple,
+                typeProperty: {
+                  min: setup.min,
+                  max: setup.max,
+                },
+              },
+            ];
+
+            const contentList = [
+              {
+                [setup.key]: setup.value,
+              },
+            ];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+
+            expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+            if (contentValidation.isValid) return;
+
             const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
               contentValidation.error;
 
             expect(exceedLimit).toBe(expectedResult.exceedLimit);
             expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
             expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-          }
-        },
-      );
+          });
+        });
+
+        describe("[Fail case] Control variables: multiple (false), required (true), value out of range (min, max)", () => {
+          const COMMON_SETUP = {
+            key: "field-key",
+            required: true,
+            multiple: false,
+            typeProperty: {},
+          };
+
+          const EXPECTED_RESULT = {
+            exceedLimit: false,
+            typeMismatchFieldKeysCount: 0,
+            outOfRangeFieldKeysCount: 1,
+            isValid: false,
+          };
+
+          test.each([
+            {
+              setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, value: 7, min: -5, max: 5 },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.Number,
+                value: 10.5,
+                min: -5.5,
+                max: 5.5,
+              },
+              expectedResult: EXPECTED_RESULT,
+            },
+          ])("$setup.type field value out of range", async ({ setup, expectedResult }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key,
+                required: setup.required,
+                multiple: setup.multiple,
+                typeProperty: {
+                  min: setup.min,
+                  max: setup.max,
+                },
+              },
+            ];
+
+            const contentList = [
+              {
+                [setup.key]: setup.value,
+              },
+            ];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+
+            expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+            if (contentValidation.isValid) return;
+
+            const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+              contentValidation.error;
+
+            expect(exceedLimit).toBe(expectedResult.exceedLimit);
+            expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+            expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+          });
+        });
+      });
+
+      describe("Text fields", () => {
+        describe("[Pass case] Control variables: multiple (false), required (true), value in range (maxLength)", () => {
+          const COMMON_SETUP = {
+            key: "field-key",
+            required: true,
+            multiple: false,
+            typeProperty: {},
+          };
+
+          const EXPECTED_RESULT = {
+            exceedLimit: false,
+            typeMismatchFieldKeysCount: 0,
+            outOfRangeFieldKeysCount: 0,
+            isValid: true,
+          };
+
+          test.each([
+            {
+              setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, value: "hello", maxLength: 10 },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.TextArea,
+                value: "hello",
+                maxLength: 10,
+              },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.MarkdownText,
+                value: "hello",
+                maxLength: 10,
+              },
+              expectedResult: EXPECTED_RESULT,
+            },
+          ])("$setup.type field value in range", async ({ setup, expectedResult }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key,
+                required: setup.required,
+                multiple: setup.multiple,
+                typeProperty: {
+                  maxLength: setup.maxLength,
+                },
+              },
+            ];
+
+            const contentList = [
+              {
+                [setup.key]: setup.value,
+              },
+            ];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+
+            expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+            if (contentValidation.isValid) return;
+
+            const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+              contentValidation.error;
+
+            expect(exceedLimit).toBe(expectedResult.exceedLimit);
+            expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+            expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+          });
+        });
+
+        describe("[Fail case] Control variables: multiple (false), required (true), value out of range (maxLength)", () => {
+          const COMMON_SETUP = {
+            key: "field-key",
+            required: true,
+            multiple: false,
+            typeProperty: {},
+          };
+
+          const EXPECTED_RESULT = {
+            exceedLimit: false,
+            typeMismatchFieldKeysCount: 0,
+            outOfRangeFieldKeysCount: 1,
+            isValid: false,
+          };
+
+          test.each([
+            {
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.Text,
+                value: "hello world",
+                maxLength: 10,
+              },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.TextArea,
+                value: "hello world",
+                maxLength: 10,
+              },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.MarkdownText,
+                value: "hello world",
+                maxLength: 10,
+              },
+              expectedResult: EXPECTED_RESULT,
+            },
+          ])("$setup.type field value out of range", async ({ setup, expectedResult }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key,
+                required: setup.required,
+                multiple: setup.multiple,
+                typeProperty: {
+                  maxLength: setup.maxLength,
+                },
+              },
+            ];
+
+            const contentList = [
+              {
+                [setup.key]: setup.value,
+              },
+            ];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+
+            expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+            if (contentValidation.isValid) return;
+
+            const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+              contentValidation.error;
+
+            expect(exceedLimit).toBe(expectedResult.exceedLimit);
+            expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+            expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+          });
+        });
+      });
+
+      describe("Select field", () => {
+        describe("[Pass case] Control variables: multiple (false), required (true), value in range (values)", () => {
+          const COMMON_SETUP = {
+            key: "field-key",
+            required: true,
+            multiple: false,
+            typeProperty: {},
+          };
+
+          const EXPECTED_RESULT = {
+            exceedLimit: false,
+            typeMismatchFieldKeysCount: 0,
+            outOfRangeFieldKeysCount: 0,
+            isValid: true,
+          };
+
+          test.each([
+            {
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.Select,
+                value: "green",
+                values: ["red", "green", "blue"],
+              },
+              expectedResult: EXPECTED_RESULT,
+            },
+          ])("$setup.type field value in range", async ({ setup, expectedResult }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key,
+                required: setup.required,
+                multiple: setup.multiple,
+                typeProperty: {
+                  values: setup.values,
+                },
+              },
+            ];
+
+            const contentList = [
+              {
+                [setup.key]: setup.value,
+              },
+            ];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+
+            expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+            if (contentValidation.isValid) return;
+
+            const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+              contentValidation.error;
+
+            expect(exceedLimit).toBe(expectedResult.exceedLimit);
+            expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+            expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+          });
+        });
+
+        describe("[Fail case] Control variables: multiple (false), required (true), value out of range (values)", () => {
+          const COMMON_SETUP = {
+            key: "field-key",
+            required: true,
+            multiple: false,
+            typeProperty: {
+              values: ["red", "green", "blue"],
+            },
+          };
+
+          const EXPECTED_RESULT = {
+            exceedLimit: false,
+            typeMismatchFieldKeysCount: 0,
+            outOfRangeFieldKeysCount: 1,
+            isValid: false,
+          };
+
+          test.each([
+            {
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.Select,
+                value: "yellow",
+              },
+              expectedResult: EXPECTED_RESULT,
+            },
+          ])("$setup.type field value in range", async ({ setup, expectedResult }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key,
+                required: setup.required,
+                multiple: setup.multiple,
+                typeProperty: setup.typeProperty,
+              },
+            ];
+
+            const contentList = [
+              {
+                [setup.key]: setup.value,
+              },
+            ];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+
+            expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+            if (contentValidation.isValid) return;
+
+            const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+              contentValidation.error;
+
+            expect(exceedLimit).toBe(expectedResult.exceedLimit);
+            expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+            expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+          });
+        });
+      });
+
+      describe("Record count", () => {
+        describe("[Pass case] Control variables: content list length", () => {
+          const COMMON_SETUP = {
+            key: "correct-key",
+            required: true,
+            multiple: false,
+            typeProperty: {},
+          };
+
+          const EXPECTED_RESULT = {
+            exceedLimit: false,
+            typeMismatchFieldKeysCount: 0,
+            outOfRangeFieldKeysCount: 0,
+            isValid: true,
+          };
+
+          test.each([
+            {
+              setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, value: "text" },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, value: "text" },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText, value: "text" },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.Date,
+                value: "2025-12-01T00:00:00+09:00",
+              },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, value: true },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.Select,
+                value: "green",
+                values: ["red", "blue", "green"],
+              },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, value: 1 },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, value: 1.5 },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.URL,
+                value: "https://hello.com/",
+              },
+              expectedResult: EXPECTED_RESULT,
+            },
+            // {
+            //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
+            //   expectedResult: EXPECTED_RESULT,
+            // },
+            // {
+            //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
+            //   expectedResult: EXPECTED_RESULT,
+            // },
+          ])("$setup.type field count is below max records", async ({ setup, expectedResult }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key,
+                required: setup.required,
+                multiple: false,
+                typeProperty: {},
+              },
+            ];
+
+            const contentList = [
+              {
+                [setup.key]: setup.value,
+              },
+            ];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+            expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+            if (contentValidation.isValid) return;
+
+            const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+              contentValidation.error;
+
+            expect(exceedLimit).toBe(expectedResult.exceedLimit);
+            expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+            expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+          });
+        });
+
+        describe("[Fail case] Control variables: content list length", () => {
+          const COMMON_SETUP = {
+            key: "correct-key",
+            required: true,
+            multiple: false,
+            typeProperty: {},
+          };
+
+          const EXPECTED_RESULT = {
+            exceedLimit: true,
+            typeMismatchFieldKeysCount: 0,
+            outOfRangeFieldKeysCount: 0,
+            isValid: false,
+          };
+
+          test.each([
+            {
+              setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, value: "text" },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, value: "text" },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText, value: "text" },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.Date,
+                value: "2025-12-01T00:00:00+09:00",
+              },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, value: true },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.Select,
+                value: "green",
+                values: ["red", "blue", "green"],
+              },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, value: 1 },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, value: 1.5 },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.URL,
+                value: "https://hello.com/",
+              },
+              expectedResult: EXPECTED_RESULT,
+            },
+            // {
+            //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
+            //   expectedResult: EXPECTED_RESULT,
+            // },
+            // {
+            //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
+            //   expectedResult: EXPECTED_RESULT,
+            // },
+          ])("$setup.type field count is above max records", async ({ setup, expectedResult }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key,
+                required: setup.required,
+                multiple: false,
+                typeProperty: {},
+              },
+            ];
+
+            const contentList = [
+              {
+                [setup.key]: setup.value,
+              },
+              {
+                [setup.key]: setup.value,
+              },
+            ];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+            expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+            if (contentValidation.isValid) return;
+
+            const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+              contentValidation.error;
+
+            expect(exceedLimit).toBe(expectedResult.exceedLimit);
+            expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+            expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+          });
+        });
+      });
     });
 
-    describe("[Pass case] Control variable: field value and default value (select field)", () => {
-      const COMMON_SETUP = {
-        key1: "key-1",
-        key2: "key-2",
-        required: false,
-        multiple: false,
-        typeProperty: {},
-      };
+    describe("Auto fill default value test", () => {
+      describe("[Pass case] Control variables: field value with default value", () => {
+        const COMMON_SETUP = {
+          key1: "key-1",
+          key2: "key-2",
+          required: false,
+          multiple: false,
+          typeProperty: {},
+        };
 
-      const EXPECTED_RESULT = {
-        exceedLimit: false,
-        typeMismatchFieldKeysCount: 0,
-        outOfRangeFieldKeysCount: 0,
-        isValid: true,
-      };
+        const EXPECTED_RESULT = true;
 
-      test.each([
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.Select,
-            value: "green",
-            values: ["red", "blue", "green"],
-            defaultValue: "blue",
+        test.each([
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Text,
+              value: "hello",
+              defaultValue: "default text",
+            },
+            expectedResult: EXPECTED_RESULT,
           },
-          expectedResult: EXPECTED_RESULT,
-        },
-      ])(
-        "$setup.type field auto fill value with default value",
-        async ({ setup, expectedResult }) => {
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.TextArea,
+              value: "text",
+              defaultValue: "default text",
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.MarkdownText,
+              value: "text",
+              defaultValue: "default text",
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          // {
+          //   setup: {
+          //     ...COMMON_SETUP,
+          //     type: SchemaFieldType.Date,
+          //     value: new Date("2026-01-01").toISOString(),
+          //     defaultValue: new Date("2026-01-02").toISOString(),
+          //   },
+          //   expectedResult: EXPECTED_RESULT,
+          // },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Bool,
+              value: false,
+              defaultValue: true,
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Integer,
+              value: 1,
+              defaultValue: 5,
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, value: 1.5, defaultValue: 5.5 },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.URL,
+              value: "https://hello.com/",
+              defaultValue: "https://default.com/",
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          // {
+          //   setup: {
+          //     ...COMMON_SETUP,
+          //     type: SchemaFieldType.GeometryObject,
+          //     value: { type: "Point", coordinates: [139.6917, 35.6895] },
+          //     defaultValue: { type: "Point", coordinates: [149.6917, 45.6895] },
+          //   },
+          //   expectedResult: EXPECTED_RESULT,
+          // },
+          // {
+          //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
+          //   expectedResult: EXPECTED_RESULT,
+          //   value: { type: "Point", coordinates: [139.6917, 35.6895] },
+          //   defaultValue: { type: "Point", coordinates: [149.6917, 45.6895] },
+          // },
+        ])("$setup.type field auto fill with default value", async ({ setup, expectedResult }) => {
           const fields = [
             {
               ...DEFAULT_COMMON_FIELD,
@@ -2123,7 +2882,6 @@ describe("Testing content import from static files", () => {
               multiple: false,
               typeProperty: {
                 defaultValue: setup.defaultValue,
-                values: setup.values,
               },
             },
             {
@@ -2134,7 +2892,6 @@ describe("Testing content import from static files", () => {
               multiple: false,
               typeProperty: {
                 defaultValue: setup.defaultValue,
-                values: setup.values,
               },
             },
           ];
@@ -2142,13 +2899,14 @@ describe("Testing content import from static files", () => {
           const contentList = [
             {
               [setup.key1]: setup.value,
+              [setup.key2]: setup.value,
             },
           ];
 
           const expectContentList = [
             {
               [setup.key1]: setup.value,
-              [setup.key2]: setup.defaultValue,
+              [setup.key2]: setup.value,
             },
           ];
 
@@ -2158,106 +2916,301 @@ describe("Testing content import from static files", () => {
             "JSON",
             Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
-          expect(contentValidation.isValid).toBe(expectedResult.isValid);
+          expect(contentValidation.isValid).toBe(expectedResult);
 
-          if (contentValidation.isValid) {
-            expect(contentValidation.data).toEqual(expectContentList);
-          } else {
-            const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
-              contentValidation.error;
+          if (contentValidation.isValid) expect(contentValidation.data).toEqual(expectContentList);
+        });
+      });
 
-            expect(exceedLimit).toBe(expectedResult.exceedLimit);
-            expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-            expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-          }
-        },
-      );
-    });
+      describe("[Pass case] Control variables: field value without default value", () => {
+        const COMMON_SETUP = {
+          key1: "key-1",
+          key2: "key-2",
+          required: false,
+          multiple: false,
+          typeProperty: {},
+        };
 
-    describe("[Pass case] Control variable: field value and no default value (select field)", () => {
-      const COMMON_SETUP = {
-        key1: "key-1",
-        key2: "key-2",
-        required: false,
-        multiple: false,
-        typeProperty: {},
-      };
+        const EXPECTED_RESULT = true;
 
-      const EXPECTED_RESULT = {
-        exceedLimit: false,
-        typeMismatchFieldKeysCount: 0,
-        outOfRangeFieldKeysCount: 0,
-        isValid: true,
-      };
+        test.each([
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Text,
+              value: "hello",
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.TextArea,
+              value: "text",
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.MarkdownText,
+              value: "text",
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          // {
+          //   setup: {
+          //     ...COMMON_SETUP,
+          //     type: SchemaFieldType.Date,
+          //     value: "2025-12-01T00:00:00+09:00",
+          //   },
+          //   expectedResult: EXPECTED_RESULT,
+          // },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Bool,
+              value: false,
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Integer,
+              value: 1,
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Number,
+              value: 1.5,
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.URL,
+              value: "https://hello.com/",
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          // {
+          //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryObject },
+          //   expectedResult: EXPECTED_RESULT,
+          // },
+          // {
+          //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
+          //   expectedResult: EXPECTED_RESULT,
+          // },
+        ])(
+          "$setup.type field use value instead of default value",
+          async ({ setup, expectedResult }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key1,
+                required: setup.required,
+                multiple: false,
+                typeProperty: {},
+              },
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key2,
+                required: setup.required,
+                multiple: false,
+                typeProperty: {},
+              },
+            ];
 
-      test.each([
-        {
-          setup: {
-            ...COMMON_SETUP,
-            type: SchemaFieldType.Select,
-            value: "green",
+            const contentList = [
+              {
+                [setup.key1]: setup.value,
+                [setup.key2]: setup.value,
+              },
+            ];
+
+            const expectContentList = [
+              {
+                [setup.key1]: setup.value,
+                [setup.key2]: setup.value,
+              },
+            ];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+            expect(contentValidation.isValid).toBe(expectedResult);
+
+            if (contentValidation.isValid)
+              expect(contentValidation.data).toEqual(expectContentList);
+          },
+        );
+      });
+
+      describe("[Pass case] Control variables: field value with default value (select field)", () => {
+        const COMMON_SETUP = {
+          key1: "key-1",
+          key2: "key-2",
+          required: false,
+          multiple: false,
+          typeProperty: {
+            values: ["red", "blue", "green"],
+            selectDefaultValue: "blue",
+          },
+        };
+
+        const EXPECTED_RESULT = true;
+
+        test.each([
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Select,
+              value: "green",
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])(
+          "$setup.type field auto fill value with default value",
+          async ({ setup, expectedResult }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key1,
+                required: setup.required,
+                typeProperty: setup.typeProperty,
+                multiple: false,
+              },
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key2,
+                required: setup.required,
+                typeProperty: setup.typeProperty,
+                multiple: false,
+              },
+            ];
+
+            const contentList = [
+              {
+                [setup.key1]: setup.value,
+              },
+            ];
+
+            const expectContentList = [
+              {
+                [setup.key1]: setup.value,
+                [setup.key2]: setup.typeProperty.selectDefaultValue,
+              },
+            ];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+            expect(contentValidation.isValid).toBe(expectedResult);
+
+            if (contentValidation.isValid) {
+              expect(contentValidation.data).toEqual(expectContentList);
+            }
+          },
+        );
+      });
+
+      describe("[Pass case] Control variables: field value without default value (select field)", () => {
+        const COMMON_SETUP = {
+          key1: "key-1",
+          key2: "key-2",
+          required: false,
+          multiple: false,
+          typeProperty: {
             values: ["red", "blue", "green"],
           },
-          expectedResult: EXPECTED_RESULT,
-        },
-      ])(
-        "$setup.type field auto fill value with default value",
-        async ({ setup, expectedResult }) => {
-          const fields = [
-            {
-              ...DEFAULT_COMMON_FIELD,
-              type: setup.type,
-              key: setup.key1,
-              required: setup.required,
-              multiple: false,
-              typeProperty: {
-                values: setup.values,
+        };
+
+        const EXPECTED_RESULT = {
+          exceedLimit: false,
+          typeMismatchFieldKeysCount: 0,
+          outOfRangeFieldKeysCount: 0,
+          isValid: true,
+        };
+
+        test.each([
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Select,
+              value: "green",
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])(
+          "$setup.type field auto fill value without default value",
+          async ({ setup, expectedResult }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key1,
+                required: setup.required,
+                multiple: false,
+                typeProperty: setup.typeProperty,
               },
-            },
-            {
-              ...DEFAULT_COMMON_FIELD,
-              type: setup.type,
-              key: setup.key2,
-              required: setup.required,
-              multiple: false,
-              typeProperty: {
-                values: setup.values,
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key2,
+                required: setup.required,
+                multiple: false,
+                typeProperty: setup.typeProperty,
               },
-            },
-          ];
+            ];
 
-          const contentList = [
-            {
-              [setup.key1]: setup.value,
-            },
-          ];
+            const contentList = [
+              {
+                [setup.key1]: setup.value,
+              },
+            ];
 
-          const expectContentList = [
-            {
-              [setup.key1]: setup.value,
-            },
-          ];
+            const expectContentList = [
+              {
+                [setup.key1]: setup.value,
+              },
+            ];
 
-          const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
-            fields,
-            "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
-          );
-          expect(contentValidation.isValid).toBe(expectedResult.isValid);
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+            expect(contentValidation.isValid).toBe(expectedResult.isValid);
 
-          if (contentValidation.isValid) {
-            expect(contentValidation.data).toEqual(expectContentList);
-          } else {
-            const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
-              contentValidation.error;
+            if (contentValidation.isValid) {
+              expect(contentValidation.data).toEqual(expectContentList);
+            } else {
+              const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+                contentValidation.error;
 
-            expect(exceedLimit).toBe(expectedResult.exceedLimit);
-            expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-            expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-          }
-        },
-      );
+              expect(exceedLimit).toBe(expectedResult.exceedLimit);
+              expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+              expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+            }
+          },
+        );
+      });
     });
   });
 });

@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 /* eslint-disable @typescript-eslint/no-extraneous-class */
-import { getIssues, HintIssue } from "@placemarkio/check-geojson";
 import { GeoJsonProperties, GeoJSON } from "geojson";
 import Papa, { ParseResult } from "papaparse";
 import z from "zod";
+import { GeoJSON2DSchema } from "zod-geojson";
 
 import { ItemValue } from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
@@ -12,7 +12,7 @@ import { ObjectSupportedType } from "@reearth-cms/components/molecules/Schema/ty
 import { Constant } from "./constant";
 import { PerformanceTimer } from "./performance";
 
-export type ImportContentResultItem = Record<string, ItemValue>;
+export type ImportContentResultItem = Record<string, unknown>;
 
 export interface ImportContentJSON {
   results: ImportContentResultItem[];
@@ -26,6 +26,13 @@ export interface ValidationErrorMeta {
 }
 
 export type ContentSourceFormat = "CSV" | "JSON" | "GEOJSON";
+
+enum CustomError {
+  SUPPORTED_TYPES_INVALID = "invalid supportedTypes",
+  SUPPORTED_TYPES_OUT_OF_RANGE = "supportedTypes out of range",
+  EDITOR_SUPPORTED_TYPES_INVALID = "invalid editorSupportedTypes",
+  EDITOR_SUPPORTED_TYPES_OUT_OF_RANGE = "editorSupportedTypes out of range",
+}
 
 export abstract class ImportContentUtils {
   public static async validateContent(
@@ -53,9 +60,14 @@ export abstract class ImportContentUtils {
 
       const validation = validator.array().max(maxRecordLimit).safeParse(importContentList);
 
-      // console.log("=".repeat(50), "validation", "=".repeat(50));
-      // console.log("validation", validation);
-      // console.log("=".repeat(100));
+      if (!validation.success) {
+        const title = "validation";
+        const bottomLength = 100;
+        const upperLength = (bottomLength - title.length - 2) / 2;
+        console.log("=".repeat(upperLength), title, "=".repeat(upperLength));
+        console.log(validation);
+        console.log("=".repeat(bottomLength));
+      }
 
       if (validation.success) {
         resolve({ isValid: true, data: validation.data });
@@ -136,8 +148,7 @@ export abstract class ImportContentUtils {
     fieldData: Model["schema"]["fields"],
     sourceFormat: ContentSourceFormat,
   ): z.ZodType<ImportContentResultItem> {
-    const validateObj: Record<string, unknown> = {};
-    // const validateObj = {};
+    const validateObj: Record<string, z.ZodTypeAny> = {};
 
     fieldData.forEach(field => {
       switch (field.type) {
@@ -211,7 +222,7 @@ export abstract class ImportContentUtils {
 
           // validate defaultValue into schema with single or multiple respectively
           if (multiple) {
-            const defaultValuesValidation = z
+            const defaultValuesValidation = z.coerce
               .date()
               .array()
               .optional()
@@ -220,7 +231,7 @@ export abstract class ImportContentUtils {
             if (defaultValuesValidation.success && defaultValuesValidation.data)
               dateField = dateField.array().default(defaultValuesValidation.data);
           } else {
-            const defaultValueValidation = z
+            const defaultValueValidation = z.coerce
               .date()
               .optional()
               .safeParse(field.typeProperty?.defaultValue);
@@ -406,7 +417,7 @@ export abstract class ImportContentUtils {
                 .union(field.typeProperty.values.map(value => z.literal(value)))
                 .array()
                 .optional()
-                .safeParse(field.typeProperty?.defaultValue);
+                .safeParse(field.typeProperty?.selectDefaultValue);
 
               if (defaultValuesValidation.success && defaultValuesValidation.data)
                 optionField = optionField.array().default(defaultValuesValidation.data);
@@ -414,7 +425,7 @@ export abstract class ImportContentUtils {
               const defaultValueValidation = z
                 .union(field.typeProperty.values.map(value => z.literal(value)))
                 .optional()
-                .safeParse(field.typeProperty?.defaultValue);
+                .safeParse(field.typeProperty?.selectDefaultValue);
 
               if (defaultValueValidation.success && defaultValueValidation.data)
                 optionField = optionField.default(defaultValueValidation.data);
@@ -467,46 +478,166 @@ export abstract class ImportContentUtils {
           break;
         }
 
-        // TODO: add multiple, default later
         case "GeometryObject": {
           // CSV file cannot contain geometry object
           if (sourceFormat === "JSON") {
-            let geoObjField:
-              | z.ZodJSONSchema
-              | z.ZodDefault<z.ZodJSONSchema>
-              | z.ZodOptional<z.ZodJSONSchema>
-              | z.ZodOptional<z.ZodDefault<z.ZodJSONSchema>> = z.json().refine(
-              val => {
-                if (!val) return false;
+            const supportedTypes = z
+              .union([
+                z.literal("POINT"),
+                z.literal("MULTIPOINT"),
+                z.literal("LINESTRING"),
+                z.literal("MULTILINESTRING"),
+                z.literal("POLYGON"),
+                z.literal("MULTIPOLYGON"),
+                z.literal("GEOMETRYCOLLECTION"),
+              ])
+              .array()
+              .safeParse(field.typeProperty?.objectSupportedTypes);
+
+            let geoObjectField: z.ZodTypeAny = GeoJSON2DSchema.superRefine((_value, context) => {
+              if (!supportedTypes.success) {
+                context.addIssue({
+                  code: "custom",
+                  input: field.typeProperty?.objectSupportedTypes,
+                  expected:
+                    "POINT | MULTIPOINT | LINESTRING | MULTILINESTRING | POLYGON | MULTIPOLYGON | GEOMETRYCOLLECTION",
+                  message: CustomError.SUPPORTED_TYPES_INVALID,
+                });
+              }
+            });
+
+            // validate multiple and add into schema
+            const multiple = z.boolean().parse(field.multiple);
+
+            // validate defaultValue into schema with single or multiple respectively
+            if (multiple) {
+              const defaultValuesValidation = GeoJSON2DSchema.array()
+                .optional()
+                .safeParse(field.typeProperty?.defaultValue);
+
+              if (defaultValuesValidation.success && defaultValuesValidation.data)
+                geoObjectField = geoObjectField.array().default(defaultValuesValidation.data);
+
+              //  geoObjectField.superRefine((value, context) => {
+
+              // })
+            } else {
+              const defaultValueValidation = GeoJSON2DSchema.optional().safeParse(
+                field.typeProperty?.defaultValue,
+              );
+
+              if (defaultValueValidation.success && defaultValueValidation.data)
+                geoObjectField = geoObjectField.default(defaultValueValidation.data);
+
+              geoObjectField = geoObjectField.superRefine((value, context) => {
+                // TODO: refactor this later
+                const valueType =
+                  typeof value === "object" &&
+                  value !== null &&
+                  "type" in value &&
+                  typeof value.type === "string"
+                    ? value.type.toUpperCase()
+                    : null;
+
                 if (
-                  typeof val === "object" &&
-                  !Array.isArray(val) &&
-                  field.typeProperty?.objectSupportedTypes &&
-                  val.type &&
-                  field.typeProperty.objectSupportedTypes.includes(val.type as ObjectSupportedType)
-                )
-                  return false;
+                  supportedTypes.success &&
+                  valueType &&
+                  !supportedTypes.data.includes(valueType as ObjectSupportedType)
+                ) {
+                  context.addIssue({
+                    code: "custom",
+                    input: valueType,
+                    expected: supportedTypes.data.join(" | "),
+                    message: CustomError.SUPPORTED_TYPES_OUT_OF_RANGE,
+                  });
+                }
+              });
+            }
 
-                const issues: HintIssue[] = getIssues(JSON.stringify(val));
-                return !(issues.length > 0);
-              },
-              { error: "Invalid GeometryObject format." },
-            );
+            if (!field.required) geoObjectField = geoObjectField.optional();
 
-            if (
-              field.typeProperty?.defaultValue &&
-              typeof field.typeProperty.defaultValue === "string" &&
-              z.url().safeParse(field.typeProperty.defaultValue).success
-            )
-              geoObjField = geoObjField.default(field.typeProperty.defaultValue);
-
-            if (!field.required) geoObjField = geoObjField.optional();
-
-            validateObj[field.key] = geoObjField;
+            validateObj[field.key] = geoObjectField;
           }
 
           break;
         }
+
+        case "GeometryEditor": {
+          // CSV file cannot contain geometry object
+          if (sourceFormat === "JSON") {
+            const editorSupportedTypes = z
+              .union([
+                z.literal("POINT"),
+                z.literal("LINESTRING"),
+                z.literal("POLYGON"),
+                z.literal("ANY"),
+              ])
+              .array()
+              .safeParse(field.typeProperty?.editorSupportedTypes);
+
+            let geoEditorField: z.ZodTypeAny = GeoJSON2DSchema.superRefine((_value, context) => {
+              if (!editorSupportedTypes.success) {
+                context.addIssue({
+                  code: "custom",
+                  input: field.typeProperty?.editorSupportedTypes,
+                  expected: "POINT, LINESTRING, POLYGON, ANY",
+                  message: CustomError.EDITOR_SUPPORTED_TYPES_INVALID,
+                });
+              }
+            });
+
+            // validate multiple and add into schema
+            const multiple = z.boolean().parse(field.multiple);
+
+            // validate defaultValue into schema with single or multiple respectively
+            if (multiple) {
+              const defaultValuesValidation = GeoJSON2DSchema.array()
+                .optional()
+                .safeParse(field.typeProperty?.defaultValue);
+
+              if (defaultValuesValidation.success && defaultValuesValidation.data)
+                geoEditorField = geoEditorField.array().default(defaultValuesValidation.data);
+            } else {
+              const defaultValueValidation = GeoJSON2DSchema.optional().safeParse(
+                field.typeProperty?.defaultValue,
+              );
+
+              if (defaultValueValidation.success && defaultValueValidation.data)
+                geoEditorField = geoEditorField.default(defaultValueValidation.data);
+
+              geoEditorField = geoEditorField.superRefine((value, context) => {
+                // TODO: refactor this later
+                const valueType =
+                  typeof value === "object" &&
+                  value !== null &&
+                  "type" in value &&
+                  typeof value.type === "string"
+                    ? value.type.toUpperCase()
+                    : null;
+
+                if (
+                  editorSupportedTypes.success &&
+                  valueType &&
+                  !editorSupportedTypes.data.some(type => type === valueType)
+                ) {
+                  context.addIssue({
+                    code: "custom",
+                    input: valueType,
+                    expected: editorSupportedTypes.data.join(" | "),
+                    message: CustomError.EDITOR_SUPPORTED_TYPES_OUT_OF_RANGE,
+                  });
+                }
+              });
+            }
+
+            if (!field.required) geoEditorField = geoEditorField.optional();
+
+            validateObj[field.key] = geoEditorField;
+          }
+
+          break;
+        }
+
         default:
       }
     });
@@ -519,13 +650,16 @@ export abstract class ImportContentUtils {
   ): ValidationErrorMeta {
     return schemaValidation.error.issues.reduce<ValidationErrorMeta>(
       (acc, curr, _index, _arr) => {
-        // console.log("curr5566", JSON.stringify(curr, null, 2));
         // exceed limit records
         if (curr.code === "too_big" && curr.origin === "array" && curr.path.length === 0)
           return { ...acc, exceedLimit: true };
 
         // invalid value type
         if (curr.path[1] && curr.code === "invalid_type")
+          return { ...acc, typeMismatchFieldKeys: acc.typeMismatchFieldKeys.add(curr.path[1]) };
+
+        // invalid value type (date)
+        if (curr.path[1] && curr.code === "invalid_format" && curr.format === "url")
           return { ...acc, typeMismatchFieldKeys: acc.typeMismatchFieldKeys.add(curr.path[1]) };
 
         // TODO: need to improve
@@ -544,6 +678,24 @@ export abstract class ImportContentUtils {
         ) {
           if (typeof curr.path[1] === "string") acc.outOfRangeFieldKeys.add(curr.path[1]);
           return { ...acc, outOfRangeFieldKeys: acc.outOfRangeFieldKeys };
+        }
+
+        // custom error (GeoObject, GeoEditor)
+        if (curr.code === "custom") {
+          if (
+            curr.message === CustomError.SUPPORTED_TYPES_INVALID ||
+            curr.message === CustomError.EDITOR_SUPPORTED_TYPES_INVALID
+          ) {
+            return { ...acc, typeMismatchFieldKeys: acc.typeMismatchFieldKeys.add(curr.path[1]) };
+          }
+
+          if (
+            curr.message === CustomError.SUPPORTED_TYPES_OUT_OF_RANGE ||
+            curr.message === CustomError.EDITOR_SUPPORTED_TYPES_OUT_OF_RANGE
+          ) {
+            if (typeof curr.path[1] === "string") acc.outOfRangeFieldKeys.add(curr.path[1]);
+            return { ...acc, outOfRangeFieldKeys: acc.outOfRangeFieldKeys };
+          }
         }
 
         return acc;

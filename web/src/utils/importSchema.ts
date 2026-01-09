@@ -66,11 +66,13 @@ interface FieldNumberBaseMulti extends FieldBase {
 
 // geo editor common
 interface FieldGeoEditorBase extends FieldBase {
+  type: "GeometryEditor";
   multiple: false;
   supportType: EditorSupportedType;
 }
 
 interface FieldGeoEditorBaseMulti extends FieldBase {
+  type: "GeometryEditor";
   multiple: true;
   supportType: EditorSupportedType;
 }
@@ -198,6 +200,7 @@ export interface FieldSelectMulti extends FieldBase {
 
 export interface FieldGeoObject<S extends readonly ObjectSupportedType[] = ObjectSupportedType[]>
   extends FieldBase {
+  type: "GeometryObject";
   multiple: false;
   supportType: S;
   defaultValue?: SupportTypeToGeoJSON<S>;
@@ -205,6 +208,7 @@ export interface FieldGeoObject<S extends readonly ObjectSupportedType[] = Objec
 
 export interface FieldGeoObjectMulti<S extends ObjectSupportedType[] = ObjectSupportedType[]>
   extends FieldBase {
+  type: "GeometryObject";
   multiple: true;
   supportType: S;
   defaultValue?: SupportTypeToGeoJSON<S>[];
@@ -358,6 +362,7 @@ export abstract class ImportSchemaUtils {
 
   private static readonly FIELD_GEO_OBJECT_VALIDATOR: z.ZodType<FieldGeoObject> = z
     .object({
+      type: z.literal("GeometryObject"),
       multiple: z.literal(false),
       supportType: z
         .union([
@@ -407,6 +412,7 @@ export abstract class ImportSchemaUtils {
 
   private static readonly FIELD_GEO_OBJECT_MULTI_VALIDATOR: z.ZodType<FieldGeoObjectMulti> = z
     .object({
+      type: z.literal("GeometryObject"),
       multiple: z.literal(true),
       supportType: z
         .union([
@@ -459,6 +465,7 @@ export abstract class ImportSchemaUtils {
   private static readonly FILED_GEO_EDITOR_VALIDATOR: z.ZodType<FieldGeoEditor> = z.union([
     z
       .object({
+        type: z.literal("GeometryEditor"),
         multiple: z.literal(false),
         supportType: z.literal("POINT"),
         defaultValue: GeoJSONPointSchema.optional(),
@@ -466,6 +473,7 @@ export abstract class ImportSchemaUtils {
       .and(this.FIELD_BASE_VALIDATOR),
     z
       .object({
+        type: z.literal("GeometryEditor"),
         multiple: z.literal(false),
         supportType: z.literal("LINESTRING"),
         defaultValue: GeoJSONLineStringSchema.optional(),
@@ -473,6 +481,7 @@ export abstract class ImportSchemaUtils {
       .and(this.FIELD_BASE_VALIDATOR),
     z
       .object({
+        type: z.literal("GeometryEditor"),
         multiple: z.literal(false),
         supportType: z.literal("POLYGON"),
         defaultValue: GeoJSONPolygonSchema.optional(),
@@ -480,6 +489,7 @@ export abstract class ImportSchemaUtils {
       .and(this.FIELD_BASE_VALIDATOR),
     z
       .object({
+        type: z.literal("GeometryEditor"),
         multiple: z.literal(false),
         supportType: z.literal("ANY"),
         defaultValue: z
@@ -493,6 +503,7 @@ export abstract class ImportSchemaUtils {
     z.union([
       z
         .object({
+          type: z.literal("GeometryEditor"),
           multiple: z.literal(true),
           supportType: z.literal("POINT"),
           defaultValue: GeoJSONPointSchema.array().optional(),
@@ -500,6 +511,7 @@ export abstract class ImportSchemaUtils {
         .and(this.FIELD_BASE_VALIDATOR),
       z
         .object({
+          type: z.literal("GeometryEditor"),
           multiple: z.literal(true),
           supportType: z.literal("LINESTRING"),
           defaultValue: GeoJSONLineStringSchema.array().optional(),
@@ -507,6 +519,7 @@ export abstract class ImportSchemaUtils {
         .and(this.FIELD_BASE_VALIDATOR),
       z
         .object({
+          type: z.literal("GeometryEditor"),
           multiple: z.literal(true),
           supportType: z.literal("POLYGON"),
           defaultValue: GeoJSONPolygonSchema.array().optional(),
@@ -514,6 +527,7 @@ export abstract class ImportSchemaUtils {
         .and(this.FIELD_BASE_VALIDATOR),
       z
         .object({
+          type: z.literal("GeometryEditor"),
           multiple: z.literal(true),
           supportType: z.literal("ANY"),
           defaultValue: z

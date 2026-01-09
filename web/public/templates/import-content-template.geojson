@@ -3,7 +3,10 @@
   "features": [
     {
       "geometry": {
-        "coordinates": [139.6917, 35.6895],
+        "coordinates": [
+          139.6917,
+          35.6895
+        ],
         "type": "Point"
       },
       "properties": {
@@ -16,7 +19,7 @@
         },
         "date-1": "2025-12-01T00:00:00+09:00",
         "boolean-1": true,
-        "option-1": "a",
+        "select-1": "red",
         "int-1": 1,
         "float-1": 1.11,
         "url-1": "http://111.com/"
@@ -25,7 +28,10 @@
     },
     {
       "geometry": {
-        "coordinates": [139.6917, 35.6895],
+        "coordinates": [
+          139.6917,
+          35.6895
+        ],
         "type": "Point"
       },
       "properties": {
@@ -38,7 +44,7 @@
         },
         "date-1": "2025-12-02T00:00:00+09:00",
         "boolean-1": false,
-        "option-1": "b",
+        "select-1": "blue",
         "int-1": 2,
         "float-1": 2.22,
         "url-1": "http://222.com/"
