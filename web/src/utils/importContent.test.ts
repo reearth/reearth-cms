@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 
-import { FeatureCollection, GeoJSON } from "geojson";
+import { FeatureCollection } from "geojson";
 import { describe, expect, test } from "vitest";
 
 import {
@@ -19,6 +19,7 @@ import {
   ImportContentUtils,
 } from "./importContent";
 import { ObjectUtils } from "./object";
+import { Test } from "./test";
 
 async function readFromJSONFile(
   staticFileDirectory: string,
@@ -201,12 +202,7 @@ describe("Content import test", () => {
           typeProperty: {},
         };
 
-        const EXPECTED_RESULT = {
-          exceedLimit: false,
-          typeMismatchFieldKeysCount: 0,
-          outOfRangeFieldKeysCount: 0,
-          isValid: true,
-        };
+        const EXPECTED_RESULT = true;
 
         test.each([
           {
@@ -256,8 +252,8 @@ describe("Content import test", () => {
               type: setup.type,
               key: setup.key,
               required: setup.required,
+              multiple: setup.multiple,
               typeProperty: setup.typeProperty,
-              multiple: false,
             },
           ];
 
@@ -271,18 +267,9 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
-          expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-          if (contentValidation.isValid) return;
-
-          const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
-            contentValidation.error;
-
-          expect(exceedLimit).toBe(expectedResult.exceedLimit);
-          expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-          expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+          expect(contentValidation.isValid).toBe(expectedResult);
         });
       });
 
@@ -310,8 +297,8 @@ describe("Content import test", () => {
               type: setup.type,
               key: setup.key,
               required: setup.required,
+              multiple: setup.multiple,
               typeProperty: setup.typeProperty,
-              multiple: false,
             },
           ];
 
@@ -325,7 +312,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
           expect(contentValidation.isValid).toBe(expectedResult);
         });
@@ -348,7 +335,7 @@ describe("Content import test", () => {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.GeometryObject,
-              value: { type: "Point", coordinates: [139.6917, 35.6895] },
+              value: Test.GEO_JSON_POINT,
             },
             expectedResult: EXPECTED_RESULT,
           },
@@ -359,8 +346,8 @@ describe("Content import test", () => {
               type: setup.type,
               key: setup.key,
               required: setup.required,
+              multiple: setup.multiple,
               typeProperty: setup.typeProperty,
-              multiple: false,
             },
           ];
 
@@ -374,7 +361,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
           expect(contentValidation.isValid).toBe(expectedResult);
         });
@@ -397,7 +384,7 @@ describe("Content import test", () => {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.GeometryEditor,
-              value: { type: "Point", coordinates: [139.6917, 35.6895] },
+              value: Test.GEO_JSON_POINT,
             },
             expectedResult: EXPECTED_RESULT,
           },
@@ -423,7 +410,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
           expect(contentValidation.isValid).toBe(expectedResult);
         });
@@ -485,8 +472,8 @@ describe("Content import test", () => {
               type: setup.type,
               key: setup.key,
               required: setup.required,
+              multiple: setup.multiple,
               typeProperty: setup.typeProperty,
-              multiple: false,
             },
           ];
 
@@ -500,7 +487,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
           expect(contentValidation.isValid).toBe(expectedResult.isValid);
 
@@ -561,7 +548,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
           expect(contentValidation.isValid).toBe(expectedResult.isValid);
 
@@ -599,7 +586,7 @@ describe("Content import test", () => {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.GeometryObject,
-              value: { type: "Point", coordinates: [139.6917, 35.6895] },
+              value: Test.GEO_JSON_POINT,
             },
             expectedResult: EXPECTED_RESULT,
           },
@@ -607,7 +594,7 @@ describe("Content import test", () => {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.GeometryEditor,
-              value: { type: "Point", coordinates: [139.6917, 35.6895] },
+              value: Test.GEO_JSON_POINT,
             },
             expectedResult: EXPECTED_RESULT,
           },
@@ -618,7 +605,7 @@ describe("Content import test", () => {
               type: setup.type,
               key: setup.key,
               required: setup.required,
-              multiple: false,
+              multiple: setup.multiple,
               typeProperty: setup.typeProperty,
             },
           ];
@@ -633,7 +620,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
           expect(contentValidation.isValid).toBe(expectedResult.isValid);
 
@@ -708,8 +695,8 @@ describe("Content import test", () => {
               type: setup.type,
               key: setup.key,
               required: setup.required,
-              multiple: false,
-              typeProperty: {},
+              multiple: setup.multiple,
+              typeProperty: setup.typeProperty,
             },
           ];
 
@@ -723,7 +710,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
           expect(contentValidation.isValid).toBe(expectedResult);
         });
@@ -734,6 +721,7 @@ describe("Content import test", () => {
           key: "field-key",
           required: true,
           multiple: false,
+          type: SchemaFieldType.Select,
           typeProperty: {
             values: ["red", "green", "blue"],
           },
@@ -743,7 +731,7 @@ describe("Content import test", () => {
 
         test.each([
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.Select, correctValue: "red" },
+            setup: { ...COMMON_SETUP, correctValue: "red" },
             expectedResult: EXPECTED_RESULT,
           },
         ])("$setup.type field value type match", async ({ setup, expectedResult }) => {
@@ -753,8 +741,8 @@ describe("Content import test", () => {
               type: setup.type,
               key: setup.key,
               required: setup.required,
-              multiple: false,
-              typeProperty: {},
+              multiple: setup.multiple,
+              typeProperty: setup.typeProperty,
             },
           ];
 
@@ -768,7 +756,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
           expect(contentValidation.isValid).toBe(expectedResult);
         });
@@ -779,6 +767,7 @@ describe("Content import test", () => {
           key: "field-key",
           required: true,
           multiple: false,
+          type: SchemaFieldType.GeometryObject,
           typeProperty: {
             objectSupportedTypes: ["POINT", "LINESTRING"] as ObjectSupportedType[],
           },
@@ -790,8 +779,7 @@ describe("Content import test", () => {
           {
             setup: {
               ...COMMON_SETUP,
-              type: SchemaFieldType.GeometryObject,
-              correctValue: { type: "Point", coordinates: [139.6917, 35.6895] },
+              correctValue: Test.GEO_JSON_POINT,
             },
             expectedResult: EXPECTED_RESULT,
           },
@@ -802,7 +790,7 @@ describe("Content import test", () => {
               type: setup.type,
               key: setup.key,
               required: setup.required,
-              multiple: false,
+              multiple: setup.multiple,
               typeProperty: setup.typeProperty,
             },
           ];
@@ -817,7 +805,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
           expect(contentValidation.isValid).toBe(expectedResult);
         });
@@ -828,6 +816,7 @@ describe("Content import test", () => {
           key: "field-key",
           required: true,
           multiple: false,
+          type: SchemaFieldType.GeometryEditor,
           typeProperty: {
             editorSupportedTypes: ["POINT"] as EditorSupportedType[],
           },
@@ -839,8 +828,7 @@ describe("Content import test", () => {
           {
             setup: {
               ...COMMON_SETUP,
-              type: SchemaFieldType.GeometryEditor,
-              correctValue: { type: "Point", coordinates: [139.6917, 35.6895] },
+              correctValue: Test.GEO_JSON_POINT,
             },
             expectedResult: EXPECTED_RESULT,
           },
@@ -851,7 +839,7 @@ describe("Content import test", () => {
               type: setup.type,
               key: setup.key,
               required: setup.required,
-              multiple: false,
+              multiple: setup.multiple,
               typeProperty: setup.typeProperty,
             },
           ];
@@ -866,7 +854,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
           expect(contentValidation.isValid).toBe(expectedResult);
         });
@@ -927,7 +915,7 @@ describe("Content import test", () => {
               type: setup.type,
               key: setup.key,
               required: setup.required,
-              multiple: false,
+              multiple: setup.multiple,
               typeProperty: {},
             },
           ];
@@ -942,7 +930,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
           expect(contentValidation.isValid).toBe(expectedResult.isValid);
 
@@ -963,6 +951,7 @@ describe("Content import test", () => {
           key: "field-key",
           required: true,
           multiple: false,
+          type: SchemaFieldType.Select,
           typeProperty: {
             values: ["red", "green", "blue"],
           },
@@ -977,7 +966,7 @@ describe("Content import test", () => {
 
         test.each([
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.Select, wrongValue: "yellow" },
+            setup: { ...COMMON_SETUP, wrongValue: "yellow" },
             expectedResult: EXPECTED_RESULT,
           },
         ])("$setup.type field value type mismatch", async ({ setup, expectedResult }) => {
@@ -1002,7 +991,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
           expect(contentValidation.isValid).toBe(expectedResult.isValid);
 
@@ -1022,6 +1011,7 @@ describe("Content import test", () => {
           key: "field-key",
           required: true,
           multiple: false,
+          type: SchemaFieldType.GeometryObject,
           typeProperty: {
             objectSupportedTypes: ["POINT"] as ObjectSupportedType[],
           },
@@ -1038,7 +1028,6 @@ describe("Content import test", () => {
           {
             setup: {
               ...COMMON_SETUP,
-              type: SchemaFieldType.GeometryObject,
               wrongValue: "hello",
             },
             expectedResult: EXPECTED_RESULT,
@@ -1050,7 +1039,7 @@ describe("Content import test", () => {
               type: setup.type,
               key: setup.key,
               required: setup.required,
-              multiple: false,
+              multiple: setup.multiple,
               typeProperty: setup.typeProperty,
             },
           ];
@@ -1065,7 +1054,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
           expect(contentValidation.isValid).toBe(expectedResult.isValid);
 
@@ -1085,6 +1074,7 @@ describe("Content import test", () => {
           key: "field-key",
           required: true,
           multiple: false,
+          type: SchemaFieldType.GeometryEditor,
           typeProperty: {
             editorSupportedTypes: ["POINT"] as EditorSupportedType[],
           },
@@ -1101,7 +1091,6 @@ describe("Content import test", () => {
           {
             setup: {
               ...COMMON_SETUP,
-              type: SchemaFieldType.GeometryEditor,
               wrongValue: "hello",
             },
             expectedResult: EXPECTED_RESULT,
@@ -1113,7 +1102,7 @@ describe("Content import test", () => {
               type: setup.type,
               key: setup.key,
               required: setup.required,
-              multiple: false,
+              multiple: setup.multiple,
               typeProperty: setup.typeProperty,
             },
           ];
@@ -1128,13 +1117,11 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
           expect(contentValidation.isValid).toBe(expectedResult.isValid);
 
           if (contentValidation.isValid) return;
-
-          console.log("contentValidation", contentValidation);
 
           const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
             contentValidation.error;
@@ -1205,7 +1192,7 @@ describe("Content import test", () => {
               type: setup.type,
               key: setup.key,
               required: setup.required,
-              multiple: false,
+              multiple: setup.multiple,
               typeProperty: {
                 defaultValue: setup.defaultValue,
               },
@@ -1222,7 +1209,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
           expect(contentValidation.isValid).toBe(expectedResult);
         });
@@ -1253,7 +1240,7 @@ describe("Content import test", () => {
               type: setup.type,
               key: setup.key,
               required: setup.required,
-              multiple: false,
+              multiple: setup.multiple,
               typeProperty: setup.typeProperty,
             },
           ];
@@ -1268,7 +1255,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
 
           expect(contentValidation.isValid).toBe(expectedResult);
@@ -1282,7 +1269,7 @@ describe("Content import test", () => {
           multiple: false,
           typeProperty: {
             objectSupportedTypes: ["POINT"] as ObjectSupportedType[],
-            defaultValue: { coordinates: [139.6917, 35.6895], type: "Point" } as GeoJSON,
+            defaultValue: Test.GEO_JSON_POINT,
           },
         };
 
@@ -1300,8 +1287,8 @@ describe("Content import test", () => {
               type: setup.type,
               key: setup.key,
               required: setup.required,
+              multiple: setup.multiple,
               typeProperty: setup.typeProperty,
-              multiple: false,
             },
           ];
 
@@ -1315,7 +1302,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
 
           expect(contentValidation.isValid).toBe(expectedResult);
@@ -1329,7 +1316,7 @@ describe("Content import test", () => {
           multiple: false,
           typeProperty: {
             editorSupportedTypes: ["POINT"] as EditorSupportedType[],
-            defaultValue: { coordinates: [139.6917, 35.6895], type: "Point" } as GeoJSON,
+            defaultValue: Test.GEO_JSON_POINT,
           },
         };
 
@@ -1347,8 +1334,8 @@ describe("Content import test", () => {
               type: setup.type,
               key: setup.key,
               required: setup.required,
+              multiple: setup.multiple,
               typeProperty: setup.typeProperty,
-              multiple: false,
             },
           ];
 
@@ -1362,7 +1349,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
 
           expect(contentValidation.isValid).toBe(expectedResult);
@@ -1386,42 +1373,66 @@ describe("Content import test", () => {
 
         test.each([
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, defaultValue: 1 },
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Text,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: 1 },
+            },
             expectedResult: EXPECTED_RESULT,
           },
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea, defaultValue: 1 },
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.TextArea,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: 1 },
+            },
             expectedResult: EXPECTED_RESULT,
           },
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText, defaultValue: 1 },
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.MarkdownText,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: 1 },
+            },
             expectedResult: EXPECTED_RESULT,
           },
           {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.Date,
-              defaultValue: "hello",
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: "hello" },
             },
             expectedResult: EXPECTED_RESULT,
           },
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, defaultValue: "text" },
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Bool,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: "text" },
+            },
             expectedResult: EXPECTED_RESULT,
           },
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, defaultValue: "text" },
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Integer,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: "text" },
+            },
             expectedResult: EXPECTED_RESULT,
           },
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, defaultValue: "text" },
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Number,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: "text" },
+            },
             expectedResult: EXPECTED_RESULT,
           },
           {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.URL,
-              defaultValue: 123,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: 123 },
             },
             expectedResult: EXPECTED_RESULT,
           },
@@ -1432,16 +1443,14 @@ describe("Content import test", () => {
               type: setup.type,
               key: setup.key,
               required: setup.required,
-              multiple: false,
-              typeProperty: {
-                defaultValue: setup.defaultValue,
-              },
+              multiple: setup.multiple,
+              typeProperty: setup.typeProperty,
             },
           ];
 
           const contentList = [
             {
-              [setup.key]: setup.defaultValue,
+              [setup.key]: setup.typeProperty.defaultValue,
             },
           ];
 
@@ -1449,7 +1458,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
           expect(contentValidation.isValid).toBe(expectedResult.isValid);
 
@@ -1468,25 +1477,21 @@ describe("Content import test", () => {
     describe("Control variables: multiple (true), required, with default value", () => {
       describe("[Pass case] Field with default value type match", () => {
         const COMMON_SETUP = {
+          ...DEFAULT_COMMON_FIELD,
           key: "field-key",
           required: false,
           multiple: true,
           typeProperty: {},
         };
 
-        const EXPECTED_RESULT = {
-          exceedLimit: false,
-          typeMismatchFieldKeysCount: 0,
-          outOfRangeFieldKeysCount: 0,
-          isValid: true,
-        };
+        const EXPECTED_RESULT = true;
 
         test.each([
           {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.Text,
-              defaultValues: ["hello", "world"],
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: ["hello", "world"] },
             },
             expectedResult: EXPECTED_RESULT,
           },
@@ -1494,7 +1499,7 @@ describe("Content import test", () => {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.TextArea,
-              defaultValues: ["hello", "world"],
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: ["hello", "world"] },
             },
             expectedResult: EXPECTED_RESULT,
           },
@@ -1502,7 +1507,7 @@ describe("Content import test", () => {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.MarkdownText,
-              defaultValues: ["hello", "world"],
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: ["hello", "world"] },
             },
             expectedResult: EXPECTED_RESULT,
           },
@@ -1510,47 +1515,54 @@ describe("Content import test", () => {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.Date,
-              defaultValues: [new Date().toLocaleString(), new Date().toLocaleString()],
+              typeProperty: {
+                ...COMMON_SETUP.typeProperty,
+                defaultValue: [new Date().toLocaleString(), new Date().toLocaleString()],
+              },
             },
             expectedResult: EXPECTED_RESULT,
           },
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, defaultValues: [true, false] },
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Bool,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: [true, false] },
+            },
             expectedResult: EXPECTED_RESULT,
           },
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, defaultValues: [1, 2] },
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Integer,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: [1, 2] },
+            },
             expectedResult: EXPECTED_RESULT,
           },
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, defaultValues: [1.5, 2.5] },
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Number,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: [1.5, 2.5] },
+            },
             expectedResult: EXPECTED_RESULT,
           },
           {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.URL,
-              defaultValues: ["https://hello.com/", "https://world.com/"],
+              typeProperty: {
+                ...COMMON_SETUP.typeProperty,
+                defaultValue: ["https://hello.com/", "https://world.com/"],
+              },
             },
             expectedResult: EXPECTED_RESULT,
           },
         ])("$setup.type field default value type match", async ({ setup, expectedResult }) => {
-          const fields = [
-            {
-              ...DEFAULT_COMMON_FIELD,
-              type: setup.type,
-              key: setup.key,
-              required: setup.required,
-              multiple: setup.multiple,
-              typeProperty: {
-                defaultValue: setup.defaultValues,
-              },
-            },
-          ];
+          const fields = [setup];
 
           const contentList = [
             {
-              [setup.key]: setup.defaultValues,
+              [setup.key]: setup.typeProperty.defaultValue,
             },
           ];
 
@@ -1558,24 +1570,16 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
 
-          expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-          if (contentValidation.isValid) return;
-
-          const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
-            contentValidation.error;
-
-          expect(exceedLimit).toBe(expectedResult.exceedLimit);
-          expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-          expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+          expect(contentValidation.isValid).toBe(expectedResult);
         });
       });
 
       describe("[Pass case] Field with multiple default values type match", () => {
         const COMMON_SETUP = {
+          ...DEFAULT_COMMON_FIELD,
           key: "field-key",
           required: true,
           multiple: true,
@@ -1589,7 +1593,7 @@ describe("Content import test", () => {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.Text,
-              defaultValues: ["hello", "world"],
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: ["hello", "world"] },
             },
             expectedResult: EXPECTED_RESULT,
           },
@@ -1597,7 +1601,7 @@ describe("Content import test", () => {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.TextArea,
-              defaultValues: ["hello", "world"],
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: ["hello", "world"] },
             },
             expectedResult: EXPECTED_RESULT,
           },
@@ -1605,7 +1609,7 @@ describe("Content import test", () => {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.MarkdownText,
-              defaultValues: ["hello", "world"],
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: ["hello", "world"] },
             },
             expectedResult: EXPECTED_RESULT,
           },
@@ -1613,47 +1617,54 @@ describe("Content import test", () => {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.Date,
-              defaultValues: [new Date().toISOString()],
+              typeProperty: {
+                ...COMMON_SETUP.typeProperty,
+                defaultValue: [new Date().toISOString()],
+              },
             },
             expectedResult: EXPECTED_RESULT,
           },
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, defaultValues: [true, false] },
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Bool,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: [true, false] },
+            },
             expectedResult: EXPECTED_RESULT,
           },
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, defaultValues: [1, 2] },
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Integer,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: [1, 2] },
+            },
             expectedResult: EXPECTED_RESULT,
           },
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, defaultValues: [1.5, 2.5] },
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Number,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: [1.5, 2.5] },
+            },
             expectedResult: EXPECTED_RESULT,
           },
           {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.URL,
-              defaultValues: ["https://hello.com/", "https://world.com/"],
+              typeProperty: {
+                ...COMMON_SETUP.typeProperty,
+                defaultValue: ["https://hello.com/", "https://world.com/"],
+              },
             },
             expectedResult: EXPECTED_RESULT,
           },
         ])("$setup.type field default value type match", async ({ setup, expectedResult }) => {
-          const fields = [
-            {
-              ...DEFAULT_COMMON_FIELD,
-              type: setup.type,
-              key: setup.key,
-              required: setup.required,
-              multiple: setup.multiple,
-              typeProperty: {
-                defaultValue: setup.defaultValues,
-              },
-            },
-          ];
+          const fields = [setup];
 
           const contentList = [
             {
-              [setup.key]: setup.defaultValues,
+              [setup.key]: setup.typeProperty.defaultValue,
             },
           ];
 
@@ -1661,7 +1672,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
 
           expect(contentValidation.isValid).toBe(expectedResult);
@@ -1670,6 +1681,7 @@ describe("Content import test", () => {
 
       describe("[Pass case] Select field with multiple default values type match", () => {
         const COMMON_SETUP = {
+          ...DEFAULT_COMMON_FIELD,
           key: "field-key",
           required: true,
           multiple: true,
@@ -1687,16 +1699,7 @@ describe("Content import test", () => {
             expectedResult: EXPECTED_RESULT,
           },
         ])("$setup.type field default value type match", async ({ setup, expectedResult }) => {
-          const fields = [
-            {
-              ...DEFAULT_COMMON_FIELD,
-              type: setup.type,
-              key: setup.key,
-              required: setup.required,
-              multiple: setup.multiple,
-              typeProperty: setup.typeProperty,
-            },
-          ];
+          const fields = [setup];
 
           const contentList = [
             {
@@ -1708,7 +1711,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
 
           expect(contentValidation.isValid).toBe(expectedResult);
@@ -1717,12 +1720,13 @@ describe("Content import test", () => {
 
       describe("[Pass case] GeoObject field with multiple default values type match", () => {
         const COMMON_SETUP = {
+          ...DEFAULT_COMMON_FIELD,
           key: "field-key",
           required: true,
           multiple: true,
           typeProperty: {
             objectSupportedTypes: ["POINT"] as ObjectSupportedType[],
-            defaultValue: { coordinates: [139.6917, 35.6895], type: "Point" } as GeoJSON,
+            defaultValue: Test.GEO_JSON_POINT,
           },
         };
 
@@ -1734,16 +1738,7 @@ describe("Content import test", () => {
             expectedResult: EXPECTED_RESULT,
           },
         ])("$setup.type field default value type match", async ({ setup, expectedResult }) => {
-          const fields = [
-            {
-              ...DEFAULT_COMMON_FIELD,
-              type: setup.type,
-              key: setup.key,
-              required: setup.required,
-              multiple: setup.multiple,
-              typeProperty: setup.typeProperty,
-            },
-          ];
+          const fields = [setup];
 
           const contentList = [
             {
@@ -1755,7 +1750,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
 
           expect(contentValidation.isValid).toBe(expectedResult);
@@ -1764,12 +1759,13 @@ describe("Content import test", () => {
 
       describe("[Pass case] GeoEditor field with multiple default values type match", () => {
         const COMMON_SETUP = {
+          ...DEFAULT_COMMON_FIELD,
           key: "field-key",
           required: true,
           multiple: true,
           typeProperty: {
             editorSupportedTypes: ["POINT"] as EditorSupportedType[],
-            defaultValue: { coordinates: [139.6917, 35.6895], type: "Point" } as GeoJSON,
+            defaultValue: Test.GEO_JSON_POINT,
           },
         };
 
@@ -1781,16 +1777,7 @@ describe("Content import test", () => {
             expectedResult: EXPECTED_RESULT,
           },
         ])("$setup.type field default value type match", async ({ setup, expectedResult }) => {
-          const fields = [
-            {
-              ...DEFAULT_COMMON_FIELD,
-              type: setup.type,
-              key: setup.key,
-              required: setup.required,
-              multiple: setup.multiple,
-              typeProperty: setup.typeProperty,
-            },
-          ];
+          const fields = [setup];
 
           const contentList = [
             {
@@ -1802,7 +1789,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
 
           expect(contentValidation.isValid).toBe(expectedResult);
@@ -1813,6 +1800,7 @@ describe("Content import test", () => {
     describe("Control variables: multiple (true), required (true), with default value", () => {
       describe("[Fail case] Field with default values type mismatch", () => {
         const COMMON_SETUP = {
+          ...DEFAULT_COMMON_FIELD,
           key: "field-key",
           required: true,
           multiple: true,
@@ -1828,14 +1816,21 @@ describe("Content import test", () => {
 
         test.each([
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, defaultValues: 123 },
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Text,
+              typeProperty: {
+                ...COMMON_SETUP,
+                defaultValue: 123,
+              },
+            },
             expectedResult: EXPECTED_RESULT,
           },
           {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.TextArea,
-              defaultValues: 123,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: 123 },
             },
             expectedResult: EXPECTED_RESULT,
           },
@@ -1843,16 +1838,24 @@ describe("Content import test", () => {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.MarkdownText,
-              defaultValues: 123,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: 123 },
             },
             expectedResult: EXPECTED_RESULT,
           },
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.Date, defaultValues: "hello" },
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Date,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: "hello" },
+            },
             expectedResult: EXPECTED_RESULT,
           },
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool, defaultValues: "true" },
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Bool,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: "true" },
+            },
             expectedResult: EXPECTED_RESULT,
           },
           // TODO: select wrong default value type
@@ -1861,18 +1864,26 @@ describe("Content import test", () => {
           //   expectedResult: EXPECTED_RESULT,
           // },
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, defaultValues: "1" },
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Integer,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: "1" },
+            },
             expectedResult: EXPECTED_RESULT,
           },
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, defaultValues: "1.5" },
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Number,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: "1.5" },
+            },
             expectedResult: EXPECTED_RESULT,
           },
           {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.URL,
-              defaultValues: "hello",
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: "hello" },
             },
             expectedResult: EXPECTED_RESULT,
           },
@@ -1887,22 +1898,11 @@ describe("Content import test", () => {
           //   expectedResult: EXPECTED_RESULT,
           // },
         ])("$setup.type field default value type mismatch", async ({ setup, expectedResult }) => {
-          const fields = [
-            {
-              ...DEFAULT_COMMON_FIELD,
-              type: setup.type,
-              key: setup.key,
-              required: setup.required,
-              multiple: setup.multiple,
-              typeProperty: {
-                defaultValue: setup.defaultValues,
-              },
-            },
-          ];
+          const fields = [setup];
 
           const contentList = [
             {
-              [setup.key]: setup.defaultValues,
+              [setup.key]: setup.typeProperty.defaultValue,
             },
           ];
 
@@ -1910,7 +1910,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
 
           expect(contentValidation.isValid).toBe(expectedResult.isValid);
@@ -1972,7 +1972,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
 
           expect(contentValidation.isValid).toBe(expectedResult.isValid);
@@ -1996,7 +1996,7 @@ describe("Content import test", () => {
           multiple: true,
           typeProperty: {
             objectSupportedTypes: ["POINT"] as ObjectSupportedType[],
-            defaultValue: { coordinates: [139.6917, 35.6895], type: "Point" } as GeoJSON,
+            defaultValue: Test.GEO_JSON_POINT,
           },
         };
 
@@ -2034,7 +2034,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
 
           expect(contentValidation.isValid).toBe(expectedResult.isValid);
@@ -2052,12 +2052,13 @@ describe("Content import test", () => {
 
       describe.skip("[Fail case] GeoEditor field with default values type mismatch", () => {
         const COMMON_SETUP = {
+          ...DEFAULT_COMMON_FIELD,
           key: "field-key",
           required: true,
           multiple: true,
           typeProperty: {
             editorSupportedTypes: ["POINT"] as EditorSupportedType[],
-            defaultValue: { coordinates: [139.6917, 35.6895], type: "Point" } as GeoJSON,
+            defaultValue: Test.GEO_JSON_POINT,
           },
         };
 
@@ -2074,16 +2075,7 @@ describe("Content import test", () => {
             expectedResult: EXPECTED_RESULT,
           },
         ])("$setup.type field default value type mismatch", async ({ setup, expectedResult }) => {
-          const fields = [
-            {
-              ...DEFAULT_COMMON_FIELD,
-              type: setup.type,
-              key: setup.key,
-              required: setup.required,
-              multiple: setup.multiple,
-              typeProperty: setup.typeProperty,
-            },
-          ];
+          const fields = [setup];
 
           const contentList = [
             {
@@ -2095,7 +2087,7 @@ describe("Content import test", () => {
             contentList,
             fields,
             "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
           );
 
           expect(contentValidation.isValid).toBe(expectedResult.isValid);
@@ -2116,22 +2108,23 @@ describe("Content import test", () => {
       describe("Number fields", () => {
         describe("[Pass case] Control variables: multiple (false), required (true), value in range (min, max)", () => {
           const COMMON_SETUP = {
+            ...DEFAULT_COMMON_FIELD,
             key: "field-key",
             required: true,
             multiple: false,
             typeProperty: {},
           };
 
-          const EXPECTED_RESULT = {
-            exceedLimit: false,
-            typeMismatchFieldKeysCount: 0,
-            outOfRangeFieldKeysCount: 0,
-            isValid: true,
-          };
+          const EXPECTED_RESULT = true;
 
           test.each([
             {
-              setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, value: 2, min: -5, max: 5 },
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.Integer,
+                value: 2,
+                typeProperty: { ...COMMON_SETUP.typeProperty, min: -5, max: 5 },
+              },
               expectedResult: EXPECTED_RESULT,
             },
             {
@@ -2139,25 +2132,12 @@ describe("Content import test", () => {
                 ...COMMON_SETUP,
                 type: SchemaFieldType.Number,
                 value: 2.5,
-                min: -5.5,
-                max: 5.5,
+                typeProperty: { ...COMMON_SETUP.typeProperty, min: -5.5, max: 5.5 },
               },
               expectedResult: EXPECTED_RESULT,
             },
           ])("$setup.type field value in range", async ({ setup, expectedResult }) => {
-            const fields = [
-              {
-                ...DEFAULT_COMMON_FIELD,
-                type: setup.type,
-                key: setup.key,
-                required: setup.required,
-                multiple: setup.multiple,
-                typeProperty: {
-                  min: setup.min,
-                  max: setup.max,
-                },
-              },
-            ];
+            const fields = [setup];
 
             const contentList = [
               {
@@ -2169,24 +2149,16 @@ describe("Content import test", () => {
               contentList,
               fields,
               "JSON",
-              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
             );
 
-            expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-            if (contentValidation.isValid) return;
-
-            const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
-              contentValidation.error;
-
-            expect(exceedLimit).toBe(expectedResult.exceedLimit);
-            expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-            expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+            expect(contentValidation.isValid).toBe(expectedResult);
           });
         });
 
         describe("[Fail case] Control variables: multiple (false), required (true), value out of range (min, max)", () => {
           const COMMON_SETUP = {
+            ...DEFAULT_COMMON_FIELD,
             key: "field-key",
             required: true,
             multiple: false,
@@ -2202,7 +2174,12 @@ describe("Content import test", () => {
 
           test.each([
             {
-              setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer, value: 7, min: -5, max: 5 },
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.Integer,
+                value: 7,
+                typeProperty: { ...COMMON_SETUP.typeProperty, min: -5, max: 5 },
+              },
               expectedResult: EXPECTED_RESULT,
             },
             {
@@ -2210,25 +2187,12 @@ describe("Content import test", () => {
                 ...COMMON_SETUP,
                 type: SchemaFieldType.Number,
                 value: 10.5,
-                min: -5.5,
-                max: 5.5,
+                typeProperty: { ...COMMON_SETUP.typeProperty, min: -5.5, max: 5.5 },
               },
               expectedResult: EXPECTED_RESULT,
             },
           ])("$setup.type field value out of range", async ({ setup, expectedResult }) => {
-            const fields = [
-              {
-                ...DEFAULT_COMMON_FIELD,
-                type: setup.type,
-                key: setup.key,
-                required: setup.required,
-                multiple: setup.multiple,
-                typeProperty: {
-                  min: setup.min,
-                  max: setup.max,
-                },
-              },
-            ];
+            const fields = [setup];
 
             const contentList = [
               {
@@ -2240,7 +2204,7 @@ describe("Content import test", () => {
               contentList,
               fields,
               "JSON",
-              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
             );
 
             expect(contentValidation.isValid).toBe(expectedResult.isValid);
@@ -2260,22 +2224,23 @@ describe("Content import test", () => {
       describe("Text fields", () => {
         describe("[Pass case] Control variables: multiple (false), required (true), value in range (maxLength)", () => {
           const COMMON_SETUP = {
+            ...DEFAULT_COMMON_FIELD,
             key: "field-key",
             required: true,
             multiple: false,
             typeProperty: {},
           };
 
-          const EXPECTED_RESULT = {
-            exceedLimit: false,
-            typeMismatchFieldKeysCount: 0,
-            outOfRangeFieldKeysCount: 0,
-            isValid: true,
-          };
+          const EXPECTED_RESULT = true;
 
           test.each([
             {
-              setup: { ...COMMON_SETUP, type: SchemaFieldType.Text, value: "hello", maxLength: 10 },
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.Text,
+                value: "hello",
+                typeProperty: { ...COMMON_SETUP.typeProperty, maxLength: 10 },
+              },
               expectedResult: EXPECTED_RESULT,
             },
             {
@@ -2283,7 +2248,7 @@ describe("Content import test", () => {
                 ...COMMON_SETUP,
                 type: SchemaFieldType.TextArea,
                 value: "hello",
-                maxLength: 10,
+                typeProperty: { ...COMMON_SETUP.typeProperty, maxLength: 10 },
               },
               expectedResult: EXPECTED_RESULT,
             },
@@ -2292,23 +2257,12 @@ describe("Content import test", () => {
                 ...COMMON_SETUP,
                 type: SchemaFieldType.MarkdownText,
                 value: "hello",
-                maxLength: 10,
+                typeProperty: { ...COMMON_SETUP.typeProperty, maxLength: 10 },
               },
               expectedResult: EXPECTED_RESULT,
             },
           ])("$setup.type field value in range", async ({ setup, expectedResult }) => {
-            const fields = [
-              {
-                ...DEFAULT_COMMON_FIELD,
-                type: setup.type,
-                key: setup.key,
-                required: setup.required,
-                multiple: setup.multiple,
-                typeProperty: {
-                  maxLength: setup.maxLength,
-                },
-              },
-            ];
+            const fields = [setup];
 
             const contentList = [
               {
@@ -2320,24 +2274,16 @@ describe("Content import test", () => {
               contentList,
               fields,
               "JSON",
-              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
             );
 
-            expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-            if (contentValidation.isValid) return;
-
-            const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
-              contentValidation.error;
-
-            expect(exceedLimit).toBe(expectedResult.exceedLimit);
-            expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-            expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+            expect(contentValidation.isValid).toBe(expectedResult);
           });
         });
 
         describe("[Fail case] Control variables: multiple (false), required (true), value out of range (maxLength)", () => {
           const COMMON_SETUP = {
+            ...DEFAULT_COMMON_FIELD,
             key: "field-key",
             required: true,
             multiple: false,
@@ -2357,7 +2303,7 @@ describe("Content import test", () => {
                 ...COMMON_SETUP,
                 type: SchemaFieldType.Text,
                 value: "hello world",
-                maxLength: 10,
+                typeProperty: { ...COMMON_SETUP.typeProperty, maxLength: 10 },
               },
               expectedResult: EXPECTED_RESULT,
             },
@@ -2366,7 +2312,7 @@ describe("Content import test", () => {
                 ...COMMON_SETUP,
                 type: SchemaFieldType.TextArea,
                 value: "hello world",
-                maxLength: 10,
+                typeProperty: { ...COMMON_SETUP.typeProperty, maxLength: 10 },
               },
               expectedResult: EXPECTED_RESULT,
             },
@@ -2375,23 +2321,12 @@ describe("Content import test", () => {
                 ...COMMON_SETUP,
                 type: SchemaFieldType.MarkdownText,
                 value: "hello world",
-                maxLength: 10,
+                typeProperty: { ...COMMON_SETUP.typeProperty, maxLength: 10 },
               },
               expectedResult: EXPECTED_RESULT,
             },
           ])("$setup.type field value out of range", async ({ setup, expectedResult }) => {
-            const fields = [
-              {
-                ...DEFAULT_COMMON_FIELD,
-                type: setup.type,
-                key: setup.key,
-                required: setup.required,
-                multiple: setup.multiple,
-                typeProperty: {
-                  maxLength: setup.maxLength,
-                },
-              },
-            ];
+            const fields = [setup];
 
             const contentList = [
               {
@@ -2403,7 +2338,7 @@ describe("Content import test", () => {
               contentList,
               fields,
               "JSON",
-              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
             );
 
             expect(contentValidation.isValid).toBe(expectedResult.isValid);
@@ -2423,18 +2358,14 @@ describe("Content import test", () => {
       describe("Select field", () => {
         describe("[Pass case] Control variables: multiple (false), required (true), value in range (values)", () => {
           const COMMON_SETUP = {
+            ...DEFAULT_COMMON_FIELD,
             key: "field-key",
             required: true,
             multiple: false,
             typeProperty: {},
           };
 
-          const EXPECTED_RESULT = {
-            exceedLimit: false,
-            typeMismatchFieldKeysCount: 0,
-            outOfRangeFieldKeysCount: 0,
-            isValid: true,
-          };
+          const EXPECTED_RESULT = true;
 
           test.each([
             {
@@ -2442,23 +2373,12 @@ describe("Content import test", () => {
                 ...COMMON_SETUP,
                 type: SchemaFieldType.Select,
                 value: "green",
-                values: ["red", "green", "blue"],
+                typeProperty: { ...COMMON_SETUP.typeProperty, values: ["red", "green", "blue"] },
               },
               expectedResult: EXPECTED_RESULT,
             },
           ])("$setup.type field value in range", async ({ setup, expectedResult }) => {
-            const fields = [
-              {
-                ...DEFAULT_COMMON_FIELD,
-                type: setup.type,
-                key: setup.key,
-                required: setup.required,
-                multiple: setup.multiple,
-                typeProperty: {
-                  values: setup.values,
-                },
-              },
-            ];
+            const fields = [setup];
 
             const contentList = [
               {
@@ -2470,24 +2390,16 @@ describe("Content import test", () => {
               contentList,
               fields,
               "JSON",
-              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
             );
 
-            expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-            if (contentValidation.isValid) return;
-
-            const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
-              contentValidation.error;
-
-            expect(exceedLimit).toBe(expectedResult.exceedLimit);
-            expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-            expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+            expect(contentValidation.isValid).toBe(expectedResult);
           });
         });
 
         describe("[Fail case] Control variables: multiple (false), required (true), value out of range (values)", () => {
           const COMMON_SETUP = {
+            ...DEFAULT_COMMON_FIELD,
             key: "field-key",
             required: true,
             multiple: false,
@@ -2513,16 +2425,7 @@ describe("Content import test", () => {
               expectedResult: EXPECTED_RESULT,
             },
           ])("$setup.type field value in range", async ({ setup, expectedResult }) => {
-            const fields = [
-              {
-                ...DEFAULT_COMMON_FIELD,
-                type: setup.type,
-                key: setup.key,
-                required: setup.required,
-                multiple: setup.multiple,
-                typeProperty: setup.typeProperty,
-              },
-            ];
+            const fields = [setup];
 
             const contentList = [
               {
@@ -2534,7 +2437,7 @@ describe("Content import test", () => {
               contentList,
               fields,
               "JSON",
-              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
             );
 
             expect(contentValidation.isValid).toBe(expectedResult.isValid);
@@ -2554,18 +2457,14 @@ describe("Content import test", () => {
       describe("Record count", () => {
         describe("[Pass case] Control variables: content list length", () => {
           const COMMON_SETUP = {
+            ...DEFAULT_COMMON_FIELD,
             key: "correct-key",
             required: true,
             multiple: false,
             typeProperty: {},
           };
 
-          const EXPECTED_RESULT = {
-            exceedLimit: false,
-            typeMismatchFieldKeysCount: 0,
-            outOfRangeFieldKeysCount: 0,
-            isValid: true,
-          };
+          const EXPECTED_RESULT = true;
 
           test.each([
             {
@@ -2597,7 +2496,7 @@ describe("Content import test", () => {
                 ...COMMON_SETUP,
                 type: SchemaFieldType.Select,
                 value: "green",
-                values: ["red", "blue", "green"],
+                typeProperty: { ...COMMON_SETUP.typeProperty, values: ["red", "blue", "green"] },
               },
               expectedResult: EXPECTED_RESULT,
             },
@@ -2626,16 +2525,7 @@ describe("Content import test", () => {
             //   expectedResult: EXPECTED_RESULT,
             // },
           ])("$setup.type field count is below max records", async ({ setup, expectedResult }) => {
-            const fields = [
-              {
-                ...DEFAULT_COMMON_FIELD,
-                type: setup.type,
-                key: setup.key,
-                required: setup.required,
-                multiple: false,
-                typeProperty: {},
-              },
-            ];
+            const fields = [setup];
 
             const contentList = [
               {
@@ -2647,23 +2537,15 @@ describe("Content import test", () => {
               contentList,
               fields,
               "JSON",
-              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
             );
-            expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-            if (contentValidation.isValid) return;
-
-            const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
-              contentValidation.error;
-
-            expect(exceedLimit).toBe(expectedResult.exceedLimit);
-            expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-            expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+            expect(contentValidation.isValid).toBe(expectedResult);
           });
         });
 
         describe("[Fail case] Control variables: content list length", () => {
           const COMMON_SETUP = {
+            ...DEFAULT_COMMON_FIELD,
             key: "correct-key",
             required: true,
             multiple: false,
@@ -2707,7 +2589,7 @@ describe("Content import test", () => {
                 ...COMMON_SETUP,
                 type: SchemaFieldType.Select,
                 value: "green",
-                values: ["red", "blue", "green"],
+                typeProperty: { ...COMMON_SETUP.typeProperty, values: ["red", "blue", "green"] },
               },
               expectedResult: EXPECTED_RESULT,
             },
@@ -2736,16 +2618,7 @@ describe("Content import test", () => {
             //   expectedResult: EXPECTED_RESULT,
             // },
           ])("$setup.type field count is above max records", async ({ setup, expectedResult }) => {
-            const fields = [
-              {
-                ...DEFAULT_COMMON_FIELD,
-                type: setup.type,
-                key: setup.key,
-                required: setup.required,
-                multiple: false,
-                typeProperty: {},
-              },
-            ];
+            const fields = [setup];
 
             const contentList = [
               {
@@ -2760,7 +2633,7 @@ describe("Content import test", () => {
               contentList,
               fields,
               "JSON",
-              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
             );
             expect(contentValidation.isValid).toBe(expectedResult.isValid);
 
@@ -2780,11 +2653,15 @@ describe("Content import test", () => {
     describe("Auto fill default value test", () => {
       describe("[Pass case] Control variables: field value with default value", () => {
         const COMMON_SETUP = {
-          key1: "key-1",
-          key2: "key-2",
+          ...DEFAULT_COMMON_FIELD,
           required: false,
           multiple: false,
           typeProperty: {},
+        };
+
+        const TEST_SETUP = {
+          key1: "key-1",
+          key2: "key-2",
         };
 
         const EXPECTED_RESULT = true;
@@ -2795,8 +2672,9 @@ describe("Content import test", () => {
               ...COMMON_SETUP,
               type: SchemaFieldType.Text,
               value: "hello",
-              defaultValue: "default text",
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: "default text" },
             },
+            testSetup: TEST_SETUP,
             expectedResult: EXPECTED_RESULT,
           },
           {
@@ -2804,8 +2682,9 @@ describe("Content import test", () => {
               ...COMMON_SETUP,
               type: SchemaFieldType.TextArea,
               value: "text",
-              defaultValue: "default text",
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: "default text" },
             },
+            testSetup: TEST_SETUP,
             expectedResult: EXPECTED_RESULT,
           },
           {
@@ -2813,8 +2692,9 @@ describe("Content import test", () => {
               ...COMMON_SETUP,
               type: SchemaFieldType.MarkdownText,
               value: "text",
-              defaultValue: "default text",
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: "default text" },
             },
+            testSetup: TEST_SETUP,
             expectedResult: EXPECTED_RESULT,
           },
           // {
@@ -2831,8 +2711,9 @@ describe("Content import test", () => {
               ...COMMON_SETUP,
               type: SchemaFieldType.Bool,
               value: false,
-              defaultValue: true,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: true },
             },
+            testSetup: TEST_SETUP,
             expectedResult: EXPECTED_RESULT,
           },
           {
@@ -2840,12 +2721,19 @@ describe("Content import test", () => {
               ...COMMON_SETUP,
               type: SchemaFieldType.Integer,
               value: 1,
-              defaultValue: 5,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: 5 },
             },
+            testSetup: TEST_SETUP,
             expectedResult: EXPECTED_RESULT,
           },
           {
-            setup: { ...COMMON_SETUP, type: SchemaFieldType.Number, value: 1.5, defaultValue: 5.5 },
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Number,
+              value: 1.5,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: 5.5 },
+            },
+            testSetup: TEST_SETUP,
             expectedResult: EXPECTED_RESULT,
           },
           {
@@ -2853,82 +2741,87 @@ describe("Content import test", () => {
               ...COMMON_SETUP,
               type: SchemaFieldType.URL,
               value: "https://hello.com/",
-              defaultValue: "https://default.com/",
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: "https://default.com/" },
             },
+            testSetup: TEST_SETUP,
             expectedResult: EXPECTED_RESULT,
           },
           // {
           //   setup: {
           //     ...COMMON_SETUP,
           //     type: SchemaFieldType.GeometryObject,
-          //     value: { type: "Point", coordinates: [139.6917, 35.6895] },
-          //     defaultValue: { type: "Point", coordinates: [149.6917, 45.6895] },
+          //     value: Test.GEO_JSON_POINT,
+          //     defaultValue: Test.GEO_JSON_POINT,
           //   },
           //   expectedResult: EXPECTED_RESULT,
           // },
           // {
           //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
           //   expectedResult: EXPECTED_RESULT,
-          //   value: { type: "Point", coordinates: [139.6917, 35.6895] },
-          //   defaultValue: { type: "Point", coordinates: [149.6917, 45.6895] },
+          //   value: Test.GEO_JSON_POINT,
+          //   defaultValue: Test.GEO_JSON_POINT,
           // },
-        ])("$setup.type field auto fill with default value", async ({ setup, expectedResult }) => {
-          const fields = [
-            {
-              ...DEFAULT_COMMON_FIELD,
-              type: setup.type,
-              key: setup.key1,
-              required: setup.required,
-              multiple: false,
-              typeProperty: {
-                defaultValue: setup.defaultValue,
+        ])(
+          "$setup.type field auto fill with default value",
+          async ({ setup, testSetup, expectedResult }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: testSetup.key1,
+                required: setup.required,
+                multiple: setup.multiple,
+                typeProperty: setup.typeProperty,
               },
-            },
-            {
-              ...DEFAULT_COMMON_FIELD,
-              type: setup.type,
-              key: setup.key2,
-              required: setup.required,
-              multiple: false,
-              typeProperty: {
-                defaultValue: setup.defaultValue,
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: testSetup.key2,
+                required: setup.required,
+                multiple: setup.multiple,
+                typeProperty: setup.typeProperty,
               },
-            },
-          ];
+            ];
 
-          const contentList = [
-            {
-              [setup.key1]: setup.value,
-              [setup.key2]: setup.value,
-            },
-          ];
+            const contentList = [
+              {
+                [testSetup.key1]: setup.value,
+                [testSetup.key2]: setup.value,
+              },
+            ];
 
-          const expectContentList = [
-            {
-              [setup.key1]: setup.value,
-              [setup.key2]: setup.value,
-            },
-          ];
+            const expectContentList = [
+              {
+                [testSetup.key1]: setup.value,
+                [testSetup.key2]: setup.value,
+              },
+            ];
 
-          const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
-            fields,
-            "JSON",
-            Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
-          );
-          expect(contentValidation.isValid).toBe(expectedResult);
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+            expect(contentValidation.isValid).toBe(expectedResult);
 
-          if (contentValidation.isValid) expect(contentValidation.data).toEqual(expectContentList);
-        });
+            if (contentValidation.isValid)
+              expect(contentValidation.data).toEqual(expectContentList);
+          },
+        );
       });
 
       describe("[Pass case] Control variables: field value without default value", () => {
         const COMMON_SETUP = {
-          key1: "key-1",
-          key2: "key-2",
+          ...DEFAULT_COMMON_FIELD,
           required: false,
           multiple: false,
           typeProperty: {},
+        };
+
+        const TEST_SETUP = {
+          key1: "key-1",
+          key2: "key-2",
         };
 
         const EXPECTED_RESULT = true;
@@ -2940,6 +2833,7 @@ describe("Content import test", () => {
               type: SchemaFieldType.Text,
               value: "hello",
             },
+            testSetup: TEST_SETUP,
             expectedResult: EXPECTED_RESULT,
           },
           {
@@ -2948,6 +2842,7 @@ describe("Content import test", () => {
               type: SchemaFieldType.TextArea,
               value: "text",
             },
+            testSetup: TEST_SETUP,
             expectedResult: EXPECTED_RESULT,
           },
           {
@@ -2956,6 +2851,7 @@ describe("Content import test", () => {
               type: SchemaFieldType.MarkdownText,
               value: "text",
             },
+            testSetup: TEST_SETUP,
             expectedResult: EXPECTED_RESULT,
           },
           // {
@@ -2972,6 +2868,7 @@ describe("Content import test", () => {
               type: SchemaFieldType.Bool,
               value: false,
             },
+            testSetup: TEST_SETUP,
             expectedResult: EXPECTED_RESULT,
           },
           {
@@ -2980,6 +2877,7 @@ describe("Content import test", () => {
               type: SchemaFieldType.Integer,
               value: 1,
             },
+            testSetup: TEST_SETUP,
             expectedResult: EXPECTED_RESULT,
           },
           {
@@ -2988,6 +2886,7 @@ describe("Content import test", () => {
               type: SchemaFieldType.Number,
               value: 1.5,
             },
+            testSetup: TEST_SETUP,
             expectedResult: EXPECTED_RESULT,
           },
           {
@@ -2996,6 +2895,7 @@ describe("Content import test", () => {
               type: SchemaFieldType.URL,
               value: "https://hello.com/",
             },
+            testSetup: TEST_SETUP,
             expectedResult: EXPECTED_RESULT,
           },
           // {
@@ -3008,37 +2908,29 @@ describe("Content import test", () => {
           // },
         ])(
           "$setup.type field use value instead of default value",
-          async ({ setup, expectedResult }) => {
+          async ({ setup, testSetup, expectedResult }) => {
             const fields = [
               {
-                ...DEFAULT_COMMON_FIELD,
-                type: setup.type,
-                key: setup.key1,
-                required: setup.required,
-                multiple: false,
-                typeProperty: {},
+                ...setup,
+                key: testSetup.key1,
               },
               {
-                ...DEFAULT_COMMON_FIELD,
-                type: setup.type,
-                key: setup.key2,
-                required: setup.required,
-                multiple: false,
-                typeProperty: {},
+                ...setup,
+                key: testSetup.key2,
               },
             ];
 
             const contentList = [
               {
-                [setup.key1]: setup.value,
-                [setup.key2]: setup.value,
+                [testSetup.key1]: setup.value,
+                [testSetup.key2]: setup.value,
               },
             ];
 
             const expectContentList = [
               {
-                [setup.key1]: setup.value,
-                [setup.key2]: setup.value,
+                [testSetup.key1]: setup.value,
+                [testSetup.key2]: setup.value,
               },
             ];
 
@@ -3046,7 +2938,7 @@ describe("Content import test", () => {
               contentList,
               fields,
               "JSON",
-              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
             );
             expect(contentValidation.isValid).toBe(expectedResult);
 
@@ -3058,14 +2950,18 @@ describe("Content import test", () => {
 
       describe("[Pass case] Control variables: field value with default value (select field)", () => {
         const COMMON_SETUP = {
-          key1: "key-1",
-          key2: "key-2",
+          ...DEFAULT_COMMON_FIELD,
           required: false,
           multiple: false,
           typeProperty: {
             values: ["red", "blue", "green"],
             selectDefaultValue: "blue",
           },
+        };
+
+        const TEST_SETUP = {
+          key1: "key-1",
+          key2: "key-2",
         };
 
         const EXPECTED_RESULT = true;
@@ -3077,40 +2973,33 @@ describe("Content import test", () => {
               type: SchemaFieldType.Select,
               value: "green",
             },
+            testSetup: TEST_SETUP,
             expectedResult: EXPECTED_RESULT,
           },
         ])(
           "$setup.type field auto fill value with default value",
-          async ({ setup, expectedResult }) => {
+          async ({ setup, testSetup, expectedResult }) => {
             const fields = [
               {
-                ...DEFAULT_COMMON_FIELD,
-                type: setup.type,
-                key: setup.key1,
-                required: setup.required,
-                typeProperty: setup.typeProperty,
-                multiple: false,
+                ...setup,
+                key: testSetup.key1,
               },
               {
-                ...DEFAULT_COMMON_FIELD,
-                type: setup.type,
-                key: setup.key2,
-                required: setup.required,
-                typeProperty: setup.typeProperty,
-                multiple: false,
+                ...setup,
+                key: testSetup.key2,
               },
             ];
 
             const contentList = [
               {
-                [setup.key1]: setup.value,
+                [testSetup.key1]: setup.value,
               },
             ];
 
             const expectContentList = [
               {
-                [setup.key1]: setup.value,
-                [setup.key2]: setup.typeProperty.selectDefaultValue,
+                [testSetup.key1]: setup.value,
+                [testSetup.key2]: setup.typeProperty.selectDefaultValue,
               },
             ];
 
@@ -3118,7 +3007,7 @@ describe("Content import test", () => {
               contentList,
               fields,
               "JSON",
-              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
             );
             expect(contentValidation.isValid).toBe(expectedResult);
 
@@ -3131,8 +3020,7 @@ describe("Content import test", () => {
 
       describe("[Pass case] Control variables: field value without default value (select field)", () => {
         const COMMON_SETUP = {
-          key1: "key-1",
-          key2: "key-2",
+          ...DEFAULT_COMMON_FIELD,
           required: false,
           multiple: false,
           typeProperty: {
@@ -3140,12 +3028,12 @@ describe("Content import test", () => {
           },
         };
 
-        const EXPECTED_RESULT = {
-          exceedLimit: false,
-          typeMismatchFieldKeysCount: 0,
-          outOfRangeFieldKeysCount: 0,
-          isValid: true,
+        const TEST_SETUP = {
+          key1: "key-1",
+          key2: "key-2",
         };
+
+        const EXPECTED_RESULT = true;
 
         test.each([
           {
@@ -3154,39 +3042,32 @@ describe("Content import test", () => {
               type: SchemaFieldType.Select,
               value: "green",
             },
+            testSetup: TEST_SETUP,
             expectedResult: EXPECTED_RESULT,
           },
         ])(
           "$setup.type field auto fill value without default value",
-          async ({ setup, expectedResult }) => {
+          async ({ setup, testSetup, expectedResult }) => {
             const fields = [
               {
-                ...DEFAULT_COMMON_FIELD,
-                type: setup.type,
-                key: setup.key1,
-                required: setup.required,
-                multiple: false,
-                typeProperty: setup.typeProperty,
+                ...setup,
+                key: testSetup.key1,
               },
               {
-                ...DEFAULT_COMMON_FIELD,
-                type: setup.type,
-                key: setup.key2,
-                required: setup.required,
-                multiple: false,
-                typeProperty: setup.typeProperty,
+                ...setup,
+                key: testSetup.key2,
               },
             ];
 
             const contentList = [
               {
-                [setup.key1]: setup.value,
+                [testSetup.key1]: setup.value,
               },
             ];
 
             const expectContentList = [
               {
-                [setup.key1]: setup.value,
+                [testSetup.key1]: setup.value,
               },
             ];
 
@@ -3194,19 +3075,12 @@ describe("Content import test", () => {
               contentList,
               fields,
               "JSON",
-              Constant.IMPORT.TEST_MAX_CONTENT_RECORDS,
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
             );
-            expect(contentValidation.isValid).toBe(expectedResult.isValid);
+            expect(contentValidation.isValid).toBe(expectedResult);
 
             if (contentValidation.isValid) {
               expect(contentValidation.data).toEqual(expectContentList);
-            } else {
-              const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
-                contentValidation.error;
-
-              expect(exceedLimit).toBe(expectedResult.exceedLimit);
-              expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-              expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
             }
           },
         );

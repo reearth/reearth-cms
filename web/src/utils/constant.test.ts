@@ -66,19 +66,5 @@ describe("Constant", () => {
         }
       });
     });
-
-    test("Check test files exist", () => {
-      const filePaths: string[] = Object.values(Constant.TEST_FILE);
-
-      filePaths.forEach(_filePath => {
-        const filePath = join("src", _filePath);
-
-        try {
-          readFileSync(filePath, "utf-8");
-        } catch (err) {
-          throw Error(String(err));
-        }
-      });
-    });
   });
 });

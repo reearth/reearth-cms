@@ -52,27 +52,11 @@ export abstract class ImportContentUtils {
 
       const validator = this._getValidatorMeta(modelFields, sourceFormat);
 
-      // console.log("=".repeat(100));
-      // console.log("importContentList", importContentList);
-      // console.log("modelFields", modelFields);
-      // console.log("maxRecordLimit", maxRecordLimit);
-      // console.log("=".repeat(100));
-
       const validation = validator.array().max(maxRecordLimit).safeParse(importContentList);
-
-      if (!validation.success) {
-        const title = "validation";
-        const bottomLength = 100;
-        const upperLength = (bottomLength - title.length - 2) / 2;
-        console.log("=".repeat(upperLength), title, "=".repeat(upperLength));
-        console.log(validation);
-        console.log("=".repeat(bottomLength));
-      }
 
       if (validation.success) {
         resolve({ isValid: true, data: validation.data });
       } else {
-        // console.log("validation", validation.error.message);
         resolve({
           isValid: false,
           error: this.getErrorMeta(validation),
@@ -82,67 +66,6 @@ export abstract class ImportContentUtils {
       timer.log();
     });
   }
-
-  // public static async validateContentFromCSV<T = unknown>(
-  //   csvList: T[],
-  //   modelFields: Model["schema"]["fields"],
-  //   maxRecordLimit = Constant.IMPORT.MAX_CONTENT_RECORDS,
-  // ): Promise<
-  //   { isValid: true; data: Record<string, unknown>[] } | { isValid: false; error: ErrorMeta }
-  // > {
-  //   const timer = new PerformanceTimer("validateContentFromCSV");
-
-  //   try {
-  //     const validator = this._getValidatorMeta(modelFields, "CSV");
-
-  //     const validation = validator.array().max(maxRecordLimit).safeParse(csvList);
-
-  //     if (validation.success) {
-  //       return { isValid: true, data: validation.data };
-  //     } else {
-  //       return {
-  //         isValid: false,
-  //         error: this.getErrorMeta(validation, acceptImportFieldCount),
-  //       };
-  //     }
-  //   } catch (error) {
-  //     throw Error(String(error));
-  //   } finally {
-  //     timer.log();
-  //   }
-  // }
-
-  // public static async validateContentFromGeoJson(
-  //   raw: GeoJSON,
-  //   modelFields: Model["schema"]["fields"],
-  //   maxRecordLimit = Constant.IMPORT.MAX_CONTENT_RECORDS,
-  // ): Promise<
-  //   { isValid: true; data: Record<string, unknown>[] } | { isValid: false; error: ErrorMeta }
-  // > {
-  //   return new Promise<
-  //     { isValid: true; data: Record<string, unknown>[] } | { isValid: false; error: ErrorMeta }
-  //   >((resolve, reject) => {
-  //     const timer = new PerformanceTimer("validateContentFromGeoJson");
-
-  //     if (raw.type !== "FeatureCollection") return void reject("Not feature collection");
-
-  //     const { validator, acceptImportFieldCount } = this._getValidatorMeta(modelFields, "GEOJSON");
-  //     const properties = raw.features.map(feature => feature.properties);
-
-  //     const validation = validator.array().max(maxRecordLimit).safeParse(properties);
-
-  //     if (validation.success) {
-  //       resolve({ isValid: true, data: validation.data });
-  //     } else {
-  //       resolve({
-  //         isValid: false,
-  //         error: this.getErrorMeta(validation, acceptImportFieldCount),
-  //       });
-  //     }
-
-  //     timer.log();
-  //   });
-  // }
 
   private static _getValidatorMeta(
     fieldData: Model["schema"]["fields"],
