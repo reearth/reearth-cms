@@ -100,6 +100,7 @@
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
     "@monaco-editor/react": "4.7.0",
+    "@scalar/api-reference-react": "0.8.20",
     "ajv": "8.17.1",
     "antd": "5.28.0",
     "apollo-upload-client": "18.0.1",
