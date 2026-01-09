@@ -24,8 +24,8 @@ export class LoginPage {
     this.loginButton = this.page.getByText("LOG IN");
 
     // Auth0 login form
-    this.auth0EmailInput = this.page.getByLabel("Email address");
-    this.auth0PasswordInput = this.page.getByLabel("Password");
+    this.auth0EmailInput = this.page.getByRole("textbox", { name: "Email address", exact: true });
+    this.auth0PasswordInput = this.page.getByRole("textbox", { name: "Password", exact: true });
     this.auth0ContinueButton = this.page.getByRole("button", { name: "Continue", exact: true });
     this.auth0SkipPasskeyButton = this.page.getByRole("button", {
       name: "Continue without passkeys",
@@ -45,12 +45,17 @@ export class LoginPage {
   }
 
   async loginWithAuth0(email: string, password: string) {
+    // Email input
     await this.auth0EmailInput.click();
     await this.auth0EmailInput.fill(email);
     await this.auth0ContinueButton.click();
+    await this.page.waitForLoadState("networkidle");
+
+    // Password input
     await this.auth0PasswordInput.click();
     await this.auth0PasswordInput.fill(password);
     await this.auth0ContinueButton.click();
+    await this.page.waitForLoadState("networkidle");
 
     // Handle optional passkey prompt
     if (await this.auth0SkipPasskeyButton.isVisible()) {
