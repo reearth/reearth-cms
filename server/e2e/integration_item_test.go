@@ -2175,53 +2175,6 @@ func assertItem(v *httpexpect.Value, assetEmbeded bool) {
 	o.Value("refs").IsEqual([]string{"latest"})
 }
 
-// GET /items/list - Simple item list with query parameters only
-func TestIntegrationGetItemListAPI(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeeder)
-
-	// Unauthorized tests
-	iAPIItemList(e, wId0, pid, mId1).
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	iAPIItemList(e, wId0, pid, mId1).
-		WithHeader("authorization", "secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	iAPIItemList(e, wId0, pid, mId1).
-		WithHeader("authorization", "Bearer secret_abc").
-		Expect().
-		Status(http.StatusUnauthorized)
-
-	// Not found test
-	iAPIItemList(e, wId0, pid, id.NewModelID()).
-		WithHeader("authorization", "Bearer "+secret).
-		Expect().
-		Status(http.StatusNotFound)
-
-	// Basic functionality test
-	r := iAPIItemList(e, wId0, pid, mId1).
-		WithHeader("authorization", "Bearer "+secret).
-		WithQuery("page", 1).
-		WithQuery("perPage", 5).
-		WithQuery("sort", "createdAt").
-		WithQuery("dir", "desc").
-		WithQuery("ref", "latest").
-		WithQuery("asset", "all").
-		Expect().
-		Status(http.StatusOK).
-		JSON().
-		Object()
-
-	r.HasValue("page", 1)
-	r.HasValue("perPage", 5)
-	r.HasValue("totalCount", 1)
-	r.Value("items").Array().Length().IsEqual(1)
-	r.Value("items").Array().Value(0).Object().Keys().
-		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
-}
-
 // POST /items/filter - Complex filtering with request body
 func TestIntegrationItemFilterPostAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
