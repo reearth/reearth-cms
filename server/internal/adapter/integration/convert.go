@@ -202,22 +202,6 @@ func fromQuery(sp schema.Package, mId model.ID, req ItemFilterRequestObject) *it
 		WithFilter(c)
 }
 
-func fromPostQuery(sp schema.Package, mId model.ID, req ItemFilterPostRequestObject) *item.Query {
-	var s *view.Sort
-	if req.Params.Sort != nil {
-		s = fromPostSort(sp, *req.Params.Sort, req.Params.Dir)
-	}
-
-	var c *view.Condition
-	if req.Body != nil && req.Body.Filter != nil {
-		c = fromCondition(sp, *req.Body.Filter)
-	}
-
-	return item.NewQuery(sp.Schema().Project(), mId, sp.Schema().ID().Ref(), lo.FromPtr(req.Params.Keyword), nil).
-		WithSort(s).
-		WithFilter(c)
-}
-
 func fromListQuery(sp schema.Package, mId model.ID, req ItemListRequestObject) *item.Query {
 	var s *view.Sort
 	if req.Params.Sort != nil {
@@ -385,7 +369,6 @@ func fromCondition(sp schema.Package, condition integrationapi.Condition) *view.
 
 	return result
 }
-
 
 func fromRequestRoles(roles []integrationapi.ProjectRequestRole) ([]workspace.Role, bool) {
 	if len(roles) == 0 {
