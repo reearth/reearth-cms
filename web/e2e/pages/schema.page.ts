@@ -204,7 +204,7 @@ export class SchemaPage extends BasePage {
 
   async deleteModel(): Promise<void> {
     await this.getByRole("button", { name: "more" }).hover();
-    await this.getByText("Delete").click();
+    await this.getByText("Delete", { exact: true }).click();
     await this.getByRole("button", { name: "Delete Model" }).click();
     await this.closeNotification();
   }
@@ -233,7 +233,7 @@ export class SchemaPage extends BasePage {
 
   async deleteGroup(): Promise<void> {
     await this.getByRole("button", { name: "more" }).hover();
-    await this.getByText("Delete").click();
+    await this.getByText("Delete", { exact: true }).click();
     await this.getByRole("button", { name: "Delete Group" }).click();
     await this.closeNotification();
   }
