@@ -270,4 +270,5 @@ const FieldTypeLabel = styled.div`
   justify-content: start;
   align-items: center;
   gap: 8px;
+  font-weight: 400;
 `;

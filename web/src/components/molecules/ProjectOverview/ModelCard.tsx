@@ -150,9 +150,9 @@ const ModelCard: React.FC<Props> = ({
       {
         key: "content",
         label: hasModelFields ? (
-          t("Import Content")
+          t("Import content")
         ) : (
-          <Tooltip title={t("Please create a schema first")}>{t("Import Content")}</Tooltip>
+          <Tooltip title={t("Please create a schema first")}>{t("Import content")}</Tooltip>
         ),
         disabled: !hasModelFields,
         // onClick: () => handleModelExportClick(ExportFormat.Json),

@@ -13,6 +13,7 @@ import Typography from "@reearth-cms/components/atoms/Typography";
 import { useT } from "@reearth-cms/i18n";
 
 import { ImportFieldInput, SchemaFieldType } from "../types";
+import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 
 type Props = {
   fields: ImportFieldInput[];
@@ -35,7 +36,11 @@ const SchemaPreviewStep: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  console.log(fields);
+  const fieldLabel = (field: ImportFieldInput) => {
+    const findField = fieldTypeOptions.find(_field => _field.value === field.type);
+
+    return findField ? findField.label : null;
+  };
 
   return (
     <SchemaPreviewStepWrapper data-testId="SchemaPreviewStep">
@@ -68,7 +73,7 @@ const SchemaPreviewStep: React.FC<Props> = ({
         onDragEnd={onDragEnd}>
         <FieldStyledList data-testId="SchemaPreviewFieldList" itemLayout="horizontal">
           {fields?.map((field, index) => (
-            <List.Item className="draggable-item" key={index}>
+            <StyledListItem className="draggable-item" key={index} noImport={field.hidden}>
               <List.Item.Meta
                 title={
                   <Row>
@@ -88,15 +93,7 @@ const SchemaPreviewStep: React.FC<Props> = ({
                         </Typography.Text>
                       </Tooltip>
                     </AlignLeftCol>
-                    <AlignLeftCol span={11}>
-                      <FieldTypeSelect
-                        value={field.type}
-                        onChange={value => onFieldTypeChange(field.key, value as SchemaFieldType)}
-                        options={fieldTypeOptions}
-                        disabled
-                      />
-                    </AlignLeftCol>
-                    {/*<AlignLeftCol span={2}>{field.multiple ? "Yes" : "No"}</AlignLeftCol>*/}
+                    <AlignLeftCol span={11}>{fieldLabel(field)}</AlignLeftCol>
                     <VerticalCenterCol span={1}>
                       <Button
                         type="text"
@@ -104,15 +101,9 @@ const SchemaPreviewStep: React.FC<Props> = ({
                         size="small"
                         onClick={() => onToggleFieldHide(field.key)}
                         icon={
-                          field.hidden ? (
-                            <Icon icon="eyeInvisible" color="#8c8c8c" />
-                          ) : (
-                            <Tooltip title={t("Don't import")}>
-                              <span>
-                                <Icon icon="eye" color="#8c8c8c" />
-                              </span>
-                            </Tooltip>
-                          )
+                          <Tooltip title={field.hidden ? t("Not import") : t("Import")}>
+                            <Checkbox checked={!field.hidden} />
+                          </Tooltip>
                         }
                         disabled={!hasDeleteRight}
                       />
@@ -120,7 +111,7 @@ const SchemaPreviewStep: React.FC<Props> = ({
                   </Row>
                 }
               />
-            </List.Item>
+            </StyledListItem>
           ))}
         </FieldStyledList>
       </ReactDragListView>
@@ -187,10 +178,6 @@ const VerticalCenterCol = styled(Col)`
   align-items: center;
 `;
 
-const FieldTypeSelect = styled(Select)`
-  width: 200px;
-`;
-
 const FieldStyledList = styled(List)`
   .ant-list-empty-text {
     display: none;
@@ -212,6 +199,10 @@ const FieldStyledList = styled(List)`
       padding: 0 3px;
     }
   }
+`;
+
+const StyledListItem = styled(List.Item)<{ noImport?: boolean }>`
+  opacity: ${({ noImport: noImport = false }) => (noImport ? 0.5 : 1)};
 `;
 
 const FieldThumbnail = styled.div`
