@@ -20,7 +20,9 @@
       "@reearth-cms/e2e/*": ["e2e/*"],
       "@reearth-cms/*": ["src/*"]
     },
-    "types": ["@testing-library/jest-dom"]
+    "types": ["@testing-library/jest-dom"],
+    "allowImportingTsExtensions": true,
+    "strictNullChecks": true
   },
   "include": ["src", "e2e"],
   "ts-node": {

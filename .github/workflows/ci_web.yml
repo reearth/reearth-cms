@@ -47,7 +47,7 @@ jobs:
       - name: Install
         run: yarn install --frozen-lockfile --prefer-offline
       - name: Check translations
-        run: yarn i18n --fail-on-update
+        run: yarn i18n --ci
 
   test:
     name: test
