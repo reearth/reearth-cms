@@ -35,13 +35,13 @@ const DangerZone: React.FC<Props> = ({ hasDeleteRight, onWorkspaceDelete }) => {
           "Permanently removes the current workspace and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.",
         )}
       </Text>
-      <Button
+      <RemoveButton
         onClick={handleWorkspaceDeleteConfirmation}
         type="primary"
         danger
         disabled={!hasDeleteRight}>
         {t("Remove Workspace")}
-      </Button>
+      </RemoveButton>
     </ContentSection>
   );
 };
@@ -61,4 +61,8 @@ const Text = styled.p`
   line-height: 22px;
   color: #000000d9;
   margin: 24px 0;
+`;
+
+const RemoveButton = styled(Button)`
+  width: fit-content;
 `;
