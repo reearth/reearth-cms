@@ -360,6 +360,7 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Project(p.ID()).
 		Thread(thId1.Ref()).
 		Fields([]*item.Field{
+			item.NewField(fId1, value.TypeText.Value("test value").AsMultiple(), nil),
 			item.NewField(fId2, value.TypeAsset.Value(aid1).AsMultiple(), nil),
 		}).
 		MustBuild()
@@ -2332,4 +2333,168 @@ func assertItem(v *httpexpect.Value, assetEmbeded bool) {
 	}
 	o.Value("parents").IsEqual([]any{})
 	o.Value("refs").IsEqual([]string{"latest"})
+}
+
+// GET /items/list - Simple item list with query parameters only
+func TestIntegrationGetItemListAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	// Unauthorized tests
+	iAPIItemList(e, wId0, pid, mId1).
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	iAPIItemList(e, wId0, pid, mId1).
+		WithHeader("authorization", "secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	iAPIItemList(e, wId0, pid, mId1).
+		WithHeader("authorization", "Bearer secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	// Not found test
+	iAPIItemList(e, wId0, pid, id.NewModelID()).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusNotFound)
+
+	// Basic functionality test
+	r := iAPIItemList(e, wId0, pid, mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		WithQuery("sort", "createdAt").
+		WithQuery("dir", "desc").
+		WithQuery("ref", "latest").
+		WithQuery("asset", "all").
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	r.HasValue("page", 1)
+	r.HasValue("perPage", 5)
+	r.HasValue("totalCount", 1)
+	r.Value("items").Array().Length().IsEqual(1)
+	r.Value("items").Array().Value(0).Object().Keys().
+		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+}
+
+// POST /items/filter - Complex filtering with request body
+func TestIntegrationItemFilterPostAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	// Unauthorized tests
+	iAPIItemFilterPost(e, wId0, pid, mId1).
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	iAPIItemFilterPost(e, wId0, pid, mId1).
+		WithHeader("authorization", "secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	iAPIItemFilterPost(e, wId0, pid, mId1).
+		WithHeader("authorization", "Bearer secret_abc").
+		Expect().
+		Status(http.StatusUnauthorized)
+
+	// Not found test
+	iAPIItemFilterPost(e, wId0, pid, id.NewModelID()).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"filter": map[string]interface{}{
+				"string": map[string]interface{}{
+					"fieldId": map[string]interface{}{
+						"type":    "field",
+						"fieldId": fId1.String(),
+					},
+					"operator": "contains",
+					"value":    "test",
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusNotFound)
+
+	// Basic functionality test with complex filter
+	r := iAPIItemFilterPost(e, wId0, pid, mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 5).
+		WithQuery("sort", "createdAt").
+		WithQuery("dir", "desc").
+		WithQuery("ref", "latest").
+		WithQuery("asset", "all").
+		WithJSON(map[string]interface{}{
+			"filter": map[string]interface{}{
+				"string": map[string]interface{}{
+					"fieldId": map[string]interface{}{
+						"type":    "field",
+						"fieldId": fId1.String(),
+					},
+					"operator": "contains",
+					"value":    "test",
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	r.HasValue("page", 1)
+	r.HasValue("perPage", 5)
+	r.Value("items").Array().Length().IsEqual(1)
+	r.Value("items").Array().Value(0).Object().Keys().
+		ContainsAll("id", "modelId", "fields", "createdAt", "updatedAt", "version", "parents", "refs")
+
+	// Test with AND condition
+	r2 := iAPIItemFilterPost(e, wId0, pid, mId1).
+		WithHeader("authorization", "Bearer "+secret).
+		WithQuery("page", 1).
+		WithQuery("perPage", 10).
+		WithJSON(map[string]interface{}{
+			"filter": map[string]interface{}{
+				"and": []interface{}{
+					map[string]interface{}{
+						"string": map[string]interface{}{
+							"fieldId": map[string]interface{}{
+								"type":    "field",
+								"fieldId": fId1.String(),
+							},
+							"operator": "contains",
+							"value":    "test",
+						},
+					},
+					map[string]interface{}{
+						"nullable": map[string]interface{}{
+							"fieldId": map[string]interface{}{
+								"type":    "field",
+								"fieldId": fId1.String(),
+							},
+							"operator": "notEmpty",
+						},
+					},
+				},
+			},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	r2.Value("items").Array().Length().IsEqual(1)
+	r2.HasValue("totalCount", 1)
+}
+
+// Helper functions for new API endpoints
+func iAPIItemList(e *httpexpect.Expect, wId accountdomain.WorkspaceID, pid id.ProjectID, mId id.ModelID) *httpexpect.Request {
+	return e.GET(fmt.Sprintf("/api/%s/projects/%s/models/%s/items/list", wId, pid, mId))
+}
+
+func iAPIItemFilterPost(e *httpexpect.Expect, wId accountdomain.WorkspaceID, pid id.ProjectID, mId id.ModelID) *httpexpect.Request {
+	return e.POST(fmt.Sprintf("/api/%s/projects/%s/models/%s/items/filter", wId, pid, mId))
 }

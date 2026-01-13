@@ -219,14 +219,14 @@ const (
 
 // Defines values for ItemFilterParamsSort.
 const (
-	CreatedAt ItemFilterParamsSort = "createdAt"
-	UpdatedAt ItemFilterParamsSort = "updatedAt"
+	ItemFilterParamsSortCreatedAt ItemFilterParamsSort = "createdAt"
+	ItemFilterParamsSortUpdatedAt ItemFilterParamsSort = "updatedAt"
 )
 
 // Defines values for ItemFilterParamsDir.
 const (
-	Asc  ItemFilterParamsDir = "asc"
-	Desc ItemFilterParamsDir = "desc"
+	ItemFilterParamsDirAsc  ItemFilterParamsDir = "asc"
+	ItemFilterParamsDirDesc ItemFilterParamsDir = "desc"
 )
 
 // Defines values for ItemFilterParamsRef.
@@ -245,6 +245,42 @@ const (
 const (
 	ItemsAsGeoJSONParamsRefLatest ItemsAsGeoJSONParamsRef = "latest"
 	ItemsAsGeoJSONParamsRefPublic ItemsAsGeoJSONParamsRef = "public"
+)
+
+// Defines values for ItemFilterPostParamsSort.
+const (
+	ItemFilterPostParamsSortCreatedAt ItemFilterPostParamsSort = "createdAt"
+	ItemFilterPostParamsSortUpdatedAt ItemFilterPostParamsSort = "updatedAt"
+)
+
+// Defines values for ItemFilterPostParamsDir.
+const (
+	ItemFilterPostParamsDirAsc  ItemFilterPostParamsDir = "asc"
+	ItemFilterPostParamsDirDesc ItemFilterPostParamsDir = "desc"
+)
+
+// Defines values for ItemFilterPostParamsRef.
+const (
+	ItemFilterPostParamsRefLatest ItemFilterPostParamsRef = "latest"
+	ItemFilterPostParamsRefPublic ItemFilterPostParamsRef = "public"
+)
+
+// Defines values for ItemListParamsSort.
+const (
+	CreatedAt ItemListParamsSort = "createdAt"
+	UpdatedAt ItemListParamsSort = "updatedAt"
+)
+
+// Defines values for ItemListParamsDir.
+const (
+	Asc  ItemListParamsDir = "asc"
+	Desc ItemListParamsDir = "desc"
+)
+
+// Defines values for ItemListParamsRef.
+const (
+	ItemListParamsRefLatest ItemListParamsRef = "latest"
+	ItemListParamsRefPublic ItemListParamsRef = "public"
 )
 
 // Defines values for ItemGetParamsRef.
@@ -905,6 +941,77 @@ type ItemsAsGeoJSONParams struct {
 // ItemsAsGeoJSONParamsRef defines parameters for ItemsAsGeoJSON.
 type ItemsAsGeoJSONParamsRef string
 
+// ItemFilterPostJSONBody defines parameters for ItemFilterPost.
+type ItemFilterPostJSONBody struct {
+	Filter *Condition `json:"filter,omitempty"`
+}
+
+// ItemFilterPostParams defines parameters for ItemFilterPost.
+type ItemFilterPostParams struct {
+	// Sort Used to define the order of the response list
+	Sort *ItemFilterPostParamsSort `form:"sort,omitempty" json:"sort,omitempty"`
+
+	// Dir Used to define the order direction of the response list, will be ignored if the order is not presented
+	Dir *ItemFilterPostParamsDir `form:"dir,omitempty" json:"dir,omitempty"`
+
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+
+	// Ref Used to select a ref or ver
+	Ref *ItemFilterPostParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
+
+	// Asset Specifies whether asset data are embedded in the results
+	Asset *AssetParam `form:"asset,omitempty" json:"asset,omitempty"`
+
+	// Keyword keyword string
+	Keyword *KeywordParam `form:"keyword,omitempty" json:"keyword,omitempty"`
+}
+
+// ItemFilterPostParamsSort defines parameters for ItemFilterPost.
+type ItemFilterPostParamsSort string
+
+// ItemFilterPostParamsDir defines parameters for ItemFilterPost.
+type ItemFilterPostParamsDir string
+
+// ItemFilterPostParamsRef defines parameters for ItemFilterPost.
+type ItemFilterPostParamsRef string
+
+// ItemListParams defines parameters for ItemList.
+type ItemListParams struct {
+	// Sort Used to define the order of the response list
+	Sort *ItemListParamsSort `form:"sort,omitempty" json:"sort,omitempty"`
+
+	// Dir Used to define the order direction of the response list, will be ignored if the order is not presented
+	Dir *ItemListParamsDir `form:"dir,omitempty" json:"dir,omitempty"`
+
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+
+	// Ref Used to select a ref or ver
+	Ref *ItemListParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
+
+	// Asset Specifies whether asset data are embedded in the results
+	Asset *AssetParam `form:"asset,omitempty" json:"asset,omitempty"`
+
+	// Keyword keyword string
+	Keyword *KeywordParam `form:"keyword,omitempty" json:"keyword,omitempty"`
+}
+
+// ItemListParamsSort defines parameters for ItemList.
+type ItemListParamsSort string
+
+// ItemListParamsDir defines parameters for ItemList.
+type ItemListParamsDir string
+
+// ItemListParamsRef defines parameters for ItemList.
+type ItemListParamsRef string
+
 // ItemGetParams defines parameters for ItemGet.
 type ItemGetParams struct {
 	// Ref Used to select a ref or ver
@@ -1006,6 +1113,9 @@ type ItemFilterJSONRequestBody ItemFilterJSONBody
 
 // ItemCreateJSONRequestBody defines body for ItemCreate for application/json ContentType.
 type ItemCreateJSONRequestBody ItemCreateJSONBody
+
+// ItemFilterPostJSONRequestBody defines body for ItemFilterPost for application/json ContentType.
+type ItemFilterPostJSONRequestBody ItemFilterPostJSONBody
 
 // ItemUpdateJSONRequestBody defines body for ItemUpdate for application/json ContentType.
 type ItemUpdateJSONRequestBody ItemUpdateJSONBody

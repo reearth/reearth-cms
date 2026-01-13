@@ -202,9 +202,64 @@ func fromQuery(sp schema.Package, mId model.ID, req ItemFilterRequestObject) *it
 		WithFilter(c)
 }
 
+func fromPostQuery(sp schema.Package, mId model.ID, req ItemFilterPostRequestObject) *item.Query {
+	var s *view.Sort
+	if req.Params.Sort != nil {
+		s = fromPostSort(sp, *req.Params.Sort, req.Params.Dir)
+	}
+
+	var c *view.Condition
+	if req.Body != nil && req.Body.Filter != nil {
+		c = fromCondition(sp, *req.Body.Filter)
+	}
+
+	return item.NewQuery(sp.Schema().Project(), mId, sp.Schema().ID().Ref(), lo.FromPtr(req.Params.Keyword), nil).
+		WithSort(s).
+		WithFilter(c)
+}
+
+func fromListQuery(sp schema.Package, mId model.ID, req ItemListRequestObject) *item.Query {
+	var s *view.Sort
+	if req.Params.Sort != nil {
+		s = fromListSort(sp, *req.Params.Sort, req.Params.Dir)
+	}
+
+	return item.NewQuery(sp.Schema().Project(), mId, sp.Schema().ID().Ref(), lo.FromPtr(req.Params.Keyword), nil).
+		WithSort(s)
+}
+
 func fromSort(_ schema.Package, sort integrationapi.ItemFilterParamsSort, dir *integrationapi.ItemFilterParamsDir) *view.Sort {
 	if dir == nil {
-		dir = lo.ToPtr(integrationapi.Asc)
+		dir = lo.ToPtr(integrationapi.ItemFilterParamsDirAsc)
+	}
+	d := view.DirectionDesc
+	if *dir == integrationapi.ItemFilterParamsDirAsc {
+		d = view.DirectionAsc
+	}
+	switch sort {
+	case integrationapi.ItemFilterParamsSortCreatedAt:
+		return &view.Sort{
+			Field: view.FieldSelector{
+				Type: view.FieldTypeCreationDate,
+				ID:   nil,
+			},
+			Direction: d,
+		}
+	case integrationapi.ItemFilterParamsSortUpdatedAt:
+		return &view.Sort{
+			Field: view.FieldSelector{
+				Type: view.FieldTypeModificationDate,
+				ID:   nil,
+			},
+			Direction: d,
+		}
+	}
+	return nil
+}
+
+func fromListSort(_ schema.Package, sort integrationapi.ItemListParamsSort, dir *integrationapi.ItemListParamsDir) *view.Sort {
+	if dir == nil {
+		dir = lo.ToPtr(integrationapi.Desc)
 	}
 	d := view.DirectionDesc
 	if *dir == integrationapi.Asc {
@@ -220,6 +275,35 @@ func fromSort(_ schema.Package, sort integrationapi.ItemFilterParamsSort, dir *i
 			Direction: d,
 		}
 	case integrationapi.UpdatedAt:
+		return &view.Sort{
+			Field: view.FieldSelector{
+				Type: view.FieldTypeModificationDate,
+				ID:   nil,
+			},
+			Direction: d,
+		}
+	}
+	return nil
+}
+
+func fromPostSort(_ schema.Package, sort integrationapi.ItemFilterPostParamsSort, dir *integrationapi.ItemFilterPostParamsDir) *view.Sort {
+	if dir == nil {
+		dir = lo.ToPtr(integrationapi.ItemFilterPostParamsDirDesc)
+	}
+	d := view.DirectionDesc
+	if *dir == integrationapi.ItemFilterPostParamsDirAsc {
+		d = view.DirectionAsc
+	}
+	switch sort {
+	case integrationapi.ItemFilterPostParamsSortCreatedAt:
+		return &view.Sort{
+			Field: view.FieldSelector{
+				Type: view.FieldTypeCreationDate,
+				ID:   nil,
+			},
+			Direction: d,
+		}
+	case integrationapi.ItemFilterPostParamsSortUpdatedAt:
 		return &view.Sort{
 			Field: view.FieldSelector{
 				Type: view.FieldTypeModificationDate,
@@ -289,9 +373,19 @@ func toGroupSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirPara
 	}
 }
 
-func fromCondition(_ schema.Package, condition integrationapi.Condition) *view.Condition {
-	return condition.Into()
+func fromCondition(sp schema.Package, condition integrationapi.Condition) *view.Condition {
+	if condition == (integrationapi.Condition{}) {
+		return nil
+	}
+
+	result := condition.Into()
+	if result == nil {
+		return nil
+	}
+
+	return result
 }
+
 
 func fromRequestRoles(roles []integrationapi.ProjectRequestRole) ([]workspace.Role, bool) {
 	if len(roles) == 0 {
