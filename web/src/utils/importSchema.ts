@@ -30,51 +30,51 @@ import { PerformanceTimer } from "./performance";
 interface FieldBase {
   title: string;
   description: string;
-  type: SchemaFieldType;
-  required: boolean;
-  multiple: boolean;
-  unique: boolean;
+  "x-fieldType": SchemaFieldType;
+  "x-required": boolean;
+  "x-multiple": boolean;
+  "x-unique": boolean;
 }
 
 // text common
 interface FieldTextBase extends FieldBase {
   maxLength?: number;
-  multiple: false;
-  defaultValue?: string;
+  "x-multiple": false;
+  "x-defaultValue"?: string;
 }
 
 interface FieldTextBaseMulti extends FieldBase {
   maxLength?: number;
-  multiple: true;
-  defaultValue?: string[];
+  "x-multiple": true;
+  "x-defaultValue"?: string[];
 }
 
 // number common
 interface FieldNumberBase extends FieldBase {
   maximum?: number;
   minimum?: number;
-  multiple: false;
-  defaultValue?: number;
+  "x-multiple": false;
+  "x-defaultValue"?: number;
 }
 
 interface FieldNumberBaseMulti extends FieldBase {
   maximum?: number;
   minimum?: number;
-  multiple: true;
-  defaultValue?: number[];
+  "x-multiple": true;
+  "x-defaultValue"?: number[];
 }
 
 // geo editor common
 interface FieldGeoEditorBase extends FieldBase {
-  type: "GeometryEditor";
-  multiple: false;
-  supportType: EditorSupportedType;
+  "x-fieldType": "GeometryEditor";
+  "x-multiple": false;
+  "x-geoSupportedType": EditorSupportedType;
 }
 
 interface FieldGeoEditorBaseMulti extends FieldBase {
-  type: "GeometryEditor";
-  multiple: true;
-  supportType: EditorSupportedType;
+  "x-fieldType": "GeometryEditor";
+  "x-multiple": true;
+  "x-geoSupportedType": EditorSupportedType;
 }
 
 // Mapping from ObjectSupportedType to GeoJSON geometry types
@@ -97,153 +97,153 @@ type SupportTypeToGeoJSON<T extends readonly ObjectSupportedType[]> = T[number] 
 
 // fields
 export interface FieldText extends FieldTextBase {
-  type: "Text";
+  "x-fieldType": "Text";
 }
 
 export interface FieldTextMulti extends FieldTextBaseMulti {
-  type: "Text";
+  "x-fieldType": "Text";
 }
 
 export interface FieldTextArea extends FieldTextBase {
-  type: "TextArea";
+  "x-fieldType": "TextArea";
 }
 
 export interface FieldTextAreaMulti extends FieldTextBaseMulti {
-  type: "TextArea";
+  "x-fieldType": "TextArea";
 }
 
 export interface FieldMarkdownText extends FieldTextBase {
-  type: "MarkdownText";
+  "x-fieldType": "MarkdownText";
 }
 
 export interface FieldMarkdownTextMulti extends FieldTextBaseMulti {
-  type: "MarkdownText";
+  "x-fieldType": "MarkdownText";
 }
 
 export interface FieldURL extends FieldBase {
-  type: "URL";
-  multiple: false;
-  defaultValue?: string;
+  "x-fieldType": "URL";
+  "x-multiple": false;
+  "x-defaultValue"?: string;
 }
 
 export interface FieldURLMulti extends FieldBase {
-  type: "URL";
-  multiple: true;
-  defaultValue?: string[];
+  "x-fieldType": "URL";
+  "x-multiple": true;
+  "x-defaultValue"?: string[];
 }
 
 export interface FieldAsset extends FieldBase {
-  type: "Asset";
-  multiple: false;
-  defaultValue?: string;
+  "x-fieldType": "Asset";
+  "x-multiple": false;
+  "x-defaultValue"?: string;
 }
 
 export interface FieldAssetMulti extends FieldBase {
-  type: "Asset";
-  multiple: true;
-  defaultValue?: string[];
+  "x-fieldType": "Asset";
+  "x-multiple": true;
+  "x-defaultValue"?: string[];
 }
 
 export interface FieldInteger extends FieldNumberBase {
-  type: "Integer";
+  "x-fieldType": "Integer";
 }
 
 export interface FieldIntegerMulti extends FieldNumberBaseMulti {
-  type: "Integer";
+  "x-fieldType": "Integer";
 }
 
 export interface FieldNumber extends FieldNumberBase {
-  type: "Number";
+  "x-fieldType": "Number";
 }
 
 export interface FieldNumberMulti extends FieldNumberBaseMulti {
-  type: "Number";
+  "x-fieldType": "Number";
 }
 
 export interface FieldBoolean extends FieldBase {
-  type: "Bool";
-  multiple: false;
-  defaultValue?: boolean;
+  "x-fieldType": "Bool";
+  "x-multiple": false;
+  "x-defaultValue"?: boolean;
 }
 
 export interface FieldBooleanMulti extends FieldBase {
-  type: "Bool";
-  multiple: true;
-  defaultValue?: boolean[];
+  "x-fieldType": "Bool";
+  "x-multiple": true;
+  "x-defaultValue"?: boolean[];
 }
 
 export interface FieldDate extends FieldBase {
-  type: "Date";
-  multiple: false;
-  defaultValue?: string;
+  "x-fieldType": "Date";
+  "x-multiple": false;
+  "x-defaultValue"?: string;
 }
 
 export interface FieldDateMulti extends FieldBase {
-  type: "Date";
-  multiple: true;
-  defaultValue?: string[];
+  "x-fieldType": "Date";
+  "x-multiple": true;
+  "x-defaultValue"?: string[];
 }
 
 export interface FieldSelect extends FieldBase {
-  type: "Select";
-  multiple: false;
-  defaultValue?: string;
-  values: string[];
+  "x-fieldType": "Select";
+  "x-multiple": false;
+  "x-defaultValue"?: string;
+  "x-options": string[];
 }
 
 export interface FieldSelectMulti extends FieldBase {
-  type: "Select";
-  multiple: true;
-  defaultValue?: string[];
-  values: string[];
+  "x-fieldType": "Select";
+  "x-multiple": true;
+  "x-defaultValue"?: string[];
+  "x-options": string[];
 }
 
 export interface FieldGeoObject<S extends readonly ObjectSupportedType[] = ObjectSupportedType[]>
   extends FieldBase {
-  type: "GeometryObject";
-  multiple: false;
-  supportType: S;
-  defaultValue?: SupportTypeToGeoJSON<S>;
+  "x-fieldType": "GeometryObject";
+  "x-multiple": false;
+  "x-geoSupportedTypes": S;
+  "x-defaultValue"?: SupportTypeToGeoJSON<S>;
 }
 
 export interface FieldGeoObjectMulti<S extends ObjectSupportedType[] = ObjectSupportedType[]>
   extends FieldBase {
-  type: "GeometryObject";
-  multiple: true;
-  supportType: S;
-  defaultValue?: SupportTypeToGeoJSON<S>[];
+  "x-fieldType": "GeometryObject";
+  "x-multiple": true;
+  "x-geoSupportedTypes": S;
+  "x-defaultValue"?: SupportTypeToGeoJSON<S>[];
 }
 
 interface FieldGeoEditorPoint extends FieldGeoEditorBase {
-  defaultValue?: GeoJSONPoint;
+  "x-defaultValue"?: GeoJSONPoint;
 }
 
 interface FieldGeoEditorLineString extends FieldGeoEditorBase {
-  defaultValue?: GeoJSONLineString;
+  "x-defaultValue"?: GeoJSONLineString;
 }
 
 interface FieldGeoEditorPolygon extends FieldGeoEditorBase {
-  defaultValue?: GeoJSONPolygon;
+  "x-defaultValue"?: GeoJSONPolygon;
 }
 
 interface FieldGeoEditorAny extends FieldGeoEditorBase {
-  defaultValue?: GeoJSONPoint | GeoJSONLineString | GeoJSONPolygon;
+  "x-defaultValue"?: GeoJSONPoint | GeoJSONLineString | GeoJSONPolygon;
 }
 
 interface FieldGeoEditorPointMulti extends FieldGeoEditorBaseMulti {
-  defaultValue?: GeoJSONPoint[];
+  "x-defaultValue"?: GeoJSONPoint[];
 }
 
 interface FieldGeoEditorLineStringMulti extends FieldGeoEditorBaseMulti {
-  defaultValue?: GeoJSONLineString[];
+  "x-defaultValue"?: GeoJSONLineString[];
 }
 
 interface FieldGeoEditorPolygonMulti extends FieldGeoEditorBaseMulti {
-  defaultValue?: GeoJSONPolygon[];
+  "x-defaultValue"?: GeoJSONPolygon[];
 }
 
 interface FieldGeoEditorAnyMulti extends FieldGeoEditorBaseMulti {
-  defaultValue?: (GeoJSONPoint | GeoJSONLineString | GeoJSONPolygon)[];
+  "x-defaultValue"?: (GeoJSONPoint | GeoJSONLineString | GeoJSONPolygon)[];
 }
 
 // geo editor single
@@ -314,20 +314,20 @@ export abstract class ImportSchemaUtils {
   private static readonly FIELD_BASE_VALIDATOR: z.ZodType<FieldBase> = z.object({
     title: z.string(),
     description: z.string(),
-    type: z.union(Object.values(SchemaFieldTypeConst).map(value => z.literal(value))),
-    required: z.boolean(),
-    multiple: z.boolean(),
-    unique: z.boolean(),
+    "x-fieldType": z.union(Object.values(SchemaFieldTypeConst).map(value => z.literal(value))),
+    "x-required": z.boolean(),
+    "x-multiple": z.boolean(),
+    "x-unique": z.boolean(),
   });
 
   private static readonly FIELD_TEXT_BASE_VALIDATOR: z.ZodType<FieldTextBase> = z
     .object({
       maxLength: z.int().nonnegative().optional(),
-      multiple: z.literal(false),
-      defaultValue: z.string().optional(),
+      "x-multiple": z.literal(false),
+      "x-defaultValue": z.string().optional(),
     })
     .superRefine((values, context) => {
-      const { defaultValue, maxLength } = values;
+      const { "x-defaultValue": defaultValue, maxLength } = values;
       if (defaultValue && maxLength && defaultValue.length > maxLength) {
         context.addIssue({
           code: "too_big",
@@ -343,11 +343,11 @@ export abstract class ImportSchemaUtils {
   private static readonly FIELD_TEXT_BASE_MULTI_VALIDATOR: z.ZodType<FieldTextBaseMulti> = z
     .object({
       maxLength: z.int().nonnegative().optional(),
-      multiple: z.literal(true),
-      defaultValue: z.string().array().optional(),
+      "x-multiple": z.literal(true),
+      "x-defaultValue": z.string().array().optional(),
     })
     .superRefine((values, context) => {
-      const { defaultValue, maxLength } = values;
+      const { "x-defaultValue": defaultValue, maxLength } = values;
       if (defaultValue && maxLength && defaultValue.some(value => value.length > maxLength)) {
         context.addIssue({
           code: "too_big",
@@ -362,9 +362,9 @@ export abstract class ImportSchemaUtils {
 
   private static readonly FIELD_GEO_OBJECT_VALIDATOR: z.ZodType<FieldGeoObject> = z
     .object({
-      type: z.literal("GeometryObject"),
-      multiple: z.literal(false),
-      supportType: z
+      "x-fieldType": z.literal("GeometryObject"),
+      "x-multiple": z.literal(false),
+      "x-geoSupportedTypes": z
         .union([
           z.literal("POINT"),
           z.literal("MULTIPOINT"),
@@ -375,7 +375,7 @@ export abstract class ImportSchemaUtils {
           z.literal("GEOMETRYCOLLECTION"),
         ])
         .array(),
-      defaultValue: z
+      "x-defaultValue": z
         .union([
           GeoJSONPointSchema,
           GeoJSONMultiPointSchema,
@@ -388,18 +388,18 @@ export abstract class ImportSchemaUtils {
         .optional(),
     })
     .superRefine((values, context) => {
-      const { supportType, defaultValue } = values;
+      const { "x-geoSupportedTypes": geoSupportedTypes, "x-defaultValue": defaultValue } = values;
 
       if (!defaultValue) return;
 
-      const supportTypeSet = new Set<Lowercase<ObjectSupportedType>>(
-        supportType.map(type => type.toLowerCase() as Lowercase<ObjectSupportedType>),
+      const geoSupportTypeSet = new Set<Lowercase<ObjectSupportedType>>(
+        geoSupportedTypes.map(type => type.toLowerCase() as Lowercase<ObjectSupportedType>),
       );
 
       const defaultValueType =
         defaultValue.type.toLocaleLowerCase() as Lowercase<ObjectSupportedType>;
 
-      if (!supportTypeSet.has(defaultValueType)) {
+      if (!geoSupportTypeSet.has(defaultValueType)) {
         context.addIssue({
           code: "custom",
           expected:
@@ -412,9 +412,9 @@ export abstract class ImportSchemaUtils {
 
   private static readonly FIELD_GEO_OBJECT_MULTI_VALIDATOR: z.ZodType<FieldGeoObjectMulti> = z
     .object({
-      type: z.literal("GeometryObject"),
-      multiple: z.literal(true),
-      supportType: z
+      "x-fieldType": z.literal("GeometryObject"),
+      "x-multiple": z.literal(true),
+      "x-geoSupportedTypes": z
         .union([
           z.literal("POINT"),
           z.literal("MULTIPOINT"),
@@ -425,7 +425,7 @@ export abstract class ImportSchemaUtils {
           z.literal("GEOMETRYCOLLECTION"),
         ])
         .array(),
-      defaultValue: z
+      "x-defaultValue": z
         .union([
           GeoJSONPointSchema,
           GeoJSONMultiPointSchema,
@@ -439,12 +439,12 @@ export abstract class ImportSchemaUtils {
         .optional(),
     })
     .superRefine((values, context) => {
-      const { supportType, defaultValue } = values;
+      const { "x-geoSupportedTypes": geoSupportedTypes, "x-defaultValue": defaultValue } = values;
 
       if (!defaultValue) return;
 
       const supportTypeSet = new Set<Lowercase<ObjectSupportedType>>(
-        supportType.map(type => type.toLowerCase() as Lowercase<ObjectSupportedType>),
+        geoSupportedTypes.map(type => type.toLowerCase() as Lowercase<ObjectSupportedType>),
       );
 
       const defaultValueTypes = defaultValue.map(_defaultValue =>
@@ -465,34 +465,34 @@ export abstract class ImportSchemaUtils {
   private static readonly FILED_GEO_EDITOR_VALIDATOR: z.ZodType<FieldGeoEditor> = z.union([
     z
       .object({
-        type: z.literal("GeometryEditor"),
-        multiple: z.literal(false),
-        supportType: z.literal("POINT"),
-        defaultValue: GeoJSONPointSchema.optional(),
+        "x-fieldType": z.literal("GeometryEditor"),
+        "x-multiple": z.literal(false),
+        "x-geoSupportedType": z.literal("POINT"),
+        "x-defaultValue": GeoJSONPointSchema.optional(),
       })
       .and(this.FIELD_BASE_VALIDATOR),
     z
       .object({
-        type: z.literal("GeometryEditor"),
-        multiple: z.literal(false),
-        supportType: z.literal("LINESTRING"),
-        defaultValue: GeoJSONLineStringSchema.optional(),
+        "x-fieldType": z.literal("GeometryEditor"),
+        "x-multiple": z.literal(false),
+        "x-geoSupportedType": z.literal("LINESTRING"),
+        "x-defaultValue": GeoJSONLineStringSchema.optional(),
       })
       .and(this.FIELD_BASE_VALIDATOR),
     z
       .object({
-        type: z.literal("GeometryEditor"),
-        multiple: z.literal(false),
-        supportType: z.literal("POLYGON"),
-        defaultValue: GeoJSONPolygonSchema.optional(),
+        "x-fieldType": z.literal("GeometryEditor"),
+        "x-multiple": z.literal(false),
+        "x-geoSupportedType": z.literal("POLYGON"),
+        "x-defaultValue": GeoJSONPolygonSchema.optional(),
       })
       .and(this.FIELD_BASE_VALIDATOR),
     z
       .object({
-        type: z.literal("GeometryEditor"),
-        multiple: z.literal(false),
-        supportType: z.literal("ANY"),
-        defaultValue: z
+        "x-fieldType": z.literal("GeometryEditor"),
+        "x-multiple": z.literal(false),
+        "x-geoSupportedType": z.literal("ANY"),
+        "x-defaultValue": z
           .union([GeoJSONPointSchema, GeoJSONLineStringSchema, GeoJSONPolygonSchema])
           .optional(),
       })
@@ -503,34 +503,34 @@ export abstract class ImportSchemaUtils {
     z.union([
       z
         .object({
-          type: z.literal("GeometryEditor"),
-          multiple: z.literal(true),
-          supportType: z.literal("POINT"),
-          defaultValue: GeoJSONPointSchema.array().optional(),
+          "x-fieldType": z.literal("GeometryEditor"),
+          "x-multiple": z.literal(true),
+          "x-geoSupportedType": z.literal("POINT"),
+          "x-defaultValue": GeoJSONPointSchema.array().optional(),
         })
         .and(this.FIELD_BASE_VALIDATOR),
       z
         .object({
-          type: z.literal("GeometryEditor"),
-          multiple: z.literal(true),
-          supportType: z.literal("LINESTRING"),
-          defaultValue: GeoJSONLineStringSchema.array().optional(),
+          "x-fieldType": z.literal("GeometryEditor"),
+          "x-multiple": z.literal(true),
+          "x-geoSupportedType": z.literal("LINESTRING"),
+          "x-defaultValue": GeoJSONLineStringSchema.array().optional(),
         })
         .and(this.FIELD_BASE_VALIDATOR),
       z
         .object({
-          type: z.literal("GeometryEditor"),
-          multiple: z.literal(true),
-          supportType: z.literal("POLYGON"),
-          defaultValue: GeoJSONPolygonSchema.array().optional(),
+          "x-fieldType": z.literal("GeometryEditor"),
+          "x-multiple": z.literal(true),
+          "x-geoSupportedType": z.literal("POLYGON"),
+          "x-defaultValue": GeoJSONPolygonSchema.array().optional(),
         })
         .and(this.FIELD_BASE_VALIDATOR),
       z
         .object({
-          type: z.literal("GeometryEditor"),
-          multiple: z.literal(true),
-          supportType: z.literal("ANY"),
-          defaultValue: z
+          "x-fieldType": z.literal("GeometryEditor"),
+          "x-multiple": z.literal(true),
+          "x-geoSupportedType": z.literal("ANY"),
+          "x-defaultValue": z
             .union([GeoJSONPointSchema, GeoJSONLineStringSchema, GeoJSONPolygonSchema])
             .array()
             .optional(),
@@ -544,86 +544,86 @@ export abstract class ImportSchemaUtils {
       z.union([
         z
           .object({
-            type: z.literal(SchemaFieldType.Text),
+            "x-fieldType": z.literal(SchemaFieldType.Text),
           })
           .and(this.FIELD_TEXT_BASE_VALIDATOR),
         z
           .object({
-            type: z.literal(SchemaFieldType.Text),
+            "x-fieldType": z.literal(SchemaFieldType.Text),
           })
           .and(this.FIELD_TEXT_BASE_MULTI_VALIDATOR),
         z
           .object({
-            type: z.literal(SchemaFieldType.TextArea),
+            "x-fieldType": z.literal(SchemaFieldType.TextArea),
           })
           .and(this.FIELD_TEXT_BASE_VALIDATOR),
         z
           .object({
-            type: z.literal(SchemaFieldType.TextArea),
+            "x-fieldType": z.literal(SchemaFieldType.TextArea),
           })
           .and(this.FIELD_TEXT_BASE_MULTI_VALIDATOR),
         z
           .object({
-            type: z.literal(SchemaFieldType.MarkdownText),
+            "x-fieldType": z.literal(SchemaFieldType.MarkdownText),
           })
           .and(this.FIELD_TEXT_BASE_VALIDATOR),
         z
           .object({
-            type: z.literal(SchemaFieldType.MarkdownText),
+            "x-fieldType": z.literal(SchemaFieldType.MarkdownText),
           })
           .and(this.FIELD_TEXT_BASE_MULTI_VALIDATOR),
         z
           .object({
-            type: z.literal(SchemaFieldType.Asset),
-            multiple: z.literal(false),
-            defaultValue: z.string().optional(),
+            "x-fieldType": z.literal(SchemaFieldType.Asset),
+            "x-multiple": z.literal(false),
+            "x-defaultValue": z.string().optional(),
           })
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
-            type: z.literal(SchemaFieldType.Asset),
-            multiple: z.literal(true),
-            defaultValue: z.string().array().optional(),
+            "x-fieldType": z.literal(SchemaFieldType.Asset),
+            "x-multiple": z.literal(true),
+            "x-defaultValue": z.string().array().optional(),
           })
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
-            type: z.literal(SchemaFieldType.Bool),
-            multiple: z.literal(false),
-            defaultValue: z.boolean().optional(),
+            "x-fieldType": z.literal(SchemaFieldType.Bool),
+            "x-multiple": z.literal(false),
+            "x-defaultValue": z.boolean().optional(),
           })
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
-            type: z.literal(SchemaFieldType.Bool),
-            multiple: z.literal(true),
-            defaultValue: z.boolean().array().optional(),
+            "x-fieldType": z.literal(SchemaFieldType.Bool),
+            "x-multiple": z.literal(true),
+            "x-defaultValue": z.boolean().array().optional(),
           })
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
-            type: z.literal(SchemaFieldType.Date),
-            multiple: z.literal(false),
-            defaultValue: z.iso.datetime({ offset: true }).optional(),
+            "x-fieldType": z.literal(SchemaFieldType.Date),
+            "x-multiple": z.literal(false),
+            "x-defaultValue": z.iso.datetime({ offset: true }).optional(),
           })
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
-            type: z.literal(SchemaFieldType.Date),
-            multiple: z.literal(true),
-            defaultValue: z.iso.datetime({ offset: true }).array().optional(),
+            "x-fieldType": z.literal(SchemaFieldType.Date),
+            "x-multiple": z.literal(true),
+            "x-defaultValue": z.iso.datetime({ offset: true }).array().optional(),
           })
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
-            type: z.literal(SchemaFieldType.Number),
+            "x-fieldType": z.literal(SchemaFieldType.Number),
             maximum: z.number().optional(),
             minimum: z.number().optional(),
-            defaultValue: z.number().optional(),
-            multiple: z.literal(false),
+            "x-defaultValue": z.number().optional(),
+            "x-multiple": z.literal(false),
           })
           .superRefine((values, context) => {
-            const { maximum, minimum, defaultValue } = values;
+            const { maximum, minimum, "x-defaultValue": defaultValue } = values;
 
             if (minimum && defaultValue && defaultValue < minimum) {
               context.addIssue({
@@ -648,14 +648,14 @@ export abstract class ImportSchemaUtils {
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
-            type: z.literal(SchemaFieldType.Number),
+            "x-fieldType": z.literal(SchemaFieldType.Number),
             maximum: z.number().optional(),
             minimum: z.number().optional(),
-            defaultValue: z.number().array().optional(),
-            multiple: z.literal(true),
+            "x-defaultValue": z.number().array().optional(),
+            "x-multiple": z.literal(true),
           })
           .superRefine((values, context) => {
-            const { maximum, minimum, defaultValue } = values;
+            const { maximum, minimum, "x-defaultValue": defaultValue } = values;
 
             if (minimum && defaultValue && defaultValue.some(value => value < minimum)) {
               context.addIssue({
@@ -680,14 +680,14 @@ export abstract class ImportSchemaUtils {
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
-            type: z.literal(SchemaFieldType.Integer),
+            "x-fieldType": z.literal(SchemaFieldType.Integer),
             maximum: z.int().optional(),
             minimum: z.int().optional(),
-            defaultValue: z.int().optional(),
-            multiple: z.literal(false),
+            "x-defaultValue": z.int().optional(),
+            "x-multiple": z.literal(false),
           })
           .superRefine((values, context) => {
-            const { maximum, minimum, defaultValue } = values;
+            const { maximum, minimum, "x-defaultValue": defaultValue } = values;
 
             if (minimum && defaultValue && defaultValue < minimum) {
               context.addIssue({
@@ -712,14 +712,14 @@ export abstract class ImportSchemaUtils {
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
-            type: z.literal(SchemaFieldType.Integer),
+            "x-fieldType": z.literal(SchemaFieldType.Integer),
             maximum: z.int().optional(),
             minimum: z.int().optional(),
-            defaultValue: z.int().array().optional(),
-            multiple: z.literal(true),
+            "x-defaultValue": z.int().array().optional(),
+            "x-multiple": z.literal(true),
           })
           .superRefine((values, context) => {
-            const { maximum, minimum, defaultValue } = values;
+            const { maximum, minimum, "x-defaultValue": defaultValue } = values;
 
             if (minimum && defaultValue && defaultValue.some(value => value < minimum)) {
               context.addIssue({
@@ -744,56 +744,56 @@ export abstract class ImportSchemaUtils {
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
-            type: z.literal(SchemaFieldType.Select),
-            values: z.string().array(),
-            defaultValue: z.string().optional(),
-            multiple: z.literal(false),
+            "x-fieldType": z.literal(SchemaFieldType.Select),
+            "x-options": z.string().array(),
+            "x-defaultValue": z.string().optional(),
+            "x-multiple": z.literal(false),
           })
           .superRefine((value, context) => {
-            const { defaultValue, values } = value;
-            const valuesSet = new Set(values);
+            const { "x-defaultValue": defaultValue, "x-options": options } = value;
+            const valuesSet = new Set(options);
             if (defaultValue && !valuesSet.has(defaultValue)) {
               context.addIssue({
                 code: "invalid_value",
                 message: "defaultValue should be in one of values",
                 input: value,
-                values,
+                values: options,
               });
             }
           })
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
-            type: z.literal(SchemaFieldType.Select),
-            values: z.string().array(),
-            defaultValue: z.string().array().optional(),
-            multiple: z.literal(true),
+            "x-fieldType": z.literal(SchemaFieldType.Select),
+            "x-options": z.string().array(),
+            "x-defaultValue": z.string().array().optional(),
+            "x-multiple": z.literal(true),
           })
           .superRefine((value, context) => {
-            const { defaultValue, values } = value;
-            const valuesSet = new Set(values);
+            const { "x-defaultValue": defaultValue, "x-options": options } = value;
+            const valuesSet = new Set(options);
             if (defaultValue && defaultValue.some(_value => !valuesSet.has(_value))) {
               context.addIssue({
                 code: "invalid_value",
                 message: "defaultValue should be in one of values",
                 input: value,
-                values,
+                values: options,
               });
             }
           })
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
-            type: z.literal(SchemaFieldType.URL),
-            defaultValue: z.url().optional(),
-            multiple: z.literal(false),
+            "x-fieldType": z.literal(SchemaFieldType.URL),
+            "x-defaultValue": z.url().optional(),
+            "x-multiple": z.literal(false),
           })
           .and(this.FIELD_BASE_VALIDATOR),
         z
           .object({
-            type: z.literal(SchemaFieldType.URL),
-            defaultValue: z.url().array().optional(),
-            multiple: z.literal(true),
+            "x-fieldType": z.literal(SchemaFieldType.URL),
+            "x-defaultValue": z.url().array().optional(),
+            "x-multiple": z.literal(true),
           })
           .and(this.FIELD_BASE_VALIDATOR),
         this.FIELD_GEO_OBJECT_VALIDATOR,

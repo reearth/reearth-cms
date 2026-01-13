@@ -150,46 +150,46 @@ export function defaultTypePropertyGet2(
   string,
   TypeProperty & { supportedTypes?: ObjectSupportedType[] | EditorSupportedType[] }
 > {
-  switch (field.type) {
+  switch (field["x-fieldType"]) {
     case "Text":
       return {
         text: {
-          defaultValue: field.defaultValue,
+          defaultValue: field["x-defaultValue"],
           maxLength: field.maxLength,
         },
       };
     case "TextArea":
       return {
         textArea: {
-          defaultValue: field.defaultValue,
+          defaultValue: field["x-defaultValue"],
           maxLength: field.maxLength,
         },
       };
     case "MarkdownText":
       return {
         markdownText: {
-          defaultValue: field.defaultValue,
+          defaultValue: field["x-defaultValue"],
           maxLength: field.maxLength,
         },
       };
     case "Asset":
       return {
         asset: {
-          defaultValue: field.defaultValue,
+          defaultValue: field["x-defaultValue"],
         },
       };
     case "Bool":
       return {
-        bool: { defaultValue: field.defaultValue },
+        bool: { defaultValue: field["x-defaultValue"] },
       };
     case "Date":
       return {
-        date: { defaultValue: field.defaultValue },
+        date: { defaultValue: field["x-defaultValue"] },
       };
     case "Number":
       return {
         number: {
-          defaultValue: field.defaultValue,
+          defaultValue: field["x-defaultValue"],
           min: field.minimum,
           max: field.maximum,
         },
@@ -197,7 +197,7 @@ export function defaultTypePropertyGet2(
     case "Integer":
       return {
         integer: {
-          defaultValue: field.defaultValue,
+          defaultValue: field["x-defaultValue"],
           min: field.minimum,
           max: field.maximum,
         },
@@ -205,28 +205,28 @@ export function defaultTypePropertyGet2(
     case "Select":
       return {
         select: {
-          defaultValue: field.defaultValue,
-          values: field.values,
+          defaultValue: field["x-defaultValue"],
+          values: field["x-options"],
         },
       };
     case "URL":
       return {
         url: {
-          defaultValue: field.defaultValue,
+          defaultValue: field["x-defaultValue"],
         },
       };
     case "GeometryObject":
       return {
         geometryObject: {
-          defaultValue: field.defaultValue,
-          supportedTypes: field.supportType,
+          defaultValue: field["x-defaultValue"],
+          supportedTypes: field["x-geoSupportedTypes"],
         },
       };
     case "GeometryEditor":
       return {
         geometryEditor: {
-          defaultValue: field.defaultValue,
-          supportedTypes: [field.supportType],
+          defaultValue: field["x-defaultValue"],
+          supportedTypes: [field["x-geoSupportedType"]],
         },
       };
     default:

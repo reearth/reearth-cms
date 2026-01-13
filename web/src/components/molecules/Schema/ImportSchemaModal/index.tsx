@@ -120,18 +120,13 @@ const ImportSchemaModal: React.FC<Props> = ({
     [setFields],
   );
 
-  const handleFieldTypeChange = useCallback(
-    (key: string, value: SchemaFieldType) => {
-      setFields(prev =>
-        prev.map(field =>
-          field.key === key
-            ? { ...field, type: value, typeProperty: defaultTypePropertyGet(value) }
-            : field,
-        ),
-      );
-    },
-    [setFields],
-  );
+  const handleToggleAllFieldHide = useCallback(() => {
+    setFields(prev => {
+      const checkedCount = prev.filter(item => !item.hidden).length;
+      const isIndeterminate = checkedCount >= 0 && checkedCount < prev.length;
+      return prev.map(item => ({ ...item, hidden: !isIndeterminate }));
+    });
+  }, [setFields]);
 
   const fieldTypeOptions = useMemo(() => {
     return Object.entries(fieldTypes).map(([key, value]) => ({
@@ -166,8 +161,8 @@ const ImportSchemaModal: React.FC<Props> = ({
           fields={fields}
           fieldTypeOptions={fieldTypeOptions}
           onDragEnd={handleDragEnd}
-          onFieldTypeChange={handleFieldTypeChange}
           onToggleFieldHide={handleToggleFieldHide}
+          onToggleAllFieldsHide={handleToggleAllFieldHide}
           hasUpdateRight={hasUpdateRight}
           hasDeleteRight={hasDeleteRight}
         />

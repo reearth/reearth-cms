@@ -2,25 +2,25 @@ import styled from "@emotion/styled";
 import ReactDragListView from "react-drag-listview";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Col from "@reearth-cms/components/atoms/Col";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
 import Row from "@reearth-cms/components/atoms/Row";
-import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import { useT } from "@reearth-cms/i18n";
 
-import { ImportFieldInput, SchemaFieldType } from "../types";
-import Checkbox from "@reearth-cms/components/atoms/Checkbox";
+import { ImportFieldInput } from "../types";
+import { useMemo } from "react";
 
 type Props = {
   fields: ImportFieldInput[];
   fieldTypeOptions: { value: string; label: JSX.Element }[];
   onDragEnd: (fromIndex: number, toIndex: number) => void;
-  onFieldTypeChange: (id: string, value: SchemaFieldType) => void;
   onToggleFieldHide: (id: string) => void;
+  onToggleAllFieldsHide: () => void;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
 };
@@ -29,8 +29,8 @@ const SchemaPreviewStep: React.FC<Props> = ({
   fields,
   fieldTypeOptions,
   onDragEnd,
-  onFieldTypeChange,
   onToggleFieldHide,
+  onToggleAllFieldsHide,
   hasUpdateRight,
   hasDeleteRight,
 }) => {
@@ -41,6 +41,12 @@ const SchemaPreviewStep: React.FC<Props> = ({
 
     return findField ? findField.label : null;
   };
+
+  const isAllChecked = useMemo(() => fields.every(field => !field.hidden), [fields]);
+  const indeterminate = useMemo(() => {
+    const checkedCount = fields.filter(field => !field.hidden).length;
+    return checkedCount >= 0 && checkedCount < fields.length;
+  }, [fields]);
 
   return (
     <SchemaPreviewStepWrapper data-testId="SchemaPreviewStep">
@@ -59,10 +65,13 @@ const SchemaPreviewStep: React.FC<Props> = ({
           <HeaderCol span={11}>
             <span>{t("Field Type")}</span>
           </HeaderCol>
-          {/*<HeaderCol span={2}>*/}
-          {/*  <span>multiple</span>*/}
-          {/*</HeaderCol>*/}
-          <Col span={1} />
+          <Col span={1}>
+            <Checkbox
+              checked={isAllChecked}
+              indeterminate={indeterminate}
+              onClick={onToggleAllFieldsHide}
+            />
+          </Col>
         </HeaderRow>
       </Section>
 
@@ -73,7 +82,7 @@ const SchemaPreviewStep: React.FC<Props> = ({
         onDragEnd={onDragEnd}>
         <FieldStyledList data-testId="SchemaPreviewFieldList" itemLayout="horizontal">
           {fields?.map((field, index) => (
-            <StyledListItem className="draggable-item" key={index} noImport={field.hidden}>
+            <StyledListItem className="draggable-item" key={field.key} noImport={field.hidden}>
               <List.Item.Meta
                 title={
                   <Row>

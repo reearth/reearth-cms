@@ -65,12 +65,12 @@ describe("Test import schema", () => {
     describe("[Pass case] Legal field type (full setup) from schema", () => {
       const COMMON_SCHEMA_FIELD: Pick<
         ImportSchemaField,
-        "title" | "description" | "required" | "unique"
+        "title" | "description" | "x-required" | "x-unique"
       > = {
         title: "test",
         description: "test",
-        required: false,
-        unique: false,
+        "x-required": false,
+        "x-unique": false,
       };
 
       const EXPECTED_RESULT = true;
@@ -79,241 +79,241 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Text,
+            "x-fieldType": SchemaFieldType.Text,
             maxLength: 30,
-            defaultValue: "hello world",
-            multiple: false,
+            "x-defaultValue": "hello world",
+            "x-multiple": false,
           } as FieldText,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Text,
+            "x-fieldType": SchemaFieldType.Text,
             maxLength: 30,
-            defaultValue: ["hello", "world"],
-            multiple: true,
+            "x-defaultValue": ["hello", "world"],
+            "x-multiple": true,
           } as FieldTextMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.TextArea,
+            "x-fieldType": SchemaFieldType.TextArea,
             maxLength: 30,
-            defaultValue: "hello \n world",
-            multiple: false,
+            "x-defaultValue": "hello \n world",
+            "x-multiple": false,
           } as FieldTextArea,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.TextArea,
+            "x-fieldType": SchemaFieldType.TextArea,
             maxLength: 30,
-            defaultValue: ["hello \n world", "hola \n mundo"],
-            multiple: true,
+            "x-defaultValue": ["hello \n world", "hola \n mundo"],
+            "x-multiple": true,
           } as FieldTextAreaMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.MarkdownText,
+            "x-fieldType": SchemaFieldType.MarkdownText,
             maxLength: 30,
-            defaultValue: "# H1 \n # H2 \n hello world",
-            multiple: false,
+            "x-defaultValue": "# H1 \n # H2 \n hello world",
+            "x-multiple": false,
           } as FieldMarkdownText,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.MarkdownText,
+            "x-fieldType": SchemaFieldType.MarkdownText,
             maxLength: 30,
-            defaultValue: ["# H1 \n # H2 \n hello world", "# H1 \n # H2 \n hola mundo"],
-            multiple: true,
+            "x-defaultValue": ["# H1 \n # H2 \n hello world", "# H1 \n # H2 \n hola mundo"],
+            "x-multiple": true,
           } as FieldMarkdownTextMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Asset,
-            defaultValue: "asset-id",
-            multiple: false,
+            "x-fieldType": SchemaFieldType.Asset,
+            "x-defaultValue": "asset-id",
+            "x-multiple": false,
           } as FieldAsset,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Asset,
-            defaultValue: ["asset-id-1", "asset-id-2"],
-            multiple: true,
+            "x-fieldType": SchemaFieldType.Asset,
+            "x-defaultValue": ["asset-id-1", "asset-id-2"],
+            "x-multiple": true,
           } as FieldAssetMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Date,
-            defaultValue: "2025-12-01T00:00:00+09:00",
-            multiple: false,
+            "x-fieldType": SchemaFieldType.Date,
+            "x-defaultValue": "2025-12-01T00:00:00+09:00",
+            "x-multiple": false,
           } as FieldDate,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Date,
-            defaultValue: ["2025-12-01T00:00:00+09:00", "2025-12-02T00:00:00+09:00"],
-            multiple: true,
+            "x-fieldType": SchemaFieldType.Date,
+            "x-defaultValue": ["2025-12-01T00:00:00+09:00", "2025-12-02T00:00:00+09:00"],
+            "x-multiple": true,
           } as FieldDateMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Bool,
-            defaultValue: true,
-            multiple: false,
+            "x-fieldType": SchemaFieldType.Bool,
+            "x-defaultValue": true,
+            "x-multiple": false,
           } as FieldBoolean,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Bool,
-            defaultValue: [true, false],
-            multiple: true,
+            "x-fieldType": SchemaFieldType.Bool,
+            "x-defaultValue": [true, false],
+            "x-multiple": true,
           } as FieldBooleanMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Select,
-            defaultValue: "green",
-            values: ["red", "green", "blue"],
-            multiple: false,
+            "x-fieldType": SchemaFieldType.Select,
+            "x-defaultValue": "green",
+            "x-options": ["red", "green", "blue"],
+            "x-multiple": false,
           } as FieldSelect,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Select,
-            defaultValue: ["green", "blue"],
-            values: ["red", "green", "blue"],
-            multiple: true,
+            "x-fieldType": SchemaFieldType.Select,
+            "x-defaultValue": ["green", "blue"],
+            "x-options": ["red", "green", "blue"],
+            "x-multiple": true,
           } as FieldSelectMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Number,
+            "x-fieldType": SchemaFieldType.Number,
             minimum: -5.5,
             maximum: 5.5,
-            defaultValue: 3.5,
-            multiple: false,
+            "x-defaultValue": 3.5,
+            "x-multiple": false,
           } as FieldNumber,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Number,
+            "x-fieldType": SchemaFieldType.Number,
             minimum: -5.5,
             maximum: 5.5,
-            defaultValue: [2.2, 4.4],
-            multiple: true,
+            "x-defaultValue": [2.2, 4.4],
+            "x-multiple": true,
           } as FieldNumberMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Integer,
+            "x-fieldType": SchemaFieldType.Integer,
             maximum: 10,
             minimum: -10,
-            defaultValue: 5,
-            multiple: false,
+            "x-defaultValue": 5,
+            "x-multiple": false,
           } as FieldInteger,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Integer,
+            "x-fieldType": SchemaFieldType.Integer,
             maximum: 10,
             minimum: -10,
-            defaultValue: [5, 6],
-            multiple: true,
+            "x-defaultValue": [5, 6],
+            "x-multiple": true,
           } as FieldIntegerMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.URL,
-            defaultValue: "https://hello.com/",
-            multiple: false,
+            "x-fieldType": SchemaFieldType.URL,
+            "x-defaultValue": "https://hello.com/",
+            "x-multiple": false,
           } as FieldURL,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.URL,
-            defaultValue: ["https://hello.com/", "https://world.com/"],
-            multiple: true,
+            "x-fieldType": SchemaFieldType.URL,
+            "x-defaultValue": ["https://hello.com/", "https://world.com/"],
+            "x-multiple": true,
           } as FieldURLMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.GeometryObject,
-            multiple: false,
-            defaultValue: Test.GEO_JSON_POINT,
-            supportType: ["POINT"],
+            "x-fieldType": SchemaFieldType.GeometryObject,
+            "x-multiple": false,
+            "x-defaultValue": Test.GEO_JSON_POINT,
+            "x-geoSupportedTypes": ["POINT"],
           } as FieldGeoObject,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.GeometryObject,
-            multiple: true,
-            defaultValue: [Test.GEO_JSON_POINT],
-            supportType: ["POINT"],
+            "x-fieldType": SchemaFieldType.GeometryObject,
+            "x-multiple": true,
+            "x-defaultValue": [Test.GEO_JSON_POINT],
+            "x-geoSupportedTypes": ["POINT"],
           } as FieldGeoObjectMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.GeometryEditor,
-            multiple: false,
-            defaultValue: Test.GEO_JSON_POINT,
-            supportType: "POINT",
+            "x-fieldType": SchemaFieldType.GeometryEditor,
+            "x-multiple": false,
+            "x-defaultValue": Test.GEO_JSON_POINT,
+            "x-geoSupportedType": "POINT",
           } as FieldGeoEditor,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.GeometryEditor,
-            multiple: true,
-            defaultValue: [Test.GEO_JSON_POINT],
-            supportType: "POINT",
+            "x-fieldType": SchemaFieldType.GeometryEditor,
+            "x-multiple": true,
+            "x-defaultValue": [Test.GEO_JSON_POINT],
+            "x-geoSupportedType": "POINT",
           } as FieldGeoEditorMulti,
           expectedResult: EXPECTED_RESULT,
         },
       ])(
-        "$setup.type field are legal with default value & multiple: $setup.multiple",
+        "$setup.type field are legal with default value & multiple: $setup.x-multiple",
         async ({ setup, expectedResult }) => {
           const parsedSetup: ImportSchema = {
             properties: { testField: setup },
@@ -333,12 +333,12 @@ describe("Test import schema", () => {
     describe("[Pass case] Control variables: no defaultValue, minimum, maximum, maxLength", () => {
       const COMMON_SCHEMA_FIELD: Pick<
         ImportSchemaField,
-        "title" | "description" | "required" | "unique"
+        "title" | "description" | "x-required" | "x-unique"
       > = {
         title: "test",
         description: "test",
-        required: false,
-        unique: false,
+        "x-required": false,
+        "x-unique": false,
       };
 
       const EXPECTED_RESULT = true;
@@ -347,175 +347,175 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Text,
-            multiple: false,
+            "x-fieldType": SchemaFieldType.Text,
+            "x-multiple": false,
           } as FieldText,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Text,
-            multiple: true,
+            "x-fieldType": SchemaFieldType.Text,
+            "x-multiple": true,
           } as FieldTextMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.TextArea,
-            multiple: false,
+            "x-fieldType": SchemaFieldType.TextArea,
+            "x-multiple": false,
           } as FieldTextArea,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.TextArea,
-            multiple: true,
+            "x-fieldType": SchemaFieldType.TextArea,
+            "x-multiple": true,
           } as FieldTextAreaMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.MarkdownText,
-            multiple: false,
+            "x-fieldType": SchemaFieldType.MarkdownText,
+            "x-multiple": false,
           } as FieldMarkdownText,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.MarkdownText,
-            multiple: true,
+            "x-fieldType": SchemaFieldType.MarkdownText,
+            "x-multiple": true,
           } as FieldMarkdownTextMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Asset,
-            multiple: false,
+            "x-fieldType": SchemaFieldType.Asset,
+            "x-multiple": false,
           } as FieldAsset,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Asset,
-            multiple: true,
+            "x-fieldType": SchemaFieldType.Asset,
+            "x-multiple": true,
           } as FieldAssetMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Date,
-            multiple: false,
+            "x-fieldType": SchemaFieldType.Date,
+            "x-multiple": false,
           } as FieldDate,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Date,
-            multiple: true,
+            "x-fieldType": SchemaFieldType.Date,
+            "x-multiple": true,
           } as FieldDateMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Bool,
-            multiple: false,
+            "x-fieldType": SchemaFieldType.Bool,
+            "x-multiple": false,
           } as FieldBoolean,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Bool,
-            multiple: true,
+            "x-fieldType": SchemaFieldType.Bool,
+            "x-multiple": true,
           } as FieldBooleanMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Select,
-            values: ["red", "green", "blue"],
-            multiple: false,
+            "x-fieldType": SchemaFieldType.Select,
+            "x-options": ["red", "green", "blue"],
+            "x-multiple": false,
           } as FieldSelect,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Select,
-            values: ["red", "green", "blue"],
-            multiple: true,
+            "x-fieldType": SchemaFieldType.Select,
+            "x-options": ["red", "green", "blue"],
+            "x-multiple": true,
           } as FieldSelectMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Number,
-            multiple: false,
+            "x-fieldType": SchemaFieldType.Number,
+            "x-multiple": false,
           } as FieldNumber,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Number,
-            multiple: true,
+            "x-fieldType": SchemaFieldType.Number,
+            "x-multiple": true,
           } as FieldNumberMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Integer,
-            multiple: false,
+            "x-fieldType": SchemaFieldType.Integer,
+            "x-multiple": false,
           } as FieldInteger,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Integer,
-            multiple: true,
+            "x-fieldType": SchemaFieldType.Integer,
+            "x-multiple": true,
           } as FieldIntegerMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.URL,
-            multiple: false,
+            "x-fieldType": SchemaFieldType.URL,
+            "x-multiple": false,
           } as FieldURL,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.URL,
-            multiple: true,
+            "x-fieldType": SchemaFieldType.URL,
+            "x-multiple": true,
           } as FieldURLMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.URL,
-            multiple: true,
+            "x-fieldType": SchemaFieldType.URL,
+            "x-multiple": true,
           } as FieldURLMulti,
           expectedResult: EXPECTED_RESULT,
         },
       ])(
-        "$setup.type field are legal with default value & multiple: $setup.multiple",
+        "$setup.type field are legal with default value & multiple: $setup.x-multiple",
         async ({ setup, expectedResult }) => {
           const parsedSetup: ImportSchema = {
             properties: { testField: setup },
@@ -535,12 +535,12 @@ describe("Test import schema", () => {
     describe("[Fail case] Control variables: defaultValue out of range", () => {
       const COMMON_SCHEMA_FIELD: Pick<
         ImportSchemaField,
-        "title" | "description" | "required" | "unique"
+        "title" | "description" | "x-required" | "x-unique"
       > = {
         title: "test",
         description: "test",
-        required: false,
-        unique: false,
+        "x-required": false,
+        "x-unique": false,
       };
 
       const EXPECTED_RESULT = false;
@@ -549,129 +549,129 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Text,
+            "x-fieldType": SchemaFieldType.Text,
             maxLength: 1,
-            defaultValue: "hello world",
-            multiple: false,
+            "x-defaultValue": "hello world",
+            "x-multiple": false,
           } as FieldText,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Text,
+            "x-fieldType": SchemaFieldType.Text,
             maxLength: 1,
-            defaultValue: ["hello", "world"],
-            multiple: true,
+            "x-defaultValue": ["hello", "world"],
+            "x-multiple": true,
           } as FieldTextMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.TextArea,
+            "x-fieldType": SchemaFieldType.TextArea,
             maxLength: 1,
-            defaultValue: "hello \n world",
-            multiple: false,
+            "x-defaultValue": "hello \n world",
+            "x-multiple": false,
           } as FieldTextArea,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.TextArea,
+            "x-fieldType": SchemaFieldType.TextArea,
             maxLength: 1,
-            defaultValue: ["hello \n world", "hola \n mundo"],
-            multiple: true,
+            "x-defaultValue": ["hello \n world", "hola \n mundo"],
+            "x-multiple": true,
           } as FieldTextAreaMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.MarkdownText,
+            "x-fieldType": SchemaFieldType.MarkdownText,
             maxLength: 1,
-            defaultValue: "# H1 \n # H2 \n hello world",
-            multiple: false,
+            "x-defaultValue": "# H1 \n # H2 \n hello world",
+            "x-multiple": false,
           } as FieldMarkdownText,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.MarkdownText,
+            "x-fieldType": SchemaFieldType.MarkdownText,
             maxLength: 1,
-            defaultValue: ["# H1 \n # H2 \n hello world", "# H1 \n # H2 \n hola mundo"],
-            multiple: true,
+            "x-defaultValue": ["# H1 \n # H2 \n hello world", "# H1 \n # H2 \n hola mundo"],
+            "x-multiple": true,
           } as FieldMarkdownTextMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Select,
-            defaultValue: "yellow",
-            values: ["red", "green", "blue"],
-            multiple: false,
+            "x-fieldType": SchemaFieldType.Select,
+            "x-defaultValue": "yellow",
+            "x-options": ["red", "green", "blue"],
+            "x-multiple": false,
           } as FieldSelect,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Select,
-            defaultValue: ["black", "white"],
-            values: ["red", "green", "blue"],
-            multiple: true,
+            "x-fieldType": SchemaFieldType.Select,
+            "x-defaultValue": ["black", "white"],
+            "x-options": ["red", "green", "blue"],
+            "x-multiple": true,
           } as FieldSelectMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Number,
+            "x-fieldType": SchemaFieldType.Number,
             minimum: -5.5,
             maximum: 5.5,
-            defaultValue: 10.5,
-            multiple: false,
+            "x-defaultValue": 10.5,
+            "x-multiple": false,
           } as FieldNumber,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Number,
+            "x-fieldType": SchemaFieldType.Number,
             minimum: -5.5,
             maximum: 5.5,
-            defaultValue: [-10.5, 20.5],
-            multiple: true,
+            "x-defaultValue": [-10.5, 20.5],
+            "x-multiple": true,
           } as FieldNumberMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Integer,
+            "x-fieldType": SchemaFieldType.Integer,
             maximum: 10,
             minimum: -10,
-            defaultValue: 50,
-            multiple: false,
+            "x-defaultValue": 50,
+            "x-multiple": false,
           } as FieldInteger,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Integer,
+            "x-fieldType": SchemaFieldType.Integer,
             maximum: 10,
             minimum: -10,
-            defaultValue: [-50, 50],
-            multiple: true,
+            "x-defaultValue": [-50, 50],
+            "x-multiple": true,
           } as FieldIntegerMulti,
           expectedResult: EXPECTED_RESULT,
         },
       ])(
-        "$setup.type field are illegal with default value & multiple: $setup.multiple",
+        "$setup.type field are illegal with default value & multiple: $setup.x-multiple",
         async ({ setup, expectedResult }) => {
           const parsedSetup: ImportSchema = {
             properties: { testField: setup },
@@ -687,12 +687,12 @@ describe("Test import schema", () => {
     describe("[Fail case] Illegal defaultValue type from schema", () => {
       const COMMON_SCHEMA_FIELD: Pick<
         ImportSchemaField,
-        "title" | "description" | "required" | "unique"
+        "title" | "description" | "x-required" | "x-unique"
       > = {
         title: "test",
         description: "test",
-        required: false,
-        unique: false,
+        "x-required": false,
+        "x-unique": false,
       };
 
       const EXPECTED_RESULT = false;
@@ -701,201 +701,201 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Text,
+            "x-fieldType": SchemaFieldType.Text,
             maxLength: 30,
-            defaultValue: 1,
-            multiple: false,
+            "x-defaultValue": 1,
+            "x-multiple": false,
           },
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Text,
+            "x-fieldType": SchemaFieldType.Text,
             maxLength: 30,
-            defaultValue: [1, 2],
-            multiple: true,
+            "x-defaultValue": [1, 2],
+            "x-multiple": true,
           },
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.TextArea,
+            "x-fieldType": SchemaFieldType.TextArea,
             maxLength: 30,
-            defaultValue: 5566,
-            multiple: false,
+            "x-defaultValue": 5566,
+            "x-multiple": false,
           },
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.TextArea,
+            "x-fieldType": SchemaFieldType.TextArea,
             maxLength: 30,
-            defaultValue: [false, true],
-            multiple: true,
+            "x-defaultValue": [false, true],
+            "x-multiple": true,
           },
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.MarkdownText,
+            "x-fieldType": SchemaFieldType.MarkdownText,
             maxLength: 30,
-            defaultValue: ["a", "b"],
-            multiple: false,
+            "x-defaultValue": ["a", "b"],
+            "x-multiple": false,
           },
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.MarkdownText,
+            "x-fieldType": SchemaFieldType.MarkdownText,
             maxLength: 30,
-            defaultValue: "a",
-            multiple: true,
+            "x-defaultValue": "a",
+            "x-multiple": true,
           },
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Asset,
-            defaultValue: 1,
-            multiple: false,
+            "x-fieldType": SchemaFieldType.Asset,
+            "x-defaultValue": 1,
+            "x-multiple": false,
           },
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Asset,
-            defaultValue: [false, true],
-            multiple: true,
+            "x-fieldType": SchemaFieldType.Asset,
+            "x-defaultValue": [false, true],
+            "x-multiple": true,
           },
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Date,
-            defaultValue: "false date format",
-            multiple: false,
+            "x-fieldType": SchemaFieldType.Date,
+            "x-defaultValue": "false date format",
+            "x-multiple": false,
           },
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Date,
-            defaultValue: ["try this date", "againnnnnn"],
-            multiple: true,
+            "x-fieldType": SchemaFieldType.Date,
+            "x-defaultValue": ["try this date", "againnnnnn"],
+            "x-multiple": true,
           },
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Bool,
-            defaultValue: 123,
-            multiple: false,
+            "x-fieldType": SchemaFieldType.Bool,
+            "x-defaultValue": 123,
+            "x-multiple": false,
           },
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Bool,
-            defaultValue: "I am boooool",
-            multiple: true,
+            "x-fieldType": SchemaFieldType.Bool,
+            "x-defaultValue": "I am boooool",
+            "x-multiple": true,
           },
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Select,
-            defaultValue: 1,
-            values: ["red", "green", "blue"],
-            multiple: false,
+            "x-fieldType": SchemaFieldType.Select,
+            "x-defaultValue": 1,
+            "x-options": ["red", "green", "blue"],
+            "x-multiple": false,
           },
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Select,
-            defaultValue: [true, "hello", "world"],
-            values: ["red", "green", "blue"],
-            multiple: true,
+            "x-fieldType": SchemaFieldType.Select,
+            "x-defaultValue": [true, "hello", "world"],
+            "x-options": ["red", "green", "blue"],
+            "x-multiple": true,
           },
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Number,
+            "x-fieldType": SchemaFieldType.Number,
             minimum: -5.5,
             maximum: 5.5,
-            defaultValue: "try this number",
-            multiple: false,
+            "x-defaultValue": "try this number",
+            "x-multiple": false,
           },
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Number,
+            "x-fieldType": SchemaFieldType.Number,
             minimum: -5.5,
             maximum: 5.5,
-            defaultValue: ["just", "do", "it"],
-            multiple: true,
+            "x-defaultValue": ["just", "do", "it"],
+            "x-multiple": true,
           },
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Integer,
+            "x-fieldType": SchemaFieldType.Integer,
             maximum: 10,
             minimum: -10,
-            defaultValue: false,
-            multiple: false,
+            "x-defaultValue": false,
+            "x-multiple": false,
           },
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.Integer,
+            "x-fieldType": SchemaFieldType.Integer,
             maximum: 10,
             minimum: -10,
-            defaultValue: "super integer",
-            multiple: true,
+            "x-defaultValue": "super integer",
+            "x-multiple": true,
           },
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.URL,
-            defaultValue: "i am the dark web",
-            multiple: false,
+            "x-fieldType": SchemaFieldType.URL,
+            "x-defaultValue": "i am the dark web",
+            "x-multiple": false,
           },
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            type: SchemaFieldType.URL,
-            defaultValue: [false, "have you ever seen the rain"],
-            multiple: true,
+            "x-fieldType": SchemaFieldType.URL,
+            "x-defaultValue": [false, "have you ever seen the rain"],
+            "x-multiple": true,
           },
           expectedResult: EXPECTED_RESULT,
         },
       ])(
-        "$setup.type field are illegal with default value & multiple: $setup.multiple",
+        "$setup.type field are illegal with default value & multiple: $setup.x-multiple",
         async ({ setup, expectedResult }) => {
           const parsedSetup = {
             properties: { testField: setup },
@@ -913,13 +913,13 @@ describe("Test import schema", () => {
     describe("[Pass case] Control variables: support type, without default value", () => {
       const COMMON_SCHEMA_FIELD: Pick<
         ImportSchemaField,
-        "title" | "description" | "required" | "unique" | "type"
+        "title" | "description" | "x-required" | "x-unique" | "x-fieldType"
       > = {
         title: "test",
         description: "test",
-        required: false,
-        unique: false,
-        type: SchemaFieldType.GeometryObject,
+        "x-required": false,
+        "x-unique": false,
+        "x-fieldType": SchemaFieldType.GeometryObject,
       };
 
       const EXPECTED_RESULT = true;
@@ -928,117 +928,117 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: ["POINT"],
+            "x-multiple": false,
+            "x-geoSupportedTypes": ["POINT"],
           } as FieldGeoObject,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: ["POINT"],
+            "x-multiple": true,
+            "x-geoSupportedTypes": ["POINT"],
           } as FieldGeoObjectMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: ["MULTIPOINT"],
+            "x-multiple": false,
+            "x-geoSupportedTypes": ["MULTIPOINT"],
           } as FieldGeoObject,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: ["MULTIPOINT"],
+            "x-multiple": true,
+            "x-geoSupportedTypes": ["MULTIPOINT"],
           } as FieldGeoObjectMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: ["LINESTRING"],
+            "x-multiple": false,
+            "x-geoSupportedTypes": ["LINESTRING"],
           } as FieldGeoObject,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: ["LINESTRING"],
+            "x-multiple": true,
+            "x-geoSupportedTypes": ["LINESTRING"],
           } as FieldGeoObjectMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: ["MULTILINESTRING"],
+            "x-multiple": false,
+            "x-geoSupportedTypes": ["MULTILINESTRING"],
           } as FieldGeoObject,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: ["MULTILINESTRING"],
+            "x-multiple": true,
+            "x-geoSupportedTypes": ["MULTILINESTRING"],
           } as FieldGeoObjectMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: ["POLYGON"],
+            "x-multiple": false,
+            "x-geoSupportedTypes": ["POLYGON"],
           } as FieldGeoObject,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: ["POLYGON"],
+            "x-multiple": true,
+            "x-geoSupportedTypes": ["POLYGON"],
           } as FieldGeoObjectMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: ["MULTIPOLYGON"],
+            "x-multiple": false,
+            "x-geoSupportedTypes": ["MULTIPOLYGON"],
           } as FieldGeoObject,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: ["MULTIPOLYGON"],
+            "x-multiple": true,
+            "x-geoSupportedTypes": ["MULTIPOLYGON"],
           } as FieldGeoObjectMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: ["GEOMETRYCOLLECTION"],
+            "x-multiple": false,
+            "x-geoSupportedTypes": ["GEOMETRYCOLLECTION"],
           } as FieldGeoObject,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: ["GEOMETRYCOLLECTION"],
+            "x-multiple": true,
+            "x-geoSupportedTypes": ["GEOMETRYCOLLECTION"],
           } as FieldGeoObjectMulti,
           expectedResult: EXPECTED_RESULT,
         },
       ])(
-        "Field are legal, supportType: $setup.supportType without default value & multiple: $setup.multiple",
+        "Field are legal, geoSupportedTypes: $setup.x-geoSupportedTypes without default value & multiple: $setup.x-multiple",
         async ({ setup, expectedResult }) => {
           const parsedSetup: ImportSchema = {
             properties: { testField: setup },
@@ -1058,13 +1058,13 @@ describe("Test import schema", () => {
     describe("[Pass case] Control variables: support type, with default value", () => {
       const COMMON_SCHEMA_FIELD: Pick<
         ImportSchemaField,
-        "title" | "description" | "required" | "unique" | "type"
+        "title" | "description" | "x-required" | "x-unique" | "x-fieldType"
       > = {
         title: "test",
         description: "test",
-        required: false,
-        unique: false,
-        type: SchemaFieldType.GeometryObject,
+        "x-required": false,
+        "x-unique": false,
+        "x-fieldType": SchemaFieldType.GeometryObject,
       };
 
       const COMMON_EXPECTED_RESULT = true;
@@ -1073,131 +1073,131 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: ["POINT"],
-            defaultValue: Test.GEO_JSON_POINT,
+            "x-multiple": false,
+            "x-geoSupportedTypes": ["POINT"],
+            "x-defaultValue": Test.GEO_JSON_POINT,
           } as FieldGeoObject,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: ["POINT"],
-            defaultValue: [Test.GEO_JSON_POINT],
+            "x-multiple": true,
+            "x-geoSupportedTypes": ["POINT"],
+            "x-defaultValue": [Test.GEO_JSON_POINT],
           } as FieldGeoObjectMulti,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: ["MULTIPOINT"],
-            defaultValue: Test.GEO_JSON_MULTI_POINT,
+            "x-multiple": false,
+            "x-geoSupportedTypes": ["MULTIPOINT"],
+            "x-defaultValue": Test.GEO_JSON_MULTI_POINT,
           } as FieldGeoObject,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: ["MULTIPOINT"],
-            defaultValue: [Test.GEO_JSON_MULTI_POINT],
+            "x-multiple": true,
+            "x-geoSupportedTypes": ["MULTIPOINT"],
+            "x-defaultValue": [Test.GEO_JSON_MULTI_POINT],
           } as FieldGeoObjectMulti,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: ["LINESTRING"],
-            defaultValue: Test.GEO_JSON_LINE_STRING,
+            "x-multiple": false,
+            "x-geoSupportedTypes": ["LINESTRING"],
+            "x-defaultValue": Test.GEO_JSON_LINE_STRING,
           } as FieldGeoObject,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: ["LINESTRING"],
-            defaultValue: [Test.GEO_JSON_LINE_STRING],
+            "x-multiple": true,
+            "x-geoSupportedTypes": ["LINESTRING"],
+            "x-defaultValue": [Test.GEO_JSON_LINE_STRING],
           } as FieldGeoObjectMulti,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: ["MULTILINESTRING"],
-            defaultValue: Test.GEO_JSON_MULTI_LINE_STRING,
+            "x-multiple": false,
+            "x-geoSupportedTypes": ["MULTILINESTRING"],
+            "x-defaultValue": Test.GEO_JSON_MULTI_LINE_STRING,
           } as FieldGeoObject,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: ["MULTILINESTRING"],
-            defaultValue: [Test.GEO_JSON_MULTI_LINE_STRING],
+            "x-multiple": true,
+            "x-geoSupportedTypes": ["MULTILINESTRING"],
+            "x-defaultValue": [Test.GEO_JSON_MULTI_LINE_STRING],
           } as FieldGeoObjectMulti,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: ["POLYGON"],
-            defaultValue: Test.GEO_JSON_POLYGON,
+            "x-multiple": false,
+            "x-geoSupportedTypes": ["POLYGON"],
+            "x-defaultValue": Test.GEO_JSON_POLYGON,
           } as FieldGeoObject,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: ["POLYGON"],
-            defaultValue: [Test.GEO_JSON_POLYGON],
+            "x-multiple": true,
+            "x-geoSupportedTypes": ["POLYGON"],
+            "x-defaultValue": [Test.GEO_JSON_POLYGON],
           } as FieldGeoObjectMulti,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: ["MULTIPOLYGON"],
-            defaultValue: Test.GEO_JSON_MULTI_POLYGON,
+            "x-multiple": false,
+            "x-geoSupportedTypes": ["MULTIPOLYGON"],
+            "x-defaultValue": Test.GEO_JSON_MULTI_POLYGON,
           } as FieldGeoObject,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: ["MULTIPOLYGON"],
-            defaultValue: [Test.GEO_JSON_MULTI_POLYGON],
+            "x-multiple": true,
+            "x-geoSupportedTypes": ["MULTIPOLYGON"],
+            "x-defaultValue": [Test.GEO_JSON_MULTI_POLYGON],
           } as FieldGeoObjectMulti,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: ["GEOMETRYCOLLECTION"],
-            defaultValue: Test.GEO_JSON_GEO_COLLECTION,
+            "x-multiple": false,
+            "x-geoSupportedTypes": ["GEOMETRYCOLLECTION"],
+            "x-defaultValue": Test.GEO_JSON_GEO_COLLECTION,
           } as FieldGeoObject,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: ["GEOMETRYCOLLECTION"],
-            defaultValue: [Test.GEO_JSON_GEO_COLLECTION],
+            "x-multiple": true,
+            "x-geoSupportedTypes": ["GEOMETRYCOLLECTION"],
+            "x-defaultValue": [Test.GEO_JSON_GEO_COLLECTION],
           } as FieldGeoObjectMulti,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
       ])(
-        "Field are legal, supportType: $setup.supportType with default value & multiple: $setup.multiple",
+        "Field are legal, geoSupportedTypes: $setup.x-geoSupportedTypes with default value & multiple: $setup.x-multiple",
         async ({ setup, expectedResult }) => {
           const parsedSetup: ImportSchema = {
             properties: { testField: setup },
@@ -1217,13 +1217,13 @@ describe("Test import schema", () => {
     describe("[Fail case] Illegal defaultValue against supportType", () => {
       const COMMON_SCHEMA_FIELD: Pick<
         ImportSchemaField,
-        "title" | "description" | "required" | "unique" | "type"
+        "title" | "description" | "x-required" | "x-unique" | "x-fieldType"
       > = {
         title: "test",
         description: "test",
-        required: false,
-        unique: false,
-        type: SchemaFieldType.GeometryObject,
+        "x-required": false,
+        "x-unique": false,
+        "x-fieldType": SchemaFieldType.GeometryObject,
       };
 
       const COMMON_EXPECTED_RESULT = false;
@@ -1232,131 +1232,131 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: ["POINT"],
-            defaultValue: Test.GEO_JSON_MULTI_POINT,
+            "x-multiple": false,
+            "x-geoSupportedTypes": ["POINT"],
+            "x-defaultValue": Test.GEO_JSON_MULTI_POINT,
           } as FieldGeoObject,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: ["POINT"],
-            defaultValue: [Test.GEO_JSON_MULTI_POINT],
+            "x-multiple": true,
+            "x-geoSupportedTypes": ["POINT"],
+            "x-defaultValue": [Test.GEO_JSON_MULTI_POINT],
           } as FieldGeoObjectMulti,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: ["MULTIPOINT"],
-            defaultValue: Test.GEO_JSON_POINT,
+            "x-multiple": false,
+            "x-geoSupportedTypes": ["MULTIPOINT"],
+            "x-defaultValue": Test.GEO_JSON_POINT,
           } as FieldGeoObject,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: ["MULTIPOINT"],
-            defaultValue: [Test.GEO_JSON_POINT],
+            "x-multiple": true,
+            "x-geoSupportedTypes": ["MULTIPOINT"],
+            "x-defaultValue": [Test.GEO_JSON_POINT],
           } as FieldGeoObjectMulti,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: ["LINESTRING"],
-            defaultValue: Test.GEO_JSON_POINT,
+            "x-multiple": false,
+            "x-geoSupportedTypes": ["LINESTRING"],
+            "x-defaultValue": Test.GEO_JSON_POINT,
           } as FieldGeoObject,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: ["LINESTRING"],
-            defaultValue: [Test.GEO_JSON_POINT],
+            "x-multiple": true,
+            "x-geoSupportedTypes": ["LINESTRING"],
+            "x-defaultValue": [Test.GEO_JSON_POINT],
           } as FieldGeoObjectMulti,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: ["MULTILINESTRING"],
-            defaultValue: Test.GEO_JSON_POINT,
+            "x-multiple": false,
+            "x-geoSupportedTypes": ["MULTILINESTRING"],
+            "x-defaultValue": Test.GEO_JSON_POINT,
           } as FieldGeoObject,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: ["MULTILINESTRING"],
-            defaultValue: [Test.GEO_JSON_POINT],
+            "x-multiple": true,
+            "x-geoSupportedTypes": ["MULTILINESTRING"],
+            "x-defaultValue": [Test.GEO_JSON_POINT],
           } as FieldGeoObjectMulti,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: ["POLYGON"],
-            defaultValue: Test.GEO_JSON_POINT,
+            "x-multiple": false,
+            "x-geoSupportedTypes": ["POLYGON"],
+            "x-defaultValue": Test.GEO_JSON_POINT,
           } as FieldGeoObject,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: ["POLYGON"],
-            defaultValue: [Test.GEO_JSON_POINT],
+            "x-multiple": true,
+            "x-geoSupportedTypes": ["POLYGON"],
+            "x-defaultValue": [Test.GEO_JSON_POINT],
           } as FieldGeoObjectMulti,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: ["MULTIPOLYGON"],
-            defaultValue: Test.GEO_JSON_POINT,
+            "x-multiple": false,
+            "x-geoSupportedTypes": ["MULTIPOLYGON"],
+            "x-defaultValue": Test.GEO_JSON_POINT,
           } as FieldGeoObject,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: ["MULTIPOLYGON"],
-            defaultValue: [Test.GEO_JSON_POINT],
+            "x-multiple": true,
+            "x-geoSupportedTypes": ["MULTIPOLYGON"],
+            "x-defaultValue": [Test.GEO_JSON_POINT],
           } as FieldGeoObjectMulti,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: ["GEOMETRYCOLLECTION"],
-            defaultValue: Test.GEO_JSON_POINT,
+            "x-multiple": false,
+            "x-geoSupportedTypes": ["GEOMETRYCOLLECTION"],
+            "x-defaultValue": Test.GEO_JSON_POINT,
           } as FieldGeoObject,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: ["GEOMETRYCOLLECTION"],
-            defaultValue: [Test.GEO_JSON_POINT],
+            "x-multiple": true,
+            "x-geoSupportedTypes": ["GEOMETRYCOLLECTION"],
+            "x-defaultValue": [Test.GEO_JSON_POINT],
           } as FieldGeoObjectMulti,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
       ])(
-        "Field are illegal, supportType: $setup.supportType with default value & multiple: $setup.multiple",
+        "Field are illegal, geoSupportedTypes: $setup.x-geoSupportedTypes with default value & multiple: $setup.x-multiple",
         async ({ setup, expectedResult }) => {
           const parsedSetup: ImportSchema = {
             properties: { testField: setup },
@@ -1378,13 +1378,13 @@ describe("Test import schema", () => {
     describe("[Pass case] Control variables: support type, without default value", () => {
       const COMMON_SCHEMA_FIELD: Pick<
         ImportSchemaField,
-        "title" | "description" | "required" | "unique" | "type"
+        "title" | "description" | "x-required" | "x-unique" | "x-fieldType"
       > = {
         title: "test",
         description: "test",
-        required: false,
-        unique: false,
-        type: SchemaFieldType.GeometryEditor,
+        "x-required": false,
+        "x-unique": false,
+        "x-fieldType": SchemaFieldType.GeometryEditor,
       };
 
       const EXPECTED_RESULT = true;
@@ -1393,69 +1393,69 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: "POINT",
+            "x-multiple": false,
+            "x-geoSupportedType": "POINT",
           } as FieldGeoEditor,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: "POINT",
+            "x-multiple": true,
+            "x-geoSupportedType": "POINT",
           } as FieldGeoEditorMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: "LINESTRING",
+            "x-multiple": false,
+            "x-geoSupportedType": "LINESTRING",
           } as FieldGeoEditor,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: "LINESTRING",
+            "x-multiple": true,
+            "x-geoSupportedType": "LINESTRING",
           } as FieldGeoEditorMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: "POLYGON",
+            "x-multiple": false,
+            "x-geoSupportedType": "POLYGON",
           } as FieldGeoEditor,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: "POLYGON",
+            "x-multiple": true,
+            "x-geoSupportedType": "POLYGON",
           } as FieldGeoEditorMulti,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: "ANY",
+            "x-multiple": false,
+            "x-geoSupportedType": "ANY",
           } as FieldGeoEditor,
           expectedResult: EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: "ANY",
+            "x-multiple": true,
+            "x-geoSupportedType": "ANY",
           } as FieldGeoEditorMulti,
           expectedResult: EXPECTED_RESULT,
         },
       ])(
-        "Field are legal, supportType: $setup.supportType without default value & multiple: $setup.multiple",
+        "Field are legal, geoSupportedType: $setup.x-geoSupportedType without default value & multiple: $setup.x-multiple",
         async ({ setup, expectedResult }) => {
           const parsedSetup: ImportSchema = {
             properties: { testField: setup },
@@ -1475,13 +1475,13 @@ describe("Test import schema", () => {
     describe("[Pass case] Control variables: support type, with default value", () => {
       const COMMON_SCHEMA_FIELD: Pick<
         ImportSchemaField,
-        "title" | "description" | "required" | "unique" | "type"
+        "title" | "description" | "x-required" | "x-unique" | "x-fieldType"
       > = {
         title: "test",
         description: "test",
-        required: false,
-        unique: false,
-        type: SchemaFieldType.GeometryEditor,
+        "x-required": false,
+        "x-unique": false,
+        "x-fieldType": SchemaFieldType.GeometryEditor,
       };
 
       const COMMON_EXPECTED_RESULT = true;
@@ -1490,77 +1490,81 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: "POINT",
-            defaultValue: Test.GEO_JSON_POINT,
+            "x-multiple": false,
+            "x-geoSupportedType": "POINT",
+            "x-defaultValue": Test.GEO_JSON_POINT,
           } as FieldGeoEditor,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: "POINT",
-            defaultValue: [Test.GEO_JSON_POINT],
+            "x-multiple": true,
+            "x-geoSupportedType": "POINT",
+            "x-defaultValue": [Test.GEO_JSON_POINT],
           } as FieldGeoEditorMulti,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: "LINESTRING",
-            defaultValue: Test.GEO_JSON_LINE_STRING,
+            "x-multiple": false,
+            "x-geoSupportedType": "LINESTRING",
+            "x-defaultValue": Test.GEO_JSON_LINE_STRING,
           } as FieldGeoEditor,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: "LINESTRING",
-            defaultValue: [Test.GEO_JSON_LINE_STRING],
+            "x-multiple": true,
+            "x-geoSupportedType": "LINESTRING",
+            "x-defaultValue": [Test.GEO_JSON_LINE_STRING],
           } as FieldGeoEditorMulti,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: "POLYGON",
-            defaultValue: Test.GEO_JSON_POLYGON,
+            "x-multiple": false,
+            "x-geoSupportedType": "POLYGON",
+            "x-defaultValue": Test.GEO_JSON_POLYGON,
           } as FieldGeoEditor,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: "POLYGON",
-            defaultValue: [Test.GEO_JSON_POLYGON],
+            "x-multiple": true,
+            "x-geoSupportedType": "POLYGON",
+            "x-defaultValue": [Test.GEO_JSON_POLYGON],
           } as FieldGeoEditorMulti,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: "ANY",
-            defaultValue: Test.GEO_JSON_POINT,
+            "x-multiple": false,
+            "x-geoSupportedType": "ANY",
+            "x-defaultValue": Test.GEO_JSON_POINT,
           } as FieldGeoEditor,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: "ANY",
-            defaultValue: [Test.GEO_JSON_POINT, Test.GEO_JSON_LINE_STRING, Test.GEO_JSON_POLYGON],
+            "x-multiple": true,
+            "x-geoSupportedType": "ANY",
+            "x-defaultValue": [
+              Test.GEO_JSON_POINT,
+              Test.GEO_JSON_LINE_STRING,
+              Test.GEO_JSON_POLYGON,
+            ],
           } as FieldGeoEditorMulti,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
       ])(
-        "Field are legal, supportType: $setup.supportType with default value & multiple: $setup.multiple",
+        "Field are legal, geoSupportedType: $setup.x-geoSupportedType with default value & multiple: $setup.x-multiple",
         async ({ setup, expectedResult }) => {
           const parsedSetup: ImportSchema = {
             properties: { testField: setup },
@@ -1580,13 +1584,13 @@ describe("Test import schema", () => {
     describe("[Fail case] Illegal defaultValue against supportType", () => {
       const COMMON_SCHEMA_FIELD: Pick<
         ImportSchemaField,
-        "title" | "description" | "required" | "unique" | "type"
+        "title" | "description" | "x-required" | "x-unique" | "x-fieldType"
       > = {
         title: "test",
         description: "test",
-        required: false,
-        unique: false,
-        type: SchemaFieldType.GeometryEditor,
+        "x-required": false,
+        "x-unique": false,
+        "x-fieldType": SchemaFieldType.GeometryEditor,
       };
 
       const COMMON_EXPECTED_RESULT = false;
@@ -1595,59 +1599,59 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: "POINT",
-            defaultValue: Test.GEO_JSON_LINE_STRING,
+            "x-multiple": false,
+            "x-geoSupportedType": "POINT",
+            "x-defaultValue": Test.GEO_JSON_LINE_STRING,
           } as FieldGeoEditor,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: "POINT",
-            defaultValue: [Test.GEO_JSON_LINE_STRING],
+            "x-multiple": true,
+            "x-geoSupportedType": "POINT",
+            "x-defaultValue": [Test.GEO_JSON_LINE_STRING],
           } as FieldGeoEditorMulti,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: "LINESTRING",
-            defaultValue: Test.GEO_JSON_POINT,
+            "x-multiple": false,
+            "x-geoSupportedType": "LINESTRING",
+            "x-defaultValue": Test.GEO_JSON_POINT,
           } as FieldGeoEditor,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: "LINESTRING",
-            defaultValue: [Test.GEO_JSON_POINT],
+            "x-multiple": true,
+            "x-geoSupportedType": "LINESTRING",
+            "x-defaultValue": [Test.GEO_JSON_POINT],
           } as FieldGeoEditorMulti,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: false,
-            supportType: "POLYGON",
-            defaultValue: Test.GEO_JSON_POINT,
+            "x-multiple": false,
+            "x-geoSupportedType": "POLYGON",
+            "x-defaultValue": Test.GEO_JSON_POINT,
           } as FieldGeoEditor,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            multiple: true,
-            supportType: "POLYGON",
-            defaultValue: [Test.GEO_JSON_POINT],
+            "x-multiple": true,
+            "x-geoSupportedType": "POLYGON",
+            "x-defaultValue": [Test.GEO_JSON_POINT],
           } as FieldGeoEditorMulti,
           expectedResult: COMMON_EXPECTED_RESULT,
         },
       ])(
-        "Field are illegal, supportType: $setup.supportType with default value & multiple: $setup.multiple",
+        "Field are illegal, geoSupportedType: $setup.x-geoSupportedType with default value & multiple: $setup.x-multiple",
         async ({ setup, expectedResult }) => {
           const parsedSetup: ImportSchema = {
             properties: { testField: setup },

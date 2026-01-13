@@ -26,7 +26,6 @@ const ProjectSchema: React.FC = () => {
 
   const toImportingStep = useCallback(
     async (fields: CreateFieldInput[]) => {
-      console.log("fields", fields);
       await schemaHooks.handleFieldsCreate(fields);
       // await new Promise(resolve => {
       //   setTimeout(resolve, 3000);
