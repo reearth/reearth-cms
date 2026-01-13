@@ -89,7 +89,7 @@ test("GeometryObject field editing has succeeded", async ({
     await fieldEditorPage.pointCheckbox.check();
     await fieldEditorPage.defaultValueTab.click();
     await fieldEditorPage.viewLinesEditor.click();
-    await fieldEditorPage.editorContent.fill('{\n"type": "Point",\n"coordinates": [0, 0]');
+    await fieldEditorPage.editorContent().fill('{\n"type": "Point",\n"coordinates": [0, 0]');
     await fieldEditorPage.okButton.click();
     await fieldEditorPage.closeNotification();
     await page.waitForTimeout(300);
@@ -136,7 +136,7 @@ test("GeometryObject field editing has succeeded", async ({
 
   await test.step("Add second default geometry and reorder", async () => {
     await fieldEditorPage.plusNewButton.click();
-    await fieldEditorPage.editorContent.nth(1).fill('{\n"type": "Point",\n"coordinates": [1, 0]');
+    await fieldEditorPage.editorContent(1).fill('{\n"type": "Point",\n"coordinates": [1, 0]');
     await fieldEditorPage.firstArrowDownButton.click();
     await expect(fieldEditorPage.viewLinesEditor.nth(0)).toContainText(
       '{  "type": "Point",  "coordinates": [1, 0]}',

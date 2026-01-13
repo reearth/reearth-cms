@@ -152,16 +152,16 @@ describe("Member table", () => {
 
     const { user, role } = workspaceUserMembers[0];
 
-    expect(screen.getByText("Name")).toBeInTheDocument();
-    expect(screen.getByText("Email")).toBeInTheDocument();
-    expect(screen.getByText("Role")).toBeInTheDocument();
-    expect(screen.getByText("Action")).toBeInTheDocument();
+    expect(screen.getByText("Name", { selector: ".ant-table-cell" })).toBeVisible();
+    expect(screen.getByText("Email", { selector: ".ant-table-cell" })).toBeVisible();
+    expect(screen.getByText("Role", { selector: ".ant-table-cell" })).toBeVisible();
+    expect(screen.getByText("Action", { selector: ".ant-table-cell" })).toBeVisible();
     expect(screen.getByText(user.name)).toBeVisible();
     expect(screen.getByText(user.email)).toBeVisible();
     expect(screen.getByText(role)).toBeVisible();
   });
 
-  test("Own checkbox, change role button, and leave button are disabled successfully", async () => {
+  test("Owner checkbox, change role button, and leave button are disabled successfully", async () => {
     render(
       <MemberTable
         workspaceUserMembers={workspaceUserMembers}
@@ -183,7 +183,11 @@ describe("Member table", () => {
       />,
     );
 
-    expect(screen.getByRole("checkbox")).toBeDisabled();
+    const selectAllCheckbox = screen
+      .getAllByRole("checkbox")
+      .find(el => el.getAttribute("aria-label") !== "Select all");
+    expect(selectAllCheckbox).not.toBe(undefined);
+    expect(selectAllCheckbox).toBeDisabled();
     expect(screen.getByRole("button", { name: "Change Role?" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Leave" })).toBeDisabled();
   });
@@ -255,7 +259,7 @@ describe("Member table", () => {
       />,
     );
 
-    await user.click(screen.getByLabelText("Select all"));
+    await user.click(screen.getAllByLabelText("Select all")[0]);
     await user.click(screen.getByRole("button", { name: "usergroup-delete Remove" }));
     const dialog = screen.getByRole("dialog");
     await expect.poll(() => dialog).toBeVisible();
