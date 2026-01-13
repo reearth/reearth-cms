@@ -43,7 +43,13 @@ func (s *Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	q := fromQuery(*sp, wp.Model.ID(), request)
+	
+	q := item.NewQuery(sp.Schema().Project(), wp.Model.ID(), sp.Schema().ID().Ref(), lo.FromPtr(request.Params.Keyword), nil)
+	
+	if request.Params.Sort != nil {
+		s := fromSort(*sp, *request.Params.Sort, request.Params.Dir)
+		q = q.WithSort(s)
+	}
 	items, pi, err := uc.Item.Search(ctx, *sp, q, p, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
@@ -81,61 +87,6 @@ func (s *Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject
 	}, nil
 }
 
-func (s *Server) ItemList(ctx context.Context, request ItemListRequestObject) (ItemListResponseObject, error) {
-	op := adapter.Operator(ctx)
-	uc := adapter.Usecases(ctx)
-
-	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return ItemList404Response{}, err
-		}
-		return ItemList400Response{}, err
-	}
-
-	sp, err := uc.Schema.FindByModel(ctx, wp.Model.ID(), op)
-	if err != nil {
-		return ItemList400Response{}, err
-	}
-
-	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	q := fromListQuery(*sp, wp.Model.ID(), request)
-	items, pi, err := uc.Item.Search(ctx, *sp, q, p, op)
-	if err != nil {
-		if errors.Is(err, rerror.ErrNotFound) {
-			return ItemList404Response{}, err
-		}
-		return ItemList400Response{}, err
-	}
-
-	assets, err := getAssetsFromItems(ctx, items, request.Params.Asset)
-	if err != nil {
-		return ItemList500Response{}, err
-	}
-	metaSchemas, metaItems := getMetaSchemasAndItems(ctx, items)
-
-	res, err := util.TryMap(items, func(i item.Versioned) (integrationapi.VersionedItem, error) {
-		metaItem, _ := lo.Find(metaItems, func(itm item.Versioned) bool {
-			return itm.Value().ID() == lo.FromPtr(i.Value().MetadataItem())
-		})
-		var metaSchema *schema.Schema
-		if metaItem != nil {
-			metaSchema, _ = lo.Find(metaSchemas, func(s *schema.Schema) bool {
-				return metaItem.Value().Schema() == s.ID()
-			})
-		}
-		return integrationapi.NewVersionedItem(i, sp.Schema(), assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i), metaSchema, metaItem, sp.GroupSchemas()), nil
-	})
-	if err != nil {
-		return ItemList400Response{}, err
-	}
-	return ItemList200JSONResponse{
-		Items:      &res,
-		Page:       lo.ToPtr(Page(*p.Offset)),
-		PerPage:    lo.ToPtr(int(p.Offset.Limit)),
-		TotalCount: lo.ToPtr(int(pi.TotalCount)),
-	}, nil
-}
 
 func (s *Server) ItemFilterPost(ctx context.Context, request ItemFilterPostRequestObject) (ItemFilterPostResponseObject, error) {
 	op := adapter.Operator(ctx)

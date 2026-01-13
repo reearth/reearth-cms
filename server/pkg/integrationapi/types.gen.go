@@ -265,28 +265,10 @@ const (
 	ItemFilterPostParamsRefPublic ItemFilterPostParamsRef = "public"
 )
 
-// Defines values for ItemListParamsSort.
-const (
-	CreatedAt ItemListParamsSort = "createdAt"
-	UpdatedAt ItemListParamsSort = "updatedAt"
-)
-
-// Defines values for ItemListParamsDir.
-const (
-	Asc  ItemListParamsDir = "asc"
-	Desc ItemListParamsDir = "desc"
-)
-
-// Defines values for ItemListParamsRef.
-const (
-	ItemListParamsRefLatest ItemListParamsRef = "latest"
-	ItemListParamsRefPublic ItemListParamsRef = "public"
-)
-
 // Defines values for ItemGetParamsRef.
 const (
-	ItemGetParamsRefLatest ItemGetParamsRef = "latest"
-	ItemGetParamsRefPublic ItemGetParamsRef = "public"
+	Latest ItemGetParamsRef = "latest"
+	Public ItemGetParamsRef = "public"
 )
 
 // GeoJSON defines model for GeoJSON.
@@ -867,11 +849,6 @@ type ModelImportMultipartBodyFormat string
 // ModelImportMultipartBodyStrategy defines parameters for ModelImport.
 type ModelImportMultipartBodyStrategy string
 
-// ItemFilterJSONBody defines parameters for ItemFilter.
-type ItemFilterJSONBody struct {
-	Filter *Condition `json:"filter,omitempty"`
-}
-
 // ItemFilterParams defines parameters for ItemFilter.
 type ItemFilterParams struct {
 	// Sort Used to define the order of the response list
@@ -979,39 +956,6 @@ type ItemFilterPostParamsDir string
 // ItemFilterPostParamsRef defines parameters for ItemFilterPost.
 type ItemFilterPostParamsRef string
 
-// ItemListParams defines parameters for ItemList.
-type ItemListParams struct {
-	// Sort Used to define the order of the response list
-	Sort *ItemListParamsSort `form:"sort,omitempty" json:"sort,omitempty"`
-
-	// Dir Used to define the order direction of the response list, will be ignored if the order is not presented
-	Dir *ItemListParamsDir `form:"dir,omitempty" json:"dir,omitempty"`
-
-	// Page Used to select the page
-	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
-
-	// PerPage Used to select the page
-	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
-
-	// Ref Used to select a ref or ver
-	Ref *ItemListParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
-
-	// Asset Specifies whether asset data are embedded in the results
-	Asset *AssetParam `form:"asset,omitempty" json:"asset,omitempty"`
-
-	// Keyword keyword string
-	Keyword *KeywordParam `form:"keyword,omitempty" json:"keyword,omitempty"`
-}
-
-// ItemListParamsSort defines parameters for ItemList.
-type ItemListParamsSort string
-
-// ItemListParamsDir defines parameters for ItemList.
-type ItemListParamsDir string
-
-// ItemListParamsRef defines parameters for ItemList.
-type ItemListParamsRef string
-
 // ItemGetParams defines parameters for ItemGet.
 type ItemGetParams struct {
 	// Ref Used to select a ref or ver
@@ -1107,9 +1051,6 @@ type ModelImportJSONRequestBody ModelImportJSONBody
 
 // ModelImportMultipartRequestBody defines body for ModelImport for multipart/form-data ContentType.
 type ModelImportMultipartRequestBody ModelImportMultipartBody
-
-// ItemFilterJSONRequestBody defines body for ItemFilter for application/json ContentType.
-type ItemFilterJSONRequestBody ItemFilterJSONBody
 
 // ItemCreateJSONRequestBody defines body for ItemCreate for application/json ContentType.
 type ItemCreateJSONRequestBody ItemCreateJSONBody
