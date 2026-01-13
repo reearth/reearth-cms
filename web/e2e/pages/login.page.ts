@@ -45,17 +45,12 @@ export class LoginPage {
   }
 
   async loginWithAuth0(email: string, password: string) {
-    // Email input
     await this.auth0EmailInput.click();
     await this.auth0EmailInput.fill(email);
     await this.auth0ContinueButton.click();
-    await this.page.waitForLoadState("networkidle", { timeout: 10000 });
-
-    // Password input
     await this.auth0PasswordInput.click();
     await this.auth0PasswordInput.fill(password);
     await this.auth0ContinueButton.click();
-    await this.page.waitForLoadState("networkidle", { timeout: 10000 });
 
     // Handle optional passkey prompt
     if (await this.auth0SkipPasskeyButton.isVisible()) {
