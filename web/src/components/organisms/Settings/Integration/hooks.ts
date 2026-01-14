@@ -162,7 +162,8 @@ export default (workspaceId?: string) => {
   );
 
   const handleSearchTerm = useCallback((term?: string) => {
-    setSearchTerm(term);
+    const normalizedTerm = term ? term.normalize("NFKC") : undefined;
+    setSearchTerm(normalizedTerm);
     setPage(1);
   }, []);
 
