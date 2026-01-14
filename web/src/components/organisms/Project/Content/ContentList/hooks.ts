@@ -95,16 +95,6 @@ export default () => {
   } = useContentHooks();
   const t = useT();
 
-  // TODO: move states below into machine
-  const [isImportContentModalOpen, setIsImportContentModalOpen] = useState(false);
-  const [dataChecking, setDataChecking] = useState(false);
-  const [alertList, setAlertList] = useState<AlertProps[]>([]);
-  const [validateImportResult, setValidateImportResult] = useState<ValidateImportResult | null>(
-    null,
-  );
-  // TODO: move states above into machine
-  const [_uploader, _setUploader] = useUploader();
-
   const navigate = useNavigate();
   const { modelId } = useParams();
   const location: {
@@ -113,8 +103,21 @@ export default () => {
       currentView: CurrentView;
       page: number;
       pageSize: number;
+      isImportModalOpen: boolean;
     } | null;
   } = useLocation();
+
+  // TODO: move states below into machine
+  const [isImportContentModalOpen, setIsImportContentModalOpen] = useState(
+    location.state?.isImportModalOpen || false,
+  );
+  const [dataChecking, setDataChecking] = useState(false);
+  const [alertList, setAlertList] = useState<AlertProps[]>([]);
+  const [validateImportResult, setValidateImportResult] = useState<ValidateImportResult | null>(
+    null,
+  );
+  // TODO: move states above into machine
+  const [_uploader, _setUploader] = useUploader();
 
   const [userId] = useUserId();
   const [userRights] = useUserRights();

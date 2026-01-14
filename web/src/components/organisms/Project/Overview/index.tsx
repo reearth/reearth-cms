@@ -19,6 +19,7 @@ const ProjectOverview: React.FC = () => {
     handleHomeNavigation,
     handleSchemaNavigation,
     handleImportSchemaNavigation,
+    handleImportContentNavigation,
     handleContentNavigation,
     handleModelSearch,
     handleModelSort,
@@ -49,6 +50,7 @@ const ProjectOverview: React.FC = () => {
         onSchemaNavigate={handleSchemaNavigation}
         onImportSchemaNavigate={handleImportSchemaNavigation}
         onContentNavigate={handleContentNavigation}
+        onImportContentNavigate={handleImportContentNavigation}
         onModelModalOpen={handleModelModalOpen}
         onModelDeletionModalOpen={handleModelDeletionModalOpen}
         onModelUpdateModalOpen={handleModelUpdateModalOpen}

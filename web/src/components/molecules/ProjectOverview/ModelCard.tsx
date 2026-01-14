@@ -18,6 +18,7 @@ type Props = {
   onSchemaNavigate: (modelId: string) => void;
   onImportSchemaNavigate: (modelId: string) => void;
   onContentNavigate: (modelId: string) => void;
+  onImportContentNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
   onModelUpdateModalOpen: (model: Model) => Promise<void>;
   onModelExport: (modelId?: string, format?: ExportFormat) => Promise<void>;
@@ -31,6 +32,7 @@ const ModelCard: React.FC<Props> = ({
   onSchemaNavigate,
   onImportSchemaNavigate,
   onContentNavigate,
+  onImportContentNavigate,
   onModelDeletionModalOpen,
   onModelUpdateModalOpen,
   onModelExport,
@@ -158,11 +160,11 @@ const ModelCard: React.FC<Props> = ({
           <Tooltip title={t("Please create a schema first")}>{t("Import content")}</Tooltip>
         ),
         disabled: !hasModelFields,
-        // onClick: () => handleModelExportClick(ExportFormat.Json),
+        onClick: () => onImportContentNavigate(model.id),
         "data-testid": "modelCardUtilDropdownImportContent",
       },
     ],
-    [hasModelFields, model.id, onImportSchemaNavigate, t],
+    [hasModelFields, model.id, onImportContentNavigate, onImportSchemaNavigate, t],
   );
 
   const ExportMenuItems = useMemo<MenuProps[]>(
