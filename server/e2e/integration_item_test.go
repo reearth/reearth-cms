@@ -360,7 +360,6 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 		Project(p.ID()).
 		Thread(thId1.Ref()).
 		Fields([]*item.Field{
-			item.NewField(fId1, value.TypeText.Value("test value").AsMultiple(), nil),
 			item.NewField(fId2, value.TypeAsset.Value(aid1).AsMultiple(), nil),
 		}).
 		MustBuild()
@@ -583,7 +582,7 @@ func baseSeeder(ctx context.Context, r *repo.Container, g *gateway.Container) er
 }
 
 func IntegrationSearchItem(e *httpexpect.Expect, workspaceId, projectId, userId, mId string, page, perPage int, keyword string, sort, sortDir string, filter map[string]any) *httpexpect.Value {
-	res := iAPIItemFilter(e, workspaceId, projectId, mId).
+	res := iAPIItemFilterPost(e, workspaceId, projectId, mId).
 		WithHeader("Origin", "https://example.com").
 		WithHeader("X-Reearth-Debug-User", userId).
 		WithHeader("Content-Type", "application/json").
@@ -2175,9 +2174,32 @@ func assertItem(v *httpexpect.Value, assetEmbeded bool) {
 	o.Value("refs").IsEqual([]string{"latest"})
 }
 
+func baseSeederWithTextItem(ctx context.Context, r *repo.Container, gr *gateway.Container) error {
+	// First run the base seeder
+	if err := baseSeeder(ctx, r, gr); err != nil {
+		return err
+	}
+
+	// Add an item with text field for filtering
+	itmWithText := item.New().NewID().
+		Schema(id.SchemaID(sid1)).
+		Model(id.ModelID(mId1)).
+		Project(id.ProjectID(pid)).
+		Thread(id.NewThreadID().Ref()).
+		Fields([]*item.Field{
+			item.NewField(fId1, value.TypeText.Value("this is a test value").AsMultiple(), nil),
+		}).
+		MustBuild()
+	if err := r.Item.Save(ctx, itmWithText); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // POST /items/filter - Complex filtering with request body
 func TestIntegrationItemFilterPostAPI(t *testing.T) {
-	e := StartServer(t, &app.Config{}, true, baseSeeder)
+	e := StartServer(t, &app.Config{}, true, baseSeederWithTextItem)
 
 	// Unauthorized tests
 	iAPIItemFilterPost(e, wId0, pid, mId1).
@@ -2284,6 +2306,7 @@ func TestIntegrationItemFilterPostAPI(t *testing.T) {
 }
 
 // Helper functions for new API endpoints
-func iAPIItemFilterPost(e *httpexpect.Expect, wId accountdomain.WorkspaceID, pid id.ProjectID, mId id.ModelID) *httpexpect.Request {
-	return e.POST(fmt.Sprintf("/api/%s/projects/%s/models/%s/items/filter", wId, pid, mId))
+func iAPIItemFilterPost(e *httpexpect.Expect, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey any) *httpexpect.Request {
+	endpoint := "/api/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/filter"
+	return e.POST(endpoint, workspaceIdOrAlias, projectIdOrAlias, modelIdOrKey)
 }
