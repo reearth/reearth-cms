@@ -43,9 +43,9 @@ func (s *Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	
+
 	q := item.NewQuery(sp.Schema().Project(), wp.Model.ID(), sp.Schema().ID().Ref(), lo.FromPtr(request.Params.Keyword), nil)
-	
+
 	if request.Params.Sort != nil {
 		s := fromSort(*sp, *request.Params.Sort, request.Params.Dir)
 		q = q.WithSort(s)
@@ -87,7 +87,6 @@ func (s *Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject
 	}, nil
 }
 
-
 func (s *Server) ItemFilterPost(ctx context.Context, request ItemFilterPostRequestObject) (ItemFilterPostResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
@@ -106,21 +105,21 @@ func (s *Server) ItemFilterPost(ctx context.Context, request ItemFilterPostReque
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	
+
 	q := item.NewQuery(sp.Schema().Project(), wp.Model.ID(), sp.Schema().ID().Ref(), lo.FromPtr(request.Params.Keyword), nil)
-	
+
 	if request.Params.Sort != nil {
 		s := fromPostSort(*sp, *request.Params.Sort, request.Params.Dir)
 		q = q.WithSort(s)
 	}
-	
+
 	if request.Body != nil && request.Body.Filter != nil {
 		c := fromCondition(*sp, *request.Body.Filter)
 		if c != nil {
 			q = q.WithFilter(c)
 		}
 	}
-	
+
 	items, pi, err := uc.Item.Search(ctx, *sp, q, p, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
