@@ -14,7 +14,11 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Model CRUD on Overview page has succeeded", async ({ schemaPage, projectPage, page }) => {
+test("@smoke Model CRUD on Overview page has succeeded", async ({
+  schemaPage,
+  projectPage,
+  page,
+}) => {
   await test.step("Create new model from overview page", async () => {
     await expect(projectPage.noModelsYetText).toBeVisible();
     await projectPage.newModelButtonFirst.click();
@@ -94,6 +98,7 @@ test.describe("Model Export tests on Overview page", () => {
 
     await test.step("Export model as JSON", async () => {
       await projectPage.modelsMenuItem.click();
+      await projectPage.modelUtilDropdown.click();
       await projectPage.modelExportLink.click();
       await projectPage.exportAsJSONText.click();
       await projectPage.closeNotification();
@@ -120,6 +125,7 @@ test.describe("Model Export tests on Overview page", () => {
 
     await test.step("Navigate to export and select CSV", async () => {
       await projectPage.modelsMenuItem.click();
+      await projectPage.modelUtilDropdown.click();
       await projectPage.modelExportLink.click();
       await projectPage.exportAsCSVText.click();
       await page.waitForTimeout(300);
@@ -152,6 +158,7 @@ test.describe("Model Export tests on Overview page", () => {
 
     await test.step("Export schema", async () => {
       await projectPage.modelsMenuItem.click();
+      await projectPage.modelUtilDropdown.click();
       await projectPage.modelExportLink.click();
       await projectPage.exportSchemaText.click();
       await projectPage.closeNotification();
@@ -178,6 +185,7 @@ test.describe("Model Export tests on Overview page", () => {
 
     await test.step("Attempt GeoJSON export and verify error", async () => {
       await projectPage.modelsMenuItem.click();
+      await projectPage.modelUtilDropdown.click();
       await projectPage.modelExportLink.click();
       await projectPage.exportAsGeoJSONText.click();
       // Verify error modal appears
@@ -224,6 +232,7 @@ test.describe("Model Export tests on Overview page", () => {
     await test.step("Export as GeoJSON successfully", async () => {
       // Navigate back to overview
       await projectPage.modelsMenuItem.click();
+      await projectPage.modelUtilDropdown.click();
       await projectPage.modelExportLink.click();
       await projectPage.exportAsGeoJSONText.click();
       // Should export directly without modal
@@ -273,6 +282,7 @@ test.describe("Model Export tests on Overview page", () => {
     await test.step("Attempt GeoJSON export and verify warning modal", async () => {
       // Navigate back to overview
       await projectPage.modelsMenuItem.click();
+      await projectPage.modelUtilDropdown.click();
       await projectPage.modelExportLink.click();
       await projectPage.exportAsGeoJSONText.click();
 

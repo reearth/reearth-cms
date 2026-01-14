@@ -46,8 +46,11 @@ export class ProjectPage extends BasePage {
   get modelsMenuItem(): Locator {
     return this.getByText("Models").first();
   }
+  get modelUtilDropdown(): Locator {
+    return this.getByLabel("ellipsis");
+  }
   get modelExportLink(): Locator {
-    return this.getByRole("list").locator("a").nth(0);
+    return this.getByTestId("modelCardUtilDropdownExport");
   }
   get modelListLink(): Locator {
     return this.getByRole("list").locator("a").nth(0);
@@ -59,16 +62,16 @@ export class ProjectPage extends BasePage {
     return this.getByText("Delete");
   }
   get exportAsJSONText(): Locator {
-    return this.getByText("Export as JSON");
+    return this.getByTestId("modelCardUtilDropdownExportContentJSON");
   }
   get exportAsCSVText(): Locator {
-    return this.getByText("Export as CSV");
+    return this.getByTestId("modelCardUtilDropdownExportContentCSV");
   }
   get exportAsGeoJSONText(): Locator {
-    return this.getByText("Export as GeoJSON");
+    return this.getByTestId("modelCardUtilDropdownExportContentGeoJSON");
   }
   get exportSchemaText(): Locator {
-    return this.getByText("Export Schema");
+    return this.getByTestId("modelCardUtilDropdownExportSchema");
   }
   get deleteModelButton(): Locator {
     return this.getByRole("button", { name: "Delete Model" });

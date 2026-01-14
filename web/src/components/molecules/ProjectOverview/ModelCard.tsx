@@ -146,6 +146,7 @@ const ModelCard: React.FC<Props> = ({
         ),
         disabled: hasModelFields,
         // onClick: () => handleModelExportClick(ExportFormat.Schema),
+        "data-testid": "modelCardUtilDropdownImportSchema",
       },
       {
         key: "content",
@@ -156,6 +157,7 @@ const ModelCard: React.FC<Props> = ({
         ),
         disabled: !hasModelFields,
         // onClick: () => handleModelExportClick(ExportFormat.Json),
+        "data-testid": "modelCardUtilDropdownImportContent",
       },
     ],
     [hasModelFields, t],
@@ -168,24 +170,28 @@ const ModelCard: React.FC<Props> = ({
         label: t("Export Schema"),
         onClick: () => handleModelExportClick(ExportFormat.Schema),
         disabled: exportLoading,
+        "data-testid": "modelCardUtilDropdownExportSchema",
       },
       {
         key: "json",
         label: t("Export as JSON"),
         onClick: () => handleModelExportClick(ExportFormat.Json),
         disabled: exportLoading,
+        "data-testid": "modelCardUtilDropdownExportContentJSON",
       },
       {
         key: "csv",
         label: t("Export as CSV"),
         onClick: () => handleModelExportClick(ExportFormat.Csv),
         disabled: exportLoading,
+        "data-testid": "modelCardUtilDropdownExportContentCSV",
       },
       {
         key: "geojson",
         label: t("Export as GeoJSON"),
         onClick: () => handleModelExportClick(ExportFormat.Geojson),
         disabled: exportLoading,
+        "data-testid": "modelCardUtilDropdownExportContentGeoJSON",
       },
     ],
     [t, handleModelExportClick, exportLoading],
@@ -198,16 +204,19 @@ const ModelCard: React.FC<Props> = ({
         label: t("Edit"),
         onClick: () => onModelUpdateModalOpen(model),
         disabled: !hasUpdateRight,
+        "data-testid": "modelCardUtilDropdownEdit",
       },
       {
         key: "import",
         label: t("Import"),
         children: ImportMenuItems,
+        "data-testid": "modelCardUtilDropdownImport",
       },
       {
         key: "export",
         label: t("Export"),
         children: ExportMenuItems,
+        "data-testid": "modelCardUtilDropdownExport",
       },
       {
         key: "delete",
@@ -215,6 +224,7 @@ const ModelCard: React.FC<Props> = ({
         onClick: () => onModelDeletionModalOpen(model),
         danger: true,
         disabled: !hasDeleteRight,
+        "data-testid": "modelCardUtilDropdownDelete",
       },
     ],
     [
@@ -234,8 +244,12 @@ const ModelCard: React.FC<Props> = ({
       actions={[
         <Icon icon="unorderedList" key="schema" onClick={() => onSchemaNavigate(model.id)} />,
         <Icon icon="table" key="content" onClick={() => onContentNavigate(model.id)} />,
-        <Dropdown key="options" menu={{ items: OptionsMenuItems }} trigger={["click"]}>
-          <a onClick={e => e.preventDefault()}>
+        <Dropdown
+          key="options"
+          data-testid="modelCardUtilDropdown"
+          menu={{ items: OptionsMenuItems }}
+          trigger={["click"]}>
+          <a data-testid="modelCardUtilDropdownIcon" onClick={e => e.preventDefault()}>
             <Icon icon="ellipsis" />
           </a>
         </Dropdown>,
