@@ -12,11 +12,10 @@ import { UploadFile, UploadFile as RawUploadFile } from "@reearth-cms/components
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
-import { defaultTypePropertyGet } from "@reearth-cms/components/organisms/Project/Schema/helpers";
 import { useT } from "@reearth-cms/i18n";
 
 import { fieldTypes } from "../fieldTypes";
-import { CreateFieldInput, ImportFieldInput, SchemaFieldType } from "../types";
+import { CreateFieldInput, ImportFieldInput } from "../types";
 
 import FileSelectionStep from "./FileSelectionStep";
 import ImportingStep from "./ImportingStep";

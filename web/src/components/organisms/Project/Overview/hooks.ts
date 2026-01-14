@@ -253,6 +253,16 @@ export default () => {
     [currentWorkspace?.id, currentProject?.id, navigate],
   );
 
+  const handleImportSchemaNavigation = useCallback(
+    (modelId: string) => {
+      navigate(
+        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/schema/${modelId}`,
+        { state: { isImportModalOpen: true } },
+      );
+    },
+    [currentWorkspace?.id, currentProject?.id, navigate],
+  );
+
   const handleContentNavigation = useCallback(
     (modelId: string) => {
       navigate(
@@ -291,6 +301,7 @@ export default () => {
     handleModelSort,
     handleHomeNavigation,
     handleSchemaNavigation,
+    handleImportSchemaNavigation,
     handleContentNavigation,
     handleModelKeyCheck,
     handleModelModalOpen,

@@ -45,13 +45,6 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   const t = useT();
   const [userRights] = useUserRights();
   const [userId] = useUserId();
-  const hasCreateRight = useMemo(() => !!userRights?.asset.create, [userRights?.asset.create]);
-  const [hasDeleteRight, setHasDeleteRight] = useState(false);
-  const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
-  const [importSchemaModalVisibility, setImportSchemaModalVisibility] = useState(false);
-  const [selectFileModalVisibility, setSelectFileModalVisibility] = useState(false);
-  const [importFields, setImportFields] = useState<ImportFieldInput[]>([]);
-
   const { workspaceId, projectId, modelId } = useParams();
   const navigate = useNavigate();
   const location: {
@@ -61,8 +54,19 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
       columns: Record<string, ColumnsState>;
       page: number;
       pageSize: number;
+      isImportModalOpen: boolean;
     } | null;
   } = useLocation();
+
+  const hasCreateRight = useMemo(() => !!userRights?.asset.create, [userRights?.asset.create]);
+  const [hasDeleteRight, setHasDeleteRight] = useState(false);
+  const [uploadModalVisibility, setUploadModalVisibility] = useState(false);
+  const [importSchemaModalVisibility, setImportSchemaModalVisibility] = useState(
+    location.state?.isImportModalOpen || false,
+  );
+  const [selectFileModalVisibility, setSelectFileModalVisibility] = useState(false);
+  const [importFields, setImportFields] = useState<ImportFieldInput[]>([]);
+
   const [selection, setSelection] = useState<{ selectedRowKeys: Key[] }>({
     selectedRowKeys: [],
   });

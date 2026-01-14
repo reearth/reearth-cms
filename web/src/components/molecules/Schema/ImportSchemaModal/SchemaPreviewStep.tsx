@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { useMemo } from "react";
 import ReactDragListView from "react-drag-listview";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -13,7 +14,6 @@ import Typography from "@reearth-cms/components/atoms/Typography";
 import { useT } from "@reearth-cms/i18n";
 
 import { ImportFieldInput } from "../types";
-import { useMemo } from "react";
 
 type Props = {
   fields: ImportFieldInput[];
@@ -81,7 +81,7 @@ const SchemaPreviewStep: React.FC<Props> = ({
         lineClassName="dragLine"
         onDragEnd={onDragEnd}>
         <FieldStyledList data-testId="SchemaPreviewFieldList" itemLayout="horizontal">
-          {fields?.map((field, index) => (
+          {fields?.map((field, _index) => (
             <StyledListItem className="draggable-item" key={field.key} noImport={field.hidden}>
               <List.Item.Meta
                 title={

@@ -16,6 +16,7 @@ type Props = {
   hasDeleteRight: boolean;
   exportLoading?: boolean;
   onSchemaNavigate: (modelId: string) => void;
+  onImportSchemaNavigate: (modelId: string) => void;
   onContentNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
   onModelUpdateModalOpen: (model: Model) => Promise<void>;
@@ -28,6 +29,7 @@ const ModelCard: React.FC<Props> = ({
   hasDeleteRight,
   exportLoading,
   onSchemaNavigate,
+  onImportSchemaNavigate,
   onContentNavigate,
   onModelDeletionModalOpen,
   onModelUpdateModalOpen,
@@ -145,7 +147,7 @@ const ModelCard: React.FC<Props> = ({
           t("Import Schema")
         ),
         disabled: hasModelFields,
-        // onClick: () => handleModelExportClick(ExportFormat.Schema),
+        onClick: () => onImportSchemaNavigate(model.id),
         "data-testid": "modelCardUtilDropdownImportSchema",
       },
       {
@@ -160,7 +162,7 @@ const ModelCard: React.FC<Props> = ({
         "data-testid": "modelCardUtilDropdownImportContent",
       },
     ],
-    [hasModelFields, t],
+    [hasModelFields, model.id, onImportSchemaNavigate, t],
   );
 
   const ExportMenuItems = useMemo<MenuProps[]>(

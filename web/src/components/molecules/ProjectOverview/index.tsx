@@ -24,6 +24,7 @@ type Props = {
   onModelModalOpen: () => void;
   onHomeNavigation: () => void;
   onSchemaNavigate: (modelId: string) => void;
+  onImportSchemaNavigate: (modelId: string) => void;
   onContentNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
   onModelUpdateModalOpen: (model: Model) => Promise<void>;
@@ -40,6 +41,7 @@ const ProjectOverview: React.FC<Props> = ({
   onModelSort,
   onModelModalOpen,
   onSchemaNavigate,
+  onImportSchemaNavigate,
   onContentNavigate,
   onModelDeletionModalOpen,
   onModelUpdateModalOpen,
@@ -71,6 +73,7 @@ const ProjectOverview: React.FC<Props> = ({
                 hasDeleteRight={hasDeleteRight}
                 exportLoading={exportLoading}
                 onSchemaNavigate={onSchemaNavigate}
+                onImportSchemaNavigate={onImportSchemaNavigate}
                 onContentNavigate={onContentNavigate}
                 onModelDeletionModalOpen={onModelDeletionModalOpen}
                 onModelUpdateModalOpen={onModelUpdateModalOpen}
