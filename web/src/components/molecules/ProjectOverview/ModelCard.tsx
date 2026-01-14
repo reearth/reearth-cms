@@ -9,6 +9,7 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 type Props = {
   model: Model;
@@ -150,7 +151,7 @@ const ModelCard: React.FC<Props> = ({
         ),
         disabled: hasModelFields,
         onClick: () => onImportSchemaNavigate(model.id),
-        "data-testid": "modelCardUtilDropdownImportSchema",
+        "data-testid": DATA_TEST_ID.ModelCardUtilDropdownImportSchema,
       },
       {
         key: "content",
@@ -161,7 +162,7 @@ const ModelCard: React.FC<Props> = ({
         ),
         disabled: !hasModelFields,
         onClick: () => onImportContentNavigate(model.id),
-        "data-testid": "modelCardUtilDropdownImportContent",
+        "data-testid": DATA_TEST_ID.ModelCardUtilDropdownImportContent,
       },
     ],
     [hasModelFields, model.id, onImportContentNavigate, onImportSchemaNavigate, t],
@@ -174,28 +175,28 @@ const ModelCard: React.FC<Props> = ({
         label: t("Export Schema"),
         onClick: () => handleModelExportClick(ExportFormat.Schema),
         disabled: exportLoading,
-        "data-testid": "modelCardUtilDropdownExportSchema",
+        "data-testid": DATA_TEST_ID.ModelCardUtilDropdownExportSchema,
       },
       {
         key: "json",
         label: t("Export as JSON"),
         onClick: () => handleModelExportClick(ExportFormat.Json),
         disabled: exportLoading,
-        "data-testid": "modelCardUtilDropdownExportContentJSON",
+        "data-testid": DATA_TEST_ID.ModelCardUtilDropdownExportContentJSON,
       },
       {
         key: "csv",
         label: t("Export as CSV"),
         onClick: () => handleModelExportClick(ExportFormat.Csv),
         disabled: exportLoading,
-        "data-testid": "modelCardUtilDropdownExportContentCSV",
+        "data-testid": DATA_TEST_ID.ModelCardUtilDropdownExportContentCSV,
       },
       {
         key: "geojson",
         label: t("Export as GeoJSON"),
         onClick: () => handleModelExportClick(ExportFormat.Geojson),
         disabled: exportLoading,
-        "data-testid": "modelCardUtilDropdownExportContentGeoJSON",
+        "data-testid": DATA_TEST_ID.ModelCardUtilDropdownExportContentGeoJSON,
       },
     ],
     [t, handleModelExportClick, exportLoading],
@@ -208,19 +209,19 @@ const ModelCard: React.FC<Props> = ({
         label: t("Edit"),
         onClick: () => onModelUpdateModalOpen(model),
         disabled: !hasUpdateRight,
-        "data-testid": "modelCardUtilDropdownEdit",
+        "data-testid": DATA_TEST_ID.ModelCardUtilDropdownEdit,
       },
       {
         key: "import",
         label: t("Import"),
         children: ImportMenuItems,
-        "data-testid": "modelCardUtilDropdownImport",
+        "data-testid": DATA_TEST_ID.ModelCardUtilDropdownImport,
       },
       {
         key: "export",
         label: t("Export"),
         children: ExportMenuItems,
-        "data-testid": "modelCardUtilDropdownExport",
+        "data-testid": DATA_TEST_ID.ModelCardUtilDropdownExport,
       },
       {
         key: "delete",
@@ -228,7 +229,7 @@ const ModelCard: React.FC<Props> = ({
         onClick: () => onModelDeletionModalOpen(model),
         danger: true,
         disabled: !hasDeleteRight,
-        "data-testid": "modelCardUtilDropdownDelete",
+        "data-testid": DATA_TEST_ID.ModelCardUtilDropdownDelete,
       },
     ],
     [
@@ -250,10 +251,10 @@ const ModelCard: React.FC<Props> = ({
         <Icon icon="table" key="content" onClick={() => onContentNavigate(model.id)} />,
         <Dropdown
           key="options"
-          data-testid="modelCardUtilDropdown"
+          data-testid={DATA_TEST_ID.ModelCardUtilDropdown}
           menu={{ items: OptionsMenuItems }}
           trigger={["click"]}>
-          <a data-testid="modelCardUtilDropdownIcon" onClick={e => e.preventDefault()}>
+          <a data-testid={DATA_TEST_ID.ModelCardUtilDropdownIcon} onClick={e => e.preventDefault()}>
             <Icon icon="ellipsis" />
           </a>
         </Dropdown>,

@@ -110,3 +110,22 @@ export abstract class Test {
     ],
   };
 }
+
+export enum DATA_TEST_ID {
+  // model card util
+  ModelCardUtilDropdown = "MODEL_CARD_UTIL_DROPDOWN",
+  ModelCardUtilDropdownIcon = "MODEL_CARD_UTIL_DROPDOWN_ICON",
+
+  ModelCardUtilDropdownEdit = "MODEL_CARD_UTIL_DROPDOWN_EDIT",
+  ModelCardUtilDropdownImport = "MODEL_CARD_UTIL_DROPDOWN_IMPORT",
+  ModelCardUtilDropdownExport = "MODEL_CARD_UTIL_DROPDOWN_EXPORT",
+  ModelCardUtilDropdownDelete = "MODEL_CARD_UTIL_DROPDOWN_DELETE",
+
+  ModelCardUtilDropdownImportSchema = "MODEL_CARD_UTIL_DROPDOWN_IMPORT_SCHEMA",
+  ModelCardUtilDropdownImportContent = "MODEL_CARD_UTIL_DROPDOWN_IMPORT_CONTENT",
+
+  ModelCardUtilDropdownExportSchema = "MODEL_CARD_UTIL_DROPDOWN_EXPORT_SCHEMA",
+  ModelCardUtilDropdownExportContentJSON = "MODEL_CARD_UTIL_DROPDOWN_EXPORT_CONTENT_JSON",
+  ModelCardUtilDropdownExportContentCSV = "MODEL_CARD_UTIL_DROPDOWN_EXPORT_CONTENT_CSV",
+  ModelCardUtilDropdownExportContentGeoJSON = "MODEL_CARD_UTIL_DROPDOWN_EXPORT_CONTENT_GEO_JSON",
+}
