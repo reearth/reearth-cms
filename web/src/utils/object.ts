@@ -4,6 +4,12 @@ import type { GeoJSON } from "geojson";
 
 import { PerformanceTimer } from "@reearth-cms/utils/performance";
 
+type JsonValue = string | number | boolean | null | JsonObject | JsonArray;
+type JsonObject = {
+  [key: string]: JsonValue;
+};
+type JsonArray = {} & JsonValue[];
+
 export abstract class ObjectUtils {
   public static shallowEqual(
     obj1: Record<string, unknown>,
@@ -22,7 +28,7 @@ export abstract class ObjectUtils {
         setTimeout(() => {
           const timer = new PerformanceTimer("safeJSONParse");
           try {
-            const data = JSON.parse(str) as T;
+            const data = this.deepJsonParse(str) as T;
             resolve({ isValid: true, data });
           } catch (error) {
             resolve({
@@ -35,6 +41,29 @@ export abstract class ObjectUtils {
         }, 0);
       },
     );
+  }
+
+  public static deepJsonParse<T = JsonValue>(value: unknown): T {
+    if (typeof value === "string") {
+      try {
+        const parsed = JSON.parse(value);
+        return this.deepJsonParse<T>(parsed);
+      } catch {
+        return value as T;
+      }
+    }
+
+    if (Array.isArray(value)) {
+      return value.map(v => this.deepJsonParse(v)) as T;
+    }
+
+    if (value && typeof value === "object") {
+      return Object.fromEntries(
+        Object.entries(value).map(([key, val]) => [key, this.deepJsonParse(val)]),
+      ) as T;
+    }
+
+    return value as T;
   }
 
   public static isEmpty(obj: Record<string, unknown>): boolean {

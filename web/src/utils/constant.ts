@@ -1,4 +1,7 @@
-import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
+import {
+  ExportSchemaFieldType,
+  SchemaFieldType,
+} from "@reearth-cms/components/molecules/Schema/types";
 
 const IGNORE_FIELD_TYPES_COMMON = new Set<SchemaFieldType>([
   SchemaFieldType.Asset,
@@ -33,6 +36,21 @@ export abstract class Constant {
       ...Array.from(IGNORE_FIELD_TYPES_COMMON),
       SchemaFieldType.GeometryObject,
     ]),
+
+    FIELD_TYPE_MAPPING: {
+      [ExportSchemaFieldType.Text]: SchemaFieldType.Text,
+      [ExportSchemaFieldType.TextArea]: SchemaFieldType.TextArea,
+      [ExportSchemaFieldType.Markdown]: SchemaFieldType.MarkdownText,
+      [ExportSchemaFieldType.Asset]: SchemaFieldType.Asset,
+      [ExportSchemaFieldType.Datetime]: SchemaFieldType.Date,
+      [ExportSchemaFieldType.Bool]: SchemaFieldType.Bool,
+      [ExportSchemaFieldType.Select]: SchemaFieldType.Select,
+      [ExportSchemaFieldType.Integer]: SchemaFieldType.Integer,
+      [ExportSchemaFieldType.Number]: SchemaFieldType.Number,
+      [ExportSchemaFieldType.URL]: SchemaFieldType.URL,
+      [ExportSchemaFieldType.GeometryObject]: SchemaFieldType.GeometryObject,
+      [ExportSchemaFieldType.GeometryEditor]: SchemaFieldType.GeometryEditor,
+    },
   };
 
   public static readonly PUBLIC_FILE = {

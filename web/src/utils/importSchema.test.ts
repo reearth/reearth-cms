@@ -3,7 +3,7 @@ import { join } from "path";
 
 import { describe, expect, test } from "vitest";
 
-import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
+import { ExportSchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 
 import { Constant } from "./constant";
 import {
@@ -79,7 +79,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Text,
+            "x-fieldType": ExportSchemaFieldType.Text,
             maxLength: 30,
             "x-defaultValue": "hello world",
             "x-multiple": false,
@@ -89,7 +89,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Text,
+            "x-fieldType": ExportSchemaFieldType.Text,
             maxLength: 30,
             "x-defaultValue": ["hello", "world"],
             "x-multiple": true,
@@ -99,7 +99,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.TextArea,
+            "x-fieldType": ExportSchemaFieldType.TextArea,
             maxLength: 30,
             "x-defaultValue": "hello \n world",
             "x-multiple": false,
@@ -109,7 +109,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.TextArea,
+            "x-fieldType": ExportSchemaFieldType.TextArea,
             maxLength: 30,
             "x-defaultValue": ["hello \n world", "hola \n mundo"],
             "x-multiple": true,
@@ -119,7 +119,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.MarkdownText,
+            "x-fieldType": ExportSchemaFieldType.Markdown,
             maxLength: 30,
             "x-defaultValue": "# H1 \n # H2 \n hello world",
             "x-multiple": false,
@@ -129,7 +129,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.MarkdownText,
+            "x-fieldType": ExportSchemaFieldType.Markdown,
             maxLength: 30,
             "x-defaultValue": ["# H1 \n # H2 \n hello world", "# H1 \n # H2 \n hola mundo"],
             "x-multiple": true,
@@ -139,7 +139,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Asset,
+            "x-fieldType": ExportSchemaFieldType.Asset,
             "x-defaultValue": "asset-id",
             "x-multiple": false,
           } as FieldAsset,
@@ -148,7 +148,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Asset,
+            "x-fieldType": ExportSchemaFieldType.Asset,
             "x-defaultValue": ["asset-id-1", "asset-id-2"],
             "x-multiple": true,
           } as FieldAssetMulti,
@@ -157,7 +157,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Date,
+            "x-fieldType": ExportSchemaFieldType.Datetime,
             "x-defaultValue": "2025-12-01T00:00:00+09:00",
             "x-multiple": false,
           } as FieldDate,
@@ -166,7 +166,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Date,
+            "x-fieldType": ExportSchemaFieldType.Datetime,
             "x-defaultValue": ["2025-12-01T00:00:00+09:00", "2025-12-02T00:00:00+09:00"],
             "x-multiple": true,
           } as FieldDateMulti,
@@ -175,7 +175,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Bool,
+            "x-fieldType": ExportSchemaFieldType.Bool,
             "x-defaultValue": true,
             "x-multiple": false,
           } as FieldBoolean,
@@ -184,7 +184,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Bool,
+            "x-fieldType": ExportSchemaFieldType.Bool,
             "x-defaultValue": [true, false],
             "x-multiple": true,
           } as FieldBooleanMulti,
@@ -193,7 +193,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Select,
+            "x-fieldType": ExportSchemaFieldType.Select,
             "x-defaultValue": "green",
             "x-options": ["red", "green", "blue"],
             "x-multiple": false,
@@ -203,7 +203,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Select,
+            "x-fieldType": ExportSchemaFieldType.Select,
             "x-defaultValue": ["green", "blue"],
             "x-options": ["red", "green", "blue"],
             "x-multiple": true,
@@ -213,7 +213,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Number,
+            "x-fieldType": ExportSchemaFieldType.Number,
             minimum: -5.5,
             maximum: 5.5,
             "x-defaultValue": 3.5,
@@ -224,7 +224,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Number,
+            "x-fieldType": ExportSchemaFieldType.Number,
             minimum: -5.5,
             maximum: 5.5,
             "x-defaultValue": [2.2, 4.4],
@@ -235,7 +235,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Integer,
+            "x-fieldType": ExportSchemaFieldType.Integer,
             maximum: 10,
             minimum: -10,
             "x-defaultValue": 5,
@@ -246,7 +246,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Integer,
+            "x-fieldType": ExportSchemaFieldType.Integer,
             maximum: 10,
             minimum: -10,
             "x-defaultValue": [5, 6],
@@ -257,7 +257,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.URL,
+            "x-fieldType": ExportSchemaFieldType.URL,
             "x-defaultValue": "https://hello.com/",
             "x-multiple": false,
           } as FieldURL,
@@ -266,7 +266,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.URL,
+            "x-fieldType": ExportSchemaFieldType.URL,
             "x-defaultValue": ["https://hello.com/", "https://world.com/"],
             "x-multiple": true,
           } as FieldURLMulti,
@@ -275,7 +275,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.GeometryObject,
+            "x-fieldType": ExportSchemaFieldType.GeometryObject,
             "x-multiple": false,
             "x-defaultValue": Test.GEO_JSON_POINT,
             "x-geoSupportedTypes": ["POINT"],
@@ -285,7 +285,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.GeometryObject,
+            "x-fieldType": ExportSchemaFieldType.GeometryObject,
             "x-multiple": true,
             "x-defaultValue": [Test.GEO_JSON_POINT],
             "x-geoSupportedTypes": ["POINT"],
@@ -295,7 +295,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.GeometryEditor,
+            "x-fieldType": ExportSchemaFieldType.GeometryEditor,
             "x-multiple": false,
             "x-defaultValue": Test.GEO_JSON_POINT,
             "x-geoSupportedType": "POINT",
@@ -305,7 +305,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.GeometryEditor,
+            "x-fieldType": ExportSchemaFieldType.GeometryEditor,
             "x-multiple": true,
             "x-defaultValue": [Test.GEO_JSON_POINT],
             "x-geoSupportedType": "POINT",
@@ -347,7 +347,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Text,
+            "x-fieldType": ExportSchemaFieldType.Text,
             "x-multiple": false,
           } as FieldText,
           expectedResult: EXPECTED_RESULT,
@@ -355,7 +355,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Text,
+            "x-fieldType": ExportSchemaFieldType.Text,
             "x-multiple": true,
           } as FieldTextMulti,
           expectedResult: EXPECTED_RESULT,
@@ -363,7 +363,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.TextArea,
+            "x-fieldType": ExportSchemaFieldType.TextArea,
             "x-multiple": false,
           } as FieldTextArea,
           expectedResult: EXPECTED_RESULT,
@@ -371,7 +371,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.TextArea,
+            "x-fieldType": ExportSchemaFieldType.TextArea,
             "x-multiple": true,
           } as FieldTextAreaMulti,
           expectedResult: EXPECTED_RESULT,
@@ -379,7 +379,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.MarkdownText,
+            "x-fieldType": ExportSchemaFieldType.Markdown,
             "x-multiple": false,
           } as FieldMarkdownText,
           expectedResult: EXPECTED_RESULT,
@@ -387,7 +387,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.MarkdownText,
+            "x-fieldType": ExportSchemaFieldType.Markdown,
             "x-multiple": true,
           } as FieldMarkdownTextMulti,
           expectedResult: EXPECTED_RESULT,
@@ -395,7 +395,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Asset,
+            "x-fieldType": ExportSchemaFieldType.Asset,
             "x-multiple": false,
           } as FieldAsset,
           expectedResult: EXPECTED_RESULT,
@@ -403,7 +403,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Asset,
+            "x-fieldType": ExportSchemaFieldType.Asset,
             "x-multiple": true,
           } as FieldAssetMulti,
           expectedResult: EXPECTED_RESULT,
@@ -411,7 +411,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Date,
+            "x-fieldType": ExportSchemaFieldType.Datetime,
             "x-multiple": false,
           } as FieldDate,
           expectedResult: EXPECTED_RESULT,
@@ -419,7 +419,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Date,
+            "x-fieldType": ExportSchemaFieldType.Datetime,
             "x-multiple": true,
           } as FieldDateMulti,
           expectedResult: EXPECTED_RESULT,
@@ -427,7 +427,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Bool,
+            "x-fieldType": ExportSchemaFieldType.Bool,
             "x-multiple": false,
           } as FieldBoolean,
           expectedResult: EXPECTED_RESULT,
@@ -435,7 +435,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Bool,
+            "x-fieldType": ExportSchemaFieldType.Bool,
             "x-multiple": true,
           } as FieldBooleanMulti,
           expectedResult: EXPECTED_RESULT,
@@ -443,7 +443,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Select,
+            "x-fieldType": ExportSchemaFieldType.Select,
             "x-options": ["red", "green", "blue"],
             "x-multiple": false,
           } as FieldSelect,
@@ -452,7 +452,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Select,
+            "x-fieldType": ExportSchemaFieldType.Select,
             "x-options": ["red", "green", "blue"],
             "x-multiple": true,
           } as FieldSelectMulti,
@@ -461,7 +461,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Number,
+            "x-fieldType": ExportSchemaFieldType.Number,
             "x-multiple": false,
           } as FieldNumber,
           expectedResult: EXPECTED_RESULT,
@@ -469,7 +469,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Number,
+            "x-fieldType": ExportSchemaFieldType.Number,
             "x-multiple": true,
           } as FieldNumberMulti,
           expectedResult: EXPECTED_RESULT,
@@ -477,7 +477,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Integer,
+            "x-fieldType": ExportSchemaFieldType.Integer,
             "x-multiple": false,
           } as FieldInteger,
           expectedResult: EXPECTED_RESULT,
@@ -485,7 +485,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Integer,
+            "x-fieldType": ExportSchemaFieldType.Integer,
             "x-multiple": true,
           } as FieldIntegerMulti,
           expectedResult: EXPECTED_RESULT,
@@ -493,7 +493,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.URL,
+            "x-fieldType": ExportSchemaFieldType.URL,
             "x-multiple": false,
           } as FieldURL,
           expectedResult: EXPECTED_RESULT,
@@ -501,7 +501,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.URL,
+            "x-fieldType": ExportSchemaFieldType.URL,
             "x-multiple": true,
           } as FieldURLMulti,
           expectedResult: EXPECTED_RESULT,
@@ -509,7 +509,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.URL,
+            "x-fieldType": ExportSchemaFieldType.URL,
             "x-multiple": true,
           } as FieldURLMulti,
           expectedResult: EXPECTED_RESULT,
@@ -549,7 +549,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Text,
+            "x-fieldType": ExportSchemaFieldType.Text,
             maxLength: 1,
             "x-defaultValue": "hello world",
             "x-multiple": false,
@@ -559,7 +559,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Text,
+            "x-fieldType": ExportSchemaFieldType.Text,
             maxLength: 1,
             "x-defaultValue": ["hello", "world"],
             "x-multiple": true,
@@ -569,7 +569,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.TextArea,
+            "x-fieldType": ExportSchemaFieldType.TextArea,
             maxLength: 1,
             "x-defaultValue": "hello \n world",
             "x-multiple": false,
@@ -579,7 +579,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.TextArea,
+            "x-fieldType": ExportSchemaFieldType.TextArea,
             maxLength: 1,
             "x-defaultValue": ["hello \n world", "hola \n mundo"],
             "x-multiple": true,
@@ -589,7 +589,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.MarkdownText,
+            "x-fieldType": ExportSchemaFieldType.Markdown,
             maxLength: 1,
             "x-defaultValue": "# H1 \n # H2 \n hello world",
             "x-multiple": false,
@@ -599,7 +599,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.MarkdownText,
+            "x-fieldType": ExportSchemaFieldType.Markdown,
             maxLength: 1,
             "x-defaultValue": ["# H1 \n # H2 \n hello world", "# H1 \n # H2 \n hola mundo"],
             "x-multiple": true,
@@ -609,7 +609,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Select,
+            "x-fieldType": ExportSchemaFieldType.Select,
             "x-defaultValue": "yellow",
             "x-options": ["red", "green", "blue"],
             "x-multiple": false,
@@ -619,7 +619,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Select,
+            "x-fieldType": ExportSchemaFieldType.Select,
             "x-defaultValue": ["black", "white"],
             "x-options": ["red", "green", "blue"],
             "x-multiple": true,
@@ -629,7 +629,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Number,
+            "x-fieldType": ExportSchemaFieldType.Number,
             minimum: -5.5,
             maximum: 5.5,
             "x-defaultValue": 10.5,
@@ -640,7 +640,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Number,
+            "x-fieldType": ExportSchemaFieldType.Number,
             minimum: -5.5,
             maximum: 5.5,
             "x-defaultValue": [-10.5, 20.5],
@@ -651,7 +651,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Integer,
+            "x-fieldType": ExportSchemaFieldType.Integer,
             maximum: 10,
             minimum: -10,
             "x-defaultValue": 50,
@@ -662,7 +662,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Integer,
+            "x-fieldType": ExportSchemaFieldType.Integer,
             maximum: 10,
             minimum: -10,
             "x-defaultValue": [-50, 50],
@@ -701,7 +701,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Text,
+            "x-fieldType": ExportSchemaFieldType.Text,
             maxLength: 30,
             "x-defaultValue": 1,
             "x-multiple": false,
@@ -711,7 +711,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Text,
+            "x-fieldType": ExportSchemaFieldType.Text,
             maxLength: 30,
             "x-defaultValue": [1, 2],
             "x-multiple": true,
@@ -721,7 +721,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.TextArea,
+            "x-fieldType": ExportSchemaFieldType.TextArea,
             maxLength: 30,
             "x-defaultValue": 5566,
             "x-multiple": false,
@@ -731,7 +731,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.TextArea,
+            "x-fieldType": ExportSchemaFieldType.TextArea,
             maxLength: 30,
             "x-defaultValue": [false, true],
             "x-multiple": true,
@@ -741,7 +741,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.MarkdownText,
+            "x-fieldType": ExportSchemaFieldType.Markdown,
             maxLength: 30,
             "x-defaultValue": ["a", "b"],
             "x-multiple": false,
@@ -751,7 +751,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.MarkdownText,
+            "x-fieldType": ExportSchemaFieldType.Markdown,
             maxLength: 30,
             "x-defaultValue": "a",
             "x-multiple": true,
@@ -761,7 +761,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Asset,
+            "x-fieldType": ExportSchemaFieldType.Asset,
             "x-defaultValue": 1,
             "x-multiple": false,
           },
@@ -770,7 +770,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Asset,
+            "x-fieldType": ExportSchemaFieldType.Asset,
             "x-defaultValue": [false, true],
             "x-multiple": true,
           },
@@ -779,7 +779,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Date,
+            "x-fieldType": ExportSchemaFieldType.Datetime,
             "x-defaultValue": "false date format",
             "x-multiple": false,
           },
@@ -788,7 +788,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Date,
+            "x-fieldType": ExportSchemaFieldType.Datetime,
             "x-defaultValue": ["try this date", "againnnnnn"],
             "x-multiple": true,
           },
@@ -797,7 +797,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Bool,
+            "x-fieldType": ExportSchemaFieldType.Bool,
             "x-defaultValue": 123,
             "x-multiple": false,
           },
@@ -806,7 +806,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Bool,
+            "x-fieldType": ExportSchemaFieldType.Bool,
             "x-defaultValue": "I am boooool",
             "x-multiple": true,
           },
@@ -815,7 +815,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Select,
+            "x-fieldType": ExportSchemaFieldType.Select,
             "x-defaultValue": 1,
             "x-options": ["red", "green", "blue"],
             "x-multiple": false,
@@ -825,7 +825,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Select,
+            "x-fieldType": ExportSchemaFieldType.Select,
             "x-defaultValue": [true, "hello", "world"],
             "x-options": ["red", "green", "blue"],
             "x-multiple": true,
@@ -835,7 +835,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Number,
+            "x-fieldType": ExportSchemaFieldType.Number,
             minimum: -5.5,
             maximum: 5.5,
             "x-defaultValue": "try this number",
@@ -846,7 +846,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Number,
+            "x-fieldType": ExportSchemaFieldType.Number,
             minimum: -5.5,
             maximum: 5.5,
             "x-defaultValue": ["just", "do", "it"],
@@ -857,7 +857,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Integer,
+            "x-fieldType": ExportSchemaFieldType.Integer,
             maximum: 10,
             minimum: -10,
             "x-defaultValue": false,
@@ -868,7 +868,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.Integer,
+            "x-fieldType": ExportSchemaFieldType.Integer,
             maximum: 10,
             minimum: -10,
             "x-defaultValue": "super integer",
@@ -879,7 +879,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.URL,
+            "x-fieldType": ExportSchemaFieldType.URL,
             "x-defaultValue": "i am the dark web",
             "x-multiple": false,
           },
@@ -888,7 +888,7 @@ describe("Test import schema", () => {
         {
           setup: {
             ...COMMON_SCHEMA_FIELD,
-            "x-fieldType": SchemaFieldType.URL,
+            "x-fieldType": ExportSchemaFieldType.URL,
             "x-defaultValue": [false, "have you ever seen the rain"],
             "x-multiple": true,
           },
@@ -919,7 +919,7 @@ describe("Test import schema", () => {
         description: "test",
         "x-required": false,
         "x-unique": false,
-        "x-fieldType": SchemaFieldType.GeometryObject,
+        "x-fieldType": ExportSchemaFieldType.GeometryObject,
       };
 
       const EXPECTED_RESULT = true;
@@ -1064,7 +1064,7 @@ describe("Test import schema", () => {
         description: "test",
         "x-required": false,
         "x-unique": false,
-        "x-fieldType": SchemaFieldType.GeometryObject,
+        "x-fieldType": ExportSchemaFieldType.GeometryObject,
       };
 
       const COMMON_EXPECTED_RESULT = true;
@@ -1223,7 +1223,7 @@ describe("Test import schema", () => {
         description: "test",
         "x-required": false,
         "x-unique": false,
-        "x-fieldType": SchemaFieldType.GeometryObject,
+        "x-fieldType": ExportSchemaFieldType.GeometryObject,
       };
 
       const COMMON_EXPECTED_RESULT = false;
@@ -1384,7 +1384,7 @@ describe("Test import schema", () => {
         description: "test",
         "x-required": false,
         "x-unique": false,
-        "x-fieldType": SchemaFieldType.GeometryEditor,
+        "x-fieldType": ExportSchemaFieldType.GeometryEditor,
       };
 
       const EXPECTED_RESULT = true;
@@ -1481,7 +1481,7 @@ describe("Test import schema", () => {
         description: "test",
         "x-required": false,
         "x-unique": false,
-        "x-fieldType": SchemaFieldType.GeometryEditor,
+        "x-fieldType": ExportSchemaFieldType.GeometryEditor,
       };
 
       const COMMON_EXPECTED_RESULT = true;
@@ -1590,7 +1590,7 @@ describe("Test import schema", () => {
         description: "test",
         "x-required": false,
         "x-unique": false,
-        "x-fieldType": SchemaFieldType.GeometryEditor,
+        "x-fieldType": ExportSchemaFieldType.GeometryEditor,
       };
 
       const COMMON_EXPECTED_RESULT = false;

@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
 
 import Alert, { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
@@ -7,22 +6,18 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Loading from "@reearth-cms/components/atoms/Loading";
 import Upload, {
   UploadFile as RawUploadFile,
-  UploadFile,
   UploadProps,
 } from "@reearth-cms/components/atoms/Upload";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
-import { FileUtils } from "@reearth-cms/utils/file";
-import { ObjectUtils } from "@reearth-cms/utils/object";
 
 const { Dragger } = Upload;
 
 type Props = {
   fileList: RawUploadFile[];
   alertList?: AlertProps[];
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setAlertList: (alertList: AlertProps[]) => void;
-  onFileContentChange: (fileContent: string) => void;
+  onFileContentChange: UploadProps["beforeUpload"];
+  onFileRemove: UploadProps["onRemove"];
   dataChecking?: boolean;
 };
 
@@ -35,45 +30,11 @@ const TemplateLink = ({ href, children }: ButtonProps) => (
 const FileSelectionStep: React.FC<Props> = ({
   fileList,
   alertList = [],
-  setFileList,
-  setAlertList,
   onFileContentChange,
+  onFileRemove,
   dataChecking = false,
 }) => {
   const t = useT();
-
-  const raiseIllegalFileAlert = useCallback(() => {
-    setAlertList([
-      {
-        message: t("The uploaded file is empty or invalid"),
-        type: "error",
-        closable: true,
-        showIcon: true,
-      },
-    ]);
-  }, [setAlertList, t]);
-
-  const raiseSingleFileAlert = useCallback(() => {
-    setAlertList([
-      {
-        message: t("Only one file can be uploaded at a time"),
-        type: "error",
-        closable: true,
-        showIcon: true,
-      },
-    ]);
-  }, [setAlertList, t]);
-
-  const raiseIllegalFileFormatAlert = useCallback(() => {
-    setAlertList([
-      {
-        message: t("File format is not supported"),
-        type: "error",
-        closable: true,
-        showIcon: true,
-      },
-    ]);
-  }, [setAlertList, t]);
 
   const uploadProps: UploadProps = {
     name: "importSchemaFile",
@@ -81,45 +42,8 @@ const FileSelectionStep: React.FC<Props> = ({
     directory: false,
     showUploadList: false,
     listType: "picture",
-    onRemove: () => {
-      setFileList([]);
-      setAlertList([]);
-    },
-    beforeUpload: async (file, fileList) => {
-      const extension = FileUtils.getExtension(file.name);
-
-      if (!["geojson", "json"].includes(extension)) {
-        raiseIllegalFileFormatAlert();
-        return;
-      }
-
-      if (fileList.length > 1) {
-        raiseSingleFileAlert();
-        return;
-      }
-
-      setFileList([file]);
-
-      if (file.size === 0) {
-        raiseIllegalFileAlert();
-        return;
-      }
-
-      try {
-        const content = await FileUtils.parseTextFile(file);
-
-        const jsonValidation = await ObjectUtils.safeJSONParse(content);
-
-        if (ObjectUtils.isEmpty(jsonValidation)) return void raiseIllegalFileAlert();
-
-        setAlertList([]);
-        onFileContentChange(content);
-      } catch (err) {
-        console.error(err);
-      }
-
-      return false;
-    },
+    onRemove: onFileRemove,
+    beforeUpload: onFileContentChange,
     fileList,
   };
 

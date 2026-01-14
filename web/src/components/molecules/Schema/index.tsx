@@ -9,7 +9,7 @@ import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/co
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Tabs, { TabsProps } from "@reearth-cms/components/atoms/Tabs";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import { UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
@@ -33,8 +33,6 @@ import { ItemAsset } from "../Content/types";
 import ImportSchemaModal from "./ImportSchemaModal";
 
 type Props = {
-  // workspaceId?: string;
-  // projectId?: string;
   data?: Model | Group;
   collapsed: boolean;
   page: number;
@@ -92,12 +90,11 @@ type Props = {
   toImportingStep: (fields: CreateFieldInput[]) => Promise<void>;
   toFileSelectionStep: () => void;
   dataChecking: boolean;
-  onFileContentChange: (fileContent: string) => Promise<void>;
+  onFileContentChange: UploadProps["beforeUpload"];
+  onFileRemove: UploadProps["onRemove"];
 };
 
 const Schema: React.FC<Props> = ({
-  // workspaceId,
-  // projectId,
   data,
   collapsed,
   page,
@@ -156,6 +153,7 @@ const Schema: React.FC<Props> = ({
   toFileSelectionStep,
   dataChecking,
   onFileContentChange,
+  onFileRemove,
 }) => {
   const t = useT();
   const [tab, setTab] = useState<Tab>("fields");
@@ -344,8 +342,6 @@ const Schema: React.FC<Props> = ({
             setFields={setImportFields}
             setUploadUrl={setUploadUrl}
             setUploadType={setUploadType}
-            setFileList={setFileList}
-            setAlertList={setAlertList}
             hasCreateRight={hasCreateRight}
             uploadModalVisibility={uploadModalVisibility}
             onSearchTerm={onSearchTerm}
@@ -359,6 +355,7 @@ const Schema: React.FC<Props> = ({
             onModalClose={onSchemaImportModalCancel}
             dataChecking={dataChecking}
             onFileContentChange={onFileContentChange}
+            onFileRemove={onFileRemove}
           />
         </Content>
       }

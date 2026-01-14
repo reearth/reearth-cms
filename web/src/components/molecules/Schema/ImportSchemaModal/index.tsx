@@ -8,7 +8,11 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Steps from "@reearth-cms/components/atoms/Step";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import { UploadFile, UploadFile as RawUploadFile } from "@reearth-cms/components/atoms/Upload";
+import {
+  UploadFile,
+  UploadFile as RawUploadFile,
+  UploadProps,
+} from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
@@ -53,8 +57,6 @@ type Props = {
   setFields: Dispatch<SetStateAction<ImportFieldInput[]>>;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setAlertList: (alertList: AlertProps[]) => void;
   onSearchTerm: (term?: string) => void;
   onAssetsReload: () => void;
   onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
@@ -65,7 +67,8 @@ type Props = {
   onSelectFileModalCancel: () => void;
   onModalClose: () => void;
   dataChecking: boolean;
-  onFileContentChange: (fileContent: string) => void;
+  onFileContentChange: UploadProps["beforeUpload"];
+  onFileRemove: UploadProps["onRemove"];
 };
 
 const ImportSchemaModal: React.FC<Props> = ({
@@ -80,13 +83,12 @@ const ImportSchemaModal: React.FC<Props> = ({
   fields,
   fieldsCreationError,
   setFields,
-  setFileList,
-  setAlertList,
   hasUpdateRight,
   hasDeleteRight,
   onModalClose,
   dataChecking,
   onFileContentChange,
+  onFileRemove,
 }) => {
   const t = useT();
 
@@ -145,10 +147,9 @@ const ImportSchemaModal: React.FC<Props> = ({
       content: (
         <FileSelectionStep
           fileList={fileList}
-          setFileList={setFileList}
           alertList={alertList}
-          setAlertList={setAlertList}
           onFileContentChange={onFileContentChange}
+          onFileRemove={onFileRemove}
           dataChecking={dataChecking}
         />
       ),

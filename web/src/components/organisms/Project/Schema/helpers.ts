@@ -3,8 +3,11 @@ import {
   SchemaFieldType,
   ObjectSupportedType,
   TypeProperty,
+  ImportFieldInput,
+  ExportSchemaFieldType,
 } from "@reearth-cms/components/molecules/Schema/types";
-import { ImportSchemaField } from "@reearth-cms/utils/importSchema";
+import { Constant } from "@reearth-cms/utils/constant";
+import { ImportSchema, ImportSchemaField } from "@reearth-cms/utils/importSchema";
 
 export function convertSchemaFieldType(s: string): SchemaFieldType {
   switch (s) {
@@ -144,49 +147,49 @@ export function defaultTypePropertyGet(
   }
 }
 
-export function defaultTypePropertyGet2(
+function convertImportSchemaTypeProperty(
   field: ImportSchemaField,
 ): Record<
   string,
   TypeProperty & { supportedTypes?: ObjectSupportedType[] | EditorSupportedType[] }
 > {
   switch (field["x-fieldType"]) {
-    case "Text":
+    case ExportSchemaFieldType.Text:
       return {
         text: {
           defaultValue: field["x-defaultValue"],
           maxLength: field.maxLength,
         },
       };
-    case "TextArea":
+    case ExportSchemaFieldType.TextArea:
       return {
         textArea: {
           defaultValue: field["x-defaultValue"],
           maxLength: field.maxLength,
         },
       };
-    case "MarkdownText":
+    case ExportSchemaFieldType.Markdown:
       return {
         markdownText: {
           defaultValue: field["x-defaultValue"],
           maxLength: field.maxLength,
         },
       };
-    case "Asset":
+    case ExportSchemaFieldType.Asset:
       return {
         asset: {
           defaultValue: field["x-defaultValue"],
         },
       };
-    case "Bool":
+    case ExportSchemaFieldType.Bool:
       return {
         bool: { defaultValue: field["x-defaultValue"] },
       };
-    case "Date":
+    case ExportSchemaFieldType.Datetime:
       return {
         date: { defaultValue: field["x-defaultValue"] },
       };
-    case "Number":
+    case ExportSchemaFieldType.Number:
       return {
         number: {
           defaultValue: field["x-defaultValue"],
@@ -194,7 +197,7 @@ export function defaultTypePropertyGet2(
           max: field.maximum,
         },
       };
-    case "Integer":
+    case ExportSchemaFieldType.Integer:
       return {
         integer: {
           defaultValue: field["x-defaultValue"],
@@ -202,27 +205,27 @@ export function defaultTypePropertyGet2(
           max: field.maximum,
         },
       };
-    case "Select":
+    case ExportSchemaFieldType.Select:
       return {
         select: {
           defaultValue: field["x-defaultValue"],
           values: field["x-options"],
         },
       };
-    case "URL":
+    case ExportSchemaFieldType.URL:
       return {
         url: {
           defaultValue: field["x-defaultValue"],
         },
       };
-    case "GeometryObject":
+    case ExportSchemaFieldType.GeometryObject:
       return {
         geometryObject: {
           defaultValue: field["x-defaultValue"],
           supportedTypes: field["x-geoSupportedTypes"],
         },
       };
-    case "GeometryEditor":
+    case ExportSchemaFieldType.GeometryEditor:
       return {
         geometryEditor: {
           defaultValue: field["x-defaultValue"],
@@ -236,4 +239,25 @@ export function defaultTypePropertyGet2(
         },
       };
   }
+}
+
+export function convertImportSchemaData(
+  properties: ImportSchema["properties"],
+  modelId: string | undefined,
+): ImportFieldInput[] {
+  return Object.entries(properties).map(([fieldKey, schemaField]) => ({
+    title: fieldKey,
+    metadata: false,
+    description: schemaField.description,
+    key: fieldKey,
+    multiple: schemaField["x-multiple"] || false,
+    unique: schemaField["x-unique"] || false,
+    isTitle: false,
+    required: schemaField["x-required"] || false,
+    type: Constant.IMPORT.FIELD_TYPE_MAPPING[schemaField["x-fieldType"]],
+    modelId: modelId,
+    groupId: undefined,
+    typeProperty: convertImportSchemaTypeProperty(schemaField),
+    hidden: false,
+  }));
 }

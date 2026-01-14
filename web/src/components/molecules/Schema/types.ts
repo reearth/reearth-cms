@@ -82,6 +82,21 @@ export const SchemaFieldType = {
 
 export type SchemaFieldType = (typeof SchemaFieldType)[keyof typeof SchemaFieldType];
 
+export enum ExportSchemaFieldType {
+  Text = "text",
+  TextArea = "textArea",
+  Markdown = "markdown",
+  Asset = "asset",
+  Datetime = "datetime",
+  Bool = "bool",
+  Select = "select",
+  Integer = "integer",
+  Number = "number",
+  URL = "url",
+  GeometryObject = "geometryObject",
+  GeometryEditor = "geometryEditor",
+}
+
 export type Tag = {
   id: string;
   name: string;
@@ -112,7 +127,16 @@ export type CorrespondingField = {
 };
 
 export type TypeProperty = {
-  defaultValue?: string | string[] | boolean | boolean[] | number | number[] | GeoJSON | GeoJSON[] | null;
+  defaultValue?:
+    | string
+    | string[]
+    | boolean
+    | boolean[]
+    | number
+    | number[]
+    | GeoJSON
+    | GeoJSON[]
+    | null;
   maxLength?: number;
   assetDefaultValue?: string | string[] | null;
   selectDefaultValue?: string | string[] | null;

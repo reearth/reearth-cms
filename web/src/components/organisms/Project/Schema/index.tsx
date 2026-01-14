@@ -27,9 +27,6 @@ const ProjectSchema: React.FC = () => {
   const toImportingStep = useCallback(
     async (fields: CreateFieldInput[]) => {
       await schemaHooks.handleFieldsCreate(fields);
-      // await new Promise(resolve => {
-      //   setTimeout(resolve, 3000);
-      // });
       setCurrentImportSchemaModalPage(2);
     },
     [schemaHooks],
@@ -45,8 +42,6 @@ const ProjectSchema: React.FC = () => {
         data={schemaHooks.data}
         collapsed={schemaHooks.collapsed}
         selectedSchemaType={schemaHooks.selectedSchemaType}
-        // workspaceId={schemaHooks.workspaceId}
-        // projectId={schemaHooks.projectId}
         page={importHooks.page}
         pageSize={importHooks.pageSize}
         assetList={importHooks.assetList}
@@ -114,10 +109,12 @@ const ProjectSchema: React.FC = () => {
         onAllFieldsDelete={schemaHooks.handleAllFieldDelete}
         fieldsCreationLoading={schemaHooks.fieldsCreationLoading}
         dataChecking={importHooks.dataChecking}
-        onFileContentChange={async fileContent => {
-          await importHooks.handleImportSchemaFileChange(fileContent);
-          toSchemaPreviewStep();
+        onFileContentChange={async (file, fileList) => {
+          const result = await importHooks.handleImportSchemaFileChange(file, fileList);
+
+          if (result) toSchemaPreviewStep();
         }}
+        onFileRemove={importHooks.handleImportSchemaFileRemove}
       />
       <FormModal
         data={schemaHooks.data}

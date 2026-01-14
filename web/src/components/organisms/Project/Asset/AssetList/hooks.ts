@@ -10,9 +10,9 @@ import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/As
 import { ImportFieldInput } from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
+  convertImportSchemaData,
   convertSchemaFieldType,
   defaultTypePropertyGet,
-  defaultTypePropertyGet2,
 } from "@reearth-cms/components/organisms/Project/Schema/helpers";
 import { useAuthHeader } from "@reearth-cms/gql";
 import {
@@ -34,6 +34,8 @@ import { ImportSchema, ImportSchemaUtils } from "@reearth-cms/utils/importSchema
 import { ObjectUtils } from "@reearth-cms/utils/object";
 
 import { uploadFiles } from "./upload";
+import { UploadProps } from "@reearth-cms/components/atoms/Upload";
+import { FileUtils } from "@reearth-cms/utils/file.ts";
 
 type UploadType = "local" | "url";
 
@@ -150,6 +152,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     }
   }, [getAssets, isItemsRequired]);
 
+  // TODO: delete guess schema
   const {
     data: guessSchemaFieldsData,
     loading: guessSchemaFieldsLoading,
@@ -467,36 +470,102 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     }
   };
 
-  const handleImportSchemaFileChange = async (fileContent: string): Promise<unknown> => {
+  const raiseIllegalFileAlert = useCallback(() => {
+    setAlertList([
+      {
+        message: t("The uploaded file is empty or invalid"),
+        type: "error",
+        closable: true,
+        showIcon: true,
+      },
+    ]);
+  }, [setAlertList, t]);
+
+  const raiseSingleFileAlert = useCallback(() => {
+    setAlertList([
+      {
+        message: t("Only one file can be uploaded at a time"),
+        type: "error",
+        closable: true,
+        showIcon: true,
+      },
+    ]);
+  }, [setAlertList, t]);
+
+  const raiseIllegalFileFormatAlert = useCallback(() => {
+    setAlertList([
+      {
+        message: t("File format is not supported"),
+        type: "error",
+        closable: true,
+        showIcon: true,
+      },
+    ]);
+  }, [setAlertList, t]);
+
+  const handleImportSchemaFileChange: UploadProps["beforeUpload"] = async (file, fileList) => {
     setDataChecking(true);
-    const parsedJSON = await ObjectUtils.safeJSONParse<ImportSchema>(fileContent);
-    setDataChecking(false);
 
-    if (!parsedJSON.isValid) return { isValid: false, error: parsedJSON.error };
+    const extension = FileUtils.getExtension(file.name);
 
-    const importSchema = ImportSchemaUtils.validateSchemaFromJSON(parsedJSON.data);
+    if (!["geojson", "json"].includes(extension)) {
+      raiseIllegalFileFormatAlert();
+      return false;
+    }
 
-    if (!importSchema.isValid) return { isValid: false, error: importSchema.error };
+    if (fileList.length > 1) {
+      raiseSingleFileAlert();
+      return false;
+    }
 
-    const fields: ImportFieldInput[] = Object.entries(importSchema.data.properties).map(
-      ([key, value]) => ({
-        title: key,
-        metadata: false,
-        description: value.description,
-        key,
-        multiple: value["x-multiple"],
-        unique: value["x-unique"],
-        isTitle: false,
-        required: value["x-required"],
-        type: value["x-fieldType"],
-        modelId: modelId,
-        groupId: undefined,
-        typeProperty: defaultTypePropertyGet2(value),
-        hidden: false,
-      }),
-    );
+    setFileList([file]);
 
-    setImportFields(fields);
+    if (file.size === 0) {
+      raiseIllegalFileAlert();
+      return false;
+    }
+
+    try {
+      const content = await FileUtils.parseTextFile(file);
+
+      const jsonValidation = await ObjectUtils.safeJSONParse(content);
+
+      if (ObjectUtils.isEmpty(jsonValidation)) {
+        raiseIllegalFileAlert();
+        return false;
+      }
+
+      setAlertList([]);
+
+      const parsedJSON = await ObjectUtils.safeJSONParse<ImportSchema>(content);
+      setDataChecking(false);
+
+      if (!parsedJSON.isValid) {
+        raiseIllegalFileAlert();
+        return false;
+      }
+
+      const importSchema = ImportSchemaUtils.validateSchemaFromJSON(parsedJSON.data);
+
+      if (!importSchema.isValid) {
+        raiseIllegalFileAlert();
+        return false;
+      }
+
+      const fields = convertImportSchemaData(importSchema.data.properties, modelId);
+
+      setImportFields(fields);
+
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  };
+
+  const handleImportSchemaFileRemove: UploadProps["onRemove"] = () => {
+    setFileList([]);
+    setAlertList([]);
   };
 
   return {
@@ -554,5 +623,6 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     handleGetAsset,
     dataChecking,
     handleImportSchemaFileChange,
+    handleImportSchemaFileRemove,
   };
 };
