@@ -31,7 +31,6 @@ type Props = {
   currentPage: number;
   assetList: Asset[];
   loading: boolean;
-  guessSchemaFieldsLoading: boolean;
   fieldsCreationLoading: boolean;
   totalCount: number;
   selectedAsset?: ItemAsset;
@@ -52,7 +51,6 @@ type Props = {
   toImportingStep: (fields: CreateFieldInput[]) => Promise<void>;
   toFileSelectionStep: () => void;
   fields: ImportFieldInput[];
-  guessSchemaFieldsError?: boolean;
   fieldsCreationError?: boolean;
   setFields: Dispatch<SetStateAction<ImportFieldInput[]>>;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
@@ -76,7 +74,6 @@ const ImportSchemaModal: React.FC<Props> = ({
   currentPage,
   toImportingStep,
   toFileSelectionStep,
-  guessSchemaFieldsLoading,
   fieldsCreationLoading,
   fileList,
   alertList,
@@ -209,7 +206,6 @@ const ImportSchemaModal: React.FC<Props> = ({
                 }>
                 <Button
                   type="primary"
-                  loading={guessSchemaFieldsLoading}
                   disabled={!hasImportFields}
                   onClick={() => {
                     return toImportingStep(

@@ -113,7 +113,6 @@ export abstract class Test {
 
 export enum DATA_TEST_ID {
   // model card util
-  ModelCardUtilDropdown = "MODEL_CARD_UTIL_DROPDOWN",
   ModelCardUtilDropdownIcon = "MODEL_CARD_UTIL_DROPDOWN_ICON",
 
   ModelCardUtilDropdownEdit = "MODEL_CARD_UTIL_DROPDOWN_EDIT",

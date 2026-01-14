@@ -5,15 +5,15 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
-import { UploadFile as RawUploadFile, RcFile } from "@reearth-cms/components/atoms/Upload";
+import {
+  UploadFile as RawUploadFile,
+  RcFile,
+  UploadProps,
+} from "@reearth-cms/components/atoms/Upload";
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { ImportFieldInput } from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
-import {
-  convertImportSchemaData,
-  convertSchemaFieldType,
-  defaultTypePropertyGet,
-} from "@reearth-cms/components/organisms/Project/Schema/helpers";
+import { convertImportSchemaData } from "@reearth-cms/components/organisms/Project/Schema/helpers";
 import { useAuthHeader } from "@reearth-cms/gql";
 import {
   useGetAssetsLazyQuery,
@@ -26,16 +26,14 @@ import {
   useCreateAssetUploadMutation,
   useGetAssetLazyQuery,
   ContentTypesEnum,
-  useGuessSchemaFieldsQuery,
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
+import { FileUtils } from "@reearth-cms/utils/file.ts";
 import { ImportSchema, ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
 import { ObjectUtils } from "@reearth-cms/utils/object";
 
 import { uploadFiles } from "./upload";
-import { UploadProps } from "@reearth-cms/components/atoms/Upload";
-import { FileUtils } from "@reearth-cms/utils/file.ts";
 
 type UploadType = "local" | "url";
 
@@ -151,44 +149,6 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
       getAssets();
     }
   }, [getAssets, isItemsRequired]);
-
-  // TODO: delete guess schema
-  const {
-    data: guessSchemaFieldsData,
-    loading: guessSchemaFieldsLoading,
-    error: guessSchemaFieldsError,
-  } = useGuessSchemaFieldsQuery({
-    fetchPolicy: "cache-and-network",
-    variables: {
-      modelId: modelId ?? "",
-      assetId: selectedAssetId ?? "",
-    },
-    skip: !modelId || !selectedAssetId,
-  });
-
-  const parsedFields = useMemo(() => {
-    const fields = guessSchemaFieldsData?.guessSchemaFields?.fields;
-    if (!fields || fields.length === 0) return [];
-    return fields.map(field => ({
-      title: field.name,
-      metadata: false,
-      description: "",
-      key: field.name,
-      multiple: false,
-      unique: false,
-      isTitle: false,
-      required: false,
-      type: convertSchemaFieldType(field.type),
-      modelId: modelId,
-      groupId: undefined,
-      typeProperty: defaultTypePropertyGet(field.type),
-      hidden: false,
-    }));
-  }, [guessSchemaFieldsData, modelId]);
-
-  useEffect(() => {
-    setImportFields(parsedFields);
-  }, [parsedFields]);
 
   const assetList = useMemo(
     () =>
@@ -570,7 +530,6 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
 
   return {
     importFields,
-    guessSchemaFieldsError: !!guessSchemaFieldsError,
     importSchemaModalVisibility,
     selectFileModalVisibility,
     assetList,
@@ -578,7 +537,6 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     fileList,
     alertList,
     uploading,
-    guessSchemaFieldsLoading,
     uploadModalVisibility,
     loading,
     deleteLoading,

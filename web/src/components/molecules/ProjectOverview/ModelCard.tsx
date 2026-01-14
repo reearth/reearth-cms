@@ -11,7 +11,7 @@ import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types"
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
-type Props = {
+export type Props = {
   model: Model;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
@@ -249,11 +249,7 @@ const ModelCard: React.FC<Props> = ({
       actions={[
         <Icon icon="unorderedList" key="schema" onClick={() => onSchemaNavigate(model.id)} />,
         <Icon icon="table" key="content" onClick={() => onContentNavigate(model.id)} />,
-        <Dropdown
-          key="options"
-          data-testid={DATA_TEST_ID.ModelCardUtilDropdown}
-          menu={{ items: OptionsMenuItems }}
-          trigger={["click"]}>
+        <Dropdown key="options" menu={{ items: OptionsMenuItems }} trigger={["click"]}>
           <a data-testid={DATA_TEST_ID.ModelCardUtilDropdownIcon} onClick={e => e.preventDefault()}>
             <Icon icon="ellipsis" />
           </a>

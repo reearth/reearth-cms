@@ -39,7 +39,6 @@ type Props = {
   pageSize: number;
   assetList: Asset[];
   loading: boolean;
-  guessSchemaFieldsLoading: boolean;
   fieldsCreationLoading: boolean;
   selectedAsset?: ItemAsset;
   selectedSchemaType: SelectedSchemaType;
@@ -52,13 +51,10 @@ type Props = {
   uploadUrl: { url: string; autoUnzip: boolean };
   uploading: boolean;
   importFields: ImportFieldInput[];
-  guessSchemaFieldsError?: boolean;
   fieldsCreationError?: boolean;
   setImportFields: Dispatch<SetStateAction<ImportFieldInput[]>>;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setAlertList: (alertList: AlertProps[]) => void;
   totalCount: number;
   onSearchTerm: (term?: string) => void;
   onAssetsReload: () => void;
@@ -101,7 +97,6 @@ const Schema: React.FC<Props> = ({
   pageSize,
   assetList,
   loading,
-  guessSchemaFieldsLoading,
   fieldsCreationLoading,
   selectedAsset,
   selectedSchemaType,
@@ -114,13 +109,10 @@ const Schema: React.FC<Props> = ({
   uploadUrl,
   uploading,
   importFields,
-  guessSchemaFieldsError,
   fieldsCreationError,
   setImportFields,
   setUploadUrl,
   setUploadType,
-  setFileList,
-  setAlertList,
   totalCount,
   onSearchTerm,
   onAssetsReload,
@@ -317,7 +309,6 @@ const Schema: React.FC<Props> = ({
             pageSize={pageSize}
             assetList={assetList}
             loading={loading}
-            guessSchemaFieldsLoading={guessSchemaFieldsLoading}
             fieldsCreationLoading={fieldsCreationLoading}
             visible={importSchemaModalVisibility}
             selectFileModalVisibility={selectFileModalVisibility}
@@ -337,7 +328,6 @@ const Schema: React.FC<Props> = ({
             uploadUrl={uploadUrl}
             uploading={uploading}
             fields={importFields}
-            guessSchemaFieldsError={guessSchemaFieldsError}
             fieldsCreationError={fieldsCreationError}
             setFields={setImportFields}
             setUploadUrl={setUploadUrl}
