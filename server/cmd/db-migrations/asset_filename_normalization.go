@@ -59,7 +59,6 @@ func AssetFileNameNormalizationMigration(ctx context.Context, dbURL, dbName stri
 
 	fmt.Printf("Starting asset filename normalization migration...\n")
 
-	// Process documents in batches
 	batchSize := 1000
 	opts := options.Find().SetBatchSize(int32(batchSize))
 
@@ -88,14 +87,11 @@ func AssetFileNameNormalizationMigration(ctx context.Context, dbURL, dbName stri
 			return fmt.Errorf("failed to decode document: %w", err)
 		}
 
-		// Normalize the filename
 		normalizedFileName := asset.NormalizeFileName(assetDoc.FileName)
 
-		// Only update if the normalized version is different
 		if assetDoc.FileName != normalizedFileName {
 			fmt.Printf("Normalizing asset filename: '%s' -> '%s'\n", assetDoc.FileName, normalizedFileName)
 
-			// Create an update model that only updates the filename field
 			update := mongo.NewUpdateOneModel().
 				SetFilter(bson.M{"_id": assetDoc.ID}).
 				SetUpdate(bson.M{"$set": bson.M{"filename": normalizedFileName}})
@@ -106,18 +102,15 @@ func AssetFileNameNormalizationMigration(ctx context.Context, dbURL, dbName stri
 
 		processed++
 
-		// If we've reached the batch size, execute the bulk write
 		if len(batch) >= batchSize {
 			if err := executeBatch(ctx, col, batch); err != nil {
 				return err
 			}
 
-			// Log progress
 			elapsed := time.Since(startTime)
 			rate := float64(processed) / elapsed.Seconds()
 			fmt.Printf("Processed %d documents, modified %d (%.2f docs/sec)\n", processed, modified, rate)
 
-			// Clear the batch
 			batch = batch[:0]
 		}
 	}
@@ -129,12 +122,10 @@ func AssetFileNameNormalizationMigration(ctx context.Context, dbURL, dbName stri
 		}
 	}
 
-	// Check for any cursor errors
 	if err := cursor.Err(); err != nil {
 		return fmt.Errorf("cursor error: %w", err)
 	}
 
-	// Log final stats
 	elapsed := time.Since(startTime)
 	rate := float64(processed) / elapsed.Seconds()
 	fmt.Printf("Migration completed. Processed %d documents, modified %d in %v (%.2f docs/sec)\n",
