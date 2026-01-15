@@ -12,6 +12,7 @@ import {
   UploadStatus,
 } from "@reearth-cms/components/molecules/Uploader/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import QueueItem from "./QueueItem";
 
@@ -156,7 +157,7 @@ const Uploader: React.FC<Props> = props => {
       whileDrag={{ scale: 1.1 }}
       onDragEnd={handleDragEnd}>
       <UploadIcon
-        data-testId="UploadIcon"
+        data-testId={DATA_TEST_ID.UploaderUploadIcon}
         initial="closed"
         variants={uploadIconVariants}
         animate={props.uploaderState.isOpen ? "open" : "closed"}

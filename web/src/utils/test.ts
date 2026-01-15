@@ -137,5 +137,9 @@ export enum DATA_TEST_ID {
   ImportSchemaModalPreviewStep = "ImportSchemaModalPreviewStep",
   ImportSchemaModalPreviewFieldList = "ImportSchemaModalPreviewFieldList",
   ImportSchemaModalPreviewSkipCheckbox = "ImportSchemaModalPreviewSkipCheckbox",
+
   ImportSchemaModalImportButton = "ImportSchemaModalImportButton",
+
+  // Uploader component
+  UploaderUploadIcon = "UploaderUploadIcon",
 }
