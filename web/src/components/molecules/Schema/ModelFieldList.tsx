@@ -8,10 +8,10 @@ import List from "@reearth-cms/components/atoms/List";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { Trans, useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import { fieldTypes } from "./fieldTypes";
 import { Field } from "./types";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 type Props = {
   isMeta?: boolean;

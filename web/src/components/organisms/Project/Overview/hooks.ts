@@ -85,7 +85,6 @@ export default () => {
     fetchPolicy: "cache-and-network",
   });
 
-
   const models = useMemo(
     () =>
       data?.models.nodes
@@ -93,7 +92,6 @@ export default () => {
         .filter(model => !!model) ?? [],
     [data?.models.nodes],
   );
-
 
   const handleModelUpdateModalOpen = useCallback(
     async (model: Model) => {

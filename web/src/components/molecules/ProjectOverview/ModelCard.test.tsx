@@ -2,10 +2,11 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, test, vi } from "vitest";
 
-import ModelCard, { Props } from "./ModelCard";
 import { ExportFormat } from "@reearth-cms/components/molecules/Model/types";
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+
+import ModelCard, { Props } from "./ModelCard";
 
 const user = userEvent.setup();
 

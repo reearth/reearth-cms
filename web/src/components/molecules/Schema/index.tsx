@@ -27,11 +27,11 @@ import {
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import { ItemAsset } from "../Content/types";
 
 import ImportSchemaModal from "./ImportSchemaModal";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 type Props = {
   data?: Model | Group;
