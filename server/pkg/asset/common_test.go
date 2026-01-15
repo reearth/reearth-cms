@@ -14,6 +14,11 @@ func TestNormalizeFileName(t *testing.T) {
 			expected: "file.txt",
 		},
 		{
+			name:     "Unicode normalization",
+			input:    "ポール.txt", // decomposed form
+			expected: "ポール.txt", // composed form
+		},
+		{
 			name:     "Fullwidth to halfwidth",
 			input:    "ｆｉｌｅ．ｔｘｔ",
 			expected: "file.txt",
