@@ -47,7 +47,7 @@ func (s *Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject
 	q := item.NewQuery(sp.Schema().Project(), wp.Model.ID(), sp.Schema().ID().Ref(), lo.FromPtr(request.Params.Keyword), nil)
 
 	if request.Params.Sort != nil {
-		s := fromSort(*sp, *request.Params.Sort, request.Params.Dir)
+		s := fromSort(*sp, integrationapi.SortParam(*request.Params.Sort), (*integrationapi.SortDirParam)(request.Params.Dir))
 		q = q.WithSort(s)
 	}
 	items, pi, err := uc.Item.Search(ctx, *sp, q, p, op)
@@ -109,7 +109,7 @@ func (s *Server) ItemFilterPost(ctx context.Context, request ItemFilterPostReque
 	q := item.NewQuery(sp.Schema().Project(), wp.Model.ID(), sp.Schema().ID().Ref(), lo.FromPtr(request.Params.Keyword), nil)
 
 	if request.Params.Sort != nil {
-		s := fromPostSort(*sp, *request.Params.Sort, request.Params.Dir)
+		s := fromSort(*sp, integrationapi.SortParam(*request.Params.Sort), (*integrationapi.SortDirParam)(request.Params.Dir))
 		q = q.WithSort(s)
 	}
 

@@ -184,16 +184,16 @@ func tagNameToId(sf *schema.Field, field *integrationapi.Field) {
 	}
 }
 
-func fromSort(_ schema.Package, sort integrationapi.ItemFilterParamsSort, dir *integrationapi.ItemFilterParamsDir) *view.Sort {
+func fromSort(_ schema.Package, sort integrationapi.SortParam, dir *integrationapi.SortDirParam) *view.Sort {
 	if dir == nil {
-		dir = lo.ToPtr(integrationapi.ItemFilterParamsDirAsc)
+		dir = lo.ToPtr(integrationapi.SortDirParamAsc)
 	}
 	d := view.DirectionDesc
-	if *dir == integrationapi.ItemFilterParamsDirAsc {
+	if *dir == integrationapi.SortDirParamAsc {
 		d = view.DirectionAsc
 	}
 	switch sort {
-	case integrationapi.ItemFilterParamsSortCreatedAt:
+	case integrationapi.SortParamCreatedAt:
 		return &view.Sort{
 			Field: view.FieldSelector{
 				Type: view.FieldTypeCreationDate,
@@ -201,36 +201,7 @@ func fromSort(_ schema.Package, sort integrationapi.ItemFilterParamsSort, dir *i
 			},
 			Direction: d,
 		}
-	case integrationapi.ItemFilterParamsSortUpdatedAt:
-		return &view.Sort{
-			Field: view.FieldSelector{
-				Type: view.FieldTypeModificationDate,
-				ID:   nil,
-			},
-			Direction: d,
-		}
-	}
-	return nil
-}
-
-func fromPostSort(_ schema.Package, sort integrationapi.ItemFilterPostParamsSort, dir *integrationapi.ItemFilterPostParamsDir) *view.Sort {
-	if dir == nil {
-		dir = lo.ToPtr(integrationapi.ItemFilterPostParamsDirDesc)
-	}
-	d := view.DirectionDesc
-	if *dir == integrationapi.ItemFilterPostParamsDirAsc {
-		d = view.DirectionAsc
-	}
-	switch sort {
-	case integrationapi.ItemFilterPostParamsSortCreatedAt:
-		return &view.Sort{
-			Field: view.FieldSelector{
-				Type: view.FieldTypeCreationDate,
-				ID:   nil,
-			},
-			Direction: d,
-		}
-	case integrationapi.ItemFilterPostParamsSortUpdatedAt:
+	case integrationapi.SortParamUpdatedAt:
 		return &view.Sort{
 			Field: view.FieldSelector{
 				Type: view.FieldTypeModificationDate,
@@ -300,7 +271,7 @@ func toGroupSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirPara
 	}
 }
 
-func fromCondition(sp schema.Package, condition integrationapi.Condition) *view.Condition {
+func fromCondition(_ schema.Package, condition integrationapi.Condition) *view.Condition {
 	if condition == (integrationapi.Condition{}) {
 		return nil
 	}
