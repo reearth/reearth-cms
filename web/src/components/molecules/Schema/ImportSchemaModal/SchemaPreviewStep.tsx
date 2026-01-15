@@ -14,6 +14,7 @@ import Typography from "@reearth-cms/components/atoms/Typography";
 import { useT } from "@reearth-cms/i18n";
 
 import { ImportFieldInput } from "../types";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 type Props = {
   fields: ImportFieldInput[];
@@ -49,7 +50,7 @@ const SchemaPreviewStep: React.FC<Props> = ({
   }, [fields]);
 
   return (
-    <SchemaPreviewStepWrapper data-testId="SchemaPreviewStep">
+    <SchemaPreviewStepWrapper data-testId={DATA_TEST_ID.ImportSchemaModalPreviewStep}>
       <Section>
         <SectionTitle data-testId="SchemaPreviewTitle">{t("Schema preview")}</SectionTitle>
         <Description data-testId="SchemaPreviewDescription">
@@ -80,7 +81,9 @@ const SchemaPreviewStep: React.FC<Props> = ({
         handleSelector=".grabbable"
         lineClassName="dragLine"
         onDragEnd={onDragEnd}>
-        <FieldStyledList data-testId="SchemaPreviewFieldList" itemLayout="horizontal">
+        <FieldStyledList
+          data-testId={DATA_TEST_ID.ImportSchemaModalPreviewFieldList}
+          itemLayout="horizontal">
           {fields?.map((field, _index) => (
             <StyledListItem className="draggable-item" key={field.key} noImport={field.hidden}>
               <List.Item.Meta
@@ -111,7 +114,10 @@ const SchemaPreviewStep: React.FC<Props> = ({
                         onClick={() => onToggleFieldHide(field.key)}
                         icon={
                           <Tooltip title={field.hidden ? t("Not import") : t("Import")}>
-                            <Checkbox checked={!field.hidden} />
+                            <Checkbox
+                              checked={!field.hidden}
+                              data-testid={DATA_TEST_ID.ImportSchemaModalPreviewSkipCheckbox}
+                            />
                           </Tooltip>
                         }
                         disabled={!hasDeleteRight}

@@ -111,20 +111,31 @@ export abstract class Test {
   };
 }
 
+// NOTE: use enum instead of object, easier for checking duplicate keys & values at the same time
 export enum DATA_TEST_ID {
   // model card util
-  ModelCardUtilDropdownIcon = "MODEL_CARD_UTIL_DROPDOWN_ICON",
+  ModelCardUtilDropdownIcon = "ModelCardUtilDropdownIcon",
 
-  ModelCardUtilDropdownEdit = "MODEL_CARD_UTIL_DROPDOWN_EDIT",
-  ModelCardUtilDropdownImport = "MODEL_CARD_UTIL_DROPDOWN_IMPORT",
-  ModelCardUtilDropdownExport = "MODEL_CARD_UTIL_DROPDOWN_EXPORT",
-  ModelCardUtilDropdownDelete = "MODEL_CARD_UTIL_DROPDOWN_DELETE",
+  ModelCardUtilDropdownEdit = "ModelCardUtilDropdownEdit",
+  ModelCardUtilDropdownImport = "ModelCardUtilDropdownImport",
+  ModelCardUtilDropdownExport = "ModelCardUtilDropdownExport",
+  ModelCardUtilDropdownDelete = "ModelCardUtilDropdownDelete",
 
-  ModelCardUtilDropdownImportSchema = "MODEL_CARD_UTIL_DROPDOWN_IMPORT_SCHEMA",
-  ModelCardUtilDropdownImportContent = "MODEL_CARD_UTIL_DROPDOWN_IMPORT_CONTENT",
+  ModelCardUtilDropdownImportSchema = "ModelCardUtilDropdownImportSchema",
+  ModelCardUtilDropdownImportContent = "ModelCardUtilDropdownImportContent",
 
-  ModelCardUtilDropdownExportSchema = "MODEL_CARD_UTIL_DROPDOWN_EXPORT_SCHEMA",
-  ModelCardUtilDropdownExportContentJSON = "MODEL_CARD_UTIL_DROPDOWN_EXPORT_CONTENT_JSON",
-  ModelCardUtilDropdownExportContentCSV = "MODEL_CARD_UTIL_DROPDOWN_EXPORT_CONTENT_CSV",
-  ModelCardUtilDropdownExportContentGeoJSON = "MODEL_CARD_UTIL_DROPDOWN_EXPORT_CONTENT_GEO_JSON",
+  ModelCardUtilDropdownExportSchema = "ModelCardUtilDropdownExportSchema",
+  ModelCardUtilDropdownExportContentJSON = "ModelCardUtilDropdownExportContentJson",
+  ModelCardUtilDropdownExportContentCSV = "ModelCardUtilDropdownExportContentCsv",
+  ModelCardUtilDropdownExportContentGeoJSON = "ModelCardUtilDropdownExportContentGeoJson",
+
+  ImportSchemaInnerButton = "ImportSchemaInnerButton",
+  ImportSchemaOuterButton = "ImportSchemaOuterButton",
+  ImportSchemaFileSelect = "ImportSchemaFileSelect",
+
+  // import schema modal
+  ImportSchemaModalPreviewStep = "ImportSchemaModalPreviewStep",
+  ImportSchemaModalPreviewFieldList = "ImportSchemaModalPreviewFieldList",
+  ImportSchemaModalPreviewSkipCheckbox = "ImportSchemaModalPreviewSkipCheckbox",
+  ImportSchemaModalImportButton = "ImportSchemaModalImportButton",
 }

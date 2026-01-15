@@ -24,6 +24,7 @@ import { CreateFieldInput, ImportFieldInput } from "../types";
 import FileSelectionStep from "./FileSelectionStep";
 import ImportingStep from "./ImportingStep";
 import SchemaPreviewStep from "./SchemaPreviewStep";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 type Props = {
   visible: boolean;
@@ -206,6 +207,7 @@ const ImportSchemaModal: React.FC<Props> = ({
                 }>
                 <Button
                   type="primary"
+                  data-testid={DATA_TEST_ID.ImportSchemaModalImportButton}
                   disabled={!hasImportFields}
                   onClick={() => {
                     return toImportingStep(

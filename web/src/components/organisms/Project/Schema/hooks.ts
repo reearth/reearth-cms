@@ -606,7 +606,7 @@ export default () => {
 
   const [createNewFields, { loading: fieldsCreationLoading, error: fieldsCreationError }] =
     useCreateFieldsMutation({
-      refetchQueries: ["GetModel", "GetGroup"],
+      refetchQueries: ["GetModel", "GetGroup", "GetModels"],
     });
 
   const handleFieldsCreate = useCallback(

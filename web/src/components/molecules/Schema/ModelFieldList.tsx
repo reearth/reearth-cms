@@ -11,6 +11,7 @@ import { Trans, useT } from "@reearth-cms/i18n";
 
 import { fieldTypes } from "./fieldTypes";
 import { Field } from "./types";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 type Props = {
   isMeta?: boolean;
@@ -115,7 +116,10 @@ const ModelFieldList: React.FC<Props> = ({
             i18nKey="importSchema"
             components={{
               l: (
-                <ImportButton type="link" onClick={onSchemaImport}>
+                <ImportButton
+                  type="link"
+                  onClick={onSchemaImport}
+                  data-testid={DATA_TEST_ID.ImportSchemaOuterButton}>
                   import
                 </ImportButton>
               ),

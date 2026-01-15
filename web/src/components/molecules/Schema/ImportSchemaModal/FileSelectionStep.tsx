@@ -10,6 +10,7 @@ import Upload, {
 } from "@reearth-cms/components/atoms/Upload";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 const { Dragger } = Upload;
 
@@ -55,7 +56,7 @@ const FileSelectionStep: React.FC<Props> = ({
           <p>{t("Checking the data file...")}</p>
         </LoadingWrapper>
       ) : (
-        <Dragger {...uploadProps} data-testId="ImportSchemaFileSelect">
+        <Dragger {...uploadProps} data-testId={DATA_TEST_ID.ImportSchemaFileSelect}>
           <p className="ant-upload-drag-icon">
             <Icon icon="inbox" />
           </p>

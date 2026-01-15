@@ -31,6 +31,7 @@ import { Constant } from "@reearth-cms/utils/constant";
 import { ItemAsset } from "../Content/types";
 
 import ImportSchemaModal from "./ImportSchemaModal";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 type Props = {
   data?: Model | Group;
@@ -165,7 +166,9 @@ const Schema: React.FC<Props> = ({
       {
         key: "import",
         label: (
-          <Tooltip title={disableImport ? t("Only empty schemas can be imported into") : undefined}>
+          <Tooltip
+            title={disableImport ? t("Only empty schemas can be imported into") : undefined}
+            data-testid={DATA_TEST_ID.ImportSchemaInnerButton}>
             {t("Import")}
           </Tooltip>
         ),

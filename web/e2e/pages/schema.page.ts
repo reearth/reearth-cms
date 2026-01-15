@@ -1,5 +1,6 @@
 // e2e/pages/schema.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import { BasePage } from "./base.page";
 
@@ -27,6 +28,15 @@ export class SchemaPage extends BasePage {
   }
   get modelKeyLabel(): Locator {
     return this.getByLabel("Model key");
+  }
+  get importSchemaDialog(): Locator {
+    return this.getByRole("dialog", { name: "Import Schema" });
+  }
+  get importSchemaOuterButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ImportSchemaOuterButton);
+  }
+  get importSchemaModalImportButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ImportSchemaModalImportButton);
   }
   modelMenuItem(name: string): Locator {
     return this.getByRole("menuitem", { name });

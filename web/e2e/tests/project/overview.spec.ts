@@ -300,6 +300,40 @@ test.describe("Model Export tests on Overview page", () => {
   });
 });
 
+test("Import schema dropdown redirects to schema page correctly, with import schema modal opened", async ({
+  schemaPage,
+  projectPage,
+  page,
+}) => {
+  const modelName = `model-${getId()}`;
+  const modelKey = `model-key-${getId()}`;
+
+  await test.step("Create new model", async () => {
+    await expect(projectPage.noModelsYetText).toBeVisible();
+    await projectPage.newModelButtonFirst.click();
+    await expect(projectPage.newModelLabelText).toBeVisible();
+    await schemaPage.modelKeyInput.fill(modelKey);
+    await schemaPage.modelNameInput.fill(modelName);
+    await projectPage.modelDescriptionInput.fill("model description");
+    await schemaPage.okButton.click();
+    await projectPage.closeNotification();
+    await expect(projectPage.modelTitleByName(modelName)).toBeVisible();
+    await page.waitForTimeout(300);
+  });
+
+  await test.step("Open import schema from dropdown", async () => {
+    await projectPage.modelsMenuItem.click();
+    await projectPage.modelUtilDropdown.click();
+    await projectPage.modelImportLink.click();
+    await projectPage.importSchemaText.click();
+  });
+
+  await test.step("Verify schema page and modal opened", async () => {
+    await expect(page).toHaveURL(/\/schema\//);
+    await expect(schemaPage.importSchemaDialog).toBeVisible();
+  });
+});
+
 test("Creating Model by using the button on placeholder has succeeded", async ({
   projectPage,
   page,

@@ -82,7 +82,9 @@ export default () => {
       pagination: { first: 100 },
     },
     skip: !currentProject?.id,
+    fetchPolicy: "cache-and-network",
   });
+
 
   const models = useMemo(
     () =>
@@ -91,6 +93,7 @@ export default () => {
         .filter(model => !!model) ?? [],
     [data?.models.nodes],
   );
+
 
   const handleModelUpdateModalOpen = useCallback(
     async (model: Model) => {
