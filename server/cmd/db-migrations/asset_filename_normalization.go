@@ -5,19 +5,15 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"golang.org/x/text/unicode/norm"
 )
 
 type AssetDocumentForNormalization struct {
 	ID       interface{} `bson:"_id"`
 	FileName string      `bson:"filename"`
-}
-
-func normalizeFileName(name string) string {
-	return norm.NFKC.String(name)
 }
 
 func AssetFileNameNormalizationMigration(ctx context.Context, dbURL, dbName string, wetRun bool) error {
@@ -27,7 +23,11 @@ func AssetFileNameNormalizationMigration(ctx context.Context, dbURL, dbName stri
 	if err != nil {
 		return fmt.Errorf("db: failed to init client err: %w", err)
 	}
-	defer client.Disconnect(ctx)
+	defer func() {
+		if err := client.Disconnect(ctx); err != nil {
+			fmt.Printf("Warning: failed to disconnect client: %v\n", err)
+		}
+	}()
 
 	col := client.Database(dbName).Collection("asset")
 
@@ -67,7 +67,11 @@ func AssetFileNameNormalizationMigration(ctx context.Context, dbURL, dbName stri
 	if err != nil {
 		return fmt.Errorf("failed to query collection: %w", err)
 	}
-	defer cursor.Close(ctx)
+	defer func() {
+		if err := cursor.Close(ctx); err != nil {
+			fmt.Printf("Warning: failed to close cursor: %v\n", err)
+		}
+	}()
 
 	batch := make([]mongo.WriteModel, 0, batchSize)
 	processed := 0
@@ -79,21 +83,21 @@ func AssetFileNameNormalizationMigration(ctx context.Context, dbURL, dbName stri
 			return ctx.Err()
 		}
 
-		var asset AssetDocumentForNormalization
-		if err := cursor.Decode(&asset); err != nil {
+		var assetDoc AssetDocumentForNormalization
+		if err := cursor.Decode(&assetDoc); err != nil {
 			return fmt.Errorf("failed to decode document: %w", err)
 		}
 
 		// Normalize the filename
-		normalizedFileName := normalizeFileName(asset.FileName)
+		normalizedFileName := asset.NormalizeFileName(assetDoc.FileName)
 
 		// Only update if the normalized version is different
-		if asset.FileName != normalizedFileName {
-			fmt.Printf("Normalizing asset filename: '%s' -> '%s'\n", asset.FileName, normalizedFileName)
+		if assetDoc.FileName != normalizedFileName {
+			fmt.Printf("Normalizing asset filename: '%s' -> '%s'\n", assetDoc.FileName, normalizedFileName)
 
 			// Create an update model that only updates the filename field
 			update := mongo.NewUpdateOneModel().
-				SetFilter(bson.M{"_id": asset.ID}).
+				SetFilter(bson.M{"_id": assetDoc.ID}).
 				SetUpdate(bson.M{"$set": bson.M{"filename": normalizedFileName}})
 
 			batch = append(batch, update)
