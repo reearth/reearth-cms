@@ -24,6 +24,7 @@ import {
   ImportContentResultItem,
 } from "@reearth-cms/utils/importContent";
 import { ObjectUtils } from "@reearth-cms/utils/object";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 const { Dragger } = Upload;
 
@@ -359,7 +360,7 @@ const ContentImportModal: React.FC<Props> = ({
       {!validateImportResult ? (
         <>
           {dataChecking ? (
-            <LoadingWrapper data-testId="LoadingWrapper">
+            <LoadingWrapper data-testId={DATA_TEST_ID.ImportContentModalLoadingWrapper}>
               <Loading spinnerSize="large" />
               <p>{t("Checking the data file...")}</p>
             </LoadingWrapper>
@@ -408,12 +409,20 @@ const ContentImportModal: React.FC<Props> = ({
           )}
         </>
       ) : (
-        <StyledFlex data-testId="errorWrapper" vertical justify="center" align="center">
-          <Icon data-testId="errorIcon" icon="warningSolid" color={importErrorIcon} />
-          <Typography.Title data-testId="errorTitle" level={4}>
+        <StyledFlex
+          data-testId={DATA_TEST_ID.ImportContentModalErrorWrapper}
+          vertical
+          justify="center"
+          align="center">
+          <Icon
+            data-testId={DATA_TEST_ID.ImportContentModalErrorIcon}
+            icon="warningSolid"
+            color={importErrorIcon}
+          />
+          <Typography.Title data-testId={DATA_TEST_ID.ImportContentModalErrorTitle} level={4}>
             {validateImportResult.title}
           </Typography.Title>
-          <Typography.Paragraph data-testId="errorDescription">
+          <Typography.Paragraph data-testId={DATA_TEST_ID.ImportContentModalErrorDescription}>
             {validateImportResult.description}
           </Typography.Paragraph>
           <Space>
@@ -430,7 +439,9 @@ const ContentImportModal: React.FC<Props> = ({
             )}
           </Space>
           {validateImportResult.hint && (
-            <Typography.Paragraph type="secondary" data-testId="errorHint">
+            <Typography.Paragraph
+              type="secondary"
+              data-testId={DATA_TEST_ID.ImportContentModalErrorHint}>
               {validateImportResult.hint}
             </Typography.Paragraph>
           )}

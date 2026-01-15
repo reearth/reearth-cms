@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import Search from "@reearth-cms/components/atoms/Search";
 import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import { SortBy, SortOption } from "./types";
 
@@ -36,7 +37,7 @@ const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort, proj
       <Wrapper>
         <Label>{t("Sort by")}</Label>
         <StyledSelect
-          data-testid="workspace-header-project-sort-select"
+          data-testid={DATA_TEST_ID.WorkspaceHeaderProjectSortSelect}
           value={projectSort}
           onChange={value => {
             onProjectSort(value as SortBy);

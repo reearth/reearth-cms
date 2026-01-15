@@ -134,12 +134,35 @@ export enum DATA_TEST_ID {
   ImportSchemaFileSelect = "ImportSchemaFileSelect",
 
   // import schema modal
+  ImportSchemaFileSelectionLoadingWrapper = "ImportSchemaFileSelectionLoadingWrapper",
+
   ImportSchemaModalPreviewStep = "ImportSchemaModalPreviewStep",
   ImportSchemaModalPreviewFieldList = "ImportSchemaModalPreviewFieldList",
   ImportSchemaModalPreviewSkipCheckbox = "ImportSchemaModalPreviewSkipCheckbox",
 
   ImportSchemaModalImportButton = "ImportSchemaModalImportButton",
 
+  // import content modal
+  ImportContentModalLoadingWrapper = "ImportContentModalLoadingWrapper",
+  ImportContentModalErrorWrapper = "ImportContentModalErrorWrapper",
+  ImportContentModalErrorIcon = "ImportContentModalErrorIcon",
+  ImportContentModalErrorTitle = "ImportContentModalErrorTitle",
+  ImportContentModalErrorDescription = "ImportContentModalErrorDescription",
+  ImportContentModalErrorHint = "ImportContentModalErrorHint",
+
   // Uploader component
+  UploaderWrapper = "UploaderWrapper",
   UploaderUploadIcon = "UploaderUploadIcon",
+  UploaderCard = "UploaderCard",
+  UploaderCardHead = "UploaderCardHead",
+  UploaderCardBody = "UploaderCardBody",
+  UploaderCardTitle = "UploaderCardTitle",
+  UploaderCardTitleSuffix = "UploaderCardTitleSuffix",
+  UploaderQueueItemRetryIcon = "UploaderQueueItemRetryIcon",
+
+  // Workspace
+  WorkspaceHeaderProjectSortSelect = "WorkspaceHeaderProjectSortSelect",
+
+  // Others
+  RequestStatus = "RequestStatus",
 }

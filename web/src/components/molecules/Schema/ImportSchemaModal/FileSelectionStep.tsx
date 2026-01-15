@@ -51,7 +51,7 @@ const FileSelectionStep: React.FC<Props> = ({
   return (
     <>
       {dataChecking ? (
-        <LoadingWrapper data-testId="LoadingWrapper">
+        <LoadingWrapper data-testId={DATA_TEST_ID.ImportSchemaFileSelectionLoadingWrapper}>
           <Loading spinnerSize="large" />
           <p>{t("Checking the data file...")}</p>
         </LoadingWrapper>

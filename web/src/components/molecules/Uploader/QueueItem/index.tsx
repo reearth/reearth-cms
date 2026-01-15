@@ -6,6 +6,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Progress from "@reearth-cms/components/atoms/Progress";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import { UploaderQueueItem, UploadStatus } from "../types";
 
@@ -40,7 +41,7 @@ const QueueItem: React.FC<Props> = ({ queue, onRetry, onCancel }) => {
             <Tooltip title={t("Retry")}>
               <div>
                 <ActionIcon
-                  data-testId="retryIcon"
+                  data-testId={DATA_TEST_ID.UploaderQueueItemRetryIcon}
                   icon="retry"
                   color="#8C8C8C"
                   onClick={() => void onRetry(queue.id)}
@@ -55,7 +56,7 @@ const QueueItem: React.FC<Props> = ({ queue, onRetry, onCancel }) => {
           <Tooltip title={t("Cancel upload")}>
             <span>
               <ActionIcon
-                data-testId="retryIcon"
+                data-testId={DATA_TEST_ID.UploaderQueueItemRetryIcon}
                 icon="retry"
                 color="#8C8C8C"
                 onClick={() => void onRetry(queue.id)}

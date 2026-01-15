@@ -147,7 +147,7 @@ const Uploader: React.FC<Props> = props => {
 
   return (
     <UploaderWrapper
-      data-testId="UploaderWrapper"
+      data-testId={DATA_TEST_ID.UploaderWrapper}
       ref={uploaderWrapperRef}
       drag={!props.uploaderState.isOpen}
       dragConstraints={props.constraintsRef}
@@ -183,15 +183,15 @@ const Uploader: React.FC<Props> = props => {
       </UploadIcon>
 
       <Card
-        data-testId="Card"
+        data-testId={DATA_TEST_ID.UploaderCard}
         data-corner={corner}
         layout="size"
         initial="closed"
         variants={cardVariants}
         animate={props.uploaderState.isOpen ? "open" : "closed"}>
-        <CardHead data-testId="CardHead">
-          <Title data-testId="Title">{titleMessage}</Title>
-          <TitleSuffix data-testId="TitleSuffix">
+        <CardHead data-testId={DATA_TEST_ID.UploaderCardHead}>
+          <Title data-testId={DATA_TEST_ID.UploaderCardTitle}>{titleMessage}</Title>
+          <TitleSuffix data-testId={DATA_TEST_ID.UploaderCardTitleSuffix}>
             <Tooltip title={t("Minimize")}>
               <span>
                 <CloseIcon icon="down" onClick={() => void props.onUploaderOpen(false)} />
@@ -204,7 +204,7 @@ const Uploader: React.FC<Props> = props => {
             </Tooltip>
           </TitleSuffix>
         </CardHead>
-        <CardBody data-testId="CardBody">
+        <CardBody data-testId={DATA_TEST_ID.UploaderCardBody}>
           {props.uploaderState.queue.map((queue, _index) => (
             <QueueItem
               key={queue.id}

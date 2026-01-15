@@ -9,6 +9,7 @@ import { VersionedItem } from "@reearth-cms/components/molecules/Content/types";
 import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 type Props = {
   versions: VersionedItem[];
@@ -24,7 +25,7 @@ const Versions: React.FC<Props> = ({ versions, versionClick, onNavigateToRequest
         <HistoryCard key={version.version}>
           <HistoryTitle onClick={() => versionClick(version)}>
             <Tooltip title={t(version.status)}>
-              <Badge color={stateColors[version.status]} data-testid="requestStatus" />
+              <Badge color={stateColors[version.status]} data-testid={DATA_TEST_ID.RequestStatus} />
             </Tooltip>
             {dateTimeFormat(version.timestamp, "YYYY/MM/DD, HH:mm")}
             {index === 0 && (
