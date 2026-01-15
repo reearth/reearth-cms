@@ -16,6 +16,7 @@ var commands = map[string]command{
 	"item-migration":                     ItemMigration,
 	"project-visibility":                 ProjectVisibility,
 	"asset-filename-normalization":       AssetFileNameNormalizationMigration,
+	"item-text-normalization":            ItemTextNormalizationMigration,
 }
 
 func main() {

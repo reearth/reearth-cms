@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/samber/lo"
+	"golang.org/x/text/unicode/norm"
 )
 
 const TypeText Type = "text"
@@ -21,9 +22,16 @@ type propertyString struct{}
 
 type String = string
 
+// normalizeString normalizes a string using Unicode NFKC normalization.
+// This ensures consistent storage and retrieval by converting compatibility
+// characters (like fullwidth) to their canonical forms and composing characters.
+func normalizeString(s string) string {
+	return norm.NFKC.String(s)
+}
+
 func (p *propertyString) ToValue(i any) (any, bool) {
 	if v, ok := i.(string); ok {
-		return v, true
+		return normalizeString(v), true
 	} else if v, ok := i.(float64); ok {
 		return strconv.FormatFloat(v, 'f', -1, 64), true
 	} else if v, ok := i.(bool); ok && v {
