@@ -1,5 +1,17 @@
+import path from "path";
+import { fileURLToPath } from "url";
+
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const IMPORT_SCHEMA_TEMPLATE_PATH = path.resolve(
+  __dirname,
+  "../../../public/templates/import-schema-template.json",
+);
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -69,6 +81,81 @@ test("Model reordering has succeeded", async ({ schemaPage, page }) => {
     await expect(schemaPage.modelMenuItems().nth(1)).toContainText(modelName1);
     await expect(schemaPage.modelMenuItems().nth(2)).toContainText(modelName3);
     await page.waitForTimeout(300);
+  });
+});
+
+test.describe("Test import schema", () => {
+  test("Import schema from static file has succeeded", async ({ schemaPage, page }) => {
+    const modelName = `model-${getId()}`;
+    const modelKey = `model-key-${getId()}`;
+
+    await test.step("Create model in schema page", async () => {
+      await schemaPage.createModelFromSidebar(modelName, modelKey);
+      await expect(schemaPage.textByExact(`#${modelKey}`)).toBeVisible();
+      await page.waitForTimeout(300);
+    });
+
+    await test.step("Open import schema modal", async () => {
+      await schemaPage.importSchemaOuterButton.click();
+      await expect(schemaPage.importSchemaDialog).toBeVisible();
+    });
+
+    await test.step("Upload schema file and import", async () => {
+      const importModal = schemaPage.importSchemaDialog;
+      await page
+        .getByTestId(DATA_TEST_ID.ImportSchemaFileSelect)
+        .setInputFiles(IMPORT_SCHEMA_TEMPLATE_PATH);
+      await expect(page.getByTestId(DATA_TEST_ID.ImportSchemaModalPreviewStep)).toBeVisible();
+
+      await schemaPage.importSchemaModalImportButton.click();
+      await expect(importModal).toBeHidden();
+      await schemaPage.closeNotification();
+    });
+
+    await test.step("Verify imported field is visible", async () => {
+      await expect(schemaPage.textByExact("#text-field-key")).toBeVisible();
+      await page.waitForTimeout(300);
+    });
+  });
+
+  test("Model Import Schema skips unchecked field", async ({ schemaPage, page }) => {
+    const modelName = `model-${getId()}`;
+    const modelKey = `model-key-${getId()}`;
+
+    await test.step("Create model in schema page", async () => {
+      await schemaPage.createModelFromSidebar(modelName, modelKey);
+      await expect(schemaPage.textByExact(`#${modelKey}`)).toBeVisible();
+      await page.waitForTimeout(300);
+    });
+
+    await test.step("Open import schema modal", async () => {
+      await schemaPage.importSchemaOuterButton.click();
+      await expect(schemaPage.importSchemaDialog).toBeVisible();
+    });
+
+    await test.step("Upload schema file", async () => {
+      await page
+        .getByTestId(DATA_TEST_ID.ImportSchemaFileSelect)
+        .setInputFiles(IMPORT_SCHEMA_TEMPLATE_PATH);
+      await expect(page.getByTestId(DATA_TEST_ID.ImportSchemaModalPreviewStep)).toBeVisible();
+    });
+
+    await test.step("Uncheck a field", async () => {
+      const fieldRow = page
+        .getByTestId(DATA_TEST_ID.ImportSchemaModalPreviewFieldList)
+        .locator(".ant-list-item")
+        .filter({ hasText: "#text-field-key", hasNotText: "#text-field-key-multi" });
+      await fieldRow.getByTestId(DATA_TEST_ID.ImportSchemaModalPreviewSkipCheckbox).click();
+    });
+
+    await test.step("Import and verify unchecked field is skipped", async () => {
+      await schemaPage.importSchemaModalImportButton.click();
+      await expect(schemaPage.importSchemaDialog).toBeHidden();
+      await schemaPage.closeNotification();
+      await expect(schemaPage.getByText("#url-field-key", { exact: true })).toBeVisible();
+      await expect(schemaPage.getByText("#text-field-key", { exact: true })).toHaveCount(0);
+      await page.waitForTimeout(300);
+    });
   });
 });
 

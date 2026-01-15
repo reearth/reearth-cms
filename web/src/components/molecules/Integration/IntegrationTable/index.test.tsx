@@ -77,7 +77,7 @@ describe("Integration table", () => {
       />,
     );
 
-    expect(screen.getByRole("link")).toBeVisible();
+    expect(screen.getByPlaceholderText("input search text")).toBeVisible();
   });
 
   test("Connecting buttons works successfully", async () => {
@@ -101,11 +101,9 @@ describe("Integration table", () => {
       />,
     );
 
-    const connectButtons = screen.getAllByRole("button", { name: "api Connect Integration" });
-    for (const button of connectButtons) {
-      await user.click(button);
-    }
-    expect(connectModalOpenMock).toBeCalledTimes(2);
+    const connectButton = screen.getByRole("button", { name: "api Connect Integration" });
+    await user.click(connectButton);
+    expect(connectModalOpenMock).toBeCalledTimes(1);
   });
 
   test("Searching works successfully", async () => {

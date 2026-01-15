@@ -8,6 +8,7 @@ import List from "@reearth-cms/components/atoms/List";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { Trans, useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import { fieldTypes } from "./fieldTypes";
 import { Field } from "./types";
@@ -115,7 +116,10 @@ const ModelFieldList: React.FC<Props> = ({
             i18nKey="importSchema"
             components={{
               l: (
-                <ImportButton type="link" onClick={onSchemaImport}>
+                <ImportButton
+                  type="link"
+                  onClick={onSchemaImport}
+                  data-testid={DATA_TEST_ID.ImportSchemaOuterButton}>
                   import
                 </ImportButton>
               ),

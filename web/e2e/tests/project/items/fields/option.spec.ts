@@ -123,7 +123,7 @@ test("Option field editing has succeeded", async ({
 
   await test.step("Delete 'second' option and add 'forth' option", async () => {
     await fieldEditorPage.settingsTab.click();
-    await fieldEditorPage.deleteButton.nth(1).click();
+    await fieldEditorPage.deleteButton.nth(2).click();
     await fieldEditorPage.plusNewButton.click();
     await fieldEditorPage.valuesInput.nth(2).click();
     await fieldEditorPage.valuesInput.nth(2).fill("forth");

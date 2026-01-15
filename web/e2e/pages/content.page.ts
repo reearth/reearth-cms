@@ -1,5 +1,6 @@
 // e2e/pages/content.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import { BasePage } from "./base.page";
 
@@ -488,7 +489,7 @@ export class ContentPage extends BasePage {
   }
 
   get requestStatusElement(): Locator {
-    return this.getByTestId("requestStatus").locator("span");
+    return this.getByTestId(DATA_TEST_ID.RequestStatus).locator("span");
   }
 
   get currentVersionText(): Locator {
