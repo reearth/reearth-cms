@@ -865,15 +865,6 @@ paths:
         - $ref: '#/components/parameters/refParam'
         - $ref: '#/components/parameters/assetParam'
         - $ref: '#/components/parameters/keywordParam'
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                filter:
-                  $ref: '#/components/schemas/condition'
       responses:
         '200':
           description: A JSON array of user names
@@ -939,6 +930,65 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/filter':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
+    post:
+      operationId: ItemFilterPost
+      security:
+        - bearerAuth: [ ]
+      summary: Returns a list of items with complex filtering.
+      tags:
+        - Items
+      description: Returns a list of items with complex filtering in request body.
+      parameters:
+        - $ref: '#/components/parameters/sortParam'
+        - $ref: '#/components/parameters/sortDirParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/perPageParam'
+        - $ref: '#/components/parameters/refParam'
+        - $ref: '#/components/parameters/assetParam'
+        - $ref: '#/components/parameters/keywordParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filter:
+                  $ref: '#/components/schemas/condition'
+      responses:
+        '200':
+          description: Paginated list of items
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/versionedItem'
+                  totalCount:
+                    type: integer
+                    minimum: 0
+                  page:
+                    type: integer
+                    minimum: 1
+                  perPage:
+                    type: integer
+                    minimum: 1
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
   '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson':
     parameters:
       - $ref: '#/components/parameters/workspaceIdOrAliasParam'

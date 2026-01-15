@@ -219,14 +219,14 @@ const (
 
 // Defines values for ItemFilterParamsSort.
 const (
-	CreatedAt ItemFilterParamsSort = "createdAt"
-	UpdatedAt ItemFilterParamsSort = "updatedAt"
+	ItemFilterParamsSortCreatedAt ItemFilterParamsSort = "createdAt"
+	ItemFilterParamsSortUpdatedAt ItemFilterParamsSort = "updatedAt"
 )
 
 // Defines values for ItemFilterParamsDir.
 const (
-	Asc  ItemFilterParamsDir = "asc"
-	Desc ItemFilterParamsDir = "desc"
+	ItemFilterParamsDirAsc  ItemFilterParamsDir = "asc"
+	ItemFilterParamsDirDesc ItemFilterParamsDir = "desc"
 )
 
 // Defines values for ItemFilterParamsRef.
@@ -247,10 +247,28 @@ const (
 	ItemsAsGeoJSONParamsRefPublic ItemsAsGeoJSONParamsRef = "public"
 )
 
+// Defines values for ItemFilterPostParamsSort.
+const (
+	ItemFilterPostParamsSortCreatedAt ItemFilterPostParamsSort = "createdAt"
+	ItemFilterPostParamsSortUpdatedAt ItemFilterPostParamsSort = "updatedAt"
+)
+
+// Defines values for ItemFilterPostParamsDir.
+const (
+	ItemFilterPostParamsDirAsc  ItemFilterPostParamsDir = "asc"
+	ItemFilterPostParamsDirDesc ItemFilterPostParamsDir = "desc"
+)
+
+// Defines values for ItemFilterPostParamsRef.
+const (
+	ItemFilterPostParamsRefLatest ItemFilterPostParamsRef = "latest"
+	ItemFilterPostParamsRefPublic ItemFilterPostParamsRef = "public"
+)
+
 // Defines values for ItemGetParamsRef.
 const (
-	ItemGetParamsRefLatest ItemGetParamsRef = "latest"
-	ItemGetParamsRefPublic ItemGetParamsRef = "public"
+	Latest ItemGetParamsRef = "latest"
+	Public ItemGetParamsRef = "public"
 )
 
 // GeoJSON defines model for GeoJSON.
@@ -831,11 +849,6 @@ type ModelImportMultipartBodyFormat string
 // ModelImportMultipartBodyStrategy defines parameters for ModelImport.
 type ModelImportMultipartBodyStrategy string
 
-// ItemFilterJSONBody defines parameters for ItemFilter.
-type ItemFilterJSONBody struct {
-	Filter *Condition `json:"filter,omitempty"`
-}
-
 // ItemFilterParams defines parameters for ItemFilter.
 type ItemFilterParams struct {
 	// Sort Used to define the order of the response list
@@ -904,6 +917,44 @@ type ItemsAsGeoJSONParams struct {
 
 // ItemsAsGeoJSONParamsRef defines parameters for ItemsAsGeoJSON.
 type ItemsAsGeoJSONParamsRef string
+
+// ItemFilterPostJSONBody defines parameters for ItemFilterPost.
+type ItemFilterPostJSONBody struct {
+	Filter *Condition `json:"filter,omitempty"`
+}
+
+// ItemFilterPostParams defines parameters for ItemFilterPost.
+type ItemFilterPostParams struct {
+	// Sort Used to define the order of the response list
+	Sort *ItemFilterPostParamsSort `form:"sort,omitempty" json:"sort,omitempty"`
+
+	// Dir Used to define the order direction of the response list, will be ignored if the order is not presented
+	Dir *ItemFilterPostParamsDir `form:"dir,omitempty" json:"dir,omitempty"`
+
+	// Page Used to select the page
+	Page *PageParam `form:"page,omitempty" json:"page,omitempty"`
+
+	// PerPage Used to select the page
+	PerPage *PerPageParam `form:"perPage,omitempty" json:"perPage,omitempty"`
+
+	// Ref Used to select a ref or ver
+	Ref *ItemFilterPostParamsRef `form:"ref,omitempty" json:"ref,omitempty"`
+
+	// Asset Specifies whether asset data are embedded in the results
+	Asset *AssetParam `form:"asset,omitempty" json:"asset,omitempty"`
+
+	// Keyword keyword string
+	Keyword *KeywordParam `form:"keyword,omitempty" json:"keyword,omitempty"`
+}
+
+// ItemFilterPostParamsSort defines parameters for ItemFilterPost.
+type ItemFilterPostParamsSort string
+
+// ItemFilterPostParamsDir defines parameters for ItemFilterPost.
+type ItemFilterPostParamsDir string
+
+// ItemFilterPostParamsRef defines parameters for ItemFilterPost.
+type ItemFilterPostParamsRef string
 
 // ItemGetParams defines parameters for ItemGet.
 type ItemGetParams struct {
@@ -1001,11 +1052,11 @@ type ModelImportJSONRequestBody ModelImportJSONBody
 // ModelImportMultipartRequestBody defines body for ModelImport for multipart/form-data ContentType.
 type ModelImportMultipartRequestBody ModelImportMultipartBody
 
-// ItemFilterJSONRequestBody defines body for ItemFilter for application/json ContentType.
-type ItemFilterJSONRequestBody ItemFilterJSONBody
-
 // ItemCreateJSONRequestBody defines body for ItemCreate for application/json ContentType.
 type ItemCreateJSONRequestBody ItemCreateJSONBody
+
+// ItemFilterPostJSONRequestBody defines body for ItemFilterPost for application/json ContentType.
+type ItemFilterPostJSONRequestBody ItemFilterPostJSONBody
 
 // ItemUpdateJSONRequestBody defines body for ItemUpdate for application/json ContentType.
 type ItemUpdateJSONRequestBody ItemUpdateJSONBody

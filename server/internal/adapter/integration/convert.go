@@ -5,9 +5,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/integrationapi"
-	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
-	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
@@ -186,32 +184,16 @@ func tagNameToId(sf *schema.Field, field *integrationapi.Field) {
 	}
 }
 
-func fromQuery(sp schema.Package, mId model.ID, req ItemFilterRequestObject) *item.Query {
-	var s *view.Sort
-	if req.Params.Sort != nil {
-		s = fromSort(sp, *req.Params.Sort, req.Params.Dir)
-	}
-
-	var c *view.Condition
-	if req.Body.Filter != nil {
-		c = fromCondition(sp, *req.Body.Filter)
-	}
-
-	return item.NewQuery(sp.Schema().Project(), mId, sp.Schema().ID().Ref(), lo.FromPtr(req.Params.Keyword), nil).
-		WithSort(s).
-		WithFilter(c)
-}
-
-func fromSort(_ schema.Package, sort integrationapi.ItemFilterParamsSort, dir *integrationapi.ItemFilterParamsDir) *view.Sort {
+func fromSort(_ schema.Package, sort integrationapi.SortParam, dir *integrationapi.SortDirParam) *view.Sort {
 	if dir == nil {
-		dir = lo.ToPtr(integrationapi.Asc)
+		dir = lo.ToPtr(integrationapi.SortDirParamAsc)
 	}
 	d := view.DirectionDesc
-	if *dir == integrationapi.Asc {
+	if *dir == integrationapi.SortDirParamAsc {
 		d = view.DirectionAsc
 	}
 	switch sort {
-	case integrationapi.CreatedAt:
+	case integrationapi.SortParamCreatedAt:
 		return &view.Sort{
 			Field: view.FieldSelector{
 				Type: view.FieldTypeCreationDate,
@@ -219,7 +201,7 @@ func fromSort(_ schema.Package, sort integrationapi.ItemFilterParamsSort, dir *i
 			},
 			Direction: d,
 		}
-	case integrationapi.UpdatedAt:
+	case integrationapi.SortParamUpdatedAt:
 		return &view.Sort{
 			Field: view.FieldSelector{
 				Type: view.FieldTypeModificationDate,
@@ -290,7 +272,16 @@ func toGroupSort(sort *integrationapi.SortParam, dir *integrationapi.SortDirPara
 }
 
 func fromCondition(_ schema.Package, condition integrationapi.Condition) *view.Condition {
-	return condition.Into()
+	if condition == (integrationapi.Condition{}) {
+		return nil
+	}
+
+	result := condition.Into()
+	if result == nil {
+		return nil
+	}
+
+	return result
 }
 
 func fromRequestRoles(roles []integrationapi.ProjectRequestRole) ([]workspace.Role, bool) {
