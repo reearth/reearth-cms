@@ -37,16 +37,12 @@ type ProjectIdAlias struct {
 	Alias string `json:"alias"`
 }
 
-func NewEvent(e *event.Event[any], v string) (Event, error) {
-	return NewEventWith(e, nil, v)
-}
-
-func NewEventWith(e *event.Event[any], override any, v string) (Event, error) {
+func NewEventWith(e *event.Event[any], override any) (Event, error) {
 	if override == nil {
 		override = e.Object()
 	}
 
-	d, err := New(override, v)
+	d, err := New(override)
 	if err != nil {
 		return Event{}, err
 	}

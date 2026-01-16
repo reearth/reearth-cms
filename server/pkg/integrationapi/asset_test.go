@@ -17,7 +17,7 @@ func TestToAssetFile(t *testing.T) {
 	f2 := asset.NewFile().Name("a").Path("/a").Size(10).Files([]*asset.File{f3}).Build()
 	f1 := asset.NewFile().Name("").Path("/").Size(11).Files([]*asset.File{f2}).Build()
 
-	a := ToAssetFile(f1, true)
+	a := NewAssetFile(f1, true)
 	e := &File{
 		Name:        lo.ToPtr(""),
 		Path:        lo.ToPtr("/"),
@@ -42,7 +42,7 @@ func TestToAssetFile(t *testing.T) {
 	}
 	assert.Equal(t, e, a)
 
-	a = ToAssetFile(f1, false)
+	a = NewAssetFile(f1, false)
 	e = &File{
 		Name:        lo.ToPtr(""),
 		Path:        lo.ToPtr("/"),
@@ -51,7 +51,7 @@ func TestToAssetFile(t *testing.T) {
 	}
 	assert.Equal(t, e, a)
 
-	assert.Nil(t, ToAssetFile(nil, true))
+	assert.Nil(t, NewAssetFile(nil, true))
 }
 
 func Test_NewAsset(t *testing.T) {
@@ -162,7 +162,7 @@ func TestToAssetArchiveExtractionStatus(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			result := ToAssetArchiveExtractionStatus(tt.input)
+			result := NewAssetArchiveExtractionStatus(tt.input)
 			assert.Equal(t, result, tt.expected)
 		})
 	}
@@ -229,7 +229,7 @@ func TestToPreviewType(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			result := ToPreviewType(tt.input)
+			result := NewPreviewType(tt.input)
 			assert.Equal(t, tt.expected, result)
 		})
 	}

@@ -83,7 +83,7 @@ func TestItem_ClearField(t *testing.T) {
 	i := &Item{fields: []*Field{f1, f2, f3}}
 
 	i.ClearField(fid2)
-	assert.Equal(t, []*Field{f1, f3}, i.fields)
+	assert.Equal(t, Fields{f1, f3}, i.fields)
 }
 
 func TestItem_ClearReferenceFields(t *testing.T) {
@@ -98,7 +98,7 @@ func TestItem_ClearReferenceFields(t *testing.T) {
 	i := &Item{fields: []*Field{f1, f2, f3}}
 
 	i.ClearReferenceFields()
-	assert.Equal(t, []*Field{f1, f2}, i.fields)
+	assert.Equal(t, Fields{f1, f2}, i.fields)
 }
 
 func TestItem_Filtered(t *testing.T) {

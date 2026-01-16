@@ -50,7 +50,7 @@ func FromValueType(t *ValueType) value.Type {
 	}
 }
 
-func ToValueType(t value.Type) ValueType {
+func NewValueType(t value.Type) ValueType {
 	switch t {
 	case value.TypeText:
 		return ValueTypeText
@@ -91,21 +91,19 @@ func ToValueType(t value.Type) ValueType {
 	}
 }
 
-func ToValues(v *value.Multiple, sf *schema.Field, assets *AssetContext) any {
+func NewValues(v *value.Multiple, sf *schema.Field, cc *ConvertContext) any {
 	if !sf.Multiple() {
-		return ToValue(v.First(), sf, assets)
+		return NewValue(v.First(), sf, cc)
 	}
 	return lo.Map(v.Values(), func(v *value.Value, _ int) any {
-		return ToValue(v, sf, assets)
+		return NewValue(v, sf, cc)
 	})
 }
 
-func ToValue(v *value.Value, sf *schema.Field, assets *AssetContext) any {
-	if assets != nil {
+func NewValue(v *value.Value, sf *schema.Field, cc *ConvertContext) any {
+	if sf.Type() == value.TypeAsset && cc.ShouldEmbedAsset() {
 		if aid, ok := v.ValueAsset(); ok {
-			if a2 := assets.ResolveAsset(aid); a2 != nil {
-				return a2
-			}
+			return cc.ResolveAsset(aid)
 		}
 	}
 
