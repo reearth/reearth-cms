@@ -4,7 +4,7 @@ import { useCallback, useMemo } from "react";
 import Card from "@reearth-cms/components/atoms/Card";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Modal from "@reearth-cms/components/atoms/Modal";
+import { useModal } from "@reearth-cms/components/atoms/Modal";
 import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
@@ -33,6 +33,8 @@ const ModelCard: React.FC<Props> = ({
   onModelExport,
 }) => {
   const t = useT();
+  const { confirm, error } = useModal();
+
   const { Meta } = Card;
 
   const OptionsMenuItems = useMemo(
@@ -56,7 +58,7 @@ const ModelCard: React.FC<Props> = ({
 
   const handleCSVExport = useCallback(
     async (exportType: ExportFormat) => {
-      Modal.confirm({
+      confirm({
         width: 550,
         title: t("Export as CSV"),
         content: (
@@ -69,13 +71,12 @@ const ModelCard: React.FC<Props> = ({
           </ModalContent>
         ),
         okText: t("Export CSV"),
-        cancelText: t("Cancel"),
         async onOk() {
           await onModelExport(model.id, exportType);
         },
       });
     },
-    [model.id, onModelExport, t],
+    [confirm, model.id, onModelExport, t],
   );
 
   const getGeometryFieldsCount = useCallback(() => {
@@ -92,7 +93,7 @@ const ModelCard: React.FC<Props> = ({
     async (exportType: ExportFormat) => {
       const geoFieldsCount = getGeometryFieldsCount();
       if (geoFieldsCount === 0) {
-        Modal.error({
+        error({
           title: t("Cannot export GeoJSON"),
           content: (
             <ModalContent>
@@ -106,7 +107,7 @@ const ModelCard: React.FC<Props> = ({
           okText: t("OK"),
         });
       } else if (geoFieldsCount > 1) {
-        Modal.confirm({
+        confirm({
           width: 550,
           title: t("Multiple Geometry fields detected"),
           content: (
@@ -121,7 +122,6 @@ const ModelCard: React.FC<Props> = ({
             </ModalContent>
           ),
           okText: t("Export Anyway"),
-          cancelText: t("Cancel"),
           async onOk() {
             await onModelExport(model.id, exportType);
           },
@@ -130,7 +130,7 @@ const ModelCard: React.FC<Props> = ({
         await onModelExport(model.id, exportType);
       }
     },
-    [getGeometryFieldsCount, model.id, onModelExport, t],
+    [confirm, error, getGeometryFieldsCount, model.id, onModelExport, t],
   );
 
   const handleModelExportClick = useCallback(

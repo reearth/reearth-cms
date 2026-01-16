@@ -99,6 +99,7 @@ import Text from "./Icons/textT.svg";
 import Trash from "./Icons/trash.svg";
 import Unzip from "./Icons/unzip.svg";
 import WorkspaceSettings from "./Icons/workspaceSettings.svg";
+import ExclamationSolid from "./Icons/exclamationSolid.svg";
 
 export default {
   home: HomeOutlined,
@@ -199,4 +200,5 @@ export default {
   lock: LockOutlined,
   block: BlockOutlined,
   read: ReadOutlined,
+  exclamationSolid: ExclamationSolid,
 };

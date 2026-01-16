@@ -1,7 +1,7 @@
-import { Modal } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import { useModal } from "@reearth-cms/components/atoms/Modal";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
@@ -44,7 +44,7 @@ import { useModel, useCollapsedModelMenu, useUserRights } from "@reearth-cms/sta
 
 export default () => {
   const t = useT();
-  const { confirm } = Modal;
+  const { confirm, error } = useModal();
   const navigate = useNavigate();
   const { projectId, workspaceId, modelId: schemaId } = useParams();
   const [currentModel, setCurrentModel] = useModel();
@@ -345,10 +345,10 @@ export default () => {
       if (!isGroupDeletable) {
         handleGroupDeletionModalClose();
         const modelNames = modelsByGroup?.map(model => model?.name).join(", ");
-        Modal.error({
+        error({
           title: t("Group cannot be deleted"),
           content: `
-          ${group?.name}${t("is used in", { modelNames })}  
+          ${group?.name}${t("is used in", { modelNames })}
           ${t("If you want to delete it, please delete the field that uses it first.")}`,
         });
         return;
@@ -365,6 +365,7 @@ export default () => {
     },
     [
       deleteGroup,
+      error,
       group?.name,
       handleGroupDeletionModalClose,
       modelsByGroupData?.modelsByGroup,
@@ -435,7 +436,6 @@ export default () => {
           title: t("No available Group"),
           content: t("Please create a Group first to use the field"),
           okText: t("Create Group"),
-          cancelText: t("Cancel"),
           onOk() {
             handleGroupModalOpen();
           },

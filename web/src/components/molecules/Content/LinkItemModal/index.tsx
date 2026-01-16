@@ -4,6 +4,7 @@ import { useCallback, useMemo } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
+import { useModal } from "@reearth-cms/components/atoms/Modal";
 import {
   StretchColumn,
   ListToolBarProps,
@@ -63,7 +64,8 @@ const LinkItemModal: React.FC<Props> = ({
   onCheckItemReference,
 }) => {
   const t = useT();
-  const { confirm } = Modal;
+  const { confirm } = useModal();
+
   const { value, pagination, handleInput } = useHooks(
     linkItemModalTotalCount,
     linkItemModalPage,
@@ -105,7 +107,6 @@ const LinkItemModal: React.FC<Props> = ({
           content: t(
             "Are you going to refer to it? The previous reference will be canceled automatically",
           ),
-          icon: <Icon icon="exclamationCircle" />,
           onOk() {
             handleChange(item.id);
           },

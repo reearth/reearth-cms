@@ -5,7 +5,7 @@ import ReactDragListView from "react-drag-listview";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
-import Modal from "@reearth-cms/components/atoms/Modal";
+import Popconfirm from "@reearth-cms/components/atoms/PopConfirm";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { Trans, useT } from "@reearth-cms/i18n";
 
@@ -23,7 +23,6 @@ type Props = {
   onSchemaImport?: () => void;
 };
 
-const { confirm } = Modal;
 const ModelFieldList: React.FC<Props> = ({
   fields,
   isMeta,
@@ -35,21 +34,6 @@ const ModelFieldList: React.FC<Props> = ({
   onSchemaImport,
 }) => {
   const t = useT();
-
-  const handleFieldDeleteConfirmation = useCallback(
-    (fieldId: string, name: string) => {
-      confirm({
-        content: <Trans i18nKey="Are you sure you want to delete this field?" values={{ name }} />,
-        icon: <Icon icon="exclamationCircle" />,
-        cancelText: t("Cancel"),
-        maskClosable: true,
-        async onOk() {
-          await onFieldDelete(fieldId);
-        },
-      });
-    },
-    [onFieldDelete, t],
-  );
 
   const [data, setData] = useState(fields);
 
@@ -134,14 +118,26 @@ const ModelFieldList: React.FC<Props> = ({
                 className="draggable-item"
                 key={index}
                 actions={[
-                  <Button
-                    type="text"
-                    shape="circle"
-                    size="small"
-                    onClick={() => handleFieldDeleteConfirmation(item.id, item.title)}
-                    icon={<Icon icon="delete" color="#8c8c8c" />}
-                    disabled={!hasDeleteRight}
-                  />,
+                  <Popconfirm
+                    title={
+                      <Trans
+                        i18nKey="Delete {{name}} field?"
+                        values={{ name: item.title }}
+                        components={{ u: <StyledFieldName /> }}
+                      />
+                    }
+                    onConfirm={async () => await onFieldDelete(item.id)}
+                    okText={t("Delete field")}
+                    okButtonProps={{ danger: true }}
+                    cancelText={t("Cancel")}>
+                    <Button
+                      type="text"
+                      shape="circle"
+                      size="small"
+                      icon={<Icon icon="delete" color="#8c8c8c" />}
+                      disabled={!hasDeleteRight}
+                    />
+                  </Popconfirm>,
                   <Button
                     type="text"
                     shape="circle"
@@ -280,6 +276,10 @@ const EmptyText = styled.p`
   margin: 25vh auto 0;
   color: #898989;
   text-align: center;
+`;
+
+const StyledFieldName = styled.span`
+  text-decoration: underline;
 `;
 
 export default ModelFieldList;
