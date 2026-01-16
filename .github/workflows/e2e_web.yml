@@ -84,7 +84,7 @@ jobs:
         run: echo "version=$( node -e "console.log(require('@playwright/test/package.json').version)" )" >> $GITHUB_OUTPUT
       - name: Cache Playwright browsers
         id: playwright-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: "${{ runner.os }}-playwright-chromium-${{ steps.playwright-version.outputs.version }}"
@@ -127,7 +127,7 @@ jobs:
           IAP_AUTH_METHOD: ${{ inputs.token_format || 'id-token' }}
           IAP_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
         run: ${{ inputs.smoke_only && 'yarn e2e-smoke' || 'yarn e2e' }}
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         if: failure()
         with:
           name: test-results

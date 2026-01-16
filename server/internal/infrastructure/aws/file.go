@@ -631,3 +631,7 @@ func getWorkspaceFromContext(ctx context.Context) string {
 	}
 	return ""
 }
+
+func (f *fileRepo) Check(ctx context.Context) error {
+	return nil
+}

@@ -13,7 +13,7 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useUserRights, useWorkspace } from "@reearth-cms/state";
-import { ObjectUtils } from "@reearth-cms/utils/object";
+import { shallowEqual } from "@reearth-cms/utils/object";
 
 export default () => {
   const t = useT();
@@ -83,8 +83,7 @@ export default () => {
 
       try {
         const accessibilityChanged =
-          initialValues.assetPublic !== assetPublic ||
-          !ObjectUtils.shallowEqual(initialValues.models, models);
+          initialValues.assetPublic !== assetPublic || !shallowEqual(initialValues.models, models);
 
         if (accessibilityChanged) {
           const publicModels = Object.entries(models)

@@ -25,7 +25,7 @@ export class LoginPage {
 
     // Auth0 login form
     this.auth0EmailInput = this.page.getByLabel("Email address");
-    this.auth0PasswordInput = this.page.getByLabel("Password");
+    this.auth0PasswordInput = this.page.getByLabel("Password").first();
     this.auth0ContinueButton = this.page.getByRole("button", { name: "Continue", exact: true });
     this.auth0SkipPasskeyButton = this.page.getByRole("button", {
       name: "Continue without passkeys",

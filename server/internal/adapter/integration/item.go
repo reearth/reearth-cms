@@ -88,9 +88,11 @@ func (s *Server) ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONReque
 	}
 
 	req := interfaces.ExportItemParams{
-		ModelID:       wp.Model.ID(),
-		Format:        exporters.FormatGeoJSON,
-		Options:       exporters.ExportOptions{},
+		ModelID: wp.Model.ID(),
+		Format:  exporters.FormatGeoJSON,
+		Options: exporters.ExportOptions{
+			IncludeAssets: true,
+		},
 		SchemaPackage: *sp,
 	}
 

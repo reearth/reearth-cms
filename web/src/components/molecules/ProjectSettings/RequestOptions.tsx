@@ -106,30 +106,26 @@ const RequestOptions: React.FC<Props> = ({
 
   return (
     <>
-      <SecondaryText>
+      <SeondaryText>
         {t("If this option is chosen, all new model within the project will default follow it.")}
-      </SecondaryText>
+      </SeondaryText>
       <TableWrapper>
         <Table dataSource={dataSource} columns={columns} pagination={false} />
       </TableWrapper>
-      <StyledButton type="primary" disabled={isDisabled} onClick={handleSave} loading={isLoading}>
+      <Button type="primary" disabled={isDisabled} onClick={handleSave} loading={isLoading}>
         {t("Save changes")}
-      </StyledButton>
+      </Button>
     </>
   );
 };
 
 export default RequestOptions;
 
-const SecondaryText = styled.div`
+const SeondaryText = styled.div`
   color: #00000073;
 `;
 
 const TableWrapper = styled.div`
   margin: 24px 0;
   max-width: 400px;
-`;
-
-const StyledButton = styled(Button)`
-  width: fit-content;
 `;

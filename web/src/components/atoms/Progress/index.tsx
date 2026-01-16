@@ -1,5 +1,3 @@
-import { Progress, type ProgressProps } from "antd";
+import { Progress } from "antd";
 
 export default Progress;
-
-export { ProgressProps };

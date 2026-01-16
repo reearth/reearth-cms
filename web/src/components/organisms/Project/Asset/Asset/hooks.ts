@@ -36,7 +36,7 @@ import {
 } from "@reearth-cms/gql/graphql-client-api";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
-import { FileUtils } from "@reearth-cms/utils/file";
+import { getExtension } from "@reearth-cms/utils/file";
 
 export default (assetId?: string) => {
   const t = useT();
@@ -149,7 +149,7 @@ export default (assetId?: string) => {
     [convertedAsset?.previewType],
   );
 
-  const assetFileExt = FileUtils.getExtension(convertedAsset?.fileName);
+  const assetFileExt = getExtension(convertedAsset?.fileName);
 
   const viewerType = useMemo((): ViewerType | undefined => {
     if (!selectedPreviewType || !assetFileExt) return;
