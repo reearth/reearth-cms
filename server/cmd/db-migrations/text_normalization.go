@@ -3,18 +3,48 @@ package main
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type AssetDocumentForNormalization struct {
-	ID       interface{} `bson:"_id"`
-	FileName string      `bson:"filename"`
+	ID       string `bson:"_id,omitempty"`
+	FileName string `bson:"filename"`
+}
+
+func (d AssetDocumentForNormalization) GetID() primitive.ObjectID {
+	id, err := primitive.ObjectIDFromHex(d.ID)
+	if err != nil {
+		fmt.Printf("failed to parse asset id: %v\n", d.ID)
+		return primitive.NilObjectID
+	}
+	return id
+}
+
+type ItemDocumentForTextNormalization struct {
+	ID     string `bson:"_id,omitempty"`
+	ItemID string `bson:"id"`
+	Fields []struct {
+		F string `bson:"f"`
+		V struct {
+			T string `bson:"t"`
+			V []any  `bson:"v"`
+		} `bson:"v"`
+	} `bson:"fields"`
+}
+
+func (d ItemDocumentForTextNormalization) GetID() primitive.ObjectID {
+	id, err := primitive.ObjectIDFromHex(d.ID)
+	if err != nil {
+		fmt.Printf("failed to parse item id: %v\n", d.ID)
+		return primitive.NilObjectID
+	}
+	return id
 }
 
 func TextNormalizationMigration(ctx context.Context, dbURL, dbName string, wetRun bool) error {
@@ -22,12 +52,6 @@ func TextNormalizationMigration(ctx context.Context, dbURL, dbName string, wetRu
 	if err != nil {
 		return fmt.Errorf("db: failed to init client err: %w", err)
 	}
-	defer func() {
-		if err := client.Disconnect(ctx); err != nil {
-			fmt.Printf("Warning: failed to disconnect client: %v\n", err)
-		}
-	}()
-
 	db := client.Database(dbName)
 
 	// Run asset filename normalization
@@ -48,10 +72,10 @@ func TextNormalizationMigration(ctx context.Context, dbURL, dbName string, wetRu
 // normalizeAssetFilenames normalizes asset filename fields
 func normalizeAssetFilenames(ctx context.Context, db *mongo.Database, wetRun bool) error {
 	fmt.Println("=== Asset Filename Normalization ===")
+	testID := ""
 
 	col := db.Collection("asset")
 	filter := bson.M{}
-	testID := ""
 
 	if testID != "" {
 		filter = bson.M{
@@ -77,90 +101,34 @@ func normalizeAssetFilenames(ctx context.Context, db *mongo.Database, wetRun boo
 		return nil
 	}
 
-	fmt.Printf("Starting asset filename normalization migration...\n")
+	fmt.Printf("Starting asset filename normalization...\n")
 
-	batchSize := 1000
-	opts := options.Find().SetBatchSize(int32(batchSize))
-
-	cursor, err := col.Find(ctx, filter, opts)
+	_, err := BatchUpdate(ctx, col, filter, 1000, updateAssetFilename)
 	if err != nil {
-		return fmt.Errorf("failed to query collection: %w", err)
+		return fmt.Errorf("failed to apply batches: %w", err)
 	}
-	defer func() {
-		if err := cursor.Close(ctx); err != nil {
-			fmt.Printf("Warning: failed to close cursor: %v\n", err)
-		}
-	}()
-
-	batch := make([]mongo.WriteModel, 0, batchSize)
-	processed := 0
-	modified := 0
-	startTime := time.Now()
-
-	for cursor.Next(ctx) {
-		if ctx.Err() != nil {
-			return ctx.Err()
-		}
-
-		var assetDoc AssetDocumentForNormalization
-		if err := cursor.Decode(&assetDoc); err != nil {
-			return fmt.Errorf("failed to decode document: %w", err)
-		}
-
-		normalizedFileName := asset.NormalizeText(assetDoc.FileName)
-
-		if assetDoc.FileName != normalizedFileName {
-			fmt.Printf("Normalizing asset filename: '%s' -> '%s'\n", assetDoc.FileName, normalizedFileName)
-
-			update := mongo.NewUpdateOneModel().
-				SetFilter(bson.M{"_id": assetDoc.ID}).
-				SetUpdate(bson.M{"$set": bson.M{"filename": normalizedFileName}})
-
-			batch = append(batch, update)
-			modified++
-		}
-
-		processed++
-
-		if len(batch) >= batchSize {
-			if err := executeBatch(ctx, col, batch); err != nil {
-				return err
-			}
-
-			elapsed := time.Since(startTime)
-			rate := float64(processed) / elapsed.Seconds()
-			fmt.Printf("Processed %d documents, modified %d (%.2f docs/sec)\n", processed, modified, rate)
-
-			batch = batch[:0]
-		}
-	}
-
-	// Process any remaining documents in the final batch
-	if len(batch) > 0 {
-		if err := executeBatch(ctx, col, batch); err != nil {
-			return err
-		}
-	}
-
-	if err := cursor.Err(); err != nil {
-		return fmt.Errorf("cursor error: %w", err)
-	}
-
-	elapsed := time.Since(startTime)
-	rate := float64(processed) / elapsed.Seconds()
-	fmt.Printf("Migration completed. Processed %d documents, modified %d in %v (%.2f docs/sec)\n",
-		processed, modified, elapsed, rate)
 
 	return nil
+}
+
+func updateAssetFilename(doc AssetDocumentForNormalization) (AssetDocumentForNormalization, error) {
+	normalizedFileName := asset.NormalizeText(doc.FileName)
+
+	if doc.FileName != normalizedFileName {
+		fmt.Printf("Normalizing asset filename: '%s' -> '%s'\n", doc.FileName, normalizedFileName)
+		doc.FileName = normalizedFileName
+	}
+
+	return doc, nil
 }
 
 // normalizeItemTextFields normalizes text field values in items
 func normalizeItemTextFields(ctx context.Context, db *mongo.Database, wetRun bool) error {
 	fmt.Println("=== Item Text Field Normalization ===")
+	testID := ""
 
 	col := db.Collection("item")
 	filter := bson.M{}
-	testID := ""
 
 	if testID != "" {
 		filter = bson.M{
@@ -173,19 +141,7 @@ func normalizeItemTextFields(ctx context.Context, db *mongo.Database, wetRun boo
 		if err != nil {
 			return fmt.Errorf("failed to count docs: %w", err)
 		}
-		fmt.Printf("test mode: filter on asset id '%s' is applied, %d assets selected.\n", testID, count)
-	}
-
-	// Text field types that need normalization
-	textFieldTypes := map[string]bool{
-		"text":           true,
-		"textArea":       true,
-		"richText":       true,
-		"markdown":       true,
-		"select":         true,
-		"tag":            true,
-		"geometryObject": true,
-		"geometryEditor": true,
+		fmt.Printf("test mode: filter on item id '%s' is applied, %d items selected.\n", testID, count)
 	}
 
 	if !wetRun {
@@ -200,117 +156,53 @@ func normalizeItemTextFields(ctx context.Context, db *mongo.Database, wetRun boo
 
 	fmt.Println("Starting item text field normalization...")
 
-	batchSize := 1000
-	cursor, err := col.Find(ctx, filter, options.Find().SetBatchSize(int32(batchSize)))
+	_, err := BatchUpdate(ctx, col, filter, 1000, updateItemTextFields)
 	if err != nil {
-		return fmt.Errorf("failed to query collection: %w", err)
+		return fmt.Errorf("failed to apply batches: %w", err)
 	}
-	defer func() {
-		if err := cursor.Close(ctx); err != nil {
-			fmt.Printf("Warning: failed to close cursor: %v\n", err)
-		}
-	}()
-
-	batch := make([]mongo.WriteModel, 0, batchSize)
-	processed := 0
-	modified := 0
-	startTime := time.Now()
-
-	for cursor.Next(ctx) {
-		if ctx.Err() != nil {
-			return ctx.Err()
-		}
-
-		var itemDoc struct {
-			ID     interface{} `bson:"_id"`
-			ItemID string      `bson:"id"`
-			Fields []struct {
-				F string `bson:"f"`
-				V struct {
-					T string `bson:"t"`
-					V []any  `bson:"v"`
-				} `bson:"v"`
-			} `bson:"fields"`
-		}
-		if err := cursor.Decode(&itemDoc); err != nil {
-			return fmt.Errorf("failed to decode document: %w", err)
-		}
-
-		normalizedFields := make([]bson.M, len(itemDoc.Fields))
-		hasChanges := false
-
-		for i, field := range itemDoc.Fields {
-			if !textFieldTypes[field.V.T] {
-				normalizedFields[i] = bson.M{
-					"f": field.F,
-					"v": bson.M{
-						"t": field.V.T,
-						"v": field.V.V,
-					},
-				}
-				continue
-			}
-
-			normalizedValues := make([]any, len(field.V.V))
-			for j, val := range field.V.V {
-				if str, ok := val.(string); ok {
-					normalized := item.NormalizeText(str)
-					if str != normalized {
-						hasChanges = true
-					}
-					normalizedValues[j] = normalized
-				} else {
-					normalizedValues[j] = val
-				}
-			}
-
-			normalizedFields[i] = bson.M{
-				"f": field.F,
-				"v": bson.M{
-					"t": field.V.T,
-					"v": normalizedValues,
-				},
-			}
-		}
-
-		if hasChanges {
-			update := mongo.NewUpdateOneModel().
-				SetFilter(bson.M{"_id": itemDoc.ID}).
-				SetUpdate(bson.M{"$set": bson.M{"fields": normalizedFields}})
-
-			batch = append(batch, update)
-			modified++
-		}
-
-		processed++
-
-		if len(batch) >= batchSize {
-			if err := executeBatch(ctx, col, batch); err != nil {
-				return err
-			}
-
-			elapsed := time.Since(startTime)
-			rate := float64(processed) / elapsed.Seconds()
-			fmt.Printf("Processed %d items, modified %d (%.2f items/sec)\n", processed, modified, rate)
-
-			batch = batch[:0]
-		}
-	}
-
-	if len(batch) > 0 {
-		if err := executeBatch(ctx, col, batch); err != nil {
-			return err
-		}
-	}
-
-	if err := cursor.Err(); err != nil {
-		return fmt.Errorf("cursor error: %w", err)
-	}
-
-	elapsed := time.Since(startTime)
-	rate := float64(processed) / elapsed.Seconds()
-	fmt.Printf("Item migration completed. Processed %d items, modified %d in %v (%.2f items/sec)\n",
-		processed, modified, elapsed, rate)
 
 	return nil
+}
+
+func updateItemTextFields(doc ItemDocumentForTextNormalization) (ItemDocumentForTextNormalization, error) {
+	// Text field types that need normalization
+	textFieldTypes := map[string]bool{
+		"text":           true,
+		"textArea":       true,
+		"richText":       true,
+		"markdown":       true,
+		"select":         true,
+		"tag":            true,
+		"geometryObject": true,
+		"geometryEditor": true,
+	}
+
+	hasChanges := false
+
+	for i, field := range doc.Fields {
+		if !textFieldTypes[field.V.T] {
+			continue
+		}
+
+		normalizedValues := make([]any, len(field.V.V))
+		for j, val := range field.V.V {
+			if str, ok := val.(string); ok {
+				normalized := item.NormalizeText(str)
+				if str != normalized {
+					hasChanges = true
+				}
+				normalizedValues[j] = normalized
+			} else {
+				normalizedValues[j] = val
+			}
+		}
+
+		doc.Fields[i].V.V = normalizedValues
+	}
+
+	if hasChanges {
+		fmt.Printf("Normalized text fields in item %s\n", doc.ItemID)
+	}
+
+	return doc, nil
 }
