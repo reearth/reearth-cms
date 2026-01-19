@@ -4,7 +4,7 @@ import { useCallback, useMemo } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Modal from "@reearth-cms/components/atoms/Modal";
+import { useModal } from "@reearth-cms/components/atoms/Modal";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import { useT } from "@reearth-cms/i18n";
 
@@ -28,21 +28,20 @@ const APIKeyTable: React.FC<Props> = ({
   onAPIKeyEdit,
 }) => {
   const t = useT();
+  const { confirm } = useModal();
 
   const confirmDelete = useCallback(
     async (id: string) => {
-      Modal.confirm({
+      confirm({
         title: t("Are you sure you want to delete this API key?"),
         content: t("This action is not reversible."),
-        icon: <Icon icon="exclamationCircle" />,
         okText: t("Delete"),
-        cancelText: t("Cancel"),
         async onOk() {
           await onAPIKeyDelete(id);
         },
       });
     },
-    [onAPIKeyDelete, t],
+    [confirm, onAPIKeyDelete, t],
   );
 
   const renderActions = useCallback(

@@ -1,5 +1,5 @@
 import { AndConditionInput } from "@reearth-cms/components/molecules/View/types";
-import { AndCondition as GQLAndCondition } from "@reearth-cms/gql/graphql-client-api";
+import { AndCondition as GQLAndCondition } from "@reearth-cms/gql/__generated__/graphql.generated";
 
 export function fileName(url: string | undefined): string {
   if (!url) return "";
