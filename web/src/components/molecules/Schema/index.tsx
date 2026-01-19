@@ -5,7 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
-import Modal from "@reearth-cms/components/atoms/Modal";
+import { useModal } from "@reearth-cms/components/atoms/Modal";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Tabs, { TabsProps } from "@reearth-cms/components/atoms/Tabs";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
@@ -143,17 +143,17 @@ const Schema: React.FC<Props> = ({
   toImportingStep,
 }) => {
   const t = useT();
+  const { confirm } = useModal();
+
   const [tab, setTab] = useState<Tab>("fields");
 
   const handleSchemaImport = useCallback(() => {
     if (data?.schema.fields && data.schema.fields.length > 0) {
-      Modal.confirm({
+      confirm({
         title: t("Are you sure you want to overwrite current schema?"),
         content: (
           <>{t("Importing a new schema will replace the existing fields and cannot be undone.")}</>
         ),
-        icon: <Icon icon="exclamationCircle" />,
-        cancelText: t("Cancel"),
         okText: t("Continue"),
         onOk() {
           onSchemaImportModalOpen();
@@ -162,7 +162,7 @@ const Schema: React.FC<Props> = ({
     } else {
       onSchemaImportModalOpen();
     }
-  }, [data?.schema.fields, onSchemaImportModalOpen, t]);
+  }, [confirm, data?.schema.fields, onSchemaImportModalOpen, t]);
 
   const dropdownItems = useMemo(
     () => [

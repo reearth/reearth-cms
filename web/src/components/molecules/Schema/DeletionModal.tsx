@@ -1,7 +1,9 @@
+import { gold } from "@ant-design/colors";
+import styled from "@emotion/styled";
 import { useMemo } from "react";
 
-import Alert from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
+import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
@@ -25,28 +27,35 @@ const DeletionModal: React.FC<Props> = ({
   isModel,
 }) => {
   const t = useT();
-  const title = useMemo(() => (isModel ? t("Delete Model") : t("Delete Group")), [isModel, t]);
-  const confirmation = useMemo(
-    () =>
-      isModel ? (
-        <Trans i18nKey="Are you sure you want to delete this model" values={{ name: data?.name }} />
-      ) : (
-        <Trans i18nKey="Are you sure you want to delete this group" values={{ name: data?.name }} />
-      ),
+  const title = useMemo(
+    () => (
+      <Trans
+        i18nKey={isModel ? "Delete {{name}} model?" : "Delete {{name}} group?"}
+        values={{ name: data?.name }}
+        components={{ u: <StyledDeleteItemName /> }}
+      />
+    ),
     [data?.name, isModel],
   );
 
-  const description = useMemo(
-    () =>
-      isModel
-        ? t("This action will permanently delete the selected model and cannot be reversed.")
-        : t("This action will permanently delete the selected group and cannot be reversed."),
+  const confirmMessage = useMemo(
+    () => (isModel ? t("Confirm delete model message") : t("Confirm delete group message")),
+    [isModel, t],
+  );
+
+  const confirmBtnText = useMemo(
+    () => (isModel ? t("Delete model") : t("Delete group")),
     [isModel, t],
   );
 
   return (
     <Modal
-      title={title}
+      title={
+        <StyledTitle>
+          <StyledIcon icon="exclamationSolid" color={gold[5]} size={22} />
+          <span>{title}</span>
+        </StyledTitle>
+      }
       open={open}
       onCancel={onClose}
       footer={[
@@ -59,13 +68,25 @@ const DeletionModal: React.FC<Props> = ({
           onClick={() => onDelete(data?.id)}
           danger
           loading={deleteLoading}>
-          {title}
+          {confirmBtnText}
         </Button>,
       ]}>
-      <p>{confirmation}</p>
-      <Alert message={t("Warning")} description={description} type="warning" showIcon />
+      <p>{confirmMessage}</p>
     </Modal>
   );
 };
 
 export default DeletionModal;
+
+const StyledDeleteItemName = styled.span`
+  text-decoration: underline;
+`;
+
+const StyledTitle = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const StyledIcon = styled(Icon)`
+  margin-right: 12px;
+`;

@@ -3,7 +3,7 @@ import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Modal from "@reearth-cms/components/atoms/Modal";
+import Modal, { useModal } from "@reearth-cms/components/atoms/Modal";
 import Steps from "@reearth-cms/components/atoms/Step";
 import {
   UploadProps,
@@ -112,6 +112,7 @@ const ImportSchemaModal: React.FC<Props> = ({
   onModalClose,
 }) => {
   const t = useT();
+  const { confirm } = useModal();
 
   const handleFieldReorder = useCallback(
     (list: CreateFieldInput[], startIndex: number, endIndex: number) => {
@@ -153,17 +154,15 @@ const ImportSchemaModal: React.FC<Props> = ({
 
   const confirmFieldDeletion = useCallback(
     (fieldId: string, name: string) => {
-      Modal.confirm({
+      confirm({
         content: <Trans i18nKey="Are you sure you want to delete this field?" values={{ name }} />,
-        icon: <Icon icon="exclamationCircle" />,
-        cancelText: t("Cancel"),
         maskClosable: true,
         onOk() {
           handleFieldDelete(fieldId);
         },
       });
     },
-    [handleFieldDelete, t],
+    [confirm, handleFieldDelete],
   );
 
   const fieldTypeOptions = useMemo(() => {
