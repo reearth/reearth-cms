@@ -22,13 +22,13 @@ type propertyString struct{}
 
 type String = string
 
-func normalizeString(s string) string {
+func NormalizeText(s string) string {
 	return norm.NFKC.String(s)
 }
 
 func (p *propertyString) ToValue(i any) (any, bool) {
 	if v, ok := i.(string); ok {
-		return normalizeString(v), true
+		return NormalizeText(v), true
 	} else if v, ok := i.(float64); ok {
 		return strconv.FormatFloat(v, 'f', -1, 64), true
 	} else if v, ok := i.(bool); ok && v {
