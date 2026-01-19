@@ -2,9 +2,8 @@ import styled from "@emotion/styled";
 import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Icon from "@reearth-cms/components/atoms/Icon";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
-import Modal from "@reearth-cms/components/atoms/Modal";
+import { useModal } from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
@@ -14,13 +13,11 @@ type Props = {
 
 const DangerZone: React.FC<Props> = ({ hasDeleteRight, onWorkspaceDelete }) => {
   const t = useT();
-  const { confirm } = Modal;
+  const { confirm } = useModal();
 
   const handleWorkspaceDeleteConfirmation = useCallback(() => {
     confirm({
       title: t("Are you sure you want to delete this workspace?"),
-      icon: <Icon icon="exclamationCircle" />,
-      cancelText: t("Cancel"),
       async onOk() {
         await onWorkspaceDelete();
       },
