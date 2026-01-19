@@ -22,7 +22,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import mapPinFilled from "@reearth-cms/components/atoms/Icon/Icons/mapPinFilled.svg";
-import Modal from "@reearth-cms/components/atoms/Modal";
+import { useModal } from "@reearth-cms/components/atoms/Modal";
 import Search from "@reearth-cms/components/atoms/Search";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
@@ -74,6 +74,7 @@ const GeometryItem: React.FC<Props> = ({
   errorDelete,
 }) => {
   const t = useT();
+  const { confirm } = useModal();
 
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
 
@@ -339,11 +340,10 @@ const GeometryItem: React.FC<Props> = ({
     }
   }, []);
 
-  const confirm = useCallback(
+  const handleConfirm = useCallback(
     (newSketchType: DrawType) => {
-      Modal.confirm({
+      confirm({
         title: t("You are entering a new value"),
-        icon: <Icon icon="exclamationCircle" />,
         content: (
           <div>
             <p>
@@ -362,13 +362,12 @@ const GeometryItem: React.FC<Props> = ({
           </div>
         ),
         okText: t("Continue"),
-        cancelText: t("Cancel"),
         onOk() {
           setType(newSketchType);
         },
       });
     },
-    [setType, t],
+    [confirm, setType, t],
   );
 
   const sketchButtonClick = useCallback(
@@ -376,12 +375,12 @@ const GeometryItem: React.FC<Props> = ({
       if (sketchType === newSketchType) {
         setType();
       } else if (value && !localStorage.getItem(LOCALSTORAGE_KEY)) {
-        confirm(newSketchType);
+        handleConfirm(newSketchType);
       } else {
         setType(newSketchType);
       }
     },
-    [confirm, setType, sketchType, value],
+    [handleConfirm, setType, sketchType, value],
   );
 
   const handleZoom = useCallback((delta: number) => {

@@ -332,6 +332,14 @@ export const DELETE_ITEM = gql`
   }
 `;
 
+export const DELETE_ITEMS = gql`
+  mutation DeleteItems($itemIds: [ID!]!) {
+    deleteItems(input: { itemIds: $itemIds }) {
+      itemIds
+    }
+  }
+`;
+
 export const UPDATE_ITEM = gql`
   mutation UpdateItem(
     $itemId: ID!

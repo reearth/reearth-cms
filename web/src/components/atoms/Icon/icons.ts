@@ -75,6 +75,7 @@ import CurlyBrackets from "./Icons/curlyBrackets.svg";
 import Date from "./Icons/date.svg";
 import Dot from "./Icons/dot.svg";
 import EditorCopy from "./Icons/editorCopy.svg";
+import ExclamationSolid from "./Icons/exclamationSolid.svg";
 import Group from "./Icons/group.svg";
 import InfinityIcon from "./Icons/infinity.svg";
 import Key from "./Icons/key.svg";
@@ -199,4 +200,5 @@ export default {
   lock: LockOutlined,
   block: BlockOutlined,
   read: ReadOutlined,
+  exclamationSolid: ExclamationSolid,
 };

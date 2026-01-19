@@ -499,6 +499,15 @@ export type DeleteItemPayload = {
   itemId: Scalars["ID"]["output"];
 };
 
+export type DeleteItemsInput = {
+  itemIds: Array<Scalars["ID"]["input"]>;
+};
+
+export type DeleteItemsPayload = {
+  __typename?: "DeleteItemsPayload";
+  itemIds: Array<Scalars["ID"]["output"]>;
+};
+
 export type DeleteMeInput = {
   userId: Scalars["ID"]["input"];
 };
@@ -680,6 +689,21 @@ export type GuessSchemaFieldResult = {
 export type GuessSchemaFieldsInput = {
   assetId: Scalars["ID"]["input"];
   modelId: Scalars["ID"]["input"];
+};
+
+export type ImportItemsInput = {
+  file: Scalars["Upload"]["input"];
+  geoField?: InputMaybe<Scalars["String"]["input"]>;
+  modelId: Scalars["ID"]["input"];
+};
+
+export type ImportItemsPayload = {
+  __typename?: "ImportItemsPayload";
+  ignoredCount: Scalars["Int"]["output"];
+  insertedCount: Scalars["Int"]["output"];
+  modelId: Scalars["ID"]["output"];
+  totalCount: Scalars["Int"]["output"];
+  updatedCount: Scalars["Int"]["output"];
 };
 
 export type Integration = Node & {
@@ -924,6 +948,7 @@ export type Mutation = {
   deleteIntegration?: Maybe<DeleteIntegrationPayload>;
   deleteIntegrations?: Maybe<DeleteIntegrationsPayload>;
   deleteItem?: Maybe<DeleteItemPayload>;
+  deleteItems?: Maybe<DeleteItemsPayload>;
   deleteMe?: Maybe<DeleteMePayload>;
   deleteModel?: Maybe<DeleteModelPayload>;
   deleteProject?: Maybe<DeleteProjectPayload>;
@@ -933,6 +958,7 @@ export type Mutation = {
   deleteWorkspace?: Maybe<DeleteWorkspacePayload>;
   exportModel?: Maybe<ExportModelPayload>;
   exportModelSchema?: Maybe<ExportModelSchemaPayload>;
+  importItems?: Maybe<ImportItemsPayload>;
   publishItem?: Maybe<PublishItemPayload>;
   regenerateAPIKey?: Maybe<ApiKeyPayload>;
   regenerateIntegrationToken?: Maybe<IntegrationPayload>;
@@ -1080,6 +1106,10 @@ export type MutationDeleteItemArgs = {
   input: DeleteItemInput;
 };
 
+export type MutationDeleteItemsArgs = {
+  input: DeleteItemsInput;
+};
+
 export type MutationDeleteMeArgs = {
   input: DeleteMeInput;
 };
@@ -1114,6 +1144,10 @@ export type MutationExportModelArgs = {
 
 export type MutationExportModelSchemaArgs = {
   input: ExportModelSchemaInput;
+};
+
+export type MutationImportItemsArgs = {
+  input: ImportItemsInput;
 };
 
 export type MutationPublishItemArgs = {
@@ -1461,6 +1495,7 @@ export type QueryCheckModelKeyAvailabilityArgs = {
 
 export type QueryCheckProjectAliasArgs = {
   alias: Scalars["String"]["input"];
+  workspaceId: Scalars["ID"]["input"];
 };
 
 export type QueryCheckWorkspaceProjectLimitsArgs = {

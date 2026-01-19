@@ -182,15 +182,14 @@ func TestInternalListProjectsAPI(t *testing.T) {
 		l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{
 			WorkspaceIds: []string{wId0.String()},
 			PublicOnly:   false,
-			Topics:       []string{"topic1", "topic2"},
+			Topics:       []string{"topic1", "topic3"},
 		})
 		assert.NoError(t, err)
 
-		assert.Equal(t, int64(2), l.TotalCount)
-		assert.Equal(t, 2, len(l.Projects))
+		assert.Equal(t, int64(1), l.TotalCount)
+		assert.Equal(t, 1, len(l.Projects))
 
 		assert.Equal(t, pid.String(), l.Projects[0].Id)
-		assert.Equal(t, pid2.String(), l.Projects[1].Id)
 	})
 
 	t.Run("List Projects with non-existence topics", func(t *testing.T) {
@@ -230,7 +229,7 @@ func TestInternalGetProjectsAPI(t *testing.T) {
 	})
 	mdCtx := metadata.NewOutgoingContext(t.Context(), md)
 
-	p, err := client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: palias})
+	p, err := client.GetProject(mdCtx, &pb.ProjectRequest{WorkspaceIdOrAlias: wId0.String(), ProjectIdOrAlias: palias})
 	assert.NoError(t, err)
 
 	p1 := p.Project
@@ -247,7 +246,7 @@ func TestInternalGetProjectsAPI(t *testing.T) {
 	})
 	mdCtx = metadata.NewOutgoingContext(t.Context(), md)
 
-	p, err = client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: palias})
+	p, err = client.GetProject(mdCtx, &pb.ProjectRequest{WorkspaceIdOrAlias: wId0.String(), ProjectIdOrAlias: palias})
 	assert.NoError(t, err)
 
 	p1 = p.Project
@@ -264,7 +263,7 @@ func TestInternalGetProjectsAPI(t *testing.T) {
 	})
 	mdCtx = metadata.NewOutgoingContext(t.Context(), md)
 
-	p, err = client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: palias})
+	p, err = client.GetProject(mdCtx, &pb.ProjectRequest{WorkspaceIdOrAlias: wId0.String(), ProjectIdOrAlias: palias})
 	assert.NoError(t, err)
 
 	p1 = p.Project
@@ -283,7 +282,7 @@ func TestInternalGetProjectsAPI(t *testing.T) {
 	})
 	mdCtx = metadata.NewOutgoingContext(t.Context(), md)
 
-	p, err = client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: palias2})
+	p, err = client.GetProject(mdCtx, &pb.ProjectRequest{WorkspaceIdOrAlias: wId0.String(), ProjectIdOrAlias: palias2})
 	assert.NoError(t, err)
 
 	p1 = p.Project
@@ -300,7 +299,7 @@ func TestInternalGetProjectsAPI(t *testing.T) {
 	})
 	mdCtx = metadata.NewOutgoingContext(t.Context(), md)
 
-	p, err = client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: palias2})
+	p, err = client.GetProject(mdCtx, &pb.ProjectRequest{WorkspaceIdOrAlias: wId0.String(), ProjectIdOrAlias: palias2})
 	assert.Error(t, err)
 	assert.Equal(t, "rpc error: code = Unknown desc = not found", err.Error())
 	assert.Nil(t, p)
@@ -330,11 +329,11 @@ func TestInternalCheckAliasAPI(t *testing.T) {
 	})
 	mdCtx := metadata.NewOutgoingContext(t.Context(), md)
 
-	p, err := client.CheckAliasAvailability(mdCtx, &pb.AliasAvailabilityRequest{Alias: palias})
+	p, err := client.CheckAliasAvailability(mdCtx, &pb.AliasAvailabilityRequest{WorkspaceId: wId0.String(), Alias: palias})
 	assert.NoError(t, err)
 	assert.False(t, p.Available)
 
-	p, err = client.CheckAliasAvailability(mdCtx, &pb.AliasAvailabilityRequest{Alias: "new_alias"})
+	p, err = client.CheckAliasAvailability(mdCtx, &pb.AliasAvailabilityRequest{WorkspaceId: wId0.String(), Alias: "new_alias"})
 	assert.NoError(t, err)
 	assert.True(t, p.Available)
 }
@@ -433,7 +432,7 @@ func TestInternalUpdateProjectAPI(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Verify the project was updated
-	p, err := client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: "updated_alias"})
+	p, err := client.GetProject(mdCtx, &pb.ProjectRequest{WorkspaceIdOrAlias: wId0.String(), ProjectIdOrAlias: "updated_alias"})
 	assert.NoError(t, err)
 	assert.Equal(t, "Updated Project Name", p.Project.Name)
 	assert.Equal(t, lo.ToPtr("Updated project description"), p.Project.Description)
@@ -450,7 +449,7 @@ func TestInternalUpdateProjectAPI(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Verify topics were updated with unique values only, no duplicates or empty values
-		p, err := client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: pid.String()})
+		p, err := client.GetProject(mdCtx, &pb.ProjectRequest{WorkspaceIdOrAlias: wId0.String(), ProjectIdOrAlias: pid.String()})
 		assert.NoError(t, err)
 		assert.Equal(t, []string{"topic1", "topic2", "topic3"}, p.Project.Topics)
 	})
@@ -463,7 +462,7 @@ func TestInternalUpdateProjectAPI(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Verify topics were not deleted
-		p, err := client.GetProject(mdCtx, &pb.ProjectRequest{ProjectIdOrAlias: pid.String()})
+		p, err := client.GetProject(mdCtx, &pb.ProjectRequest{WorkspaceIdOrAlias: wId0.String(), ProjectIdOrAlias: pid.String()})
 		assert.NoError(t, err)
 		assert.Nil(t, p.Project.Topics)
 	})
@@ -551,7 +550,7 @@ func TestInternalGetModelAPI(t *testing.T) {
 	mdCtx := metadata.NewOutgoingContext(t.Context(), md)
 
 	// Get model by IDs
-	m, err := client.GetModel(mdCtx, &pb.ModelRequest{ProjectIdOrAlias: pid.String(), ModelIdOrAlias: mId1.String()})
+	m, err := client.GetModel(mdCtx, &pb.ModelRequest{WorkspaceIdOrAlias: wId0.String(), ProjectIdOrAlias: pid.String(), ModelIdOrAlias: mId1.String()})
 	assert.NoError(t, err)
 	assert.Equal(t, mId1.String(), m.Model.Id)
 	assert.Equal(t, ikey1.String(), m.Model.Key)
@@ -561,7 +560,7 @@ func TestInternalGetModelAPI(t *testing.T) {
 	assert.NotNil(t, m.Model.Schema)
 
 	// Get model by aliases
-	m, err = client.GetModel(mdCtx, &pb.ModelRequest{ProjectIdOrAlias: palias, ModelIdOrAlias: ikey1.String()})
+	m, err = client.GetModel(mdCtx, &pb.ModelRequest{WorkspaceIdOrAlias: wId0.String(), ProjectIdOrAlias: palias, ModelIdOrAlias: ikey1.String()})
 	assert.NoError(t, err)
 	assert.Equal(t, mId1.String(), m.Model.Id)
 	assert.Equal(t, ikey1.String(), m.Model.Key)
@@ -831,7 +830,8 @@ func TestInternalStarProjectAPI(t *testing.T) {
 
 		// First call should star the project
 		resp, err := client.StarProject(mdCtx, &pb.StarRequest{
-			ProjectAlias: palias,
+			WorkspaceAlias: wId0.String(),
+			ProjectAlias:   palias,
 		})
 		assert.NoError(t, err)
 		assert.NotNil(t, resp.Project)
@@ -851,7 +851,8 @@ func TestInternalStarProjectAPI(t *testing.T) {
 
 		// Second call should unstar the project
 		resp, err := client.StarProject(mdCtx, &pb.StarRequest{
-			ProjectAlias: palias,
+			WorkspaceAlias: wId0.String(),
+			ProjectAlias:   palias,
 		})
 		assert.NoError(t, err)
 		assert.NotNil(t, resp.Project)
@@ -871,7 +872,8 @@ func TestInternalStarProjectAPI(t *testing.T) {
 
 		// Star the project (3rd time total)
 		resp1, err := client.StarProject(mdCtx, &pb.StarRequest{
-			ProjectAlias: palias,
+			WorkspaceAlias: wId0.String(),
+			ProjectAlias:   palias,
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), resp1.Project.StarCount)
@@ -880,7 +882,8 @@ func TestInternalStarProjectAPI(t *testing.T) {
 
 		// Unstar the project (4th time total)
 		resp2, err := client.StarProject(mdCtx, &pb.StarRequest{
-			ProjectAlias: palias,
+			WorkspaceAlias: wId0.String(),
+			ProjectAlias:   palias,
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(0), resp2.Project.StarCount)
@@ -889,7 +892,8 @@ func TestInternalStarProjectAPI(t *testing.T) {
 
 		// Star again (5th time total)
 		resp3, err := client.StarProject(mdCtx, &pb.StarRequest{
-			ProjectAlias: palias,
+			WorkspaceAlias: wId0.String(),
+			ProjectAlias:   palias,
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), resp3.Project.StarCount)
@@ -898,7 +902,8 @@ func TestInternalStarProjectAPI(t *testing.T) {
 
 		// Clean up - unstar
 		_, err = client.StarProject(mdCtx, &pb.StarRequest{
-			ProjectAlias: palias,
+			WorkspaceAlias: wId0.String(),
+			ProjectAlias:   palias,
 		})
 		assert.NoError(t, err)
 	})
@@ -912,7 +917,8 @@ func TestInternalStarProjectAPI(t *testing.T) {
 
 		// Use project ID instead of alias
 		resp, err := client.StarProject(mdCtx, &pb.StarRequest{
-			ProjectAlias: pid.String(),
+			WorkspaceAlias: wId0.String(),
+			ProjectAlias:   pid.String(),
 		})
 		assert.NoError(t, err)
 		assert.NotNil(t, resp.Project)
@@ -924,7 +930,8 @@ func TestInternalStarProjectAPI(t *testing.T) {
 
 		// Clean up - unstar
 		_, err = client.StarProject(mdCtx, &pb.StarRequest{
-			ProjectAlias: pid.String(),
+			WorkspaceAlias: wId0.String(),
+			ProjectAlias:   pid.String(),
 		})
 		assert.NoError(t, err)
 	})
@@ -938,7 +945,8 @@ func TestInternalStarProjectAPI(t *testing.T) {
 
 		// Non-existent project alias
 		_, err := client.StarProject(mdCtx, &pb.StarRequest{
-			ProjectAlias: "non-existent-project",
+			WorkspaceAlias: wId0.String(),
+			ProjectAlias:   "non-existent-project",
 		})
 		assert.Error(t, err)
 		st, ok := status.FromError(err)
@@ -948,7 +956,8 @@ func TestInternalStarProjectAPI(t *testing.T) {
 
 		// Empty project alias
 		_, err = client.StarProject(mdCtx, &pb.StarRequest{
-			ProjectAlias: "",
+			WorkspaceAlias: wId0.String(),
+			ProjectAlias:   "",
 		})
 		assert.Error(t, err)
 		st, ok = status.FromError(err)
@@ -962,7 +971,8 @@ func TestInternalStarProjectAPI(t *testing.T) {
 		mdCtxNoUser := metadata.NewOutgoingContext(t.Context(), mdNoUser)
 
 		_, err = client.StarProject(mdCtxNoUser, &pb.StarRequest{
-			ProjectAlias: palias,
+			WorkspaceAlias: wId0.String(),
+			ProjectAlias:   palias,
 		})
 		assert.Error(t, err)
 		st, ok = status.FromError(err)
@@ -978,7 +988,8 @@ func TestInternalStarProjectAPI(t *testing.T) {
 		mdCtxInvalidUser := metadata.NewOutgoingContext(t.Context(), mdInvalidUser)
 
 		_, err = client.StarProject(mdCtxInvalidUser, &pb.StarRequest{
-			ProjectAlias: palias,
+			WorkspaceAlias: wId0.String(),
+			ProjectAlias:   palias,
 		})
 		assert.Error(t, err)
 		st, ok = status.FromError(err)
@@ -995,7 +1006,8 @@ func TestInternalStarProjectAPI(t *testing.T) {
 
 		// Star the project
 		starResp, err := client.StarProject(mdCtx, &pb.StarRequest{
-			ProjectAlias: palias,
+			WorkspaceAlias: wId0.String(),
+			ProjectAlias:   palias,
 		})
 		assert.NoError(t, err)
 		// Verify the star operation was successful
@@ -1003,7 +1015,8 @@ func TestInternalStarProjectAPI(t *testing.T) {
 
 		// Get the project and verify the star count persisted
 		getResp, err := client.GetProject(mdCtx, &pb.ProjectRequest{
-			ProjectIdOrAlias: palias,
+			WorkspaceIdOrAlias: wId0.String(),
+			ProjectIdOrAlias:   palias,
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(1), getResp.Project.StarCount)
@@ -1011,14 +1024,16 @@ func TestInternalStarProjectAPI(t *testing.T) {
 
 		// Unstar the project
 		unstarResp, err := client.StarProject(mdCtx, &pb.StarRequest{
-			ProjectAlias: palias,
+			WorkspaceAlias: wId0.String(),
+			ProjectAlias:   palias,
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(0), unstarResp.Project.StarCount)
 
 		// Get the project again and verify the unstar persisted
 		getResp2, err := client.GetProject(mdCtx, &pb.ProjectRequest{
-			ProjectIdOrAlias: palias,
+			WorkspaceIdOrAlias: wId0.String(),
+			ProjectIdOrAlias:   palias,
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, int64(0), getResp2.Project.StarCount)

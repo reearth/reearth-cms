@@ -360,6 +360,14 @@ export type DeleteItemMutation = {
   deleteItem: { __typename: "DeleteItemPayload"; itemId: string } | null;
 };
 
+export type DeleteItemsMutationVariables = Types.Exact<{
+  itemIds: Array<Types.Scalars["ID"]["input"]> | Types.Scalars["ID"]["input"];
+}>;
+
+export type DeleteItemsMutation = {
+  deleteItems: { __typename: "DeleteItemsPayload"; itemIds: Array<string> } | null;
+};
+
 export type UpdateItemMutationVariables = Types.Exact<{
   itemId: Types.Scalars["ID"]["input"];
   fields: Array<Types.ItemFieldInput> | Types.ItemFieldInput;
@@ -1817,6 +1825,61 @@ export const DeleteItemDocument = {
     },
   ],
 } as unknown as DocumentNode<DeleteItemMutation, DeleteItemMutationVariables>;
+export const DeleteItemsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "DeleteItems" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "itemIds" } },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "ListType",
+              type: {
+                kind: "NonNullType",
+                type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+              },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "deleteItems" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "ObjectValue",
+                  fields: [
+                    {
+                      kind: "ObjectField",
+                      name: { kind: "Name", value: "itemIds" },
+                      value: { kind: "Variable", name: { kind: "Name", value: "itemIds" } },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [{ kind: "Field", name: { kind: "Name", value: "itemIds" } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteItemsMutation, DeleteItemsMutationVariables>;
 export const UpdateItemDocument = {
   kind: "Document",
   definitions: [

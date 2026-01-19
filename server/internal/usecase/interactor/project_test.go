@@ -492,6 +492,7 @@ func TestProject_Update(t *testing.T) {
 
 	wid1 := accountdomain.NewWorkspaceID()
 	wid2 := accountdomain.NewWorkspaceID()
+	wid3 := accountdomain.NewWorkspaceID()
 	r1 := []workspace.Role{workspace.RoleOwner}
 	r2 := []workspace.Role{workspace.RoleOwner, workspace.RoleMaintainer}
 
@@ -499,20 +500,23 @@ func TestProject_Update(t *testing.T) {
 	p1 := project.New().ID(pid1).Workspace(wid1).RequestRoles(r1).UpdatedAt(now.Add(-time.Hour)).MustBuild()
 
 	pid2 := id.NewProjectID()
-	p2 := project.New().ID(pid2).Workspace(wid2).RequestRoles(r2).Alias("testAlias").UpdatedAt(now.Add(-time.Minute)).MustBuild()
+	p2 := project.New().ID(pid2).Workspace(wid1).RequestRoles(r2).Alias("testAlias").UpdatedAt(now.Add(-time.Minute)).MustBuild()
 
 	// Project with explicit private visibility for policy test
 	pid3 := id.NewProjectID()
-	p3 := project.New().ID(pid3).Workspace(wid1).RequestRoles(r1).
+	p3 := project.New().ID(pid3).Workspace(wid2).RequestRoles(r1).
 		Accessibility(project.NewPrivateAccessibility(project.PublicationSettings{}, nil)).
 		UpdatedAt(now.Add(-time.Second)).MustBuild()
+
+	pid4 := id.NewProjectID()
+	p4 := project.New().ID(pid4).Workspace(wid3).RequestRoles(r2).Alias("testAlias-2").UpdatedAt(now.Add(-time.Minute)).MustBuild()
 
 	u := user.New().Name("aaa").NewID().Email("aaa@bbb.com").Workspace(wid1).MustBuild()
 	op := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
 			User:               lo.ToPtr(u.ID()),
-			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2},
-			OwningWorkspaces:   []accountdomain.WorkspaceID{wid1},
+			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2, wid3},
+			OwningWorkspaces:   []accountdomain.WorkspaceID{wid1, wid2},
 		},
 	}
 
@@ -554,11 +558,11 @@ func TestProject_Update(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:  "update od",
-			seeds: project.List{p1, p2},
+			name:  "update a project that op does not owen its workspace should return operation denied",
+			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				upp: interfaces.UpdateProjectParam{
-					ID:          p2.ID(),
+					ID:          p4.ID(),
 					Name:        lo.ToPtr("test123"),
 					Description: lo.ToPtr("desc321"),
 					Alias:       lo.ToPtr("alias"),
@@ -569,8 +573,23 @@ func TestProject_Update(t *testing.T) {
 			wantErr: interfaces.ErrOperationDenied,
 		},
 		{
-			name:  "update duplicated alias",
-			seeds: project.List{p1, p2},
+			name:  "update duplicated alias on different workspaces",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				upp: interfaces.UpdateProjectParam{
+					ID:    p3.ID(),
+					Alias: lo.ToPtr("testAlias"),
+				},
+				operator: op,
+			},
+			want: project.New().ID(pid3).Workspace(wid2).RequestRoles(r1).Alias("testAlias").
+				Accessibility(project.NewPrivateAccessibility(project.PublicationSettings{}, nil)).
+				UpdatedAt(now).MustBuild(),
+			wantErr: nil,
+		},
+		{
+			name:  "update duplicated alias on same workspace",
+			seeds: project.List{p1, p2, p3},
 			args: args{
 				upp: interfaces.UpdateProjectParam{
 					ID:    p1.ID(),
@@ -791,8 +810,9 @@ func TestProject_CheckAlias(t *testing.T) {
 	}
 
 	type args struct {
-		alias    string
-		operator *usecase.Operator
+		workspace workspace.ID
+		alias     string
+		operator  *usecase.Operator
 	}
 	tests := []struct {
 		name    string
@@ -802,13 +822,25 @@ func TestProject_CheckAlias(t *testing.T) {
 		wantErr error
 	}{
 		{
-			name:  "Check found",
+			name:  "not available alias on same workspace",
 			seeds: project.List{p1, p2},
 			args: args{
-				alias:    "test123",
-				operator: op,
+				workspace: wid1,
+				alias:     "test123",
+				operator:  op,
 			},
 			want:    false,
+			wantErr: nil,
+		},
+		{
+			name:  "available alias on diffrent workspace",
+			seeds: project.List{p1, p2},
+			args: args{
+				workspace: wid2,
+				alias:     "test123",
+				operator:  op,
+			},
+			want:    true,
 			wantErr: nil,
 		},
 		{
@@ -836,7 +868,7 @@ func TestProject_CheckAlias(t *testing.T) {
 			}
 			projectUC := NewProject(db, nil)
 
-			got, err := projectUC.CheckAlias(ctx, tc.args.alias)
+			got, err := projectUC.CheckAlias(ctx, tc.args.workspace, tc.args.alias)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -1203,23 +1235,36 @@ func TestProject_CheckProjectLimits(t *testing.T) {
 
 func TestProject_StarProject(t *testing.T) {
 	now := util.Now()
-	defer util.MockNow(now)
+	defer util.MockNow(now)()
 
 	wid1 := accountdomain.NewWorkspaceID()
+	w1 := workspace.New().ID(wid1).MustBuild()
 	wid2 := accountdomain.NewWorkspaceID()
+	w2 := workspace.New().ID(wid2).MustBuild()
 
 	u1 := user.New().Name("user1").NewID().Email("user1@test.com").Workspace(wid1).MustBuild()
 	u1ID := u1.ID()
 
-	pid1 := id.NewProjectID()
-	p1 := project.New().ID(pid1).Workspace(wid1).Alias("test-project").MustBuild()
+	u2 := user.New().Name("user2").NewID().Email("user2@test.com").Workspace(wid2).MustBuild()
+	u2ID := u2.ID()
 
-	pid3 := id.NewProjectID()
-	p3 := project.New().ID(pid3).Workspace(wid2).MustBuild()
+	pid1 := id.NewProjectID()
+	p1 := project.New().ID(pid1).Workspace(wid1).Alias("test-project").UpdatedAt(now.Add(-time.Hour)).MustBuild()
+
+	pid2 := id.NewProjectID()
+	p2 := project.New().ID(pid2).Workspace(wid2).UpdatedAt(now.Add(-time.Hour)).MustBuild()
 
 	validOp := &usecase.Operator{
 		AcOperator: &accountusecase.Operator{
 			User:               lo.ToPtr(u1ID),
+			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2},
+			WritableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2},
+		},
+	}
+
+	otherUserOp := &usecase.Operator{
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(u2ID),
 			ReadableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2},
 			WritableWorkspaces: []accountdomain.WorkspaceID{wid1, wid2},
 		},
@@ -1230,8 +1275,9 @@ func TestProject_StarProject(t *testing.T) {
 	}
 
 	type args struct {
-		idOrAlias project.IDOrAlias
-		operator  *usecase.Operator
+		wIdOrAlias workspace.IDOrAlias
+		pIdOrAlias project.IDOrAlias
+		operator   *usecase.Operator
 	}
 	tests := []struct {
 		name           string
@@ -1242,16 +1288,33 @@ func TestProject_StarProject(t *testing.T) {
 		wantErr        error
 	}{
 		{
+			name:  "star project owned by another user",
+			seeds: project.List{p1.Clone()},
+			args: args{
+				wIdOrAlias: workspace.IDOrAlias(wid1.String()),
+				pIdOrAlias: project.IDOrAlias(p1.ID().String()),
+				operator:   otherUserOp,
+			},
+			want: func() *project.Project {
+				p := p1.Clone()
+				p.Star(u2ID)
+				p.SetUpdatedAt(now.Add(-time.Hour))
+				return p
+			}(),
+			wantErr: nil,
+		},
+		{
 			name:  "star project by ID",
 			seeds: project.List{p1.Clone()},
 			args: args{
-				idOrAlias: project.IDOrAlias(pid1.String()),
-				operator:  validOp,
+				wIdOrAlias: workspace.IDOrAlias(wid1.String()),
+				pIdOrAlias: project.IDOrAlias(pid1.String()),
+				operator:   validOp,
 			},
 			want: func() *project.Project {
 				p := p1.Clone()
 				p.Star(u1ID)
-				p.SetUpdatedAt(now)
+				p.SetUpdatedAt(now.Add(-time.Hour))
 				return p
 			}(),
 			wantErr: nil,
@@ -1260,28 +1323,30 @@ func TestProject_StarProject(t *testing.T) {
 			name:  "star project by alias",
 			seeds: project.List{p1.Clone()},
 			args: args{
-				idOrAlias: project.IDOrAlias("test-project"),
-				operator:  validOp,
+				wIdOrAlias: workspace.IDOrAlias(wid1.String()),
+				pIdOrAlias: project.IDOrAlias("test-project"),
+				operator:   validOp,
 			},
 			want: func() *project.Project {
 				p := p1.Clone()
 				p.Star(u1ID)
-				p.SetUpdatedAt(now)
+				p.SetUpdatedAt(now.Add(-time.Hour))
 				return p
 			}(),
 			wantErr: nil,
 		},
 		{
 			name:  "star project in different workspace",
-			seeds: project.List{p3.Clone()},
+			seeds: project.List{p2.Clone()},
 			args: args{
-				idOrAlias: project.IDOrAlias(pid3.String()),
-				operator:  validOp,
+				wIdOrAlias: workspace.IDOrAlias(wid2.String()),
+				pIdOrAlias: project.IDOrAlias(pid2.String()),
+				operator:   validOp,
 			},
 			want: func() *project.Project {
-				p := p3.Clone()
+				p := p2.Clone()
 				p.Star(u1ID)
-				p.SetUpdatedAt(now)
+				p.SetUpdatedAt(now.Add(-time.Hour))
 				return p
 			}(),
 			wantErr: nil,
@@ -1290,8 +1355,9 @@ func TestProject_StarProject(t *testing.T) {
 			name:  "invalid operator - no user",
 			seeds: project.List{p1.Clone()},
 			args: args{
-				idOrAlias: project.IDOrAlias(pid1.String()),
-				operator:  invalidOp,
+				wIdOrAlias: workspace.IDOrAlias(wid1.String()),
+				pIdOrAlias: project.IDOrAlias(pid1.String()),
+				operator:   invalidOp,
 			},
 			want:    nil,
 			wantErr: interfaces.ErrInvalidOperator,
@@ -1300,8 +1366,20 @@ func TestProject_StarProject(t *testing.T) {
 			name:  "project not found by ID",
 			seeds: project.List{},
 			args: args{
-				idOrAlias: project.IDOrAlias(id.NewProjectID().String()),
-				operator:  validOp,
+				wIdOrAlias: workspace.IDOrAlias(wid1.String()),
+				pIdOrAlias: project.IDOrAlias(id.NewProjectID().String()),
+				operator:   validOp,
+			},
+			want:    nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:  "project not found in the workspace",
+			seeds: project.List{},
+			args: args{
+				wIdOrAlias: workspace.IDOrAlias(wid1.String()),
+				pIdOrAlias: project.IDOrAlias(pid2.String()),
+				operator:   validOp,
 			},
 			want:    nil,
 			wantErr: rerror.ErrNotFound,
@@ -1310,8 +1388,9 @@ func TestProject_StarProject(t *testing.T) {
 			name:  "project not found by alias",
 			seeds: project.List{},
 			args: args{
-				idOrAlias: project.IDOrAlias("non-existent-alias"),
-				operator:  validOp,
+				wIdOrAlias: workspace.IDOrAlias(wid1.String()),
+				pIdOrAlias: project.IDOrAlias("non-existent-alias"),
+				operator:   validOp,
 			},
 			want:    nil,
 			wantErr: rerror.ErrNotFound,
@@ -1319,17 +1398,37 @@ func TestProject_StarProject(t *testing.T) {
 		{
 			name: "repository error on find",
 			args: args{
-				idOrAlias: project.IDOrAlias(pid1.String()),
-				operator:  validOp,
+				wIdOrAlias: workspace.IDOrAlias(wid1.String()),
+				pIdOrAlias: project.IDOrAlias(pid1.String()),
+				operator:   validOp,
 			},
 			mockProjectErr: true,
 			want:           nil,
 			wantErr:        errors.New("test"),
 		},
+		{
+			name: "updated_at should not change when starring",
+			seeds: project.List{func() *project.Project {
+				p := p1.Clone()
+				p.SetUpdatedAt(now.Add(-time.Hour)) // Set to an hour ago
+				return p
+			}()},
+			args: args{
+				wIdOrAlias: workspace.IDOrAlias(wid1.String()),
+				pIdOrAlias: project.IDOrAlias(pid1.String()),
+				operator:   validOp,
+			},
+			want: func() *project.Project {
+				p := p1.Clone()
+				p.Star(u1ID)
+				p.SetUpdatedAt(now.Add(-time.Hour)) // Should remain the same
+				return p
+			}(),
+			wantErr: nil,
+		},
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			// Removed t.Parallel() to fix user ID consistency issue in unstar test
 
@@ -1338,14 +1437,25 @@ func TestProject_StarProject(t *testing.T) {
 			if tc.mockProjectErr {
 				memory.SetProjectError(db.Project, tc.wantErr)
 			}
-			for _, p := range tc.seeds {
-				err := db.Project.Save(ctx, p)
-				assert.NoError(t, err)
+			err := db.Workspace.SaveAll(ctx, workspace.List{w1, w2})
+			assert.NoError(t, err)
+
+			// Ensure the seeded project is saved for 'updated_at_should_not_change_when_starring'
+			if tc.name == "updated_at_should_not_change_when_starring" {
+				for _, p := range tc.seeds {
+					err := db.Project.Save(ctx, p)
+					assert.NoError(t, err)
+				}
+			} else {
+				for _, p := range tc.seeds {
+					err := db.Project.Save(ctx, p)
+					assert.NoError(t, err)
+				}
 			}
 
 			projectUC := NewProject(db, nil)
 
-			got, err := projectUC.StarProject(ctx, tc.args.idOrAlias, tc.args.operator)
+			got, err := projectUC.StarProject(ctx, tc.args.wIdOrAlias, tc.args.pIdOrAlias, tc.args.operator)
 			if tc.wantErr != nil {
 				assert.Equal(t, tc.wantErr, err)
 				return
@@ -1360,8 +1470,10 @@ func TestProject_StarProject(t *testing.T) {
 				assert.Len(t, got.StarredBy(), 1)
 			}
 
-			// Verify that UpdatedAt was set (should be recent)
-			assert.True(t, got.UpdatedAt().After(now.Add(-time.Second)))
+			// Verify that UpdatedAt was NOT updated when starring (should remain 1 hour ago)
+			expectedTime := now.Add(-time.Hour)
+			assert.True(t, got.UpdatedAt().Equal(expectedTime) || got.UpdatedAt().Equal(expectedTime.Truncate(time.Microsecond)),
+				"UpdatedAt should remain unchanged: expected %v, got %v", expectedTime, got.UpdatedAt())
 
 			dbGot, err := db.Project.FindByID(ctx, got.ID())
 			assert.NoError(t, err)
@@ -1372,8 +1484,9 @@ func TestProject_StarProject(t *testing.T) {
 				assert.Len(t, dbGot.StarredBy(), 1)
 			}
 
-			// Verify that UpdatedAt was persisted correctly
-			assert.True(t, dbGot.UpdatedAt().After(now.Add(-time.Second)))
+			// Verify that UpdatedAt was NOT updated in the database when starring (should remain 1 hour ago)
+			assert.True(t, dbGot.UpdatedAt().Equal(expectedTime) || dbGot.UpdatedAt().Equal(expectedTime.Truncate(time.Microsecond)),
+				"Database UpdatedAt should remain unchanged: expected %v, got %v", expectedTime, dbGot.UpdatedAt())
 		})
 	}
 }

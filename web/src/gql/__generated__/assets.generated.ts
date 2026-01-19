@@ -554,6 +554,14 @@ export type DeleteAssetMutation = {
   deleteAsset: { __typename: "DeleteAssetPayload"; assetId: string } | null;
 };
 
+export type DeleteAssetsMutationVariables = Types.Exact<{
+  assetIds: Array<Types.Scalars["ID"]["input"]> | Types.Scalars["ID"]["input"];
+}>;
+
+export type DeleteAssetsMutation = {
+  deleteAssets: { __typename: "DeleteAssetsPayload"; assetIds: Array<string> | null } | null;
+};
+
 export type DecompressAssetMutationVariables = Types.Exact<{
   assetId: Types.Scalars["ID"]["input"];
 }>;
@@ -2593,6 +2601,61 @@ export const DeleteAssetDocument = {
     },
   ],
 } as unknown as DocumentNode<DeleteAssetMutation, DeleteAssetMutationVariables>;
+export const DeleteAssetsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "DeleteAssets" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "assetIds" } },
+          type: {
+            kind: "NonNullType",
+            type: {
+              kind: "ListType",
+              type: {
+                kind: "NonNullType",
+                type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+              },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "deleteAssets" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: {
+                  kind: "ObjectValue",
+                  fields: [
+                    {
+                      kind: "ObjectField",
+                      name: { kind: "Name", value: "assetIds" },
+                      value: { kind: "Variable", name: { kind: "Name", value: "assetIds" } },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [{ kind: "Field", name: { kind: "Name", value: "assetIds" } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DeleteAssetsMutation, DeleteAssetsMutationVariables>;
 export const DecompressAssetDocument = {
   kind: "Document",
   definitions: [

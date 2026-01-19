@@ -15,7 +15,7 @@ import {
   UpdateProjectDocument,
 } from "@reearth-cms/gql/__generated__/project.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace, useUserRights, useProject } from "@reearth-cms/state";
+import { useProject, useUserRights, useWorkspace } from "@reearth-cms/state";
 
 export default () => {
   const { projectsRefetch } = useHooks();
@@ -98,10 +98,13 @@ export default () => {
     async (alias: string) => {
       if (!alias) return false;
 
-      const response = await CheckProjectAlias({ variables: { alias } });
+      if (!workspaceId) {
+        throw new Error("Workspace ID is required to check project alias");
+      }
+      const response = await CheckProjectAlias({ variables: { workspaceId, alias } });
       return response.data ? response.data.checkProjectAlias.available : false;
     },
-    [CheckProjectAlias],
+    [CheckProjectAlias, workspaceId],
   );
 
   const handleProjectVisibilityChange = useCallback(

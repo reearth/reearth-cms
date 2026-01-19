@@ -29,13 +29,27 @@ func (s *Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
-	sp, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemFilter404Response{}, err
+		}
+		return ItemFilter400Response{}, err
+	}
+
+	sp, err := uc.Schema.FindByModel(ctx, wp.Model.ID(), op)
 	if err != nil {
 		return ItemFilter400Response{}, err
 	}
 
 	p := fromPagination(request.Params.Page, request.Params.PerPage)
-	q := fromQuery(*sp, request)
+
+	q := item.NewQuery(sp.Schema().Project(), wp.Model.ID(), sp.Schema().ID().Ref(), lo.FromPtr(request.Params.Keyword), nil)
+
+	if request.Params.Sort != nil {
+		s := fromSort(*sp, integrationapi.SortParam(*request.Params.Sort), (*integrationapi.SortDirParam)(request.Params.Dir))
+		q = q.WithSort(s)
+	}
 	items, pi, err := uc.Item.Search(ctx, *sp, q, p, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
@@ -73,11 +87,88 @@ func (s *Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject
 	}, nil
 }
 
+func (s *Server) ItemFilterPost(ctx context.Context, request ItemFilterPostRequestObject) (ItemFilterPostResponseObject, error) {
+	op := adapter.Operator(ctx)
+	uc := adapter.Usecases(ctx)
+
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemFilterPost404Response{}, err
+		}
+		return ItemFilterPost400Response{}, err
+	}
+
+	sp, err := uc.Schema.FindByModel(ctx, wp.Model.ID(), op)
+	if err != nil {
+		return ItemFilterPost400Response{}, err
+	}
+
+	p := fromPagination(request.Params.Page, request.Params.PerPage)
+
+	q := item.NewQuery(sp.Schema().Project(), wp.Model.ID(), sp.Schema().ID().Ref(), lo.FromPtr(request.Params.Keyword), nil)
+
+	if request.Params.Sort != nil {
+		s := fromSort(*sp, integrationapi.SortParam(*request.Params.Sort), (*integrationapi.SortDirParam)(request.Params.Dir))
+		q = q.WithSort(s)
+	}
+
+	if request.Body != nil && request.Body.Filter != nil {
+		c := fromCondition(*sp, *request.Body.Filter)
+		if c != nil {
+			q = q.WithFilter(c)
+		}
+	}
+
+	items, pi, err := uc.Item.Search(ctx, *sp, q, p, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemFilterPost404Response{}, err
+		}
+		return ItemFilterPost400Response{}, err
+	}
+
+	assets, err := getAssetsFromItems(ctx, items, request.Params.Asset)
+	if err != nil {
+		return ItemFilterPost500Response{}, err
+	}
+	metaSchemas, metaItems := getMetaSchemasAndItems(ctx, items)
+
+	res, err := util.TryMap(items, func(i item.Versioned) (integrationapi.VersionedItem, error) {
+		metaItem, _ := lo.Find(metaItems, func(itm item.Versioned) bool {
+			return itm.Value().ID() == lo.FromPtr(i.Value().MetadataItem())
+		})
+		var metaSchema *schema.Schema
+		if metaItem != nil {
+			metaSchema, _ = lo.Find(metaSchemas, func(s *schema.Schema) bool {
+				return metaItem.Value().Schema() == s.ID()
+			})
+		}
+		return integrationapi.NewVersionedItem(i, sp.Schema(), assetContext(ctx, assets, request.Params.Asset), getReferencedItems(ctx, i), metaSchema, metaItem, sp.GroupSchemas()), nil
+	})
+	if err != nil {
+		return ItemFilterPost400Response{}, err
+	}
+	return ItemFilterPost200JSONResponse{
+		Items:      &res,
+		Page:       lo.ToPtr(Page(*p.Offset)),
+		PerPage:    lo.ToPtr(int(p.Offset.Limit)),
+		TotalCount: lo.ToPtr(int(pi.TotalCount)),
+	}, nil
+}
+
 func (s *Server) ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONRequestObject) (ItemsAsGeoJSONResponseObject, error) {
 	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
-	r, w := io.Pipe()
 
-	sp, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsAsGeoJSON404Response{}, err
+		}
+		return ItemsAsGeoJSON400Response{}, err
+	}
+
+	sp, err := uc.Schema.FindByModel(ctx, wp.Model.ID(), op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemsAsGeoJSON404Response{}, err
@@ -86,12 +177,15 @@ func (s *Server) ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONReque
 	}
 
 	req := interfaces.ExportItemParams{
-		ModelID:       request.ModelId,
-		Format:        exporters.FormatGeoJSON,
-		Options:       exporters.ExportOptions{},
+		ModelID: wp.Model.ID(),
+		Format:  exporters.FormatGeoJSON,
+		Options: exporters.ExportOptions{
+			IncludeAssets: true,
+		},
 		SchemaPackage: *sp,
 	}
 
+	r, w := io.Pipe()
 	go func() {
 		err = uc.Item.Export(ctx, req, w, op)
 		_ = w.CloseWithError(err)
@@ -106,7 +200,15 @@ func (s *Server) ItemsAsGeoJSON(ctx context.Context, request ItemsAsGeoJSONReque
 func (s *Server) ItemsAsCSV(ctx context.Context, request ItemsAsCSVRequestObject) (ItemsAsCSVResponseObject, error) {
 	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
 
-	sp, err := uc.Schema.FindByModel(ctx, request.ModelId, op)
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemsAsCSV404Response{}, err
+		}
+		return ItemsAsCSV400Response{}, err
+	}
+
+	sp, err := uc.Schema.FindByModel(ctx, wp.Model.ID(), op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemsAsCSV404Response{}, err
@@ -133,6 +235,7 @@ func (s *Server) ItemsAsCSV(ctx context.Context, request ItemsAsCSVRequestObject
 	}, nil
 }
 
+/*
 func (s *Server) ItemFilterWithProject(ctx context.Context, request ItemFilterWithProjectRequestObject) (ItemFilterWithProjectResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
@@ -298,26 +401,28 @@ func (s *Server) ItemsWithProjectAsCSV(ctx context.Context, request ItemsWithPro
 		Body: sliceToReader(pr),
 	}, nil
 }
+*/
 
 func (s *Server) ItemCreate(ctx context.Context, request ItemCreateRequestObject) (ItemCreateResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
-	m, err := uc.Model.FindByID(ctx, request.ModelId, op)
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
-			return ItemCreate400Response{}, err
+			return ItemCreate404Response{}, err
 		}
-		return nil, err
+		return ItemCreate400Response{}, err
 	}
 
-	res, err := createItem(ctx, uc, m, request.Body.Fields, request.Body.MetadataFields, op)
+	res, err := createItem(ctx, uc, wp.Model, request.Body.Fields, request.Body.MetadataFields, op)
 	if err != nil {
 		return ItemCreate400Response{}, err
 	}
 	return ItemCreate200JSONResponse(*res), nil
 }
 
+/*
 func (s *Server) ItemCreateWithProject(ctx context.Context, request ItemCreateWithProjectRequestObject) (ItemCreateWithProjectResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
@@ -344,14 +449,27 @@ func (s *Server) ItemCreateWithProject(ctx context.Context, request ItemCreateWi
 	}
 	return ItemCreateWithProject200JSONResponse(*res), nil
 }
+*/
 
 func (s *Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject) (ItemUpdateResponseObject, error) {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemUpdate404Response{}, err
+		}
+		return ItemUpdate400Response{}, err
+	}
+
 	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
 	if err != nil {
 		return ItemUpdate400Response{}, err
+	}
+
+	if i.Value().Model() != wp.Model.ID() {
+		return ItemUpdate400Response{}, rerror.ErrNotFound
 	}
 
 	sp, err := uc.Schema.FindByModel(ctx, i.Value().Model(), op)
@@ -423,7 +541,32 @@ func (s *Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
-	err := uc.Item.Delete(ctx, request.ItemId, op)
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemDelete404Response{}, err
+		}
+		return ItemDelete400Response{}, err
+	}
+
+	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemDelete400Response{}, err
+		}
+		return ItemDelete400Response{}, err
+	}
+
+	if i.Value().Model() != wp.Model.ID() {
+		return ItemDelete400Response{}, rerror.ErrNotFound
+	}
+
+	sp, err := uc.Schema.FindByModel(ctx, i.Value().Model(), op)
+	if err != nil {
+		return ItemDelete400Response{}, err
+	}
+
+	err = uc.Item.Delete(ctx, request.ItemId, *sp, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemDelete400Response{}, err
@@ -439,12 +582,24 @@ func (s *Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Ite
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemGet404Response{}, err
+		}
+		return ItemGet400Response{}, err
+	}
+
 	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return ItemGet404Response{}, err
 		}
 		return nil, err
+	}
+
+	if i.Value().Model() != wp.Model.ID() {
+		return ItemGet404Response{}, rerror.ErrNotFound
 	}
 
 	sp, err := uc.Schema.FindByModel(ctx, i.Value().Model(), op)
@@ -480,6 +635,26 @@ func (s *Server) ItemPublish(ctx context.Context, request ItemPublishRequestObje
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
+	wp, err := s.loadWPContext(ctx, request.WorkspaceIdOrAlias, request.ProjectIdOrAlias, &request.ModelIdOrKey)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemPublish404Response{}, err
+		}
+		return ItemPublish400Response{}, err
+	}
+
+	i, err := uc.Item.FindByID(ctx, request.ItemId, op)
+	if err != nil {
+		if errors.Is(err, rerror.ErrNotFound) {
+			return ItemPublish404Response{}, err
+		}
+		return ItemPublish400Response{}, err
+	}
+
+	if i.Value().Model() != wp.Model.ID() {
+		return ItemPublish404Response{}, rerror.ErrNotFound
+	}
+
 	vl, err := uc.Item.Publish(ctx, id.ItemIDList{request.ItemId}, op)
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) || errors.Is(err, interfaces.ErrItemMissing) {
@@ -492,7 +667,7 @@ func (s *Server) ItemPublish(ctx context.Context, request ItemPublishRequestObje
 		return ItemPublish404Response{}, nil
 	}
 
-	i := vl[0]
+	i = vl[0]
 
 	sp, err := uc.Schema.FindByModel(ctx, i.Value().Model(), op)
 	if err != nil {

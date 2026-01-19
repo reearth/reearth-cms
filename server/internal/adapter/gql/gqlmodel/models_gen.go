@@ -451,6 +451,14 @@ type DeleteItemPayload struct {
 	ItemID ID `json:"itemId"`
 }
 
+type DeleteItemsInput struct {
+	ItemIds []ID `json:"itemIds"`
+}
+
+type DeleteItemsPayload struct {
+	ItemIds []ID `json:"itemIds"`
+}
+
 type DeleteMeInput struct {
 	UserID ID `json:"userId"`
 }
@@ -584,6 +592,20 @@ type GuessSchemaFieldResult struct {
 type GuessSchemaFieldsInput struct {
 	AssetID ID `json:"assetId"`
 	ModelID ID `json:"modelId"`
+}
+
+type ImportItemsInput struct {
+	ModelID  ID             `json:"modelId"`
+	File     graphql.Upload `json:"file"`
+	GeoField *string        `json:"geoField,omitempty"`
+}
+
+type ImportItemsPayload struct {
+	ModelID       ID  `json:"modelId"`
+	TotalCount    int `json:"totalCount"`
+	InsertedCount int `json:"insertedCount"`
+	UpdatedCount  int `json:"updatedCount"`
+	IgnoredCount  int `json:"ignoredCount"`
 }
 
 type Integration struct {

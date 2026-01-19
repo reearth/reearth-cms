@@ -21,7 +21,7 @@ import {
 import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
 import { CreateWorkspaceDocument } from "@reearth-cms/gql/__generated__/workspace.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace, useUserRights } from "@reearth-cms/state";
+import { useUserRights, useWorkspace } from "@reearth-cms/state";
 
 const INITIAL_PAGE = 1;
 const INITIAL_PAGE_SIZE = 10;
@@ -172,10 +172,13 @@ export default () => {
     async (alias: string) => {
       if (!alias) return false;
 
-      const response = await CheckProjectAlias({ variables: { alias } });
+      if (!workspaceId) {
+        throw new Error("Workspace ID is required to check project alias");
+      }
+      const response = await CheckProjectAlias({ variables: { workspaceId, alias } });
       return response.data ? response.data.checkProjectAlias.available : false;
     },
-    [CheckProjectAlias],
+    [CheckProjectAlias, workspaceId],
   );
 
   const { data: projectLimitsData } = useQuery(CheckProjectLimitsDocument, {

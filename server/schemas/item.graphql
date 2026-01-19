@@ -80,6 +80,16 @@ input DeleteItemInput {
   itemId: ID!
 }
 
+input DeleteItemsInput {
+  itemIds: [ID!]!
+}
+
+input ImportItemsInput {
+  modelId: ID!
+  file: Upload!
+  geoField: String
+}
+
 input UnpublishItemInput {
   itemIds: [ID!]!
 }
@@ -111,12 +121,24 @@ type DeleteItemPayload {
   itemId: ID!
 }
 
+type DeleteItemsPayload {
+  itemIds: [ID!]!
+}
+
 type UnpublishItemPayload {
   items: [Item!]!
 }
 
 type PublishItemPayload {
   items: [Item!]!
+}
+
+type ImportItemsPayload {
+  modelId: ID!
+  totalCount: Int!
+  insertedCount: Int!
+  updatedCount: Int!
+  ignoredCount: Int!
 }
 
 type ItemConnection {
@@ -141,6 +163,8 @@ extend type Mutation {
   createItem(input: CreateItemInput!): ItemPayload
   updateItem(input: UpdateItemInput!): ItemPayload
   deleteItem(input: DeleteItemInput!): DeleteItemPayload
+  deleteItems(input: DeleteItemsInput!): DeleteItemsPayload
   publishItem(input: PublishItemInput!): PublishItemPayload
   unpublishItem(input: UnpublishItemInput!): UnpublishItemPayload
+  importItems(input: ImportItemsInput!): ImportItemsPayload
 }

@@ -17,7 +17,7 @@ import { useAuthHeader } from "@reearth-cms/gql";
 import {
   CreateAssetDocument,
   CreateAssetUploadDocument,
-  DeleteAssetDocument,
+  DeleteAssetsDocument,
   GetAssetDocument,
   GetAssetsDocument,
   GetAssetsItemsDocument,
@@ -261,7 +261,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
                 next: result.data.createAssetUpload.next ?? "",
               };
             },
-            (token, file) => {
+            async (token, file) => {
               return createAssetMutation({
                 variables: {
                   projectId,
@@ -332,27 +332,22 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     [projectId, createAssetMutation, t, refetch, handleUploadModalCancel],
   );
 
-  const [deleteAssetMutation, { loading: deleteLoading }] = useMutation(DeleteAssetDocument);
+  const [deleteAssetsMutation, { loading: deleteLoading }] = useMutation(DeleteAssetsDocument);
   const handleAssetDelete = useCallback(
     async (assetIds: string[]) => {
       if (!projectId) return;
-      const results = await Promise.all(
-        assetIds.map(async assetId => {
-          const result = await deleteAssetMutation({
-            variables: { assetId },
-          });
-          if (result.error) {
-            Notification.error({ message: t("Failed to delete one or more assets.") });
-          }
-        }),
-      );
-      if (results) {
-        await refetch();
-        Notification.success({ message: t("One or more assets were successfully deleted!") });
-        setSelection({ selectedRowKeys: [] });
+      const result = await deleteAssetsMutation({
+        variables: { assetIds },
+      });
+      if (result.error || !result.data?.deleteAssets) {
+        Notification.error({ message: t("Failed to delete one or more assets.") });
+        return;
       }
+      await refetch();
+      Notification.success({ message: t("One or more assets were successfully deleted!") });
+      setSelection({ selectedRowKeys: [] });
     },
-    [t, deleteAssetMutation, refetch, projectId],
+    [t, deleteAssetsMutation, refetch, projectId],
   );
 
   const handleSearchTerm = useCallback((term?: string) => {

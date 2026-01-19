@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/internal/app"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/account"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -19,7 +20,7 @@ import (
 	"golang.org/x/text/language"
 )
 
-func baseSeederUser(ctx context.Context, r *repo.Container, _ *gateway.Container) error {
+func baseSeederUser(ctx context.Context, r *repo.Container, g *gateway.Container) error {
 	auth := user.ReearthSub(uId1.String())
 
 	u1m := user.NewMetadata()
@@ -67,6 +68,7 @@ func baseSeederUser(ctx context.Context, r *repo.Container, _ *gateway.Container
 	if err := r.User.Save(ctx, u4); err != nil {
 		return err
 	}
+	g.Accounts = account.NewInMemory2(user.List{u, u2, u3, u4})
 	roleOwner := workspace.Member{
 		Role:      workspace.RoleOwner,
 		InvitedBy: uId1,
@@ -202,6 +204,7 @@ func TestMe(t *testing.T) {
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("me").Object()
+
 	o.Value("id").String().IsEqual(uId1.String())
 	o.Value("name").String().IsEqual("e2e")
 	o.Value("email").String().IsEqual("e2e@e2e.com")

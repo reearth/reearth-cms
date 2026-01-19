@@ -8,15 +8,37 @@ import (
 	"net/url"
 	"time"
 
-	"cloud.google.com/go/storage"
 	"github.com/hellofresh/health-go/v5"
 	"github.com/hellofresh/health-go/v5/checks/mongo"
 	"github.com/labstack/echo/v4"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearthx/log"
 )
 
-// HealthCheck returns an echo.HandlerFunc that serves the health check endpoint
-func HealthCheck(conf *Config, ver string) echo.HandlerFunc {
+type HealthChecker struct {
+	health *health.Health
+	config *Config
+}
+
+func (hc *HealthChecker) Handler() echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// Optional HTTP Basic Auth
+		if hc.config.HealthCheck.Username != "" && hc.config.HealthCheck.Password != "" {
+			username, password, ok := c.Request().BasicAuth()
+			if !ok || username != hc.config.HealthCheck.Username || password != hc.config.HealthCheck.Password {
+				return c.JSON(http.StatusUnauthorized, map[string]string{
+					"error": "unauthorized",
+				})
+			}
+		}
+
+		// Serve the health check
+		hc.health.Handler().ServeHTTP(c.Response(), c.Request())
+		return nil
+	}
+}
+
+func NewHealthChecker(conf *Config, ver string, fileRepo gateway.File) *HealthChecker {
 	checks := []health.Config{
 		{
 			Name:      "db",
@@ -35,12 +57,12 @@ func HealthCheck(conf *Config, ver string) echo.HandlerFunc {
 		})
 	}
 
-	if conf.GCS.BucketName != "" {
+	if fileRepo != nil {
 		checks = append(checks, health.Config{
-			Name:      "gcs",
-			Timeout:   time.Second * 5,
+			Name:      "storage",
+			Timeout:   time.Second * 30,
 			SkipOnErr: false,
-			Check:     func(ctx context.Context) error { return gcsCheck(ctx, conf.GCS.BucketName) },
+			Check:     fileRepo.Check,
 		})
 	}
 
@@ -52,7 +74,7 @@ func HealthCheck(conf *Config, ver string) echo.HandlerFunc {
 			}
 			checks = append(checks, health.Config{
 				Name:      "auth:" + a.ISS,
-				Timeout:   time.Second * 5,
+				Timeout:   time.Second * 10,
 				SkipOnErr: false,
 				Check: func(ctx context.Context) error {
 					return authServerPingCheck(u.JoinPath(".well-known/openid-configuration").String())
@@ -69,48 +91,25 @@ func HealthCheck(conf *Config, ver string) echo.HandlerFunc {
 		log.Fatalf("failed to create health check: %v", err)
 	}
 
-	return func(c echo.Context) error {
-		// Optional HTTP Basic Auth
-		if conf.HealthCheck.Username != "" && conf.HealthCheck.Password != "" {
-			username, password, ok := c.Request().BasicAuth()
-			if !ok || username != conf.HealthCheck.Username || password != conf.HealthCheck.Password {
-				return c.JSON(http.StatusUnauthorized, map[string]string{
-					"error": "unauthorized",
-				})
-			}
-		}
-
-		// Serve the health check
-		h.Handler().ServeHTTP(c.Response(), c.Request())
-		return nil
+	return &HealthChecker{
+		health: h,
+		config: conf,
 	}
 }
 
-func gcsCheck(ctx context.Context, bucketName string) (checkErr error) {
-	client, err := storage.NewClient(ctx)
-	if err != nil {
-		return fmt.Errorf("GCS client creation failed: %v", err)
+func (hc *HealthChecker) Check(ctx context.Context) error {
+	log.Infof("health check: running initial health checks...")
+	result := hc.health.Measure(ctx)
+	if len(result.Failures) > 0 {
+		return fmt.Errorf("initial health check failed: %v", result.Failures)
 	}
-	defer func(client *storage.Client) {
-		err := client.Close()
-		if err != nil {
-			checkErr = fmt.Errorf("GCS client close failed: %v", err)
-		}
-	}(client)
-
-	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
-	defer cancel()
-
-	_, err = client.Bucket(bucketName).Attrs(ctx)
-	if err != nil {
-		return fmt.Errorf("GCS bucket access failed: %v", err)
-	}
+	log.Infof("health check: all checks passed")
 	return nil
 }
 
 func authServerPingCheck(issuerURL string) (checkErr error) {
 	client := http.Client{
-		Timeout: 2 * time.Second,
+		Timeout: 5 * time.Second,
 	}
 	resp, err := client.Get(issuerURL)
 	if err != nil {

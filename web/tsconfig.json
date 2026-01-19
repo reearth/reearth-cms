@@ -21,7 +21,9 @@
       "@reearth-cms/*": ["src/*"]
     },
     "types": ["@testing-library/jest-dom"],
-    "maxNodeModuleJsDepth": 10
+    "maxNodeModuleJsDepth": 10,
+    "allowImportingTsExtensions": true,
+    "strictNullChecks": true
   },
   "include": ["src", "e2e", "codegen.ts"],
   "ts-node": {

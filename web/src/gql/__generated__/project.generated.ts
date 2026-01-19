@@ -100,6 +100,7 @@ export type GetProjectsQuery = {
 };
 
 export type CheckProjectAliasQueryVariables = Types.Exact<{
+  workspaceId: Types.Scalars["ID"]["input"];
   alias: Types.Scalars["String"]["input"];
 }>;
 
@@ -568,6 +569,14 @@ export const CheckProjectAliasDocument = {
       variableDefinitions: [
         {
           kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "workspaceId" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ID" } },
+          },
+        },
+        {
+          kind: "VariableDefinition",
           variable: { kind: "Variable", name: { kind: "Name", value: "alias" } },
           type: {
             kind: "NonNullType",
@@ -582,6 +591,11 @@ export const CheckProjectAliasDocument = {
             kind: "Field",
             name: { kind: "Name", value: "checkProjectAlias" },
             arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "workspaceId" },
+                value: { kind: "Variable", name: { kind: "Name", value: "workspaceId" } },
+              },
               {
                 kind: "Argument",
                 name: { kind: "Name", value: "alias" },

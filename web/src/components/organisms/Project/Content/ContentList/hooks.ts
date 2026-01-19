@@ -42,7 +42,7 @@ import {
 } from "@reearth-cms/gql/__generated__/graphql.generated";
 import {
   CreateItemDocument,
-  DeleteItemDocument,
+  DeleteItemsDocument,
   GetItemDocument,
   SearchItemDocument,
   UpdateItemDocument,
@@ -549,27 +549,22 @@ export default () => {
     ],
   );
 
-  const [deleteItemMutation, { loading: deleteLoading }] = useMutation(DeleteItemDocument);
+  const [deleteItemsMutation, { loading: deleteLoading }] = useMutation(DeleteItemsDocument);
   const handleItemDelete = useCallback(
     (itemIds: string[]) =>
       (async () => {
-        const results = await Promise.all(
-          itemIds.map(async itemId => {
-            const result = await deleteItemMutation({
-              variables: { itemId },
-              refetchQueries: ["SearchItem"],
-            });
-            if (result.error) {
-              Notification.error({ message: t("Failed to delete one or more items.") });
-            }
-          }),
-        );
-        if (results) {
-          Notification.success({ message: t("One or more items were successfully deleted!") });
-          setSelectedItems({ selectedRows: [] });
+        const result = await deleteItemsMutation({
+          variables: { itemIds },
+          refetchQueries: ["SearchItem"],
+        });
+        if (result.error || !result.data?.deleteItems) {
+          Notification.error({ message: t("Failed to delete one or more items.") });
+          return;
         }
+        Notification.success({ message: t("One or more items were successfully deleted!") });
+        setSelectedItems({ selectedRows: [] });
       })(),
-    [t, deleteItemMutation],
+    [t, deleteItemsMutation],
   );
 
   const handleItemSelect = useCallback(

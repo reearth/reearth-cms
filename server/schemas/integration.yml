@@ -4,9 +4,10 @@ info:
   description: ReEarth-CMS Integration API
   version: 1.0.0
 paths:
-  '/{workspaceId}/projects':
+  ###   PROJECTS   ###
+  '/{workspaceIdOrAlias}/projects':
     parameters:
-      - $ref: '#/components/parameters/workspaceIdParam'
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
       - $ref: '#/components/parameters/pageParam'
       - $ref: '#/components/parameters/perPageParam'
       - $ref: '#/components/parameters/sortParam'
@@ -15,7 +16,7 @@ paths:
     get:
       operationId: ProjectFilter
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Returns a list of projects.
       tags:
         - Projects
@@ -55,7 +56,7 @@ paths:
       tags:
         - Projects
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -92,14 +93,14 @@ paths:
           description: Not found
         '500':
           description: Internal server error
-  '/{workspaceId}/projects/{projectId}':
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}':
     parameters:
-      - $ref: '#/components/parameters/workspaceIdParam'
-      - $ref: '#/components/parameters/projectIdParam'
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
     get:
       operationId: ProjectGet
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Returns a project.
       tags:
         - Projects
@@ -122,7 +123,7 @@ paths:
     patch:
       operationId: ProjectUpdate
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Update a project.
       tags:
         - Projects
@@ -171,7 +172,7 @@ paths:
       tags:
         - Projects
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         '200':
           description: The project was deleted successfully
@@ -179,6 +180,8 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - id
                 properties:
                   id:
                     x-go-type: id.ProjectID
@@ -191,8 +194,11 @@ paths:
           description: Not found
         '500':
           description: Internal server error
-  '/projects/{projectIdOrAlias}/models':
+
+  ###   Models   ###
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models':
     parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
       - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/pageParam'
       - $ref: '#/components/parameters/perPageParam'
@@ -202,7 +208,7 @@ paths:
     get:
       operationId: ModelFilter
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Returns a list of models.
       tags:
         - Models
@@ -242,7 +248,7 @@ paths:
       tags:
         - Models
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -267,195 +273,15 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-  '/projects/{projectIdOrAlias}/groups':
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}':
     parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
       - $ref: '#/components/parameters/projectIdOrAliasParam'
-      - $ref: '#/components/parameters/pageParam'
-      - $ref: '#/components/parameters/perPageParam'
-      - $ref: '#/components/parameters/sortParam'
-      - $ref: '#/components/parameters/sortDirParam'
-    get:
-      operationId: GroupFilter
-      security:
-        - bearerAuth: []
-      summary: Returns a list of groups in a project.
-      tags:
-        - Groups
-      description: Returns a list of groups belonging to the specified project.
-      responses:
-        '200':
-          description: A list of groups in the project.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  groups:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/group'
-                  totalCount:
-                    type: integer
-                    minimum: 0
-                  page:
-                    type: integer
-                    minimum: 1
-                  perPage:
-                    type: integer
-                    minimum: 1
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Project not found
-        '500':
-          description: Internal server error
-    post:
-      operationId: GroupCreate
-      summary: Create a new group in a project.
-      tags:
-        - Groups
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - name
-                - key
-              properties:
-                name:
-                  type: string
-                key:
-                  type: string
-                description:
-                  type: string
-      responses:
-        '201':
-          description: The created group.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/group'
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '500':
-          description: Internal server error
-  '/projects/{projectIdOrAlias}/schemata':
-    parameters:
-      - $ref: '#/components/parameters/projectIdOrAliasParam'
-      - $ref: '#/components/parameters/sortParam'
-      - $ref: '#/components/parameters/sortDirParam'
-      - $ref: '#/components/parameters/pageParam'
-      - $ref: '#/components/parameters/perPageParam'
-      - $ref: '#/components/parameters/keywordParam'
-    get:
-      operationId: SchemaFilter
-      security:
-        - bearerAuth: [ ]
-      summary: Returns a schema.
-      tags:
-        - Schemata
-      description: Returns a schema.
-      responses:
-        '200':
-          description: A JSON array of schema objects
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  models:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/model'
-                  totalCount:
-                    type: integer
-                    minimum: 0
-                  page:
-                    type: integer
-                    minimum: 1
-                  perPage:
-                    type: integer
-                    minimum: 1
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Not found
-        '500':
-          description: Internal server error
-  '/schemata/{schemaId}/schema.json':
-    parameters:
-      - $ref: '#/components/parameters/schemaIdParam'
-    get:
-      operationId: SchemaByIDAsJSON
-      security:
-        - bearerAuth: []
-      summary: Returns a schema as json by schema ID
-      tags:
-        - Schema
-        - JSON
-      description: Returns a schema as json by schema ID
-      responses:
-        '200':
-          description: A JSON object
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JSONSchema'
-                format: binary
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Not found
-        '500':
-          description: Internal server error
-  '/projects/{projectIdOrAlias}/schemata/{schemaId}/schema.json':
-    parameters:
-      - $ref: '#/components/parameters/projectIdOrAliasParam'
-      - $ref: '#/components/parameters/schemaIdParam'
-    get:
-      operationId: SchemaByIDWithProjectAsJSON
-      security:
-        - bearerAuth: []
-      summary: Returns a schema as json by project and schema ID
-      tags:
-        - Schema
-        - JSON
-      description: Returns a schema as json by project and schema ID
-      responses:
-        '200':
-          description: A JSON object
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JSONSchema'
-                format: binary
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Not found
-        '500':
-          description: Internal server error
-  '/models/{modelId}':
-    parameters:
-      - $ref: '#/components/parameters/modelIdParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
     get:
       operationId: ModelGet
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Returns a model.
       tags:
         - Models
@@ -478,7 +304,7 @@ paths:
     patch:
       operationId: ModelUpdate
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Update a model.
       tags:
         - Models
@@ -507,40 +333,53 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
     delete:
       operationId: ModelDelete
-      summary: delete a model
-      tags:
-          - Models
       security:
-          - bearerAuth: []
+        - bearerAuth: [ ]
+      summary: Delete a model.
+      tags:
+        - Models
+      description: Delete a model.
       responses:
-          '200':
-            description: delete a model
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    id:
-                      x-go-type: id.ModelID
-                      type: string
-          '400':
-            description: Invalid request parameter value
-          '401':
-            $ref: '#/components/responses/UnauthorizedError'
-  '/models/{modelId}/schema.json':
+        '200':
+          description: The model id
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                properties:
+                  id:
+                    x-go-type: id.ModelID
+                    type: string
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/schema.json':
     parameters:
-      - $ref: '#/components/parameters/modelIdParam'
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
     get:
       operationId: SchemaByModelAsJSON
       security:
-        - bearerAuth: []
-      summary: Returns a schema as json by model ID
+        - bearerAuth: [ ]
+      summary: Returns a schema as json by project and model ID
       tags:
         - Schema
         - JSON
-      description: Returns a schema as json by model ID
+      description: Returns a schema as json by project and model ID
       responses:
         '200':
           description: A JSON object
@@ -548,7 +387,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JSONSchema'
-                format: binary
         '400':
           description: Invalid request parameter value
         '401':
@@ -557,18 +395,20 @@ paths:
           description: Not found
         '500':
           description: Internal server error
-  '/models/{modelId}/metadata_schema.json':
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/metadata_schema.json':
     parameters:
-      - $ref: '#/components/parameters/modelIdParam'
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
     get:
       operationId: MetadataSchemaByModelAsJSON
       security:
-        - bearerAuth: []
-      summary: Returns a metadata schema as json by model ID
+        - bearerAuth: [ ]
+      summary: Returns a metadata schema as json by project and model ID
       tags:
         - MetadataSchema
         - JSON
-      description: Returns a metadata schema as json by model ID
+      description: Returns a metadata schema as json by project and model ID
       responses:
         '200':
           description: A JSON object
@@ -576,7 +416,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JSONSchema'
-                format: binary
         '400':
           description: Invalid request parameter value
         '401':
@@ -585,9 +424,11 @@ paths:
           description: Not found
         '500':
           description: Internal server error
-  '/models/{modelId}/import':
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/import':
     parameters:
-      - $ref: '#/components/parameters/modelIdParam'
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
     put:
       operationId: ModelImport
       summary: Import data under the selected model
@@ -677,15 +518,19 @@ paths:
                       $ref: '#/components/schemas/schemaField'
         '400':
           description: Invalid request parameter value
+        '404':
+          description: Not found
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '500':
           description: Internal server error
-  '/models/{modelId}/copy':
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/copy':
     parameters:
-      - $ref: '#/components/parameters/modelIdParam'
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
     post:
-      operationId: CopyModel
+      operationId: ModelCopy
       summary: Copy schema and items of a selected model
       tags:
         - Models
@@ -707,7 +552,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: '#/components/schemas/model'
+                $ref: '#/components/schemas/model'
         '400':
           description: Invalid request parameter value
         '401':
@@ -716,17 +561,102 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         '500':
           description: Internal server error
-  '/groups/{groupId}':
+
+  ###   GROUPS   ###
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups':
     parameters:
-      - $ref: '#/components/parameters/groupIdParam'
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/pageParam'
+      - $ref: '#/components/parameters/perPageParam'
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/sortDirParam'
+    get:
+      operationId: GroupFilter
+      security:
+        - bearerAuth: [ ]
+      summary: Returns a list of groups in a project.
+      tags:
+        - Groups
+      description: Returns a list of groups belonging to the specified project.
+      responses:
+        '200':
+          description: A list of groups in the project.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  groups:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/group'
+                  totalCount:
+                    type: integer
+                    minimum: 0
+                  page:
+                    type: integer
+                    minimum: 1
+                  perPage:
+                    type: integer
+                    minimum: 1
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Project not found
+        '500':
+          description: Internal server error
+    post:
+      operationId: GroupCreate
+      summary: Create a new group in a project.
+      tags:
+        - Groups
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - key
+              properties:
+                name:
+                  type: string
+                key:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: The created group.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/group'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          description: Internal server error
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups/{groupIdOrKey}':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/groupIdOrKeyParam'
     get:
       operationId: GroupGet
       security:
-        - bearerAuth: []
-      summary: Retrieve a specific group.
+        - bearerAuth: [ ]
+      summary: Retrieve a group within a project.
       tags:
         - Groups
-      description: Returns details of a group.
+      description: Returns details of a specific group within the specified project.
       responses:
         '200':
           description: Group details.
@@ -745,11 +675,11 @@ paths:
     patch:
       operationId: GroupUpdate
       security:
-        - bearerAuth: []
-      summary: Update a group's details.
+        - bearerAuth: [ ]
+      summary: Update a group's details within a project.
       tags:
         - Groups
-      description: Updates the name, key, or description of a group.
+      description: Updates the name, key, or description of a group within a specific project.
       requestBody:
         required: true
         content:
@@ -780,11 +710,12 @@ paths:
           description: Internal server error
     delete:
       operationId: GroupDelete
-      summary: Delete a group.
+      security:
+        - bearerAuth: [ ]
+      summary: Delete a group within a project.
       tags:
         - Groups
-      security:
-        - bearerAuth: []
+      description: Deletes a group within a specified project.
       responses:
         '200':
           description: Group successfully deleted.
@@ -804,8 +735,12 @@ paths:
           description: Group not found
         '500':
           description: Internal server error
-  '/schemata/{schemaId}/fields':
+
+  ###   SCHEMATA   ###
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/schemata/{schemaId}/fields':
     parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/schemaIdParam'
     post:
       operationId: FieldCreate
@@ -813,7 +748,7 @@ paths:
       tags:
         - Fields
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -835,13 +770,17 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: '#/components/schemas/schemaField'
+                $ref: '#/components/schemas/schemaField'
         '400':
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-  '/schemata/{schemaId}/fields/{fieldIdOrKey}':
+        '404':
+          description: Not found
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/schemata/{schemaId}/fields/{fieldIdOrKey}':
     parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/schemaIdParam'
       - $ref: '#/components/parameters/fieldIdOrKeyParam'
     patch:
@@ -877,6 +816,8 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
     delete:
       operationId: FieldDelete
       summary: delete a field
@@ -899,13 +840,19 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-  '/models/{modelId}/items':
+        '404':
+          description: Not found
+
+  ###   ITEMS   ###
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items':
     parameters:
-      - $ref: '#/components/parameters/modelIdParam'
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
     get:
       operationId: ItemFilter
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Returns a list of items.
       tags:
         - Items
@@ -918,15 +865,6 @@ paths:
         - $ref: '#/components/parameters/refParam'
         - $ref: '#/components/parameters/assetParam'
         - $ref: '#/components/parameters/keywordParam'
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                filter:
-                  $ref: '#/components/schemas/condition'
       responses:
         '200':
           description: A JSON array of user names
@@ -961,8 +899,9 @@ paths:
       summary: create an item
       tags:
         - Items
+      description: Create an Item.
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -989,273 +928,21 @@ paths:
           description: Invalid request parameter value
         '401':
           $ref: '#/components/responses/UnauthorizedError'
-  '/models/{modelId}/items.geojson':
+        '404':
+          description: Not found
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/filter':
     parameters:
-      - $ref: '#/components/parameters/modelIdParam'
-    get:
-      operationId: ItemsAsGeoJSON
-      security:
-        - bearerAuth: []
-      summary: Returns a GeoJSON that has a list of items as features.
-      tags:
-        - Items
-        - GeoJSON
-      description: Returns a GeoJSON that has a list of items as features.
-      parameters:
-        - $ref: '#/components/parameters/pageParam'
-        - $ref: '#/components/parameters/perPageParam'
-        - $ref: '#/components/parameters/refParam'
-      responses:
-        '200':
-          description: A GeoJSON object
-          content:
-            application/octet-stream:
-              schema:
-                $ref: '#/components/schemas/GeoJSON'
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Not found
-        '500':
-          description: Internal server error
-  '/models/{modelId}/items.csv':
-    parameters:
-      - $ref: '#/components/parameters/modelIdParam'
-    get:
-      operationId: ItemsAsCSV
-      security:
-        - bearerAuth: []
-      summary: Returns a CSV that has a list of items as features.
-      tags:
-        - Items project
-        - CSV
-      description: Returns a CSV that has a list of items as features.
-      parameters:
-        - $ref: '#/components/parameters/pageParam'
-        - $ref: '#/components/parameters/perPageParam'
-        - $ref: '#/components/parameters/refParam'
-      responses:
-        '200':
-          description: A string in CSV format
-          content:
-            text/csv:
-              schema:
-                type: string
-                format: binary
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Not found
-        '500':
-          description: Internal server error
-  '/projects/{projectIdOrAlias}/models/{modelIdOrKey}':
-    parameters:
-      - $ref: '#/components/parameters/projectIdOrAliasParam'
-      - $ref: '#/components/parameters/modelIdOrKeyParam'
-    get:
-      operationId: ModelGetWithProject
-      security:
-        - bearerAuth: []
-      summary: Returns a model.
-      tags:
-        - Models
-      description: Returns a model.
-      responses:
-        '200':
-          description: A JSON array of user names
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model'
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Not found
-        '500':
-          description: Internal server error
-    patch:
-      operationId: ModelUpdateWithProject
-      security:
-        - bearerAuth: [ ]
-      summary: Update a model.
-      tags:
-        - Models
-      description: Update a model.
-      requestBody:
-          required: true
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  name:
-                    type: string
-                  description:
-                    type: string
-                  key:
-                    type: string
-      responses:
-        '200':
-          description: A JSON object of model
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/model'
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Not found
-        '500':
-          description: Internal server error
-    delete:
-      operationId: ModelDeleteWithProject
-      security:
-        - bearerAuth: [ ]
-      summary: Delete a model.
-      tags:
-        - Models
-      description: Delete a model.
-      responses:
-        '200':
-          description: The model id
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    x-go-type: id.ModelID
-                    type: string
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Not found
-        '500':
-          description: Internal server error
-  '/projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields':
-    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
       - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/modelIdOrKeyParam'
     post:
-      operationId: FieldCreateWithProject
-      summary: create a field
-      tags:
-        - Fields
+      operationId: ItemFilterPost
       security:
         - bearerAuth: [ ]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                type:
-                  $ref: '#/components/schemas/valueType'
-                key:
-                  type: string
-                required:
-                  type: boolean
-                multiple:
-                  type: boolean
-      responses:
-        '200':
-          description: A JSON object of field
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/schemaField'
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-  '/projects/{projectIdOrAlias}/models/{modelIdOrKey}/fields/{fieldIdOrKey}':
-    parameters:
-      - $ref: '#/components/parameters/projectIdOrAliasParam'
-      - $ref: '#/components/parameters/modelIdOrKeyParam'
-      - $ref: '#/components/parameters/fieldIdOrKeyParam'
-    patch:
-      operationId: FieldUpdateWithProject
-      summary: update a field
+      summary: Returns a list of items with complex filtering.
       tags:
-        - Fields
-      security:
-        - bearerAuth: [ ]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                type:
-                  $ref: '#/components/schemas/valueType'
-                key:
-                  type: string
-                required:
-                  type: boolean
-                multiple:
-                  type: boolean
-      responses:
-        '200':
-          description: A JSON object of field
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/schemaField'
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-    delete:
-      operationId: FieldDeleteWithProject
-      security:
-        - bearerAuth: [ ]
-      summary: Delete a field.
-      tags:
-        - Fields
-      description: Returns the field id.
-      responses:
-        '200':
-          description: A field id
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    x-go-type: id.FieldID
-                    type: string
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Not found
-        '500':
-          description: Internal server error
-  '/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items':
-    parameters:
-      - $ref: '#/components/parameters/projectIdOrAliasParam'
-      - $ref: '#/components/parameters/modelIdOrKeyParam'
-    get:
-      operationId: ItemFilterWithProject
-      security:
-        - bearerAuth: []
-      summary: Returns a list of items.
-      tags:
-        - Items project
-      description: Returns a list of items with filtering and ordering.
+        - Items
+      description: Returns a list of items with complex filtering in request body.
       parameters:
         - $ref: '#/components/parameters/sortParam'
         - $ref: '#/components/parameters/sortDirParam'
@@ -1263,9 +950,19 @@ paths:
         - $ref: '#/components/parameters/perPageParam'
         - $ref: '#/components/parameters/refParam'
         - $ref: '#/components/parameters/assetParam'
+        - $ref: '#/components/parameters/keywordParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filter:
+                  $ref: '#/components/schemas/condition'
       responses:
         '200':
-          description: A JSON array of user names
+          description: Paginated list of items
           content:
             application/json:
               schema:
@@ -1292,51 +989,18 @@ paths:
           description: Not found
         '500':
           description: Internal server error
-    post:
-      operationId: ItemCreateWithProject
-      summary: Create an Item.
-      tags:
-        - Items project
-      description: Create an Item.
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                fields:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/field'
-                metadataFields:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/field'
-      responses:
-        '200':
-          description: A JSON array of user names
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/versionedItem'
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-  '/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson':
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson':
     parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
       - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/modelIdOrKeyParam'
     get:
-      operationId: ItemsWithProjectAsGeoJSON
+      operationId: ItemsAsGeoJSON
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Returns a GeoJSON that has a list of items as features.
       tags:
-        - Items project
+        - Items
         - GeoJSON
       description: Returns a GeoJSON that has a list of items as features.
       parameters:
@@ -1347,7 +1011,7 @@ paths:
         '200':
           description: A GeoJSON object
           content:
-            application/json:
+            application/octet-stream:
               schema:
                 $ref: '#/components/schemas/GeoJSON'
         '400':
@@ -1358,14 +1022,15 @@ paths:
           description: Not found
         '500':
           description: Internal server error
-  '/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.csv':
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.csv':
     parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
       - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/modelIdOrKeyParam'
     get:
-      operationId: ItemsWithProjectAsCSV
+      operationId: ItemsAsCSV
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Returns a CSV that has a list of items as features.
       tags:
         - Items project
@@ -1391,161 +1056,16 @@ paths:
           description: Not found
         '500':
           description: Internal server error
-  '/projects/{projectIdOrAlias}/models/{modelIdOrKey}/schema.json':
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}':
     parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
       - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/modelIdOrKeyParam'
-    get:
-      operationId: SchemaByModelWithProjectAsJSON
-      security:
-        - bearerAuth: []
-      summary: Returns a schema as json by project and model ID
-      tags:
-        - Schema
-        - JSON
-      description: Returns a schema as json by project and model ID
-      responses:
-        '200':
-          description: A JSON object
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JSONSchema'
-                format: binary
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Not found
-        '500':
-          description: Internal server error
-  '/projects/{projectIdOrAlias}/models/{modelIdOrKey}/metadata_schema.json':
-    parameters:
-      - $ref: '#/components/parameters/projectIdOrAliasParam'
-      - $ref: '#/components/parameters/modelIdOrKeyParam'
-    get:
-      operationId: MetadataSchemaByModelWithProjectAsJSON
-      security:
-        - bearerAuth: []
-      summary: Returns a metadata schema as json by project and model ID
-      tags:
-        - MetadataSchema
-        - JSON
-      description: Returns a metadata schema as json by project and model ID
-      responses:
-        '200':
-          description: A JSON object
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/JSONSchema'
-                format: binary
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Not found
-        '500':
-          description: Internal server error
-  '/projects/{projectIdOrAlias}/groups/{groupIdOrKey}':
-    parameters:
-      - $ref: '#/components/parameters/projectIdOrAliasParam'
-      - $ref: '#/components/parameters/groupIdOrKeyParam'
-    get:
-      operationId: GroupGetWithProject
-      security:
-        - bearerAuth: []
-      summary: Retrieve a group within a project.
-      tags:
-        - Groups
-      description: Returns details of a specific group within the specified project.
-      responses:
-        '200':
-          description: Group details.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/group'
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Group not found
-        '500':
-          description: Internal server error
-    patch:
-      operationId: GroupUpdateWithProject
-      security:
-        - bearerAuth: []
-      summary: Update a group's details within a project.
-      tags:
-        - Groups
-      description: Updates the name, key, or description of a group within a specific project.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                description:
-                  type: string
-                key:
-                  type: string
-      responses:
-        '200':
-          description: The updated group.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/group'
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Group not found
-        '500':
-          description: Internal server error
-    delete:
-      operationId: GroupDeleteWithProject
-      security:
-        - bearerAuth: []
-      summary: Delete a group within a project.
-      tags:
-        - Groups
-      description: Deletes a group within a specified project.
-      responses:
-        '200':
-          description: Group successfully deleted.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    x-go-type: id.GroupID
-                    type: string
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Group not found
-        '500':
-          description: Internal server error
-  '/items/{itemId}':
-    parameters:
       - $ref: '#/components/parameters/itemIdParam'
     get:
       operationId: ItemGet
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Returns an item.
       tags:
         - Items
@@ -1571,7 +1091,7 @@ paths:
     patch:
       operationId: ItemUpdate
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Update an item.
       tags:
         - Items
@@ -1614,7 +1134,7 @@ paths:
       tags:
         - Items
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         '200':
           description: delete an item
@@ -1632,8 +1152,11 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
-  '/items/{itemId}/publish':
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/publish':
     parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
       - $ref: '#/components/parameters/itemIdParam'
       - $ref: '#/components/parameters/assetParam'
     post:
@@ -1656,8 +1179,13 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
-  '/items/{itemId}/comments':
+
+  ### ITEM COMMENTS ###
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments':
     parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
       - $ref: '#/components/parameters/itemIdParam'
     get:
       operationId: ItemCommentList
@@ -1665,7 +1193,7 @@ paths:
       tags:
         - Items comments
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         '200':
           description: item comments list
@@ -1690,7 +1218,7 @@ paths:
       tags:
         - Items comments
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -1713,8 +1241,11 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
-  '/items/{itemId}/comments/{commentId}':
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments/{commentId}':
     parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
+      - $ref: '#/components/parameters/modelIdOrKeyParam'
       - $ref: '#/components/parameters/itemIdParam'
       - $ref: '#/components/parameters/commentIdParam'
     patch:
@@ -1722,7 +1253,7 @@ paths:
       tags:
         - Items comments
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Update Item Comment
       description: ''
       requestBody:
@@ -1753,7 +1284,7 @@ paths:
       tags:
         - Items comments
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         '200':
           description: delete an item comment
@@ -1771,15 +1302,18 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
-  '/projects/{projectId}/assets':
+
+  ###   ASSETS   ###
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets':
     parameters:
-      - $ref: '#/components/parameters/projectIdParam'
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
     get:
       operationId: AssetFilter
       tags:
         - Assets project
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Returns a list of assets.
       description: Returns a list of assets with filtering and ordering.
       parameters:
@@ -1820,7 +1354,7 @@ paths:
       tags:
         - Assets project
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Create an new asset.
       description: Create a new asset and return the created asset.
       requestBody:
@@ -1866,17 +1400,56 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
-  '/projects/{projectId}/assets/uploads':
+    delete:
+      operationId: AssetBatchDelete
+      summary: delete assets in batch
+      tags:
+        - Assets
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                assetIDs:
+                  type: array
+                  items:
+                    type: string
+                    x-go-type: id.AssetID
+      responses:
+        '200':
+          description: assets list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ids:
+                    type: array
+                    items:
+                      x-go-type: id.AssetID
+                      type: string
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/uploads':
+    parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
     post:
       operationId: AssetUploadCreate
       tags:
         - Assets project
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Upload an asset.
       description: Issue an URL and a token to upload an asset.
-      parameters:
-        - $ref: '#/components/parameters/projectIdParam'
       requestBody:
         content:
           application/json:
@@ -1919,8 +1492,10 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
-  '/assets/{assetId}':
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}':
     parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/assetIdParam'
     get:
       operationId: AssetGet
@@ -1962,47 +1537,10 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
-  '/assets':
-    delete:
-      operationId: AssetBatchDelete
-      summary: delete assets in batch
-      tags:
-        - Assets
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                assetIDs:
-                  type: array
-                  items:
-                    type: string
-                    x-go-type: id.AssetID
-      responses:
-        '200':
-          description: assets list
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  ids:
-                    type: array
-                    items:
-                      x-go-type: id.AssetID
-                      type: string
-        '400':
-          description: Invalid request parameter value
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '404':
-          description: Not found
-  '/assets/{assetId}/publish':
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/publish':
     parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/assetIdParam'
     post:
       operationId: AssetPublish
@@ -2024,8 +1562,10 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
-  '/assets/{assetId}/unpublish':
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/unpublish':
     parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/assetIdParam'
     post:
       operationId: AssetUnpublish
@@ -2047,8 +1587,10 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
-  '/assets/{uuid1}/{uuid2}/{filename}':
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{uuid1}/{uuid2}/{filename}':
     parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
       - name: uuid1
         in: path
         description: UUID of the asset
@@ -2086,8 +1628,12 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
-  '/assets/{assetId}/comments':
+
+  ### ASSET COMMENTS ###
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/comments':
     parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/assetIdParam'
     get:
       operationId: AssetCommentList
@@ -2095,7 +1641,7 @@ paths:
       tags:
         - Assets comments
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         '200':
           description: asset comments list
@@ -2120,7 +1666,7 @@ paths:
       tags:
         - Assets comments
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -2143,8 +1689,10 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Not found
-  '/assets/{assetId}/comments/{commentId}':
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/comments/{commentId}':
     parameters:
+      - $ref: '#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: '#/components/parameters/projectIdOrAliasParam'
       - $ref: '#/components/parameters/assetIdParam'
       - $ref: '#/components/parameters/commentIdParam'
     patch:
@@ -2152,7 +1700,7 @@ paths:
       tags:
         - Assets comments
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       summary: Update AssetComment
       description: ''
       requestBody:
@@ -2183,7 +1731,7 @@ paths:
       tags:
         - Assets comments
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         '200':
           description: delete an asset comment
@@ -2204,20 +1752,14 @@ paths:
 
 components:
   parameters:
-    workspaceIdParam:
-      name: workspaceId
+    workspaceIdOrAliasParam:
+      name: workspaceIdOrAlias
       in: path
-      description: ID of the selected workspace
+      description: ID or alias of the workspace
       required: true
       schema:
-        x-go-type: accountdomain.WorkspaceID
-    projectIdParam:
-      name: projectId
-      in: path
-      description: ID of the selected project
-      required: true
-      schema:
-        x-go-type: id.ProjectID
+        type: string
+        x-go-type: accountdomain.WorkspaceIDOrAlias
     projectIdOrAliasParam:
       name: projectIdOrAlias
       in: path
@@ -2226,22 +1768,6 @@ components:
       schema:
         type: string
         x-go-type: project.IDOrAlias
-    modelIdParam:
-      name: modelId
-      in: path
-      description: ID of the model in the project
-      required: true
-      schema:
-        type: string
-        x-go-type: id.ModelID
-    groupIdParam:
-      name: groupId
-      in: path
-      description: ID of the group in the project
-      required: true
-      schema:
-        type: string
-        x-go-type: id.GroupID
     schemaIdParam:
       name: schemaId
       in: path
@@ -2250,14 +1776,6 @@ components:
       schema:
         type: string
         x-go-type: id.SchemaID
-    fieldIdParam:
-      name: fieldId
-      in: path
-      description: ID of the field in the models schema
-      required: true
-      schema:
-        type: string
-        x-go-type: id.FieldID
     modelIdOrKeyParam:
       name: modelIdOrKey
       in: path
@@ -2463,7 +1981,7 @@ components:
         - apiKeys
     projectRequestRole:
       type: string
-      enum: [READER, WRITER, MAINTAINER, OWNER]
+      enum: [ READER, WRITER, MAINTAINER, OWNER ]
     model:
       type: object
       properties:
@@ -2482,7 +2000,7 @@ components:
           x-go-type: id.SchemaID
           type: string
         metadataSchema:
-            $ref: '#/components/schemas/schema'
+          $ref: '#/components/schemas/schema'
         name:
           type: string
         description:
@@ -2676,7 +2194,7 @@ components:
           type: string
         type:
           $ref: '#/components/schemas/valueType'
-        value: {}
+        value: { }
         key:
           type: string
         group:
@@ -2803,132 +2321,132 @@ components:
             - field
             - metaField
     condition:
-        type: object
-        properties:
-          and:
-            type: array
-            items:
-              $ref: '#/components/schemas/condition'
-          or:
-            type: array
-            items:
-              $ref: '#/components/schemas/condition'
-          basic:
-            type: object
-            properties:
-              fieldId:
-                $ref: '#/components/schemas/fieldSelector'
-              operator:
-                type: string
-                enum:
-                  - equals
-                  - notEquals
-              value: {}
-          nullable:
-            type: object
-            properties:
-              fieldId:
-                $ref: '#/components/schemas/fieldSelector'
-              operator:
-                type: string
-                enum:
-                  - empty
-                  - notEmpty
-          multiple:
-            type: object
-            properties:
-              fieldId:
-                $ref: '#/components/schemas/fieldSelector'
-              operator:
-                type: string
-                enum:
-                  - includesAny
-                  - notIncludesAny
-                  - includesAll
-                  - notIncludesAll
-              value:
-                type: array
-                items: {}
-            required:
-              - fieldId
-              - operator
-              - value
-          bool:
-            type: object
-            properties:
-              fieldId:
-                $ref: '#/components/schemas/fieldSelector'
-              operator:
-                type: string
-                enum:
-                  - equals
-                  - notEquals
-              value:
-                type: boolean
-            required:
-              - fieldId
-              - operator
-              - value
-          string:
-            type: object
-            properties:
-              fieldId:
-                $ref: '#/components/schemas/fieldSelector'
-              operator:
-                type: string
-                enum:
-                  - contains
-                  - notContains
-                  - startsWith
-                  - endsWith
-                  - notStartsWith
-                  - notEndsWith
-              value:
-                type: string
-            required:
-              - fieldId
-              - operator
-              - value
-          number:
-            type: object
-            properties:
-              fieldId:
-                $ref: '#/components/schemas/fieldSelector'
-              operator:
-                type: string
-                enum:
-                  - greaterThan
-                  - lessThan
-                  - greaterThanOrEqualTo
-                  - lessThanOrEqualTo
-              value:
-                type: number
-            required:
-              - fieldId
-              - operator
-              - value
-          time:
-            type: object
-            properties:
-              fieldId:
-                $ref: '#/components/schemas/fieldSelector'
-              operator:
-                type: string
-                enum:
-                  - before
-                  - after
-                  - beforeOrOn
-                  - afterOrOn
-                  - ofThisWeek
-                  - ofThisMonth
-                  - ofThisYear
-              value:
-                type: string
-                format: date-time
-            required:
-              - fieldId
-              - operator
-              - value
+      type: object
+      properties:
+        and:
+          type: array
+          items:
+            $ref: '#/components/schemas/condition'
+        or:
+          type: array
+          items:
+            $ref: '#/components/schemas/condition'
+        basic:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - equals
+                - notEquals
+            value: { }
+        nullable:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - empty
+                - notEmpty
+        multiple:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - includesAny
+                - notIncludesAny
+                - includesAll
+                - notIncludesAll
+            value:
+              type: array
+              items: { }
+          required:
+            - fieldId
+            - operator
+            - value
+        bool:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - equals
+                - notEquals
+            value:
+              type: boolean
+          required:
+            - fieldId
+            - operator
+            - value
+        string:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - contains
+                - notContains
+                - startsWith
+                - endsWith
+                - notStartsWith
+                - notEndsWith
+            value:
+              type: string
+          required:
+            - fieldId
+            - operator
+            - value
+        number:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - greaterThan
+                - lessThan
+                - greaterThanOrEqualTo
+                - lessThanOrEqualTo
+            value:
+              type: number
+          required:
+            - fieldId
+            - operator
+            - value
+        time:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - before
+                - after
+                - beforeOrOn
+                - afterOrOn
+                - ofThisWeek
+                - ofThisMonth
+                - ofThisYear
+            value:
+              type: string
+              format: date-time
+          required:
+            - fieldId
+            - operator
+            - value
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid

@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountusecase"
@@ -58,4 +59,8 @@ func loaders(ctx context.Context) *Loaders {
 
 func dataloaders(ctx context.Context) *DataLoaders {
 	return ctx.Value(contextDataloaders).(*DataLoaders)
+}
+
+func gateways(ctx context.Context) *gateway.Container {
+	return adapter.Gateways(ctx)
 }

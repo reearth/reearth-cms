@@ -54,6 +54,7 @@ const ProjectSettings: React.FC<Props> = ({
         />
       </ContentSection>
       <DangerZone
+        projectName={project.name}
         visibility={project.accessibility?.visibility}
         hasDeleteRight={hasDeleteRight}
         hasPublishRight={hasPublishRight}
