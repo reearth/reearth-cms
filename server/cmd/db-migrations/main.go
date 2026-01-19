@@ -56,7 +56,7 @@ func main() {
 	}
 
 	// exec command
-	fmt.Printf("command: '%s' ", *cmd)
+	fmt.Printf("command: '%s\n' ", *cmd)
 	ctx := context.Background()
 	if err := command(ctx, dbURL, dbName, *wet); err != nil {
 		fmt.Printf("faild: %s.\n", err)
