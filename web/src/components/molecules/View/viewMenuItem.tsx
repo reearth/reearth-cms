@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Modal from "@reearth-cms/components/atoms/Modal";
+import { useModal } from "@reearth-cms/components/atoms/Modal";
 import { View } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -24,6 +24,7 @@ const ViewsMenuItem: React.FC<Props> = ({
   onDelete,
 }) => {
   const t = useT();
+  const { confirm } = useModal();
 
   const children = [
     {
@@ -46,7 +47,7 @@ const ViewsMenuItem: React.FC<Props> = ({
       icon: <Icon icon="delete" />,
       danger: true,
       onClick: () => {
-        Modal.confirm({
+        confirm({
           title: t("Are you sure you want to delete this view?"),
           content: (
             <div>
@@ -60,7 +61,6 @@ const ViewsMenuItem: React.FC<Props> = ({
               </StyledCautionText>
             </div>
           ),
-          icon: <Icon icon="exclamationCircle" />,
           okText: t("Remove"),
           okButtonProps: { danger: true },
           maskClosable: true,
