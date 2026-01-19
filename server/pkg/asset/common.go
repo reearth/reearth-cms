@@ -19,6 +19,6 @@ var (
 	JSONContentType    = "application/json"
 )
 
-func NormalizeFileName(name string) string {
+func NormalizeText(name string) string {
 	return norm.NFKC.String(name)
 }

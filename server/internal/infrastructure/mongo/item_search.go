@@ -18,7 +18,6 @@ import (
 	"github.com/samber/lo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"golang.org/x/text/unicode/norm"
 	"go.opencensus.io/trace"
 )
 
@@ -270,16 +269,8 @@ func resetTime(dateField string) bson.M {
 	}
 }
 
-// NormalizeText normalizes text using Unicode NFKC normalization.
-// This ensures search queries match stored values by converting compatibility
-// characters (like fullwidth) to their canonical forms.
-func NormalizeText(s string) string {
-	return norm.NFKC.String(s)
-}
-
 func textFilterStage(keyword string, sp schema.Package) any {
-	// Normalize the search keyword using NFKC to match how text values are stored
-	normalizedKeyword := NormalizeText(keyword)
+	normalizedKeyword := item.NormalizeText(keyword)
 	regex := primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(normalizedKeyword)), Options: "i"}
 	var f []bson.M
 	for _, k := range textSearchFieldKeys(sp) {

@@ -5,16 +5,12 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/reearth/reearth-cms/server/pkg/asset"
+	"github.com/reearth/reearth-cms/server/pkg/item"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"golang.org/x/text/unicode/norm"
-	"github.com/reearth/reearth-cms/server/pkg/asset"
 )
-
-func normalizeTextString(s string) string {
-	return norm.NFKC.String(s)
-}
 
 type AssetDocumentForNormalization struct {
 	ID       interface{} `bson:"_id"`
@@ -111,7 +107,7 @@ func normalizeAssetFilenames(ctx context.Context, db *mongo.Database, wetRun boo
 			return fmt.Errorf("failed to decode document: %w", err)
 		}
 
-		normalizedFileName := asset.NormalizeFileName(assetDoc.FileName)
+		normalizedFileName := asset.NormalizeText(assetDoc.FileName)
 
 		if assetDoc.FileName != normalizedFileName {
 			fmt.Printf("Normalizing asset filename: '%s' -> '%s'\n", assetDoc.FileName, normalizedFileName)
@@ -225,7 +221,7 @@ func normalizeItemTextFields(ctx context.Context, db *mongo.Database, wetRun boo
 			return ctx.Err()
 		}
 
-		var item struct {
+		var itemDoc struct {
 			ID     interface{} `bson:"_id"`
 			ItemID string      `bson:"id"`
 			Fields []struct {
@@ -236,14 +232,14 @@ func normalizeItemTextFields(ctx context.Context, db *mongo.Database, wetRun boo
 				} `bson:"v"`
 			} `bson:"fields"`
 		}
-		if err := cursor.Decode(&item); err != nil {
+		if err := cursor.Decode(&itemDoc); err != nil {
 			return fmt.Errorf("failed to decode document: %w", err)
 		}
 
-		normalizedFields := make([]bson.M, len(item.Fields))
+		normalizedFields := make([]bson.M, len(itemDoc.Fields))
 		hasChanges := false
 
-		for i, field := range item.Fields {
+		for i, field := range itemDoc.Fields {
 			if !textFieldTypes[field.V.T] {
 				normalizedFields[i] = bson.M{
 					"f": field.F,
@@ -258,7 +254,7 @@ func normalizeItemTextFields(ctx context.Context, db *mongo.Database, wetRun boo
 			normalizedValues := make([]any, len(field.V.V))
 			for j, val := range field.V.V {
 				if str, ok := val.(string); ok {
-					normalized := normalizeTextString(str)
+					normalized := item.NormalizeText(str)
 					if str != normalized {
 						hasChanges = true
 					}
@@ -279,7 +275,7 @@ func normalizeItemTextFields(ctx context.Context, db *mongo.Database, wetRun boo
 
 		if hasChanges {
 			update := mongo.NewUpdateOneModel().
-				SetFilter(bson.M{"_id": item.ID}).
+				SetFilter(bson.M{"_id": itemDoc.ID}).
 				SetUpdate(bson.M{"$set": bson.M{"fields": normalizedFields}})
 
 			batch = append(batch, update)

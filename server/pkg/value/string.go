@@ -22,9 +22,6 @@ type propertyString struct{}
 
 type String = string
 
-// normalizeString normalizes a string using Unicode NFKC normalization.
-// This ensures consistent storage and retrieval by converting compatibility
-// characters (like fullwidth) to their canonical forms and composing characters.
 func normalizeString(s string) string {
 	return norm.NFKC.String(s)
 }

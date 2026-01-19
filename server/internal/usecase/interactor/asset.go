@@ -392,7 +392,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 			ab := asset.New().
 				NewID().
 				Project(inp.ProjectID).
-				FileName(asset.NormalizeFileName(path.Base(file.Name))).
+				FileName(asset.NormalizeText(path.Base(file.Name))).
 				Size(uint64(file.Size)).
 				Type(asset.DetectPreviewType(file)).
 				UUID(uuid).
