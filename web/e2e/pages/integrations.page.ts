@@ -56,10 +56,10 @@ export class IntegrationsPage extends BasePage {
     return this.getByLabel("Secret");
   }
   get createCheckbox(): Locator {
-    return this.getByLabel("Create");
+    return this.getByRole("checkbox", { name: "Create" });
   }
   get uploadCheckbox(): Locator {
-    return this.getByLabel("Upload");
+    return this.getByRole("checkbox", { name: "Upload" });
   }
   get arrowLeftButton(): Locator {
     return this.getByRole("button", { name: "arrow-left" });

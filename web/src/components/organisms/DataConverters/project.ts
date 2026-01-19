@@ -1,5 +1,5 @@
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
-import { Project as GQLProject } from "@reearth-cms/gql/graphql-client-api";
+import { Project as GQLProject } from "@reearth-cms/gql/__generated__/graphql.generated";
 
 export const fromGraphQLProject = (project: GQLProject): Project => ({
   id: project.id,

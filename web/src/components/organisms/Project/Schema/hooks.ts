@@ -1,3 +1,4 @@
+import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -17,28 +18,34 @@ import type { FormValues, ModelFormValues } from "@reearth-cms/components/molecu
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import {
-  useCreateFieldMutation,
-  useDeleteFieldMutation,
-  useUpdateFieldMutation,
-  useUpdateFieldsMutation,
-  useGetModelsQuery,
-  useGetModelLazyQuery,
-  useGetGroupsQuery,
-  useGetGroupQuery,
+  CreateFieldDocument,
+  CreateFieldsDocument,
+  DeleteFieldDocument,
+  UpdateFieldDocument,
+  UpdateFieldsDocument,
+} from "@reearth-cms/gql/__generated__/field.generated";
+import {
   Model as GQLModel,
   Group as GQLGroup,
-  useCheckGroupKeyAvailabilityLazyQuery,
-  useDeleteGroupMutation,
-  useCreateGroupMutation,
-  useUpdateGroupMutation,
-  useUpdateModelMutation,
-  useDeleteModelMutation,
-  useCheckModelKeyAvailabilityLazyQuery,
-  useModelsByGroupQuery,
-  useCreateFieldsMutation,
   SchemaFieldType as GQLSchemaFieldType,
   SchemaFieldTypePropertyInput,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import {
+  CheckGroupKeyAvailabilityDocument,
+  CreateGroupDocument,
+  DeleteGroupDocument,
+  GetGroupDocument,
+  GetGroupsDocument,
+  ModelsByGroupDocument,
+  UpdateGroupDocument,
+} from "@reearth-cms/gql/__generated__/group.generated";
+import {
+  CheckModelKeyAvailabilityDocument,
+  DeleteModelDocument,
+  GetModelDocument,
+  GetModelsDocument,
+  UpdateModelDocument,
+} from "@reearth-cms/gql/__generated__/model.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useModel, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
 
@@ -62,7 +69,7 @@ export default () => {
   const [selectedField, setSelectedField] = useState<Field | null>(null);
   const [selectedType, setSelectedType] = useState<SchemaFieldType | null>(null);
   const [collapsed, setCollapsed] = useCollapsedModelMenu();
-  const { data: modelsData } = useGetModelsQuery({
+  const { data: modelsData } = useQuery(GetModelsDocument, {
     variables: {
       projectId: projectId ?? "",
       pagination: { first: 100 },
@@ -76,17 +83,18 @@ export default () => {
       .filter((model): model is Model => !!model);
   }, [modelsData?.models.nodes]);
 
-  const [getModel, { data: modelData }] = useGetModelLazyQuery({
-    fetchPolicy: "cache-and-network",
-  });
+  const { data: modelData, refetch: modelRefetch } = useQuery(
+    GetModelDocument,
+    currentModel
+      ? { variables: { id: currentModel.id }, fetchPolicy: "cache-and-network" }
+      : skipToken,
+  );
 
   const handleReferencedModelGet = useCallback(
     (modelId: string) => {
-      getModel({
-        variables: { id: modelId },
-      });
+      modelRefetch({ id: modelId });
     },
-    [getModel],
+    [modelRefetch],
   );
 
   const referencedModel = useMemo<Model | undefined>(
@@ -94,7 +102,7 @@ export default () => {
     [modelData?.node],
   );
 
-  const { data: groupsData } = useGetGroupsQuery({
+  const { data: groupsData } = useQuery(GetGroupsDocument, {
     variables: {
       projectId: projectId ?? "",
     },
@@ -107,7 +115,7 @@ export default () => {
       .filter((group): group is Group => !!group);
   }, [groupsData?.groups]);
 
-  const { data: groupData } = useGetGroupQuery({
+  const { data: groupData } = useQuery(GetGroupDocument, {
     fetchPolicy: "cache-and-network",
     variables: {
       id: schemaId ?? "",
@@ -173,15 +181,15 @@ export default () => {
     [keyUniqueCheck, referencedModel?.schema, selectedField?.typeProperty?.correspondingField?.id],
   );
 
-  const [createNewField, { loading: fieldCreationLoading }] = useCreateFieldMutation({
+  const [createNewField, { loading: fieldCreationLoading }] = useMutation(CreateFieldDocument, {
     refetchQueries: ["GetModel", "GetGroup"],
   });
 
-  const [updateField, { loading: fieldUpdateLoading }] = useUpdateFieldMutation({
+  const [updateField, { loading: fieldUpdateLoading }] = useMutation(UpdateFieldDocument, {
     refetchQueries: ["GetModel", "GetGroup"],
   });
 
-  const [deleteFieldMutation] = useDeleteFieldMutation({
+  const [deleteFieldMutation] = useMutation(DeleteFieldDocument, {
     refetchQueries: ["GetModel", "GetGroup"],
   });
 
@@ -197,7 +205,7 @@ export default () => {
         },
       };
       const results = await deleteFieldMutation(options);
-      if (results.errors) {
+      if (results.error) {
         Notification.error({ message: t("Failed to delete field.") });
         return;
       }
@@ -226,7 +234,7 @@ export default () => {
         },
       };
       const field = await updateField(options);
-      if (field.errors || !field.data?.updateField) {
+      if (field.error || !field.data?.updateField) {
         Notification.error({ message: t("Failed to update field.") });
         return;
       }
@@ -236,7 +244,7 @@ export default () => {
     [schemaId, selectedSchemaType, updateField, t],
   );
 
-  const [updateFieldsOrder] = useUpdateFieldsMutation({
+  const [updateFieldsOrder] = useMutation(UpdateFieldsDocument, {
     refetchQueries: ["GetModel"],
   });
 
@@ -254,7 +262,7 @@ export default () => {
           })),
         },
       });
-      if (response.errors || !response?.data?.updateFields) {
+      if (response.error || !response?.data?.updateFields) {
         Notification.error({ message: t("Failed to update field.") });
         return;
       }
@@ -284,7 +292,7 @@ export default () => {
         },
       };
       const field = await createNewField(options);
-      if (field.errors || !field.data?.createField) {
+      if (field.error || !field.data?.createField) {
         Notification.error({ message: t("Failed to create field.") });
         setFieldModalShown(false);
         return;
@@ -320,11 +328,11 @@ export default () => {
     () => setGroupDeletionModalShown(false),
     [setGroupDeletionModalShown],
   );
-  const [CheckGroupKeyAvailability] = useCheckGroupKeyAvailabilityLazyQuery({
+  const [CheckGroupKeyAvailability] = useLazyQuery(CheckGroupKeyAvailabilityDocument, {
     fetchPolicy: "no-cache",
   });
 
-  const { data: modelsByGroupData } = useModelsByGroupQuery({
+  const { data: modelsByGroupData } = useQuery(ModelsByGroupDocument, {
     fetchPolicy: "cache-and-network",
     variables: {
       groupId: schemaId ?? "",
@@ -332,7 +340,7 @@ export default () => {
     skip: !schemaId || selectedSchemaType !== "group",
   });
 
-  const [deleteGroup, { loading: deleteGroupLoading }] = useDeleteGroupMutation({
+  const [deleteGroup, { loading: deleteGroupLoading }] = useMutation(DeleteGroupDocument, {
     refetchQueries: ["GetGroups"],
   });
 
@@ -355,7 +363,7 @@ export default () => {
       }
 
       const res = await deleteGroup({ variables: { groupId } });
-      if (res.errors || !res.data?.deleteGroup) {
+      if (res.error || !res.data?.deleteGroup) {
         Notification.error({ message: t("Failed to delete group.") });
       } else {
         Notification.success({ message: t("Successfully deleted group!") });
@@ -376,7 +384,7 @@ export default () => {
     ],
   );
 
-  const [createNewGroup] = useCreateGroupMutation({
+  const [createNewGroup] = useMutation(CreateGroupDocument, {
     refetchQueries: ["GetGroups"],
   });
 
@@ -391,7 +399,7 @@ export default () => {
           key: data.key,
         },
       });
-      if (group.errors || !group.data?.createGroup) {
+      if (group.error || !group.data?.createGroup) {
         Notification.error({ message: t("Failed to create group.") });
         return;
       }
@@ -404,7 +412,7 @@ export default () => {
     [projectId, createNewGroup, t, handleGroupModalClose, navigate, workspaceId],
   );
 
-  const [updateNewGroup] = useUpdateGroupMutation({
+  const [updateNewGroup] = useMutation(UpdateGroupDocument, {
     refetchQueries: ["GetGroups"],
   });
 
@@ -419,7 +427,7 @@ export default () => {
           key: data.key,
         },
       });
-      if (group.errors || !group.data?.updateGroup) {
+      if (group.error || !group.data?.updateGroup) {
         Notification.error({ message: t("Failed to update group.") });
         return;
       }
@@ -452,7 +460,7 @@ export default () => {
   );
 
   // model hooks
-  const [CheckModelKeyAvailability] = useCheckModelKeyAvailabilityLazyQuery({
+  const [CheckModelKeyAvailability] = useLazyQuery(CheckModelKeyAvailabilityDocument, {
     fetchPolicy: "no-cache",
   });
 
@@ -466,7 +474,7 @@ export default () => {
     [setModelDeletionModalShown],
   );
 
-  const [deleteModel, { loading: deleteModelLoading }] = useDeleteModelMutation({
+  const [deleteModel, { loading: deleteModelLoading }] = useMutation(DeleteModelDocument, {
     refetchQueries: ["GetModels"],
   });
 
@@ -474,7 +482,7 @@ export default () => {
     async (modelId?: string) => {
       if (!modelId) return;
       const res = await deleteModel({ variables: { modelId } });
-      if (res.errors || !res.data?.deleteModel) {
+      if (res.error || !res.data?.deleteModel) {
         Notification.error({ message: t("Failed to delete model.") });
       } else {
         Notification.success({ message: t("Successfully deleted model!") });
@@ -494,7 +502,7 @@ export default () => {
     ],
   );
 
-  const [updateNewModel] = useUpdateModelMutation({
+  const [updateNewModel] = useMutation(UpdateModelDocument, {
     refetchQueries: ["GetModels"],
   });
 
@@ -512,7 +520,7 @@ export default () => {
           key: data.key,
         },
       });
-      if (model.errors || !model.data?.updateModel) {
+      if (model.error || !model.data?.updateModel) {
         Notification.error({ message: t("Failed to update model.") });
         return;
       }
@@ -574,7 +582,7 @@ export default () => {
   );
 
   const [createNewFields, { loading: fieldsCreationLoading, error: fieldsCreationError }] =
-    useCreateFieldsMutation({
+    useMutation(CreateFieldsDocument, {
       refetchQueries: ["GetModel", "GetGroup"],
     });
 
@@ -600,7 +608,7 @@ export default () => {
         },
       });
 
-      if (response.errors || !response.data?.createFields) {
+      if (response.error || !response.data?.createFields) {
         Notification.error({ message: t("Failed to create fields.") });
         return;
       }
