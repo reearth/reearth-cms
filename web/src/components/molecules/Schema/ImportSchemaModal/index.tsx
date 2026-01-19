@@ -3,8 +3,7 @@ import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Modal from "@reearth-cms/components/atoms/Modal";
-import { useModal } from "@reearth-cms/components/atoms/Modal";
+import Modal, { useModal } from "@reearth-cms/components/atoms/Modal";
 import Steps from "@reearth-cms/components/atoms/Step";
 import {
   UploadProps,

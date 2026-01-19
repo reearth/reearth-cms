@@ -7,6 +7,7 @@ import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentS
 import { useModal } from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import { ProjectVisibility } from "../Accessibility/types";
 
@@ -40,7 +41,7 @@ const DangerZone: React.FC<Props> = ({
         />
       ),
       okText: t("Delete project"),
-      okButtonProps: { danger: true },
+      okButtonProps: { danger: true, "data-testid": DATA_TEST_ID.ConfirmDeleteProjectButton },
       onOk() {
         onProjectDelete();
       },
@@ -107,6 +108,7 @@ const DangerZone: React.FC<Props> = ({
         )}
       </Text>
       <StyledButton
+        data-testid={DATA_TEST_ID.DeleteProjectButton}
         onClick={handleProjectDeleteConfirmation}
         type="primary"
         danger

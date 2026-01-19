@@ -8,6 +8,7 @@ import List from "@reearth-cms/components/atoms/List";
 import Popconfirm from "@reearth-cms/components/atoms/PopConfirm";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { Trans, useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import { fieldTypes } from "./fieldTypes";
 import { Field } from "./types";
@@ -128,7 +129,10 @@ const ModelFieldList: React.FC<Props> = ({
                     }
                     onConfirm={async () => await onFieldDelete(item.id)}
                     okText={t("Delete field")}
-                    okButtonProps={{ danger: true }}
+                    okButtonProps={{
+                      danger: true,
+                      "data-testid": DATA_TEST_ID.ConfirmDeleteFieldButton,
+                    }}
                     cancelText={t("Cancel")}>
                     <Button
                       type="text"

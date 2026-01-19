@@ -75,6 +75,7 @@ import CurlyBrackets from "./Icons/curlyBrackets.svg";
 import Date from "./Icons/date.svg";
 import Dot from "./Icons/dot.svg";
 import EditorCopy from "./Icons/editorCopy.svg";
+import ExclamationSolid from "./Icons/exclamationSolid.svg";
 import Group from "./Icons/group.svg";
 import InfinityIcon from "./Icons/infinity.svg";
 import Key from "./Icons/key.svg";
@@ -99,7 +100,6 @@ import Text from "./Icons/textT.svg";
 import Trash from "./Icons/trash.svg";
 import Unzip from "./Icons/unzip.svg";
 import WorkspaceSettings from "./Icons/workspaceSettings.svg";
-import ExclamationSolid from "./Icons/exclamationSolid.svg";
 
 export default {
   home: HomeOutlined,
