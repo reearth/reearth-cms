@@ -5,7 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Content from "@reearth-cms/components/atoms/Content";
 import Divider from "@reearth-cms/components/atoms/Divider";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Modal from "@reearth-cms/components/atoms/Modal";
+import { useModal } from "@reearth-cms/components/atoms/Modal";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { ListToolBarProps, TableRowSelection } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
@@ -14,8 +14,6 @@ import { User } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/utils/test";
-
-const { confirm } = Modal;
 
 type Props = {
   workspaceUserMembers?: UserMember[];
@@ -55,6 +53,8 @@ const MemberTable: React.FC<Props> = ({
   hasChangeRoleRight,
 }) => {
   const t = useT();
+  const { confirm } = useModal();
+
   const [selection, setSelection] = useState<Key[]>([]);
 
   const handleMemberDelete = useCallback(
@@ -64,7 +64,6 @@ const MemberTable: React.FC<Props> = ({
           users.length > 1
             ? t("Are you sure to remove these members?")
             : t("Are you sure to remove this member?"),
-        icon: <Icon icon="exclamationCircle" />,
         content: (
           <>
             <RemoveUsers>
@@ -92,21 +91,20 @@ const MemberTable: React.FC<Props> = ({
         },
       });
     },
-    [onMemberRemoveFromWorkspace, t],
+    [confirm, onMemberRemoveFromWorkspace, t],
   );
 
   const leaveConfirm = useCallback(
     (userId: string) => {
       confirm({
         title: t("Are you sure to leave this workspace?"),
-        icon: <Icon icon="exclamationCircle" />,
         content: t("Leave this workspace means you will not view any content of this workspace."),
         async onOk() {
           await onLeave(userId);
         },
       });
     },
-    [onLeave, t],
+    [confirm, onLeave, t],
   );
 
   const columns = useMemo(

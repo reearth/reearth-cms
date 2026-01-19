@@ -1,3 +1,4 @@
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 
@@ -6,16 +7,17 @@ import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
-  useGetWorkspaceQuery,
-  useGetMeQuery,
-  useAddUsersToWorkspaceMutation,
-  useUpdateMemberOfWorkspaceMutation,
   Role as GQLRole,
-  useRemoveMultipleMembersFromWorkspaceMutation,
   Workspace as GQLWorkspace,
-  useGetUsersLazyQuery,
   MemberInput as GQLMemberInput,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import { GetMeDocument, GetUsersDocument } from "@reearth-cms/gql/__generated__/user.generated";
+import {
+  AddUsersToWorkspaceDocument,
+  GetWorkspaceDocument,
+  RemoveMultipleMembersFromWorkspaceDocument,
+  UpdateMemberOfWorkspaceDocument,
+} from "@reearth-cms/gql/__generated__/workspace.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useWorkspace, useUserRights } from "@reearth-cms/state";
 import { stringSortCallback } from "@reearth-cms/utils/sort";
@@ -46,14 +48,14 @@ export default () => {
     data: workspaceData,
     refetch,
     loading,
-  } = useGetWorkspaceQuery({
+  } = useQuery(GetWorkspaceDocument, {
     variables: { id: workspaceId ?? "" },
     fetchPolicy: "cache-and-network",
     notifyOnNetworkStatusChange: true,
     skip: !workspaceId,
   });
 
-  const { data, refetch: refetchMe } = useGetMeQuery({
+  const { data, refetch: refetchMe } = useQuery(GetMeDocument, {
     fetchPolicy: "cache-and-network",
   });
 
@@ -88,7 +90,7 @@ export default () => {
     [me.id, userRights?.role, workspaceUserMembers],
   );
 
-  const [getUsersQuery, { loading: searchLoading }] = useGetUsersLazyQuery({
+  const [getUsersQuery, { loading: searchLoading }] = useLazyQuery(GetUsersDocument, {
     fetchPolicy: "no-cache",
   });
 
@@ -103,7 +105,9 @@ export default () => {
     [getUsersQuery],
   );
 
-  const [addUsersToWorkspaceMutation, { loading: addLoading }] = useAddUsersToWorkspaceMutation();
+  const [addUsersToWorkspaceMutation, { loading: addLoading }] = useMutation(
+    AddUsersToWorkspaceDocument,
+  );
 
   const handleUsersAddToWorkspace = useCallback(
     async (users: MemberInput[]) => {
@@ -112,7 +116,7 @@ export default () => {
         variables: { workspaceId, users: users as GQLMemberInput[] },
       });
       const workspace = result.data?.addUsersToWorkspace?.workspace;
-      if (result.errors || !workspace) {
+      if (result.error || !workspace) {
         Notification.error({ message: t("Failed to add one or more members.") });
         return;
       }
@@ -122,8 +126,9 @@ export default () => {
     [addUsersToWorkspaceMutation, setWorkspace, t, workspaceId],
   );
 
-  const [updateMemberOfWorkspaceMutation, { loading: updateLoading }] =
-    useUpdateMemberOfWorkspaceMutation();
+  const [updateMemberOfWorkspaceMutation, { loading: updateLoading }] = useMutation(
+    UpdateMemberOfWorkspaceDocument,
+  );
 
   const handleUpdateRole = useCallback(
     async (userId: string, role: Role) => {
@@ -141,7 +146,7 @@ export default () => {
         },
       });
       const workspace = result.data?.updateUserOfWorkspace?.workspace;
-      if (result.errors || !workspace) {
+      if (result.error || !workspace) {
         Notification.error({ message: t("Failed to update member's role.") });
         return;
       }
@@ -151,8 +156,9 @@ export default () => {
     [workspaceId, updateMemberOfWorkspaceMutation, t, setWorkspace],
   );
 
-  const [removeMultipleMembersFromWorkspaceMutation] =
-    useRemoveMultipleMembersFromWorkspaceMutation();
+  const [removeMultipleMembersFromWorkspaceMutation] = useMutation(
+    RemoveMultipleMembersFromWorkspaceDocument,
+  );
 
   const handleMemberRemoveFromWorkspace = useCallback(
     async (userIds: string[]) => {
@@ -160,7 +166,7 @@ export default () => {
       const result = await removeMultipleMembersFromWorkspaceMutation({
         variables: { workspaceId, userIds },
       });
-      if (result.errors) {
+      if (result.error) {
         Notification.error({
           message: t("Failed to remove member(s) from the workspace."),
         });
@@ -179,7 +185,7 @@ export default () => {
       const result = await removeMultipleMembersFromWorkspaceMutation({
         variables: { workspaceId, userIds: [userId] },
       });
-      if (result.errors) {
+      if (result.error) {
         Notification.error({
           message: t("Failed to leave the workspace."),
         });

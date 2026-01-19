@@ -8,7 +8,7 @@ import Divider from "@reearth-cms/components/atoms/Divider";
 import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
-import Modal from "@reearth-cms/components/atoms/Modal";
+import { useModal } from "@reearth-cms/components/atoms/Modal";
 import Password from "@reearth-cms/components/atoms/Password";
 import Row from "@reearth-cms/components/atoms/Row";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
@@ -41,6 +41,7 @@ const MyIntegrationForm: React.FC<Props> = ({
   onRegenerateToken,
 }) => {
   const t = useT();
+  const { confirm } = useModal();
   const [form] = Form.useForm<FormType>();
   const [isDisabled, setIsDisabled] = useState(true);
   const [visible, setVisible] = useState(false);
@@ -74,18 +75,17 @@ const MyIntegrationForm: React.FC<Props> = ({
   }, [form, onIntegrationUpdate]);
 
   const handleRegenerateToken = useCallback(() => {
-    Modal.confirm({
+    confirm({
       title: t("Re-generate The Integration Token?"),
       content: t(
         "If you re-generate the integration token, the previous token will become invalid, and this action cannot be undone. Are you sure you want to proceed?",
       ),
-      cancelText: t("Cancel"),
       okText: t("Reset"),
       onOk() {
         onRegenerateToken();
       },
     });
-  }, [t, onRegenerateToken]);
+  }, [confirm, t, onRegenerateToken]);
 
   return (
     <Form

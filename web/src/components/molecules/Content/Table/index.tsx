@@ -15,7 +15,7 @@ import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
-import Modal from "@reearth-cms/components/atoms/Modal";
+import { useModal } from "@reearth-cms/components/atoms/Modal";
 import {
   TableRowSelection,
   ListToolBarProps,
@@ -138,6 +138,7 @@ const ContentTable: React.FC<Props> = ({
 }) => {
   const [currentWorkspace] = useWorkspace();
   const t = useT();
+  const { confirm } = useModal();
 
   const sortOrderGet = useCallback(
     (key: FieldType) =>
@@ -276,10 +277,9 @@ const ContentTable: React.FC<Props> = ({
 
   const publishConfirm = useCallback(
     (itemIds: string[]) => {
-      Modal.confirm({
+      confirm({
         title: t("Publish items"),
         content: t("All selected items will be published. You can unpublish them anytime."),
-        icon: <Icon icon="exclamationCircle" />,
         cancelText: t("No"),
         okText: t("Yes"),
         async onOk() {
@@ -287,7 +287,7 @@ const ContentTable: React.FC<Props> = ({
         },
       });
     },
-    [onPublish, t],
+    [confirm, onPublish, t],
   );
 
   const alertOptions = useCallback(

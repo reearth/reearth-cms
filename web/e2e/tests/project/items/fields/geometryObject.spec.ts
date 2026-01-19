@@ -43,6 +43,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
 
   await test.step("Add Point geometry with coordinates [0, 0]", async () => {
     await contentPage.viewLinesEditor.click();
+    await contentPage.editorContent.focus();
     await contentPage.editorContent.fill('{\n"type": "Point",\n"coordinates": [0, 0]');
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
@@ -89,6 +90,7 @@ test("GeometryObject field editing has succeeded", async ({
     await fieldEditorPage.pointCheckbox.check();
     await fieldEditorPage.defaultValueTab.click();
     await fieldEditorPage.viewLinesEditor.click();
+    await contentPage.editorContent.focus();
     await fieldEditorPage.editorContent().fill('{\n"type": "Point",\n"coordinates": [0, 0]');
     await fieldEditorPage.okButton.click();
     await fieldEditorPage.closeNotification();

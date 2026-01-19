@@ -91,14 +91,19 @@ test.describe("Project CRUD and searching has succeeded", () => {
     });
   });
 
-  test("@smoke Delete project", async ({ projectPage, workspacePage, projectSettingsPage, page }) => {
+  test("@smoke Delete project", async ({
+    projectPage,
+    workspacePage,
+    projectSettingsPage,
+    page,
+  }) => {
     await test.step("Navigate to project settings and delete project", async () => {
       await projectPage.gotoProject(NEW_PROJECT_NAME);
       await projectSettingsPage.goToProjectSettings();
       const deleteButton = projectPage.deleteProjectButton;
       await deleteButton.waitFor({ state: "visible" });
       await deleteButton.click();
-      await projectPage.okButton.click();
+      await projectPage.confirmDeleteProjectButton.click();
       await projectPage.closeNotification();
       await page.waitForTimeout(300);
     });

@@ -3,7 +3,7 @@
     "target": "ESNext",
     "useDefineForClassFields": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "allowJs": false,
+    "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
@@ -21,10 +21,11 @@
       "@reearth-cms/*": ["src/*"]
     },
     "types": ["@testing-library/jest-dom"],
+    "maxNodeModuleJsDepth": 10,
     "allowImportingTsExtensions": true,
     "strictNullChecks": true
   },
-  "include": ["src", "e2e"],
+  "include": ["src", "e2e", "codegen.ts"],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"

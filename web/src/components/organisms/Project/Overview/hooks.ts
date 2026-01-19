@@ -1,3 +1,4 @@
+import { useMutation, useQuery } from "@apollo/client/react";
 import fileDownload from "js-file-download";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
@@ -9,17 +10,19 @@ import { SortBy, UpdateProjectInput } from "@reearth-cms/components/molecules/Wo
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import useModelHooks from "@reearth-cms/components/organisms/Project/ModelsMenu/hooks";
 import {
-  useDeleteModelMutation,
-  useGetModelsQuery,
-  useUpdateModelMutation,
-  useExportModelMutation,
-  useExportModelSchemaMutation,
   Model as GQLModel,
   Role as GQLRole,
   ProjectAccessibility as GQLProjectAccessibility,
-  useUpdateProjectMutation,
   ExportFormat as GQLExportFormat,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import {
+  DeleteModelDocument,
+  ExportModelDocument,
+  ExportModelSchemaDocument,
+  GetModelsDocument,
+  UpdateModelDocument,
+} from "@reearth-cms/gql/__generated__/model.generated";
+import { UpdateProjectDocument } from "@reearth-cms/gql/__generated__/project.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
 
@@ -46,7 +49,7 @@ export default () => {
     handleModelKeyCheck,
   } = useModelHooks({});
 
-  const [updateProjectMutation] = useUpdateProjectMutation({
+  const [updateProjectMutation] = useMutation(UpdateProjectDocument, {
     refetchQueries: ["GetProject"],
   });
 
@@ -65,7 +68,7 @@ export default () => {
           accessibility: data.accessibility as GQLProjectAccessibility,
         },
       });
-      if (Project.errors || !Project.data?.updateProject) {
+      if (Project.error || !Project.data?.updateProject) {
         Notification.error({ message: t("Failed to update Project.") });
         return;
       }
@@ -74,7 +77,7 @@ export default () => {
     [updateProjectMutation, t],
   );
 
-  const { data } = useGetModelsQuery({
+  const { data } = useQuery(GetModelsDocument, {
     variables: {
       projectId: currentProject?.id ?? "",
       keyword: searchedModelName,
@@ -113,7 +116,7 @@ export default () => {
     setModelDeletionModalShown(false);
   }, [setSelectedModel, setModelDeletionModalShown]);
 
-  const [deleteModel, { loading: deleteLoading }] = useDeleteModelMutation({
+  const [deleteModel, { loading: deleteLoading }] = useMutation(DeleteModelDocument, {
     refetchQueries: ["GetModels"],
   });
 
@@ -121,7 +124,7 @@ export default () => {
     async (modelId?: string) => {
       if (!modelId) return;
       const res = await deleteModel({ variables: { modelId } });
-      if (res.errors || !res.data?.deleteModel) {
+      if (res.error || !res.data?.deleteModel) {
         Notification.error({ message: t("Failed to delete model.") });
       } else {
         Notification.success({ message: t("Successfully deleted model!") });
@@ -131,7 +134,7 @@ export default () => {
     [deleteModel, handleModelDeletionModalClose, t],
   );
 
-  const [updateNewModel] = useUpdateModelMutation({
+  const [updateNewModel] = useMutation(UpdateModelDocument, {
     refetchQueries: ["GetModels"],
   });
 
@@ -146,7 +149,7 @@ export default () => {
           key: data.key,
         },
       });
-      if (model.errors || !model.data?.updateModel) {
+      if (model.error || !model.data?.updateModel) {
         Notification.error({ message: t("Failed to update model.") });
         return;
       }
@@ -156,8 +159,9 @@ export default () => {
     [updateNewModel, handleModelModalClose, t],
   );
 
-  const [exportModel, { loading: exportModelLoading }] = useExportModelMutation();
-  const [exportModelSchema, { loading: exportSchemaLoading }] = useExportModelSchemaMutation();
+  const [exportModel, { loading: exportModelLoading }] = useMutation(ExportModelDocument);
+  const [exportModelSchema, { loading: exportSchemaLoading }] =
+    useMutation(ExportModelSchemaDocument);
 
   const exportLoading = exportModelLoading || exportSchemaLoading;
 
@@ -209,7 +213,7 @@ export default () => {
         if (format === ExportFormat.Schema) {
           // Export schema
           const res = await exportModelSchema({ variables: { modelId } });
-          if (res.errors || !res.data?.exportModelSchema) {
+          if (res.error || !res.data?.exportModelSchema) {
             throw new Error(t("Failed to export schema."));
           }
           const url = res.data.exportModelSchema.url;
@@ -221,7 +225,7 @@ export default () => {
           const res = await exportModel({
             variables: { modelId, format: exportFormat },
           });
-          if (res.errors || !res.data?.exportModel) {
+          if (res.error || !res.data?.exportModel) {
             throw new Error(t("Failed to export model data."));
           }
           const url = res.data.exportModel.url;

@@ -464,7 +464,7 @@ export class ContentPage extends BasePage {
   }
 
   get editorContent(): Locator {
-    return this.locator(".monaco-editor");
+    return this.locator(".monaco-editor textarea");
   }
 
   // Table column selection

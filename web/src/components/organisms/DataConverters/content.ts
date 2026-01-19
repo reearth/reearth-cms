@@ -15,7 +15,7 @@ import {
   Comment as GQLComment,
   Request as GQLRequest,
   VersionedItem as GQLVersionedItem,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
 
 export const fromGraphQLItem = (GQLItem: GQLItem | undefined): Item | undefined => {
   if (!GQLItem) return;

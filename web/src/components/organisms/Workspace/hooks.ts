@@ -1,3 +1,4 @@
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 
@@ -8,15 +9,17 @@ import { SortBy } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLProject } from "@reearth-cms/components/organisms/DataConverters/project";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
-  Project as GQLProject,
-  useCheckProjectAliasLazyQuery,
-  useCheckProjectLimitsQuery,
-  useCreateProjectMutation,
-  useCreateWorkspaceMutation,
-  useGetMeQuery,
-  useGetProjectsQuery,
   Workspace as GQLWorkspace,
-} from "@reearth-cms/gql/graphql-client-api";
+  Project as GQLProject,
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import {
+  CheckProjectAliasDocument,
+  CheckProjectLimitsDocument,
+  CreateProjectDocument,
+  GetProjectsDocument,
+} from "@reearth-cms/gql/__generated__/project.generated";
+import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
+import { CreateWorkspaceDocument } from "@reearth-cms/gql/__generated__/workspace.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useUserRights, useWorkspace } from "@reearth-cms/state";
 
@@ -55,14 +58,14 @@ export default () => {
 
   const workspaceId = currentWorkspace?.id;
 
-  const { data: meData } = useGetMeQuery();
+  const { data: meData } = useQuery(GetMeDocument);
   const username = useMemo(() => meData?.me?.name || "", [meData?.me?.name]);
 
   const {
     data,
     loading,
     refetch: projectsRefetch,
-  } = useGetProjectsQuery({
+  } = useQuery(GetProjectsDocument, {
     variables: {
       workspaceId: workspaceId ?? "",
       keyword: searchedProjectName,
@@ -80,7 +83,7 @@ export default () => {
     [data?.projects.nodes],
   );
 
-  const [createNewProject] = useCreateProjectMutation({
+  const [createNewProject] = useMutation(CreateProjectDocument, {
     refetchQueries: ["GetProjects"],
   });
 
@@ -119,7 +122,7 @@ export default () => {
           license: data.license,
         },
       });
-      if (project.errors || !project.data?.createProject) {
+      if (project.error || !project.data?.createProject) {
         Notification.error({ message: t("Failed to create project.") });
         throw new Error();
       }
@@ -139,7 +142,7 @@ export default () => {
     [workspaceId, navigate],
   );
 
-  const [createWorkspaceMutation] = useCreateWorkspaceMutation({
+  const [createWorkspaceMutation] = useMutation(CreateWorkspaceDocument, {
     refetchQueries: ["GetMe"],
   });
   const handleWorkspaceCreate = useCallback(
@@ -161,7 +164,7 @@ export default () => {
     [createWorkspaceMutation, setCurrentWorkspace, projectsRefetch, navigate, t],
   );
 
-  const [CheckProjectAlias] = useCheckProjectAliasLazyQuery({
+  const [CheckProjectAlias] = useLazyQuery(CheckProjectAliasDocument, {
     fetchPolicy: "no-cache",
   });
 
@@ -178,7 +181,7 @@ export default () => {
     [CheckProjectAlias, workspaceId],
   );
 
-  const { data: projectLimitsData } = useCheckProjectLimitsQuery({
+  const { data: projectLimitsData } = useQuery(CheckProjectLimitsDocument, {
     variables: { workspaceId: workspaceId ?? "" },
     skip: !workspaceId,
   });
