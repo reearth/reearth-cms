@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
 import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import IntegrationTable from ".";
 
@@ -101,7 +102,9 @@ describe("Integration table", () => {
       />,
     );
 
-    const connectButtons = screen.getAllByRole("button", { name: "api Connect Integration" });
+    const connectButtons = screen.getAllByTestId(
+      DATA_TEST_ID.IntegrationTableConnectIntegrationButton,
+    );
     for (const button of connectButtons) {
       await user.click(button);
     }
@@ -188,7 +191,7 @@ describe("Integration table", () => {
     const selectAllEl = screen.getAllByLabelText("Select all")[0];
     expect(selectAllEl).toBeInTheDocument();
     await user.click(selectAllEl);
-    await user.click(screen.getByRole("button", { name: "delete Remove" }));
+    await user.click(screen.getByTestId(DATA_TEST_ID.IntegrationTableRemoveButton));
     expect(onIntegrationRemoveMock).toHaveBeenCalled();
   });
 
@@ -236,7 +239,9 @@ describe("Integration table", () => {
       />,
     );
 
-    for (const button of screen.getAllByRole("button", { name: "api Connect Integration" })) {
+    for (const button of screen.getAllByTestId(
+      DATA_TEST_ID.IntegrationTableConnectIntegrationButton,
+    )) {
       expect(button).toBeDisabled();
     }
   });
@@ -265,6 +270,6 @@ describe("Integration table", () => {
     const selectAllEl = screen.getAllByLabelText("Select all")[0];
     expect(selectAllEl).toBeInTheDocument();
     await user.click(selectAllEl);
-    expect(screen.getByRole("button", { name: "delete Remove" })).toBeDisabled();
+    expect(screen.getByTestId(DATA_TEST_ID.IntegrationTableRemoveButton)).toBeDisabled();
   });
 });

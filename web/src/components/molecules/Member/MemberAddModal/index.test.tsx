@@ -2,6 +2,8 @@ import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
+import { DATA_TEST_ID, TEST_CLASS } from "@reearth-cms/utils/test";
+
 import MemberAddModal from ".";
 
 describe("Member add modal", () => {
@@ -71,6 +73,10 @@ describe("Member add modal", () => {
     );
 
     await expect.poll(() => screen.getByRole("button", { name: "loading" })).toBeVisible();
-    expect(screen.getByRole("button", { name: "loading Add to workspace" })).toBeVisible();
+    const addToWorkspaceButton = screen.getByTestId(
+      DATA_TEST_ID.MemberAddModalAddToWorkspaceButton,
+    );
+    expect(addToWorkspaceButton).toBeVisible();
+    expect(addToWorkspaceButton).toHaveClass(TEST_CLASS.AntBtnLoading);
   });
 });

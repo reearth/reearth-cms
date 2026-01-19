@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import MemberTable from ".";
 
@@ -260,7 +261,7 @@ describe("Member table", () => {
     );
 
     await user.click(screen.getAllByLabelText("Select all")[0]);
-    await user.click(screen.getByRole("button", { name: "usergroup-delete Remove" }));
+    await user.click(screen.getByTestId(DATA_TEST_ID.MemberTableGroupRemoveButton));
     const dialog = screen.getByRole("dialog");
     await expect.poll(() => dialog).toBeVisible();
     expect(getByText(dialog, secondMember.name)).toBeVisible();
@@ -340,7 +341,7 @@ describe("Member table", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: "usergroup-add New Member" })).toBeDisabled();
+    expect(screen.getByTestId(DATA_TEST_ID.MemberTableNewMemberButton)).toBeDisabled();
     for (const button of screen.getAllByRole("button", { name: "Change Role?" })) {
       expect(button).toBeDisabled();
     }
@@ -348,6 +349,6 @@ describe("Member table", () => {
     expect(screen.getByRole("button", { name: "Leave" })).toBeDisabled();
 
     await user.click(screen.getAllByRole("checkbox")[0]);
-    expect(screen.getByRole("button", { name: "usergroup-delete Remove" })).toBeDisabled();
+    expect(screen.getByTestId(DATA_TEST_ID.MemberTableGroupRemoveButton)).toBeDisabled();
   });
 });

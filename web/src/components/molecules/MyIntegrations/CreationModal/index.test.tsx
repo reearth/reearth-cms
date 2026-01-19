@@ -2,6 +2,8 @@ import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
+import { DATA_TEST_ID, TEST_CLASS } from "@reearth-cms/utils/test";
+
 import IntegrationCreationModal from ".";
 
 describe("Integration creation modal", () => {
@@ -80,7 +82,9 @@ describe("Integration creation modal", () => {
       />,
     );
 
-    await expect.poll(() => screen.getByRole("button", { name: "loading Create" })).toBeVisible();
+    const createButton = screen.getByTestId(DATA_TEST_ID.IntegrationCreationModalCreateButton);
+    await expect.poll(() => createButton).toBeVisible();
+    expect(createButton).toHaveClass(TEST_CLASS.AntBtnLoading);
     expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
   });
 });

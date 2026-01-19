@@ -17,6 +17,7 @@ import {
   IntegrationInfo,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 type Props = {
   integration: IntegrationInfo & Pick<Integration, "config">;
@@ -125,7 +126,10 @@ const MyIntegrationForm: React.FC<Props> = ({
                 />
               }
             />
-            <Button onClick={handleRegenerateToken} loading={regenerateLoading}>
+            <Button
+              onClick={handleRegenerateToken}
+              loading={regenerateLoading}
+              data-testid={DATA_TEST_ID.MoleculeMyIntegrationFormRegenerateTokenButton}>
               {t("Re-generate")}
             </Button>
           </StyledFormItem>
@@ -134,7 +138,8 @@ const MyIntegrationForm: React.FC<Props> = ({
               type="primary"
               onClick={handleSubmit}
               disabled={isDisabled}
-              loading={updateIntegrationLoading}>
+              loading={updateIntegrationLoading}
+              data-testid={DATA_TEST_ID.MoleculeMyIntegrationFormSaveButton}>
               {t("Save")}
             </Button>
           </Form.Item>

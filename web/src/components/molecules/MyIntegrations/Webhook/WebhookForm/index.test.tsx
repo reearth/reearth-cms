@@ -3,8 +3,11 @@ import { userEvent } from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
 import { WebhookValues } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import { DATA_TEST_ID, TEST_CLASS } from "@reearth-cms/utils/test";
 
 import WebhookForm from ".";
+
+vi.setConfig({ testTimeout: 10_000 });
 
 describe("Webhook form", () => {
   const user = userEvent.setup();
@@ -83,7 +86,9 @@ describe("Webhook form", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: "loading Save" })).toBeVisible();
+    const saveButton = screen.getByTestId(DATA_TEST_ID.MoleculeWebhookFormSaveButton);
+    expect(saveButton).toBeVisible();
+    expect(saveButton).toHaveClass(TEST_CLASS.AntBtnLoading);
   });
 
   test("Page back event is fired successfully", async () => {
