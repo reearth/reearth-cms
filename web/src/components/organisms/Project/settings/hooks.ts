@@ -80,7 +80,10 @@ export default () => {
 
   const handleProjectDelete = useCallback(async () => {
     if (!projectId) return;
-    const results = await deleteProjectMutation({ variables: { projectId }, refetchQueries: ["GetProjects"] });
+    const results = await deleteProjectMutation({
+      variables: { projectId },
+      refetchQueries: ["GetProjects"],
+    });
     if (results.error) {
       Notification.error({ message: t("Failed to delete project.") });
       return;
