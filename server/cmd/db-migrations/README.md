@@ -4,96 +4,60 @@ This directory contains database migration scripts for Re:Earth CMS.
 
 ## Available Migrations
 
-### asset-filename-normalization
+### text-normalization (Recommended)
 
-Normalizes asset filenames using Unicode NFKC normalization to ensure consistent storage and retrieval across different Unicode representations.
+**Unified migration** that normalizes both asset filenames and item text fields in a single run. This is the recommended way to apply all text normalization.
 
 #### Usage
 
-**1. Build the migration tool:**
-
 ```bash
-cd server
-go build ./cmd/db-migrations
+# Dry run - preview all changes
+./db-migrations --cmd=text-normalization
+
+# Wet run - apply all changes
+./db-migrations --cmd=text-normalization --wet-run
 ```
 
-**2. Run dry run first (preview changes):**
+#### What it does
 
-```bash
-./db-migrations --cmd=asset-filename-normalization
-```
+1. **Asset Filename Normalization**
+   - Normalizes the `filename` field in all assets
+   - Converts fullwidth characters to halfwidth
+   - Ensures consistent filename storage
 
-**3. Apply changes (wet run):**
+2. **Item Text Field Normalization**
+   - Normalizes all text-based field values in items
+   - Affects: text, textArea, richText, markdown, select, tag, geometryObject, geometryEditor
+   - Processes all items in batches
 
-```bash
-./db-migrations --cmd=asset-filename-normalization --wet-run
-```
-
-### item-text-normalization
-
-Normalizes text field values in items using Unicode NFKC normalization.
-
-#### Problem
-
-Item text fields (text, textArea, richText, markdown, select, tag, etc.) can contain Unicode characters in multiple representations, causing search and consistency issues:
-
-- Searching for "Tokyo２０２４" (fullwidth digits) won't match items with "Tokyo2024" (halfwidth)
-- Fullwidth and halfwidth characters are treated as different values
-- Inconsistent data representation across the system
-
-#### Solution
-
-This migration normalizes all text-based field values in existing items. It works in conjunction with automatic normalization in the application code that handles new/updated field values.
-
-#### Field Types Normalized
-
-- `text` - Single-line text
-- `textArea` - Multi-line text
-- `richText` - HTML rich text
-- `markdown` - Markdown content
-- `select` - Dropdown selections
-- `tag` - Tag values
-- `geometryObject` - GeoJSON geometry
-- `geometryEditor` - Geometry editor data
-
-#### How to Run
-
-**1. Run dry run first (preview changes):**
-
-```bash
-./db-migrations --cmd=item-text-normalization
-```
-
-Example output:
+#### Example Output
 
 ```text
+=== Asset Filename Normalization ===
 dry run
-  Item item-123 would normalize 2 field(s): [title-field description-field]
-  Item item-456 would normalize 1 field(s): [name-field]
-  ... and 5 more (showing first 10)
+  Would normalize: 'ｆｉｌｅ．ｔｘｔ' -> 'file.txt'
+  Would normalize: 'document２０２４.pdf' -> 'document2024.pdf'
+Summary: 15/100 assets need filename normalization
 
-Summary: 15/1000 items need text field normalization
+=== Item Text Field Normalization ===
+dry run
+  Item item-123 would normalize 2 field(s)
+  Item item-456 would normalize 1 field(s)
+Summary: 25/1000 items need text field normalization
 ```
 
-**2. Apply changes (wet run):**
+---
 
-```bash
-./db-migrations --cmd=item-text-normalization --wet-run
-```
+## Other Migrations
 
-Example output:
+### ref-field-schema
 
-```text
-Starting item text field normalization migration...
-Normalized text field 'title-field' in item item-123
-Normalized text field 'description-field' in item item-123
-Processed 1000 items, modified 15 (125.50 items/sec)
-Migration completed. Processed 5000 items, modified 75 in 39.8s (125.63 items/sec)
-```
+Migrates reference field schemas.
 
-#### Notes
+### item-migration
 
-- **Safe to re-run**: The migration is idempotent - items already normalized won't be modified
-- **Performance**: Processes items in batches of 1000 for optimal performance
-- **Field preservation**: Only text field values are normalized; structure and other field types are unchanged
-- **Automatic going forward**: New and updated items are automatically normalized by application code
+Performs item-related migrations.
+
+### project-visibility
+
+Updates project visibility settings.
