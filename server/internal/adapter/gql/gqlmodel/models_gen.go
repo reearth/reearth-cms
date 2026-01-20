@@ -594,6 +594,10 @@ type GuessSchemaFieldsInput struct {
 	ModelID ID `json:"modelId"`
 }
 
+type ImportItemsAsyncPayload struct {
+	Job *Job `json:"job"`
+}
+
 type ImportItemsInput struct {
 	ModelID  ID             `json:"modelId"`
 	File     graphql.Upload `json:"file"`
@@ -715,6 +719,28 @@ type ItemSort struct {
 type ItemSortInput struct {
 	Field     *FieldSelectorInput `json:"field"`
 	Direction *SortDirection      `json:"direction,omitempty"`
+}
+
+type Job struct {
+	ID          ID           `json:"id"`
+	Type        JobType      `json:"type"`
+	ProjectID   ID           `json:"projectId"`
+	Status      JobStatus    `json:"status"`
+	Progress    *JobProgress `json:"progress"`
+	Error       *string      `json:"error,omitempty"`
+	CreatedAt   time.Time    `json:"createdAt"`
+	UpdatedAt   time.Time    `json:"updatedAt"`
+	StartedAt   *time.Time   `json:"startedAt,omitempty"`
+	CompletedAt *time.Time   `json:"completedAt,omitempty"`
+}
+
+func (Job) IsNode()        {}
+func (this Job) GetID() ID { return this.ID }
+
+type JobProgress struct {
+	Processed  int     `json:"processed"`
+	Total      int     `json:"total"`
+	Percentage float64 `json:"percentage"`
 }
 
 type KeyAvailability struct {
@@ -1335,6 +1361,9 @@ type StringFieldConditionInput struct {
 	FieldID  *FieldSelectorInput `json:"fieldId"`
 	Operator StringOperator      `json:"operator"`
 	Value    string              `json:"value"`
+}
+
+type Subscription struct {
 }
 
 type TerrainResource struct {
@@ -2357,6 +2386,120 @@ func (e *ItemStatus) UnmarshalJSON(b []byte) error {
 }
 
 func (e ItemStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type JobStatus string
+
+const (
+	JobStatusPending    JobStatus = "PENDING"
+	JobStatusInProgress JobStatus = "IN_PROGRESS"
+	JobStatusCompleted  JobStatus = "COMPLETED"
+	JobStatusFailed     JobStatus = "FAILED"
+	JobStatusCancelled  JobStatus = "CANCELLED"
+)
+
+var AllJobStatus = []JobStatus{
+	JobStatusPending,
+	JobStatusInProgress,
+	JobStatusCompleted,
+	JobStatusFailed,
+	JobStatusCancelled,
+}
+
+func (e JobStatus) IsValid() bool {
+	switch e {
+	case JobStatusPending, JobStatusInProgress, JobStatusCompleted, JobStatusFailed, JobStatusCancelled:
+		return true
+	}
+	return false
+}
+
+func (e JobStatus) String() string {
+	return string(e)
+}
+
+func (e *JobStatus) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = JobStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid JobStatus", str)
+	}
+	return nil
+}
+
+func (e JobStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *JobStatus) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e JobStatus) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type JobType string
+
+const (
+	JobTypeImport JobType = "IMPORT"
+)
+
+var AllJobType = []JobType{
+	JobTypeImport,
+}
+
+func (e JobType) IsValid() bool {
+	switch e {
+	case JobTypeImport:
+		return true
+	}
+	return false
+}
+
+func (e JobType) String() string {
+	return string(e)
+}
+
+func (e *JobType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = JobType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid JobType", str)
+	}
+	return nil
+}
+
+func (e JobType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *JobType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e JobType) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil
