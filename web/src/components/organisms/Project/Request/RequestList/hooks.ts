@@ -175,8 +175,7 @@ export default () => {
   );
 
   const handleSearchTerm = useCallback((term?: string) => {
-    const normalizedTerm = term ? term.normalize("NFKC") : "";
-    setSearchTerm(normalizedTerm);
+    setSearchTerm(term ?? "");
     setPage(1);
   }, []);
 

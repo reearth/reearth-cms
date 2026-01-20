@@ -38,8 +38,7 @@ export default () => {
   const [pageSize, setPageSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState<string>();
   const handleSearchTerm = useCallback((term?: string) => {
-    const normalizedTerm = term ? term.normalize("NFKC") : undefined;
-    setSearchTerm(normalizedTerm);
+    setSearchTerm(term);
     setPage(1);
   }, []);
 
