@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/aws"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/fs"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/gcp"
+	"github.com/reearth/reearth-cms/server/internal/infrastructure/memory"
 	mongorepo "github.com/reearth/reearth-cms/server/internal/infrastructure/mongo"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/policy"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -177,6 +178,10 @@ func InitReposAndGateways(ctx context.Context, conf *Config) (*repo.Container, *
 	} else {
 		log.Infof("accounts api: not configured or disabled")
 	}
+
+	// Job PubSub - In-memory pub/sub for job progress notifications
+	gateways.JobPubSub = memory.NewJobPubSub()
+	log.Infof("job pubsub: in-memory pub/sub initialized")
 
 	return cmsRepos, gateways, acRepos, acGateways
 }

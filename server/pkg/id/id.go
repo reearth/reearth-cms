@@ -277,3 +277,16 @@ var NewResourceID = idx.New[Resource]
 var MustResourceID = idx.Must[Resource]
 var ResourceIDFrom = idx.From[Resource]
 var ResourceIDFromRef = idx.FromRef[Resource]
+
+type Job struct{}
+
+func (Job) Type() string { return "job" }
+
+type JobID = idx.ID[Job]
+type JobIDList = idx.List[Job]
+
+var NewJobID = idx.New[Job]
+var MustJobID = idx.Must[Job]
+var JobIDFrom = idx.From[Job]
+var JobIDFromRef = idx.FromRef[Job]
+var JobIDListFrom = idx.ListFrom[Job]
