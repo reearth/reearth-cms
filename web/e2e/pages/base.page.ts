@@ -148,7 +148,7 @@ export abstract class BasePage {
     await this.page.keyboard.press(key, { delay });
   }
 
-  async keyboardType(text: string): Promise<void> {
-    await this.page.keyboard.type(text);
+  async keyboardType(text: string, option: { delay?: number } = {}): Promise<void> {
+    await this.page.keyboard.type(text, option);
   }
 }

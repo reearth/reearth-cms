@@ -75,6 +75,7 @@ test("Request closing and reopening has succeeded", async ({ requestPage }) => {
     await requestPage.requestMenuItem.click();
     await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
     await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
+    await expect(requestPage.editButton).toBeVisible();
     await requestPage.editButton.click();
   });
 
@@ -94,6 +95,7 @@ test("Request closing and reopening has succeeded", async ({ requestPage }) => {
   });
 
   await test.step("Reopen request from edit page", async () => {
+    await expect(requestPage.editButton).toBeVisible();
     await requestPage.editButton.click();
     await expect(requestPage.statusText("CLOSED")).toBeVisible();
     await expect(requestPage.statusText("Closed")).toBeVisible();
@@ -172,7 +174,10 @@ test("Comment CRUD on Request page has succeeded", async ({ requestPage, content
   });
 });
 
-test("Creating a new request and adding to request has succeeded", async ({ requestPage, page }) => {
+test("Creating a new request and adding to request has succeeded", async ({
+  requestPage,
+  page,
+}) => {
   await test.step("Create a new item", async () => {
     await expect(requestPage.backButtonCapitalized).toBeVisible();
     await requestPage.backButtonCapitalized.click();

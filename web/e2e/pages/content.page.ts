@@ -1,5 +1,6 @@
 // e2e/pages/content.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import { BasePage } from "./base.page";
 
@@ -444,6 +445,10 @@ export class ContentPage extends BasePage {
     return this.locator("label");
   }
 
+  get fieldTitle(): Locator {
+    return this.getByTestId(DATA_TEST_ID.FieldTitle);
+  }
+
   // Main element
   get mainElement(): Locator {
     return this.getByRole("main");
@@ -464,7 +469,7 @@ export class ContentPage extends BasePage {
   }
 
   get editorContent(): Locator {
-    return this.locator(".monaco-editor textarea");
+    return this.locator(".monaco-editor").first();
   }
 
   // Table column selection
@@ -704,6 +709,7 @@ export class ContentPage extends BasePage {
 
   async fillEditorContent(text: string): Promise<void> {
     await this.editorContent.click();
-    await this.keyboardType(text);
+    await this.keyboardType(text, { delay: 10 });
+    await this.page.waitForTimeout(300);
   }
 }

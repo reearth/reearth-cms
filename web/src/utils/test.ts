@@ -22,6 +22,9 @@ export enum DATA_TEST_ID {
   // WebhookForm
   MoleculeWebhookFormSaveButton = "MoleculeWebhookFormSaveButton",
 
+  // MyIntegrationList
+  MyIntegrationListWrapper = "MyIntegrationListWrapper",
+
   // MyIntegrationForm
   MoleculeMyIntegrationFormRegenerateTokenButton = "MoleculeMyIntegrationFormRegenerateTokenButton",
   MoleculeMyIntegrationFormSaveButton = "MoleculeMyIntegrationFormSaveButton",
@@ -40,8 +43,12 @@ export enum DATA_TEST_ID {
 
   // MemberAddModal
   MemberAddModalAddToWorkspaceButton = "MemberAddModalAddToWorkspaceButton",
+
+  // FieldTitle
+  FieldTitle = "FieldTitle",
 }
 
 export enum TEST_CLASS {
+  // ant design
   AntBtnLoading = "ant-btn-loading",
 }
