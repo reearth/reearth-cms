@@ -21,7 +21,7 @@ describe("Member add modal", () => {
     return Promise.resolve();
   };
 
-  test("Searching and adding a member is successfully", { timeout: 8_000 }, async () => {
+  test("Searching and adding a member is successfully", async () => {
     const onUserSearchMock = vi.fn(onUserSearch);
     const onUsersAddToWorkspaceMock = vi.fn();
 

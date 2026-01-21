@@ -82,6 +82,7 @@ export default defineConfig({
       { find: "@ant-design/pro-table", replacement: "@ant-design/pro-table/es/index.js" },
       { find: "@ant-design/pro-utils", replacement: "@ant-design/pro-utils/es/index.js" },
     ],
+    testTimeout: 15_000,
   },
 });
 

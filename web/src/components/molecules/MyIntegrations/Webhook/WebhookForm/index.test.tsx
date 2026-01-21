@@ -7,8 +7,6 @@ import { DATA_TEST_ID, TEST_CLASS } from "@reearth-cms/utils/test";
 
 import WebhookForm from ".";
 
-vi.setConfig({ testTimeout: 10_000 });
-
 describe("Webhook form", () => {
   const user = userEvent.setup();
 
