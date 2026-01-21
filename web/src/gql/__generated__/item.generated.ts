@@ -158,6 +158,7 @@ export type GetItemQuery = {
           title: string;
         }> | null;
       }
+    | { __typename: "Job" }
     | { __typename: "Model" }
     | { __typename: "Project" }
     | { __typename: "Request" }
@@ -463,6 +464,21 @@ export type PublishItemMutation = {
           | null;
       }> | null;
     }>;
+  } | null;
+};
+
+export type ImportItemsMutationVariables = Types.Exact<{
+  input: Types.ImportItemsInput;
+}>;
+
+export type ImportItemsMutation = {
+  importItems: {
+    __typename: "ImportItemsPayload";
+    modelId: string;
+    totalCount: number;
+    insertedCount: number;
+    updatedCount: number;
+    ignoredCount: number;
   } | null;
 };
 
@@ -2284,3 +2300,49 @@ export const PublishItemDocument = {
     },
   ],
 } as unknown as DocumentNode<PublishItemMutation, PublishItemMutationVariables>;
+export const ImportItemsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "ImportItems" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "input" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ImportItemsInput" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "importItems" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: { kind: "Variable", name: { kind: "Name", value: "input" } },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "modelId" } },
+                { kind: "Field", name: { kind: "Name", value: "totalCount" } },
+                { kind: "Field", name: { kind: "Name", value: "insertedCount" } },
+                { kind: "Field", name: { kind: "Name", value: "updatedCount" } },
+                { kind: "Field", name: { kind: "Name", value: "ignoredCount" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ImportItemsMutation, ImportItemsMutationVariables>;

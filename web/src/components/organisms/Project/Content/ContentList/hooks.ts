@@ -47,6 +47,7 @@ import {
   CreateItemDocument,
   DeleteItemsDocument,
   GetItemDocument,
+  ImportItemsDocument,
   SearchItemDocument,
   UpdateItemDocument,
 } from "@reearth-cms/gql/__generated__/item.generated";
