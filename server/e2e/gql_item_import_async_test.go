@@ -624,7 +624,12 @@ func TestGQLJobProgressSubscription(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to connect to websocket: %v", err)
 	}
-	defer conn.Close()
+	defer func(conn *websocket.Conn) {
+		err := conn.Close()
+		if err != nil {
+			t.Fatalf("failed to close websocket: %v", err)
+		}
+	}(conn)
 
 	// Send connection_init
 	initMsg := wsMessage{Type: "connection_init"}
@@ -705,7 +710,10 @@ func TestGQLJobProgressSubscription(t *testing.T) {
 		// Subscription completed normally
 	case <-time.After(30 * time.Second):
 		// Timeout - close connection
-		conn.Close()
+		err := conn.Close()
+		if err != nil {
+			return
+		}
 	}
 
 	// Verify we received at least one progress update

@@ -162,7 +162,7 @@ func TestBuilder_MustBuild(t *testing.T) {
 		t.Parallel()
 
 		assert.Panics(t, func() {
-			New().MustBuild()
+			_ = New().MustBuild()
 		})
 	})
 }
