@@ -371,6 +371,65 @@ func (r *mutationResolver) ImportItems(ctx context.Context, input gqlmodel.Impor
 	}, nil
 }
 
+// ImportItemsAsync is the resolver for the importItemsAsync field.
+func (r *mutationResolver) ImportItemsAsync(ctx context.Context, input gqlmodel.ImportItemsInput) (*gqlmodel.ImportItemsAsyncPayload, error) {
+	op := getOperator(ctx)
+
+	// Validate file size (max 10MB)
+	if input.File.Size > interfaces.MaxImportFileSize {
+		return nil, interfaces.ErrImportFileTooLarge
+	}
+
+	mid, err := gqlmodel.ToID[id.Model](input.ModelID)
+	if err != nil {
+		return nil, err
+	}
+
+	sp, err := usecases(ctx).Schema.FindByModel(ctx, mid, op)
+	if err != nil {
+		return nil, err
+	}
+
+	// Detect format from filename
+	format := interfaces.ImportFormatTypeJSON
+	if strings.HasSuffix(strings.ToLower(input.File.Filename), ".geojson") {
+		format = interfaces.ImportFormatTypeGeoJSON
+	}
+
+	// Auto-detect first geometry field for GeoJSON import when geoField is not specified
+	geoField := input.GeoField
+	if format == interfaces.ImportFormatTypeGeoJSON && geoField == nil {
+		geoFields := sp.Schema().FieldsByType(value.TypeGeometryObject)
+		if len(geoFields) > 0 {
+			key := geoFields[0].Key().String()
+			geoField = &key
+		}
+	}
+
+	jobID, err := usecases(ctx).Item.ImportAsync(ctx, interfaces.ImportItemsAsyncParam{
+		ModelID:      mid,
+		SP:           *sp,
+		Strategy:     interfaces.ImportStrategyTypeInsert,
+		Format:       format,
+		MutateSchema: false,
+		Reader:       input.File.File,
+		GeoField:     geoField,
+	}, op)
+	if err != nil {
+		return nil, err
+	}
+
+	// Fetch the created job to return
+	j, err := usecases(ctx).Job.FindByID(ctx, jobID, op)
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.ImportItemsAsyncPayload{
+		Job: gqlmodel.ToJob(j),
+	}, nil
+}
+
 // VersionsByItem is the resolver for the versionsByItem field.
 func (r *queryResolver) VersionsByItem(ctx context.Context, itemID gqlmodel.ID) ([]*gqlmodel.VersionedItem, error) {
 	return loaders(ctx).Item.FindVersionedItems(ctx, itemID)

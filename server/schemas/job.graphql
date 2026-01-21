@@ -1,0 +1,49 @@
+# Job - Generic async job system for long-running operations
+
+enum JobType {
+  IMPORT
+  # Future: EXPORT, BULK_UPDATE, etc.
+}
+
+enum JobStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+type Job implements Node {
+  id: ID!
+  type: JobType!
+  projectId: ID!
+  status: JobStatus!
+  progress: JobProgress!
+  error: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  startedAt: DateTime
+  completedAt: DateTime
+}
+
+type JobProgress {
+  processed: Int!
+  total: Int!
+  percentage: Float!
+}
+
+# Query extensions
+extend type Query {
+  job(jobId: ID!): Job
+  jobs(projectId: ID!, type: JobType, status: JobStatus): [Job!]!
+}
+
+# Mutation extensions
+extend type Mutation {
+  cancelJob(jobId: ID!): Job
+}
+
+# Subscription extensions
+extend type Subscription {
+  jobProgress(jobId: ID!): JobProgress!
+}
