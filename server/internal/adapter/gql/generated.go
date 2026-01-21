@@ -57,6 +57,7 @@ type ResolverRoot interface {
 	Schema() SchemaResolver
 	SchemaField() SchemaFieldResolver
 	SchemaFieldReference() SchemaFieldReferenceResolver
+	Subscription() SubscriptionResolver
 	Thread() ThreadResolver
 	WorkspaceIntegrationMember() WorkspaceIntegrationMemberResolver
 	WorkspaceUserMember() WorkspaceUserMemberResolver
@@ -314,6 +315,10 @@ type ComplexityRoot struct {
 		TotalCount func(childComplexity int) int
 	}
 
+	ImportItemsAsyncPayload struct {
+		Job func(childComplexity int) int
+	}
+
 	ImportItemsPayload struct {
 		IgnoredCount  func(childComplexity int) int
 		InsertedCount func(childComplexity int) int
@@ -404,6 +409,25 @@ type ComplexityRoot struct {
 		Field     func(childComplexity int) int
 	}
 
+	Job struct {
+		CompletedAt func(childComplexity int) int
+		CreatedAt   func(childComplexity int) int
+		Error       func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Progress    func(childComplexity int) int
+		ProjectID   func(childComplexity int) int
+		StartedAt   func(childComplexity int) int
+		Status      func(childComplexity int) int
+		Type        func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
+	}
+
+	JobProgress struct {
+		Percentage func(childComplexity int) int
+		Processed  func(childComplexity int) int
+		Total      func(childComplexity int) int
+	}
+
 	KeyAvailability struct {
 		Available func(childComplexity int) int
 		Key       func(childComplexity int) int
@@ -471,6 +495,7 @@ type ComplexityRoot struct {
 		AddIntegrationToWorkspace          func(childComplexity int, input gqlmodel.AddIntegrationToWorkspaceInput) int
 		AddUsersToWorkspace                func(childComplexity int, input gqlmodel.AddUsersToWorkspaceInput) int
 		ApproveRequest                     func(childComplexity int, input gqlmodel.ApproveRequestInput) int
+		CancelJob                          func(childComplexity int, jobID gqlmodel.ID) int
 		CreateAPIKey                       func(childComplexity int, input gqlmodel.CreateAPIKeyInput) int
 		CreateAsset                        func(childComplexity int, input gqlmodel.CreateAssetInput) int
 		CreateAssetUpload                  func(childComplexity int, input gqlmodel.CreateAssetUploadInput) int
@@ -507,6 +532,7 @@ type ComplexityRoot struct {
 		ExportModel                        func(childComplexity int, input gqlmodel.ExportModelInput) int
 		ExportModelSchema                  func(childComplexity int, input gqlmodel.ExportModelSchemaInput) int
 		ImportItems                        func(childComplexity int, input gqlmodel.ImportItemsInput) int
+		ImportItemsAsync                   func(childComplexity int, input gqlmodel.ImportItemsInput) int
 		PublishItem                        func(childComplexity int, input gqlmodel.PublishItemInput) int
 		RegenerateAPIKey                   func(childComplexity int, input gqlmodel.RegenerateAPIKeyInput) int
 		RegenerateIntegrationToken         func(childComplexity int, input gqlmodel.RegenerateIntegrationTokenInput) int
@@ -629,6 +655,8 @@ type ComplexityRoot struct {
 		Groups                      func(childComplexity int, projectID *gqlmodel.ID, modelID *gqlmodel.ID) int
 		GuessSchemaFields           func(childComplexity int, input gqlmodel.GuessSchemaFieldsInput) int
 		IsItemReferenced            func(childComplexity int, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) int
+		Job                         func(childComplexity int, jobID gqlmodel.ID) int
+		Jobs                        func(childComplexity int, projectID gqlmodel.ID, typeArg *gqlmodel.JobType, status *gqlmodel.JobStatus) int
 		Me                          func(childComplexity int) int
 		Models                      func(childComplexity int, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.Sort, pagination *gqlmodel.Pagination) int
 		ModelsByGroup               func(childComplexity int, groupID gqlmodel.ID) int
@@ -829,6 +857,10 @@ type ComplexityRoot struct {
 		FieldID  func(childComplexity int) int
 		Operator func(childComplexity int) int
 		Value    func(childComplexity int) int
+	}
+
+	Subscription struct {
+		JobProgress func(childComplexity int, jobID gqlmodel.ID) int
 	}
 
 	TerrainResource struct {
@@ -1058,10 +1090,12 @@ type MutationResolver interface {
 	PublishItem(ctx context.Context, input gqlmodel.PublishItemInput) (*gqlmodel.PublishItemPayload, error)
 	UnpublishItem(ctx context.Context, input gqlmodel.UnpublishItemInput) (*gqlmodel.UnpublishItemPayload, error)
 	ImportItems(ctx context.Context, input gqlmodel.ImportItemsInput) (*gqlmodel.ImportItemsPayload, error)
+	ImportItemsAsync(ctx context.Context, input gqlmodel.ImportItemsInput) (*gqlmodel.ImportItemsAsyncPayload, error)
 	CreateView(ctx context.Context, input gqlmodel.CreateViewInput) (*gqlmodel.ViewPayload, error)
 	UpdateView(ctx context.Context, input gqlmodel.UpdateViewInput) (*gqlmodel.ViewPayload, error)
 	UpdateViewsOrder(ctx context.Context, input gqlmodel.UpdateViewsOrderInput) (*gqlmodel.ViewsPayload, error)
 	DeleteView(ctx context.Context, input gqlmodel.DeleteViewInput) (*gqlmodel.DeleteViewPayload, error)
+	CancelJob(ctx context.Context, jobID gqlmodel.ID) (*gqlmodel.Job, error)
 	CreateModel(ctx context.Context, input gqlmodel.CreateModelInput) (*gqlmodel.ModelPayload, error)
 	UpdateModel(ctx context.Context, input gqlmodel.UpdateModelInput) (*gqlmodel.ModelPayload, error)
 	UpdateModelsOrder(ctx context.Context, input gqlmodel.UpdateModelsOrderInput) (*gqlmodel.ModelsPayload, error)
@@ -1114,6 +1148,8 @@ type QueryResolver interface {
 	SearchItem(ctx context.Context, input gqlmodel.SearchItemInput) (*gqlmodel.ItemConnection, error)
 	IsItemReferenced(ctx context.Context, itemID gqlmodel.ID, correspondingFieldID gqlmodel.ID) (bool, error)
 	View(ctx context.Context, modelID gqlmodel.ID) ([]*gqlmodel.View, error)
+	Job(ctx context.Context, jobID gqlmodel.ID) (*gqlmodel.Job, error)
+	Jobs(ctx context.Context, projectID gqlmodel.ID, typeArg *gqlmodel.JobType, status *gqlmodel.JobStatus) ([]*gqlmodel.Job, error)
 	Models(ctx context.Context, projectID gqlmodel.ID, keyword *string, sort *gqlmodel.Sort, pagination *gqlmodel.Pagination) (*gqlmodel.ModelConnection, error)
 	CheckModelKeyAvailability(ctx context.Context, projectID gqlmodel.ID, key string) (*gqlmodel.KeyAvailability, error)
 	Projects(ctx context.Context, workspaceID gqlmodel.ID, keyword *string, sort *gqlmodel.Sort, pagination *gqlmodel.Pagination) (*gqlmodel.ProjectConnection, error)
@@ -1145,6 +1181,9 @@ type SchemaFieldReferenceResolver interface {
 	Schema(ctx context.Context, obj *gqlmodel.SchemaFieldReference) (*gqlmodel.Schema, error)
 
 	CorrespondingField(ctx context.Context, obj *gqlmodel.SchemaFieldReference) (*gqlmodel.SchemaField, error)
+}
+type SubscriptionResolver interface {
+	JobProgress(ctx context.Context, jobID gqlmodel.ID) (<-chan *gqlmodel.JobProgress, error)
 }
 type ThreadResolver interface {
 	Workspace(ctx context.Context, obj *gqlmodel.Thread) (*gqlmodel.Workspace, error)
@@ -1893,6 +1932,13 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.GuessSchemaFieldResult.TotalCount(childComplexity), true
 
+	case "ImportItemsAsyncPayload.job":
+		if e.complexity.ImportItemsAsyncPayload.Job == nil {
+			break
+		}
+
+		return e.complexity.ImportItemsAsyncPayload.Job(childComplexity), true
+
 	case "ImportItemsPayload.ignoredCount":
 		if e.complexity.ImportItemsPayload.IgnoredCount == nil {
 			break
@@ -2263,6 +2309,86 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.ItemSort.Field(childComplexity), true
 
+	case "Job.completedAt":
+		if e.complexity.Job.CompletedAt == nil {
+			break
+		}
+
+		return e.complexity.Job.CompletedAt(childComplexity), true
+	case "Job.createdAt":
+		if e.complexity.Job.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Job.CreatedAt(childComplexity), true
+	case "Job.error":
+		if e.complexity.Job.Error == nil {
+			break
+		}
+
+		return e.complexity.Job.Error(childComplexity), true
+	case "Job.id":
+		if e.complexity.Job.ID == nil {
+			break
+		}
+
+		return e.complexity.Job.ID(childComplexity), true
+	case "Job.progress":
+		if e.complexity.Job.Progress == nil {
+			break
+		}
+
+		return e.complexity.Job.Progress(childComplexity), true
+	case "Job.projectId":
+		if e.complexity.Job.ProjectID == nil {
+			break
+		}
+
+		return e.complexity.Job.ProjectID(childComplexity), true
+	case "Job.startedAt":
+		if e.complexity.Job.StartedAt == nil {
+			break
+		}
+
+		return e.complexity.Job.StartedAt(childComplexity), true
+	case "Job.status":
+		if e.complexity.Job.Status == nil {
+			break
+		}
+
+		return e.complexity.Job.Status(childComplexity), true
+	case "Job.type":
+		if e.complexity.Job.Type == nil {
+			break
+		}
+
+		return e.complexity.Job.Type(childComplexity), true
+	case "Job.updatedAt":
+		if e.complexity.Job.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Job.UpdatedAt(childComplexity), true
+
+	case "JobProgress.percentage":
+		if e.complexity.JobProgress.Percentage == nil {
+			break
+		}
+
+		return e.complexity.JobProgress.Percentage(childComplexity), true
+	case "JobProgress.processed":
+		if e.complexity.JobProgress.Processed == nil {
+			break
+		}
+
+		return e.complexity.JobProgress.Processed(childComplexity), true
+	case "JobProgress.total":
+		if e.complexity.JobProgress.Total == nil {
+			break
+		}
+
+		return e.complexity.JobProgress.Total(childComplexity), true
+
 	case "KeyAvailability.available":
 		if e.complexity.KeyAvailability.Available == nil {
 			break
@@ -2543,6 +2669,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.ApproveRequest(childComplexity, args["input"].(gqlmodel.ApproveRequestInput)), true
+	case "Mutation.cancelJob":
+		if e.complexity.Mutation.CancelJob == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_cancelJob_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CancelJob(childComplexity, args["jobId"].(gqlmodel.ID)), true
 	case "Mutation.createAPIKey":
 		if e.complexity.Mutation.CreateAPIKey == nil {
 			break
@@ -2939,6 +3076,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Mutation.ImportItems(childComplexity, args["input"].(gqlmodel.ImportItemsInput)), true
+	case "Mutation.importItemsAsync":
+		if e.complexity.Mutation.ImportItemsAsync == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_importItemsAsync_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ImportItemsAsync(childComplexity, args["input"].(gqlmodel.ImportItemsInput)), true
 	case "Mutation.publishItem":
 		if e.complexity.Mutation.PublishItem == nil {
 			break
@@ -3623,6 +3771,28 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.IsItemReferenced(childComplexity, args["itemId"].(gqlmodel.ID), args["correspondingFieldId"].(gqlmodel.ID)), true
+	case "Query.job":
+		if e.complexity.Query.Job == nil {
+			break
+		}
+
+		args, err := ec.field_Query_job_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Job(childComplexity, args["jobId"].(gqlmodel.ID)), true
+	case "Query.jobs":
+		if e.complexity.Query.Jobs == nil {
+			break
+		}
+
+		args, err := ec.field_Query_jobs_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Jobs(childComplexity, args["projectId"].(gqlmodel.ID), args["type"].(*gqlmodel.JobType), args["status"].(*gqlmodel.JobStatus)), true
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
 			break
@@ -4369,6 +4539,18 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.StringFieldCondition.Value(childComplexity), true
 
+	case "Subscription.jobProgress":
+		if e.complexity.Subscription.JobProgress == nil {
+			break
+		}
+
+		args, err := ec.field_Subscription_jobProgress_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Subscription.JobProgress(childComplexity, args["jobId"].(gqlmodel.ID)), true
+
 	case "TerrainResource.id":
 		if e.complexity.TerrainResource.ID == nil {
 			break
@@ -5034,6 +5216,23 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 				Data: buf.Bytes(),
 			}
 		}
+	case ast.Subscription:
+		next := ec._Subscription(ctx, opCtx.Operation.SelectionSet)
+
+		var buf bytes.Buffer
+		return func(ctx context.Context) *graphql.Response {
+			buf.Reset()
+			data := next(ctx)
+
+			if data == nil {
+				return nil
+			}
+			data.MarshalGQL(&buf)
+
+			return &graphql.Response{
+				Data: buf.Bytes(),
+			}
+		}
 
 	default:
 		return graphql.OneShot(graphql.ErrorResponse(ctx, "unsupported GraphQL operation"))
@@ -5179,9 +5378,12 @@ type Query {
 
 type Mutation
 
+type Subscription
+
 schema {
   query: Query
   mutation: Mutation
+  subscription: Subscription
 }`, BuiltIn: false},
 	{Name: "../../../schemas/asset.graphql", Input: `type Asset implements Node {
   id: ID!
@@ -6114,6 +6316,10 @@ type ImportItemsPayload {
   ignoredCount: Int!
 }
 
+type ImportItemsAsyncPayload {
+  job: Job!
+}
+
 type ItemConnection {
   edges: [ItemEdge!]!
   nodes: [Item]!
@@ -6140,6 +6346,7 @@ extend type Mutation {
   publishItem(input: PublishItemInput!): PublishItemPayload
   unpublishItem(input: UnpublishItemInput!): UnpublishItemPayload
   importItems(input: ImportItemsInput!): ImportItemsPayload
+  importItemsAsync(input: ImportItemsInput!): ImportItemsAsyncPayload
 }`, BuiltIn: false},
 	{Name: "../../../schemas/item_filter.graphql", Input: `## data Types: string, number, boolean, date, reference, asset, group, groupField
 
@@ -6457,6 +6664,56 @@ extend type Mutation {
   updateViewsOrder(input: UpdateViewsOrderInput!): ViewsPayload
   deleteView(input: DeleteViewInput!): DeleteViewPayload
 }`, BuiltIn: false},
+	{Name: "../../../schemas/job.graphql", Input: `# Job - Generic async job system for long-running operations
+
+enum JobType {
+  IMPORT
+  # Future: EXPORT, BULK_UPDATE, etc.
+}
+
+enum JobStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+type Job implements Node {
+  id: ID!
+  type: JobType!
+  projectId: ID!
+  status: JobStatus!
+  progress: JobProgress!
+  error: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  startedAt: DateTime
+  completedAt: DateTime
+}
+
+type JobProgress {
+  processed: Int!
+  total: Int!
+  percentage: Float!
+}
+
+# Query extensions
+extend type Query {
+  job(jobId: ID!): Job
+  jobs(projectId: ID!, type: JobType, status: JobStatus): [Job!]!
+}
+
+# Mutation extensions
+extend type Mutation {
+  cancelJob(jobId: ID!): Job
+}
+
+# Subscription extensions
+extend type Subscription {
+  jobProgress(jobId: ID!): JobProgress!
+}
+`, BuiltIn: false},
 	{Name: "../../../schemas/model.graphql", Input: `type Model implements Node {
   id: ID!
   projectId: ID!
@@ -7262,6 +7519,17 @@ func (ec *executionContext) field_Mutation_approveRequest_args(ctx context.Conte
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_cancelJob_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "jobId", ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID)
+	if err != nil {
+		return nil, err
+	}
+	args["jobId"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_createAPIKey_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -7640,6 +7908,17 @@ func (ec *executionContext) field_Mutation_exportModel_args(ctx context.Context,
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNExportModelInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐExportModelInput)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_importItemsAsync_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNImportItemsInput2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportItemsInput)
 	if err != nil {
 		return nil, err
 	}
@@ -8112,6 +8391,38 @@ func (ec *executionContext) field_Query_isItemReferenced_args(ctx context.Contex
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_job_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "jobId", ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID)
+	if err != nil {
+		return nil, err
+	}
+	args["jobId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_jobs_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "projectId", ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID)
+	if err != nil {
+		return nil, err
+	}
+	args["projectId"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "type", ec.unmarshalOJobType2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobType)
+	if err != nil {
+		return nil, err
+	}
+	args["type"] = arg1
+	arg2, err := graphql.ProcessArgField(ctx, rawArgs, "status", ec.unmarshalOJobStatus2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobStatus)
+	if err != nil {
+		return nil, err
+	}
+	args["status"] = arg2
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_modelsByGroup_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -8300,6 +8611,17 @@ func (ec *executionContext) field_Query_view_args(ctx context.Context, rawArgs m
 		return nil, err
 	}
 	args["modelId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Subscription_jobProgress_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "jobId", ec.unmarshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID)
+	if err != nil {
+		return nil, err
+	}
+	args["jobId"] = arg0
 	return args, nil
 }
 
@@ -12119,6 +12441,57 @@ func (ec *executionContext) fieldContext_GuessSchemaFieldResult_fields(_ context
 	return fc, nil
 }
 
+func (ec *executionContext) _ImportItemsAsyncPayload_job(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportItemsAsyncPayload) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ImportItemsAsyncPayload_job,
+		func(ctx context.Context) (any, error) {
+			return obj.Job, nil
+		},
+		nil,
+		ec.marshalNJob2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJob,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ImportItemsAsyncPayload_job(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ImportItemsAsyncPayload",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Job_id(ctx, field)
+			case "type":
+				return ec.fieldContext_Job_type(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Job_projectId(ctx, field)
+			case "status":
+				return ec.fieldContext_Job_status(ctx, field)
+			case "progress":
+				return ec.fieldContext_Job_progress(ctx, field)
+			case "error":
+				return ec.fieldContext_Job_error(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Job_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Job_updatedAt(ctx, field)
+			case "startedAt":
+				return ec.fieldContext_Job_startedAt(ctx, field)
+			case "completedAt":
+				return ec.fieldContext_Job_completedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ImportItemsPayload_modelId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.ImportItemsPayload) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -14460,6 +14833,391 @@ func (ec *executionContext) fieldContext_ItemSort_direction(_ context.Context, f
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type SortDirection does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Job_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Job_id,
+		func(ctx context.Context) (any, error) {
+			return obj.ID, nil
+		},
+		nil,
+		ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Job_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Job_type(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Job_type,
+		func(ctx context.Context) (any, error) {
+			return obj.Type, nil
+		},
+		nil,
+		ec.marshalNJobType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobType,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Job_type(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type JobType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Job_projectId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Job_projectId,
+		func(ctx context.Context) (any, error) {
+			return obj.ProjectID, nil
+		},
+		nil,
+		ec.marshalNID2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐID,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Job_projectId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Job_status(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Job_status,
+		func(ctx context.Context) (any, error) {
+			return obj.Status, nil
+		},
+		nil,
+		ec.marshalNJobStatus2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobStatus,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Job_status(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type JobStatus does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Job_progress(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Job_progress,
+		func(ctx context.Context) (any, error) {
+			return obj.Progress, nil
+		},
+		nil,
+		ec.marshalNJobProgress2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobProgress,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Job_progress(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "processed":
+				return ec.fieldContext_JobProgress_processed(ctx, field)
+			case "total":
+				return ec.fieldContext_JobProgress_total(ctx, field)
+			case "percentage":
+				return ec.fieldContext_JobProgress_percentage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type JobProgress", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Job_error(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Job_error,
+		func(ctx context.Context) (any, error) {
+			return obj.Error, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Job_error(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Job_createdAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Job_createdAt,
+		func(ctx context.Context) (any, error) {
+			return obj.CreatedAt, nil
+		},
+		nil,
+		ec.marshalNDateTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Job_createdAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Job_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Job_updatedAt,
+		func(ctx context.Context) (any, error) {
+			return obj.UpdatedAt, nil
+		},
+		nil,
+		ec.marshalNDateTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Job_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Job_startedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Job_startedAt,
+		func(ctx context.Context) (any, error) {
+			return obj.StartedAt, nil
+		},
+		nil,
+		ec.marshalODateTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Job_startedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Job_completedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Job) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Job_completedAt,
+		func(ctx context.Context) (any, error) {
+			return obj.CompletedAt, nil
+		},
+		nil,
+		ec.marshalODateTime2ᚖtimeᚐTime,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Job_completedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Job",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobProgress_processed(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.JobProgress) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_JobProgress_processed,
+		func(ctx context.Context) (any, error) {
+			return obj.Processed, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_JobProgress_processed(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobProgress",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobProgress_total(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.JobProgress) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_JobProgress_total,
+		func(ctx context.Context) (any, error) {
+			return obj.Total, nil
+		},
+		nil,
+		ec.marshalNInt2int,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_JobProgress_total(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobProgress",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JobProgress_percentage(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.JobProgress) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_JobProgress_percentage,
+		func(ctx context.Context) (any, error) {
+			return obj.Percentage, nil
+		},
+		nil,
+		ec.marshalNFloat2float64,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_JobProgress_percentage(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JobProgress",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
 		},
 	}
 	return fc, nil
@@ -17169,6 +17927,51 @@ func (ec *executionContext) fieldContext_Mutation_importItems(ctx context.Contex
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_importItemsAsync(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_importItemsAsync,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().ImportItemsAsync(ctx, fc.Args["input"].(gqlmodel.ImportItemsInput))
+		},
+		nil,
+		ec.marshalOImportItemsAsyncPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportItemsAsyncPayload,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_importItemsAsync(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "job":
+				return ec.fieldContext_ImportItemsAsyncPayload_job(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ImportItemsAsyncPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_importItemsAsync_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createView(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -17343,6 +18146,69 @@ func (ec *executionContext) fieldContext_Mutation_deleteView(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_deleteView_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_cancelJob(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Mutation_cancelJob,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Mutation().CancelJob(ctx, fc.Args["jobId"].(gqlmodel.ID))
+		},
+		nil,
+		ec.marshalOJob2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJob,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Mutation_cancelJob(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Job_id(ctx, field)
+			case "type":
+				return ec.fieldContext_Job_type(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Job_projectId(ctx, field)
+			case "status":
+				return ec.fieldContext_Job_status(ctx, field)
+			case "progress":
+				return ec.fieldContext_Job_progress(ctx, field)
+			case "error":
+				return ec.fieldContext_Job_error(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Job_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Job_updatedAt(ctx, field)
+			case "startedAt":
+				return ec.fieldContext_Job_startedAt(ctx, field)
+			case "completedAt":
+				return ec.fieldContext_Job_completedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_cancelJob_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -20980,6 +21846,132 @@ func (ec *executionContext) fieldContext_Query_view(ctx context.Context, field g
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_view_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_job(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_job,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().Job(ctx, fc.Args["jobId"].(gqlmodel.ID))
+		},
+		nil,
+		ec.marshalOJob2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJob,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_job(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Job_id(ctx, field)
+			case "type":
+				return ec.fieldContext_Job_type(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Job_projectId(ctx, field)
+			case "status":
+				return ec.fieldContext_Job_status(ctx, field)
+			case "progress":
+				return ec.fieldContext_Job_progress(ctx, field)
+			case "error":
+				return ec.fieldContext_Job_error(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Job_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Job_updatedAt(ctx, field)
+			case "startedAt":
+				return ec.fieldContext_Job_startedAt(ctx, field)
+			case "completedAt":
+				return ec.fieldContext_Job_completedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_job_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_jobs(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_jobs,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().Jobs(ctx, fc.Args["projectId"].(gqlmodel.ID), fc.Args["type"].(*gqlmodel.JobType), fc.Args["status"].(*gqlmodel.JobStatus))
+		},
+		nil,
+		ec.marshalNJob2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_jobs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Job_id(ctx, field)
+			case "type":
+				return ec.fieldContext_Job_type(ctx, field)
+			case "projectId":
+				return ec.fieldContext_Job_projectId(ctx, field)
+			case "status":
+				return ec.fieldContext_Job_status(ctx, field)
+			case "progress":
+				return ec.fieldContext_Job_progress(ctx, field)
+			case "error":
+				return ec.fieldContext_Job_error(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Job_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Job_updatedAt(ctx, field)
+			case "startedAt":
+				return ec.fieldContext_Job_startedAt(ctx, field)
+			case "completedAt":
+				return ec.fieldContext_Job_completedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Job", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_jobs_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -24855,6 +25847,55 @@ func (ec *executionContext) fieldContext_StringFieldCondition_value(_ context.Co
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Subscription_jobProgress(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	return graphql.ResolveFieldStream(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Subscription_jobProgress,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Subscription().JobProgress(ctx, fc.Args["jobId"].(gqlmodel.ID))
+		},
+		nil,
+		ec.marshalNJobProgress2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobProgress,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Subscription_jobProgress(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "processed":
+				return ec.fieldContext_JobProgress_processed(ctx, field)
+			case "total":
+				return ec.fieldContext_JobProgress_total(ctx, field)
+			case "percentage":
+				return ec.fieldContext_JobProgress_percentage(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type JobProgress", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Subscription_jobProgress_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -34964,6 +36005,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Model(ctx, sel, obj)
+	case gqlmodel.Job:
+		return ec._Job(ctx, sel, &obj)
+	case *gqlmodel.Job:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Job(ctx, sel, obj)
 	case gqlmodel.Item:
 		return ec._Item(ctx, sel, &obj)
 	case *gqlmodel.Item:
@@ -37471,6 +38519,45 @@ func (ec *executionContext) _GuessSchemaFieldResult(ctx context.Context, sel ast
 	return out
 }
 
+var importItemsAsyncPayloadImplementors = []string{"ImportItemsAsyncPayload"}
+
+func (ec *executionContext) _ImportItemsAsyncPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ImportItemsAsyncPayload) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, importItemsAsyncPayloadImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ImportItemsAsyncPayload")
+		case "job":
+			out.Values[i] = ec._ImportItemsAsyncPayload_job(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var importItemsPayloadImplementors = []string{"ImportItemsPayload"}
 
 func (ec *executionContext) _ImportItemsPayload(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.ImportItemsPayload) graphql.Marshaler {
@@ -38451,6 +39538,130 @@ func (ec *executionContext) _ItemSort(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var jobImplementors = []string{"Job", "Node"}
+
+func (ec *executionContext) _Job(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Job) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, jobImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Job")
+		case "id":
+			out.Values[i] = ec._Job_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "type":
+			out.Values[i] = ec._Job_type(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "projectId":
+			out.Values[i] = ec._Job_projectId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "status":
+			out.Values[i] = ec._Job_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "progress":
+			out.Values[i] = ec._Job_progress(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "error":
+			out.Values[i] = ec._Job_error(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._Job_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedAt":
+			out.Values[i] = ec._Job_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "startedAt":
+			out.Values[i] = ec._Job_startedAt(ctx, field, obj)
+		case "completedAt":
+			out.Values[i] = ec._Job_completedAt(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var jobProgressImplementors = []string{"JobProgress"}
+
+func (ec *executionContext) _JobProgress(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.JobProgress) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, jobProgressImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("JobProgress")
+		case "processed":
+			out.Values[i] = ec._JobProgress_processed(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "total":
+			out.Values[i] = ec._JobProgress_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "percentage":
+			out.Values[i] = ec._JobProgress_percentage(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var keyAvailabilityImplementors = []string{"KeyAvailability"}
 
 func (ec *executionContext) _KeyAvailability(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.KeyAvailability) graphql.Marshaler {
@@ -39217,6 +40428,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_importItems(ctx, field)
 			})
+		case "importItemsAsync":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_importItemsAsync(ctx, field)
+			})
 		case "createView":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createView(ctx, field)
@@ -39232,6 +40447,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "deleteView":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteView(ctx, field)
+			})
+		case "cancelJob":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_cancelJob(ctx, field)
 			})
 		case "createModel":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -40326,6 +41545,47 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_view(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "job":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_job(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "jobs":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_jobs(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -42266,6 +43526,26 @@ func (ec *executionContext) _StringFieldCondition(ctx context.Context, sel ast.S
 	}
 
 	return out
+}
+
+var subscriptionImplementors = []string{"Subscription"}
+
+func (ec *executionContext) _Subscription(ctx context.Context, sel ast.SelectionSet) func(ctx context.Context) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, subscriptionImplementors)
+	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
+		Object: "Subscription",
+	})
+	if len(fields) != 1 {
+		graphql.AddErrorf(ctx, "must subscribe to exactly one stream")
+		return nil
+	}
+
+	switch fields[0].Name {
+	case "jobProgress":
+		return ec._Subscription_jobProgress(ctx, fields[0])
+	default:
+		panic("unknown field " + strconv.Quote(fields[0].Name))
+	}
 }
 
 var terrainResourceImplementors = []string{"TerrainResource", "Resource"}
@@ -45249,6 +46529,94 @@ func (ec *executionContext) marshalNItemStatus2githubᚗcomᚋreearthᚋreearth�
 	return v
 }
 
+func (ec *executionContext) marshalNJob2ᚕᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobᚄ(ctx context.Context, sel ast.SelectionSet, v []*gqlmodel.Job) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNJob2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJob(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNJob2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJob(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Job) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Job(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNJobProgress2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobProgress(ctx context.Context, sel ast.SelectionSet, v gqlmodel.JobProgress) graphql.Marshaler {
+	return ec._JobProgress(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNJobProgress2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobProgress(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.JobProgress) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._JobProgress(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNJobStatus2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobStatus(ctx context.Context, v any) (gqlmodel.JobStatus, error) {
+	var res gqlmodel.JobStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNJobStatus2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobStatus(ctx context.Context, sel ast.SelectionSet, v gqlmodel.JobStatus) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNJobType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobType(ctx context.Context, v any) (gqlmodel.JobType, error) {
+	var res gqlmodel.JobType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNJobType2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.JobType) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalNKeyAvailability2githubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐKeyAvailability(ctx context.Context, sel ast.SelectionSet, v gqlmodel.KeyAvailability) graphql.Marshaler {
 	return ec._KeyAvailability(ctx, sel, &v)
 }
@@ -47825,6 +49193,13 @@ func (ec *executionContext) marshalOID2ᚖgithubᚗcomᚋreearthᚋreearthᚑcms
 	return res
 }
 
+func (ec *executionContext) marshalOImportItemsAsyncPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportItemsAsyncPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ImportItemsAsyncPayload) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ImportItemsAsyncPayload(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalOImportItemsPayload2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐImportItemsPayload(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ImportItemsPayload) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -47945,6 +49320,45 @@ func (ec *executionContext) unmarshalOItemSortInput2ᚖgithubᚗcomᚋreearthᚋ
 	}
 	res, err := ec.unmarshalInputItemSortInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOJob2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJob(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Job) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Job(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOJobStatus2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobStatus(ctx context.Context, v any) (*gqlmodel.JobStatus, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(gqlmodel.JobStatus)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOJobStatus2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobStatus(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.JobStatus) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
+func (ec *executionContext) unmarshalOJobType2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobType(ctx context.Context, v any) (*gqlmodel.JobType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(gqlmodel.JobType)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOJobType2ᚖgithubᚗcomᚋreearthᚋreearthᚑcmsᚋserverᚋinternalᚋadapterᚋgqlᚋgqlmodelᚐJobType(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.JobType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOLang2ᚖgolangᚗorgᚋxᚋtextᚋlanguageᚐTag(ctx context.Context, v any) (*language.Tag, error) {
