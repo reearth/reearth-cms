@@ -712,7 +712,7 @@ func TestGQLJobProgressSubscription(t *testing.T) {
 		// Timeout - close connection
 		err := conn.Close()
 		if err != nil {
-			return
+			t.Fatalf("failed to close websocket connection on timeout: %v", err)
 		}
 	}
 
