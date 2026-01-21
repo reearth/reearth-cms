@@ -145,7 +145,10 @@ export class ProjectPage extends BasePage {
 
   // Project Settings page locators
   get deleteProjectButton(): Locator {
-    return this.getByRole("button", { name: "Delete Project" });
+    return this.getByTestId(DATA_TEST_ID.DeleteProjectButton);
+  }
+  get confirmDeleteProjectButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ConfirmDeleteProjectButton);
   }
   get settingsMenuItem(): Locator {
     return this.getByText("Settings").first();
@@ -255,8 +258,8 @@ export class ProjectPage extends BasePage {
     }
 
     await this.getByText("Settings").first().click();
-    await this.getByRole("button", { name: "Delete Project" }).click();
-    await this.getByRole("button", { name: "OK" }).click();
+    await this.deleteProjectButton.click();
+    await this.confirmDeleteProjectButton.click();
     await this.closeNotification();
   }
 

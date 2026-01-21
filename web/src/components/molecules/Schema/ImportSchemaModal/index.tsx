@@ -5,7 +5,7 @@ import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Flex from "@reearth-cms/components/atoms/Flex";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Modal from "@reearth-cms/components/atoms/Modal";
+import Modal, { useModal } from "@reearth-cms/components/atoms/Modal";
 import Steps from "@reearth-cms/components/atoms/Step";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import {
@@ -89,6 +89,7 @@ const ImportSchemaModal: React.FC<Props> = ({
   onFileRemove,
 }) => {
   const t = useT();
+  const { confirm } = useModal();
 
   const hasImportFields = useMemo(() => fields.some(field => !field.hidden), [fields]);
 

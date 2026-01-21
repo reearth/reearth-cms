@@ -1,16 +1,18 @@
 import styled from "@emotion/styled";
 import { useCallback, useMemo } from "react";
+import { Trans } from "react-i18next";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Icon from "@reearth-cms/components/atoms/Icon";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
-import Modal from "@reearth-cms/components/atoms/Modal";
+import { useModal } from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import { ProjectVisibility } from "../Accessibility/types";
 
 type Props = {
+  projectName: string;
   visibility?: ProjectVisibility;
   hasDeleteRight: boolean;
   hasPublishRight: boolean;
@@ -19,6 +21,7 @@ type Props = {
 };
 
 const DangerZone: React.FC<Props> = ({
+  projectName,
   visibility,
   hasDeleteRight,
   hasPublishRight,
@@ -26,18 +29,24 @@ const DangerZone: React.FC<Props> = ({
   onProjectVisibilityChange,
 }) => {
   const t = useT();
-  const { confirm } = Modal;
+  const { confirm } = useModal();
 
   const handleProjectDeleteConfirmation = useCallback(() => {
     confirm({
-      title: t("Are you sure you want to delete this project?"),
-      icon: <Icon icon="exclamationCircle" />,
-      cancelText: t("Cancel"),
+      title: (
+        <Trans
+          i18nKey="Delete {{projectName}} project?"
+          values={{ projectName }}
+          components={{ u: <StyledProjectName /> }}
+        />
+      ),
+      okText: t("Delete project"),
+      okButtonProps: { danger: true, "data-testid": DATA_TEST_ID.ConfirmDeleteProjectButton },
       onOk() {
         onProjectDelete();
       },
     });
-  }, [confirm, onProjectDelete, t]);
+  }, [confirm, projectName, t, onProjectDelete]);
 
   const publicScopeList = useMemo(
     () => [
@@ -63,7 +72,7 @@ const DangerZone: React.FC<Props> = ({
         content2: t("This action is not reversible, so please continue with caution."),
       };
 
-      Modal.confirm({
+      confirm({
         title: messages.title,
         content: (
           <>
@@ -71,14 +80,12 @@ const DangerZone: React.FC<Props> = ({
             <p>{messages.content2}</p>
           </>
         ),
-        icon: <Icon icon="exclamationCircle" />,
-        cancelText: t("Cancel"),
         async onOk() {
           await onProjectVisibilityChange?.(visibility);
         },
       });
     },
-    [onProjectVisibilityChange, t],
+    [onProjectVisibilityChange, t, confirm],
   );
 
   return (
@@ -94,18 +101,19 @@ const DangerZone: React.FC<Props> = ({
           </Select.Option>
         ))}
       </StyledSelect>
-      <Title>{t("Delete Project")}</Title>
+      <Title>{t("Delete project")}</Title>
       <Text>
         {t(
           "Permanently removes your project and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.",
         )}
       </Text>
       <StyledButton
+        data-testid={DATA_TEST_ID.DeleteProjectButton}
         onClick={handleProjectDeleteConfirmation}
         type="primary"
         danger
         disabled={!hasDeleteRight}>
-        {t("Delete Project")}
+        {t("Delete project")}
       </StyledButton>
     </ContentSection>
   );
@@ -125,6 +133,7 @@ const Title = styled.h1`
   font-size: 16px;
   line-height: 24px;
   color: rgba(0, 0, 0, 0.85);
+  text-transform: capitalize;
 `;
 
 const Text = styled.p`
@@ -135,4 +144,9 @@ const Text = styled.p`
 
 const StyledButton = styled(Button)`
   width: fit-content;
+  text-transform: capitalize;
+`;
+
+const StyledProjectName = styled.span`
+  text-decoration: underline;
 `;

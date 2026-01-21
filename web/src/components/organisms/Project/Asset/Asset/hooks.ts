@@ -1,4 +1,5 @@
 import { NetworkStatus } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client/react";
 import { Ion, Viewer as CesiumViewer } from "cesium";
 import fileDownload from "js-file-download";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
@@ -27,13 +28,15 @@ import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverte
 import { config } from "@reearth-cms/config";
 import { useAuthHeader } from "@reearth-cms/gql";
 import {
+  DecompressAssetDocument,
+  GetAssetFileDocument,
+  GetAssetItemDocument,
+  UpdateAssetDocument,
+} from "@reearth-cms/gql/__generated__/assets.generated";
+import {
   Asset as GQLAsset,
   PreviewType as GQLPreviewType,
-  useDecompressAssetMutation,
-  useGetAssetFileQuery,
-  useGetAssetItemQuery,
-  useUpdateAssetMutation,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
 import { FileUtils } from "@reearth-cms/utils/file";
@@ -55,14 +58,14 @@ export default (assetId?: string) => {
     Ion.defaultAccessToken = config()?.cesiumIonAccessToken ?? Ion.defaultAccessToken;
   }, []);
 
-  const { data: rawAsset, networkStatus } = useGetAssetItemQuery({
+  const { data: rawAsset, networkStatus } = useQuery(GetAssetItemDocument, {
     variables: {
       assetId: assetId ?? "",
     },
     fetchPolicy: "cache-and-network",
   });
 
-  const { data: rawFile, loading: fileLoading } = useGetAssetFileQuery({
+  const { data: rawFile, loading: fileLoading } = useQuery(GetAssetFileDocument, {
     variables: {
       assetId: assetId ?? "",
     },
@@ -96,7 +99,7 @@ export default (assetId?: string) => {
     [asset?.createdBy.id, userId, userRights?.asset.update],
   );
 
-  const [updateAssetMutation, { loading: updateLoading }] = useUpdateAssetMutation();
+  const [updateAssetMutation, { loading: updateLoading }] = useMutation(UpdateAssetDocument);
   const handleAssetUpdate = useCallback(
     async (assetId: string, previewType?: PreviewType) => {
       if (!assetId) return;
@@ -104,7 +107,7 @@ export default (assetId?: string) => {
         variables: { id: assetId, previewType: previewType as GQLPreviewType },
         refetchQueries: ["GetAssetItem"],
       });
-      if (result.errors || !result.data?.updateAsset) {
+      if (result.error || !result.data?.updateAsset) {
         Notification.error({ message: t("Failed to update asset.") });
       }
       if (result) {
@@ -114,7 +117,7 @@ export default (assetId?: string) => {
     [t, updateAssetMutation],
   );
 
-  const [decompressAssetMutation] = useDecompressAssetMutation();
+  const [decompressAssetMutation] = useMutation(DecompressAssetDocument);
   const handleAssetDecompress = useCallback(
     (assetId: string) =>
       (async () => {
@@ -125,7 +128,7 @@ export default (assetId?: string) => {
           refetchQueries: ["GetAssetItem"],
         });
         setDecompressing(false);
-        if (result.errors || !result.data?.decompressAsset) {
+        if (result.error || !result.data?.decompressAsset) {
           Notification.error({ message: t("Failed to decompress asset.") });
         }
         if (result) {

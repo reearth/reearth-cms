@@ -149,6 +149,7 @@ const Schema: React.FC<Props> = ({
   onFileRemove,
 }) => {
   const t = useT();
+
   const [tab, setTab] = useState<Tab>("fields");
 
   const hasFields = useMemo(() => data && data.schema.fields.length > 0, [data]);

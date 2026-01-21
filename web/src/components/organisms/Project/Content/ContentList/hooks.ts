@@ -1,3 +1,4 @@
+import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { RcFile } from "antd/es/upload";
 import { useCallback, useEffect, useMemo, useState, useRef, Key } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
@@ -36,19 +37,20 @@ import {
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
 import {
   Item as GQLItem,
-  useDeleteItemsMutation,
   Comment as GQLComment,
-  useSearchItemQuery,
   Asset as GQLAsset,
-  useGetItemLazyQuery,
-  useUpdateItemMutation,
-  useCreateItemMutation,
   SchemaFieldType,
   View as GQLView,
-  useGetViewsQuery,
   ItemFieldInput,
-  useImportItemsMutation,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import {
+  CreateItemDocument,
+  DeleteItemsDocument,
+  GetItemDocument,
+  SearchItemDocument,
+  UpdateItemDocument,
+} from "@reearth-cms/gql/__generated__/item.generated";
+import { GetViewsDocument } from "@reearth-cms/gql/__generated__/view.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useCollapsedModelMenu, useUserRights, useUploader } from "@reearth-cms/state";
 import { ImportContentJSON } from "@reearth-cms/utils/importContent";
@@ -77,8 +79,8 @@ export default () => {
     currentProject,
     requests,
     addItemToRequestModalShown,
-    handlePublish,
-    handleUnpublish,
+    handlePublish: _handlePublish,
+    handleUnpublish: _handleUnpublish,
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
@@ -138,7 +140,7 @@ export default () => {
   const viewsRef = useRef<View[]>([]);
   const prevModelIdRef = useRef<string>();
 
-  const { data: viewData, loading: viewLoading } = useGetViewsQuery({
+  const { data: viewData, loading: viewLoading } = useQuery(GetViewsDocument, {
     variables: { modelId: modelId ?? "" },
     skip: !modelId,
   });
@@ -163,24 +165,28 @@ export default () => {
     viewsRef.current = viewList ?? [];
   }, [location.state?.currentView, modelId, viewData?.view, viewLoading]);
 
-  const { data, refetch, loading } = useSearchItemQuery({
-    fetchPolicy: "no-cache",
-    variables: {
-      searchItemInput: {
-        query: {
-          project: currentProject?.id ?? "",
-          model: currentModel?.id ?? "",
-          schema: currentModel?.schema.id,
-          q: searchTerm,
-        },
-        pagination: { first: pageSize, offset: (page - 1) * pageSize },
-        sort: toGraphItemSort(currentView.sort ?? defaultViewSort),
-        filter: toGraphConditionInput(currentView.filter),
-      },
-    },
-    notifyOnNetworkStatusChange: true,
-    skip: !currentProject?.id || !currentModel?.id || viewLoading,
-  });
+  const { data, refetch, loading } = useQuery(
+    SearchItemDocument,
+    currentProject?.id && currentModel?.id && !viewLoading
+      ? {
+          fetchPolicy: "no-cache",
+          variables: {
+            searchItemInput: {
+              query: {
+                project: currentProject.id,
+                model: currentModel.id,
+                schema: currentModel.schema.id,
+                q: searchTerm,
+              },
+              pagination: { first: pageSize, offset: (page - 1) * pageSize },
+              sort: toGraphItemSort(currentView.sort ?? defaultViewSort),
+              filter: toGraphConditionInput(currentView.filter),
+            },
+          },
+          notifyOnNetworkStatusChange: true,
+        }
+      : skipToken,
+  );
 
   const handleItemsReload = useCallback(() => {
     refetch();
@@ -213,10 +219,10 @@ export default () => {
     [selectedItems, userId, userRights?.content.delete, userRights?.request.update],
   );
 
-  const [updateItemMutation] = useUpdateItemMutation();
-  const [getItem] = useGetItemLazyQuery({ fetchPolicy: "no-cache" });
-  const [createNewItem] = useCreateItemMutation({ refetchQueries: ["SearchItem"] });
-  const [importItemMutation] = useImportItemsMutation({ refetchQueries: ["SearchItem"] });
+  const [importItemMutation] = useMutation(ImportItemsDocument, { refetchQueries: ["SearchItem"] });
+  const [updateItemMutation] = useMutation(UpdateItemDocument);
+  const [getItem] = useLazyQuery(GetItemDocument, { fetchPolicy: "no-cache" });
+  const [createNewItem] = useMutation(CreateItemDocument);
 
   const itemIdToMetadata = useRef(new Map<string, Metadata>());
   const metadataVersionSet = useCallback(
@@ -306,7 +312,7 @@ export default () => {
               version: metadata.version,
             },
           });
-          if (item.errors || !item.data?.updateItem) {
+          if (item.error || !item.data?.updateItem) {
             Notification.error({ message: t("Failed to update item.") });
             return;
           }
@@ -323,7 +329,7 @@ export default () => {
               fields,
             },
           });
-          if (metaItem.errors || !metaItem.data?.createItem) {
+          if (metaItem.error || !metaItem.data?.createItem) {
             Notification.error({ message: t("Failed to update item.") });
             return;
           }
@@ -338,7 +344,7 @@ export default () => {
               version: target?.version ?? "",
             },
           });
-          if (item.errors || !item.data?.updateItem) {
+          if (item.error || !item.data?.updateItem) {
             Notification.error({ message: t("Failed to update item.") });
             return;
           }
@@ -569,7 +575,7 @@ export default () => {
     ],
   );
 
-  const [deleteItemsMutation, { loading: deleteLoading }] = useDeleteItemsMutation();
+  const [deleteItemsMutation, { loading: deleteLoading }] = useMutation(DeleteItemsDocument);
   const handleItemDelete = useCallback(
     (itemIds: string[]) =>
       (async () => {
@@ -577,7 +583,7 @@ export default () => {
           variables: { itemIds },
           refetchQueries: ["SearchItem"],
         });
-        if (result.errors || !result.data?.deleteItems) {
+        if (result.error || !result.data?.deleteItems) {
           Notification.error({ message: t("Failed to delete one or more items.") });
           return;
         }
@@ -738,7 +744,7 @@ export default () => {
         },
       });
 
-      if (res.errors) {
+      if (res.error) {
         Notification.error({ message: "Import failed" });
       } else {
         Notification.success({ message: "Import success" });
@@ -765,6 +771,22 @@ export default () => {
       handleImportContentModalClose();
     },
     [currentModel, handleImportContentModalClose, importItemMutation],
+  );
+
+  const handlePublish = useCallback(
+    async (itemIds: string[]) => {
+      await _handlePublish(itemIds);
+      await refetch();
+    },
+    [_handlePublish, refetch],
+  );
+
+  const handleUnpublish = useCallback(
+    async (itemIds: string[]) => {
+      await _handleUnpublish(itemIds);
+      await refetch();
+    },
+    [_handleUnpublish, refetch],
   );
 
   return {

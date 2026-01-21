@@ -287,9 +287,7 @@ test("Text field CRUD has succeeded", async ({ fieldEditorPage, schemaPage, page
   });
 
   await test.step("Delete text field", async () => {
-    await fieldEditorPage.deleteFieldButton.click();
-    await fieldEditorPage.okButton.click();
-    await schemaPage.closeNotification();
+    await fieldEditorPage.deleteField();
     await expect(schemaPage.fieldText("new text", "new-text")).toBeHidden();
     await page.waitForTimeout(300);
   });
