@@ -225,9 +225,13 @@ func TestPublicAPI_Item(t *testing.T) {
 }
 
 func TestPublicAPI_Assets(t *testing.T) {
-	e, _, _ := StartServerWithRepos(t, &app.Config{
+	e, r, _ := StartServerWithRepos(t, &app.Config{
 		AssetBaseURL: "https://example.com",
 	}, true, publicAPISeeder)
+	ctx := context.Background()
+	prj := lo.Must(r.Project.FindByID(ctx, pApiP1Id))
+	apiKey := project.NewAPIKeyBuilder().NewID().GenerateKey().Name("key1").Description("desc1").
+		Publication(project.NewPublicationSettings(id.ModelIDList{pApiP1M1Id}, true)).Build()
 
 	t.Run("export assets with pagination", func(t *testing.T) {
 		e.GET("/api/p/{workspace}/{project}/assets", pApiW1Alias, pApiP1Alias).
@@ -303,6 +307,108 @@ func TestPublicAPI_Assets(t *testing.T) {
 					fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
 					fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
 				},
+			})
+	})
+
+	t.Run("export assets should fail for private project", func(t *testing.T) {
+		prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(id.ModelIDList{}, false), nil))
+		lo.Must0(r.Project.Save(ctx, prj))
+
+		e.GET("/api/p/{workspace}/{project}/assets", pApiW1Alias, pApiP1Alias).
+			Expect().
+			Status(http.StatusNotFound).
+			JSON().
+			IsEqual(map[string]any{
+				"error": "not found",
+			})
+	})
+
+	t.Run("export assets should fail for private project (default)", func(t *testing.T) {
+		prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(nil, false), nil))
+		lo.Must0(r.Project.Save(ctx, prj))
+
+		e.GET("/api/p/{workspace}/{project}/assets", pApiW1Alias, pApiP1Alias).
+			Expect().
+			Status(http.StatusNotFound).
+			JSON().
+			IsEqual(map[string]any{
+				"error": "not found",
+			})
+	})
+
+	t.Run("export assets should fail for private project (publication nil)", func(t *testing.T) {
+		prj.SetAccessibility(*project.NewAccessibility(project.VisibilityPrivate, nil, nil))
+		lo.Must0(r.Project.Save(ctx, prj))
+
+		e.GET("/api/p/{workspace}/{project}/assets", pApiW1Alias, pApiP1Alias).
+			Expect().
+			Status(http.StatusNotFound).
+			JSON().
+			IsEqual(map[string]any{
+				"error": "not found",
+			})
+	})
+
+	t.Run("export assets with valid/invalid token", func(t *testing.T) {
+		prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(nil, false), project.APIKeys{apiKey}))
+		lo.Must0(r.Project.Save(ctx, prj))
+
+		// invalid token
+		e.GET("/api/p/{workspace}/{project}/assets", pApiW1Alias, pApiP1Alias).
+			WithHeader("Origin", "https://example.com").
+			WithHeader("Authorization", "secret_abc").
+			WithHeader("Content-Type", "application/json").
+			Expect().
+			Status(http.StatusUnauthorized).
+			JSON().
+			IsEqual(map[string]any{
+				"error": "invalid key",
+			})
+
+		// valid token
+		e.GET("/api/p/{workspace}/{project}/assets", pApiW1Alias, pApiP1Alias).
+			WithHeader("Origin", "https://example.com").
+			WithHeader("Authorization", apiKey.Key()).
+			WithHeader("Content-Type", "application/json").
+			Expect().
+			Status(http.StatusOK).
+			JSON().
+			IsEqual(map[string]any{
+				"results": []map[string]any{
+					{
+						"id":          pApiP1A1Id.String(),
+						"type":        "asset",
+						"url":         fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA1UUID[:2], pApiA1UUID[2:]),
+						"contentType": "application/zip",
+						"files": []string{
+							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
+							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", pApiA1UUID[:2], pApiA1UUID[2:]),
+						},
+					},
+					{
+						"id":          pApiP1A2Id.String(),
+						"type":        "asset",
+						"url":         fmt.Sprintf("https://example.com/assets/%s/%s/aaa.zip", pApiA2UUID[:2], pApiA2UUID[2:]),
+						"contentType": "application/zip",
+						"files": []string{
+							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/bbb.txt", pApiA2UUID[:2], pApiA2UUID[2:]),
+							fmt.Sprintf("https://example.com/assets/%s/%s/aaa/ccc.txt", pApiA2UUID[:2], pApiA2UUID[2:]),
+						},
+					},
+				},
+				"totalCount": 2,
+			})
+
+		// different project in the same workspace with the same token
+		e.GET("/api/p/{workspace}/{project}/assets", pApiW1Alias, pApiP2Alias).
+			WithHeader("Origin", "https://example.com").
+			WithHeader("Authorization", apiKey.Key()).
+			WithHeader("Content-Type", "application/json").
+			Expect().
+			Status(http.StatusNotFound).
+			JSON().
+			IsEqual(map[string]any{
+				"error": "not found",
 			})
 	})
 }
