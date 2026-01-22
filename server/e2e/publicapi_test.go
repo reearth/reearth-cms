@@ -615,6 +615,32 @@ func TestPublicAPI_Model(t *testing.T) {
 			})
 	})
 
+	t.Run("export as json should fail for private project (default)", func(t *testing.T) {
+		prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(nil, false), nil))
+		lo.Must0(r.Project.Save(ctx, prj))
+
+		e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
+			Expect().
+			Status(http.StatusNotFound).
+			JSON().
+			IsEqual(map[string]any{
+				"error": "not found",
+			})
+	})
+
+	t.Run("export as json should fail for private project (publication nil)", func(t *testing.T) {
+		prj.SetAccessibility(*project.NewAccessibility(project.VisibilityPrivate, nil, nil))
+		lo.Must0(r.Project.Save(ctx, prj))
+
+		e.GET("/api/p/{workspace}/{project}/{model}", pApiW1Alias, pApiP1Alias, pApiP1M1Key).
+			Expect().
+			Status(http.StatusNotFound).
+			JSON().
+			IsEqual(map[string]any{
+				"error": "not found",
+			})
+	})
+
 	t.Run("export as json with valid/invalid token", func(t *testing.T) {
 		prj.SetAccessibility(*project.NewPrivateAccessibility(*project.NewPublicationSettings(nil, false), project.APIKeys{apiKey}))
 		lo.Must0(r.Project.Save(ctx, prj))

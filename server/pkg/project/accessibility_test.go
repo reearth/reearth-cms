@@ -125,10 +125,16 @@ func TestAccessibility_IsModelPublic(t *testing.T) {
 		want   bool
 	}{
 		{
-			name:   "nil accessibility",
+			name:   "empty visibility",
 			fields: fields{},
 			args:   args{modelID: modelID, keyId: nil},
-			want:   true,
+			want:   false,
+		},
+		{
+			name:   "private visibility",
+			fields: fields{visibility: VisibilityPrivate},
+			args:   args{modelID: modelID, keyId: nil},
+			want:   false,
 		},
 		{
 			name:   "public visibility",
@@ -168,7 +174,6 @@ func TestAccessibility_IsModelPublic(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
