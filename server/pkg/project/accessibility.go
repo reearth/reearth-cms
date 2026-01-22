@@ -156,11 +156,11 @@ func (p *Accessibility) Clone() *Accessibility {
 }
 
 func (p *Accessibility) IsAssetsPublic(keyId *APIKeyID) bool {
-	if p == nil || p.publication == nil {
+	if p == nil || p.visibility == VisibilityPublic {
 		return true
 	}
-	if p.visibility == VisibilityPublic {
-		return true
+	if p.publication == nil {
+		return p.visibility == VisibilityPublic
 	}
 	if p.publication.PublicAssets() {
 		return true

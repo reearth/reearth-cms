@@ -34,10 +34,16 @@ func TestAccessibility_IsAssetsPublic(t *testing.T) {
 		want   bool
 	}{
 		{
-			name:   "nil accessibility",
+			name:   "empty visibility",
 			fields: fields{},
 			args:   args{keyId: nil},
-			want:   true,
+			want:   false,
+		},
+		{
+			name:   "private visibility",
+			fields: fields{visibility: VisibilityPrivate},
+			args:   args{keyId: nil},
+			want:   false,
 		},
 		{
 			name:   "public visibility",
@@ -77,7 +83,6 @@ func TestAccessibility_IsAssetsPublic(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
