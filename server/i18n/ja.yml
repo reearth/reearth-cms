@@ -70,6 +70,8 @@ item has been changed before you change it: このアイテムを保存する前
 items are required for export: ""
 items cannot be empty: アイテムは空にできません。
 items should be on the same model: アイテムは全て同じモデルに対応する必要があります。
+job not found: ジョブが見つかりません
+job subscription not available: ジョブ購読は利用できません
 max must be larger then min: 最大値は最小値より大きい必要があります。
 metadata item and schema mismatch: メタデータのアイテムのスキーマが正しくありません。
 metadata schema not found: メタデータのスキーマが見つかりません。
