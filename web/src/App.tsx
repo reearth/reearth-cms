@@ -1,7 +1,12 @@
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
-import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider, } from "react-router-dom";
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  Route,
+  RouterProvider,
+} from "react-router-dom";
 
 import { AuthProvider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
@@ -34,6 +39,8 @@ import { Provider as I18nProvider } from "@reearth-cms/i18n";
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
+
+console.log("test");
 
 const router = createBrowserRouter(
   createRoutesFromElements(
