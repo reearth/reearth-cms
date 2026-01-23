@@ -1,5 +1,6 @@
 // e2e/pages/field-editor.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import { BasePage } from "./base.page";
 
@@ -387,6 +388,9 @@ export class FieldEditorPage extends BasePage {
   get deleteFieldButton(): Locator {
     return this.getByLabel("delete").locator("svg");
   }
+  get confirmDeleteFieldButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ConfirmDeleteFieldButton);
+  }
 
   // Reference field specific elements
   get selectModelToReferenceLabel(): Locator {
@@ -491,7 +495,7 @@ export class FieldEditorPage extends BasePage {
 
   async deleteField(): Promise<void> {
     await this.deleteFieldButton.click();
-    await this.okButton.click();
+    await this.confirmDeleteFieldButton.click();
     await this.closeNotification();
   }
 }

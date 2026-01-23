@@ -2,10 +2,10 @@ import styled from "@emotion/styled";
 import { useCallback } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Icon from "@reearth-cms/components/atoms/Icon";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
-import Modal from "@reearth-cms/components/atoms/Modal";
+import { useModal } from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 type Props = {
   onIntegrationDelete: () => Promise<void>;
@@ -13,12 +13,11 @@ type Props = {
 
 const DangerZone: React.FC<Props> = ({ onIntegrationDelete }) => {
   const t = useT();
-  const { confirm } = Modal;
+  const { confirm } = useModal();
 
   const handleWorkspaceDeleteConfirmation = useCallback(() => {
     confirm({
       title: t("Are you sure to remove this integration?"),
-      icon: <Icon icon="exclamationCircle" />,
       content: (
         <>
           {t("Permanently remove your Integration and all of its contents from the Re:Earth CMS.")}
@@ -26,7 +25,8 @@ const DangerZone: React.FC<Props> = ({ onIntegrationDelete }) => {
           {t("Once the integration is removed, it will disappear from all workspaces.")}
         </>
       ),
-      cancelText: t("Cancel"),
+      okButtonProps: { danger: true, "data-testid": DATA_TEST_ID.ConfirmRemoveIntegrationButton },
+      okText: t("Remove integration"),
       async onOk() {
         await onIntegrationDelete();
       },
@@ -35,15 +35,19 @@ const DangerZone: React.FC<Props> = ({ onIntegrationDelete }) => {
 
   return (
     <ContentSection title={t("Danger Zone")} danger>
-      <Title>{t("Remove Integration")}</Title>
+      <Title>{t("Remove integration")}</Title>
       <Text>
         {t(
           "Permanently remove your Integration and all of its contents from the Re:Earth CMS. This action is not reversible – please continue with caution.",
         )}
       </Text>
-      <Button onClick={handleWorkspaceDeleteConfirmation} type="primary" danger>
-        {t("Remove Integration")}
-      </Button>
+      <StyledDeleteButton
+        onClick={handleWorkspaceDeleteConfirmation}
+        type="primary"
+        danger
+        data-testid={DATA_TEST_ID.RemoveIntegrationButton}>
+        {t("Remove integration")}
+      </StyledDeleteButton>
     </ContentSection>
   );
 };
@@ -55,6 +59,7 @@ const Title = styled.h1`
   font-size: 16px;
   line-height: 24px;
   color: #000000d9;
+  text-transform: capitalize;
 `;
 
 const Text = styled.p`
@@ -63,4 +68,9 @@ const Text = styled.p`
   line-height: 22px;
   color: #000000d9;
   margin: 24px 0;
+`;
+
+const StyledDeleteButton = styled(Button)`
+  width: fit-content;
+  text-transform: capitalize;
 `;

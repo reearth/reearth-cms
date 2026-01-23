@@ -1,3 +1,4 @@
+import { useMutation } from "@apollo/client/react";
 import { useCallback, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -9,13 +10,16 @@ import {
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import integrationHooks from "@reearth-cms/components/organisms/Settings/MyIntegrations/hooks";
 import {
-  useCreateWebhookMutation,
-  useUpdateIntegrationMutation,
-  useUpdateWebhookMutation,
-  useDeleteWebhookMutation,
-  useDeleteIntegrationMutation,
-  useRegenerateIntegrationTokenMutation,
-} from "@reearth-cms/gql/graphql-client-api";
+  DeleteIntegrationDocument,
+  RegenerateIntegrationTokenDocument,
+  UpdateIntegrationDocument,
+} from "@reearth-cms/gql/__generated__/integration.generated";
+import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
+import {
+  CreateWebhookDocument,
+  DeleteWebhookDocument,
+  UpdateWebhookDocument,
+} from "@reearth-cms/gql/__generated__/webhook.generated";
 import { useT } from "@reearth-cms/i18n";
 
 export default () => {
@@ -29,8 +33,10 @@ export default () => {
     [integrations, integrationId],
   );
 
-  const [updateIntegrationMutation, { loading: updateIntegrationLoading }] =
-    useUpdateIntegrationMutation();
+  const [updateIntegrationMutation, { loading: updateIntegrationLoading }] = useMutation(
+    UpdateIntegrationDocument,
+    { refetchQueries: [{ query: GetMeDocument }] },
+  );
 
   const handleIntegrationUpdate = useCallback(
     async ({ name, description, logoUrl }: IntegrationInfo) => {
@@ -43,7 +49,7 @@ export default () => {
           logoUrl,
         },
       });
-      if (result.errors) {
+      if (result.error) {
         Notification.error({ message: t("Failed to update integration.") });
       } else {
         Notification.success({ message: t("Successfully updated integration!") });
@@ -52,14 +58,14 @@ export default () => {
     [integrationId, t, updateIntegrationMutation],
   );
 
-  const [deleteIntegrationMutation] = useDeleteIntegrationMutation({
-    refetchQueries: ["GetMe"],
+  const [deleteIntegrationMutation] = useMutation(DeleteIntegrationDocument, {
+    refetchQueries: [{ query: GetMeDocument }],
   });
 
   const handleIntegrationDelete = useCallback(async () => {
     if (!integrationId) return;
     const results = await deleteIntegrationMutation({ variables: { integrationId } });
-    if (results.errors) {
+    if (results.error) {
       Notification.error({ message: t("Failed to delete integration.") });
     } else {
       Notification.success({ message: t("Successfully deleted integration!") });
@@ -67,10 +73,10 @@ export default () => {
     }
   }, [integrationId, deleteIntegrationMutation, t, navigate, workspaceId]);
 
-  const [regenerateTokenMutation, { loading: regenerateLoading }] =
-    useRegenerateIntegrationTokenMutation({
-      refetchQueries: ["GetMe"],
-    });
+  const [regenerateTokenMutation, { loading: regenerateLoading }] = useMutation(
+    RegenerateIntegrationTokenDocument,
+    { refetchQueries: [{ query: GetMeDocument }] },
+  );
 
   const handleRegenerateToken = useCallback(async () => {
     if (!integrationId) return;
@@ -79,7 +85,7 @@ export default () => {
         integrationId,
       },
     });
-    if (result.errors) {
+    if (result.error) {
       Notification.error({
         message: t("The attempt to re-generate the integration token has failed."),
       });
@@ -90,8 +96,8 @@ export default () => {
     }
   }, [integrationId, regenerateTokenMutation, t]);
 
-  const [createNewWebhook, { loading: createWebhookLoading }] = useCreateWebhookMutation({
-    refetchQueries: ["GetMe"],
+  const [createNewWebhook, { loading: createWebhookLoading }] = useMutation(CreateWebhookDocument, {
+    refetchQueries: [{ query: GetMeDocument }],
   });
 
   const handleWebhookCreate = useCallback(
@@ -107,7 +113,7 @@ export default () => {
           secret,
         },
       });
-      if (webhook.errors || !webhook.data?.createWebhook) {
+      if (webhook.error || !webhook.data?.createWebhook) {
         Notification.error({ message: t("Failed to create webhook.") });
         return;
       }
@@ -116,8 +122,8 @@ export default () => {
     [createNewWebhook, integrationId, t],
   );
 
-  const [deleteWebhook] = useDeleteWebhookMutation({
-    refetchQueries: ["GetMe"],
+  const [deleteWebhook] = useMutation(DeleteWebhookDocument, {
+    refetchQueries: [{ query: GetMeDocument }],
   });
 
   const handleWebhookDelete = useCallback(
@@ -129,7 +135,7 @@ export default () => {
           webhookId,
         },
       });
-      if (webhook.errors || !webhook.data?.deleteWebhook) {
+      if (webhook.error || !webhook.data?.deleteWebhook) {
         Notification.error({ message: t("Failed to delete webhook.") });
         return;
       }
@@ -138,8 +144,8 @@ export default () => {
     [deleteWebhook, integrationId, t],
   );
 
-  const [updateWebhook, { loading: updateWebhookLoading }] = useUpdateWebhookMutation({
-    refetchQueries: ["GetMe"],
+  const [updateWebhook, { loading: updateWebhookLoading }] = useMutation(UpdateWebhookDocument, {
+    refetchQueries: [{ query: GetMeDocument }],
   });
 
   const handleWebhookUpdate = useCallback(
@@ -156,7 +162,7 @@ export default () => {
           secret,
         },
       });
-      if (webhook.errors || !webhook.data?.updateWebhook) {
+      if (webhook.error || !webhook.data?.updateWebhook) {
         Notification.error({ message: t("Failed to update webhook.") });
         return;
       }

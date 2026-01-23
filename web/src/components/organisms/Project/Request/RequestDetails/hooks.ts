@@ -1,4 +1,5 @@
 import { NetworkStatus } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
@@ -7,19 +8,23 @@ import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules/Request/types";
 import { fromGraphQLRequest } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
-  useUpdateRequestMutation,
-  useDeleteRequestMutation,
-  useApproveRequestMutation,
-  useAddCommentMutation,
-  useGetMeQuery,
-  useUpdateCommentMutation,
-  useDeleteCommentMutation,
-  useGetRequestQuery,
-  useCreateThreadWithCommentMutation,
+  AddCommentDocument,
+  DeleteCommentDocument,
+  UpdateCommentDocument,
+} from "@reearth-cms/gql/__generated__/comment.generated";
+import {
   Request as GQLRequest,
   RequestState as GQLRequestState,
   ResourceType as GQLResourceType,
-} from "@reearth-cms/gql/graphql-client-api";
+} from "@reearth-cms/gql/__generated__/graphql.generated";
+import {
+  ApproveRequestDocument,
+  DeleteRequestDocument,
+  GetRequestDocument,
+  UpdateRequestDocument,
+} from "@reearth-cms/gql/__generated__/requests.generated";
+import { CreateThreadWithCommentDocument } from "@reearth-cms/gql/__generated__/thread.generated";
+import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
 
@@ -45,8 +50,8 @@ export default () => {
     [userRights?.comment.delete],
   );
 
-  const { data: userData } = useGetMeQuery();
-  const { data: rawRequest, networkStatus } = useGetRequestQuery({
+  const { data: userData } = useQuery(GetMeDocument);
+  const { data: rawRequest, networkStatus } = useQuery(GetRequestDocument, {
     variables: { requestId: requestId ?? "" },
     skip: !requestId,
     fetchPolicy: "cache-and-network",
@@ -101,7 +106,8 @@ export default () => {
     [currentRequest?.createdBy?.id, currentRequest?.state, me?.id, userRights?.request.update],
   );
 
-  const [updateRequestMutation, { loading: updateRequestLoading }] = useUpdateRequestMutation();
+  const [updateRequestMutation, { loading: updateRequestLoading }] =
+    useMutation(UpdateRequestDocument);
 
   const handleRequestUpdate = useCallback(
     async (data: RequestUpdatePayload) => {
@@ -116,7 +122,7 @@ export default () => {
           items: data.items,
         },
       });
-      if (request.errors || !request.data?.updateRequest) {
+      if (request.error || !request.data?.updateRequest) {
         Notification.error({ message: t("Failed to update request.") });
         return;
       }
@@ -125,7 +131,7 @@ export default () => {
     [updateRequestMutation, t],
   );
 
-  const [deleteRequestMutation, { loading: deleteLoading }] = useDeleteRequestMutation();
+  const [deleteRequestMutation, { loading: deleteLoading }] = useMutation(DeleteRequestDocument);
   const handleRequestDelete = useCallback(
     async (requestsId: string[]) => {
       if (!projectId) return;
@@ -133,7 +139,7 @@ export default () => {
         variables: { projectId, requestsId },
         refetchQueries: ["GetRequest"],
       });
-      if (result.errors) {
+      if (result.error) {
         Notification.error({ message: t("Failed to delete one or more requests.") });
       }
       if (result) {
@@ -143,13 +149,13 @@ export default () => {
     [t, projectId, deleteRequestMutation],
   );
 
-  const [approveRequestMutation, { loading: approveLoading }] = useApproveRequestMutation();
+  const [approveRequestMutation, { loading: approveLoading }] = useMutation(ApproveRequestDocument);
   const handleRequestApprove = useCallback(
     async (requestId: string) => {
       const result = await approveRequestMutation({
         variables: { requestId },
       });
-      if (result.errors) {
+      if (result.error) {
         Notification.error({ message: t("Failed to approve request.") });
       }
       if (result) {
@@ -159,11 +165,11 @@ export default () => {
     [t, approveRequestMutation],
   );
 
-  const [createComment] = useAddCommentMutation({
+  const [createComment] = useMutation(AddCommentDocument, {
     refetchQueries: ["GetRequests", "GetRequest"],
   });
 
-  const [createThreadWithComment] = useCreateThreadWithCommentMutation({
+  const [createThreadWithComment] = useMutation(CreateThreadWithCommentDocument, {
     refetchQueries: ["GetRequests", "GetRequest"],
   });
 
@@ -171,7 +177,7 @@ export default () => {
     async (content: string) => {
       try {
         if (!currentRequest?.threadId) {
-          const { data, errors } = await createThreadWithComment({
+          const { data, error } = await createThreadWithComment({
             variables: {
               workspaceId: currentWorkspace?.id ?? "",
               resourceId: currentRequest?.id ?? "",
@@ -180,16 +186,16 @@ export default () => {
             },
           });
 
-          if (errors || !data?.createThreadWithComment?.thread?.id) {
+          if (error || !data?.createThreadWithComment?.thread?.id) {
             Notification.error({ message: t("Failed to create thread.") });
             return;
           }
         } else {
-          const { data: commentData, errors: commentErrors } = await createComment({
+          const { data: commentData, error: commentError } = await createComment({
             variables: { threadId: currentRequest?.threadId, content },
           });
 
-          if (commentErrors || !commentData?.addComment) {
+          if (commentError || !commentData?.addComment) {
             Notification.error({ message: t("Failed to create comment.") });
             return;
           }
@@ -225,7 +231,7 @@ export default () => {
     [currentProject?.id, currentWorkspace?.id, navigate],
   );
 
-  const [updateComment] = useUpdateCommentMutation({
+  const [updateComment] = useMutation(UpdateCommentDocument, {
     refetchQueries: ["GetRequests", "GetRequest"],
   });
 
@@ -239,7 +245,7 @@ export default () => {
           content,
         },
       });
-      if (comment.errors || !comment.data?.updateComment) {
+      if (comment.error || !comment.data?.updateComment) {
         Notification.error({ message: t("Failed to update comment.") });
         return;
       }
@@ -248,7 +254,7 @@ export default () => {
     [updateComment, currentRequest?.threadId, t],
   );
 
-  const [deleteComment] = useDeleteCommentMutation({
+  const [deleteComment] = useMutation(DeleteCommentDocument, {
     refetchQueries: ["GetRequests", "GetRequest"],
   });
 
@@ -261,7 +267,7 @@ export default () => {
           commentId,
         },
       });
-      if (comment.errors || !comment.data?.deleteComment) {
+      if (comment.error || !comment.data?.deleteComment) {
         Notification.error({ message: t("Failed to delete comment.") });
         return;
       }
