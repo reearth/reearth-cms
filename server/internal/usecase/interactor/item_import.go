@@ -299,15 +299,7 @@ func (i Item) runImportJob(jobID id.JobID, param interfaces.ImportItemsAsyncPara
 	}
 
 	// Convert async param to sync param
-	syncParam := interfaces.ImportItemsParam{
-		ModelID:      param.ModelID,
-		SP:           param.SP,
-		Strategy:     param.Strategy,
-		Format:       param.Format,
-		MutateSchema: param.MutateSchema,
-		Reader:       param.Reader,
-		GeoField:     param.GeoField,
-	}
+	syncParam := interfaces.ImportItemsParam(param)
 
 	// Run the import with progress tracking
 	res, err := i.importWithProgress(ctx, j, syncParam, operator)
