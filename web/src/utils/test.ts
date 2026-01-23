@@ -160,6 +160,9 @@ export enum DATA_TEST_ID {
   UploaderCardTitleSuffix = "UploaderCardTitleSuffix",
   UploaderQueueItemRetryIcon = "UploaderQueueItemRetryIcon",
 
+  // QueueItem
+  QueueItemWrapper = "QueueItemWrapper",
+
   // Workspace
   WorkspaceHeaderProjectSortSelect = "WorkspaceHeaderProjectSortSelect",
 

@@ -449,3 +449,21 @@ export const IMPORT_ITEMS = gql`
     }
   }
 `;
+
+export const IMPORT_ITEMS_ASYNC = gql`
+  mutation ImportItemsAsync($input: ImportItemsInput!) {
+    importItemsAsync(input: $input) {
+      job {
+        id
+        type
+        status
+        projectId
+        progress {
+          processed
+          total
+          percentage
+        }
+      }
+    }
+  }
+`;

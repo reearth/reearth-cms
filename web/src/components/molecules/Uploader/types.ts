@@ -1,23 +1,27 @@
-export enum UploadStatus {
-  Queued = "QUEUED",
-  InProgress = "IN_PROGRESS",
-  Completed = "COMPLETED",
-  Failed = "FAILED",
-  Canceled = "CANCELED",
-}
+import { RcFile } from "antd/es/upload";
+
+import { JobProgress, JobStatus, JobType } from "@reearth-cms/gql/__generated__/graphql.generated";
 
 export type UploaderQueueItem = {
-  id: string;
-  status: UploadStatus;
+  // file meta
   fileName: string;
-  fileContent: Record<string, unknown>[];
-  progress: number; // 0~100
+  extension: "csv" | "json" | "geojson";
   url: string;
-  error: string | null;
+  file: RcFile;
+  // model meta
+  workspaceId: string;
+  projectId: string;
+  modelId: string;
+  // job meta
+  jobId: string;
+  jobProgress: JobProgress | null;
+  jobType: JobType;
+  jobStatus: JobStatus;
 };
 
 export type UploaderState = {
   isOpen: boolean;
   showBadge: boolean;
   queue: UploaderQueueItem[];
+  currentJobId: string | null;
 };

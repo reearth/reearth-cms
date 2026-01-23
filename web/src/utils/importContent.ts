@@ -12,12 +12,7 @@ import { ObjectSupportedType } from "@reearth-cms/components/molecules/Schema/ty
 import { Constant } from "./constant";
 import { PerformanceTimer } from "./performance";
 
-export type ImportContentResultItem = Record<string, unknown>;
-
-export interface ImportContentJSON {
-  results: ImportContentResultItem[];
-  totalCount: number;
-}
+export type ImportContentItem = Record<string, unknown>;
 
 export interface ValidationErrorMeta {
   exceedLimit: boolean;
@@ -36,17 +31,15 @@ enum CustomError {
 
 export abstract class ImportContentUtils {
   public static async validateContent(
-    importContentList: ImportContentJSON["results"],
+    importContentList: ImportContentItem[],
     modelFields: Model["schema"]["fields"],
     sourceFormat: ContentSourceFormat,
     maxRecordLimit = Constant.IMPORT.MAX_CONTENT_RECORDS,
   ): Promise<
-    | { isValid: true; data: ImportContentJSON["results"] }
-    | { isValid: false; error: ValidationErrorMeta }
+    { isValid: true; data: ImportContentItem[] } | { isValid: false; error: ValidationErrorMeta }
   > {
     return new Promise<
-      | { isValid: true; data: ImportContentJSON["results"] }
-      | { isValid: false; error: ValidationErrorMeta }
+      { isValid: true; data: ImportContentItem[] } | { isValid: false; error: ValidationErrorMeta }
     >((resolve, _reject) => {
       const timer = new PerformanceTimer("validateContentFromJSON");
 
@@ -70,7 +63,7 @@ export abstract class ImportContentUtils {
   private static _getValidatorMeta(
     fieldData: Model["schema"]["fields"],
     sourceFormat: ContentSourceFormat,
-  ): z.ZodType<ImportContentResultItem> {
+  ): z.ZodType<ImportContentItem> {
     const validateObj: Record<string, z.ZodTypeAny> = {};
 
     fieldData.forEach(field => {
@@ -565,7 +558,7 @@ export abstract class ImportContentUtils {
       }
     });
 
-    return z.object(validateObj) as z.ZodType<ImportContentResultItem>;
+    return z.object(validateObj) as z.ZodType<ImportContentItem>;
   }
 
   private static getErrorMeta(

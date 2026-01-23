@@ -5,8 +5,10 @@ import MoleculeHeader from "@reearth-cms/components/molecules/Common/Header";
 import ProjectMenu from "@reearth-cms/components/molecules/Common/ProjectMenu";
 import WorkspaceCreationModal from "@reearth-cms/components/molecules/Common/WorkspaceCreationModal";
 import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMenu";
+import useUploaderHooks from "@reearth-cms/components/molecules/Uploader/hooks";
 
 import useHooks from "./hooks";
+import Button from "@reearth-cms/components/atoms/Button";
 
 const CMSWrapper: React.FC = () => {
   const {
@@ -15,14 +17,11 @@ const CMSWrapper: React.FC = () => {
     personalWorkspace,
     workspaces,
     currentWorkspace,
-    shouldPreventReload,
-    uploaderState,
-    isShowUploader,
     workspaceModalShown,
     currentProject,
     selectedKey,
     secondaryRoute,
-    collapsed,
+    collapsedMainMenu,
     handleCollapse,
     handleProjectMenuNavigate,
     handleWorkspaceMenuNavigate,
@@ -32,25 +31,19 @@ const CMSWrapper: React.FC = () => {
     handleNavigateToSettings,
     handleWorkspaceNavigation,
     handleHomeNavigation,
-    handleUploaderOpen,
-    handleUploadRetry,
-    handleUploadCancel,
-    handleCancelAll,
     logoUrl,
   } = useHooks();
+  const { isShowUploader, shouldPreventReload, uploaderState, testRefetchJobs } =
+    useUploaderHooks();
 
   return (
     <>
       <CMSWrapperMolecule
-        collapsed={collapsed}
+        collapsedMainMenu={collapsedMainMenu}
         shouldPreventReload={shouldPreventReload}
         isShowUploader={isShowUploader}
         uploaderState={uploaderState}
         onCollapse={handleCollapse}
-        onUploaderOpen={handleUploaderOpen}
-        onRetry={handleUploadRetry}
-        onCancel={handleUploadCancel}
-        onCancelAll={handleCancelAll}
         headerComponent={
           <MoleculeHeader
             onWorkspaceModalOpen={handleWorkspaceModalOpen}
@@ -70,13 +63,13 @@ const CMSWrapper: React.FC = () => {
           secondaryRoute === "project" ? (
             <ProjectMenu
               defaultSelectedKey={selectedKey}
-              inlineCollapsed={collapsed}
+              inlineCollapsed={collapsedMainMenu}
               onNavigate={handleProjectMenuNavigate}
             />
           ) : (
             <WorkspaceMenu
               defaultSelectedKey={selectedKey}
-              inlineCollapsed={collapsed}
+              inlineCollapsed={collapsedMainMenu}
               isPersonalWorkspace={personalWorkspace?.id === currentWorkspace?.id}
               onNavigate={handleWorkspaceMenuNavigate}
             />
@@ -89,6 +82,12 @@ const CMSWrapper: React.FC = () => {
         onClose={handleWorkspaceModalClose}
         onSubmit={handleWorkspaceCreate}
       />
+      {/* TODO: test code, remove later */}
+      <Button
+        onClick={testRefetchJobs}
+        style={{ position: "fixed", bottom: 20, left: 20, zIndex: 100 }}>
+        refetch jobs
+      </Button>
     </>
   );
 };

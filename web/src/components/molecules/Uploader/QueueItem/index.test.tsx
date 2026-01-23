@@ -5,7 +5,9 @@ import { describe, expect, test, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 
 import QueueItem from ".";
-import { UploadStatus, type UploaderQueueItem } from "../types";
+import { type UploaderQueueItem } from "../types";
+import { JobStatus, JobType } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { createMockRcFile } from "@reearth-cms/e2e/helpers/mock.helper";
 
 vi.mock("@reearth-cms/i18n", () => ({
   useT: () => (key: string) => key,
@@ -38,13 +40,17 @@ describe("QueueItem component test", () => {
   const user = userEvent.setup();
 
   const baseQueue: UploaderQueueItem = {
-    id: "queue-1",
-    status: UploadStatus.Queued,
-    fileName: "test.png",
-    fileContent: [],
-    progress: 0,
-    url: "/assets/test.png",
-    error: null,
+    jobId: "queue-1",
+    jobStatus: JobStatus.Pending,
+    jobType: JobType.Import,
+    jobProgress: null,
+    fileName: "test.csv",
+    extension: "csv",
+    url: "/assets/test.csv",
+    file: createMockRcFile({ name: "test.csv" }),
+    workspaceId: "workspace-1",
+    projectId: "project-1",
+    modelId: "model-1",
   };
 
   const renderQueueItem = (
@@ -64,7 +70,7 @@ describe("QueueItem component test", () => {
   };
 
   test("Renders completed item as a link", () => {
-    renderQueueItem({ ...baseQueue, status: UploadStatus.Completed, progress: 100 });
+    renderQueueItem({ ...baseQueue, jobStatus: JobStatus.Completed });
 
     const link = screen.getByRole("link", { name: baseQueue.fileName });
     expect(link).toHaveAttribute("href", baseQueue.url);
@@ -74,8 +80,12 @@ describe("QueueItem component test", () => {
   test("Shows progress and allows cancel for in-progress upload", async () => {
     const { onCancel } = renderQueueItem({
       ...baseQueue,
-      status: UploadStatus.InProgress,
-      progress: 42,
+      jobStatus: JobStatus.InProgress,
+      jobProgress: {
+        percentage: 42,
+        processed: 42,
+        total: 100,
+      },
     });
 
     expect(screen.getByRole("progressbar")).toHaveAttribute("data-percent", "42");
@@ -83,36 +93,30 @@ describe("QueueItem component test", () => {
     const cancelButton = screen.getByRole("button", { name: "closeCircle" });
     await user.click(cancelButton);
 
-    expect(onCancel).toHaveBeenCalledWith(baseQueue.id);
+    expect(onCancel).toHaveBeenCalledWith(baseQueue.jobId);
   });
 
-  test("Shows error message and retry action for failed upload", async () => {
-    const error = "Upload failed";
+  test("Shows retry action for failed upload", async () => {
     const { onRetry } = renderQueueItem({
       ...baseQueue,
-      status: UploadStatus.Failed,
-      error,
+      jobStatus: JobStatus.Failed,
     });
-
-    expect(screen.getByText(error)).toBeInTheDocument();
 
     const retryButton = screen.getByRole("button", { name: "retry" });
     await user.click(retryButton);
 
-    expect(onRetry).toHaveBeenCalledWith(baseQueue.id);
+    expect(onRetry).toHaveBeenCalledWith(baseQueue.jobId);
   });
 
-  test("Shows canceled message and retry action for canceled upload", async () => {
+  test("Shows retry action for canceled upload", async () => {
     const { onRetry } = renderQueueItem({
       ...baseQueue,
-      status: UploadStatus.Canceled,
+      jobStatus: JobStatus.Cancelled,
     });
-
-    expect(screen.getByText("Upload canceled")).toBeInTheDocument();
 
     const retryButton = screen.getByRole("button", { name: "retry" });
     await user.click(retryButton);
 
-    expect(onRetry).toHaveBeenCalledWith(baseQueue.id);
+    expect(onRetry).toHaveBeenCalledWith(baseQueue.jobId);
   });
 });

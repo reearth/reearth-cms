@@ -1,5 +1,4 @@
 import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
-import { RcFile } from "antd/es/upload";
 import { useCallback, useEffect, useMemo, useState, useRef, Key } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
@@ -19,6 +18,7 @@ import {
 import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
+import useUploaderHook from "@reearth-cms/components/molecules/Uploader/hooks";
 import {
   ConditionInput,
   ItemSort,
@@ -47,14 +47,12 @@ import {
   CreateItemDocument,
   DeleteItemsDocument,
   GetItemDocument,
-  ImportItemsDocument,
   SearchItemDocument,
   UpdateItemDocument,
 } from "@reearth-cms/gql/__generated__/item.generated";
 import { GetViewsDocument } from "@reearth-cms/gql/__generated__/view.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useCollapsedModelMenu, useUserRights, useUploader } from "@reearth-cms/state";
-import { ImportContentJSON } from "@reearth-cms/utils/importContent";
 
 import { fileName } from "./utils";
 
@@ -97,6 +95,7 @@ export default () => {
     showPublishAction,
   } = useContentHooks();
   const t = useT();
+  const { handleEnqueueJob } = useUploaderHook();
 
   const navigate = useNavigate();
   const { modelId } = useParams();
@@ -109,6 +108,9 @@ export default () => {
       isImportModalOpen: boolean;
     } | null;
   } = useLocation();
+
+  const currentWorkspaceId = useMemo(() => currentWorkspace?.id, [currentWorkspace?.id]);
+  const currentProjectId = useMemo(() => currentProject?.id, [currentProject?.id]);
 
   // TODO: move states below into machine
   const [isImportContentModalOpen, setIsImportContentModalOpen] = useState(
@@ -220,7 +222,6 @@ export default () => {
     [selectedItems, userId, userRights?.content.delete, userRights?.request.update],
   );
 
-  const [importItemMutation] = useMutation(ImportItemsDocument, { refetchQueries: ["SearchItem"] });
   const [updateItemMutation] = useMutation(UpdateItemDocument);
   const [getItem] = useLazyQuery(GetItemDocument, { fetchPolicy: "no-cache" });
   const [createNewItem] = useMutation(CreateItemDocument);
@@ -351,7 +352,7 @@ export default () => {
           }
         }
       }
-      metadataVersionSet(updateItemId);
+      await metadataVersionSet(updateItemId);
       Notification.success({ message: t("Successfully updated Item!") });
     },
     [
@@ -503,8 +504,8 @@ export default () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         render: (el: any, record: ContentTableField) => {
           const update = hasRightGet(record.createdBy.id)
-            ? (value?: string | string[] | boolean, index?: number) => {
-                handleMetaItemUpdate(record.id, field.id, value, index);
+            ? async (value?: string | string[] | boolean, index?: number) => {
+                await handleMetaItemUpdate(record.id, field.id, value, index);
               }
             : undefined;
           return renderField(el, field, update);
@@ -658,122 +659,6 @@ export default () => {
     setValidateImportResult(null);
   }, []);
 
-  // const handleQueueToUploader = useCallback(
-  //   (payload: { fileName: string; fileContent: Record<string, unknown>[]; url: string }) => {
-  //     setUploader(prev => ({
-  //       ...prev,
-  //       showBadge: true,
-  //       isOpen: true,
-  //       queue: [
-  //         {
-  //           id: newID(),
-  //           status: UploadStatus.InProgress,
-  //           fileName: payload.fileName,
-  //           fileContent: payload.fileContent,
-  //           progress: 0,
-  //           url: payload.url,
-  //           error: null,
-  //         },
-  //         ...prev.queue,
-  //       ],
-  //     }));
-  //   },
-  //   [setUploader],
-  // );
-
-  const handleImportContentFileChange = useCallback(
-    async ({
-      fileName: _fileName,
-      fileContent,
-      extension: _extension,
-      url: _url,
-      raw,
-    }: {
-      fileName: string;
-      fileContent: ImportContentJSON["results"];
-      extension: "csv" | "json" | "geojson";
-      url: string;
-      raw: RcFile;
-    }) => {
-      // handleQueueToUploader({ fileName, fileContent, url });
-      if (_extension !== "json") {
-        alert("only support json for now");
-        return;
-      }
-
-      if (!currentModel) return;
-
-      const targetFields = currentModel.schema.fields;
-
-      const _reqList = Object.values(fileContent).reduce(
-        (acc, curr) => {
-          const one = Object.entries(curr).reduce(
-            (_acc, _curr) => {
-              const [key, value] = _curr;
-              const findField = targetFields.find(_item => key === _item.key);
-              // const modelField = modelFields.get(item.key);
-              if (findField) {
-                return [
-                  ..._acc,
-                  {
-                    value,
-                    schemaFieldId: findField.id,
-                    type: findField.type,
-                  },
-                ];
-              }
-
-              return _acc;
-            },
-            [] as Record<string, any>[],
-          );
-
-          return [...acc, one];
-        },
-        [] as Record<string, any>[],
-      );
-
-      // console.log("raw", raw);
-
-      const res = await importItemMutation({
-        variables: {
-          importItemsInput: {
-            file: raw,
-            modelId: currentModel.id,
-            // geoField: "location",
-          },
-        },
-      });
-
-      if (res.error) {
-        Notification.error({ message: "Import failed" });
-      } else {
-        Notification.success({ message: "Import success" });
-      }
-
-      // console.log("res", res);
-
-      // go to backend
-      // for await (const reqItem of reqList) {
-      //   const result = await createNewItem({
-      //     variables: {
-      //       modelId: currentModel.id,
-      //       schemaId: currentModel.schema.id,
-      //       fields: reqItem as ItemFieldInput[],
-      //     },
-      //   });
-      //   if (result.errors) {
-      //     Notification.error({ message: "Import failed" });
-      //   } else {
-      //     Notification.success({ message: "Import success" });
-      //   }
-      // }
-
-      handleImportContentModalClose();
-    },
-    [currentModel, handleImportContentModalClose, importItemMutation],
-  );
-
   const handlePublish = useCallback(
     async (itemIds: string[]) => {
       await _handlePublish(itemIds);
@@ -847,8 +732,11 @@ export default () => {
     handleImportContentModalClose,
     dataChecking,
     setDataChecking,
-    handleImportContentFileChange,
+    handleEnqueueJob,
     modelFields,
+    modelId,
+    currentWorkspaceId,
+    currentProjectId,
     hasModelFields,
     alertList,
     setAlertList,

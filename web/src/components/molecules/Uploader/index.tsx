@@ -6,14 +6,10 @@ import Badge from "@reearth-cms/components/atoms/Badge";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal, { ModalFuncProps } from "@reearth-cms/components/atoms/Modal";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import {
-  UploaderQueueItem,
-  UploaderState,
-  UploadStatus,
-} from "@reearth-cms/components/molecules/Uploader/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
+import useHooks from "./hooks";
 import QueueItem from "./QueueItem";
 
 const DRAG_THRESHOLD = 5;
@@ -28,15 +24,10 @@ enum Corner {
 }
 
 type Props = {
-  uploaderState: UploaderState;
   constraintsRef: RefObject<HTMLDivElement>;
-  onUploaderOpen: (isOpen: boolean) => void;
-  onRetry: (id: UploaderQueueItem["id"]) => void;
-  onCancel: (id: UploaderQueueItem["id"]) => void;
-  onCancelAll: () => void;
 };
 
-const checkCorner = (x: number, y: number): Corner => {
+function checkCorner(x: number, y: number): Corner {
   const { innerWidth, innerHeight } = window;
   const shouldGoTop = y <= innerHeight / 2;
   const shouldGoLeft = x <= innerWidth / 2;
@@ -50,20 +41,28 @@ const checkCorner = (x: number, y: number): Corner => {
   } else {
     return Corner.BottomRight;
   }
-};
+}
 
 const Uploader: React.FC<Props> = props => {
   const t = useT();
+
+  // states for UI
   const [corner, setCorner] = useState<Corner>(Corner.BottomRight);
   const uploaderWrapperRef = useRef<HTMLDivElement | null>(null);
   const dragStart = useRef({ x: 0, y: 0 });
   const dragControls = useDragControls();
   const animationControls = useAnimationControls();
 
-  const uploadingFileCount = useMemo<number>(
-    () => props.uploaderState.queue.filter(item => item.status === UploadStatus.InProgress).length,
-    [props.uploaderState.queue],
-  );
+  // states for data
+  const {
+    uploaderState,
+    shouldPreventReload,
+    uploadingFileCount,
+    handleUploaderOpen,
+    handleUploadCancel,
+    handleUploadRetry,
+    handleCancelAll,
+  } = useHooks();
 
   const titleMessage = useMemo(
     () => (uploadingFileCount === 0 ? "" : t("Uploading file...", { count: uploadingFileCount })),
@@ -135,21 +134,26 @@ const Uploader: React.FC<Props> = props => {
     [t],
   );
 
-  const handleCancelAll = useCallback(() => {
-    Modal.confirm({
-      ...cancelModalCommonProps,
-      onOk() {
-        props.onUploaderOpen(false);
-        props.onCancelAll();
-      },
-    });
-  }, [props, cancelModalCommonProps]);
+  const _handleCancelAll = useCallback(() => {
+    if (shouldPreventReload) {
+      Modal.confirm({
+        ...cancelModalCommonProps,
+        onOk() {
+          handleUploaderOpen(false);
+          handleCancelAll();
+        },
+      });
+    } else {
+      handleUploaderOpen(false);
+      handleCancelAll();
+    }
+  }, [shouldPreventReload, cancelModalCommonProps, handleUploaderOpen, handleCancelAll]);
 
   return (
     <UploaderWrapper
       data-testId={DATA_TEST_ID.UploaderWrapper}
       ref={uploaderWrapperRef}
-      drag={!props.uploaderState.isOpen}
+      drag={!uploaderState.isOpen}
       dragConstraints={props.constraintsRef}
       dragMomentum={false}
       dragControls={dragControls}
@@ -160,7 +164,7 @@ const Uploader: React.FC<Props> = props => {
         data-testId={DATA_TEST_ID.UploaderUploadIcon}
         initial="closed"
         variants={uploadIconVariants}
-        animate={props.uploaderState.isOpen ? "open" : "closed"}
+        animate={uploaderState.isOpen ? "open" : "closed"}
         onPointerDown={e => {
           dragStart.current = { x: e.clientX, y: e.clientY };
         }}
@@ -170,14 +174,14 @@ const Uploader: React.FC<Props> = props => {
           const distance = Math.sqrt(dx * dx + dy * dy);
 
           if (distance < DRAG_THRESHOLD) {
-            props.onUploaderOpen(true);
+            handleUploaderOpen(true);
           }
         }}>
         <Badge
           color="#ffffff"
           size="small"
           style={{ boxShadow: "none" }}
-          dot={props.uploaderState.showBadge}>
+          dot={uploaderState.showBadge}>
           <Icon icon="upload" size={26} color="#ffffff" />
         </Badge>
       </UploadIcon>
@@ -188,29 +192,31 @@ const Uploader: React.FC<Props> = props => {
         layout="size"
         initial="closed"
         variants={cardVariants}
-        animate={props.uploaderState.isOpen ? "open" : "closed"}>
+        animate={uploaderState.isOpen ? "open" : "closed"}
+        transition={{ duration: 0 }}>
         <CardHead data-testId={DATA_TEST_ID.UploaderCardHead}>
           <Title data-testId={DATA_TEST_ID.UploaderCardTitle}>{titleMessage}</Title>
           <TitleSuffix data-testId={DATA_TEST_ID.UploaderCardTitleSuffix}>
             <Tooltip title={t("Minimize")}>
               <span>
-                <CloseIcon icon="down" onClick={() => void props.onUploaderOpen(false)} />
+                <CloseIcon icon="down" onClick={() => void handleUploaderOpen(false)} />
               </span>
             </Tooltip>
             <Tooltip title={t("Close")}>
               <span>
-                <CancelAllIcon icon="close" onClick={() => void handleCancelAll()} />
+                <CancelAllIcon icon="close" onClick={() => void _handleCancelAll()} />
               </span>
             </Tooltip>
           </TitleSuffix>
         </CardHead>
         <CardBody data-testId={DATA_TEST_ID.UploaderCardBody}>
-          {props.uploaderState.queue.map((queue, _index) => (
+          {uploaderState.queue.map((queue, _index) => (
             <QueueItem
-              key={queue.id}
+              key={queue.jobId}
+              isOpen={uploaderState.isOpen}
               queue={queue}
-              onRetry={props.onRetry}
-              onCancel={props.onCancel}
+              onRetry={handleUploadRetry}
+              onCancel={handleUploadCancel}
             />
           ))}
         </CardBody>

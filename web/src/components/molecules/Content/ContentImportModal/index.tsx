@@ -11,17 +11,17 @@ import Loading from "@reearth-cms/components/atoms/Loading";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Space from "@reearth-cms/components/atoms/Space";
 import Typography from "@reearth-cms/components/atoms/Typography";
-import Upload, { RcFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
+import Upload, { UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
+import { UploaderHookState } from "@reearth-cms/components/molecules/Uploader/provider";
 import { ValidateImportResult } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 import { FileUtils } from "@reearth-cms/utils/file";
 import {
   ImportContentUtils,
-  ImportContentJSON,
   ValidationErrorMeta,
-  ImportContentResultItem,
+  ImportContentItem,
 } from "@reearth-cms/utils/importContent";
 import { ObjectUtils } from "@reearth-cms/utils/object";
 import { DATA_TEST_ID } from "@reearth-cms/utils/test";
@@ -32,15 +32,12 @@ type Props = {
   isOpen: boolean;
   dataChecking: boolean;
   modelFields: Model["schema"]["fields"];
+  workspaceId: string | undefined;
+  projectId: string | undefined;
+  modelId: string | undefined;
   onSetDataChecking: (isChecking: boolean) => void;
   onClose: () => void;
-  onFileContentChange: (payload: {
-    fileName: string;
-    fileContent: ImportContentJSON["results"];
-    extension: "csv" | "json" | "geojson";
-    url: string;
-    raw: RcFile;
-  }) => void;
+  onEnqueueJob: UploaderHookState["handleEnqueueJob"];
   alertList: AlertProps[];
   setAlertList: Dispatch<SetStateAction<AlertProps[]>>;
   validateImportResult: ValidateImportResult | null;
@@ -57,9 +54,12 @@ const ContentImportModal: React.FC<Props> = ({
   isOpen,
   dataChecking,
   modelFields,
+  workspaceId,
+  projectId,
+  modelId,
   onSetDataChecking,
   onClose,
-  onFileContentChange,
+  onEnqueueJob,
   alertList,
   setAlertList,
   validateImportResult,
@@ -206,16 +206,33 @@ const ContentImportModal: React.FC<Props> = ({
         handleStartLoading();
         const content = await FileUtils.parseTextFile(file);
 
+        const handleEnqueueJob = (extension: "json" | "csv" | "geojson") => {
+          if (!workspaceId) throw Error("No workspace id");
+          if (!projectId) throw Error("No project id");
+          if (!modelId) throw Error("No model id!");
+
+          onEnqueueJob({
+            workspaceId,
+            projectId,
+            modelId,
+            extension,
+            fileName,
+            url: location.pathname,
+            file,
+          });
+          onClose();
+        };
+
         switch (extension) {
           case "json": {
-            const jsonValidation = await ObjectUtils.safeJSONParse<ImportContentJSON>(content);
+            const jsonValidation = await ObjectUtils.safeJSONParse<ImportContentItem[]>(content);
             if (!jsonValidation.isValid) {
               raiseIllegalFileAlert();
               return;
             }
 
             const jsonContentValidation = await ImportContentUtils.validateContent(
-              jsonValidation.data.results,
+              jsonValidation.data,
               modelFields,
               "JSON",
             );
@@ -225,13 +242,7 @@ const ContentImportModal: React.FC<Props> = ({
               return;
             }
 
-            onFileContentChange({
-              fileContent: jsonContentValidation.data,
-              extension,
-              fileName,
-              url: location.pathname,
-              raw: file,
-            });
+            handleEnqueueJob(extension);
             break;
           }
 
@@ -262,19 +273,13 @@ const ContentImportModal: React.FC<Props> = ({
               return;
             }
 
-            onFileContentChange({
-              fileContent: geoJSONContentValidation.data,
-              extension,
-              fileName,
-              url: location.pathname,
-              raw: file,
-            });
+            handleEnqueueJob(extension);
             break;
           }
 
           case "csv": {
             const csvValidation =
-              await ImportContentUtils.convertCSVToJSON<ImportContentResultItem>(content);
+              await ImportContentUtils.convertCSVToJSON<ImportContentItem>(content);
             if (!csvValidation.isValid) {
               raiseIllegalFileAlert();
               return;
@@ -291,13 +296,7 @@ const ContentImportModal: React.FC<Props> = ({
               return;
             }
 
-            onFileContentChange({
-              fileContent: csvContentValidation.data,
-              extension,
-              fileName,
-              url: location.pathname,
-              raw: file,
-            });
+            handleEnqueueJob(extension);
             break;
           }
 
@@ -312,17 +311,21 @@ const ContentImportModal: React.FC<Props> = ({
       return false;
     },
     [
-      handleEndLoading,
-      handleStartLoading,
-      modelFields,
-      onFileContentChange,
-      raiseIllegalFileAlert,
+      setValidateImportResult,
+      setAlertList,
       raiseIllegalFileFormatAlert,
       raiseSingleFileAlert,
-      schemaValidationAlert,
-      setAlertList,
-      setValidateImportResult,
+      raiseIllegalFileAlert,
+      handleStartLoading,
+      workspaceId,
+      projectId,
+      modelId,
+      onEnqueueJob,
       location.pathname,
+      onClose,
+      modelFields,
+      schemaValidationAlert,
+      handleEndLoading,
     ],
   );
 

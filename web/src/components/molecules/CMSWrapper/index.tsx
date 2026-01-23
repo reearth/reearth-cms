@@ -8,7 +8,7 @@ import Sider from "@reearth-cms/components/atoms/Sider";
 
 import ReloadModal from "../ReloadModal";
 import Uploader from "../Uploader";
-import { UploaderQueueItem, UploaderState } from "../Uploader/types";
+import { UploaderState } from "../Uploader/types";
 
 export type InnerProps = {
   onWorkspaceModalOpen?: () => void;
@@ -18,30 +18,21 @@ export type Props = {
   headerComponent: React.ReactNode;
   contentComponent: React.ReactNode;
   sidebarComponent: React.ReactNode;
-  collapsed: boolean;
+  collapsedMainMenu: boolean;
   onCollapse: (collapse: boolean) => void;
   shouldPreventReload: boolean;
   isShowUploader: boolean;
   uploaderState: UploaderState;
-  onUploaderOpen: (isOpen: boolean) => void;
-  onRetry: (id: UploaderQueueItem["id"]) => void;
-  onCancel: (id: UploaderQueueItem["id"]) => void;
-  onCancelAll: () => void;
 };
 
 const CMSWrapper: React.FC<Props> = ({
   contentComponent,
   sidebarComponent,
   headerComponent,
-  collapsed,
+  collapsedMainMenu,
   onCollapse,
   shouldPreventReload,
   isShowUploader,
-  uploaderState,
-  onUploaderOpen,
-  onRetry,
-  onCancel,
-  onCancelAll,
 }) => {
   const constraintsRef = useRef<HTMLDivElement>(null);
 
@@ -50,22 +41,17 @@ const CMSWrapper: React.FC<Props> = ({
       <Wrapper>
         <HeaderWrapper>{headerComponent}</HeaderWrapper>
         <BodyWrapper>
-          <CMSSidebar collapsible collapsed={collapsed} onCollapse={onCollapse} collapsedWidth={54}>
+          <CMSSidebar
+            collapsible
+            collapsed={collapsedMainMenu}
+            onCollapse={onCollapse}
+            collapsedWidth={54}>
             {sidebarComponent}
           </CMSSidebar>
           <ContentWrapper>{contentComponent}</ContentWrapper>
         </BodyWrapper>
 
-        {isShowUploader && (
-          <Uploader
-            constraintsRef={constraintsRef}
-            onUploaderOpen={onUploaderOpen}
-            onRetry={onRetry}
-            onCancel={onCancel}
-            onCancelAll={onCancelAll}
-            uploaderState={uploaderState}
-          />
-        )}
+        {isShowUploader && <Uploader constraintsRef={constraintsRef} />}
 
         <ReloadModal shouldPreventReload={shouldPreventReload} />
       </Wrapper>

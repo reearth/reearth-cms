@@ -65,10 +65,13 @@ const ContentList: React.FC = () => {
     isImportContentModalOpen,
     handleImportContentModalOpen,
     handleImportContentModalClose,
-    handleImportContentFileChange,
+    handleEnqueueJob,
     dataChecking,
     setDataChecking,
     modelFields,
+    modelId,
+    currentWorkspaceId,
+    currentProjectId,
     hasModelFields,
     alertList,
     setAlertList,
@@ -160,9 +163,12 @@ const ContentList: React.FC = () => {
         isOpen={isImportContentModalOpen}
         dataChecking={dataChecking}
         modelFields={modelFields}
+        modelId={modelId}
+        workspaceId={currentWorkspaceId}
+        projectId={currentProjectId}
         onClose={handleImportContentModalClose}
         onSetDataChecking={setDataChecking}
-        onFileContentChange={handleImportContentFileChange}
+        onEnqueueJob={handleEnqueueJob}
         alertList={alertList}
         setAlertList={setAlertList}
         validateImportResult={validateImportResult}

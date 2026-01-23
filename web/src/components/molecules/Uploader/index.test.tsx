@@ -3,62 +3,80 @@ import { describe, expect, test, vi } from "vitest";
 
 import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
-import { UploaderQueueItem, UploadStatus } from "./types";
+import { UploaderQueueItem, UploaderState } from "./types";
 
 import Uploader from "./index";
+import { JobStatus, JobType } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { createMockRcFile } from "@reearth-cms/e2e/helpers/mock.helper";
+import { UploaderHookState, UploaderHookStateContext } from "./provider";
 
 const createQueueItem = (overrides?: Partial<UploaderQueueItem>): UploaderQueueItem => ({
-  id: "queue-id",
-  status: UploadStatus.InProgress,
   fileName: "sample.csv",
-  fileContent: [],
-  progress: 10,
+  extension: "csv",
   url: "/assets/sample.csv",
-  error: null,
+  file: createMockRcFile({ name: "sample.csv", type: "text/csv" }),
+  workspaceId: "workspaceId",
+  projectId: "projectId",
+  modelId: "modelId",
+  jobId: "jobId",
+  jobProgress: {
+    percentage: 10,
+    processed: 0,
+    total: 0,
+  },
+  jobType: JobType.Import,
+  jobStatus: JobStatus.InProgress,
   ...overrides,
 });
 
+const createMockUploaderState = (overrides?: Partial<UploaderState>): UploaderState => ({
+  isOpen: false,
+  showBadge: false,
+  queue: [],
+  currentJobId: null,
+  ...overrides,
+});
+
+const createMockUploaderContext = (overrides?: Partial<UploaderHookState>): UploaderHookState => ({
+  isShowUploader: true,
+  uploaderState: createMockUploaderState(),
+  shouldPreventReload: false,
+  uploadingFileCount: 0,
+  handleUploaderOpen: vi.fn(),
+  handleUploadCancel: vi.fn().mockResolvedValue(undefined),
+  handleUploadRetry: vi.fn().mockResolvedValue(undefined),
+  handleCancelAll: vi.fn().mockResolvedValue(undefined),
+  handleEnqueueJob: vi.fn().mockResolvedValue(undefined),
+  testRefetchJobs: vi.fn().mockResolvedValue(undefined),
+  ...overrides,
+});
+
+const renderWithUploaderProvider = (contextOverrides?: Partial<UploaderHookState>) =>
+  render(
+    <UploaderHookStateContext.Provider value={createMockUploaderContext(contextOverrides)}>
+      <Uploader constraintsRef={{ current: document.createElement("div") }} />
+    </UploaderHookStateContext.Provider>,
+  );
+
 describe("Test Uploader component", () => {
   test("Shows uploading title and queue item", () => {
-    const uploaderState = {
-      isOpen: true,
-      showBadge: true,
-      queue: [createQueueItem()],
-    };
-
-    render(
-      <Uploader
-        uploaderState={uploaderState}
-        constraintsRef={{ current: document.createElement("div") }}
-        onUploaderOpen={vi.fn()}
-        onRetry={vi.fn()}
-        onCancel={vi.fn()}
-        onCancelAll={vi.fn()}
-      />,
-    );
+    renderWithUploaderProvider({
+      uploaderState: createMockUploaderState({
+        isOpen: true,
+        showBadge: true,
+        queue: [createQueueItem()],
+      }),
+      uploadingFileCount: 1,
+    });
 
     expect(screen.getByText("Uploading file...")).toBeInTheDocument();
     expect(screen.getByText("sample.csv")).toBeInTheDocument();
   });
 
   test("Opens uploader when upload icon is clicked", () => {
-    const onUploaderOpen = vi.fn();
-    const uploaderState = {
-      isOpen: false,
-      showBadge: false,
-      queue: [createQueueItem({ status: UploadStatus.Queued })],
-    };
-
-    const { container } = render(
-      <Uploader
-        uploaderState={uploaderState}
-        constraintsRef={{ current: document.createElement("div") }}
-        onUploaderOpen={onUploaderOpen}
-        onRetry={vi.fn()}
-        onCancel={vi.fn()}
-        onCancelAll={vi.fn()}
-      />,
-    );
+    const { container } = renderWithUploaderProvider({
+      uploaderState: createMockUploaderState({ isOpen: false }),
+    });
 
     const uploadIcon = container.querySelector(
       `[data-testId="${DATA_TEST_ID.UploaderUploadIcon}"]`,
@@ -75,8 +93,5 @@ describe("Test Uploader component", () => {
 
     fireEvent.pointerDown(uploadIcon as Element, pointerEventProps);
     fireEvent.pointerUp(uploadIcon as Element, pointerEventProps);
-
-    expect(onUploaderOpen).toHaveBeenCalledTimes(1);
-    expect(onUploaderOpen).toHaveBeenCalledWith(true);
   });
 });

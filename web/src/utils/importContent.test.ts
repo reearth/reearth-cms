@@ -12,37 +12,32 @@ import {
 } from "@reearth-cms/components/molecules/Schema/types";
 
 import { Constant } from "./constant";
-import {
-  ContentSourceFormat,
-  ImportContentJSON,
-  ImportContentResultItem,
-  ImportContentUtils,
-} from "./importContent";
+import { ContentSourceFormat, ImportContentItem, ImportContentUtils } from "./importContent";
 import { ObjectUtils } from "./object";
 import { Test } from "./test";
 
 async function readFromJSONFile(
   staticFileDirectory: string,
   baseDirectory = "public",
-): ReturnType<Awaited<typeof ObjectUtils.safeJSONParse<ImportContentJSON["results"]>>> {
+): ReturnType<Awaited<typeof ObjectUtils.safeJSONParse<ImportContentItem[]>>> {
   const filePath = join(baseDirectory, staticFileDirectory);
   const fileContent = readFileSync(filePath, "utf-8");
 
-  const validation = await ObjectUtils.safeJSONParse<ImportContentJSON>(fileContent);
+  const validation = await ObjectUtils.safeJSONParse<ImportContentItem[]>(fileContent);
 
   return validation.isValid
-    ? { isValid: validation.isValid, data: validation.data.results }
+    ? { isValid: validation.isValid, data: validation.data }
     : { isValid: validation.isValid, error: validation.error };
 }
 
 async function readFromCSVFile(
   staticFileDirectory: string,
   baseDirectory = "public",
-): ReturnType<Awaited<typeof ImportContentUtils.convertCSVToJSON<ImportContentResultItem>>> {
+): ReturnType<Awaited<typeof ImportContentUtils.convertCSVToJSON<ImportContentItem>>> {
   const filePath = join(baseDirectory, staticFileDirectory);
   const fileContent = readFileSync(filePath, "utf-8");
 
-  return await ImportContentUtils.convertCSVToJSON<ImportContentResultItem>(fileContent);
+  return await ImportContentUtils.convertCSVToJSON<ImportContentItem>(fileContent);
 }
 
 async function readFromGeoJSONFile(

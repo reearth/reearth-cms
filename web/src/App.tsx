@@ -1,7 +1,12 @@
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
-import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider, } from "react-router-dom";
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  Route,
+  RouterProvider,
+} from "react-router-dom";
 
 import { AuthProvider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
@@ -31,6 +36,7 @@ import CMSPageWrapper from "@reearth-cms/components/pages/CMSPage";
 import RootPage from "@reearth-cms/components/pages/RootPage";
 import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
+import { UploaderProvider } from "./components/molecules/Uploader/provider";
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
@@ -96,7 +102,9 @@ function App() {
     <AuthProvider>
       <GqlProvider>
         <I18nProvider>
-          <RouterProvider router={router} />
+          <UploaderProvider>
+            <RouterProvider router={router} />
+          </UploaderProvider>
         </I18nProvider>
       </GqlProvider>
     </AuthProvider>

@@ -8,34 +8,35 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
-import { UploaderQueueItem, UploadStatus } from "../types";
+import { UploaderQueueItem } from "../types";
+import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 
 type Props = {
   queue: UploaderQueueItem;
-  onRetry: (id: UploaderQueueItem["id"]) => void;
-  onCancel: (id: UploaderQueueItem["id"]) => void;
+  onRetry: (id: UploaderQueueItem["jobId"]) => void;
+  onCancel: (id: UploaderQueueItem["jobId"]) => void;
 };
 
 const QueueItem: React.FC<Props> = ({ queue, onRetry, onCancel }) => {
   const t = useT();
 
   const renderStatusIcons = useMemo<JSX.Element | null>(() => {
-    switch (queue.status) {
-      case UploadStatus.InProgress:
+    switch (queue.jobStatus) {
+      case JobStatus.InProgress:
         return (
           <Tooltip title={t("Cancel upload")}>
             <span>
               <ActionIcon
                 icon="closeCircle"
                 color="#8C8C8C"
-                onClick={() => void onCancel(queue.id)}
+                onClick={() => void onCancel(queue.jobId)}
               />
             </span>
           </Tooltip>
         );
-      case UploadStatus.Completed:
+      case JobStatus.Completed:
         return <InfoIcon icon="checkCircle" color="#52C41A" />;
-      case UploadStatus.Failed:
+      case JobStatus.Failed:
         return (
           <>
             <Tooltip title={t("Retry")}>
@@ -44,14 +45,14 @@ const QueueItem: React.FC<Props> = ({ queue, onRetry, onCancel }) => {
                   data-testId={DATA_TEST_ID.UploaderQueueItemRetryIcon}
                   icon="retry"
                   color="#8C8C8C"
-                  onClick={() => void onRetry(queue.id)}
+                  onClick={() => void onRetry(queue.jobId)}
                 />
               </div>
             </Tooltip>
             <InfoIcon icon="exclamationSolid" color="#F5222D" />
           </>
         );
-      case UploadStatus.Canceled:
+      case JobStatus.Cancelled:
         return (
           <Tooltip title={t("Cancel upload")}>
             <span>
@@ -59,7 +60,7 @@ const QueueItem: React.FC<Props> = ({ queue, onRetry, onCancel }) => {
                 data-testId={DATA_TEST_ID.UploaderQueueItemRetryIcon}
                 icon="retry"
                 color="#8C8C8C"
-                onClick={() => void onRetry(queue.id)}
+                onClick={() => void onRetry(queue.jobId)}
               />
             </span>
           </Tooltip>
@@ -67,37 +68,42 @@ const QueueItem: React.FC<Props> = ({ queue, onRetry, onCancel }) => {
       default:
         return null;
     }
-  }, [queue.status, onCancel, onRetry, queue.id, t]);
+  }, [onCancel, onRetry, queue.jobId, queue.jobStatus, t]);
 
   const renderMessage = useMemo<JSX.Element | null>(() => {
-    if (queue.status === UploadStatus.Failed && queue.error) {
-      return <ErrorMessage title={queue.error}>{queue.error}</ErrorMessage>;
-    } else if (queue.status === UploadStatus.Canceled) {
-      return <Message>{t("Upload canceled")}</Message>;
-    } else {
-      return null;
-    }
-  }, [queue, t]);
+    // FIXME: fix it later about error
+    // if (queue.jobStatus === JobStatus.Failed && queue.error) {
+    //   return <ErrorMessage title={queue.error}>{queue.error}</ErrorMessage>;
+    // } else if (queue.status === UploadStatus.Canceled) {
+    //   return <Message>{t("Upload canceled")}</Message>;
+    // } else {
+    //   return null;
+    // }
+
+    return null;
+  }, []);
 
   return (
-    <ItemWrapper>
+    <ItemWrapper data-testid={DATA_TEST_ID.QueueItemWrapper}>
       <ItemUpper>
         <UpperLeft>
-          <ActionIcon icon="clip" color="#8C8C8C" />
-          {queue.status === UploadStatus.Completed ? (
-            <Link to={queue.url} target="_blank">
-              {queue.fileName}
-            </Link>
-          ) : (
-            <div>{queue.fileName}</div>
-          )}
+          <InfoIcon icon="clip" color="#8C8C8C" />
+          <Tooltip title={queue.fileName}>
+            {queue.jobStatus === JobStatus.Completed ? (
+              <Link to={queue.url} target="_blank">
+                <FileName>{queue.fileName}</FileName>
+              </Link>
+            ) : (
+              <FileName>{queue.fileName}</FileName>
+            )}
+          </Tooltip>
         </UpperLeft>
         <UpperRight onPointerUp={event => event.stopPropagation()}>{renderStatusIcons}</UpperRight>
       </ItemUpper>
       <ItemLower>
-        {queue.status === UploadStatus.InProgress && (
+        {queue.jobStatus === JobStatus.InProgress && (
           <Progress
-            percent={queue.progress}
+            percent={queue.jobProgress ? queue.jobProgress.percentage : 0}
             showInfo={false}
             status="active"
             size={{ height: 3 }}
@@ -181,6 +187,13 @@ const Message = styled.div`
   font-size: 12px;
   padding-left: 22px;
   line-height: 22px;
+`;
+
+const FileName = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 225px;
 `;
 
 export default QueueItem;

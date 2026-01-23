@@ -24,6 +24,9 @@ export const useModel = () => useAtom(model);
 const collapsedModelMenu = atomWithStorage<boolean>("collapsedModelMenu", false);
 export const useCollapsedModelMenu = () => useAtom(collapsedModelMenu);
 
+const collapsedMainMenu = atomWithStorage<boolean>("collapsedMainMenu", false);
+export const useCollapsedMainMenu = () => useAtom(collapsedMainMenu);
+
 const userRights = atom<UserRights | undefined>(undefined);
 export const useUserRights = () => useAtom(userRights);
 
@@ -31,5 +34,6 @@ const uploader = atom<UploaderState>({
   isOpen: false,
   showBadge: true,
   queue: [],
+  currentJobId: null,
 });
 export const useUploader = () => useAtom(uploader);
