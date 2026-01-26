@@ -125,12 +125,18 @@ func (e *JSONExporter) ProcessBatch(ctx context.Context, items item.List, assets
 		}
 	}
 
-	log.Infof("[EXPORT-TIMING] ProcessBatch: Total MapFromItem time: %v (avg: %v per item)",
-		totalMapFromItemDuration, totalMapFromItemDuration/time.Duration(len(items)))
-	log.Infof("[EXPORT-TIMING] ProcessBatch: Total Marshal time: %v (avg: %v per item)",
-		totalMarshalDuration, totalMarshalDuration/time.Duration(len(items)))
-	log.Infof("[EXPORT-TIMING] ProcessBatch: Total Write time: %v (avg: %v per item)",
-		totalWriteDuration, totalWriteDuration/time.Duration(len(items)))
+	itemCount := len(items)
+	if itemCount > 0 {
+		log.Infof("[EXPORT-TIMING] ProcessBatch: Total MapFromItem time: %v (avg: %v per item)",
+			totalMapFromItemDuration, totalMapFromItemDuration/time.Duration(itemCount))
+		log.Infof("[EXPORT-TIMING] ProcessBatch: Total Marshal time: %v (avg: %v per item)",
+			totalMarshalDuration, totalMarshalDuration/time.Duration(itemCount))
+		log.Infof("[EXPORT-TIMING] ProcessBatch: Total Write time: %v (avg: %v per item)",
+			totalWriteDuration, totalWriteDuration/time.Duration(itemCount))
+	} else {
+		log.Infof("[EXPORT-TIMING] ProcessBatch: No items processed in this batch; timing totals: MapFromItem=%v, Marshal=%v, Write=%v",
+			totalMapFromItemDuration, totalMarshalDuration, totalWriteDuration)
+	}
 
 	return nil
 }

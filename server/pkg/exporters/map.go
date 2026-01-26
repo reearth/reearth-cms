@@ -51,13 +51,13 @@ func MapFromItem(itm *item.Item, sp *schema.Package, al AssetLoader, il ItemLoad
 
 			// Early exit: Skip empty fields before processing
 			if f.Value() == nil {
-				return "", nil
+				return k, nil
 			}
 
 			// Check if the field value is empty based on its underlying data
 			fVal := f.Value()
 			if fVal.First() == nil || fVal.IsEmpty() {
-				return "", nil
+				return k, nil
 			}
 
 			if sf.Type() == value.TypeAsset {
