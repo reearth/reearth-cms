@@ -18,18 +18,7 @@ const MvtViewer: React.FC<Props> = ({ isAssetPublic, viewerRef, url, workspaceSe
   const [properties, setProperties] = useState<Property>();
 
   const handleProperties = useCallback((prop: Property) => {
-    if (!prop || typeof prop !== "object") {
-      setProperties(undefined);
-      return;
-    }
-
-    try {
-      const attributes =
-        typeof prop.attributes === "string" ? JSON.parse(prop.attributes) : prop.attributes;
-      setProperties({ ...prop, attributes });
-    } catch {
-      setProperties(prop);
-    }
+    setProperties(prop && typeof prop === "object" ? prop : undefined);
   }, []);
 
   return (
