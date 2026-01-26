@@ -1,7 +1,6 @@
 package exporters
 
 import (
-	"encoding/json"
 	"net/url"
 	"testing"
 	"time"

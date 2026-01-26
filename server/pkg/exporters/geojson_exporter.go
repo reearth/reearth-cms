@@ -2,7 +2,6 @@ package exporters
 
 import (
 	"context"
-	"encoding/json"
 	"io"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"

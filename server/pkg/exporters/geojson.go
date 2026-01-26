@@ -1,7 +1,6 @@
 package exporters
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/iancoleman/orderedmap"

@@ -2,15 +2,20 @@ package exporters
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearthx/log"
+	jsoniter "github.com/json-iterator/go"
 )
+
+// json is a drop-in replacement for encoding/json with better performance
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 // JSONExporter handles JSON format exports
 type JSONExporter struct {
@@ -19,6 +24,7 @@ type JSONExporter struct {
 	writer      io.Writer
 	schema      *schema.Package
 	il          ItemLoader
+	encoder     *jsoniter.Encoder // Reusable encoder to avoid repeated allocations
 }
 
 // NewJSONExporter creates a new JSON exporter
@@ -57,6 +63,10 @@ func (e *JSONExporter) StartExport(ctx context.Context, req *ExportRequest) erro
 	e.schema = &req.Schema
 	e.il = req.ItemLoader
 
+	// Create encoder once and reuse for all items
+	// Note: We use Marshal in ProcessBatch instead of Encode to avoid newlines
+	e.encoder = json.NewEncoder(e.writer)
+
 	// Write opening JSON structure
 	_, err := e.writer.Write([]byte(`{"results":[`))
 	return err
@@ -67,6 +77,10 @@ func (e *JSONExporter) ProcessBatch(ctx context.Context, items item.List, assets
 	if !e.isStreaming {
 		return ErrInvalidRequest
 	}
+
+	var totalMapFromItemDuration time.Duration
+	var totalMarshalDuration time.Duration
+	var totalWriteDuration time.Duration
 
 	for _, itm := range items {
 		// Add comma if not the first item
@@ -84,16 +98,41 @@ func (e *JSONExporter) ProcessBatch(ctx context.Context, items item.List, assets
 		//	return items.FilterByIds(iids), nil
 		//}
 
-		// Convert item to map and encode
+		// Time MapFromItem conversion
+		mapStart := time.Now()
 		itemData := MapFromItem(itm, e.schema, al, e.il)
+		mapDuration := time.Since(mapStart)
+		totalMapFromItemDuration += mapDuration
+
 		if itemData != nil {
-			encoder := json.NewEncoder(e.writer)
-			if err := encoder.Encode(itemData); err != nil {
+			// Time JSON marshaling
+			marshalStart := time.Now()
+			jsonBytes, err := json.Marshal(itemData)
+			marshalDuration := time.Since(marshalStart)
+			totalMarshalDuration += marshalDuration
+
+			if err != nil {
 				return err
 			}
+
+			// Time write operation
+			writeStart := time.Now()
+			if _, err := e.writer.Write(jsonBytes); err != nil {
+				return err
+			}
+			writeDuration := time.Since(writeStart)
+			totalWriteDuration += writeDuration
+
 			e.itemCount++
 		}
 	}
+
+	log.Infof("[EXPORT-TIMING] ProcessBatch: Total MapFromItem time: %v (avg: %v per item)",
+		totalMapFromItemDuration, totalMapFromItemDuration/time.Duration(len(items)))
+	log.Infof("[EXPORT-TIMING] ProcessBatch: Total Marshal time: %v (avg: %v per item)",
+		totalMarshalDuration, totalMarshalDuration/time.Duration(len(items)))
+	log.Infof("[EXPORT-TIMING] ProcessBatch: Total Write time: %v (avg: %v per item)",
+		totalWriteDuration, totalWriteDuration/time.Duration(len(items)))
 
 	return nil
 }
@@ -126,7 +165,9 @@ func (e *JSONExporter) EndExport(ctx context.Context, extra map[string]any) erro
 	// close root object
 	_, err = e.writer.Write([]byte(`}`))
 
+	// Clean up
 	e.isStreaming = false
+	e.encoder = nil // Release encoder reference
 	return err
 }
 
@@ -156,7 +197,7 @@ func (e *JSONExporter) appendProps(props map[string]any) error {
 	return nil
 }
 
-func (e *JSONExporter) exportItems(encoder *json.Encoder, items item.List, sp *schema.Package, assets asset.List) error {
+func (e *JSONExporter) exportItems(encoder *jsoniter.Encoder, items item.List, sp *schema.Package, assets asset.List) error {
 	itemsMap := make([]map[string]any, 0, len(items))
 
 	al := func(aids id.AssetIDList) (asset.List, error) {

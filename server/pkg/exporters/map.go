@@ -1,7 +1,6 @@
 package exporters
 
 import (
-	"encoding/json"
 	"reflect"
 
 	"github.com/reearth/reearth-cms/server/pkg/asset"
@@ -48,6 +47,19 @@ func MapFromItem(itm *item.Item, sp *schema.Package, al AssetLoader, il ItemLoad
 			}
 			if k == "" {
 				k = f.FieldID().String()
+			}
+
+			// Early exit: Skip empty fields before expensive processing
+			// This optimization avoids type checking, value extraction, and conversion
+			// for fields that have no value or empty values
+			if f.Value() == nil {
+				return "", nil
+			}
+
+			// Check if the field value is empty based on its underlying data
+			fVal := f.Value()
+			if fVal.First() == nil || fVal.IsEmpty() {
+				return "", nil
 			}
 
 			if sf.Type() == value.TypeAsset {

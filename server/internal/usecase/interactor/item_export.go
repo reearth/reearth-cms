@@ -3,6 +3,7 @@ package interactor
 import (
 	"context"
 	"io"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -12,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
@@ -83,8 +85,17 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 
 	totalProcessed := 0
 	pageInfo := &usecasex.PageInfo{}
+	batchNum := 0
 	for {
+		batchNum++
+		log.Infof("[EXPORT-TIMING] Starting batch %d", batchNum)
+
+		// Time DB query
+		dbStart := time.Now()
 		versionedItems, pi, err := i.repos.Item.FindByModel(ctx, params.ModelID, ver, nil, pagination)
+		dbDuration := time.Since(dbStart)
+		log.Infof("[EXPORT-TIMING] Batch %d - DB query took: %v", batchNum, dbDuration)
+
 		if err != nil {
 			return rerror.ErrInternalBy(err)
 		}
@@ -94,11 +105,14 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 		if len(items) == 0 {
 			break
 		}
+		log.Infof("[EXPORT-TIMING] Batch %d - Retrieved %d items", batchNum, len(items))
 
 		// Extract and load assets for this batch
+		assetStart := time.Now()
 		assetIDs := items.AssetIDs(params.SchemaPackage)
 		var assets asset.List
 		if len(assetIDs) > 0 && params.Options.IncludeAssets {
+			log.Infof("[EXPORT-TIMING] Batch %d - Loading %d assets", batchNum, len(assetIDs))
 			assets, err = i.repos.Asset.FindByIDs(ctx, assetIDs)
 			if err != nil {
 				return rerror.ErrInternalBy(err)
@@ -107,13 +121,19 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 				assets.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
 			}
 		}
+		assetDuration := time.Since(assetStart)
+		log.Infof("[EXPORT-TIMING] Batch %d - Asset loading took: %v", batchNum, assetDuration)
 
 		// Process this batch
+		processBatchStart := time.Now()
 		if err := exporter.ProcessBatch(ctx, items, assets); err != nil {
 			return err
 		}
+		processBatchDuration := time.Since(processBatchStart)
+		log.Infof("[EXPORT-TIMING] Batch %d - ProcessBatch took: %v", batchNum, processBatchDuration)
 
 		totalProcessed += len(items)
+		log.Infof("[EXPORT-TIMING] Batch %d - Total items processed so far: %d", batchNum, totalProcessed)
 
 		// Check if we have more pages
 		if pageInfo == nil || !pageInfo.HasNextPage {
