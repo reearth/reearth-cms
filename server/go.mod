@@ -23,6 +23,7 @@ require (
 	github.com/iancoleman/orderedmap v0.3.0
 	github.com/jarcoal/httpmock v1.4.1
 	github.com/joho/godotenv v1.5.1
+	github.com/json-iterator/go v1.1.12
 	github.com/k0kubun/pp/v3 v3.5.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.15.0
@@ -125,7 +126,6 @@ require (
 	github.com/imkira/go-interpol v1.1.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/jpillora/opts v1.2.3 // indirect
-	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.18.2 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
