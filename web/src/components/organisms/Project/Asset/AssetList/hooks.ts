@@ -1,3 +1,4 @@
+import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import fileDownload from "js-file-download";
 import { useState, useCallback, Key, useMemo, useEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
@@ -14,18 +15,20 @@ import {
 } from "@reearth-cms/components/organisms/Project/Schema/helpers";
 import { useAuthHeader } from "@reearth-cms/gql";
 import {
-  useGetAssetsLazyQuery,
-  useCreateAssetMutation,
-  useDeleteAssetsMutation,
-  Asset as GQLAsset,
-  SortDirection as GQLSortDirection,
-  AssetSortType as GQLSortType,
-  useGetAssetsItemsLazyQuery,
-  useCreateAssetUploadMutation,
-  useGetAssetLazyQuery,
+  CreateAssetDocument,
+  CreateAssetUploadDocument,
+  DeleteAssetsDocument,
+  GetAssetDocument,
+  GetAssetsDocument,
+  GetAssetsItemsDocument,
+  GuessSchemaFieldsDocument,
+} from "@reearth-cms/gql/__generated__/assets.generated";
+import {
+  AssetSortType,
   ContentTypesEnum,
-  useGuessSchemaFieldsQuery,
-} from "@reearth-cms/gql/graphql-client-api";
+  SortDirection,
+  Asset as GQLAsset,
+} from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
 
@@ -79,8 +82,8 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   );
 
   const [uploading, setUploading] = useState(false);
-  const [createAssetMutation] = useCreateAssetMutation();
-  const [createAssetUploadMutation] = useCreateAssetUploadMutation();
+  const [createAssetMutation] = useMutation(CreateAssetDocument);
+  const [createAssetUploadMutation] = useMutation(CreateAssetUploadDocument);
 
   const handleSelect = useCallback(
     (selectedRowKeys: Key[], selectedRows: Asset[]) => {
@@ -97,7 +100,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     [selection, userId, userRights?.asset.delete],
   );
 
-  const [getAsset] = useGetAssetLazyQuery();
+  const [getAsset] = useLazyQuery(GetAssetDocument);
 
   const handleGetAsset = useCallback(
     async (assetId: string) => {
@@ -112,39 +115,33 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     [getAsset],
   );
 
-  const params = {
-    fetchPolicy: "cache-and-network" as const,
-    variables: {
-      projectId: projectId ?? "",
-      pagination: { first: pageSize, offset: (page - 1) * pageSize },
-      sort: sort
-        ? {
-            sortBy: sort.type as GQLSortType,
-            direction: sort.direction as GQLSortDirection,
-          }
-        : { sortBy: "DATE" as GQLSortType, direction: "DESC" as GQLSortDirection },
-      keyword: searchTerm,
-      contentTypes: contentTypes,
-    },
-    notifyOnNetworkStatusChange: true,
-    skip: !projectId,
-  };
-
-  const [getAssets, { data, refetch, loading }] = isItemsRequired
-    ? useGetAssetsItemsLazyQuery(params)
-    : useGetAssetsLazyQuery(params);
-
-  useEffect(() => {
-    if (isItemsRequired) {
-      getAssets();
-    }
-  }, [getAssets, isItemsRequired]);
+  const { data, refetch, loading } = useQuery(
+    isItemsRequired ? GetAssetsItemsDocument : GetAssetsDocument,
+    projectId
+      ? {
+          fetchPolicy: "cache-and-network",
+          variables: {
+            projectId,
+            pagination: { first: pageSize, offset: (page - 1) * pageSize },
+            sort: sort
+              ? {
+                  sortBy: sort.type as AssetSortType,
+                  direction: sort.direction as SortDirection,
+                }
+              : { sortBy: "DATE" as AssetSortType, direction: "DESC" as SortDirection },
+            keyword: searchTerm,
+            contentTypes: contentTypes,
+          },
+          notifyOnNetworkStatusChange: true,
+        }
+      : skipToken,
+  );
 
   const {
     data: guessSchemaFieldsData,
     loading: guessSchemaFieldsLoading,
     error: guessSchemaFieldsError,
-  } = useGuessSchemaFieldsQuery({
+  } = useQuery(GuessSchemaFieldsDocument, {
     fetchPolicy: "cache-and-network",
     variables: {
       modelId: modelId ?? "",
@@ -249,7 +246,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
                 },
               });
 
-              if (result.errors || !result.data?.createAssetUpload) {
+              if (result.error || !result.data?.createAssetUpload) {
                 Notification.error({ message: t("Failed to add one or more assets.") });
                 handleUploadModalCancel();
                 return undefined;
@@ -264,7 +261,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
                 next: result.data.createAssetUpload.next ?? "",
               };
             },
-            (token, file) => {
+            async (token, file) => {
               return createAssetMutation({
                 variables: {
                   projectId,
@@ -273,7 +270,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
                   skipDecompression: !!file?.skipDecompression,
                 },
               }).then(result => {
-                if (result.errors || !result.data?.createAsset) {
+                if (result.error || !result.data?.createAsset) {
                   Notification.error({ message: t("Failed to add one or more assets.") });
                   return undefined;
                 }
@@ -335,14 +332,14 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     [projectId, createAssetMutation, t, refetch, handleUploadModalCancel],
   );
 
-  const [deleteAssetsMutation, { loading: deleteLoading }] = useDeleteAssetsMutation();
+  const [deleteAssetsMutation, { loading: deleteLoading }] = useMutation(DeleteAssetsDocument);
   const handleAssetDelete = useCallback(
     async (assetIds: string[]) => {
       if (!projectId) return;
       const result = await deleteAssetsMutation({
         variables: { assetIds },
       });
-      if (result.errors || !result.data?.deleteAssets) {
+      if (result.error || !result.data?.deleteAssets) {
         Notification.error({ message: t("Failed to delete one or more assets.") });
         return;
       }
@@ -360,8 +357,8 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   }, []);
 
   const handleAssetsGet = useCallback(() => {
-    getAssets();
-  }, [getAssets]);
+    refetch();
+  }, [refetch]);
 
   const handleAssetsReload = useCallback(() => {
     refetch();

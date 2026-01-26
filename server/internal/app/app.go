@@ -75,19 +75,21 @@ func initApi(appCtx *ApplicationContext, api *echo.Group, usecaseMiddleware echo
 	api.Use(private)
 	api.GET("/ping", Ping())
 	api.GET("/health", appCtx.HealthChecker.Handler())
-	api.POST(
-		"/graphql", GraphqlAPI(appCtx.Config.GraphQL, appCtx.Config.Dev),
+	graphqlHandler := GraphqlAPI(appCtx.Config.GraphQL, appCtx.Config.Dev)
+	graphqlMiddlewares := []echo.MiddlewareFunc{
 		middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: allowedOrigins(appCtx)}),
 		jwtParseMiddleware(appCtx),
 		authMiddleware(appCtx),
 		usecaseMiddleware,
-	)
+	}
+	api.POST("/graphql", graphqlHandler, graphqlMiddlewares...)
+	api.GET("/graphql", graphqlHandler, graphqlMiddlewares...) // WebSocket subscriptions
 	api.POST(
 		"/notify", NotifyHandler(),
 		M2MAuthMiddleware(appCtx.Config),
 		usecaseMiddleware,
 	)
-	
+
 	// M2M API endpoints
 	if appCtx.Config.AuthM2M.Token != "" {
 		m2mGroup := api.Group("/m2m")
@@ -97,7 +99,7 @@ func initApi(appCtx *ApplicationContext, api *echo.Group, usecaseMiddleware echo
 		)
 		m2mGroup.GET("/assets/:uuid/is-private", M2MAssetHandler())
 	}
-	
+
 	api.POST("/signup", Signup(), usecaseMiddleware)
 }
 

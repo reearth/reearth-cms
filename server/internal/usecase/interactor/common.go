@@ -42,6 +42,7 @@ func New(r *repo.Container, g *gateway.Container,
 		Thread:            NewThread(r, g),
 		Group:             NewGroup(r, g),
 		WorkspaceSettings: NewWorkspaceSettings(r, g),
+		Job:               NewJob(r, g),
 	}
 }
 

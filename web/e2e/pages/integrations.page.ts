@@ -1,5 +1,6 @@
 // e2e/pages/integrations.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import { BasePage } from "./base.page";
 
@@ -26,10 +27,10 @@ export class IntegrationsPage extends BasePage {
     return this.getByRole("button", { name: "Save" });
   }
   get removeIntegrationButton(): Locator {
-    return this.getByRole("button", { name: "Remove Integration" });
+    return this.getByTestId(DATA_TEST_ID.RemoveIntegrationButton);
   }
   get okButton(): Locator {
-    return this.getByRole("button", { name: "OK" });
+    return this.getByTestId(DATA_TEST_ID.ConfirmRemoveIntegrationButton);
   }
   get backButton(): Locator {
     return this.getByLabel("Back");
@@ -55,10 +56,10 @@ export class IntegrationsPage extends BasePage {
     return this.getByLabel("Secret");
   }
   get createCheckbox(): Locator {
-    return this.getByLabel("Create");
+    return this.getByRole("checkbox", { name: "Create" });
   }
   get uploadCheckbox(): Locator {
-    return this.getByLabel("Upload");
+    return this.getByRole("checkbox", { name: "Upload" });
   }
   get arrowLeftButton(): Locator {
     return this.getByRole("button", { name: "arrow-left" });
