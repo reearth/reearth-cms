@@ -178,9 +178,18 @@ const getMvtBaseUrl = (url: string): string => {
 const fetchLayers = async (url: string) => {
   try {
     const base = getMvtBaseUrl(url);
-    const res = await fetch(`${base}/metadata.json`);
-    if (!res.ok) throw new Error("Error fetching MVT layers");
-    return { ...parseMetadata(await res.json()), base };
+
+    // Try tilejson.json first
+    const tileJsonRes = await fetch(`${base}/tilejson.json`);
+    if (tileJsonRes.ok) {
+      const data = parseTileJson(await tileJsonRes.json());
+      if (data) return { ...data, base };
+    }
+
+    // Fallback to metadata.json (FME format)
+    const metadataRes = await fetch(`${base}/metadata.json`);
+    if (!metadataRes.ok) throw new Error("Error fetching MVT layers");
+    return { ...parseMetadata(await metadataRes.json()), base };
   } catch (err) {
     console.error(err);
     return undefined;
@@ -196,6 +205,37 @@ const idFromGeometry = (
   hash.update([tile.x, tile.y, tile.level, ...coords].join(":"));
   return hash.hex();
 };
+
+export function parseTileJson(json: unknown): Metadata | undefined {
+  if (!json || typeof json !== "object") return;
+
+  const result: Metadata = {};
+  const jsonObj = json as Record<string, unknown>;
+
+  // TileJSON format: vector_layers is an array of objects with id
+  if (Array.isArray(jsonObj.vector_layers)) {
+    result.layers = jsonObj.vector_layers
+      .filter(
+        (layer): layer is { id: string } =>
+          typeof layer === "object" && layer !== null && typeof layer.id === "string",
+      )
+      .map(layer => layer.id);
+  }
+
+  // TileJSON format: center is [lng, lat, zoom]
+  if (Array.isArray(jsonObj.center) && jsonObj.center.length >= 2) {
+    const [lng, lat] = jsonObj.center;
+    if (typeof lng === "number" && typeof lat === "number") {
+      result.center = [lng, lat, 0];
+    }
+  }
+
+  if (typeof jsonObj.maxzoom === "number") {
+    result.maximumLevel = jsonObj.maxzoom;
+  }
+
+  return result;
+}
 
 export function parseMetadata(json: unknown): Metadata | undefined {
   if (!json || typeof json !== "object") return;

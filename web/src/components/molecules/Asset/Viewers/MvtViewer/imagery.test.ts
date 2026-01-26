@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { parseMetadata } from "./Imagery";
+import { parseMetadata, parseTileJson } from "./Imagery";
 
 test("parseMetadata", () => {
   expect(parseMetadata(metadata)).toEqual({
@@ -9,6 +9,49 @@ test("parseMetadata", () => {
     maximumLevel: 15,
   });
 });
+
+test("parseTileJson", () => {
+  expect(parseTileJson(tilejson)).toEqual({
+    center: [139.7, 35.68, 0],
+    layers: ["buildings", "roads"],
+    maximumLevel: 16,
+  });
+});
+
+test("parseTileJson with missing fields", () => {
+  expect(parseTileJson({})).toEqual({});
+  expect(parseTileJson({ maxzoom: 14 })).toEqual({ maximumLevel: 14 });
+  expect(parseTileJson({ center: [140, 36] })).toEqual({ center: [140, 36, 0] });
+  expect(parseTileJson({ vector_layers: [{ id: "layer1" }] })).toEqual({
+    layers: ["layer1"],
+  });
+});
+
+test("parseTileJson with invalid fields", () => {
+  expect(parseTileJson(null)).toBeUndefined();
+  expect(parseTileJson(undefined)).toBeUndefined();
+  expect(parseTileJson("string")).toBeUndefined();
+  expect(parseTileJson({ center: "invalid" })).toEqual({});
+  expect(parseTileJson({ center: [139.7] })).toEqual({});
+  expect(parseTileJson({ vector_layers: "invalid" })).toEqual({});
+  expect(parseTileJson({ vector_layers: [{ name: "no-id" }, null, { id: 123 }] })).toEqual({
+    layers: [],
+  });
+});
+
+const tilejson = {
+  tilejson: "3.0.0",
+  name: "sample",
+  tiles: ["https://example.com/tiles/{z}/{x}/{y}.mvt"],
+  minzoom: 10,
+  maxzoom: 16,
+  center: [139.7, 35.68, 14],
+  bounds: [139.5, 35.5, 140.0, 36.0],
+  vector_layers: [
+    { id: "buildings", fields: { name: "String" } },
+    { id: "roads", fields: { type: "String" } },
+  ],
+};
 
 const metadata = {
   name: "HighLevelUseDistrict",
