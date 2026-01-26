@@ -6,15 +6,15 @@ import (
 	"io"
 	"time"
 
+	jsoniter "github.com/json-iterator/go"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearthx/log"
-	jsoniter "github.com/json-iterator/go"
 )
 
-// json is a drop-in replacement for encoding/json with better performance
+// json is a drop-in replacement for encoding/json
 var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 // JSONExporter handles JSON format exports
@@ -24,7 +24,7 @@ type JSONExporter struct {
 	writer      io.Writer
 	schema      *schema.Package
 	il          ItemLoader
-	encoder     *jsoniter.Encoder // Reusable encoder to avoid repeated allocations
+	encoder     *jsoniter.Encoder
 }
 
 // NewJSONExporter creates a new JSON exporter
@@ -63,8 +63,6 @@ func (e *JSONExporter) StartExport(ctx context.Context, req *ExportRequest) erro
 	e.schema = &req.Schema
 	e.il = req.ItemLoader
 
-	// Create encoder once and reuse for all items
-	// Note: We use Marshal in ProcessBatch instead of Encode to avoid newlines
 	e.encoder = json.NewEncoder(e.writer)
 
 	// Write opening JSON structure
@@ -167,7 +165,7 @@ func (e *JSONExporter) EndExport(ctx context.Context, extra map[string]any) erro
 
 	// Clean up
 	e.isStreaming = false
-	e.encoder = nil // Release encoder reference
+	e.encoder = nil
 	return err
 }
 

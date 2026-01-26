@@ -49,9 +49,7 @@ func MapFromItem(itm *item.Item, sp *schema.Package, al AssetLoader, il ItemLoad
 				k = f.FieldID().String()
 			}
 
-			// Early exit: Skip empty fields before expensive processing
-			// This optimization avoids type checking, value extraction, and conversion
-			// for fields that have no value or empty values
+			// Early exit: Skip empty fields before processing
 			if f.Value() == nil {
 				return "", nil
 			}
