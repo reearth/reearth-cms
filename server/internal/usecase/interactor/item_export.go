@@ -3,6 +3,7 @@ package interactor
 import (
 	"context"
 	"io"
+	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -12,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
@@ -28,6 +30,9 @@ func defaultBatchConfig() *BatchConfig {
 }
 
 func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w io.Writer, op *usecase.Operator) error {
+	exportStart := time.Now()
+	log.Debugfc(ctx, "usecase: [START] Export - format=%v, modelID=%v", params.Format, params.ModelID)
+
 	// Create the exporter based on format
 	var exporter exporters.Exporter
 	switch params.Format {
@@ -47,7 +52,9 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 		Schema:  params.SchemaPackage,
 		Options: params.Options,
 		ItemLoader: func(itemIDs id.ItemIDList) (item.List, error) {
+			loadStart := time.Now()
 			versioned, err := i.repos.Item.FindByIDs(ctx, itemIDs, version.Public.Ref())
+			log.Debugfc(ctx, "usecase: ItemLoader - loaded %d referenced items in %v", len(itemIDs), time.Since(loadStart))
 			if err != nil {
 				return nil, err
 			}
@@ -57,17 +64,24 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 			if !params.Options.IncludeAssets {
 				return nil, nil
 			}
-			return i.repos.Asset.FindByIDs(ctx, assetIDs)
+			loadStart := time.Now()
+			assets, err := i.repos.Asset.FindByIDs(ctx, assetIDs)
+			log.Debugfc(ctx, "usecase: AssetLoader - loaded %d assets in %v", len(assetIDs), time.Since(loadStart))
+			return assets, err
 		},
 	}
 
+	validateStart := time.Now()
 	if err := exporter.ValidateRequest(req); err != nil {
 		return err
 	}
+	log.Debugfc(ctx, "usecase: ValidateRequest took %v", time.Since(validateStart))
 
+	startExportTime := time.Now()
 	if err := exporter.StartExport(ctx, req); err != nil {
 		return err
 	}
+	log.Debugfc(ctx, "usecase: StartExport took %v", time.Since(startExportTime))
 
 	batchConfig := defaultBatchConfig()
 
@@ -83,8 +97,20 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 
 	totalProcessed := 0
 	pageInfo := &usecasex.PageInfo{}
+	batchNum := 0
+
+	batchLoopStart := time.Now()
 	for {
+		batchNum++
+		batchStart := time.Now()
+		log.Debugfc(ctx, "usecase: [START] Batch %d", batchNum)
+
+		// Time DB query
+		dbStart := time.Now()
 		versionedItems, pi, err := i.repos.Item.FindByModel(ctx, params.ModelID, ver, nil, pagination)
+		dbDuration := time.Since(dbStart)
+		log.Debugfc(ctx, "usecase: Batch %d - DB query took: %v", batchNum, dbDuration)
+
 		if err != nil {
 			return rerror.ErrInternalBy(err)
 		}
@@ -94,26 +120,39 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 		if len(items) == 0 {
 			break
 		}
+		log.Debugfc(ctx, "usecase: Batch %d - Retrieved %d items", batchNum, len(items))
 
 		// Extract and load assets for this batch
+		assetStart := time.Now()
 		assetIDs := items.AssetIDs(params.SchemaPackage)
 		var assets asset.List
 		if len(assetIDs) > 0 && params.Options.IncludeAssets {
+			log.Debugfc(ctx, "usecase: Batch %d - Loading %d assets", batchNum, len(assetIDs))
 			assets, err = i.repos.Asset.FindByIDs(ctx, assetIDs)
 			if err != nil {
 				return rerror.ErrInternalBy(err)
 			}
 			if assets != nil {
+				resolverStart := time.Now()
 				assets.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+				log.Debugfc(ctx, "usecase: Batch %d - SetAccessInfoResolver took: %v", batchNum, time.Since(resolverStart))
 			}
 		}
+		assetDuration := time.Since(assetStart)
+		log.Debugfc(ctx, "usecase: Batch %d - Asset loading took: %v", batchNum, assetDuration)
 
 		// Process this batch
+		processBatchStart := time.Now()
+		log.Debugfc(ctx, "usecase: Batch %d - [START] ProcessBatch with %d items", batchNum, len(items))
 		if err := exporter.ProcessBatch(ctx, items, assets); err != nil {
 			return err
 		}
+		processBatchDuration := time.Since(processBatchStart)
+		log.Debugfc(ctx, "usecase: Batch %d - [END] ProcessBatch took: %v", batchNum, processBatchDuration)
 
 		totalProcessed += len(items)
+		batchDuration := time.Since(batchStart)
+		log.Debugfc(ctx, "usecase: Batch %d - Complete (batch took %v, total processed: %d)", batchNum, batchDuration, totalProcessed)
 
 		// Check if we have more pages
 		if pageInfo == nil || !pageInfo.HasNextPage {
@@ -128,6 +167,9 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 		// Update pagination for next batch
 		pagination.Cursor.After = pageInfo.EndCursor
 	}
+
+	batchLoopDuration := time.Since(batchLoopStart)
+	log.Debugfc(ctx, "usecase: All batches complete - %d batches, %d items, took %v", batchNum, totalProcessed, batchLoopDuration)
 
 	props := map[string]any{
 		"totalCount": pageInfo.TotalCount,
@@ -147,5 +189,12 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 	}
 
 	// Finalize export
-	return exporter.EndExport(ctx, props)
+	endExportStart := time.Now()
+	err := exporter.EndExport(ctx, props)
+	log.Debugfc(ctx, "usecase: EndExport took %v", time.Since(endExportStart))
+
+	totalExportDuration := time.Since(exportStart)
+	log.Debugfc(ctx, "usecase: [END] Export complete - total duration: %v", totalExportDuration)
+
+	return err
 }

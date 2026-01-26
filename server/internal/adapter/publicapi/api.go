@@ -7,8 +7,10 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 	"github.com/samber/lo"
@@ -139,11 +141,19 @@ func Items(c echo.Context, wsAlias, pAlias, mKey, ext string) error {
 	ctx := c.Request().Context()
 	ctrl := GetController(ctx)
 
+	requestStart := time.Now()
+	log.Debugfc(ctx, "publicapi: [START] Items request for ws=%s, p=%s, m=%s, ext=%s", wsAlias, pAlias, mKey, ext)
+
 	p := paginationFrom(c)
 
 	w := bytes.NewBuffer(nil)
 
+	exportStart := time.Now()
+	log.Debugfc(ctx, "publicapi: [START] GetPublicItems")
 	err := ctrl.GetPublicItems(ctx, wsAlias, pAlias, mKey, ext, p, w)
+	exportDuration := time.Since(exportStart)
+	log.Debugfc(ctx, "publicapi: [END] GetPublicItems took %v", exportDuration)
+
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
 			return c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
@@ -161,7 +171,17 @@ func Items(c echo.Context, wsAlias, pAlias, mKey, ext string) error {
 		contentType = "text/csv"
 	}
 
-	return c.Blob(http.StatusOK, contentType, w.Bytes())
+	bufferSize := w.Len()
+	log.Debugfc(ctx, "publicapi: Export complete - duration=%v, bufferSize=%d bytes", exportDuration, bufferSize)
+
+	writeStart := time.Now()
+	log.Debugfc(ctx, "publicapi: [START] Writing response to client")
+	err = c.Blob(http.StatusOK, contentType, w.Bytes())
+	writeDuration := time.Since(writeStart)
+	totalDuration := time.Since(requestStart)
+	log.Debugfc(ctx, "publicapi: [END] Response write took %v, total request duration=%v", writeDuration, totalDuration)
+
+	return err
 }
 
 func ItemOrAsset() echo.HandlerFunc {
