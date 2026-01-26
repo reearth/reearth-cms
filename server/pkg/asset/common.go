@@ -1,8 +1,6 @@
 package asset
 
 import (
-	"golang.org/x/text/unicode/norm"
-
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
 )
@@ -18,7 +16,3 @@ var (
 	GeoJSONContentType = "application/geo+json"
 	JSONContentType    = "application/json"
 )
-
-func NormalizeText(name string) string {
-	return norm.NFKC.String(name)
-}

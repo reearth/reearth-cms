@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/pkg/asset"
-	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -119,7 +118,7 @@ func normalizeAssetFilenames(ctx context.Context, db *mongo.Database, wetRun boo
 			return fmt.Errorf("failed to decode document: %w", err)
 		}
 
-		normalizedFileName := asset.NormalizeText(assetDoc.FileName)
+		normalizedFileName := utils.NormalizeText(assetDoc.FileName)
 
 		if assetDoc.FileName != normalizedFileName {
 			fmt.Printf("Normalizing asset filename: '%s' -> '%s'\n", assetDoc.FileName, normalizedFileName)
@@ -260,7 +259,7 @@ func normalizeItemTextFields(ctx context.Context, db *mongo.Database, wetRun boo
 			normalizedValues := make([]any, len(field.V.V))
 			for j, val := range field.V.V {
 				if str, ok := val.(string); ok {
-					normalized := item.NormalizeText(str)
+					normalized := utils.NormalizeText(str)
 					if str != normalized {
 						hasChanges = true
 					}
