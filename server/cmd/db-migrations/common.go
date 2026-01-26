@@ -97,6 +97,90 @@ func BatchUpdate[T Entity](ctx context.Context, col *mongo.Collection, filter bs
 	return processed, nil
 }
 
+func BatchUpdateWithFields[T Entity](ctx context.Context, col *mongo.Collection, filter bson.M, batchSize int, fn func(item T) (bson.M, bool, error)) (int, error) {
+	opts := options.Find().
+		SetBatchSize(int32(batchSize))
+
+	cursor, err := col.Find(ctx, filter, opts)
+	if err != nil {
+		return 0, fmt.Errorf("failed to query collection: %w", err)
+	}
+	defer func() {
+		err := cursor.Close(ctx)
+		if err != nil {
+			fmt.Printf("failed to close cursor: %v\n", err)
+		}
+	}()
+
+	// Process documents in batches
+	batch := make([]mongo.WriteModel, 0, batchSize)
+	processed := 0
+	startTime := time.Now()
+
+	for cursor.Next(ctx) {
+		if ctx.Err() != nil {
+			return 0, ctx.Err()
+		}
+
+		var item T
+		if err := cursor.Decode(&item); err != nil {
+			return 0, fmt.Errorf("failed to decode document: %w", err)
+		}
+
+		// Apply the process function to the document
+		fieldsToUpdate, shouldUpdate, err := fn(item)
+		if err != nil {
+			return 0, fmt.Errorf("failed to process document: %w", err)
+		}
+
+		// Only add to batch if there are changes
+		if shouldUpdate && len(fieldsToUpdate) > 0 {
+			// Create an update model that only updates specific fields
+			update := mongo.NewUpdateOneModel().
+				SetFilter(bson.M{"_id": item.GetID()}).
+				SetUpdate(bson.M{"$set": fieldsToUpdate})
+
+			batch = append(batch, update)
+		}
+
+		processed++
+
+		// If we've reached the batch size, execute the bulk write
+		if len(batch) >= batchSize {
+			if err := executeBatch(ctx, col, batch); err != nil {
+				return 0, err
+			}
+
+			// Log progress
+			elapsed := time.Since(startTime)
+			rate := float64(processed) / elapsed.Seconds()
+			fmt.Printf("Processed %d documents (%.2f docs/sec)\n", processed, rate)
+
+			// Clear the batch
+			batch = batch[:0]
+		}
+	}
+
+	// Process any remaining documents in the final batch
+	if len(batch) > 0 {
+		if err := executeBatch(ctx, col, batch); err != nil {
+			return 0, err
+		}
+	}
+
+	// Check for any cursor errors
+	if err := cursor.Err(); err != nil {
+		return 0, fmt.Errorf("cursor error: %w", err)
+	}
+
+	// Log final stats
+	elapsed := time.Since(startTime)
+	rate := float64(processed) / elapsed.Seconds()
+	fmt.Printf("Completed processing %d documents in %v (%.2f docs/sec)\n", processed, elapsed, rate)
+
+	return processed, nil
+}
+
 // executeBatch performs the bulk write operation for a batch of updates
 func executeBatch(ctx context.Context, collection *mongo.Collection, batch []mongo.WriteModel) error {
 	// Define options for the bulk write operation
