@@ -49,20 +49,27 @@ func updateAssetFilename(asset AssetDocumentForNormalization) (bson.M, bool, err
 
 func updateItemTextFields(item ItemDocumentForTextNormalization) (bson.M, bool, error) {
 	hasChanges := false
-	normalizedFields := make([]bson.M, len(item.Fields))
-
-	for i, field := range item.Fields {
+	for _, field := range item.Fields {
 		originalValues := field.V.V
 		normalizedValues := utils.NormalizeTextValues(field.V.T, field.V.V)
-		if !hasChanges {
-			for j := range originalValues {
-				if originalValues[j] != normalizedValues[j] {
-					hasChanges = true
-					break
-				}
+		for j := range originalValues {
+			if originalValues[j] != normalizedValues[j] {
+				hasChanges = true
+				break
 			}
 		}
+		if hasChanges {
+			break
+		}
+	}
 
+	if !hasChanges {
+		return nil, false, nil
+	}
+
+	normalizedFields := make([]bson.M, len(item.Fields))
+	for i, field := range item.Fields {
+		normalizedValues := utils.NormalizeTextValues(field.V.T, field.V.V)
 		normalizedFields[i] = bson.M{
 			"f": field.F,
 			"v": bson.M{
@@ -72,12 +79,8 @@ func updateItemTextFields(item ItemDocumentForTextNormalization) (bson.M, bool, 
 		}
 	}
 
-	if hasChanges {
-		fmt.Printf("Normalized text fields in item %s\n", item.ItemID)
-		return bson.M{"fields": normalizedFields}, true, nil
-	}
-
-	return nil, false, nil
+	fmt.Printf("Normalized text fields in item %s\n", item.ItemID)
+	return bson.M{"fields": normalizedFields}, true, nil
 }
 
 func TextNormalizationMigration(ctx context.Context, dbURL, dbName string, wetRun bool) error {
@@ -98,7 +101,7 @@ func TextNormalizationMigration(ctx context.Context, dbURL, dbName string, wetRu
 		return fmt.Errorf("asset filename normalization failed: %w", err)
 	}
 
-	fmt.Println() // Blank line between migrations
+	fmt.Println()
 
 	// Run item text field normalization
 	if err := normalizeItemTextFields(ctx, db, wetRun); err != nil {

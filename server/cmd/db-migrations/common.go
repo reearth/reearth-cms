@@ -147,6 +147,11 @@ func BatchUpdateWithFields[T Entity](ctx context.Context, col *mongo.Collection,
 
 		// If we've reached the batch size, execute the bulk write
 		if len(batch) >= batchSize {
+			// Check context before bulk write
+			if ctx.Err() != nil {
+				return 0, ctx.Err()
+			}
+
 			if err := executeBatch(ctx, col, batch); err != nil {
 				return 0, err
 			}
@@ -163,6 +168,11 @@ func BatchUpdateWithFields[T Entity](ctx context.Context, col *mongo.Collection,
 
 	// Process any remaining documents in the final batch
 	if len(batch) > 0 {
+		// Check context before final bulk write
+		if ctx.Err() != nil {
+			return 0, ctx.Err()
+		}
+
 		if err := executeBatch(ctx, col, batch); err != nil {
 			return 0, err
 		}

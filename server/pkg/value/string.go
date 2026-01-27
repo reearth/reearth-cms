@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/pkg/utils"
 	"github.com/samber/lo"
 )
 
@@ -24,7 +23,7 @@ type String = string
 
 func (p *propertyString) ToValue(i any) (any, bool) {
 	if v, ok := i.(string); ok {
-		return utils.NormalizeText(v), true
+		return v, true
 	} else if v, ok := i.(float64); ok {
 		return strconv.FormatFloat(v, 'f', -1, 64), true
 	} else if v, ok := i.(bool); ok && v {
@@ -85,4 +84,16 @@ func (m *Multiple) ValuesString() (vv []String, ok bool) {
 		return nil, false
 	}
 	return vv, true
+}
+
+func IsStringFieldType(fieldType string) bool {
+	t := Type(fieldType)
+	return t == TypeText ||
+		t == TypeTextArea ||
+		t == TypeRichText ||
+		t == TypeMarkdown ||
+		t == TypeSelect ||
+		t == TypeTag ||
+		t == TypeGeometryObject ||
+		t == TypeGeometryEditor
 }
