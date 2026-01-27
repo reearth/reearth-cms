@@ -45,9 +45,9 @@ type Props = {
 };
 
 const TemplateLink = ({ href, children }: ButtonProps) => (
-  <StyledButton onClick={event => event.stopPropagation()} type="link" href={href} download>
+  <StyledLink onClick={event => event.stopPropagation()} type="link" href={href} download>
     {children}
-  </StyledButton>
+  </StyledLink>
 );
 
 const ContentImportModal: React.FC<Props> = ({
@@ -67,6 +67,8 @@ const ContentImportModal: React.FC<Props> = ({
 }) => {
   const t = useT();
   const location = useLocation();
+
+  console.log(validateImportResult);
 
   const raiseIllegalFileAlert = useCallback(() => {
     setAlertList([
@@ -430,16 +432,16 @@ const ContentImportModal: React.FC<Props> = ({
             {validateImportResult.description}
           </Typography.Paragraph>
           <Space>
-            <Button
+            <StyledActionButton
               type="default"
               onClick={() => {
                 setAlertList([]);
                 setValidateImportResult(null);
               }}>
-              Go Back
-            </Button>
+              {t("go back")}
+            </StyledActionButton>
             {validateImportResult.canForwardToImport && (
-              <Button type="primary">Import Anyway</Button>
+              <StyledActionButton type="primary">{t("import anyway")}</StyledActionButton>
             )}
           </Space>
           {validateImportResult.hint && (
@@ -466,9 +468,13 @@ const LoadingWrapper = styled.div`
   gap: 24px;
 `;
 
-const StyledButton = styled(Button)`
+const StyledLink = styled(Button)`
   padding: 0;
   text-decoration: underline;
+`;
+
+const StyledActionButton = styled(Button)`
+  text-transform: capitalize;
 `;
 
 const StyledFlex = styled(Flex)`
