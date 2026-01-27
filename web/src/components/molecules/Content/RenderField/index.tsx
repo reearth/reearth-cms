@@ -9,6 +9,7 @@ import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes"
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 
 import ItemFormat from "./ItemFormat";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 export const renderField = (
   el: { props: { children: string | string[] } },
@@ -83,7 +84,7 @@ export const renderField = (
         title={field.title}
         trigger="click"
         placement="bottom">
-        <StyledButton data-testid="hello5566">
+        <StyledButton data-testid={DATA_TEST_ID.ContentListItemFieldPopoverIcon}>
           <Icon icon={fieldTypes[field.type].icon} size={16} />
           {items.length > 1 && <span>x{items.length}</span>}
         </StyledButton>

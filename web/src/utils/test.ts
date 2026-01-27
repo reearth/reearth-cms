@@ -182,4 +182,5 @@ export enum DATA_TEST_ID {
 
   // Content list page
   ContentListImportContentButton = "ContentListImportContentButton",
+  ContentListItemFieldPopoverIcon = "ContentListItemFieldPopoverIcon",
 }
