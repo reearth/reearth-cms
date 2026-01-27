@@ -68,8 +68,6 @@ const ContentImportModal: React.FC<Props> = ({
   const t = useT();
   const location = useLocation();
 
-  console.log(validateImportResult);
-
   const raiseIllegalFileAlert = useCallback(() => {
     setAlertList([
       {
@@ -113,8 +111,6 @@ const ContentImportModal: React.FC<Props> = ({
 
       setAlertList([]);
 
-      console.log("errorMeta", errorMeta);
-
       if (errorMeta.exceedLimit) {
         // case: above limit + some mismatch (exceedLimit = true, mismatchFields.size > 0)
         if (errorMeta.typeMismatchFieldKeys.size > 0) {
@@ -148,7 +144,6 @@ const ContentImportModal: React.FC<Props> = ({
       } else {
         // case: below limit, some mismatch (exceedLimit = false, mismatchFields.size > 0)
         if (errorMeta.typeMismatchFieldKeys.size > 0) {
-          console.log("errorMeta", errorMeta);
           setValidateImportResult({
             type: "warning",
             title: t("Some fields don't match the schema"),

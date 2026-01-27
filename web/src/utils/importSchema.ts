@@ -299,11 +299,7 @@ export abstract class ImportSchemaUtils {
   ): { isValid: true; data: ImportSchema } | { isValid: false; error: string } {
     const timer = new PerformanceTimer("validateSchemaFromJSON");
 
-    console.log("json", json);
-
     const validation = this.IMPORT_SCHEMA_VALIDATOR.safeParse(json);
-
-    console.log(validation);
 
     timer.log();
 
