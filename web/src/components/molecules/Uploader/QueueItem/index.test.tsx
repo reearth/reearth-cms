@@ -39,6 +39,10 @@ vi.mock("@reearth-cms/components/atoms/Icon", () => ({
   },
 }));
 
+vi.mock("../useJobProgress", () => ({
+  default: vi.fn(),
+}));
+
 describe("QueueItem component test", () => {
   const user = userEvent.setup();
 

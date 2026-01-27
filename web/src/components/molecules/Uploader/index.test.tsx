@@ -57,6 +57,10 @@ const renderWithUploaderProvider = (contextOverrides?: Partial<UploaderHookState
     </UploaderHookStateContext.Provider>,
   );
 
+vi.mock("./useJobProgress", () => ({
+  default: vi.fn(),
+}));
+
 describe("Test Uploader component", () => {
   test("Shows uploading title and queue item", () => {
     renderWithUploaderProvider({
