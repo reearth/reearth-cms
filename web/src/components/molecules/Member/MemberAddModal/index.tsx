@@ -11,6 +11,7 @@ import Select from "@reearth-cms/components/atoms/Select";
 import { User, Role } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 type Props = {
   open: boolean;
@@ -172,7 +173,8 @@ const MemberAddModal: React.FC<Props> = ({
           type="primary"
           onClick={handleSubmit}
           loading={addLoading}
-          disabled={selectedUsers.length === 0}>
+          disabled={selectedUsers.length === 0}
+          data-testid={DATA_TEST_ID.MemberAddModalAddToWorkspaceButton}>
           {t("Add to workspace")}
         </Button>,
       ]}>

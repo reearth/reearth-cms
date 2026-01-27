@@ -2,6 +2,8 @@ import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+
 import MyIntegrationContent from ".";
 
 describe("Integration creation modal", () => {
@@ -82,7 +84,7 @@ describe("Integration creation modal", () => {
     expect(screen.getByText("Integration Name")).toBeVisible();
 
     await user.click(screen.getByRole("tab", { name: "Webhook" }));
-    expect(screen.getByRole("button", { name: "plus New Webhook" })).toBeVisible();
+    expect(screen.getByTestId(DATA_TEST_ID.MoleculeWebhookListNewWebhookButton)).toBeVisible();
   });
 
   test("Loading is displayed successfully", async () => {

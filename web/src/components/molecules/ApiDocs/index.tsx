@@ -12,9 +12,7 @@ const ApiDocs: FC<Props> = ({ specUrl, className }) => {
     <div className={className}>
       <ApiReferenceReact
         configuration={{
-          spec: {
-            url: specUrl,
-          },
+          url: specUrl,
           customCss: `.scalar-app .h-dvh { height: calc(100dvh - 48px); }`,
           hideModels: false,
           hideDownloadButton: false,
@@ -22,7 +20,7 @@ const ApiDocs: FC<Props> = ({ specUrl, className }) => {
           forceDarkModeState: "light",
           hideDarkModeToggle: true,
           hideClientButton: true,
-          showToolbar: "never",
+          showDeveloperTools: "never",
         }}
       />
     </div>

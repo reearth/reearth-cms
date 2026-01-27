@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "@apollo/client/react";
 import { Ion, Viewer as CesiumViewer } from "cesium";
 import fileDownload from "js-file-download";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router";
 import { CesiumComponentRef } from "resium";
 
 import Notification from "@reearth-cms/components/atoms/Notification";

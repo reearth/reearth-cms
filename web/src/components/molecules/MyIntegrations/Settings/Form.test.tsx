@@ -2,6 +2,8 @@ import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
+import { DATA_TEST_ID, TEST_CLASS } from "@reearth-cms/utils/test";
+
 import MyIntegrationForm from "./Form";
 
 describe("Integration creation modal", () => {
@@ -56,8 +58,15 @@ describe("Integration creation modal", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: "loading Re-generate" })).toBeVisible();
-    expect(screen.getByRole("button", { name: "loading Save" })).toBeVisible();
+    const regenerateButton = screen.getByTestId(
+      DATA_TEST_ID.MoleculeMyIntegrationFormRegenerateTokenButton,
+    );
+    expect(regenerateButton).toBeVisible();
+    const saveButton = screen.getByTestId(DATA_TEST_ID.MoleculeMyIntegrationFormSaveButton);
+    expect(saveButton).toBeVisible();
+
+    expect(regenerateButton).toHaveClass(TEST_CLASS.AntBtnLoading);
+    expect(saveButton).toHaveClass(TEST_CLASS.AntBtnLoading);
   });
 
   test("Visibility of token is toggled successfully", async () => {

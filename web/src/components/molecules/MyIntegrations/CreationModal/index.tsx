@@ -7,6 +7,7 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { IntegrationType } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 type Props = {
   open: boolean;
@@ -82,7 +83,8 @@ const IntegrationCreationModal: React.FC<Props> = ({
           type="primary"
           onClick={handleSubmit}
           disabled={isDisabled}
-          loading={loading}>
+          loading={loading}
+          data-testid={DATA_TEST_ID.IntegrationCreationModalCreateButton}>
           {t("Create")}
         </Button>,
       ]}>
