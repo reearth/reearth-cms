@@ -3,6 +3,7 @@ package utils
 import (
 	"testing"
 
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -88,7 +89,7 @@ func TestIsTextFieldType(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := IsStringFieldType(tt.fieldType)
+			got := value.IsString(tt.fieldType)
 			assert.Equal(t, tt.want, got)
 		})
 	}
@@ -177,7 +178,7 @@ func TestNormalizeTextValues(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := NormalizeTextValues(tt.fieldType, tt.input)
+			result := NormalizeStringValues(tt.fieldType, tt.input)
 			assert.Equal(t, tt.expected, result)
 		})
 	}

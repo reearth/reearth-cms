@@ -86,7 +86,7 @@ func (m *Multiple) ValuesString() (vv []String, ok bool) {
 	return vv, true
 }
 
-func IsStringFieldType(fieldType string) bool {
+func IsString(fieldType string) bool {
 	t := Type(fieldType)
 	return t == TypeText ||
 		t == TypeTextArea ||

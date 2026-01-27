@@ -51,7 +51,7 @@ func updateItemTextFields(item ItemDocumentForTextNormalization) (bson.M, bool, 
 	hasChanges := false
 	for _, field := range item.Fields {
 		originalValues := field.V.V
-		normalizedValues := utils.NormalizeTextValues(field.V.T, field.V.V)
+		normalizedValues := utils.NormalizeStringValues(field.V.T, field.V.V)
 		for j := range originalValues {
 			if originalValues[j] != normalizedValues[j] {
 				hasChanges = true
@@ -69,7 +69,7 @@ func updateItemTextFields(item ItemDocumentForTextNormalization) (bson.M, bool, 
 
 	normalizedFields := make([]bson.M, len(item.Fields))
 	for i, field := range item.Fields {
-		normalizedValues := utils.NormalizeTextValues(field.V.T, field.V.V)
+		normalizedValues := utils.NormalizeStringValues(field.V.T, field.V.V)
 		normalizedFields[i] = bson.M{
 			"f": field.F,
 			"v": bson.M{

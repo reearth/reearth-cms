@@ -10,8 +10,8 @@ func NormalizeText(s string) string {
 }
 
 
-func NormalizeTextValues(fieldType string, values []any) []any {
-	if !value.IsStringFieldType(fieldType) {
+func NormalizeStringValues(fieldType string, values []any) []any {
+	if !value.IsString(fieldType) {
 		return values
 	}
 
