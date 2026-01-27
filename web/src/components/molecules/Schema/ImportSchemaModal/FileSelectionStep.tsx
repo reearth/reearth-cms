@@ -51,12 +51,12 @@ const FileSelectionStep: React.FC<Props> = ({
   return (
     <>
       {dataChecking ? (
-        <LoadingWrapper data-testId={DATA_TEST_ID.ImportSchemaFileSelectionLoadingWrapper}>
+        <LoadingWrapper data-testid={DATA_TEST_ID.ImportSchemaModalFileSelectLoadingWrapper}>
           <Loading spinnerSize="large" />
           <p>{t("Checking the data file...")}</p>
         </LoadingWrapper>
       ) : (
-        <Dragger {...uploadProps} data-testId={DATA_TEST_ID.ImportSchemaFileSelect}>
+        <Dragger {...uploadProps} data-testid={DATA_TEST_ID.ImportSchemaModalFileSelect}>
           <p className="ant-upload-drag-icon">
             <Icon icon="inbox" />
           </p>

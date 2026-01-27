@@ -702,4 +702,73 @@ export class ContentPage extends BasePage {
     const url = this.page.url();
     return url.split("/").at(-1) as string;
   }
+
+  // ========== Import Content Locators ==========
+
+  get importContentButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ContentListImportContentButton);
+  }
+
+  get importContentModal(): Locator {
+    return this.getByRole("dialog").filter({ hasText: "Import content" });
+  }
+
+  get importContentFileInput(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ImportContentModalFileSelect);
+  }
+
+  get importContentDragger(): Locator {
+    return this.locator(".ant-upload-drag");
+  }
+
+  get importContentLoadingWrapper(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ImportContentModalLoadingWrapper);
+  }
+
+  get importContentErrorWrapper(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ImportContentModalErrorWrapper);
+  }
+
+  get importContentErrorTitle(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ImportContentModalErrorTitle);
+  }
+
+  get importContentErrorDescription(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ImportContentModalErrorDescription);
+  }
+
+  get importContentErrorHint(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ImportContentModalErrorHint);
+  }
+
+  get importContentGoBackButton(): Locator {
+    return this.getByRole("button", { name: "Go Back" });
+  }
+
+  get importContentImportAnywayButton(): Locator {
+    return this.getByRole("button", { name: "Import Anyway" });
+  }
+
+  get uploadSuccessNotification(): Locator {
+    return this.getByText("Successfully created upload job!");
+  }
+
+  get tableReloadIcon(): Locator {
+    return this.getByLabel("reload");
+  }
+
+  // ========== Import Content Actions ==========
+
+  async openImportContentModal(): Promise<void> {
+    await this.importContentButton.click();
+    await this.importContentModal.waitFor({ state: "visible" });
+  }
+
+  async uploadImportFile(filePath: string): Promise<void> {
+    await this.importContentFileInput.setInputFiles(filePath);
+  }
+
+  async closeImportContentModal(): Promise<void> {
+    await this.importContentModal.getByLabel("Close").click();
+  }
 }

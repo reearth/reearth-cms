@@ -20,6 +20,7 @@ import {
 import { useT } from "@reearth-cms/i18n";
 
 import { Field } from "../../Schema/types";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 type Props = {
   commentsPanel: JSX.Element;
@@ -153,6 +154,7 @@ const ContentListMolecule: React.FC<Props> = ({
                     <Tooltip title={!hasModelFields ? t("Please create a schema first") : null}>
                       <Button
                         type="default"
+                        data-testid={DATA_TEST_ID.ContentListImportContentButton}
                         onClick={onImportModalOpen}
                         icon={<Icon icon="import" />}
                         disabled={!model || !hasCreateRight || !hasModelFields}>

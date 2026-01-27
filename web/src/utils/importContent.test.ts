@@ -72,66 +72,66 @@ describe("Content import test", () => {
       const fields = [
         {
           type: SchemaFieldType.Text,
-          key: "text-1",
+          key: "text-field-key",
           typeProperty: {},
         },
         {
           type: SchemaFieldType.TextArea,
-          key: "textarea-1",
+          key: "textarea-field-key",
           typeProperty: {},
         },
         {
           type: SchemaFieldType.MarkdownText,
-          key: "markdown-text-1",
+          key: "markdown-text-field-key",
           typeProperty: {},
         },
         {
           type: SchemaFieldType.Asset,
-          key: "asset-1",
+          key: "asset-field-key",
           typeProperty: {},
         },
         {
           type: SchemaFieldType.Date,
-          key: "date-1",
+          key: "date-field-key",
           typeProperty: {},
         },
         {
           type: SchemaFieldType.Bool,
-          key: "boolean-1",
+          key: "boolean-field-key",
           typeProperty: {},
         },
         {
           type: SchemaFieldType.Select,
-          key: "select-1",
+          key: "select-field-key",
           typeProperty: {
             values: ["red", "green", "blue"],
           },
         },
         {
           type: SchemaFieldType.Integer,
-          key: "int-1",
+          key: "int-field-key",
           typeProperty: {},
         },
         {
           type: SchemaFieldType.Number,
-          key: "float-1",
+          key: "number-field-key",
           typeProperty: {},
         },
         {
           type: SchemaFieldType.URL,
-          key: "url-1",
+          key: "url-field-key",
           typeProperty: {},
         },
         {
           type: SchemaFieldType.GeometryObject,
-          key: "geo-obj-1",
+          key: "geo-object-key",
           typeProperty: {
             objectSupportedTypes: ["POINT"] as ObjectSupportedType[],
           },
         },
         {
           type: SchemaFieldType.GeometryEditor,
-          key: "geo-edi-1",
+          key: "geo-editor-key",
           typeProperty: {
             editorSupportedTypes: ["POINT"] as EditorSupportedType[],
           },

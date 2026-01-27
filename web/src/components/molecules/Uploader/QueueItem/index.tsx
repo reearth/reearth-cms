@@ -42,7 +42,7 @@ const QueueItem: React.FC<Props> = ({ queue, onRetry, onCancel }) => {
             <Tooltip title={t("Retry")}>
               <div>
                 <ActionIcon
-                  data-testId={DATA_TEST_ID.UploaderQueueItemRetryIcon}
+                  data-testid={DATA_TEST_ID.UploaderQueueItemRetryIcon}
                   icon="retry"
                   color="#8C8C8C"
                   onClick={() => void onRetry(queue.jobId)}
@@ -57,7 +57,7 @@ const QueueItem: React.FC<Props> = ({ queue, onRetry, onCancel }) => {
           <Tooltip title={t("Cancel upload")}>
             <span>
               <ActionIcon
-                data-testId={DATA_TEST_ID.UploaderQueueItemRetryIcon}
+                data-testid={DATA_TEST_ID.UploaderQueueItemRetryIcon}
                 icon="retry"
                 color="#8C8C8C"
                 onClick={() => void onRetry(queue.jobId)}

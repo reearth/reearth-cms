@@ -103,7 +103,7 @@ test.describe("Test import schema", () => {
     await test.step("Upload schema file and import", async () => {
       const importModal = schemaPage.importSchemaDialog;
       await page
-        .getByTestId(DATA_TEST_ID.ImportSchemaFileSelect)
+        .getByTestId(DATA_TEST_ID.ImportSchemaModalFileSelect)
         .setInputFiles(IMPORT_SCHEMA_TEMPLATE_PATH);
       await expect(page.getByTestId(DATA_TEST_ID.ImportSchemaModalPreviewStep)).toBeVisible();
 
@@ -135,7 +135,7 @@ test.describe("Test import schema", () => {
 
     await test.step("Upload schema file", async () => {
       await page
-        .getByTestId(DATA_TEST_ID.ImportSchemaFileSelect)
+        .getByTestId(DATA_TEST_ID.ImportSchemaModalFileSelect)
         .setInputFiles(IMPORT_SCHEMA_TEMPLATE_PATH);
       await expect(page.getByTestId(DATA_TEST_ID.ImportSchemaModalPreviewStep)).toBeVisible();
     });

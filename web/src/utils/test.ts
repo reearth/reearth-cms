@@ -113,7 +113,7 @@ export abstract class Test {
 
 // NOTE: use enum instead of object, easier for checking duplicate keys & values at the same time
 export enum DATA_TEST_ID {
-  // model card util
+  // Model card util
   ModelCardUtilDropdownIcon = "ModelCardUtilDropdownIcon",
 
   ModelCardUtilDropdownEdit = "ModelCardUtilDropdownEdit",
@@ -131,18 +131,18 @@ export enum DATA_TEST_ID {
 
   ImportSchemaInnerButton = "ImportSchemaInnerButton",
   ImportSchemaOuterButton = "ImportSchemaOuterButton",
-  ImportSchemaFileSelect = "ImportSchemaFileSelect",
 
-  // import schema modal
-  ImportSchemaFileSelectionLoadingWrapper = "ImportSchemaFileSelectionLoadingWrapper",
-
+  // Import schema modal
+  ImportSchemaModalFileSelectLoadingWrapper = "ImportSchemaModalFileSelectLoadingWrapper",
+  ImportSchemaModalFileSelect = "ImportSchemaModalFileSelect",
   ImportSchemaModalPreviewStep = "ImportSchemaModalPreviewStep",
   ImportSchemaModalPreviewFieldList = "ImportSchemaModalPreviewFieldList",
   ImportSchemaModalPreviewSkipCheckbox = "ImportSchemaModalPreviewSkipCheckbox",
 
   ImportSchemaModalImportButton = "ImportSchemaModalImportButton",
 
-  // import content modal
+  // Import content modal
+  ImportContentModalFileSelect = "ImportContentModalFileSelect",
   ImportContentModalLoadingWrapper = "ImportContentModalLoadingWrapper",
   ImportContentModalErrorWrapper = "ImportContentModalErrorWrapper",
   ImportContentModalErrorIcon = "ImportContentModalErrorIcon",
@@ -179,4 +179,7 @@ export enum DATA_TEST_ID {
 
   // Schema page
   ConfirmDeleteFieldButton = "ConfirmDeleteFieldButton",
+
+  // Content list page
+  ContentListImportContentButton = "ContentListImportContentButton",
 }

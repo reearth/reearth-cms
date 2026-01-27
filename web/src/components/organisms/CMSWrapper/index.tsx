@@ -8,7 +8,6 @@ import WorkspaceMenu from "@reearth-cms/components/molecules/Common/WorkspaceMen
 import useUploaderHooks from "@reearth-cms/components/molecules/Uploader/hooks";
 
 import useHooks from "./hooks";
-import Button from "@reearth-cms/components/atoms/Button";
 
 const CMSWrapper: React.FC = () => {
   const {
@@ -33,8 +32,7 @@ const CMSWrapper: React.FC = () => {
     handleHomeNavigation,
     logoUrl,
   } = useHooks();
-  const { isShowUploader, shouldPreventReload, uploaderState, testRefetchJobs } =
-    useUploaderHooks();
+  const { isShowUploader, shouldPreventReload, uploaderState } = useUploaderHooks();
 
   return (
     <>
@@ -82,12 +80,6 @@ const CMSWrapper: React.FC = () => {
         onClose={handleWorkspaceModalClose}
         onSubmit={handleWorkspaceCreate}
       />
-      {/* TODO: test code, remove later */}
-      <Button
-        onClick={testRefetchJobs}
-        style={{ position: "fixed", bottom: 20, left: 20, zIndex: 100 }}>
-        refetch jobs
-      </Button>
     </>
   );
 };

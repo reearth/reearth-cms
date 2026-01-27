@@ -1,5 +1,28 @@
+import path from "path";
+import { fileURLToPath } from "url";
+
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Test template paths for import content
+const IMPORT_CONTENT_JSON_PATH = path.resolve(
+  __dirname,
+  "../../../../public/templates/import-content-template.json",
+);
+const IMPORT_CONTENT_CSV_PATH = path.resolve(
+  __dirname,
+  "../../../../public/templates/import-content-template.csv",
+);
+const IMPORT_CONTENT_GEOJSON_PATH = path.resolve(
+  __dirname,
+  "../../../../public/templates/import-content-template.geojson",
+);
+
+const TEST = path.resolve(__dirname, "../../../files/test-import-content.json");
+const TEST_2 = path.resolve(__dirname, "../../../files/test-import-content.geojson");
 
 test.beforeEach(async ({ reearth, projectPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
@@ -299,5 +322,241 @@ test("Comment CRUD on edit page has succeeded", async ({
   await test.step("Delete comment", async () => {
     await contentPage.deleteComment();
     await page.waitForTimeout(300);
+  });
+});
+
+test.describe("Import content", () => {
+  test("Import content with JSON file shows schema mismatch warning", async ({
+    page,
+    contentPage,
+    fieldEditorPage,
+    projectPage,
+    schemaPage,
+  }) => {
+    await test.step("Create text field with different key than template", async () => {
+      await fieldEditorPage.fieldTypeButton("Text").click();
+      await schemaPage.handleFieldForm("mytext", "mytext");
+      await projectPage.contentMenuItem.click();
+      await page.waitForTimeout(300);
+    });
+
+    await test.step("Open import modal and upload JSON file", async () => {
+      await contentPage.openImportContentModal();
+      await contentPage.uploadImportFile(IMPORT_CONTENT_JSON_PATH);
+      await page.waitForTimeout(500);
+    });
+
+    await test.step("Verify schema mismatch warning is displayed", async () => {
+      await expect(contentPage.importContentErrorWrapper).toBeVisible();
+      await expect(contentPage.importContentErrorTitle).toContainText(
+        "Some fields don't match the schema",
+      );
+      await expect(contentPage.importContentGoBackButton).toBeVisible();
+      await page.waitForTimeout(300);
+    });
+
+    await test.step("Go back and close modal", async () => {
+      await contentPage.importContentGoBackButton.click();
+      await expect(contentPage.importContentDragger).toBeVisible();
+      await contentPage.closeImportContentModal();
+      await page.waitForTimeout(300);
+    });
+  });
+
+  test("Import content with CSV file shows schema mismatch warning", async ({
+    page,
+    contentPage,
+    fieldEditorPage,
+    projectPage,
+    schemaPage,
+  }) => {
+    await test.step("Create text field with different key than template", async () => {
+      await fieldEditorPage.fieldTypeButton("Text").click();
+      await schemaPage.handleFieldForm("mytext", "mytext");
+      await projectPage.contentMenuItem.click();
+      await page.waitForTimeout(300);
+    });
+
+    await test.step("Open import modal and upload CSV file", async () => {
+      await contentPage.openImportContentModal();
+      await contentPage.uploadImportFile(IMPORT_CONTENT_CSV_PATH);
+      await page.waitForTimeout(500);
+    });
+
+    await test.step("Verify schema mismatch warning is displayed", async () => {
+      await expect(contentPage.importContentErrorWrapper).toBeVisible();
+      await expect(contentPage.importContentErrorTitle).toContainText(
+        "Some fields don't match the schema",
+      );
+      await page.waitForTimeout(300);
+    });
+
+    await test.step("Close modal", async () => {
+      await contentPage.closeImportContentModal();
+      await page.waitForTimeout(300);
+    });
+  });
+
+  test("Import content with GeoJSON file shows schema mismatch warning", async ({
+    page,
+    contentPage,
+    fieldEditorPage,
+    projectPage,
+    schemaPage,
+  }) => {
+    await test.step("Create text field with different key than template", async () => {
+      await fieldEditorPage.fieldTypeButton("Text").click();
+      await schemaPage.handleFieldForm("mytext", "mytext");
+      await projectPage.contentMenuItem.click();
+      await page.waitForTimeout(300);
+    });
+
+    await test.step("Open import modal and upload GeoJSON file", async () => {
+      await contentPage.openImportContentModal();
+      await contentPage.uploadImportFile(IMPORT_CONTENT_GEOJSON_PATH);
+      await page.waitForTimeout(500);
+    });
+
+    await test.step("Verify schema mismatch warning is displayed", async () => {
+      await expect(contentPage.importContentErrorWrapper).toBeVisible();
+      await expect(contentPage.importContentErrorTitle).toContainText(
+        "Some fields don't match the schema",
+      );
+      await page.waitForTimeout(300);
+    });
+
+    await test.step("Close modal", async () => {
+      await contentPage.closeImportContentModal();
+      await page.waitForTimeout(300);
+    });
+  });
+
+  test("@smoke Import content with matching schema succeeds with JSON", async ({
+    page,
+    contentPage,
+    fieldEditorPage,
+    projectPage,
+    schemaPage,
+  }) => {
+    await test.step("Create text field matching template schema", async () => {
+      await fieldEditorPage.fieldTypeButton("Text").click();
+      await schemaPage.handleFieldForm("text-field-key", "text-field-key");
+      await projectPage.contentMenuItem.click();
+    });
+
+    await test.step("Open import modal and upload JSON file", async () => {
+      await contentPage.openImportContentModal();
+      await contentPage.uploadImportFile(TEST);
+    });
+
+    await test.step("Verify import job is created and modal closes", async () => {
+      await expect(contentPage.importContentModal).toBeHidden({ timeout: 10_000 });
+      await contentPage.tableReloadIcon.click();
+      await page.waitForTimeout(300);
+      await expect(contentPage.cellByText("text111")).toBeVisible();
+    });
+  });
+
+  test("Import content with matching schema succeeds with CSV", async ({
+    page,
+    contentPage,
+    fieldEditorPage,
+    projectPage,
+    schemaPage,
+  }) => {
+    await test.step("Create text field matching template schema", async () => {
+      await fieldEditorPage.fieldTypeButton("Text").click();
+      await schemaPage.handleFieldForm("text-field-key", "text-field-key");
+      await projectPage.contentMenuItem.click();
+      await page.waitForTimeout(300);
+    });
+
+    await test.step("Open import modal and upload CSV file", async () => {
+      await contentPage.openImportContentModal();
+      await contentPage.uploadImportFile(IMPORT_CONTENT_CSV_PATH);
+      await page.waitForTimeout(500);
+    });
+
+    await test.step("Verify import job is created and modal closes", async () => {
+      await expect(contentPage.importContentModal).toBeHidden({ timeout: 10000 });
+      await page.waitForTimeout(300);
+    });
+  });
+
+  test("Import content with matching schema succeeds with GeoJSON", async ({
+    page,
+    contentPage,
+    fieldEditorPage,
+    projectPage,
+  }) => {
+    await test.step("Create geometry object field matching template schema", async () => {
+      await fieldEditorPage.fieldTypeButton("Geometry Object").click();
+      await fieldEditorPage.displayNameInput.click();
+      await fieldEditorPage.displayNameInput.fill("location");
+      await fieldEditorPage.settingsDescriptionInput.click();
+      await fieldEditorPage.pointCheckbox.check();
+      await fieldEditorPage.okButton.click();
+      await fieldEditorPage.closeNotification();
+
+      await fieldEditorPage.fieldTypeButton("Text").click();
+      await fieldEditorPage.displayNameInput.fill("title");
+      await fieldEditorPage.okButton.click();
+
+      await fieldEditorPage.closeNotification();
+      await projectPage.contentMenuItem.click();
+    });
+
+    await test.step("Open import modal and upload GeoJSON file", async () => {
+      await contentPage.openImportContentModal();
+      await contentPage.uploadImportFile(TEST_2);
+    });
+
+    await test.step("Verify import job is created and modal closes", async () => {
+      await expect(contentPage.importContentModal).toBeHidden({ timeout: 10000 });
+      await expect(contentPage.tableReloadIcon).toBeVisible();
+      await contentPage.tableReloadIcon.click();
+      await page.waitForTimeout(300);
+      const iconEl = contentPage.getByTestId("hello5566");
+      await expect(iconEl).toBeVisible();
+      await iconEl.click();
+      await page.waitForTimeout(300);
+      const toolTipEl = contentPage.getByRole("tooltip");
+      await expect(toolTipEl).toBeVisible();
+      await expect(toolTipEl).toHaveText(
+        'location{"coordinates":[25.105497,121.597366],"type":"Point"}',
+      );
+    });
+  });
+
+  test("Import content shows no matching fields error when schema completely mismatches", async ({
+    page,
+    contentPage,
+    fieldEditorPage,
+    projectPage,
+    schemaPage,
+  }) => {
+    await test.step("Create field with unique key not in any template", async () => {
+      await fieldEditorPage.fieldTypeButton("Text").click();
+      await schemaPage.handleFieldForm("uniquefield", "uniquefield");
+      await projectPage.contentMenuItem.click();
+      await page.waitForTimeout(300);
+    });
+
+    await test.step("Open import modal and upload JSON file", async () => {
+      await contentPage.openImportContentModal();
+      await contentPage.uploadImportFile(IMPORT_CONTENT_JSON_PATH);
+      await page.waitForTimeout(500);
+    });
+
+    await test.step("Verify error is displayed for no matching fields", async () => {
+      await expect(contentPage.importContentErrorWrapper).toBeVisible();
+      await expect(contentPage.importContentErrorTitle).toBeVisible();
+      await page.waitForTimeout(300);
+    });
+
+    await test.step("Close modal", async () => {
+      await contentPage.closeImportContentModal();
+      await page.waitForTimeout(300);
+    });
   });
 });

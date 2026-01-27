@@ -1,13 +1,13 @@
 import { useContext } from "react";
 
-import { UploaderHookStateContext } from "./provider";
+import { UploaderHookState, UploaderHookStateContext } from "./provider";
 
-export default () => {
+export default function useUploaderHook(): UploaderHookState {
   const uploaderContext = useContext(UploaderHookStateContext);
 
   if (!uploaderContext) {
-    throw new Error("useConfig must be used within a ConfigProvider");
+    throw new Error("useUploaderHook must be used within a UploaderProvider");
   }
 
   return uploaderContext;
-};
+}

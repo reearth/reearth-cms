@@ -151,7 +151,7 @@ const Uploader: React.FC<Props> = props => {
 
   return (
     <UploaderWrapper
-      data-testId={DATA_TEST_ID.UploaderWrapper}
+      data-testid={DATA_TEST_ID.UploaderWrapper}
       ref={uploaderWrapperRef}
       drag={!uploaderState.isOpen}
       dragConstraints={props.constraintsRef}
@@ -161,7 +161,7 @@ const Uploader: React.FC<Props> = props => {
       whileDrag={{ scale: 1.1 }}
       onDragEnd={handleDragEnd}>
       <UploadIcon
-        data-testId={DATA_TEST_ID.UploaderUploadIcon}
+        data-testid={DATA_TEST_ID.UploaderUploadIcon}
         initial="closed"
         variants={uploadIconVariants}
         animate={uploaderState.isOpen ? "open" : "closed"}
@@ -187,16 +187,16 @@ const Uploader: React.FC<Props> = props => {
       </UploadIcon>
 
       <Card
-        data-testId={DATA_TEST_ID.UploaderCard}
+        data-testid={DATA_TEST_ID.UploaderCard}
         data-corner={corner}
         layout="size"
         initial="closed"
         variants={cardVariants}
         animate={uploaderState.isOpen ? "open" : "closed"}
         transition={{ duration: 0 }}>
-        <CardHead data-testId={DATA_TEST_ID.UploaderCardHead}>
-          <Title data-testId={DATA_TEST_ID.UploaderCardTitle}>{titleMessage}</Title>
-          <TitleSuffix data-testId={DATA_TEST_ID.UploaderCardTitleSuffix}>
+        <CardHead data-testid={DATA_TEST_ID.UploaderCardHead}>
+          <Title data-testid={DATA_TEST_ID.UploaderCardTitle}>{titleMessage}</Title>
+          <TitleSuffix data-testid={DATA_TEST_ID.UploaderCardTitleSuffix}>
             <Tooltip title={t("Minimize")}>
               <span>
                 <CloseIcon icon="down" onClick={() => void handleUploaderOpen(false)} />
@@ -209,11 +209,10 @@ const Uploader: React.FC<Props> = props => {
             </Tooltip>
           </TitleSuffix>
         </CardHead>
-        <CardBody data-testId={DATA_TEST_ID.UploaderCardBody}>
+        <CardBody data-testid={DATA_TEST_ID.UploaderCardBody}>
           {uploaderState.queue.map((queue, _index) => (
             <QueueItem
               key={queue.jobId}
-              isOpen={uploaderState.isOpen}
               queue={queue}
               onRetry={handleUploadRetry}
               onCancel={handleUploadCancel}

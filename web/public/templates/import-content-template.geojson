@@ -10,19 +10,19 @@
         "type": "Point"
       },
       "properties": {
-        "text-1": "text111",
-        "textarea-1": "textarea1",
-        "markdown-text-1": "markdown1",
-        "asset-1": {
+        "text-field-key": "text111",
+        "textarea-field-key": "textarea1",
+        "markdown-text-field-key": "markdown1",
+        "asset-field-key": {
           "url": "",
           "type": "asset"
         },
-        "date-1": "2025-12-01T00:00:00+09:00",
-        "boolean-1": true,
-        "select-1": "red",
-        "int-1": 1,
-        "float-1": 1.11,
-        "url-1": "http://111.com/"
+        "date-field-key": "2025-12-01T00:00:00+09:00",
+        "boolean-field-key": true,
+        "select-field-key": "red",
+        "int-field-key": 1,
+        "number-field-key": 1.11,
+        "url-field-key": "http://111.com/"
       },
       "type": "Feature"
     },
@@ -35,19 +35,19 @@
         "type": "Point"
       },
       "properties": {
-        "text-1": "text2",
-        "textarea-1": "textarea2",
-        "markdown-text-1": "markdown2",
-        "asset-1": {
+        "text-field-key": "text2",
+        "textarea-field-key": "textarea2",
+        "markdown-text-field-key": "markdown2",
+        "asset-field-key": {
           "url": "",
           "type": "asset"
         },
-        "date-1": "2025-12-02T00:00:00+09:00",
-        "boolean-1": false,
-        "select-1": "blue",
-        "int-1": 2,
-        "float-1": 2.22,
-        "url-1": "http://222.com/"
+        "date-field-key": "2025-12-02T00:00:00+09:00",
+        "boolean-field-key": false,
+        "select-field-key": "blue",
+        "int-field-key": 2,
+        "number-field-key": 2.22,
+        "url-field-key": "http://222.com/"
       },
       "type": "Feature"
     }

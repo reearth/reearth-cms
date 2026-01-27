@@ -36,7 +36,6 @@ export type UploaderHookState = {
     url: string;
     file: RcFile;
   }) => Promise<void>;
-  testRefetchJobs: () => Promise<void>;
 };
 
 export const UploaderHookStateContext = createContext<UploaderHookState | undefined>(undefined);
@@ -135,8 +134,8 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
 
   // TODO: remove this interval effect
   useEffect(() => {
-    if (uploaderState.queue.length === 0) return;
     if (
+      uploaderState.queue.length === 0 ||
       uploaderState.queue.every(item => item.jobProgress?.percentage === FULL_PERCENTAGE) ||
       uploaderState.queue.every(item =>
         [JobStatus.Completed, JobStatus.Failed, JobStatus.Cancelled].includes(item.jobStatus),
@@ -150,6 +149,8 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
       const jobs = await getJobsData({ variables: { projectId: "01k8s9ehfzp5v2273s4zthtwev" } });
       const data = jobs.data;
       const jobList = data?.jobs || [];
+
+      console.log("jobList", jobList);
 
       setUploaderState(prev => ({
         ...prev,
@@ -395,14 +396,6 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
     [uploaderState.queue],
   );
 
-  // TODO: test code, remove it later
-  const testRefetchJobs = useCallback<UploaderHookState["testRefetchJobs"]>(async () => {
-    const data = await getJobsData({
-      variables: { projectId: "01k8s9ehfzp5v2273s4zthtwev" },
-    });
-    console.log("data5566", data);
-  }, [getJobsData]);
-
   const contextValue = useMemo<UploaderHookState>(
     () => ({
       isShowUploader,
@@ -414,7 +407,6 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
       handleUploadRetry,
       handleCancelAll,
       handleEnqueueJob,
-      testRefetchJobs,
     }),
     [
       handleCancelAll,
@@ -426,7 +418,6 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
       shouldPreventReload,
       uploaderState,
       uploadingFileCount,
-      testRefetchJobs,
     ],
   );
 

@@ -6,7 +6,7 @@
   "type": "object",
   "properties": {
     "text-field-key": {
-      "title": "text-1",
+      "title": "text-field-key",
       "description": "this is text field",
       "x-fieldType": "text",
       "maxLength": 30,
@@ -16,7 +16,7 @@
       "x-unique": false
     },
     "text-field-key-multi": {
-      "title": "text-1",
+      "title": "text-field-key-multi",
       "description": "this is text field with multiple value",
       "x-fieldType": "text",
       "maxLength": 30,
@@ -29,7 +29,7 @@
       "x-unique": false
     },
     "textarea-field-key": {
-      "title": "textarea-1",
+      "title": "textarea-field-key",
       "description": "this is textarea field",
       "x-fieldType": "textArea",
       "maxLength": 30,
@@ -39,7 +39,7 @@
       "x-unique": false
     },
     "textarea-field-key-multi": {
-      "title": "textarea-1",
+      "title": "textarea-field-key-multi",
       "description": "this is textarea field with multiple value",
       "x-fieldType": "textArea",
       "maxLength": 30,
@@ -52,7 +52,7 @@
       "x-unique": false
     },
     "markdown-text-field-key": {
-      "title": "markdown-text-1",
+      "title": "markdown-text-field-key",
       "description": "this is markdown text field",
       "x-fieldType": "markdown",
       "maxLength": 100,
@@ -62,7 +62,7 @@
       "x-unique": false
     },
     "markdown-text-field-key-multi": {
-      "title": "markdown-text-1",
+      "title": "markdown-text-field-key-multi",
       "description": "this is markdown text field with multiple value",
       "x-fieldType": "markdown",
       "maxLength": 100,
@@ -75,7 +75,7 @@
       "x-unique": false
     },
     "boolean-field-key": {
-      "title": "boolean-1",
+      "title": "boolean-field-key",
       "description": "this is boolean field",
       "x-fieldType": "bool",
       "x-defaultValue": true,
@@ -84,7 +84,7 @@
       "x-unique": false
     },
     "boolean-field-key-multi": {
-      "title": "boolean-1",
+      "title": "boolean-field-key-multi",
       "description": "this is boolean field with multiple value",
       "x-fieldType": "bool",
       "x-defaultValue": [
@@ -96,7 +96,7 @@
       "x-unique": false
     },
     "date-field-key": {
-      "title": "date-1",
+      "title": "date-field-key",
       "description": "this is date field",
       "x-fieldType": "datetime",
       "format": "date-time",
@@ -106,7 +106,7 @@
       "x-unique": false
     },
     "date-field-key-multi": {
-      "title": "date-1",
+      "title": "date-field-key-multi",
       "description": "this is date field with multiple value",
       "x-fieldType": "datetime",
       "format": "date-time",
@@ -119,7 +119,7 @@
       "x-unique": false
     },
     "number-field-key": {
-      "title": "number-1",
+      "title": "number-field-key",
       "description": "this is number field",
       "x-fieldType": "number",
       "maximum": 5.5,
@@ -130,7 +130,7 @@
       "x-unique": false
     },
     "number-field-key-multi": {
-      "title": "number-1",
+      "title": "number-field-key-multi",
       "description": "this is float field with multiple value",
       "x-fieldType": "number",
       "maximum": 5.5,
@@ -144,7 +144,7 @@
       "x-unique": false
     },
     "int-field-key": {
-      "title": "int-1",
+      "title": "int-field-key",
       "description": "this is int field",
       "x-fieldType": "integer",
       "maximum": 10,
@@ -155,7 +155,7 @@
       "x-unique": false
     },
     "int-field-key-multi": {
-      "title": "int-1",
+      "title": "int-field-key-multi",
       "description": "this is int field with multiple value",
       "x-fieldType": "integer",
       "maximum": 10,
@@ -169,7 +169,7 @@
       "x-unique": false
     },
     "select-field-key": {
-      "title": "select-1",
+      "title": "select-field-key",
       "description": "this is option field",
       "x-fieldType": "select",
       "x-options": [
@@ -183,7 +183,7 @@
       "x-unique": false
     },
     "select-field-key-multi": {
-      "title": "select-1",
+      "title": "select-field-key-multi",
       "description": "this is option field with multiple value",
       "x-fieldType": "select",
       "x-options": [
@@ -200,7 +200,7 @@
       "x-unique": false
     },
     "asset-field-key": {
-      "title": "asset-1",
+      "title": "asset-field-key",
       "description": "this is asset field",
       "x-fieldType": "asset",
       "x-defaultValue": "01kazd9mamxh62j62gz425v0wk",
@@ -209,7 +209,7 @@
       "x-unique": false
     },
     "asset-field-key-multi": {
-      "title": "asset-1",
+      "title": "asset-field-key-multi",
       "description": "this is asset field with multiple value",
       "x-fieldType": "asset",
       "x-defaultValue": [
@@ -221,7 +221,7 @@
       "x-unique": false
     },
     "url-field-key": {
-      "title": "url-1",
+      "title": "url-field-key",
       "description": "this url field",
       "x-fieldType": "url",
       "x-defaultValue": "https://hello.com/",
@@ -230,7 +230,7 @@
       "x-unique": false
     },
     "url-field-key-multi": {
-      "title": "url-1",
+      "title": "url-field-key-multi",
       "description": "this url field with multiple value",
       "x-fieldType": "url",
       "x-defaultValue": [
@@ -242,7 +242,7 @@
       "x-unique": false
     },
     "geo-object-key": {
-      "title": "geo-obj-1",
+      "title": "geo-object-key",
       "description": "this geo object field",
       "x-fieldType": "geometryObject",
       "x-defaultValue": {
@@ -260,7 +260,7 @@
       ]
     },
     "geo-object-key-multi": {
-      "title": "geo-obj-1",
+      "title": "geo-object-key-multi",
       "description": "this geo object field with multiple value",
       "x-fieldType": "geometryObject",
       "x-defaultValue": [
@@ -280,7 +280,7 @@
       ]
     },
     "geo-editor-key": {
-      "title": "geo-obj-1",
+      "title": "geo-object-key",
       "description": "this geo editor field",
       "x-fieldType": "geometryEditor",
       "x-defaultValue": {
@@ -296,7 +296,7 @@
       "x-geoSupportedType": "POINT"
     },
     "geo-editor-key-multi": {
-      "title": "geo-obj-1",
+      "title": "geo-object-key-multi",
       "description": "this geo editor field with multiple value",
       "x-fieldType": "geometryEditor",
       "x-defaultValue": [

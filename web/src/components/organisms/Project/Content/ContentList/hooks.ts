@@ -42,6 +42,7 @@ import {
   SchemaFieldType,
   View as GQLView,
   ItemFieldInput,
+  JobStatus,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
 import {
   CreateItemDocument,
@@ -95,7 +96,7 @@ export default () => {
     showPublishAction,
   } = useContentHooks();
   const t = useT();
-  const { handleEnqueueJob } = useUploaderHook();
+  const { handleEnqueueJob, uploaderState } = useUploaderHook();
 
   const navigate = useNavigate();
   const { modelId } = useParams();
@@ -674,6 +675,21 @@ export default () => {
     },
     [_handleUnpublish, refetch],
   );
+
+  useEffect(() => {
+    const findCurrentQueueItem = uploaderState.queue.find(queueItem => {
+      const { workspaceId, projectId, modelId: _modelId } = queueItem;
+
+      return (
+        workspaceId === currentWorkspaceId &&
+        projectId === currentProjectId &&
+        modelId === _modelId &&
+        queueItem.jobStatus === JobStatus.Completed
+      );
+    });
+
+    if (findCurrentQueueItem) refetch();
+  }, [currentProjectId, currentWorkspaceId, modelId, refetch, uploaderState.queue]);
 
   return {
     currentModel,

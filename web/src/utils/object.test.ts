@@ -163,10 +163,10 @@ describe("ObjectUtils", () => {
   describe.only("deepJsonParse", () => {
     it("test", () => {
       const raw =
-        '{\n  "geo-obj-1": {\n    "title": "geo-obj-1",\n    "description": "this is geo obj field",\n    "type": "object",\n    "x-defaultValue": "{\\n   \\"coordinates\\": [\\n          139.6917,\\n          35.6895\\n        ],\\n        \\"type\\": \\"Point\\"\\n}",\n    "x-fieldType": "geometryObject",\n    "x-unique": true,\n    "x-required": true,\n    "x-geoSupportedTypes": [\n      "POINT"\n    ]\n  }\n}';
+        '{\n  "geo-object-key": {\n    "title": "geo-object-key",\n    "description": "this is geo obj field",\n    "type": "object",\n    "x-defaultValue": "{\\n   \\"coordinates\\": [\\n          139.6917,\\n          35.6895\\n        ],\\n        \\"type\\": \\"Point\\"\\n}",\n    "x-fieldType": "geometryObject",\n    "x-unique": true,\n    "x-required": true,\n    "x-geoSupportedTypes": [\n      "POINT"\n    ]\n  }\n}';
       const expectResult = {
-        "geo-obj-1": {
-          title: "geo-obj-1",
+        "geo-object-key": {
+          title: "geo-object-key",
           description: "this is geo obj field",
           type: "object",
           "x-defaultValue": {

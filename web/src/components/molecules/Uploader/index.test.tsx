@@ -47,7 +47,6 @@ const createMockUploaderContext = (overrides?: Partial<UploaderHookState>): Uplo
   handleUploadRetry: vi.fn().mockResolvedValue(undefined),
   handleCancelAll: vi.fn().mockResolvedValue(undefined),
   handleEnqueueJob: vi.fn().mockResolvedValue(undefined),
-  testRefetchJobs: vi.fn().mockResolvedValue(undefined),
   ...overrides,
 });
 
@@ -79,7 +78,7 @@ describe("Test Uploader component", () => {
     });
 
     const uploadIcon = container.querySelector(
-      `[data-testId="${DATA_TEST_ID.UploaderUploadIcon}"]`,
+      `[data-testid="${DATA_TEST_ID.UploaderUploadIcon}"]`,
     );
     expect(uploadIcon).not.toBeNull();
 

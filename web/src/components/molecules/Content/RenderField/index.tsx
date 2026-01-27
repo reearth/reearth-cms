@@ -83,7 +83,7 @@ export const renderField = (
         title={field.title}
         trigger="click"
         placement="bottom">
-        <StyledButton>
+        <StyledButton data-testid="hello5566">
           <Icon icon={fieldTypes[field.type].icon} size={16} />
           {items.length > 1 && <span>x{items.length}</span>}
         </StyledButton>
