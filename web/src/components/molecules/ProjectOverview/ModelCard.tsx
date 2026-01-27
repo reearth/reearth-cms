@@ -105,7 +105,7 @@ const ModelCard: React.FC<Props> = ({
           content: (
             <ModalContent>
               <div>{t("This model has multiple Geometry fields.")}</div>
-              <div>{t("GeoJSON format supports only one geometry field. ")}</div>
+              <div>{t("GeoJSON format supports only one geometry field.")}</div>
               <div>
                 {t(
                   "Only the first Geometry field will be exported. Please adjust your data if needed.",
