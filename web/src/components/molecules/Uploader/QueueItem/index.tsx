@@ -131,7 +131,7 @@ const QueueItem: React.FC<Props> = ({ queue, onRetry, onCancel, onJobProgressUpd
 const ItemWrapper = styled.div`
   padding: 8px 0;
 
-  :first-child {
+  :first-of-type {
     padding: 0 0 8px 0;
   }
 
