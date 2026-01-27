@@ -19,6 +19,11 @@ func TestNormalizeText(t *testing.T) {
 			expected: "Tokyo2024",
 		},
 		{
+			name:     "decomposed to composed",
+			input:    "ポール",
+			expected: "ポール",
+		},
+		{
 			name:     "fullwidth symbols",
 			input:    "ｆｉｌｅ．ｔｘｔ",
 			expected: "file.txt",
@@ -95,7 +100,7 @@ func TestIsTextFieldType(t *testing.T) {
 	}
 }
 
-func TestNormalizeTextValues(t *testing.T) {
+func TestNormalizeStringValues(t *testing.T) {
 	tests := []struct {
 		name      string
 		fieldType string
@@ -111,8 +116,8 @@ func TestNormalizeTextValues(t *testing.T) {
 		{
 			name:      "textArea field - decomposed to composed",
 			fieldType: "textArea",
-			input:     []any{"\u30db\u309a\u30fc\u30eb"}, // ポール decomposed
-			expected:  []any{"\u30dd\u30fc\u30eb"},       // ポール composed
+			input:     []any{"ポール"},
+			expected:  []any{"ポール"},
 		},
 		{
 			name:      "richText field - fullwidth symbols",

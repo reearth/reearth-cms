@@ -11,78 +11,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type AssetDocumentForNormalization struct {
-	ID       primitive.ObjectID `bson:"_id"`
-	FileName string             `bson:"filename"`
-}
-
-func (a AssetDocumentForNormalization) GetID() primitive.ObjectID {
-	return a.ID
-}
-
-type ItemDocumentForTextNormalization struct {
-	ID     primitive.ObjectID `bson:"_id"`
-	ItemID string             `bson:"id"`
-	Fields []struct {
-		F string `bson:"f"`
-		V struct {
-			T string `bson:"t"`
-			V []any  `bson:"v"`
-		} `bson:"v"`
-	} `bson:"fields"`
-}
-
-func (i ItemDocumentForTextNormalization) GetID() primitive.ObjectID {
-	return i.ID
-}
-
-func updateAssetFilename(asset AssetDocumentForNormalization) (bson.M, bool, error) {
-	normalizedFileName := utils.NormalizeText(asset.FileName)
-
-	if asset.FileName != normalizedFileName {
-		fmt.Printf("Normalizing asset filename: '%s' -> '%s'\n", asset.FileName, normalizedFileName)
-		return bson.M{"filename": normalizedFileName}, true, nil
-	}
-
-	return nil, false, nil
-}
-
-func updateItemTextFields(item ItemDocumentForTextNormalization) (bson.M, bool, error) {
-	hasChanges := false
-	for _, field := range item.Fields {
-		originalValues := field.V.V
-		normalizedValues := utils.NormalizeStringValues(field.V.T, field.V.V)
-		for j := range originalValues {
-			if originalValues[j] != normalizedValues[j] {
-				hasChanges = true
-				break
-			}
-		}
-		if hasChanges {
-			break
-		}
-	}
-
-	if !hasChanges {
-		return nil, false, nil
-	}
-
-	normalizedFields := make([]bson.M, len(item.Fields))
-	for i, field := range item.Fields {
-		normalizedValues := utils.NormalizeStringValues(field.V.T, field.V.V)
-		normalizedFields[i] = bson.M{
-			"f": field.F,
-			"v": bson.M{
-				"t": field.V.T,
-				"v": normalizedValues,
-			},
-		}
-	}
-
-	fmt.Printf("Normalized text fields in item %s\n", item.ItemID)
-	return bson.M{"fields": normalizedFields}, true, nil
-}
-
 func TextNormalizationMigration(ctx context.Context, dbURL, dbName string, wetRun bool) error {
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbURL))
 	if err != nil {
@@ -109,6 +37,15 @@ func TextNormalizationMigration(ctx context.Context, dbURL, dbName string, wetRu
 	}
 
 	return nil
+}
+
+type AssetDocumentForNormalization struct {
+	ID       primitive.ObjectID `bson:"_id"`
+	FileName string             `bson:"filename"`
+}
+
+func (a AssetDocumentForNormalization) GetID() primitive.ObjectID {
+	return a.ID
 }
 
 // normalizeAssetFilenames normalizes asset filename fields
@@ -154,6 +91,33 @@ func normalizeAssetFilenames(ctx context.Context, db *mongo.Database, wetRun boo
 	return nil
 }
 
+func updateAssetFilename(asset AssetDocumentForNormalization) (bson.M, bool, error) {
+	normalizedFileName := utils.NormalizeText(asset.FileName)
+
+	if asset.FileName != normalizedFileName {
+		fmt.Printf("Normalizing asset filename: '%s' -> '%s'\n", asset.FileName, normalizedFileName)
+		return bson.M{"filename": normalizedFileName}, true, nil
+	}
+
+	return nil, false, nil
+}
+
+type ItemDocumentForTextNormalization struct {
+	ID     primitive.ObjectID `bson:"_id"`
+	ItemID string             `bson:"id"`
+	Fields []struct {
+		F string `bson:"f"`
+		V struct {
+			T string `bson:"t"`
+			V []any  `bson:"v"`
+		} `bson:"v"`
+	} `bson:"fields"`
+}
+
+func (i ItemDocumentForTextNormalization) GetID() primitive.ObjectID {
+	return i.ID
+}
+
 // normalizeItemTextFields normalizes text field values in items
 func normalizeItemTextFields(ctx context.Context, db *mongo.Database, wetRun bool) error {
 	fmt.Println("=== Item Text Field Normalization ===")
@@ -195,4 +159,40 @@ func normalizeItemTextFields(ctx context.Context, db *mongo.Database, wetRun boo
 
 	fmt.Printf("Migration completed. Processed %d documents\n", processed)
 	return nil
+}
+
+func updateItemTextFields(item ItemDocumentForTextNormalization) (bson.M, bool, error) {
+	hasChanges := false
+	for _, field := range item.Fields {
+		originalValues := field.V.V
+		normalizedValues := utils.NormalizeStringValues(field.V.T, field.V.V)
+		for j := range originalValues {
+			if originalValues[j] != normalizedValues[j] {
+				hasChanges = true
+				break
+			}
+		}
+		if hasChanges {
+			break
+		}
+	}
+
+	if !hasChanges {
+		return nil, false, nil
+	}
+
+	normalizedFields := make([]bson.M, len(item.Fields))
+	for i, field := range item.Fields {
+		normalizedValues := utils.NormalizeStringValues(field.V.T, field.V.V)
+		normalizedFields[i] = bson.M{
+			"f": field.F,
+			"v": bson.M{
+				"t": field.V.T,
+				"v": normalizedValues,
+			},
+		}
+	}
+
+	fmt.Printf("Normalized text fields in item %s\n", item.ItemID)
+	return bson.M{"fields": normalizedFields}, true, nil
 }
