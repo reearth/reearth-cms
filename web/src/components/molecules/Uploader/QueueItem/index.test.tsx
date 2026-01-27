@@ -1,13 +1,15 @@
-import type { ComponentProps, ReactNode } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, test, vi } from "vitest";
+import type { ComponentProps, ReactNode } from "react";
 import { MemoryRouter } from "react-router-dom";
+import { describe, expect, test, vi } from "vitest";
+
+import { createMockRcFile } from "@reearth-cms/e2e/helpers/mock.helper";
+import { JobStatus, JobType } from "@reearth-cms/gql/__generated__/graphql.generated";
+
+import { type UploaderQueueItem } from "../types";
 
 import QueueItem from ".";
-import { type UploaderQueueItem } from "../types";
-import { JobStatus, JobType } from "@reearth-cms/gql/__generated__/graphql.generated";
-import { createMockRcFile } from "@reearth-cms/e2e/helpers/mock.helper";
 
 vi.mock("@reearth-cms/i18n", () => ({
   useT: () => (key: string) => key,
@@ -22,6 +24,7 @@ vi.mock("@reearth-cms/components/atoms/Progress", () => ({
 }));
 
 vi.mock("@reearth-cms/components/atoms/Icon", () => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   default: ({ icon, onClick, className, ...rest }: any) => {
     const Element = onClick ? "button" : "span";
     return (

@@ -5,11 +5,11 @@ import { Link } from "react-router-dom";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Progress from "@reearth-cms/components/atoms/Progress";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
+import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import { UploaderQueueItem } from "../types";
-import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import useJobProgress from "../useJobProgress";
 
 type Props = {

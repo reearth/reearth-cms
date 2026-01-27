@@ -18,9 +18,9 @@ import {
   CurrentView,
 } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import { Field } from "../../Schema/types";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 type Props = {
   commentsPanel: JSX.Element;
