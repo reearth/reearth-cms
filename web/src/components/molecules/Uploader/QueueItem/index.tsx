@@ -10,15 +10,28 @@ import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import { UploaderQueueItem } from "../types";
 import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
+import useJobProgress from "../useJobProgress";
 
 type Props = {
   queue: UploaderQueueItem;
   onRetry: (id: UploaderQueueItem["jobId"]) => void;
   onCancel: (id: UploaderQueueItem["jobId"]) => void;
+  onJobProgressUpdate: (payload: Pick<UploaderQueueItem, "jobId" | "jobProgress">) => void;
 };
 
-const QueueItem: React.FC<Props> = ({ queue, onRetry, onCancel }) => {
+const QueueItem: React.FC<Props> = ({ queue, onRetry, onCancel, onJobProgressUpdate }) => {
   const t = useT();
+
+  useJobProgress({
+    jobId: queue.jobId,
+    updateJobProgressCallback: ({ data }) => {
+      if (data.data)
+        onJobProgressUpdate({ jobId: queue.jobId, jobProgress: data.data.jobProgress });
+    },
+    shouldSubscribe: ![JobStatus.Completed, JobStatus.Cancelled, JobStatus.Failed].includes(
+      queue.jobStatus,
+    ),
+  });
 
   const renderStatusIcons = useMemo<JSX.Element | null>(() => {
     switch (queue.jobStatus) {

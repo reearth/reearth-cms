@@ -33,7 +33,6 @@ const createMockUploaderState = (overrides?: Partial<UploaderState>): UploaderSt
   isOpen: false,
   showBadge: false,
   queue: [],
-  currentJobId: null,
   ...overrides,
 });
 
@@ -47,6 +46,7 @@ const createMockUploaderContext = (overrides?: Partial<UploaderHookState>): Uplo
   handleUploadRetry: vi.fn().mockResolvedValue(undefined),
   handleCancelAll: vi.fn().mockResolvedValue(undefined),
   handleEnqueueJob: vi.fn().mockResolvedValue(undefined),
+  handleJobProgressUpdate: vi.fn(),
   ...overrides,
 });
 

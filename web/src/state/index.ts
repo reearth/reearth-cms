@@ -34,6 +34,5 @@ const uploader = atom<UploaderState>({
   isOpen: false,
   showBadge: true,
   queue: [],
-  currentJobId: null,
 });
 export const useUploader = () => useAtom(uploader);

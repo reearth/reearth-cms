@@ -59,10 +59,17 @@ describe("QueueItem component test", () => {
   ) => {
     const onRetry = vi.fn();
     const onCancel = vi.fn();
+    const onJobProgressUpdate = vi.fn();
 
     render(
       <MemoryRouter>
-        <QueueItem queue={queue} onRetry={onRetry} onCancel={onCancel} {...props} />
+        <QueueItem
+          queue={queue}
+          onRetry={onRetry}
+          onCancel={onCancel}
+          onJobProgressUpdate={onJobProgressUpdate}
+          {...props}
+        />
       </MemoryRouter>,
     );
 

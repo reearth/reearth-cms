@@ -23,5 +23,4 @@ export type UploaderState = {
   isOpen: boolean;
   showBadge: boolean;
   queue: UploaderQueueItem[];
-  currentJobId: string | null;
 };
