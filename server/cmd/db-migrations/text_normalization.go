@@ -48,45 +48,18 @@ func updateAssetFilename(asset AssetDocumentForNormalization) (bson.M, bool, err
 }
 
 func updateItemTextFields(item ItemDocumentForTextNormalization) (bson.M, bool, error) {
-	// Text field types that need normalization
-	textFieldTypes := map[string]bool{
-		"text":           true,
-		"textArea":       true,
-		"richText":       true,
-		"markdown":       true,
-		"select":         true,
-		"tag":            true,
-		"geometryObject": true,
-		"geometryEditor": true,
-	}
-
 	hasChanges := false
 	normalizedFields := make([]bson.M, len(item.Fields))
 
 	for i, field := range item.Fields {
-		if !textFieldTypes[field.V.T] {
-			// Not a text field, keep as-is
-			normalizedFields[i] = bson.M{
-				"f": field.F,
-				"v": bson.M{
-					"t": field.V.T,
-					"v": field.V.V,
-				},
-			}
-			continue
-		}
-
-		// Normalize text field values
-		normalizedValues := make([]any, len(field.V.V))
-		for j, val := range field.V.V {
-			if str, ok := val.(string); ok {
-				normalized := utils.NormalizeText(str)
-				if str != normalized {
+		originalValues := field.V.V
+		normalizedValues := utils.NormalizeTextValues(field.V.T, field.V.V)
+		if !hasChanges {
+			for j := range originalValues {
+				if originalValues[j] != normalizedValues[j] {
 					hasChanges = true
+					break
 				}
-				normalizedValues[j] = normalized
-			} else {
-				normalizedValues[j] = val
 			}
 		}
 
