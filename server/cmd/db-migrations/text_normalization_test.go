@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/utils"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/mongox/mongotest"
 	"github.com/stretchr/testify/assert"
@@ -184,19 +183,7 @@ func TestNormalizeAssetFilename(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			modified := 0
-			updateFn := func(asset AssetDocumentForNormalization) (bson.M, bool, error) {
-				normalizedFileName := utils.NormalizeText(asset.FileName)
-
-				if asset.FileName != normalizedFileName {
-					modified++
-					return bson.M{"filename": normalizedFileName}, true, nil
-				}
-
-				return nil, false, nil
-			}
-
-			got, shouldUpdate, err := updateFn(tt.asset)
+			got, shouldUpdate, err := updateAssetFilename(tt.asset)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.shouldUp, shouldUpdate)
 			assert.Equal(t, tt.want, got)
@@ -205,17 +192,6 @@ func TestNormalizeAssetFilename(t *testing.T) {
 }
 
 func TestNormalizeItemTextFields(t *testing.T) {
-	textFieldTypes := map[string]bool{
-		"text":           true,
-		"textArea":       true,
-		"richText":       true,
-		"markdown":       true,
-		"select":         true,
-		"tag":            true,
-		"geometryObject": true,
-		"geometryEditor": true,
-	}
-
 	tests := []struct {
 		name     string
 		item     ItemDocumentForTextNormalization
@@ -411,54 +387,7 @@ func TestNormalizeItemTextFields(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			modified := 0
-			updateFn := func(item ItemDocumentForTextNormalization) (bson.M, bool, error) {
-				hasChanges := false
-				normalizedFields := make([]bson.M, len(item.Fields))
-
-				for i, field := range item.Fields {
-					if !textFieldTypes[field.V.T] {
-						normalizedFields[i] = bson.M{
-							"f": field.F,
-							"v": bson.M{
-								"t": field.V.T,
-								"v": field.V.V,
-							},
-						}
-						continue
-					}
-
-					normalizedValues := make([]any, len(field.V.V))
-					for j, val := range field.V.V {
-						if str, ok := val.(string); ok {
-							normalized := utils.NormalizeText(str)
-							if str != normalized {
-								hasChanges = true
-							}
-							normalizedValues[j] = normalized
-						} else {
-							normalizedValues[j] = val
-						}
-					}
-
-					normalizedFields[i] = bson.M{
-						"f": field.F,
-						"v": bson.M{
-							"t": field.V.T,
-							"v": normalizedValues,
-						},
-					}
-				}
-
-				if hasChanges {
-					modified++
-					return bson.M{"fields": normalizedFields}, true, nil
-				}
-
-				return nil, false, nil
-			}
-
-			got, shouldUpdate, err := updateFn(tt.item)
+			got, shouldUpdate, err := updateItemTextFields(tt.item)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.shouldUp, shouldUpdate)
 			assert.Equal(t, tt.want, got)
