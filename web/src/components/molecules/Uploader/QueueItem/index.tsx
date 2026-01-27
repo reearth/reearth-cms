@@ -184,7 +184,7 @@ const InfoIcon = styled(Icon)`
   }
 `;
 
-const ErrorMessage = styled(Tooltip)`
+const _ErrorMessage = styled(Tooltip)`
   color: #f5222d;
   font-size: 12px;
   padding-left: 22px;
@@ -195,7 +195,7 @@ const ErrorMessage = styled(Tooltip)`
   display: block;
 `;
 
-const Message = styled.div`
+const _Message = styled.div`
   color: #8c8c8c;
   font-size: 12px;
   padding-left: 22px;
