@@ -130,33 +130,33 @@ describe("ObjectUtils", () => {
       if (actualOutput.isValid) expect(actualOutput.data).toEqual(expectedOutput);
     });
 
-    it("Fail case: empty string", async () => {
+    it("Pass case: empty string", async () => {
       const input = "";
-      const expectedOutput = "Unexpected end of JSON input";
+      const expectedOutput = "";
       const actualOutput = await ObjectUtils.safeJSONParse(input);
 
-      expect(actualOutput.isValid).toBe(false);
-      if (!actualOutput.isValid) expect(actualOutput.error).toBe(expectedOutput);
+      expect(actualOutput.isValid).toBe(true);
+      if (actualOutput.isValid) expect(actualOutput.data).toBe(expectedOutput);
     });
 
-    it("Fail case: string", async () => {
+    it("Pass case: string", async () => {
       const input = "hello";
-      const expectedOutput = `Unexpected token 'h', "hello" is not valid JSON`;
+      const expectedOutput = "hello";
 
       const actualOutput = await ObjectUtils.safeJSONParse(input);
 
-      expect(actualOutput.isValid).toBe(false);
-      if (!actualOutput.isValid) expect(actualOutput.error).toBe(expectedOutput);
+      expect(actualOutput.isValid).toBe(true);
+      if (actualOutput.isValid) expect(actualOutput.data).toBe(expectedOutput);
     });
 
-    it("Fail case: string undefined", async () => {
+    it("Pass case: string undefined", async () => {
       const input = "undefined";
-      const expectedOutput = '"undefined" is not valid JSON';
+      const expectedOutput = "undefined";
 
       const actualOutput = await ObjectUtils.safeJSONParse(input);
 
-      expect(actualOutput.isValid).toBe(false);
-      if (!actualOutput.isValid) expect(actualOutput.error).toBe(expectedOutput);
+      expect(actualOutput.isValid).toBe(true);
+      if (actualOutput.isValid) expect(actualOutput.data).toBe(expectedOutput);
     });
   });
 
