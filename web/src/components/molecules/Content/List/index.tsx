@@ -154,7 +154,7 @@ const ContentListMolecule: React.FC<Props> = ({
                     <Tooltip title={!hasModelFields ? t("Please create a schema first") : null}>
                       <Button
                         type="default"
-                        data-testid={DATA_TEST_ID.ContentListImportContentButton}
+                        data-testid={DATA_TEST_ID.Content__List__ImportContentButton}
                         onClick={onImportModalOpen}
                         icon={<Icon icon="import" />}
                         disabled={!model || !hasCreateRight || !hasModelFields}>

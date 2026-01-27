@@ -37,7 +37,7 @@ const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort, proj
       <Wrapper>
         <Label>{t("Sort by")}</Label>
         <StyledSelect
-          data-testid={DATA_TEST_ID.WorkspaceHeaderProjectSortSelect}
+          data-testid={DATA_TEST_ID.WorkspaceHeader__ProjectSortSelect}
           value={projectSort}
           onChange={value => {
             onProjectSort(value as SortBy);

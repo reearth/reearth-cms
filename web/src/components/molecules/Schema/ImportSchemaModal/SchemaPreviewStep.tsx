@@ -50,7 +50,7 @@ const SchemaPreviewStep: React.FC<Props> = ({
   }, [fields]);
 
   return (
-    <SchemaPreviewStepWrapper data-testid={DATA_TEST_ID.ImportSchemaModalPreviewStep}>
+    <SchemaPreviewStepWrapper data-testid={DATA_TEST_ID.SchemaPreviewStep__Wrapper}>
       <Section>
         <SectionTitle>{t("Schema preview")}</SectionTitle>
         <Description>
@@ -82,7 +82,7 @@ const SchemaPreviewStep: React.FC<Props> = ({
         lineClassName="dragLine"
         onDragEnd={onDragEnd}>
         <FieldStyledList
-          data-testid={DATA_TEST_ID.ImportSchemaModalPreviewFieldList}
+          data-testid={DATA_TEST_ID.SchemaPreviewStep__PreviewFieldList}
           itemLayout="horizontal">
           {fields?.map((field, _index) => (
             <StyledListItem className="draggable-item" key={field.key} noImport={field.hidden}>
@@ -116,7 +116,7 @@ const SchemaPreviewStep: React.FC<Props> = ({
                           <Tooltip title={field.hidden ? t("Not import") : t("Import")}>
                             <Checkbox
                               checked={!field.hidden}
-                              data-testid={DATA_TEST_ID.ImportSchemaModalPreviewSkipCheckbox}
+                              data-testid={DATA_TEST_ID.SchemaPreviewStep__PreviewSkipCheckbox}
                             />
                           </Tooltip>
                         }

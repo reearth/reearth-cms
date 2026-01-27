@@ -112,75 +112,82 @@ export abstract class Test {
 }
 
 // NOTE: use enum instead of object, easier for checking duplicate keys & values at the same time
+// Naming convention: Component__Element (inspired by BEM with PascalCase)
 export enum DATA_TEST_ID {
-  // Model card util
-  ModelCardUtilDropdownIcon = "ModelCardUtilDropdownIcon",
+  // ModelCard
+  ModelCard__UtilDropdownIcon = "ModelCard__UtilDropdownIcon",
 
-  ModelCardUtilDropdownEdit = "ModelCardUtilDropdownEdit",
-  ModelCardUtilDropdownImport = "ModelCardUtilDropdownImport",
-  ModelCardUtilDropdownExport = "ModelCardUtilDropdownExport",
-  ModelCardUtilDropdownDelete = "ModelCardUtilDropdownDelete",
+  ModelCard__UtilDropdownEdit = "ModelCard__UtilDropdownEdit",
+  ModelCard__UtilDropdownImport = "ModelCard__UtilDropdownImport",
+  ModelCard__UtilDropdownExport = "ModelCard__UtilDropdownExport",
+  ModelCard__UtilDropdownDelete = "ModelCard__UtilDropdownDelete",
 
-  ModelCardUtilDropdownImportSchema = "ModelCardUtilDropdownImportSchema",
-  ModelCardUtilDropdownImportContent = "ModelCardUtilDropdownImportContent",
+  ModelCard_UtilDropdownImportSchema = "ModelCard_UtilDropdownImportSchema",
+  ModelCard__UtilDropdownImportContent = "ModelCard__UtilDropdownImportContent",
 
-  ModelCardUtilDropdownExportSchema = "ModelCardUtilDropdownExportSchema",
-  ModelCardUtilDropdownExportContentJSON = "ModelCardUtilDropdownExportContentJson",
-  ModelCardUtilDropdownExportContentCSV = "ModelCardUtilDropdownExportContentCsv",
-  ModelCardUtilDropdownExportContentGeoJSON = "ModelCardUtilDropdownExportContentGeoJson",
+  ModelCard__UtilDropdownExportSchema = "ModelCard__UtilDropdownExportSchema",
+  ModelCard__UtilDropdownExportContentJSON = "ModelCard__UtilDropdownExportContentJSON",
+  ModelCard__UtilDropdownExportContentCSV = "ModelCard__UtilDropdownExportContentCSV",
+  ModelCard__UtilDropdownExportContentGeoJSON = "ModelCard__UtilDropdownExportContentGeoJSON",
 
-  ImportSchemaInnerButton = "ImportSchemaInnerButton",
-  ImportSchemaOuterButton = "ImportSchemaOuterButton",
+  // Schema
+  Schema__ImportSchemaButton = "Schema__ImportSchemaButton",
 
-  // Import schema modal
-  ImportSchemaModalFileSelectLoadingWrapper = "ImportSchemaModalFileSelectLoadingWrapper",
-  ImportSchemaModalFileSelect = "ImportSchemaModalFileSelect",
-  ImportSchemaModalPreviewStep = "ImportSchemaModalPreviewStep",
-  ImportSchemaModalPreviewFieldList = "ImportSchemaModalPreviewFieldList",
-  ImportSchemaModalPreviewSkipCheckbox = "ImportSchemaModalPreviewSkipCheckbox",
+  // ModelFieldList
+  ModelFieldList__ImportSchemaButton = "ImportSchemaOuterButton",
 
-  ImportSchemaModalImportButton = "ImportSchemaModalImportButton",
+  // FileSelectionStep
+  FileSelectionStep__FileSelectLoadingWrapper = "FileSelectionStep__FileSelectLoadingWrapper",
+  FileSelectionStep__FileSelect = "FileSelectionStep__FileSelect",
+
+  // SchemaPreviewStep
+  SchemaPreviewStep__Wrapper = "SchemaPreviewStep__Wrapper",
+  SchemaPreviewStep__PreviewFieldList = "SchemaPreviewStep__PreviewFieldList",
+  SchemaPreviewStep__PreviewSkipCheckbox = "SchemaPreviewStep__PreviewSkipCheckbox",
+
+  // ImportSchemaModal
+  ImportSchemaModal__ImportButton = "ImportSchemaModal__ImportButton",
 
   // Import content modal
-  ImportContentModalFileSelect = "ImportContentModalFileSelect",
-  ImportContentModalLoadingWrapper = "ImportContentModalLoadingWrapper",
-  ImportContentModalErrorWrapper = "ImportContentModalErrorWrapper",
-  ImportContentModalErrorIcon = "ImportContentModalErrorIcon",
-  ImportContentModalErrorTitle = "ImportContentModalErrorTitle",
-  ImportContentModalErrorDescription = "ImportContentModalErrorDescription",
-  ImportContentModalErrorHint = "ImportContentModalErrorHint",
+  ContentImportModal__FileSelect = "ContentImportModal__FileSelect",
+  ContentImportModal__LoadingWrapper = "ContentImportModal__LoadingWrapper",
+  ContentImportModal__ErrorWrapper = "ContentImportModal__ErrorWrapper",
+  ContentImportModal__ErrorIcon = "ContentImportModal__ErrorIcon",
+  ContentImportModal__ErrorTitle = "ContentImportModal__ErrorTitle",
+  ContentImportModal__ErrorDescription = "ContentImportModal__ErrorDescription",
+  ContentImportModal__ErrorHint = "ContentImportModal__ErrorHint",
 
   // Uploader component
-  UploaderWrapper = "UploaderWrapper",
-  UploaderUploadIcon = "UploaderUploadIcon",
-  UploaderCard = "UploaderCard",
-  UploaderCardHead = "UploaderCardHead",
-  UploaderCardBody = "UploaderCardBody",
-  UploaderCardTitle = "UploaderCardTitle",
-  UploaderCardTitleSuffix = "UploaderCardTitleSuffix",
-  UploaderQueueItemRetryIcon = "UploaderQueueItemRetryIcon",
+  Uploader__Wrapper = "Uploader__Wrapper",
+  Uploader__UploadIcon = "Uploader__UploadIcon",
+  Uploader__Card = "Uploader__Card",
+  Uploader__CardHead = "Uploader__CardHead",
+  Uploader__CardBody = "Uploader__CardBody",
+  Uploader__CardTitle = "Uploader__CardTitle",
+  Uploader__CardTitleSuffix = "Uploader__CardTitleSuffix",
 
   // QueueItem
-  QueueItemWrapper = "QueueItemWrapper",
+  QueueItem__RetryIcon = "QueueItem__RetryIcon",
+  QueueItem__Wrapper = "QueueItem__Wrapper",
 
-  // Workspace
-  WorkspaceHeaderProjectSortSelect = "WorkspaceHeaderProjectSortSelect",
+  // WorkspaceHeader
+  WorkspaceHeader__ProjectSortSelect = "WorkspaceHeader__ProjectSortSelect",
 
-  // Others
-  RequestStatus = "RequestStatus",
+  // Versions
+  Versions__RequestStatus = "Versions__RequestStatus",
 
-  // Integration page
-  RemoveIntegrationButton = "RemoveIntegrationButton",
-  ConfirmRemoveIntegrationButton = "ConfirmRemoveIntegrationButton",
+  //  DangerZone (MyIntegrations)
+  MyIntegrations__Settings__DangerZone__RemoveIntegrationButton = "MyIntegrations__Settings__DangerZone__RemoveIntegrationButton",
+  MyIntegrations__Settings__DangerZone__ConfirmRemoveIntegrationButton = "MyIntegrations__Settings__DangerZone__ConfirmRemoveIntegrationButton",
 
-  // Project page
-  DeleteProjectButton = "DeleteProjectButton",
-  ConfirmDeleteProjectButton = "ConfirmDeleteProjectButton",
+  // DangerZone (ProjectSettings)
+  ProjectSettings__DangerZone__DeleteProjectButton = "ProjectSettings__DangerZone__DeleteProjectButton",
+  ProjectSettings__DangerZone__ConfirmDeleteProjectButton = "ProjectSettings__DangerZone__ConfirmDeleteProjectButton",
 
-  // Schema page
-  ConfirmDeleteFieldButton = "ConfirmDeleteFieldButton",
+  // ModelFieldList
+  ModelFieldList__ConfirmDeleteFieldButton = "ModelFieldList__ConfirmDeleteFieldButton",
 
   // Content list page
-  ContentListImportContentButton = "ContentListImportContentButton",
-  ContentListItemFieldPopoverIcon = "ContentListItemFieldPopoverIcon",
+  Content__List__ImportContentButton = "Content__List__ImportContentButton",
+  Content__List__ItemFieldPopoverIcon = "Content__List__ItemFieldPopoverIcon",
 }

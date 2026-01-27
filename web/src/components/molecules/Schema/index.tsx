@@ -169,7 +169,7 @@ const Schema: React.FC<Props> = ({
         label: (
           <Tooltip
             title={disableImport ? t("Only empty schemas can be imported into") : undefined}
-            data-testid={DATA_TEST_ID.ImportSchemaInnerButton}>
+            data-testid={DATA_TEST_ID.Schema__ImportSchemaButton}>
             {t("Import")}
           </Tooltip>
         ),

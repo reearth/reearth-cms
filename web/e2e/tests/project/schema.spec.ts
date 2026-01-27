@@ -103,9 +103,9 @@ test.describe("Test import schema", () => {
     await test.step("Upload schema file and import", async () => {
       const importModal = schemaPage.importSchemaDialog;
       await page
-        .getByTestId(DATA_TEST_ID.ImportSchemaModalFileSelect)
+        .getByTestId(DATA_TEST_ID.FileSelectionStep__FileSelect)
         .setInputFiles(IMPORT_SCHEMA_TEMPLATE_PATH);
-      await expect(page.getByTestId(DATA_TEST_ID.ImportSchemaModalPreviewStep)).toBeVisible();
+      await expect(page.getByTestId(DATA_TEST_ID.SchemaPreviewStep__Wrapper)).toBeVisible();
 
       await schemaPage.importSchemaModalImportButton.click();
       await expect(importModal).toBeHidden();
@@ -135,17 +135,17 @@ test.describe("Test import schema", () => {
 
     await test.step("Upload schema file", async () => {
       await page
-        .getByTestId(DATA_TEST_ID.ImportSchemaModalFileSelect)
+        .getByTestId(DATA_TEST_ID.FileSelectionStep__FileSelect)
         .setInputFiles(IMPORT_SCHEMA_TEMPLATE_PATH);
-      await expect(page.getByTestId(DATA_TEST_ID.ImportSchemaModalPreviewStep)).toBeVisible();
+      await expect(page.getByTestId(DATA_TEST_ID.SchemaPreviewStep__Wrapper)).toBeVisible();
     });
 
     await test.step("Uncheck a field", async () => {
       const fieldRow = page
-        .getByTestId(DATA_TEST_ID.ImportSchemaModalPreviewFieldList)
+        .getByTestId(DATA_TEST_ID.SchemaPreviewStep__PreviewFieldList)
         .locator(".ant-list-item")
         .filter({ hasText: "#text-field-key", hasNotText: "#text-field-key-multi" });
-      await fieldRow.getByTestId(DATA_TEST_ID.ImportSchemaModalPreviewSkipCheckbox).click();
+      await fieldRow.getByTestId(DATA_TEST_ID.SchemaPreviewStep__PreviewSkipCheckbox).click();
     });
 
     await test.step("Import and verify unchecked field is skipped", async () => {

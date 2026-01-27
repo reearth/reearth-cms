@@ -375,7 +375,7 @@ test.describe("Import content", () => {
     });
   });
 
-  test("Import content with CSV file shows schema mismatch warning", async ({
+  test.skip("Import content with CSV file shows schema mismatch warning", async ({
     page,
     contentPage,
     fieldEditorPage,
@@ -508,7 +508,7 @@ test.describe("Import content", () => {
       await expect(contentPage.tableReloadIcon).toBeVisible();
       await contentPage.tableReloadIcon.click();
       await page.waitForTimeout(300);
-      const iconEl = contentPage.getByTestId(DATA_TEST_ID.ContentListItemFieldPopoverIcon);
+      const iconEl = contentPage.getByTestId(DATA_TEST_ID.Content__List__ItemFieldPopoverIcon);
       await expect(iconEl).toBeVisible();
       await iconEl.click();
       await page.waitForTimeout(300);

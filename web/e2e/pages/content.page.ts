@@ -489,7 +489,7 @@ export class ContentPage extends BasePage {
   }
 
   get requestStatusElement(): Locator {
-    return this.getByTestId(DATA_TEST_ID.RequestStatus).locator("span");
+    return this.getByTestId(DATA_TEST_ID.Versions__RequestStatus).locator("span");
   }
 
   get currentVersionText(): Locator {
@@ -706,7 +706,7 @@ export class ContentPage extends BasePage {
   // ========== Import Content Locators ==========
 
   get importContentButton(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ContentListImportContentButton);
+    return this.getByTestId(DATA_TEST_ID.Content__List__ImportContentButton);
   }
 
   get importContentModal(): Locator {
@@ -714,7 +714,7 @@ export class ContentPage extends BasePage {
   }
 
   get importContentFileInput(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ImportContentModalFileSelect);
+    return this.getByTestId(DATA_TEST_ID.ContentImportModal__FileSelect);
   }
 
   get importContentDragger(): Locator {
@@ -722,23 +722,23 @@ export class ContentPage extends BasePage {
   }
 
   get importContentLoadingWrapper(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ImportContentModalLoadingWrapper);
+    return this.getByTestId(DATA_TEST_ID.ContentImportModal__LoadingWrapper);
   }
 
   get importContentErrorWrapper(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ImportContentModalErrorWrapper);
+    return this.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorWrapper);
   }
 
   get importContentErrorTitle(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ImportContentModalErrorTitle);
+    return this.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorTitle);
   }
 
   get importContentErrorDescription(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ImportContentModalErrorDescription);
+    return this.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorDescription);
   }
 
   get importContentErrorHint(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ImportContentModalErrorHint);
+    return this.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorHint);
   }
 
   get importContentGoBackButton(): Locator {

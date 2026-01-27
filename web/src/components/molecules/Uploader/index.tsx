@@ -152,7 +152,7 @@ const Uploader: React.FC<Props> = props => {
 
   return (
     <UploaderWrapper
-      data-testid={DATA_TEST_ID.UploaderWrapper}
+      data-testid={DATA_TEST_ID.Uploader__Wrapper}
       ref={uploaderWrapperRef}
       drag={!uploaderState.isOpen}
       dragConstraints={props.constraintsRef}
@@ -162,7 +162,7 @@ const Uploader: React.FC<Props> = props => {
       whileDrag={{ scale: 1.1 }}
       onDragEnd={handleDragEnd}>
       <UploadIcon
-        data-testid={DATA_TEST_ID.UploaderUploadIcon}
+        data-testid={DATA_TEST_ID.Uploader__UploadIcon}
         initial="closed"
         variants={uploadIconVariants}
         animate={uploaderState.isOpen ? "open" : "closed"}
@@ -188,16 +188,16 @@ const Uploader: React.FC<Props> = props => {
       </UploadIcon>
 
       <Card
-        data-testid={DATA_TEST_ID.UploaderCard}
+        data-testid={DATA_TEST_ID.Uploader__Card}
         data-corner={corner}
         layout="size"
         initial="closed"
         variants={cardVariants}
         animate={uploaderState.isOpen ? "open" : "closed"}
         transition={{ duration: 0 }}>
-        <CardHead data-testid={DATA_TEST_ID.UploaderCardHead}>
-          <Title data-testid={DATA_TEST_ID.UploaderCardTitle}>{titleMessage}</Title>
-          <TitleSuffix data-testid={DATA_TEST_ID.UploaderCardTitleSuffix}>
+        <CardHead data-testid={DATA_TEST_ID.Uploader__CardHead}>
+          <Title data-testid={DATA_TEST_ID.Uploader__CardTitle}>{titleMessage}</Title>
+          <TitleSuffix data-testid={DATA_TEST_ID.Uploader__CardTitleSuffix}>
             <Tooltip title={t("Minimize")}>
               <span>
                 <CloseIcon icon="down" onClick={() => void handleUploaderOpen(false)} />
@@ -210,7 +210,7 @@ const Uploader: React.FC<Props> = props => {
             </Tooltip>
           </TitleSuffix>
         </CardHead>
-        <CardBody data-testid={DATA_TEST_ID.UploaderCardBody}>
+        <CardBody data-testid={DATA_TEST_ID.Uploader__CardBody}>
           {uploaderState.queue.map((queue, _index) => (
             <QueueItem
               key={queue.jobId}

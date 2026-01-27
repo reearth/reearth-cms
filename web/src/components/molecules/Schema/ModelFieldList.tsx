@@ -103,7 +103,7 @@ const ModelFieldList: React.FC<Props> = ({
                 <ImportButton
                   type="link"
                   onClick={onSchemaImport}
-                  data-testid={DATA_TEST_ID.ImportSchemaOuterButton}>
+                  data-testid={DATA_TEST_ID.ModelFieldList__ImportSchemaButton}>
                   import
                 </ImportButton>
               ),
@@ -134,7 +134,7 @@ const ModelFieldList: React.FC<Props> = ({
                     okText={t("Delete field")}
                     okButtonProps={{
                       danger: true,
-                      "data-testid": DATA_TEST_ID.ConfirmDeleteFieldButton,
+                      "data-testid": DATA_TEST_ID.ModelFieldList__ConfirmDeleteFieldButton,
                     }}
                     cancelText={t("Cancel")}>
                     <Button

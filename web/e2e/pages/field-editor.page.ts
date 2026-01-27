@@ -389,7 +389,7 @@ export class FieldEditorPage extends BasePage {
     return this.getByLabel("delete").locator("svg");
   }
   get confirmDeleteFieldButton(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ConfirmDeleteFieldButton);
+    return this.getByTestId(DATA_TEST_ID.ModelFieldList__ConfirmDeleteFieldButton);
   }
 
   // Reference field specific elements

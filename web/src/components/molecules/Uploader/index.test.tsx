@@ -82,7 +82,7 @@ describe("Test Uploader component", () => {
     });
 
     const uploadIcon = container.querySelector(
-      `[data-testid="${DATA_TEST_ID.UploaderUploadIcon}"]`,
+      `[data-testid="${DATA_TEST_ID.Uploader__UploadIcon}"]`,
     );
     expect(uploadIcon).not.toBeNull();
 

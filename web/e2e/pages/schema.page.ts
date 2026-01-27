@@ -33,10 +33,10 @@ export class SchemaPage extends BasePage {
     return this.getByRole("dialog", { name: "Import Schema" });
   }
   get importSchemaOuterButton(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ImportSchemaOuterButton);
+    return this.getByTestId(DATA_TEST_ID.ModelFieldList__ImportSchemaButton);
   }
   get importSchemaModalImportButton(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ImportSchemaModalImportButton);
+    return this.getByTestId(DATA_TEST_ID.ImportSchemaModal__ImportButton);
   }
   modelMenuItem(name: string): Locator {
     return this.getByRole("menuitem", { name });

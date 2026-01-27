@@ -339,7 +339,7 @@ const ContentImportModal: React.FC<Props> = ({
       showUploadList: false,
       listType: "picture",
       beforeUpload: handleBeforeUpload,
-      "data-testid": DATA_TEST_ID.ImportContentModalFileSelect,
+      "data-testid": DATA_TEST_ID.ContentImportModal__FileSelect,
     }),
     [handleBeforeUpload],
   );
@@ -366,7 +366,7 @@ const ContentImportModal: React.FC<Props> = ({
       {!validateImportResult ? (
         <>
           {dataChecking ? (
-            <LoadingWrapper data-testid={DATA_TEST_ID.ImportContentModalLoadingWrapper}>
+            <LoadingWrapper data-testid={DATA_TEST_ID.ContentImportModal__LoadingWrapper}>
               <Loading spinnerSize="large" />
               <p>{t("Checking the data file...")}</p>
             </LoadingWrapper>
@@ -416,19 +416,19 @@ const ContentImportModal: React.FC<Props> = ({
         </>
       ) : (
         <StyledFlex
-          data-testid={DATA_TEST_ID.ImportContentModalErrorWrapper}
+          data-testid={DATA_TEST_ID.ContentImportModal__ErrorWrapper}
           vertical
           justify="center"
           align="center">
           <Icon
-            data-testid={DATA_TEST_ID.ImportContentModalErrorIcon}
+            data-testid={DATA_TEST_ID.ContentImportModal__ErrorIcon}
             icon="warningSolid"
             color={importErrorIcon}
           />
-          <Typography.Title data-testid={DATA_TEST_ID.ImportContentModalErrorTitle} level={4}>
+          <Typography.Title data-testid={DATA_TEST_ID.ContentImportModal__ErrorTitle} level={4}>
             {validateImportResult.title}
           </Typography.Title>
-          <Typography.Paragraph data-testid={DATA_TEST_ID.ImportContentModalErrorDescription}>
+          <Typography.Paragraph data-testid={DATA_TEST_ID.ContentImportModal__ErrorDescription}>
             {validateImportResult.description}
           </Typography.Paragraph>
           <Space>
@@ -447,7 +447,7 @@ const ContentImportModal: React.FC<Props> = ({
           {validateImportResult.hint && (
             <Typography.Paragraph
               type="secondary"
-              data-testid={DATA_TEST_ID.ImportContentModalErrorHint}>
+              data-testid={DATA_TEST_ID.ContentImportModal__ErrorHint}>
               {validateImportResult.hint}
             </Typography.Paragraph>
           )}

@@ -72,7 +72,7 @@ export class WorkspacePage extends BasePage {
   }
 
   get projectSelectSort(): Locator {
-    return this.getByTestId(DATA_TEST_ID.WorkspaceHeaderProjectSortSelect);
+    return this.getByTestId(DATA_TEST_ID.WorkspaceHeader__ProjectSortSelect);
   }
 
   get projectSelectDefaultSort(): Locator {

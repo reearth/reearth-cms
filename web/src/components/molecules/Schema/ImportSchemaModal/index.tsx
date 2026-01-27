@@ -207,7 +207,7 @@ const ImportSchemaModal: React.FC<Props> = ({
                 }>
                 <Button
                   type="primary"
-                  data-testid={DATA_TEST_ID.ImportSchemaModalImportButton}
+                  data-testid={DATA_TEST_ID.ImportSchemaModal__ImportButton}
                   disabled={!hasImportFields}
                   onClick={() => {
                     return toImportingStep(

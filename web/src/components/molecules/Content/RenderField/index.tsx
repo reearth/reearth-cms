@@ -84,7 +84,7 @@ export const renderField = (
         title={field.title}
         trigger="click"
         placement="bottom">
-        <StyledButton data-testid={DATA_TEST_ID.ContentListItemFieldPopoverIcon}>
+        <StyledButton data-testid={DATA_TEST_ID.Content__List__ItemFieldPopoverIcon}>
           <Icon icon={fieldTypes[field.type].icon} size={16} />
           {items.length > 1 && <span>x{items.length}</span>}
         </StyledButton>

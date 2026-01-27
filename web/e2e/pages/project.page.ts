@@ -48,13 +48,13 @@ export class ProjectPage extends BasePage {
     return this.getByText("Models").first();
   }
   get modelUtilDropdown(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCardUtilDropdownIcon);
+    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownIcon);
   }
   get modelExportLink(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCardUtilDropdownExport);
+    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownExport);
   }
   get modelImportLink(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCardUtilDropdownImport);
+    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownImport);
   }
   get modelListLink(): Locator {
     return this.getByRole("list").locator("a").nth(0);
@@ -66,22 +66,22 @@ export class ProjectPage extends BasePage {
     return this.getByText("Delete");
   }
   get exportAsJSONText(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCardUtilDropdownExportContentJSON);
+    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownExportContentJSON);
   }
   get exportAsCSVText(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCardUtilDropdownExportContentCSV);
+    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownExportContentCSV);
   }
   get exportAsGeoJSONText(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCardUtilDropdownExportContentGeoJSON);
+    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownExportContentGeoJSON);
   }
   get exportSchemaText(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCardUtilDropdownExportSchema);
+    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownExportSchema);
   }
   get importSchemaText(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCardUtilDropdownImportSchema);
+    return this.getByTestId(DATA_TEST_ID.ModelCard_UtilDropdownImportSchema);
   }
   get importContentText(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCardUtilDropdownImportContent);
+    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownImportContent);
   }
   get deleteModelButton(): Locator {
     return this.getByRole("button", { name: "Delete Model" });
@@ -145,10 +145,10 @@ export class ProjectPage extends BasePage {
 
   // Project Settings page locators
   get deleteProjectButton(): Locator {
-    return this.getByTestId(DATA_TEST_ID.DeleteProjectButton);
+    return this.getByTestId(DATA_TEST_ID.ProjectSettings__DangerZone__DeleteProjectButton);
   }
   get confirmDeleteProjectButton(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ConfirmDeleteProjectButton);
+    return this.getByTestId(DATA_TEST_ID.ProjectSettings__DangerZone__ConfirmDeleteProjectButton);
   }
   get settingsMenuItem(): Locator {
     return this.getByText("Settings").first();

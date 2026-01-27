@@ -151,7 +151,7 @@ const ModelCard: React.FC<Props> = ({
         ),
         disabled: hasModelFields,
         onClick: () => onImportSchemaNavigate(model.id),
-        "data-testid": DATA_TEST_ID.ModelCardUtilDropdownImportSchema,
+        "data-testid": DATA_TEST_ID.ModelCard_UtilDropdownImportSchema,
       },
       {
         key: "content",
@@ -162,7 +162,7 @@ const ModelCard: React.FC<Props> = ({
         ),
         disabled: !hasModelFields,
         onClick: () => onImportContentNavigate(model.id),
-        "data-testid": DATA_TEST_ID.ModelCardUtilDropdownImportContent,
+        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownImportContent,
       },
     ],
     [hasModelFields, model.id, onImportContentNavigate, onImportSchemaNavigate, t],
@@ -175,28 +175,28 @@ const ModelCard: React.FC<Props> = ({
         label: t("Export Schema"),
         onClick: () => handleModelExportClick(ExportFormat.Schema),
         disabled: exportLoading,
-        "data-testid": DATA_TEST_ID.ModelCardUtilDropdownExportSchema,
+        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportSchema,
       },
       {
         key: "json",
         label: t("Export as JSON"),
         onClick: () => handleModelExportClick(ExportFormat.Json),
         disabled: exportLoading,
-        "data-testid": DATA_TEST_ID.ModelCardUtilDropdownExportContentJSON,
+        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportContentJSON,
       },
       {
         key: "csv",
         label: t("Export as CSV"),
         onClick: () => handleModelExportClick(ExportFormat.Csv),
         disabled: exportLoading,
-        "data-testid": DATA_TEST_ID.ModelCardUtilDropdownExportContentCSV,
+        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportContentCSV,
       },
       {
         key: "geojson",
         label: t("Export as GeoJSON"),
         onClick: () => handleModelExportClick(ExportFormat.Geojson),
         disabled: exportLoading,
-        "data-testid": DATA_TEST_ID.ModelCardUtilDropdownExportContentGeoJSON,
+        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportContentGeoJSON,
       },
     ],
     [t, handleModelExportClick, exportLoading],
@@ -209,19 +209,19 @@ const ModelCard: React.FC<Props> = ({
         label: t("Edit"),
         onClick: () => onModelUpdateModalOpen(model),
         disabled: !hasUpdateRight,
-        "data-testid": DATA_TEST_ID.ModelCardUtilDropdownEdit,
+        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownEdit,
       },
       {
         key: "import",
         label: t("Import"),
         children: ImportMenuItems,
-        "data-testid": DATA_TEST_ID.ModelCardUtilDropdownImport,
+        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownImport,
       },
       {
         key: "export",
         label: t("Export"),
         children: ExportMenuItems,
-        "data-testid": DATA_TEST_ID.ModelCardUtilDropdownExport,
+        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExport,
       },
       {
         key: "delete",
@@ -229,7 +229,7 @@ const ModelCard: React.FC<Props> = ({
         onClick: () => onModelDeletionModalOpen(model),
         danger: true,
         disabled: !hasDeleteRight,
-        "data-testid": DATA_TEST_ID.ModelCardUtilDropdownDelete,
+        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownDelete,
       },
     ],
     [
@@ -250,7 +250,9 @@ const ModelCard: React.FC<Props> = ({
         <Icon icon="unorderedList" key="schema" onClick={() => onSchemaNavigate(model.id)} />,
         <Icon icon="table" key="content" onClick={() => onContentNavigate(model.id)} />,
         <Dropdown key="options" menu={{ items: OptionsMenuItems }} trigger={["click"]}>
-          <a data-testid={DATA_TEST_ID.ModelCardUtilDropdownIcon} onClick={e => e.preventDefault()}>
+          <a
+            data-testid={DATA_TEST_ID.ModelCard__UtilDropdownIcon}
+            onClick={e => e.preventDefault()}>
             <Icon icon="ellipsis" />
           </a>
         </Dropdown>,

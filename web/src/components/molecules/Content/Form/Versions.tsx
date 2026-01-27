@@ -25,7 +25,10 @@ const Versions: React.FC<Props> = ({ versions, versionClick, onNavigateToRequest
         <HistoryCard key={version.version}>
           <HistoryTitle onClick={() => versionClick(version)}>
             <Tooltip title={t(version.status)}>
-              <Badge color={stateColors[version.status]} data-testid={DATA_TEST_ID.RequestStatus} />
+              <Badge
+                color={stateColors[version.status]}
+                data-testid={DATA_TEST_ID.Versions__RequestStatus}
+              />
             </Tooltip>
             {dateTimeFormat(version.timestamp, "YYYY/MM/DD, HH:mm")}
             {index === 0 && (
