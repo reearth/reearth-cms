@@ -113,7 +113,6 @@ export default () => {
   const currentWorkspaceId = useMemo(() => currentWorkspace?.id, [currentWorkspace?.id]);
   const currentProjectId = useMemo(() => currentProject?.id, [currentProject?.id]);
 
-  // TODO: move states below into machine
   const [isImportContentModalOpen, setIsImportContentModalOpen] = useState(
     location.state?.isImportModalOpen || false,
   );
@@ -122,7 +121,6 @@ export default () => {
   const [validateImportResult, setValidateImportResult] = useState<ValidateImportResult | null>(
     null,
   );
-  // TODO: move states above into machine
   const [_uploader, _setUploader] = useUploader();
 
   const [userId] = useUserId();
