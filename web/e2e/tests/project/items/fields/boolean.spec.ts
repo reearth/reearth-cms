@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -17,7 +18,7 @@ test("@smoke Boolean field creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
 }) => {
-  await fieldEditorPage.fieldTypeButton("Boolean").click();
+  await fieldEditorPage.fieldTypeButton(SchemaFieldType.Bool).click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("boolean1");
   await fieldEditorPage.settingsKeyInput.click();

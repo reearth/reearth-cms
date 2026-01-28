@@ -7,6 +7,8 @@ import {
   GeoJSONGeometryCollection,
 } from "zod-geojson";
 
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
+
 // NOTE: THIS CLASS IS FOR TEST USE ONLY
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 export abstract class Test {
@@ -109,6 +111,43 @@ export abstract class Test {
       },
     ],
   };
+
+  public static getDataTestIdFromSchemaFieldType(fieldType: SchemaFieldType) {
+    switch (fieldType) {
+      case SchemaFieldType.Text:
+        return DATA_TEST_ID.FieldList__Text;
+      case SchemaFieldType.TextArea:
+        return DATA_TEST_ID.FieldList__TextArea;
+      case SchemaFieldType.MarkdownText:
+        return DATA_TEST_ID.FieldList__MarkdownText;
+      case SchemaFieldType.Asset:
+        return DATA_TEST_ID.FieldList__Asset;
+      case SchemaFieldType.Date:
+        return DATA_TEST_ID.FieldList__Date;
+      case SchemaFieldType.Bool:
+        return DATA_TEST_ID.FieldList__Bool;
+      case SchemaFieldType.Select:
+        return DATA_TEST_ID.FieldList__Select;
+      case SchemaFieldType.Tag:
+        return DATA_TEST_ID.FieldList__Tag;
+      case SchemaFieldType.Integer:
+        return DATA_TEST_ID.FieldList__Integer;
+      case SchemaFieldType.Number:
+        return DATA_TEST_ID.FieldList__Number;
+      case SchemaFieldType.Reference:
+        return DATA_TEST_ID.FieldList__Reference;
+      case SchemaFieldType.Checkbox:
+        return DATA_TEST_ID.FieldList__Checkbox;
+      case SchemaFieldType.URL:
+        return DATA_TEST_ID.FieldList__URL;
+      case SchemaFieldType.Group:
+        return DATA_TEST_ID.FieldList__Group;
+      case SchemaFieldType.GeometryObject:
+        return DATA_TEST_ID.FieldList__GeometryObject;
+      case SchemaFieldType.GeometryEditor:
+        return DATA_TEST_ID.FieldList__GeometryEditor;
+    }
+  }
 }
 
 // NOTE: use enum instead of object, easier for checking duplicate keys & values at the same time
@@ -186,6 +225,24 @@ export enum DATA_TEST_ID {
 
   // ModelFieldList
   ModelFieldList__ConfirmDeleteFieldButton = "ModelFieldList__ConfirmDeleteFieldButton",
+
+  // FieldList
+  FieldList__Text = "FieldList__Text",
+  FieldList__TextArea = "FieldList__TextArea",
+  FieldList__MarkdownText = "FieldLIst__MarkdownText",
+  FieldList__Asset = "FieldList__Asset",
+  FieldList__Date = "FieldList__Date",
+  FieldList__Bool = "FieldList__Bool",
+  FieldList__Select = "FieldList__Select",
+  FieldList__Tag = "FieldList__Tag",
+  FieldList__Integer = "FieldList__Integer",
+  FieldList__Number = "FieldList__Number",
+  FieldList__Reference = "FieldList__Reference",
+  FieldList__Checkbox = "FieldList__Checkbox",
+  FieldList__URL = "FieldList__URL",
+  FieldList__Group = "FieldList__Group",
+  FieldList__GeometryObject = "FieldList__GeometryObject",
+  FieldList__GeometryEditor = "FieldList__GeometryEditor",
 
   // Content list page
   Content__List__ImportContentButton = "Content__List__ImportContentButton",

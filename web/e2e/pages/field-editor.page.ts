@@ -1,6 +1,7 @@
 // e2e/pages/field-editor.page.ts
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID, Test } from "@reearth-cms/utils/test";
 
 import { BasePage } from "./base.page";
 
@@ -17,9 +18,14 @@ export class FieldEditorPage extends BasePage {
   }
 
   // Tabs
+  get settingsTab(): Locator {
+    return this.getByRole("tab", { name: "Settings" });
+  }
+
   get defaultValueTab(): Locator {
     return this.getByRole("tab", { name: "Default value" });
   }
+
   get validationTab(): Locator {
     return this.getByRole("tab", { name: "Validation" });
   }
@@ -116,10 +122,6 @@ export class FieldEditorPage extends BasePage {
 
   get deleteButton(): Locator {
     return this.getByRole("button", { name: "delete" });
-  }
-
-  get settingsTab(): Locator {
-    return this.getByRole("tab", { name: "Settings" });
   }
 
   get setOptionsLabel(): Locator {
@@ -223,8 +225,8 @@ export class FieldEditorPage extends BasePage {
   }
 
   // Field type selection
-  fieldTypeButton(type: string): Locator {
-    return this.locator("li").filter({ hasText: type }).locator("div").first();
+  fieldTypeButton(fileType: SchemaFieldType): Locator {
+    return this.getByTestId(Test.getDataTestIdFromSchemaFieldType(fileType));
   }
 
   // Boolean field specific
@@ -468,29 +470,28 @@ export class FieldEditorPage extends BasePage {
   }
 
   async createField(
-    fieldType: string,
+    fieldType: SchemaFieldType,
     displayName: string,
     key?: string,
     description?: string,
+    required?: boolean,
+    unique?: boolean,
   ): Promise<void> {
     await this.fieldTypeButton(fieldType).click();
     await this.displayNameInput.fill(displayName);
     await this.settingsKeyInput.fill(key || displayName);
-    if (description) {
-      await this.settingsDescriptionInput.fill(description);
+
+    if (description) await this.settingsDescriptionInput.fill(description);
+
+    if (required || unique) {
+      await this.validationTab.click();
+
+      if (required) await this.requiredFieldCheckbox.check();
+      if (unique) await this.uniqueFieldCheckbox.check();
     }
+
     await this.okButton.click();
     await this.closeNotification();
-  }
-
-  async setFieldValidation(required = false, unique = false): Promise<void> {
-    await this.validationTab.click();
-    if (required) {
-      await this.requiredFieldCheckbox.check();
-    }
-    if (unique) {
-      await this.uniqueFieldCheckbox.check();
-    }
   }
 
   async deleteField(): Promise<void> {

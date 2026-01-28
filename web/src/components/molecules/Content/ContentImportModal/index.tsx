@@ -143,7 +143,10 @@ const ContentImportModal: React.FC<Props> = ({
         }
       } else {
         // case: below limit, some mismatch (exceedLimit = false, mismatchFields.size > 0)
-        if (errorMeta.typeMismatchFieldKeys.size > 0) {
+        if (
+          errorMeta.typeMismatchFieldKeys.size > 0 &&
+          errorMeta.typeMismatchFieldKeys.size !== modelFields.length
+        ) {
           setValidateImportResult({
             type: "warning",
             title: t("Some fields don't match the schema"),
@@ -170,7 +173,7 @@ const ContentImportModal: React.FC<Props> = ({
         }
       }
     },
-    [setAlertList, setValidateImportResult, t],
+    [modelFields.length, setAlertList, setValidateImportResult, t],
   );
 
   const handleStartLoading = useCallback(() => onSetDataChecking(true), [onSetDataChecking]);
