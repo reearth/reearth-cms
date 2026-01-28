@@ -2,6 +2,8 @@ package e2e
 
 import (
 	"encoding/json"
+	"errors"
+	"net"
 	"net/http"
 	"strings"
 	"sync"
@@ -627,6 +629,9 @@ func TestGQLJobProgressSubscription(t *testing.T) {
 	defer func(conn *websocket.Conn) {
 		err := conn.Close()
 		if err != nil {
+			if errors.Is(err, net.ErrClosed) {
+				return
+			}
 			t.Fatalf("failed to close websocket: %v", err)
 		}
 	}(conn)
@@ -712,6 +717,9 @@ func TestGQLJobProgressSubscription(t *testing.T) {
 		// Timeout - close connection
 		err := conn.Close()
 		if err != nil {
+			if errors.Is(err, net.ErrClosed) {
+				return
+			}
 			t.Fatalf("failed to close websocket connection on timeout: %v", err)
 		}
 	}

@@ -90,6 +90,11 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 		return res.Into(), err
 	}
 
+	// Handle CSV format separately
+	if param.Format == interfaces.ImportFormatTypeCSV {
+		return i.importCSV(ctx, prj, m, s, param, &res, operator)
+	}
+
 	// guess schema fields from first object
 	if param.MutateSchema {
 		rr := utils.NewReplyReader(param.Reader)
@@ -361,6 +366,11 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 	m, err := i.repos.Model.FindByID(ctx, param.ModelID)
 	if err != nil {
 		return res.Into(), err
+	}
+
+	// Handle CSV format separately
+	if param.Format == interfaces.ImportFormatTypeCSV {
+		return i.importCSVWithProgress(ctx, j, prj, m, s, param, &res, operator)
 	}
 
 	// guess schema fields from first object
