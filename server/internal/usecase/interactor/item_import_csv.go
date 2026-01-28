@@ -124,7 +124,10 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 	processed := 0
 	for start := 0; start < totalCount; start += chunkSize {
 		// Check if job was cancelled
-		currentJob, _ := i.repos.Job.FindByID(ctx, j.ID())
+		currentJob, err := i.repos.Job.FindByID(ctx, j.ID())
+		if err != nil {
+			log.Warnf("item: import job %s failed to check cancellation status: %v", j.ID(), err)
+		}
 		if currentJob != nil && currentJob.IsCancelled() {
 			return res.Into(), fmt.Errorf("job cancelled")
 		}
@@ -159,7 +162,9 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 		// Publish progress
 		progress := job.NewProgress(processed, totalCount)
 		if i.gateways.JobPubSub != nil {
-			_ = i.gateways.JobPubSub.Publish(ctx, j.ID(), progress)
+			if err := i.gateways.JobPubSub.Publish(ctx, j.ID(), progress); err != nil {
+				log.Warnf("item: import job %s failed to publish progress: %v", j.ID(), err)
+			}
 		}
 
 		// Update job progress
