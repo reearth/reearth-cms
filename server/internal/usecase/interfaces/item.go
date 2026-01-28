@@ -63,6 +63,7 @@ type ImportFormatType string
 const (
 	ImportFormatTypeGeoJSON ImportFormatType = "geoJson"
 	ImportFormatTypeJSON    ImportFormatType = "json"
+	ImportFormatTypeCSV     ImportFormatType = "csv"
 )
 
 func ImportFormatTypeFromString(s string) ImportFormatType {
@@ -71,6 +72,8 @@ func ImportFormatTypeFromString(s string) ImportFormatType {
 		return ImportFormatTypeGeoJSON
 	case "json":
 		return ImportFormatTypeJSON
+	case "csv":
+		return ImportFormatTypeCSV
 	default:
 		return ""
 	}
