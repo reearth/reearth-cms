@@ -38,29 +38,28 @@ const QueueItem: React.FC<Props> = ({ queue, onRetry, onCancel, onJobProgressUpd
       case JobStatus.InProgress:
         return (
           <Tooltip title={t("Cancel upload")}>
-            <span>
-              <ActionIcon
-                icon="closeCircle"
-                color="#8C8C8C"
-                onClick={() => void onCancel(queue.jobId)}
-              />
+            <span
+              data-testid={DATA_TEST_ID.QueueItem__CancelIcon}
+              onClick={() => void onCancel(queue.jobId)}>
+              <ActionIcon icon="closeCircle" color="#8C8C8C" />
             </span>
           </Tooltip>
         );
       case JobStatus.Completed:
-        return <InfoIcon icon="checkCircle" color="#52C41A" />;
+        return (
+          <span data-testid={DATA_TEST_ID.Uploader__CompleteIcon}>
+            <InfoIcon icon="checkCircle" color="#52C41A" />
+          </span>
+        );
       case JobStatus.Failed:
         return (
           <>
             <Tooltip title={t("Retry")}>
-              <div>
-                <ActionIcon
-                  data-testid={DATA_TEST_ID.QueueItem__RetryIcon}
-                  icon="retry"
-                  color="#8C8C8C"
-                  onClick={() => void onRetry(queue.jobId)}
-                />
-              </div>
+              <span
+                data-testid={DATA_TEST_ID.QueueItem__RetryIcon}
+                onClick={() => void onRetry(queue.jobId)}>
+                <ActionIcon icon="retry" color="#8C8C8C" />
+              </span>
             </Tooltip>
             <InfoIcon icon="exclamationSolid" color="#F5222D" />
           </>
@@ -68,13 +67,10 @@ const QueueItem: React.FC<Props> = ({ queue, onRetry, onCancel, onJobProgressUpd
       case JobStatus.Cancelled:
         return (
           <Tooltip title={t("Cancel upload")}>
-            <span>
-              <ActionIcon
-                data-testid={DATA_TEST_ID.QueueItem__RetryIcon}
-                icon="retry"
-                color="#8C8C8C"
-                onClick={() => void onRetry(queue.jobId)}
-              />
+            <span
+              data-testid={DATA_TEST_ID.QueueItem__RetryIcon}
+              onClick={() => void onRetry(queue.jobId)}>
+              <ActionIcon icon="retry" color="#8C8C8C" />
             </span>
           </Tooltip>
         );

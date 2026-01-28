@@ -204,9 +204,12 @@ export enum DATA_TEST_ID {
   Uploader__CardBody = "Uploader__CardBody",
   Uploader__CardTitle = "Uploader__CardTitle",
   Uploader__CardTitleSuffix = "Uploader__CardTitleSuffix",
+  Uploader__CancelAllIcon = "Uploader__CancelAllIcon",
+  Uploader__CompleteIcon = "Uploader__CompleteIcon",
 
   // QueueItem
   QueueItem__RetryIcon = "QueueItem__RetryIcon",
+  QueueItem__CancelIcon = "QueueItem__CancelIcon",
   QueueItem__Wrapper = "QueueItem__Wrapper",
 
   // WorkspaceHeader

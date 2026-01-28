@@ -204,8 +204,10 @@ const Uploader: React.FC<Props> = props => {
               </span>
             </Tooltip>
             <Tooltip title={t("Close")}>
-              <span>
-                <CancelAllIcon icon="close" onClick={() => void _handleCancelAll()} />
+              <span
+                data-testid={DATA_TEST_ID.Uploader__CancelAllIcon}
+                onClick={() => void _handleCancelAll()}>
+                <CancelAllIcon icon="close" />
               </span>
             </Tooltip>
           </TitleSuffix>

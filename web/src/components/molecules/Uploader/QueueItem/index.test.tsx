@@ -6,6 +6,7 @@ import { describe, expect, test, vi } from "vitest";
 
 import { createMockRcFile } from "@reearth-cms/e2e/helpers/mock.helper";
 import { JobStatus, JobType } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import { type UploaderQueueItem } from "../types";
 
@@ -104,8 +105,8 @@ describe("QueueItem component test", () => {
 
     expect(screen.getByRole("progressbar")).toHaveAttribute("data-percent", "42");
 
-    const cancelButton = screen.getByRole("button", { name: "closeCircle" });
-    await user.click(cancelButton);
+    const cancelIcon = screen.getByTestId(DATA_TEST_ID.QueueItem__CancelIcon);
+    await user.click(cancelIcon);
 
     expect(onCancel).toHaveBeenCalledWith(baseQueue.jobId);
   });
@@ -116,8 +117,8 @@ describe("QueueItem component test", () => {
       jobStatus: JobStatus.Failed,
     });
 
-    const retryButton = screen.getByRole("button", { name: "retry" });
-    await user.click(retryButton);
+    const retryIcon = screen.getByTestId(DATA_TEST_ID.QueueItem__RetryIcon);
+    await user.click(retryIcon);
 
     expect(onRetry).toHaveBeenCalledWith(baseQueue.jobId);
   });
@@ -128,8 +129,8 @@ describe("QueueItem component test", () => {
       jobStatus: JobStatus.Cancelled,
     });
 
-    const retryButton = screen.getByRole("button", { name: "retry" });
-    await user.click(retryButton);
+    const retryIcon = screen.getByTestId(DATA_TEST_ID.QueueItem__RetryIcon);
+    await user.click(retryIcon);
 
     expect(onRetry).toHaveBeenCalledWith(baseQueue.jobId);
   });
