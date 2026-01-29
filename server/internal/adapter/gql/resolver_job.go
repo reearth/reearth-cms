@@ -61,20 +61,20 @@ func (r *queryResolver) Jobs(ctx context.Context, projectID gqlmodel.ID, typeArg
 	}), nil
 }
 
-// JobProgress is the resolver for the jobProgress field.
-func (r *subscriptionResolver) JobProgress(ctx context.Context, jobID gqlmodel.ID) (<-chan *gqlmodel.JobProgress, error) {
+// JobState is the resolver for the jobState field.
+func (r *subscriptionResolver) JobState(ctx context.Context, jobID gqlmodel.ID) (<-chan *gqlmodel.JobState, error) {
 	jid, err := gqlmodel.ToID[id.Job](jobID)
 	if err != nil {
 		return nil, err
 	}
 
-	progressCh, err := usecases(ctx).Job.Subscribe(ctx, jid, getOperator(ctx))
+	stateCh, err := usecases(ctx).Job.Subscribe(ctx, jid, getOperator(ctx))
 	if err != nil {
 		return nil, err
 	}
 
-	// Create output channel that converts job.Progress to gqlmodel.JobProgress
-	out := make(chan *gqlmodel.JobProgress, 10)
+	// Create output channel that converts job.State to gqlmodel.JobState
+	out := make(chan *gqlmodel.JobState, 10)
 
 	go func() {
 		defer close(out)
@@ -82,11 +82,11 @@ func (r *subscriptionResolver) JobProgress(ctx context.Context, jobID gqlmodel.I
 			select {
 			case <-ctx.Done():
 				return
-			case progress, ok := <-progressCh:
+			case state, ok := <-stateCh:
 				if !ok {
 					return
 				}
-				out <- gqlmodel.ToJobProgress(progress)
+				out <- gqlmodel.ToJobState(state)
 			}
 		}
 	}()
