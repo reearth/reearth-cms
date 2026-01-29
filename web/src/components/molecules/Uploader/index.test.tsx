@@ -4,13 +4,14 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { createMockRcFile } from "@reearth-cms/e2e/helpers/mock.helper";
 import { JobStatus, JobType } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { t } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import { UploaderHookState, UploaderHookStateContext } from "./provider";
 import { UploaderQueueItem, UploaderState } from "./types";
 
 import Uploader from "./index";
-import { t } from "@reearth-cms/i18n";
+
 
 const createQueueItem = (overrides?: Partial<UploaderQueueItem>): UploaderQueueItem => ({
   fileName: "sample.csv",
