@@ -10,6 +10,7 @@ import { UploaderHookState, UploaderHookStateContext } from "./provider";
 import { UploaderQueueItem, UploaderState } from "./types";
 
 import Uploader from "./index";
+import { t } from "@reearth-cms/i18n";
 
 const createQueueItem = (overrides?: Partial<UploaderQueueItem>): UploaderQueueItem => ({
   fileName: "sample.csv",
@@ -84,11 +85,11 @@ describe("Test Uploader component", () => {
       uploadingFileCount: 1,
     });
 
-    expect(screen.getByText("Uploading file...")).toBeInTheDocument();
+    expect(screen.getByText(t("Uploading file..."))).toBeInTheDocument();
     expect(screen.getByText("sample.csv")).toBeInTheDocument();
   });
 
-  test("Opens uploader when upload icon is clicked", () => {
+  test("Opens uploader after clicking upload icon", () => {
     renderWithUploaderProvider({
       uploaderState: createMockUploaderState({ isOpen: false }),
     });
@@ -108,8 +109,8 @@ describe("Test Uploader component", () => {
     fireEvent.pointerUp(test as Element, pointerEventProps);
   });
 
-  describe("Test cancel queue", () => {
-    test("Calls handleUploadCancel when cancel icon is clicked on in-progress item", () => {
+  describe("Test item actions behavior", () => {
+    test("Cancel in-progress item", () => {
       const handleUploadCancel = vi.fn().mockResolvedValue(undefined);
       const queueItem = createQueueItem({
         jobId: "job-123",
@@ -130,7 +131,7 @@ describe("Test Uploader component", () => {
       expect(handleUploadCancel).toHaveBeenCalledWith("job-123");
     });
 
-    test("Calls handleCancelAll directly when close icon is clicked and no uploads in progress", () => {
+    test("Cancel all items when no items are in-progress", () => {
       const handleCancelAll = vi.fn().mockResolvedValue(undefined);
       const handleUploaderOpen = vi.fn();
       const completedItem = createQueueItem({
@@ -155,7 +156,7 @@ describe("Test Uploader component", () => {
       expect(handleCancelAll).toHaveBeenCalled();
     });
 
-    test("Shows confirmation modal when close icon is clicked with uploads in progress", async () => {
+    test("Shows confirmation modal after clicking close icon when some items still in-progress", async () => {
       const handleCancelAll = vi.fn().mockResolvedValue(undefined);
       const handleUploaderOpen = vi.fn();
       const inProgressItem = createQueueItem({
@@ -176,17 +177,17 @@ describe("Test Uploader component", () => {
       const closeIcon = screen.getByTestId(DATA_TEST_ID.Uploader__CancelAllIcon);
       fireEvent.click(closeIcon);
 
-      expect(await screen.findByText("Cancel upload?")).toBeInTheDocument();
+      expect(await screen.findByText(t("Cancel upload?"))).toBeInTheDocument();
       expect(
         screen.getByText(
-          "Your file hasn't finished uploading yet. Are you sure you want to cancel upload?",
+          t("Your file hasn't finished uploading yet. Are you sure you want to cancel upload?"),
         ),
       ).toBeInTheDocument();
 
       expect(handleCancelAll).not.toHaveBeenCalled();
     });
 
-    test("Cancels all uploads when confirmation modal OK button is clicked", async () => {
+    test('Cancels all items after clicking "OK" button in confirmation modal', async () => {
       const handleCancelAll = vi.fn().mockResolvedValue(undefined);
       const handleUploaderOpen = vi.fn();
       const inProgressItem = createQueueItem({
@@ -207,14 +208,14 @@ describe("Test Uploader component", () => {
       const closeIcon = screen.getByTestId(DATA_TEST_ID.Uploader__CancelAllIcon);
       fireEvent.click(closeIcon);
 
-      const cancelUploadButton = await screen.findByRole("button", { name: "Cancel upload" });
+      const cancelUploadButton = await screen.findByRole("button", { name: t("Cancel upload") });
       fireEvent.click(cancelUploadButton);
 
       expect(handleUploaderOpen).toHaveBeenCalledWith(false);
       expect(handleCancelAll).toHaveBeenCalled();
     });
 
-    test("Keeps uploading when confirmation modal keep uploading button is clicked", async () => {
+    test('Keeps uploading when clicking "keep uploading" button in confirmation modal', async () => {
       const handleCancelAll = vi.fn().mockResolvedValue(undefined);
       const handleUploaderOpen = vi.fn();
       const inProgressItem = createQueueItem({
@@ -235,7 +236,7 @@ describe("Test Uploader component", () => {
       const closeIcon = screen.getByTestId(DATA_TEST_ID.Uploader__CancelAllIcon);
       fireEvent.click(closeIcon);
 
-      const keepUploadingButton = await screen.findByRole("button", { name: "Keep uploading" });
+      const keepUploadingButton = await screen.findByRole("button", { name: t("Keep uploading") });
       fireEvent.click(keepUploadingButton);
 
       expect(handleUploaderOpen).not.toHaveBeenCalled();
@@ -292,11 +293,11 @@ describe("Test Uploader component", () => {
       const retryIcon = screen.getByTestId(DATA_TEST_ID.QueueItem__RetryIcon);
       expect(retryIcon).toBeInTheDocument();
 
-      const errorIcon = screen.getByRole("img", { name: "exclamation-circle" });
+      const errorIcon = screen.getByTestId(DATA_TEST_ID.QueueItem__ErrorIcon);
       expect(errorIcon).toBeInTheDocument();
     });
 
-    test("Calls handleUploadRetry when retry icon is clicked on failed item", () => {
+    test("Calls handleUploadRetry after clicking retry icon on failed item", () => {
       const handleUploadRetry = vi.fn().mockResolvedValue(undefined);
       const failedItem = createQueueItem({
         jobId: "job-failed-2",
@@ -316,6 +317,115 @@ describe("Test Uploader component", () => {
       fireEvent.click(retryIcon);
 
       expect(handleUploadRetry).toHaveBeenCalledWith("job-failed-2");
+    });
+  });
+
+  describe("Test progress bar behavior", () => {
+    test("Shows progress bar when job is in progress", () => {
+      const inProgressItem = createQueueItem({
+        jobId: "job-progress-1",
+        jobStatus: JobStatus.InProgress,
+        jobProgress: { percentage: 50, processed: 50, total: 100 },
+      });
+
+      renderWithUploaderProvider({
+        uploaderState: createMockUploaderState({
+          isOpen: true,
+          queue: [inProgressItem],
+        }),
+      });
+
+      const progressBar = screen.getByTestId(DATA_TEST_ID.QueueItem__ProgressBar);
+      expect(progressBar).toBeInTheDocument();
+    });
+
+    test("Progress bar shows correct percentage", () => {
+      const inProgressItem = createQueueItem({
+        jobId: "job-progress-2",
+        jobStatus: JobStatus.InProgress,
+        jobProgress: { percentage: 75, processed: 75, total: 100 },
+      });
+
+      renderWithUploaderProvider({
+        uploaderState: createMockUploaderState({
+          isOpen: true,
+          queue: [inProgressItem],
+        }),
+      });
+
+      const progressBar = screen.getByTestId(DATA_TEST_ID.QueueItem__ProgressBar);
+      expect(progressBar).toBeInTheDocument();
+      expect(progressBar).toHaveAttribute("aria-valuenow", "75");
+    });
+
+    test("Progress bar shows 0 percent when jobProgress is undefined", () => {
+      const inProgressItem = createQueueItem({
+        jobId: "job-progress-3",
+        jobStatus: JobStatus.InProgress,
+        jobProgress: undefined,
+      });
+
+      renderWithUploaderProvider({
+        uploaderState: createMockUploaderState({
+          isOpen: true,
+          queue: [inProgressItem],
+        }),
+      });
+
+      const progressBar = screen.getByTestId(DATA_TEST_ID.QueueItem__ProgressBar);
+      expect(progressBar).toBeInTheDocument();
+      expect(progressBar).toHaveAttribute("aria-valuenow", "0");
+    });
+
+    test("Does not show progress bar when job is completed", () => {
+      const completedItem = createQueueItem({
+        jobId: "job-completed-progress",
+        jobStatus: JobStatus.Completed,
+      });
+
+      renderWithUploaderProvider({
+        uploaderState: createMockUploaderState({
+          isOpen: true,
+          queue: [completedItem],
+        }),
+      });
+
+      const progressBar = screen.queryByTestId(DATA_TEST_ID.QueueItem__ProgressBar);
+      expect(progressBar).not.toBeInTheDocument();
+    });
+
+    test("Does not show progress bar when job is failed", () => {
+      const failedItem = createQueueItem({
+        jobId: "job-failed-progress",
+        jobStatus: JobStatus.Failed,
+      });
+
+      renderWithUploaderProvider({
+        uploaderState: createMockUploaderState({
+          isOpen: true,
+          queue: [failedItem],
+        }),
+      });
+
+      const progressBar = screen.queryByTestId(DATA_TEST_ID.QueueItem__ProgressBar);
+      expect(progressBar).not.toBeInTheDocument();
+    });
+
+    test("Does not show progress bar when job is cancelled", () => {
+      const cancelledItem = createQueueItem({
+        jobId: "job-cancelled-progress",
+        jobStatus: JobStatus.Cancelled,
+      });
+
+      renderWithUploaderProvider({
+        uploaderState: createMockUploaderState({
+          isOpen: true,
+          queue: [cancelledItem],
+        }),
+      });
+
+      const progressBar = screen.queryByTestId(DATA_TEST_ID.QueueItem__ProgressBar);
+      expect(progressBar).not.toBeInTheDocument();
     });
   });
 });

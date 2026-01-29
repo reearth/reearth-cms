@@ -61,7 +61,9 @@ const QueueItem: React.FC<Props> = ({ queue, onRetry, onCancel, onJobProgressUpd
                 <ActionIcon icon="retry" color="#8C8C8C" />
               </span>
             </Tooltip>
-            <InfoIcon icon="exclamationSolid" color="#F5222D" />
+            <span data-testid={DATA_TEST_ID.QueueItem__ErrorIcon}>
+              <InfoIcon icon="exclamationSolid" color="#F5222D" />
+            </span>
           </>
         );
       case JobStatus.Cancelled:
@@ -112,6 +114,7 @@ const QueueItem: React.FC<Props> = ({ queue, onRetry, onCancel, onJobProgressUpd
       <ItemLower>
         {queue.jobStatus === JobStatus.InProgress && (
           <Progress
+            data-testid={DATA_TEST_ID.QueueItem__ProgressBar}
             percent={queue.jobProgress ? queue.jobProgress.percentage : 0}
             showInfo={false}
             status="active"

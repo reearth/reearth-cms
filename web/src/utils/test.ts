@@ -208,9 +208,11 @@ export enum DATA_TEST_ID {
   Uploader__CompleteIcon = "Uploader__CompleteIcon",
 
   // QueueItem
+  QueueItem__Wrapper = "QueueItem__Wrapper",
   QueueItem__RetryIcon = "QueueItem__RetryIcon",
   QueueItem__CancelIcon = "QueueItem__CancelIcon",
-  QueueItem__Wrapper = "QueueItem__Wrapper",
+  QueueItem__ErrorIcon = "QueueItem__ErrorIcon",
+  QueueItem__ProgressBar = "QueueItem__ProgressBar",
 
   // WorkspaceHeader
   WorkspaceHeader__ProjectSortSelect = "WorkspaceHeader__ProjectSortSelect",
