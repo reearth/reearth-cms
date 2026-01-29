@@ -151,7 +151,7 @@ const ModelCard: React.FC<Props> = ({
         ),
         disabled: hasModelFields,
         onClick: () => onImportSchemaNavigate(model.id),
-        "data-testid": DATA_TEST_ID.ModelCard_UtilDropdownImportSchema,
+        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownImportSchema,
       },
       {
         key: "content",

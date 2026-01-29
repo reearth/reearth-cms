@@ -78,7 +78,7 @@ export class ProjectPage extends BasePage {
     return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownExportSchema);
   }
   get importSchemaText(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ModelCard_UtilDropdownImportSchema);
+    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownImportSchema);
   }
   get importContentText(): Locator {
     return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownImportContent);

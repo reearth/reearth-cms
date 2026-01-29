@@ -114,7 +114,9 @@ describe("Test ModelCard component", () => {
     await openDropdown();
     await openSubmenu(DATA_TEST_ID.ModelCard__UtilDropdownImport);
 
-    const importSchema = await screen.findByTestId(DATA_TEST_ID.ModelCard_UtilDropdownImportSchema);
+    const importSchema = await screen.findByTestId(
+      DATA_TEST_ID.ModelCard__UtilDropdownImportSchema,
+    );
     const importContent = await screen.findByTestId(
       DATA_TEST_ID.ModelCard__UtilDropdownImportContent,
     );
@@ -128,7 +130,9 @@ describe("Test ModelCard component", () => {
     await openDropdown();
     await openSubmenu(DATA_TEST_ID.ModelCard__UtilDropdownImport);
 
-    const importSchema = await screen.findByTestId(DATA_TEST_ID.ModelCard_UtilDropdownImportSchema);
+    const importSchema = await screen.findByTestId(
+      DATA_TEST_ID.ModelCard__UtilDropdownImportSchema,
+    );
     const importContent = await screen.findByTestId(
       DATA_TEST_ID.ModelCard__UtilDropdownImportContent,
     );

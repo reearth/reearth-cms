@@ -9,7 +9,7 @@ import {
 
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 
-// NOTE: THIS CLASS IS FOR TEST USE ONLY
+// NOTE: THIS CLASS IS FOR TEST USE
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 export abstract class Test {
   public static readonly IMPORT = {
@@ -161,7 +161,7 @@ export enum DATA_TEST_ID {
   ModelCard__UtilDropdownExport = "ModelCard__UtilDropdownExport",
   ModelCard__UtilDropdownDelete = "ModelCard__UtilDropdownDelete",
 
-  ModelCard_UtilDropdownImportSchema = "ModelCard_UtilDropdownImportSchema",
+  ModelCard__UtilDropdownImportSchema = "ModelCard__UtilDropdownImportSchema",
   ModelCard__UtilDropdownImportContent = "ModelCard__UtilDropdownImportContent",
 
   ModelCard__UtilDropdownExportSchema = "ModelCard__UtilDropdownExportSchema",
