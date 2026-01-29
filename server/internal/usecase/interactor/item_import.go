@@ -471,7 +471,9 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 		progress := job.NewProgress(processed, totalCount)
 		state := job.NewState(job.StatusInProgress, &progress, "")
 		if i.gateways.JobPubSub != nil {
-			_ = i.gateways.JobPubSub.Publish(ctx, j.ID(), state)
+			if err := i.gateways.JobPubSub.Publish(ctx, j.ID(), state); err != nil {
+				log.Warnf("item: failed to publish job %s progress: %v", j.ID(), err)
+			}
 		}
 
 		// Update job progress
