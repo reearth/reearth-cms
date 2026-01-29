@@ -437,3 +437,33 @@ export const PUBLISH_ITEM = gql`
     }
   }
 `;
+
+export const IMPORT_ITEMS = gql`
+  mutation ImportItems($input: ImportItemsInput!) {
+    importItems(input: $input) {
+      modelId
+      totalCount
+      insertedCount
+      updatedCount
+      ignoredCount
+    }
+  }
+`;
+
+export const IMPORT_ITEMS_ASYNC = gql`
+  mutation ImportItemsAsync($input: ImportItemsInput!) {
+    importItemsAsync(input: $input) {
+      job {
+        id
+        type
+        status
+        projectId
+        progress {
+          processed
+          total
+          percentage
+        }
+      }
+    }
+  }
+`;

@@ -41,7 +41,10 @@ const DangerZone: React.FC<Props> = ({
         />
       ),
       okText: t("Delete project"),
-      okButtonProps: { danger: true, "data-testid": DATA_TEST_ID.ConfirmDeleteProjectButton },
+      okButtonProps: {
+        danger: true,
+        "data-testid": DATA_TEST_ID.ProjectSettings__DangerZone__ConfirmDeleteProjectButton,
+      },
       onOk() {
         onProjectDelete();
       },
@@ -108,7 +111,7 @@ const DangerZone: React.FC<Props> = ({
         )}
       </Text>
       <StyledButton
-        data-testid={DATA_TEST_ID.DeleteProjectButton}
+        data-testid={DATA_TEST_ID.ProjectSettings__DangerZone__DeleteProjectButton}
         onClick={handleProjectDeleteConfirmation}
         type="primary"
         danger

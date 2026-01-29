@@ -27,10 +27,14 @@ export class IntegrationsPage extends BasePage {
     return this.getByRole("button", { name: "Save" });
   }
   get removeIntegrationButton(): Locator {
-    return this.getByTestId(DATA_TEST_ID.RemoveIntegrationButton);
+    return this.getByTestId(
+      DATA_TEST_ID.MyIntegrations__Settings__DangerZone__RemoveIntegrationButton,
+    );
   }
   get okButton(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ConfirmRemoveIntegrationButton);
+    return this.getByTestId(
+      DATA_TEST_ID.MyIntegrations__Settings__DangerZone__ConfirmRemoveIntegrationButton,
+    );
   }
   get backButton(): Locator {
     return this.getByLabel("Back");

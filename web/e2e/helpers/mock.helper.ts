@@ -1,3 +1,5 @@
+import { RcFile } from "antd/es/upload";
+
 export function getId() {
   return Math.ceil(Math.random() * (100000 - 10000) + 10000).toString();
 }
@@ -28,4 +30,16 @@ export function getMultipleProjects() {
     SECOND_PAGE_PROJECTS,
     NAME_SEPARATOR,
   };
+}
+
+export function createMockRcFile(
+  options: { name?: string; type?: string; uid?: string } = {},
+): RcFile {
+  const { name = "test-file.png", type = "image/png", uid = "-1" } = options;
+
+  const file = new File(["file content"], name, { type });
+
+  const rcFile = file as RcFile;
+  rcFile.uid = uid;
+  return rcFile;
 }

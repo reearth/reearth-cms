@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -19,7 +20,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
   contentPage,
 }) => {
   await test.step("Create GeometryObject field with Point support", async () => {
-    await fieldEditorPage.fieldTypeButton("Geometry Object").click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.fill("geometryObject1");
     await fieldEditorPage.settingsDescriptionInput.click();

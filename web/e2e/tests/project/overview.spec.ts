@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -14,7 +15,11 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Model CRUD on Overview page has succeeded", async ({ schemaPage, projectPage, page }) => {
+test("@smoke Model CRUD on Overview page has succeeded", async ({
+  schemaPage,
+  projectPage,
+  page,
+}) => {
   await test.step("Create new model from overview page", async () => {
     await expect(projectPage.noModelsYetText).toBeVisible();
     await projectPage.newModelButtonFirst.click();
@@ -94,6 +99,7 @@ test.describe("Model Export tests on Overview page", () => {
 
     await test.step("Export model as JSON", async () => {
       await projectPage.modelsMenuItem.click();
+      await projectPage.modelUtilDropdown.click();
       await projectPage.modelExportLink.click();
       await projectPage.exportAsJSONText.click();
       await projectPage.closeNotification();
@@ -120,6 +126,7 @@ test.describe("Model Export tests on Overview page", () => {
 
     await test.step("Navigate to export and select CSV", async () => {
       await projectPage.modelsMenuItem.click();
+      await projectPage.modelUtilDropdown.click();
       await projectPage.modelExportLink.click();
       await projectPage.exportAsCSVText.click();
       await page.waitForTimeout(300);
@@ -152,6 +159,7 @@ test.describe("Model Export tests on Overview page", () => {
 
     await test.step("Export schema", async () => {
       await projectPage.modelsMenuItem.click();
+      await projectPage.modelUtilDropdown.click();
       await projectPage.modelExportLink.click();
       await projectPage.exportSchemaText.click();
       await projectPage.closeNotification();
@@ -178,6 +186,7 @@ test.describe("Model Export tests on Overview page", () => {
 
     await test.step("Attempt GeoJSON export and verify error", async () => {
       await projectPage.modelsMenuItem.click();
+      await projectPage.modelUtilDropdown.click();
       await projectPage.modelExportLink.click();
       await projectPage.exportAsGeoJSONText.click();
       // Verify error modal appears
@@ -212,7 +221,7 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelMenuItemByName("model name").click();
 
       // Add a Geometry Object field
-      await fieldEditorPage.fieldTypeButton("Geometry Object").click();
+      await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
       await fieldEditorPage.displayNameInput.fill("location");
       await fieldEditorPage.settingsDescriptionInput.fill("location field");
       await fieldEditorPage.supportTypePointCheckbox.check();
@@ -224,6 +233,7 @@ test.describe("Model Export tests on Overview page", () => {
     await test.step("Export as GeoJSON successfully", async () => {
       // Navigate back to overview
       await projectPage.modelsMenuItem.click();
+      await projectPage.modelUtilDropdown.click();
       await projectPage.modelExportLink.click();
       await projectPage.exportAsGeoJSONText.click();
       // Should export directly without modal
@@ -253,7 +263,7 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelMenuItemByName("model name").click();
 
       // Add first Geometry Object field
-      await fieldEditorPage.fieldTypeButton("Geometry Object").click();
+      await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
       await fieldEditorPage.displayNameInput.fill("location1");
       await fieldEditorPage.settingsDescriptionInput.fill("first location field");
       await fieldEditorPage.supportTypePointCheckbox.setChecked(true);
@@ -261,7 +271,7 @@ test.describe("Model Export tests on Overview page", () => {
       await fieldEditorPage.closeNotification();
 
       // Add second Geometry Object field
-      await fieldEditorPage.fieldTypeButton("Geometry Object").click();
+      await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
       await fieldEditorPage.displayNameInput.fill("location2");
       await fieldEditorPage.settingsDescriptionInput.fill("second location field");
       await fieldEditorPage.supportTypePointCheckbox.setChecked(true);
@@ -273,6 +283,7 @@ test.describe("Model Export tests on Overview page", () => {
     await test.step("Attempt GeoJSON export and verify warning modal", async () => {
       // Navigate back to overview
       await projectPage.modelsMenuItem.click();
+      await projectPage.modelUtilDropdown.click();
       await projectPage.modelExportLink.click();
       await projectPage.exportAsGeoJSONText.click();
 
@@ -287,6 +298,40 @@ test.describe("Model Export tests on Overview page", () => {
       await expect(projectPage.multipleGeometryFieldsText).not.toBeVisible();
       await page.waitForTimeout(300);
     });
+  });
+});
+
+test("Import schema dropdown redirects to schema page correctly, with import schema modal opened", async ({
+  schemaPage,
+  projectPage,
+  page,
+}) => {
+  const modelName = `model-${getId()}`;
+  const modelKey = `model-key-${getId()}`;
+
+  await test.step("Create new model", async () => {
+    await expect(projectPage.noModelsYetText).toBeVisible();
+    await projectPage.newModelButtonFirst.click();
+    await expect(projectPage.newModelLabelText).toBeVisible();
+    await schemaPage.modelKeyInput.fill(modelKey);
+    await schemaPage.modelNameInput.fill(modelName);
+    await projectPage.modelDescriptionInput.fill("model description");
+    await schemaPage.okButton.click();
+    await projectPage.closeNotification();
+    await expect(projectPage.modelTitleByName(modelName)).toBeVisible();
+    await page.waitForTimeout(300);
+  });
+
+  await test.step("Open import schema from dropdown", async () => {
+    await projectPage.modelsMenuItem.click();
+    await projectPage.modelUtilDropdown.click();
+    await projectPage.modelImportLink.click();
+    await projectPage.importSchemaText.click();
+  });
+
+  await test.step("Verify schema page and modal opened", async () => {
+    await expect(page).toHaveURL(/\/schema\//);
+    await expect(schemaPage.importSchemaDialog).toBeVisible();
   });
 });
 

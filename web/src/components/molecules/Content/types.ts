@@ -1,4 +1,5 @@
 import { type Dayjs } from "dayjs";
+import type { GeoJSON } from "geojson";
 
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
@@ -17,6 +18,8 @@ export type FormValue =
   | number[]
   | boolean
   | boolean[]
+  | GeoJSON
+  | GeoJSON[]
   | Dayjs
   | ("" | Dayjs)[]
   | null
@@ -24,7 +27,7 @@ export type FormValue =
 
 export type FormGroupValue = Record<string, FormValue>;
 
-export type ItemValue = string | string[] | number | number[] | boolean | boolean[];
+export type ItemValue = string | string[] | number | number[] | boolean | boolean[] | GeoJSON | GeoJSON[];
 
 export type ItemField = {
   schemaFieldId: string;

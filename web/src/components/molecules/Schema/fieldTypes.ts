@@ -13,146 +13,98 @@ export const fieldTypes: Record<
 > = {
   Text: {
     icon: "textT",
-    title: "Text",
-    description: "Heading and titles, one-line field",
+    title: t("Text"),
+    description: t("Heading and titles, one-line field"),
     color: "#FF7875",
   },
   TextArea: {
     icon: "textAlignLeft",
-    title: "TextArea",
-    description: "Multi line text",
+    title: t("TextArea"),
+    description: t("Multi line text"),
     color: "#FF7875",
   },
   MarkdownText: {
     icon: "markdown",
-    title: "Markdown text",
-    description: "Rich text which supports md style",
+    title: t("Markdown text"),
+    description: t("Rich text which supports md style"),
     color: "#FF7875",
   },
   Asset: {
     icon: "asset",
-    title: "Asset",
-    description: "Asset file",
+    title: t("Asset"),
+    description: t("Asset file"),
     color: "#FF9C6E",
   },
   Bool: {
     icon: "boolean",
-    title: "Boolean",
-    description: "true/false field",
+    title: t("Boolean"),
+    description: t("true/false field"),
     color: "#FFD666",
   },
   Select: {
     icon: "listBullets",
-    title: "Option",
-    description: "Multiple select",
+    title: t("Option"),
+    description: t("Multiple select"),
     color: "#7CB305",
   },
   Integer: {
     icon: "numberNine",
-    title: "Int",
-    description: "Integer",
+    title: t("Int"),
+    description: t("Integer"),
     color: "#36CFC9",
   },
   Number: {
     icon: "infinity",
-    title: "Float",
-    description: "Fractional",
+    title: t("Float"),
+    description: t("Fractional"),
     color: "#36CFC9",
   },
   URL: {
     icon: "link",
-    title: "URL",
+    title: t("URL"),
     description: "http/https URL",
     color: "#9254DE",
   },
   Reference: {
     icon: "arrowUpRight",
-    title: "Reference",
-    description: "Reference other models and items",
+    title: t("Reference"),
+    description: t("Reference other models and items"),
     color: "#597EF7",
   },
   Date: {
     icon: "date",
-    title: "Date",
-    description: "Date picker",
+    title: t("Date"),
+    description: t("Date picker"),
     color: "#FFC069",
   },
   Tag: {
     icon: "tag",
-    title: "Tag",
-    description: "Select from a list of tags",
+    title: t("Tag"),
+    description: t("Select from a list of tags"),
     color: "#7CB305",
   },
   Checkbox: {
     icon: "checkSquare",
-    title: "Check Box",
-    description: "Select from a list of checkboxes",
+    title: t("Check Box"),
+    description: t("Select from a list of checkboxes"),
     color: "#FFC069",
   },
   Group: {
     icon: "group",
-    title: "Group",
-    description: "Customize a group of fields",
+    title: t("Group"),
+    description: t("Customize a group of fields"),
     color: "#36CFC9",
   },
   GeometryObject: {
     icon: "curlyBrackets",
-    title: "Geometry Object",
-    description: "Input GeoJSON and preview",
+    title: t("Geometry Object"),
+    description: t("Input GeoJSON and preview"),
     color: "#73D13D",
   },
   GeometryEditor: {
     icon: "pencil",
-    title: "Geometry Editor",
-    description: "Draw the geometry on map",
+    title: t("Geometry Editor"),
+    description: t("Draw the geometry on map"),
     color: "#73D13D",
   },
 };
-
-t("Text");
-t("Heading and titles, one-line field");
-
-t("TextArea");
-t("Multi line text");
-
-t("Markdown text");
-t("Rich text which supports md style");
-
-t("Asset");
-t("Asset file");
-
-t("Boolean");
-t("true/false field");
-
-t("Option");
-t("Multiple select");
-
-t("Int");
-t("Integer");
-
-t("Float");
-t("Fractional");
-
-t("URL");
-t("http/https URL");
-
-t("Reference");
-t("Reference other models and items");
-
-t("Date");
-t("Date picker");
-
-t("Tag");
-t("Select from a list of tags");
-
-t("Check Box");
-t("Select from a list of checkboxes");
-
-t("Group");
-t("Customize a group of fields");
-
-t("Geometry Object");
-t("Input GeoJSON and preview");
-
-t("Geometry Editor");
-t("Draw the geometry on map");

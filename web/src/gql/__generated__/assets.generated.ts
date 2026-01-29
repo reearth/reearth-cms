@@ -259,6 +259,7 @@ export type GetAssetQuery = {
     | { __typename: "Group" }
     | { __typename: "Integration" }
     | { __typename: "Item" }
+    | { __typename: "Job" }
     | { __typename: "Model" }
     | { __typename: "Project" }
     | { __typename: "Request" }
@@ -361,6 +362,7 @@ export type GetAssetItemQuery = {
     | { __typename: "Group" }
     | { __typename: "Integration" }
     | { __typename: "Item" }
+    | { __typename: "Job" }
     | { __typename: "Model" }
     | { __typename: "Project" }
     | { __typename: "Request" }
