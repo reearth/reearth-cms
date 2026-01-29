@@ -11,16 +11,16 @@ import (
 
 type JobPubSub struct {
 	mu          sync.RWMutex
-	subscribers map[id.JobID][]chan job.Progress
+	subscribers map[id.JobID][]chan job.State
 }
 
 func NewJobPubSub() gateway.JobPubSub {
 	return &JobPubSub{
-		subscribers: make(map[id.JobID][]chan job.Progress),
+		subscribers: make(map[id.JobID][]chan job.State),
 	}
 }
 
-func (p *JobPubSub) Publish(_ context.Context, jobID id.JobID, progress job.Progress) error {
+func (p *JobPubSub) Publish(_ context.Context, jobID id.JobID, state job.State) error {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 
@@ -31,7 +31,7 @@ func (p *JobPubSub) Publish(_ context.Context, jobID id.JobID, progress job.Prog
 
 	for _, ch := range subs {
 		select {
-		case ch <- progress:
+		case ch <- state:
 		default:
 			// Channel is full, skip this subscriber
 		}
@@ -40,11 +40,11 @@ func (p *JobPubSub) Publish(_ context.Context, jobID id.JobID, progress job.Prog
 	return nil
 }
 
-func (p *JobPubSub) Subscribe(_ context.Context, jobID id.JobID) (<-chan job.Progress, error) {
+func (p *JobPubSub) Subscribe(_ context.Context, jobID id.JobID) (<-chan job.State, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	ch := make(chan job.Progress, 10) // Buffer for 10 progress updates
+	ch := make(chan job.State, 10) // Buffer for 10 state updates
 	p.subscribers[jobID] = append(p.subscribers[jobID], ch)
 
 	return ch, nil

@@ -52,6 +52,15 @@ func (j *Job) Progress() Progress {
 	return j.progress
 }
 
+func (j *Job) State() State {
+	var p *Progress
+	if j.status == StatusInProgress {
+		progress := j.progress.Clone()
+		p = &progress
+	}
+	return NewState(j.status, p, j.errorMsg)
+}
+
 func (j *Job) Payload() json.RawMessage {
 	return j.payload
 }
