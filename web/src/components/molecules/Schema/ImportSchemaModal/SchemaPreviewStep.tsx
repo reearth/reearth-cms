@@ -12,7 +12,7 @@ import Tag from "@reearth-cms/components/atoms/Tag";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import { useT } from "@reearth-cms/i18n";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { ImportFieldInput } from "../types";
 

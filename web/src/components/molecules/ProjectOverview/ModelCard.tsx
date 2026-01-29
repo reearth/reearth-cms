@@ -9,7 +9,7 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 export type Props = {
   model: Model;

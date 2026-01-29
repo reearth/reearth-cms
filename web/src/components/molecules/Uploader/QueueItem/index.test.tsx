@@ -5,8 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, expect, test, vi } from "vitest";
 
 import { JobStatus, JobType } from "@reearth-cms/gql/__generated__/graphql.generated";
-import { Test } from "@reearth-cms/test/utils";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID, Test } from "@reearth-cms/test/utils";
 
 import { type UploaderQueueItem } from "../types";
 

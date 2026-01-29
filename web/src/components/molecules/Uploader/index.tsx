@@ -7,7 +7,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal, { ModalFuncProps } from "@reearth-cms/components/atoms/Modal";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { useT } from "@reearth-cms/i18n";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import useHooks from "./hooks";
 import QueueItem from "./QueueItem";

@@ -4,8 +4,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { JobStatus, JobType } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { t } from "@reearth-cms/i18n";
-import { Test } from "@reearth-cms/test/utils";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID, Test } from "@reearth-cms/test/utils";
 
 import { UploaderHookState, UploaderHookStateContext } from "./provider";
 import { UploaderQueueItem, UploaderState } from "./types";

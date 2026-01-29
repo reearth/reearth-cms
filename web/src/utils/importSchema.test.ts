@@ -4,6 +4,7 @@ import { join } from "path";
 import { describe, expect, test } from "vitest";
 
 import { ExportSchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
+import { Test } from "@reearth-cms/test/utils.ts";
 
 import { Constant } from "./constant";
 import {
@@ -36,7 +37,7 @@ import {
   ImportSchemaUtils,
 } from "./importSchema";
 import { ObjectUtils } from "./object";
-import { Test } from "./test";
+
 
 async function readFromJSONFile<T>(
   staticFileDirectory: string,

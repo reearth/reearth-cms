@@ -4,10 +4,10 @@ import React, { useMemo } from "react";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
 import { useT } from "@reearth-cms/i18n";
-import { Test } from "@reearth-cms/utils/test";
+import { Test } from "@reearth-cms/test/utils.ts";
 
 import { fieldTypes } from "./fieldTypes";
-import { SchemaFieldType, Tab, SelectedSchemaType } from "./types";
+import { SchemaFieldType, SelectedSchemaType, Tab } from "./types";
 
 type Props = {
   currentTab: Tab;

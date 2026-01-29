@@ -7,7 +7,7 @@ import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import ItemFormat from "./ItemFormat";
 

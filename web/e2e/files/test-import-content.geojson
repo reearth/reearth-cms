@@ -3,10 +3,7 @@
   "features": [
     {
       "geometry": {
-        "coordinates": [
-          25.105497,
-          121.597366
-        ],
+        "coordinates": [25.105497, 121.597366],
         "type": "Point"
       },
       "id": "01kfyj7pjtjx2v4msswr8jx6gx",

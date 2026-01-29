@@ -5,7 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   onIntegrationDelete: () => Promise<void>;

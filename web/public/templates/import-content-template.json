@@ -3,45 +3,29 @@
     "boolean-field-key": true,
     "date-field-key": "2025-12-01T00:00:00+09:00",
     "number-field-key": 1.11,
-    "number-field-key-multi": [
-      1.11
-    ],
+    "number-field-key-multi": [1.11],
     "geo-editor-key": {
-      "coordinates": [
-        139.6917,
-        35.6895
-      ],
+      "coordinates": [139.6917, 35.6895],
       "type": "Point"
     },
     "geo-editor-key-multi": [
       {
-        "coordinates": [
-          139.6917,
-          35.6895
-        ],
+        "coordinates": [139.6917, 35.6895],
         "type": "Point"
       }
     ],
     "geo-object-key": {
-      "coordinates": [
-        139.6917,
-        35.6895
-      ],
+      "coordinates": [139.6917, 35.6895],
       "type": "Point"
     },
     "geo-object-key-multi": [
       {
-        "coordinates": [
-          139.6917,
-          35.6895
-        ],
+        "coordinates": [139.6917, 35.6895],
         "type": "Point"
       }
     ],
     "int-field-key": 1,
-    "int-field-key-multi": [
-      1
-    ],
+    "int-field-key-multi": [1],
     "markdown-text-field-key": "md1",
     "select-field-key": "green",
     "text-field-key": "text111",

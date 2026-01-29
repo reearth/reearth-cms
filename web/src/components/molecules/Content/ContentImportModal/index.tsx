@@ -16,15 +16,15 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { UploaderHookState } from "@reearth-cms/components/molecules/Uploader/provider";
 import { ValidateImportResult } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { Trans, useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { Constant } from "@reearth-cms/utils/constant";
 import { FileUtils } from "@reearth-cms/utils/file";
 import {
+  ImportContentItem,
   ImportContentUtils,
   ValidationErrorMeta,
-  ImportContentItem,
 } from "@reearth-cms/utils/importContent";
 import { ObjectUtils } from "@reearth-cms/utils/object";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 const { Dragger } = Upload;
 

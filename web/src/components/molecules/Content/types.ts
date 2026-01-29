@@ -27,7 +27,15 @@ export type FormValue =
 
 export type FormGroupValue = Record<string, FormValue>;
 
-export type ItemValue = string | string[] | number | number[] | boolean | boolean[] | GeoJSON | GeoJSON[];
+export type ItemValue =
+  | string
+  | string[]
+  | number
+  | number[]
+  | boolean
+  | boolean[]
+  | GeoJSON
+  | GeoJSON[];
 
 export type ItemField = {
   schemaFieldId: string;

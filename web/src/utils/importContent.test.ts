@@ -10,11 +10,12 @@ import {
   ObjectSupportedType,
   SchemaFieldType,
 } from "@reearth-cms/components/molecules/Schema/types";
+import { Test } from "@reearth-cms/test/utils.ts";
 
 import { Constant } from "./constant";
 import { ContentSourceFormat, ImportContentItem, ImportContentUtils } from "./importContent";
 import { ObjectUtils } from "./object";
-import { Test } from "./test";
+
 
 async function readFromJSONFile(
   staticFileDirectory: string,

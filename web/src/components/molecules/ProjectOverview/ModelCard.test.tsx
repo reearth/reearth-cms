@@ -4,7 +4,7 @@ import { describe, expect, test, vi } from "vitest";
 
 import { ExportFormat } from "@reearth-cms/components/molecules/Model/types";
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import ModelCard, { Props } from "./ModelCard";
 
