@@ -16,11 +16,11 @@ test.beforeEach(async ({ reearth, integrationsPage }) => {
   await integrationsPage.integrationNameInput.click();
   await integrationsPage.integrationNameInput.fill(integrationName);
   await integrationsPage.descriptionInput.click();
-  await integrationsPage.descriptionInput.fill("description");
+  await integrationsPage.descriptionInput.fill(newDescription);
   await integrationsPage.createButton.click();
   await integrationsPage.closeNotification();
 
-  await integrationsPage.integrationTextByName(integrationName, "description").last().click();
+  await integrationsPage.integrationTextByName(integrationName, newDescription).last().click();
 });
 
 test("MyIntegration CRUD has succeeded", async ({ integrationsPage, page }) => {

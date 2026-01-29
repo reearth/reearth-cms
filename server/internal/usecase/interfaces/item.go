@@ -63,6 +63,7 @@ type ImportFormatType string
 const (
 	ImportFormatTypeGeoJSON ImportFormatType = "geoJson"
 	ImportFormatTypeJSON    ImportFormatType = "json"
+	ImportFormatTypeCSV     ImportFormatType = "csv"
 )
 
 func ImportFormatTypeFromString(s string) ImportFormatType {
@@ -71,6 +72,8 @@ func ImportFormatTypeFromString(s string) ImportFormatType {
 		return ImportFormatTypeGeoJSON
 	case "json":
 		return ImportFormatTypeJSON
+	case "csv":
+		return ImportFormatTypeCSV
 	default:
 		return ""
 	}
@@ -121,6 +124,16 @@ type ImportItemsResponse struct {
 	NewFields schema.FieldList
 }
 
+type ImportItemsAsyncParam struct {
+	ModelID      id.ModelID
+	SP           schema.Package
+	Strategy     ImportStrategyType
+	Format       ImportFormatType
+	MutateSchema bool
+	Reader       io.Reader
+	GeoField     *string
+}
+
 type ExportItemParams struct {
 	ModelID       id.ModelID
 	Format        exporters.ExportFormat
@@ -149,5 +162,6 @@ type Item interface {
 	Publish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 	Unpublish(context.Context, id.ItemIDList, *usecase.Operator) (item.VersionedList, error)
 	Import(context.Context, ImportItemsParam, *usecase.Operator) (ImportItemsResponse, error)
+	ImportAsync(context.Context, ImportItemsAsyncParam, *usecase.Operator) (id.JobID, error)
 	TriggerImportJob(context.Context, id.AssetID, id.ModelID, string, string, string, bool, *usecase.Operator) error
 }

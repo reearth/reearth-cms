@@ -7,4 +7,5 @@ type Container struct {
 	PolicyChecker PolicyChecker
 	TaskRunner    TaskRunner
 	Accounts      Account
+	JobPubSub     JobPubSub
 }

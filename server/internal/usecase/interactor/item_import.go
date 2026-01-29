@@ -1,14 +1,17 @@
 package interactor
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/job"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -85,6 +88,11 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 	m, err := i.repos.Model.FindByID(ctx, param.ModelID)
 	if err != nil {
 		return res.Into(), err
+	}
+
+	// Handle CSV format separately
+	if param.Format == interfaces.ImportFormatTypeCSV {
+		return i.importCSV(ctx, prj, m, s, param, &res, operator)
 	}
 
 	// guess schema fields from first object
@@ -208,6 +216,255 @@ func (i Item) TriggerImportJob(ctx context.Context, aId id.AssetID, mId id.Model
 
 	log.Info("item: successfully triggered import event")
 	return nil
+}
+
+func (i Item) ImportAsync(ctx context.Context, param interfaces.ImportItemsAsyncParam, operator *usecase.Operator) (id.JobID, error) {
+	if operator.AcOperator.User == nil && operator.Integration == nil {
+		return id.JobID{}, interfaces.ErrInvalidOperator
+	}
+
+	s := param.SP.Schema()
+	if !operator.IsWritableWorkspace(s.Workspace()) {
+		return id.JobID{}, interfaces.ErrOperationDenied
+	}
+
+	// Buffer the file content before starting the goroutine
+	// The original reader (from HTTP multipart) will be invalid after the request completes
+	fileData, err := io.ReadAll(param.Reader)
+	if err != nil {
+		return id.JobID{}, fmt.Errorf("failed to read import file: %w", err)
+	}
+
+	// Create import payload
+	geoFieldKey := ""
+	if param.GeoField != nil {
+		geoFieldKey = *param.GeoField
+	}
+	payload := &job.ImportPayload{
+		ModelID:      param.ModelID.String(),
+		Format:       string(param.Format),
+		Strategy:     string(param.Strategy),
+		GeoFieldKey:  geoFieldKey,
+		MutateSchema: param.MutateSchema,
+	}
+	payloadJSON, err := payload.ToJSON()
+	if err != nil {
+		return id.JobID{}, fmt.Errorf("failed to serialize import payload: %w", err)
+	}
+
+	// Create job
+	jb := job.New().
+		NewID().
+		Type(job.TypeImport).
+		Project(s.Project()).
+		Payload(payloadJSON)
+
+	if operator.AcOperator.User != nil {
+		jb = jb.User(*operator.AcOperator.User)
+	}
+	if operator.Integration != nil {
+		jb = jb.Integration(*operator.Integration)
+	}
+
+	j, err := jb.Build()
+	if err != nil {
+		return id.JobID{}, fmt.Errorf("failed to create job: %w", err)
+	}
+
+	// Save job
+	if err := i.repos.Job.Save(ctx, j); err != nil {
+		return id.JobID{}, fmt.Errorf("failed to save job: %w", err)
+	}
+
+	// Create a new param with buffered reader for the goroutine
+	asyncParam := param
+	asyncParam.Reader = bytes.NewReader(fileData)
+
+	// Launch background processing
+	go i.runImportJob(j.ID(), asyncParam, operator)
+
+	log.Infof("item: import job %s created", j.ID())
+	return j.ID(), nil
+}
+
+func (i Item) runImportJob(jobID id.JobID, param interfaces.ImportItemsAsyncParam, operator *usecase.Operator) {
+	ctx := context.Background()
+
+	// Load job and mark as in progress
+	j, err := i.repos.Job.FindByID(ctx, jobID)
+	if err != nil {
+		log.Errorf("item: import job %s failed to load: %v", jobID, err)
+		return
+	}
+
+	j.Start()
+	if err := i.repos.Job.Save(ctx, j); err != nil {
+		log.Errorf("item: import job %s failed to update status: %v", jobID, err)
+		return
+	}
+
+	// Convert async param to sync param
+	syncParam := interfaces.ImportItemsParam(param)
+
+	// Run the import with progress tracking
+	res, err := i.importWithProgress(ctx, j, syncParam, operator)
+	if err != nil {
+		// Check if cancelled
+		j, _ = i.repos.Job.FindByID(ctx, jobID)
+		if j != nil && j.IsCancelled() {
+			log.Infof("item: import job %s was cancelled", jobID)
+			return
+		}
+
+		// Mark as failed
+		if j != nil {
+			j.Fail(err.Error())
+			if saveErr := i.repos.Job.Save(ctx, j); saveErr != nil {
+				log.Errorf("item: import job %s failed to save error: %v", jobID, saveErr)
+			}
+		}
+		log.Errorf("item: import job %s failed: %v", jobID, err)
+		return
+	}
+
+	// Mark as completed
+	result := &job.ImportResult{
+		Total:    res.Total,
+		Inserted: res.Inserted,
+		Updated:  res.Updated,
+		Ignored:  res.Ignored,
+	}
+	resultJSON, _ := result.ToJSON()
+
+	j, _ = i.repos.Job.FindByID(ctx, jobID)
+	if j != nil {
+		j.Complete(resultJSON)
+		if err := i.repos.Job.Save(ctx, j); err != nil {
+			log.Errorf("item: import job %s failed to save completion: %v", jobID, err)
+		}
+	}
+
+	// Cleanup subscription
+	if i.gateways.JobPubSub != nil {
+		i.gateways.JobPubSub.Unsubscribe(jobID)
+	}
+
+	log.Infof("item: import job %s completed: total=%d inserted=%d updated=%d ignored=%d",
+		jobID, res.Total, res.Inserted, res.Updated, res.Ignored)
+}
+
+func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfaces.ImportItemsParam, operator *usecase.Operator) (interfaces.ImportItemsResponse, error) {
+	res := NewImportRes()
+
+	s := param.SP.Schema()
+
+	prj, err := i.repos.Project.FindByID(ctx, s.Project())
+	if err != nil {
+		return res.Into(), err
+	}
+
+	m, err := i.repos.Model.FindByID(ctx, param.ModelID)
+	if err != nil {
+		return res.Into(), err
+	}
+
+	// Handle CSV format separately
+	if param.Format == interfaces.ImportFormatTypeCSV {
+		return i.importCSVWithProgress(ctx, j, prj, m, s, param, &res, operator)
+	}
+
+	// guess schema fields from first object
+	if param.MutateSchema {
+		rr := utils.NewReplyReader(param.Reader)
+		guessedFields, err := s.GuessSchemaFieldFromJson(rr.Partial, param.Format == interfaces.ImportFormatTypeGeoJSON, false)
+		if err != nil {
+			return res.Into(), fmt.Errorf("error guessing schema fields: %v", err)
+		}
+		param.Reader = rr.Full
+
+		fields, err := i.updateSchema(ctx, s, createFieldParamsFrom(guessedFields, s.ID()))
+		if err != nil {
+			return res.Into(), fmt.Errorf("error saving schema fields: %v", err)
+		}
+
+		for _, f := range fields {
+			res.FieldAdded(f)
+		}
+	}
+
+	decoder := json.NewDecoder(param.Reader)
+
+	// For FeatureCollection, skip to the features array
+	if param.Format == interfaces.ImportFormatTypeGeoJSON {
+		for {
+			token, err := decoder.Token()
+			if err != nil {
+				return res.Into(), fmt.Errorf("error reading token: %v", err)
+			}
+			if str, ok := token.(string); ok && str == "features" {
+				break
+			}
+		}
+	}
+
+	// Read the opening bracket of array
+	if t, err := decoder.Token(); err != nil || t != json.Delim('[') {
+		if err != nil {
+			return res.Into(), fmt.Errorf("error reading array start: %v", err)
+		}
+		return res.Into(), fmt.Errorf("expected array start, got %v", t)
+	}
+
+	// First pass: decode all items to get total count
+	allItems := make([]map[string]any, 0)
+	for decoder.More() {
+		var obj map[string]any
+		if err := decoder.Decode(&obj); err != nil {
+			return res.Into(), fmt.Errorf("error decoding JSON object: %v", err)
+		}
+		allItems = append(allItems, obj)
+	}
+	totalCount := len(allItems)
+
+	// Second pass: process items in chunks
+	processed := 0
+	for start := 0; start < totalCount; start += chunkSize {
+		// Check if job was cancelled
+		currentJob, _ := i.repos.Job.FindByID(ctx, j.ID())
+		if currentJob != nil && currentJob.IsCancelled() {
+			return res.Into(), fmt.Errorf("job cancelled")
+		}
+
+		end := min(start+chunkSize, totalCount)
+		jsonChunk := allItems[start:end]
+		chunkLen := len(jsonChunk)
+
+		items, err := itemsParamsFrom(jsonChunk, param.Format == interfaces.ImportFormatTypeGeoJSON, param.GeoField, param.SP)
+		if err != nil {
+			return res.Into(), err
+		}
+		err = i.saveChunk(ctx, prj, m, s, param, items, &res, operator)
+		if err != nil {
+			return res.Into(), err
+		}
+
+		processed += chunkLen
+
+		// Publish progress
+		progress := job.NewProgress(processed, totalCount)
+		if i.gateways.JobPubSub != nil {
+			_ = i.gateways.JobPubSub.Publish(ctx, j.ID(), progress)
+		}
+
+		// Update job progress
+		j.SetProgress(progress)
+		if err := i.repos.Job.Save(ctx, j); err != nil {
+			log.Errorf("item: import job %s failed to update progress: %v", j.ID(), err)
+		}
+
+		log.Printf("chunk with %d items saved.", chunkLen)
+	}
+	return res.Into(), nil
 }
 
 func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Model, s *schema.Schema, param interfaces.ImportItemsParam, items []interfaces.ImportItemParam, res *ImportRes, operator *usecase.Operator) error {

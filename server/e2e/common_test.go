@@ -130,7 +130,10 @@ func StartServerWithRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder S
 	if !cfg.Asset_Public {
 		f = lo.Must(fs.NewFileWithACL(afero.NewMemMapFs(), cfg.AssetBaseURL, cfg.Host, cfg.AssetUploadURLReplacement))
 	}
-	gateway := &gateway.Container{File: f}
+	gateway := &gateway.Container{
+		File:      f,
+		JobPubSub: memory.NewJobPubSub(),
+	}
 	accountGateways := &accountgateway.Container{
 		Mailer: mailer.New(ctx, &mailer.Config{}),
 	}
@@ -147,6 +150,98 @@ func StartServerWithRepos(t *testing.T, cfg *app.Config, useMongo bool, seeder S
 func StartServer(t *testing.T, cfg *app.Config, useMongo bool, seeder Seeder) *httpexpect.Expect {
 	e, _, _ := StartServerWithRepos(t, cfg, useMongo, seeder)
 	return e
+}
+
+// StartServerAndGetURL starts the server and returns both httpexpect and the server URL
+func StartServerAndGetURL(t *testing.T, cfg *app.Config, useMongo bool, seeder Seeder) (*httpexpect.Expect, string) {
+	t.Helper()
+
+	ctx := context.Background()
+
+	var repos *repo.Container
+	var accountRepos *accountrepo.Container
+	if useMongo {
+		db := mongotest.Connect(t)(t)
+		log.Infof("test: new db created with name: %v", db.Name())
+		accountRepos = lo.Must(accountmongo.New(ctx, db.Client(), db.Name(), false, false, nil))
+		repos = lo.Must(mongo.NewWithDB(ctx, db, false, accountRepos))
+	} else {
+		repos = memory.New()
+		accountRepos = accountmemory.New()
+	}
+
+	if cfg.AssetBaseURL == "" {
+		cfg.AssetBaseURL = "https://example.com"
+	}
+	if cfg.Host == "" {
+		cfg.Host = "https://example.com"
+	}
+
+	f := lo.Must(fs.NewFile(afero.NewMemMapFs(), cfg.AssetBaseURL, cfg.AssetUploadURLReplacement))
+	if !cfg.Asset_Public {
+		f = lo.Must(fs.NewFileWithACL(afero.NewMemMapFs(), cfg.AssetBaseURL, cfg.Host, cfg.AssetUploadURLReplacement))
+	}
+	gw := &gateway.Container{
+		File:      f,
+		JobPubSub: memory.NewJobPubSub(),
+	}
+	accountGateways := &accountgateway.Container{
+		Mailer: mailer.New(ctx, &mailer.Config{}),
+	}
+
+	if seeder != nil {
+		if err := seeder(ctx, repos, gw); err != nil {
+			t.Fatalf("failed to seed the db: %s", err)
+		}
+	}
+
+	return startServerWithURL(t, cfg, repos, accountRepos, gw, accountGateways)
+}
+
+func startServerWithURL(t *testing.T, cfg *app.Config, repos *repo.Container, accountrepos *accountrepo.Container, gw *gateway.Container, accountgateway *accountgateway.Container) (*httpexpect.Expect, string) {
+	t.Helper()
+
+	if testing.Short() {
+		t.Skip("skipping test in short mode.")
+	}
+
+	ctx := context.Background()
+
+	cfg.Server.Active = true
+	srv := app.NewServer(ctx, &app.ApplicationContext{
+		Config:     cfg,
+		Repos:      repos,
+		AcRepos:    accountrepos,
+		Gateways:   gw,
+		AcGateways: accountgateway,
+		Debug:      true,
+	})
+
+	l1, err := net.Listen("tcp", ":0")
+	if err != nil {
+		t.Fatalf("http server failed to listen: %v", err)
+	}
+
+	ch1 := make(chan error)
+	go func() {
+		if err := srv.HttpServe(l1); !errors.Is(err, http.ErrServerClosed) {
+			ch1 <- err
+		}
+		close(ch1)
+	}()
+
+	t.Cleanup(func() {
+		if err := srv.HttpShutdown(context.Background()); err != nil {
+			t.Fatalf("server shutdown: %v", err)
+		}
+
+		if err := <-ch1; err != nil {
+			t.Fatalf("http server serve: %v", err)
+		}
+	})
+
+	serverURL := "http://" + l1.Addr().String()
+	return httpexpect.Default(t, serverURL), serverURL
 }
 
 type GraphQLRequest struct {

@@ -141,6 +141,10 @@ type ImportItemsPayload {
   ignoredCount: Int!
 }
 
+type ImportItemsAsyncPayload {
+  job: Job!
+}
+
 type ItemConnection {
   edges: [ItemEdge!]!
   nodes: [Item]!
@@ -167,4 +171,5 @@ extend type Mutation {
   publishItem(input: PublishItemInput!): PublishItemPayload
   unpublishItem(input: UnpublishItemInput!): UnpublishItemPayload
   importItems(input: ImportItemsInput!): ImportItemsPayload
+  importItemsAsync(input: ImportItemsInput!): ImportItemsAsyncPayload
 }
