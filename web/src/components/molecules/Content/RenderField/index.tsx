@@ -79,8 +79,10 @@ export const renderField = (
     );
     return (
       <Popover
-        overlayClassName="contentPopover"
-        content={content}
+        rootClassName="contentPopover"
+        content={
+          <div data-testid={DATA_TEST_ID.Content__List__ItemFieldPopoverContent}>{content}</div>
+        }
         title={field.title}
         trigger="click"
         placement="bottom">

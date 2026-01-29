@@ -5,24 +5,9 @@ import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types"
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 import { t } from "@reearth-cms/e2e/support/i18n";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Test template paths for import content
-// const IMPORT_CONTENT_JSON_PATH = path.resolve(
-//   __dirname,
-//   "../../../../public/templates/import-content-template.json",
-// );
-// const IMPORT_CONTENT_CSV_PATH = path.resolve(
-//   __dirname,
-//   "../../../../public/templates/import-content-template.csv",
-// );
-// const IMPORT_CONTENT_GEOJSON_PATH = path.resolve(
-//   __dirname,
-//   "../../../../public/templates/import-content-template.geojson",
-// );
 
 const TEST_IMPORT_CONTENT_JSON_PATH = path.resolve(
   __dirname,
@@ -344,7 +329,6 @@ test.describe("Import content", () => {
     // { path: TEST_IMPORT_CONTENT_CSV_PATH, type: "CSV" }, // TODO: bring it back if import CSV is fixed
   ].forEach(({ path, type }) => {
     test(`@smoke Pass Case: Import content with matching schema succeeds with ${type}`, async ({
-      page,
       contentPage,
       fieldEditorPage,
       projectPage,
@@ -360,16 +344,14 @@ test.describe("Import content", () => {
       });
 
       await test.step("Verify import job is created and modal closes", async () => {
-        await expect(contentPage.importContentModal).toBeHidden({ timeout: 5_000 });
+        await expect(contentPage.importContentModal).toBeHidden();
         await contentPage.tableReloadIcon.click();
-        await page.waitForTimeout(300);
         await expect(contentPage.cellByText("text111")).toBeVisible();
       });
     });
   });
 
   test("@smoke Pass Case: Import content with matching schema succeeds with GeoJSON", async ({
-    page,
     contentPage,
     fieldEditorPage,
     projectPage,
@@ -384,11 +366,8 @@ test.describe("Import content", () => {
       await fieldEditorPage.okButton.click();
       await fieldEditorPage.closeNotification();
 
-      await fieldEditorPage.fieldTypeButton("Text").click();
-      await fieldEditorPage.displayNameInput.fill("title");
-      await fieldEditorPage.okButton.click();
+      await fieldEditorPage.createField(SchemaFieldType.Text, "title");
 
-      await fieldEditorPage.closeNotification();
       await projectPage.contentMenuItem.click();
     });
 
@@ -398,99 +377,61 @@ test.describe("Import content", () => {
     });
 
     await test.step("Verify import job is created and modal closes", async () => {
-      await expect(contentPage.importContentModal).toBeHidden({ timeout: 5_000 });
+      await expect(contentPage.importContentModal).toBeHidden();
       await expect(contentPage.tableReloadIcon).toBeVisible();
       await contentPage.tableReloadIcon.click();
-      await page.waitForTimeout(300);
-      const iconEl = contentPage.getByTestId(DATA_TEST_ID.Content__List__ItemFieldPopoverIcon);
-      await expect(iconEl).toBeVisible();
-      await iconEl.click();
-      await page.waitForTimeout(300);
-      const toolTipEl = contentPage.getByRole("tooltip");
-      await expect(toolTipEl).toBeVisible();
-      await expect(toolTipEl).toHaveText(
-        'location{"coordinates":[25.105497,121.597366],"type":"Point"}',
+      await expect(contentPage.tableContentFieldPopoverIcon).toBeVisible();
+      await contentPage.tableContentFieldPopoverIcon.click();
+      await expect(contentPage.tableContentFieldPopoverContent).toBeVisible();
+      await expect(contentPage.tableContentFieldPopoverContent).toHaveText(
+        '{"coordinates":[25.105497,121.597366],"type":"Point"}',
       );
     });
   });
 
-  test("Fail Case: Import content with JSON file shows schema mismatch warning", async ({
-    page,
-    contentPage,
-    fieldEditorPage,
-    projectPage,
-  }) => {
-    await test.step("Create text field with different key than template", async () => {
-      await fieldEditorPage.createField(
-        SchemaFieldType.Text,
-        "text-field-key",
-        "text-field-key",
-        "",
-        true,
-        false,
-      );
+  [
+    { path: TEST_IMPORT_CONTENT_JSON_PATH, type: "JSON" },
+    // { path: TEST_IMPORT_CONTENT_CSV_PATH, type: "CSV" }, // TODO: bring it back if import CSV is fixed
+  ].forEach(({ path, type }) => {
+    test(`Fail Case: Import content with ${type} file shows schema mismatch warning`, async ({
+      contentPage,
+      fieldEditorPage,
+      projectPage,
+    }) => {
+      await test.step("Create text field with different key than template", async () => {
+        await fieldEditorPage.createField(
+          SchemaFieldType.Text,
+          "text-field-key",
+          "text-field-key",
+          "",
+          true,
+          false,
+        );
 
-      await fieldEditorPage.createField(
-        SchemaFieldType.Number,
-        "number-field-key",
-        "number-field-key",
-        "",
-        true,
-        false,
-      );
+        await fieldEditorPage.createField(
+          SchemaFieldType.Number,
+          "number-field-key",
+          "number-field-key",
+          "",
+          true,
+          false,
+        );
 
-      await projectPage.contentMenuItem.click();
-      await page.waitForTimeout(300);
-    });
+        await projectPage.contentMenuItem.click();
+      });
 
-    await test.step("Open import modal and upload JSON file", async () => {
-      await contentPage.openImportContentModal();
-      await contentPage.uploadImportFile(TEST_IMPORT_CONTENT_JSON_PATH);
-      await page.waitForTimeout(500);
-    });
+      await test.step("Open import modal and upload JSON file", async () => {
+        await contentPage.openImportContentModal();
+        await contentPage.uploadImportFile(path);
+      });
 
-    await test.step("Verify schema mismatch warning is displayed", async () => {
-      await expect(contentPage.importContentErrorWrapper).toBeVisible();
-      await expect(contentPage.importContentErrorTitle).toContainText(
-        t("Some fields don't match the schema"),
-      );
-      await expect(contentPage.importContentGoBackButton).toBeVisible();
-      await page.waitForTimeout(300);
-    });
-  });
-
-  // TODO: fix this
-  test.skip("Fail Case: Import content with CSV file shows schema mismatch warning", async ({
-    page,
-    contentPage,
-    fieldEditorPage,
-    projectPage,
-    schemaPage,
-  }) => {
-    await test.step("Create text field with different key than template", async () => {
-      await fieldEditorPage.fieldTypeButton("Text").click();
-      await schemaPage.handleFieldForm("mytext", "mytext");
-      await projectPage.contentMenuItem.click();
-      await page.waitForTimeout(300);
-    });
-
-    await test.step("Open import modal and upload CSV file", async () => {
-      await contentPage.openImportContentModal();
-      await contentPage.uploadImportFile(TEST_IMPORT_CONTENT_CSV_PATH);
-      await page.waitForTimeout(500);
-    });
-
-    await test.step("Verify schema mismatch warning is displayed", async () => {
-      await expect(contentPage.importContentErrorWrapper).toBeVisible();
-      await expect(contentPage.importContentErrorTitle).toContainText(
-        "Some fields don't match the schema",
-      );
-      await page.waitForTimeout(300);
-    });
-
-    await test.step("Close modal", async () => {
-      await contentPage.closeImportContentModal();
-      await page.waitForTimeout(300);
+      await test.step("Verify schema mismatch warning is displayed", async () => {
+        await expect(contentPage.importContentErrorWrapper).toBeVisible();
+        await expect(contentPage.importContentErrorTitle).toContainText(
+          t("Some fields don't match the schema"),
+        );
+        await expect(contentPage.importContentGoBackButton).toBeVisible();
+      });
     });
   });
 
@@ -509,6 +450,7 @@ test.describe("Import content", () => {
         false,
       );
 
+      // TODO: refactor this
       await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
       await fieldEditorPage.displayNameInput.click();
       await fieldEditorPage.displayNameInput.fill("location");
@@ -566,8 +508,8 @@ test.describe("Import content", () => {
 
     await test.step("Verify error is displayed for no matching fields", async () => {
       await expect(contentPage.importContentErrorWrapper).toBeVisible();
-      await expect(contentPage.importContentErrorTitle).toBeVisible();
 
+      await expect(contentPage.importContentErrorTitle).toBeVisible();
       await expect(contentPage.importContentErrorTitle).toContainText(
         t("No matching fields found"),
       );

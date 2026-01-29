@@ -250,4 +250,5 @@ export enum DATA_TEST_ID {
   // Content list page
   Content__List__ImportContentButton = "Content__List__ImportContentButton",
   Content__List__ItemFieldPopoverIcon = "Content__List__ItemFieldPopoverIcon",
+  Content__List__ItemFieldPopoverContent = "Content__List__ItemFieldPopoverContent",
 }

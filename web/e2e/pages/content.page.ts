@@ -757,6 +757,14 @@ export class ContentPage extends BasePage {
     return this.getByLabel("reload");
   }
 
+  get tableContentFieldPopoverIcon(): Locator {
+    return this.getByTestId(DATA_TEST_ID.Content__List__ItemFieldPopoverIcon);
+  }
+
+  get tableContentFieldPopoverContent(): Locator {
+    return this.getByTestId(DATA_TEST_ID.Content__List__ItemFieldPopoverContent);
+  }
+
   // ========== Import Content Actions ==========
 
   async openImportContentModal(): Promise<void> {
