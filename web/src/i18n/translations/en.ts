@@ -674,6 +674,7 @@ export default {
   "Upload and Link": "",
   "Upload Asset": "",
   "Uploading": "",
+  "Uploading file...": "Uploading file...",
   "Uploading file..._one": "Uploading file...",
   "Uploading file..._other": "Uploading file...",
   "Url": "",

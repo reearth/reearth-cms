@@ -671,6 +671,7 @@ export default {
   "Upload and Link": "アップロードとリンク",
   "Upload Asset": "アセットをアップロード",
   "Uploading": "アップロード中",
+  "Uploading file...": "アップロード中...",
   "Uploading file..._other": "アップロード中...",
   "Url": "Url",
   "URL": "URL",
