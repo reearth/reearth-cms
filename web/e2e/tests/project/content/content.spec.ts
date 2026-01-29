@@ -13,10 +13,10 @@ const TEST_IMPORT_CONTENT_JSON_PATH = path.resolve(
   __dirname,
   "../../../files/test-import-content.json",
 );
-// const TEST_IMPORT_CONTENT_CSV_PATH = path.resolve(
-//   __dirname,
-//   "../../../files/test-import-content.csv",
-// );
+const TEST_IMPORT_CONTENT_CSV_PATH = path.resolve(
+  __dirname,
+  "../../../files/test-import-content.csv",
+);
 const TEST_IMPORT_CONTENT_GEO_JSON_PATH = path.resolve(
   __dirname,
   "../../../files/test-import-content.geojson",
@@ -326,7 +326,7 @@ test("Comment CRUD on edit page has succeeded", async ({
 test.describe("Import content", () => {
   [
     { path: TEST_IMPORT_CONTENT_JSON_PATH, type: "JSON" },
-    // { path: TEST_IMPORT_CONTENT_CSV_PATH, type: "CSV" }, // TODO: bring it back if import CSV is fixed
+    { path: TEST_IMPORT_CONTENT_CSV_PATH, type: "CSV" },
   ].forEach(({ path, type }) => {
     test(`@smoke Pass Case: Import content with matching schema succeeds with ${type}`, async ({
       contentPage,
@@ -391,7 +391,7 @@ test.describe("Import content", () => {
 
   [
     { path: TEST_IMPORT_CONTENT_JSON_PATH, type: "JSON" },
-    // { path: TEST_IMPORT_CONTENT_CSV_PATH, type: "CSV" }, // TODO: bring it back if import CSV is fixed
+    { path: TEST_IMPORT_CONTENT_CSV_PATH, type: "CSV" },
   ].forEach(({ path, type }) => {
     test(`Fail Case: Import content with ${type} file shows schema mismatch warning`, async ({
       contentPage,
