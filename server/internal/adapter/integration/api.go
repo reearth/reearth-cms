@@ -12,7 +12,7 @@ import (
 	"github.com/reearth/reearthx/rerror"
 )
 
-//go:generate go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen --config=server.cfg.yml ../../../schemas/integration.yml
+//go:generate go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen --config=server.cfg.yml ../../../schemas/integration/integration.yml
 
 type Server struct{}
 
