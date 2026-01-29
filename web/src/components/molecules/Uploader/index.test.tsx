@@ -2,9 +2,9 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { createMockRcFile } from "@reearth-cms/e2e/helpers/mock.helper";
 import { JobStatus, JobType } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { t } from "@reearth-cms/i18n";
+import { Test } from "@reearth-cms/test/utils";
 import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import { UploaderHookState, UploaderHookStateContext } from "./provider";
@@ -12,12 +12,11 @@ import { UploaderQueueItem, UploaderState } from "./types";
 
 import Uploader from "./index";
 
-
 const createQueueItem = (overrides?: Partial<UploaderQueueItem>): UploaderQueueItem => ({
   fileName: "sample.csv",
   extension: "csv",
   url: "/assets/sample.csv",
-  file: createMockRcFile({ name: "sample.csv", type: "text/csv" }),
+  file: Test.createMockRcFile({ name: "sample.csv", type: "text/csv" }),
   workspaceId: "workspaceId",
   projectId: "projectId",
   modelId: "modelId",

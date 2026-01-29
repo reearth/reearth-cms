@@ -4,8 +4,8 @@ import type { ComponentProps } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, test, vi } from "vitest";
 
-import { createMockRcFile } from "@reearth-cms/e2e/helpers/mock.helper";
 import { JobStatus, JobType } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { Test } from "@reearth-cms/test/utils";
 import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 import { type UploaderQueueItem } from "../types";
@@ -27,7 +27,7 @@ describe("Test QueueItem component", () => {
     fileName: "test.csv",
     extension: "csv",
     url: "/assets/test.csv",
-    file: createMockRcFile({ name: "test.csv" }),
+    file: Test.createMockRcFile({ name: "test.csv" }),
     workspaceId: "workspace-1",
     projectId: "project-1",
     modelId: "model-1",
