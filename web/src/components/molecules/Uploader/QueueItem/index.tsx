@@ -14,8 +14,8 @@ import useJobProgress from "../useJobProgress";
 
 type Props = {
   queue: UploaderQueueItem;
-  onRetry: (id: UploaderQueueItem["jobId"]) => void;
-  onCancel: (id: UploaderQueueItem["jobId"]) => void;
+  onRetry: (id: UploaderQueueItem["jobId"]) => Promise<void>;
+  onCancel: (id: UploaderQueueItem["jobId"]) => Promise<void>;
   onJobProgressUpdate: (payload: Pick<UploaderQueueItem, "jobId" | "jobProgress">) => void;
 };
 
@@ -101,7 +101,7 @@ const QueueItem: React.FC<Props> = ({ queue, onRetry, onCancel, onJobProgressUpd
           <InfoIcon icon="clip" color="#8C8C8C" />
           <Tooltip title={queue.fileName}>
             {queue.jobStatus === JobStatus.Completed ? (
-              <Link to={queue.url} target="_blank">
+              <Link to={queue.url} target="_blank" data-testid={DATA_TEST_ID.QueueItem__FileLink}>
                 <FileName>{queue.fileName}</FileName>
               </Link>
             ) : (

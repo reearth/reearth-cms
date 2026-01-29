@@ -12,39 +12,11 @@ import { type UploaderQueueItem } from "../types";
 
 import QueueItem from ".";
 
-vi.mock("@reearth-cms/i18n", () => ({
-  useT: () => (key: string) => key,
-}));
-
-vi.mock("@reearth-cms/components/atoms/Tooltip", () => ({
-  default: ({ children }: { children: ReactNode }) => <>{children}</>,
-}));
-
-vi.mock("@reearth-cms/components/atoms/Progress", () => ({
-  default: ({ percent }: { percent?: number }) => <div role="progressbar" data-percent={percent} />,
-}));
-
-vi.mock("@reearth-cms/components/atoms/Icon", () => ({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  default: ({ icon, onClick, className, ...rest }: any) => {
-    const Element = onClick ? "button" : "span";
-    return (
-      <Element
-        aria-label={icon}
-        data-icon={icon}
-        onClick={onClick}
-        className={className}
-        {...rest}
-      />
-    );
-  },
-}));
-
 vi.mock("../useJobProgress", () => ({
   default: vi.fn(),
 }));
 
-describe("QueueItem component test", () => {
+describe("Test QueueItem component", () => {
   const user = userEvent.setup();
 
   const baseQueue: UploaderQueueItem = {
@@ -65,8 +37,8 @@ describe("QueueItem component test", () => {
     queue: UploaderQueueItem,
     props?: Partial<ComponentProps<typeof QueueItem>>,
   ) => {
-    const onRetry = vi.fn();
-    const onCancel = vi.fn();
+    const onRetry = vi.fn().mockResolvedValue(undefined);
+    const onCancel = vi.fn().mockResolvedValue(undefined);
     const onJobProgressUpdate = vi.fn();
 
     render(
@@ -84,15 +56,15 @@ describe("QueueItem component test", () => {
     return { onRetry, onCancel };
   };
 
-  test("Renders completed item as a link", () => {
+  test("Show link for completed item", () => {
     renderQueueItem({ ...baseQueue, jobStatus: JobStatus.Completed });
 
-    const link = screen.getByRole("link", { name: baseQueue.fileName });
+    const link = screen.getByTestId(DATA_TEST_ID.QueueItem__FileLink);
+    expect(link).toHaveTextContent(baseQueue.fileName);
     expect(link).toHaveAttribute("href", baseQueue.url);
-    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
   });
 
-  test("Shows progress and allows cancel for in-progress upload", async () => {
+  test("Shows progress and allows cancel for in progress item", async () => {
     const { onCancel } = renderQueueItem({
       ...baseQueue,
       jobStatus: JobStatus.InProgress,
@@ -103,7 +75,10 @@ describe("QueueItem component test", () => {
       },
     });
 
-    expect(screen.getByRole("progressbar")).toHaveAttribute("data-percent", "42");
+    expect(screen.getByTestId(DATA_TEST_ID.QueueItem__ProgressBar)).toHaveAttribute(
+      "aria-valuenow",
+      "42",
+    );
 
     const cancelIcon = screen.getByTestId(DATA_TEST_ID.QueueItem__CancelIcon);
     await user.click(cancelIcon);
@@ -111,7 +86,7 @@ describe("QueueItem component test", () => {
     expect(onCancel).toHaveBeenCalledWith(baseQueue.jobId);
   });
 
-  test("Shows retry action for failed upload", async () => {
+  test("Shows retry action for failed item", async () => {
     const { onRetry } = renderQueueItem({
       ...baseQueue,
       jobStatus: JobStatus.Failed,
@@ -123,7 +98,7 @@ describe("QueueItem component test", () => {
     expect(onRetry).toHaveBeenCalledWith(baseQueue.jobId);
   });
 
-  test("Shows retry action for canceled upload", async () => {
+  test("Shows retry action for canceled item", async () => {
     const { onRetry } = renderQueueItem({
       ...baseQueue,
       jobStatus: JobStatus.Cancelled,

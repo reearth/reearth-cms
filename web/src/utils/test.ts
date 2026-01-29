@@ -213,6 +213,7 @@ export enum DATA_TEST_ID {
   QueueItem__CancelIcon = "QueueItem__CancelIcon",
   QueueItem__ErrorIcon = "QueueItem__ErrorIcon",
   QueueItem__ProgressBar = "QueueItem__ProgressBar",
+  QueueItem__FileLink = "QueueItem__FileLink",
 
   // WorkspaceHeader
   WorkspaceHeader__ProjectSortSelect = "WorkspaceHeader__ProjectSortSelect",
