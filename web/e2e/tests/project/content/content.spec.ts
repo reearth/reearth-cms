@@ -13,10 +13,10 @@ const TEST_IMPORT_CONTENT_JSON_PATH = path.resolve(
   __dirname,
   "../../../files/test-import-content.json",
 );
-const TEST_IMPORT_CONTENT_CSV_PATH = path.resolve(
-  __dirname,
-  "../../../files/test-import-content.csv",
-);
+// const TEST_IMPORT_CONTENT_CSV_PATH = path.resolve(
+//   __dirname,
+//   "../../../files/test-import-content.csv",
+// );
 const TEST_IMPORT_CONTENT_GEO_JSON_PATH = path.resolve(
   __dirname,
   "../../../files/test-import-content.geojson",
