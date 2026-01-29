@@ -337,6 +337,8 @@ func (r *mutationResolver) ImportItems(ctx context.Context, input gqlmodel.Impor
 	format := interfaces.ImportFormatTypeJSON
 	if strings.HasSuffix(strings.ToLower(input.File.Filename), ".geojson") {
 		format = interfaces.ImportFormatTypeGeoJSON
+	} else if strings.HasSuffix(strings.ToLower(input.File.Filename), ".csv") {
+		format = interfaces.ImportFormatTypeCSV
 	}
 
 	// Auto-detect first geometry field for GeoJSON import when geoField is not specified
@@ -394,6 +396,8 @@ func (r *mutationResolver) ImportItemsAsync(ctx context.Context, input gqlmodel.
 	format := interfaces.ImportFormatTypeJSON
 	if strings.HasSuffix(strings.ToLower(input.File.Filename), ".geojson") {
 		format = interfaces.ImportFormatTypeGeoJSON
+	} else if strings.HasSuffix(strings.ToLower(input.File.Filename), ".csv") {
+		format = interfaces.ImportFormatTypeCSV
 	}
 
 	// Auto-detect first geometry field for GeoJSON import when geoField is not specified
