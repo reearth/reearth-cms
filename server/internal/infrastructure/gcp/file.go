@@ -23,6 +23,7 @@ import (
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"google.golang.org/api/iterator"
+	"google.golang.org/api/option"
 )
 
 const (
@@ -392,13 +393,24 @@ func (f *fileRepo) Upload(ctx context.Context, file *file.File, objectName strin
 		file.ContentEncoding = ""
 	}
 
-	bucket, err := f.bucket(ctx)
+	// Use gcsproxy endpoint for upload to enable tracking
+	bucketForUpload, clientForUpload, err := f.bucketWithEndpoint(ctx)
 	if err != nil {
 		log.Errorf("gcs: upload bucket err: %+v\n", err)
 		return 0, rerror.ErrInternalBy(err)
 	}
 
-	object := bucket.Object(objectName)
+	// Close the upload client when done
+	if clientForUpload != nil {
+		defer func() {
+			if closeErr := clientForUpload.Close(); closeErr != nil {
+				log.Errorf("gcs: failed to close upload client: %v", closeErr)
+			}
+		}()
+	}
+
+	object := bucketForUpload.Object(objectName)
+
 	if err := object.Delete(ctx); err != nil && !errors.Is(err, storage.ErrObjectNotExist) {
 		log.Errorf("gcs: upload err: %+v\n", err)
 		return 0, gateway.ErrFailedToUploadFile
@@ -622,6 +634,32 @@ func (f *fileRepo) bucket(ctx context.Context) (*storage.BucketHandle, error) {
 	bucket := client.Bucket(f.bucketName)
 
 	return bucket, nil
+}
+
+// bucketWithEndpoint creates a bucket handle using gcsproxy endpoint for upload tracking
+// Returns both bucket and client so caller can close the client after use
+func (f *fileRepo) bucketWithEndpoint(ctx context.Context) (*storage.BucketHandle, *storage.Client, error) {
+	var opts []option.ClientOption
+
+	// Configure custom endpoint if publicBase is set and not standard GCS
+	if f.publicBase != nil && f.publicBase.Host != "storage.googleapis.com" {
+		endpoint := f.publicBase.String()
+		opts = append(opts, option.WithEndpoint(endpoint))
+	}
+
+	// Create client with or without custom endpoint
+	client, err := storage.NewClient(ctx, opts...)
+	if err != nil {
+		if len(opts) > 0 {
+			log.Errorf("gcs: failed to initialize client with custom endpoint: %v", err)
+		} else {
+			log.Errorf("gcs: failed to initialize client: %v", err)
+		}
+		return nil, nil, err
+	}
+
+	bucket := client.Bucket(f.bucketName)
+	return bucket, client, nil
 }
 
 func newUUID() string {
