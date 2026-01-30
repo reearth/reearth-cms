@@ -676,9 +676,9 @@ export default () => {
 
   useEffect(() => {
     const shouldRefetch =
-      currentWorkspaceId &&
-      currentProjectId &&
-      modelId &&
+      currentProject?.id &&
+      currentModel?.id &&
+      !viewLoading &&
       uploaderState.queue.filter(
         queueItem =>
           queueItem.workspaceId === currentWorkspaceId &&
@@ -688,7 +688,16 @@ export default () => {
       ).length === 0;
 
     if (shouldRefetch) refetch();
-  }, [currentProjectId, currentWorkspaceId, modelId, refetch, uploaderState.queue]);
+  }, [
+    currentModel?.id,
+    currentProject?.id,
+    currentProjectId,
+    currentWorkspaceId,
+    modelId,
+    refetch,
+    uploaderState.queue,
+    viewLoading,
+  ]);
 
   return {
     currentModel,
