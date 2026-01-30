@@ -675,18 +675,19 @@ export default () => {
   );
 
   useEffect(() => {
-    const findCurrentQueueItem = uploaderState.queue.find(queueItem => {
-      const { workspaceId, projectId, modelId: _modelId } = queueItem;
+    const shouldRefetch =
+      currentWorkspaceId &&
+      currentProjectId &&
+      modelId &&
+      uploaderState.queue.filter(
+        queueItem =>
+          queueItem.workspaceId === currentWorkspaceId &&
+          queueItem.projectId === currentProjectId &&
+          queueItem.modelId === modelId &&
+          [JobStatus.InProgress, JobStatus.Pending].includes(queueItem.jobState.status),
+      ).length === 0;
 
-      return (
-        workspaceId === currentWorkspaceId &&
-        projectId === currentProjectId &&
-        modelId === _modelId &&
-        queueItem.jobStatus === JobStatus.Completed
-      );
-    });
-
-    if (findCurrentQueueItem) refetch();
+    if (shouldRefetch) refetch();
   }, [currentProjectId, currentWorkspaceId, modelId, refetch, uploaderState.queue]);
 
   return {

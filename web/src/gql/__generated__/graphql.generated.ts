@@ -855,6 +855,13 @@ export type JobProgress = {
   total: Scalars["Int"]["output"];
 };
 
+export type JobState = {
+  __typename?: "JobState";
+  error?: Maybe<Scalars["String"]["output"]>;
+  progress?: Maybe<JobProgress>;
+  status: JobStatus;
+};
+
 export enum JobStatus {
   Cancelled = "CANCELLED",
   Completed = "COMPLETED",
@@ -2123,10 +2130,10 @@ export enum StringOperator {
 
 export type Subscription = {
   __typename?: "Subscription";
-  jobProgress: JobProgress;
+  jobState: JobState;
 };
 
-export type SubscriptionJobProgressArgs = {
+export type SubscriptionJobStateArgs = {
   jobId: Scalars["ID"]["input"];
 };
 

@@ -62,7 +62,7 @@ const Uploader: React.FC<Props> = props => {
     handleUploadCancel,
     handleUploadRetry,
     handleCancelAll,
-    handleJobProgressUpdate,
+    handleJobUpdate,
   } = useHooks();
 
   const titleMessage = useMemo(
@@ -219,7 +219,7 @@ const Uploader: React.FC<Props> = props => {
               queue={queue}
               onRetry={handleUploadRetry}
               onCancel={handleUploadCancel}
-              onJobProgressUpdate={handleJobProgressUpdate}
+              onJobUpdate={handleJobUpdate}
             />
           ))}
         </CardBody>

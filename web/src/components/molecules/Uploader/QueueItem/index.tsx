@@ -10,31 +10,35 @@ import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { UploaderQueueItem } from "../types";
-import useJobProgress from "../useJobProgress";
+import useJobState from "../useJobStatus";
 
 type Props = {
   queue: UploaderQueueItem;
   onRetry: (id: UploaderQueueItem["jobId"]) => Promise<void>;
   onCancel: (id: UploaderQueueItem["jobId"]) => Promise<void>;
-  onJobProgressUpdate: (payload: Pick<UploaderQueueItem, "jobId" | "jobProgress">) => void;
+  onJobUpdate: (payload: Pick<UploaderQueueItem, "jobId" | "jobState">) => void;
+  onJobComplete?: (jobId: UploaderQueueItem["jobId"]) => void;
+  onJobError?: (jobId: UploaderQueueItem["jobId"], error: string) => void;
 };
 
-const QueueItem: React.FC<Props> = ({ queue, onRetry, onCancel, onJobProgressUpdate }) => {
+const QueueItem: React.FC<Props> = (props: Props) => {
+  const { queue, onRetry, onCancel, onJobUpdate, onJobComplete, onJobError } = props;
   const t = useT();
 
-  useJobProgress({
+  useJobState({
     jobId: queue.jobId,
-    updateJobProgressCallback: ({ data }) => {
-      if (data.data)
-        onJobProgressUpdate({ jobId: queue.jobId, jobProgress: data.data.jobProgress });
-    },
     shouldSubscribe: ![JobStatus.Completed, JobStatus.Cancelled, JobStatus.Failed].includes(
-      queue.jobStatus,
+      queue.jobState.status,
     ),
+    onJobUpdateCallback: ({ data }) => {
+      if (data.data) onJobUpdate({ jobId: queue.jobId, jobState: data.data.jobState });
+    },
+    onJobCompleteCallback: () => onJobComplete && void onJobComplete(queue.jobId),
+    onJobErrorCallback: error => onJobError && void onJobError(queue.jobId, error.message),
   });
 
   const renderStatusIcons = useMemo<JSX.Element | null>(() => {
-    switch (queue.jobStatus) {
+    switch (queue.jobState.status) {
       case JobStatus.InProgress:
         return (
           <Tooltip title={t("Cancel upload")}>
@@ -79,20 +83,21 @@ const QueueItem: React.FC<Props> = ({ queue, onRetry, onCancel, onJobProgressUpd
       default:
         return null;
     }
-  }, [onCancel, onRetry, queue.jobId, queue.jobStatus, t]);
+  }, [onCancel, onRetry, queue.jobId, queue.jobState.status, t]);
 
   const renderMessage = useMemo<JSX.Element | null>(() => {
-    // FIXME: fix it later about error
-    // if (queue.jobStatus === JobStatus.Failed && queue.error) {
-    //   return <ErrorMessage title={queue.error}>{queue.error}</ErrorMessage>;
-    // } else if (queue.status === UploadStatus.Canceled) {
-    //   return <Message>{t("Upload canceled")}</Message>;
-    // } else {
-    //   return null;
-    // }
-
-    return null;
-  }, []);
+    if (queue.jobState.status === JobStatus.Failed && queue.jobState.error) {
+      return (
+        <ErrorMessage title={queue.jobState.error}>
+          <span data-testid={DATA_TEST_ID.QueueItem__ErrorMessage}>{queue.jobState.error}</span>
+        </ErrorMessage>
+      );
+    } else if (queue.jobState.status === JobStatus.Cancelled) {
+      return <Message>{t("Upload canceled")}</Message>;
+    } else {
+      return null;
+    }
+  }, [queue.jobState.error, queue.jobState.status, t]);
 
   return (
     <ItemWrapper data-testid={DATA_TEST_ID.QueueItem__Wrapper}>
@@ -100,7 +105,7 @@ const QueueItem: React.FC<Props> = ({ queue, onRetry, onCancel, onJobProgressUpd
         <UpperLeft>
           <InfoIcon icon="clip" color="#8C8C8C" />
           <Tooltip title={queue.fileName}>
-            {queue.jobStatus === JobStatus.Completed ? (
+            {queue.jobState.status === JobStatus.Completed ? (
               <Link to={queue.url} target="_blank" data-testid={DATA_TEST_ID.QueueItem__FileLink}>
                 <FileName>{queue.fileName}</FileName>
               </Link>
@@ -112,10 +117,10 @@ const QueueItem: React.FC<Props> = ({ queue, onRetry, onCancel, onJobProgressUpd
         <UpperRight onPointerUp={event => event.stopPropagation()}>{renderStatusIcons}</UpperRight>
       </ItemUpper>
       <ItemLower>
-        {queue.jobStatus === JobStatus.InProgress && (
+        {queue.jobState.status === JobStatus.InProgress && (
           <Progress
             data-testid={DATA_TEST_ID.QueueItem__ProgressBar}
-            percent={queue.jobProgress ? queue.jobProgress.percentage : 0}
+            percent={queue.jobState.progress ? queue.jobState.progress.percentage : 0}
             showInfo={false}
             status="active"
             size={{ height: 3 }}
@@ -161,6 +166,7 @@ const UpperLeft = styled.div`
 const UpperRight = styled.div`
   display: flex;
   gap: 8px;
+  align-items: center;
 `;
 
 const ActionIcon = styled(Icon)`
@@ -183,7 +189,7 @@ const InfoIcon = styled(Icon)`
   }
 `;
 
-const _ErrorMessage = styled(Tooltip)`
+const ErrorMessage = styled(Tooltip)`
   color: #f5222d;
   font-size: 12px;
   padding-left: 22px;
@@ -194,7 +200,7 @@ const _ErrorMessage = styled(Tooltip)`
   display: block;
 `;
 
-const _Message = styled.div`
+const Message = styled.div`
   color: #8c8c8c;
   font-size: 12px;
   padding-left: 22px;

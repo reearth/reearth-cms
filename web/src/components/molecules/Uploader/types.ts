@@ -1,6 +1,6 @@
 import { RcFile } from "antd/es/upload";
 
-import { JobProgress, JobStatus, JobType } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { JobState } from "@reearth-cms/gql/__generated__/graphql.generated";
 
 export type UploaderQueueItem = {
   // file meta
@@ -14,9 +14,7 @@ export type UploaderQueueItem = {
   modelId: string;
   // job meta
   jobId: string;
-  jobProgress: JobProgress | null;
-  jobType: JobType;
-  jobStatus: JobStatus;
+  jobState: JobState;
 };
 
 export type UploaderState = {

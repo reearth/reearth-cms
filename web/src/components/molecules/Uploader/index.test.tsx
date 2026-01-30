@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { JobStatus, JobType } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { t } from "@reearth-cms/i18n";
 import { DATA_TEST_ID, Test } from "@reearth-cms/test/utils";
 
@@ -20,13 +20,14 @@ const createQueueItem = (overrides?: Partial<UploaderQueueItem>): UploaderQueueI
   projectId: "projectId",
   modelId: "modelId",
   jobId: "jobId",
-  jobProgress: {
-    percentage: 10,
-    processed: 0,
-    total: 0,
+  jobState: {
+    progress: {
+      percentage: 10,
+      processed: 0,
+      total: 0,
+    },
+    status: JobStatus.InProgress,
   },
-  jobType: JobType.Import,
-  jobStatus: JobStatus.InProgress,
   ...overrides,
 });
 
@@ -47,7 +48,7 @@ const createMockUploaderContext = (overrides?: Partial<UploaderHookState>): Uplo
   handleUploadRetry: vi.fn().mockResolvedValue(undefined),
   handleCancelAll: vi.fn().mockResolvedValue(undefined),
   handleEnqueueJob: vi.fn().mockResolvedValue(undefined),
-  handleJobProgressUpdate: vi.fn(),
+  handleJobUpdate: vi.fn(),
   ...overrides,
 });
 
@@ -60,7 +61,7 @@ const renderWithUploaderProvider = (contextOverrides?: Partial<UploaderHookState
     </MemoryRouter>,
   );
 
-vi.mock("./useJobProgress", () => ({
+vi.mock("./useJobStatus", () => ({
   default: vi.fn(),
 }));
 
@@ -113,7 +114,10 @@ describe("Test Uploader component", () => {
       const handleUploadCancel = vi.fn().mockResolvedValue(undefined);
       const queueItem = createQueueItem({
         jobId: "job-123",
-        jobStatus: JobStatus.InProgress,
+        jobState: {
+          status: JobStatus.InProgress,
+          progress: { percentage: 10, processed: 0, total: 0 },
+        },
       });
 
       renderWithUploaderProvider({
@@ -135,7 +139,10 @@ describe("Test Uploader component", () => {
       const handleUploaderOpen = vi.fn();
       const completedItem = createQueueItem({
         jobId: "job-completed",
-        jobStatus: JobStatus.Completed,
+        jobState: {
+          status: JobStatus.Completed,
+          progress: { percentage: 100, processed: 100, total: 100 },
+        },
       });
 
       renderWithUploaderProvider({
@@ -160,7 +167,10 @@ describe("Test Uploader component", () => {
       const handleUploaderOpen = vi.fn();
       const inProgressItem = createQueueItem({
         jobId: "job-in-progress",
-        jobStatus: JobStatus.InProgress,
+        jobState: {
+          status: JobStatus.InProgress,
+          progress: { percentage: 10, processed: 0, total: 0 },
+        },
       });
 
       renderWithUploaderProvider({
@@ -191,7 +201,10 @@ describe("Test Uploader component", () => {
       const handleUploaderOpen = vi.fn();
       const inProgressItem = createQueueItem({
         jobId: "job-in-progress-2",
-        jobStatus: JobStatus.InProgress,
+        jobState: {
+          status: JobStatus.InProgress,
+          progress: { percentage: 10, processed: 0, total: 0 },
+        },
       });
 
       renderWithUploaderProvider({
@@ -219,7 +232,10 @@ describe("Test Uploader component", () => {
       const handleUploaderOpen = vi.fn();
       const inProgressItem = createQueueItem({
         jobId: "job-in-progress-3",
-        jobStatus: JobStatus.InProgress,
+        jobState: {
+          status: JobStatus.InProgress,
+          progress: { percentage: 10, processed: 0, total: 0 },
+        },
       });
 
       renderWithUploaderProvider({
@@ -244,8 +260,11 @@ describe("Test Uploader component", () => {
 
     test("Does not show cancel icon for completed items", () => {
       const completedItem = createQueueItem({
-        jobId: "job-completed",
-        jobStatus: JobStatus.Completed,
+        jobId: "job-completed-2",
+        jobState: {
+          status: JobStatus.Completed,
+          progress: { percentage: 100, processed: 100, total: 100 },
+        },
       });
 
       renderWithUploaderProvider({
@@ -262,7 +281,7 @@ describe("Test Uploader component", () => {
     test("Shows retry icon for cancelled items", () => {
       const cancelledItem = createQueueItem({
         jobId: "job-cancelled",
-        jobStatus: JobStatus.Cancelled,
+        jobState: { status: JobStatus.Cancelled, progress: null },
       });
 
       renderWithUploaderProvider({
@@ -279,7 +298,7 @@ describe("Test Uploader component", () => {
     test("Shows retry and error icons for failed items", () => {
       const failedItem = createQueueItem({
         jobId: "job-failed",
-        jobStatus: JobStatus.Failed,
+        jobState: { status: JobStatus.Failed, progress: null },
       });
 
       renderWithUploaderProvider({
@@ -300,7 +319,7 @@ describe("Test Uploader component", () => {
       const handleUploadRetry = vi.fn().mockResolvedValue(undefined);
       const failedItem = createQueueItem({
         jobId: "job-failed-2",
-        jobStatus: JobStatus.Failed,
+        jobState: { status: JobStatus.Failed, progress: null },
       });
 
       renderWithUploaderProvider({
@@ -323,8 +342,10 @@ describe("Test Uploader component", () => {
     test("Shows progress bar when job is in progress", () => {
       const inProgressItem = createQueueItem({
         jobId: "job-progress-1",
-        jobStatus: JobStatus.InProgress,
-        jobProgress: { percentage: 50, processed: 50, total: 100 },
+        jobState: {
+          status: JobStatus.InProgress,
+          progress: { percentage: 50, processed: 50, total: 100 },
+        },
       });
 
       renderWithUploaderProvider({
@@ -341,8 +362,10 @@ describe("Test Uploader component", () => {
     test("Progress bar shows correct percentage", () => {
       const inProgressItem = createQueueItem({
         jobId: "job-progress-2",
-        jobStatus: JobStatus.InProgress,
-        jobProgress: { percentage: 75, processed: 75, total: 100 },
+        jobState: {
+          status: JobStatus.InProgress,
+          progress: { percentage: 75, processed: 75, total: 100 },
+        },
       });
 
       renderWithUploaderProvider({
@@ -357,11 +380,10 @@ describe("Test Uploader component", () => {
       expect(progressBar).toHaveAttribute("aria-valuenow", "75");
     });
 
-    test("Progress bar shows 0 percent when jobProgress is undefined", () => {
+    test("Progress bar shows 0 percent when progress is null", () => {
       const inProgressItem = createQueueItem({
         jobId: "job-progress-3",
-        jobStatus: JobStatus.InProgress,
-        jobProgress: undefined,
+        jobState: { status: JobStatus.InProgress, progress: null },
       });
 
       renderWithUploaderProvider({
@@ -379,7 +401,10 @@ describe("Test Uploader component", () => {
     test("Does not show progress bar when job is completed", () => {
       const completedItem = createQueueItem({
         jobId: "job-completed-progress",
-        jobStatus: JobStatus.Completed,
+        jobState: {
+          status: JobStatus.Completed,
+          progress: { percentage: 100, processed: 100, total: 100 },
+        },
       });
 
       renderWithUploaderProvider({
@@ -396,7 +421,7 @@ describe("Test Uploader component", () => {
     test("Does not show progress bar when job is failed", () => {
       const failedItem = createQueueItem({
         jobId: "job-failed-progress",
-        jobStatus: JobStatus.Failed,
+        jobState: { status: JobStatus.Failed, progress: null },
       });
 
       renderWithUploaderProvider({
@@ -413,7 +438,7 @@ describe("Test Uploader component", () => {
     test("Does not show progress bar when job is cancelled", () => {
       const cancelledItem = createQueueItem({
         jobId: "job-cancelled-progress",
-        jobStatus: JobStatus.Cancelled,
+        jobState: { status: JobStatus.Cancelled, progress: null },
       });
 
       renderWithUploaderProvider({

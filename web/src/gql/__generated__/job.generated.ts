@@ -38,12 +38,22 @@ export type JobsQuery = {
   }>;
 };
 
-export type JobProgressSubscriptionVariables = Types.Exact<{
+export type JobStateSubscriptionVariables = Types.Exact<{
   jobId: Types.Scalars["ID"]["input"];
 }>;
 
-export type JobProgressSubscription = {
-  jobProgress: { __typename: "JobProgress"; processed: number; total: number; percentage: number };
+export type JobStateSubscription = {
+  jobState: {
+    __typename: "JobState";
+    status: Types.JobStatus;
+    error: string | null;
+    progress: {
+      __typename: "JobProgress";
+      processed: number;
+      total: number;
+      percentage: number;
+    } | null;
+  };
 };
 
 export type CancelJobMutationVariables = Types.Exact<{
@@ -193,13 +203,13 @@ export const JobsDocument = {
     },
   ],
 } as unknown as DocumentNode<JobsQuery, JobsQueryVariables>;
-export const JobProgressDocument = {
+export const JobStateDocument = {
   kind: "Document",
   definitions: [
     {
       kind: "OperationDefinition",
       operation: "subscription",
-      name: { kind: "Name", value: "JobProgress" },
+      name: { kind: "Name", value: "JobState" },
       variableDefinitions: [
         {
           kind: "VariableDefinition",
@@ -215,7 +225,7 @@ export const JobProgressDocument = {
         selections: [
           {
             kind: "Field",
-            name: { kind: "Name", value: "jobProgress" },
+            name: { kind: "Name", value: "jobState" },
             arguments: [
               {
                 kind: "Argument",
@@ -226,9 +236,20 @@ export const JobProgressDocument = {
             selectionSet: {
               kind: "SelectionSet",
               selections: [
-                { kind: "Field", name: { kind: "Name", value: "processed" } },
-                { kind: "Field", name: { kind: "Name", value: "total" } },
-                { kind: "Field", name: { kind: "Name", value: "percentage" } },
+                { kind: "Field", name: { kind: "Name", value: "status" } },
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "progress" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "processed" } },
+                      { kind: "Field", name: { kind: "Name", value: "total" } },
+                      { kind: "Field", name: { kind: "Name", value: "percentage" } },
+                    ],
+                  },
+                },
+                { kind: "Field", name: { kind: "Name", value: "error" } },
               ],
             },
           },
@@ -236,7 +257,7 @@ export const JobProgressDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<JobProgressSubscription, JobProgressSubscriptionVariables>;
+} as unknown as DocumentNode<JobStateSubscription, JobStateSubscriptionVariables>;
 export const CancelJobDocument = {
   kind: "Document",
   definitions: [

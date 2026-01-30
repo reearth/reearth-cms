@@ -16,7 +16,6 @@ import { Constant } from "./constant";
 import { ContentSourceFormat, ImportContentItem, ImportContentUtils } from "./importContent";
 import { ObjectUtils } from "./object";
 
-
 async function readFromJSONFile(
   staticFileDirectory: string,
   baseDirectory = "public",

@@ -4,14 +4,14 @@ import type { ComponentProps } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, test, vi } from "vitest";
 
-import { JobStatus, JobType } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { DATA_TEST_ID, Test } from "@reearth-cms/test/utils";
 
 import { type UploaderQueueItem } from "../types";
 
 import QueueItem from ".";
 
-vi.mock("../useJobProgress", () => ({
+vi.mock("../useJobStatus", () => ({
   default: vi.fn(),
 }));
 
@@ -20,9 +20,7 @@ describe("Test QueueItem component", () => {
 
   const baseQueue: UploaderQueueItem = {
     jobId: "queue-1",
-    jobStatus: JobStatus.Pending,
-    jobType: JobType.Import,
-    jobProgress: null,
+    jobState: { status: JobStatus.Pending, progress: null },
     fileName: "test.csv",
     extension: "csv",
     url: "/assets/test.csv",
@@ -46,7 +44,7 @@ describe("Test QueueItem component", () => {
           queue={queue}
           onRetry={onRetry}
           onCancel={onCancel}
-          onJobProgressUpdate={onJobProgressUpdate}
+          onJobUpdate={onJobProgressUpdate}
           {...props}
         />
       </MemoryRouter>,
@@ -56,7 +54,13 @@ describe("Test QueueItem component", () => {
   };
 
   test("Show link for completed item", () => {
-    renderQueueItem({ ...baseQueue, jobStatus: JobStatus.Completed });
+    renderQueueItem({
+      ...baseQueue,
+      jobState: {
+        status: JobStatus.Completed,
+        progress: { percentage: 100, processed: 100, total: 100 },
+      },
+    });
 
     const link = screen.getByTestId(DATA_TEST_ID.QueueItem__FileLink);
     expect(link).toHaveTextContent(baseQueue.fileName);
@@ -66,11 +70,13 @@ describe("Test QueueItem component", () => {
   test("Shows progress and allows cancel for in progress item", async () => {
     const { onCancel } = renderQueueItem({
       ...baseQueue,
-      jobStatus: JobStatus.InProgress,
-      jobProgress: {
-        percentage: 42,
-        processed: 42,
-        total: 100,
+      jobState: {
+        status: JobStatus.InProgress,
+        progress: {
+          percentage: 42,
+          processed: 42,
+          total: 100,
+        },
       },
     });
 
@@ -88,7 +94,7 @@ describe("Test QueueItem component", () => {
   test("Shows retry action for failed item", async () => {
     const { onRetry } = renderQueueItem({
       ...baseQueue,
-      jobStatus: JobStatus.Failed,
+      jobState: { status: JobStatus.Failed, progress: null },
     });
 
     const retryIcon = screen.getByTestId(DATA_TEST_ID.QueueItem__RetryIcon);
@@ -100,7 +106,7 @@ describe("Test QueueItem component", () => {
   test("Shows retry action for canceled item", async () => {
     const { onRetry } = renderQueueItem({
       ...baseQueue,
-      jobStatus: JobStatus.Cancelled,
+      jobState: { status: JobStatus.Cancelled, progress: null },
     });
 
     const retryIcon = screen.getByTestId(DATA_TEST_ID.QueueItem__RetryIcon);

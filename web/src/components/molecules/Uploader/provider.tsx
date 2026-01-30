@@ -1,13 +1,18 @@
 import { ApolloClient } from "@apollo/client";
-import { useMutation } from "@apollo/client/react";
+import { useLazyQuery, useMutation } from "@apollo/client/react";
 import { createContext, ReactNode, useCallback, useMemo } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { RcFile } from "@reearth-cms/components/atoms/Upload";
 import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { ImportItemsAsyncDocument } from "@reearth-cms/gql/__generated__/item.generated";
-import { CancelJobDocument, CancelJobMutation } from "@reearth-cms/gql/__generated__/job.generated";
+import {
+  CancelJobDocument,
+  CancelJobMutation,
+  JobDocument,
+} from "@reearth-cms/gql/__generated__/job.generated";
 import { useUploader } from "@reearth-cms/state";
+import { Constant } from "@reearth-cms/utils/constant";
 
 import { UploaderQueueItem, UploaderState } from "./types";
 
@@ -31,25 +36,8 @@ export type UploaderHookState = {
     url: string;
     file: RcFile;
   }) => Promise<void>;
-  handleJobProgressUpdate: (payload: Pick<UploaderQueueItem, "jobId" | "jobProgress">) => void;
+  handleJobUpdate: (payload: Pick<UploaderQueueItem, "jobId" | "jobState">) => void;
 };
-
-const FULL_PERCENTAGE = 100;
-const EMPTY_PERCENTAGE = 0;
-
-function getJobStatus(
-  jobProgress: UploaderQueueItem["jobProgress"],
-): UploaderQueueItem["jobStatus"] | null {
-  if (!jobProgress) return null;
-
-  if (jobProgress.percentage > EMPTY_PERCENTAGE && jobProgress.percentage < FULL_PERCENTAGE) {
-    return JobStatus.InProgress;
-  } else if (jobProgress.percentage === FULL_PERCENTAGE) {
-    return JobStatus.Completed;
-  } else {
-    return null;
-  }
-}
 
 export const UploaderHookStateContext = createContext<UploaderHookState | undefined>(undefined);
 
@@ -57,8 +45,34 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
   const [uploaderState, setUploaderState] = useUploader();
 
   const [importItemsAsyncMutation] = useMutation(ImportItemsAsyncDocument);
-
   const [cancelJobMutation] = useMutation(CancelJobDocument);
+  const [getJob] = useLazyQuery(JobDocument);
+
+  const getJobStateFallback = useCallback(
+    (jobId: UploaderQueueItem["jobId"]) => {
+      setTimeout(async () => {
+        const jobRes = await getJob({ variables: { jobId } });
+
+        setUploaderState(prev => ({
+          ...prev,
+          queue: prev.queue.map(item =>
+            item.jobId === jobId
+              ? {
+                  ...item,
+                  jobState: {
+                    ...item.jobState,
+                    progress: jobRes.data?.job ? jobRes.data.job.progress : item.jobState.progress,
+                    status: jobRes.data?.job ? jobRes.data.job.status : item.jobState.status,
+                    error: jobRes.data?.job ? jobRes.data.job.error : item.jobState.error,
+                  },
+                }
+              : item,
+          ),
+        }));
+      }, Constant.IMPORT.GET_JOB_DELAY_TIME_IN_MS);
+    },
+    [getJob, setUploaderState],
+  );
 
   const handleEnqueueJob = useCallback<UploaderHookState["handleEnqueueJob"]>(
     async ({ workspaceId, projectId, modelId, fileName, extension, url, file }) => {
@@ -68,7 +82,6 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
         },
       });
 
-      // TODO: check error
       if (
         importItemsRes.error ||
         !importItemsRes.data ||
@@ -78,13 +91,7 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      const {
-        id: jobId,
-        type: jobType,
-        status: jobStatus,
-        progress,
-      } = importItemsRes.data.importItemsAsync.job;
-      const { percentage, processed, total } = progress;
+      const { id: jobId, status, progress } = importItemsRes.data.importItemsAsync.job;
 
       setUploaderState(prev => {
         const newQueueItem: UploaderQueueItem = {
@@ -96,9 +103,7 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
           extension,
           url,
           file,
-          jobProgress: { percentage, total, processed },
-          jobType,
-          jobStatus,
+          jobState: { status, progress },
         };
 
         return {
@@ -106,11 +111,12 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
           isOpen: true,
           showBadge: true,
           queue: [newQueueItem, ...prev.queue],
-          currentJobId: jobId,
         };
       });
+
+      getJobStateFallback(jobId);
     },
-    [importItemsAsyncMutation, setUploaderState],
+    [getJobStateFallback, importItemsAsyncMutation, setUploaderState],
   );
 
   const isShowUploader = useMemo<UploaderHookState["isShowUploader"]>(
@@ -145,13 +151,7 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
           return;
         }
 
-        const {
-          id: newJobId,
-          type: jobType,
-          status: jobStatus,
-          progress,
-        } = importItemsRes.data.importItemsAsync.job;
-        const { percentage, processed, total } = progress;
+        const { id: newJobId, status, progress } = importItemsRes.data.importItemsAsync.job;
 
         setUploaderState(prev => ({
           ...prev,
@@ -160,16 +160,16 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
               ? {
                   ..._prev,
                   jobId: newJobId,
-                  jobProgress: { percentage, total, processed },
-                  jobType,
-                  jobStatus,
+                  jobState: { status, progress },
                 }
               : _prev,
           ),
         }));
+
+        getJobStateFallback(newJobId);
       }
     },
-    [importItemsAsyncMutation, setUploaderState, uploaderState.queue],
+    [getJobStateFallback, importItemsAsyncMutation, setUploaderState, uploaderState.queue],
   );
 
   const handleUploadCancel = useCallback<UploaderHookState["handleUploadCancel"]>(
@@ -191,7 +191,7 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
         ...prev,
         queue: prev.queue.map(queueItem =>
           queueItem.jobId === findCancelItem.jobId
-            ? { ...queueItem, jobStatus: newStatus }
+            ? { ...queueItem, jobState: { ...queueItem.jobState, status: newStatus } }
             : queueItem,
         ),
       }));
@@ -201,12 +201,12 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
 
   const handleCancelAll = useCallback<UploaderHookState["handleCancelAll"]>(async () => {
     for await (const queueItem of uploaderState.queue) {
-      if ([JobStatus.InProgress, JobStatus.Pending].includes(queueItem.jobStatus))
+      if ([JobStatus.InProgress, JobStatus.Pending].includes(queueItem.jobState.status))
         await cancelJobMutation({ variables: { jobId: queueItem.jobId } });
     }
     const cancelPromises = uploaderState.queue.reduce<Promise<MutateResult<CancelJobMutation>>[]>(
       (acc, curr) =>
-        [JobStatus.InProgress, JobStatus.Pending].includes(curr.jobStatus)
+        [JobStatus.InProgress, JobStatus.Pending].includes(curr.jobState.status)
           ? [...acc, cancelJobMutation({ variables: { jobId: curr.jobId } })]
           : acc,
       [],
@@ -225,17 +225,19 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
   const shouldPreventReload = useMemo<UploaderHookState["shouldPreventReload"]>(
     () =>
       uploaderState.queue.filter(_queue =>
-        [JobStatus.InProgress, JobStatus.Failed, JobStatus.Cancelled].includes(_queue.jobStatus),
+        [JobStatus.InProgress, JobStatus.Failed, JobStatus.Cancelled].includes(
+          _queue.jobState.status,
+        ),
       ).length > 0,
     [uploaderState.queue],
   );
 
   const uploadingFileCount = useMemo<UploaderHookState["uploadingFileCount"]>(
-    () => uploaderState.queue.filter(item => item.jobStatus === JobStatus.InProgress).length,
+    () => uploaderState.queue.filter(item => item.jobState.status === JobStatus.InProgress).length,
     [uploaderState.queue],
   );
 
-  const handleJobProgressUpdate = useCallback<UploaderHookState["handleJobProgressUpdate"]>(
+  const handleJobUpdate = useCallback<UploaderHookState["handleJobUpdate"]>(
     payload => {
       setUploaderState(prev => ({
         ...prev,
@@ -243,8 +245,7 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
           return item.jobId === payload.jobId
             ? {
                 ...item,
-                jobProgress: payload.jobProgress,
-                jobStatus: getJobStatus(payload.jobProgress) || item.jobStatus,
+                jobState: payload.jobState,
               }
             : item;
         }),
@@ -255,28 +256,28 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
 
   const contextValue = useMemo<UploaderHookState>(
     () => ({
-      isShowUploader,
-      uploaderState,
-      shouldPreventReload,
-      uploadingFileCount,
-      handleUploaderOpen,
-      handleUploadCancel,
-      handleUploadRetry,
       handleCancelAll,
       handleEnqueueJob,
-      handleJobProgressUpdate,
+      handleJobUpdate,
+      handleUploadCancel,
+      handleUploaderOpen,
+      handleUploadRetry,
+      isShowUploader,
+      shouldPreventReload,
+      uploaderState,
+      uploadingFileCount,
     }),
     [
       handleCancelAll,
       handleEnqueueJob,
+      handleJobUpdate,
       handleUploadCancel,
-      handleUploadRetry,
       handleUploaderOpen,
+      handleUploadRetry,
       isShowUploader,
       shouldPreventReload,
       uploaderState,
       uploadingFileCount,
-      handleJobProgressUpdate,
     ],
   );
 

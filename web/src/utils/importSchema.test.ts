@@ -38,7 +38,6 @@ import {
 } from "./importSchema";
 import { ObjectUtils } from "./object";
 
-
 async function readFromJSONFile<T>(
   staticFileDirectory: string,
   baseDirectory = "public",

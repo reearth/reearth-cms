@@ -20,6 +20,7 @@ const customRender = (ui: React.ReactElement, options = {}) =>
     ...options,
   });
 
+export { customRender as render };
 export * from "@testing-library/react";
 export { default as userEvent } from "@testing-library/user-event";
 
@@ -238,6 +239,7 @@ export enum DATA_TEST_ID {
   QueueItem__ErrorIcon = "QueueItem__ErrorIcon",
   QueueItem__ProgressBar = "QueueItem__ProgressBar",
   QueueItem__FileLink = "QueueItem__FileLink",
+  QueueItem__ErrorMessage = "QueueItem__ErrorMessage",
 
   // WorkspaceHeader
   WorkspaceHeader__ProjectSortSelect = "WorkspaceHeader__ProjectSortSelect",
@@ -279,5 +281,3 @@ export enum DATA_TEST_ID {
   Content__List__ItemFieldPopoverIcon = "Content__List__ItemFieldPopoverIcon",
   Content__List__ItemFieldPopoverContent = "Content__List__ItemFieldPopoverContent",
 }
-
-export { customRender as render };

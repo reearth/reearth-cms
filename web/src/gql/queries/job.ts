@@ -37,12 +37,16 @@ export const JOBS = gql`
   }
 `;
 
-export const JOB_PROCESS = gql`
-  subscription JobProgress($jobId: ID!) {
-    jobProgress(jobId: $jobId) {
-      processed
-      total
-      percentage
+export const JOB_STATE = gql`
+  subscription JobState($jobId: ID!) {
+    jobState(jobId: $jobId) {
+      status
+      progress {
+        processed
+        total
+        percentage
+      }
+      error
     }
   }
 `;
