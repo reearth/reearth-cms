@@ -66,7 +66,7 @@ func (i *Job) Cancel(ctx context.Context, jobID id.JobID, _ *usecase.Operator) (
 	return j, nil
 }
 
-func (i *Job) Subscribe(ctx context.Context, jobID id.JobID, _ *usecase.Operator) (<-chan job.Progress, error) {
+func (i *Job) Subscribe(ctx context.Context, jobID id.JobID, _ *usecase.Operator) (<-chan job.State, error) {
 	if i.gateways.JobPubSub == nil {
 		return nil, rerror.NewE(i18n.T("job subscription not available"))
 	}

@@ -161,8 +161,9 @@ func (i Item) importCSVWithProgress(ctx context.Context, j *job.Job, prj *projec
 
 		// Publish progress
 		progress := job.NewProgress(processed, totalCount)
+		state := job.NewState(job.StatusInProgress, &progress, "")
 		if i.gateways.JobPubSub != nil {
-			if err := i.gateways.JobPubSub.Publish(ctx, j.ID(), progress); err != nil {
+			if err := i.gateways.JobPubSub.Publish(ctx, j.ID(), state); err != nil {
 				log.Warnf("item: import job %s failed to publish progress: %v", j.ID(), err)
 			}
 		}
