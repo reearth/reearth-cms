@@ -5306,7 +5306,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../../../schemas/_shared.graphql", Input: `# Built-in
+	{Name: "../../../schemas/gql/_shared.graphql", Input: `# Built-in
 
 union Operator = User | Integration
 
@@ -5410,7 +5410,7 @@ schema {
   mutation: Mutation
   subscription: Subscription
 }`, BuiltIn: false},
-	{Name: "../../../schemas/asset.graphql", Input: `type Asset implements Node {
+	{Name: "../../../schemas/gql/asset.graphql", Input: `type Asset implements Node {
   id: ID!
   project: Project!
   projectId: ID!
@@ -5604,7 +5604,7 @@ extend type Mutation {
   createAssetUpload(input: CreateAssetUploadInput!): CreateAssetUploadPayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/field.graphql", Input: `enum SchemaFieldType {
+	{Name: "../../../schemas/gql/field.graphql", Input: `enum SchemaFieldType {
   Text
   TextArea
   RichText
@@ -5987,7 +5987,7 @@ extend type Mutation {
   deleteField(input: DeleteFieldInput!): DeleteFieldPayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/group.graphql", Input: `type Group implements Node {
+	{Name: "../../../schemas/gql/group.graphql", Input: `type Group implements Node {
     id: ID!
     schemaId: ID!
     projectId: ID!
@@ -6048,7 +6048,7 @@ extend type Mutation {
     updateGroupsOrder(input: UpdateGroupsOrderInput!): GroupsPayload
     deleteGroup(input: DeleteGroupInput!): DeleteGroupPayload
 }`, BuiltIn: false},
-	{Name: "../../../schemas/integration.graphql", Input: `enum IntegrationType {
+	{Name: "../../../schemas/gql/integration.graphql", Input: `enum IntegrationType {
   Public
   Private
 }
@@ -6122,7 +6122,7 @@ extend type Mutation {
   regenerateIntegrationToken(input: RegenerateIntegrationTokenInput!): IntegrationPayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/integration_webhook.graphql", Input: `type WebhookTrigger {
+	{Name: "../../../schemas/gql/integration_webhook.graphql", Input: `type WebhookTrigger {
   onItemCreate: Boolean
   onItemUpdate: Boolean
   onItemDelete: Boolean
@@ -6198,7 +6198,7 @@ extend type Mutation {
   deleteWebhook(input: DeleteWebhookInput!): DeleteWebhookPayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/item.graphql", Input: `type Item implements Node {
+	{Name: "../../../schemas/gql/item.graphql", Input: `type Item implements Node {
   id: ID!
   schemaId: ID!
   threadId: ID
@@ -6373,7 +6373,7 @@ extend type Mutation {
   importItems(input: ImportItemsInput!): ImportItemsPayload
   importItemsAsync(input: ImportItemsInput!): ImportItemsAsyncPayload
 }`, BuiltIn: false},
-	{Name: "../../../schemas/item_filter.graphql", Input: `## data Types: string, number, boolean, date, reference, asset, group, groupField
+	{Name: "../../../schemas/gql/item_filter.graphql", Input: `## data Types: string, number, boolean, date, reference, asset, group, groupField
 
 #basic op: equals, not equals
 #string op: contains, not contains, start with, end with, not start with, not end with
@@ -6617,7 +6617,7 @@ input TimeFieldConditionInput {
   value: DateTime!
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/item_view.graphql", Input: `type View implements Node {
+	{Name: "../../../schemas/gql/item_view.graphql", Input: `type View implements Node {
   id: ID!
   name: String!
   modelId: ID!
@@ -6689,7 +6689,7 @@ extend type Mutation {
   updateViewsOrder(input: UpdateViewsOrderInput!): ViewsPayload
   deleteView(input: DeleteViewInput!): DeleteViewPayload
 }`, BuiltIn: false},
-	{Name: "../../../schemas/job.graphql", Input: `# Job - Generic async job system for long-running operations
+	{Name: "../../../schemas/gql/job.graphql", Input: `# Job - Generic async job system for long-running operations
 
 enum JobType {
   IMPORT
@@ -6745,7 +6745,7 @@ extend type Subscription {
   jobState(jobId: ID!): JobState!
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/model.graphql", Input: `type Model implements Node {
+	{Name: "../../../schemas/gql/model.graphql", Input: `type Model implements Node {
   id: ID!
   projectId: ID!
   schemaId: ID!
@@ -6848,7 +6848,7 @@ extend type Mutation {
   exportModelSchema(input: ExportModelSchemaInput!): ExportModelSchemaPayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/project.graphql", Input: `type ProjectAliasAvailability {
+	{Name: "../../../schemas/gql/project.graphql", Input: `type ProjectAliasAvailability {
   alias: String!
   available: Boolean!
 }
@@ -7005,7 +7005,7 @@ extend type Mutation {
   regenerateAPIKey(input: RegenerateAPIKeyInput!): APIKeyPayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/request.graphql", Input: `type Request implements Node {
+	{Name: "../../../schemas/gql/request.graphql", Input: `type Request implements Node {
   id: ID!
   items: [RequestItem!]!
   title: String!
@@ -7115,7 +7115,7 @@ extend type Mutation {
   deleteRequest(input: DeleteRequestInput!): DeleteRequestPayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/schema.graphql", Input: `type Schema implements Node {
+	{Name: "../../../schemas/gql/schema.graphql", Input: `type Schema implements Node {
   id: ID!
   projectId: ID!
   fields: [SchemaField!]!
@@ -7124,7 +7124,7 @@ extend type Mutation {
   project: Project!
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/thread.graphql", Input: `type Thread {
+	{Name: "../../../schemas/gql/thread.graphql", Input: `type Thread {
   id: ID!
   workspace: Workspace
   workspaceId: ID!
@@ -7188,7 +7188,7 @@ extend type Mutation {
   deleteComment(input: DeleteCommentInput!): DeleteCommentPayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/user.graphql", Input: `type User implements Node {
+	{Name: "../../../schemas/gql/user.graphql", Input: `type User implements Node {
   id: ID!
   name: String!
   email: String!
@@ -7247,7 +7247,7 @@ extend type Mutation {
   deleteMe(input: DeleteMeInput!): DeleteMePayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/workspace.graphql", Input: `type Workspace implements Node {
+	{Name: "../../../schemas/gql/workspace.graphql", Input: `type Workspace implements Node {
     id: ID!
     name: String!
     alias: String
@@ -7387,7 +7387,7 @@ extend type Mutation {
     updateIntegrationOfWorkspace(input: UpdateIntegrationOfWorkspaceInput!): UpdateMemberOfWorkspacePayload
 }
 `, BuiltIn: false},
-	{Name: "../../../schemas/workspacesettings.graphql", Input: `type WorkspaceSettings implements Node {
+	{Name: "../../../schemas/gql/workspacesettings.graphql", Input: `type WorkspaceSettings implements Node {
     id: ID! # same as workspaceId
     tiles: ResourceList
     terrains: ResourceList
