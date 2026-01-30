@@ -1,0 +1,209 @@
+paths:
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/projectIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/pageParam'
+      - $ref: './_shared.yml#/components/parameters/perPageParam'
+      - $ref: './_shared.yml#/components/parameters/sortParam'
+      - $ref: './_shared.yml#/components/parameters/sortDirParam'
+    get:
+      operationId: GroupFilter
+      security:
+        - bearerAuth: [ ]
+      summary: Returns a list of groups in a project.
+      tags:
+        - Groups
+      description: Returns a list of groups belonging to the specified project.
+      responses:
+        '200':
+          description: A list of groups in the project.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  groups:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/group'
+                  totalCount:
+                    type: integer
+                    minimum: 0
+                  page:
+                    type: integer
+                    minimum: 1
+                  perPage:
+                    type: integer
+                    minimum: 1
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Project not found
+        '500':
+          description: Internal server error
+    post:
+      operationId: GroupCreate
+      summary: Create a new group in a project.
+      tags:
+        - Groups
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - key
+              properties:
+                name:
+                  type: string
+                key:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: The created group.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/group'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '500':
+          description: Internal server error
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/groups/{groupIdOrKey}':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/projectIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/groupIdOrKeyParam'
+    get:
+      operationId: GroupGet
+      security:
+        - bearerAuth: [ ]
+      summary: Retrieve a group within a project.
+      tags:
+        - Groups
+      description: Returns details of a specific group within the specified project.
+      responses:
+        '200':
+          description: Group details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/group'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Group not found
+        '500':
+          description: Internal server error
+    patch:
+      operationId: GroupUpdate
+      security:
+        - bearerAuth: [ ]
+      summary: Update a group's details within a project.
+      tags:
+        - Groups
+      description: Updates the name, key, or description of a group within a specific project.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                key:
+                  type: string
+      responses:
+        '200':
+          description: The updated group.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/group'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Group not found
+        '500':
+          description: Internal server error
+    delete:
+      operationId: GroupDelete
+      security:
+        - bearerAuth: [ ]
+      summary: Delete a group within a project.
+      tags:
+        - Groups
+      description: Deletes a group within a specified project.
+      responses:
+        '200':
+          description: Group successfully deleted.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.GroupID
+                    type: string
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Group not found
+        '500':
+          description: Internal server error
+
+components:
+  schemas:
+    group:
+      type: object
+      required:
+        - id
+        - schemaId
+        - projectId
+        - name
+        - description
+        - key
+        - schema
+        - fields
+      properties:
+        id:
+          x-go-type: id.GroupID
+          type: string
+        schemaId:
+          x-go-type: id.SchemaID
+          type: string
+        projectId:
+          x-go-type: id.ProjectID
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        key:
+          type: string
+        schema:
+          $ref: './field.yml#/components/schemas/schema'
+        fields:
+          type: array
+          items:
+            $ref: './field.yml#/components/schemas/schemaField'

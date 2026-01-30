@@ -1,0 +1,285 @@
+paths:
+  '/{workspaceIdOrAlias}/projects':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/pageParam'
+      - $ref: './_shared.yml#/components/parameters/perPageParam'
+      - $ref: './_shared.yml#/components/parameters/sortParam'
+      - $ref: './_shared.yml#/components/parameters/sortDirParam'
+      - $ref: './_shared.yml#/components/parameters/keywordParam'
+    get:
+      operationId: ProjectFilter
+      security:
+        - bearerAuth: [ ]
+      summary: Returns a list of projects.
+      tags:
+        - Projects
+      description: Returns a list of projects
+      responses:
+        '200':
+          description: A JSON array of projects
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projects:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/project'
+                  totalCount:
+                    type: integer
+                    minimum: 0
+                  page:
+                    type: integer
+                    minimum: 1
+                  perPage:
+                    type: integer
+                    minimum: 1
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          $ref: './_shared.yml#/components/responses/NotFoundError'
+        '500':
+          description: Internal server error
+    post:
+      operationId: ProjectCreate
+      summary: Create a project
+      tags:
+        - Projects
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                license:
+                  type: string
+                readme:
+                  type: string
+                alias:
+                  type: string
+                requestRoles:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/projectRequestRole'
+      responses:
+        '201':
+          description: A JSON object of the created project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/project'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/projectIdOrAliasParam'
+    get:
+      operationId: ProjectGet
+      security:
+        - bearerAuth: [ ]
+      summary: Returns a project.
+      tags:
+        - Projects
+      description: Returns a project.
+      responses:
+        '200':
+          description: A JSON object of the project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/project'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+    patch:
+      operationId: ProjectUpdate
+      security:
+        - bearerAuth: [ ]
+      summary: Update a project.
+      tags:
+        - Projects
+      description: Update a project.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                license:
+                  type: string
+                readme:
+                  type: string
+                alias:
+                  type: string
+                accessibility:
+                  $ref: '#/components/schemas/accessibility'
+                requestRoles:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/projectRequestRole'
+      responses:
+        '200':
+          description: A JSON object of the updated project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/project'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Project Not found
+        '500':
+          description: Internal server error
+    delete:
+      operationId: ProjectDelete
+      summary: Delete a project
+      tags:
+        - Projects
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: The project was deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                properties:
+                  id:
+                    x-go-type: id.ProjectID
+                    type: string
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+
+components:
+  schemas:
+    project:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - license
+        - readme
+        - workspaceId
+        - alias
+        - accessibility
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          x-go-type: id.ProjectID
+          type: string
+        workspaceId:
+          x-go-type: accountdomain.WorkspaceID
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        license:
+          type: string
+        readme:
+          type: string
+        alias:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        accessibility:
+          $ref: '#/components/schemas/accessibility'
+        requestRoles:
+          type: array
+          items:
+            $ref: '#/components/schemas/projectRequestRole'
+    publicationSettings:
+      type: object
+      properties:
+        publicModels:
+          type: array
+          items:
+            type: string
+            x-go-type: id.ModelID
+        publicAssets:
+          type: boolean
+      required:
+        - publicModels
+        - publicAssets
+    apiKey:
+      type: object
+      properties:
+        id:
+          type: string
+          x-go-type: id.APIKeyID
+        name:
+          type: string
+        description:
+          type: string
+        key:
+          type: string
+        publication:
+          $ref: '#/components/schemas/publicationSettings'
+      required:
+        - id
+        - name
+        - key
+        - publication
+    accessibility:
+      type: object
+      properties:
+        visibility:
+          type: string
+          enum: [ PUBLIC, PRIVATE ]
+        publication:
+          $ref: '#/components/schemas/publicationSettings'
+        apiKeys:
+          type: array
+          items:
+            $ref: '#/components/schemas/apiKey'
+      required:
+        - visibility
+        - apiKeys
+    projectRequestRole:
+      type: string
+      enum: [ READER, WRITER, MAINTAINER, OWNER ]

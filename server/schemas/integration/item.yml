@@ -1,0 +1,570 @@
+paths:
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/projectIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/modelIdOrKeyParam'
+    get:
+      operationId: ItemFilter
+      security:
+        - bearerAuth: [ ]
+      summary: Returns a list of items.
+      tags:
+        - Items
+      description: Returns a list of items with filtering and ordering.
+      parameters:
+        - $ref: './_shared.yml#/components/parameters/sortParam'
+        - $ref: './_shared.yml#/components/parameters/sortDirParam'
+        - $ref: './_shared.yml#/components/parameters/pageParam'
+        - $ref: './_shared.yml#/components/parameters/perPageParam'
+        - $ref: './_shared.yml#/components/parameters/refParam'
+        - $ref: './_shared.yml#/components/parameters/assetParam'
+        - $ref: './_shared.yml#/components/parameters/keywordParam'
+      responses:
+        '200':
+          description: A JSON array of user names
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/versionedItem'
+                  totalCount:
+                    type: integer
+                    minimum: 0
+                  page:
+                    type: integer
+                    minimum: 1
+                  perPage:
+                    type: integer
+                    minimum: 1
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+    post:
+      operationId: ItemCreate
+      summary: create an item
+      tags:
+        - Items
+      description: Create an Item.
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/field'
+                metadataFields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/field'
+      responses:
+        '200':
+          description: A JSON array of user names
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/versionedItem'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/filter':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/projectIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/modelIdOrKeyParam'
+    post:
+      operationId: ItemFilterPost
+      security:
+        - bearerAuth: [ ]
+      summary: Returns a list of items with complex filtering.
+      tags:
+        - Items
+      description: Returns a list of items with complex filtering in request body.
+      parameters:
+        - $ref: './_shared.yml#/components/parameters/sortParam'
+        - $ref: './_shared.yml#/components/parameters/sortDirParam'
+        - $ref: './_shared.yml#/components/parameters/pageParam'
+        - $ref: './_shared.yml#/components/parameters/perPageParam'
+        - $ref: './_shared.yml#/components/parameters/refParam'
+        - $ref: './_shared.yml#/components/parameters/assetParam'
+        - $ref: './_shared.yml#/components/parameters/keywordParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filter:
+                  $ref: '#/components/schemas/condition'
+      responses:
+        '200':
+          description: Paginated list of items
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/versionedItem'
+                  totalCount:
+                    type: integer
+                    minimum: 0
+                  page:
+                    type: integer
+                    minimum: 1
+                  perPage:
+                    type: integer
+                    minimum: 1
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.geojson':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/projectIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/modelIdOrKeyParam'
+    get:
+      operationId: ItemsAsGeoJSON
+      security:
+        - bearerAuth: [ ]
+      summary: Returns a GeoJSON that has a list of items as features.
+      tags:
+        - Items
+        - GeoJSON
+      description: Returns a GeoJSON that has a list of items as features.
+      parameters:
+        - $ref: './_shared.yml#/components/parameters/pageParam'
+        - $ref: './_shared.yml#/components/parameters/perPageParam'
+        - $ref: './_shared.yml#/components/parameters/refParam'
+      responses:
+        '200':
+          description: A GeoJSON object
+          content:
+            application/octet-stream:
+              schema:
+                $ref: '#/components/schemas/GeoJSON'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items.csv':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/projectIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/modelIdOrKeyParam'
+    get:
+      operationId: ItemsAsCSV
+      security:
+        - bearerAuth: [ ]
+      summary: Returns a CSV that has a list of items as features.
+      tags:
+        - Items project
+        - CSV
+      description: Returns a CSV that has a list of items as features.
+      parameters:
+        - $ref: './_shared.yml#/components/parameters/pageParam'
+        - $ref: './_shared.yml#/components/parameters/perPageParam'
+        - $ref: './_shared.yml#/components/parameters/refParam'
+      responses:
+        '200':
+          description: A string in CSV format
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/projectIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/modelIdOrKeyParam'
+      - $ref: './_shared.yml#/components/parameters/itemIdParam'
+    get:
+      operationId: ItemGet
+      security:
+        - bearerAuth: [ ]
+      summary: Returns an item.
+      tags:
+        - Items
+      description: Returns an item.
+      parameters:
+        - $ref: './_shared.yml#/components/parameters/refParam'
+        - $ref: './_shared.yml#/components/parameters/assetParam'
+      responses:
+        '200':
+          description: An item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/versionedItem'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+    patch:
+      operationId: ItemUpdate
+      security:
+        - bearerAuth: [ ]
+      summary: Update an item.
+      tags:
+        - Items
+      description: Update an item.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/field'
+                metadataFields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/field'
+                asset:
+                  $ref: './_shared.yml#/components/schemas/assetEmbedding'
+      responses:
+        '200':
+          description: An item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/versionedItem'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+        '500':
+          description: Internal server error
+    delete:
+      operationId: ItemDelete
+      summary: delete an item
+      tags:
+        - Items
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: delete an item
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.ItemID
+                    type: string
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/publish':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/projectIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/modelIdOrKeyParam'
+      - $ref: './_shared.yml#/components/parameters/itemIdParam'
+      - $ref: './_shared.yml#/components/parameters/assetParam'
+    post:
+      operationId: ItemPublish
+      summary: publish item
+      tags:
+        - Items
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: the published item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/versionedItem'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+
+components:
+  schemas:
+    version:
+      type: object
+      properties:
+        version:
+          type: string
+          format: uuid
+        parents:
+          type: array
+          items:
+            type: string
+            format: uuid
+        refs:
+          type: array
+          items:
+            type: string
+    item:
+      type: object
+      properties:
+        id:
+          x-go-type: id.ItemID
+          type: string
+        metadataItemId:
+          x-go-type: id.ItemID
+          type: string
+        originalItemId:
+          x-go-type: id.ItemID
+          type: string
+        modelId:
+          type: string
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/field'
+        metadataFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/field'
+        referencedItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/item'
+        createdAt:
+          type: string
+          format: date-time
+        isMetadata:
+          type: boolean
+        updatedAt:
+          type: string
+          format: date-time
+    GeoJSON:
+      type: object
+      x-go-type: types.GeoJSON
+    versionedItem:
+      allOf:
+        - $ref: '#/components/schemas/item'
+        - $ref: '#/components/schemas/version'
+        - type: object
+          properties:
+            referencedItems:
+              type: array
+              items:
+                $ref: '#/components/schemas/versionedItem'
+    field:
+      type: object
+      properties:
+        id:
+          x-go-type: id.FieldID
+          type: string
+        type:
+          $ref: './field.yml#/components/schemas/valueType'
+        value: { }
+        key:
+          type: string
+        group:
+          x-go-type: id.ItemGroupID
+          type: string
+    refOrVersion:
+      type: object
+      properties:
+        ref:
+          type: string
+          enum:
+            - latest
+            - public
+        version:
+          type: string
+          format: uuid
+    fieldSelector:
+      type: object
+      properties:
+        fieldId:
+          x-go-type: id.FieldID
+          type: string
+        type:
+          type: string
+          enum:
+            - id
+            - creationDate
+            - creationUser
+            - modificationDate
+            - modificationUser
+            - status
+            - field
+            - metaField
+    condition:
+      type: object
+      properties:
+        and:
+          type: array
+          items:
+            $ref: '#/components/schemas/condition'
+        or:
+          type: array
+          items:
+            $ref: '#/components/schemas/condition'
+        basic:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - equals
+                - notEquals
+            value: { }
+        nullable:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - empty
+                - notEmpty
+        multiple:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - includesAny
+                - notIncludesAny
+                - includesAll
+                - notIncludesAll
+            value:
+              type: array
+              items: { }
+          required:
+            - fieldId
+            - operator
+            - value
+        bool:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - equals
+                - notEquals
+            value:
+              type: boolean
+          required:
+            - fieldId
+            - operator
+            - value
+        string:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - contains
+                - notContains
+                - startsWith
+                - endsWith
+                - notStartsWith
+                - notEndsWith
+            value:
+              type: string
+          required:
+            - fieldId
+            - operator
+            - value
+        number:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - greaterThan
+                - lessThan
+                - greaterThanOrEqualTo
+                - lessThanOrEqualTo
+            value:
+              type: number
+          required:
+            - fieldId
+            - operator
+            - value
+        time:
+          type: object
+          properties:
+            fieldId:
+              $ref: '#/components/schemas/fieldSelector'
+            operator:
+              type: string
+              enum:
+                - before
+                - after
+                - beforeOrOn
+                - afterOrOn
+                - ofThisWeek
+                - ofThisMonth
+                - ofThisYear
+            value:
+              type: string
+              format: date-time
+          required:
+            - fieldId
+            - operator
+            - value

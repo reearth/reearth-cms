@@ -1,0 +1,174 @@
+components:
+  parameters:
+    workspaceIdOrAliasParam:
+      name: workspaceIdOrAlias
+      in: path
+      description: ID or alias of the workspace
+      required: true
+      schema:
+        type: string
+        x-go-type: accountdomain.WorkspaceIDOrAlias
+    projectIdOrAliasParam:
+      name: projectIdOrAlias
+      in: path
+      description: ID or alias of the project
+      required: true
+      schema:
+        type: string
+        x-go-type: project.IDOrAlias
+    schemaIdParam:
+      name: schemaId
+      in: path
+      description: ID of the schema in the model
+      required: true
+      schema:
+        type: string
+        x-go-type: id.SchemaID
+    modelIdOrKeyParam:
+      name: modelIdOrKey
+      in: path
+      description: ID or key of the model in the project
+      required: true
+      schema:
+        type: string
+        x-go-type: model.IDOrKey
+    groupIdOrKeyParam:
+      name: groupIdOrKey
+      in: path
+      description: ID or key of the group in the project
+      required: true
+      schema:
+        type: string
+        x-go-type: group.IDOrKey
+    fieldIdOrKeyParam:
+      name: fieldIdOrKey
+      in: path
+      description: ID or key of the field in the models schema
+      required: true
+      schema:
+        type: string
+        x-go-type: schema.FieldIDOrKey
+    itemIdParam:
+      name: itemId
+      in: path
+      description: ID of the selected item
+      required: true
+      schema:
+        type: string
+        x-go-type: id.ItemID
+    assetIdParam:
+      name: assetId
+      in: path
+      description: ID of the selected asset
+      required: true
+      schema:
+        type: string
+        x-go-type: id.AssetID
+    commentIdParam:
+      name: commentId
+      in: path
+      description: ID of the selected comment
+      required: true
+      schema:
+        x-go-type: id.CommentID
+        type: string
+    sortParam:
+      name: sort
+      in: query
+      description: Used to define the order of the response list
+      required: false
+      schema:
+        type: string
+        default: createdAt
+        enum:
+          - createdAt
+          - updatedAt
+    sortDirParam:
+      name: dir
+      in: query
+      description: 'Used to define the order direction of the response list, will be ignored if the order is not presented'
+      required: false
+      schema:
+        type: string
+        default: desc
+        enum:
+          - asc
+          - desc
+    pageParam:
+      name: page
+      in: query
+      description: Used to select the page
+      required: false
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+    perPageParam:
+      name: perPage
+      in: query
+      description: Used to select the page
+      required: false
+      schema:
+        type: integer
+        default: 50
+        minimum: 1
+        maximum: 100
+    refParam:
+      name: ref
+      in: query
+      description: Used to select a ref or ver
+      required: false
+      schema:
+        type: string
+        default: latest
+        enum:
+          - latest
+          - public
+    assetParam:
+      name: asset
+      in: query
+      description: Specifies whether asset data are embedded in the results
+      schema:
+        $ref: '#/components/schemas/assetEmbedding'
+    keywordParam:
+      name: keyword
+      in: query
+      description: keyword string
+      required: false
+      schema:
+        type: string
+  schemas:
+    comment:
+      type: object
+      properties:
+        id:
+          x-go-type: id.CommentID
+          type: string
+        authorId:
+          type: string
+          x-go-type: any
+        authorType:
+          type: string
+          enum:
+            - user
+            - integrtaion
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    assetEmbedding:
+      type: string
+      enum:
+        - all
+        - "true"
+        - "false"
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+    NotFoundError:
+      description: The requested resource was not found
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer

@@ -1,0 +1,395 @@
+paths:
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/projectIdOrAliasParam'
+    get:
+      operationId: AssetFilter
+      tags:
+        - Assets project
+      security:
+        - bearerAuth: [ ]
+      summary: Returns a list of assets.
+      description: Returns a list of assets with filtering and ordering.
+      parameters:
+        - $ref: './_shared.yml#/components/parameters/sortParam'
+        - $ref: './_shared.yml#/components/parameters/sortDirParam'
+        - $ref: './_shared.yml#/components/parameters/pageParam'
+        - $ref: './_shared.yml#/components/parameters/perPageParam'
+        - $ref: './_shared.yml#/components/parameters/keywordParam'
+      responses:
+        '200':
+          description: assets list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/asset'
+                  totalCount:
+                    type: integer
+                    minimum: 0
+                  page:
+                    type: integer
+                    minimum: 1
+                  perPage:
+                    type: integer
+                    minimum: 1
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+    post:
+      operationId: AssetCreate
+      tags:
+        - Assets project
+      security:
+        - bearerAuth: [ ]
+      summary: Create an new asset.
+      description: Create a new asset and return the created asset.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                contentType:
+                  type: string
+                contentEncoding:
+                  type: string
+                skipDecompression:
+                  type: boolean
+                  default: false
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                token:
+                  type: string
+                skipDecompression:
+                  type: boolean
+                  nullable: true
+                  default: false
+                contentEncoding:
+                  type: string
+      responses:
+        '200':
+          description: assets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asset'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+    delete:
+      operationId: AssetBatchDelete
+      summary: delete assets in batch
+      tags:
+        - Assets
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                assetIDs:
+                  type: array
+                  items:
+                    type: string
+                    x-go-type: id.AssetID
+      responses:
+        '200':
+          description: assets list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ids:
+                    type: array
+                    items:
+                      x-go-type: id.AssetID
+                      type: string
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/uploads':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/projectIdOrAliasParam'
+    post:
+      operationId: AssetUploadCreate
+      tags:
+        - Assets project
+      security:
+        - bearerAuth: [ ]
+      summary: Upload an asset.
+      description: Issue an URL and a token to upload an asset.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                contentLength:
+                  type: integer
+                contentType:
+                  type: string
+                contentEncoding:
+                  type: string
+                cursor:
+                  type: string
+      responses:
+        '200':
+          description: asset upload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                  token:
+                    type: string
+                  contentType:
+                    type: string
+                  contentLength:
+                    type: integer
+                  contentEncoding:
+                    type: string
+                  next:
+                    type: string
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/projectIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/assetIdParam'
+    get:
+      operationId: AssetGet
+      summary: get asset
+      tags:
+        - Assets
+      responses:
+        '200':
+          description: assets list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asset'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+    delete:
+      operationId: AssetDelete
+      summary: delete asset
+      tags:
+        - Assets
+      responses:
+        '200':
+          description: assets list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.AssetID
+                    type: string
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/publish':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/projectIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/assetIdParam'
+    post:
+      operationId: AssetPublish
+      summary: publish asset
+      tags:
+        - Assets
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: assets list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asset'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/unpublish':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/projectIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/assetIdParam'
+    post:
+      operationId: AssetUnpublish
+      summary: publish asset
+      tags:
+        - Assets
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: assets list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/asset'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{uuid1}/{uuid2}/{filename}':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/projectIdOrAliasParam'
+      - name: uuid1
+        in: path
+        description: UUID of the asset
+        required: true
+        schema:
+          type: string
+      - name: uuid2
+        in: path
+        description: UUID of the asset
+        required: true
+        schema:
+          type: string
+      - name: filename
+        in: path
+        description: Filename of the asset
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: AssetContentGet
+      summary: get asset content
+      tags:
+        - Assets
+      responses:
+        '200':
+          description: the binary content of the asset
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+
+components:
+  schemas:
+    asset:
+      type: object
+      required:
+        - id
+        - projectId
+        - url
+        - createdAt
+        - updatedAt
+        - public
+      properties:
+        id:
+          x-go-type: id.AssetID
+          type: string
+        projectId:
+          x-go-type: id.ProjectID
+          type: string
+        name:
+          type: string
+        url:
+          type: string
+        contentType:
+          type: string
+        previewType:
+          type: string
+          enum:
+            - image
+            - image_svg
+            - geo
+            - geo_3d_Tiles
+            - geo_mvt
+            - model_3d
+            - csv
+            - unknown
+        totalSize:
+          type: number
+        archiveExtractionStatus:
+          type: string
+          enum:
+            - pending
+            - in_progress
+            - done
+            - failed
+        file:
+          $ref: '#/components/schemas/file'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        public:
+          type: boolean
+    file:
+      type: object
+      properties:
+        name:
+          type: string
+        size:
+          type: number
+        contentType:
+          type: string
+        path:
+          type: string
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/file'

@@ -12,7 +12,8 @@ import (
 	"github.com/reearth/reearthx/rerror"
 )
 
-//go:generate go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen --config=server.cfg.yml ../../../schemas/integration/integration.yml
+//go:generate npx @redocly/cli bundle ../../../schemas/integration/integration.yml -o ../../../schemas/integration/integration.bundled.yml --ext yml
+//go:generate go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen --config=server.cfg.yml ../../../schemas/integration/integration.bundled.yml
 
 type Server struct{}
 

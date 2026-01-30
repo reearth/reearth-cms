@@ -1,0 +1,181 @@
+paths:
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/schemata/{schemaId}/fields':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/projectIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/schemaIdParam'
+    post:
+      operationId: FieldCreate
+      summary: create a field
+      tags:
+        - Fields
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  $ref: '#/components/schemas/valueType'
+                key:
+                  type: string
+                required:
+                  type: boolean
+                multiple:
+                  type: boolean
+      responses:
+        '200':
+          description: A JSON object of field
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/schemaField'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/schemata/{schemaId}/fields/{fieldIdOrKey}':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/projectIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/schemaIdParam'
+      - $ref: './_shared.yml#/components/parameters/fieldIdOrKeyParam'
+    patch:
+      operationId: FieldUpdate
+      summary: update a field
+      tags:
+        - Fields
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  $ref: '#/components/schemas/valueType'
+                key:
+                  type: string
+                required:
+                  type: boolean
+                multiple:
+                  type: boolean
+      responses:
+        '200':
+          description: A JSON object of field
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/schemaField'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+    delete:
+      operationId: FieldDelete
+      summary: delete a field
+      tags:
+        - Fields
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: A JSON object of field
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.FieldID
+                    type: string
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+
+components:
+  schemas:
+    schema:
+      type: object
+      properties:
+        id:
+          x-go-type: id.SchemaID
+          type: string
+        projectId:
+          x-go-type: id.ProjectID
+          type: string
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/schemaField'
+        titleField:
+          x-go-type: id.FieldID
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    valueType:
+      type: string
+      enum:
+        - text
+        - textArea
+        - richText
+        - markdown
+        - checkbox
+        - asset
+        - date
+        - bool
+        - select
+        - integer
+        - number
+        - reference
+        - url
+        - group
+        - tag
+        - geometryObject
+        - geometryEditor
+    tagResponse:
+      type: object
+      properties:
+        id:
+          x-go-type: id.TagID
+          type: string
+        name:
+          type: string
+        color:
+          type: string
+    schemaField:
+      type: object
+      properties:
+        id:
+          x-go-type: id.FieldID
+          type: string
+        type:
+          $ref: '#/components/schemas/valueType'
+        key:
+          type: string
+        required:
+          type: boolean
+        multiple:
+          type: boolean
+        name:
+          type: string
+      required:
+        - id
+        - type
+        - key
+        - required
+        - multiple
+        - name

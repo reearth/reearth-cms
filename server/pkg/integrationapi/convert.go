@@ -1,4 +1,5 @@
-//go:generate go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen --config=types.cfg.yml ../../schemas/integration/integration.yml
+//go:generate npx @redocly/cli bundle ../../schemas/integration/integration.yml -o ../../schemas/integration/integration.bundled.yml --ext yml
+//go:generate go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen --config=types.cfg.yml ../../schemas/integration/integration.bundled.yml
 
 package integrationapi
 

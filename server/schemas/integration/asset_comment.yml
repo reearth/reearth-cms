@@ -1,0 +1,120 @@
+paths:
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/comments':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/projectIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/assetIdParam'
+    get:
+      operationId: AssetCommentList
+      summary: get asset comments
+      tags:
+        - Assets comments
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: asset comments list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comments:
+                    type: array
+                    items:
+                      $ref: './_shared.yml#/components/schemas/comment'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+    post:
+      operationId: AssetCommentCreate
+      summary: create asset comments
+      tags:
+        - Assets comments
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: './_shared.yml#/components/schemas/comment'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/assets/{assetId}/comments/{commentId}':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/projectIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/assetIdParam'
+      - $ref: './_shared.yml#/components/parameters/commentIdParam'
+    patch:
+      operationId: AssetCommentUpdate
+      tags:
+        - Assets comments
+      security:
+        - bearerAuth: [ ]
+      summary: Update AssetComment
+      description: ''
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+      responses:
+        '200':
+          description: Update An asset comment
+          content:
+            application/json:
+              schema:
+                $ref: './_shared.yml#/components/schemas/comment'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+    delete:
+      operationId: AssetCommentDelete
+      summary: delete asset comments
+      tags:
+        - Assets comments
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: delete an asset comment
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.CommentID
+                    type: string
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found

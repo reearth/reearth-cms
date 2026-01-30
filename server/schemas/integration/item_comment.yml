@@ -1,0 +1,122 @@
+paths:
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/projectIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/modelIdOrKeyParam'
+      - $ref: './_shared.yml#/components/parameters/itemIdParam'
+    get:
+      operationId: ItemCommentList
+      summary: get an item comment
+      tags:
+        - Items comments
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: item comments list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comments:
+                    type: array
+                    items:
+                      $ref: './_shared.yml#/components/schemas/comment'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+    post:
+      operationId: ItemCommentCreate
+      summary: create an item comment
+      tags:
+        - Items comments
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: './_shared.yml#/components/schemas/comment'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+  '/{workspaceIdOrAlias}/projects/{projectIdOrAlias}/models/{modelIdOrKey}/items/{itemId}/comments/{commentId}':
+    parameters:
+      - $ref: './_shared.yml#/components/parameters/workspaceIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/projectIdOrAliasParam'
+      - $ref: './_shared.yml#/components/parameters/modelIdOrKeyParam'
+      - $ref: './_shared.yml#/components/parameters/itemIdParam'
+      - $ref: './_shared.yml#/components/parameters/commentIdParam'
+    patch:
+      operationId: ItemCommentUpdate
+      tags:
+        - Items comments
+      security:
+        - bearerAuth: [ ]
+      summary: Update Item Comment
+      description: ''
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+      responses:
+        '200':
+          description: Update An item comment
+          content:
+            application/json:
+              schema:
+                $ref: './_shared.yml#/components/schemas/comment'
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
+    delete:
+      operationId: ItemCommentDelete
+      summary: delete item comment
+      tags:
+        - Items comments
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '200':
+          description: delete an item comment
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    x-go-type: id.CommentID
+                    type: string
+        '400':
+          description: Invalid request parameter value
+        '401':
+          $ref: './_shared.yml#/components/responses/UnauthorizedError'
+        '404':
+          description: Not found
