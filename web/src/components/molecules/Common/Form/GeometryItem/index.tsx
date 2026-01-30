@@ -76,10 +76,10 @@ const GeometryItem: React.FC<Props> = ({
   const t = useT();
   const { confirm } = useModal();
 
-  const editorRef = useRef<editor.IStandaloneCodeEditor>();
+  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
   const [sketchType, setSketchType] = useState<DrawType>();
-  const drawRef = useRef<Draw>();
+  const drawRef = useRef<Draw | null>(null);
 
   const setType = useCallback((drawType?: DrawType) => {
     setSketchType(drawType);
@@ -148,7 +148,7 @@ const GeometryItem: React.FC<Props> = ({
     [disabled, isEditor, t],
   );
 
-  const handleEditorWillMount: BeforeMount = useCallback(monaco => {
+  const handleEditorWillMount: BeforeMount = useCallback((monaco: any) => {
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
       schemaValidation: "error",
       schemas: [
@@ -277,7 +277,7 @@ const GeometryItem: React.FC<Props> = ({
     return JSON.stringify(obj, null, 2);
   }, [supportedTypes]);
 
-  const mapRef = useRef<Map>();
+  const mapRef = useRef<Map | null>(null);
 
   useEffect(() => {
     if (mapContainerRef.current) {
@@ -309,7 +309,7 @@ const GeometryItem: React.FC<Props> = ({
 
       return () => {
         map.setTarget(undefined);
-        mapRef.current = undefined;
+        mapRef.current = null;
         isInitRef.current = true;
       };
     }

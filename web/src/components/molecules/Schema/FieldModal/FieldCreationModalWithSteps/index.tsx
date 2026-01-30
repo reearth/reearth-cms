@@ -58,7 +58,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
 }) => {
   const t = useT();
   const [selectedModelId, setSelectedModelId] = useState<string>();
-  const schemaIdRef = useRef<string>();
+  const schemaIdRef = useRef<string | null>(null);
   const [modelForm] = Form.useForm();
   const [field1Form] = Form.useForm();
   const [field2Form] = Form.useForm();
@@ -67,10 +67,10 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const [isDisabled, setIsDisabled] = useState(true);
   const isDisabledCache = useRef<boolean>(true);
-  const prevFieldKey = useRef<{ key: string; isSuccess: boolean }>();
-  const prevCorrespondingKey = useRef<{ key: string; isSuccess: boolean }>();
-  const defaultFieldValues = useRef<Field>();
-  const defaultCorrespondingValues = useRef<CorrespondingField>();
+  const prevFieldKey = useRef<{ key: string; isSuccess: boolean } | null>(null);
+  const prevCorrespondingKey = useRef<{ key: string; isSuccess: boolean } | null>(null);
+  const defaultFieldValues = useRef<Field | null>(null);
+  const defaultCorrespondingValues = useRef<CorrespondingField | null>(null);
   const changedKeys = useRef(new Set<string>());
 
   const formValidate = useCallback(
@@ -98,7 +98,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   const handleValuesChange = useCallback(
     async (
       changedValues: Field | CorrespondingField,
-      ref: MutableRefObject<typeof changedValues | undefined>,
+      ref: MutableRefObject<typeof changedValues | null>,
     ) => {
       const [key, value] = Object.entries(changedValues)[0];
       const defaultValue = ref.current?.[key as keyof typeof changedValues];
@@ -139,13 +139,13 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     });
 
     setSelectedModelId(selectedField?.typeProperty?.modelId);
-    schemaIdRef.current = selectedField?.typeProperty?.schema?.id;
+    schemaIdRef.current = selectedField?.typeProperty?.schema?.id ?? null;
     setNumSteps(selectedField?.typeProperty?.correspondingField ? 2 : 1);
     setIsDisabled(!selectedField);
     field1Form.setFieldsValue(selectedField);
-    defaultFieldValues.current = selectedField ?? undefined;
+    defaultFieldValues.current = selectedField ?? null;
     field2Form.setFieldsValue(selectedField?.typeProperty?.correspondingField);
-    defaultCorrespondingValues.current = selectedField?.typeProperty?.correspondingField;
+    defaultCorrespondingValues.current = selectedField?.typeProperty?.correspondingField ?? null;
     changedKeys.current.clear();
   }, [modelForm, selectedField, field1Form, field2Form, setNumSteps, setSelectedModelId]);
 
@@ -204,8 +204,8 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   );
 
   const formReset = useCallback(() => {
-    prevFieldKey.current = undefined;
-    prevCorrespondingKey.current = undefined;
+    prevFieldKey.current = null;
+    prevCorrespondingKey.current = null;
     modelForm.resetFields();
     field1Form.resetFields();
     field2Form.resetFields();
@@ -444,7 +444,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           initialValues={initialValues}
           requiredMark={requiredMark}
           onValuesChange={changedValues => {
-            handleValuesChange(changedValues, defaultFieldValues);
+            handleValuesChange(changedValues, defaultFieldValues as MutableRefObject<Field | null>);
           }}>
           <Tabs activeKey={activeTab} onChange={handleTabChange}>
             <TabPane tab={t("Settings")} key="settings" forceRender>
@@ -524,7 +524,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           initialValues={initialValues}
           requiredMark={requiredMark}
           onValuesChange={changedValues => {
-            handleValuesChange(changedValues, defaultCorrespondingValues);
+            handleValuesChange(changedValues, defaultCorrespondingValues as MutableRefObject<CorrespondingField | null>);
           }}>
           <Tabs activeKey={activeTab} onChange={handleTabChange}>
             <TabPane tab={t("Settings")} key="settings" forceRender>

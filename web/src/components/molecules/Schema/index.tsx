@@ -255,7 +255,7 @@ const Schema: React.FC<Props> = ({
           collapsedWidth={54}
           width={208}
           trigger={<Icon icon={collapsed ? "panelToggleRight" : "panelToggleLeft"} />}>
-          {modelsMenu}
+          {modelsMenu as React.ReactNode}
         </Sidebar>
       }
       center={
