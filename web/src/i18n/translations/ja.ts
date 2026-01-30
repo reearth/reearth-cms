@@ -670,6 +670,7 @@ export default {
   "Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema with field names and types. File can contain a maximum of {{max}} records.": "CSV、JSON、またはGeoJSON形式のファイルをアップロードしてください。ファイルはフィールド名と型がスキーマと一致している必要があります。ファイルには最大 {{max, number}} 件のレコードを含めることができます。",
   "Upload and Link": "アップロードとリンク",
   "Upload Asset": "アセットをアップロード",
+  "Upload canceled": "アップロードをキャンセルしました",
   "Uploading": "アップロード中",
   "Uploading file...": "アップロード中...",
   "Uploading file..._other": "アップロード中...",

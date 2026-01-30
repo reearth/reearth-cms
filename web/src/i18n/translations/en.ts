@@ -673,6 +673,7 @@ export default {
   "Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema with field names and types. File can contain a maximum of {{max}} records.": "Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema with field names and types. File can contain a maximum of {{max, number}} records.",
   "Upload and Link": "",
   "Upload Asset": "",
+  "Upload canceled": "Upload canceled",
   "Uploading": "",
   "Uploading file...": "Uploading file...",
   "Uploading file..._one": "Uploading file...",
