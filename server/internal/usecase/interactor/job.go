@@ -2,6 +2,7 @@ package interactor
 
 import (
 	"context"
+	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -74,6 +75,10 @@ func (i *Job) Subscribe(ctx context.Context, jobID id.JobID, _ *usecase.Operator
 	}
 	if j == nil {
 		return nil, ErrJobNotFound
+	}
+
+	if i.gateways == nil || i.gateways.JobPubSub == nil {
+		return nil, rerror.ErrInternalBy(errors.New("job pubsub gateway is not configured"))
 	}
 
 	// If no publisher is active, return the current job state immediately

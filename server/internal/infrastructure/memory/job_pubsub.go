@@ -69,7 +69,7 @@ func (p *JobPubSub) Subscribe(_ context.Context, jobID id.JobID) (<-chan job.Sta
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	ch := make(chan job.State, 10)
+	ch := make(chan job.State, defaultCacheSize)
 	p.subscribers[jobID] = append(p.subscribers[jobID], ch)
 
 	// Send cached messages to the new subscriber
@@ -109,6 +109,13 @@ func (p *JobPubSub) HasPublisher(jobID id.JobID) bool {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 
-	_, ok := p.cache[jobID]
-	return ok
+	if _, ok := p.cache[jobID]; ok {
+		return true
+	}
+
+	if subs, ok := p.subscribers[jobID]; ok && len(subs) > 0 {
+		return true
+	}
+
+	return false
 }
