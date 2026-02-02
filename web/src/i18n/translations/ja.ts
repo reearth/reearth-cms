@@ -528,7 +528,6 @@ export default {
   "Search user": "ユーザー検索",
   "Secret": "選択",
   "Select": "セレクト",
-  "Select file": "ファイルを選択",
   "Select from a list of checkboxes": "チェックボックスのリストから選択する",
   "Select from a list of tags": "タグのリストから選択する",
   "Select Group": "グループを選択",

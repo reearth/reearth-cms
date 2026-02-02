@@ -529,7 +529,6 @@ export default {
   "Search user": "",
   "Secret": "",
   "Select": "",
-  "Select file": "",
   "Select from a list of checkboxes": "",
   "Select from a list of tags": "",
   "Select Group": "",
