@@ -617,38 +617,87 @@ func TestGQLJobStateSubscription(t *testing.T) {
 		if idx == 0 {
 			payload.Path("$.data.jobState").NotNull()
 			payload.Path("$.data.jobState.status").String().IsEqual("IN_PROGRESS")
-			payload.Path("$.data.jobState.progress.total").Number().IsEqual(5000)
-			payload.Path("$.data.jobState.progress.processed").Number().IsEqual(1000)
+			payload.Path("$.data.jobState.progress.total").Number().IsEqual(0)
+			payload.Path("$.data.jobState.progress.processed").Number().IsEqual(0)
 		}
 		if idx == 1 {
 			payload.Path("$.data.jobState").NotNull()
 			payload.Path("$.data.jobState.status").String().IsEqual("IN_PROGRESS")
 			payload.Path("$.data.jobState.progress.total").Number().IsEqual(5000)
-			payload.Path("$.data.jobState.progress.processed").Number().IsEqual(2000)
+			payload.Path("$.data.jobState.progress.processed").Number().IsEqual(1000)
 		}
 		if idx == 2 {
 			payload.Path("$.data.jobState").NotNull()
 			payload.Path("$.data.jobState.status").String().IsEqual("IN_PROGRESS")
 			payload.Path("$.data.jobState.progress.total").Number().IsEqual(5000)
-			payload.Path("$.data.jobState.progress.processed").Number().IsEqual(3000)
+			payload.Path("$.data.jobState.progress.processed").Number().IsEqual(2000)
 		}
 		if idx == 3 {
 			payload.Path("$.data.jobState").NotNull()
 			payload.Path("$.data.jobState.status").String().IsEqual("IN_PROGRESS")
 			payload.Path("$.data.jobState.progress.total").Number().IsEqual(5000)
-			payload.Path("$.data.jobState.progress.processed").Number().IsEqual(4000)
+			payload.Path("$.data.jobState.progress.processed").Number().IsEqual(3000)
 		}
 		if idx == 4 {
 			payload.Path("$.data.jobState").NotNull()
 			payload.Path("$.data.jobState.status").String().IsEqual("IN_PROGRESS")
 			payload.Path("$.data.jobState.progress.total").Number().IsEqual(5000)
-			payload.Path("$.data.jobState.progress.processed").Number().IsEqual(5000)
+			payload.Path("$.data.jobState.progress.processed").Number().IsEqual(4000)
 		}
 		if idx == 5 {
+			payload.Path("$.data.jobState").NotNull()
+			payload.Path("$.data.jobState.status").String().IsEqual("IN_PROGRESS")
+			payload.Path("$.data.jobState.progress.total").Number().IsEqual(5000)
+			payload.Path("$.data.jobState.progress.processed").Number().IsEqual(5000)
+		}
+		if idx == 6 {
 			payload.Path("$.data.jobState").NotNull()
 			payload.Path("$.data.jobState.status").String().IsEqual("COMPLETED")
 			payload.Path("$.data.jobState.progress").IsNull()
 		}
 	})
-	assert.Equal(t, 6, totalUpdates)
+	assert.Equal(t, 7, totalUpdates)
+}
+
+// TestGQLJobStateSubscriptionAfterComplete tests that subscribing to a completed job
+// returns the latest state from the job object when no publisher is active
+func TestGQLJobStateSubscriptionAfterComplete(t *testing.T) {
+	e, serverURL := StartServerAndGetURL(t, &app.Config{}, true, baseSeederUser)
+
+	// Convert HTTP URL to WebSocket URL
+	wsURL := strings.Replace(serverURL, "http://", "ws://", 1) + "/api/graphql"
+
+	pId, _ := createProject(e, wId.String(), "test", "test", "e2e-alias")
+	mId, _ := createModel(e, pId, "test", "test", "e2e-alias")
+	createField(e, mId, "name", "name", "name",
+		false, false, false, false, "Text", map[string]any{"text": map[string]any{}})
+
+	// Create a small import that will complete quickly
+	fileContent := `[{"name": "Item 1"}, {"name": "Item 2"}]`
+
+	// Start async import and wait for completion
+	res := importItemsAsync(e, mId, "test.json", fileContent, nil)
+	jobID := res.Path("$.data.importItemsAsync.job.id").String().Raw()
+
+	// Wait for job to complete
+	waitForJobCompletion(e, jobID, 10*time.Second)
+
+	// Verify job is completed via query
+	jobRes := queryJob(e, jobID)
+	jobRes.Path("$.data.job.status").String().IsEqual("COMPLETED")
+
+	// Now subscribe to the completed job - should receive the latest state immediately
+	// since no publisher is active (cache was cleared after job completed)
+	totalUpdates := 0
+	subscribeJob(t, wsURL, jobID, 5*time.Second, func(payload *httpexpect.Value, idx int) {
+		totalUpdates++
+		// Should receive the current job state from the database
+		payload.Path("$.data.jobState").NotNull()
+		payload.Path("$.data.jobState.status").String().IsEqual("COMPLETED")
+		payload.Path("$.data.jobState.progress").IsNull()
+		payload.Path("$.data.jobState.error").IsNull()
+	})
+
+	// Should receive exactly one update with the current state
+	assert.Equal(t, 1, totalUpdates)
 }

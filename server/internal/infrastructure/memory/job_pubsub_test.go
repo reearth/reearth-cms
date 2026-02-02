@@ -258,3 +258,233 @@ func TestJobPubSub_StateTypes(t *testing.T) {
 		})
 	}
 }
+
+func TestNewJobPubSubWithCacheSize(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name      string
+		cacheSize int
+	}{
+		{"zero cache", 0},
+		{"small cache", 5},
+		{"large cache", 100},
+		{"negative cache becomes zero", -5},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			pubsub := NewJobPubSubWithCacheSize(tt.cacheSize)
+			assert.NotNil(t, pubsub)
+		})
+	}
+}
+
+func TestJobPubSub_CachedMessagesOnSubscribe(t *testing.T) {
+	t.Parallel()
+
+	pubsub := NewJobPubSubWithCacheSize(5)
+	ctx := context.Background()
+	jobID := id.NewJobID()
+
+	// Publish 3 states before any subscriber
+	for i := 1; i <= 3; i++ {
+		progress := job.NewProgress(i*10, 100)
+		state := job.NewState(job.StatusInProgress, &progress, "")
+		err := pubsub.Publish(ctx, jobID, state)
+		assert.NoError(t, err)
+	}
+
+	// Subscribe after publishing
+	ch, err := pubsub.Subscribe(ctx, jobID)
+	assert.NoError(t, err)
+
+	// Should receive cached messages
+	for i := 1; i <= 3; i++ {
+		select {
+		case receivedState := <-ch:
+			assert.Equal(t, job.StatusInProgress, receivedState.Status())
+			assert.Equal(t, i*10, receivedState.Progress().Processed())
+		case <-time.After(time.Second):
+			t.Fatalf("timeout waiting for cached state %d", i)
+		}
+	}
+}
+
+func TestJobPubSub_CacheLimitEnforced(t *testing.T) {
+	t.Parallel()
+
+	cacheSize := 3
+	pubsub := NewJobPubSubWithCacheSize(cacheSize)
+	ctx := context.Background()
+	jobID := id.NewJobID()
+
+	// Publish more messages than cache size
+	for i := 1; i <= 5; i++ {
+		progress := job.NewProgress(i*10, 100)
+		state := job.NewState(job.StatusInProgress, &progress, "")
+		err := pubsub.Publish(ctx, jobID, state)
+		assert.NoError(t, err)
+	}
+
+	// Subscribe after publishing
+	ch, err := pubsub.Subscribe(ctx, jobID)
+	assert.NoError(t, err)
+
+	// Should receive only the last 3 cached messages (30, 40, 50)
+	expectedProcessed := []int{30, 40, 50}
+	for i, expected := range expectedProcessed {
+		select {
+		case receivedState := <-ch:
+			assert.Equal(t, job.StatusInProgress, receivedState.Status())
+			assert.Equal(t, expected, receivedState.Progress().Processed(), "message %d", i)
+		case <-time.After(time.Second):
+			t.Fatalf("timeout waiting for cached state %d", i)
+		}
+	}
+}
+
+func TestJobPubSub_CacheAndNewMessages(t *testing.T) {
+	t.Parallel()
+
+	pubsub := NewJobPubSubWithCacheSize(5)
+	ctx := context.Background()
+	jobID := id.NewJobID()
+
+	// Publish 2 states before subscriber
+	for i := 1; i <= 2; i++ {
+		progress := job.NewProgress(i*10, 100)
+		state := job.NewState(job.StatusInProgress, &progress, "")
+		err := pubsub.Publish(ctx, jobID, state)
+		assert.NoError(t, err)
+	}
+
+	// Subscribe
+	ch, err := pubsub.Subscribe(ctx, jobID)
+	assert.NoError(t, err)
+
+	// Read cached messages first
+	for i := 1; i <= 2; i++ {
+		select {
+		case receivedState := <-ch:
+			assert.Equal(t, i*10, receivedState.Progress().Processed())
+		case <-time.After(time.Second):
+			t.Fatalf("timeout waiting for cached state %d", i)
+		}
+	}
+
+	// Publish new message after subscription
+	progress := job.NewProgress(30, 100)
+	state := job.NewState(job.StatusInProgress, &progress, "")
+	err = pubsub.Publish(ctx, jobID, state)
+	assert.NoError(t, err)
+
+	// Should receive the new message
+	select {
+	case receivedState := <-ch:
+		assert.Equal(t, 30, receivedState.Progress().Processed())
+	case <-time.After(time.Second):
+		t.Fatal("timeout waiting for new state")
+	}
+}
+
+func TestJobPubSub_ZeroCacheDisablesCaching(t *testing.T) {
+	t.Parallel()
+
+	pubsub := NewJobPubSubWithCacheSize(0)
+	ctx := context.Background()
+	jobID := id.NewJobID()
+
+	// Publish states before subscriber
+	for i := 1; i <= 3; i++ {
+		progress := job.NewProgress(i*10, 100)
+		state := job.NewState(job.StatusInProgress, &progress, "")
+		err := pubsub.Publish(ctx, jobID, state)
+		assert.NoError(t, err)
+	}
+
+	// Subscribe
+	ch, err := pubsub.Subscribe(ctx, jobID)
+	assert.NoError(t, err)
+
+	// Should not receive any cached messages
+	select {
+	case <-ch:
+		t.Fatal("should not receive cached messages when cache is disabled")
+	case <-time.After(100 * time.Millisecond):
+		// Expected - no cached messages
+	}
+}
+
+func TestJobPubSub_UnsubscribeClearsCache(t *testing.T) {
+	t.Parallel()
+
+	pubsub := NewJobPubSubWithCacheSize(5)
+	ctx := context.Background()
+	jobID := id.NewJobID()
+
+	// Publish states
+	for i := 1; i <= 3; i++ {
+		progress := job.NewProgress(i*10, 100)
+		state := job.NewState(job.StatusInProgress, &progress, "")
+		err := pubsub.Publish(ctx, jobID, state)
+		assert.NoError(t, err)
+	}
+
+	// Subscribe and then unsubscribe
+	_, err := pubsub.Subscribe(ctx, jobID)
+	assert.NoError(t, err)
+	pubsub.Unsubscribe(jobID)
+
+	// Subscribe again - should not receive cached messages as cache was cleared
+	ch, err := pubsub.Subscribe(ctx, jobID)
+	assert.NoError(t, err)
+
+	select {
+	case <-ch:
+		t.Fatal("should not receive cached messages after unsubscribe cleared cache")
+	case <-time.After(100 * time.Millisecond):
+		// Expected - cache was cleared
+	}
+}
+
+func TestJobPubSub_HasPublisher(t *testing.T) {
+	t.Parallel()
+
+	pubsub := NewJobPubSub()
+	ctx := context.Background()
+	jobID := id.NewJobID()
+
+	// Initially no publisher
+	assert.False(t, pubsub.HasPublisher(jobID))
+
+	// After publishing, HasPublisher returns true
+	progress := job.NewProgress(50, 100)
+	state := job.NewState(job.StatusInProgress, &progress, "")
+	err := pubsub.Publish(ctx, jobID, state)
+	assert.NoError(t, err)
+
+	assert.True(t, pubsub.HasPublisher(jobID))
+
+	// After unsubscribe (which clears cache), HasPublisher returns false
+	pubsub.Unsubscribe(jobID)
+	assert.False(t, pubsub.HasPublisher(jobID))
+}
+
+func TestJobPubSub_HasPublisher_ZeroCache(t *testing.T) {
+	t.Parallel()
+
+	pubsub := NewJobPubSubWithCacheSize(0)
+	ctx := context.Background()
+	jobID := id.NewJobID()
+
+	// With zero cache, HasPublisher always returns false even after publishing
+	progress := job.NewProgress(50, 100)
+	state := job.NewState(job.StatusInProgress, &progress, "")
+	err := pubsub.Publish(ctx, jobID, state)
+	assert.NoError(t, err)
+
+	assert.False(t, pubsub.HasPublisher(jobID))
+}

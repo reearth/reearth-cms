@@ -2,6 +2,7 @@ package interactor
 
 import (
 	"context"
+	"errors"
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -67,10 +68,6 @@ func (i *Job) Cancel(ctx context.Context, jobID id.JobID, _ *usecase.Operator) (
 }
 
 func (i *Job) Subscribe(ctx context.Context, jobID id.JobID, _ *usecase.Operator) (<-chan job.State, error) {
-	if i.gateways.JobPubSub == nil {
-		return nil, rerror.NewE(i18n.T("job subscription not available"))
-	}
-
 	// Verify job exists
 	j, err := i.repos.Job.FindByID(ctx, jobID)
 	if err != nil {
@@ -78,6 +75,18 @@ func (i *Job) Subscribe(ctx context.Context, jobID id.JobID, _ *usecase.Operator
 	}
 	if j == nil {
 		return nil, ErrJobNotFound
+	}
+
+	if i.gateways == nil || i.gateways.JobPubSub == nil {
+		return nil, rerror.ErrInternalBy(errors.New("job pubsub gateway is not configured"))
+	}
+
+	// If no publisher is active, return the current job state immediately
+	if !i.gateways.JobPubSub.HasPublisher(jobID) {
+		ch := make(chan job.State, 1)
+		ch <- j.State()
+		close(ch)
+		return ch, nil
 	}
 
 	return i.gateways.JobPubSub.Subscribe(ctx, jobID)
