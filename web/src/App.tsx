@@ -3,6 +3,8 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider, } from "react-router-dom";
 
+// eslint-disable-next-line import/no-extraneous-dependencies
+import "@ant-design/v5-patch-for-react-19";
 import { AuthProvider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
 import AccountSettings from "@reearth-cms/components/organisms/Account";
