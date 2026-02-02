@@ -200,10 +200,6 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const handleCancelAll = useCallback<UploaderHookState["handleCancelAll"]>(async () => {
-    for await (const queueItem of uploaderState.queue) {
-      if ([JobStatus.InProgress, JobStatus.Pending].includes(queueItem.jobState.status))
-        await cancelJobMutation({ variables: { jobId: queueItem.jobId } });
-    }
     const cancelPromises = uploaderState.queue.reduce<Promise<MutateResult<CancelJobMutation>>[]>(
       (acc, curr) =>
         [JobStatus.InProgress, JobStatus.Pending].includes(curr.jobState.status)
