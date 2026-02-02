@@ -52,8 +52,8 @@ describe("Test ModelCard component", () => {
   test("Renders model details and utility menu", async () => {
     render(<ModelCard {...buildProps()} />);
 
-    expect(screen.getByText("test model")).toBeInTheDocument();
-    expect(screen.getByText("test description")).toBeInTheDocument();
+    expect(screen.getByText("test model")).toBeVisible();
+    expect(screen.getByText("test description")).toBeVisible();
 
     await openDropdown();
 
