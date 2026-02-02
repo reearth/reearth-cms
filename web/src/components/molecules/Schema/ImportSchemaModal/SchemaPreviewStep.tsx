@@ -16,7 +16,7 @@ import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { ImportFieldInput } from "../types";
 
-type Props = {
+export type Props = {
   fields: ImportFieldInput[];
   fieldTypeOptions: { value: string; label: JSX.Element }[];
   onDragEnd: (fromIndex: number, toIndex: number) => void;
@@ -68,6 +68,7 @@ const SchemaPreviewStep: React.FC<Props> = ({
           </HeaderCol>
           <Col span={1}>
             <Checkbox
+              data-testid={DATA_TEST_ID.SchemaPreviewStep__PreviewSkipAllCheckbox}
               checked={isAllChecked}
               indeterminate={indeterminate}
               onClick={onToggleAllFieldsHide}

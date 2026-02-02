@@ -208,6 +208,7 @@ export enum DATA_TEST_ID {
   SchemaPreviewStep__Wrapper = "SchemaPreviewStep__Wrapper",
   SchemaPreviewStep__PreviewFieldList = "SchemaPreviewStep__PreviewFieldList",
   SchemaPreviewStep__PreviewSkipCheckbox = "SchemaPreviewStep__PreviewSkipCheckbox",
+  SchemaPreviewStep__PreviewSkipAllCheckbox = "SchemaPreviewStep__PreviewSkipAllCheckbox",
 
   // ImportSchemaModal
   ImportSchemaModal__ImportButton = "ImportSchemaModal__ImportButton",
