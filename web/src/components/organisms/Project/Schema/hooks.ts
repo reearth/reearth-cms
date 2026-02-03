@@ -214,6 +214,35 @@ export default () => {
     [schemaId, isMeta, selectedSchemaType, deleteFieldMutation, t],
   );
 
+  const handleAllFieldDelete = useCallback(
+    async (fieldIds: string[]) => {
+      if (!schemaId) return;
+
+      const options = fieldIds.map(fieldId => ({
+        variables: {
+          fieldId,
+          metadata: isMeta,
+          modelId: selectedSchemaType === "model" ? schemaId : undefined,
+          groupId: selectedSchemaType === "group" ? schemaId : undefined,
+        },
+      }));
+
+      const errors: string[] = [];
+
+      for await (const option of options) {
+        const result = await deleteFieldMutation(option);
+        if (result.error) errors.push(result.error.message);
+      }
+
+      if (errors.length > 0) {
+        Notification.error({ message: "Failed to delete all fields." });
+        return;
+      }
+      Notification.success({ message: "Successfully deleted all fields!" });
+    },
+    [schemaId, isMeta, selectedSchemaType, deleteFieldMutation],
+  );
+
   const handleFieldUpdate = useCallback(
     async (data: FormValues) => {
       if (!schemaId || !data.fieldId) return;
@@ -583,7 +612,7 @@ export default () => {
 
   const [createNewFields, { loading: fieldsCreationLoading, error: fieldsCreationError }] =
     useMutation(CreateFieldsDocument, {
-      refetchQueries: ["GetModel", "GetGroup"],
+      refetchQueries: ["GetModel", "GetGroup", "GetModels"],
     });
 
   const handleFieldsCreate = useCallback(
@@ -651,6 +680,7 @@ export default () => {
     handleFieldUpdate,
     handleFieldOrder,
     handleFieldDelete,
+    handleAllFieldDelete,
     handleKeyCheck,
     handleModalOpen,
     handleDeletionModalOpen,

@@ -89,6 +89,7 @@ export type GetRequestQuery = {
     | { __typename: "Group"; id: string }
     | { __typename: "Integration"; id: string }
     | { __typename: "Item"; id: string }
+    | { __typename: "Job"; id: string }
     | { __typename: "Model"; id: string }
     | { __typename: "Project"; id: string }
     | {

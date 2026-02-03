@@ -4,9 +4,10 @@ import React, { useMemo } from "react";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
 import { useT } from "@reearth-cms/i18n";
+import { Test } from "@reearth-cms/test/utils.ts";
 
 import { fieldTypes } from "./fieldTypes";
-import { SchemaFieldType, Tab, SelectedSchemaType } from "./types";
+import { SchemaFieldType, SelectedSchemaType, Tab } from "./types";
 
 type Props = {
   currentTab: Tab;
@@ -114,7 +115,10 @@ const FieldList: React.FC<Props> = ({
           <>
             <FieldCategoryTitle>{item.title}</FieldCategoryTitle>
             {item.fields.map(field => (
-              <List.Item key={field} onClick={hasCreateRight ? () => addField(field) : undefined}>
+              <List.Item
+                key={field}
+                onClick={hasCreateRight ? () => addField(field) : undefined}
+                data-testid={Test.getDataTestIdFromSchemaFieldType(field)}>
                 <Meta
                   avatar={<Icon icon={fieldTypes[field].icon} color={fieldTypes[field].color} />}
                   title={t(fieldTypes[field].title)}

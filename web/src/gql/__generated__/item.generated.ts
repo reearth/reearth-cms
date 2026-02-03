@@ -158,6 +158,7 @@ export type GetItemQuery = {
           title: string;
         }> | null;
       }
+    | { __typename: "Job" }
     | { __typename: "Model" }
     | { __typename: "Project" }
     | { __typename: "Request" }
@@ -463,6 +464,39 @@ export type PublishItemMutation = {
           | null;
       }> | null;
     }>;
+  } | null;
+};
+
+export type ImportItemsMutationVariables = Types.Exact<{
+  input: Types.ImportItemsInput;
+}>;
+
+export type ImportItemsMutation = {
+  importItems: {
+    __typename: "ImportItemsPayload";
+    modelId: string;
+    totalCount: number;
+    insertedCount: number;
+    updatedCount: number;
+    ignoredCount: number;
+  } | null;
+};
+
+export type ImportItemsAsyncMutationVariables = Types.Exact<{
+  input: Types.ImportItemsInput;
+}>;
+
+export type ImportItemsAsyncMutation = {
+  importItemsAsync: {
+    __typename: "ImportItemsAsyncPayload";
+    job: {
+      __typename: "Job";
+      id: string;
+      type: Types.JobType;
+      status: Types.JobStatus;
+      projectId: string;
+      progress: { __typename: "JobProgress"; processed: number; total: number; percentage: number };
+    };
   } | null;
 };
 
@@ -2284,3 +2318,115 @@ export const PublishItemDocument = {
     },
   ],
 } as unknown as DocumentNode<PublishItemMutation, PublishItemMutationVariables>;
+export const ImportItemsDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "ImportItems" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "input" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ImportItemsInput" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "importItems" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: { kind: "Variable", name: { kind: "Name", value: "input" } },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                { kind: "Field", name: { kind: "Name", value: "modelId" } },
+                { kind: "Field", name: { kind: "Name", value: "totalCount" } },
+                { kind: "Field", name: { kind: "Name", value: "insertedCount" } },
+                { kind: "Field", name: { kind: "Name", value: "updatedCount" } },
+                { kind: "Field", name: { kind: "Name", value: "ignoredCount" } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ImportItemsMutation, ImportItemsMutationVariables>;
+export const ImportItemsAsyncDocument = {
+  kind: "Document",
+  definitions: [
+    {
+      kind: "OperationDefinition",
+      operation: "mutation",
+      name: { kind: "Name", value: "ImportItemsAsync" },
+      variableDefinitions: [
+        {
+          kind: "VariableDefinition",
+          variable: { kind: "Variable", name: { kind: "Name", value: "input" } },
+          type: {
+            kind: "NonNullType",
+            type: { kind: "NamedType", name: { kind: "Name", value: "ImportItemsInput" } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: "SelectionSet",
+        selections: [
+          {
+            kind: "Field",
+            name: { kind: "Name", value: "importItemsAsync" },
+            arguments: [
+              {
+                kind: "Argument",
+                name: { kind: "Name", value: "input" },
+                value: { kind: "Variable", name: { kind: "Name", value: "input" } },
+              },
+            ],
+            selectionSet: {
+              kind: "SelectionSet",
+              selections: [
+                {
+                  kind: "Field",
+                  name: { kind: "Name", value: "job" },
+                  selectionSet: {
+                    kind: "SelectionSet",
+                    selections: [
+                      { kind: "Field", name: { kind: "Name", value: "id" } },
+                      { kind: "Field", name: { kind: "Name", value: "type" } },
+                      { kind: "Field", name: { kind: "Name", value: "status" } },
+                      { kind: "Field", name: { kind: "Name", value: "projectId" } },
+                      {
+                        kind: "Field",
+                        name: { kind: "Name", value: "progress" },
+                        selectionSet: {
+                          kind: "SelectionSet",
+                          selections: [
+                            { kind: "Field", name: { kind: "Name", value: "processed" } },
+                            { kind: "Field", name: { kind: "Name", value: "total" } },
+                            { kind: "Field", name: { kind: "Name", value: "percentage" } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ImportItemsAsyncMutation, ImportItemsAsyncMutationVariables>;

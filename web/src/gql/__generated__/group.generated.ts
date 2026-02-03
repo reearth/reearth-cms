@@ -97,6 +97,7 @@ export type GetGroupQuery = {
       }
     | { __typename: "Integration" }
     | { __typename: "Item" }
+    | { __typename: "Job" }
     | { __typename: "Model" }
     | { __typename: "Project" }
     | { __typename: "Request" }
