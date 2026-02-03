@@ -304,6 +304,15 @@ const ContentImportModal: React.FC<Props> = ({
         }
       } catch (error) {
         console.error(error);
+        setAlertList([
+          {
+            message: t("An unexpected error occurred while processing the file. Please try again."),
+            type: "error",
+            closable: true,
+            showIcon: true,
+          },
+        ]);
+
       } finally {
         handleEndLoading();
       }
