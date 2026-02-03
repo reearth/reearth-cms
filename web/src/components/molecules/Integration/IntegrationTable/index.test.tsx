@@ -102,13 +102,12 @@ describe("Integration table", () => {
       />,
     );
 
-    const connectButtons = screen.getAllByTestId(
+    const connectButton = screen.getByTestId(
       DATA_TEST_ID.IntegrationTable__ConnectIntegrationButton,
     );
-    for (const button of connectButtons) {
-      await user.click(button);
-    }
-    expect(connectModalOpenMock).toBeCalledTimes(2);
+    await user.click(connectButton);
+
+    expect(connectModalOpenMock).toBeCalledTimes(1);
   });
 
   test("Searching works successfully", async () => {

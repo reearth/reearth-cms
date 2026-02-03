@@ -123,13 +123,20 @@ const Uploader: React.FC<Props> = props => {
 
   const cancelModalCommonProps = useMemo<ModalFuncProps>(
     () => ({
-      title: t("Cancel upload?"),
+      title: (
+        <span data-testid={DATA_TEST_ID.Uploader__CancelModal__Title}>{t("Cancel upload?")}</span>
+      ),
       content: t(
         "Your file hasn't finished uploading yet. Are you sure you want to cancel upload?",
       ),
       cancelText: t("Keep uploading"),
+      cancelButtonProps: { "data-testid": DATA_TEST_ID.Uploader__CancelModal__KeepUploadingButton },
       okText: t("Cancel upload"),
-      okButtonProps: { variant: "solid", color: "danger" },
+      okButtonProps: {
+        variant: "solid",
+        color: "danger",
+        "data-testid": DATA_TEST_ID.Uploader__CancelModal__CancelUploadButton,
+      },
       maskClosable: false,
     }),
     [t],
