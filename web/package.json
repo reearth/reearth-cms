@@ -101,7 +101,7 @@
     "@ant-design/pro-components": "2.8.10",
     "@ant-design/pro-layout": "7.22.7",
     "@ant-design/pro-provider": "2.16.2",
-    "@ant-design/pro-table": "3.21.0",
+    "@ant-design/pro-table": "3.16.6",
     "@ant-design/v5-patch-for-react-19": "1.0.3",
     "@apollo/client": "4.1.0",
     "@auth0/auth0-react": "2.6.0",
