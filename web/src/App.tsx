@@ -1,3 +1,4 @@
+import { App as AntdApp } from "antd";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
@@ -95,13 +96,15 @@ const router = createBrowserRouter(
 
 function App() {
   return (
-    <AuthProvider>
-      <GqlProvider>
-        <I18nProvider>
-          <RouterProvider router={router} />
-        </I18nProvider>
-      </GqlProvider>
-    </AuthProvider>
+    <AntdApp>
+      <AuthProvider>
+        <GqlProvider>
+          <I18nProvider>
+            <RouterProvider router={router} />
+          </I18nProvider>
+        </GqlProvider>
+      </AuthProvider>
+    </AntdApp>
   );
 }
 
