@@ -30,6 +30,7 @@ export default {
   "All downloads failed": "すべてのダウンロードに失敗しました。",
   "All published content will be accessible to everyone.": "公開されたすべてのコンテンツは、誰でもアクセスできるようになります。",
   "All selected items will be published. You can unpublish them anytime.": "選択したアイテムはすべて公開されます。アイテムはいつでも非公開にすることができます。",
+  "An unexpected error occurred while processing the file. Please try again.": "ファイルの処理中に予期しないエラーが発生しました。もう一度お試しください。",
   "An unexpected error occurred.": "予期せぬエラーが発生しました。",
   "API Key": "APIキー",
   "API Key created successfully.": "APIキーの作成に成功しました。",

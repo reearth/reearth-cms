@@ -31,6 +31,7 @@ export default {
   "All downloads failed": "",
   "All published content will be accessible to everyone.": "",
   "All selected items will be published. You can unpublish them anytime.": "",
+  "An unexpected error occurred while processing the file. Please try again.": "An unexpected error occurred while processing the file. Please try again.",
   "An unexpected error occurred.": "",
   "API Key": "",
   "API Key created successfully.": "",

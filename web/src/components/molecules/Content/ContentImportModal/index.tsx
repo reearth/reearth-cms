@@ -312,7 +312,6 @@ const ContentImportModal: React.FC<Props> = ({
             showIcon: true,
           },
         ]);
-
       } finally {
         handleEndLoading();
       }
@@ -335,6 +334,7 @@ const ContentImportModal: React.FC<Props> = ({
       modelFields,
       schemaValidationAlert,
       handleEndLoading,
+      t,
     ],
   );
 
