@@ -441,7 +441,7 @@ const ContentForm: React.FC<Props> = ({
     };
 
     Notification.info({
-      message: t("Are you sure you want to restore this version’s content?"),
+      message: t("Are you sure you want to restore this version's content?"),
       description: t(
         "After saving, a new version will be created while keeping the current version unchanged.",
       ),

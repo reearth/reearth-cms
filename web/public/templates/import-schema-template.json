@@ -1,0 +1,263 @@
+{
+  "$id": "01kc83nc5pw2my3epa7zn28f5y",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "all-mighty-model",
+  "description": "all fields",
+  "type": "object",
+  "properties": {
+    "text-field-key": {
+      "title": "text-field-key",
+      "description": "this is text field",
+      "x-fieldType": "text",
+      "maxLength": 30,
+      "x-defaultValue": "hello world",
+      "x-required": true,
+      "x-multiple": false,
+      "x-unique": false
+    },
+    "text-field-key-multi": {
+      "title": "text-field-key-multi",
+      "description": "this is text field with multiple value",
+      "x-fieldType": "text",
+      "maxLength": 30,
+      "x-defaultValue": ["hello", "world"],
+      "x-required": true,
+      "x-multiple": true,
+      "x-unique": false
+    },
+    "textarea-field-key": {
+      "title": "textarea-field-key",
+      "description": "this is textarea field",
+      "x-fieldType": "textArea",
+      "maxLength": 30,
+      "x-defaultValue": "hello \n world",
+      "x-required": true,
+      "x-multiple": false,
+      "x-unique": false
+    },
+    "textarea-field-key-multi": {
+      "title": "textarea-field-key-multi",
+      "description": "this is textarea field with multiple value",
+      "x-fieldType": "textArea",
+      "maxLength": 30,
+      "x-defaultValue": ["hello \n world", "hola \n mundo"],
+      "x-required": true,
+      "x-multiple": true,
+      "x-unique": false
+    },
+    "markdown-text-field-key": {
+      "title": "markdown-text-field-key",
+      "description": "this is markdown text field",
+      "x-fieldType": "markdown",
+      "maxLength": 100,
+      "x-defaultValue": "# H1 \n # H2 \n hello world",
+      "x-required": true,
+      "x-multiple": false,
+      "x-unique": false
+    },
+    "markdown-text-field-key-multi": {
+      "title": "markdown-text-field-key-multi",
+      "description": "this is markdown text field with multiple value",
+      "x-fieldType": "markdown",
+      "maxLength": 100,
+      "x-defaultValue": ["# H1 \n # H2 \n hello world", "# H1 \n # H2 \n hola mundo"],
+      "x-required": true,
+      "x-multiple": true,
+      "x-unique": false
+    },
+    "boolean-field-key": {
+      "title": "boolean-field-key",
+      "description": "this is boolean field",
+      "x-fieldType": "bool",
+      "x-defaultValue": true,
+      "x-required": true,
+      "x-multiple": false,
+      "x-unique": false
+    },
+    "boolean-field-key-multi": {
+      "title": "boolean-field-key-multi",
+      "description": "this is boolean field with multiple value",
+      "x-fieldType": "bool",
+      "x-defaultValue": [true, false],
+      "x-required": true,
+      "x-multiple": true,
+      "x-unique": false
+    },
+    "date-field-key": {
+      "title": "date-field-key",
+      "description": "this is date field",
+      "x-fieldType": "datetime",
+      "format": "date-time",
+      "x-defaultValue": "2025-12-01T00:00:00+09:00",
+      "x-required": true,
+      "x-multiple": false,
+      "x-unique": false
+    },
+    "date-field-key-multi": {
+      "title": "date-field-key-multi",
+      "description": "this is date field with multiple value",
+      "x-fieldType": "datetime",
+      "format": "date-time",
+      "x-defaultValue": ["2025-12-01T00:00:00+09:00", "2025-12-02T00:00:00+09:00"],
+      "x-required": true,
+      "x-multiple": true,
+      "x-unique": false
+    },
+    "number-field-key": {
+      "title": "number-field-key",
+      "description": "this is number field",
+      "x-fieldType": "number",
+      "maximum": 5.5,
+      "minimum": -5.5,
+      "x-defaultValue": 1.5,
+      "x-required": true,
+      "x-multiple": false,
+      "x-unique": false
+    },
+    "number-field-key-multi": {
+      "title": "number-field-key-multi",
+      "description": "this is float field with multiple value",
+      "x-fieldType": "number",
+      "maximum": 5.5,
+      "minimum": -5.5,
+      "x-defaultValue": [1.5, -1.5],
+      "x-required": true,
+      "x-multiple": true,
+      "x-unique": false
+    },
+    "int-field-key": {
+      "title": "int-field-key",
+      "description": "this is int field",
+      "x-fieldType": "integer",
+      "maximum": 10,
+      "minimum": -10,
+      "x-defaultValue": 5,
+      "x-required": true,
+      "x-multiple": false,
+      "x-unique": false
+    },
+    "int-field-key-multi": {
+      "title": "int-field-key-multi",
+      "description": "this is int field with multiple value",
+      "x-fieldType": "integer",
+      "maximum": 10,
+      "minimum": -10,
+      "x-defaultValue": [5, -5],
+      "x-required": true,
+      "x-multiple": true,
+      "x-unique": false
+    },
+    "select-field-key": {
+      "title": "select-field-key",
+      "description": "this is option field",
+      "x-fieldType": "select",
+      "x-options": ["red", "green", "blue"],
+      "x-defaultValue": "green",
+      "x-required": true,
+      "x-multiple": false,
+      "x-unique": false
+    },
+    "select-field-key-multi": {
+      "title": "select-field-key-multi",
+      "description": "this is option field with multiple value",
+      "x-fieldType": "select",
+      "x-options": ["red", "green", "blue"],
+      "x-defaultValue": ["green", "blue"],
+      "x-required": true,
+      "x-multiple": true,
+      "x-unique": false
+    },
+    "asset-field-key": {
+      "title": "asset-field-key",
+      "description": "this is asset field",
+      "x-fieldType": "asset",
+      "x-defaultValue": "01kazd9mamxh62j62gz425v0wk",
+      "x-required": true,
+      "x-multiple": false,
+      "x-unique": false
+    },
+    "asset-field-key-multi": {
+      "title": "asset-field-key-multi",
+      "description": "this is asset field with multiple value",
+      "x-fieldType": "asset",
+      "x-defaultValue": ["01kazd9mamxh62j62gz425v0wk", "01kazd9mamxh62j62gz425v0w1"],
+      "x-required": true,
+      "x-multiple": true,
+      "x-unique": false
+    },
+    "url-field-key": {
+      "title": "url-field-key",
+      "description": "this url field",
+      "x-fieldType": "url",
+      "x-defaultValue": "https://hello.com/",
+      "x-required": true,
+      "x-multiple": false,
+      "x-unique": false
+    },
+    "url-field-key-multi": {
+      "title": "url-field-key-multi",
+      "description": "this url field with multiple value",
+      "x-fieldType": "url",
+      "x-defaultValue": ["https://hello.com/", "https://world.com"],
+      "x-required": true,
+      "x-multiple": true,
+      "x-unique": false
+    },
+    "geo-object-key": {
+      "title": "geo-object-key",
+      "description": "this geo object field",
+      "x-fieldType": "geometryObject",
+      "x-defaultValue": {
+        "type": "Point",
+        "coordinates": [139.6917, 35.6895]
+      },
+      "x-required": true,
+      "x-multiple": false,
+      "x-unique": false,
+      "x-geoSupportedTypes": ["POINT"]
+    },
+    "geo-object-key-multi": {
+      "title": "geo-object-key-multi",
+      "description": "this geo object field with multiple value",
+      "x-fieldType": "geometryObject",
+      "x-defaultValue": [
+        {
+          "type": "Point",
+          "coordinates": [139.6917, 35.6895]
+        }
+      ],
+      "x-required": true,
+      "x-multiple": true,
+      "x-unique": false,
+      "x-geoSupportedTypes": ["POINT"]
+    },
+    "geo-editor-key": {
+      "title": "geo-object-key",
+      "description": "this geo editor field",
+      "x-fieldType": "geometryEditor",
+      "x-defaultValue": {
+        "type": "Point",
+        "coordinates": [139.6917, 35.6895]
+      },
+      "x-required": true,
+      "x-multiple": false,
+      "x-unique": false,
+      "x-geoSupportedType": "POINT"
+    },
+    "geo-editor-key-multi": {
+      "title": "geo-object-key-multi",
+      "description": "this geo editor field with multiple value",
+      "x-fieldType": "geometryEditor",
+      "x-defaultValue": [
+        {
+          "type": "Point",
+          "coordinates": [139.6917, 35.6895]
+        }
+      ],
+      "x-required": true,
+      "x-multiple": true,
+      "x-unique": false,
+      "x-geoSupportedType": "POINT"
+    }
+  }
+}
