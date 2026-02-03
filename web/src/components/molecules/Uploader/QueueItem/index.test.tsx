@@ -11,7 +11,7 @@ import { type UploaderQueueItem } from "../types";
 
 import QueueItem from ".";
 
-vi.mock("../useJobStatus", () => ({
+vi.mock("../useJobState", () => ({
   default: vi.fn(),
 }));
 
