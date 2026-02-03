@@ -19,6 +19,7 @@ import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/uti
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import useUploaderHook from "@reearth-cms/components/molecules/Uploader/hooks";
+import { UploaderQueueItem } from "@reearth-cms/components/molecules/Uploader/types";
 import {
   ConditionInput,
   ItemSort,
@@ -53,7 +54,7 @@ import {
 } from "@reearth-cms/gql/__generated__/item.generated";
 import { GetViewsDocument } from "@reearth-cms/gql/__generated__/view.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useUserId, useCollapsedModelMenu, useUserRights, useUploader } from "@reearth-cms/state";
+import { useUserId, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
 
 import { fileName } from "./utils";
 
@@ -121,7 +122,6 @@ export default () => {
   const [validateImportResult, setValidateImportResult] = useState<ValidateImportResult | null>(
     null,
   );
-  const [_uploader, _setUploader] = useUploader();
 
   const [userId] = useUserId();
   const [userRights] = useUserRights();
@@ -675,17 +675,21 @@ export default () => {
   );
 
   useEffect(() => {
-    const shouldRefetch =
-      currentProject?.id &&
-      currentModel?.id &&
-      !viewLoading &&
-      uploaderState.queue.filter(
-        queueItem =>
-          queueItem.workspaceId === currentWorkspaceId &&
-          queueItem.projectId === currentProjectId &&
-          queueItem.modelId === modelId &&
-          [JobStatus.InProgress, JobStatus.Pending].includes(queueItem.jobState.status),
-      ).length === 0;
+    const currentModelJobs = uploaderState.queue.reduce<UploaderQueueItem[]>(
+      (acc, curr) =>
+        curr.workspaceId === currentWorkspaceId &&
+        curr.projectId === currentProjectId &&
+        curr.modelId === modelId
+          ? [...acc, curr]
+          : acc,
+      [],
+    );
+    const hasJobs = currentModelJobs.length > 0;
+    const isAllCompleted = currentModelJobs.every(
+      item => item.jobState.status === JobStatus.Completed,
+    );
+
+    const shouldRefetch = !viewLoading && hasJobs && isAllCompleted;
 
     if (shouldRefetch) refetch();
   }, [

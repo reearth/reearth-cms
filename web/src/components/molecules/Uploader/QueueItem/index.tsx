@@ -10,7 +10,7 @@ import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { UploaderQueueItem } from "../types";
-import useJobState from "../useJobStatus";
+import useJobState from "../useJobState";
 
 type Props = {
   queue: UploaderQueueItem;

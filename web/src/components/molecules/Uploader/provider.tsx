@@ -1,18 +1,13 @@
 import { ApolloClient } from "@apollo/client";
-import { useLazyQuery, useMutation } from "@apollo/client/react";
+import { useMutation } from "@apollo/client/react";
 import { createContext, ReactNode, useCallback, useMemo } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { RcFile } from "@reearth-cms/components/atoms/Upload";
 import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { ImportItemsAsyncDocument } from "@reearth-cms/gql/__generated__/item.generated";
-import {
-  CancelJobDocument,
-  CancelJobMutation,
-  JobDocument,
-} from "@reearth-cms/gql/__generated__/job.generated";
+import { CancelJobDocument, CancelJobMutation } from "@reearth-cms/gql/__generated__/job.generated";
 import { useUploader } from "@reearth-cms/state";
-import { Constant } from "@reearth-cms/utils/constant";
 
 import { UploaderQueueItem, UploaderState } from "./types";
 
@@ -46,33 +41,6 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
 
   const [importItemsAsyncMutation] = useMutation(ImportItemsAsyncDocument);
   const [cancelJobMutation] = useMutation(CancelJobDocument);
-  const [getJob] = useLazyQuery(JobDocument);
-
-  const getJobStateFallback = useCallback(
-    (jobId: UploaderQueueItem["jobId"]) => {
-      setTimeout(async () => {
-        const jobRes = await getJob({ variables: { jobId } });
-
-        setUploaderState(prev => ({
-          ...prev,
-          queue: prev.queue.map(item =>
-            item.jobId === jobId
-              ? {
-                  ...item,
-                  jobState: {
-                    ...item.jobState,
-                    progress: jobRes.data?.job ? jobRes.data.job.progress : item.jobState.progress,
-                    status: jobRes.data?.job ? jobRes.data.job.status : item.jobState.status,
-                    error: jobRes.data?.job ? jobRes.data.job.error : item.jobState.error,
-                  },
-                }
-              : item,
-          ),
-        }));
-      }, Constant.IMPORT.GET_JOB_DELAY_TIME_IN_MS);
-    },
-    [getJob, setUploaderState],
-  );
 
   const handleEnqueueJob = useCallback<UploaderHookState["handleEnqueueJob"]>(
     async ({ workspaceId, projectId, modelId, fileName, extension, url, file }) => {
@@ -114,9 +82,9 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
         };
       });
 
-      getJobStateFallback(jobId);
+      // getJobStateFallback(jobId);
     },
-    [getJobStateFallback, importItemsAsyncMutation, setUploaderState],
+    [importItemsAsyncMutation, setUploaderState],
   );
 
   const isShowUploader = useMemo<UploaderHookState["isShowUploader"]>(
@@ -166,10 +134,10 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
           ),
         }));
 
-        getJobStateFallback(newJobId);
+        // getJobStateFallback(newJobId);
       }
     },
-    [getJobStateFallback, importItemsAsyncMutation, setUploaderState, uploaderState.queue],
+    [importItemsAsyncMutation, setUploaderState, uploaderState.queue],
   );
 
   const handleUploadCancel = useCallback<UploaderHookState["handleUploadCancel"]>(
@@ -237,14 +205,9 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
     payload => {
       setUploaderState(prev => ({
         ...prev,
-        queue: prev.queue.map(item => {
-          return item.jobId === payload.jobId
-            ? {
-                ...item,
-                jobState: payload.jobState,
-              }
-            : item;
-        }),
+        queue: prev.queue.map(item =>
+          item.jobId === payload.jobId ? { ...item, jobState: payload.jobState } : item,
+        ),
       }));
     },
     [setUploaderState],
