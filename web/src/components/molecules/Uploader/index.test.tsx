@@ -61,7 +61,7 @@ const renderWithUploaderProvider = (contextOverrides?: Partial<UploaderHookState
     </MemoryRouter>,
   );
 
-vi.mock("./useJobStatus", () => ({
+vi.mock("./useJobState", () => ({
   default: vi.fn(),
 }));
 
