@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -21,7 +22,7 @@ test("@smoke Int field creating and updating has succeeded", async ({
   schemaPage,
 }) => {
   await test.step("Create int field with settings", async () => {
-    await fieldEditorPage.fieldTypeButton("Int").click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Integer).click();
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.fill("int1");
     await fieldEditorPage.settingsKeyInput.click();

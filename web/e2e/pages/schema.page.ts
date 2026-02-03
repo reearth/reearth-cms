@@ -1,5 +1,6 @@
 // e2e/pages/schema.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
 
 import { BasePage } from "./base.page";
 
@@ -27,6 +28,15 @@ export class SchemaPage extends BasePage {
   }
   get modelKeyLabel(): Locator {
     return this.getByLabel("Model key");
+  }
+  get importSchemaDialog(): Locator {
+    return this.getByRole("dialog", { name: "Import Schema" });
+  }
+  get importSchemaOuterButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ModelFieldList__ImportSchemaButton);
+  }
+  get importSchemaModalImportButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ImportSchemaModal__ImportButton);
   }
   modelMenuItem(name: string): Locator {
     return this.getByRole("menuitem", { name });
@@ -204,7 +214,7 @@ export class SchemaPage extends BasePage {
 
   async deleteModel(): Promise<void> {
     await this.getByRole("button", { name: "more" }).hover();
-    await this.getByText("Delete").click();
+    await this.getByText("Delete", { exact: true }).click();
     await this.getByRole("button", { name: "Delete Model" }).click();
     await this.closeNotification();
   }
@@ -233,7 +243,7 @@ export class SchemaPage extends BasePage {
 
   async deleteGroup(): Promise<void> {
     await this.getByRole("button", { name: "more" }).hover();
-    await this.getByText("Delete").click();
+    await this.getByText("Delete", { exact: true }).click();
     await this.getByRole("button", { name: "Delete Group" }).click();
     await this.closeNotification();
   }

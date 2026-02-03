@@ -1,6 +1,7 @@
 // e2e/pages/workspace.page.ts
 import { SortBy } from "@reearth-cms/components/molecules/Workspace/types";
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
 
 import { BasePage } from "./base.page";
 
@@ -71,7 +72,7 @@ export class WorkspacePage extends BasePage {
   }
 
   get projectSelectSort(): Locator {
-    return this.getByTestId("workspace-header-project-sort-select");
+    return this.getByTestId(DATA_TEST_ID.WorkspaceHeader__ProjectSortSelect);
   }
 
   get projectSelectDefaultSort(): Locator {

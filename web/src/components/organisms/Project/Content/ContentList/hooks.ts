@@ -2,6 +2,7 @@ import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/r
 import { useCallback, useEffect, useMemo, useState, useRef, Key } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
+import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { checkIfEmpty } from "@reearth-cms/components/molecules/Content/Form/fields/utils";
 import { renderField } from "@reearth-cms/components/molecules/Content/RenderField";
@@ -15,7 +16,10 @@ import {
   Metadata,
 } from "@reearth-cms/components/molecules/Content/types";
 import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
+import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
+import useUploaderHook from "@reearth-cms/components/molecules/Uploader/hooks";
+import { UploaderQueueItem } from "@reearth-cms/components/molecules/Uploader/types";
 import {
   ConditionInput,
   ItemSort,
@@ -39,6 +43,7 @@ import {
   SchemaFieldType,
   View as GQLView,
   ItemFieldInput,
+  JobStatus,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
 import {
   CreateItemDocument,
@@ -58,6 +63,14 @@ const defaultViewSort: ItemSort = {
   field: {
     type: "MODIFICATION_DATE",
   },
+};
+
+export type ValidateImportResult = {
+  type: "warning" | "error";
+  title: string;
+  description: string;
+  canForwardToImport?: boolean;
+  hint?: string;
 };
 
 export default () => {
@@ -84,6 +97,7 @@ export default () => {
     showPublishAction,
   } = useContentHooks();
   const t = useT();
+  const { handleEnqueueJob, uploaderState } = useUploaderHook();
 
   const navigate = useNavigate();
   const { modelId } = useParams();
@@ -93,8 +107,21 @@ export default () => {
       currentView: CurrentView;
       page: number;
       pageSize: number;
+      isImportModalOpen: boolean;
     } | null;
   } = useLocation();
+
+  const currentWorkspaceId = useMemo(() => currentWorkspace?.id, [currentWorkspace?.id]);
+  const currentProjectId = useMemo(() => currentProject?.id, [currentProject?.id]);
+
+  const [isImportContentModalOpen, setIsImportContentModalOpen] = useState(
+    location.state?.isImportModalOpen || false,
+  );
+  const [dataChecking, setDataChecking] = useState(false);
+  const [alertList, setAlertList] = useState<AlertProps[]>([]);
+  const [validateImportResult, setValidateImportResult] = useState<ValidateImportResult | null>(
+    null,
+  );
 
   const [userId] = useUserId();
   const [userRights] = useUserRights();
@@ -324,7 +351,7 @@ export default () => {
           }
         }
       }
-      metadataVersionSet(updateItemId);
+      await metadataVersionSet(updateItemId);
       Notification.success({ message: t("Successfully updated Item!") });
     },
     [
@@ -476,8 +503,8 @@ export default () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         render: (el: any, record: ContentTableField) => {
           const update = hasRightGet(record.createdBy.id)
-            ? (value?: string | string[] | boolean, index?: number) => {
-                handleMetaItemUpdate(record.id, field.id, value, index);
+            ? async (value?: string | string[] | boolean, index?: number) => {
+                await handleMetaItemUpdate(record.id, field.id, value, index);
               }
             : undefined;
           return renderField(el, field, update);
@@ -614,6 +641,23 @@ export default () => {
     [handleAddItemToRequest],
   );
 
+  const modelFields = useMemo<Model["schema"]["fields"]>(
+    () => (currentModel ? currentModel.schema.fields : []),
+    [currentModel],
+  );
+
+  const hasModelFields = useMemo<boolean>(() => modelFields.length > 0, [modelFields.length]);
+
+  const handleImportContentModalOpen = useCallback(() => {
+    setIsImportContentModalOpen(true);
+  }, []);
+
+  const handleImportContentModalClose = useCallback(() => {
+    setIsImportContentModalOpen(false);
+    setAlertList([]);
+    setValidateImportResult(null);
+  }, []);
+
   const handlePublish = useCallback(
     async (itemIds: string[]) => {
       await _handlePublish(itemIds);
@@ -629,6 +673,35 @@ export default () => {
     },
     [_handleUnpublish, refetch],
   );
+
+  useEffect(() => {
+    const currentModelJobs = uploaderState.queue.reduce<UploaderQueueItem[]>(
+      (acc, curr) =>
+        curr.workspaceId === currentWorkspaceId &&
+        curr.projectId === currentProjectId &&
+        curr.modelId === modelId
+          ? [...acc, curr]
+          : acc,
+      [],
+    );
+    const hasJobs = currentModelJobs.length > 0;
+    const isAllCompleted = currentModelJobs.every(
+      item => item.jobState.status === JobStatus.Completed,
+    );
+
+    const shouldRefetch = !viewLoading && hasJobs && isAllCompleted;
+
+    if (shouldRefetch) refetch();
+  }, [
+    currentModel?.id,
+    currentProject?.id,
+    currentProjectId,
+    currentWorkspaceId,
+    modelId,
+    refetch,
+    uploaderState.queue,
+    viewLoading,
+  ]);
 
   return {
     currentModel,
@@ -682,5 +755,20 @@ export default () => {
     handleContentTableChange,
     handleRequestSearchTerm,
     handleRequestTableReload,
+    isImportContentModalOpen,
+    handleImportContentModalOpen,
+    handleImportContentModalClose,
+    dataChecking,
+    setDataChecking,
+    handleEnqueueJob,
+    modelFields,
+    modelId,
+    currentWorkspaceId,
+    currentProjectId,
+    hasModelFields,
+    alertList,
+    setAlertList,
+    validateImportResult,
+    setValidateImportResult,
   };
 };

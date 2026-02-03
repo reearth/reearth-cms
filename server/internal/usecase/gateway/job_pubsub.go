@@ -11,4 +11,5 @@ type JobPubSub interface {
 	Publish(ctx context.Context, jobID id.JobID, state job.State) error
 	Subscribe(ctx context.Context, jobID id.JobID) (<-chan job.State, error)
 	Unsubscribe(jobID id.JobID)
+	HasPublisher(jobID id.JobID) bool
 }
