@@ -17,8 +17,8 @@ import {
   Webhook,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
 import { validateURL } from "@reearth-cms/utils/regex";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
 
 type Props = {
   webhookInitialValues?: WebhookValues;
@@ -185,7 +185,7 @@ const WebhookForm: React.FC<Props> = ({
                 onClick={handleSubmit}
                 disabled={isDisabled}
                 loading={loading}
-                data-testid={DATA_TEST_ID.MoleculeWebhookFormSaveButton}>
+                data-testid={DATA_TEST_ID.WebhookForm__SaveButton}>
                 {t("Save")}
               </Button>
             </Form.Item>

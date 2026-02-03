@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
-import { DATA_TEST_ID, TEST_CLASS } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID, TEST_CLASS } from "@reearth-cms/test/utils";
 
 import MyIntegrationForm from "./Form";
 
@@ -59,10 +59,10 @@ describe("Integration creation modal", () => {
     );
 
     const regenerateButton = screen.getByTestId(
-      DATA_TEST_ID.MoleculeMyIntegrationFormRegenerateTokenButton,
+      DATA_TEST_ID.MyIntegrations__Settings__Form__RegenerateTokenButton,
     );
     expect(regenerateButton).toBeVisible();
-    const saveButton = screen.getByTestId(DATA_TEST_ID.MoleculeMyIntegrationFormSaveButton);
+    const saveButton = screen.getByTestId(DATA_TEST_ID.MyIntegrations__Settings__Form__SaveButton);
     expect(saveButton).toBeVisible();
 
     expect(regenerateButton).toHaveClass(TEST_CLASS.AntBtnLoading);

@@ -4,7 +4,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { Webhook } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT, Trans } from "@reearth-cms/i18n";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
 
 import WebhookCard from "./WebhookCard";
 
@@ -32,7 +32,7 @@ const WebhookList: React.FC<Props> = ({
           onClick={onShowForm}
           type="primary"
           icon={<Icon icon="plus" />}
-          data-testid={DATA_TEST_ID.MoleculeWebhookListNewWebhookButton}>
+          data-testid={DATA_TEST_ID.WebhookList__NewWebhookButton}>
           {t("New Webhook")}
         </Button>
       </ActionWrapper>
@@ -57,7 +57,7 @@ const WebhookList: React.FC<Props> = ({
               onClick={onShowForm}
               type="primary"
               icon={<Icon icon="plus" />}
-              data-testid={DATA_TEST_ID.MoleculeWebhookListEmptyNewWebhookButton}>
+              data-testid={DATA_TEST_ID.WebhookList__EmptyNewWebhookButton}>
               {t("New Webhook")}
             </Button>
           </Suggestion>

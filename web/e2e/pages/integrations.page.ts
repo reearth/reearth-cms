@@ -1,6 +1,6 @@
 // e2e/pages/integrations.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
 
 import { BasePage } from "./base.page";
 
@@ -27,10 +27,14 @@ export class IntegrationsPage extends BasePage {
     return this.getByRole("button", { name: "Save" });
   }
   get removeIntegrationButton(): Locator {
-    return this.getByTestId(DATA_TEST_ID.RemoveIntegrationButton);
+    return this.getByTestId(
+      DATA_TEST_ID.MyIntegrations__Settings__DangerZone__RemoveIntegrationButton,
+    );
   }
   get okButton(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ConfirmRemoveIntegrationButton);
+    return this.getByTestId(
+      DATA_TEST_ID.MyIntegrations__Settings__DangerZone__ConfirmRemoveIntegrationButton,
+    );
   }
   get backButton(): Locator {
     return this.getByLabel("Back");
@@ -79,7 +83,7 @@ export class IntegrationsPage extends BasePage {
     return this.locator("#root");
   }
   get MyIntegrationListWrapper(): Locator {
-    return this.getByTestId(DATA_TEST_ID.MyIntegrationListWrapper);
+    return this.getByTestId(DATA_TEST_ID.MyIntegrations__List__Wrapper);
   }
   get tabPanel(): Locator {
     return this.getByRole("tabpanel");

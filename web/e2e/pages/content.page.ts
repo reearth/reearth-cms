@@ -1,6 +1,6 @@
 // e2e/pages/content.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
 
 import { BasePage } from "./base.page";
 
@@ -446,7 +446,7 @@ export class ContentPage extends BasePage {
   }
 
   get fieldTitle(): Locator {
-    return this.getByTestId(DATA_TEST_ID.FieldTitle);
+    return this.getByTestId(DATA_TEST_ID.Content__Form__FieldTitle);
   }
 
   // Main element
@@ -493,7 +493,7 @@ export class ContentPage extends BasePage {
   }
 
   get requestStatusElement(): Locator {
-    return this.getByTestId("requestStatus").locator("span");
+    return this.getByTestId(DATA_TEST_ID.Versions__RequestStatus).locator("span");
   }
 
   get currentVersionText(): Locator {
@@ -711,5 +711,82 @@ export class ContentPage extends BasePage {
     await this.editorContent.click();
     await this.keyboardType(text, { delay: 10 });
     await this.page.waitForTimeout(300);
+  }
+
+  // ========== Import Content Locators ==========
+
+  get importContentButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.Content__List__ImportContentButton);
+  }
+
+  get importContentModal(): Locator {
+    return this.getByRole("dialog").filter({ hasText: "Import content" });
+  }
+
+  get importContentFileInput(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ContentImportModal__FileSelect);
+  }
+
+  get importContentDragger(): Locator {
+    return this.locator(".ant-upload-drag");
+  }
+
+  get importContentLoadingWrapper(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ContentImportModal__LoadingWrapper);
+  }
+
+  get importContentErrorWrapper(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorWrapper);
+  }
+
+  get importContentErrorTitle(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorTitle);
+  }
+
+  get importContentErrorDescription(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorDescription);
+  }
+
+  get importContentErrorHint(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorHint);
+  }
+
+  get importContentGoBackButton(): Locator {
+    return this.getByRole("button", { name: "Go Back" });
+  }
+
+  get importContentImportAnywayButton(): Locator {
+    return this.getByRole("button", { name: "Import Anyway" });
+  }
+
+  get uploadSuccessNotification(): Locator {
+    return this.getByText("Successfully created upload job!");
+  }
+
+  get tableReloadIcon(): Locator {
+    return this.getByLabel("reload");
+  }
+
+  get tableContentFieldPopoverIcon(): Locator {
+    return this.getByTestId(DATA_TEST_ID.Content__List__ItemFieldPopoverIcon);
+  }
+
+  get tableContentFieldPopoverContent(): Locator {
+    return this.getByTestId(DATA_TEST_ID.Content__List__ItemFieldPopoverContent);
+  }
+
+  // ========== Import Content Actions ==========
+
+  async openImportContentModal(): Promise<void> {
+    await this.importContentButton.click();
+    await this.importContentModal.waitFor({ state: "visible" });
+  }
+
+  async uploadImportFile(filePath: string): Promise<void> {
+    await this.importContentFileInput.setInputFiles(filePath);
+  }
+
+  async closeImportContentModal(): Promise<void> {
+    await this.importContentModal.getByLabel("Close").click();
   }
 }

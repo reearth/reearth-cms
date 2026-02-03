@@ -3,7 +3,7 @@ import { userEvent } from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
 import { WebhookValues } from "@reearth-cms/components/molecules/MyIntegrations/types";
-import { DATA_TEST_ID, TEST_CLASS } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID, TEST_CLASS } from "@reearth-cms/test/utils";
 
 import WebhookForm from ".";
 
@@ -84,7 +84,7 @@ describe("Webhook form", () => {
       />,
     );
 
-    const saveButton = screen.getByTestId(DATA_TEST_ID.MoleculeWebhookFormSaveButton);
+    const saveButton = screen.getByTestId(DATA_TEST_ID.WebhookForm__SaveButton);
     expect(saveButton).toBeVisible();
     expect(saveButton).toHaveClass(TEST_CLASS.AntBtnLoading);
   });

@@ -16,7 +16,7 @@ import {
   TerrainInput,
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
 
 type Props = {
   loading: boolean;
@@ -146,7 +146,7 @@ const Settings: React.FC<Props> = ({
           />
         ) : null}
         <Button
-          data-testid={DATA_TEST_ID.MoleculeSettingsAddNewTileOptionButton}
+          data-testid={DATA_TEST_ID.Settings__AddNewTileOptionButton}
           type="link"
           onClick={() => onTileModalOpen()}
           icon={<Icon icon="plus" />}
@@ -177,7 +177,7 @@ const Settings: React.FC<Props> = ({
               />
             ) : null}
             <Button
-              data-testid={DATA_TEST_ID.MoleculeSettingsAddNewTerrainOptionButton}
+              data-testid={DATA_TEST_ID.Settings__AddNewTerrainOptionButton}
               type="link"
               onClick={() => onTerrainModalOpen()}
               icon={<Icon icon="plus" />}

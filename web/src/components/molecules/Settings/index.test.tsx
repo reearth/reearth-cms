@@ -2,7 +2,7 @@ import { render, screen, getByText } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
 
 import Settings from ".";
 
@@ -140,7 +140,7 @@ describe("Settings", () => {
     expect(saveButton).toBeDisabled();
     expect(screen.queryByText("DEFAULT")).not.toBeInTheDocument();
 
-    await user.click(screen.getByTestId(DATA_TEST_ID.MoleculeSettingsAddNewTileOptionButton));
+    await user.click(screen.getByTestId(DATA_TEST_ID.Settings__AddNewTileOptionButton));
     await expect.poll(() => screen.getByText("New Tiles")).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: "OK" }));
@@ -168,7 +168,7 @@ describe("Settings", () => {
     expect(saveButton).toBeDisabled();
     expect(screen.queryByText("CESIUM_WORLD_TERRAIN")).not.toBeInTheDocument();
 
-    await user.click(screen.getByTestId(DATA_TEST_ID.MoleculeSettingsAddNewTerrainOptionButton));
+    await user.click(screen.getByTestId(DATA_TEST_ID.Settings__AddNewTerrainOptionButton));
     await expect.poll(() => screen.getByText("New Terrain")).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: "OK" }));

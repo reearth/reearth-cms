@@ -3,7 +3,7 @@ import { userEvent } from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
 import { Webhook } from "@reearth-cms/components/molecules/MyIntegrations/types";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
 
 import WebhookList from ".";
 
@@ -48,9 +48,9 @@ describe("Webhook list", () => {
       />,
     );
 
-    const newWebhookButton = screen.getByTestId(DATA_TEST_ID.MoleculeWebhookListNewWebhookButton);
+    const newWebhookButton = screen.getByTestId(DATA_TEST_ID.WebhookList__NewWebhookButton);
     const emptyNewWebhookButton = screen.getByTestId(
-      DATA_TEST_ID.MoleculeWebhookListEmptyNewWebhookButton,
+      DATA_TEST_ID.WebhookList__EmptyNewWebhookButton,
     );
 
     expect(newWebhookButton).toBeVisible();
@@ -93,7 +93,7 @@ describe("Webhook list", () => {
       />,
     );
 
-    expect(screen.getByTestId(DATA_TEST_ID.MoleculeWebhookListNewWebhookButton)).toBeVisible();
+    expect(screen.getByTestId(DATA_TEST_ID.WebhookList__NewWebhookButton)).toBeVisible();
     expect(screen.getByText(name1)).toBeVisible();
     expect(screen.getByText(name2)).toBeVisible();
   });

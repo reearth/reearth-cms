@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { useT } from "@reearth-cms/i18n";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   title: string;
@@ -14,7 +14,7 @@ const FieldTitle: React.FC<Props> = ({ title, isUnique, isTitle }) => {
   const t = useT();
 
   return (
-    <Title data-testid={DATA_TEST_ID.FieldTitle}>
+    <Title data-testid={DATA_TEST_ID.Content__Form__FieldTitle}>
       <Wrapper>
         {title}
         {isUnique ? <FieldUnique>({t("unique")})</FieldUnique> : ""}

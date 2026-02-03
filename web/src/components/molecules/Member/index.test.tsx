@@ -3,7 +3,7 @@ import { userEvent } from "@testing-library/user-event";
 import { expect, test, describe } from "vitest";
 
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
 
 import MemberWrapper from ".";
 
@@ -76,7 +76,7 @@ describe("Member", () => {
       />,
     );
 
-    await user.click(screen.getByTestId(DATA_TEST_ID.MemberTableNewMemberButton));
+    await user.click(screen.getByTestId(DATA_TEST_ID.Member__MemberTable__NewMemberButton));
     await expect.poll(() => screen.getByRole("dialog")).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: "Cancel" }));

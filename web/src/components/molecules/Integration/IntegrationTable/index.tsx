@@ -15,7 +15,7 @@ import Space from "@reearth-cms/components/atoms/Space";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
 import { useT, Trans } from "@reearth-cms/i18n";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
 
 type Props = {
   workspaceIntegrations?: WorkspaceIntegration[];
@@ -152,7 +152,7 @@ const IntegrationTable: React.FC<Props> = ({
           danger
           loading={deleteLoading}
           disabled={!hasDeleteRight}
-          data-testid={DATA_TEST_ID.IntegrationTableRemoveButton}>
+          data-testid={DATA_TEST_ID.IntegrationTable__RemoveButton}>
           {t("Remove")}
         </Button>
       </Space>
@@ -167,7 +167,7 @@ const IntegrationTable: React.FC<Props> = ({
         onClick={onIntegrationConnectModalOpen}
         icon={<Icon icon="api" />}
         disabled={!hasConnectRight}
-        data-testid={DATA_TEST_ID.IntegrationTableConnectIntegrationButton}>
+        data-testid={DATA_TEST_ID.IntegrationTable__ConnectIntegrationButton}>
         {t("Connect Integration")}
       </Button>
     ),

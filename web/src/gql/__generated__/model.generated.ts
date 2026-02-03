@@ -39,6 +39,7 @@ export type GetModelQuery = {
     | { __typename: "Group" }
     | { __typename: "Integration" }
     | { __typename: "Item" }
+    | { __typename: "Job" }
     | {
         __typename: "Model";
         id: string;
