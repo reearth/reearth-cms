@@ -31,7 +31,7 @@ test("@smoke Boolean field creating and updating has succeeded", async ({
   await expect(fieldEditorPage.fieldsContainerParagraph).toContainText("boolean1#boolean1");
   await contentPage.contentText.click();
   await contentPage.newItemButton.click();
-  await expect(contentPage.labelElement()).toContainText("boolean1");
+  await expect(contentPage.fieldTitle).toContainText("boolean1");
   await expect(contentPage.mainElement).toContainText("boolean1 description");
 
   await contentPage.fieldInput("boolean1").click();

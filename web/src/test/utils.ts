@@ -320,6 +320,9 @@ export enum DATA_TEST_ID {
   // Settings
   Settings__AddNewTerrainOptionButton = "Settings__AddNewTerrainOptionButton",
   Settings__AddNewTileOptionButton = "Settings__AddNewTileOptionButton",
+
+  // Request/Details/SideWrapper
+  Request__Details__SideWrapper__Badge = "Request__Details__SideWrapper__Badge",
 }
 
 export enum TEST_CLASS {

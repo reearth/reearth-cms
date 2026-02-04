@@ -137,7 +137,7 @@ test("Boolean metadata editing has succeeded", async ({
     await expect(contentPage.columnHeaderWithEdit("new boolean1")).toBeVisible();
     await expect(contentPage.checkSwitch).toBeVisible();
     await contentPage.newItemButton.click();
-    await expect(contentPage.getByText("new boolean1", { exact: true })).toBeVisible();
+    await expect(contentPage.fieldTitle).toContainText("new boolean1");
     await expect(contentPage.fieldDescriptionText("new boolean1 description")).toBeVisible();
     await expect(contentPage.switchByIndex(0)).toHaveAttribute("aria-checked", "true");
     await expect(contentPage.switchByIndex(1)).toHaveAttribute("aria-checked", "true");

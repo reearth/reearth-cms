@@ -97,7 +97,8 @@ test("Request closing and reopening has succeeded", async ({ requestPage }) => {
   await test.step("Reopen request from edit page", async () => {
     await expect(requestPage.editButton).toBeVisible();
     await requestPage.editButton.click();
-    await expect(requestPage.statusText("CLOSED")).toBeVisible();
+    await expect(requestPage.sideStatusBadge).toBeVisible();
+    await expect(requestPage.sideStatusBadge).toHaveText("CLOSED");
     await expect(requestPage.statusText("Closed")).toBeVisible();
     await requestPage.reopenButton.click();
     await requestPage.closeNotification();
@@ -121,7 +122,8 @@ test("Request closing and reopening has succeeded", async ({ requestPage }) => {
     await requestPage.okButton.click();
     await expect(requestPage.tableBodyTextByText("CLOSED")).toBeVisible();
     await requestPage.editButton.click();
-    await expect(requestPage.statusText("CLOSED")).toBeVisible();
+    await expect(requestPage.sideStatusBadge).toBeVisible();
+    await expect(requestPage.sideStatusBadge).toHaveText("CLOSED");
   });
 });
 

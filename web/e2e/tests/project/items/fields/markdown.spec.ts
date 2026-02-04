@@ -49,8 +49,8 @@ test("Markdown field editing has succeeded", async ({
   await schemaPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("text1");
   await contentPage.newItemButton.click();
-  await expect(contentPage.getByText("text1", { exact: true })).toBeVisible();
-  await expect(contentPage.mainRole).toContainText("text1 description");
+  await expect(contentPage.fieldTitle).toContainText("text1");
+  await expect(contentPage.mainElement).toContainText("text1 description");
   await expect(contentPage.getByText("text1 default value").last()).toBeVisible();
   await contentPage.saveButton.click();
   await contentPage.closeNotification();

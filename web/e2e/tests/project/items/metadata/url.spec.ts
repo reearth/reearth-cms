@@ -137,7 +137,7 @@ test("Url metadata editing has succeeded", async ({ fieldEditorPage, contentPage
   await urlLink.hover();
   const editButton = contentPage.tooltipEditButton;
   await editButton.waitFor({ state: "visible" });
-  await editButton.click();
+  await editButton.click({ force: true });
   await contentPage.textBoxes.fill("http://new-default2.com");
   await contentPage.tooltipTextByName("new url1").click();
   await contentPage.closeNotification();
