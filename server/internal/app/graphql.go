@@ -45,7 +45,6 @@ func GraphqlAPI(conf GraphQLConfig, dev bool) echo.HandlerFunc {
 		},
 		InitFunc: func(ctx context.Context, initPayload transport.InitPayload) (context.Context, *transport.InitPayload, error) {
 			log.Infof("gql: websocket connection initialized")
-			log.Debugf("gql: websocket init payload: %v", initPayload)
 			return ctx, &initPayload, nil
 		},
 		ErrorFunc: func(ctx context.Context, err error) {
