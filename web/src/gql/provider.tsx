@@ -58,6 +58,11 @@ const Provider: React.FC<Props> = ({ children }) => {
         const accessToken = window.REEARTH_E2E_ACCESS_TOKEN || (await getAccessToken());
         return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
       },
+      on: {
+        connected: () => console.log("[GQL_WS] Connected"),
+        closed: event => console.log("[GQL_WS] Closed: ", event),
+        error: error => console.error("[GQL_WS] Error: ", error),
+      },
     }),
   );
 
