@@ -1,6 +1,6 @@
 import { useMutation } from "@apollo/client/react";
 import { useCallback, useState, useMemo, useEffect, ChangeEvent } from "react";
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { UpdateProjectInput } from "@reearth-cms/components/molecules/Workspace/types";

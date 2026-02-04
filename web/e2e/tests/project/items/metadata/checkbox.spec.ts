@@ -137,7 +137,7 @@ test("Checkbox metadata editing has succeeded", async ({
     await expect(contentPage.columnHeaderWithEdit("new checkbox1")).toBeVisible();
     await expect(contentPage.lastCellCheckbox).toBeChecked();
     await contentPage.newItemButton.click();
-    await expect(contentPage.getByText("new checkbox1", { exact: true })).toBeVisible();
+    await expect(contentPage.getByText("new checkbox1", { exact: true }).first()).toBeVisible();
     await expect(contentPage.fieldDescriptionText("new checkbox1 description")).toBeVisible();
     await expect(contentPage.checkboxByIndex(0)).toBeChecked();
     await expect(contentPage.checkboxByIndex(1)).toBeChecked();

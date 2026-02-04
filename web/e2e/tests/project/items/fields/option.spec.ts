@@ -50,7 +50,7 @@ test("@smoke Option field creating and updating has succeeded", async ({
     );
     await contentPage.contentText.click();
     await contentPage.newItemButton.click();
-    await expect(contentPage.locator("label")).toContainText("option1");
+    await expect(contentPage.mainRole).toContainText("option1");
     await expect(contentPage.mainRole).toContainText("option1 description");
     await page.waitForTimeout(300);
   });
@@ -68,7 +68,7 @@ test("@smoke Option field creating and updating has succeeded", async ({
 
   await test.step("Verify option saved correctly", async () => {
     await contentPage.backButton.click();
-    await expect(contentPage.optionTextByName("first")).toBeVisible();
+    await expect(contentPage.cellByText("first")).toBeVisible();
     await page.waitForTimeout(300);
   });
 
@@ -85,7 +85,7 @@ test("@smoke Option field creating and updating has succeeded", async ({
 
   await test.step("Verify updated option", async () => {
     await contentPage.backButton.click();
-    await expect(contentPage.optionTextByName("second")).toBeVisible();
+    await expect(contentPage.cellByText("second")).toBeVisible();
     await page.waitForTimeout(300);
   });
 });
@@ -160,7 +160,7 @@ test("Option field editing has succeeded", async ({
 
   await test.step("Verify item saved with default option", async () => {
     await contentPage.backButton.click();
-    await expect(contentPage.optionTextByName("third")).toBeVisible();
+    await expect(contentPage.cellByText("third")).toBeVisible();
   });
 
   await test.step("Edit field: rename, add fifth option, enable multiple values and validations", async () => {

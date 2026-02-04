@@ -17,6 +17,7 @@ import {
   Webhook,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 type Props = {
@@ -179,7 +180,12 @@ const WebhookForm: React.FC<Props> = ({
               <Input />
             </Form.Item>
             <Form.Item>
-              <Button type="primary" onClick={handleSubmit} disabled={isDisabled} loading={loading}>
+              <Button
+                type="primary"
+                onClick={handleSubmit}
+                disabled={isDisabled}
+                loading={loading}
+                data-testid={DATA_TEST_ID.WebhookForm__SaveButton}>
                 {t("Save")}
               </Button>
             </Form.Item>

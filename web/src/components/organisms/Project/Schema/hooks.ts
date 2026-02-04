@@ -1,6 +1,6 @@
 import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router";
 
 import { useModal } from "@reearth-cms/components/atoms/Modal";
 import Notification from "@reearth-cms/components/atoms/Notification";

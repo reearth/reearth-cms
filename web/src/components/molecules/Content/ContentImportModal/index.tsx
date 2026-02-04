@@ -1,7 +1,7 @@
 import { gold, red } from "@ant-design/colors";
 import styled from "@emotion/styled";
 import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation } from "react-router";
 
 import Alert, { type AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";

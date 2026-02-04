@@ -82,8 +82,8 @@ export class IntegrationsPage extends BasePage {
   get rootElement(): Locator {
     return this.locator("#root");
   }
-  get mainElement(): Locator {
-    return this.getByRole("main");
+  get MyIntegrationListWrapper(): Locator {
+    return this.getByTestId(DATA_TEST_ID.MyIntegrations__List__Wrapper);
   }
   get tabPanel(): Locator {
     return this.getByRole("tabpanel");

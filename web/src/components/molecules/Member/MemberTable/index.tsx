@@ -13,6 +13,7 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { User } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
 
 type Props = {
   workspaceUserMembers?: UserMember[];
@@ -171,7 +172,8 @@ const MemberTable: React.FC<Props> = ({
                 onClick={() => {
                   handleMemberDelete([member.user]);
                 }}
-                disabled={!hasRemoveRight}>
+                disabled={!hasRemoveRight}
+                data-testid={DATA_TEST_ID.Member__MemberTable__RemoveButton}>
                 {t("Remove")}
               </ActionButton>
             )}
@@ -236,7 +238,8 @@ const MemberTable: React.FC<Props> = ({
         icon={<Icon icon="userGroupDelete" />}
         onClick={() => handleMemberDelete(props.selectedRows)}
         danger
-        disabled={!hasRemoveRight}>
+        disabled={!hasRemoveRight}
+        data-testid={DATA_TEST_ID.Member__MemberTable__GroupRemoveButton}>
         {t("Remove")}
       </Button>
     ),
@@ -260,7 +263,8 @@ const MemberTable: React.FC<Props> = ({
             type="primary"
             onClick={onMemberAddModalOpen}
             icon={<Icon icon="userGroupAdd" />}
-            disabled={!hasInviteRight}>
+            disabled={!hasInviteRight}
+            data-testid={DATA_TEST_ID.Member__MemberTable__NewMemberButton}>
             {t("New Member")}
           </Button>
         }

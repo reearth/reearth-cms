@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
 import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import IntegrationTable from ".";
 
@@ -101,8 +102,11 @@ describe("Integration table", () => {
       />,
     );
 
-    const connectButton = screen.getByRole("button", { name: "api Connect Integration" });
+    const connectButton = screen.getByTestId(
+      DATA_TEST_ID.IntegrationTable__ConnectIntegrationButton,
+    );
     await user.click(connectButton);
+
     expect(connectModalOpenMock).toBeCalledTimes(1);
   });
 
@@ -154,9 +158,9 @@ describe("Integration table", () => {
       />,
     );
 
-    expect(screen.getByText("Name")).toBeInTheDocument();
-    expect(screen.getByText("Role")).toBeInTheDocument();
-    expect(screen.getByText("Creator")).toBeInTheDocument();
+    expect(screen.getByText("Name", { selector: ".ant-table-cell" })).toBeVisible();
+    expect(screen.getByText("Role", { selector: ".ant-table-cell" })).toBeVisible();
+    expect(screen.getByText("Creator", { selector: ".ant-table-cell" })).toBeVisible();
     expect(screen.getByText(name)).toBeVisible();
     expect(screen.getByText(role)).toBeVisible();
     expect(screen.getByText(creatorName)).toBeVisible();
@@ -183,8 +187,10 @@ describe("Integration table", () => {
       />,
     );
 
-    await user.click(screen.getByLabelText("Select all"));
-    await user.click(screen.getByRole("button", { name: "delete Remove" }));
+    const selectAllEl = screen.getAllByLabelText("Select all")[0];
+    expect(selectAllEl).toBeInTheDocument();
+    await user.click(selectAllEl);
+    await user.click(screen.getByTestId(DATA_TEST_ID.IntegrationTable__RemoveButton));
     expect(onIntegrationRemoveMock).toHaveBeenCalled();
   });
 
@@ -207,7 +213,9 @@ describe("Integration table", () => {
       />,
     );
 
-    await user.click(screen.getByLabelText("Select all"));
+    const selectAllEl = screen.getAllByLabelText("Select all")[0];
+    expect(selectAllEl).toBeInTheDocument();
+    await user.click(selectAllEl);
     expect(screen.getByLabelText("loading")).toBeVisible();
   });
 
@@ -230,7 +238,9 @@ describe("Integration table", () => {
       />,
     );
 
-    for (const button of screen.getAllByRole("button", { name: "api Connect Integration" })) {
+    for (const button of screen.getAllByTestId(
+      DATA_TEST_ID.IntegrationTable__ConnectIntegrationButton,
+    )) {
       expect(button).toBeDisabled();
     }
   });
@@ -256,7 +266,9 @@ describe("Integration table", () => {
 
     expect(screen.getByRole("button", { name: "setting" })).toBeDisabled();
 
-    await user.click(screen.getByLabelText("Select all"));
-    expect(screen.getByRole("button", { name: "delete Remove" })).toBeDisabled();
+    const selectAllEl = screen.getAllByLabelText("Select all")[0];
+    expect(selectAllEl).toBeInTheDocument();
+    await user.click(selectAllEl);
+    expect(screen.getByTestId(DATA_TEST_ID.IntegrationTable__RemoveButton)).toBeDisabled();
   });
 });

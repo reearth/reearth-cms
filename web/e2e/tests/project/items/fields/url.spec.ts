@@ -28,7 +28,7 @@ test("URL field creating and updating has succeeded", async ({ fieldEditorPage, 
   await expect(fieldEditorPage.fieldsContainerParagraph).toContainText("url1#url1");
   await contentPage.contentText.click();
   await contentPage.newItemButton.click();
-  await expect(contentPage.labelElement()).toContainText("url1");
+  await expect(contentPage.fieldTitle).toContainText("url1");
   await expect(contentPage.mainElement).toContainText("url1 description");
   await contentPage.fieldInput("url1").click();
   await contentPage.fieldInput("url1").fill("http://test1.com");

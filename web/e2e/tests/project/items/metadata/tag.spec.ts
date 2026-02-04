@@ -213,8 +213,8 @@ test("Tag metadata editing has succeeded", async ({
 
   await test.step("Verify tag removal and required field validation", async () => {
     await contentPage.editButton.first().click();
-    await expect(fieldEditorPage.tagOptionText(tag2)).toBeHidden();
-    await expect(fieldEditorPage.tagOptionText(tag3)).toBeVisible();
+    await expect(contentPage.tabPanel.getByText(tag2)).toBeHidden();
+    await expect(contentPage.tabPanel.getByText(tag3)).toBeVisible();
     await contentPage.closeCircleLabel.locator("svg").hover();
     await contentPage.closeCircleLabel.locator("svg").click();
     await expect(contentPage.pleaseInputFieldText).toBeVisible();
@@ -226,7 +226,7 @@ test("Tag metadata editing has succeeded", async ({
     await fieldEditorPage.tagOptionText(tag2).click();
     await contentPage.closeNotification();
     await contentPage.backButton.click();
-    await expect(contentPage.optionTextByName(tag2)).toBeVisible();
+    await expect(contentPage.optionTextByName(tag2).first()).toBeVisible();
     await page.waitForTimeout(300);
   });
 });

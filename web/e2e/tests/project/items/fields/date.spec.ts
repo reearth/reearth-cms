@@ -30,7 +30,7 @@ test("@smoke Date field creating and updating has succeeded", async ({
   await expect(fieldEditorPage.fieldsContainerParagraph).toContainText("date1#date1");
   await contentPage.contentText.click();
   await contentPage.newItemButton.click();
-  await expect(contentPage.labelElement()).toContainText("date1");
+  await expect(contentPage.fieldTitle).toContainText("date1");
   await expect(contentPage.mainElement).toContainText("date1 description");
 
   await contentPage.selectDatePlaceholder.click();
@@ -100,7 +100,7 @@ test("Date field editing has succeeded", async ({ fieldEditorPage, contentPage, 
   await expect(contentPage.tableHead).toContainText("new date1");
   await expect(contentPage.tableBody).toContainText("2024-01-01");
   await contentPage.newItemButton.click();
-  await expect(contentPage.labelElement()).toContainText("new date1(unique)");
+  await expect(contentPage.fieldTitle).toContainText("new date1(unique)");
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("2024-01-03");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("2024-01-02");
   await fieldEditorPage.plusNewButton.click();

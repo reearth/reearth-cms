@@ -37,7 +37,7 @@ test("MyIntegration CRUD has succeeded", async ({ integrationsPage, page }) => {
   await test.step("Verify updated integration details", async () => {
     await expect(integrationsPage.rootElement).toContainText(newIntegrationName);
     await integrationsPage.backButton.click();
-    await expect(integrationsPage.mainElement).toContainText(newDescription);
+    await expect(integrationsPage.MyIntegrationListWrapper).toContainText(newDescription);
     await page.waitForTimeout(300);
   });
 

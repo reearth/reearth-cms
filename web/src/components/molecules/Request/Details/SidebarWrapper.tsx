@@ -10,6 +10,7 @@ import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules
 import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 const { Option } = Select;
@@ -87,7 +88,11 @@ const RequestSidebarWrapper: React.FC<Props> = ({
   return (
     <SideBarWrapper>
       <SidebarCard title={t("State")}>
-        <Badge color={badgeColors[currentRequest.state]} text={t(currentRequest.state)} />
+        <Badge
+          data-testid={DATA_TEST_ID.Request__Details__SideWrapper__Badge}
+          color={badgeColors[currentRequest.state]}
+          text={t(currentRequest.state)}
+        />
       </SidebarCard>
       <SidebarCard title={t("Created By")}>
         <StyledSpace>{currentRequest?.createdBy?.name}</StyledSpace>
