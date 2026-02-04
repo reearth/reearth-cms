@@ -15,6 +15,7 @@ import (
 	"github.com/ravilushqa/otelgqlgen"
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/gqlerror"
@@ -41,6 +42,17 @@ func GraphqlAPI(conf GraphQLConfig, dev bool) echo.HandlerFunc {
 			},
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
+		},
+		InitFunc: func(ctx context.Context, initPayload transport.InitPayload) (context.Context, *transport.InitPayload, error) {
+			log.Infof("gql: websocket connection initialized")
+			log.Debugf("gql: websocket init payload: %v", initPayload)
+			return ctx, &initPayload, nil
+		},
+		ErrorFunc: func(ctx context.Context, err error) {
+			log.Errorf("gql: websocket error: %v", err)
+		},
+		CloseFunc: func(ctx context.Context, closeCode int) {
+			log.Infof("gql: websocket connection closed with code %d", closeCode)
 		},
 	})
 	srv.AddTransport(transport.Options{})
