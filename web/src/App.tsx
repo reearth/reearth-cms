@@ -9,7 +9,6 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
-// eslint-disable-next-line import/no-extraneous-dependencies
 import "@ant-design/v5-patch-for-react-19";
 import { AuthProvider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";

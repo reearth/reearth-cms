@@ -463,7 +463,7 @@ export class ContentPage extends BasePage {
   get viewLinesEditor(): Locator {
     return this.locator(".view-lines");
   }
-
+  
   get editorContent(): Locator {
     return this.getByLabel("Editor content;Press Alt+F1");
   }

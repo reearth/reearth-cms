@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import MonacoEditor, { OnMount, BeforeMount } from "@monaco-editor/react";
 import Ajv from "ajv";
 import axios from "axios";
-import { editor, Range } from "monaco-editor";
+import { json, editor, Range } from "monaco-editor";
 import "ol/ol.css";
 import { Map, View } from "ol";
 import { defaults as defaultControls, Attribution } from "ol/control";
@@ -148,8 +148,8 @@ const GeometryItem: React.FC<Props> = ({
     [disabled, isEditor, t],
   );
 
-  const handleEditorWillMount: BeforeMount = useCallback((monaco: any) => {
-    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+  const handleEditorWillMount: BeforeMount = useCallback(() => {
+    json.jsonDefaults.setDiagnosticsOptions({
       schemaValidation: "error",
       schemas: [
         {
