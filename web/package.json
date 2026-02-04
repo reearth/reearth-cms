@@ -123,6 +123,7 @@
     "formik": "2.4.6",
     "graphiql": "3.7.1",
     "graphql": "16.12.0",
+    "graphql-sse": "^2.6.0",
     "graphql-ws": "5.16.1",
     "html-react-parser": "5.1.15",
     "i18next": "25.7.3",

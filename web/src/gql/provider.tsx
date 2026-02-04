@@ -1,18 +1,20 @@
 import {
   ApolloClient,
   ApolloLink,
-  InMemoryCache,
-  HttpLink,
   CombinedGraphQLErrors,
   CombinedProtocolErrors,
+  InMemoryCache,
+  Observable,
 } from "@apollo/client";
-import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
+import { loadDevMessages, loadErrorMessages } from "@apollo/client/dev";
 import { SetContextLink } from "@apollo/client/link/context";
 import { ErrorLink } from "@apollo/client/link/error";
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { ApolloProvider } from "@apollo/client/react";
 import { getMainDefinition } from "@apollo/client/utilities";
 import UploadHttpLink from "apollo-upload-client/UploadHttpLink.mjs";
+import { print } from "graphql";
+import { createClient as createSSEClient } from "graphql-sse";
 import { createClient } from "graphql-ws";
 
 import { useAuth } from "@reearth-cms/auth";
@@ -38,9 +40,7 @@ const Provider: React.FC<Props> = ({ children }) => {
     : `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}${endpoint}`;
 
   const authLink = new SetContextLink(async (prevContext, _operation) => {
-    // get the authentication token from local storage if it exists
     const accessToken = window.REEARTH_E2E_ACCESS_TOKEN || (await getAccessToken());
-    // return the headers to the context so httpLink can read them
     return {
       headers: {
         ...prevContext.headers,
@@ -63,6 +63,38 @@ const Provider: React.FC<Props> = ({ children }) => {
         closed: event => console.log("[GQL_WS] Closed: ", event),
         error: error => console.error("[GQL_WS] Error: ", error),
       },
+    }),
+  );
+
+  const sseClient = createSSEClient({
+    url: endpoint,
+    singleConnection: false,
+    headers: async (): Promise<Record<string, string>> => {
+      const accessToken = window.REEARTH_E2E_ACCESS_TOKEN || (await getAccessToken());
+      return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+    },
+  });
+
+  const sseLink = new ApolloLink(operation =>
+    new Observable(observer => {
+      const unsubscribe = sseClient.subscribe(
+        {
+          query: print(operation.query),
+          variables: operation.variables,
+          operationName: operation.operationName ?? undefined,
+        },
+        {
+          next: data =>
+            observer.next({
+              data: data.data,
+              errors: data.errors,
+              extensions: data.extensions as Record<string, unknown> | undefined,
+            }),
+          error: err => observer.error(err),
+          complete: () => observer.complete(),
+        },
+      );
+      return () => unsubscribe();
     }),
   );
 
@@ -92,20 +124,21 @@ const Provider: React.FC<Props> = ({ children }) => {
     },
   });
 
-  const httpLink = new HttpLink({ uri: endpoint, credentials: "include" });
+  const isSubscription = ({ query }: { query: unknown }): boolean => {
+    const definition = getMainDefinition(query as Parameters<typeof getMainDefinition>[0]);
+    return definition.kind === "OperationDefinition" && definition.operation === "subscription";
+  };
+
+  const useWebSocket = ({ getContext }: { getContext: () => Record<string, unknown> }): boolean =>
+    getContext().useWS === true;
 
   const client = new ApolloClient({
     link: ApolloLink.from([
       errorLink,
       ApolloLink.split(
-        ({ query }) => {
-          const definition = getMainDefinition(query);
-          return (
-            definition.kind === "OperationDefinition" && definition.operation === "subscription"
-          );
-        },
-        ApolloLink.from([wsLink, httpLink]),
-        ApolloLink.from([authLink, uploadLink]),
+        isSubscription,
+        ApolloLink.split(useWebSocket, wsLink, sseLink), // Subscriptions: WS or SSE
+        ApolloLink.from([authLink, uploadLink]), // Queries/mutations
       ),
     ]),
     cache,
