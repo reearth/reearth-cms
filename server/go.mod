@@ -1,16 +1,16 @@
 module github.com/reearth/reearth-cms/server
 
-go 1.25.5
+go 1.25.6
 
 require (
 	cloud.google.com/go/pubsub/v2 v2.3.0
-	cloud.google.com/go/storage v1.58.0
-	github.com/99designs/gqlgen v0.17.85
-	github.com/avast/retry-go/v4 v4.6.1
-	github.com/aws/aws-sdk-go-v2 v1.41.0
-	github.com/aws/aws-sdk-go-v2/config v1.32.6
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.95.0
-	github.com/aws/aws-sdk-go-v2/service/sns v1.39.10
+	cloud.google.com/go/storage v1.59.2
+	github.com/99designs/gqlgen v0.17.86
+	github.com/avast/retry-go/v5 v5.0.0
+	github.com/aws/aws-sdk-go-v2 v1.41.1
+	github.com/aws/aws-sdk-go-v2/config v1.32.7
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.96.0
+	github.com/aws/aws-sdk-go-v2/service/sns v1.39.11
 	github.com/chrispappas/golang-generics-set v1.0.1
 	github.com/gavv/httpexpect/v2 v2.17.0
 	github.com/getkin/kin-openapi v0.133.0
@@ -23,9 +23,9 @@ require (
 	github.com/iancoleman/orderedmap v0.3.0
 	github.com/jarcoal/httpmock v1.4.1
 	github.com/joho/godotenv v1.5.1
-	github.com/k0kubun/pp/v3 v3.5.0
+	github.com/k0kubun/pp/v3 v3.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/labstack/echo/v4 v4.15.0
+	github.com/labstack/echo/v5 v5.0.1
 	github.com/oapi-codegen/oapi-codegen/v2 v2.5.1
 	github.com/oapi-codegen/runtime v1.1.2
 	github.com/paulmach/go.geojson v1.5.0
@@ -40,14 +40,14 @@ require (
 	github.com/stretchr/testify v1.11.1
 	github.com/vektah/gqlparser/v2 v2.5.31
 	github.com/vikstrous/dataloadgen v0.0.10
-	go.mongodb.org/mongo-driver v1.17.6
+	go.mongodb.org/mongo-driver/v2 v2.5.0
 	go.opencensus.io v0.24.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.64.0
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.64.0
 	golang.org/x/exp v0.0.0-20251113190631-e25ba8c21ef6
-	golang.org/x/net v0.48.0
-	golang.org/x/text v0.32.0
-	google.golang.org/api v0.258.0
+	golang.org/x/net v0.49.0
+	golang.org/x/text v0.33.0
+	google.golang.org/api v0.264.0
 	google.golang.org/grpc v1.78.0
 	google.golang.org/protobuf v1.36.11
 )
