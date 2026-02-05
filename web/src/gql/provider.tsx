@@ -93,27 +93,36 @@ const Provider: React.FC<Props> = ({ children }) => {
     },
   });
 
-  const sseLink = new ApolloLink(operation =>
-    new Observable(observer => {
-      const unsubscribe = sseClient.subscribe(
-        {
-          query: print(operation.query),
-          variables: operation.variables,
-          operationName: operation.operationName ?? undefined,
-        },
-        {
-          next: data =>
-            observer.next({
-              data: data.data,
-              errors: data.errors,
-              extensions: data.extensions as Record<string, unknown> | undefined,
-            }),
-          error: err => observer.error(err),
-          complete: () => observer.complete(),
-        },
-      );
-      return () => unsubscribe();
-    }),
+  const sseLink = new ApolloLink(
+    operation =>
+      new Observable(observer => {
+        let cancelled = false;
+        let iterator: AsyncIterableIterator<unknown> | null = null;
+
+        (async () => {
+          try {
+            iterator = sseClient.iterate({
+              query: print(operation.query),
+              variables: operation.variables,
+              operationName: operation.operationName ?? undefined,
+            });
+
+            for await (const result of iterator) {
+              if (cancelled) break;
+              observer.next(result as { data?: Record<string, unknown> | null });
+            }
+
+            if (!cancelled) observer.complete();
+          } catch (err) {
+            if (!cancelled) observer.error(err);
+          }
+        })();
+
+        return () => {
+          cancelled = true;
+          iterator?.return?.();
+        };
+      }),
   );
 
   const errorLink = new ErrorLink(({ error, operation }) => {
