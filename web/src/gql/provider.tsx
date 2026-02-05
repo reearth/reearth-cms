@@ -165,7 +165,7 @@ const Provider: React.FC<Props> = ({ children }) => {
       errorLink,
       ApolloLink.split(
         isSubscription,
-        ApolloLink.split(useWebSocket, wsLink, sseLink), // Subscriptions: WS or SSE
+        ApolloLink.split(shouldUseWebSocket, wsLink, sseLink), // Subscriptions: WS or SSE
         ApolloLink.from([authLink, uploadLink]), // Queries/mutations
       ),
     ]),
