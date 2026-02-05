@@ -36063,8 +36063,8 @@ func (ec *executionContext) _Condition(ctx context.Context, sel ast.SelectionSet
 		}
 		return ec._AndCondition(ctx, sel, obj)
 	default:
-		if obj, ok := obj.(graphql.Marshaler); ok {
-			return obj
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
 		} else {
 			panic(fmt.Errorf("unexpected type %T; non-generated variants of Condition must implement graphql.Marshaler", obj))
 		}
@@ -36167,8 +36167,8 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 		}
 		return ec._Asset(ctx, sel, obj)
 	default:
-		if obj, ok := obj.(graphql.Marshaler); ok {
-			return obj
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
 		} else {
 			panic(fmt.Errorf("unexpected type %T; non-generated variants of Node must implement graphql.Marshaler", obj))
 		}
@@ -36194,8 +36194,8 @@ func (ec *executionContext) _Operator(ctx context.Context, sel ast.SelectionSet,
 		}
 		return ec._Integration(ctx, sel, obj)
 	default:
-		if obj, ok := obj.(graphql.Marshaler); ok {
-			return obj
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
 		} else {
 			panic(fmt.Errorf("unexpected type %T; non-generated variants of Operator must implement graphql.Marshaler", obj))
 		}
@@ -36221,8 +36221,8 @@ func (ec *executionContext) _Resource(ctx context.Context, sel ast.SelectionSet,
 		}
 		return ec._TerrainResource(ctx, sel, obj)
 	default:
-		if obj, ok := obj.(graphql.Marshaler); ok {
-			return obj
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
 		} else {
 			panic(fmt.Errorf("unexpected type %T; non-generated variants of Resource must implement graphql.Marshaler", obj))
 		}
@@ -36353,8 +36353,8 @@ func (ec *executionContext) _SchemaFieldTypeProperty(ctx context.Context, sel as
 		}
 		return ec._SchemaFieldAsset(ctx, sel, obj)
 	default:
-		if obj, ok := obj.(graphql.Marshaler); ok {
-			return obj
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
 		} else {
 			panic(fmt.Errorf("unexpected type %T; non-generated variants of SchemaFieldTypeProperty must implement graphql.Marshaler", obj))
 		}
@@ -36380,8 +36380,8 @@ func (ec *executionContext) _WorkspaceMember(ctx context.Context, sel ast.Select
 		}
 		return ec._WorkspaceIntegrationMember(ctx, sel, obj)
 	default:
-		if obj, ok := obj.(graphql.Marshaler); ok {
-			return obj
+		if typedObj, ok := obj.(graphql.Marshaler); ok {
+			return typedObj
 		} else {
 			panic(fmt.Errorf("unexpected type %T; non-generated variants of WorkspaceMember must implement graphql.Marshaler", obj))
 		}
