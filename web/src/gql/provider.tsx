@@ -156,8 +156,9 @@ const Provider: React.FC<Props> = ({ children }) => {
     return definition.kind === "OperationDefinition" && definition.operation === "subscription";
   };
 
-  const useWebSocket = ({ getContext }: { getContext: () => Record<string, unknown> }): boolean =>
-    getContext().useWS === true;
+  const shouldUseWebSocket = (_operation: ApolloLink.Operation): boolean => {
+    return getHttpProtocol() === "HTTP/2";
+  };
 
   const client = new ApolloClient({
     link: ApolloLink.from([
