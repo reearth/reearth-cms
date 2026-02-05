@@ -13380,7 +13380,7 @@ graphql-language-service@5.5.0, graphql-language-service@^5.3.0:
     nullthrows "^1.0.0"
     vscode-languageserver-types "^3.17.1"
 
-graphql-sse@^2.6.0:
+graphql-sse@2.6.0:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/graphql-sse/-/graphql-sse-2.6.0.tgz#d3af7ac13ebb19fb7042808f535dc45c700bc64c"
   integrity sha512-BXT5Rjv9UFunjQsmN9WWEIq+TFNhgYibgwo1xkXLxzguQVyOd6paJ4v5DlL9K5QplS0w74bhF+aUiqaGXZBaug==
