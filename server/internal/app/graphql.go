@@ -34,6 +34,10 @@ func GraphqlAPI(conf GraphQLConfig, dev bool) echo.HandlerFunc {
 	})
 
 	srv := handler.New(schema)
+
+	srv.AddTransport(transport.SSE{
+		KeepAlivePingInterval: 10 * time.Second,
+	})
 	srv.AddTransport(transport.Websocket{
 		KeepAlivePingInterval: 10 * time.Second,
 		Upgrader: websocket.Upgrader{
