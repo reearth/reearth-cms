@@ -23,7 +23,25 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 type Props = {
   children?: React.ReactNode;
 };
+function getHttpProtocol(): "HTTP/2" | "HTTP/3" | "HTTP/1.1" | "HTTP/1.0" | "Unknown" {
+  const navEntry = performance.getEntriesByType("navigation")[0] as
+    | PerformanceNavigationTiming
+    | undefined;
+  if (!navEntry) return "Unknown";
 
+  switch (navEntry.nextHopProtocol) {
+    case "h2":
+      return "HTTP/2";
+    case "h3":
+      return "HTTP/3";
+    case "http/1.1":
+      return "HTTP/1.1";
+    case "http/1.0":
+      return "HTTP/1.0";
+    default:
+      return "Unknown";
+  }
+}
 if (process.env.NODE_ENV === "development") {
   // Adds messages only in a dev environment
   loadDevMessages();
