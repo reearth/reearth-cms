@@ -151,8 +151,8 @@ const Provider: React.FC<Props> = ({ children }) => {
     },
   });
 
-  const isSubscription = ({ query }: { query: unknown }): boolean => {
-    const definition = getMainDefinition(query as Parameters<typeof getMainDefinition>[0]);
+  const isSubscription = (operation: ApolloLink.Operation): boolean => {
+    const definition = getMainDefinition(operation.query);
     return definition.kind === "OperationDefinition" && definition.operation === "subscription";
   };
 
