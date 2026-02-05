@@ -23,7 +23,7 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 type Props = {
   children?: React.ReactNode;
 };
-function getHttpProtocol(): "HTTP/2" | "HTTP/3" | "HTTP/1.1" | "HTTP/1.0" | "Unknown" {
+function _getHttpProtocol(): "HTTP/2" | "HTTP/3" | "HTTP/1.1" | "HTTP/1.0" | "Unknown" {
   const navEntry = performance.getEntriesByType("navigation")[0] as
     | PerformanceNavigationTiming
     | undefined;
@@ -156,8 +156,9 @@ const Provider: React.FC<Props> = ({ children }) => {
     return definition.kind === "OperationDefinition" && definition.operation === "subscription";
   };
 
-  const shouldUseWebSocket = (_operation: ApolloLink.Operation): boolean => {
-    return getHttpProtocol() === "HTTP/2";
+  const shouldUseWebSocket = (operation: ApolloLink.Operation): boolean => {
+    const context = operation.getContext() as { useWS?: boolean };
+    return !!context.useWS;
   };
 
   const client = new ApolloClient({
