@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Col from "@reearth-cms/components/atoms/Col";
@@ -32,12 +32,6 @@ type FormType = {
   name: string;
   description: string;
   logoUrl: string;
-};
-
-type CodeExampleItem = {
-  type: "normal" | "highlight";
-  text: string;
-  lineBreak: boolean;
 };
 
 const MyIntegrationForm: React.FC<Props> = ({
@@ -94,76 +88,8 @@ const MyIntegrationForm: React.FC<Props> = ({
     });
   }, [confirm, t, onRegenerateToken]);
 
-  const codeExampleTest = useMemo<CodeExampleItem[]>(
-    () => [
-      {
-        type: "normal",
-        text: "curl --location --request POST ",
-        lineBreak: true,
-      },
-      {
-        type: "normal",
-        text: "'",
-        lineBreak: false,
-      },
-      {
-        type: "normal",
-        text: window.REEARTH_CONFIG?.api || "",
-        lineBreak: false,
-      },
-      {
-        type: "normal",
-        text: "/",
-        lineBreak: false,
-      },
-      {
-        type: "highlight",
-        text: t("<workspace_id_or_alias>"),
-        lineBreak: false,
-      },
-      {
-        type: "normal",
-        text: "/projects/",
-        lineBreak: false,
-      },
-      {
-        type: "highlight",
-        text: t("<project_id_or_alias>"),
-        lineBreak: false,
-      },
-      {
-        type: "normal",
-        text: "/models/",
-        lineBreak: false,
-      },
-      {
-        type: "highlight",
-        text: t("<model_id_or_key>"),
-        lineBreak: false,
-      },
-      {
-        type: "normal",
-        text: "/items' ",
-        lineBreak: true,
-      },
-      {
-        type: "normal",
-        text: "--header 'Authorization: Bearer ",
-        lineBreak: false,
-      },
-      {
-        type: "highlight",
-        text: t("<your_integration_token>"),
-        lineBreak: false,
-      },
-      {
-        type: "normal",
-        text: "'",
-        lineBreak: false,
-      },
-    ],
-    [t],
-  );
+  const api = window.REEARTH_CONFIG?.api || "";
+  const codeExampleText = `curl --location --request POST '${api}/${t("<workspace_id_or_alias>")}/projects/${t("<project_id_or_alias>")}/models/${t("<model_id_or_key>")}/items' --header 'Authorization: Bearer ${t("<your_integration_token>")}'`;
 
   return (
     <Form
@@ -231,18 +157,21 @@ const MyIntegrationForm: React.FC<Props> = ({
           <CodeExample>
             <StyledCopyButton
               data-testid={DATA_TEST_ID.MyIntegrations__Settings__Form__CodeExampleCopyButton}
-              copyable={{ text: codeExampleTest.map(item => item.text).join("") }}
+              copyable={{ text: codeExampleText }}
             />
-            {codeExampleTest.map((item, index) => (
-              <span key={index}>
-                {item.type === "highlight" ? (
-                  <Typography.Text code>{item.text}</Typography.Text>
-                ) : (
-                  <span>{item.text}</span>
-                )}
-                {item.lineBreak && <br />}
-              </span>
-            ))}
+            <span>curl --location --request POST </span>
+            <br />
+            <span>&apos;{api}/</span>
+            <Typography.Text code>{t("<workspace_id_or_alias>")}</Typography.Text>
+            <span>/projects/</span>
+            <Typography.Text code>{t("<project_id_or_alias>")}</Typography.Text>
+            <span>/models/</span>
+            <Typography.Text code>{t("<model_id_or_key>")}</Typography.Text>
+            <span>/items&apos;&nbsp;</span>
+            <br />
+            <span>--header 'Authorization: Bearer </span>
+            <Typography.Text code>{t("<your_integration_token>")}</Typography.Text>
+            <span>&apos;</span>
           </CodeExample>
         </Col>
       </Row>
