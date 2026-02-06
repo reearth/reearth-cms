@@ -82,8 +82,7 @@ func initApi(appCtx *ApplicationContext, api *echo.Group, usecaseMiddleware echo
 		authMiddleware(appCtx),
 		usecaseMiddleware,
 	}
-	api.POST("/graphql", graphqlHandler, graphqlMiddlewares...)
-	api.GET("/graphql", graphqlHandler, graphqlMiddlewares...) // WebSocket subscriptions
+	api.Any("/graphql", graphqlHandler, graphqlMiddlewares...)
 	api.POST(
 		"/notify", NotifyHandler(),
 		M2MAuthMiddleware(appCtx.Config),

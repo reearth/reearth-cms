@@ -32,6 +32,12 @@ type JobProgress {
   percentage: Float!
 }
 
+type JobState {
+  status: JobStatus!
+  progress: JobProgress  # nullable - only present when status is IN_PROGRESS
+  error: String          # only present when status is FAILED
+}
+
 # Query extensions
 extend type Query {
   job(jobId: ID!): Job
@@ -45,5 +51,5 @@ extend type Mutation {
 
 # Subscription extensions
 extend type Subscription {
-  jobProgress(jobId: ID!): JobProgress!
+  jobState(jobId: ID!): JobState!
 }

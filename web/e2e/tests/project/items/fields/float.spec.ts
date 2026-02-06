@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -18,7 +19,7 @@ test("Float field creating and updating has succeeded", async ({
   contentPage,
   schemaPage,
 }) => {
-  await fieldEditorPage.fieldTypeButton("Float").click();
+  await fieldEditorPage.fieldTypeButton(SchemaFieldType.Number).click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("float1");
   await fieldEditorPage.settingsKeyInput.click();

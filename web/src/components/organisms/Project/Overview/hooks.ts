@@ -85,6 +85,7 @@ export default () => {
       pagination: { first: 100 },
     },
     skip: !currentProject?.id,
+    fetchPolicy: "cache-and-network",
   });
 
   const models = useMemo(
@@ -257,10 +258,30 @@ export default () => {
     [currentWorkspace?.id, currentProject?.id, navigate],
   );
 
+  const handleImportSchemaNavigation = useCallback(
+    (modelId: string) => {
+      navigate(
+        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/schema/${modelId}`,
+        { state: { isImportModalOpen: true } },
+      );
+    },
+    [currentWorkspace?.id, currentProject?.id, navigate],
+  );
+
   const handleContentNavigation = useCallback(
     (modelId: string) => {
       navigate(
         `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}`,
+      );
+    },
+    [currentWorkspace?.id, currentProject?.id, navigate],
+  );
+
+  const handleImportContentNavigation = useCallback(
+    (modelId: string) => {
+      navigate(
+        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}`,
+        { state: { isImportModalOpen: true } },
       );
     },
     [currentWorkspace?.id, currentProject?.id, navigate],
@@ -295,7 +316,9 @@ export default () => {
     handleModelSort,
     handleHomeNavigation,
     handleSchemaNavigation,
+    handleImportSchemaNavigation,
     handleContentNavigation,
+    handleImportContentNavigation,
     handleModelKeyCheck,
     handleModelModalOpen,
     handleModelModalReset,

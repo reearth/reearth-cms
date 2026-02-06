@@ -8,7 +8,8 @@ import (
 )
 
 type JobPubSub interface {
-	Publish(ctx context.Context, jobID id.JobID, progress job.Progress) error
-	Subscribe(ctx context.Context, jobID id.JobID) (<-chan job.Progress, error)
+	Publish(ctx context.Context, jobID id.JobID, state job.State) error
+	Subscribe(ctx context.Context, jobID id.JobID) (<-chan job.State, error)
 	Unsubscribe(jobID id.JobID)
+	HasPublisher(jobID id.JobID) bool
 }

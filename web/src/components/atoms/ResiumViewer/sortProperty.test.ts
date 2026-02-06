@@ -78,7 +78,7 @@ describe("sort Properties", () => {
 
   test("parse JSON array string properties", () => {
     const obj = {
-      items: '[1, 2, 3]',
+      items: "[1, 2, 3]",
       name: "test",
     };
     const result = sortProperties(obj);
