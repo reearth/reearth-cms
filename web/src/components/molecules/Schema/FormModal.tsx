@@ -41,7 +41,7 @@ const FormModal: React.FC<Props> = ({
   const [form] = Form.useForm<FormType>();
   const [isLoading, setIsLoading] = useState(false);
   const [isDisabled, setIsDisabled] = useState(true);
-  const prevKey = useRef<{ key: string; isSuccess: boolean }>();
+  const prevKey = useRef<{ key: string; isSuccess: boolean } | null>(null);
 
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const values = Form.useWatch<FormType | undefined>([], form);

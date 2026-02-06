@@ -140,7 +140,7 @@ export class ContentPage extends BasePage {
 
   // Table sorting and filtering
   textColumnHeader(): Locator {
-    return this.getByText("text", { exact: true });
+    return this.getByText("text", { exact: true }).first();
   }
   get columnHeaderText(): Locator {
     return this.getByRole("columnheader", { name: "text" });
@@ -463,7 +463,7 @@ export class ContentPage extends BasePage {
   get viewLinesEditor(): Locator {
     return this.locator(".view-lines");
   }
-
+  
   get editorContent(): Locator {
     return this.getByLabel("Editor content;Press Alt+F1");
   }

@@ -100,7 +100,7 @@ const RequestListMolecule: React.FC<Props> = ({
           />
         </Content>
       }
-      right={commentsPanel}
+      right={commentsPanel as React.ReactNode}
     />
   );
 };

@@ -142,7 +142,7 @@ const MultiValueColoredTag: React.FC<Props> = ({
                 />
               </>
             )}
-            <StyledDiv hidden={focusedTagIndex !== key} ref={el => (divRefs.current[key] = el)}>
+            <StyledDiv hidden={focusedTagIndex !== key} ref={el => { divRefs.current[key] = el; }}>
               <StyledInput
                 {...props}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}

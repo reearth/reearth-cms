@@ -295,7 +295,7 @@ const ContentDetailsMolecule: React.FC<Props> = ({
           />
         )
       }
-      right={commentsPanel}
+      right={commentsPanel as React.ReactNode}
     />
   );
 };
