@@ -212,15 +212,15 @@ export const userRightsGet = (role: Role): UserRights => {
         content: {
           create: true,
           read: true,
-          update: true,
-          delete: true,
+          update: null,
+          delete: null,
           publish: true,
         },
         asset: {
           create: true,
           read: true,
-          update: true,
-          delete: true,
+          update: null,
+          delete: null,
         },
         request: {
           create: true,
