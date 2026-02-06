@@ -214,7 +214,7 @@ export const userRightsGet = (role: Role): UserRights => {
           read: true,
           update: null,
           delete: null,
-          publish: false,
+          publish: true,
         },
         asset: {
           create: true,
