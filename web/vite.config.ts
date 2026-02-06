@@ -44,6 +44,7 @@ export default defineConfig({
     serverHeaders(),
     config(),
     tsconfigPaths(),
+    injectCommitHashMeta(process.env.GITHUB_SHA || commitHash),
   ],
   css: {
     preprocessorOptions: {
@@ -146,4 +147,17 @@ function loadJSON(path: string): object {
   } catch (_) {
     return {};
   }
+}
+
+function injectCommitHashMeta(commitHash: string): Plugin {
+  const trimmedCommitHash = commitHash.slice(0, 7);
+  return {
+    name: "inject-commit-hash-meta",
+    transformIndexHtml(html) {
+      return html.replace(
+        "</head>",
+        `    <meta name="reearth-commit-hash" content="${trimmedCommitHash}" />\n  </head>`,
+      );
+    },
+  };
 }
