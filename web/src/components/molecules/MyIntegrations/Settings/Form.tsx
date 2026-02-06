@@ -18,6 +18,7 @@ import {
   IntegrationInfo,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   integration: IntegrationInfo & Pick<Integration, "config">;
@@ -193,7 +194,12 @@ const MyIntegrationForm: React.FC<Props> = ({
               value={integration.config.token}
               contentEditable={false}
               visibilityToggle={{ visible }}
-              iconRender={() => <CopyButton copyable={{ text: integration.config.token }} />}
+              iconRender={() => (
+                <CopyButton
+                  data-testid={DATA_TEST_ID.MyIntegrations__Settings__Form__TokenCopyButton}
+                  copyable={{ text: integration.config.token }}
+                />
+              )}
               prefix={
                 <Icon
                   icon={visible ? "eye" : "eyeInvisible"}
@@ -224,6 +230,7 @@ const MyIntegrationForm: React.FC<Props> = ({
           <CodeExampleTitle>{t("Code Example")}</CodeExampleTitle>
           <CodeExample>
             <StyledCopyButton
+              data-testid={DATA_TEST_ID.MyIntegrations__Settings__Form__CodeExampleCopyButton}
               copyable={{ text: codeExampleTest.map(item => item.text).join("") }}
             />
             {codeExampleTest.map((item, index) => (
