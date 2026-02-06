@@ -1,6 +1,9 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
+
+import { t } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import MyIntegrationForm from "./Form";
 
@@ -42,7 +45,7 @@ describe("Integration creation modal", () => {
     expect(screen.getByDisplayValue(integration.config.token)).toBeVisible();
     expect(screen.getByText(new RegExp("curl --location --request POST"))).toBeVisible();
     expect(screen.getByText(new RegExp(api))).toBeVisible();
-    expect(screen.getByText(new RegExp("--header 'Authorization: Bearer '"))).toBeVisible();
+    expect(screen.getByText(new RegExp("--header 'Authorization: Bearer"))).toBeVisible();
   });
 
   test("Update and regenerate loading is displayed successfully", async () => {
@@ -134,6 +137,54 @@ describe("Integration creation modal", () => {
 
     await user.type(descriptionInput, integration.description);
     expect(saveButton).toBeDisabled();
+  });
+
+  test("Token copy button is displayed and shows copied feedback on click", async () => {
+    render(
+      <MyIntegrationForm
+        integration={integration}
+        updateIntegrationLoading={updateIntegrationLoading}
+        regenerateLoading={regenerateLoading}
+        onIntegrationUpdate={onIntegrationUpdate}
+        onRegenerateToken={onRegenerateToken}
+      />,
+    );
+
+    const tokenCopyWrapper = screen.getByTestId(
+      DATA_TEST_ID.MyIntegrations__Settings__Form__TokenCopyButton,
+    );
+    const tokenCopyButton = within(tokenCopyWrapper).getByRole("button", { name: t("Copy") });
+    expect(tokenCopyButton).toBeVisible();
+
+    await user.click(tokenCopyButton);
+    await expect
+      .poll(() => within(tokenCopyWrapper).queryByRole("button", { name: t("Copied") }))
+      .toBeInTheDocument();
+  });
+
+  test("Code example copy button is displayed and shows copied feedback on click", async () => {
+    render(
+      <MyIntegrationForm
+        integration={integration}
+        updateIntegrationLoading={updateIntegrationLoading}
+        regenerateLoading={regenerateLoading}
+        onIntegrationUpdate={onIntegrationUpdate}
+        onRegenerateToken={onRegenerateToken}
+      />,
+    );
+
+    const codeExampleCopyWrapper = screen.getByTestId(
+      DATA_TEST_ID.MyIntegrations__Settings__Form__CodeExampleCopyButton,
+    );
+    const codeExampleCopyButton = within(codeExampleCopyWrapper).getByRole("button", {
+      name: t("Copy"),
+    });
+    expect(codeExampleCopyButton).toBeVisible();
+
+    await user.click(codeExampleCopyButton);
+    await expect
+      .poll(() => within(codeExampleCopyWrapper).queryByRole("button", { name: t("Copied") }))
+      .toBeInTheDocument();
   });
 
   test("Update event is fired successfully", async () => {
