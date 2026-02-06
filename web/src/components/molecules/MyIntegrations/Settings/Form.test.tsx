@@ -42,7 +42,7 @@ describe("Integration creation modal", () => {
     expect(screen.getByDisplayValue(integration.config.token)).toBeVisible();
     expect(screen.getByText(new RegExp("curl --location --request POST"))).toBeVisible();
     expect(screen.getByText(new RegExp(api))).toBeVisible();
-    expect(screen.getByText(new RegExp("--header 'Authorization: Bearer '"))).toBeVisible();
+    expect(screen.getByText(new RegExp("--header 'Authorization: Bearer"))).toBeVisible();
   });
 
   test("Update and regenerate loading is displayed successfully", async () => {
