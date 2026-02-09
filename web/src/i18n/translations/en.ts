@@ -2,6 +2,10 @@ export default {
   "{{count}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored._one": "{{count}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored.",
   "{{count}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored._other": "{{count}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored.",
   "{{field}} field is required!": "",
+  "<model_id_or_key>": "<model_id_or_key>",
+  "<project_id_or_alias>": "<project_id_or_alias>",
+  "<workspace_id_or_alias>": "<workspace_id_or_alias>",
+  "<your_integration_token>": "<your_integration_token>",
   "3D Tiles": "",
   "A bidirectional relationship where two items refer to each other": "",
   "A simpler way to access to the project.": "",
@@ -708,7 +712,5 @@ export default {
   "You can write some here to describe this record.": "",
   "Your alias must be between {{min}} and {{max}} characters long.": "",
   "Your Email": "",
-  "Your file hasn't finished uploading yet. Are you sure you want to cancel upload?": "Your file hasn't finished uploading yet. Are you sure you want to cancel upload?",
-  "your Integration Token here": "",
-  "your model id here": ""
+  "Your file hasn't finished uploading yet. Are you sure you want to cancel upload?": "Your file hasn't finished uploading yet. Are you sure you want to cancel upload?"
 } as const;

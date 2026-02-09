@@ -1,6 +1,10 @@
 export default {
   "{{count}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored._other": "{{count, number}} 個のフィールドがスキーマと一致しません。インポートを続行できますが、一致しないフィールドは無視されます。",
   "{{field}} field is required!": "{{field}}フィールドは必須項目です!",
+  "<model_id_or_key>": "<モデルIDもしくはキー>",
+  "<project_id_or_alias>": "<プロジェクトIDもしくはエイリアス>",
+  "<workspace_id_or_alias>": "<ワークスペースIDもしくはエイリアス>",
+  "<your_integration_token>": "<インテグレーショントークン>",
   "3D Tiles": "3Dタイル",
   "A bidirectional relationship where two items refer to each other": "2つの項目が互いを参照する双方向の関係",
   "A simpler way to access to the project.": "プロジェクトにアクセスするためのシンプルな方法です。",
@@ -704,7 +708,5 @@ export default {
   "You can write some here to describe this record.": "このレコードの説明をここに記入できます。",
   "Your alias must be between {{min}} and {{max}} characters long.": "エイリアスは{{min}}文字以上、{{max}}文字以内で入力してください",
   "Your Email": "メールアドレス",
-  "Your file hasn't finished uploading yet. Are you sure you want to cancel upload?": "ファイルのアップロードがまだ完了していません。アップロードをキャンセルしてもよろしいですか?",
-  "your Integration Token here": "インテグレーショントークンをここに入力してください",
-  "your model id here": "モデルIDをここに入力してください"
+  "Your file hasn't finished uploading yet. Are you sure you want to cancel upload?": "ファイルのアップロードがまだ完了していません。アップロードをキャンセルしてもよろしいですか?"
 } as const;
