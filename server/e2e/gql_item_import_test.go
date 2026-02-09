@@ -230,6 +230,26 @@ func TestGQLImportItems(t *testing.T) {
 			expectedIgnore: 0,
 		},
 		{
+			name: "items with invalid item IDs are imported without panic",
+			fields: []createFieldParams{
+				{title: "name", key: "name", fType: "Text", typeProp: map[string]any{"text": map[string]any{}}},
+			},
+			fileName: "invalid_ids.json",
+			fileContent: func() string {
+				return `[
+					{"id": "not-a-valid-uuid", "name": "Item 1"},
+					{"id": "", "name": "Item 2"},
+					{"id": 12345, "name": "Item 3"},
+					{"name": "Item 4"}
+				]`
+			},
+			expectError:    false,
+			expectedTotal:  4,
+			expectedInsert: 4,
+			expectedUpdate: 0,
+			expectedIgnore: 0,
+		},
+		{
 			name: "GeoJSON FeatureCollection import",
 			fields: []createFieldParams{
 				{title: "name", key: "name", fType: "Text", typeProp: map[string]any{"text": map[string]any{}}},
