@@ -58,7 +58,6 @@ export default defineConfig({
     setupFiles: "./src/test/setup.ts",
     exclude: [...configDefaults.exclude, "e2e/**/*"],
     coverage: {
-      all: true,
       include: ["src/**/*.ts", "src/**/*.tsx"],
       exclude: [
         "src/**/*.d.ts",
