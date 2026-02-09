@@ -1,4 +1,5 @@
-import AntTextArea, { TextAreaProps } from "antd/lib/input/TextArea";
+import { Input } from "antd";
+import type { TextAreaProps } from "antd/es/input/TextArea";
 import { forwardRef, useMemo } from "react";
 import { runes } from "runes2";
 
@@ -19,7 +20,7 @@ const TextArea = forwardRef<HTMLInputElement, Props>(
     }, [required, isError, maxLength, value]);
 
     return (
-      <AntTextArea
+      <Input.TextArea
         count={{
           max: maxLength,
           strategy: txt => runes(txt).length,

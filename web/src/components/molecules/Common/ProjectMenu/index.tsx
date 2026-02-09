@@ -1,4 +1,6 @@
-import { ItemType } from "antd/lib/menu/interface";
+import type { MenuProps } from "antd";
+
+type ItemType = NonNullable<MenuProps["items"]>[number];
 import { useCallback, useEffect, useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";

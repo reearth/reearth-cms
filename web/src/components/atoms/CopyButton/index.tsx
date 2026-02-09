@@ -1,15 +1,16 @@
 import styled from "@emotion/styled";
 import { Typography } from "antd";
-import type { CopyConfig } from "antd/lib/typography/Base";
-import { RefAttributes } from "react";
+import { RefAttributes, ComponentProps } from "react";
 
 import { useT } from "@reearth-cms/i18n";
 
 const { Text } = Typography;
 
+type CopyConfig = Exclude<ComponentProps<typeof Text>["copyable"], boolean | undefined>;
+
 type Props = {
   copyable: CopyConfig;
-} & RefAttributes<HTMLSpanElement>;
+} & Omit<RefAttributes<HTMLSpanElement>, "key">;
 
 const CopyButton: React.FC<Props> = ({ copyable, ...props }) => {
   const t = useT();

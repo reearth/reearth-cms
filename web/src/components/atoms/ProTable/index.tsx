@@ -3,8 +3,8 @@ import ProTable, { ListToolBarProps, ProTableProps, ColumnsState } from "@ant-de
 import { OptionConfig } from "@ant-design/pro-table/lib/components/ToolBar";
 import { ProColumns, TableRowSelection } from "@ant-design/pro-table/lib/typing";
 import { ConfigProvider, Empty, GetProp } from "antd";
-import enUSIntl from "antd/lib/locale/en_US";
-import jaJPIntl from "antd/lib/locale/ja_JP";
+import enUSIntl from "antd/locale/en_US";
+import jaJPIntl from "antd/locale/ja_JP";
 
 import { useLang, useT } from "@reearth-cms/i18n";
 

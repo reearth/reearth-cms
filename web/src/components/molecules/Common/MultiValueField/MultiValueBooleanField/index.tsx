@@ -1,5 +1,7 @@
 import styled from "@emotion/styled";
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import type { CheckboxProps } from "antd";
+
+type CheckboxChangeEvent = Parameters<NonNullable<CheckboxProps["onChange"]>>[0];
 import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";

@@ -1,3 +1,5 @@
-import { Footer } from "antd/lib/layout/layout";
+import { Layout } from "antd";
+
+const Footer = Layout.Footer;
 
 export default Footer;

@@ -1,4 +1,6 @@
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import type { CheckboxProps } from "antd";
+
+type CheckboxChangeEvent = Parameters<NonNullable<CheckboxProps["onChange"]>>[0];
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
