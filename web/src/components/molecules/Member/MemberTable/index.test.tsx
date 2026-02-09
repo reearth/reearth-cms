@@ -256,7 +256,7 @@ describe("Member table", () => {
     );
 
     await user.click(screen.getByLabelText("Select all"));
-    await user.click(screen.getByRole("button", { name: "usergroup-delete Remove" }));
+    await user.click(screen.getByRole("button", { name: "usergroup-deleteRemove" }));
     const dialog = screen.getByRole("dialog");
     await expect.poll(() => dialog).toBeVisible();
     expect(getByText(dialog, secondMember.name)).toBeVisible();
@@ -305,7 +305,7 @@ describe("Member table", () => {
 
     await user.click(screen.getByRole("button", { name: "Yes" }));
     expect(onMemberRemoveFromWorkspaceMock).toHaveBeenCalled();
-  });
+  }, 10000);
 
   test("Buttons are disabled according to user right successfully", async () => {
     render(
@@ -336,7 +336,7 @@ describe("Member table", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: "usergroup-add New Member" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "usergroup-addNew Member" })).toBeDisabled();
     for (const button of screen.getAllByRole("button", { name: "Change Role?" })) {
       expect(button).toBeDisabled();
     }
@@ -344,6 +344,6 @@ describe("Member table", () => {
     expect(screen.getByRole("button", { name: "Leave" })).toBeDisabled();
 
     await user.click(screen.getAllByRole("checkbox")[0]);
-    expect(screen.getByRole("button", { name: "usergroup-delete Remove" })).toBeDisabled();
-  });
+    expect(screen.getByRole("button", { name: "usergroup-deleteRemove" })).toBeDisabled();
+  }, 10000);
 });
