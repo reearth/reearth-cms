@@ -210,7 +210,7 @@ const ContentTable: React.FC<Props> = ({
         title: t("Created At"),
         dataIndex: "createdAt",
         fieldType: "CREATION_DATE",
-        key: "CREATION_DATE",
+        key: "createdAt",
         sortOrder: sortOrderGet("CREATION_DATE"),
         render: (_, item) => dateTimeFormat(item.createdAt),
         sorter: true,
@@ -224,7 +224,7 @@ const ContentTable: React.FC<Props> = ({
         title: t("Created By"),
         dataIndex: "createdBy",
         fieldType: "CREATION_USER",
-        key: "CREATION_USER",
+        key: "createdBy",
         sortOrder: sortOrderGet("CREATION_USER"),
         render: (_, item) => item.createdBy.name,
         sorter: true,
@@ -238,7 +238,7 @@ const ContentTable: React.FC<Props> = ({
         title: t("Updated At"),
         dataIndex: "updatedAt",
         fieldType: "MODIFICATION_DATE",
-        key: "MODIFICATION_DATE",
+        key: "updatedAt",
         sortOrder: sortOrderGet("MODIFICATION_DATE"),
         render: (_, item) => dateTimeFormat(item.updatedAt),
         sorter: true,
@@ -252,7 +252,7 @@ const ContentTable: React.FC<Props> = ({
         title: t("Updated By"),
         dataIndex: "updatedBy",
         fieldType: "MODIFICATION_USER",
-        key: "MODIFICATION_USER",
+        key: "updatedBy",
         sortOrder: sortOrderGet("MODIFICATION_USER"),
         render: (_, item) => (item.updatedBy ? item.updatedBy : "-"),
         sorter: true,
@@ -390,7 +390,9 @@ const ContentTable: React.FC<Props> = ({
           fieldId.type === "FIELD" || fieldId.type === "META_FIELD"
             ? contentTableColumns
             : actionsColumns;
-        const column = columns.find(c => c.key === fieldId.id);
+        const column = columns.find(c =>
+          Array.isArray(c.dataIndex) ? c.dataIndex[1] === fieldId.id : c.key === fieldId.id,
+        );
         if (column) {
           const { dataIndex, title, type, typeProperty, key, required, multiple } = column;
           const members = currentWorkspace?.members;
@@ -410,7 +412,7 @@ const ContentTable: React.FC<Props> = ({
               type,
               typeProperty,
               members,
-              id: key as string,
+              id: (Array.isArray(dataIndex) ? String(dataIndex[1]) : (key as string)),
               required,
               multiple,
             });
@@ -473,7 +475,7 @@ const ContentTable: React.FC<Props> = ({
             type,
             typeProperty,
             members,
-            id: key as string,
+            id: (Array.isArray(dataIndex) ? String(dataIndex[1]) : (key as string)),
             required,
             multiple,
           };
@@ -732,11 +734,22 @@ const ContentTable: React.FC<Props> = ({
   ]);
 
   const settingOptions = useMemo(() => {
+    const systemFieldTypeToKey: Record<string, string> = {
+      CREATION_DATE: "createdAt",
+      CREATION_USER: "createdBy",
+      MODIFICATION_DATE: "updatedAt",
+      MODIFICATION_USER: "updatedBy",
+    };
     const cols: Record<string, ColumnsState> = {};
     currentView.columns?.forEach((col, index) => {
-      const colKey = (metaColumn as readonly string[]).includes(col.field.type)
-        ? col.field.type
-        : (col.field.id ?? "");
+      let colKey: string;
+      if (col.field.type === "FIELD") {
+        colKey = `fields,${col.field.id ?? ""}`;
+      } else if (col.field.type === "META_FIELD") {
+        colKey = `metadata,${col.field.id ?? ""}`;
+      } else {
+        colKey = systemFieldTypeToKey[col.field.type] ?? col.field.type;
+      }
       cols[colKey] = { show: col.visible, order: index, fixed: col.fixed };
     });
     return cols;
@@ -754,17 +767,18 @@ const ContentTable: React.FC<Props> = ({
         .map((col, index) => {
           const colKey = col.key as string;
           const colFieldType = col.fieldType as FieldType;
+          const fieldId =
+            colFieldType === "FIELD" || colFieldType === "META_FIELD"
+              ? colKey.split(",")[1]
+              : undefined;
           return {
             field: {
               type: colFieldType,
-              id: colFieldType === "FIELD" || colFieldType === "META_FIELD" ? colKey : undefined,
+              id: fieldId,
             },
             visible: options[colKey]?.show ?? true,
             order: options[colKey]?.order ?? index,
-            fixed:
-              colFieldType === "FIELD" || colFieldType === "META_FIELD"
-                ? options[colKey]?.fixed
-                : options[colFieldType]?.fixed,
+            fixed: options[colKey]?.fixed,
           };
         })
         .sort((a, b) => a.order - b.order)
@@ -788,6 +802,7 @@ const ContentTable: React.FC<Props> = ({
     <>
       {contentTableColumns ? (
         <ResizableProTable
+          key={currentView.id}
           showSorterTooltip={false}
           options={options}
           loading={loading}
@@ -810,14 +825,15 @@ const ContentTable: React.FC<Props> = ({
                 ? undefined
                 : sorter.order &&
                     sorter.column &&
-                    "fieldType" in sorter.column &&
-                    typeof sorter.columnKey === "string"
+                    "fieldType" in sorter.column
                   ? {
                       field: {
                         id:
                           sorter.column.fieldType === "FIELD" ||
                           sorter.column.fieldType === "META_FIELD"
-                            ? sorter.columnKey
+                            ? (Array.isArray(sorter.field)
+                                ? sorter.field[1]
+                                : undefined)
                             : undefined,
                         type: sorter.column.fieldType as FieldType,
                       },

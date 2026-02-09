@@ -152,7 +152,7 @@ test("Apply sorting to view", async ({
   });
 
   await test.step("Verify items are sorted alphabetically", async () => {
-    await expect(contentPage.sortUpIcon).toHaveClass(/active/);
+    await expect(contentPage.sortableColumnHeader).toHaveAttribute("aria-sort", "ascending");
     await expect(contentPage.tableRow(0)).toContainText("sample1");
     await expect(contentPage.tableRow(1)).toContainText("sample2");
     await page.waitForTimeout(300);
@@ -244,7 +244,7 @@ test("Save view with custom sorting and filtering", async ({
 
   await test.step("Apply sorting", async () => {
     await contentPage.textColumnHeader().click();
-    await expect(contentPage.sortUpIcon).toHaveClass(/active/);
+    await expect(contentPage.sortableColumnHeader).toHaveAttribute("aria-sort", "ascending");
     await page.waitForTimeout(300);
   });
 
@@ -276,7 +276,7 @@ test("Save view with custom sorting and filtering", async ({
 
   await test.step("Verify view saved with all customizations", async () => {
     await expect(contentPage.viewByName("filtered view")).toBeVisible();
-    await expect(contentPage.sortUpIcon).toHaveClass(/active/);
+    await expect(contentPage.sortableColumnHeader).toHaveAttribute("aria-sort", "ascending");
     await expect(contentPage.tableRow(0)).toContainText("text1");
     await expect(contentPage.tableRow(1)).toContainText("text2");
     await expect(contentPage.statusColumnHeader).toBeHidden();
@@ -336,7 +336,7 @@ test("Switch between views preserves individual view settings", async ({
 
   await test.step("Verify view2 has customizations", async () => {
     await expect(contentPage.tab(1)).toHaveAttribute("aria-selected", "true");
-    await expect(contentPage.sortUpIcon).toHaveClass(/active/);
+    await expect(contentPage.sortableColumnHeader).toHaveAttribute("aria-sort", "ascending");
     await expect(contentPage.tableRow(0)).toContainText("text1");
     await expect(contentPage.statusColumnHeader).toBeHidden();
     await page.waitForTimeout(300);
@@ -345,7 +345,7 @@ test("Switch between views preserves individual view settings", async ({
   await test.step("Switch to view1 and verify it has no customizations", async () => {
     await contentPage.viewByName("view1").click();
     await expect(contentPage.tab(0)).toHaveAttribute("aria-selected", "true");
-    await expect(contentPage.sortUpIcon).not.toHaveClass(/active/);
+    await expect(contentPage.sortableColumnHeader).not.toHaveAttribute("aria-sort");
     await expect(contentPage.filterCloseButton("text")).toBeHidden();
     await expect(contentPage.tableRow(0)).toContainText("sample2");
     await expect(contentPage.statusColumnHeader).toBeVisible();
@@ -412,7 +412,7 @@ test("Update view settings", async ({
 
   await test.step("Switch back to view1 and verify updated settings persisted", async () => {
     await contentPage.viewByName("view1").click();
-    await expect(contentPage.sortDownIcon).toHaveClass(/active/);
+    await expect(contentPage.sortableColumnHeader).toHaveAttribute("aria-sort", "descending");
     await expect(contentPage.tableRow(0)).toContainText("text1");
     await expect(contentPage.tableRow(1)).toContainText("sample1");
     await page.waitForTimeout(300);
@@ -479,7 +479,7 @@ test("Delete view and switch to remaining view", async ({
     await expect(contentPage.viewByName("view1")).toBeHidden();
     await expect(contentPage.viewByName("view2")).toBeVisible();
     await expect(contentPage.tab(0)).toHaveAttribute("aria-selected", "true");
-    await expect(contentPage.sortUpIcon).toHaveClass(/active/);
+    await expect(contentPage.sortableColumnHeader).toHaveAttribute("aria-sort", "ascending");
     await expect(contentPage.tableRow(0)).toContainText("text1");
     await expect(contentPage.tableRow(1)).toContainText("text2");
     await page.waitForTimeout(300);

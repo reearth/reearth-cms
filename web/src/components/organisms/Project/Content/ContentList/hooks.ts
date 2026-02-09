@@ -471,7 +471,7 @@ export default () => {
       title: field.title,
       dataIndex: ["fields", field.id],
       fieldType: "FIELD" as const,
-      key: field.id,
+      key: ["fields", field.id].toString(),
       ellipsis: true,
       type: field.type,
       typeProperty: field.typeProperty,
@@ -481,6 +481,7 @@ export default () => {
       required: field.required,
       sorter: true,
       sortOrder: sortOrderGet(field.id),
+      defaultSortOrder: sortOrderGet(field.id),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       render: (el: any) => renderField(el, field),
     }));
@@ -490,7 +491,7 @@ export default () => {
         title: renderTitle(field),
         dataIndex: ["metadata", field.id],
         fieldType: "META_FIELD" as const,
-        key: field.id,
+        key: ["metadata", field.id].toString(),
         ellipsis: true,
         type: field.type,
         typeProperty: field.typeProperty,
@@ -500,6 +501,7 @@ export default () => {
         required: field.required,
         sorter: true,
         sortOrder: sortOrderGet(field.id),
+        defaultSortOrder: sortOrderGet(field.id),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         render: (el: any, record: ContentTableField) => {
           const update = hasRightGet(record.createdBy.id)

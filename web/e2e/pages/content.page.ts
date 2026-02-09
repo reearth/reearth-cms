@@ -145,11 +145,8 @@ export class ContentPage extends BasePage {
   get columnHeaderText(): Locator {
     return this.getByRole("columnheader", { name: "text" });
   }
-  get sortUpIcon(): Locator {
-    return this.columnHeaderText.locator("div").locator(".anticon-caret-up");
-  }
-  get sortDownIcon(): Locator {
-    return this.columnHeaderText.locator("div").locator(".anticon-caret-down");
+  get sortableColumnHeader(): Locator {
+    return this.columnHeaderText;
   }
   tableRow(index: number): Locator {
     return this.locator(".ant-table-row").nth(index);
