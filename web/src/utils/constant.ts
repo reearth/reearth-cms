@@ -23,7 +23,7 @@ export abstract class Constant {
   };
 
   public static readonly IMPORT = {
-    MAX_CONTENT_RECORDS: 2_000,
+    MAX_CONTENT_RECORDS: 500_000,
     GET_JOB_DELAY_TIME_IN_MS: 500,
 
     // import ignore field types by file format
