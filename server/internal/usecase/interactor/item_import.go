@@ -529,11 +529,11 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 				}
 			}
 
-			// strategy: insert. 	item: exists  				=> ignore
-			if param.Strategy == interfaces.ImportStrategyTypeInsert && oldItem != nil {
-				res.ItemSkipped()
-				continue
-			}
+			//// strategy: insert. 	item: exists  				=> ignore
+			//if param.Strategy == interfaces.ImportStrategyTypeInsert && oldItem != nil {
+			//	res.ItemSkipped()
+			//	continue
+			//}
 
 			// strategy: update. 	item: not exists 			=> ignore
 			if param.Strategy == interfaces.ImportStrategyTypeUpdate && oldItem == nil {
@@ -785,7 +785,7 @@ func itemsParamsFrom(chunk []map[string]any, isGeoJson bool, geoField *string, s
 					continue
 				}
 				iId = id.ItemIDFromRef(&idStr)
-				if iId.IsEmpty() || iId.IsNil() {
+				if iId == nil || iId.IsEmpty() || iId.IsNil() {
 					continue
 				}
 				param.ItemId = iId
