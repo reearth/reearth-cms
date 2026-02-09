@@ -12,12 +12,13 @@ import { useModal } from "@reearth-cms/components/atoms/Modal";
 import Password from "@reearth-cms/components/atoms/Password";
 import Row from "@reearth-cms/components/atoms/Row";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
+import Typography from "@reearth-cms/components/atoms/Typography";
 import {
   Integration,
   IntegrationInfo,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
-import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   integration: IntegrationInfo & Pick<Integration, "config">;
@@ -87,6 +88,9 @@ const MyIntegrationForm: React.FC<Props> = ({
     });
   }, [confirm, t, onRegenerateToken]);
 
+  const api = window.REEARTH_CONFIG?.api || "";
+  const codeExampleText = `curl --location --request POST '${api}/${t("<workspace_id_or_alias>")}/projects/${t("<project_id_or_alias>")}/models/${t("<model_id_or_key>")}/items' --header 'Authorization: Bearer ${t("<your_integration_token>")}'`;
+
   return (
     <Form
       form={form}
@@ -116,7 +120,12 @@ const MyIntegrationForm: React.FC<Props> = ({
               value={integration.config.token}
               contentEditable={false}
               visibilityToggle={{ visible }}
-              iconRender={() => <CopyButton copyable={{ text: integration.config.token }} />}
+              iconRender={() => (
+                <CopyButton
+                  data-testid={DATA_TEST_ID.MyIntegrations__Settings__Form__TokenCopyButton}
+                  copyable={{ text: integration.config.token }}
+                />
+              )}
               prefix={
                 <Icon
                   icon={visible ? "eye" : "eyeInvisible"}
@@ -150,12 +159,23 @@ const MyIntegrationForm: React.FC<Props> = ({
         <Col span={11}>
           <CodeExampleTitle>{t("Code Example")}</CodeExampleTitle>
           <CodeExample>
-            curl --location --request POST <br />
-            &apos;{window.REEARTH_CONFIG?.api}/models/
-            <CodeImportant>“{t("your model id here")}”</CodeImportant>/items&apos;&nbsp;\
+            <StyledCopyButton
+              data-testid={DATA_TEST_ID.MyIntegrations__Settings__Form__CodeExampleCopyButton}
+              copyable={{ text: codeExampleText }}
+            />
+            <span>curl --location --request POST </span>
             <br />
-            --header &apos;Authorization: Bearer&nbsp;
-            <CodeImportant>“{t("your Integration Token here")}”</CodeImportant>&apos;
+            <span>&apos;{api}/</span>
+            <Typography.Text code>{t("<workspace_id_or_alias>")}</Typography.Text>
+            <span>/projects/</span>
+            <Typography.Text code>{t("<project_id_or_alias>")}</Typography.Text>
+            <span>/models/</span>
+            <Typography.Text code>{t("<model_id_or_key>")}</Typography.Text>
+            <span>/items&apos;&nbsp;</span>
+            <br />
+            <span>--header 'Authorization: Bearer </span>
+            <Typography.Text code>{t("<your_integration_token>")}</Typography.Text>
+            <span>&apos;</span>
           </CodeExample>
         </Col>
       </Row>
@@ -170,17 +190,16 @@ const CodeExampleTitle = styled.h2`
   color: rgba(0, 0, 0, 0.85);
 `;
 
-const CodeExample = styled.div`
+const CodeExample = styled.pre`
   border: 1px solid #d9d9d9;
   padding: 5px 12px;
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
   color: rgba(0, 0, 0, 0.85);
-`;
-
-const CodeImportant = styled.span`
-  color: #ff4d4f;
+  position: relative;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 `;
 
 const StyledDivider = styled(Divider)`
@@ -208,6 +227,13 @@ const StyledTokenInput = styled(Password)`
   .ant-input-suffix {
     order: 2;
   }
+`;
+
+const StyledCopyButton = styled(CopyButton)`
+  position: absolute;
+  top: 5px;
+  right: 12px;
+  background: #ffffff;
 `;
 
 export default MyIntegrationForm;

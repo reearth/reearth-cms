@@ -251,6 +251,10 @@ export enum DATA_TEST_ID {
   // Versions
   Versions__RequestStatus = "Versions__RequestStatus",
 
+  // Form (MyIntegrations)
+  MyIntegrations__Settings__Form__TokenCopyButton = "MyIntegrations__Settings__Form__TokenCopyButton",
+  MyIntegrations__Settings__Form__CodeExampleCopyButton = "MyIntegrations__Settings__Form__CodeExampleCopyButton",
+
   //  DangerZone (MyIntegrations)
   MyIntegrations__Settings__DangerZone__RemoveIntegrationButton = "MyIntegrations__Settings__DangerZone__RemoveIntegrationButton",
   MyIntegrations__Settings__DangerZone__ConfirmRemoveIntegrationButton = "MyIntegrations__Settings__DangerZone__ConfirmRemoveIntegrationButton",
