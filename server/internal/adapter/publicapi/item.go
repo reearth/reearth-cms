@@ -61,21 +61,21 @@ func (c *Controller) GetItem(ctx context.Context, wsAlias, pAlias, mKey, i strin
 
 func (c *Controller) GetPublicItems(ctx context.Context, wsAlias, pAlias, mKey, ext string, p *usecasex.Pagination, w io.Writer) error {
 	start := time.Now()
-	log.Debugfc(ctx, "controller: [START] GetPublicItems for model=%s", mKey)
+	log.Infofc(ctx, "controller: [START] GetPublicItems for model=%s", mKey)
 
 	loadContextStart := time.Now()
 	wpm, err := c.loadWPMContext(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
 		return err
 	}
-	log.Debugfc(ctx, "controller: loadWPMContext took %v", time.Since(loadContextStart))
+	log.Infofc(ctx, "controller: loadWPMContext took %v", time.Since(loadContextStart))
 
 	schemaStart := time.Now()
 	sp, err := c.usecases.Schema.FindByModel(ctx, wpm.Model.ID(), nil)
 	if err != nil {
 		return err
 	}
-	log.Debugfc(ctx, "controller: Schema.FindByModel took %v", time.Since(schemaStart))
+	log.Infofc(ctx, "controller: Schema.FindByModel took %v", time.Since(schemaStart))
 
 	format := exporters.FormatJSON
 	switch ext {
@@ -88,7 +88,7 @@ func (c *Controller) GetPublicItems(ctx context.Context, wsAlias, pAlias, mKey, 
 	}
 
 	exportStart := time.Now()
-	log.Debugfc(ctx, "controller: [START] Item.Export - format=%v, publicAssets=%v", format, wpm.PublicAssets)
+	log.Infofc(ctx, "controller: [START] Item.Export - format=%v, publicAssets=%v", format, wpm.PublicAssets)
 	err = c.usecases.Item.Export(ctx, interfaces.ExportItemParams{
 		ModelID:       wpm.Model.ID(),
 		SchemaPackage: *sp,
@@ -104,7 +104,7 @@ func (c *Controller) GetPublicItems(ctx context.Context, wsAlias, pAlias, mKey, 
 	}, w, nil)
 	exportDuration := time.Since(exportStart)
 	totalDuration := time.Since(start)
-	log.Debugfc(ctx, "controller: [END] Item.Export took %v, total GetPublicItems took %v", exportDuration, totalDuration)
+	log.Infofc(ctx, "controller: [END] Item.Export took %v, total GetPublicItems took %v", exportDuration, totalDuration)
 
 	if err != nil {
 		return err

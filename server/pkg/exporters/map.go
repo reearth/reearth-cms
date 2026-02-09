@@ -139,10 +139,10 @@ func MapFromItem(itm *item.Item, sp *schema.Package, al AssetLoader, il ItemLoad
 								geoValues = append(geoValues, geoJSON)
 								parseDuration := time.Since(parseStart)
 								if parseDuration > 5*time.Millisecond {
-									log.Debugfc(ctx, "exporter: Geometry field %s[%d] parsing took %v", k, idx, parseDuration)
+									log.Infofc(ctx, "exporter: Geometry field %s[%d] parsing took %v", k, idx, parseDuration)
 								}
 							} else {
-								log.Debugfc(ctx, "exporter: Geometry field %s[%d] parse failed: %v", k, idx, err)
+								log.Infofc(ctx, "exporter: Geometry field %s[%d] parse failed: %v", k, idx, err)
 								geoValues = append(geoValues, geoStr) // fallback to string if parsing fails
 							}
 						} else {
@@ -159,10 +159,10 @@ func MapFromItem(itm *item.Item, sp *schema.Package, al AssetLoader, il ItemLoad
 								val = geoJSON
 								parseDuration := time.Since(parseStart)
 								if parseDuration > 5*time.Millisecond {
-									log.Debugfc(ctx, "exporter: Geometry field %s parsing took %v", k, parseDuration)
+									log.Infofc(ctx, "exporter: Geometry field %s parsing took %v", k, parseDuration)
 								}
 							} else {
-								log.Debugfc(ctx, "exporter: Geometry field %s parse failed: %v", k, err)
+								log.Infofc(ctx, "exporter: Geometry field %s parse failed: %v", k, err)
 								val = geoStr // fallback to string if parsing fails
 							}
 						} else {
@@ -172,7 +172,7 @@ func MapFromItem(itm *item.Item, sp *schema.Package, al AssetLoader, il ItemLoad
 				}
 				geoDuration := time.Since(geoStart)
 				if geoDuration > 10*time.Millisecond {
-					log.Debugfc(ctx, "exporter: Geometry field %s total processing took %v", k, geoDuration)
+					log.Infofc(ctx, "exporter: Geometry field %s total processing took %v", k, geoDuration)
 				}
 			} else if sf.Multiple() {
 				val = f.Value().Interface()

@@ -72,7 +72,7 @@ func (e *JSONExporter) ProcessBatch(ctx context.Context, items item.List, assets
 
 	batchStart := time.Now()
 	itemCount := len(items)
-	log.Debugfc(ctx, "exporter: [START] ProcessBatch with %d items", itemCount)
+	log.Infofc(ctx, "exporter: [START] ProcessBatch with %d items", itemCount)
 
 	var totalMapFromItemDuration time.Duration
 	var totalEncodeDuration time.Duration
@@ -104,7 +104,7 @@ func (e *JSONExporter) ProcessBatch(ctx context.Context, items item.List, assets
 
 		// Log slow items
 		if mapDuration > 10*time.Millisecond {
-			log.Debugfc(ctx, "exporter: Item %d - MapFromItem took %v (slow)", idx, mapDuration)
+			log.Infofc(ctx, "exporter: Item %d - MapFromItem took %v (slow)", idx, mapDuration)
 		}
 
 		if itemData != nil {
@@ -119,7 +119,7 @@ func (e *JSONExporter) ProcessBatch(ctx context.Context, items item.List, assets
 
 			// Log slow encodings
 			if encodeDuration > 10*time.Millisecond {
-				log.Debugfc(ctx, "exporter: Item %d - Encode took %v (slow)", idx, encodeDuration)
+				log.Infofc(ctx, "exporter: Item %d - Encode took %v (slow)", idx, encodeDuration)
 			}
 
 			e.itemCount++
@@ -131,7 +131,7 @@ func (e *JSONExporter) ProcessBatch(ctx context.Context, items item.List, assets
 	if itemCount > 0 {
 		avgMap := totalMapFromItemDuration / time.Duration(itemCount)
 		avgEncode := totalEncodeDuration / time.Duration(itemCount)
-		log.Debugfc(ctx, "exporter: ProcessBatch complete - items=%d, total=%v, MapFromItem=%v (avg=%v), Encode=%v (avg=%v), Write=%v",
+		log.Infofc(ctx, "exporter: ProcessBatch complete - items=%d, total=%v, MapFromItem=%v (avg=%v), Encode=%v (avg=%v), Write=%v",
 			itemCount, batchDuration, totalMapFromItemDuration, avgMap, totalEncodeDuration, avgEncode, totalWriteDuration)
 	}
 

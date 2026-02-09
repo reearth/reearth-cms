@@ -31,7 +31,7 @@ func defaultBatchConfig() *BatchConfig {
 
 func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w io.Writer, op *usecase.Operator) error {
 	exportStart := time.Now()
-	log.Debugfc(ctx, "usecase: [START] Export - format=%v, modelID=%v", params.Format, params.ModelID)
+	log.Infofc(ctx, "usecase: [START] Export - format=%v, modelID=%v", params.Format, params.ModelID)
 
 	// Create the exporter based on format
 	var exporter exporters.Exporter
@@ -54,7 +54,7 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 		ItemLoader: func(itemIDs id.ItemIDList) (item.List, error) {
 			loadStart := time.Now()
 			versioned, err := i.repos.Item.FindByIDs(ctx, itemIDs, version.Public.Ref())
-			log.Debugfc(ctx, "usecase: ItemLoader - loaded %d referenced items in %v", len(itemIDs), time.Since(loadStart))
+			log.Infofc(ctx, "usecase: ItemLoader - loaded %d referenced items in %v", len(itemIDs), time.Since(loadStart))
 			if err != nil {
 				return nil, err
 			}
@@ -66,7 +66,7 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 			}
 			loadStart := time.Now()
 			assets, err := i.repos.Asset.FindByIDs(ctx, assetIDs)
-			log.Debugfc(ctx, "usecase: AssetLoader - loaded %d assets in %v", len(assetIDs), time.Since(loadStart))
+			log.Infofc(ctx, "usecase: AssetLoader - loaded %d assets in %v", len(assetIDs), time.Since(loadStart))
 			return assets, err
 		},
 	}
@@ -75,13 +75,13 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 	if err := exporter.ValidateRequest(req); err != nil {
 		return err
 	}
-	log.Debugfc(ctx, "usecase: ValidateRequest took %v", time.Since(validateStart))
+	log.Infofc(ctx, "usecase: ValidateRequest took %v", time.Since(validateStart))
 
 	startExportTime := time.Now()
 	if err := exporter.StartExport(ctx, req); err != nil {
 		return err
 	}
-	log.Debugfc(ctx, "usecase: StartExport took %v", time.Since(startExportTime))
+	log.Infofc(ctx, "usecase: StartExport took %v", time.Since(startExportTime))
 
 	batchConfig := defaultBatchConfig()
 
@@ -103,13 +103,13 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 	for {
 		batchNum++
 		batchStart := time.Now()
-		log.Debugfc(ctx, "usecase: [START] Batch %d", batchNum)
+		log.Infofc(ctx, "usecase: [START] Batch %d", batchNum)
 
 		// Time DB query
 		dbStart := time.Now()
 		versionedItems, pi, err := i.repos.Item.FindByModel(ctx, params.ModelID, ver, nil, pagination)
 		dbDuration := time.Since(dbStart)
-		log.Debugfc(ctx, "usecase: Batch %d - DB query took: %v", batchNum, dbDuration)
+		log.Infofc(ctx, "usecase: Batch %d - DB query took: %v", batchNum, dbDuration)
 
 		if err != nil {
 			return rerror.ErrInternalBy(err)
@@ -120,14 +120,14 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 		if len(items) == 0 {
 			break
 		}
-		log.Debugfc(ctx, "usecase: Batch %d - Retrieved %d items", batchNum, len(items))
+		log.Infofc(ctx, "usecase: Batch %d - Retrieved %d items", batchNum, len(items))
 
 		// Extract and load assets for this batch
 		assetStart := time.Now()
 		assetIDs := items.AssetIDs(params.SchemaPackage)
 		var assets asset.List
 		if len(assetIDs) > 0 && params.Options.IncludeAssets {
-			log.Debugfc(ctx, "usecase: Batch %d - Loading %d assets", batchNum, len(assetIDs))
+			log.Infofc(ctx, "usecase: Batch %d - Loading %d assets", batchNum, len(assetIDs))
 			assets, err = i.repos.Asset.FindByIDs(ctx, assetIDs)
 			if err != nil {
 				return rerror.ErrInternalBy(err)
@@ -135,24 +135,24 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 			if assets != nil {
 				resolverStart := time.Now()
 				assets.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
-				log.Debugfc(ctx, "usecase: Batch %d - SetAccessInfoResolver took: %v", batchNum, time.Since(resolverStart))
+				log.Infofc(ctx, "usecase: Batch %d - SetAccessInfoResolver took: %v", batchNum, time.Since(resolverStart))
 			}
 		}
 		assetDuration := time.Since(assetStart)
-		log.Debugfc(ctx, "usecase: Batch %d - Asset loading took: %v", batchNum, assetDuration)
+		log.Infofc(ctx, "usecase: Batch %d - Asset loading took: %v", batchNum, assetDuration)
 
 		// Process this batch
 		processBatchStart := time.Now()
-		log.Debugfc(ctx, "usecase: Batch %d - [START] ProcessBatch with %d items", batchNum, len(items))
+		log.Infofc(ctx, "usecase: Batch %d - [START] ProcessBatch with %d items", batchNum, len(items))
 		if err := exporter.ProcessBatch(ctx, items, assets); err != nil {
 			return err
 		}
 		processBatchDuration := time.Since(processBatchStart)
-		log.Debugfc(ctx, "usecase: Batch %d - [END] ProcessBatch took: %v", batchNum, processBatchDuration)
+		log.Infofc(ctx, "usecase: Batch %d - [END] ProcessBatch took: %v", batchNum, processBatchDuration)
 
 		totalProcessed += len(items)
 		batchDuration := time.Since(batchStart)
-		log.Debugfc(ctx, "usecase: Batch %d - Complete (batch took %v, total processed: %d)", batchNum, batchDuration, totalProcessed)
+		log.Infofc(ctx, "usecase: Batch %d - Complete (batch took %v, total processed: %d)", batchNum, batchDuration, totalProcessed)
 
 		// Check if we have more pages
 		if pageInfo == nil || !pageInfo.HasNextPage {
@@ -169,7 +169,7 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 	}
 
 	batchLoopDuration := time.Since(batchLoopStart)
-	log.Debugfc(ctx, "usecase: All batches complete - %d batches, %d items, took %v", batchNum, totalProcessed, batchLoopDuration)
+	log.Infofc(ctx, "usecase: All batches complete - %d batches, %d items, took %v", batchNum, totalProcessed, batchLoopDuration)
 
 	props := map[string]any{
 		"totalCount": pageInfo.TotalCount,
@@ -191,10 +191,10 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 	// Finalize export
 	endExportStart := time.Now()
 	err := exporter.EndExport(ctx, props)
-	log.Debugfc(ctx, "usecase: EndExport took %v", time.Since(endExportStart))
+	log.Infofc(ctx, "usecase: EndExport took %v", time.Since(endExportStart))
 
 	totalExportDuration := time.Since(exportStart)
-	log.Debugfc(ctx, "usecase: [END] Export complete - total duration: %v", totalExportDuration)
+	log.Infofc(ctx, "usecase: [END] Export complete - total duration: %v", totalExportDuration)
 
 	return err
 }

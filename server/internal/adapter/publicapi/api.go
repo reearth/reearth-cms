@@ -142,17 +142,17 @@ func Items(c echo.Context, wsAlias, pAlias, mKey, ext string) error {
 	ctrl := GetController(ctx)
 
 	requestStart := time.Now()
-	log.Debugfc(ctx, "publicapi: [START] Items request for ws=%s, p=%s, m=%s, ext=%s", wsAlias, pAlias, mKey, ext)
+	log.Infofc(ctx, "publicapi: [START] Items request for ws=%s, p=%s, m=%s, ext=%s", wsAlias, pAlias, mKey, ext)
 
 	p := paginationFrom(c)
 
 	w := bytes.NewBuffer(nil)
 
 	exportStart := time.Now()
-	log.Debugfc(ctx, "publicapi: [START] GetPublicItems")
+	log.Infofc(ctx, "publicapi: [START] GetPublicItems")
 	err := ctrl.GetPublicItems(ctx, wsAlias, pAlias, mKey, ext, p, w)
 	exportDuration := time.Since(exportStart)
-	log.Debugfc(ctx, "publicapi: [END] GetPublicItems took %v", exportDuration)
+	log.Infofc(ctx, "publicapi: [END] GetPublicItems took %v", exportDuration)
 
 	if err != nil {
 		if errors.Is(err, rerror.ErrNotFound) {
@@ -172,14 +172,14 @@ func Items(c echo.Context, wsAlias, pAlias, mKey, ext string) error {
 	}
 
 	bufferSize := w.Len()
-	log.Debugfc(ctx, "publicapi: Export complete - duration=%v, bufferSize=%d bytes", exportDuration, bufferSize)
+	log.Infofc(ctx, "publicapi: Export complete - duration=%v, bufferSize=%d bytes", exportDuration, bufferSize)
 
 	writeStart := time.Now()
-	log.Debugfc(ctx, "publicapi: [START] Writing response to client")
+	log.Infofc(ctx, "publicapi: [START] Writing response to client")
 	err = c.Blob(http.StatusOK, contentType, w.Bytes())
 	writeDuration := time.Since(writeStart)
 	totalDuration := time.Since(requestStart)
-	log.Debugfc(ctx, "publicapi: [END] Response write took %v, total request duration=%v", writeDuration, totalDuration)
+	log.Infofc(ctx, "publicapi: [END] Response write took %v, total request duration=%v", writeDuration, totalDuration)
 
 	return err
 }
