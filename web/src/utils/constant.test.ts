@@ -50,6 +50,23 @@ describe("Constant", () => {
       if (!importContentRecordValidation.success)
         throw z.prettifyError(importContentRecordValidation.error);
     });
+
+    test("Validate max file size", () => {
+      const FILE_SIZE_VALIDATOR = z.int().nonnegative();
+      const fileSizeValidation = FILE_SIZE_VALIDATOR.safeParse(Constant.IMPORT.MAX_FILE_SIZE_IN_MB);
+
+      if (!fileSizeValidation.success) throw z.prettifyError(fileSizeValidation.error);
+    });
+
+    test("Validate get job delay time", () => {
+      const GET_JOB_DELAY_TIME_VALIDATOR = z.int().nonnegative();
+      const getJobDelayTimeValidation = GET_JOB_DELAY_TIME_VALIDATOR.safeParse(
+        Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
+      );
+
+      if (!getJobDelayTimeValidation.success)
+        throw z.prettifyError(getJobDelayTimeValidation.error);
+    });
   });
 
   describe("Validate static files", () => {

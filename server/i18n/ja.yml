@@ -35,9 +35,9 @@ file not found: ファイルが見つかりませんでした。
 file not included: ファイルが含まれていません。
 file size cannot be zero: ファイルサイズは0以下にできません。
 file too large: ファイルサイズが大きすぎます。
-format is incompatible with export type: ""
-import file contains too many records (max 2000): ""
-import file is too large (max 10MB): ""
+format is incompatible with export type: 形式がエクスポートタイプと互換性がありません
+import file contains too many records (max 50,000): レコード数が上限（50,000件）を超えています
+import file is too large (max 10MB): ファイルサイズが上限（10MB）を超えています
 internal: 内部
 invalid URL: 無効なURLです。
 invalid alias: 無効なエイリアスです。
