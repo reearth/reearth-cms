@@ -133,14 +133,14 @@ func TestGQLImportItems(t *testing.T) {
 			errorContains: "too large",
 		},
 		{
-			name: "too many records (exceeds 500_000)",
+			name: "too many records (exceeds 50_000)",
 			fields: []createFieldParams{
 				{title: "name", key: "name", fType: "Text", typeProp: map[string]any{"text": map[string]any{}}},
 			},
 			fileName: "many.json",
 			fileContent: func() string {
 				var items []string
-				for i := 0; i < 500_001; i++ {
+				for i := 0; i < 50_001; i++ {
 					items = append(items, `{"name": "test"}`)
 				}
 				return "[" + strings.Join(items, ",") + "]"
