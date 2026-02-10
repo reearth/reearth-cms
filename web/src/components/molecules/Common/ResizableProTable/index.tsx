@@ -14,6 +14,14 @@ type Props = ProTableProps<Record<string, any> | any, ParamsType, "text"> & {
   heightOffset: number;
 };
 
+const tableComponents = {
+  header: {
+    cell: ResizableTitle,
+  },
+};
+
+const tableScroll = { x: "", y: "" };
+
 const ResizableProTable: React.FC<Props> = ({
   dataSource,
   columns,
@@ -38,19 +46,21 @@ const ResizableProTable: React.FC<Props> = ({
     if (columns) {
       setResizableColumns(columns);
     }
-  }, [columns, setResizableColumns]);
+  }, [columns]);
 
   const handleResize = useCallback(
     (index: number) =>
       (_: React.SyntheticEvent<Element>, { size }: ResizeCallbackData) => {
-        const newColumns = [...resizableColumns];
-        newColumns[index] = {
-          ...newColumns[index],
-          width: size.width,
-        };
-        setResizableColumns(newColumns);
+        setResizableColumns(prev => {
+          const newColumns = [...prev];
+          newColumns[index] = {
+            ...newColumns[index],
+            width: size.width,
+          };
+          return newColumns;
+        });
       },
-    [resizableColumns],
+    [],
   );
 
   const mergeColumns = useMemo<ProColumns<any, "text">[]>(
@@ -66,54 +76,43 @@ const ResizableProTable: React.FC<Props> = ({
     [handleResize, resizableColumns],
   );
 
-  const [isRowSelected, setIsRowSelected] = useState(false);
-
-  useEffect(() => {
-    if (typeof rowSelection !== "boolean") {
-      if (rowSelection?.selectedRowKeys?.length) {
-        setIsRowSelected(true);
-      } else {
-        setIsRowSelected(false);
-      }
-    }
+  const isRowSelected = useMemo<boolean>(() => {
+    if (typeof rowSelection === "boolean") return false;
+    return !!rowSelection?.selectedRowKeys?.length;
   }, [rowSelection]);
 
   return (
-    <StyledProTable
-      dataSource={dataSource}
-      columns={mergeColumns}
-      components={{
-        header: {
-          cell: ResizableTitle,
-        },
-      }}
-      rowKey="id"
-      search={false}
-      loading={loading}
-      toolbar={toolbar}
-      toolBarRender={toolBarRender}
-      options={options}
-      tableAlertOptionRender={tableAlertOptionRender}
-      rowSelection={rowSelection}
-      isRowSelected={isRowSelected}
-      pagination={pagination}
-      onChange={onChange}
-      columnsState={columnsState}
-      showSorterTooltip={showSorterTooltip}
-      scroll={{ x: "", y: "" }}
-      heightOffset={heightOffset}
-      locale={locale}
-    />
+    <Wrapper $isRowSelected={isRowSelected} $heightOffset={heightOffset}>
+      <ProTable
+        dataSource={dataSource}
+        columns={mergeColumns}
+        components={tableComponents}
+        rowKey="id"
+        search={false}
+        loading={loading}
+        toolbar={toolbar}
+        toolBarRender={toolBarRender}
+        options={options}
+        tableAlertOptionRender={tableAlertOptionRender}
+        rowSelection={rowSelection}
+        pagination={pagination}
+        onChange={onChange}
+        columnsState={columnsState}
+        showSorterTooltip={showSorterTooltip}
+        scroll={tableScroll}
+        locale={locale}
+      />
+    </Wrapper>
   );
 };
 
 export default ResizableProTable;
 
-const StyledProTable = styled(ProTable)<{
-  isRowSelected: boolean;
-  heightOffset: number;
+const Wrapper = styled.div<{
+  $isRowSelected: boolean;
+  $heightOffset: number;
 }>`
-  height: ${({ heightOffset }) => `calc(100% - ${heightOffset}px)`};
+  height: ${({ $heightOffset }) => `calc(100% - ${$heightOffset}px)`};
   .ant-pro-card-body {
     padding-bottom: 0;
   }
@@ -125,7 +124,7 @@ const StyledProTable = styled(ProTable)<{
     height: 100%;
   }
   .ant-table-wrapper {
-    height: ${({ isRowSelected }) => `calc(100% - ${isRowSelected ? 128 : 64}px)`};
+    height: ${({ $isRowSelected }) => `calc(100% - ${$isRowSelected ? 128 : 64}px)`};
   }
   .ant-table {
     height: calc(100% - 64px);

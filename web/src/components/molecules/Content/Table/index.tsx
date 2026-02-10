@@ -789,12 +789,71 @@ const ContentTable: React.FC<Props> = ({
           };
         });
 
-      setCurrentView(prev => ({
-        ...prev,
-        columns: cols,
-      }));
+      setCurrentView(prev => {
+        if (JSON.stringify(prev.columns) === JSON.stringify(cols)) return prev;
+        return { ...prev, columns: cols };
+      });
     },
     [setCurrentView, tableColumns],
+  );
+
+  const columnsStateConfig = useMemo(
+    () => ({
+      value: settingOptions,
+      onChange: setSettingOptions,
+    }),
+    [settingOptions, setSettingOptions],
+  );
+
+  const handleTableChange = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (pagination: any, _: any, sorter: any) => {
+      onContentTableChange(
+        pagination.current ?? 1,
+        pagination.pageSize ?? 10,
+        Array.isArray(sorter)
+          ? undefined
+          : sorter.order && sorter.column && "fieldType" in sorter.column
+            ? {
+                field: {
+                  id:
+                    sorter.column.fieldType === "FIELD" ||
+                    sorter.column.fieldType === "META_FIELD"
+                      ? Array.isArray(sorter.field)
+                        ? sorter.field[1]
+                        : undefined
+                      : undefined,
+                  type: sorter.column.fieldType as FieldType,
+                },
+                direction: sorter.order === "ascend" ? "ASC" : "DESC",
+              }
+            : undefined,
+      );
+    },
+    [onContentTableChange],
+  );
+
+  const tableLocale = useMemo(
+    () => ({
+      emptyText: (
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("No Content Data")}>
+          <Trans
+            i18nKey="Please add some items manually or import from JSON/GeoJSON/CSV"
+            components={{
+              l: (
+                <ImportButton
+                  type="link"
+                  onClick={onImportModalOpen}
+                  disabled={!hasModelFields}>
+                  import
+                </ImportButton>
+              ),
+            }}
+          />
+        </Empty>
+      ),
+    }),
+    [t, onImportModalOpen, hasModelFields],
   );
 
   return (
@@ -812,53 +871,10 @@ const ContentTable: React.FC<Props> = ({
           tableAlertOptionRender={alertOptions}
           rowSelection={rowSelection}
           columns={tableColumns}
-          columnsState={{
-            value: settingOptions,
-            onChange: setSettingOptions,
-          }}
-          onChange={(pagination, _, sorter) => {
-            onContentTableChange(
-              pagination.current ?? 1,
-              pagination.pageSize ?? 10,
-              Array.isArray(sorter)
-                ? undefined
-                : sorter.order && sorter.column && "fieldType" in sorter.column
-                  ? {
-                      field: {
-                        id:
-                          sorter.column.fieldType === "FIELD" ||
-                          sorter.column.fieldType === "META_FIELD"
-                            ? Array.isArray(sorter.field)
-                              ? sorter.field[1]
-                              : undefined
-                            : undefined,
-                        type: sorter.column.fieldType as FieldType,
-                      },
-                      direction: sorter.order === "ascend" ? "ASC" : "DESC",
-                    }
-                  : undefined,
-            );
-          }}
+          columnsState={columnsStateConfig}
+          onChange={handleTableChange}
           heightOffset={102}
-          locale={{
-            emptyText: (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("No Content Data")}>
-                <Trans
-                  i18nKey="Please add some items manually or import from JSON/GeoJSON/CSV"
-                  components={{
-                    l: (
-                      <ImportButton
-                        type="link"
-                        onClick={onImportModalOpen}
-                        disabled={!hasModelFields}>
-                        import
-                      </ImportButton>
-                    ),
-                  }}
-                />
-              </Empty>
-            ),
-          }}
+          locale={tableLocale}
         />
       ) : null}
       <LinkItemRequestModal

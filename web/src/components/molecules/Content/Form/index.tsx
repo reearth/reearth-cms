@@ -10,7 +10,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Space from "@reearth-cms/components/atoms/Space";
-import Tabs from "@reearth-cms/components/atoms/Tabs";
+import Tabs, { type TabsProps } from "@reearth-cms/components/atoms/Tabs";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
@@ -42,8 +42,6 @@ import { transformDayjsToString, dateTimeFormat } from "@reearth-cms/utils/forma
 
 import FieldWrapper from "./FieldWrapper";
 import Versions from "./Versions";
-
-const { TabPane } = Tabs;
 
 type Props = {
   title: string;
@@ -671,6 +669,57 @@ const ContentForm: React.FC<Props> = ({
     setItemHeights(prev => ({ ...prev, [_id]: _height }));
   }, []);
 
+  const tabItems = useMemo<TabsProps["items"]>(() => {
+    const items: NonNullable<TabsProps["items"]> = [
+      {
+        label: t("Meta Data"),
+        key: "meta",
+        children: (
+          <Form
+            form={metaForm}
+            layout="vertical"
+            initialValues={initialMetaFormValues}
+            onValuesChange={handleMetaValuesChange}>
+            <TabContent>
+              <Metadata
+                item={item}
+                fields={model?.metadataSchema.fields ?? []}
+                disabled={fieldDisabled}
+              />
+            </TabContent>
+          </Form>
+        ),
+      },
+    ];
+    if (versions.length) {
+      items.push({
+        label: t("Version History"),
+        key: "history",
+        children: (
+          <TabContent>
+            <Versions
+              versions={versions}
+              versionClick={versionClick}
+              onNavigateToRequest={onNavigateToRequest}
+            />
+          </TabContent>
+        ),
+      });
+    }
+    return items;
+  }, [
+    t,
+    metaForm,
+    initialMetaFormValues,
+    handleMetaValuesChange,
+    item,
+    model?.metadataSchema.fields,
+    fieldDisabled,
+    versions,
+    versionClick,
+    onNavigateToRequest,
+  ]);
+
   return (
     <>
       <Wrapper>
@@ -826,34 +875,7 @@ const ContentForm: React.FC<Props> = ({
         </FormWrapper>
       </Wrapper>
       {!versionedItem && (model?.metadataSchema.fields || item?.id) && (
-        <StyledTabs activeKey={activeKey} onTabClick={key => setActiveKey(key)}>
-          <TabPane tab={t("Meta Data")} key="meta">
-            <Form
-              form={metaForm}
-              layout="vertical"
-              initialValues={initialMetaFormValues}
-              onValuesChange={handleMetaValuesChange}>
-              <TabContent>
-                <Metadata
-                  item={item}
-                  fields={model?.metadataSchema.fields ?? []}
-                  disabled={fieldDisabled}
-                />
-              </TabContent>
-            </Form>
-          </TabPane>
-          {versions.length && (
-            <TabPane tab={t("Version History")} key="history">
-              <TabContent>
-                <Versions
-                  versions={versions}
-                  versionClick={versionClick}
-                  onNavigateToRequest={onNavigateToRequest}
-                />
-              </TabContent>
-            </TabPane>
-          )}
-        </StyledTabs>
+        <StyledTabs activeKey={activeKey} onTabClick={key => setActiveKey(key)} items={tabItems} />
       )}
       {itemId && (
         <>

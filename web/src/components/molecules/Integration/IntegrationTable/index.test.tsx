@@ -1,9 +1,9 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
 import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
-import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { render, DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import IntegrationTable from ".";
 
@@ -102,10 +102,10 @@ describe("Integration table", () => {
       />,
     );
 
-    const connectButton = screen.getByTestId(
+    const connectButtons = screen.getAllByTestId(
       DATA_TEST_ID.IntegrationTable__ConnectIntegrationButton,
     );
-    await user.click(connectButton);
+    await user.click(connectButtons[0]);
 
     expect(connectModalOpenMock).toBeCalledTimes(1);
   });

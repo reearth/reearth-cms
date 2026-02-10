@@ -5,7 +5,7 @@ import ReactMarkdown from "react-markdown";
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Tabs from "@reearth-cms/components/atoms/Tabs";
+import Tabs, { TabsProps } from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { getLicenseContent, license_options } from "@reearth-cms/data/license";
 import { useT } from "@reearth-cms/i18n";
@@ -50,34 +50,39 @@ const MarkdownComponent: React.FC<Props> = ({
     ) : undefined;
   }, [items, needsTemplate, t]);
 
+  const tabItems = useMemo<TabsProps["items"]>(
+    () => [
+      {
+        label: "Edit",
+        key: "edit",
+        children: (
+          <TextArea
+            rows={30}
+            value={value}
+            onChange={onMarkdownChange}
+            style={{ fontFamily: "monospace" }}
+          />
+        ),
+      },
+      {
+        label: "Preview",
+        key: "preview",
+        children: (
+          <StyledContainer>
+            <ReactMarkdown>{value}</ReactMarkdown>
+          </StyledContainer>
+        ),
+      },
+    ],
+    [value, onMarkdownChange],
+  );
+
   return (
     <StyledTabs
       activeKey={activeTab}
       tabBarExtraContent={tabBarExtraContent}
       onChange={setActiveTab}
-      items={[
-        {
-          label: "Edit",
-          key: "edit",
-          children: (
-            <TextArea
-              rows={30}
-              value={value}
-              onChange={onMarkdownChange}
-              style={{ fontFamily: "monospace" }}
-            />
-          ),
-        },
-        {
-          label: "Preview",
-          key: "preview",
-          children: (
-            <StyledContainer>
-              <ReactMarkdown>{value}</ReactMarkdown>
-            </StyledContainer>
-          ),
-        },
-      ]}
+      items={tabItems}
     />
   );
 };

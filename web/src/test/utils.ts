@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 import { render } from "@testing-library/react";
+import { ConfigProvider } from "antd";
+import enUS from "antd/locale/en_US";
+import { createElement } from "react";
 import {
   GeoJSONGeometryCollection,
   GeoJSONLineString,
@@ -15,8 +18,7 @@ import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types.
 // override render export
 const customRender = (ui: React.ReactElement, options = {}) =>
   render(ui, {
-    // wrap provider(s) here if needed
-    wrapper: ({ children }) => children,
+    wrapper: ({ children }) => createElement(ConfigProvider, { locale: enUS }, children),
     ...options,
   });
 

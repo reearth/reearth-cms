@@ -1,9 +1,9 @@
-import { render, screen, getByText } from "@testing-library/react";
+import { screen, getByText } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
-import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
+import { render, DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
 
 import MemberTable from ".";
 
