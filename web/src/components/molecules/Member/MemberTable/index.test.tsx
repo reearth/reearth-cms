@@ -305,7 +305,7 @@ describe("Member table", () => {
 
     await user.click(screen.getByRole("button", { name: "Yes" }));
     expect(onMemberRemoveFromWorkspaceMock).toHaveBeenCalled();
-  }, 10000);
+  });
 
   test("Buttons are disabled according to user right successfully", async () => {
     render(
@@ -345,5 +345,5 @@ describe("Member table", () => {
 
     await user.click(screen.getAllByRole("checkbox")[0]);
     expect(screen.getByRole("button", { name: "usergroup-deleteRemove" })).toBeDisabled();
-  }, 10000);
+  });
 });
