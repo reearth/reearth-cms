@@ -474,7 +474,7 @@ func (i Item) Unpublish(ctx context.Context, itemIDs id.ItemIDList, operator *us
 			return nil, err
 		}
 
-		if !operator.IsMaintainingWorkspace(prj.Workspace()) {
+		if !operator.IsWritableWorkspace(prj.Workspace()) {
 			return nil, interfaces.ErrInvalidOperator
 		}
 
@@ -541,7 +541,7 @@ func (i Item) Publish(ctx context.Context, itemIDs id.ItemIDList, operator *usec
 			return nil, err
 		}
 
-		if !operator.IsMaintainingWorkspace(prj.Workspace()) {
+		if !operator.IsWritableWorkspace(prj.Workspace()) {
 			return nil, interfaces.ErrInvalidOperator
 		}
 
