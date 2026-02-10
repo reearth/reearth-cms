@@ -104,7 +104,7 @@
     "@placemarkio/check-geojson": "0.1.14",
     "@scalar/api-reference-react": "0.8.48",
     "ajv": "8.17.1",
-    "antd": "6.2.3",
+    "antd": "6.3.0",
     "apollo-upload-client": "19.0.0",
     "aws-amplify": "6.16.0",
     "cesium": "1.135.0",
