@@ -19,8 +19,6 @@ import { useT } from "@reearth-cms/i18n";
 
 import useHooks from "./hooks";
 
-const { Option } = Select;
-
 type Props = {
   filter: DropdownFilterType;
   close: () => void;
@@ -90,17 +88,18 @@ const DropdownRender: React.FC<Props> = ({
               <Select
                 placeholder="Select the value"
                 onSelect={onValueSelect}
-                getPopupContainer={trigger => trigger.parentNode}>
-                {valueOptions.map(option => (
-                  <Option key={option.value} value={option.value} label={option.label}>
-                    {filter.type === "Tag" ? (
+                getPopupContainer={trigger => trigger.parentNode}
+                options={valueOptions.map(option => ({
+                  key: option.value,
+                  value: option.value,
+                  label:
+                    filter.type === "Tag" ? (
                       <Tag color={option.color?.toLocaleLowerCase()}>{option.label}</Tag>
                     ) : (
                       option.label
-                    )}
-                  </Option>
-                ))}
-              </Select>
+                    ),
+                }))}
+              />
             ) : filter.type === "Integer" || filter.type === "Number" ? (
               <InputNumber onChange={onNumberChange} stringMode placeholder="Enter the value" />
             ) : filter.type === "Date" ? (

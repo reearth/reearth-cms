@@ -13,8 +13,6 @@ import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
-const { Option } = Select;
-
 type Props = {
   currentRequest: Request;
   workspaceUserMembers: UserMember[];
@@ -116,13 +114,13 @@ const RequestSidebarWrapper: React.FC<Props> = ({
             }
             onChange={value => setSelectedReviewers(value as string[])}
             onBlur={handleSubmit}
-            allowClear>
-            {reviewers.map(reviewer => (
-              <Option key={reviewer.value} label={reviewer.label}>
-                {reviewer.label}
-              </Option>
-            ))}
-          </StyledSelect>
+            allowClear
+            options={reviewers.map(reviewer => ({
+              key: reviewer.value,
+              value: reviewer.value,
+              label: reviewer.label,
+            }))}
+          />
         ) : (
           <ViewReviewers>
             <StyledButton

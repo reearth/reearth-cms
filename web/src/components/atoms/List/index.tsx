@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { forwardRef, ReactNode } from "react";
+import { Fragment, forwardRef, ReactNode } from "react";
 
 type ListProps<T = unknown> = {
   className?: string;
@@ -59,7 +59,9 @@ function ListInner<T>(
   return (
     <ListContainer ref={ref} className={`ant-list ${className ?? ""}`} {...rest}>
       {dataSource && renderItem
-        ? dataSource.map((item, index) => renderItem(item, index))
+        ? dataSource.map((item, index) => (
+            <Fragment key={index}>{renderItem(item, index)}</Fragment>
+          ))
         : children}
     </ListContainer>
   );

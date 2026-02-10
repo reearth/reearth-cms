@@ -254,14 +254,17 @@ const FieldModal: React.FC<Props> = ({
                 name="group"
                 label={t("Select Group")}
                 rules={[{ required: true, message: t("Please select the group!") }]}>
-                <Select>
-                  {groups?.map(group => (
-                    <Select.Option key={group.id} value={group.id}>
-                      {group.name}{" "}
-                      <StyledGroupKey className="ant-form-item-extra">#{group.key}</StyledGroupKey>
-                    </Select.Option>
-                  ))}
-                </Select>
+                <Select
+                  options={groups?.map(group => ({
+                    value: group.id,
+                    label: (
+                      <>
+                        {group.name}{" "}
+                        <StyledGroupKey className="ant-form-item-extra">#{group.key}</StyledGroupKey>
+                      </>
+                    ),
+                  }))}
+                />
               </Form.Item>
             )}
             {selectedType === "GeometryObject" && (

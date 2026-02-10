@@ -20,23 +20,27 @@ const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
         <StyledMultipleSelect
           key={selectedTags?.length}
           mode="multiple"
-          tagRender={props => <>{props.label}</>}>
-          {selectedTags?.map(tag => (
-            <Select.Option key={tag.name} value={tag.name}>
-              <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
-            </Select.Option>
-          ))}
-        </StyledMultipleSelect>
+          tagRender={props => <>{props.label}</>}
+          options={selectedTags?.map(tag => ({
+            key: tag.name,
+            value: tag.name,
+            label: <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>,
+          }))}
+        />
       ) : (
-        <Select key={selectedTags?.length} allowClear>
-          {selectedTags?.map(tag => (
-            <Select.Option key={tag.name} value={tag.name}>
+        <Select
+          key={selectedTags?.length}
+          allowClear
+          options={selectedTags?.map(tag => ({
+            key: tag.name,
+            value: tag.name,
+            label: (
               <TagWrapper>
                 <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
               </TagWrapper>
-            </Select.Option>
-          ))}
-        </Select>
+            ),
+          }))}
+        />
       )}
     </Form.Item>
   );

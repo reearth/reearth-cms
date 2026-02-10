@@ -25,8 +25,6 @@ type Props = {
 
 type FormValues = { search: string } & Record<string, Role>;
 
-const { Option } = Select;
-
 const MemberAddModal: React.FC<Props> = ({
   open,
   workspaceUserMembers,
@@ -215,12 +213,16 @@ const MemberAddModal: React.FC<Props> = ({
                 </UserInfo>
                 <Actions>
                   <FormItemRole name={[user.id]}>
-                    <Select defaultValue={"READER"} popupMatchSelectWidth={105}>
-                      <Option value="OWNER">{t("Owner")}</Option>
-                      <Option value="MAINTAINER">{t("Maintainer")}</Option>
-                      <Option value="WRITER">{t("Writer")}</Option>
-                      <Option value="READER">{t("Reader")}</Option>
-                    </Select>
+                    <Select
+                      defaultValue={"READER"}
+                      popupMatchSelectWidth={105}
+                      options={[
+                        { value: "OWNER", label: t("Owner") },
+                        { value: "MAINTAINER", label: t("Maintainer") },
+                        { value: "WRITER", label: t("Writer") },
+                        { value: "READER", label: t("Reader") },
+                      ]}
+                    />
                   </FormItemRole>
                   <Button
                     type="text"

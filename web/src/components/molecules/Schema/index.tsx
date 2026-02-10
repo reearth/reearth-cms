@@ -286,6 +286,7 @@ const Schema: React.FC<Props> = ({
                 extra={[
                   Constant.IS_DEV && (
                     <Button
+                      key="delete-all"
                       type="default"
                       shape="default"
                       size="small"

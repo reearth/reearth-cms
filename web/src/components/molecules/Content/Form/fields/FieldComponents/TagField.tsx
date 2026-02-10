@@ -27,23 +27,27 @@ const TagField: React.FC<FieldProps> = ({ field, disabled }) => {
           mode="multiple"
           tagRender={props => <>{props.label}</>}
           allowClear
-          disabled={disabled}>
-          {field.typeProperty?.tags?.map((tag: { id: string; name: string; color: string }) => (
-            <Select.Option key={tag.name} value={tag.id}>
-              <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
-            </Select.Option>
-          ))}
-        </StyledMultipleSelect>
+          disabled={disabled}
+          options={field.typeProperty?.tags?.map((tag: { id: string; name: string; color: string }) => ({
+            key: tag.name,
+            value: tag.id,
+            label: <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>,
+          }))}
+        />
       ) : (
-        <Select allowClear disabled={disabled}>
-          {field.typeProperty?.tags?.map((tag: { id: string; name: string; color: string }) => (
-            <Select.Option key={tag.name} value={tag.id}>
+        <Select
+          allowClear
+          disabled={disabled}
+          options={field.typeProperty?.tags?.map((tag: { id: string; name: string; color: string }) => ({
+            key: tag.name,
+            value: tag.id,
+            label: (
               <TagWrapper>
                 <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
               </TagWrapper>
-            </Select.Option>
-          ))}
-        </Select>
+            ),
+          }))}
+        />
       )}
     </Form.Item>
   );
