@@ -62,6 +62,24 @@ func ToJobProgress(p job.Progress) *JobProgress {
 	}
 }
 
+func ToJobState(s job.State) *JobState {
+	var progress *JobProgress
+	if p := s.Progress(); p != nil {
+		progress = ToJobProgress(*p)
+	}
+
+	var errStr *string
+	if e := s.Error(); e != "" {
+		errStr = &e
+	}
+
+	return &JobState{
+		Status:   ToJobStatus(s.Status()),
+		Progress: progress,
+		Error:    errStr,
+	}
+}
+
 func FromJobType(t *JobType) *job.Type {
 	if t == nil {
 		return nil

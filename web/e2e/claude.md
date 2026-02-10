@@ -361,6 +361,7 @@ yarn e2e-smoke
 ```
 
 Smoke tests are a subset of ~25 critical tests that verify core functionality. They run faster than the full suite and are ideal for:
+
 - Quick validation during local development
 - CI/CD pipelines
 - Pre-push verification

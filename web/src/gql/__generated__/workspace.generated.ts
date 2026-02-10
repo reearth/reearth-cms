@@ -202,6 +202,7 @@ export type GetWorkspaceQuery = {
     | { __typename: "Group" }
     | { __typename: "Integration" }
     | { __typename: "Item" }
+    | { __typename: "Job" }
     | { __typename: "Model" }
     | { __typename: "Project" }
     | { __typename: "Request" }
@@ -860,6 +861,7 @@ export type GetWorkspaceSettingsQuery = {
     | { __typename: "Group"; id: string }
     | { __typename: "Integration"; id: string }
     | { __typename: "Item"; id: string }
+    | { __typename: "Job"; id: string }
     | { __typename: "Model"; id: string }
     | { __typename: "Project"; id: string }
     | { __typename: "Request"; id: string }

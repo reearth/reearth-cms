@@ -133,14 +133,14 @@ func TestGQLImportItems(t *testing.T) {
 			errorContains: "too large",
 		},
 		{
-			name: "too many records (exceeds 2000)",
+			name: "too many records (exceeds 50_000)",
 			fields: []createFieldParams{
 				{title: "name", key: "name", fType: "Text", typeProp: map[string]any{"text": map[string]any{}}},
 			},
 			fileName: "many.json",
 			fileContent: func() string {
 				var items []string
-				for i := 0; i < 2001; i++ {
+				for i := 0; i < 50_001; i++ {
 					items = append(items, `{"name": "test"}`)
 				}
 				return "[" + strings.Join(items, ",") + "]"
@@ -226,6 +226,26 @@ func TestGQLImportItems(t *testing.T) {
 			expectError:    false,
 			expectedTotal:  1,
 			expectedInsert: 1,
+			expectedUpdate: 0,
+			expectedIgnore: 0,
+		},
+		{
+			name: "items with invalid item IDs are imported without panic",
+			fields: []createFieldParams{
+				{title: "name", key: "name", fType: "Text", typeProp: map[string]any{"text": map[string]any{}}},
+			},
+			fileName: "invalid_ids.json",
+			fileContent: func() string {
+				return `[
+					{"id": "not-a-valid-uuid", "name": "Item 1"},
+					{"id": "", "name": "Item 2"},
+					{"id": 12345, "name": "Item 3"},
+					{"name": "Item 4"}
+				]`
+			},
+			expectError:    false,
+			expectedTotal:  4,
+			expectedInsert: 4,
 			expectedUpdate: 0,
 			expectedIgnore: 0,
 		},

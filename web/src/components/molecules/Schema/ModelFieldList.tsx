@@ -8,7 +8,7 @@ import List from "@reearth-cms/components/atoms/List";
 import Popconfirm from "@reearth-cms/components/atoms/PopConfirm";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { Trans, useT } from "@reearth-cms/i18n";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { fieldTypes } from "./fieldTypes";
 import { Field } from "./types";
@@ -100,7 +100,10 @@ const ModelFieldList: React.FC<Props> = ({
             i18nKey="importSchema"
             components={{
               l: (
-                <ImportButton type="link" onClick={onSchemaImport}>
+                <ImportButton
+                  type="link"
+                  onClick={onSchemaImport}
+                  data-testid={DATA_TEST_ID.ModelFieldList__ImportSchemaButton}>
                   import
                 </ImportButton>
               ),
@@ -131,7 +134,7 @@ const ModelFieldList: React.FC<Props> = ({
                     okText={t("Delete field")}
                     okButtonProps={{
                       danger: true,
-                      "data-testid": DATA_TEST_ID.ConfirmDeleteFieldButton,
+                      "data-testid": DATA_TEST_ID.ModelFieldList__ConfirmDeleteFieldButton,
                     }}
                     cancelText={t("Cancel")}>
                     <Button

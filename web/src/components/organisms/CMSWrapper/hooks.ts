@@ -25,6 +25,7 @@ import {
   useUserId,
   useWorkspaceId,
   useUserRights,
+  useCollapsedMainMenu,
 } from "@reearth-cms/state";
 import { joinPaths, splitPathname } from "@reearth-cms/utils/path";
 
@@ -44,7 +45,7 @@ export default () => {
   const [currentProject, setCurrentProject] = useProject();
   const [, setUserRights] = useUserRights();
   const [workspaceModalShown, setWorkspaceModalShown] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsedMainMenu, setCollapsedMainMenu] = useCollapsedMainMenu();
 
   const { data, refetch } = useQuery(GetMeDocument);
 
@@ -59,9 +60,12 @@ export default () => {
 
   setCurrentUserId(data?.me?.id);
 
-  const handleCollapse = useCallback((collapse: boolean) => {
-    setCollapsed(collapse);
-  }, []);
+  const handleCollapse = useCallback(
+    (collapse: boolean) => {
+      setCollapsedMainMenu(collapse);
+    },
+    [setCollapsedMainMenu],
+  );
 
   const workspaces = data?.me?.workspaces?.map(workspace =>
     fromGraphQLWorkspace(workspace as GQLWorkspace),
@@ -229,7 +233,7 @@ export default () => {
     currentProject,
     selectedKey: subRoute,
     secondaryRoute,
-    collapsed,
+    collapsedMainMenu,
     handleCollapse,
     handleProjectMenuNavigate,
     handleWorkspaceMenuNavigate,
