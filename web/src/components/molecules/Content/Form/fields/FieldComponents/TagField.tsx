@@ -28,25 +28,29 @@ const TagField: React.FC<FieldProps> = ({ field, disabled }) => {
           tagRender={props => <>{props.label}</>}
           allowClear
           disabled={disabled}
-          options={field.typeProperty?.tags?.map((tag: { id: string; name: string; color: string }) => ({
-            key: tag.name,
-            value: tag.id,
-            label: <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>,
-          }))}
+          options={field.typeProperty?.tags?.map(
+            (tag: { id: string; name: string; color: string }) => ({
+              key: tag.name,
+              value: tag.id,
+              label: <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>,
+            }),
+          )}
         />
       ) : (
         <Select
           allowClear
           disabled={disabled}
-          options={field.typeProperty?.tags?.map((tag: { id: string; name: string; color: string }) => ({
-            key: tag.name,
-            value: tag.id,
-            label: (
-              <TagWrapper>
-                <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
-              </TagWrapper>
-            ),
-          }))}
+          options={field.typeProperty?.tags?.map(
+            (tag: { id: string; name: string; color: string }) => ({
+              key: tag.name,
+              value: tag.id,
+              label: (
+                <TagWrapper>
+                  <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
+                </TagWrapper>
+              ),
+            }),
+          )}
         />
       )}
     </Form.Item>

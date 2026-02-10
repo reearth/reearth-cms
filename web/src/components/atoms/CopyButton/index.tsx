@@ -15,7 +15,9 @@ type Props = {
 
 const CopyButton = forwardRef<HTMLSpanElement, Props>(({ copyable, ...props }, ref) => {
   const t = useT();
-  return <Text ref={ref} copyable={{ tooltips: [t("Copy"), t("Copied")], ...copyable }} {...props} />;
+  return (
+    <Text ref={ref} copyable={{ tooltips: [t("Copy"), t("Copied")], ...copyable }} {...props} />
+  );
 });
 
 const StyledCopyButton = styled(CopyButton, Constant.TRANSIENT_OPTIONS)<{

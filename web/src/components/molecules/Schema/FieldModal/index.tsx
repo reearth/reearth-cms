@@ -260,7 +260,9 @@ const FieldModal: React.FC<Props> = ({
                     label: (
                       <>
                         {group.name}{" "}
-                        <StyledGroupKey className="ant-form-item-extra">#{group.key}</StyledGroupKey>
+                        <StyledGroupKey className="ant-form-item-extra">
+                          #{group.key}
+                        </StyledGroupKey>
                       </>
                     ),
                   }))}

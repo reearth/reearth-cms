@@ -19,53 +19,63 @@ type Props = {
   onClick?: () => void;
 };
 
-const Icon = forwardRef<HTMLElement, Props>(({ className, icon, alt, style, color, size, onClick }, ref) => {
-  const src = useMemo(
-    () => (icon?.startsWith("<svg ") ? svgToMiniDataURI(icon) : Icons[icon as Icons]),
-    [icon],
-  );
-  if (!icon) return null;
-
-  const sizeStr = typeof size === "number" ? `${size}px` : size;
-
-  if (!src) {
-    return (
-      <StyledImg ref={ref as React.Ref<HTMLImageElement>} src={icon} alt={alt} style={style} $size={sizeStr} onClick={onClick} />
+const Icon = forwardRef<HTMLElement, Props>(
+  ({ className, icon, alt, style, color, size, onClick }, ref) => {
+    const src = useMemo(
+      () => (icon?.startsWith("<svg ") ? svgToMiniDataURI(icon) : Icons[icon as Icons]),
+      [icon],
     );
-  }
+    if (!icon) return null;
 
-  if (typeof src === "string") {
-    return (
-      <StyledSvg
-        ref={ref}
-        className={className}
-        src={src}
-        $color={color}
-        style={style}
-        $size={sizeStr}
-        onClick={onClick}
-      />
-    );
-  }
+    const sizeStr = typeof size === "number" ? `${size}px` : size;
 
-  return React.createElement(src, {
-    ref,
-    className,
-    onClick,
-    style: { ...style, color, fontSize: sizeStr },
-  });
-});
+    if (!src) {
+      return (
+        <StyledImg
+          ref={ref as React.Ref<HTMLImageElement>}
+          src={icon}
+          alt={alt}
+          style={style}
+          $size={sizeStr}
+          onClick={onClick}
+        />
+      );
+    }
+
+    if (typeof src === "string") {
+      return (
+        <StyledSvg
+          ref={ref}
+          className={className}
+          src={src}
+          $color={color}
+          style={style}
+          $size={sizeStr}
+          onClick={onClick}
+        />
+      );
+    }
+
+    return React.createElement(src, {
+      ref,
+      className,
+      onClick,
+      style: { ...style, color, fontSize: sizeStr },
+    });
+  },
+);
 
 const StyledImg = styled("img", Constant.TRANSIENT_OPTIONS)<{ $size?: string }>`
   width: ${({ $size }) => $size};
   height: ${({ $size }) => $size};
 `;
 
-const SVG = forwardRef<HTMLSpanElement, Pick<ComponentProps<typeof ReactSVG>, "className" | "src" | "onClick" | "style">>(
-  (props, _ref) => {
-    return <ReactSVG {...props} wrapper="span" />;
-  },
-);
+const SVG = forwardRef<
+  HTMLSpanElement,
+  Pick<ComponentProps<typeof ReactSVG>, "className" | "src" | "onClick" | "style">
+>((props, _ref) => {
+  return <ReactSVG {...props} wrapper="span" />;
+});
 
 const StyledSvg = styled(SVG, Constant.TRANSIENT_OPTIONS)<{ $color?: string; $size?: string }>`
   font-size: 0;

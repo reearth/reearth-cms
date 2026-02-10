@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 import { render } from "@testing-library/react";
 import { ConfigProvider } from "antd";
-import enUS from "antd/locale/en_US";
+import enUS from "antd/locale/en_US.js";
 import { createElement } from "react";
 import {
   GeoJSONGeometryCollection,

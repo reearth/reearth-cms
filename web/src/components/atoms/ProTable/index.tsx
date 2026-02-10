@@ -6,9 +6,9 @@ import {
   ProColumns,
 } from "@ant-design/pro-components";
 import type { ParamsType } from "@ant-design/pro-components";
-import { forwardRef } from "react";
 import { TableProps } from "antd";
 import { AnyObject } from "antd/es/_util/type";
+import { forwardRef } from "react";
 
 type OptionConfig = {
   reload?: (() => void) | boolean;

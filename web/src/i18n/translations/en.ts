@@ -384,7 +384,6 @@ export default {
   "No available Group": "",
   "No comments.": "",
   "No Content Data": "No Content Data",
-  "No data": "No data",
   "No Geometry field was found in this model, so GeoJSON export is not available.": "",
   "No Integration yet": "",
   "No matching fields found": "No matching fields found",

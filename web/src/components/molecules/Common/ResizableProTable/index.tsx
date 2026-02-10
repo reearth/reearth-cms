@@ -23,89 +23,94 @@ const tableComponents = {
 
 const tableScroll = { x: "", y: "" };
 
-const ResizableProTable = forwardRef<HTMLDivElement, Props>(({
-  dataSource,
-  columns,
-  loading,
-  options,
-  toolbar,
-  toolBarRender,
-  rowSelection,
-  tableAlertOptionRender,
-  pagination,
-  onChange,
-  columnsState,
-  showSorterTooltip,
-  heightOffset,
-  locale,
-}, ref) => {
-  const [resizableColumns, setResizableColumns] = useState<ProColumns<any, "text">[]>(
-    columns ?? [],
-  );
+const ResizableProTable = forwardRef<HTMLDivElement, Props>(
+  (
+    {
+      dataSource,
+      columns,
+      loading,
+      options,
+      toolbar,
+      toolBarRender,
+      rowSelection,
+      tableAlertOptionRender,
+      pagination,
+      onChange,
+      columnsState,
+      showSorterTooltip,
+      heightOffset,
+      locale,
+    },
+    ref,
+  ) => {
+    const [resizableColumns, setResizableColumns] = useState<ProColumns<any, "text">[]>(
+      columns ?? [],
+    );
 
-  useEffect(() => {
-    if (columns) {
-      setResizableColumns(columns);
-    }
-  }, [columns]);
+    useEffect(() => {
+      if (columns) {
+        setResizableColumns(columns);
+      }
+    }, [columns]);
 
-  const handleResize = useCallback(
-    (index: number) =>
-      (_: React.SyntheticEvent<Element>, { size }: ResizeCallbackData) => {
-        setResizableColumns(prev => {
-          const newColumns = [...prev];
-          newColumns[index] = {
-            ...newColumns[index],
-            width: size.width,
-          };
-          return newColumns;
-        });
-      },
-    [],
-  );
+    const handleResize = useCallback(
+      (index: number) =>
+        (_: React.SyntheticEvent<Element>, { size }: ResizeCallbackData) => {
+          setResizableColumns(prev => {
+            const newColumns = [...prev];
+            newColumns[index] = {
+              ...newColumns[index],
+              width: size.width,
+            };
+            return newColumns;
+          });
+        },
+      [],
+    );
 
-  const mergeColumns = useMemo<ProColumns<any, "text">[]>(
-    () =>
-      resizableColumns?.map((col, index): any => ({
-        ...col,
-        onHeaderCell: (column: ProColumns<any, "text">) => ({
-          minWidth: (column as ProColumns<any, "text"> & { minWidth: number }).minWidth,
-          width: (column as ProColumns<any, "text">).width,
-          onResize: handleResize(index),
-        }),
-      })),
-    [handleResize, resizableColumns],
-  );
+    const mergeColumns = useMemo<ProColumns<any, "text">[]>(
+      () =>
+        resizableColumns?.map((col, index): any => ({
+          ...col,
+          onHeaderCell: (column: ProColumns<any, "text">) => ({
+            minWidth: (column as ProColumns<any, "text"> & { minWidth: number }).minWidth,
+            width: (column as ProColumns<any, "text">).width,
+            onResize: handleResize(index),
+          }),
+        })),
+      [handleResize, resizableColumns],
+    );
 
-  const isRowSelected = useMemo<boolean>(() => {
-    if (typeof rowSelection === "boolean") return false;
-    return !!rowSelection?.selectedRowKeys?.length;
-  }, [rowSelection]);
+    const isRowSelected = useMemo<boolean>(() => {
+      if (typeof rowSelection === "boolean") return false;
+      return !!rowSelection?.selectedRowKeys?.length;
+    }, [rowSelection]);
 
-  return (
-    <Wrapper ref={ref} $isRowSelected={isRowSelected} $heightOffset={heightOffset}>
-      <ProTable
-        dataSource={dataSource}
-        columns={mergeColumns}
-        components={tableComponents}
-        rowKey="id"
-        search={false}
-        loading={loading}
-        toolbar={toolbar}
-        toolBarRender={toolBarRender}
-        options={options}
-        tableAlertOptionRender={tableAlertOptionRender}
-        rowSelection={rowSelection}
-        pagination={pagination}
-        onChange={onChange}
-        columnsState={columnsState}
-        showSorterTooltip={showSorterTooltip}
-        scroll={tableScroll}
-        locale={locale}
-      />
-    </Wrapper>
-  );
-});
+    return (
+      <Wrapper ref={ref} $isRowSelected={isRowSelected} $heightOffset={heightOffset}>
+        <ProTable
+          dataSource={dataSource}
+          columns={mergeColumns}
+          components={tableComponents}
+          rowKey="id"
+          search={false}
+          loading={loading}
+          toolbar={toolbar}
+          toolBarRender={toolBarRender}
+          options={options}
+          tableAlertOptionRender={tableAlertOptionRender}
+          rowSelection={rowSelection}
+          pagination={pagination}
+          onChange={onChange}
+          columnsState={columnsState}
+          showSorterTooltip={showSorterTooltip}
+          scroll={tableScroll}
+          locale={locale}
+        />
+      </Wrapper>
+    );
+  },
+);
 
 export default ResizableProTable;
 

@@ -383,7 +383,6 @@ export default {
   "No available Group": "グループなし",
   "No comments.": "コメントはありません。",
   "No Content Data": "コンテンツデータなし",
-  "No data": "データなし",
   "No Geometry field was found in this model, so GeoJSON export is not available.": "このモデルにジオメトリフィールドが見つからないため、GeoJSONエクスポートは利用できません。",
   "No Integration yet": "まだインテグレーションはありません",
   "No matching fields found": "一致するフィールドが見つかりません",
