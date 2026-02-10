@@ -9,6 +9,7 @@ import ProTable, {
 } from "@reearth-cms/components/atoms/ProTable";
 import { ResizableTitle } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizable";
 import type { ResizeCallbackData } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizable";
+import { Constant } from "@reearth-cms/utils/constant";
 
 type Props = ProTableProps<Record<string, any> | any, ParamsType, "text"> & {
   heightOffset: number;
@@ -108,7 +109,7 @@ const ResizableProTable: React.FC<Props> = ({
 
 export default ResizableProTable;
 
-const Wrapper = styled.div<{
+const Wrapper = styled("div", Constant.TRANSIENT_OPTIONS)<{
   $isRowSelected: boolean;
   $heightOffset: number;
 }>`

@@ -38,6 +38,7 @@ import {
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { Constant } from "@reearth-cms/utils/constant";
 import { transformDayjsToString, dateTimeFormat } from "@reearth-cms/utils/format";
 
 import FieldWrapper from "./FieldWrapper";
@@ -801,7 +802,7 @@ const ContentForm: React.FC<Props> = ({
             layout="vertical"
             initialValues={initialFormValues}
             onValuesChange={handleValuesChange}
-            scrollbarWidth={scrollbarWidth}>
+            $scrollbarWidth={scrollbarWidth}>
             {model?.schema.fields.map(field => (
               <FieldWrapper
                 key={field.id}
@@ -857,7 +858,7 @@ const ContentForm: React.FC<Props> = ({
               form={versionForm}
               layout="vertical"
               name="version"
-              scrollbarWidth={scrollbarWidth}>
+              $scrollbarWidth={scrollbarWidth}>
               {model?.schema.fields.map(field => (
                 <FieldWrapper
                   key={field.id}
@@ -961,7 +962,7 @@ const StyledTabs = styled(Tabs)`
   }
 `;
 
-const StyledForm = styled(Form)<{ scrollbarWidth: number }>`
+const StyledForm = styled(Form, Constant.TRANSIENT_OPTIONS)<{ $scrollbarWidth: number }>`
   flex: 1;
   min-width: 0;
   padding: 36px;
@@ -973,7 +974,7 @@ const StyledForm = styled(Form)<{ scrollbarWidth: number }>`
     display: flex;
   }
   :last-child {
-    margin-right: ${({ scrollbarWidth }) => `-${scrollbarWidth}px`};
+    margin-right: ${({ $scrollbarWidth }) => `-${$scrollbarWidth}px`};
   }
 `;
 

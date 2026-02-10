@@ -31,6 +31,7 @@ import {
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { Constant } from "@reearth-cms/utils/constant";
 
 import schema from "./schema";
 
@@ -548,7 +549,7 @@ const GeometryItem: React.FC<Props> = ({
                     onClick={() => {
                       sketchButtonClick("Point");
                     }}
-                    selected={sketchType === "Point"}
+                    $selected={sketchType === "Point"}
                   />
                 )}
                 {(supportedTypes === "LINESTRING" || supportedTypes === "ANY") && (
@@ -557,7 +558,7 @@ const GeometryItem: React.FC<Props> = ({
                     onClick={() => {
                       sketchButtonClick("LineString");
                     }}
-                    selected={sketchType === "LineString"}
+                    $selected={sketchType === "LineString"}
                   />
                 )}
                 {(supportedTypes === "POLYGON" || supportedTypes === "ANY") && (
@@ -566,7 +567,7 @@ const GeometryItem: React.FC<Props> = ({
                     onClick={() => {
                       sketchButtonClick("Polygon");
                     }}
-                    selected={sketchType === "Polygon"}
+                    $selected={sketchType === "Polygon"}
                   />
                 )}
                 {supportedTypes === "ANY" && (
@@ -575,7 +576,7 @@ const GeometryItem: React.FC<Props> = ({
                     onClick={() => {
                       sketchButtonClick("Circle");
                     }}
-                    selected={sketchType === "Circle"}
+                    $selected={sketchType === "Circle"}
                   />
                 )}
                 {supportedTypes === "ANY" && (
@@ -584,7 +585,7 @@ const GeometryItem: React.FC<Props> = ({
                     onClick={() => {
                       sketchButtonClick("Rectangle");
                     }}
-                    selected={sketchType === "Rectangle"}
+                    $selected={sketchType === "Rectangle"}
                   />
                 )}
               </GeoButtons>
@@ -714,8 +715,8 @@ const GeoButtons = styled.div`
   padding: 15px 0;
 `;
 
-const GeoButton = styled(Button)<{ selected: boolean }>`
-  color: ${({ selected }) => (selected ? "#1677ff" : "#434343")};
+const GeoButton = styled(Button, Constant.TRANSIENT_OPTIONS)<{ $selected: boolean }>`
+  color: ${({ $selected }) => ($selected ? "#1677ff" : "#434343")};
 `;
 
 const ZoomButtons = styled.div`

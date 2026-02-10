@@ -3,6 +3,8 @@ import svgToMiniDataURI from "mini-svg-data-uri";
 import React, { ComponentProps, CSSProperties, memo, useMemo } from "react";
 import { ReactSVG } from "react-svg";
 
+import { Constant } from "@reearth-cms/utils/constant";
+
 import Icons from "./icons";
 
 type Icons = keyof typeof Icons;
@@ -27,7 +29,7 @@ const Icon: React.FC<Props> = ({ className, icon, alt, style, color, size, onCli
   const sizeStr = typeof size === "number" ? `${size}px` : size;
 
   if (!src) {
-    return <StyledImg src={icon} alt={alt} style={style} size={sizeStr} onClick={onClick} />;
+    return <StyledImg src={icon} alt={alt} style={style} $size={sizeStr} onClick={onClick} />;
   }
 
   if (typeof src === "string") {
@@ -35,9 +37,9 @@ const Icon: React.FC<Props> = ({ className, icon, alt, style, color, size, onCli
       <StyledSvg
         className={className}
         src={src}
-        color={color}
+        $color={color}
         style={style}
-        size={sizeStr}
+        $size={sizeStr}
         onClick={onClick}
       />
     );
@@ -50,9 +52,9 @@ const Icon: React.FC<Props> = ({ className, icon, alt, style, color, size, onCli
   });
 };
 
-const StyledImg = styled.img<{ size?: string }>`
-  width: ${({ size }) => size};
-  height: ${({ size }) => size};
+const StyledImg = styled("img", Constant.TRANSIENT_OPTIONS)<{ $size?: string }>`
+  width: ${({ $size }) => $size};
+  height: ${({ $size }) => $size};
 `;
 
 const SVG: React.FC<
@@ -61,15 +63,15 @@ const SVG: React.FC<
   return <ReactSVG {...props} wrapper="span" />;
 };
 
-const StyledSvg = styled(SVG)<{ color?: string; size?: string }>`
+const StyledSvg = styled(SVG, Constant.TRANSIENT_OPTIONS)<{ $color?: string; $size?: string }>`
   font-size: 0;
-  color: ${({ color }) => color};
+  color: ${({ $color }) => $color};
   display: inline-block;
   line-height: 0;
 
   svg {
-    width: ${({ size }) => size};
-    height: ${({ size }) => size};
+    width: ${({ $size }) => $size};
+    height: ${({ $size }) => $size};
   }
 `;
 

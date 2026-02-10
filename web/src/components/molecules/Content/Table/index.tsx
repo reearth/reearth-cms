@@ -817,8 +817,7 @@ const ContentTable: React.FC<Props> = ({
             ? {
                 field: {
                   id:
-                    sorter.column.fieldType === "FIELD" ||
-                    sorter.column.fieldType === "META_FIELD"
+                    sorter.column.fieldType === "FIELD" || sorter.column.fieldType === "META_FIELD"
                       ? Array.isArray(sorter.field)
                         ? sorter.field[1]
                         : undefined
@@ -841,10 +840,7 @@ const ContentTable: React.FC<Props> = ({
             i18nKey="Please add some items manually or import from JSON/GeoJSON/CSV"
             components={{
               l: (
-                <ImportButton
-                  type="link"
-                  onClick={onImportModalOpen}
-                  disabled={!hasModelFields}>
+                <ImportButton type="link" onClick={onImportModalOpen} disabled={!hasModelFields}>
                   import
                 </ImportButton>
               ),

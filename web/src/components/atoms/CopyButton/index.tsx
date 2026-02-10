@@ -3,6 +3,7 @@ import { Typography } from "antd";
 import { RefAttributes, ComponentProps } from "react";
 
 import { useT } from "@reearth-cms/i18n";
+import { Constant } from "@reearth-cms/utils/constant";
 
 const { Text } = Typography;
 
@@ -17,23 +18,27 @@ const CopyButton: React.FC<Props> = ({ copyable, ...props }) => {
   return <Text copyable={{ tooltips: [t("Copy"), t("Copied")], ...copyable }} {...props} />;
 };
 
-const StyledCopyButton = styled(CopyButton)<{ color?: string; hoverColor?: string; size?: number }>`
+const StyledCopyButton = styled(CopyButton, Constant.TRANSIENT_OPTIONS)<{
+  $color?: string;
+  $hoverColor?: string;
+  $size?: number;
+}>`
   display: inline-flex;
   .ant-typography-copy {
     transition: all 0.3s;
-    color: ${({ color }) => color || "#00000073"};
+    color: ${({ $color }) => $color || "#00000073"};
     :focus {
-      color: ${({ color }) => color || "#00000073"};
+      color: ${({ $color }) => $color || "#00000073"};
     }
     :active {
-      color: ${({ hoverColor }) => hoverColor || "#000000e0"};
+      color: ${({ $hoverColor }) => $hoverColor || "#000000e0"};
     }
     :hover {
-      color: ${({ hoverColor }) => hoverColor || "#000000e0"};
+      color: ${({ $hoverColor }) => $hoverColor || "#000000e0"};
     }
   }
   svg {
-    ${({ size }) => `width: ${size}px; height: ${size}px;`};
+    ${({ $size }) => `width: ${$size}px; height: ${$size}px;`};
   }
 `;
 

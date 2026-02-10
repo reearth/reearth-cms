@@ -8,6 +8,7 @@ import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
+import { Constant } from "@reearth-cms/utils/constant";
 
 type Props = {
   selectedKey?: string;
@@ -113,7 +114,7 @@ const ModelsList: React.FC<Props> = ({
           <StyledMenu
             selectedKeys={selectedKeys}
             mode={collapsed ? "vertical" : "inline"}
-            collapsed={collapsed}
+            $collapsed={collapsed}
             items={items}
             onClick={handleClick}
           />
@@ -127,9 +128,9 @@ const Header = styled.div`
   padding: 22px 20px 4px 20px;
 `;
 
-const SchemaAction = styled.div<{ collapsed?: boolean }>`
+const SchemaAction = styled("div", Constant.TRANSIENT_OPTIONS)<{ $collapsed?: boolean }>`
   display: flex;
-  justify-content: ${({ collapsed }) => (collapsed ? "space-around" : "space-between")};
+  justify-content: ${({ $collapsed }) => ($collapsed ? "space-around" : "space-between")};
   align-items: center;
 `;
 
@@ -160,8 +161,8 @@ const StyledIcon = styled(Icon)`
   justify-content: center;
 `;
 
-const StyledMenu = styled(Menu)<{ collapsed?: boolean }>`
-  color: ${({ collapsed }) => (collapsed ? "#C4C4C4" : undefined)};
+const StyledMenu = styled(Menu, Constant.TRANSIENT_OPTIONS)<{ $collapsed?: boolean }>`
+  color: ${({ $collapsed }) => ($collapsed ? "#C4C4C4" : undefined)};
 
   .ant-menu-item {
     display: flex;

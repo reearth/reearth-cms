@@ -351,9 +351,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
             <Form.Item
               name="title"
               label={t("Display name")}
-              rules={[
-                { required: true, message: t("Please input the display name of field!") },
-              ]}>
+              rules={[{ required: true, message: t("Please input the display name of field!") }]}>
               <Input
                 onChange={e => {
                   handleNameChange(e, field1Form);
@@ -417,16 +415,22 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
             <Form.Item
               name="unique"
               valuePropName="checked"
-              extra={t(
-                "Ensures that a multiple entries can't have the same value for this field",
-              )}>
+              extra={t("Ensures that a multiple entries can't have the same value for this field")}>
               <Checkbox disabled={isTwoWayReference}>{t("Set field as unique")}</Checkbox>
             </Form.Item>
           </>
         ),
       },
     ],
-    [t, field1Form, handleNameChange, handleKeyChange, keyValidate, handleFieldKeyUnique, isTwoWayReference],
+    [
+      t,
+      field1Form,
+      handleNameChange,
+      handleKeyChange,
+      keyValidate,
+      handleFieldKeyUnique,
+      isTwoWayReference,
+    ],
   );
 
   const field2TabItems = useMemo<TabsProps["items"]>(
@@ -440,9 +444,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
             <Form.Item
               name="title"
               label={t("Display name")}
-              rules={[
-                { required: true, message: t("Please input the display name of field!") },
-              ]}>
+              rules={[{ required: true, message: t("Please input the display name of field!") }]}>
               <Input
                 onChange={e => {
                   handleNameChange(e, field2Form);
@@ -496,7 +498,14 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
         ),
       },
     ],
-    [t, field2Form, handleNameChange, handleKeyChange, keyValidate, handleCorrespondingFieldKeyUnique],
+    [
+      t,
+      field2Form,
+      handleNameChange,
+      handleKeyChange,
+      keyValidate,
+      handleCorrespondingFieldKeyUnique,
+    ],
   );
 
   return (
@@ -556,12 +565,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           )}
         </>
       }>
-      <StyledSteps
-        progressDot
-        current={currentStep}
-        numSteps={numSteps}
-        items={stepsItems}
-      />
+      <StyledSteps progressDot current={currentStep} $numSteps={numSteps} items={stepsItems} />
       {currentStep === 0 && (
         <Form
           form={modelForm}
@@ -612,11 +616,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           onValuesChange={changedValues => {
             handleValuesChange(changedValues, defaultFieldValues);
           }}>
-          <Tabs
-            activeKey={activeTab}
-            onChange={handleTabChange}
-            items={field1TabItems}
-          />
+          <Tabs activeKey={activeTab} onChange={handleTabChange} items={field1TabItems} />
         </Form>
       )}
       {currentStep === 2 && (
@@ -628,11 +628,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           onValuesChange={changedValues => {
             handleValuesChange(changedValues, defaultCorrespondingValues);
           }}>
-          <Tabs
-            activeKey={activeTab}
-            onChange={handleTabChange}
-            items={field2TabItems}
-          />
+          <Tabs activeKey={activeTab} onChange={handleTabChange} items={field2TabItems} />
         </Form>
       )}
     </StyledModal>
@@ -680,8 +676,8 @@ const StyledFormItem = styled(Form.Item)`
   }
 `;
 
-const StyledSteps = styled(Steps)<{ numSteps: number }>`
-  padding: ${({ numSteps }) => (numSteps === 1 ? "30px 24px 38px" : "30px 0 38px")};
+const StyledSteps = styled(Steps, Constant.TRANSIENT_OPTIONS)<{ $numSteps: number }>`
+  padding: ${({ $numSteps }) => ($numSteps === 1 ? "30px 24px 38px" : "30px 0 38px")};
   .ant-steps-item-title {
     white-space: nowrap;
   }

@@ -1,3 +1,5 @@
+import type { StyledOptions } from "@emotion/styled";
+
 import {
   ExportSchemaFieldType,
   SchemaFieldType,
@@ -63,4 +65,10 @@ export abstract class Constant {
 
   public static readonly IS_DEV: boolean =
     !process.env.NODE_ENV || process.env.NODE_ENV === "development";
+
+  // Emotion styled options to filter out transient props (props starting with $)
+  // Usage: styled(Component, Constant.STYLED_OPTIONS)<{ $myProp: boolean }>`...`
+  public static readonly TRANSIENT_OPTIONS: StyledOptions = {
+    shouldForwardProp: (prop: string) => !prop.startsWith("$"),
+  };
 }
