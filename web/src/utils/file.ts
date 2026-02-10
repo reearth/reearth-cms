@@ -37,4 +37,8 @@ export abstract class FileUtils {
 
     throw new Error("Unsupported input type. Provide a string, ArrayBuffer, or Blob.");
   }
+
+  public static MBtoBytes(src: number): number {
+    return src * 1024 ** 2;
+  }
 }
