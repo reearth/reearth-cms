@@ -108,10 +108,10 @@ export default (assetId?: string) => {
         refetchQueries: ["GetAssetItem"],
       });
       if (result.error || !result.data?.updateAsset) {
-        Notification.error({ message: t("Failed to update asset.") });
+        Notification.error({ title: t("Failed to update asset.") });
       }
       if (result) {
-        Notification.success({ message: t("Asset was successfully updated!") });
+        Notification.success({ title: t("Asset was successfully updated!") });
       }
     },
     [t, updateAssetMutation],
@@ -129,10 +129,10 @@ export default (assetId?: string) => {
         });
         setDecompressing(false);
         if (result.error || !result.data?.decompressAsset) {
-          Notification.error({ message: t("Failed to decompress asset.") });
+          Notification.error({ title: t("Failed to decompress asset.") });
         }
         if (result) {
-          Notification.success({ message: t("Asset is being decompressed!") });
+          Notification.success({ title: t("Asset is being decompressed!") });
         }
       })(),
     [t, decompressAssetMutation],
@@ -249,13 +249,13 @@ export default (assetId?: string) => {
       const blob = await response.blob();
       fileDownload(blob, asset.fileName);
       Notification.success({
-        message: t("Download successful"),
+        title: t("Download successful"),
         description: asset.fileName,
       });
     } catch (err) {
       console.error("Download error:", err);
       Notification.error({
-        message: t("Download failed"),
+        title: t("Download failed"),
         description: asset.fileName,
       });
     }

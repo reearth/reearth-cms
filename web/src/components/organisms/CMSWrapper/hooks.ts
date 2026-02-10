@@ -139,7 +139,7 @@ export default () => {
         variables: { name: data.name },
       });
       if (results.data?.createWorkspace) {
-        Notification.success({ message: t("Successfully created workspace!") });
+        Notification.success({ title: t("Successfully created workspace!") });
         setCurrentWorkspace(
           fromGraphQLWorkspace(results.data.createWorkspace.workspace as GQLWorkspace),
         );

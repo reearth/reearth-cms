@@ -191,7 +191,7 @@ const WebhookForm: React.FC<Props> = ({
             </Form.Item>
           </Col>
           <Col>
-            <StyledDivider type="vertical" />
+            <StyledDivider orientation="vertical" />
           </Col>
           <Col span={11}>
             <CheckboxTitle>{t("Trigger Event")}</CheckboxTitle>

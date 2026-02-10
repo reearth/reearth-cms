@@ -52,10 +52,10 @@ export default () => {
         },
       });
       if (result.error || !result.data?.updateProject) {
-        Notification.error({ message: t("Failed to update project.") });
+        Notification.error({ title: t("Failed to update project.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated project!") });
+      Notification.success({ title: t("Successfully updated project!") });
     },
     [projectId, updateProjectMutation, currentProject?.requestRoles, t],
   );
@@ -70,10 +70,10 @@ export default () => {
         },
       });
       if (project.error || !project.data?.updateProject) {
-        Notification.error({ message: t("Failed to update request roles.") });
+        Notification.error({ title: t("Failed to update request roles.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated request roles!") });
+      Notification.success({ title: t("Successfully updated request roles!") });
     },
     [projectId, updateProjectMutation, t],
   );
@@ -85,10 +85,10 @@ export default () => {
       refetchQueries: ["GetProjects"],
     });
     if (results.error) {
-      Notification.error({ message: t("Failed to delete project.") });
+      Notification.error({ title: t("Failed to delete project.") });
       return;
     }
-    Notification.success({ message: t("Successfully deleted project!") });
+    Notification.success({ title: t("Successfully deleted project!") });
     projectsRefetch();
     navigate(`/workspace/${workspaceId}`);
   }, [projectId, deleteProjectMutation, t, projectsRefetch, navigate, workspaceId]);
@@ -123,10 +123,10 @@ export default () => {
         },
       });
       if (result.error || !result.data?.updateProject) {
-        Notification.error({ message: t("Failed to update project visibility.") });
+        Notification.error({ title: t("Failed to update project visibility.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated project visibility!") });
+      Notification.success({ title: t("Successfully updated project visibility!") });
     },
     [projectId, t, updateProjectMutation],
   );

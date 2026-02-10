@@ -123,10 +123,10 @@ export default () => {
         },
       });
       if (project.error || !project.data?.createProject) {
-        Notification.error({ message: t("Failed to create project.") });
+        Notification.error({ title: t("Failed to create project.") });
         throw new Error();
       }
-      Notification.success({ message: t("Successfully created project!") });
+      Notification.success({ title: t("Successfully created project!") });
       setPage(INITIAL_PAGE);
       setProjectSort(INITIAL_PAGE_SORT);
       projectsRefetch();
@@ -151,7 +151,7 @@ export default () => {
         variables: { name: data.name },
       });
       if (results.data?.createWorkspace) {
-        Notification.success({ message: t("Successfully created workspace!") });
+        Notification.success({ title: t("Successfully created workspace!") });
         setCurrentWorkspace(
           fromGraphQLWorkspace(results.data.createWorkspace.workspace as GQLWorkspace),
         );

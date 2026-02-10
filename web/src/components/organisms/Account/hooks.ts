@@ -37,10 +37,10 @@ export default () => {
       if (!name || !email) return;
       const user = await updateMeMutation({ variables: { name, email } });
       if (user.error) {
-        Notification.error({ message: t("Failed to update user.") });
+        Notification.error({ title: t("Failed to update user.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated user!") });
+      Notification.success({ title: t("Successfully updated user!") });
     },
     [updateMeMutation, t],
   );
@@ -50,10 +50,10 @@ export default () => {
       if (!lang) return;
       const res = await updateMeMutation({ variables: { lang } });
       if (res.error) {
-        Notification.error({ message: t("Failed to update language.") });
+        Notification.error({ title: t("Failed to update language.") });
         return;
       } else {
-        Notification.success({ message: t("Successfully updated language!", { lng: lang }) });
+        Notification.success({ title: t("Successfully updated language!", { lng: lang }) });
       }
     },
     [updateMeMutation, t],
@@ -63,9 +63,9 @@ export default () => {
     if (!me) return;
     const user = await deleteMeMutation({ variables: { userId: me.id } });
     if (user.error) {
-      Notification.error({ message: t("Failed to delete user.") });
+      Notification.error({ title: t("Failed to delete user.") });
     } else {
-      Notification.success({ message: t("Successfully deleted user!") });
+      Notification.success({ title: t("Successfully deleted user!") });
       logout();
     }
   }, [me, deleteMeMutation, logout, t]);

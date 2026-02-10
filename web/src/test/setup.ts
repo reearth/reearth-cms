@@ -17,6 +17,14 @@ expect.extend(domMatchers);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 expect.extend(emotionMatchers as any);
 
+if (!globalThis.ResizeObserver) {
+  globalThis.ResizeObserver = class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
+
 Object.defineProperty(window, "matchMedia", {
   value: () => ({
     matches: false,

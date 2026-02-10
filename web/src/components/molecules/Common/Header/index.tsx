@@ -1,8 +1,8 @@
 import styled from "@emotion/styled";
-import { MenuProps } from "antd";
 import { useMemo } from "react";
 
 import { useAuth } from "@reearth-cms/auth";
+import { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Header from "@reearth-cms/components/atoms/Header";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";

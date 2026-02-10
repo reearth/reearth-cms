@@ -82,7 +82,7 @@ const ViewsMenuMolecule: React.FC<Props> = ({
             </NewViewButton>
           }
           activeKey={currentView.id}
-          tabPosition="top"
+          tabPlacement="top"
           items={menuItems}
           popupClassName="hide-icon-button"
           onChange={onViewSelect}

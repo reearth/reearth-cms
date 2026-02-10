@@ -123,7 +123,7 @@ const LinkAssetModal: React.FC<Props> = ({
       {
         title: "",
         hideInSetting: true,
-        fixed: "left",
+        fixed: "start",
         align: "center",
         width: 48,
         minWidth: 48,

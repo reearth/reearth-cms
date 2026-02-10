@@ -209,7 +209,7 @@ const RequestListTable: React.FC<Props> = ({
     [page, pageSize, totalCount],
   );
 
-  const rowSelection: TableRowSelection = useMemo(
+  const rowSelection: TableRowSelection<Request> = useMemo(
     () => ({
       selectedRowKeys: selection.selectedRowKeys,
       onChange: onSelect,

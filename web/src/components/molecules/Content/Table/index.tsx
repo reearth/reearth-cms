@@ -271,7 +271,7 @@ const ContentTable: React.FC<Props> = ({
       : [...actionsColumns];
   }, [actionsColumns, contentTableColumns, systemMetaDataColumns]);
 
-  const rowSelection: TableRowSelection = useMemo(
+  const rowSelection: TableRowSelection<ContentTableField> = useMemo(
     () => ({
       selectedRowKeys: selectedItems.selectedRows.map(item => item.itemId),
       onChange: onSelect,

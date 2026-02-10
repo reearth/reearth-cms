@@ -1,7 +1,7 @@
-import type { CheckboxProps } from "antd";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
+import { CheckboxProps } from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
 import {
   keyAutoFill,

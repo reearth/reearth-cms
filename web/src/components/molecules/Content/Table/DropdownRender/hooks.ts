@@ -413,8 +413,8 @@ export default (
     filterValue.current = e.target.value;
   }, []);
 
-  const onDateChange: DatePickerProps<Dayjs | null>["onChange"] = useCallback(
-    (_date: Dayjs | null, dateString: string | string[]) => {
+  const onDateChange = useCallback(
+    (_date: Dayjs | Dayjs[] | null, dateString: string | string[] | null) => {
       if (typeof dateString === "string") filterValue.current = dateString;
     },
     [],

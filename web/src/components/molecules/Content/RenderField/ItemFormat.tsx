@@ -51,7 +51,7 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
         return;
       }
       if (value && !validateURL(value)) {
-        Notification.error({ message: t("Please input a valid URL") });
+        Notification.error({ title: t("Please input a valid URL") });
         return;
       }
       update?.(value, index);

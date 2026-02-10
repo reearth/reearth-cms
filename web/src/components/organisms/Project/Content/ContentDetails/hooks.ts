@@ -291,7 +291,7 @@ export default () => {
           },
         });
         if (metaItem.error || !metaItem.data?.createItem) {
-          Notification.error({ message: t("Failed to create item.") });
+          Notification.error({ title: t("Failed to create item.") });
           return;
         }
         metadataId = metaItem.data.createItem.item.id;
@@ -305,13 +305,13 @@ export default () => {
         },
       });
       if (item.error || !item.data?.createItem) {
-        Notification.error({ message: t("Failed to create item.") });
+        Notification.error({ title: t("Failed to create item.") });
         return;
       }
       navigate(
         `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${currentModel?.id}/details/${item.data.createItem.item.id}`,
       );
-      Notification.success({ message: t("Successfully created Item!") });
+      Notification.success({ title: t("Successfully created Item!") });
     },
     [currentModel?.id, createItem, navigate, currentWorkspace?.id, currentProject?.id, t],
   );
@@ -330,10 +330,10 @@ export default () => {
         },
       });
       if (item.error || !item.data?.updateItem) {
-        Notification.error({ message: t("Failed to update item.") });
+        Notification.error({ title: t("Failed to update item.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated Item!") });
+      Notification.success({ title: t("Successfully updated Item!") });
     },
     [updateItem, currentItem?.version, t],
   );
@@ -349,7 +349,7 @@ export default () => {
           },
         });
         if (item.error || !item.data?.updateItem) {
-          Notification.error({ message: t("Failed to update item.") });
+          Notification.error({ title: t("Failed to update item.") });
           return;
         }
       } else if (
@@ -366,7 +366,7 @@ export default () => {
           },
         });
         if (metaItem.error || !metaItem.data?.createItem) {
-          Notification.error({ message: t("Failed to update item.") });
+          Notification.error({ title: t("Failed to update item.") });
           return;
         }
         const item = await updateItem({
@@ -381,14 +381,14 @@ export default () => {
           },
         });
         if (item.error || !item.data?.updateItem) {
-          Notification.error({ message: t("Failed to update item.") });
+          Notification.error({ title: t("Failed to update item.") });
           return;
         }
       } else {
-        Notification.error({ message: t("Failed to update item.") });
+        Notification.error({ title: t("Failed to update item.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated Item!") });
+      Notification.success({ title: t("Successfully updated Item!") });
     },
     [createItem, currentItem, currentModel?.id, currentModel?.metadataSchema.id, t, updateItem],
   );
@@ -562,10 +562,10 @@ export default () => {
         },
       });
       if (request.error || !request.data?.createRequest) {
-        Notification.error({ message: t("Failed to create request.") });
+        Notification.error({ title: t("Failed to create request.") });
         return;
       }
-      Notification.success({ message: t("Successfully created request!") });
+      Notification.success({ title: t("Successfully created request!") });
       setRequestModalShown(false);
     },
     [createRequestMutation, currentProject?.id, t],
@@ -583,7 +583,7 @@ export default () => {
         }).retain();
         setReferenceModel(fromGraphQLModel(data?.node as GQLModel));
       } catch (error) {
-        Notification.error({ message: String(error) });
+        Notification.error({ title: String(error) });
       }
 
       titleId.current = titleFieldId;

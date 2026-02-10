@@ -63,7 +63,7 @@ export default () => {
         items.some(item2 => item1.id === item2.itemId),
       );
       if (hasDuplicatedItem) {
-        Notification.error({ message: t("One of the items already exists in the request.") });
+        Notification.error({ title: t("One of the items already exists in the request.") });
         return;
       }
       const item = await updateRequest({
@@ -80,11 +80,11 @@ export default () => {
         },
       });
       if (item.error || !item.data?.updateRequest) {
-        Notification.error({ message: t("Failed to update request.") });
+        Notification.error({ title: t("Failed to update request.") });
         return;
       }
 
-      Notification.success({ message: t("Successfully updated Request!") });
+      Notification.success({ title: t("Successfully updated Request!") });
     },
     [updateRequest, t],
   );
@@ -99,11 +99,11 @@ export default () => {
         },
       });
       if (item.error || !item.data?.publishItem) {
-        Notification.error({ message: t("Failed to publish items.") });
+        Notification.error({ title: t("Failed to publish items.") });
         return;
       }
 
-      Notification.success({ message: t("Successfully published items!") });
+      Notification.success({ title: t("Successfully published items!") });
     },
     [publishItem, t],
   );
@@ -118,11 +118,11 @@ export default () => {
         },
       });
       if (item.error || !item.data?.unpublishItem) {
-        Notification.error({ message: t("Failed to unpublish items.") });
+        Notification.error({ title: t("Failed to unpublish items.") });
         return;
       }
 
-      Notification.success({ message: t("Successfully unpublished items!") });
+      Notification.success({ title: t("Successfully unpublished items!") });
     },
     [unpublishItem, t],
   );

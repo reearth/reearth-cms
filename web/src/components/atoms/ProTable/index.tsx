@@ -1,15 +1,29 @@
-import type { ParamsType } from "@ant-design/pro-provider";
-import ProTable, { ListToolBarProps, ProTableProps, ColumnsState } from "@ant-design/pro-table";
-import { OptionConfig } from "@ant-design/pro-table/lib/components/ToolBar";
-import { ProColumns, TableRowSelection } from "@ant-design/pro-table/lib/typing";
-import { ConfigProvider, Empty, GetProp } from "antd";
+import {
+  ProTable,
+  ListToolBarProps,
+  ProTableProps,
+  ColumnsState,
+  ProColumns,
+} from "@ant-design/pro-components";
+import type { ParamsType } from "@ant-design/pro-components";
+import { ConfigProvider, Empty, GetProp, TableProps } from "antd";
+import { AnyObject } from "antd/es/_util/type";
 import enUSIntl from "antd/locale/en_US";
 import jaJPIntl from "antd/locale/ja_JP";
 
 import { useLang, useT } from "@reearth-cms/i18n";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Props = ProTableProps<Record<string, any> | any, ParamsType, "text">;
+type OptionConfig = {
+  reload?: (() => void) | boolean;
+  density?: boolean;
+  search?: boolean;
+  setting?: boolean;
+  fullScreen?: (() => void) | boolean;
+};
+
+type TableRowSelection<T extends AnyObject = AnyObject> = TableProps<T>["rowSelection"];
+
+export type Props = ProTableProps<Record<string, unknown>, ParamsType, "text">;
 
 const Table: React.FC<Props> = props => {
   const lang = useLang();

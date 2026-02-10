@@ -162,10 +162,10 @@ export default () => {
         refetchQueries: ["GetRequests"],
       });
       if (result.error) {
-        Notification.error({ message: t("Failed to delete one or more requests.") });
+        Notification.error({ title: t("Failed to delete one or more requests.") });
       }
       if (result) {
-        Notification.success({ message: t("One or more requests were successfully closed!") });
+        Notification.success({ title: t("One or more requests were successfully closed!") });
         setSelection({ selectedRowKeys: [] });
       }
     },

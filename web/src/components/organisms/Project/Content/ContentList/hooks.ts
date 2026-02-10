@@ -251,7 +251,7 @@ export default () => {
     ) => {
       const target = data?.searchItem.nodes.find(item => item?.id === updateItemId);
       if (!target || !currentModel?.metadataSchema?.id || !metaFieldsMap) {
-        Notification.error({ message: t("Failed to update item.") });
+        Notification.error({ title: t("Failed to update item.") });
         return;
       } else {
         const metadata = itemIdToMetadata.current.get(updateItemId) ?? target.metadata;
@@ -299,10 +299,10 @@ export default () => {
           });
           if (requiredErrorFields.length || maxLengthErrorFields.length) {
             requiredErrorFields.forEach(field => {
-              Notification.error({ message: t("{{field}} field is required!", { field }) });
+              Notification.error({ title: t("{{field}} field is required!", { field }) });
             });
             maxLengthErrorFields.forEach(field => {
-              Notification.error({ message: t("Maximum length error", { field }) });
+              Notification.error({ title: t("Maximum length error", { field }) });
             });
             return;
           }
@@ -314,7 +314,7 @@ export default () => {
             },
           });
           if (item.error || !item.data?.updateItem) {
-            Notification.error({ message: t("Failed to update item.") });
+            Notification.error({ title: t("Failed to update item.") });
             return;
           }
         } else {
@@ -331,7 +331,7 @@ export default () => {
             },
           });
           if (metaItem.error || !metaItem.data?.createItem) {
-            Notification.error({ message: t("Failed to update item.") });
+            Notification.error({ title: t("Failed to update item.") });
             return;
           }
           const item = await updateItemMutation({
@@ -346,13 +346,13 @@ export default () => {
             },
           });
           if (item.error || !item.data?.updateItem) {
-            Notification.error({ message: t("Failed to update item.") });
+            Notification.error({ title: t("Failed to update item.") });
             return;
           }
         }
       }
       await metadataVersionSet(updateItemId);
-      Notification.success({ message: t("Successfully updated Item!") });
+      Notification.success({ title: t("Successfully updated Item!") });
     },
     [
       createNewItem,
@@ -587,10 +587,10 @@ export default () => {
           refetchQueries: ["SearchItem"],
         });
         if (result.error || !result.data?.deleteItems) {
-          Notification.error({ message: t("Failed to delete one or more items.") });
+          Notification.error({ title: t("Failed to delete one or more items.") });
           return;
         }
-        Notification.success({ message: t("One or more items were successfully deleted!") });
+        Notification.success({ title: t("One or more items were successfully deleted!") });
         setSelectedItems({ selectedRows: [] });
       })(),
     [t, deleteItemsMutation],

@@ -66,12 +66,12 @@ export default ({ currentView, onViewChange }: Params) => {
         },
       });
       if (view.error || !view.data?.createView) {
-        Notification.error({ message: t("Failed to create view.") });
+        Notification.error({ title: t("Failed to create view.") });
         return;
       }
       setViewModalShown(false);
       onViewChange();
-      Notification.success({ message: t("Successfully created view!") });
+      Notification.success({ title: t("Successfully created view!") });
     },
     [
       createNewView,
@@ -101,10 +101,10 @@ export default ({ currentView, onViewChange }: Params) => {
         },
       });
       if (view.error || !view.data?.updateView) {
-        Notification.error({ message: t("Failed to update view.") });
+        Notification.error({ title: t("Failed to update view.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated view!") });
+      Notification.success({ title: t("Successfully updated view!") });
       handleViewModalReset();
     },
     [updateNewView, currentView, t, handleViewModalReset],
@@ -122,10 +122,10 @@ export default ({ currentView, onViewChange }: Params) => {
         },
       });
       if (view.error || !view.data?.updateView) {
-        Notification.error({ message: t("Failed to rename view.") });
+        Notification.error({ title: t("Failed to rename view.") });
         return;
       }
-      Notification.success({ message: t("Successfully renamed view!") });
+      Notification.success({ title: t("Successfully renamed view!") });
       handleViewModalReset();
     },
     [handleViewModalReset, t, updateNewView, currentView],
@@ -139,9 +139,9 @@ export default ({ currentView, onViewChange }: Params) => {
     async (viewId: string) => {
       const res = await deleteView({ variables: { viewId } });
       if (res.error || !res.data?.deleteView) {
-        Notification.error({ message: t("Failed to delete view.") });
+        Notification.error({ title: t("Failed to delete view.") });
       } else {
-        Notification.success({ message: t("Successfully deleted view!") });
+        Notification.success({ title: t("Successfully deleted view!") });
         onViewChange();
       }
     },
@@ -160,10 +160,10 @@ export default ({ currentView, onViewChange }: Params) => {
         },
       });
       if (view.error) {
-        Notification.error({ message: t("Failed to update views order.") });
+        Notification.error({ title: t("Failed to update views order.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated views order!") });
+      Notification.success({ title: t("Successfully updated views order!") });
     },
     [updateViewsOrder, t],
   );

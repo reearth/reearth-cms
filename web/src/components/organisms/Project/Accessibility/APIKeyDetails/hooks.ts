@@ -107,10 +107,10 @@ export default () => {
         },
       });
       if (result.error || !result.data?.createAPIKey) {
-        Notification.error({ message: t("Failed to create API Key.") });
+        Notification.error({ title: t("Failed to create API Key.") });
         return;
       }
-      Notification.success({ message: t("API Key created successfully.") });
+      Notification.success({ title: t("API Key created successfully.") });
       navigate(
         `/workspace/${workspaceId}/project/${projectId}/accessibility/${result.data?.createAPIKey?.apiKey.id}`,
       );
@@ -136,10 +136,10 @@ export default () => {
         },
       });
       if (result.error || !result.data?.updateAPIKey) {
-        Notification.error({ message: t("Failed to update API Key.") });
+        Notification.error({ title: t("Failed to update API Key.") });
         return;
       }
-      Notification.success({ message: t("API Key updated successfully.") });
+      Notification.success({ title: t("API Key updated successfully.") });
     },
     [updateAPIKeyMutation, currentProject?.id, t],
   );
@@ -154,10 +154,10 @@ export default () => {
         },
       });
       if (result.error || !result.data?.regenerateAPIKey) {
-        Notification.error({ message: t("Failed to re-generate API Key.") });
+        Notification.error({ title: t("Failed to re-generate API Key.") });
         return;
       }
-      Notification.success({ message: t("API Key re-generated successfully.") });
+      Notification.success({ title: t("API Key re-generated successfully.") });
     },
     [currentProject?.id, regenerateAPIKeyMutation, t],
   );

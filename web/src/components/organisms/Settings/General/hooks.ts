@@ -71,9 +71,9 @@ export default () => {
       });
 
       if (res.error) {
-        Notification.error({ message: t("Failed to update workspace.") });
+        Notification.error({ title: t("Failed to update workspace.") });
       } else {
-        Notification.success({ message: t("Successfully updated workspace!") });
+        Notification.success({ title: t("Successfully updated workspace!") });
       }
       refetch();
     },

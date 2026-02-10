@@ -36,10 +36,10 @@ export default () => {
         },
       });
       if (integration.error || !integration.data?.createIntegration) {
-        Notification.error({ message: t("Failed to create integration.") });
+        Notification.error({ title: t("Failed to create integration.") });
         throw new Error();
       }
-      Notification.success({ message: t("Successfully created integration!") });
+      Notification.success({ title: t("Successfully created integration!") });
     },
     [createNewIntegration, t],
   );

@@ -206,10 +206,10 @@ export default () => {
       };
       const results = await deleteFieldMutation(options);
       if (results.error) {
-        Notification.error({ message: t("Failed to delete field.") });
+        Notification.error({ title: t("Failed to delete field.") });
         return;
       }
-      Notification.success({ message: t("Successfully deleted field!") });
+      Notification.success({ title: t("Successfully deleted field!") });
     },
     [schemaId, isMeta, selectedSchemaType, deleteFieldMutation, t],
   );
@@ -235,10 +235,10 @@ export default () => {
       }
 
       if (errors.length > 0) {
-        Notification.error({ message: "Failed to delete all fields." });
+        Notification.error({ title: "Failed to delete all fields." });
         return;
       }
-      Notification.success({ message: "Successfully deleted all fields!" });
+      Notification.success({ title: "Successfully deleted all fields!" });
     },
     [schemaId, isMeta, selectedSchemaType, deleteFieldMutation],
   );
@@ -264,10 +264,10 @@ export default () => {
       };
       const field = await updateField(options);
       if (field.error || !field.data?.updateField) {
-        Notification.error({ message: t("Failed to update field.") });
+        Notification.error({ title: t("Failed to update field.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated field!") });
+      Notification.success({ title: t("Successfully updated field!") });
       setFieldModalShown(false);
     },
     [schemaId, selectedSchemaType, updateField, t],
@@ -292,10 +292,10 @@ export default () => {
         },
       });
       if (response.error || !response?.data?.updateFields) {
-        Notification.error({ message: t("Failed to update field.") });
+        Notification.error({ title: t("Failed to update field.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated field!") });
+      Notification.success({ title: t("Successfully updated field!") });
       setFieldModalShown(false);
     },
     [schemaId, updateFieldsOrder, t, selectedSchemaType],
@@ -322,11 +322,11 @@ export default () => {
       };
       const field = await createNewField(options);
       if (field.error || !field.data?.createField) {
-        Notification.error({ message: t("Failed to create field.") });
+        Notification.error({ title: t("Failed to create field.") });
         setFieldModalShown(false);
         return;
       }
-      Notification.success({ message: t("Successfully created field!") });
+      Notification.success({ title: t("Successfully created field!") });
       setFieldModalShown(false);
     },
     [schemaId, selectedSchemaType, createNewField, t],
@@ -393,9 +393,9 @@ export default () => {
 
       const res = await deleteGroup({ variables: { groupId } });
       if (res.error || !res.data?.deleteGroup) {
-        Notification.error({ message: t("Failed to delete group.") });
+        Notification.error({ title: t("Failed to delete group.") });
       } else {
-        Notification.success({ message: t("Successfully deleted group!") });
+        Notification.success({ title: t("Successfully deleted group!") });
         handleGroupDeletionModalClose();
         navigate(`/workspace/${workspaceId}/project/${projectId}/schema`);
       }
@@ -429,10 +429,10 @@ export default () => {
         },
       });
       if (group.error || !group.data?.createGroup) {
-        Notification.error({ message: t("Failed to create group.") });
+        Notification.error({ title: t("Failed to create group.") });
         return;
       }
-      Notification.success({ message: t("Successfully created group!") });
+      Notification.success({ title: t("Successfully created group!") });
       handleGroupModalClose();
       navigate(
         `/workspace/${workspaceId}/project/${projectId}/schema/${group.data?.createGroup.group.id}`,
@@ -457,10 +457,10 @@ export default () => {
         },
       });
       if (group.error || !group.data?.updateGroup) {
-        Notification.error({ message: t("Failed to update group.") });
+        Notification.error({ title: t("Failed to update group.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated group!") });
+      Notification.success({ title: t("Successfully updated group!") });
       handleGroupModalClose();
     },
     [updateNewGroup, handleGroupModalClose, t],
@@ -512,9 +512,9 @@ export default () => {
       if (!modelId) return;
       const res = await deleteModel({ variables: { modelId } });
       if (res.error || !res.data?.deleteModel) {
-        Notification.error({ message: t("Failed to delete model.") });
+        Notification.error({ title: t("Failed to delete model.") });
       } else {
-        Notification.success({ message: t("Successfully deleted model!") });
+        Notification.success({ title: t("Successfully deleted model!") });
         handleModelDeletionModalClose();
         setCurrentModel(undefined);
         navigate(`/workspace/${workspaceId}/project/${projectId}/schema`);
@@ -550,10 +550,10 @@ export default () => {
         },
       });
       if (model.error || !model.data?.updateModel) {
-        Notification.error({ message: t("Failed to update model.") });
+        Notification.error({ title: t("Failed to update model.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated model!") });
+      Notification.success({ title: t("Successfully updated model!") });
       handleModelModalClose();
     },
     [updateNewModel, handleModelModalClose, t],
@@ -638,11 +638,11 @@ export default () => {
       });
 
       if (response.error || !response.data?.createFields) {
-        Notification.error({ message: t("Failed to create fields.") });
+        Notification.error({ title: t("Failed to create fields.") });
         return;
       }
 
-      Notification.success({ message: t("Successfully created fields!") });
+      Notification.success({ title: t("Successfully created fields!") });
     },
     [schemaId, createNewFields, t],
   );

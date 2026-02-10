@@ -1,8 +1,8 @@
 import styled from "@emotion/styled";
-import type { CheckboxProps } from "antd";
 import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
+import { CheckboxProps } from "@reearth-cms/components/atoms/Checkbox";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
 

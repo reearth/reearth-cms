@@ -325,7 +325,7 @@ const ContentForm: React.FC<Props> = ({
       });
 
       Notification.info({
-        message: t("This item has unsaved data"),
+        title: t("This item has unsaved data"),
         description: t("Are you going to leave?"),
         btn,
         key,
@@ -441,7 +441,7 @@ const ContentForm: React.FC<Props> = ({
     };
 
     Notification.info({
-      message: t("Are you sure you want to restore this version's content?"),
+      title: t("Are you sure you want to restore this version's content?"),
       description: t(
         "After saving, a new version will be created while keeping the current version unchanged.",
       ),

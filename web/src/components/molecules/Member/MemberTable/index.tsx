@@ -156,7 +156,7 @@ const MemberTable: React.FC<Props> = ({
               disabled={!hasChangeRoleRight || member.userId === userId}>
               {t("Change Role?")}
             </ActionButton>
-            <Divider type="vertical" />
+            <Divider orientation="vertical" />
             {member.userId === userId ? (
               <ActionButton
                 type="link"
@@ -217,13 +217,13 @@ const MemberTable: React.FC<Props> = ({
     [page, pageSize],
   );
 
-  const rowSelection: TableRowSelection = useMemo(
+  const rowSelection: TableRowSelection<User> = useMemo(
     () => ({
       selectedRowKeys: selection,
       onChange: (selectedRowKeys: Key[]) => {
         setSelection(selectedRowKeys);
       },
-      getCheckboxProps: record => ({
+      getCheckboxProps: (record: { id: string }) => ({
         disabled: record.id === userId,
       }),
     }),

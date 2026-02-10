@@ -1,8 +1,7 @@
 import styled from "@emotion/styled";
-import type { CheckboxProps } from "antd";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Checkbox from "@reearth-cms/components/atoms/Checkbox";
+import Checkbox, { type CheckboxProps } from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";

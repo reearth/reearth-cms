@@ -103,10 +103,10 @@ export default (workspaceId?: string) => {
         },
       });
       if (integrationResponse.error || !integrationResponse.data?.addIntegrationToWorkspace) {
-        Notification.error({ message: t("Failed to connect integration.") });
+        Notification.error({ title: t("Failed to connect integration.") });
         throw new Error();
       }
-      Notification.success({ message: t("Successfully connected integration to the workspace!") });
+      Notification.success({ title: t("Successfully connected integration to the workspace!") });
       refetch();
     },
     [addIntegrationToWorkspaceMutation, workspaceId, refetch, t],
@@ -127,11 +127,11 @@ export default (workspaceId?: string) => {
         },
       });
       if (integration.error || !integration.data?.updateIntegrationOfWorkspace) {
-        Notification.error({ message: t("Failed to update workspace integration.") });
+        Notification.error({ title: t("Failed to update workspace integration.") });
         throw new Error();
       }
 
-      Notification.success({ message: t("Successfully updated workspace integration!") });
+      Notification.success({ title: t("Successfully updated workspace integration!") });
       refetch();
     },
     [updateIntegrationToWorkspaceMutation, selectedIntegration, workspaceId, refetch, t],
@@ -157,10 +157,10 @@ export default (workspaceId?: string) => {
           }),
         );
         Notification.success({
-          message: t("One or more integrations were successfully deleted!"),
+          title: t("One or more integrations were successfully deleted!"),
         });
       } catch (e) {
-        Notification.error({ message: t("Failed to delete one or more integrations.") });
+        Notification.error({ title: t("Failed to delete one or more integrations.") });
         throw e;
       }
     },

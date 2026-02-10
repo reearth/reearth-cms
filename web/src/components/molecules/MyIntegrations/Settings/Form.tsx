@@ -154,7 +154,7 @@ const MyIntegrationForm: React.FC<Props> = ({
           </Form.Item>
         </Col>
         <Col>
-          <StyledDivider type="vertical" />
+          <StyledDivider orientation="vertical" />
         </Col>
         <Col span={11}>
           <CodeExampleTitle>{t("Code Example")}</CodeExampleTitle>

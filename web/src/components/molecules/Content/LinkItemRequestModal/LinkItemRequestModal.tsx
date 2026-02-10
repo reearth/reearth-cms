@@ -60,7 +60,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
       {
         title: "",
         hideInSetting: true,
-        fixed: "left",
+        fixed: "start",
         align: "center",
         width: 32,
         minWidth: 32,

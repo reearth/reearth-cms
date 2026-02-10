@@ -69,10 +69,10 @@ export default () => {
         },
       });
       if (Project.error || !Project.data?.updateProject) {
-        Notification.error({ message: t("Failed to update Project.") });
+        Notification.error({ title: t("Failed to update Project.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated Project!") });
+      Notification.success({ title: t("Successfully updated Project!") });
     },
     [updateProjectMutation, t],
   );
@@ -126,9 +126,9 @@ export default () => {
       if (!modelId) return;
       const res = await deleteModel({ variables: { modelId } });
       if (res.error || !res.data?.deleteModel) {
-        Notification.error({ message: t("Failed to delete model.") });
+        Notification.error({ title: t("Failed to delete model.") });
       } else {
-        Notification.success({ message: t("Successfully deleted model!") });
+        Notification.success({ title: t("Successfully deleted model!") });
         handleModelDeletionModalClose();
       }
     },
@@ -151,10 +151,10 @@ export default () => {
         },
       });
       if (model.error || !model.data?.updateModel) {
-        Notification.error({ message: t("Failed to update model.") });
+        Notification.error({ title: t("Failed to update model.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated model!") });
+      Notification.success({ title: t("Successfully updated model!") });
       handleModelModalClose();
     },
     [updateNewModel, handleModelModalClose, t],
@@ -191,14 +191,14 @@ export default () => {
         const blob = await response.blob();
         fileDownload(blob, filename);
         Notification.success({
-          message: t("Download successful"),
+          title: t("Download successful"),
           description: filename,
         });
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Unknown error";
         console.error("Download error:", errorMessage);
         Notification.error({
-          message: t("Download failed"),
+          title: t("Download failed"),
           description: errorMessage,
         });
       }
@@ -237,7 +237,7 @@ export default () => {
         const errorMessage = err instanceof Error ? err.message : "Unknown error";
         console.error("Export error:", errorMessage);
         Notification.error({
-          message: t("Export failed"),
+          title: t("Export failed"),
           description: errorMessage,
         });
       }

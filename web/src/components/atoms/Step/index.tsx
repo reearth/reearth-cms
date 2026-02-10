@@ -1,3 +1,4 @@
-import { Steps } from "antd";
+import { Steps, type StepsProps } from "antd";
 
 export default Steps;
+export { StepsProps };

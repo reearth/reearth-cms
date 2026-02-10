@@ -1,6 +1,6 @@
-import type { MenuProps } from "antd";
 import { useCallback, useEffect, useState } from "react";
 
+import { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { useT } from "@reearth-cms/i18n";

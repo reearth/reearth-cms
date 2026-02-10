@@ -248,7 +248,7 @@ const AssetListTable: React.FC<Props> = ({
     [page, pageSize, totalCount],
   );
 
-  const rowSelection: TableRowSelection = useMemo(
+  const rowSelection = useMemo<TableRowSelection<Asset>>(
     () => ({
       selectedRowKeys: selection.selectedRowKeys,
       onChange: onSelect,
@@ -256,7 +256,7 @@ const AssetListTable: React.FC<Props> = ({
     [onSelect, selection.selectedRowKeys],
   );
 
-  const toolbar: ListToolBarProps = useMemo(
+  const toolbar = useMemo<ListToolBarProps>(
     () => ({
       search: (
         <Search
