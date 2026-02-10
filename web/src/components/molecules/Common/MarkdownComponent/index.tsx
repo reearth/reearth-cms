@@ -54,21 +54,31 @@ const MarkdownComponent: React.FC<Props> = ({
     <StyledTabs
       activeKey={activeTab}
       tabBarExtraContent={tabBarExtraContent}
-      onChange={setActiveTab}>
-      <Tabs.TabPane tab="Edit" key="edit">
-        <TextArea
-          rows={30}
-          value={value}
-          onChange={onMarkdownChange}
-          style={{ fontFamily: "monospace" }}
-        />
-      </Tabs.TabPane>
-      <Tabs.TabPane tab="Preview" key="preview">
-        <StyledContainer>
-          <ReactMarkdown>{value}</ReactMarkdown>
-        </StyledContainer>
-      </Tabs.TabPane>
-    </StyledTabs>
+      onChange={setActiveTab}
+      items={[
+        {
+          label: "Edit",
+          key: "edit",
+          children: (
+            <TextArea
+              rows={30}
+              value={value}
+              onChange={onMarkdownChange}
+              style={{ fontFamily: "monospace" }}
+            />
+          ),
+        },
+        {
+          label: "Preview",
+          key: "preview",
+          children: (
+            <StyledContainer>
+              <ReactMarkdown>{value}</ReactMarkdown>
+            </StyledContainer>
+          ),
+        },
+      ]}
+    />
   );
 };
 
