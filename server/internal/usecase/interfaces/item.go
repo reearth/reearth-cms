@@ -20,7 +20,7 @@ import (
 
 const (
 	MaxImportFileSize    = 10 * 1024 * 1024 // 10 MB
-	MaxImportRecordCount = 500_000
+	MaxImportRecordCount = 50_000
 )
 
 var (
