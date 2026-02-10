@@ -36,7 +36,7 @@ const WorkspaceMenu: React.FC<Props> = ({
     { label: t("Home"), key: "home", icon: <Icon icon="home" />, show: "both" },
   ];
 
-  const items: WorkspaceItemType[] = useMemo(() => {
+  const items = useMemo<WorkspaceItemType[]>(() => {
     const res = [
       {
         label: t("Member"),

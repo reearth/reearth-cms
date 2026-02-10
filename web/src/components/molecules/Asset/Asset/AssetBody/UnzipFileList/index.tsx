@@ -42,7 +42,7 @@ const UnzipFileList: React.FC<Props> = ({
     [assetBaseUrl, setAssetUrl],
   );
 
-  const handleSelect: TreeProps<FileNode>["onSelect"] = useCallback(
+  const handleSelect = useCallback<NonNullable<TreeProps<FileNode>["onSelect"]>>(
     (keys: Key[], { node: { path } }: { node: FileNode }) => {
       if (!keys[0] || keys[0] === selectedKeys[0]) return;
       previewFile(path);

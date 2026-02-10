@@ -419,7 +419,7 @@ export default () => {
     return result;
   }, []);
 
-  const contentTableFields: ContentTableField[] | undefined = useMemo(() => {
+  const contentTableFields = useMemo<ContentTableField[] | undefined>(() => {
     return data?.searchItem.nodes
       ?.map(item =>
         item
@@ -465,7 +465,7 @@ export default () => {
     [userId, userRights?.content.update],
   );
 
-  const contentTableColumns: ExtendedColumns[] | undefined = useMemo(() => {
+  const contentTableColumns = useMemo<ExtendedColumns[] | undefined>(() => {
     if (!currentModel) return;
     const fieldsColumns = currentModel?.schema?.fields?.map(field => ({
       title: field.title,

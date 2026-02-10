@@ -79,7 +79,7 @@ const RequestListTable: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const columns: StretchColumn<Request>[] = useMemo(
+  const columns = useMemo<StretchColumn<Request>[]>(
     () => [
       {
         title: "",
@@ -190,7 +190,7 @@ const RequestListTable: React.FC<Props> = ({
     [createdByMe, onEdit, onRequestSelect, requestState, reviewedByMe, selectedRequest?.id, t],
   );
 
-  const options: OptionConfig = useMemo(
+  const options = useMemo<OptionConfig>(
     () => ({
       search: true,
       fullScreen: true,
@@ -209,7 +209,7 @@ const RequestListTable: React.FC<Props> = ({
     [page, pageSize, totalCount],
   );
 
-  const rowSelection: TableRowSelection<Request> = useMemo(
+  const rowSelection = useMemo<TableRowSelection<Request>>(
     () => ({
       selectedRowKeys: selection.selectedRowKeys,
       onChange: onSelect,
@@ -217,7 +217,7 @@ const RequestListTable: React.FC<Props> = ({
     [onSelect, selection.selectedRowKeys],
   );
 
-  const handleToolbarEvents: ListToolBarProps = useMemo(
+  const handleToolbarEvents = useMemo<ListToolBarProps>(
     () => ({
       search: (
         <Search

@@ -29,7 +29,7 @@ export default () => {
     variables: { workspaceId: workspaceId ?? "" },
   });
 
-  const defaultSettings: WorkspaceSettings = useMemo(
+  const defaultSettings = useMemo<WorkspaceSettings>(
     () => ({
       tiles: {
         resources: [],
@@ -42,7 +42,7 @@ export default () => {
     [],
   );
 
-  const workspaceSettings: WorkspaceSettings = useMemo(() => {
+  const workspaceSettings = useMemo<WorkspaceSettings>(() => {
     return data?.node
       ? fromGraphQLWorkspaceSettings(data.node as GQLWorkspaceSettings)
       : defaultSettings;

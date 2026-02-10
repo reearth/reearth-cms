@@ -72,7 +72,7 @@ export default (assetId?: string) => {
     fetchPolicy: "cache-and-network",
   });
 
-  const convertedAsset: Asset | undefined = useMemo(() => {
+  const convertedAsset = useMemo<Asset | undefined>(() => {
     return rawAsset?.node?.__typename === "Asset"
       ? fromGraphQLAsset(rawAsset.node as GQLAsset)
       : undefined;

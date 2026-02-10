@@ -51,12 +51,12 @@ const Settings: React.FC<Props> = ({
     setIsDisabled(JSON.stringify(workspaceSettings) === JSON.stringify(settings));
   }, [workspaceSettings, settings]);
 
-  const tiles: TileInput[] = useMemo(() => {
+  const tiles = useMemo<TileInput[]>(() => {
     if (!settings?.tiles?.resources) return [];
     return settings?.tiles?.resources?.map(resource => ({ tile: resource }));
   }, [settings]);
 
-  const terrains: TerrainInput[] = useMemo(() => {
+  const terrains = useMemo<TerrainInput[]>(() => {
     if (!settings?.terrains?.resources) return [];
     return settings?.terrains?.resources?.map(resource => ({ terrain: resource }));
   }, [settings]);

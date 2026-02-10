@@ -37,7 +37,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({
     return currentRequest?.reviewers.map(reviewer => reviewer.id);
   }, [currentRequest?.reviewers]);
 
-  const reviewers: { label: string; value: string }[] = useMemo(() => {
+  const reviewers = useMemo<{ label: string; value: string }[]>(() => {
     return workspaceUserMembers.map(member => ({
       label: member.user.name,
       value: member.userId,
@@ -52,7 +52,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({
     toggleViewReviewers(false);
   }, []);
 
-  const handleSubmit: FocusEventHandler<HTMLElement> | undefined = useCallback(async () => {
+  const handleSubmit = useCallback<NonNullable<FocusEventHandler<HTMLElement>>>(async () => {
     const requestId = currentRequest?.id;
     const isEqual =
       JSON.stringify([...defaultValue].sort()) === JSON.stringify([...selectedReviewers].sort());

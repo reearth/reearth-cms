@@ -29,7 +29,7 @@ const FieldList: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const common: FieldListItem[] = useMemo(
+  const common = useMemo<FieldListItem[]>(
     () => [
       {
         title: t("Text"),
@@ -63,7 +63,7 @@ const FieldList: React.FC<Props> = ({
     [t],
   );
 
-  const geometry: FieldListItem = useMemo(
+  const geometry = useMemo<FieldListItem>(
     () => ({
       title: t("GeoJSON Geometry"),
       fields: ["GeometryObject", "GeometryEditor"],
@@ -71,9 +71,9 @@ const FieldList: React.FC<Props> = ({
     [t],
   );
 
-  const group: FieldListItem[] = useMemo(() => [...common, geometry], [common, geometry]);
+  const group = useMemo<FieldListItem[]>(() => [...common, geometry], [common, geometry]);
 
-  const data: FieldListItem[] = useMemo(
+  const data = useMemo<FieldListItem[]>(
     () => [
       ...common,
       {
@@ -89,7 +89,7 @@ const FieldList: React.FC<Props> = ({
     [common, geometry, t],
   );
 
-  const meta: FieldListItem[] = useMemo(
+  const meta = useMemo<FieldListItem[]>(
     () => [
       {
         title: t("Meta Data"),

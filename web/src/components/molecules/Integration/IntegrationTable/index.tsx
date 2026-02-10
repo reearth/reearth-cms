@@ -52,7 +52,7 @@ const IntegrationTable: React.FC<Props> = ({
 
   const [selection, setSelection] = useState<Key[]>([]);
 
-  const columns: StretchColumn<WorkspaceIntegration>[] = useMemo(
+  const columns = useMemo<StretchColumn<WorkspaceIntegration>[]>(
     () => [
       {
         title: t("Name"),
@@ -95,7 +95,7 @@ const IntegrationTable: React.FC<Props> = ({
     [hasUpdateRight, onIntegrationSettingsModalOpen, t],
   );
 
-  const toolbar: ListToolBarProps = useMemo(
+  const toolbar = useMemo<ListToolBarProps>(
     () => ({
       search: (
         <Search
@@ -119,7 +119,7 @@ const IntegrationTable: React.FC<Props> = ({
     [page, pageSize],
   );
 
-  const rowSelection: TableRowSelection = useMemo(
+  const rowSelection = useMemo<TableRowSelection>(
     () => ({
       selectedRowKeys: selection,
       onChange: (selectedRowKeys: Key[]) => {

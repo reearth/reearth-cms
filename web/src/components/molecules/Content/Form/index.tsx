@@ -587,7 +587,7 @@ const ContentForm: React.FC<Props> = ({
     [item?.status],
   );
 
-  const items: MenuProps["items"] = useMemo(() => {
+  const items = useMemo<MenuProps["items"]>(() => {
     const menuItems = [
       {
         key: "addToRequest",

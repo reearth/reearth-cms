@@ -89,7 +89,7 @@ const AssetListTable: React.FC<Props> = ({
     [sort?.direction, sort?.type],
   );
 
-  const columns: StretchColumn<Asset>[] = useMemo(
+  const columns = useMemo<StretchColumn<Asset>[]>(
     () => [
       {
         title: "",
@@ -229,7 +229,7 @@ const AssetListTable: React.FC<Props> = ({
     [onAssetItemSelect, onAssetSelect, onEdit, selectedAsset?.id, sortOrderGet, t],
   );
 
-  const options: OptionConfig = useMemo(
+  const options = useMemo<OptionConfig>(
     () => ({
       search: true,
       fullScreen: true,

@@ -72,7 +72,7 @@ const LinkItemModal: React.FC<Props> = ({
     visible,
   );
 
-  const options: OptionConfig = useMemo(
+  const options = useMemo<OptionConfig>(
     () => ({
       reload: onLinkItemTableReload,
     }),
@@ -117,7 +117,7 @@ const LinkItemModal: React.FC<Props> = ({
     [confirm, correspondingField, fieldId, handleChange, itemGroupId, onCheckItemReference, t],
   );
 
-  const columns: StretchColumn<FormItem>[] = useMemo(
+  const columns = useMemo<StretchColumn<FormItem>[]>(
     () => [
       {
         title: "",
@@ -174,7 +174,7 @@ const LinkItemModal: React.FC<Props> = ({
     [t, linkedItem, handleClick],
   );
 
-  const toolbar: ListToolBarProps = useMemo(
+  const toolbar = useMemo<ListToolBarProps>(
     () => ({
       search: (
         <Search

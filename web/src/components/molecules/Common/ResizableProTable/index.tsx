@@ -53,7 +53,7 @@ const ResizableProTable: React.FC<Props> = ({
     [resizableColumns],
   );
 
-  const mergeColumns: ProColumns<any, "text">[] = useMemo(
+  const mergeColumns = useMemo<ProColumns<any, "text">[]>(
     () =>
       resizableColumns?.map((col, index): any => ({
         ...col,

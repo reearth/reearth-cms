@@ -98,7 +98,7 @@ export default () => {
     refetch();
   }, [refetch]);
 
-  const requests: Request[] = useMemo(() => {
+  const requests = useMemo<Request[]>(() => {
     if (!rawRequests?.requests.nodes) return [];
     const requests: Request[] = rawRequests?.requests.nodes
       .map(r => {

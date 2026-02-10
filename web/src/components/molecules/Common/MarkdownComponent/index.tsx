@@ -29,7 +29,7 @@ const MarkdownComponent: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const items: MenuProps["items"] = useMemo(() => {
+  const items = useMemo<MenuProps["items"]>(() => {
     return license_options.map(option => ({
       key: option.value,
       label: option.label,

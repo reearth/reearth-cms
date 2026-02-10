@@ -55,7 +55,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
       onChange,
     );
 
-  const columns: StretchColumn<Request>[] = useMemo(
+  const columns = useMemo<StretchColumn<Request>[]>(
     () => [
       {
         title: "",

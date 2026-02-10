@@ -125,7 +125,7 @@ export default () => {
 
   const group = useMemo(() => fromGraphQLGroup(groupData?.node as GQLGroup), [groupData?.node]);
 
-  const selectedSchemaType: SelectedSchemaType = useMemo(
+  const selectedSchemaType = useMemo<SelectedSchemaType>(
     () => (group ? "group" : "model"),
     [group],
   );

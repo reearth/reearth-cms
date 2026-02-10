@@ -47,7 +47,7 @@ export default () => {
     fetchPolicy: "cache-and-network",
   });
 
-  const requests: Request[] = useMemo(
+  const requests = useMemo<Request[]>(
     () =>
       data?.requests.nodes
         .filter(request => !!request)

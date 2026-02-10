@@ -56,7 +56,7 @@ const HeaderMolecule: React.FC<Props> = ({
   );
 
   const disableWorkspaceUi = parseConfigBoolean(window.REEARTH_CONFIG?.disableWorkspaceUi);
-  const WorkspacesItems: MenuProps["items"] = useMemo(() => {
+  const WorkspacesItems = useMemo<MenuProps["items"]>(() => {
     const res: MenuProps["items"] = [
       {
         label: t("Personal Account"),
@@ -123,7 +123,7 @@ const HeaderMolecule: React.FC<Props> = ({
     onWorkspaceModalOpen,
   ]);
 
-  const AccountItems: MenuProps["items"] = useMemo(
+  const AccountItems = useMemo<MenuProps["items"]>(
     () => [
       {
         label: t("Account Settings"),

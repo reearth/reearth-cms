@@ -147,7 +147,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
     changedKeys.current.clear();
   }, [modelForm, selectedField, field1Form, field2Form, setNumSteps, setSelectedModelId]);
 
-  const initialValues: FormValues = useMemo(
+  const initialValues = useMemo<FormValues>(
     () => ({
       title: "",
       description: "",

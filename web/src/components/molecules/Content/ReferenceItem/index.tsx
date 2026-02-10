@@ -28,7 +28,7 @@ const ReferenceItem: React.FC<Props> = ({
   workspaceId,
   disabled,
 }) => {
-  const itemStatus: StateType[] = useMemo(() => status?.split("_") as StateType[], [status]);
+  const itemStatus = useMemo<StateType[]>(() => status?.split("_") as StateType[], [status]);
 
   const linkTo = useMemo(
     () =>

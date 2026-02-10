@@ -27,7 +27,7 @@ const AccessAPITable: React.FC<Props> = ({
   const t = useT();
   const publicModelsSet = useMemo(() => new Set(publicModels), [publicModels]);
 
-  const columns: TableColumnsType<ModelDataType> = useMemo(() => {
+  const columns = useMemo<TableColumnsType<ModelDataType>>(() => {
     const cols: TableColumnsType<ModelDataType> = [];
     if (!isPublic) {
       cols.push({

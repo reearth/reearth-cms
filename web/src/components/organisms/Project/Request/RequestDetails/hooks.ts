@@ -57,7 +57,7 @@ export default () => {
     fetchPolicy: "cache-and-network",
   });
 
-  const me: User | undefined = useMemo(() => {
+  const me = useMemo<User | undefined>(() => {
     return userData?.me
       ? {
           id: userData.me.id,
@@ -70,7 +70,7 @@ export default () => {
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
-  const currentRequest: Request | undefined = useMemo(() => {
+  const currentRequest = useMemo<Request | undefined>(() => {
     if (!rawRequest?.node) return;
     return fromGraphQLRequest(rawRequest.node as GQLRequest);
   }, [rawRequest]);

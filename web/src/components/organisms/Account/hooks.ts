@@ -16,7 +16,7 @@ export default () => {
   const t = useT();
   const { logout } = useAuth();
 
-  const me: User | undefined = useMemo(() => {
+  const me = useMemo<User | undefined>(() => {
     return data?.me
       ? {
           id: data.me.id,

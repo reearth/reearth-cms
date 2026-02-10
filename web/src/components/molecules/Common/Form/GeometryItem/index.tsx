@@ -148,7 +148,7 @@ const GeometryItem: React.FC<Props> = ({
     [disabled, isEditor, t],
   );
 
-  const handleEditorWillMount: BeforeMount = useCallback(monaco => {
+  const handleEditorWillMount = useCallback<BeforeMount>(monaco => {
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
       schemaValidation: "error",
       schemas: [
@@ -161,7 +161,7 @@ const GeometryItem: React.FC<Props> = ({
     });
   }, []);
 
-  const handleEditorDidMount: OnMount = useCallback(editor => {
+  const handleEditorDidMount = useCallback<OnMount>(editor => {
     editorRef.current = editor;
   }, []);
 

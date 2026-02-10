@@ -193,7 +193,7 @@ const MemberTable: React.FC<Props> = ({
     ],
   );
 
-  const toolbar: ListToolBarProps = useMemo(
+  const toolbar = useMemo<ListToolBarProps>(
     () => ({
       search: (
         <Search
@@ -217,7 +217,7 @@ const MemberTable: React.FC<Props> = ({
     [page, pageSize],
   );
 
-  const rowSelection: TableRowSelection<User> = useMemo(
+  const rowSelection = useMemo<TableRowSelection<User>>(
     () => ({
       selectedRowKeys: selection,
       onChange: (selectedRowKeys: Key[]) => {

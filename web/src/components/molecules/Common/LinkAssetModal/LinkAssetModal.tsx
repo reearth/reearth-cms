@@ -78,7 +78,7 @@ const LinkAssetModal: React.FC<Props> = ({
   const t = useT();
   const resetFlag = useRef(false);
 
-  const options: OptionConfig = useMemo(
+  const options = useMemo<OptionConfig>(
     () => ({
       search: true,
       reload: onAssetsReload,
@@ -118,7 +118,7 @@ const LinkAssetModal: React.FC<Props> = ({
     [onChange, onLinkAssetModalCancel, onSelect],
   );
 
-  const columns: StretchColumn<Asset>[] = useMemo(
+  const columns = useMemo<StretchColumn<Asset>[]>(
     () => [
       {
         title: "",

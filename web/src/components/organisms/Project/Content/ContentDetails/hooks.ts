@@ -183,7 +183,7 @@ export default () => {
     setLinkItemModalPageSize(pageSize);
   }, []);
 
-  const linkedItemsModalList: FormItem[] | undefined = useMemo(() => {
+  const linkedItemsModalList = useMemo<FormItem[] | undefined>(() => {
     return itemsData?.searchItem.nodes
       ?.map(item =>
         item
@@ -201,7 +201,7 @@ export default () => {
       .filter((contentTableField): contentTableField is FormItem => !!contentTableField);
   }, [itemsData?.searchItem.nodes]);
 
-  const me: User | undefined = useMemo(() => {
+  const me = useMemo<User | undefined>(() => {
     return userData?.me
       ? {
           id: userData.me.id,
@@ -212,7 +212,7 @@ export default () => {
       : undefined;
   }, [userData]);
 
-  const currentItem: Item | undefined = useMemo(
+  const currentItem = useMemo<Item | undefined>(
     () => fromGraphQLItem(itemData?.node as GQLItem),
     [itemData?.node],
   );
@@ -491,7 +491,7 @@ export default () => {
     handleInitialValuesSet();
   }, [currentItem, initialValueGet, itemLoading]);
 
-  const initialMetaFormValues: Record<string, unknown> = useMemo(() => {
+  const initialMetaFormValues = useMemo<Record<string, unknown>>(() => {
     const initialValues: Record<string, unknown> = {};
     if (!currentItem && !itemLoading) {
       currentModel?.metadataSchema?.fields?.forEach(field => {

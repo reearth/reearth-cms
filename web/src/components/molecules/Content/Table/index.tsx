@@ -154,7 +154,7 @@ const ContentTable: React.FC<Props> = ({
     [currentView?.sort?.direction, currentView.sort?.field.type],
   );
 
-  const actionsColumns: ExtendedColumns[] = useMemo(
+  const actionsColumns = useMemo<ExtendedColumns[]>(
     () => [
       {
         title: "",
@@ -203,7 +203,7 @@ const ContentTable: React.FC<Props> = ({
     [t, onItemEdit, selectedItem?.id, onItemSelect],
   );
 
-  const systemMetaDataColumns: ExtendedColumns[] = useMemo(
+  const systemMetaDataColumns = useMemo<ExtendedColumns[]>(
     () => [
       {
         title: t("Created At"),
@@ -271,7 +271,7 @@ const ContentTable: React.FC<Props> = ({
       : [...actionsColumns];
   }, [actionsColumns, contentTableColumns, systemMetaDataColumns]);
 
-  const rowSelection: TableRowSelection<ContentTableField> = useMemo(
+  const rowSelection = useMemo<TableRowSelection<ContentTableField>>(
     () => ({
       selectedRowKeys: selectedItems.selectedRows.map(item => item.itemId),
       onChange: onSelect,
@@ -570,7 +570,7 @@ const ContentTable: React.FC<Props> = ({
     [handleChange, inputValue, items],
   );
 
-  const handleToolbarEvents: ListToolBarProps = useMemo(
+  const handleToolbarEvents = useMemo<ListToolBarProps>(
     () => ({
       search: (
         <StyledSearchContainer>
@@ -651,7 +651,7 @@ const ContentTable: React.FC<Props> = ({
     [onItemsReload],
   );
 
-  const toolBarItems: MenuProps["items"] = useMemo(
+  const toolBarItems = useMemo<MenuProps["items"]>(
     () => [
       {
         label: t("Add Filter"),
