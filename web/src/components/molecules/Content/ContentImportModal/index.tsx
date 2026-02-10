@@ -112,16 +112,10 @@ const ContentImportModal: React.FC<Props> = ({
         showIcon: true,
       },
     ]);
-  }, []);
+  }, [setAlertList, t]);
 
   const schemaValidationAlert = useCallback(
     (errorMeta: ValidationErrorMeta) => {
-      // const partialAlertProps: Pick<AlertProps, "type" | "closable" | "showIcon"> = {
-      //   type: "error",
-      //   closable: true,
-      //   showIcon: true,
-      // };
-
       setAlertList([]);
 
       if (errorMeta.exceedLimit) {
@@ -346,6 +340,7 @@ const ContentImportModal: React.FC<Props> = ({
       raiseIllegalFileFormatAlert,
       raiseSingleFileAlert,
       raiseIllegalFileAlert,
+      raiseTooLargeFileSizeAlert,
       handleStartLoading,
       workspaceId,
       projectId,
