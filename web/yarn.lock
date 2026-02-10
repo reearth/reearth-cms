@@ -90,7 +90,7 @@
     "@babel/runtime" "^7.23.2"
     "@rc-component/util" "^1.4.0"
 
-"@ant-design/cssinjs@^2.0.2", "@ant-design/cssinjs@^2.0.3", "@ant-design/cssinjs@^2.1.0":
+"@ant-design/cssinjs@2.1.0", "@ant-design/cssinjs@^2.0.2", "@ant-design/cssinjs@^2.0.3", "@ant-design/cssinjs@^2.1.0":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@ant-design/cssinjs/-/cssinjs-2.1.0.tgz#081394937f86aefe55e35198019d0483f405a484"
   integrity sha512-eZFrPCnrYrF3XtL7qA4L75P0qA3TtZta8H3Yggy7UYFh8gZgu5bSMNF+v4UVCzGxzYmx8ZvPdgOce0BJ6PsW9g==
@@ -128,7 +128,7 @@
     "@rc-component/util" "^1.3.0"
     clsx "^2.1.1"
 
-"@ant-design/pro-components@^3.1.3-1":
+"@ant-design/pro-components@3.1.3-1":
   version "3.1.3-1"
   resolved "https://registry.yarnpkg.com/@ant-design/pro-components/-/pro-components-3.1.3-1.tgz#7a3cb76feb7cb31127d28f49dfde8da687418025"
   integrity sha512-ggwq6519J/RdLfe5xkA0IBuxhcvub21dMTSo1FOj2mazxpwFhxf7a3bTzOmdnhzuqCitx82HgkW40OcXV269MQ==
@@ -8903,7 +8903,7 @@ ansi-styles@^6.2.1:
   resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-6.2.3.tgz#c044d5dcc521a076413472597a1acb1f103c4041"
   integrity sha512-4Dj6M28JB+oAH8kFkTLUo+a2jwOFkuqb3yucU0CANcRRUbxS0cP0nZYCGjcc3BNXwRIsUVmDGgzawme7zvJHvg==
 
-antd@^6.2.3:
+antd@6.2.3:
   version "6.2.3"
   resolved "https://registry.yarnpkg.com/antd/-/antd-6.2.3.tgz#b4e7a73d2300f5c23eff5570b84be56ebe9a1d23"
   integrity sha512-q92r7/hcQAR2iv6CCysdz7c2Pdl/3nhslc3azF9e6AEl4knO6v+nlaeor1oF2jBanZ/tiw2m3NprOVUgPDvyhg==
@@ -9764,7 +9764,7 @@ cjs-module-lexer@^2.1.0:
   resolved "https://registry.yarnpkg.com/cjs-module-lexer/-/cjs-module-lexer-2.1.0.tgz#586e87d4341cb2661850ece5190232ccdebcff8b"
   integrity sha512-UX0OwmYRYQQetfrLEZeewIFFI+wSTofC+pMBLNuH3RUuu/xzG1oz84UCEDOSoQlN3fZ4+AzmV50ZYvGqkMh9yA==
 
-classnames@^2.5.1:
+classnames@2.5.1:
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.5.1.tgz#ba774c614be0f016da105c858e7159eae8e7687b"
   integrity sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==
