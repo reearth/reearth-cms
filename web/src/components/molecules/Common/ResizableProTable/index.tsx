@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
 
 import ProTable, {
   ProColumns,
@@ -23,7 +23,7 @@ const tableComponents = {
 
 const tableScroll = { x: "", y: "" };
 
-const ResizableProTable: React.FC<Props> = ({
+const ResizableProTable = forwardRef<HTMLDivElement, Props>(({
   dataSource,
   columns,
   loading,
@@ -38,7 +38,7 @@ const ResizableProTable: React.FC<Props> = ({
   showSorterTooltip,
   heightOffset,
   locale,
-}) => {
+}, ref) => {
   const [resizableColumns, setResizableColumns] = useState<ProColumns<any, "text">[]>(
     columns ?? [],
   );
@@ -83,7 +83,7 @@ const ResizableProTable: React.FC<Props> = ({
   }, [rowSelection]);
 
   return (
-    <Wrapper $isRowSelected={isRowSelected} $heightOffset={heightOffset}>
+    <Wrapper ref={ref} $isRowSelected={isRowSelected} $heightOffset={heightOffset}>
       <ProTable
         dataSource={dataSource}
         columns={mergeColumns}
@@ -105,7 +105,7 @@ const ResizableProTable: React.FC<Props> = ({
       />
     </Wrapper>
   );
-};
+});
 
 export default ResizableProTable;
 

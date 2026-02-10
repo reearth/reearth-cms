@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Typography } from "antd";
-import { RefAttributes, ComponentProps } from "react";
+import { forwardRef, ComponentProps } from "react";
 
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
@@ -11,12 +11,12 @@ type CopyConfig = Exclude<ComponentProps<typeof Text>["copyable"], boolean | und
 
 type Props = {
   copyable: CopyConfig;
-} & Omit<RefAttributes<HTMLSpanElement>, "key">;
-
-const CopyButton: React.FC<Props> = ({ copyable, ...props }) => {
-  const t = useT();
-  return <Text copyable={{ tooltips: [t("Copy"), t("Copied")], ...copyable }} {...props} />;
 };
+
+const CopyButton = forwardRef<HTMLSpanElement, Props>(({ copyable, ...props }, ref) => {
+  const t = useT();
+  return <Text ref={ref} copyable={{ tooltips: [t("Copy"), t("Copied")], ...copyable }} {...props} />;
+});
 
 const StyledCopyButton = styled(CopyButton, Constant.TRANSIENT_OPTIONS)<{
   $color?: string;

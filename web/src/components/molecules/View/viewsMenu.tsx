@@ -80,7 +80,7 @@ const ViewsMenuMolecule: React.FC<Props> = ({
     [onViewCreateModalOpen, hasCreateRight, t],
   );
 
-  const moreIcon = useMemo(() => <Button>All Views</Button>, []);
+  const moreIcon = useMemo(() => <MoreIcon>All Views</MoreIcon>, []);
 
   return (
     <Wrapper>
@@ -93,7 +93,7 @@ const ViewsMenuMolecule: React.FC<Props> = ({
           activeKey={currentView.id}
           tabPlacement="top"
           items={menuItems}
-          popupClassName="hide-icon-button"
+          classNames={{ popup: { root: "hide-icon-button" } }}
           onChange={onViewSelect}
           moreIcon={moreIcon}
         />
@@ -117,13 +117,18 @@ const StyledTabs = styled(Tabs)`
     height: 46px;
   }
 
-  .ant-tabs-tab:not(:first-child) {
+  .ant-tabs-tab:not(:first-of-type) {
     padding-left: 8px;
   }
 
   .ant-tabs-tab + .ant-tabs-tab {
     margin-left: 8px;
   }
+`;
+
+const MoreIcon = styled.span`
+  padding: 4px 15px;
+  cursor: pointer;
 `;
 
 const NewViewButton = styled(Button)`

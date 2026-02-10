@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import svgToMiniDataURI from "mini-svg-data-uri";
-import React, { ComponentProps, CSSProperties, memo, useMemo } from "react";
+import React, { ComponentProps, CSSProperties, forwardRef, memo, useMemo } from "react";
 import { ReactSVG } from "react-svg";
 
 import { Constant } from "@reearth-cms/utils/constant";
@@ -19,7 +19,7 @@ type Props = {
   onClick?: () => void;
 };
 
-const Icon: React.FC<Props> = ({ className, icon, alt, style, color, size, onClick }) => {
+const Icon = forwardRef<HTMLElement, Props>(({ className, icon, alt, style, color, size, onClick }, ref) => {
   const src = useMemo(
     () => (icon?.startsWith("<svg ") ? svgToMiniDataURI(icon) : Icons[icon as Icons]),
     [icon],
@@ -29,12 +29,15 @@ const Icon: React.FC<Props> = ({ className, icon, alt, style, color, size, onCli
   const sizeStr = typeof size === "number" ? `${size}px` : size;
 
   if (!src) {
-    return <StyledImg src={icon} alt={alt} style={style} $size={sizeStr} onClick={onClick} />;
+    return (
+      <StyledImg ref={ref as React.Ref<HTMLImageElement>} src={icon} alt={alt} style={style} $size={sizeStr} onClick={onClick} />
+    );
   }
 
   if (typeof src === "string") {
     return (
       <StyledSvg
+        ref={ref}
         className={className}
         src={src}
         $color={color}
@@ -46,22 +49,23 @@ const Icon: React.FC<Props> = ({ className, icon, alt, style, color, size, onCli
   }
 
   return React.createElement(src, {
+    ref,
     className,
     onClick,
     style: { ...style, color, fontSize: sizeStr },
   });
-};
+});
 
 const StyledImg = styled("img", Constant.TRANSIENT_OPTIONS)<{ $size?: string }>`
   width: ${({ $size }) => $size};
   height: ${({ $size }) => $size};
 `;
 
-const SVG: React.FC<
-  Pick<ComponentProps<typeof ReactSVG>, "className" | "src" | "onClick" | "style">
-> = props => {
-  return <ReactSVG {...props} wrapper="span" />;
-};
+const SVG = forwardRef<HTMLSpanElement, Pick<ComponentProps<typeof ReactSVG>, "className" | "src" | "onClick" | "style">>(
+  (props, _ref) => {
+    return <ReactSVG {...props} wrapper="span" />;
+  },
+);
 
 const StyledSvg = styled(SVG, Constant.TRANSIENT_OPTIONS)<{ $color?: string; $size?: string }>`
   font-size: 0;

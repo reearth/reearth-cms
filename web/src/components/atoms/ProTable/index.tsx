@@ -6,6 +6,7 @@ import {
   ProColumns,
 } from "@ant-design/pro-components";
 import type { ParamsType } from "@ant-design/pro-components";
+import { forwardRef } from "react";
 import { TableProps } from "antd";
 import { AnyObject } from "antd/es/_util/type";
 
@@ -21,9 +22,9 @@ type TableRowSelection<T extends AnyObject = AnyObject> = TableProps<T>["rowSele
 
 export type Props = ProTableProps<Record<string, unknown>, ParamsType, "text">;
 
-const Table: React.FC<Props> = props => {
+const Table = forwardRef<HTMLDivElement, Props>((props, _ref) => {
   return <ProTable {...props} />;
-};
+});
 
 export type StretchColumn<T> = ProColumns<T> & { minWidth: number };
 

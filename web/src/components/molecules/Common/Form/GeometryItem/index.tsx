@@ -723,7 +723,7 @@ const ZoomButtons = styled.div`
   display: flex;
   flex-direction: column;
   padding: 10px 0;
-  button:first-child {
+  button:first-of-type {
     border-end-start-radius: 0;
     border-end-end-radius: 0;
   }
