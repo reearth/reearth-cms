@@ -44,9 +44,13 @@ func (i ItemFields) DropEmptyFields() ItemFields {
 	for k, v := range i {
 		if v == nil {
 			delete(i, k)
+			continue
 		}
 		rv := reflect.ValueOf(v)
-		if (rv.Kind() == reflect.Interface || rv.Kind() == reflect.Slice || rv.Kind() == reflect.Map) && rv.IsNil() {
+		// Check for nil pointers, interfaces, slices, maps, and empty arrays
+		if (rv.Kind() == reflect.Ptr && rv.IsNil()) ||
+			(rv.Kind() == reflect.Interface && rv.IsNil()) ||
+			((rv.Kind() == reflect.Slice || rv.Kind() == reflect.Array || rv.Kind() == reflect.Map) && (rv.IsNil() || rv.Len() == 0)) {
 			delete(i, k)
 		}
 	}
