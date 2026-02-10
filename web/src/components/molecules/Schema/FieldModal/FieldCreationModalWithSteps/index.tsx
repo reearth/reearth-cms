@@ -26,7 +26,6 @@ import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 import { validateKey } from "@reearth-cms/utils/regex";
 
-
 type Props = {
   models?: Model[];
   selectedType: "Reference";
@@ -462,7 +461,9 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                     <Form.Item
                       name="title"
                       label={t("Display name")}
-                      rules={[{ required: true, message: t("Please input the display name of field!") }]}>
+                      rules={[
+                        { required: true, message: t("Please input the display name of field!") },
+                      ]}>
                       <Input
                         onChange={e => {
                           handleNameChange(e, field1Form);
@@ -560,7 +561,9 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                     <Form.Item
                       name="title"
                       label={t("Display name")}
-                      rules={[{ required: true, message: t("Please input the display name of field!") }]}>
+                      rules={[
+                        { required: true, message: t("Please input the display name of field!") },
+                      ]}>
                       <Input
                         onChange={e => {
                           handleNameChange(e, field2Form);

@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-type Key = React.Key;
 import { useCallback, useEffect, useState } from "react";
 
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
@@ -11,6 +10,8 @@ import { useT } from "@reearth-cms/i18n";
 
 import { generateAssetTreeData } from "./generateAssetTreeData";
 import { FileNode } from "./types";
+
+type Key = React.Key;
 
 type Props = {
   file: AssetFile;
