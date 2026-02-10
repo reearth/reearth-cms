@@ -93,7 +93,6 @@
   },
   "dependencies": {
     "@ant-design/colors": "8.0.1",
-    "@ant-design/compatible": "5.1.4",
     "@ant-design/cssinjs": "1.24.0",
     "@ant-design/icons": "6.1.0",
     "@ant-design/pro-components": "2.8.10",
