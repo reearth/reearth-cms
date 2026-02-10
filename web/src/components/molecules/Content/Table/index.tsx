@@ -41,7 +41,6 @@ import {
   Column,
   ConditionInput,
   CurrentView,
-  metaColumn,
 } from "@reearth-cms/components/molecules/View/types";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
@@ -412,7 +411,7 @@ const ContentTable: React.FC<Props> = ({
               type,
               typeProperty,
               members,
-              id: (Array.isArray(dataIndex) ? String(dataIndex[1]) : (key as string)),
+              id: Array.isArray(dataIndex) ? String(dataIndex[1]) : (key as string),
               required,
               multiple,
             });
@@ -475,7 +474,7 @@ const ContentTable: React.FC<Props> = ({
             type,
             typeProperty,
             members,
-            id: (Array.isArray(dataIndex) ? String(dataIndex[1]) : (key as string)),
+            id: Array.isArray(dataIndex) ? String(dataIndex[1]) : (key as string),
             required,
             multiple,
           };
@@ -823,17 +822,15 @@ const ContentTable: React.FC<Props> = ({
               pagination.pageSize ?? 10,
               Array.isArray(sorter)
                 ? undefined
-                : sorter.order &&
-                    sorter.column &&
-                    "fieldType" in sorter.column
+                : sorter.order && sorter.column && "fieldType" in sorter.column
                   ? {
                       field: {
                         id:
                           sorter.column.fieldType === "FIELD" ||
                           sorter.column.fieldType === "META_FIELD"
-                            ? (Array.isArray(sorter.field)
-                                ? sorter.field[1]
-                                : undefined)
+                            ? Array.isArray(sorter.field)
+                              ? sorter.field[1]
+                              : undefined
                             : undefined,
                         type: sorter.column.fieldType as FieldType,
                       },

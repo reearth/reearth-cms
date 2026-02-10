@@ -1,11 +1,11 @@
 import type { MenuProps } from "antd";
-
-type ItemType = NonNullable<MenuProps["items"]>[number];
 import { useCallback, useEffect, useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { useT } from "@reearth-cms/i18n";
+
+type ItemType = NonNullable<MenuProps["items"]>[number];
 
 type Props = {
   inlineCollapsed: boolean;

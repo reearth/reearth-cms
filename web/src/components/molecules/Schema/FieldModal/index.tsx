@@ -1,8 +1,6 @@
 import styled from "@emotion/styled";
 import type { CheckboxProps } from "antd";
 
-type CheckboxChangeEvent = Parameters<NonNullable<CheckboxProps["onChange"]>>[0];
-
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -33,6 +31,8 @@ import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 
 import useHooks from "./hooks";
+
+type CheckboxChangeEvent = Parameters<NonNullable<CheckboxProps["onChange"]>>[0];
 
 type Props = {
   groups?: Group[];

@@ -1,6 +1,4 @@
 import type { CheckboxProps } from "antd";
-
-type CheckboxChangeEvent = Parameters<NonNullable<CheckboxProps["onChange"]>>[0];
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
@@ -22,6 +20,8 @@ import {
 } from "@reearth-cms/components/molecules/Schema/types";
 import { transformDayjsToString } from "@reearth-cms/utils/format";
 import { validateKey } from "@reearth-cms/utils/regex";
+
+type CheckboxChangeEvent = Parameters<NonNullable<CheckboxProps["onChange"]>>[0];
 
 export default (
   selectedSchemaType: SelectedSchemaType,

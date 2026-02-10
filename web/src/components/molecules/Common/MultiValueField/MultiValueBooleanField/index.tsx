@@ -1,7 +1,5 @@
 import styled from "@emotion/styled";
 import type { CheckboxProps } from "antd";
-
-type CheckboxChangeEvent = Parameters<NonNullable<CheckboxProps["onChange"]>>[0];
 import { useCallback, useEffect } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -9,6 +7,8 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
 
 import { moveItemInArray } from "../moveItemArray";
+
+type CheckboxChangeEvent = Parameters<NonNullable<CheckboxProps["onChange"]>>[0];
 
 type Props = {
   checked?: boolean[];
