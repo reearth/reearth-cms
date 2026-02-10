@@ -33,7 +33,7 @@
     "build-storybook": "storybook build"
   },
   "devDependencies": {
-    "@emotion/jest": "11.13.0",
+    "@emotion/jest": "11.14.2",
     "@graphql-codegen/cli": "6.1.1",
     "@graphql-codegen/fragment-matcher": "6.0.0",
     "@graphql-codegen/introspection": "5.0.0",
