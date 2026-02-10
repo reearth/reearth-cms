@@ -16084,7 +16084,7 @@ rc-dropdown@~4.2.0, rc-dropdown@~4.2.1:
     classnames "^2.2.6"
     rc-util "^5.44.1"
 
-rc-field-form@2.7.1, rc-field-form@~2.7.1:
+rc-field-form@~2.7.1:
   version "2.7.1"
   resolved "https://registry.yarnpkg.com/rc-field-form/-/rc-field-form-2.7.1.tgz#8bb1d7c6bf40e2b99b494816972252c327d9b5a0"
   integrity sha512-vKeSifSJ6HoLaAB+B8aq/Qgm8a3dyxROzCtKNCsBQgiverpc4kWDQihoUwzUj+zNWJOykwSY4dNX3QrGwtVb9A==
@@ -16153,7 +16153,7 @@ rc-mentions@~2.20.0:
     rc-textarea "~1.10.0"
     rc-util "^5.34.1"
 
-rc-menu@9.16.1, rc-menu@~9.16.0, rc-menu@~9.16.1:
+rc-menu@~9.16.0, rc-menu@~9.16.1:
   version "9.16.1"
   resolved "https://registry.yarnpkg.com/rc-menu/-/rc-menu-9.16.1.tgz#9df1168e41d87dc7164c582173e1a1d32011899f"
   integrity sha512-ghHx6/6Dvp+fw8CJhDUHFHDJ84hJE3BXNCzSgLdmNiFErWSOaZNsihDAsKq9ByTALo/xkNIwtDFGIl6r+RPXBg==
@@ -16312,18 +16312,6 @@ rc-switch@~4.1.0:
     "@babel/runtime" "^7.21.0"
     classnames "^2.2.1"
     rc-util "^5.30.0"
-
-rc-table@7.55.1:
-  version "7.55.1"
-  resolved "https://registry.yarnpkg.com/rc-table/-/rc-table-7.55.1.tgz#527e02d56f381e14fd933ded18b242bd9938b8fe"
-  integrity sha512-mtZkOHQ+474hxw6usr5rrT6tTZvFlv7jRqao/oG4Y4mwOaXU7ZL1OZ3Vp7xO+zPhB2PPKLFnKr53EitryoLJyQ==
-  dependencies:
-    "@babel/runtime" "^7.10.1"
-    "@rc-component/context" "^1.4.0"
-    classnames "^2.2.5"
-    rc-resize-observer "^1.1.0"
-    rc-util "^5.44.3"
-    rc-virtual-list "^3.14.2"
 
 rc-table@~7.54.0:
   version "7.54.0"

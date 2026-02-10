@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Key } from "rc-table/lib/interface";
+type Key = React.Key;
 import { useCallback, useEffect, useState } from "react";
 
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";

@@ -1,5 +1,13 @@
-import { Menu } from "antd";
+import { Menu, MenuProps } from "antd";
 
-export type { MenuInfo, ItemType } from "rc-menu/lib/interface";
+type MenuInfo = {
+  key: string;
+  keyPath: string[];
+  domEvent: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>;
+};
+
+type ItemType = NonNullable<MenuProps["items"]>[number];
+
+export type { MenuInfo, ItemType };
 
 export default Menu;
