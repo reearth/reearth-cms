@@ -57,8 +57,8 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: "./src/test/setup.ts",
     exclude: [...configDefaults.exclude, "e2e/**/*"],
+    testTimeout: 30 * 1000,
     coverage: {
-      all: true,
       include: ["src/**/*.ts", "src/**/*.tsx"],
       exclude: [
         "src/**/*.d.ts",
@@ -76,7 +76,6 @@ export default defineConfig({
         inline: [/antd/, /@ant-design/],
       },
     },
-    testTimeout: 30_000,
   },
 });
 

@@ -32,7 +32,7 @@ describe("Webhook list", () => {
     );
 
     expect(screen.getByText("No Webhook yet")).toBeVisible();
-    expect(screen.getByRole("link")).toBeVisible();
+    expect(screen.getByText("how to use Re:Earth CMS")).toBeVisible();
   });
 
   test("Create webhook buttons work successfully", async () => {
