@@ -75,7 +75,6 @@ const ProjectOverview: React.FC<Props> = ({
               <ModelCard
                 key={m.id}
                 model={m}
-                hasCreateRight={hasCreateRight}
                 hasUpdateRight={hasUpdateRight}
                 hasDeleteRight={hasDeleteRight}
                 hasSchemaCreateRight={hasSchemaCreateRight}

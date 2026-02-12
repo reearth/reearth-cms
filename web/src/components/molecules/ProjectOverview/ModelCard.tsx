@@ -15,7 +15,6 @@ import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema.ts";
 
 export type Props = {
   model: Model;
-  hasCreateRight: boolean;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
   hasSchemaCreateRight: boolean;
@@ -32,7 +31,6 @@ export type Props = {
 
 const ModelCard: React.FC<Props> = ({
   model,
-  hasCreateRight,
   hasUpdateRight,
   hasDeleteRight,
   hasSchemaCreateRight,
