@@ -97,7 +97,8 @@ test("Option field editing has succeeded", async ({
   schemaPage,
 }) => {
   await test.step("Create option field with three values and default", async () => {
-    await schemaPage.fieldTypeButton("Option").click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Select).click();
+
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.fill("option1");
     await fieldEditorPage.settingsKeyInput.click();
@@ -190,7 +191,7 @@ test("Option field editing has succeeded", async ({
     await fieldEditorPage.defaultValueTab.click();
     await expect(contentPage.optionTextByName("third")).toBeVisible();
     await fieldEditorPage.plusNewButton.click();
-    await fieldEditorPage.antSelectSelectionItem.nth(1).click();
+    await page.getByRole("dialog").getByRole("combobox").nth(1).click({ force: true });
     await expect(fieldEditorPage.optionDiv("first")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("third")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("forth")).toBeVisible();
@@ -216,18 +217,18 @@ test("Option field editing has succeeded", async ({
     await expect(contentPage.optionTextByName("third")).toBeHidden();
 
     await fieldEditorPage.plusNewButton.click();
-    await fieldEditorPage.antSelectSelectionItem.nth(0).click();
+    await page.getByRole("dialog").getByRole("combobox").nth(0).click({ force: true });
     await expect(fieldEditorPage.optionDiv("new first")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("new third")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("new forth")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("new fifth")).toBeVisible();
     await fieldEditorPage.optionDiv("new first").click();
     await fieldEditorPage.plusNewButton.click();
-    await fieldEditorPage.antSelectSelectionItem.nth(1).click();
+    await page.getByRole("dialog").getByRole("combobox").nth(1).click({ force: true });
     await fieldEditorPage.optionDiv("new third").last().click();
     await fieldEditorPage.updateOptionLabel.getByRole("button", { name: "delete" }).last().click();
     await fieldEditorPage.plusNewButton.click();
-    await fieldEditorPage.antSelectSelectionItem.nth(1).click();
+    await page.getByRole("dialog").getByRole("combobox").nth(1).click({ force: true });
     await fieldEditorPage.optionDiv("new third").last().click();
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();

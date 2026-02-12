@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -21,7 +22,7 @@ test("Boolean metadata creating and updating has succeeded", async ({
 }) => {
   await test.step("Create boolean metadata field", async () => {
     await schemaPage.metaDataTab.click();
-    await schemaPage.booleanListItem.click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Bool).click();
     await fieldEditorPage.displayNameInput.fill("boolean1");
     await fieldEditorPage.fieldKeyInput.fill("boolean1");
     await fieldEditorPage.fieldDescriptionInput.fill("boolean1 description");
@@ -91,7 +92,7 @@ test("Boolean metadata editing has succeeded", async ({
 }) => {
   await test.step("Create boolean metadata with default true value", async () => {
     await schemaPage.metaDataTab.click();
-    await schemaPage.booleanListItem.click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Bool).click();
     await fieldEditorPage.displayNameInput.fill("boolean1");
     await fieldEditorPage.fieldKeyInput.fill("boolean1");
     await fieldEditorPage.fieldDescriptionInput.fill("boolean1 description");

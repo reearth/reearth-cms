@@ -1,6 +1,7 @@
 // e2e/pages/schema.page.ts
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
-import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
+import { DATA_TEST_ID, Test } from "@reearth-cms/test/utils.ts";
 
 import { BasePage } from "./base.page";
 
@@ -66,8 +67,8 @@ export class SchemaPage extends BasePage {
   }
 
   // Field actions
-  fieldTypeButton(type: string): Locator {
-    return this.locator("li").filter({ hasText: type }).locator("div").first();
+  fieldTypeButton(type: SchemaFieldType): Locator {
+    return this.getByTestId(Test.getDataTestIdFromSchemaFieldType(type));
   }
   get fieldEditButton(): Locator {
     return this.getByRole("img", { name: "ellipsis" }).locator("svg");
@@ -87,7 +88,7 @@ export class SchemaPage extends BasePage {
     return this.getByText("Create Group Field");
   }
   get groupSelectTrigger(): Locator {
-    return this.locator(".ant-select-selector");
+    return this.getByLabel("Select Group");
   }
 
   // Common buttons
@@ -111,7 +112,11 @@ export class SchemaPage extends BasePage {
 
   // Field list item
   fieldEllipsisIcon(fieldText: string): Locator {
-    return this.locator("li").filter({ hasText: fieldText }).locator("svg").nth(3);
+    return this.fieldsContainer
+      .locator(".draggable-item")
+      .filter({ hasText: fieldText })
+      .getByRole("button")
+      .last();
   }
 
   // Group field specific methods
@@ -259,7 +264,7 @@ export class SchemaPage extends BasePage {
   }
 
   async createTitleField(displayName: string, defaultValue: string): Promise<void> {
-    await this.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
+    await this.getByTestId(DATA_TEST_ID.FieldList__Text).click();
     await this.getByLabel("Display name").click();
     await this.getByLabel("Display name").fill(displayName);
     await this.getByLabel("Use as title").check();

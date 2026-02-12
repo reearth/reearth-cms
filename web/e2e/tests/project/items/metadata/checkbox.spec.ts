@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -21,7 +22,7 @@ test("@smoke Checkbox metadata creating and updating has succeeded", async ({
 }) => {
   await test.step("Create checkbox metadata field", async () => {
     await schemaPage.metaDataTab.click();
-    await schemaPage.checkBoxListItem.click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Checkbox).click();
     await fieldEditorPage.displayNameInput.fill("checkbox1");
     await fieldEditorPage.fieldKeyInput.fill("checkbox1");
     await fieldEditorPage.fieldDescriptionInput.fill("checkbox1 description");
@@ -91,7 +92,7 @@ test("Checkbox metadata editing has succeeded", async ({
 }) => {
   await test.step("Create checkbox metadata with default checked value", async () => {
     await schemaPage.metaDataTab.click();
-    await schemaPage.checkBoxListItem.click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Checkbox).click();
     await fieldEditorPage.displayNameInput.fill("checkbox1");
     await fieldEditorPage.fieldKeyInput.fill("checkbox1");
     await fieldEditorPage.fieldDescriptionInput.fill("checkbox1 description");

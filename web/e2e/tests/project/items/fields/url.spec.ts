@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -14,16 +15,7 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("URL field creating and updating has succeeded", async ({ fieldEditorPage, contentPage }) => {
-  await fieldEditorPage.fieldTypeButton("URL").click();
-  await fieldEditorPage.displayNameInput.click();
-  await fieldEditorPage.displayNameInput.fill("url1");
-  await fieldEditorPage.settingsKeyInput.click();
-  await fieldEditorPage.settingsKeyInput.fill("url1");
-  await fieldEditorPage.settingsDescriptionInput.click();
-  await fieldEditorPage.settingsDescriptionInput.fill("url1 description");
-
-  await fieldEditorPage.okButton.click();
-  await contentPage.closeNotification();
+  await fieldEditorPage.createField(SchemaFieldType.URL, "url1", "url1", "url1 description");
 
   await expect(fieldEditorPage.fieldsContainerParagraph).toContainText("url1#url1");
   await contentPage.contentText.click();
@@ -48,7 +40,7 @@ test("URL field creating and updating has succeeded", async ({ fieldEditorPage, 
 });
 
 test("URL field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
-  await fieldEditorPage.fieldTypeListItem("URL").click();
+  await fieldEditorPage.fieldTypeButton(SchemaFieldType.URL).click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("url1");
   await fieldEditorPage.settingsKeyInput.click();

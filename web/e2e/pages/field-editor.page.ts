@@ -374,7 +374,7 @@ export class FieldEditorPage extends BasePage {
 
   // Geometry field specific
   get pointCheckbox(): Locator {
-    return this.getByLabel("Point", { exact: true });
+    return this.getByText("Point", { exact: true });
   }
 
   // Code editor elements

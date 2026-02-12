@@ -53,7 +53,7 @@ export class RequestPage extends BasePage {
     return this.getByLabel("close-circle").locator("svg");
   }
   get selectOverflow(): Locator {
-    return this.locator(".ant-select-selection-overflow");
+    return this.getByRole("combobox");
   }
   get selectItem(): Locator {
     return this.locator(".ant-select-item");

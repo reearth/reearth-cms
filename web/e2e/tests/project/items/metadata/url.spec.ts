@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -18,7 +19,7 @@ test("Url metadata creating and updating has succeeded", async ({
   contentPage,
 }) => {
   await fieldEditorPage.metaDataTab.click();
-  await fieldEditorPage.fieldTypeListItem("URL").click();
+  await fieldEditorPage.fieldTypeButton(SchemaFieldType.URL).click();
   await fieldEditorPage.displayNameInput.fill("url1");
   await fieldEditorPage.fieldKeyInput.fill("url1");
   await fieldEditorPage.descriptionRequiredInput.fill("url1 description");
@@ -60,7 +61,7 @@ test("Url metadata creating and updating has succeeded", async ({
   await editButton.waitFor({ state: "visible" });
   await editButton.click();
   await contentPage.textBoxes.fill("http://test2.com");
-  await contentPage.tableBodyElement.click();
+  await contentPage.textBoxes.blur();
   await contentPage.closeNotification();
   await expect(contentPage.linkByName("http://test2.com")).toBeVisible();
 
@@ -77,7 +78,7 @@ test("Url metadata creating and updating has succeeded", async ({
 
 test("Url metadata editing has succeeded", async ({ fieldEditorPage, contentPage }) => {
   await fieldEditorPage.metaDataTab.click();
-  await fieldEditorPage.fieldTypeListItem("URL").click();
+  await fieldEditorPage.fieldTypeButton(SchemaFieldType.URL).click();
   await fieldEditorPage.displayNameInput.fill("url1");
   await fieldEditorPage.fieldKeyInput.fill("url1");
   await fieldEditorPage.descriptionRequiredInput.fill("url1 description");

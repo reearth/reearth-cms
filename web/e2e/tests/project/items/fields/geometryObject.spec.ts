@@ -25,7 +25,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
     await fieldEditorPage.displayNameInput.fill("geometryObject1");
     await fieldEditorPage.settingsDescriptionInput.click();
     await fieldEditorPage.settingsDescriptionInput.fill("geometryObject1 description");
-    await fieldEditorPage.pointCheckbox.check();
+    await fieldEditorPage.pointCheckbox.click();
     await fieldEditorPage.okButton.click();
     await fieldEditorPage.closeNotification();
     await page.waitForTimeout(300);
@@ -87,12 +87,12 @@ test("GeometryObject field editing has succeeded", async ({
   schemaPage,
 }) => {
   await test.step("Create GeometryObject field with default value", async () => {
-    await fieldEditorPage.fieldTypeListItem("Geometry Object").click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.fill("geometryObject1");
     await fieldEditorPage.settingsDescriptionInput.click();
     await fieldEditorPage.settingsDescriptionInput.fill("geometryObject1 description");
-    await fieldEditorPage.pointCheckbox.check();
+    await fieldEditorPage.pointCheckbox.click();
     await fieldEditorPage.defaultValueTab.click();
     await fieldEditorPage.fillEditorContent('{\n"type": "Point",\n"coordinates": [0, 0]');
     await fieldEditorPage.okButton.click();

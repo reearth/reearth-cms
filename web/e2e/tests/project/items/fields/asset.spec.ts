@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 import { isCesiumViewerReady } from "@reearth-cms/e2e/helpers/viewer.helper";
@@ -28,15 +29,7 @@ test("@smoke Asset field creating and updating has succeeded", async ({
   schemaPage,
 }) => {
   await test.step("Create asset field with description", async () => {
-    await fieldEditorPage.fieldTypeButton("Asset").click();
-    await fieldEditorPage.displayNameInput.click();
-    await fieldEditorPage.displayNameInput.fill("asset1");
-    await fieldEditorPage.settingsKeyInput.click();
-    await fieldEditorPage.settingsKeyInput.fill("asset1");
-    await fieldEditorPage.settingsDescriptionInput.click();
-    await fieldEditorPage.settingsDescriptionInput.fill("asset1 description");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.createField(SchemaFieldType.Asset, "asset1", "asset1", "asset1 description");
     await page.waitForTimeout(300);
   });
 
@@ -107,12 +100,7 @@ test("Previewing JSON file from content page into new tab succeeded", async ({
   schemaPage,
 }) => {
   await test.step("Create asset field", async () => {
-    await fieldEditorPage.fieldTypeButton("Asset").click();
-    await fieldEditorPage.displayNameInput.fill("asset1");
-    await fieldEditorPage.settingsKeyInput.fill("asset1");
-    await fieldEditorPage.settingsDescriptionInput.fill("asset1 description");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.createField(SchemaFieldType.Asset, "asset1", "asset1", "asset1 description");
     await page.waitForTimeout(300);
     await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("asset1#asset1");
   });

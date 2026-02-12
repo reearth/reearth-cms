@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -17,15 +18,7 @@ test("@smoke Date field creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
 }) => {
-  await fieldEditorPage.fieldTypeButton("Date").click();
-  await fieldEditorPage.displayNameInput.click();
-  await fieldEditorPage.displayNameInput.fill("date1");
-  await fieldEditorPage.settingsKeyInput.click();
-  await fieldEditorPage.settingsKeyInput.fill("date1");
-  await fieldEditorPage.settingsDescriptionInput.click();
-  await fieldEditorPage.settingsDescriptionInput.fill("date1 description");
-  await fieldEditorPage.okButton.click();
-  await contentPage.closeNotification();
+  await fieldEditorPage.createField(SchemaFieldType.Date, "date1", "date1", "date1 description");
 
   await expect(fieldEditorPage.fieldsContainerParagraph).toContainText("date1#date1");
   await contentPage.contentText.click();
@@ -49,7 +42,7 @@ test("@smoke Date field creating and updating has succeeded", async ({
 });
 
 test("Date field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
-  await fieldEditorPage.fieldTypeListItem("Date").click();
+  await fieldEditorPage.fieldTypeButton(SchemaFieldType.Date).click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("date1");
   await fieldEditorPage.settingsKeyInput.click();

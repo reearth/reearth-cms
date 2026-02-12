@@ -561,7 +561,7 @@ export class ContentPage extends BasePage {
     await this.getByRole("menuitem", { name: "New Request" }).click();
     await this.getByLabel("Title").last().click();
     await this.getByLabel("Title").last().fill(title);
-    await this.page.click(".ant-select-selector");
+    await this.page.getByLabel("Reviewer").click();
     const firstItem = this.page.locator(".ant-select-item").first();
     await firstItem.click();
     await this.getByLabel("Description").click();
