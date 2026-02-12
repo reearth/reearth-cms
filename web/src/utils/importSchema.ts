@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 /* eslint-disable @typescript-eslint/no-extraneous-class */
+import { t } from "i18next";
 import { GeoJSONPoint } from "ol/format/GeoJSON";
 import z from "zod";
 import {
@@ -802,4 +803,19 @@ export abstract class ImportSchemaUtils {
       ]),
     ),
   });
+
+  public static getUIMetadata(params: { hasSchemaCreateRight: boolean; hasModelFields: boolean }): {
+    tooltipMessage: string | undefined;
+    shouldDisable: boolean;
+  } {
+    const { hasModelFields, hasSchemaCreateRight } = params;
+    return {
+      tooltipMessage: !hasSchemaCreateRight
+        ? t("Reader cannot import schema.")
+        : !hasModelFields
+          ? undefined
+          : t("Only empty schemas can be imported into"),
+      shouldDisable: hasModelFields || !hasSchemaCreateRight,
+    };
+  }
 }

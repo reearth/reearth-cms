@@ -46,6 +46,7 @@ import {
 import { Trans, useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { ImportContentUtils } from "@reearth-cms/utils/importContent.ts";
 
 import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
@@ -90,6 +91,7 @@ export type Props = {
   onRequestTableReload: () => void;
   hasDeleteRight: boolean;
   hasPublishRight: boolean;
+  hasCreateRight: boolean;
   hasRequestUpdateRight: boolean;
   showPublishAction: boolean;
   onImportModalOpen: () => void;
@@ -137,6 +139,7 @@ const ContentTable: React.FC<Props> = ({
   hasDeleteRight,
   hasPublishRight,
   hasRequestUpdateRight,
+  hasCreateRight,
   showPublishAction,
   onImportModalOpen,
   hasModelFields,
@@ -784,6 +787,12 @@ const ContentTable: React.FC<Props> = ({
     [setCurrentView, tableColumns],
   );
 
+  const getImportContentUIMetadata = useMemo(
+    () =>
+      ImportContentUtils.getUIMetadata({ hasContentCreateRight: hasCreateRight, hasModelFields }),
+    [hasCreateRight, hasModelFields],
+  );
+
   return (
     <>
       {contentTableColumns ? (
@@ -830,19 +839,18 @@ const ContentTable: React.FC<Props> = ({
           locale={{
             emptyText: (
               <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("No Content Data")}>
-                <Trans
-                  i18nKey="Please add some items manually or import from JSON/GeoJSON/CSV"
-                  components={{
-                    l: (
-                      <ImportButton
-                        type="link"
-                        onClick={onImportModalOpen}
-                        disabled={!hasModelFields}>
-                        import
-                      </ImportButton>
-                    ),
-                  }}
-                />
+                {!getImportContentUIMetadata.shouldDisable && (
+                  <Trans
+                    i18nKey="Please add some items manually or import from JSON/GeoJSON/CSV"
+                    components={{
+                      l: (
+                        <ImportButton type="link" onClick={onImportModalOpen}>
+                          import
+                        </ImportButton>
+                      ),
+                    }}
+                  />
+                )}
               </Empty>
             ),
           }}

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactDragListView from "react-drag-listview";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -9,6 +9,7 @@ import Popconfirm from "@reearth-cms/components/atoms/PopConfirm";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema.ts";
 
 import { fieldTypes } from "./fieldTypes";
 import { Field } from "./types";
@@ -18,6 +19,7 @@ type Props = {
   fields?: Field[];
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
+  hasSchemaCreateRight: boolean;
   onFieldReorder: (data: Field[]) => Promise<void>;
   onFieldDelete: (fieldId: string) => Promise<void>;
   handleFieldUpdateModalOpen: (field: Field) => void;
@@ -29,6 +31,7 @@ const ModelFieldList: React.FC<Props> = ({
   isMeta,
   hasUpdateRight,
   hasDeleteRight,
+  hasSchemaCreateRight,
   onFieldReorder,
   onFieldDelete,
   handleFieldUpdateModalOpen,
@@ -66,6 +69,12 @@ const ModelFieldList: React.FC<Props> = ({
     [data, reorder],
   );
 
+  const hasModelFields = useMemo<boolean>(() => (fields ? fields.length > 0 : false), [fields]);
+  const getImportSchemaUIMetadata = useMemo(
+    () => ImportSchemaUtils.getUIMetadata({ hasSchemaCreateRight, hasModelFields }),
+    [hasModelFields, hasSchemaCreateRight],
+  );
+
   return (
     <>
       {isMeta && (
@@ -96,19 +105,21 @@ const ModelFieldList: React.FC<Props> = ({
         <EmptyText>
           {t("Empty Schema design.")}
           <br />
-          <Trans
-            i18nKey="importSchema"
-            components={{
-              l: (
-                <ImportButton
-                  type="link"
-                  onClick={onSchemaImport}
-                  data-testid={DATA_TEST_ID.ModelFieldList__ImportSchemaButton}>
-                  import
-                </ImportButton>
-              ),
-            }}
-          />
+          {!getImportSchemaUIMetadata.shouldDisable && (
+            <Trans
+              i18nKey="importSchema"
+              components={{
+                l: (
+                  <ImportButton
+                    type="link"
+                    onClick={onSchemaImport}
+                    data-testid={DATA_TEST_ID.ModelFieldList__ImportSchemaButton}>
+                    import
+                  </ImportButton>
+                ),
+              }}
+            />
+          )}
         </EmptyText>
       ) : (
         <ReactDragListView

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 import { GeoJsonProperties, GeoJSON } from "geojson";
+import { t } from "i18next";
 import Papa, { ParseResult } from "papaparse";
 import z from "zod";
 import { GeoJSON2DSchema } from "zod-geojson";
@@ -674,5 +675,23 @@ export abstract class ImportContentUtils {
       timer.log();
       resolve({ isValid: true, data: propertiesFromCollection });
     });
+  }
+
+  public static getUIMetadata(params: {
+    hasContentCreateRight: boolean;
+    hasModelFields: boolean;
+  }): {
+    tooltipMessage: string | undefined;
+    shouldDisable: boolean;
+  } {
+    const { hasModelFields, hasContentCreateRight } = params;
+    return {
+      tooltipMessage: !hasContentCreateRight
+        ? t("Reader cannot import content.")
+        : !hasModelFields
+          ? t("Please create a schema first")
+          : undefined,
+      shouldDisable: !hasModelFields || !hasContentCreateRight,
+    };
   }
 }

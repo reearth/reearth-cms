@@ -10,11 +10,16 @@ import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/typ
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { ImportContentUtils } from "@reearth-cms/utils/importContent.ts";
+import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema.ts";
 
 export type Props = {
   model: Model;
+  hasCreateRight: boolean;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
+  hasSchemaCreateRight: boolean;
+  hasContentCreateRight: boolean;
   exportLoading?: boolean;
   onSchemaNavigate: (modelId: string) => void;
   onImportSchemaNavigate: (modelId: string) => void;
@@ -27,8 +32,11 @@ export type Props = {
 
 const ModelCard: React.FC<Props> = ({
   model,
+  hasCreateRight,
   hasUpdateRight,
   hasDeleteRight,
+  hasSchemaCreateRight,
+  hasContentCreateRight,
   exportLoading,
   onSchemaNavigate,
   onImportSchemaNavigate,
@@ -138,34 +146,46 @@ const ModelCard: React.FC<Props> = ({
     [handleCSVExport, handleGeoJSONExport, model.id, onModelExport],
   );
 
+  const getImportSchemaUIMetadata = useMemo(
+    () => ImportSchemaUtils.getUIMetadata({ hasSchemaCreateRight, hasModelFields }),
+    [hasModelFields, hasSchemaCreateRight],
+  );
+  const getImportContentUIMetadata = useMemo(
+    () => ImportContentUtils.getUIMetadata({ hasContentCreateRight, hasModelFields }),
+    [hasContentCreateRight, hasModelFields],
+  );
+
   const ImportMenuItems = useMemo<MenuProps[]>(
     () => [
       {
         key: "schema",
-        label: hasModelFields ? (
-          <Tooltip title={t("Only empty schemas can be imported into")}>
-            {t("Import Schema")}
-          </Tooltip>
-        ) : (
-          t("Import Schema")
+        label: (
+          <Tooltip title={getImportSchemaUIMetadata.tooltipMessage}>{t("Import Schema")}</Tooltip>
         ),
-        disabled: hasModelFields,
+        disabled: getImportSchemaUIMetadata.shouldDisable,
         onClick: () => onImportSchemaNavigate(model.id),
         "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownImportSchema,
       },
       {
         key: "content",
-        label: hasModelFields ? (
-          t("Import content")
-        ) : (
-          <Tooltip title={t("Please create a schema first")}>{t("Import content")}</Tooltip>
+        label: (
+          <Tooltip title={getImportContentUIMetadata.tooltipMessage}>{t("Import content")}</Tooltip>
         ),
-        disabled: !hasModelFields,
+        disabled: getImportContentUIMetadata.shouldDisable,
         onClick: () => onImportContentNavigate(model.id),
         "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownImportContent,
       },
     ],
-    [hasModelFields, model.id, onImportContentNavigate, onImportSchemaNavigate, t],
+    [
+      getImportContentUIMetadata.shouldDisable,
+      getImportContentUIMetadata.tooltipMessage,
+      getImportSchemaUIMetadata.shouldDisable,
+      getImportSchemaUIMetadata.tooltipMessage,
+      model.id,
+      onImportContentNavigate,
+      onImportSchemaNavigate,
+      t,
+    ],
   );
 
   const ExportMenuItems = useMemo<MenuProps[]>(
@@ -235,12 +255,12 @@ const ModelCard: React.FC<Props> = ({
     [
       t,
       hasUpdateRight,
+      ImportMenuItems,
+      ExportMenuItems,
       hasDeleteRight,
       onModelUpdateModalOpen,
       model,
       onModelDeletionModalOpen,
-      ImportMenuItems,
-      ExportMenuItems,
     ],
   );
 

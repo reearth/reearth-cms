@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Dispatch, Key, SetStateAction } from "react";
+import { Dispatch, Key, SetStateAction, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -19,6 +19,7 @@ import {
 } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { ImportContentUtils } from "@reearth-cms/utils/importContent.ts";
 
 import { Field } from "../../Schema/types";
 
@@ -129,6 +130,11 @@ const ContentListMolecule: React.FC<Props> = ({
   hasModelFields,
 }) => {
   const t = useT();
+  const getImportContentUIMetadata = useMemo(
+    () =>
+      ImportContentUtils.getUIMetadata({ hasContentCreateRight: hasCreateRight, hasModelFields }),
+    [hasCreateRight, hasModelFields],
+  );
 
   return (
     <ComplexInnerContents
@@ -151,13 +157,13 @@ const ContentListMolecule: React.FC<Props> = ({
                 subTitle={model?.key ? `#${model.key}` : null}
                 extra={
                   <>
-                    <Tooltip title={!hasModelFields ? t("Please create a schema first") : null}>
+                    <Tooltip title={getImportContentUIMetadata.tooltipMessage}>
                       <Button
                         type="default"
                         data-testid={DATA_TEST_ID.Content__List__ImportContentButton}
                         onClick={onImportModalOpen}
                         icon={<Icon icon="import" />}
-                        disabled={!model || !hasCreateRight || !hasModelFields}>
+                        disabled={getImportContentUIMetadata.shouldDisable}>
                         {t("Import content")}
                       </Button>
                     </Tooltip>
@@ -213,6 +219,7 @@ const ContentListMolecule: React.FC<Props> = ({
                 hasDeleteRight={hasDeleteRight}
                 hasPublishRight={hasPublishRight}
                 hasRequestUpdateRight={hasRequestUpdateRight}
+                hasCreateRight={hasCreateRight}
                 showPublishAction={showPublishAction}
                 onImportModalOpen={onImportModalOpen}
                 hasModelFields={hasModelFields}
