@@ -68,7 +68,7 @@ describe("Integration wrapper", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "api Connect Integration" }));
+    await user.click(screen.getByRole("button", { name: "apiConnect Integration" }));
     await expect.poll(() => screen.getByRole("dialog")).toBeVisible();
     await user.click(screen.getByRole("button", { name: "Cancel" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();

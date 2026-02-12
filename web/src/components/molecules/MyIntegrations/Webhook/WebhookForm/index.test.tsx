@@ -83,7 +83,7 @@ describe("Webhook form", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: "loading Save" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "loadingSave" })).toBeVisible();
   });
 
   test("Page back event is fired successfully", async () => {
