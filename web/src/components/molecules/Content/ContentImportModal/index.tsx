@@ -101,14 +101,21 @@ const ContentImportModal: React.FC<Props> = ({
     ]);
   }, [setAlertList, t]);
 
+  const raiseTooLargeFileSizeAlert = useCallback(() => {
+    setAlertList([
+      {
+        message: t("File size should below {{maxSizeInMB}} MB.", {
+          maxSizeInMB: Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
+        }),
+        type: "error",
+        closable: true,
+        showIcon: true,
+      },
+    ]);
+  }, [setAlertList, t]);
+
   const schemaValidationAlert = useCallback(
     (errorMeta: ValidationErrorMeta) => {
-      // const partialAlertProps: Pick<AlertProps, "type" | "closable" | "showIcon"> = {
-      //   type: "error",
-      //   closable: true,
-      //   showIcon: true,
-      // };
-
       setAlertList([]);
 
       if (errorMeta.exceedLimit) {
@@ -118,9 +125,10 @@ const ContentImportModal: React.FC<Props> = ({
             type: "error",
             title: t("Data file is too large and some fields don't match the schema."),
             description: t(
-              "The data file can contain a maximum of {{max}} records. Please split the file and re-upload it. And {{count}} fields do not match the schema.",
+              "The data file can contain a maximum of {{maxRecord}} records and below {{maxSize}} MB. Please split the file and re-upload it. And {{count}} fields do not match the schema.",
               {
-                max: Constant.IMPORT.MAX_CONTENT_RECORDS,
+                maxRecords: Constant.IMPORT.MAX_CONTENT_RECORDS,
+                maxSize: Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
                 count: errorMeta.typeMismatchFieldKeys.size,
               },
             ),
@@ -136,8 +144,11 @@ const ContentImportModal: React.FC<Props> = ({
             type: "error",
             title: t("Data file is too large."),
             description: t(
-              "The data file can contain a maximum of {{max}} records. Please split the file and re-upload it",
-              { max: Constant.IMPORT.MAX_CONTENT_RECORDS },
+              "The data file can contain a maximum of {{maxRecord}} records and below {{maxSize}} MB. Please split the file and re-upload it",
+              {
+                maxRecords: Constant.IMPORT.MAX_CONTENT_RECORDS,
+                maxSize: Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
+              },
             ),
           });
         }
@@ -199,6 +210,11 @@ const ContentImportModal: React.FC<Props> = ({
 
       if (file.size === 0) {
         raiseIllegalFileAlert();
+        return;
+      }
+
+      if (file.size > FileUtils.MBtoBytes(Constant.IMPORT.MAX_FILE_SIZE_IN_MB)) {
+        raiseTooLargeFileSizeAlert();
         return;
       }
 
@@ -324,6 +340,7 @@ const ContentImportModal: React.FC<Props> = ({
       raiseIllegalFileFormatAlert,
       raiseSingleFileAlert,
       raiseIllegalFileAlert,
+      raiseTooLargeFileSizeAlert,
       handleStartLoading,
       workspaceId,
       projectId,
