@@ -20,7 +20,7 @@ import (
 
 const (
 	MaxImportFileSize    = 10 * 1024 * 1024 // 10 MB
-	MaxImportRecordCount = 2000
+	MaxImportRecordCount = 50_000
 )
 
 var (
@@ -33,7 +33,7 @@ var (
 	ErrItemConflicted           = rerror.NewE(i18n.T("item has been changed before you change it"))
 	ErrMetadataMismatch         = rerror.NewE(i18n.T("metadata item and schema mismatch"))
 	ErrImportFileTooLarge       = rerror.NewE(i18n.T("import file is too large (max 10MB)"))
-	ErrImportTooManyRecords     = rerror.NewE(i18n.T("import file contains too many records (max 2000)"))
+	ErrImportTooManyRecords     = rerror.NewE(i18n.T("import file contains too many records (max 50,000)"))
 )
 
 type ItemFieldParam struct {

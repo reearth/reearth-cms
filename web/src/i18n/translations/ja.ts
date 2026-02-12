@@ -1,6 +1,10 @@
 export default {
   "{{count}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored._other": "{{count, number}} 個のフィールドがスキーマと一致しません。インポートを続行できますが、一致しないフィールドは無視されます。",
   "{{field}} field is required!": "{{field}}フィールドは必須項目です!",
+  "<model_id_or_key>": "<モデルIDもしくはキー>",
+  "<project_id_or_alias>": "<プロジェクトIDもしくはエイリアス>",
+  "<workspace_id_or_alias>": "<ワークスペースIDもしくはエイリアス>",
+  "<your_integration_token>": "<インテグレーショントークン>",
   "3D Tiles": "3Dタイル",
   "A bidirectional relationship where two items refer to each other": "2つの項目が互いを参照する双方向の関係",
   "A simpler way to access to the project.": "プロジェクトにアクセスするためのシンプルな方法です。",
@@ -257,6 +261,7 @@ export default {
   "Fields": "フィールド",
   "File": "ファイル",
   "File format is not supported": "ファイル形式がサポートされていません",
+  "File size should below {{maxSizeInMB}} MB.": "ファイルサイズは {{maxSizeInMB, number}} MB 以下である必要があります。",
   "Filter": "フィルター",
   "Float": "小数",
   "For a complete export with all fields, please use the JSON export option.": "すべてのフィールドを含む完全なエクスポートには、JSONエクスポートオプションを使用してください。",
@@ -623,8 +628,8 @@ export default {
   "Text": "テキスト",
   "TextArea": "テキストエリア",
   "The attempt to re-generate the integration token has failed.": "インテグレーショントークンの再生成に失敗しました。",
-  "The data file can contain a maximum of {{max}} records. Please split the file and re-upload it": "データファイルには最大 {{max, number}} 件のレコードを含めることができます。ファイルを分割して再度アップロードしてください",
-  "The data file can contain a maximum of {{max}} records. Please split the file and re-upload it. And {{count}} fields do not match the schema._other": "データファイルには最大 {{max, number}} 件のレコードを含めることができます。ファイルを分割して再度アップロードしてください。また、{{count}}個のフィールドがスキーマと一致しません。",
+  "The data file can contain a maximum of {{maxRecord}} records and below {{maxSize}} MB. Please split the file and re-upload it": "データファイルには最大 {{maxRecords, number}} 件のレコード、{{maxSize}} MB以下を含めることができます。ファイルを分割して再度アップロードしてください",
+  "The data file can contain a maximum of {{maxRecord}} records and below {{maxSize}} MB. Please split the file and re-upload it. And {{count}} fields do not match the schema._other": "データファイルには最大 {{maxRecord, number}} 件のレコード、{{maxSize, number}} MB 以下を含めることができます。ファイルを分割して再度アップロードしてください。また、{{count, number}} 個のフィールドがスキーマと一致しません",
   "The data file does not match the schema. None of the fields could be recognized. Please update the file or use a different schema to continue.": "データファイルがスキーマと一致しません。フィールドが1つも認識されませんでした。ファイルを更新するか、別のスキーマを使用して続行してください。",
   "The first one in the list will be the default Terrain.": "リストの最初の地形がデフォルトの地形となります。",
   "The first one in the list will be the default Tile.": "リストの最初のタイルがデフォルトのタイルとなります。",
@@ -704,7 +709,5 @@ export default {
   "You can write some here to describe this record.": "このレコードの説明をここに記入できます。",
   "Your alias must be between {{min}} and {{max}} characters long.": "エイリアスは{{min}}文字以上、{{max}}文字以内で入力してください",
   "Your Email": "メールアドレス",
-  "Your file hasn't finished uploading yet. Are you sure you want to cancel upload?": "ファイルのアップロードがまだ完了していません。アップロードをキャンセルしてもよろしいですか?",
-  "your Integration Token here": "インテグレーショントークンをここに入力してください",
-  "your model id here": "モデルIDをここに入力してください"
+  "Your file hasn't finished uploading yet. Are you sure you want to cancel upload?": "ファイルのアップロードがまだ完了していません。アップロードをキャンセルしてもよろしいですか?"
 } as const;
