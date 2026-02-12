@@ -29,7 +29,12 @@ test("@smoke Asset field creating and updating has succeeded", async ({
   schemaPage,
 }) => {
   await test.step("Create asset field with description", async () => {
-    await fieldEditorPage.createField(SchemaFieldType.Asset, "asset1", "asset1", "asset1 description");
+    await fieldEditorPage.createField(
+      SchemaFieldType.Asset,
+      "asset1",
+      "asset1",
+      "asset1 description",
+    );
     await page.waitForTimeout(300);
   });
 
@@ -100,7 +105,12 @@ test("Previewing JSON file from content page into new tab succeeded", async ({
   schemaPage,
 }) => {
   await test.step("Create asset field", async () => {
-    await fieldEditorPage.createField(SchemaFieldType.Asset, "asset1", "asset1", "asset1 description");
+    await fieldEditorPage.createField(
+      SchemaFieldType.Asset,
+      "asset1",
+      "asset1",
+      "asset1 description",
+    );
     await page.waitForTimeout(300);
     await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("asset1#asset1");
   });

@@ -19,7 +19,12 @@ test("Float field creating and updating has succeeded", async ({
   contentPage,
   schemaPage,
 }) => {
-  await fieldEditorPage.createField(SchemaFieldType.Number, "float1", "float1", "float1 description");
+  await fieldEditorPage.createField(
+    SchemaFieldType.Number,
+    "float1",
+    "float1",
+    "float1 description",
+  );
 
   await expect(fieldEditorPage.fieldsContainerParagraph).toContainText("float1#float1");
   await schemaPage.contentText.click();

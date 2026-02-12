@@ -18,7 +18,12 @@ test("@smoke Boolean field creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
 }) => {
-  await fieldEditorPage.createField(SchemaFieldType.Bool, "boolean1", "boolean1", "boolean1 description");
+  await fieldEditorPage.createField(
+    SchemaFieldType.Bool,
+    "boolean1",
+    "boolean1",
+    "boolean1 description",
+  );
 
   await expect(fieldEditorPage.fieldsContainerParagraph).toContainText("boolean1#boolean1");
   await contentPage.contentText.click();
