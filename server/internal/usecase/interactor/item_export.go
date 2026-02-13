@@ -13,6 +13,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
@@ -92,13 +93,15 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 		}
 
 		// Pre-load all referenced items for this batch
-		// Note: We load ALL referenced items first, then filter by IncloudRefModels
+		// Note: We load ALL referenced items first, then filter by IncludeRefModels
 		// in the ItemLoader to respect privacy settings
 		refItemIDs := collectReferenceIDs(items)
 		var referencedItemsMap map[id.ItemID]*item.Item
 		if len(refItemIDs) > 0 {
 			versionedRefs, err := i.repos.Item.FindByIDs(ctx, refItemIDs, ver)
-			if err == nil {
+			if err != nil {
+				log.Errorfc(ctx, "export: failed to pre-load %d referenced items: %v", len(refItemIDs), err)
+			} else {
 				referencedItems := versionedRefs.Unwrap()
 				referencedItemsMap = make(map[id.ItemID]*item.Item, len(referencedItems))
 
@@ -110,7 +113,7 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 		}
 
 		// Create ItemLoader closure that uses pre-loaded cache
-		// Filter by IncloudRefModels if specified (for public API privacy)
+		// Filter by IncludeRefModels if specified (for public API privacy)
 		req.ItemLoader = func(itemIDs id.ItemIDList) (item.List, error) {
 			if referencedItemsMap == nil {
 				return nil, nil
