@@ -276,7 +276,7 @@ export class SchemaPage extends BasePage {
   }
 
   modelMenuItemSpan(name: string): Locator {
-    return this.getByRole("menuitem", { name }).locator("span");
+    return this.getByRole("menuitem", { name }).locator("span").first();
   }
 
   groupMenuItemSpan(name: string): Locator {

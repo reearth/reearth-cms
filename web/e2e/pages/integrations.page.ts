@@ -137,13 +137,11 @@ export class IntegrationsPage extends BasePage {
   }
 
   get settingSvgButton(): Locator {
-    return this.getByRole("cell", { name: "setting" }).locator("svg");
+    return this.getByRole("cell", { name: "setting" }).locator("svg").first();
   }
 
   get readerRoleOption(): Locator {
-    return this.locator("div")
-      .filter({ hasText: /^Reader$/ })
-      .nth(4);
+    return this.getByRole("dialog").getByTitle("Reader");
   }
 
   get writerRoleOption(): Locator {
@@ -151,7 +149,7 @@ export class IntegrationsPage extends BasePage {
   }
 
   get writerCell(): Locator {
-    return this.getByRole("cell", { name: "WRITER" });
+    return this.getByRole("cell", { name: "WRITER" }).first();
   }
 
   get selectAllCheckbox(): Locator {
@@ -168,7 +166,7 @@ export class IntegrationsPage extends BasePage {
   }
 
   integrationCellById(id: string): Locator {
-    return this.getByRole("cell", { name: id, exact: true });
+    return this.getByRole("cell", { name: id, exact: true }).first();
   }
 
   dialogIntegrationTextById(id: string): Locator {

@@ -196,7 +196,7 @@ const IntegrationTable: React.FC<Props> = ({
         )}>
         <TableWrapper>
           <ResizableProTable
-            dataSource={Array.from(new Array(50)).flatMap(_ => workspaceIntegrations)}
+            dataSource={workspaceIntegrations}
             columns={columns}
             tableAlertOptionRender={alertOptions}
             search={false}

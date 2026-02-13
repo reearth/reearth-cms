@@ -135,7 +135,7 @@ export class ProjectPage extends BasePage {
     return this.getByText(`#${key}`);
   }
   modelMenuItemByName(name: string): Locator {
-    return this.getByRole("menuitem", { name }).locator("span");
+    return this.getByRole("menuitem", { name }).locator("span").first();
   }
 
   // Simple model menu item for clicking
