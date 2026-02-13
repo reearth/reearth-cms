@@ -19,7 +19,7 @@ type Props = {
   fields?: Field[];
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
-  hasSchemaCreateRight: boolean;
+  hasCreateRight: boolean;
   onFieldReorder: (data: Field[]) => Promise<void>;
   onFieldDelete: (fieldId: string) => Promise<void>;
   handleFieldUpdateModalOpen: (field: Field) => void;
@@ -31,7 +31,7 @@ const ModelFieldList: React.FC<Props> = ({
   isMeta,
   hasUpdateRight,
   hasDeleteRight,
-  hasSchemaCreateRight,
+  hasCreateRight,
   onFieldReorder,
   onFieldDelete,
   handleFieldUpdateModalOpen,
@@ -71,8 +71,8 @@ const ModelFieldList: React.FC<Props> = ({
 
   const hasModelFields = useMemo<boolean>(() => (fields ? fields.length > 0 : false), [fields]);
   const getImportSchemaUIMetadata = useMemo(
-    () => ImportSchemaUtils.getUIMetadata({ hasSchemaCreateRight, hasModelFields }),
-    [hasModelFields, hasSchemaCreateRight],
+    () => ImportSchemaUtils.getUIMetadata({ hasSchemaCreateRight: hasCreateRight, hasModelFields }),
+    [hasModelFields, hasCreateRight],
   );
 
   return (

@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 /* eslint-disable @typescript-eslint/no-extraneous-class */
-import { t } from "@reearth-cms/i18n";
 import { GeoJSONPoint } from "ol/format/GeoJSON";
 import z from "zod";
 import {
@@ -24,6 +23,7 @@ import {
   EditorSupportedType,
   ExportSchemaFieldType,
 } from "@reearth-cms/components/molecules/Schema/types";
+import { t } from "@reearth-cms/i18n";
 
 import { PerformanceTimer } from "./performance";
 

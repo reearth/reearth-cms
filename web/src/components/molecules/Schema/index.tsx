@@ -47,7 +47,6 @@ type Props = {
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
-  hasSchemaCreateRight: boolean;
   fileList: UploadFile[];
   alertList?: AlertProps[];
   uploadType: UploadType;
@@ -106,7 +105,6 @@ const Schema: React.FC<Props> = ({
   hasCreateRight,
   hasUpdateRight,
   hasDeleteRight,
-  hasSchemaCreateRight,
   fileList,
   alertList,
   uploadType,
@@ -160,8 +158,8 @@ const Schema: React.FC<Props> = ({
     [data],
   );
   const getImportSchemaUIMetadata = useMemo(
-    () => ImportSchemaUtils.getUIMetadata({ hasSchemaCreateRight, hasModelFields }),
-    [hasModelFields, hasSchemaCreateRight],
+    () => ImportSchemaUtils.getUIMetadata({ hasSchemaCreateRight: hasCreateRight, hasModelFields }),
+    [hasModelFields, hasCreateRight],
   );
 
   const dropdownItems = useMemo(
@@ -226,7 +224,7 @@ const Schema: React.FC<Props> = ({
             fields={data?.schema.fields}
             hasUpdateRight={hasUpdateRight}
             hasDeleteRight={hasDeleteRight}
-            hasSchemaCreateRight={hasSchemaCreateRight}
+            hasCreateRight={hasCreateRight}
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
             onFieldDelete={onFieldDelete}
@@ -245,7 +243,7 @@ const Schema: React.FC<Props> = ({
             fields={data && "metadataSchema" in data ? data?.metadataSchema?.fields : undefined}
             hasUpdateRight={hasUpdateRight}
             hasDeleteRight={hasDeleteRight}
-            hasSchemaCreateRight={hasSchemaCreateRight}
+            hasCreateRight={hasCreateRight}
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
             onFieldDelete={onFieldDelete}
@@ -312,7 +310,7 @@ const Schema: React.FC<Props> = ({
                     fields={data?.schema?.fields}
                     hasUpdateRight={hasUpdateRight}
                     hasDeleteRight={hasDeleteRight}
-                    hasSchemaCreateRight={hasSchemaCreateRight}
+                    hasCreateRight={hasCreateRight}
                     handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
                     onFieldReorder={onFieldReorder}
                     onFieldDelete={onFieldDelete}
