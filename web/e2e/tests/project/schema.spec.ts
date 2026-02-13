@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

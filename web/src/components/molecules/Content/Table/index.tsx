@@ -1,5 +1,14 @@
 import styled from "@emotion/styled";
-import React, { Dispatch, Key, SetStateAction, useCallback, useEffect, useMemo, useRef, useState, } from "react";
+import React, {
+  Dispatch,
+  Key,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
@@ -8,7 +17,11 @@ import Empty from "@reearth-cms/components/atoms/Empty";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
-import { ColumnsState, ListToolBarProps, TableRowSelection, } from "@reearth-cms/components/atoms/ProTable";
+import {
+  ColumnsState,
+  ListToolBarProps,
+  TableRowSelection,
+} from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
@@ -32,6 +45,7 @@ import {
 import { Trans, useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { ImportContentUtils } from "@reearth-cms/utils/importContent";
 
 import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
@@ -76,6 +90,7 @@ export type Props = {
   onRequestTableReload: () => void;
   hasDeleteRight: boolean;
   hasPublishRight: boolean;
+  hasCreateRight: boolean;
   hasRequestUpdateRight: boolean;
   showPublishAction: boolean;
   onImportModalOpen: () => void;
@@ -123,6 +138,7 @@ const ContentTable: React.FC<Props> = ({
   hasDeleteRight,
   hasPublishRight,
   hasRequestUpdateRight,
+  hasCreateRight,
   showPublishAction,
   onImportModalOpen,
   hasModelFields,
@@ -824,24 +840,10 @@ const ContentTable: React.FC<Props> = ({
     [onContentTableChange],
   );
 
-  const tableLocale = useMemo(
-    () => ({
-      emptyText: (
-        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("No Content Data")}>
-          <Trans
-            i18nKey="Please add some items manually or import from JSON/GeoJSON/CSV"
-            components={{
-              l: (
-                <ImportButton type="link" onClick={onImportModalOpen} disabled={!hasModelFields}>
-                  import
-                </ImportButton>
-              ),
-            }}
-          />
-        </Empty>
-      ),
-    }),
-    [t, onImportModalOpen, hasModelFields],
+  const getImportContentUIMetadata = useMemo(
+    () =>
+      ImportContentUtils.getUIMetadata({ hasContentCreateRight: hasCreateRight, hasModelFields }),
+    [hasCreateRight, hasModelFields],
   );
 
   return (
@@ -862,7 +864,24 @@ const ContentTable: React.FC<Props> = ({
           columnsState={columnsStateConfig}
           onChange={handleTableChange}
           heightOffset={102}
-          locale={tableLocale}
+          locale={{
+            emptyText: (
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("No Content Data")}>
+                {!getImportContentUIMetadata.shouldDisable && (
+                  <Trans
+                    i18nKey="Please add some items manually or import from JSON/GeoJSON/CSV"
+                    components={{
+                      l: (
+                        <ImportButton type="link" onClick={onImportModalOpen}>
+                          import
+                        </ImportButton>
+                      ),
+                    }}
+                  />
+                )}
+              </Empty>
+            ),
+          }}
         />
       ) : null}
       <LinkItemRequestModal

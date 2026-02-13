@@ -4,7 +4,7 @@ import React, { useMemo } from "react";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
 import { useT } from "@reearth-cms/i18n";
-import { Test } from "@reearth-cms/test/utils.ts";
+import { Test } from "@reearth-cms/test/utils";
 import { Constant } from "@reearth-cms/utils/constant";
 
 import { fieldTypes } from "./fieldTypes";

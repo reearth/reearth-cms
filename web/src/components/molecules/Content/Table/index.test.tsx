@@ -45,6 +45,7 @@ const DEFAULT_PROPS: Props = {
   onRequestTableReload: vi.fn(),
   hasDeleteRight: true,
   hasPublishRight: true,
+  hasCreateRight: true,
   hasRequestUpdateRight: false,
   showPublishAction: false,
   onImportModalOpen: vi.fn(),

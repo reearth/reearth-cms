@@ -2,7 +2,11 @@
 import styled from "@emotion/styled";
 import { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
 
-import ProTable, { ParamsType, ProColumns, ProTableProps, } from "@reearth-cms/components/atoms/ProTable";
+import ProTable, {
+  ParamsType,
+  ProColumns,
+  ProTableProps,
+} from "@reearth-cms/components/atoms/ProTable";
 import type { ResizeCallbackData } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizable";
 import { ResizableTitle } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizable";
 import { Constant } from "@reearth-cms/utils/constant";

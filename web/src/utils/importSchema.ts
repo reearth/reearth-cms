@@ -23,6 +23,7 @@ import {
   EditorSupportedType,
   ExportSchemaFieldType,
 } from "@reearth-cms/components/molecules/Schema/types";
+import { t } from "@reearth-cms/i18n";
 
 import { PerformanceTimer } from "./performance";
 
@@ -804,4 +805,19 @@ export abstract class ImportSchemaUtils {
       ]),
     ),
   });
+
+  public static getUIMetadata(params: { hasSchemaCreateRight: boolean; hasModelFields: boolean }): {
+    tooltipMessage: string | undefined;
+    shouldDisable: boolean;
+  } {
+    const { hasModelFields, hasSchemaCreateRight } = params;
+    return {
+      tooltipMessage: !hasSchemaCreateRight
+        ? t("Reader cannot import schema.")
+        : !hasModelFields
+          ? undefined
+          : t("Only empty schemas can be imported into"),
+      shouldDisable: hasModelFields || !hasSchemaCreateRight,
+    };
+  }
 }

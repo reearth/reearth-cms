@@ -33,6 +33,14 @@ export default () => {
   const hasCreateRight = useMemo(() => !!userRights?.model.create, [userRights?.model.create]);
   const hasUpdateRight = useMemo(() => !!userRights?.model.update, [userRights?.model.update]);
   const hasDeleteRight = useMemo(() => !!userRights?.model.delete, [userRights?.model.delete]);
+  const hasSchemaCreateRight = useMemo(
+    () => !!userRights?.schema.create,
+    [userRights?.schema.create],
+  );
+  const hasContentCreateRight = useMemo(
+    () => !!userRights?.content.create,
+    [userRights?.content.create],
+  );
 
   const [selectedModel, setSelectedModel] = useState<Model | undefined>();
   const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
@@ -311,6 +319,8 @@ export default () => {
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
+    hasSchemaCreateRight,
+    hasContentCreateRight,
     handleProjectUpdate,
     handleModelSearch,
     handleModelSort,
