@@ -696,6 +696,5 @@ export default () => {
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
-    hasSchemaCreateRight,
   };
 };
