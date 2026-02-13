@@ -62,7 +62,6 @@ const ProjectSchema: React.FC = () => {
         hasCreateRight={schemaHooks.hasCreateRight}
         hasUpdateRight={schemaHooks.hasUpdateRight}
         hasDeleteRight={schemaHooks.hasDeleteRight}
-        hasSchemaCreateRight={schemaHooks.hasSchemaCreateRight}
         onSearchTerm={importHooks.handleSearchTerm}
         onAssetsReload={importHooks.handleAssetsReload}
         onAssetTableChange={importHooks.handleAssetTableChange}

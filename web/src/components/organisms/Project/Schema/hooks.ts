@@ -59,10 +59,6 @@ export default () => {
   const hasCreateRight = useMemo(() => !!userRights?.schema.create, [userRights?.schema.create]);
   const hasUpdateRight = useMemo(() => !!userRights?.schema.update, [userRights?.schema.update]);
   const hasDeleteRight = useMemo(() => !!userRights?.schema.delete, [userRights?.schema.delete]);
-  const hasSchemaCreateRight = useMemo(
-    () => !!userRights?.schema.create,
-    [userRights?.schema.create],
-  );
 
   const [modelModalShown, setModelModalShown] = useState(false);
   const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
@@ -700,6 +696,5 @@ export default () => {
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
-    hasSchemaCreateRight,
   };
 };
