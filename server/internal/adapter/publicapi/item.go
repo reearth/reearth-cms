@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -88,7 +89,7 @@ func (c *Controller) GetPublicItems(ctx context.Context, wsAlias, pAlias, mKey, 
 			IncludeGeometry:  true,
 			GeometryField:    nil,
 			Pagination:       p,
-			IncloudRefModels: wpm.PublicModels,
+			IncludeRefModels: wpm.PublicModels,
 		},
 	}, w, nil)
 	if err != nil {
@@ -106,30 +107,75 @@ func getReferencedItems(ctx context.Context, i *item.Item, prp bool) []Item {
 		return nil
 	}
 
-	var vi []Item
+	// Step 1: Collect all referenced item IDs
+	var refItemIDs []id.ItemID
 	for _, f := range i.Fields().FieldsByType(value.TypeReference) {
 		for _, v := range f.Value().Values() {
 			iid, ok := v.Value().(id.ItemID)
-			if !ok {
-				continue
+			if ok {
+				refItemIDs = append(refItemIDs, iid)
 			}
-			ii, err := uc.Item.FindByID(ctx, iid, op)
-			if err != nil || ii == nil {
-				continue
+		}
+	}
+
+	if len(refItemIDs) == 0 {
+		return nil
+	}
+
+	// Step 2: Batch load all referenced items
+	referencedItems, err := uc.Item.FindByIDs(ctx, refItemIDs, op)
+	if err != nil || len(referencedItems) == 0 {
+		return nil
+	}
+
+	// Step 3: Collect unique model IDs and load schemas
+	modelIDs := make(map[id.ModelID]bool)
+	for _, ii := range referencedItems {
+		modelIDs[ii.Value().Model()] = true
+	}
+
+	// Step 4: Load schemas for unique models
+	schemaMap := make(map[id.ModelID]*schema.Package)
+	for modelID := range modelIDs {
+		sp, err := uc.Schema.FindByModel(ctx, modelID, op)
+		if err == nil && sp != nil {
+			schemaMap[modelID] = sp
+		}
+	}
+
+	// Step 5: Batch load all assets if needed
+	var assetsMap asset.Map
+	if prp {
+		var allAssetIDs []id.AssetID
+		for _, ii := range referencedItems {
+			allAssetIDs = append(allAssetIDs, ii.Value().AssetIDs()...)
+		}
+		if len(allAssetIDs) > 0 {
+			assets, err := uc.Asset.FindByIDs(ctx, allAssetIDs, nil)
+			if err == nil {
+				assetsMap = assets.Map()
 			}
-			sp, err := uc.Schema.FindByModel(ctx, ii.Value().Model(), op)
-			if err != nil {
-				continue
-			}
-			var assets asset.List
-			if prp {
-				assets, err = uc.Asset.FindByIDs(ctx, ii.Value().AssetIDs(), nil)
-				if err != nil {
-					continue
+		}
+	}
+
+	// Step 6: Build result from loaded data
+	vi := make([]Item, 0, len(referencedItems))
+	for _, ii := range referencedItems {
+		sp, ok := schemaMap[ii.Value().Model()]
+		if !ok {
+			continue
+		}
+
+		var itemAssets asset.List
+		if prp && assetsMap != nil {
+			for _, aid := range ii.Value().AssetIDs() {
+				if a, exists := assetsMap[aid]; exists {
+					itemAssets = append(itemAssets, a)
 				}
 			}
-			vi = append(vi, NewItem(ii.Value(), sp, assets, nil))
 		}
+
+		vi = append(vi, NewItem(ii.Value(), sp, itemAssets, nil))
 	}
 
 	return vi

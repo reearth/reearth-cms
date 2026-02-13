@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/rerror"
@@ -46,19 +47,6 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 		ModelID: params.ModelID,
 		Schema:  params.SchemaPackage,
 		Options: params.Options,
-		ItemLoader: func(itemIDs id.ItemIDList) (item.List, error) {
-			versioned, err := i.repos.Item.FindByIDs(ctx, itemIDs, version.Public.Ref())
-			if err != nil {
-				return nil, err
-			}
-			return versioned.Unwrap(), nil
-		},
-		AssetLoader: func(assetIDs id.AssetIDList) (asset.List, error) {
-			if !params.Options.IncludeAssets {
-				return nil, nil
-			}
-			return i.repos.Asset.FindByIDs(ctx, assetIDs)
-		},
 	}
 
 	if err := exporter.ValidateRequest(req); err != nil {
@@ -81,9 +69,17 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 		ver = nil
 	}
 
-	totalProcessed := 0
 	pageInfo := &usecasex.PageInfo{}
+
 	for {
+		// Check if context has been cancelled (client disconnect, timeout, etc.)
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+			// Continue processing
+		}
+
 		versionedItems, pi, err := i.repos.Item.FindByModel(ctx, params.ModelID, ver, nil, pagination)
 		if err != nil {
 			return rerror.ErrInternalBy(err)
@@ -93,6 +89,58 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 		items := versionedItems.Unwrap()
 		if len(items) == 0 {
 			break
+		}
+
+		// Pre-load all referenced items for this batch
+		// Note: We load ALL referenced items first, then filter by IncloudRefModels
+		// in the ItemLoader to respect privacy settings
+		refItemIDs := collectReferenceIDs(items)
+		var referencedItemsMap map[id.ItemID]*item.Item
+		if len(refItemIDs) > 0 {
+			versionedRefs, err := i.repos.Item.FindByIDs(ctx, refItemIDs, ver)
+			if err == nil {
+				referencedItems := versionedRefs.Unwrap()
+				referencedItemsMap = make(map[id.ItemID]*item.Item, len(referencedItems))
+
+				// Store all referenced items in the map
+				for _, refItem := range referencedItems {
+					referencedItemsMap[refItem.ID()] = refItem
+				}
+			}
+		}
+
+		// Create ItemLoader closure that uses pre-loaded cache
+		// Filter by IncloudRefModels if specified (for public API privacy)
+		req.ItemLoader = func(itemIDs id.ItemIDList) (item.List, error) {
+			if referencedItemsMap == nil {
+				return nil, nil
+			}
+
+			// Build allowed models set if filter is specified
+			var allowedModels map[id.ModelID]bool
+			if len(params.Options.IncludeRefModels) > 0 {
+				allowedModels = make(map[id.ModelID]bool)
+				for _, mid := range params.Options.IncludeRefModels {
+					allowedModels[mid] = true
+				}
+			}
+
+			result := make(item.List, 0, len(itemIDs))
+			for _, iid := range itemIDs {
+				if refItem, ok := referencedItemsMap[iid]; ok {
+					// If filter is set, only include items from allowed models
+					if allowedModels != nil {
+						if allowedModels[refItem.Model()] {
+							result = append(result, refItem)
+						}
+						// If not in allowed models, don't include (will show as ID string)
+					} else {
+						// No filter - include all
+						result = append(result, refItem)
+					}
+				}
+			}
+			return result, nil
 		}
 
 		// Extract and load assets for this batch
@@ -108,12 +156,18 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 			}
 		}
 
+		// Create AssetLoader closure for this batch
+		req.AssetLoader = func(assetIDs id.AssetIDList) (asset.List, error) {
+			if !params.Options.IncludeAssets || assets == nil {
+				return nil, nil
+			}
+			return assets.FilterByIDs(assetIDs), nil
+		}
+
 		// Process this batch
 		if err := exporter.ProcessBatch(ctx, items, assets); err != nil {
 			return err
 		}
-
-		totalProcessed += len(items)
 
 		// Check if we have more pages
 		if pageInfo == nil || !pageInfo.HasNextPage {
@@ -148,4 +202,27 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 
 	// Finalize export
 	return exporter.EndExport(ctx, props)
+}
+
+// collectReferenceIDs collects all reference field item IDs from a list of items
+func collectReferenceIDs(items item.List) []id.ItemID {
+	var refIDs []id.ItemID
+	seen := make(map[id.ItemID]bool)
+
+	for _, itm := range items {
+		for _, f := range itm.Fields() {
+			if f.Type() == value.TypeReference {
+				for _, v := range f.Value().Values() {
+					if refID, ok := v.Value().(id.ItemID); ok {
+						if !seen[refID] {
+							refIDs = append(refIDs, refID)
+							seen[refID] = true
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return refIDs
 }
