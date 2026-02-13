@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 import { GeoJsonProperties, GeoJSON } from "geojson";
-import { t } from "i18next";
+import { t } from "@reearth-cms/i18n";
 import Papa, { ParseResult } from "papaparse";
 import z from "zod";
 import { GeoJSON2DSchema } from "zod-geojson";

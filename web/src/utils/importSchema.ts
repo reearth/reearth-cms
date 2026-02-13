@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 /* eslint-disable @typescript-eslint/no-extraneous-class */
-import { t } from "i18next";
+import { t } from "@reearth-cms/i18n";
 import { GeoJSONPoint } from "ol/format/GeoJSON";
 import z from "zod";
 import {
