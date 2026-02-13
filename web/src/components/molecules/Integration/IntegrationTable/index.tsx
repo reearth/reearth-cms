@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Key, useMemo, useCallback, useState } from "react";
+import { Key, useCallback, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
@@ -7,14 +7,14 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import {
   ListToolBarProps,
-  TableRowSelection,
   StretchColumn,
+  TableRowSelection,
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
-import { useT, Trans } from "@reearth-cms/i18n";
+import { Trans, useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
 
 type Props = {
@@ -98,7 +98,7 @@ const IntegrationTable: React.FC<Props> = ({
   const toolbar = useMemo<ListToolBarProps>(
     () => ({
       search: (
-        <Search
+        <StyledSearch
           allowClear
           placeholder={t("input search text")}
           onSearch={(value: string) => {
@@ -196,7 +196,7 @@ const IntegrationTable: React.FC<Props> = ({
         )}>
         <TableWrapper>
           <ResizableProTable
-            dataSource={workspaceIntegrations}
+            dataSource={Array.from(new Array(50)).flatMap(_ => workspaceIntegrations)}
             columns={columns}
             tableAlertOptionRender={alertOptions}
             search={false}
@@ -249,6 +249,10 @@ const TableWrapper = styled.div`
   background-color: #fff;
   border-top: 1px solid #f0f0f0;
   height: calc(100% - 72px);
+`;
+
+const StyledSearch = styled(Search)`
+  max-width: 250px;
 `;
 
 export default IntegrationTable;

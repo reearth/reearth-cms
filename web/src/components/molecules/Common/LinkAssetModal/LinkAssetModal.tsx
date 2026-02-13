@@ -1,24 +1,20 @@
 import styled from "@emotion/styled";
-import { useRef, useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import {
-  StretchColumn,
-  ListToolBarProps,
-  OptionConfig,
-} from "@reearth-cms/components/atoms/ProTable";
+import { ListToolBarProps, OptionConfig, StretchColumn, } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
-import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { useT } from "@reearth-cms/i18n";
-import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
+import { bytesFormat, dateTimeFormat } from "@reearth-cms/utils/format";
 
 type Props = {
   visible: boolean;
@@ -264,10 +260,7 @@ const LinkAssetModal: React.FC<Props> = ({
 export default LinkAssetModal;
 
 const StyledModal = styled(Modal)`
-  .ant-pro-card-body {
+  .ant-pro-table {
     padding: 0;
-    .ant-pro-table-list-toolbar {
-      padding-left: 12px;
-    }
   }
 `;

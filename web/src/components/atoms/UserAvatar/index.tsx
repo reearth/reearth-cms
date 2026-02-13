@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { useEffect, useState } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { Constant } from "@reearth-cms/utils/constant";
@@ -13,7 +14,26 @@ type Props = {
 
 const UserAvatar: React.FC<Props> = ({ username, shadow, profilePictureUrl, ...props }) => {
   const anonymous = username === "Anonymous";
-  return profilePictureUrl ? (
+  const [isValidImage, setIsValidImage] = useState(false);
+
+  useEffect(() => {
+    if (!profilePictureUrl) {
+      setIsValidImage(false);
+      return;
+    }
+
+    const img = new Image();
+    img.onload = () => setIsValidImage(true);
+    img.onerror = () => setIsValidImage(false);
+    img.src = profilePictureUrl;
+
+    return () => {
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [profilePictureUrl]);
+
+  return isValidImage && profilePictureUrl ? (
     <Avatar src={profilePictureUrl} alt="User avatar" {...props} />
   ) : (
     <UserAvatarWrapper $shadow={shadow} $anonymous={anonymous || undefined} {...props}>

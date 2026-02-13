@@ -161,9 +161,9 @@ describe("Integration table", () => {
     expect(screen.getByText("Name", { selector: ".ant-table-cell" })).toBeVisible();
     expect(screen.getByText("Role", { selector: ".ant-table-cell" })).toBeVisible();
     expect(screen.getByText("Creator", { selector: ".ant-table-cell" })).toBeVisible();
-    expect(screen.getByText(name)).toBeVisible();
-    expect(screen.getByText(role)).toBeVisible();
-    expect(screen.getByText(creatorName)).toBeVisible();
+    expect(screen.getAllByText(name)[0]).toBeVisible();
+    expect(screen.getAllByText(role)[0]).toBeVisible();
+    expect(screen.getAllByText(creatorName)[0]).toBeVisible();
   });
 
   test("Removing an integration is fired successfully", async () => {
@@ -264,7 +264,7 @@ describe("Integration table", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: "setting" })).toBeDisabled();
+    expect(screen.getAllByRole("button", { name: "setting" })[0]).toBeDisabled();
 
     const selectAllEl = screen.getAllByLabelText("Select all")[0];
     expect(selectAllEl).toBeInTheDocument();

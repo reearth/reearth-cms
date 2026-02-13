@@ -138,6 +138,9 @@ const SchemaStyledMenuTitle = styled.h1`
   font-weight: 400;
   font-size: 14px;
   color: #00000073;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const SchemaStyledMenu = styled.div`

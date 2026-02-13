@@ -2,13 +2,9 @@
 import styled from "@emotion/styled";
 import { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
 
-import ProTable, {
-  ProColumns,
-  ProTableProps,
-  ParamsType,
-} from "@reearth-cms/components/atoms/ProTable";
-import { ResizableTitle } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizable";
+import ProTable, { ParamsType, ProColumns, ProTableProps, } from "@reearth-cms/components/atoms/ProTable";
 import type { ResizeCallbackData } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizable";
+import { ResizableTitle } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizable";
 import { Constant } from "@reearth-cms/utils/constant";
 
 type Props = ProTableProps<Record<string, any> | any, ParamsType, "text"> & {
@@ -119,30 +115,73 @@ const Wrapper = styled("div", Constant.TRANSIENT_OPTIONS)<{
   $heightOffset: number;
 }>`
   height: ${({ $heightOffset }) => `calc(100% - ${$heightOffset}px)`};
-  .ant-pro-card-body {
-    padding-bottom: 0;
-  }
-  .ant-pro-card,
-  .ant-pro-card-body,
-  .ant-spin-nested-loading,
-  .ant-spin-container,
-  .ant-table-container {
+
+  /* --- Level 0: .ant-pro-table --- toolbar + card as siblings */
+  .ant-pro-table {
+    display: flex;
+    flex-direction: column;
     height: 100%;
+    padding: 0 24px;
   }
+  .ant-pro-table-list-toolbar {
+    flex: none;
+  }
+  .ant-pro-card {
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* --- Level 1: .ant-pro-card-body --- alert + spin as siblings */
+  .ant-pro-card-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0;
+  }
+  .ant-pro-table-alert {
+    flex: none;
+  }
+  .ant-spin-nested-loading {
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* --- Level 2: .ant-spin-container --- single child .ant-table-wrapper */
+  .ant-spin-container {
+    display: flex;
+    flex-direction: column;
+    height: 99%;
+  }
+
+  /* --- Level 3: .ant-table-wrapper --- table + pagination as siblings */
   .ant-table-wrapper {
-    height: ${({ $isRowSelected }) => `calc(100% - ${$isRowSelected ? 128 : 64}px)`};
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
   }
   .ant-table {
-    height: calc(100% - 64px);
+    flex: 1;
+    min-height: 0;
   }
-  .ant-table-small,
-  .ant-table-middle {
-    height: calc(100% - 56px);
+  .ant-pagination {
+    flex: none;
+    margin: 16px 0 !important;
+  }
+
+  /* --- Level 4: .ant-table-container --- header + body */
+  .ant-table-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
   }
   .ant-table-body {
-    overflow: auto !important;
-    height: calc(100% - 47px);
+    flex: 1;
+    min-height: 0;
+    scrollbar-gutter: stable;
   }
+
+  /* --- Toolbar layout --- */
   .ant-pro-table-list-toolbar-container {
     flex-direction: row;
   }
@@ -160,5 +199,9 @@ const Wrapper = styled("div", Constant.TRANSIENT_OPTIONS)<{
   }
   .ant-pro-table-list-toolbar-right {
     flex: inherit;
+  }
+
+  .ant-spin {
+    height: 100%;
   }
 `;

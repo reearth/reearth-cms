@@ -328,6 +328,7 @@ const TableWrapper = styled.div`
   background-color: #fff;
   border-top: 1px solid #f0f0f0;
   height: calc(100% - 72px);
+  padding: 0 24px;
 `;
 
 const ActionButton = styled(Button)`

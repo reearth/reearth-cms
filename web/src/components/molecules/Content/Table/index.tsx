@@ -1,14 +1,5 @@
 import styled from "@emotion/styled";
-import React, {
-  Key,
-  useMemo,
-  useState,
-  useRef,
-  useCallback,
-  useEffect,
-  Dispatch,
-  SetStateAction,
-} from "react";
+import React, { Dispatch, Key, SetStateAction, useCallback, useEffect, useMemo, useRef, useState, } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
@@ -17,11 +8,7 @@ import Empty from "@reearth-cms/components/atoms/Empty";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
-import {
-  TableRowSelection,
-  ListToolBarProps,
-  ColumnsState,
-} from "@reearth-cms/components/atoms/ProTable";
+import { ColumnsState, ListToolBarProps, TableRowSelection, } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
@@ -36,11 +23,11 @@ import {
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
-  ItemSort,
-  FieldType,
   Column,
   ConditionInput,
   CurrentView,
+  FieldType,
+  ItemSort,
 } from "@reearth-cms/components/molecules/View/types";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
@@ -433,18 +420,12 @@ const ContentTable: React.FC<Props> = ({
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [conditionMenuOpen, setConditionMenuOpen] = useState(false);
 
-  const handleControlMenuOpenChange = useCallback((open: boolean) => {
-    setControlMenuOpen(open);
-  }, []);
-
-  const handleOptionsOpenChange = useCallback((open: boolean) => {
-    if (!open) {
+  const handleDropdownOpenChange = useCallback((open: boolean, info?: { source: string }) => {
+    if (open) {
+      setControlMenuOpen(true);
+    } else if (info?.source !== "menu") {
+      setControlMenuOpen(false);
       setOptionsOpen(false);
-    }
-  }, []);
-
-  const handleConditionMenuOpenChange = useCallback((open: boolean) => {
-    if (!open) {
       setConditionMenuOpen(false);
     }
   }, []);
@@ -482,7 +463,7 @@ const ContentTable: React.FC<Props> = ({
             setFilters(prevState => [...prevState, filter]);
           }
           setSelectedFilter(filter);
-          handleOptionsOpenChange(false);
+          setOptionsOpen(false);
           if (isFromMenu) {
             setConditionMenuOpen(true);
             isFilterOpen.current = false;
@@ -517,7 +498,7 @@ const ContentTable: React.FC<Props> = ({
           })) as any),
       ];
     },
-    [contentTableColumns, currentWorkspace?.members, handleOptionsOpenChange],
+    [contentTableColumns, currentWorkspace?.members],
   );
 
   const toolBarItemClick = useCallback(
@@ -668,49 +649,60 @@ const ContentTable: React.FC<Props> = ({
   );
 
   const toolBarRender = useCallback(() => {
+    const isDropdownOpen = controlMenuOpen || optionsOpen || conditionMenuOpen;
     return [
       <Dropdown
-        {...sharedProps}
-        placement="bottom"
+        key="control"
+        open={isDropdownOpen}
+        onOpenChange={handleDropdownOpenChange}
         trigger={["click"]}
-        open={optionsOpen}
-        onOpenChange={handleOptionsOpenChange}
-        key="control">
-        <Dropdown
-          popupRender={() =>
-            selectedFilter && (
-              <DropdownRender
-                filter={selectedFilter}
-                close={close}
-                index={filters.length - 1}
-                open={conditionMenuOpen}
-                isFilter={isFilter.current}
-                currentView={currentView}
-                setCurrentView={setCurrentView}
-                onFilterChange={onFilterChange}
-                key={Math.random()}
-              />
-            )
+        placement="bottom"
+        arrow={false}
+        menu={
+          controlMenuOpen
+            ? { items: toolBarItems, onClick: toolBarItemClick }
+            : optionsOpen
+              ? { items }
+              : undefined
+        }
+        popupRender={(menu: React.ReactNode) => {
+          if (conditionMenuOpen) {
+            return (
+              selectedFilter && (
+                <DropdownRender
+                  filter={selectedFilter}
+                  close={close}
+                  index={filters.length - 1}
+                  open={conditionMenuOpen}
+                  isFilter={isFilter.current}
+                  currentView={currentView}
+                  setCurrentView={setCurrentView}
+                  onFilterChange={onFilterChange}
+                  key={Math.random()}
+                />
+              )
+            );
           }
-          trigger={["click"]}
-          placement="bottom"
-          arrow={false}
-          open={conditionMenuOpen}
-          onOpenChange={handleConditionMenuOpenChange}>
-          <Dropdown
-            menu={{ items: toolBarItems, onClick: toolBarItemClick }}
-            placement="bottom"
-            trigger={["click"]}
-            arrow={false}
-            open={controlMenuOpen}
-            onOpenChange={handleControlMenuOpenChange}>
-            <Tooltip title={t("Control")}>
-              <IconWrapper>
-                <Icon icon="control" size={18} />
-              </IconWrapper>
-            </Tooltip>
-          </Dropdown>
-        </Dropdown>
+          return (
+            <Wrapper>
+              {optionsOpen && (
+                <InputWrapper>
+                  <Input
+                    value={inputValue}
+                    placeholder={isFilter.current ? t("Filter by...") : t("Sort by...")}
+                    onChange={handleChange}
+                  />
+                </InputWrapper>
+              )}
+              {menu && React.cloneElement(menu as React.ReactElement)}
+            </Wrapper>
+          );
+        }}>
+        <Tooltip title={t("Control")}>
+          <IconWrapper>
+            <Icon icon="control" size={18} />
+          </IconWrapper>
+        </Tooltip>
       </Dropdown>,
     ];
   }, [
@@ -719,14 +711,14 @@ const ContentTable: React.FC<Props> = ({
     controlMenuOpen,
     currentView,
     filters.length,
-    handleConditionMenuOpenChange,
-    handleControlMenuOpenChange,
-    handleOptionsOpenChange,
+    handleChange,
+    handleDropdownOpenChange,
+    inputValue,
+    items,
     onFilterChange,
     optionsOpen,
     selectedFilter,
     setCurrentView,
-    sharedProps,
     t,
     toolBarItemClick,
     toolBarItems,
@@ -914,13 +906,13 @@ const StyledFilterButton = styled(Button)`
 const StyledFilterWrapper = styled.div`
   display: flex;
   text-align: left;
-  ant-space {
+  .ant-space {
     flex: 1;
-    align-self: start;
+    align-self: center;
     justify-self: start;
     text-align: start;
   }
-  overflow: auto;
+  overflow: visible;
   gap: 16px;
   .ant-pro-form-light-filter-item {
     margin: 0;

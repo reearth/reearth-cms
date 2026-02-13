@@ -100,7 +100,7 @@ describe("Integration wrapper", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "setting" }));
+    await user.click(screen.getAllByRole("button", { name: "setting" })[0]);
     await expect.poll(() => screen.getByRole("dialog")).toBeVisible();
     await user.click(screen.getByRole("button", { name: "Cancel" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();

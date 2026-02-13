@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-import { useMemo, useCallback } from "react";
+import { MenuProps } from "antd";
+import { useCallback, useMemo } from "react";
 import ReactDragListView from "react-drag-listview";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -60,7 +61,7 @@ const ModelsList: React.FC<Props> = ({
     [],
   );
 
-  const items = useMemo(
+  const items = useMemo<MenuProps["items"]>(
     () =>
       models
         ?.sort((a, b) => {
@@ -72,15 +73,9 @@ const ModelsList: React.FC<Props> = ({
         .map(model => ({
           label: (
             <div ref={model.id === selectedKey ? scrollToSelected : undefined}>
-              {collapsed ? (
-                <Tooltip placement="right" title={model.name}>
-                  <span>
-                    <Icon icon="dot" />
-                  </span>
-                </Tooltip>
-              ) : (
-                model.name
-              )}
+              <Tooltip placement="right" title={model.name}>
+                <span>{collapsed ? <Icon icon="dot" /> : model.name}</span>
+              </Tooltip>
             </div>
           ),
           key: model.id,
@@ -117,6 +112,7 @@ const ModelsList: React.FC<Props> = ({
             $collapsed={collapsed}
             items={items}
             onClick={handleClick}
+            tooltip={false}
           />
         </ReactDragListView>
       </MenuWrapper>
@@ -143,6 +139,9 @@ const SchemaStyledMenuTitle = styled.h1`
   font-weight: 400;
   font-size: 14px;
   color: #00000073;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const SchemaStyledMenu = styled.div`

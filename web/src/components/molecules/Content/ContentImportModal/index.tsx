@@ -385,7 +385,7 @@ const ContentImportModal: React.FC<Props> = ({
       title={t("Import content")}
       open={isOpen}
       onCancel={onClose}
-      maskClosable={false}
+      mask={{ closable: false }}
       footer={null}>
       {!validateImportResult ? (
         <>

@@ -183,11 +183,7 @@ const LinkItemRequestModal: React.FC<Props> = ({
 export default LinkItemRequestModal;
 
 const StyledModal = styled(Modal)`
-  .ant-pro-card-body {
+  .ant-pro-table {
     padding: 0;
-
-    .ant-pro-table-list-toolbar {
-      padding-left: 12px;
-    }
   }
 `;

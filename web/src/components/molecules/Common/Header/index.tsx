@@ -148,14 +148,16 @@ const HeaderMolecule: React.FC<Props> = ({
       ) : (
         <Logo src="/logo.svg" onClick={onHomeNavigation} />
       )}
-      <WorkspaceDropdown
-        name={currentWorkspace?.name}
-        profilePictureUrl={profilePictureUrl}
-        items={WorkspacesItems}
-        personal={currentIsPersonal}
-        showName={true}
-        showArrow={true}
-      />
+      <WorkspaceDropdownWrapper>
+        <HeaderDropdown
+          name={currentWorkspace?.name}
+          profilePictureUrl={profilePictureUrl}
+          items={WorkspacesItems}
+          personal={currentIsPersonal}
+          showName={true}
+          showArrow={true}
+        />
+      </WorkspaceDropdownWrapper>
       <CurrentProject>
         {currentProject?.name && (
           <>
@@ -167,14 +169,16 @@ const HeaderMolecule: React.FC<Props> = ({
           </>
         )}
       </CurrentProject>
-      <AccountDropdown
-        name={username}
-        profilePictureUrl={profilePictureUrl}
-        items={AccountItems}
-        personal={true}
-        showName={false}
-        showArrow={false}
-      />
+      <AccountDropdownWrapper>
+        <HeaderDropdown
+          name={username}
+          profilePictureUrl={profilePictureUrl}
+          items={AccountItems}
+          personal={true}
+          showName={false}
+          showArrow={false}
+        />
+      </AccountDropdownWrapper>
       {url && (
         <LinkWrapper>
           <EditorLink rel="noreferrer" href={url.href} target="_blank">
@@ -220,12 +224,12 @@ const StyledIcon = styled(Icon)`
   color: #dbdbdb;
 `;
 
-const WorkspaceDropdown = styled(HeaderDropdown)`
+const WorkspaceDropdownWrapper = styled.div`
   margin-left: 20px;
   padding-left: 20px;
 `;
 
-const AccountDropdown = styled(HeaderDropdown)`
+const AccountDropdownWrapper = styled.div`
   padding-right: 20px;
 `;
 

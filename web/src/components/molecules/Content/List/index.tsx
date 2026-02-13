@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Dispatch, Key, SetStateAction } from "react";
+import React, { Dispatch, Key, SetStateAction } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -23,8 +23,8 @@ import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { Field } from "../../Schema/types";
 
 type Props = {
-  commentsPanel: JSX.Element;
-  viewsMenu: JSX.Element;
+  commentsPanel: React.JSX.Element;
+  viewsMenu: React.JSX.Element;
   collapsed: boolean;
   model?: Model;
   contentTableFields?: ContentTableField[];
@@ -228,11 +228,12 @@ const ContentListMolecule: React.FC<Props> = ({
 
 const Content = styled.div`
   width: 100%;
+  height: 100%;
   background-color: #fff;
 `;
 
 const StyledPageHeder = styled(PageHeader)`
-  padding: 16px 24px 0px 24px !important;
+  padding: 16px 24px 0 24px !important;
 `;
 
 export default ContentListMolecule;

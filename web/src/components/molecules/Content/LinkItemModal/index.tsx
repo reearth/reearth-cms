@@ -5,9 +5,9 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal, { useModal } from "@reearth-cms/components/atoms/Modal";
 import {
-  StretchColumn,
   ListToolBarProps,
   OptionConfig,
+  StretchColumn,
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
@@ -224,10 +224,7 @@ const LinkItemModal: React.FC<Props> = ({
 export default LinkItemModal;
 
 const StyledModal = styled(Modal)`
-  .ant-pro-card-body {
+  .ant-pro-table {
     padding: 0;
-    .ant-pro-table-list-toolbar {
-      padding-left: 12px;
-    }
   }
 `;
