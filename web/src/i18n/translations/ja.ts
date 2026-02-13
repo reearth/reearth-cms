@@ -491,6 +491,8 @@ export default {
   "readDocument": "または<l>Re:Earth CMSの使い方</l>をまずお読みください",
   "Reader": "閲覧者",
   "READER": "閲覧者",
+  "Reader cannot import content.": "リーダーはコンテンツをインポートできません。",
+  "Reader cannot import schema.": "リーダーはスキーマをインポートできません。",
   "Readme": "README",
   "README is a crucial document helping people quickly understand your project": "README は、他の人があなたのプロジェクトをすばやく理解するのに役立つ重要なドキュメントです",
   "Refer to item": "アイテムを参照",

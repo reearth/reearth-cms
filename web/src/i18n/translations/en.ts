@@ -492,6 +492,8 @@ export default {
   "readDocument": "Or read <l>how to use Re:Earth CMS</l> first",
   "Reader": "",
   "READER": "",
+  "Reader cannot import content.": "Reader cannot import content.",
+  "Reader cannot import schema.": "Reader cannot import schema.",
   "Readme": "",
   "README is a crucial document helping people quickly understand your project": "",
   "Refer to item": "",

@@ -10,7 +10,7 @@ import {
 } from "zod-geojson";
 
 import { RcFile } from "@reearth-cms/components/atoms/Upload";
-import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types.ts";
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 
 // override render export
 const customRender = (ui: React.ReactElement, options = {}) =>
