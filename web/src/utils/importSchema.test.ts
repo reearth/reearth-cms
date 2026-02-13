@@ -4,7 +4,7 @@ import { join } from "path";
 import { describe, expect, test } from "vitest";
 
 import { ExportSchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { Test } from "@reearth-cms/test/utils.ts";
+import { Test } from "@reearth-cms/test/utils";
 
 import { Constant } from "./constant";
 import {

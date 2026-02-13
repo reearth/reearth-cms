@@ -10,7 +10,7 @@ import {
   ObjectSupportedType,
   SchemaFieldType,
 } from "@reearth-cms/components/molecules/Schema/types";
-import { Test } from "@reearth-cms/test/utils.ts";
+import { Test } from "@reearth-cms/test/utils";
 
 import { Constant } from "./constant";
 import { ContentSourceFormat, ImportContentItem, ImportContentUtils } from "./importContent";

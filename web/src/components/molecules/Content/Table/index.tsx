@@ -46,7 +46,7 @@ import {
 import { Trans, useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
-import { ImportContentUtils } from "@reearth-cms/utils/importContent.ts";
+import { ImportContentUtils } from "@reearth-cms/utils/importContent";
 
 import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";

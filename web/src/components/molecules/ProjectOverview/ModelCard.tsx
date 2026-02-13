@@ -10,8 +10,8 @@ import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/typ
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
-import { ImportContentUtils } from "@reearth-cms/utils/importContent.ts";
-import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema.ts";
+import { ImportContentUtils } from "@reearth-cms/utils/importContent";
+import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
 
 export type Props = {
   model: Model;
