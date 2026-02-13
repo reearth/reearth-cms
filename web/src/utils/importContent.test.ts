@@ -3082,4 +3082,20 @@ describe("Content import test", () => {
       });
     });
   });
+
+  describe("Test getUIMetadata method", () => {
+    test.each([
+      { hasContentCreateRight: true, hasModelFields: true, expected: false },
+      { hasContentCreateRight: true, hasModelFields: false, expected: true },
+      { hasContentCreateRight: false, hasModelFields: true, expected: true },
+      { hasContentCreateRight: false, hasModelFields: false, expected: true },
+    ])(
+      "hasContentCreateRight: $hasContentCreateRight, hasModelFields: $hasModelFields, expected: $expected",
+      ({ hasContentCreateRight, hasModelFields, expected }) => {
+        const result = ImportContentUtils.getUIMetadata({ hasContentCreateRight, hasModelFields });
+
+        expect(result.shouldDisable).toEqual(expected);
+      },
+    );
+  });
 });

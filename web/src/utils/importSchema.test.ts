@@ -1668,4 +1668,20 @@ describe("Test import schema", () => {
       );
     });
   });
+
+  describe("Test getUIMetadata method", () => {
+    test.each([
+      { hasSchemaCreateRight: true, hasModelFields: true, expected: true },
+      { hasSchemaCreateRight: true, hasModelFields: false, expected: false },
+      { hasSchemaCreateRight: false, hasModelFields: true, expected: true },
+      { hasSchemaCreateRight: false, hasModelFields: false, expected: true },
+    ])(
+      "hasSchemaCreateRight: $hasSchemaCreateRight, hasModelFields: $hasModelFields, expected: $expected",
+      ({ hasSchemaCreateRight, hasModelFields, expected }) => {
+        const result = ImportSchemaUtils.getUIMetadata({ hasSchemaCreateRight, hasModelFields });
+
+        expect(result.shouldDisable).toEqual(expected);
+      },
+    );
+  });
 });
