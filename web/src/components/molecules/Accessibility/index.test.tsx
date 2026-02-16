@@ -18,6 +18,7 @@ describe("Accessibility", () => {
   const updateLoading = false;
   const apiUrl = "https://test.com/api/";
   const alias = "alias";
+  const currentLang = "en";
   const initialValues = {
     scope: "PRIVATE" as const,
     alias,
@@ -57,6 +58,7 @@ describe("Accessibility", () => {
         onAPIKeyEdit={onAPIKeyEdit}
         onPublicUpdate={onPublicUpdate}
         onSettingsPageOpen={onSettingsPageOpen}
+        currentLang={currentLang}
       />,
     );
 
@@ -93,6 +95,7 @@ describe("Accessibility", () => {
         onAPIKeyEdit={onAPIKeyEdit}
         onPublicUpdate={onPublicUpdate}
         onSettingsPageOpen={onSettingsPageOpen}
+        currentLang={currentLang}
       />,
     );
 
@@ -135,6 +138,7 @@ describe("Accessibility", () => {
         onAPIKeyEdit={onAPIKeyEdit}
         onPublicUpdate={onPublicUpdate}
         onSettingsPageOpen={onSettingsPageOpen}
+        currentLang={currentLang}
       />,
     );
 

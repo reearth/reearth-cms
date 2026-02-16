@@ -4,8 +4,8 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
 
 import AccessAPIComponent from "./AccessAPI";
-import APIKeyComponent from "./APIKey";
 import APIDocLink from "./APIDocLink";
+import APIKeyComponent from "./APIKey";
 
 type Props = {
   apiKeys?: APIKey[];

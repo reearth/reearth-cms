@@ -8,11 +8,14 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import { Model as GQLModel } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { GetModelsDocument } from "@reearth-cms/gql/__generated__/model.generated";
-import { DeleteApiKeyDocument, UpdateProjectDocument, } from "@reearth-cms/gql/__generated__/project.generated";
+import {
+  DeleteApiKeyDocument,
+  UpdateProjectDocument,
+} from "@reearth-cms/gql/__generated__/project.generated";
+import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated.ts";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useUserRights, useWorkspace } from "@reearth-cms/state";
 import { ObjectUtils } from "@reearth-cms/utils/object";
-import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated.ts";
 
 export default () => {
   const t = useT();
