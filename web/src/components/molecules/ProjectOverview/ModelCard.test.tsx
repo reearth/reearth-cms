@@ -26,6 +26,8 @@ const buildProps = (overrides: Partial<Props> = {}): Props => ({
   },
   hasUpdateRight: true,
   hasDeleteRight: true,
+  hasSchemaCreateRight: true,
+  hasContentCreateRight: true,
   exportLoading: false,
   onSchemaNavigate: vi.fn(),
   onImportSchemaNavigate: vi.fn(),

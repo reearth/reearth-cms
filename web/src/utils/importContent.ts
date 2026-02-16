@@ -8,6 +8,7 @@ import { GeoJSON2DSchema } from "zod-geojson";
 import { ItemValue } from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { ObjectSupportedType } from "@reearth-cms/components/molecules/Schema/types";
+import { t } from "@reearth-cms/i18n";
 
 import { Constant } from "./constant";
 import { PerformanceTimer } from "./performance";
@@ -674,5 +675,23 @@ export abstract class ImportContentUtils {
       timer.log();
       resolve({ isValid: true, data: propertiesFromCollection });
     });
+  }
+
+  public static getUIMetadata(params: {
+    hasContentCreateRight: boolean;
+    hasModelFields: boolean;
+  }): {
+    tooltipMessage: string | undefined;
+    shouldDisable: boolean;
+  } {
+    const { hasModelFields, hasContentCreateRight } = params;
+    return {
+      tooltipMessage: !hasContentCreateRight
+        ? t("Reader cannot import content.")
+        : !hasModelFields
+          ? t("Please create a schema first")
+          : undefined,
+      shouldDisable: !hasModelFields || !hasContentCreateRight,
+    };
   }
 }
