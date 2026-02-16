@@ -23,6 +23,7 @@ import {
   EditorSupportedType,
   ExportSchemaFieldType,
 } from "@reearth-cms/components/molecules/Schema/types";
+import { t } from "@reearth-cms/i18n";
 
 import { PerformanceTimer } from "./performance";
 
@@ -197,16 +198,18 @@ export interface FieldSelectMulti extends FieldBase {
   "x-options": string[];
 }
 
-export interface FieldGeoObject<S extends readonly ObjectSupportedType[] = ObjectSupportedType[]>
-  extends FieldBase {
+export interface FieldGeoObject<
+  S extends readonly ObjectSupportedType[] = ObjectSupportedType[],
+> extends FieldBase {
   "x-fieldType": ExportSchemaFieldType.GeometryObject;
   "x-multiple"?: false;
   "x-geoSupportedTypes": S;
   "x-defaultValue"?: SupportTypeToGeoJSON<S>;
 }
 
-export interface FieldGeoObjectMulti<S extends ObjectSupportedType[] = ObjectSupportedType[]>
-  extends FieldBase {
+export interface FieldGeoObjectMulti<
+  S extends ObjectSupportedType[] = ObjectSupportedType[],
+> extends FieldBase {
   "x-fieldType": ExportSchemaFieldType.GeometryObject;
   "x-multiple"?: true;
   "x-geoSupportedTypes": S;
@@ -802,4 +805,19 @@ export abstract class ImportSchemaUtils {
       ]),
     ),
   });
+
+  public static getUIMetadata(params: { hasSchemaCreateRight: boolean; hasModelFields: boolean }): {
+    tooltipMessage: string | undefined;
+    shouldDisable: boolean;
+  } {
+    const { hasModelFields, hasSchemaCreateRight } = params;
+    return {
+      tooltipMessage: !hasSchemaCreateRight
+        ? t("Reader cannot import schema.")
+        : !hasModelFields
+          ? undefined
+          : t("Only empty schemas can be imported into"),
+      shouldDisable: hasModelFields || !hasSchemaCreateRight,
+    };
+  }
 }

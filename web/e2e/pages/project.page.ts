@@ -1,6 +1,6 @@
 // e2e/pages/project.page.ts
 import { expect, type Locator } from "@reearth-cms/e2e/fixtures/test";
-import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { BasePage } from "./base.page";
 
