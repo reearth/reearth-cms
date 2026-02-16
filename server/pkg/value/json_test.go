@@ -148,14 +148,15 @@ func TestMultiple_ValuesJson(t *testing.T) {
 	var m *Multiple
 	got, ok := m.ValuesJson()
 	var expected []Json
+	assert.False(t, ok)
 	assert.Equal(t, expected, got)
-	assert.Equal(t, false, ok)
 
 	j1 := Json(`{"key1":"value1"}`)
 	j2 := Json(`{"key2":"value2"}`)
 	j3 := Json(`{"key3":"value3"}`)
-	m = NewMultiple(TypeJson, []any{j1, j2, j3})
+	m = NewMultiple(TypeGeometryObject, []any{j1, j2, j3})
 	expected = []Json{j1, j2, j3}
-	got, _ = m.ValuesJson()
+	got, ok = m.ValuesJson()
+	assert.True(t, ok)
 	assert.Equal(t, expected, got)
 }
