@@ -10,7 +10,7 @@ import {
   ObjectSupportedType,
   SchemaFieldType,
 } from "@reearth-cms/components/molecules/Schema/types";
-import { Test } from "@reearth-cms/test/utils.ts";
+import { Test } from "@reearth-cms/test/utils";
 
 import { Constant } from "./constant";
 import { ContentSourceFormat, ImportContentItem, ImportContentUtils } from "./importContent";
@@ -3081,5 +3081,21 @@ describe("Content import test", () => {
         );
       });
     });
+  });
+
+  describe("Test getUIMetadata method", () => {
+    test.each([
+      { hasContentCreateRight: true, hasModelFields: true, expected: false },
+      { hasContentCreateRight: true, hasModelFields: false, expected: true },
+      { hasContentCreateRight: false, hasModelFields: true, expected: true },
+      { hasContentCreateRight: false, hasModelFields: false, expected: true },
+    ])(
+      "hasContentCreateRight: $hasContentCreateRight, hasModelFields: $hasModelFields, expected: $expected",
+      ({ hasContentCreateRight, hasModelFields, expected }) => {
+        const result = ImportContentUtils.getUIMetadata({ hasContentCreateRight, hasModelFields });
+
+        expect(result.shouldDisable).toEqual(expected);
+      },
+    );
   });
 });

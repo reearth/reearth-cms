@@ -17,6 +17,8 @@ type Props = {
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
+  hasSchemaCreateRight: boolean;
+  hasContentCreateRight: boolean;
   exportLoading?: boolean;
   onProjectUpdate: (data: UpdateProjectInput) => Promise<void>;
   onModelSearch: (value: string) => void;
@@ -37,6 +39,8 @@ const ProjectOverview: React.FC<Props> = ({
   hasCreateRight,
   hasUpdateRight,
   hasDeleteRight,
+  hasSchemaCreateRight,
+  hasContentCreateRight,
   exportLoading,
   onModelSearch,
   onModelSort,
@@ -73,6 +77,8 @@ const ProjectOverview: React.FC<Props> = ({
                 model={m}
                 hasUpdateRight={hasUpdateRight}
                 hasDeleteRight={hasDeleteRight}
+                hasSchemaCreateRight={hasSchemaCreateRight}
+                hasContentCreateRight={hasContentCreateRight}
                 exportLoading={exportLoading}
                 onSchemaNavigate={onSchemaNavigate}
                 onImportSchemaNavigate={onImportSchemaNavigate}

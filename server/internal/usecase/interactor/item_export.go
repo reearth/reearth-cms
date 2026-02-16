@@ -13,7 +13,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/i18n"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
