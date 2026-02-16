@@ -198,16 +198,18 @@ export interface FieldSelectMulti extends FieldBase {
   "x-options": string[];
 }
 
-export interface FieldGeoObject<S extends readonly ObjectSupportedType[] = ObjectSupportedType[]>
-  extends FieldBase {
+export interface FieldGeoObject<
+  S extends readonly ObjectSupportedType[] = ObjectSupportedType[],
+> extends FieldBase {
   "x-fieldType": ExportSchemaFieldType.GeometryObject;
   "x-multiple"?: false;
   "x-geoSupportedTypes": S;
   "x-defaultValue"?: SupportTypeToGeoJSON<S>;
 }
 
-export interface FieldGeoObjectMulti<S extends ObjectSupportedType[] = ObjectSupportedType[]>
-  extends FieldBase {
+export interface FieldGeoObjectMulti<
+  S extends ObjectSupportedType[] = ObjectSupportedType[],
+> extends FieldBase {
   "x-fieldType": ExportSchemaFieldType.GeometryObject;
   "x-multiple"?: true;
   "x-geoSupportedTypes": S;
