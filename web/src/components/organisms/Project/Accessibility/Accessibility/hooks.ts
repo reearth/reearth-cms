@@ -8,13 +8,11 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import { Model as GQLModel } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { GetModelsDocument } from "@reearth-cms/gql/__generated__/model.generated";
-import {
-  DeleteApiKeyDocument,
-  UpdateProjectDocument,
-} from "@reearth-cms/gql/__generated__/project.generated";
+import { DeleteApiKeyDocument, UpdateProjectDocument, } from "@reearth-cms/gql/__generated__/project.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useProject, useUserRights, useWorkspace } from "@reearth-cms/state";
 import { ObjectUtils } from "@reearth-cms/utils/object";
+import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated.ts";
 
 export default () => {
   const t = useT();
@@ -57,6 +55,10 @@ export default () => {
         .filter((model): model is Model => !!model) ?? [],
     [modelsData?.models.nodes],
   );
+
+  const { data } = useQuery(GetMeDocument);
+
+  const currentLang = useMemo<string>(() => (data && data.me ? data.me.lang : "en"), [data]);
 
   const alias = useMemo(() => currentProject?.alias ?? "", [currentProject?.alias]);
 
@@ -172,5 +174,6 @@ export default () => {
     handleAPIKeyDelete,
     handleAPIKeyEdit,
     handleSettingsPageOpen,
+    currentLang,
   };
 };

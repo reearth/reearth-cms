@@ -5,6 +5,7 @@ import { useT } from "@reearth-cms/i18n";
 
 import AccessAPIComponent from "./AccessAPI";
 import APIKeyComponent from "./APIKey";
+import APIDocLink from "./APIDocLink";
 
 type Props = {
   apiKeys?: APIKey[];
@@ -26,6 +27,7 @@ type Props = {
     models: { modelId: string; status: boolean }[],
   ) => Promise<void>;
   onSettingsPageOpen: () => void;
+  currentLang: string;
 };
 
 const Accessibility: React.FC<Props> = ({
@@ -44,6 +46,7 @@ const Accessibility: React.FC<Props> = ({
   onAPIKeyDelete,
   onPublicUpdate,
   onSettingsPageOpen,
+  currentLang,
 }) => {
   const t = useT();
 
@@ -51,7 +54,8 @@ const Accessibility: React.FC<Props> = ({
     <InnerContent
       title={t("Accessibility")}
       flexChildren
-      subtitle={t("Control the visibility scope of the Content API")}>
+      subtitle={t("Control the visibility scope of the Content API")}
+      extra={<APIDocLink currentLang={currentLang} />}>
       <AccessAPIComponent
         apiUrl={apiUrl}
         initialValues={initialValues}
