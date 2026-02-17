@@ -14,8 +14,6 @@ type Props = {
 const APIDocLink: React.FC<Props> = ({ currentLang }) => {
   const t = useT();
 
-  console.log("currentLang", currentLang);
-
   return (
     <APIDocLinkWrapper>
       <Tooltip title={t("View full developer documentation")}>
