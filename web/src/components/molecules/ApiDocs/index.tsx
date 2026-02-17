@@ -16,7 +16,7 @@ const ApiDocs: FC<Props> = ({ specUrl, className }) => {
           spec: {
             url: specUrl,
           },
-          customCss: `
+          customCss: /* css */ `
             [data-v-app] { height: 100%; }
             [data-v-app] > div { height: 100%; }
             .scalar-api-reference { --full-height: 100% !important; min-height: 100% !important; height: 100%; }
