@@ -24,7 +24,7 @@ export abstract class Constant {
 
   public static readonly IMPORT = {
     MAX_CONTENT_RECORDS: 50_000,
-    MAX_FILE_SIZE_IN_MB: 10,
+    MAX_FILE_SIZE_IN_MB: 100,
     GET_JOB_DELAY_TIME_IN_MS: 500,
 
     // import ignore field types by file format
