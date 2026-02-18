@@ -194,9 +194,22 @@ export default (assetId?: string) => {
     } else if (viewerType === "image" || viewerType === "image_svg") {
       setIsModalVisible(true);
     } else {
-      viewerRef.current?.cesiumElement?.canvas.requestFullscreen();
+      viewerRef.current?.cesiumElement?.container.requestFullscreen?.()?.catch(() => {});
     }
   }, [viewerType]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      requestAnimationFrame(() => {
+        const viewer = viewerRef.current?.cesiumElement;
+        if (viewer && !viewer.isDestroyed()) {
+          viewer.resize();
+        }
+      });
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
 
   const handleAssetItemSelect = useCallback(
     (assetItem: AssetItem) => {
