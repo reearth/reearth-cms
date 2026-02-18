@@ -121,7 +121,6 @@ func getReferencedItems(ctx context.Context, i *item.Item, sp *schema.Package, p
 	}
 
 	// Step 3: Build schema map from referenced schemas in the schema package
-	// This avoids M queries to fetch schemas - they're already loaded
 	schemaMap := make(map[id.ModelID]*schema.Schema)
 	for _, refSchema := range sp.ReferencedSchemas() {
 		// Get reference fields from main schema to find model ID for this ref schema
