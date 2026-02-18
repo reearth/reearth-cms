@@ -2,6 +2,7 @@ package item
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/samber/lo"
 )
@@ -60,6 +61,35 @@ func (l List) AssetIDs(sp schema.Package) AssetIDList {
 		assetIDs = assetIDs.AddUniq(i.AssetIDsBySchema(sp)...)
 	}
 	return assetIDs
+}
+
+// RefItemIDs collects all unique reference field item IDs from the list
+func (l List) RefItemIDs() IDList {
+	if l == nil {
+		return nil
+	}
+	var refIDs IDList
+	seen := make(map[ID]bool)
+
+	for _, itm := range l {
+		if itm == nil {
+			continue
+		}
+		for _, f := range itm.Fields() {
+			if f.Type() == value.TypeReference {
+				for _, v := range f.Value().Values() {
+					if refID, ok := v.Value().(ID); ok {
+						if !seen[refID] {
+							refIDs = append(refIDs, refID)
+							seen[refID] = true
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return refIDs
 }
 
 func (l List) ToMap() map[ID]*Item {

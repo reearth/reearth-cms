@@ -458,3 +458,128 @@ func TestList_AssetIDs(t *testing.T) {
 		})
 	}
 }
+
+func TestList_RefItemIDs(t *testing.T) {
+	t.Parallel()
+
+	refID1 := id.NewItemID()
+	refID2 := id.NewItemID()
+	refID3 := id.NewItemID()
+	refFieldID := id.NewFieldID()
+	textFieldID := id.NewFieldID()
+	sid := id.NewSchemaID()
+	mid := id.NewModelID()
+	pid := id.NewProjectID()
+
+	tests := []struct {
+		name     string
+		list     List
+		expected IDList
+	}{
+		{
+			name:     "nil list",
+			list:     nil,
+			expected: nil,
+		},
+		{
+			name:     "empty list",
+			list:     List{},
+			expected: nil,
+		},
+		{
+			name: "items with no reference fields",
+			list: List{
+				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
+					NewField(textFieldID, value.TypeText.Value("test").AsMultiple(), nil),
+				}).MustBuild(),
+			},
+			expected: nil,
+		},
+		{
+			name: "single item with single reference",
+			list: List{
+				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
+					NewField(refFieldID, value.TypeReference.Value(refID1).AsMultiple(), nil),
+				}).MustBuild(),
+			},
+			expected: IDList{refID1},
+		},
+		{
+			name: "single item with multiple references in one field",
+			list: List{
+				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
+					NewField(refFieldID, value.NewMultiple(value.TypeReference, []any{refID1, refID2}), nil),
+				}).MustBuild(),
+			},
+			expected: IDList{refID1, refID2},
+		},
+		{
+			name: "multiple items with different references",
+			list: List{
+				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
+					NewField(refFieldID, value.TypeReference.Value(refID1).AsMultiple(), nil),
+				}).MustBuild(),
+				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
+					NewField(refFieldID, value.TypeReference.Value(refID2).AsMultiple(), nil),
+				}).MustBuild(),
+			},
+			expected: IDList{refID1, refID2},
+		},
+		{
+			name: "multiple items with duplicate references (deduplication)",
+			list: List{
+				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
+					NewField(refFieldID, value.TypeReference.Value(refID1).AsMultiple(), nil),
+				}).MustBuild(),
+				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
+					NewField(refFieldID, value.TypeReference.Value(refID1).AsMultiple(), nil),
+				}).MustBuild(),
+				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
+					NewField(refFieldID, value.TypeReference.Value(refID1).AsMultiple(), nil),
+				}).MustBuild(),
+			},
+			expected: IDList{refID1},
+		},
+		{
+			name: "items with mixed field types",
+			list: List{
+				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
+					NewField(textFieldID, value.TypeText.Value("test").AsMultiple(), nil),
+					NewField(refFieldID, value.TypeReference.Value(refID1).AsMultiple(), nil),
+				}).MustBuild(),
+			},
+			expected: IDList{refID1},
+		},
+		{
+			name: "complex scenario with duplicates across items",
+			list: List{
+				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
+					NewField(refFieldID, value.NewMultiple(value.TypeReference, []any{refID1, refID2}), nil),
+					NewField(textFieldID, value.TypeText.Value("test").AsMultiple(), nil),
+				}).MustBuild(),
+				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
+					NewField(refFieldID, value.NewMultiple(value.TypeReference, []any{refID2, refID3}), nil),
+				}).MustBuild(),
+				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
+					NewField(refFieldID, value.TypeReference.Value(refID1).AsMultiple(), nil),
+				}).MustBuild(),
+			},
+			expected: IDList{refID1, refID2, refID3},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := tt.list.RefItemIDs()
+
+			if tt.expected == nil {
+				assert.Nil(t, got)
+			} else {
+				assert.ElementsMatch(t, tt.expected, got)
+			}
+		})
+	}
+}
