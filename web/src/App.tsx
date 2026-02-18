@@ -38,6 +38,7 @@ import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
 
 import { UploaderProvider } from "./components/molecules/Uploader/provider";
+import IntegrationsDocs from "./components/organisms/Settings/Integration/IntegrationsDocs";
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
@@ -58,6 +59,7 @@ const router = createBrowserRouter(
           element={<MyIntegrationDetails />}
         />
         <Route path=":workspaceId/integrations" element={<Integration />} />
+        <Route path=":workspaceId/integrations/docs" element={<IntegrationsDocs />} />
         <Route path=":workspaceId/settings" element={<Settings />} />
         <Route path=":workspaceId/workspaceSettings" element={<WorkspaceSettings />} />
         <Route path=":workspaceId/project/:projectId" element={<ProjectOverview />} />
