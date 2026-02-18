@@ -449,9 +449,11 @@ const GeometryItem: React.FC<Props> = ({
         if (isInitRef.current || !isEditor) {
           const feature = source.getExtent();
           try {
-            mapRef.current
-              ?.getView()
-              .fit(feature, { padding: [100, 100, 100, 100], minResolution: 5 });
+            if (feature) {
+              mapRef.current
+                ?.getView()
+                .fit(feature, { padding: [100, 100, 100, 100], minResolution: 5 });
+            }
           } catch (e) {
             console.error(e);
           }

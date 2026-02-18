@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"io"
-	"time"
 
 	"github.com/reearth/reearth-cms/server/internal/adapter"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
@@ -13,7 +12,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/value"
-	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
@@ -60,22 +58,15 @@ func (c *Controller) GetItem(ctx context.Context, wsAlias, pAlias, mKey, i strin
 }
 
 func (c *Controller) GetPublicItems(ctx context.Context, wsAlias, pAlias, mKey, ext string, p *usecasex.Pagination, w io.Writer) error {
-	start := time.Now()
-	log.Debugfc(ctx, "controller: [START] GetPublicItems for model=%s", mKey)
-
-	loadContextStart := time.Now()
 	wpm, err := c.loadWPMContext(ctx, wsAlias, pAlias, mKey)
 	if err != nil {
 		return err
 	}
-	log.Debugfc(ctx, "controller: loadWPMContext took %v", time.Since(loadContextStart))
 
-	schemaStart := time.Now()
 	sp, err := c.usecases.Schema.FindByModel(ctx, wpm.Model.ID(), nil)
 	if err != nil {
 		return err
 	}
-	log.Debugfc(ctx, "controller: Schema.FindByModel took %v", time.Since(schemaStart))
 
 	format := exporters.FormatJSON
 	switch ext {
@@ -87,8 +78,6 @@ func (c *Controller) GetPublicItems(ctx context.Context, wsAlias, pAlias, mKey, 
 		format = exporters.FormatCSV
 	}
 
-	exportStart := time.Now()
-	log.Debugfc(ctx, "controller: [START] Item.Export - format=%v, publicAssets=%v", format, wpm.PublicAssets)
 	err = c.usecases.Item.Export(ctx, interfaces.ExportItemParams{
 		ModelID:       wpm.Model.ID(),
 		SchemaPackage: *sp,
@@ -102,10 +91,6 @@ func (c *Controller) GetPublicItems(ctx context.Context, wsAlias, pAlias, mKey, 
 			IncloudRefModels: wpm.PublicModels,
 		},
 	}, w, nil)
-	exportDuration := time.Since(exportStart)
-	totalDuration := time.Since(start)
-	log.Debugfc(ctx, "controller: [END] Item.Export took %v, total GetPublicItems took %v", exportDuration, totalDuration)
-
 	if err != nil {
 		return err
 	}
