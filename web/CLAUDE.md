@@ -1,85 +1,394 @@
-# Frontend Test Refactoring
+# Frontend Test Refactoring Guide
 
-## Purpose
+> For existing E2E conventions (directory structure, fixtures, running tests, etc.), see `e2e/claude.md`.
+> This document covers **what is changing** in the refactoring effort.
 
-To make E2E test more solid and fast, eliminate duplicate code. And reconsider relationship between E2E test (with Playwright) and component test (with Vitest)
+## Goal
 
-## Direction
+Make E2E tests more solid and fast by:
 
-- E2E test will keep following the rule in "e2e/claude.md", but change some rule and structure
-- Define when and where should we write E2E test, or maybe component test can fully cover it
+1. Eliminating fragile selectors that break on package upgrades or locale changes
+2. Removing duplicate locators/actions across POM classes
+3. Enforcing encapsulation so spec files use a clean public API
+4. Clarifying the boundary between E2E and component tests
 
-## Playwright
+## Selector Strategy
 
-### Issues
+### Decision Rules
 
-- Duplicate element query: Find duplicate element after testing package upgrade
-- Element not found: Cannot find element any more (text, element structure change)
-- Query behavior changed: Query become invalid due to upgrade (ex. "plus New Project" → "plusNew Project")
-- Find unexpected element: Accidentally find unexpected element (find the “ok” button behind the modal layer, but not inside layer)
-- Flaky parallel: Flaky test that prone to fail when running in parallel
-- Ant design class query: Element query failed after package upgrade by using specific CSS class from package (ex. “ant-table” in ant design)
-- Change locales, language will break tests
+| Current Selector                                                   | Action                                  | Why                                                                |
+| ------------------------------------------------------------------ | --------------------------------------- | ------------------------------------------------------------------ |
+| `.ant-*` (e.g. `.ant-modal-wrap`, `.ant-table-row`)                | Replace with `data-testid`              | Breaks on Ant Design upgrades                                      |
+| `.css-*` hash classes (e.g. `.css-7g0azd`)                         | Replace with `data-testid`              | Breaks on any style change                                         |
+| `getByText("Settings")`, `getByText("Content")` for navigation     | Replace with `data-testid`              | Matches multiple elements; breaks on locale change                 |
+| `getByRole("button", { name: "plus New Model" })` with icon prefix | Replace with `data-testid`              | Icon text prefix changes on upgrade                                |
+| `getByRole("button", { name: "OK" })`                              | Replace with `data-testid`              | Multiple buttons may share the name; text may change (e.g. "Save") |
+| `getByLabel("Model name")`                                         | Replace with `data-testid`              | Label text may change or conflict across forms                     |
+| `getByPlaceholder("search")`                                       | Replace with `data-testid`              | Placeholder text may change or conflict                            |
+| `.nth(N)` without scoped parent                                    | Add `data-testid` to parent, then scope | Positional selectors are fragile                                   |
 
-### Solutions
+### `data-testid` Rules
 
-- Using `getByTestId` to precisely query the right element
-- Element injected attribute `data-testid` will be abstract into enum `DATA_TEST_ID` under `src/test/utils.ts`. Naming convention will be
-  - `Component__Element`
-  - `Page__FirstComponent__FirstElement`
-  - `Page__SubPage__FirstComponent__FirstElement`
-  - Style is inspired by BEM with PascalCase
-- For Ant Design and other 3rd party library components, try to inject `data-testid` attribute for precise query if applicable. If not, wrap it and using `data-testid` attribute
+- Attribute injected via `data-testid` on React components
+- Values centralized in `DATA_TEST_ID` enum at `src/test/utils.ts`
+- Naming convention: `Component__Element` (BEM-inspired, PascalCase)
+  - `ModelCard__UtilDropdownIcon`
+  - `Schema__ImportSchemaButton`
+  - `Content__List__ImportContentButton`
+- For nested page context: `Page__Component__Element`
+- For 3rd party components (Ant Design): wrap with a `<div data-testid="...">` if `data-testid` prop is not supported
+- E2E locators use `getByTestId(DATA_TEST_ID.X)`, never raw strings
 
-## POM Structure
+### Querying i18n Text
 
-### Issues
+- E2E tests should NOT query by visible text (button labels, menu text)
+- If testing i18n text is unavoidable, use `t("i18n-key")` from `e2e/support/i18n.ts`
+- Prefer `data-testid` for element targeting, `toHaveText(t("key"))` for assertions
 
-- Duplicate code block across page objects, and not easy to detect it (static code check)
-- Some pages contain complex modal (ex. field-editor page is inside schema page), but they are "sibling" class for now
-- Test cases import several POM at the same time, which became messy
-- All properties and methods are public for now, due to query elements inside test cases
+## POM Hierarchy
 
-### Solutions
+### Override Control Pattern
 
-- Use "strict override control inheritance structure" to refactor these POM classes (please refer to file "class-override-control.ts")
-- Setup `"noImplicitOverride": true` in `tsconfig.json` (already added)
+Follow the pattern in `class-override-control.ts` with `noImplicitOverride: true` (already in `tsconfig.json`):
 
-#### POM Class Rules
+- **`protected readonly` arrow functions**: Non-overridable (sealed) — used for shared locator getters in Layer 1/2
+- **`protected abstract` methods**: Hooks for subclasses to implement
+- **`override` keyword**: Required for all overrides (enforced by compiler)
 
-- `private` properties and methods by default, only expose those will be used in test files (*.spec.ts)
-- Class hierarchy:
-  - First layer: base class (abstract class, might have "placeholder" methods meant to be overridden)
-  - Second layer: common class (like base class), stored common properties and methods used by third layer classes
-  - Third layer: the classes will be use in test files, has public methods
-- class will be split into two parts:
-  - Element Queries: use getter function (no params) and normal function (with params), query `data-testid` if possible. Params type might use enum `DATA_TEST_ID` but not `string`
-  - Actions: public function for test files. Which contains but limited to:
-    - Check current url is valid to query elements ("check if I'm at the right place"), if not, throw error
-    - Query elements ONLY using the methods inside the class
-    - Check element existence (or visibility)
-    - Do action (ex. click, hover ...etc)
+### Visibility Rules
 
-## Relationship Frontend Tests
+- `private`: Default for all properties and methods
+- `protected`: Only for methods/locators reused by subclasses (Layer 1/2)
+- `public`: Only for methods called from spec files (Layer 3 actions)
 
-Definition in short:
+### Class Split: Element Queries vs Actions
 
-- E2E tests focus on system function with **real world data**
-- Component tests focus on data rendering correctly (no matter is fake or real data)
-- Visual tests (no implemented) focus on what user will see (UI changes)
+Each POM class should be organized into two sections:
 
-### E2E Test
+```typescript
+class SchemaPage extends ProjectScopedPage {
+  // ── Composed POMs (private) ──
+  private fieldEditor: FieldEditorPage;
+  private content: ContentPage;
 
-- E2E test is not visual test, so don't query element by "visible things" (ex. button text)
-- If testing i18n text is unavoidable, please use (`t("i18n-key")`) instead of hard-coded string
-- Test "interaction correctness with REAL WORLD data"
+  constructor(page: Page) {
+    super(page);
+    this.fieldEditor = new FieldEditorPage(page);
+    this.content = new ContentPage(page);
+  }
 
-### Component Test
+  // ── Element Queries (private) ──
+  // Getters (no params) and functions (with params)
+  // Query by data-testid when possible
+  // Params use DATA_TEST_ID enum, not raw strings
+  private get fieldDisplayNameInput(): Locator { ... }
+  private fieldTypeByTestId(id: DATA_TEST_ID): Locator { ... }
 
-- If right data will can ensure component works correct, use it
-- Validate rendering logic
-- Fully trust the input data, no matter is fake or real
+  // ── Actions (public) ──
+  // Public methods for spec files
+  // Each action: validate URL → query elements → assert → interact
+  // Can delegate to composed POMs for cross-page workflows
+  public async createModel(name: string, key?: string): Promise<void> { ... }
+  public async createFieldAndVerifyInContent(type: DATA_TEST_ID, name: string): Promise<void> {
+    // Delegates to this.fieldEditor and this.content internally
+  }
+}
+```
 
-### Misc
+### One POM Per Spec File (Composition Pattern)
 
-- Responsibility can be overlapped between E2E and component tests if necessary
+**Goal**: Each spec file uses ONE POM only. The POM internally composes sibling POMs for cross-page workflows.
+
+**Before** (messy multi-POM imports):
+
+```typescript
+// text.spec.ts — uses 3+ POMs
+test.beforeEach(async ({ reearth, projectPage }) => {
+  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+  await projectPage.createProject(projectName);
+  await projectPage.gotoProject(projectName);
+});
+test.afterEach(async ({ projectPage }) => {
+  await projectPage.deleteProject();
+});
+test("Text field", async ({ schemaPage, fieldEditorPage, contentPage }) => {
+  await schemaPage.createModelFromSidebar(modelName);
+  await fieldEditorPage.fieldTypeButton("Text").click();
+  await fieldEditorPage.handleFieldForm(name);
+  await schemaPage.contentText.click();
+  await contentPage.createItem();
+});
+```
+
+**After** (one POM — SchemaPage composes FieldEditorPage + ContentPage):
+
+```typescript
+// text.spec.ts — uses only schemaPage
+test.beforeEach(async ({ schemaPage }) => {
+  await schemaPage.goto("/", { waitUntil: "domcontentloaded" });
+  await schemaPage.createProject(projectName);   // inherited from Layer 2
+  await schemaPage.gotoProject(projectName);      // inherited from Layer 2
+});
+test.afterEach(async ({ schemaPage }) => {
+  await schemaPage.deleteProject();               // inherited from Layer 2
+});
+test("Text field", async ({ schemaPage }) => {
+  await schemaPage.createModelFromSidebar(modelName);
+  await schemaPage.createFieldAndVerifyInContent(
+    DATA_TEST_ID.FieldList__Text, "text1", "hello"
+  );
+});
+```
+
+### Setup/Teardown via Layer 2
+
+`ProjectScopedPage` provides project lifecycle methods so NO separate `projectPage` fixture is needed:
+
+```typescript
+// project-scoped.page.ts — Layer 2
+abstract class ProjectScopedPage extends BasePage {
+  // Project lifecycle (inherited by all project-scoped Layer 3 POMs)
+  protected readonly createProject = async (name: string): Promise<void> => {
+    await this.goto("/", { waitUntil: "domcontentloaded" });
+    // ... create project via UI
+  };
+
+  protected readonly gotoProject = async (name: string): Promise<void> => {
+    // ... navigate to project
+  };
+
+  protected readonly deleteProject = async (): Promise<void> => {
+    // ... navigate to settings, delete project
+  };
+
+  // Shared navigation (sealed, non-overridable)
+  protected readonly schemaMenuItem = (): Locator => { ... };
+  protected readonly contentMenuItem = (): Locator => { ... };
+  protected readonly navigateToContent = async (): Promise<void> => {
+    await this.contentMenuItem().click();
+  };
+  protected readonly navigateToSchema = async (): Promise<void> => {
+    await this.schemaMenuItem().click();
+  };
+
+  // URL validation
+  protected readonly assertProjectContext = (): void => { ... };
+}
+```
+
+### 3-Layer Hierarchy
+
+```
+BasePage (abstract) — Layer 1
+│  Sealed: okButton, cancelButton, saveButton, backButton,
+│          searchInput, searchButton, rootElement
+│  Kept:   goto(), url(), closeNotification(), keypress(), getCurrentItemId()
+│  Kept:   getByRole(), getByText(), getByTestId(), etc. (Playwright wrappers)
+│
+├── ProjectScopedPage (abstract) — Layer 2
+│   Sealed: schemaMenuItem, contentMenuItem, assetMenuItem,
+│           settingsMenuItem, accessibilityMenuItem
+│   Sealed: createProject(), gotoProject(), deleteProject()
+│   Sealed: navigateToContent(), navigateToSchema(), navigateToAsset()
+│   Method: assertProjectContext() — validates URL has project ID
+│   │
+│   ├── SchemaPage              — model/group/field CRUD
+│   │                             Composes: FieldEditorPage, ContentPage
+│   ├── ContentPage             — item CRUD, table, views, filters, publishing
+│   ├── FieldEditorPage         — field creation/editing forms
+│   ├── RequestPage             — request workflow
+│   │                             Composes: ContentPage (for request-from-content flows)
+│   ├── AssetsPage              — asset upload/management
+│   ├── ProjectOverviewPage     — (split from ProjectPage) model cards, overview
+│   │                             Composes: SchemaPage (for create-model-then-navigate flows)
+│   └── ProjectSettingsPage     — (merge current ProjectPage settings + existing ProjectSettingsPage)
+│
+├── SettingsScopedPage (abstract) — Layer 2
+│   Sealed: workspaceSettingsNav, memberNav, integrationsNav
+│   │
+│   ├── WorkspaceSettingsPage   — (split from SettingsPage) tiles, terrain
+│   ├── MemberPage              — member management
+│   ├── IntegrationsPage        — integrations + webhooks
+│   └── AccountPage             — (split from SettingsPage) account, language
+│
+├── WorkspacePage               — project list, workspace CRUD (no Layer 2 needed)
+└── LoginPage                   — authentication (standalone, own base)
+```
+
+### Before/After: Common Locator Deduplication
+
+**Before** (duplicated in 7+ POMs):
+
+```typescript
+// schema.page.ts
+get okButton(): Locator { return this.getByRole("button", { name: "OK" }); }
+
+// project.page.ts
+get okButton(): Locator { return this.getByRole("button", { name: "OK" }); }
+
+// content.page.ts
+get okButton(): Locator { return this.getByRole("button", { name: "OK" }); }
+```
+
+**After** (once in BasePage, sealed):
+
+```typescript
+// base.page.ts — Layer 1
+protected readonly okButton = (): Locator => {
+  return this.page.getByTestId(DATA_TEST_ID.Modal__OkButton);
+};
+```
+
+### Before/After: Fragile Selector
+
+**Before** (breaks on Ant Design upgrade):
+
+```typescript
+// project.page.ts
+async gotoProject(name: string): Promise<void> {
+  await this.getByText(name, { exact: true }).click();
+  const projectName = this.locator(".ant-layout-header p").nth(2);
+  await expect(projectName).toHaveText(name);
+}
+```
+
+**After** (stable):
+
+```typescript
+// project-overview.page.ts
+public async gotoProject(name: string): Promise<void> {
+  await this.getByText(name, { exact: true }).click();
+  await expect(this.getByTestId(DATA_TEST_ID.ProjectHeader__Name)).toHaveText(name);
+}
+```
+
+### Before/After: Modal Workaround
+
+**Before** (40-line CSS selector workaround in `deleteProject()`):
+
+```typescript
+const modalWrap = this.page.locator(".ant-modal-wrap");
+// ... 30+ lines of .ant-modal-close, computed style checks, fallbacks
+```
+
+**After** (clean with data-testid):
+
+```typescript
+protected readonly dismissOpenModal = async (): Promise<void> => {
+  const modal = this.getByTestId(DATA_TEST_ID.Modal__CloseButton);
+  if (await modal.isVisible({ timeout: 500 }).catch(() => false)) {
+    await modal.click();
+  }
+};
+```
+
+## POM Splitting Strategy
+
+### ProjectPage → 2 classes
+
+- **ProjectOverviewPage**: model cards, create/delete model from overview, import/export modals
+- **ProjectSettingsPage**: project name/description editing, danger zone, accessibility — absorbs the existing `project-settings.page.ts`
+
+### SettingsPage → 2 classes
+
+- **WorkspaceSettingsPage**: tiles, terrain management
+- **AccountPage**: account settings, language preferences
+
+### ContentPage stays as one class
+
+At 783 lines it's large, but the concerns (item CRUD, table, views, filters) are tightly coupled via the same URL context. If it grows further, extract `ContentViewPage`.
+
+## Migration Order
+
+Each phase: (a) add `data-testid` to React components → (b) update/create POM class → (c) update spec files → (d) run affected tests
+
+| Phase | Target                                                                                  | Size             | Why This Order                                                      |
+| ----- | --------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------- |
+| 0     | Create `ProjectScopedPage` + `SettingsScopedPage` abstract classes, refactor `BasePage` | New files        | Foundation — no spec changes needed                                 |
+| 1     | `ProjectSettingsPage`                                                                   | ~38 lines        | Smallest project-scoped POM; already uses public/private            |
+| 2     | `MemberPage`                                                                            | ~28 lines        | Smallest settings-scoped POM                                        |
+| 3     | `AssetsPage`                                                                            | ~121 lines       | Small, few fragile selectors                                        |
+| 4     | `RequestPage`                                                                           | ~177 lines       | Medium, has `.ant-select-*` to replace                              |
+| 5     | `SchemaPage`                                                                            | ~281 lines       | Medium, has `.draggable-item`, `.grabbable`, `.ant-select-selector` |
+| 6     | Split `ProjectPage` → `ProjectOverviewPage` + merge into `ProjectSettingsPage`          | ~279 lines       | Replace `.ant-layout-header`, `.ant-modal-*`, `.ant-card`           |
+| 7     | `FieldEditorPage`                                                                       | ~503 lines       | Large, has `.css-*` hash selectors, `.ant-col`, `.ant-table-row`    |
+| 8     | `ContentPage`                                                                           | ~783 lines       | Largest POM; most `.ant-table-*`, `.css-*` selectors                |
+| 9     | `SettingsPage` split + `IntegrationsPage` + `WorkspacePage`                             | ~512 lines total | Final cleanup                                                       |
+
+## E2E vs Component Test Responsibility Boundary
+
+> All frontend tests are not responsible for testing data correctness (e.g., calculation logic, query filtering, validation rules) — that belongs to backend tests. Frontend tests verify that the UI correctly displays and interacts with whatever data the backend provides.
+
+| Write E2E test when...                                     | Write component test when...                                |
+| ---------------------------------------------------------- | ----------------------------------------------------------- |
+| Testing a multi-page workflow (create → navigate → verify) | Testing rendering logic with different props/states         |
+| Testing data persistence (create, reload, still exists)    | Testing form validation display                             |
+| Testing real API integration (GraphQL mutations/queries)   | Testing component behavior with mocked data                 |
+| Testing cross-component interactions on the same page      | Testing individual component states (loading, error, empty) |
+| Testing authentication/authorization flows                 | Testing i18n text rendering                                 |
+
+**Overlap is OK** when:
+
+- A component test covers rendering correctness and an E2E test covers the same feature's integration with real data
+- Example: Component test verifies ModelCard renders dropdown menu items → E2E test verifies clicking "Delete" actually deletes the model
+
+**Don't duplicate** when:
+
+- A component test already verifies pure UI logic (hover states, disabled states, tooltip content) — no need for E2E
+- An E2E test already covers a simple CRUD flow — no need for a component test that mocks the same API calls
+
+### `@redundant` Flag
+
+During review, if an E2E test case is fully covered by component tests, flag it with `@redundant` in the test title (same pattern as `@smoke`):
+
+```typescript
+// Before flagging
+test("Text field", async ({ schemaPage }) => { ... });
+
+// After flagging
+test("@redundant Text field", async ({ schemaPage }) => { ... });
+```
+
+```bash
+# List all redundant tests
+yarn playwright test --list --grep @redundant
+
+# Run everything except redundant tests
+yarn playwright test --grep-invert @redundant
+```
+
+The test is kept in the codebase and still runs in the full suite by default. This allows batch review and removal later.
+
+## Rules Quick Reference
+
+- [ ] Each spec file uses ONE POM only (composition pattern)
+- [ ] All new/modified locators use `data-testid` for elements with fragile selectors
+- [ ] `DATA_TEST_ID` enum values follow `Component__Element` naming
+- [ ] POM members are `private` by default; `public` only for spec-facing actions
+- [ ] Common locators live in Layer 1 (BasePage) or Layer 2 (scoped pages), not duplicated
+- [ ] Layer 3 POMs compose sibling POMs as `private` members for cross-page workflows
+- [ ] Setup/teardown uses inherited Layer 2 methods, not separate `projectPage` fixture
+- [ ] No `.ant-*` or `.css-*` selectors in POM classes
+- [ ] No hardcoded locale strings — use `data-testid` for targeting, `t()` for assertions
+- [ ] Each action method validates URL context before querying elements
+- [ ] E2E tests import from `@reearth-cms/e2e/*`, never from `@reearth-cms/*` (except `test/utils` for DATA_TEST_ID)
+- [ ] `override` keyword on all overridden methods (enforced by `noImplicitOverride: true`)
+- [ ] Sealed methods use `protected readonly` arrow function pattern (non-overridable)
+
+## Notes
+
+1. **`DATA_TEST_ID` stays in `src/test/utils.ts`**: Both E2E and component tests use it. This is the canonical location.
+2. **BasePage getByX wrappers**: Keep during refactoring, deprecate in a later pass (removing would touch every POM).
+3. **LoginPage stays standalone**: It operates on external auth provider pages, no hierarchy needed.
+4. **Fixtures will be simplified**: Since Layer 2 provides setup/teardown, fixtures can remove `projectPage` from most tests. Each spec fixture maps 1:1 with the primary POM.
+5. **Notification helper**: `e2e/helpers/notification.helper.ts` uses `.ant-notification-notice` — lower priority, address after main refactoring.
+6. **Circular composition**: Composition is one-directional. SchemaPage composes ContentPage, but ContentPage does NOT compose SchemaPage. If a content test needs schema setup, it uses inherited Layer 2 methods or its own `beforeEach`.
+
+## Verification
+
+After each migration phase:
+
+1. Run affected spec files: `yarn playwright test <spec-file>`
+2. Run smoke tests: `yarn e2e-smoke`
+3. After all phases: run full suite locally `yarn e2e` (CI-only tests auto-skip via `test.skip(!isCI)` when `process.env.CI` is unset)
+4. TypeScript check: `yarn tsc --noEmit` (verify `noImplicitOverride` enforcement)
