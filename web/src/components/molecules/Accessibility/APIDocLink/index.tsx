@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import { Link } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -17,23 +16,24 @@ const APIDocLink: React.FC<Props> = ({ currentLang }) => {
   return (
     <APIDocLinkWrapper>
       <Tooltip title={t("View full developer documentation")}>
-        <Link
-          to={
+        <a
+          href={
             currentLang === "en"
               ? Constant.INTEGRATION_API_DOCS.en
               : Constant.INTEGRATION_API_DOCS.ja
           }
-          target="_blank">
+          target="_blank"
+          rel="noreferrer">
           <Button>
             <Icon icon="importOutlined" />
             {t("API Documentation")}
           </Button>
-        </Link>
+        </a>
       </Tooltip>
       <Tooltip title={t("Open API reference & playground")}>
-        <Link to="./docs" target="_blank">
+        <a href="./accessibility/docs" target="_blank" rel="noreferrer">
           <Button>{t("API Playground")}</Button>
-        </Link>
+        </a>
       </Tooltip>
     </APIDocLinkWrapper>
   );
