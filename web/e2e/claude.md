@@ -4,10 +4,14 @@ This document describes the structure and patterns used in the E2E testing frame
 
 ## 📁 Directory Structure
 
-```
+```text
 web/e2e/
 ├── config/              # Configuration files
 │   └── config.ts        # Environment config, API settings, access token management
+├── files/               # Test data files for import testing
+│   ├── test-import-content.csv
+│   ├── test-import-content.geojson
+│   └── test-import-content.json
 ├── fixtures/            # Playwright test fixtures
 │   └── test.ts          # Custom fixtures extending Playwright's test with page objects
 ├── helpers/             # Reusable helper utilities
@@ -30,9 +34,18 @@ web/e2e/
 │   ├── settings.page.ts          # Settings page interactions
 │   └── workspace.page.ts         # Workspace page interactions
 ├── support/             # Support files
+│   ├── auth.setup.ts             # Authentication setup (Playwright "setup" project)
+│   ├── i18n.ts                   # Internationalization support (en/ja)
 │   └── .auth/                    # Authentication state storage (gitignored)
 │       └── user.json             # Saved authentication session state
-├── global-setup.ts      # Global authentication setup (runs once before all tests)
+├── utils/               # Utility modules
+│   └── iap/                      # GCP Identity-Aware Proxy authentication
+│       ├── iap-auth.ts           # Main IAP auth factory (method detection & context creation)
+│       ├── iap-auth-adc.ts       # Application Default Credentials auth
+│       ├── iap-auth-common.ts    # Common IAP utilities
+│       ├── iap-auth-id-token.ts  # ID token authentication
+│       └── iap-auth-service-account.ts  # Service account authentication
+├── global-setup.ts      # Global setup (environment variable validation)
 └── tests/               # Test specifications (organized by domain)
     ├── auth/                     # Authentication tests
     │   └── auth.spec.ts
@@ -139,27 +152,50 @@ test("Item CRUD has succeeded", async ({ contentPage, projectPage }) => {
 
 ### Global Setup (`global-setup.ts`)
 
-**Centralized authentication system** that runs once before all tests:
+**Environment validation** that runs once before all tests start. It does **not** perform authentication — that is handled by `support/auth.setup.ts`.
 
 ```typescript
 async function globalSetup(_config: FullConfig) {
-  const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext();
-  const page = await context.newPage();
-
-  // Perform login using LoginPage
-  const loginPage = new LoginPage(page);
-  await loginPage.login(userName, password);
-
-  // Save authentication state for reuse
-  await context.storageState({ path: authFile });
-  await browser.close();
+  console.log("Running global setup...");
+  validateEnvironment(); // Checks REEARTH_CMS_E2E_USERNAME, PASSWORD, BASEURL
+  console.log("Global setup completed successfully");
 }
 ```
 
+### Authentication Setup (`support/auth.setup.ts`)
+
+**Playwright "setup" project** that runs before all test projects. Configured in `playwright.config.ts` as `projects[0]` with the `chromium` project depending on it.
+
+```typescript
+test("@smoke authenticate", async () => {
+  const browser = await chromium.launch({ headless: true });
+  const context = await createIAPContext(browser, baseURL);
+  const page = await context.newPage();
+
+  // Detects login type and authenticates
+  const isNewAuth = await loginPage.auth0EmailInput.isVisible();
+  if (isNewAuth) {
+    await loginPage.loginWithAuth0(userName, password);
+  } else {
+    await loginPage.login(userName, password);
+  }
+
+  // Save authentication state for reuse by all test projects
+  await context.storageState({ path: authFile });
+});
+```
+
+**Key features:**
+
+- Supports both **custom login** and **Auth0 login** flows (auto-detected)
+- Uses `createIAPContext()` for GCP Identity-Aware Proxy environments
+- Saves storage state to `support/.auth/user.json` for reuse by all tests
+- Tagged `@smoke` so it runs in smoke test suites too
+- Skips login if already authenticated (checks for "New Project" button)
+
 **Benefits:**
 
-- ⚡ **50-70% faster** - Authentication happens once, not per test suite
+- ⚡ **Fast** - Authentication happens once, not per test suite
 - 🔄 **Consistent** - All tests use identical authentication state
 - 🎯 **Maintainable** - Single place to update authentication logic
 
@@ -190,6 +226,32 @@ Utility functions that don't belong to any specific page:
 - **notification.helper.ts**: Notification handling
 - **viewer.helper.ts**: Viewer-specific utilities
 
+### Test Data Files (`files/`)
+
+Test data files used for import testing:
+
+- **test-import-content.csv** - CSV import test data
+- **test-import-content.geojson** - GeoJSON import test data
+- **test-import-content.json** - JSON import test data
+
+### IAP Authentication Utilities (`utils/iap/`)
+
+Utilities for authenticating through GCP Identity-Aware Proxy in staging/dev environments:
+
+- **iap-auth.ts** - Main factory: auto-detects auth method (`service-account`, `adc`, or `id-token`) and creates browser contexts with IAP headers
+- **iap-auth-adc.ts** - Application Default Credentials authentication
+- **iap-auth-common.ts** - Common IAP utilities shared across methods
+- **iap-auth-id-token.ts** - ID token-based authentication
+- **iap-auth-service-account.ts** - Service account JSON key authentication
+
+IAP auth is auto-detected based on the target URL: skipped for `localhost` and production (`reearth.io`), enabled for other environments. Can be explicitly controlled via `USE_IAP_AUTH` env var.
+
+### Internationalization Support (`support/i18n.ts`)
+
+Configures i18next with English and Japanese translations for tests that verify localized content.
+
+**Note:** This file imports from `@reearth-cms/i18n/translations/` (the main application's translations). This is an intentional exception to the "Separation of Concerns" rule — sharing translation resources ensures tests validate the same strings displayed to users.
+
 ### Configuration (`config/config.ts`)
 
 Centralized configuration for:
@@ -209,25 +271,31 @@ REEARTH_CMS_E2E_BASEURL=http://localhost:3000/
 
 ### Login Page (`pages/login.page.ts`)
 
-The `LoginPage` class handles all authentication interactions:
+The `LoginPage` class handles all authentication interactions, supporting **dual login flows**:
 
 ```typescript
 export class LoginPage {
-  async login(email: string, password: string) {
-    await this.emailInput.click();
-    await this.emailInput.fill(email);
-    await this.passwordInput.click();
-    await this.passwordInput.fill(password);
-    await this.loginButton.click();
-  }
+  // Custom login form elements
+  emailInput: Locator;      // getByPlaceholder("username/email")
+  passwordInput: Locator;   // getByPlaceholder("your password")
+  loginButton: Locator;     // getByText("LOG IN")
+
+  // Auth0 login form elements
+  auth0EmailInput: Locator;        // getByLabel("Email address")
+  auth0PasswordInput: Locator;     // getByLabel("Password")
+  auth0ContinueButton: Locator;    // getByRole("button", { name: "Continue" })
+  auth0SkipPasskeyButton: Locator; // getByRole("button", { name: "Continue without passkeys" })
+
+  async login(email: string, password: string) { /* custom login flow */ }
+  async loginWithAuth0(email: string, password: string) { /* Auth0 login flow */ }
 }
 ```
 
 **Features:**
 
-- 🔐 Handles login form interactions
-- 👤 Manages user menu and logout functionality
-- 🎯 Uses data-testid for reliable element selection
+- 🔐 Handles **custom login** form interactions (`login()`)
+- 🔑 Handles **Auth0 login** form interactions (`loginWithAuth0()`) with optional passkey prompt
+- 👤 Manages user menu and logout functionality (`userMenuLink`, `logoutButton`)
 
 ## 📝 Writing Tests
 
@@ -235,14 +303,14 @@ export class LoginPage {
 
 1. **Use Page Objects for UI Interactions**
 
-   ```typescript
-   // ✅ Good
-   await schemaPage.createModel("My Model", "my-model");
+    ```typescript
+    // ✅ Good
+    await schemaPage.createModel("My Model", "my-model");
 
-   // ❌ Bad
-   await page.getByLabel("Model name").fill("My Model");
-   await page.getByRole("button", { name: "OK" }).click();
-   ```
+    // ❌ Bad
+    await page.getByLabel("Model name").fill("My Model");
+    await page.getByRole("button", { name: "OK" }).click();
+    ```
 
 2. **Keep Test Logic in Test Files**
    - Page objects handle "how" to interact with the UI
@@ -250,37 +318,35 @@ export class LoginPage {
 
 3. **Use Fixtures for Page Objects**
 
-   ```typescript
-   test("My test", async ({ schemaPage, contentPage }) => {
-     // Page objects are automatically available
-   });
-   ```
+    ```typescript
+    test("My test", async ({ schemaPage, contentPage }) => {
+      // Page objects are automatically available
+    });
+    ```
 
 4. **Generate Unique Test Data**
 
-   ```typescript
-   import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
+    ```typescript
+    import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-   const projectName = getId(); // Generates unique ID
-   await projectPage.createProject(projectName);
-   ```
+    const projectName = getId(); // Generates unique ID
+    await projectPage.createProject(projectName);
+    ```
 
 5. **Follow beforeEach/afterEach Pattern for Setup/Teardown**
 
-   ```typescript
-   test.beforeEach(async ({ projectPage }) => {
-       const projectName = getId();
-   ```
+    ```typescript
+    test.beforeEach(async ({ projectPage }) => {
+      const projectName = getId();
 
-await projectPage.createProject(projectName);
-await projectPage.gotoProject(projectName);
-});
+      await projectPage.createProject(projectName);
+      await projectPage.gotoProject(projectName);
+    });
 
-test.afterEach(async ({ projectPage }) => {
-await projectPage.deleteProject();
-});
-
-````
+    test.afterEach(async ({ projectPage }) => {
+      await projectPage.deleteProject();
+    });
+    ```
 
 ## 🏗️ Adding New Tests
 
@@ -294,18 +360,18 @@ import { BasePage } from "./base.page";
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 
 export class MyFeaturePage extends BasePage {
-// Locators
-get myButton(): Locator {
- return this.getByRole("button", { name: "My Button" });
-}
+  // Locators
+  get myButton(): Locator {
+  return this.getByRole("button", { name: "My Button" });
+  }
 
-// Actions
-async doSomething(): Promise<void> {
- await this.myButton.click();
- await this.closeNotification();
+  // Actions
+  async doSomething(): Promise<void> {
+  await this.myButton.click();
+  await this.closeNotification();
+  }
 }
-}
-````
+```
 
 ### 2. Register Page Object in Fixtures
 
@@ -360,7 +426,7 @@ yarn e2e
 yarn e2e-smoke
 ```
 
-Smoke tests are a subset of ~25 critical tests that verify core functionality. They run faster than the full suite and are ideal for:
+Smoke tests are a subset of ~26 critical tests that verify core functionality. They run faster than the full suite and are ideal for:
 
 - Quick validation during local development
 - CI/CD pipelines
@@ -396,11 +462,40 @@ yarn playwright test --list
 yarn playwright test --list --grep @smoke
 ```
 
+## ⚙️ Playwright Configuration (`playwright.config.ts`)
+
+The Playwright config (at the `web/` root) uses a **two-project setup**:
+
+```typescript
+projects: [
+  {
+    name: "setup",
+    testDir: "./e2e/support",
+    testMatch: "auth.setup.ts",  // Runs authentication first
+  },
+  {
+    name: "chromium",
+    use: { storageState: authFile },  // Reuses saved auth state
+    dependencies: ["setup"],           // Waits for auth to complete
+  },
+],
+```
+
+**Key settings:**
+
+- `globalSetup`: `./e2e/global-setup.ts` (env var validation)
+- `testDir`: `./e2e/tests`
+- `workers`: 1 in CI, default locally
+- `retries`: 2
+- `timeout`: 150 seconds per test
+- `actionTimeout` / `navigationTimeout`: 60 seconds
+- `video`: `on-first-retry` in CI, `retain-on-failure` locally
+
 ## 📊 Test Statistics
 
-- **Total Tests**: 87
-- **Smoke Tests**: ~25 (marked with `@smoke` tag)
-- **Page Objects**: 12
+- **Total Tests**: 120 (119 in spec files + 1 auth setup)
+- **Smoke Tests**: ~26 (marked with `@smoke` tag)
+- **Page Objects**: 13
 - **Helper Files**: 4
 - **Test Spec Files**: 39
 
@@ -438,6 +533,8 @@ This ensures:
 - Tests don't break due to application refactoring
 - TypeScript compilation issues are avoided
 
+**Exception:** `support/i18n.ts` intentionally imports from `@reearth-cms/i18n/translations/` to share translation resources with the main application.
+
 ## 📚 Additional Resources
 
 - [Playwright Documentation](https://playwright.dev/)
@@ -452,12 +549,12 @@ The authentication system was refactored to use a centralized global setup appro
 
 #### Changes Made
 
-1. ✅ **Added Global Setup**: Created `global-setup.ts` for one-time authentication
-2. ✅ **Created LoginPage**: New page object replacing `auth.page.ts`
-3. ✅ **Removed Duplicates**: Deleted `auth.setup.ts` and `auth.page.ts`
-4. ✅ **Updated Configuration**: Moved from project-based setup to global setup in `playwright.config.ts`
-5. ✅ **Improved Error Handling**: Added console logging and better error messages
-6. ✅ **Enhanced Documentation**: Updated README and improved inline comments
+1. ✅ **Added Global Setup**: Created `global-setup.ts` for environment variable validation
+2. ✅ **Created LoginPage**: New page object replacing `auth.page.ts`, supporting both custom and Auth0 login flows
+3. ✅ **Moved Auth Setup**: Relocated `auth.setup.ts` to `support/auth.setup.ts` as a Playwright "setup" project; deleted old `auth.page.ts`
+4. ✅ **Updated Configuration**: Uses project-based setup in `playwright.config.ts` (`projects[0]` = setup, `projects[1]` = chromium with dependency)
+5. ✅ **Added IAP Support**: Created `utils/iap/` for GCP Identity-Aware Proxy authentication
+6. ✅ **Improved Error Handling**: Added console logging and better error messages
 
 #### Breaking Changes
 
