@@ -43,6 +43,5 @@ export default ApiDocs;
 
 const ApiDocsWrapper = styled.div`
   height: 100%;
-  /* height: calc(100% - 48px); */
   overflow: hidden;
 `;
