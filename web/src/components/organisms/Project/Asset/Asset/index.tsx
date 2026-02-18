@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 
 import Loading from "@reearth-cms/components/atoms/Loading";
 import NotFound from "@reearth-cms/components/atoms/NotFound/partial";

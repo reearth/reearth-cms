@@ -5,9 +5,9 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal, { useModal } from "@reearth-cms/components/atoms/Modal";
 import {
-  StretchColumn,
   ListToolBarProps,
   OptionConfig,
+  StretchColumn,
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
@@ -72,7 +72,7 @@ const LinkItemModal: React.FC<Props> = ({
     visible,
   );
 
-  const options: OptionConfig = useMemo(
+  const options = useMemo<OptionConfig>(
     () => ({
       reload: onLinkItemTableReload,
     }),
@@ -117,12 +117,12 @@ const LinkItemModal: React.FC<Props> = ({
     [confirm, correspondingField, fieldId, handleChange, itemGroupId, onCheckItemReference, t],
   );
 
-  const columns: StretchColumn<FormItem>[] = useMemo(
+  const columns = useMemo<StretchColumn<FormItem>[]>(
     () => [
       {
         title: "",
         hideInSetting: true,
-        fixed: "left",
+        fixed: "start",
         align: "center",
         width: 48,
         minWidth: 48,
@@ -174,7 +174,7 @@ const LinkItemModal: React.FC<Props> = ({
     [t, linkedItem, handleClick],
   );
 
-  const toolbar: ListToolBarProps = useMemo(
+  const toolbar = useMemo<ListToolBarProps>(
     () => ({
       search: (
         <Search
@@ -224,10 +224,7 @@ const LinkItemModal: React.FC<Props> = ({
 export default LinkItemModal;
 
 const StyledModal = styled(Modal)`
-  .ant-pro-card-body {
+  .ant-pro-table {
     padding: 0;
-    .ant-pro-table-list-toolbar {
-      padding-left: 12px;
-    }
   }
 `;

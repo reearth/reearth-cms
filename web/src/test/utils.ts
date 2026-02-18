@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
 import { render } from "@testing-library/react";
+import { ConfigProvider } from "antd";
+import enUS from "antd/locale/en_US.js";
+import { createElement } from "react";
 import {
   GeoJSONGeometryCollection,
   GeoJSONLineString,
@@ -15,8 +18,7 @@ import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types"
 // override render export
 const customRender = (ui: React.ReactElement, options = {}) =>
   render(ui, {
-    // wrap provider(s) here if needed
-    wrapper: ({ children }) => children,
+    wrapper: ({ children }) => createElement(ConfigProvider, { locale: enUS }, children),
     ...options,
   });
 
@@ -232,6 +234,9 @@ export enum DATA_TEST_ID {
   Uploader__CardTitleSuffix = "Uploader__CardTitleSuffix",
   Uploader__CancelAllIcon = "Uploader__CancelAllIcon",
   Uploader__CompleteIcon = "Uploader__CompleteIcon",
+  Uploader__CancelModal__Title = "Uploader__CancelModal__Title",
+  Uploader__CancelModal__CancelUploadButton = "Uploader__CancelModal__CancelUploadButton",
+  Uploader__CancelModal__KeepUploadingButton = "Uploader__CancelModal__KeepUploadingButton",
 
   // QueueItem
   QueueItem__Wrapper = "QueueItem__Wrapper",
@@ -285,4 +290,48 @@ export enum DATA_TEST_ID {
   Content__List__ImportContentButton = "Content__List__ImportContentButton",
   Content__List__ItemFieldPopoverIcon = "Content__List__ItemFieldPopoverIcon",
   Content__List__ItemFieldPopoverContent = "Content__List__ItemFieldPopoverContent",
+
+  // Content/Form/FieldTitle
+  Content__Form__FieldTitle = "Content__Form__FieldTitle",
+
+  // IntegrationTable
+  IntegrationTable__ConnectIntegrationButton = "IntegrationTable__ConnectIntegrationButton",
+  IntegrationTable__RemoveButton = "IntegrationTable__RemoveButton",
+
+  // MyIntegrations/List
+  MyIntegrations__List__Wrapper = "MyIntegrations__List__Wrapper",
+
+  // MyIntegrations/Webhook/WebhookList
+  WebhookList__NewWebhookButton = "WebhookList__NewWebhookButton",
+  WebhookList__EmptyNewWebhookButton = "WebhookList__EmptyNewWebhookButton",
+
+  // MyIntegrations/Webhook/WebhookForm
+  WebhookForm__SaveButton = "MoleculeWebhookFormSaveButton",
+
+  // MyIntegrations/Settings/Form
+  MyIntegrations__Settings__Form__SaveButton = "MyIntegrations__Settings__Form__SaveButton",
+  MyIntegrations__Settings__Form__RegenerateTokenButton = "MyIntegrations__Settings__Form__RegenerateTokenButton",
+
+  // MyIntegrations/CreationModal
+  MyIntegrations__CreationModal__CreateButton = "MyIntegrations__CreationModal__CreateButton",
+
+  // Member/MemberTable
+  Member__MemberTable__NewMemberButton = "Member__MemberTable__NewMemberButton",
+  Member__MemberTable__RemoveButton = "Member__MemberTable__RemoveButton",
+  Member__MemberTable__GroupRemoveButton = "Member__MemberTable__GroupRemoveButton",
+
+  // Member/MemberAddModal
+  Member__MemberAddModal__AddToWorkspaceButton = "Member__MemberAddModal__AddToWorkspaceButton",
+
+  // Settings
+  Settings__AddNewTerrainOptionButton = "Settings__AddNewTerrainOptionButton",
+  Settings__AddNewTileOptionButton = "Settings__AddNewTileOptionButton",
+
+  // Request/Details/SideWrapper
+  Request__Details__SideWrapper__Badge = "Request__Details__SideWrapper__Badge",
+}
+
+export enum TEST_CLASS {
+  // ant design
+  AntBtnLoading = "ant-btn-loading",
 }

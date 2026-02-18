@@ -1,7 +1,8 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter } from "react-router";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
+import Modal from "@reearth-cms/components/atoms/Modal";
 import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { t } from "@reearth-cms/i18n";
 import { DATA_TEST_ID, Test } from "@reearth-cms/test/utils";
@@ -71,6 +72,7 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+  Modal.destroyAll();
   document.body.innerHTML = "";
 });
 
@@ -162,7 +164,11 @@ describe("Test Uploader component", () => {
       const closeIcon = screen.getByTestId(DATA_TEST_ID.Uploader__CancelAllIcon);
       fireEvent.click(closeIcon);
 
-      expect(await screen.findByText(t("Cancel upload?"))).toBeInTheDocument();
+      const cancelModalTitles = await screen.findAllByTestId(
+        DATA_TEST_ID.Uploader__CancelModal__Title,
+      );
+      expect(cancelModalTitles.length).toBeGreaterThan(0);
+      expect(cancelModalTitles[0]).toBeInTheDocument();
       expect(
         screen.getByText(
           t("Your file hasn't finished uploading yet. Are you sure you want to cancel upload?"),
@@ -196,7 +202,9 @@ describe("Test Uploader component", () => {
       const closeIcon = screen.getByTestId(DATA_TEST_ID.Uploader__CancelAllIcon);
       fireEvent.click(closeIcon);
 
-      const cancelUploadButton = await screen.findByRole("button", { name: t("Cancel upload") });
+      const cancelUploadButton = await screen.findByTestId(
+        DATA_TEST_ID.Uploader__CancelModal__CancelUploadButton,
+      );
       fireEvent.click(cancelUploadButton);
 
       expect(handleUploaderOpen).toHaveBeenCalledWith(false);
@@ -227,7 +235,9 @@ describe("Test Uploader component", () => {
       const closeIcon = screen.getByTestId(DATA_TEST_ID.Uploader__CancelAllIcon);
       fireEvent.click(closeIcon);
 
-      const keepUploadingButton = await screen.findByRole("button", { name: t("Keep uploading") });
+      const keepUploadingButton = await screen.findByTestId(
+        DATA_TEST_ID.Uploader__CancelModal__KeepUploadingButton,
+      );
       fireEvent.click(keepUploadingButton);
 
       expect(handleUploaderOpen).not.toHaveBeenCalled();

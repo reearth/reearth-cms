@@ -1,4 +1,4 @@
-import { Checkbox, CheckboxOptionType } from "antd";
+import { Checkbox, CheckboxOptionType, CheckboxProps } from "antd";
 
 export default Checkbox;
-export type { CheckboxOptionType };
+export type { CheckboxOptionType, CheckboxProps };

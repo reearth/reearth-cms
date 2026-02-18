@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import type { FormValues } from "@reearth-cms/components/molecules/MyIntegrations/CreationModal";
@@ -36,10 +36,10 @@ export default () => {
         },
       });
       if (integration.error || !integration.data?.createIntegration) {
-        Notification.error({ message: t("Failed to create integration.") });
+        Notification.error({ title: t("Failed to create integration.") });
         throw new Error();
       }
-      Notification.success({ message: t("Successfully created integration!") });
+      Notification.success({ title: t("Successfully created integration!") });
     },
     [createNewIntegration, t],
   );

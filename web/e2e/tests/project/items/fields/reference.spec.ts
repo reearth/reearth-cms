@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -32,7 +33,8 @@ test("One-way reference field creating and updating has succeeded", async ({
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
     await schemaPage.metaDataTab.click();
-    await schemaPage.fieldTypeButton("Boolean").click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Bool).click();
+
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.fill("boolean");
     await fieldEditorPage.okButton.click();
@@ -59,7 +61,8 @@ test("One-way reference field creating and updating has succeeded", async ({
   await test.step("Create one-way reference field with validations", async () => {
     await schemaPage.schemaText.click();
     await schemaPage.modelByText("e2e model name").click();
-    await schemaPage.fieldTypeButton("Reference").click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Reference).click();
+
     await fieldEditorPage.selectModelToReferenceLabel.click();
     await expect(fieldEditorPage.modelOption("e2e model name #e2e-model-name")).toBeVisible();
     await expect(fieldEditorPage.modelOption("ref model #ref-model")).toBeVisible();
@@ -177,7 +180,7 @@ test("Two-way reference field editing has succeeded", async ({
     await schemaPage.modelKeyLabel.fill("ref-model");
     await schemaPage.okButton.click();
     await contentPage.closeNotification();
-    await schemaPage.fieldTypeButton("Text").click();
+    await schemaPage.fieldTypeButton(SchemaFieldType.Text).click();
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.fill("text");
     await fieldEditorPage.useAsTitleCheckbox.check();
@@ -201,13 +204,13 @@ test("Two-way reference field editing has succeeded", async ({
   await test.step("Add text field to main model and create two-way reference", async () => {
     await schemaPage.schemaText.click();
     await schemaPage.modelByText("e2e model name").click();
-    await schemaPage.fieldTypeButton("Text").click();
+    await schemaPage.fieldTypeButton(SchemaFieldType.Text).click();
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.fill("text");
     await fieldEditorPage.useAsTitleCheckbox.check();
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
-    await schemaPage.fieldTypeButton("Reference").click();
+    await schemaPage.fieldTypeButton(SchemaFieldType.Reference).click();
     await fieldEditorPage.selectModelToReferenceLabel.click();
     await fieldEditorPage.modelOption("ref model #ref-model").click();
     await fieldEditorPage.twoWayReferenceCheckbox.check();

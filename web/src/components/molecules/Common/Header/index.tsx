@@ -1,8 +1,8 @@
 import styled from "@emotion/styled";
-import { MenuProps } from "antd";
 import { useMemo } from "react";
 
 import { useAuth } from "@reearth-cms/auth";
+import { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Header from "@reearth-cms/components/atoms/Header";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
@@ -56,7 +56,7 @@ const HeaderMolecule: React.FC<Props> = ({
   );
 
   const disableWorkspaceUi = parseConfigBoolean(window.REEARTH_CONFIG?.disableWorkspaceUi);
-  const WorkspacesItems: MenuProps["items"] = useMemo(() => {
+  const WorkspacesItems = useMemo<MenuProps["items"]>(() => {
     const res: MenuProps["items"] = [
       {
         label: t("Personal Account"),
@@ -123,7 +123,7 @@ const HeaderMolecule: React.FC<Props> = ({
     onWorkspaceModalOpen,
   ]);
 
-  const AccountItems: MenuProps["items"] = useMemo(
+  const AccountItems = useMemo<MenuProps["items"]>(
     () => [
       {
         label: t("Account Settings"),
@@ -148,14 +148,16 @@ const HeaderMolecule: React.FC<Props> = ({
       ) : (
         <Logo src="/logo.svg" onClick={onHomeNavigation} />
       )}
-      <WorkspaceDropdown
-        name={currentWorkspace?.name}
-        profilePictureUrl={profilePictureUrl}
-        items={WorkspacesItems}
-        personal={currentIsPersonal}
-        showName={true}
-        showArrow={true}
-      />
+      <WorkspaceDropdownWrapper>
+        <HeaderDropdown
+          name={currentWorkspace?.name}
+          profilePictureUrl={profilePictureUrl}
+          items={WorkspacesItems}
+          personal={currentIsPersonal}
+          showName={true}
+          showArrow={true}
+        />
+      </WorkspaceDropdownWrapper>
       <CurrentProject>
         {currentProject?.name && (
           <>
@@ -167,14 +169,16 @@ const HeaderMolecule: React.FC<Props> = ({
           </>
         )}
       </CurrentProject>
-      <AccountDropdown
-        name={username}
-        profilePictureUrl={profilePictureUrl}
-        items={AccountItems}
-        personal={true}
-        showName={false}
-        showArrow={false}
-      />
+      <AccountDropdownWrapper>
+        <HeaderDropdown
+          name={username}
+          profilePictureUrl={profilePictureUrl}
+          items={AccountItems}
+          personal={true}
+          showName={false}
+          showArrow={false}
+        />
+      </AccountDropdownWrapper>
       {url && (
         <LinkWrapper>
           <EditorLink rel="noreferrer" href={url.href} target="_blank">
@@ -220,12 +224,12 @@ const StyledIcon = styled(Icon)`
   color: #dbdbdb;
 `;
 
-const WorkspaceDropdown = styled(HeaderDropdown)`
+const WorkspaceDropdownWrapper = styled.div`
   margin-left: 20px;
   padding-left: 20px;
 `;
 
-const AccountDropdown = styled(HeaderDropdown)`
+const AccountDropdownWrapper = styled.div`
   padding-right: 20px;
 `;
 

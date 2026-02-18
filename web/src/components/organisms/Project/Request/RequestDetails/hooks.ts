@@ -1,7 +1,7 @@
 import { NetworkStatus } from "@apollo/client";
 import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
@@ -57,7 +57,7 @@ export default () => {
     fetchPolicy: "cache-and-network",
   });
 
-  const me: User | undefined = useMemo(() => {
+  const me = useMemo<User | undefined>(() => {
     return userData?.me
       ? {
           id: userData.me.id,
@@ -70,7 +70,7 @@ export default () => {
 
   const projectId = useMemo(() => currentProject?.id, [currentProject]);
 
-  const currentRequest: Request | undefined = useMemo(() => {
+  const currentRequest = useMemo<Request | undefined>(() => {
     if (!rawRequest?.node) return;
     return fromGraphQLRequest(rawRequest.node as GQLRequest);
   }, [rawRequest]);
@@ -123,10 +123,10 @@ export default () => {
         },
       });
       if (request.error || !request.data?.updateRequest) {
-        Notification.error({ message: t("Failed to update request.") });
+        Notification.error({ title: t("Failed to update request.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated request!") });
+      Notification.success({ title: t("Successfully updated request!") });
     },
     [updateRequestMutation, t],
   );
@@ -140,10 +140,10 @@ export default () => {
         refetchQueries: ["GetRequest"],
       });
       if (result.error) {
-        Notification.error({ message: t("Failed to delete one or more requests.") });
+        Notification.error({ title: t("Failed to delete one or more requests.") });
       }
       if (result) {
-        Notification.success({ message: t("One or more requests were successfully closed!") });
+        Notification.success({ title: t("One or more requests were successfully closed!") });
       }
     },
     [t, projectId, deleteRequestMutation],
@@ -156,10 +156,10 @@ export default () => {
         variables: { requestId },
       });
       if (result.error) {
-        Notification.error({ message: t("Failed to approve request.") });
+        Notification.error({ title: t("Failed to approve request.") });
       }
       if (result) {
-        Notification.success({ message: t("Successfully approved request!") });
+        Notification.success({ title: t("Successfully approved request!") });
       }
     },
     [t, approveRequestMutation],
@@ -187,7 +187,7 @@ export default () => {
           });
 
           if (error || !data?.createThreadWithComment?.thread?.id) {
-            Notification.error({ message: t("Failed to create thread.") });
+            Notification.error({ title: t("Failed to create thread.") });
             return;
           }
         } else {
@@ -196,13 +196,13 @@ export default () => {
           });
 
           if (commentError || !commentData?.addComment) {
-            Notification.error({ message: t("Failed to create comment.") });
+            Notification.error({ title: t("Failed to create comment.") });
             return;
           }
         }
-        Notification.success({ message: t("Successfully created comment!") });
+        Notification.success({ title: t("Successfully created comment!") });
       } catch (error) {
-        Notification.error({ message: t("An unexpected error occurred.") });
+        Notification.error({ title: t("An unexpected error occurred.") });
         console.error("Error creating comment:", error);
       }
     },
@@ -246,10 +246,10 @@ export default () => {
         },
       });
       if (comment.error || !comment.data?.updateComment) {
-        Notification.error({ message: t("Failed to update comment.") });
+        Notification.error({ title: t("Failed to update comment.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated comment!") });
+      Notification.success({ title: t("Successfully updated comment!") });
     },
     [updateComment, currentRequest?.threadId, t],
   );
@@ -268,10 +268,10 @@ export default () => {
         },
       });
       if (comment.error || !comment.data?.deleteComment) {
-        Notification.error({ message: t("Failed to delete comment.") });
+        Notification.error({ title: t("Failed to delete comment.") });
         return;
       }
-      Notification.success({ message: t("Successfully deleted comment!") });
+      Notification.success({ title: t("Successfully deleted comment!") });
     },
     [deleteComment, currentRequest?.threadId, t],
   );

@@ -1,7 +1,6 @@
 import dayjs, { Dayjs } from "dayjs";
 import { useRef, useEffect, useCallback, useMemo, useState, Dispatch, SetStateAction } from "react";
 
-import { DatePickerProps } from "@reearth-cms/components/atoms/DatePicker";
 import Form from "@reearth-cms/components/atoms/Form";
 import {
   DefaultFilterValueType,
@@ -413,8 +412,8 @@ export default (
     filterValue.current = e.target.value;
   }, []);
 
-  const onDateChange: DatePickerProps["onChange"] = useCallback(
-    (_date: Dayjs | null, dateString: string | string[]) => {
+  const onDateChange = useCallback(
+    (_date: Dayjs | Dayjs[] | null, dateString: string | string[] | null) => {
       if (typeof dateString === "string") filterValue.current = dateString;
     },
     [],

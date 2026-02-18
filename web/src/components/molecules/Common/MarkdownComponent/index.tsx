@@ -5,7 +5,7 @@ import ReactMarkdown from "react-markdown";
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Tabs from "@reearth-cms/components/atoms/Tabs";
+import Tabs, { TabsProps } from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { getLicenseContent, license_options } from "@reearth-cms/data/license";
 import { useT } from "@reearth-cms/i18n";
@@ -29,7 +29,7 @@ const MarkdownComponent: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const items: MenuProps["items"] = useMemo(() => {
+  const items = useMemo<MenuProps["items"]>(() => {
     return license_options.map(option => ({
       key: option.value,
       label: option.label,
@@ -50,25 +50,40 @@ const MarkdownComponent: React.FC<Props> = ({
     ) : undefined;
   }, [items, needsTemplate, t]);
 
+  const tabItems = useMemo<TabsProps["items"]>(
+    () => [
+      {
+        label: "Edit",
+        key: "edit",
+        children: (
+          <TextArea
+            rows={30}
+            value={value}
+            onChange={onMarkdownChange}
+            style={{ fontFamily: "monospace" }}
+          />
+        ),
+      },
+      {
+        label: "Preview",
+        key: "preview",
+        children: (
+          <StyledContainer>
+            <ReactMarkdown>{value}</ReactMarkdown>
+          </StyledContainer>
+        ),
+      },
+    ],
+    [value, onMarkdownChange],
+  );
+
   return (
     <StyledTabs
       activeKey={activeTab}
       tabBarExtraContent={tabBarExtraContent}
-      onChange={setActiveTab}>
-      <Tabs.TabPane tab="Edit" key="edit">
-        <TextArea
-          rows={30}
-          value={value}
-          onChange={onMarkdownChange}
-          style={{ fontFamily: "monospace" }}
-        />
-      </Tabs.TabPane>
-      <Tabs.TabPane tab="Preview" key="preview">
-        <StyledContainer>
-          <ReactMarkdown>{value}</ReactMarkdown>
-        </StyledContainer>
-      </Tabs.TabPane>
-    </StyledTabs>
+      onChange={setActiveTab}
+      items={tabItems}
+    />
   );
 };
 

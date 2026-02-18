@@ -1,6 +1,6 @@
 import { useMutation } from "@apollo/client/react";
 import { useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
@@ -45,12 +45,12 @@ export default () => {
         },
       });
       if (res.error || !res.data?.updateWorkspace) {
-        Notification.error({ message: t("Failed to update workspace.") });
+        Notification.error({ title: t("Failed to update workspace.") });
       } else {
         setCurrentWorkspace(
           fromGraphQLWorkspace(res.data.updateWorkspace.workspace as GQLWorkspace),
         );
-        Notification.success({ message: t("Successfully updated workspace!") });
+        Notification.success({ title: t("Successfully updated workspace!") });
       }
     },
     [workspaceId, updateWorkspaceMutation, setCurrentWorkspace, t],
@@ -60,10 +60,10 @@ export default () => {
     if (!workspaceId) return;
     const results = await deleteWorkspaceMutation({ variables: { workspaceId } });
     if (results.error) {
-      Notification.error({ message: t("Failed to delete workspace.") });
+      Notification.error({ title: t("Failed to delete workspace.") });
     } else {
       setCurrentWorkspace(undefined);
-      Notification.success({ message: t("Successfully deleted workspace!") });
+      Notification.success({ title: t("Successfully deleted workspace!") });
       navigate(`/workspace`);
     }
   }, [workspaceId, deleteWorkspaceMutation, setCurrentWorkspace, navigate, t]);

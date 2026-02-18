@@ -1,6 +1,7 @@
 import path from "path";
 import { fileURLToPath } from "url";
 
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
@@ -194,8 +195,8 @@ test("Group creating from adding field has succeeded", async ({
 }) => {
   await test.step("Create model and open group field dialog", async () => {
     await schemaPage.createModelFromSidebar();
-    await expect(fieldEditorPage.fieldTypeListItem("Group")).toBeVisible();
-    await fieldEditorPage.fieldTypeListItem("Group").click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Group).click();
+
     await expect(schemaPage.addGroupButton).toBeVisible();
     await schemaPage.addGroupButton.click();
     await expect(schemaPage.newGroupDialog).toContainText("New Group");
@@ -225,9 +226,7 @@ test("Group creating from adding field has succeeded", async ({
   });
 
   await test.step("Add text field to model", async () => {
-    await expect(fieldEditorPage.fieldTypeListItem("Text")).toBeVisible();
-    await fieldEditorPage.fieldTypeListItem("Text").click();
-    await schemaPage.handleFieldForm("text");
+    await fieldEditorPage.createField(SchemaFieldType.Text, "text");
     await page.waitForTimeout(300);
   });
 
@@ -238,7 +237,7 @@ test("Group creating from adding field has succeeded", async ({
     await schemaPage.lastTextByExact("Group").click();
     await expect(schemaPage.createGroupFieldButton).toBeVisible();
     await expect(schemaPage.groupSelectTrigger).toBeVisible();
-    await schemaPage.groupSelectTrigger.click();
+    await schemaPage.groupSelectTrigger.click({ force: true });
     await expect(schemaPage.groupNameByText("e2e group name #e2e-group-key")).toBeVisible();
     await expect(fieldEditorPage.cancelButton).toBeVisible();
     await fieldEditorPage.cancelButton.click();
@@ -275,8 +274,7 @@ test("Group reordering has succeeded", async ({ schemaPage, page }) => {
 test("Text field CRUD has succeeded", async ({ fieldEditorPage, schemaPage, page }) => {
   await test.step("Create model and add text field", async () => {
     await schemaPage.createModelFromSidebar();
-    await fieldEditorPage.fieldTypeListItem("Text").click();
-    await schemaPage.handleFieldForm("text");
+    await fieldEditorPage.createField(SchemaFieldType.Text, "text");
     await page.waitForTimeout(300);
   });
 
@@ -296,10 +294,8 @@ test("Text field CRUD has succeeded", async ({ fieldEditorPage, schemaPage, page
 test("Schema reordering has succeeded", async ({ schemaPage, fieldEditorPage, page }) => {
   await test.step("Create model and add two text fields", async () => {
     await schemaPage.createModelFromSidebar();
-    await fieldEditorPage.fieldTypeListItem(/Text/).click();
-    await schemaPage.handleFieldForm("text1");
-    await fieldEditorPage.fieldTypeListItem(/Text/).click();
-    await schemaPage.handleFieldForm("text2");
+    await fieldEditorPage.createField(SchemaFieldType.Text, "text1");
+    await fieldEditorPage.createField(SchemaFieldType.Text, "text2");
     await page.waitForTimeout(300);
   });
 

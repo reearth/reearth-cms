@@ -30,7 +30,6 @@ const IntegrationSettingsModal: React.FC<Props> = ({
   onSubmit,
 }) => {
   const t = useT();
-  const { Option } = Select;
   const [form] = Form.useForm<FormValues>();
   const [isDisabled, setIsDisabled] = useState(true);
 
@@ -109,12 +108,16 @@ const IntegrationSettingsModal: React.FC<Props> = ({
               message: t("Please input the appropriate role for this integration!"),
             },
           ]}>
-          <StyledSelect placeholder={t("select role")} onSelect={handleSelect}>
-            <Option value="READER">{t("Reader")}</Option>
-            <Option value="WRITER">{t("Writer")}</Option>
-            <Option value="MAINTAINER">{t("Maintainer")}</Option>
-            <Option value="OWNER">{t("Owner")}</Option>
-          </StyledSelect>
+          <StyledSelect
+            placeholder={t("select role")}
+            onSelect={handleSelect}
+            options={[
+              { value: "READER", label: t("Reader") },
+              { value: "WRITER", label: t("Writer") },
+              { value: "MAINTAINER", label: t("Maintainer") },
+              { value: "OWNER", label: t("Owner") },
+            ]}
+          />
         </Form.Item>
       </StyledForm>
     </Modal>

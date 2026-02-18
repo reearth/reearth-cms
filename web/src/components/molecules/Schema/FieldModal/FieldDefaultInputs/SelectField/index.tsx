@@ -12,20 +12,19 @@ type Props = {
 
 const SelectField: React.FC<Props> = ({ selectedValues, multiple }) => {
   const t = useT();
-  const { Option } = Select;
 
   return (
     <Form.Item name="defaultValue" label={t("Set default value")}>
       {multiple ? (
         <MultiValueSelect selectedValues={selectedValues} />
       ) : (
-        <Select allowClear>
-          {selectedValues?.map((value: string) => (
-            <Option key={value} value={value}>
-              {value}
-            </Option>
-          ))}
-        </Select>
+        <Select
+          allowClear
+          options={selectedValues?.map((value: string) => ({
+            value,
+            label: value,
+          }))}
+        />
       )}
     </Form.Item>
   );

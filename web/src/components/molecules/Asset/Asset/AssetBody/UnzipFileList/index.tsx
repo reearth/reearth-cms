@@ -1,5 +1,4 @@
 import styled from "@emotion/styled";
-import { Key } from "rc-table/lib/interface";
 import { useCallback, useEffect, useState } from "react";
 
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
@@ -11,6 +10,8 @@ import { useT } from "@reearth-cms/i18n";
 
 import { generateAssetTreeData } from "./generateAssetTreeData";
 import { FileNode } from "./types";
+
+type Key = React.Key;
 
 type Props = {
   file: AssetFile;
@@ -42,7 +43,7 @@ const UnzipFileList: React.FC<Props> = ({
     [assetBaseUrl, setAssetUrl],
   );
 
-  const handleSelect: TreeProps<FileNode>["onSelect"] = useCallback(
+  const handleSelect = useCallback<NonNullable<TreeProps<FileNode>["onSelect"]>>(
     (keys: Key[], { node: { path } }: { node: FileNode }) => {
       if (!keys[0] || keys[0] === selectedKeys[0]) return;
       previewFile(path);

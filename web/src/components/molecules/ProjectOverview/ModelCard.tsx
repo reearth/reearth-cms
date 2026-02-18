@@ -189,28 +189,28 @@ const ModelCard: React.FC<Props> = ({
   const ExportMenuItems = useMemo<MenuProps[]>(
     () => [
       {
-        key: "schema",
+        key: t("Export Schema"),
         label: t("Export Schema"),
         onClick: () => handleModelExportClick(ExportFormat.Schema),
         disabled: exportLoading,
         "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportSchema,
       },
       {
-        key: "json",
+        key: t("Export as JSON"),
         label: t("Export as JSON"),
         onClick: () => handleModelExportClick(ExportFormat.Json),
         disabled: exportLoading,
         "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportContentJSON,
       },
       {
-        key: "csv",
+        key: t("Export as CSV"),
         label: t("Export as CSV"),
         onClick: () => handleModelExportClick(ExportFormat.Csv),
         disabled: exportLoading,
         "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportContentCSV,
       },
       {
-        key: "geojson",
+        key: t("Export as GeoJSON"),
         label: t("Export as GeoJSON"),
         onClick: () => handleModelExportClick(ExportFormat.Geojson),
         disabled: exportLoading,
@@ -223,26 +223,26 @@ const ModelCard: React.FC<Props> = ({
   const OptionsMenuItems = useMemo<MenuProps["items"]>(
     () => [
       {
-        key: "edit",
+        key: t("Edit"),
         label: t("Edit"),
         onClick: () => onModelUpdateModalOpen(model),
         disabled: !hasUpdateRight,
         "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownEdit,
       },
       {
-        key: "import",
+        key: t("Import"),
         label: t("Import"),
         children: ImportMenuItems,
         "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownImport,
       },
       {
-        key: "export",
+        key: t("Export"),
         label: t("Export"),
         children: ExportMenuItems,
         "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExport,
       },
       {
-        key: "delete",
+        key: t("Delete"),
         label: t("Delete"),
         onClick: () => onModelDeletionModalOpen(model),
         danger: true,

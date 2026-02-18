@@ -28,7 +28,7 @@ describe("General form", () => {
     return new Promise<void>(resolve => {
       setTimeout(() => {
         resolve();
-      }, 100);
+      }, 500);
     });
   };
   const onProjectAliasCheck = () => {

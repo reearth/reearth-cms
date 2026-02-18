@@ -80,7 +80,7 @@ const FileSelectionStep: React.FC<Props> = ({
           {alertList.map((alert, index) => (
             <StyledAlert
               {...alert}
-              key={alert?.message?.toString() || index}
+              key={alert?.title?.toString() || index}
               onClick={e => e.stopPropagation()}
             />
           ))}

@@ -214,44 +214,57 @@ const Schema: React.FC<Props> = ({
     [dropdownItems],
   );
 
-  const items: TabsProps["items"] = [
-    {
-      key: "fields",
-      label: t("Fields"),
-      children: (
-        <div>
-          <ModelFieldList
-            fields={data?.schema.fields}
-            hasUpdateRight={hasUpdateRight}
-            hasDeleteRight={hasDeleteRight}
-            hasCreateRight={hasCreateRight}
-            handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
-            onFieldReorder={onFieldReorder}
-            onFieldDelete={onFieldDelete}
-            onSchemaImport={onSchemaImportModalOpen}
-          />
-        </div>
-      ),
-    },
-    {
-      key: "meta-data",
-      label: t("Meta Data"),
-      children: (
-        <div>
-          <ModelFieldList
-            isMeta={true}
-            fields={data && "metadataSchema" in data ? data?.metadataSchema?.fields : undefined}
-            hasUpdateRight={hasUpdateRight}
-            hasDeleteRight={hasDeleteRight}
-            hasCreateRight={hasCreateRight}
-            handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
-            onFieldReorder={onFieldReorder}
-            onFieldDelete={onFieldDelete}
-          />
-        </div>
-      ),
-    },
-  ];
+  const items = useMemo<TabsProps["items"]>(
+    () => [
+      {
+        key: "fields",
+        label: t("Fields"),
+        children: (
+          <div>
+            <ModelFieldList
+              fields={data?.schema.fields}
+              hasUpdateRight={hasUpdateRight}
+              hasDeleteRight={hasDeleteRight}
+              hasCreateRight={hasCreateRight}
+              handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
+              onFieldReorder={onFieldReorder}
+              onFieldDelete={onFieldDelete}
+              onSchemaImport={onSchemaImportModalOpen}
+            />
+          </div>
+        ),
+      },
+      {
+        key: "meta-data",
+        label: t("Meta Data"),
+        children: (
+          <div>
+            <ModelFieldList
+              isMeta={true}
+              fields={data && "metadataSchema" in data ? data?.metadataSchema?.fields : undefined}
+              hasUpdateRight={hasUpdateRight}
+              hasDeleteRight={hasDeleteRight}
+              hasCreateRight={hasCreateRight}
+              handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
+              onFieldReorder={onFieldReorder}
+              onFieldDelete={onFieldDelete}
+            />
+          </div>
+        ),
+      },
+    ],
+    [
+      data,
+      hasDeleteRight,
+      hasUpdateRight,
+      hasCreateRight,
+      onFieldDelete,
+      onFieldReorder,
+      onFieldUpdateModalOpen,
+      onSchemaImportModalOpen,
+      t,
+    ],
+  );
 
   const handleTabChange = useCallback(
     (key: string) => {
@@ -284,6 +297,7 @@ const Schema: React.FC<Props> = ({
                 extra={[
                   Constant.IS_DEV && (
                     <Button
+                      key="delete-all"
                       type="default"
                       shape="default"
                       size="small"

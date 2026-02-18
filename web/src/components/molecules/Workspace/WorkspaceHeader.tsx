@@ -17,7 +17,7 @@ type Props = {
 const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort, projectSort }) => {
   const t = useT();
 
-  const projectSortOptions: SortOption[] = useMemo(
+  const projectSortOptions = useMemo<SortOption[]>(
     () => [
       { key: "updatedat", label: t("Last Modified") },
       { key: "id", label: t("Created At") },
@@ -41,16 +41,12 @@ const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort, proj
           value={projectSort}
           onChange={value => {
             onProjectSort(value as SortBy);
-          }}>
-          {projectSortOptions.map(option => (
-            <Select.Option
-              key={option.key}
-              value={option.key}
-              data-testid={`workspace-header-project-sort-option-${option.key}`}>
-              {option.label}
-            </Select.Option>
-          ))}
-        </StyledSelect>
+          }}
+          options={projectSortOptions.map(option => ({
+            value: option.key,
+            label: option.label,
+          }))}
+        />
       </Wrapper>
     </Container>
   );

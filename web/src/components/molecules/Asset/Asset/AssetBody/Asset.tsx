@@ -144,7 +144,7 @@ const AssetMolecule: React.FC<Props> = ({
               <Buttons>
                 <CopyButton
                   copyable={{ text: asset.url, tooltips: [t("Copy URL"), t("URL copied!!")] }}
-                  size={16}
+                  $size={16}
                 />
                 <DownloadButton
                   disabled={!asset}

@@ -1,143 +1,191 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
 
 import ProTable, {
+  ParamsType,
   ProColumns,
   ProTableProps,
-  ParamsType,
 } from "@reearth-cms/components/atoms/ProTable";
-import { ResizableTitle } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizable";
 import type { ResizeCallbackData } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizable";
+import { ResizableTitle } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizable";
+import { Constant } from "@reearth-cms/utils/constant";
 
 type Props = ProTableProps<Record<string, any> | any, ParamsType, "text"> & {
   heightOffset: number;
 };
 
-const ResizableProTable: React.FC<Props> = ({
-  dataSource,
-  columns,
-  loading,
-  options,
-  toolbar,
-  toolBarRender,
-  rowSelection,
-  tableAlertOptionRender,
-  pagination,
-  onChange,
-  columnsState,
-  showSorterTooltip,
-  heightOffset,
-  locale,
-}) => {
-  const [resizableColumns, setResizableColumns] = useState<ProColumns<any, "text">[]>(
-    columns ?? [],
-  );
-
-  useEffect(() => {
-    if (columns) {
-      setResizableColumns(columns);
-    }
-  }, [columns, setResizableColumns]);
-
-  const handleResize = useCallback(
-    (index: number) =>
-      (_: React.SyntheticEvent<Element>, { size }: ResizeCallbackData) => {
-        const newColumns = [...resizableColumns];
-        newColumns[index] = {
-          ...newColumns[index],
-          width: size.width,
-        };
-        setResizableColumns(newColumns);
-      },
-    [resizableColumns],
-  );
-
-  const mergeColumns: ProColumns<any, "text">[] = useMemo(
-    () =>
-      resizableColumns?.map((col, index): any => ({
-        ...col,
-        onHeaderCell: (column: ProColumns<any, "text">) => ({
-          minWidth: (column as ProColumns<any, "text"> & { minWidth: number }).minWidth,
-          width: (column as ProColumns<any, "text">).width,
-          onResize: handleResize(index),
-        }),
-      })),
-    [handleResize, resizableColumns],
-  );
-
-  const [isRowSelected, setIsRowSelected] = useState(false);
-
-  useEffect(() => {
-    if (typeof rowSelection !== "boolean") {
-      if (rowSelection?.selectedRowKeys?.length) {
-        setIsRowSelected(true);
-      } else {
-        setIsRowSelected(false);
-      }
-    }
-  }, [rowSelection]);
-
-  return (
-    <StyledProTable
-      dataSource={dataSource}
-      columns={mergeColumns}
-      components={{
-        header: {
-          cell: ResizableTitle,
-        },
-      }}
-      rowKey="id"
-      search={false}
-      loading={loading}
-      toolbar={toolbar}
-      toolBarRender={toolBarRender}
-      options={options}
-      tableAlertOptionRender={tableAlertOptionRender}
-      rowSelection={rowSelection}
-      isRowSelected={isRowSelected}
-      pagination={pagination}
-      onChange={onChange}
-      columnsState={columnsState}
-      showSorterTooltip={showSorterTooltip}
-      scroll={{ x: "", y: "" }}
-      heightOffset={heightOffset}
-      locale={locale}
-    />
-  );
+const tableComponents = {
+  header: {
+    cell: ResizableTitle,
+  },
 };
+
+const tableScroll = { x: "", y: "" };
+
+const ResizableProTable = forwardRef<HTMLDivElement, Props>(
+  (
+    {
+      dataSource,
+      columns,
+      loading,
+      options,
+      toolbar,
+      toolBarRender,
+      rowSelection,
+      tableAlertOptionRender,
+      pagination,
+      onChange,
+      columnsState,
+      showSorterTooltip,
+      heightOffset,
+      locale,
+    },
+    ref,
+  ) => {
+    const [resizableColumns, setResizableColumns] = useState<ProColumns<any, "text">[]>(
+      columns ?? [],
+    );
+
+    useEffect(() => {
+      if (columns) {
+        setResizableColumns(columns);
+      }
+    }, [columns]);
+
+    const handleResize = useCallback(
+      (index: number) =>
+        (_: React.SyntheticEvent<Element>, { size }: ResizeCallbackData) => {
+          setResizableColumns(prev => {
+            const newColumns = [...prev];
+            newColumns[index] = {
+              ...newColumns[index],
+              width: size.width,
+            };
+            return newColumns;
+          });
+        },
+      [],
+    );
+
+    const mergeColumns = useMemo<ProColumns<any, "text">[]>(
+      () =>
+        resizableColumns?.map((col, index): any => ({
+          ...col,
+          onHeaderCell: (column: ProColumns<any, "text">) => ({
+            minWidth: (column as ProColumns<any, "text"> & { minWidth: number }).minWidth,
+            width: (column as ProColumns<any, "text">).width,
+            onResize: handleResize(index),
+          }),
+        })),
+      [handleResize, resizableColumns],
+    );
+
+    const isRowSelected = useMemo<boolean>(() => {
+      if (typeof rowSelection === "boolean") return false;
+      return !!rowSelection?.selectedRowKeys?.length;
+    }, [rowSelection]);
+
+    return (
+      <Wrapper ref={ref} $isRowSelected={isRowSelected} $heightOffset={heightOffset}>
+        <ProTable
+          dataSource={dataSource}
+          columns={mergeColumns}
+          components={tableComponents}
+          rowKey="id"
+          search={false}
+          loading={loading}
+          toolbar={toolbar}
+          toolBarRender={toolBarRender}
+          options={options}
+          tableAlertOptionRender={tableAlertOptionRender}
+          rowSelection={rowSelection}
+          pagination={pagination}
+          onChange={onChange}
+          columnsState={columnsState}
+          showSorterTooltip={showSorterTooltip}
+          scroll={tableScroll}
+          locale={locale}
+        />
+      </Wrapper>
+    );
+  },
+);
 
 export default ResizableProTable;
 
-const StyledProTable = styled(ProTable)<{
-  isRowSelected: boolean;
-  heightOffset: number;
+const Wrapper = styled("div", Constant.TRANSIENT_OPTIONS)<{
+  $isRowSelected: boolean;
+  $heightOffset: number;
 }>`
-  height: ${({ heightOffset }) => `calc(100% - ${heightOffset}px)`};
-  .ant-pro-card-body {
-    padding-bottom: 0;
-  }
-  .ant-pro-card,
-  .ant-pro-card-body,
-  .ant-spin-nested-loading,
-  .ant-spin-container,
-  .ant-table-container {
+  height: ${({ $heightOffset }) => `calc(100% - ${$heightOffset}px)`};
+
+  /* --- Level 0: .ant-pro-table --- toolbar + card as siblings */
+  .ant-pro-table {
+    display: flex;
+    flex-direction: column;
     height: 100%;
+    padding: 0 24px;
   }
+  .ant-pro-table-list-toolbar {
+    flex: none;
+  }
+  .ant-pro-card {
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* --- Level 1: .ant-pro-card-body --- alert + spin as siblings */
+  .ant-pro-card-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0;
+  }
+  .ant-pro-table-alert {
+    flex: none;
+  }
+  .ant-spin-nested-loading {
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* --- Level 2: .ant-spin-container --- single child .ant-table-wrapper */
+  .ant-spin-container {
+    display: flex;
+    flex-direction: column;
+    height: 99%;
+  }
+
+  /* --- Level 3: .ant-table-wrapper --- table + pagination as siblings */
   .ant-table-wrapper {
-    height: ${({ isRowSelected }) => `calc(100% - ${isRowSelected ? 128 : 64}px)`};
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
   }
   .ant-table {
-    height: calc(100% - 64px);
+    flex: 1;
+    min-height: 0;
   }
-  .ant-table-small,
-  .ant-table-middle {
-    height: calc(100% - 56px);
+  .ant-pagination {
+    flex: none;
+    margin: 16px 0 !important;
+  }
+
+  /* --- Level 4: .ant-table-container --- header + body */
+  .ant-table-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
   }
   .ant-table-body {
-    overflow: auto !important;
-    height: calc(100% - 47px);
+    flex: 1;
+    min-height: 0;
+    scrollbar-gutter: stable;
   }
+
+  /* --- Toolbar layout --- */
   .ant-pro-table-list-toolbar-container {
     flex-direction: row;
   }
@@ -155,5 +203,9 @@ const StyledProTable = styled(ProTable)<{
   }
   .ant-pro-table-list-toolbar-right {
     flex: inherit;
+  }
+
+  .ant-spin {
+    height: 100%;
   }
 `;

@@ -1,7 +1,7 @@
 import { gold, red } from "@ant-design/colors";
 import styled from "@emotion/styled";
 import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation } from "react-router";
 
 import Alert, { type AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button, { ButtonProps } from "@reearth-cms/components/atoms/Button";
@@ -71,7 +71,7 @@ const ContentImportModal: React.FC<Props> = ({
   const raiseIllegalFileAlert = useCallback(() => {
     setAlertList([
       {
-        message: t("The uploaded file is empty or invalid"),
+        title: t("The uploaded file is empty or invalid"),
         type: "error",
         closable: true,
         showIcon: true,
@@ -82,7 +82,7 @@ const ContentImportModal: React.FC<Props> = ({
   const raiseSingleFileAlert = useCallback(() => {
     setAlertList([
       {
-        message: t("Only one file can be uploaded at a time"),
+        title: t("Only one file can be uploaded at a time"),
         type: "error",
         closable: true,
         showIcon: true,
@@ -93,7 +93,7 @@ const ContentImportModal: React.FC<Props> = ({
   const raiseIllegalFileFormatAlert = useCallback(() => {
     setAlertList([
       {
-        message: t("File format is not supported"),
+        title: t("File format is not supported"),
         type: "error",
         closable: true,
         showIcon: true,
@@ -322,7 +322,7 @@ const ContentImportModal: React.FC<Props> = ({
         console.error(error);
         setAlertList([
           {
-            message: t("An unexpected error occurred while processing the file. Please try again."),
+            title: t("An unexpected error occurred while processing the file. Please try again."),
             type: "error",
             closable: true,
             showIcon: true,
@@ -385,7 +385,7 @@ const ContentImportModal: React.FC<Props> = ({
       title={t("Import content")}
       open={isOpen}
       onCancel={onClose}
-      maskClosable={false}
+      mask={{ closable: false }}
       footer={null}>
       {!validateImportResult ? (
         <>
@@ -431,7 +431,7 @@ const ContentImportModal: React.FC<Props> = ({
               {alertList.map((alert, index) => (
                 <Alert
                   {...alert}
-                  key={alert?.message?.toString() || index}
+                  key={alert?.title?.toString() || index}
                   onClick={e => e.stopPropagation()}
                 />
               ))}

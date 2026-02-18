@@ -39,11 +39,9 @@ test("@smoke Item CRUD and searching has succeeded", async ({
   contentPage,
   fieldEditorPage,
   projectPage,
-  schemaPage,
 }) => {
   await test.step("Create text field and navigate to content", async () => {
-    await fieldEditorPage.fieldTypeButton("Text").click();
-    await schemaPage.handleFieldForm("text");
+    await fieldEditorPage.createField(SchemaFieldType.Text, "text");
     await projectPage.contentMenuItem.click();
     await page.waitForTimeout(300);
   });
@@ -100,11 +98,9 @@ test("@smoke Publishing and Unpublishing item from edit page has succeeded", asy
   page,
   contentPage,
   fieldEditorPage,
-  schemaPage,
 }) => {
   await test.step("Create text field and new item", async () => {
-    await fieldEditorPage.fieldTypeListItem("Text").click();
-    await schemaPage.handleFieldForm("text");
+    await fieldEditorPage.createField(SchemaFieldType.Text, "text");
     await contentPage.contentTextFirst.click();
     await contentPage.newItemButton.click();
     await contentPage.fieldInput("text").click();
@@ -149,11 +145,9 @@ test("Publishing and Unpublishing item from table has succeeded", async ({
   page,
   contentPage,
   fieldEditorPage,
-  schemaPage,
 }) => {
   await test.step("Create text field and new item", async () => {
-    await fieldEditorPage.fieldTypeListItem("Text").click();
-    await schemaPage.handleFieldForm("text");
+    await fieldEditorPage.createField(SchemaFieldType.Text, "text");
     await contentPage.contentTextFirst.click();
     await contentPage.newItemButton.click();
     await contentPage.fieldInput("text").click();
@@ -200,8 +194,7 @@ test("Showing item title has succeeded", async ({
   schemaPage,
 }) => {
   await test.step("Create text field and new item", async () => {
-    await fieldEditorPage.fieldTypeListItem("Text").click();
-    await schemaPage.handleFieldForm("text");
+    await fieldEditorPage.createField(SchemaFieldType.Text, "text");
     await contentPage.contentText.click();
     await contentPage.newItemButton.click();
     await expect(contentPage.titleByText("e2e model name", true)).toBeVisible();
@@ -248,11 +241,9 @@ test("@smoke Comment CRUD on Content page has succeeded", async ({
   page,
   contentPage,
   fieldEditorPage,
-  schemaPage,
 }) => {
   await test.step("Create text field and new item", async () => {
-    await fieldEditorPage.fieldTypeListItem("Text").click();
-    await schemaPage.handleFieldForm("text");
+    await fieldEditorPage.createField(SchemaFieldType.Text, "text");
     await contentPage.contentText.click();
     await contentPage.newItemButton.click();
     await contentPage.fieldInput("text").click();
@@ -284,15 +275,9 @@ test("@smoke Comment CRUD on Content page has succeeded", async ({
   });
 });
 
-test("Comment CRUD on edit page has succeeded", async ({
-  page,
-  contentPage,
-  fieldEditorPage,
-  schemaPage,
-}) => {
+test("Comment CRUD on edit page has succeeded", async ({ page, contentPage, fieldEditorPage }) => {
   await test.step("Create text field and new item", async () => {
-    await fieldEditorPage.fieldTypeListItem("Text").click();
-    await schemaPage.handleFieldForm("text");
+    await fieldEditorPage.createField(SchemaFieldType.Text, "text");
     await contentPage.contentText.click();
     await contentPage.newItemButton.click();
     await contentPage.fieldInput("text").click();
@@ -362,7 +347,7 @@ test.describe("Import content", () => {
       await fieldEditorPage.displayNameInput.click();
       await fieldEditorPage.displayNameInput.fill("location");
       await fieldEditorPage.settingsDescriptionInput.click();
-      await fieldEditorPage.pointCheckbox.check();
+      await fieldEditorPage.pointCheckbox.click();
       await fieldEditorPage.okButton.click();
       await fieldEditorPage.closeNotification();
 
@@ -455,7 +440,7 @@ test.describe("Import content", () => {
       await fieldEditorPage.displayNameInput.click();
       await fieldEditorPage.displayNameInput.fill("location");
       await fieldEditorPage.settingsDescriptionInput.click();
-      await fieldEditorPage.pointCheckbox.check();
+      await fieldEditorPage.pointCheckbox.click();
       await fieldEditorPage.okButton.click();
 
       await projectPage.contentMenuItem.click();

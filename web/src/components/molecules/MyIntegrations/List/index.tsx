@@ -5,6 +5,7 @@ import MyIntegrationCard from "@reearth-cms/components/molecules/MyIntegrations/
 import IntegrationCreationAction from "@reearth-cms/components/molecules/MyIntegrations/List/CreationAction";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   integrations: Integration[];
@@ -20,7 +21,7 @@ const MyIntegrationList: React.FC<Props> = ({
   const t = useT();
 
   return (
-    <Wrapper>
+    <Wrapper data-testid={DATA_TEST_ID.MyIntegrations__List__Wrapper}>
       <PageHeader
         title={t("My Integrations")}
         subTitle={t("Create and test your own integration.")}

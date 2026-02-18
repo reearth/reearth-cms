@@ -59,13 +59,14 @@ const ServiceForm: React.FC<Props> = ({ initialValues, onLanguageUpdate }) => {
         name="lang"
         label={t("Service Language")}
         extra={t("This will change the UI language")}>
-        <Select placeholder={t("Language")} onSelect={handleSelect}>
-          {langItems?.map(langItem => (
-            <Select.Option key={langItem.key} value={langItem.key}>
-              {langItem.label}
-            </Select.Option>
-          ))}
-        </Select>
+        <Select
+          placeholder={t("Language")}
+          onSelect={handleSelect}
+          options={langItems?.map(langItem => ({
+            value: langItem.key,
+            label: langItem.label,
+          }))}
+        />
       </Form.Item>
       <Button onClick={handleSubmit} type="primary" disabled={isDisabled} loading={isLoading}>
         {t("Save")}

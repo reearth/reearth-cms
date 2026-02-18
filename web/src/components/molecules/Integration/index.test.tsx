@@ -2,6 +2,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, describe } from "vitest";
 
+import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
+
 import IntegrationWrapper from ".";
 
 describe("Integration wrapper", () => {
@@ -68,7 +70,7 @@ describe("Integration wrapper", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "apiConnect Integration" }));
+    await user.click(screen.getByTestId(DATA_TEST_ID.IntegrationTable__ConnectIntegrationButton));
     await expect.poll(() => screen.getByRole("dialog")).toBeVisible();
     await user.click(screen.getByRole("button", { name: "Cancel" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -98,7 +100,7 @@ describe("Integration wrapper", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "setting" }));
+    await user.click(screen.getAllByRole("button", { name: "setting" })[0]);
     await expect.poll(() => screen.getByRole("dialog")).toBeVisible();
     await user.click(screen.getByRole("button", { name: "Cancel" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();

@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
-import { useBlocker } from "react-router-dom";
+import { useBlocker } from "react-router";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
@@ -10,7 +10,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import Space from "@reearth-cms/components/atoms/Space";
-import Tabs from "@reearth-cms/components/atoms/Tabs";
+import Tabs, { type TabsProps } from "@reearth-cms/components/atoms/Tabs";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
@@ -38,12 +38,11 @@ import {
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { Constant } from "@reearth-cms/utils/constant";
 import { transformDayjsToString, dateTimeFormat } from "@reearth-cms/utils/format";
 
 import FieldWrapper from "./FieldWrapper";
 import Versions from "./Versions";
-
-const { TabPane } = Tabs;
 
 type Props = {
   title: string;
@@ -325,7 +324,7 @@ const ContentForm: React.FC<Props> = ({
       });
 
       Notification.info({
-        message: t("This item has unsaved data"),
+        title: t("This item has unsaved data"),
         description: t("Are you going to leave?"),
         btn,
         key,
@@ -441,7 +440,7 @@ const ContentForm: React.FC<Props> = ({
     };
 
     Notification.info({
-      message: t("Are you sure you want to restore this version's content?"),
+      title: t("Are you sure you want to restore this version's content?"),
       description: t(
         "After saving, a new version will be created while keeping the current version unchanged.",
       ),
@@ -587,7 +586,7 @@ const ContentForm: React.FC<Props> = ({
     [item?.status],
   );
 
-  const items: MenuProps["items"] = useMemo(() => {
+  const items = useMemo<MenuProps["items"]>(() => {
     const menuItems = [
       {
         key: "addToRequest",
@@ -671,6 +670,57 @@ const ContentForm: React.FC<Props> = ({
     setItemHeights(prev => ({ ...prev, [_id]: _height }));
   }, []);
 
+  const tabItems = useMemo<TabsProps["items"]>(() => {
+    const items: NonNullable<TabsProps["items"]> = [
+      {
+        label: t("Meta Data"),
+        key: "meta",
+        children: (
+          <Form
+            form={metaForm}
+            layout="vertical"
+            initialValues={initialMetaFormValues}
+            onValuesChange={handleMetaValuesChange}>
+            <TabContent>
+              <Metadata
+                item={item}
+                fields={model?.metadataSchema.fields ?? []}
+                disabled={fieldDisabled}
+              />
+            </TabContent>
+          </Form>
+        ),
+      },
+    ];
+    if (versions.length) {
+      items.push({
+        label: t("Version History"),
+        key: "history",
+        children: (
+          <TabContent>
+            <Versions
+              versions={versions}
+              versionClick={versionClick}
+              onNavigateToRequest={onNavigateToRequest}
+            />
+          </TabContent>
+        ),
+      });
+    }
+    return items;
+  }, [
+    t,
+    metaForm,
+    initialMetaFormValues,
+    handleMetaValuesChange,
+    item,
+    model?.metadataSchema.fields,
+    fieldDisabled,
+    versions,
+    versionClick,
+    onNavigateToRequest,
+  ]);
+
   return (
     <>
       <Wrapper>
@@ -752,7 +802,7 @@ const ContentForm: React.FC<Props> = ({
             layout="vertical"
             initialValues={initialFormValues}
             onValuesChange={handleValuesChange}
-            scrollbarWidth={scrollbarWidth}>
+            $scrollbarWidth={scrollbarWidth}>
             {model?.schema.fields.map(field => (
               <FieldWrapper
                 key={field.id}
@@ -808,7 +858,7 @@ const ContentForm: React.FC<Props> = ({
               form={versionForm}
               layout="vertical"
               name="version"
-              scrollbarWidth={scrollbarWidth}>
+              $scrollbarWidth={scrollbarWidth}>
               {model?.schema.fields.map(field => (
                 <FieldWrapper
                   key={field.id}
@@ -826,34 +876,7 @@ const ContentForm: React.FC<Props> = ({
         </FormWrapper>
       </Wrapper>
       {!versionedItem && (model?.metadataSchema.fields || item?.id) && (
-        <StyledTabs activeKey={activeKey} onTabClick={key => setActiveKey(key)}>
-          <TabPane tab={t("Meta Data")} key="meta">
-            <Form
-              form={metaForm}
-              layout="vertical"
-              initialValues={initialMetaFormValues}
-              onValuesChange={handleMetaValuesChange}>
-              <TabContent>
-                <Metadata
-                  item={item}
-                  fields={model?.metadataSchema.fields ?? []}
-                  disabled={fieldDisabled}
-                />
-              </TabContent>
-            </Form>
-          </TabPane>
-          {versions.length && (
-            <TabPane tab={t("Version History")} key="history">
-              <TabContent>
-                <Versions
-                  versions={versions}
-                  versionClick={versionClick}
-                  onNavigateToRequest={onNavigateToRequest}
-                />
-              </TabContent>
-            </TabPane>
-          )}
-        </StyledTabs>
+        <StyledTabs activeKey={activeKey} onTabClick={key => setActiveKey(key)} items={tabItems} />
       )}
       {itemId && (
         <>
@@ -939,7 +962,7 @@ const StyledTabs = styled(Tabs)`
   }
 `;
 
-const StyledForm = styled(Form)<{ scrollbarWidth: number }>`
+const StyledForm = styled(Form, Constant.TRANSIENT_OPTIONS)<{ $scrollbarWidth: number }>`
   flex: 1;
   min-width: 0;
   padding: 36px;
@@ -951,7 +974,7 @@ const StyledForm = styled(Form)<{ scrollbarWidth: number }>`
     display: flex;
   }
   :last-child {
-    margin-right: ${({ scrollbarWidth }) => `-${scrollbarWidth}px`};
+    margin-right: ${({ $scrollbarWidth }) => `-${$scrollbarWidth}px`};
   }
 `;
 

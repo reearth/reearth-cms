@@ -1,9 +1,10 @@
 import styled from "@emotion/styled";
+import { useMemo } from "react";
 
 import Loading from "@reearth-cms/components/atoms/Loading";
 import NotFound from "@reearth-cms/components/atoms/NotFound/partial";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
-import Tabs from "@reearth-cms/components/atoms/Tabs";
+import Tabs, { TabsProps } from "@reearth-cms/components/atoms/Tabs";
 import MyIntegrationSettings from "@reearth-cms/components/molecules/MyIntegrations/Settings";
 import {
   Integration,
@@ -13,8 +14,6 @@ import {
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import Webhook from "@reearth-cms/components/molecules/MyIntegrations/Webhook";
 import { useT } from "@reearth-cms/i18n";
-
-const { TabPane } = Tabs;
 
 type Props = {
   loading: boolean;
@@ -49,6 +48,56 @@ const MyIntegrationContent: React.FC<Props> = ({
 }) => {
   const t = useT();
 
+  const tabItems = useMemo<TabsProps["items"]>(
+    () =>
+      integration
+        ? [
+            {
+              key: "integration",
+              label: t("General"),
+              children: (
+                <MyIntegrationSettings
+                  integration={integration}
+                  updateIntegrationLoading={updateIntegrationLoading}
+                  regenerateLoading={regenerateLoading}
+                  onIntegrationUpdate={onIntegrationUpdate}
+                  onIntegrationDelete={onIntegrationDelete}
+                  onRegenerateToken={onRegenerateToken}
+                />
+              ),
+            },
+            {
+              key: "webhooks",
+              label: t("Webhook"),
+              children: (
+                <Webhook
+                  integration={integration}
+                  createWebhookLoading={createWebhookLoading}
+                  updateWebhookLoading={updateWebhookLoading}
+                  onWebhookCreate={onWebhookCreate}
+                  onWebhookDelete={onWebhookDelete}
+                  onWebhookUpdate={onWebhookUpdate}
+                />
+              ),
+            },
+          ]
+        : [],
+    [
+      t,
+      integration,
+      updateIntegrationLoading,
+      regenerateLoading,
+      onIntegrationUpdate,
+      onIntegrationDelete,
+      onRegenerateToken,
+      createWebhookLoading,
+      updateWebhookLoading,
+      onWebhookCreate,
+      onWebhookDelete,
+      onWebhookUpdate,
+    ],
+  );
+
   return loading ? (
     <Loading spinnerSize="large" minHeight="100%" />
   ) : integration ? (
@@ -57,28 +106,7 @@ const MyIntegrationContent: React.FC<Props> = ({
         title={`${t("My Integration")} / ${integration.name}`}
         onBack={onIntegrationHeaderBack}
       />
-      <MyIntegrationTabs defaultActiveKey="integration">
-        <TabPane tab={t("General")} key="integration">
-          <MyIntegrationSettings
-            integration={integration}
-            updateIntegrationLoading={updateIntegrationLoading}
-            regenerateLoading={regenerateLoading}
-            onIntegrationUpdate={onIntegrationUpdate}
-            onIntegrationDelete={onIntegrationDelete}
-            onRegenerateToken={onRegenerateToken}
-          />
-        </TabPane>
-        <TabPane tab={t("Webhook")} key="webhooks">
-          <Webhook
-            integration={integration}
-            createWebhookLoading={createWebhookLoading}
-            updateWebhookLoading={updateWebhookLoading}
-            onWebhookCreate={onWebhookCreate}
-            onWebhookDelete={onWebhookDelete}
-            onWebhookUpdate={onWebhookUpdate}
-          />
-        </TabPane>
-      </MyIntegrationTabs>
+      <MyIntegrationTabs defaultActiveKey="integration" items={tabItems} />
     </MyIntegrationWrapper>
   ) : (
     <NotFound />
