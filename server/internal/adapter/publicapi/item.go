@@ -55,7 +55,7 @@ func (c *Controller) GetItem(ctx context.Context, wsAlias, pAlias, mKey, i strin
 		}
 	}
 
-	return NewItem(itv, sp, assets, getReferencedItems(ctx, itv, wpm.PublicAssets)), nil
+	return NewItem(itv, sp, assets, getReferencedItems(ctx, itv, sp, wpm.PublicAssets)), nil
 }
 
 func (c *Controller) GetPublicItems(ctx context.Context, wsAlias, pAlias, mKey, ext string, p *usecasex.Pagination, w io.Writer) error {
@@ -99,7 +99,7 @@ func (c *Controller) GetPublicItems(ctx context.Context, wsAlias, pAlias, mKey, 
 	return nil
 }
 
-func getReferencedItems(ctx context.Context, i *item.Item, prp bool) []Item {
+func getReferencedItems(ctx context.Context, i *item.Item, sp *schema.Package, prp bool) []Item {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
@@ -108,15 +108,7 @@ func getReferencedItems(ctx context.Context, i *item.Item, prp bool) []Item {
 	}
 
 	// Step 1: Collect all referenced item IDs
-	var refItemIDs []id.ItemID
-	for _, f := range i.Fields().FieldsByType(value.TypeReference) {
-		for _, v := range f.Value().Values() {
-			iid, ok := v.Value().(id.ItemID)
-			if ok {
-				refItemIDs = append(refItemIDs, iid)
-			}
-		}
-	}
+	refItemIDs := item.List{i}.RefItemIDs()
 
 	if len(refItemIDs) == 0 {
 		return nil
@@ -128,22 +120,28 @@ func getReferencedItems(ctx context.Context, i *item.Item, prp bool) []Item {
 		return nil
 	}
 
-	// Step 3: Collect unique model IDs and load schemas
-	modelIDs := make(map[id.ModelID]bool)
-	for _, ii := range referencedItems {
-		modelIDs[ii.Value().Model()] = true
-	}
-
-	// Step 4: Load schemas for unique models
-	schemaMap := make(map[id.ModelID]*schema.Package)
-	for modelID := range modelIDs {
-		sp, err := uc.Schema.FindByModel(ctx, modelID, op)
-		if err == nil && sp != nil {
-			schemaMap[modelID] = sp
+	// Step 3: Build schema map from referenced schemas in the schema package
+	// This avoids M queries to fetch schemas - they're already loaded
+	schemaMap := make(map[id.ModelID]*schema.Schema)
+	for _, refSchema := range sp.ReferencedSchemas() {
+		// Get reference fields from main schema to find model ID for this ref schema
+		for _, f := range sp.Schema().FieldsByType(value.TypeReference) {
+			var modelID id.ModelID
+			var schemaID id.SchemaID
+			f.TypeProperty().Match(schema.TypePropertyMatch{
+				Reference: func(rf *schema.FieldReference) {
+					modelID = rf.Model()
+					schemaID = rf.Schema()
+				},
+			})
+			if schemaID == refSchema.ID() {
+				schemaMap[modelID] = refSchema
+				break
+			}
 		}
 	}
 
-	// Step 5: Batch load all assets if needed
+	// Step 4: Batch load all assets if needed
 	var assetsMap asset.Map
 	if prp {
 		var allAssetIDs []id.AssetID
@@ -158,13 +156,16 @@ func getReferencedItems(ctx context.Context, i *item.Item, prp bool) []Item {
 		}
 	}
 
-	// Step 6: Build result from loaded data
+	// Step 5: Build result from loaded data
 	vi := make([]Item, 0, len(referencedItems))
 	for _, ii := range referencedItems {
-		sp, ok := schemaMap[ii.Value().Model()]
+		refSchema, ok := schemaMap[ii.Value().Model()]
 		if !ok {
 			continue
 		}
+
+		// Create a simple schema package for the referenced item
+		refSchemaPackage := schema.NewPackage(refSchema, nil, nil, nil)
 
 		var itemAssets asset.List
 		if prp && assetsMap != nil {
@@ -175,7 +176,7 @@ func getReferencedItems(ctx context.Context, i *item.Item, prp bool) []Item {
 			}
 		}
 
-		vi = append(vi, NewItem(ii.Value(), sp, itemAssets, nil))
+		vi = append(vi, NewItem(ii.Value(), refSchemaPackage, itemAssets, nil))
 	}
 
 	return vi

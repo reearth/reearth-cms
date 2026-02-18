@@ -10,7 +10,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
-	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/log"
@@ -93,22 +92,16 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 		}
 
 		// Pre-load all referenced items for this batch
-		// Note: We load ALL referenced items first, then filter by IncludeRefModels
-		// in the ItemLoader to respect privacy settings
-		refItemIDs := collectReferenceIDs(items)
+		// Note: We load ALL referenced items first, then filter by IncloudRefModels
+		// in the ItemLoader to respect privacy settings while avoiding N+1 queries
+		refItemIDs := items.RefItemIDs()
 		var referencedItemsMap map[id.ItemID]*item.Item
 		if len(refItemIDs) > 0 {
 			versionedRefs, err := i.repos.Item.FindByIDs(ctx, refItemIDs, ver)
 			if err != nil {
 				log.Errorfc(ctx, "export: failed to pre-load %d referenced items: %v", len(refItemIDs), err)
 			} else {
-				referencedItems := versionedRefs.Unwrap()
-				referencedItemsMap = make(map[id.ItemID]*item.Item, len(referencedItems))
-
-				// Store all referenced items in the map
-				for _, refItem := range referencedItems {
-					referencedItemsMap[refItem.ID()] = refItem
-				}
+				referencedItemsMap = versionedRefs.Unwrap().ToMap()
 			}
 		}
 
@@ -148,23 +141,30 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 
 		// Extract and load assets for this batch
 		assetIDs := items.AssetIDs(params.SchemaPackage)
+		var assetsMap asset.Map
 		var assets asset.List
 		if len(assetIDs) > 0 && params.Options.IncludeAssets {
 			assets, err = i.repos.Asset.FindByIDs(ctx, assetIDs)
 			if err != nil {
-				return rerror.ErrInternalBy(err)
-			}
-			if assets != nil {
+				log.Errorfc(ctx, "export: failed to pre-load %d assets: %v", len(assetIDs), err)
+			} else if assets != nil {
 				assets.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+				assetsMap = assets.Map()
 			}
 		}
 
-		// Create AssetLoader closure for this batch
+		// Create AssetLoader closure for this batch using pre-loaded cache
 		req.AssetLoader = func(assetIDs id.AssetIDList) (asset.List, error) {
-			if !params.Options.IncludeAssets || assets == nil {
+			if !params.Options.IncludeAssets || assetsMap == nil {
 				return nil, nil
 			}
-			return assets.FilterByIDs(assetIDs), nil
+			result := make(asset.List, 0, len(assetIDs))
+			for _, aid := range assetIDs {
+				if a, exists := assetsMap[aid]; exists {
+					result = append(result, a)
+				}
+			}
+			return result, nil
 		}
 
 		// Process this batch
@@ -205,27 +205,4 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 
 	// Finalize export
 	return exporter.EndExport(ctx, props)
-}
-
-// collectReferenceIDs collects all reference field item IDs from a list of items
-func collectReferenceIDs(items item.List) []id.ItemID {
-	var refIDs []id.ItemID
-	seen := make(map[id.ItemID]bool)
-
-	for _, itm := range items {
-		for _, f := range itm.Fields() {
-			if f.Type() == value.TypeReference {
-				for _, v := range f.Value().Values() {
-					if refID, ok := v.Value().(id.ItemID); ok {
-						if !seen[refID] {
-							refIDs = append(refIDs, refID)
-							seen[refID] = true
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return refIDs
 }
