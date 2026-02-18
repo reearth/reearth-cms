@@ -318,7 +318,7 @@ func (r *mutationResolver) UnpublishItem(ctx context.Context, input gqlmodel.Unp
 func (r *mutationResolver) ImportItems(ctx context.Context, input gqlmodel.ImportItemsInput) (*gqlmodel.ImportItemsPayload, error) {
 	op := getOperator(ctx)
 
-	// Validate file size (max 10MB)
+	// Validate file size (max 100MB)
 	if input.File.Size > interfaces.MaxImportFileSize {
 		return nil, interfaces.ErrImportFileTooLarge
 	}
@@ -377,7 +377,7 @@ func (r *mutationResolver) ImportItems(ctx context.Context, input gqlmodel.Impor
 func (r *mutationResolver) ImportItemsAsync(ctx context.Context, input gqlmodel.ImportItemsInput) (*gqlmodel.ImportItemsAsyncPayload, error) {
 	op := getOperator(ctx)
 
-	// Validate file size (max 10MB)
+	// Validate file size (max 100MB)
 	if input.File.Size > interfaces.MaxImportFileSize {
 		return nil, interfaces.ErrImportFileTooLarge
 	}
