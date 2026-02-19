@@ -1,5 +1,6 @@
 // e2e/pages/project-settings.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { ProjectScopedPage } from "./project-scoped.page";
 
@@ -10,24 +11,26 @@ export class ProjectSettingsPage extends ProjectScopedPage {
   }
 
   public get projectName(): Locator {
-    return this.getByLabel("name");
+    return this.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__NameInput);
   }
 
   public get projectAlias(): Locator {
-    return this.getByLabel("alias");
+    return this.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__AliasInput);
   }
 
   private get saveChanges(): Locator {
-    return this.getByRole("button", { name: "Save Changes" }).first();
+    return this.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__SaveButton);
   }
 
   public get errorMessage(): Locator {
-    return this.locator("#alias_help");
+    return this.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__AliasField).getByRole(
+      "alert",
+    );
   }
 
   // actions
   public async goToProjectSettings(): Promise<void> {
-    await this.getByText("Settings", { exact: true }).click();
+    await this.settingsMenuItem.click();
   }
 
   public async saveSettings(): Promise<void> {

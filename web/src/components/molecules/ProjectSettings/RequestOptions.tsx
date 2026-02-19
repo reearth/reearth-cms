@@ -6,6 +6,7 @@ import Switch from "@reearth-cms/components/atoms/Switch";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type RequestOptionsData = {
   role: string;
@@ -112,7 +113,12 @@ const RequestOptions: React.FC<Props> = ({
       <TableWrapper>
         <Table dataSource={dataSource} columns={columns} pagination={false} />
       </TableWrapper>
-      <StyledButton type="primary" disabled={isDisabled} onClick={handleSave} loading={isLoading}>
+      <StyledButton
+        type="primary"
+        disabled={isDisabled}
+        onClick={handleSave}
+        loading={isLoading}
+        data-testid={DATA_TEST_ID.ProjectSettings__RequestOptions__SaveButton}>
         {t("Save changes")}
       </StyledButton>
     </>

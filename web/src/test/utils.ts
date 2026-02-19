@@ -256,6 +256,16 @@ export enum DATA_TEST_ID {
   MyIntegrations__Settings__DangerZone__RemoveIntegrationButton = "MyIntegrations__Settings__DangerZone__RemoveIntegrationButton",
   MyIntegrations__Settings__DangerZone__ConfirmRemoveIntegrationButton = "MyIntegrations__Settings__DangerZone__ConfirmRemoveIntegrationButton",
 
+  // ProjectSettings GeneralForm
+  ProjectSettings__GeneralForm__NameInput = "ProjectSettings__GeneralForm__NameInput",
+  ProjectSettings__GeneralForm__AliasInput = "ProjectSettings__GeneralForm__AliasInput",
+  ProjectSettings__GeneralForm__DescriptionInput = "ProjectSettings__GeneralForm__DescriptionInput",
+  ProjectSettings__GeneralForm__AliasField = "ProjectSettings__GeneralForm__AliasField",
+  ProjectSettings__GeneralForm__SaveButton = "ProjectSettings__GeneralForm__SaveButton",
+
+  // ProjectSettings RequestOptions
+  ProjectSettings__RequestOptions__SaveButton = "ProjectSettings__RequestOptions__SaveButton",
+
   // DangerZone (ProjectSettings)
   ProjectSettings__DangerZone__DeleteProjectButton = "ProjectSettings__DangerZone__DeleteProjectButton",
   ProjectSettings__DangerZone__ConfirmDeleteProjectButton = "ProjectSettings__DangerZone__ConfirmDeleteProjectButton",
