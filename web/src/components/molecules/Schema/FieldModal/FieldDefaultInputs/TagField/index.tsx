@@ -5,6 +5,7 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   selectedTags?: { id: string; name: string; color: string }[];
@@ -18,6 +19,7 @@ const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
     <Form.Item name="defaultValue" label={t("Set default value")}>
       {multiple ? (
         <StyledMultipleSelect
+          data-testid={DATA_TEST_ID.FieldModal__TagSelect}
           key={selectedTags?.length}
           mode="multiple"
           tagRender={props => <>{props.label}</>}>
@@ -28,7 +30,7 @@ const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
           ))}
         </StyledMultipleSelect>
       ) : (
-        <Select key={selectedTags?.length} allowClear>
+        <Select data-testid={DATA_TEST_ID.FieldModal__TagSelect} key={selectedTags?.length} allowClear>
           {selectedTags?.map(tag => (
             <Select.Option key={tag.name} value={tag.name}>
               <TagWrapper>

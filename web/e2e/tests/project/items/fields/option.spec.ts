@@ -190,7 +190,7 @@ test("Option field editing has succeeded", async ({
     await fieldEditorPage.defaultValueTab.click();
     await expect(contentPage.optionTextByName("third")).toBeVisible();
     await fieldEditorPage.plusNewButton.click();
-    await fieldEditorPage.antSelectSelectionItem.nth(1).click();
+    await fieldEditorPage.selectValueItem.nth(1).click();
     await expect(fieldEditorPage.optionDiv("first")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("third")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("forth")).toBeVisible();
@@ -216,18 +216,18 @@ test("Option field editing has succeeded", async ({
     await expect(contentPage.optionTextByName("third")).toBeHidden();
 
     await fieldEditorPage.plusNewButton.click();
-    await fieldEditorPage.antSelectSelectionItem.nth(0).click();
+    await fieldEditorPage.selectValueItem.nth(0).click();
     await expect(fieldEditorPage.optionDiv("new first")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("new third")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("new forth")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("new fifth")).toBeVisible();
     await fieldEditorPage.optionDiv("new first").click();
     await fieldEditorPage.plusNewButton.click();
-    await fieldEditorPage.antSelectSelectionItem.nth(1).click();
+    await fieldEditorPage.selectValueItem.nth(1).click();
     await fieldEditorPage.optionDiv("new third").last().click();
     await fieldEditorPage.updateOptionLabel.getByRole("button", { name: "delete" }).last().click();
     await fieldEditorPage.plusNewButton.click();
-    await fieldEditorPage.antSelectSelectionItem.nth(1).click();
+    await fieldEditorPage.selectValueItem.nth(1).click();
     await fieldEditorPage.optionDiv("new third").last().click();
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();

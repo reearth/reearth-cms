@@ -51,7 +51,7 @@ test("Group field creating and updating has succeeded", async ({
     await fieldEditorPage.settingsKeyInput.fill("group1");
     await fieldEditorPage.settingsDescriptionInput.click();
     await fieldEditorPage.settingsDescriptionInput.fill("group1 description");
-    await fieldEditorPage.antSelectSelector.click();
+    await fieldEditorPage.groupSelectTrigger.click();
     await schemaPage.groupNameByText(`${groupName} #${groupKey}`).click();
     await expect(fieldEditorPage.getByLabel("Settings")).toContainText(`${groupName} #${groupKey}`);
     await fieldEditorPage.validationTab.click();
@@ -220,8 +220,8 @@ test("Group field editing has succeeded", async ({
     await fieldEditorPage.settingsKeyInput.fill("group1");
     await fieldEditorPage.settingsDescriptionInput.click();
     await fieldEditorPage.settingsDescriptionInput.fill("group1 description");
-    await expect(fieldEditorPage.antSelectSelector).toBeVisible();
-    await fieldEditorPage.antSelectSelector.click();
+    await expect(fieldEditorPage.groupSelectTrigger).toBeVisible();
+    await fieldEditorPage.groupSelectTrigger.click();
     await page.waitForTimeout(300);
     await expect(schemaPage.groupNameByText(`${groupName} #${groupKey}`)).toBeVisible();
     await schemaPage.groupNameByText(`${groupName} #${groupKey}`).click();

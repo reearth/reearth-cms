@@ -162,7 +162,7 @@ test("Tag metadata editing has succeeded", async ({
     await fieldEditorPage.uniqueFieldCheckbox.check();
     await fieldEditorPage.defaultValueTab.click();
     await expect(fieldEditorPage.defaultValueExactLabel.getByText(tag1)).toBeVisible();
-    await fieldEditorPage.antSelectSelector.click();
+    await fieldEditorPage.tagSelectTrigger.click();
     await expect(fieldEditorPage.tagOptionText(tag1).last()).toBeVisible();
     await fieldEditorPage.tagOptionText(tag2).last().click();
     await fieldEditorPage.tagOptionText(tag3).last().click();
@@ -179,9 +179,9 @@ test("Tag metadata editing has succeeded", async ({
     await expect(fieldEditorPage.defaultValueExactLabel.getByText(tag1)).toBeHidden();
     await expect(fieldEditorPage.defaultValueExactLabel.getByText(tag2)).toBeVisible();
     await expect(fieldEditorPage.defaultValueExactLabel.getByText(tag3)).toBeVisible();
-    await fieldEditorPage.antSelectSelector.click();
+    await fieldEditorPage.tagSelectTrigger.click();
     await expect(fieldEditorPage.tagOptionText(tag1).last()).toBeHidden();
-    await fieldEditorPage.antSelectSelector.click();
+    await fieldEditorPage.tagSelectTrigger.click();
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
     await expect(contentPage.optionTextByName(`${newFieldName} *#${newKey}(unique)`)).toBeVisible();
@@ -222,7 +222,7 @@ test("Tag metadata editing has succeeded", async ({
   });
 
   await test.step("Add tag back and verify in table view", async () => {
-    await fieldEditorPage.antSelectSelector.click();
+    await fieldEditorPage.tagSelectTrigger.click();
     await fieldEditorPage.tagOptionText(tag2).click();
     await contentPage.closeNotification();
     await contentPage.backButton.click();

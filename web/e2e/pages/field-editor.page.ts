@@ -130,12 +130,16 @@ export class FieldEditorPage extends ProjectScopedPage {
     return this.getByLabel("Set Options");
   }
 
-  get antSelectSelectionItem(): Locator {
-    return this.locator(".ant-select-selection-item");
+  get selectValueItem(): Locator {
+    return this.getByTestId(DATA_TEST_ID.FieldModal__SelectValueItem);
   }
 
-  get antSelectSelector(): Locator {
-    return this.locator(".ant-select-selector");
+  get groupSelectTrigger(): Locator {
+    return this.getByTestId(DATA_TEST_ID.Schema__GroupSelect);
+  }
+
+  get tagSelectTrigger(): Locator {
+    return this.getByTestId(DATA_TEST_ID.FieldModal__TagSelect);
   }
 
   get updateOptionLabel(): Locator {
@@ -170,7 +174,7 @@ export class FieldEditorPage extends ProjectScopedPage {
   }
 
   get antTableRow(): Locator {
-    return this.locator(".ant-table-row");
+    return this.getByTestId(DATA_TEST_ID.LinkAssetModal__Table).locator("tbody tr");
   }
 
   get arrowUpButton(): Locator {
@@ -256,18 +260,18 @@ export class FieldEditorPage extends ProjectScopedPage {
     return this.getByLabel("Set default value");
   }
 
-  // Column layout specific
+  // Markdown preview
   get lastColumn(): Locator {
-    return this.locator(".ant-col").last();
+    return this.getByTestId(DATA_TEST_ID.Markdown__Preview);
   }
 
   // Multi-value text fields
   get firstTextContainer(): Locator {
-    return this.locator("div:nth-child(1) > .css-1ago99h");
+    return this.getByTestId(DATA_TEST_ID.MultiValueField__ItemWrapper).first();
   }
 
   get secondTextContainer(): Locator {
-    return this.locator("div:nth-child(2) > .css-1ago99h");
+    return this.getByTestId(DATA_TEST_ID.MultiValueField__ItemWrapper).nth(1);
   }
 
   // Field ordering controls
@@ -373,7 +377,7 @@ export class FieldEditorPage extends ProjectScopedPage {
 
   // Code editor elements
   get viewLinesEditor(): Locator {
-    return this.locator(".view-lines");
+    return this.getByTestId(DATA_TEST_ID.GeometryItem__EditorWrapper).locator(".view-lines");
   }
 
   get editorContent(): Locator {

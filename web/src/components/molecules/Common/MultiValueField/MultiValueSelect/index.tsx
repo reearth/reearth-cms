@@ -5,6 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { moveItemInArray } from "../moveItemArray";
 
@@ -64,6 +65,7 @@ const MultiValueSelect: React.FC<Props> = ({ selectedValues, value = [], onChang
               </>
             )}
             <StyledSelect
+              data-testid={DATA_TEST_ID.FieldModal__SelectValueItem}
               disabled={disabled}
               value={valueItem}
               onChange={(e: string) => handleInput(e, key)}>

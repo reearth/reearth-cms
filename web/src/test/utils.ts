@@ -380,4 +380,20 @@ export enum DATA_TEST_ID {
   Schema__GroupSelect = "Schema__GroupSelect",
   Schema__MetaDataTab = "Schema__MetaDataTab",
   Schema__FieldsTabs = "Schema__FieldsTabs",
+
+  // FieldModal
+  FieldModal__TagSelect = "FieldModal__TagSelect",
+  FieldModal__SelectValueItem = "FieldModal__SelectValueItem",
+
+  // LinkAssetModal
+  LinkAssetModal__Table = "LinkAssetModal__Table",
+
+  // Markdown
+  Markdown__Preview = "Markdown__Preview",
+
+  // MultiValueField
+  MultiValueField__ItemWrapper = "MultiValueField__ItemWrapper",
+
+  // GeometryItem
+  GeometryItem__EditorWrapper = "GeometryItem__EditorWrapper",
 }

@@ -31,6 +31,7 @@ import {
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import schema from "./schema";
 
@@ -499,7 +500,7 @@ const GeometryItem: React.FC<Props> = ({
           maxConstraints={[maxWidth, 0]}
           onResize={onResize}
           handle={<span className="react-resizable-handle" />}>
-          <EditorWrapper hasError={hasError} width={width}>
+          <EditorWrapper data-testid={DATA_TEST_ID.GeometryItem__EditorWrapper} hasError={hasError} width={width}>
             <EditorButtons>
               <Tooltip title={t("Value copied!!")} trigger={"click"}>
                 <EditorButton

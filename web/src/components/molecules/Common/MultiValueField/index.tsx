@@ -8,6 +8,7 @@ import { InputProps } from "@reearth-cms/components/atoms/Input";
 import { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
 import { checkIfEmpty } from "@reearth-cms/components/molecules/Content/Form/fields/utils";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { moveItemInArray } from "./moveItemArray";
 
@@ -66,7 +67,7 @@ const MultiValueField: React.FC<Props> = ({
     <div>
       {Array.isArray(value) &&
         value?.map((valueItem, key) => (
-          <FieldWrapper key={key}>
+          <FieldWrapper key={key} data-testid={DATA_TEST_ID.MultiValueField__ItemWrapper}>
             {!props.disabled && (
               <>
                 <FieldButton

@@ -4,6 +4,7 @@ import ReactMarkdown from "react-markdown";
 import { runes } from "runes2";
 
 import TextArea, { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   onChange?: (value: string) => void;
@@ -50,7 +51,12 @@ const MarkdownInput: React.FC<Props> = ({ value, onChange, ...props }) => {
         ref={textareaRef}
         showCount
       />
-      <StyledMD disabled={props.disabled} isError={isError} hidden={!showMD} onClick={handleClick}>
+      <StyledMD
+        data-testid={DATA_TEST_ID.Markdown__Preview}
+        disabled={props.disabled}
+        isError={isError}
+        hidden={!showMD}
+        onClick={handleClick}>
         <ReactMarkdown>{typeof value === "string" ? value : undefined}</ReactMarkdown>
       </StyledMD>
     </MarkdownWrapper>

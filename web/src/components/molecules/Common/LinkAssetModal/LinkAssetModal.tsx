@@ -18,6 +18,7 @@ import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
 type Props = {
@@ -244,19 +245,21 @@ const LinkAssetModal: React.FC<Props> = ({
           height: "70vh",
         },
       }}>
-      <ResizableProTable
-        dataSource={assetList}
-        columns={columns}
-        search={false}
-        options={options}
-        pagination={pagination}
-        toolbar={toolbar}
-        loading={loading}
-        onChange={(pagination, _, sorter) => {
-          handleChange(pagination, sorter);
-        }}
-        heightOffset={0}
-      />
+      <div data-testid={DATA_TEST_ID.LinkAssetModal__Table}>
+        <ResizableProTable
+          dataSource={assetList}
+          columns={columns}
+          search={false}
+          options={options}
+          pagination={pagination}
+          toolbar={toolbar}
+          loading={loading}
+          onChange={(pagination, _, sorter) => {
+            handleChange(pagination, sorter);
+          }}
+          heightOffset={0}
+        />
+      </div>
     </StyledModal>
   );
 };
