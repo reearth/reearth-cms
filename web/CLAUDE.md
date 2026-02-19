@@ -57,9 +57,10 @@ Follow the pattern in `class-override-control.ts` with `noImplicitOverride: true
 
 ### Visibility Rules
 
-- `private`: Default for all properties and methods
-- `protected`: Only for methods/locators reused by subclasses (Layer 1/2)
-- `public`: Only for methods called from spec files (Layer 3 actions)
+- `private`: Default for members used only within the same class (internal locators consumed by action methods, helper functions)
+- `protected`: Only for `page` property in BasePage (used by all subclasses)
+- `public`: For all members called from spec files or other external callers
+- **All visibility modifiers must be explicit** — never rely on TypeScript's implicit `public`
 
 ### Class Split: Element Queries vs Actions
 

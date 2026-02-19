@@ -24,7 +24,7 @@ test("Text metadata creating and updating has succeeded", async ({
     await fieldEditorPage.fieldTypeButton("Text").click();
     await fieldEditorPage.displayNameInput.fill("text1");
     await fieldEditorPage.fieldKeyInput.fill("text1");
-    await fieldEditorPage.fieldDescriptionInput.fill("text1 description");
+    await fieldEditorPage.descriptionRequiredInput.fill("text1 description");
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
     await expect(schemaPage.groupNameByText("text1#text1")).toBeVisible();
@@ -35,7 +35,7 @@ test("Text metadata creating and updating has succeeded", async ({
     await fieldEditorPage.ellipsisButton.click();
     await expect(fieldEditorPage.displayNameInput).toHaveValue("text1");
     await expect(fieldEditorPage.fieldKeyInput).toHaveValue("text1");
-    await expect(fieldEditorPage.fieldDescriptionInput).toHaveValue("text1 description");
+    await expect(fieldEditorPage.descriptionRequiredInput).toHaveValue("text1 description");
     await expect(fieldEditorPage.supportMultipleValuesCheckbox).not.toBeChecked();
     await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
     await fieldEditorPage.validationTab.click();
@@ -98,7 +98,7 @@ test("Text metadata editing has succeeded", async ({
     await schemaPage.textListItem.click();
     await fieldEditorPage.displayNameInput.fill("text1");
     await fieldEditorPage.fieldKeyInput.fill("text1");
-    await fieldEditorPage.fieldDescriptionInput.fill("text1 description");
+    await fieldEditorPage.descriptionRequiredInput.fill("text1 description");
     await fieldEditorPage.defaultValueTab.click();
     await fieldEditorPage.setDefaultValueInput.fill("text1 default value");
     await fieldEditorPage.okButton.click();
@@ -122,7 +122,7 @@ test("Text metadata editing has succeeded", async ({
     await fieldEditorPage.ellipsisButton.click();
     await fieldEditorPage.displayNameInput.fill("new text1");
     await fieldEditorPage.fieldKeyInput.fill("new-text1");
-    await fieldEditorPage.fieldDescriptionInput.fill("new text1 description");
+    await fieldEditorPage.descriptionRequiredInput.fill("new text1 description");
     await fieldEditorPage.supportMultipleValuesCheckbox.check();
     await fieldEditorPage.validationTab.click();
     await fieldEditorPage.maxLengthInput.fill("5");

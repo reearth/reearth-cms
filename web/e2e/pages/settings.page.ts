@@ -6,161 +6,161 @@ import { SettingsScopedPage } from "./settings-scoped.page";
 
 export class SettingsPage extends SettingsScopedPage {
   // Tiles management
-  get addNewTilesButton(): Locator {
+  public get addNewTilesButton(): Locator {
     return this.getByRole("button", { name: "plus Add new Tiles option" });
   }
-  get defaultTileOption(): Locator {
+  public get defaultTileOption(): Locator {
     return this.locator("div")
       .filter({ hasText: /^Default$/ })
       .nth(4);
   }
-  get labelledTileOption(): Locator {
+  public get labelledTileOption(): Locator {
     return this.getByTitle("Labelled");
   }
-  get urlTileOption(): Locator {
+  public get urlTileOption(): Locator {
     return this.getByTitle("URL").locator("div");
   }
 
   // Terrain management
-  get terrainSwitch(): Locator {
+  public get terrainSwitch(): Locator {
     return this.getByRole("switch");
   }
-  get addTerrainButton(): Locator {
+  public get addTerrainButton(): Locator {
     return this.getByRole("button", { name: "plus Add new Terrain option" });
   }
-  get cesiumWorldTerrainDiv(): Locator {
+  public get cesiumWorldTerrainDiv(): Locator {
     return this.locator("div")
       .filter({ hasText: /^Cesium World Terrain$/ })
       .nth(4);
   }
-  get cesiumWorldTerrainOption(): Locator {
+  public get cesiumWorldTerrainOption(): Locator {
     return this.locator("div")
       .filter({ hasText: /^Cesium World Terrain$/ })
       .nth(4);
   }
-  get arcGisTerrainOption(): Locator {
+  public get arcGisTerrainOption(): Locator {
     return this.getByTitle("ArcGIS Terrain");
   }
-  get cesiumIonOption(): Locator {
+  public get cesiumIonOption(): Locator {
     return this.getByTitle("Cesium Ion");
   }
 
   // Form inputs
-  get nameInput(): Locator {
+  public get nameInput(): Locator {
     return this.getByLabel("Name");
   }
-  get urlInput(): Locator {
+  public get urlInput(): Locator {
     return this.getByLabel("URL").first();
   }
-  get imageUrlInput(): Locator {
+  public get imageUrlInput(): Locator {
     return this.getByLabel("Image URL");
   }
-  get terrainAssetIdInput(): Locator {
+  public get terrainAssetIdInput(): Locator {
     return this.getByLabel("Terrain Cesium Ion asset ID");
   }
-  get terrainAccessTokenInput(): Locator {
+  public get terrainAccessTokenInput(): Locator {
     return this.getByLabel("Terrain Cesium Ion access");
   }
-  get terrainUrlInput(): Locator {
+  public get terrainUrlInput(): Locator {
     return this.getByLabel("Terrain URL");
   }
 
   // Card elements
-  cardByIndex(index: number): Locator {
+  public cardByIndex(index: number): Locator {
     return this.getByTestId(DATA_TEST_ID.SettingsCard__Wrapper).nth(index);
   }
-  get cardMetaAvatarImage(): Locator {
+  public get cardMetaAvatarImage(): Locator {
     return this.getByTestId(DATA_TEST_ID.SettingsCard__AvatarImage);
   }
-  grabbableInCard(cardIndex: number): Locator {
+  public grabbableInCard(cardIndex: number): Locator {
     return this.getByTestId(DATA_TEST_ID.SettingsCard__DragHandle).nth(cardIndex);
   }
 
   // Action buttons in cards
-  get editCardButton(): Locator {
+  public get editCardButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.SettingsCard__EditAction).last();
   }
-  get deleteCardButton(): Locator {
+  public get deleteCardButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.SettingsCard__DeleteAction).last();
   }
-  get editIconButton(): Locator {
+  public get editIconButton(): Locator {
     return this.getByLabel("edit").locator("svg");
   }
-  get deleteIconButton(): Locator {
+  public get deleteIconButton(): Locator {
     return this.getByLabel("delete").locator("svg");
   }
 
   // Common form elements
-  get closeButton(): Locator {
+  public get closeButton(): Locator {
     return this.getByLabel("Close", { exact: true }).first();
   }
-  get formElement(): Locator {
+  public get formElement(): Locator {
     return this.locator("form");
   }
 
   // Text elements
-  textByName(text: string, exact = false): Locator {
+  public textByName(text: string, exact = false): Locator {
     return this.getByText(text, { exact });
   }
 
   // URL input (different from general textbox)
-  get urlTextbox(): Locator {
+  public get urlTextbox(): Locator {
     return this.getByLabel("URL", { exact: true });
   }
 
   // Account and Language settings
-  get accountText(): Locator {
+  public get accountText(): Locator {
     return this.getByText(/Account|アカウント/);
   }
-  get currentLanguageText(): Locator {
+  public get currentLanguageText(): Locator {
     return this.getByText(/Auto|自動|English|日本語/);
   }
-  get languageOptionJapanese(): Locator {
+  public get languageOptionJapanese(): Locator {
     return this.getByTitle("日本語").last();
   }
-  get languageOptionEnglish(): Locator {
+  public get languageOptionEnglish(): Locator {
     return this.getByTitle("English").last();
   }
-  languageOptionByTitle(title: string): Locator {
+  public languageOptionByTitle(title: string): Locator {
     return this.getByTitle(title).last();
   }
-  get formSaveButton(): Locator {
+  public get formSaveButton(): Locator {
     return this.locator("form").getByRole("button").nth(1);
   }
-  get japaneseFirstText(): Locator {
+  public get japaneseFirstText(): Locator {
     return this.getByText("日本語").first();
   }
-  get englishFirstText(): Locator {
+  public get englishFirstText(): Locator {
     return this.getByText("English").first();
   }
 
   // Account management
-  get accountNameInput(): Locator {
+  public get accountNameInput(): Locator {
     return this.getByLabel(/Account Name|アカウント名/);
   }
-  get yourEmailInput(): Locator {
+  public get yourEmailInput(): Locator {
     return this.getByLabel(/Your Email|メールアドレス/);
   }
-  get accountNameInputExact(): Locator {
+  public get accountNameInputExact(): Locator {
     return this.getByLabel("Account Name");
   }
-  get yourEmailInputExact(): Locator {
+  public get yourEmailInputExact(): Locator {
     return this.getByLabel("Your Email");
   }
-  get formSubmitButton(): Locator {
+  public get formSubmitButton(): Locator {
     return this.locator("form").getByRole("button").first();
   }
-  get headerElement(): Locator {
+  public get headerElement(): Locator {
     return this.locator("header");
   }
 
-  get labelledTileDiv(): Locator {
+  public get labelledTileDiv(): Locator {
     return this.locator("div")
       .filter({ hasText: /^Labelled$/ })
       .nth(4);
   }
 
-  get arcGisTerrainDiv(): Locator {
+  public get arcGisTerrainDiv(): Locator {
     return this.locator("div")
       .filter({ hasText: /^ArcGIS Terrain$/ })
       .nth(4);

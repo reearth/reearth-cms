@@ -29,7 +29,7 @@ test("@smoke Tag metadata creating and updating has succeeded", async ({
     await schemaPage.tagListItem.click();
     await fieldEditorPage.displayNameInput.fill(fieldName);
     await fieldEditorPage.fieldKeyInput.fill(fieldName);
-    await fieldEditorPage.fieldDescriptionInput.fill(description);
+    await fieldEditorPage.descriptionRequiredInput.fill(description);
     await fieldEditorPage.plusNewButton.click();
     await fieldEditorPage.tagFilterDiv.last().click();
     await fieldEditorPage.lastTextbox.fill(tag1);
@@ -52,7 +52,7 @@ test("@smoke Tag metadata creating and updating has succeeded", async ({
     await fieldEditorPage.ellipsisButton.click();
     await expect(fieldEditorPage.displayNameInput).toHaveValue(fieldName);
     await expect(fieldEditorPage.fieldKeyInput).toHaveValue(fieldName);
-    await expect(fieldEditorPage.fieldDescriptionInput).toHaveValue(description);
+    await expect(fieldEditorPage.descriptionRequiredInput).toHaveValue(description);
     await expect(fieldEditorPage.tagOptionText(tag1)).toBeVisible();
     await expect(fieldEditorPage.tagOptionText(tag2)).toBeVisible();
     await expect(fieldEditorPage.supportMultipleValuesCheckbox).not.toBeChecked();
@@ -121,7 +121,7 @@ test("Tag metadata editing has succeeded", async ({
     await schemaPage.tagListItem.click();
     await fieldEditorPage.displayNameInput.fill(fieldName);
     await fieldEditorPage.fieldKeyInput.fill(fieldName);
-    await fieldEditorPage.fieldDescriptionInput.fill(description);
+    await fieldEditorPage.descriptionRequiredInput.fill(description);
     await fieldEditorPage.plusNewButton.click();
     await fieldEditorPage.tagFilterDiv.last().click();
     await fieldEditorPage.lastTextbox.fill(tag1);
@@ -152,7 +152,7 @@ test("Tag metadata editing has succeeded", async ({
     await fieldEditorPage.ellipsisButton.click();
     await fieldEditorPage.displayNameInput.fill(newFieldName);
     await fieldEditorPage.fieldKeyInput.fill(newKey);
-    await fieldEditorPage.fieldDescriptionInput.fill(newDescription);
+    await fieldEditorPage.descriptionRequiredInput.fill(newDescription);
     await fieldEditorPage.plusNewButton.click();
     await fieldEditorPage.tagFilterDiv.last().click();
     await fieldEditorPage.lastTextbox.fill(tag3);

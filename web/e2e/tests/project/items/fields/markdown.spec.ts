@@ -65,8 +65,8 @@ test("Markdown field editing has succeeded", async ({
   await fieldEditorPage.displayNameInput.fill("new text1");
   await fieldEditorPage.fieldKeyInput.click();
   await fieldEditorPage.fieldKeyInput.fill("new-text1");
-  await fieldEditorPage.descriptionOptionalInput.click();
-  await fieldEditorPage.descriptionOptionalInput.fill("new text1 description");
+  await fieldEditorPage.descriptionInput.click();
+  await fieldEditorPage.descriptionInput.fill("new text1 description");
   await fieldEditorPage.validationTab.click();
   await fieldEditorPage.maxLengthInput.click();
   await fieldEditorPage.maxLengthInput.fill("5");

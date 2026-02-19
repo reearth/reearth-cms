@@ -24,7 +24,7 @@ test("Boolean metadata creating and updating has succeeded", async ({
     await schemaPage.booleanListItem.click();
     await fieldEditorPage.displayNameInput.fill("boolean1");
     await fieldEditorPage.fieldKeyInput.fill("boolean1");
-    await fieldEditorPage.fieldDescriptionInput.fill("boolean1 description");
+    await fieldEditorPage.descriptionRequiredInput.fill("boolean1 description");
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
     await expect(fieldEditorPage.fieldText("boolean1", "boolean1")).toBeVisible();
@@ -35,7 +35,7 @@ test("Boolean metadata creating and updating has succeeded", async ({
     await fieldEditorPage.ellipsisButton.click();
     await expect(fieldEditorPage.displayNameInput).toHaveValue("boolean1");
     await expect(fieldEditorPage.fieldKeyInput).toHaveValue("boolean1");
-    await expect(fieldEditorPage.fieldDescriptionInput).toHaveValue("boolean1 description");
+    await expect(fieldEditorPage.descriptionRequiredInput).toHaveValue("boolean1 description");
     await expect(fieldEditorPage.supportMultipleValuesCheckbox).not.toBeChecked();
     await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
     await fieldEditorPage.validationTab.click();
@@ -94,7 +94,7 @@ test("Boolean metadata editing has succeeded", async ({
     await schemaPage.booleanListItem.click();
     await fieldEditorPage.displayNameInput.fill("boolean1");
     await fieldEditorPage.fieldKeyInput.fill("boolean1");
-    await fieldEditorPage.fieldDescriptionInput.fill("boolean1 description");
+    await fieldEditorPage.descriptionRequiredInput.fill("boolean1 description");
     await fieldEditorPage.defaultValueTab.click();
     await fieldEditorPage.setDefaultValueSwitch.click();
     await fieldEditorPage.okButton.click();
@@ -118,7 +118,7 @@ test("Boolean metadata editing has succeeded", async ({
     await fieldEditorPage.ellipsisButton.click();
     await fieldEditorPage.displayNameInput.fill("new boolean1");
     await fieldEditorPage.fieldKeyInput.fill("new-boolean1");
-    await fieldEditorPage.fieldDescriptionInput.fill("new boolean1 description");
+    await fieldEditorPage.descriptionRequiredInput.fill("new boolean1 description");
     await fieldEditorPage.supportMultipleValuesCheckbox.check();
     await fieldEditorPage.defaultValueTab.click();
     await expect(fieldEditorPage.firstSwitch).toHaveAttribute("aria-checked", "true");

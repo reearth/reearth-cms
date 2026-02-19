@@ -71,8 +71,8 @@ test("Boolean field editing has succeeded", async ({
   await fieldEditorPage.displayNameInput.fill("new boolean1");
   await fieldEditorPage.fieldKeyInput.click();
   await fieldEditorPage.fieldKeyInput.fill("new-boolean1");
-  await fieldEditorPage.descriptionOptionalInput.click();
-  await fieldEditorPage.descriptionOptionalInput.fill("new boolean1 description");
+  await fieldEditorPage.descriptionInput.click();
+  await fieldEditorPage.descriptionInput.fill("new boolean1 description");
   await fieldEditorPage.supportMultipleValuesCheckbox.check();
   await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
   await fieldEditorPage.validationTab.click();

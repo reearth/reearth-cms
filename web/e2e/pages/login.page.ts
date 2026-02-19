@@ -3,19 +3,19 @@ import { type Locator, type Page } from "@reearth-cms/e2e/fixtures/test";
 
 export class LoginPage {
   // Custom login form elements
-  emailInput: Locator;
-  passwordInput: Locator;
-  loginButton: Locator;
+  public emailInput: Locator;
+  public passwordInput: Locator;
+  public loginButton: Locator;
 
   // Auth0 login form elements
-  auth0EmailInput: Locator;
-  auth0PasswordInput: Locator;
-  auth0ContinueButton: Locator;
-  auth0SkipPasskeyButton: Locator;
+  public auth0EmailInput: Locator;
+  public auth0PasswordInput: Locator;
+  public auth0ContinueButton: Locator;
+  public auth0SkipPasskeyButton: Locator;
 
   // User menu elements (for logout)
-  userMenuLink: Locator;
-  logoutButton: Locator;
+  public userMenuLink: Locator;
+  public logoutButton: Locator;
 
   constructor(private page: Page) {
     // Custom login form
@@ -36,7 +36,7 @@ export class LoginPage {
     this.logoutButton = this.page.getByText("Logout");
   }
 
-  async login(email: string, password: string) {
+  public async login(email: string, password: string) {
     await this.emailInput.click();
     await this.emailInput.fill(email);
     await this.passwordInput.click();
@@ -44,7 +44,7 @@ export class LoginPage {
     await this.loginButton.click();
   }
 
-  async loginWithAuth0(email: string, password: string) {
+  public async loginWithAuth0(email: string, password: string) {
     await this.auth0EmailInput.click();
     await this.auth0EmailInput.fill(email);
     await this.auth0ContinueButton.click();

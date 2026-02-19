@@ -24,7 +24,7 @@ test("@smoke Checkbox metadata creating and updating has succeeded", async ({
     await schemaPage.checkBoxListItem.click();
     await fieldEditorPage.displayNameInput.fill("checkbox1");
     await fieldEditorPage.fieldKeyInput.fill("checkbox1");
-    await fieldEditorPage.fieldDescriptionInput.fill("checkbox1 description");
+    await fieldEditorPage.descriptionRequiredInput.fill("checkbox1 description");
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
     await expect(fieldEditorPage.fieldText("checkbox1", "checkbox1")).toBeVisible();
@@ -35,7 +35,7 @@ test("@smoke Checkbox metadata creating and updating has succeeded", async ({
     await fieldEditorPage.ellipsisButton.click();
     await expect(fieldEditorPage.displayNameInput).toHaveValue("checkbox1");
     await expect(fieldEditorPage.fieldKeyInput).toHaveValue("checkbox1");
-    await expect(fieldEditorPage.fieldDescriptionInput).toHaveValue("checkbox1 description");
+    await expect(fieldEditorPage.descriptionRequiredInput).toHaveValue("checkbox1 description");
     await expect(fieldEditorPage.supportMultipleValuesCheckbox).not.toBeChecked();
     await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
     await fieldEditorPage.validationTab.click();
@@ -94,7 +94,7 @@ test("Checkbox metadata editing has succeeded", async ({
     await schemaPage.checkBoxListItem.click();
     await fieldEditorPage.displayNameInput.fill("checkbox1");
     await fieldEditorPage.fieldKeyInput.fill("checkbox1");
-    await fieldEditorPage.fieldDescriptionInput.fill("checkbox1 description");
+    await fieldEditorPage.descriptionRequiredInput.fill("checkbox1 description");
     await fieldEditorPage.defaultValueTab.click();
     await fieldEditorPage.setDefaultValueCheckbox.check();
     await fieldEditorPage.okButton.click();
@@ -118,7 +118,7 @@ test("Checkbox metadata editing has succeeded", async ({
     await fieldEditorPage.ellipsisButton.click();
     await fieldEditorPage.displayNameInput.fill("new checkbox1");
     await fieldEditorPage.fieldKeyInput.fill("new-checkbox1");
-    await fieldEditorPage.fieldDescriptionInput.fill("new checkbox1 description");
+    await fieldEditorPage.descriptionRequiredInput.fill("new checkbox1 description");
     await fieldEditorPage.supportMultipleValuesCheckbox.check();
     await fieldEditorPage.defaultValueTab.click();
     await expect(fieldEditorPage.firstCheckbox).toBeChecked();

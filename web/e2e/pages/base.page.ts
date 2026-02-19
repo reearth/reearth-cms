@@ -92,35 +92,35 @@ export abstract class BasePage {
     this.page = page;
   }
 
-  async goto(url: string, options?: { waitUntil?: "domcontentloaded" | "load" | "networkidle" }) {
+  public async goto(url: string, options?: { waitUntil?: "domcontentloaded" | "load" | "networkidle" }) {
     await this.page.goto(url, options);
   }
 
-  url() {
+  public url() {
     return this.page.url();
   }
 
-  async closeNotification(isSuccess = true) {
+  public async closeNotification(isSuccess = true) {
     await closeNotification(this.page, isSuccess);
   }
 
-  getByText(text: string | RegExp, options?: { exact?: boolean }): Locator {
+  public getByText(text: string | RegExp, options?: { exact?: boolean }): Locator {
     return this.page.getByText(text, options);
   }
 
-  getByTitle(text: string | RegExp, options?: { exact?: boolean }): Locator {
+  public getByTitle(text: string | RegExp, options?: { exact?: boolean }): Locator {
     return this.page.getByTitle(text, options);
   }
 
-  getByRole(role: Role, options?: { name?: string | RegExp; exact?: boolean }): Locator {
+  public getByRole(role: Role, options?: { name?: string | RegExp; exact?: boolean }): Locator {
     return this.page.getByRole(role, options);
   }
 
-  getByTestId(testId: string | RegExp): Locator {
+  public getByTestId(testId: string | RegExp): Locator {
     return this.page.getByTestId(testId);
   }
 
-  getByLabel(
+  public getByLabel(
     text: string | RegExp,
     options?:
       | {
@@ -131,49 +131,49 @@ export abstract class BasePage {
     return this.page.getByLabel(text, options);
   }
 
-  getByPlaceholder(placeholder: string): Locator {
+  public getByPlaceholder(placeholder: string): Locator {
     return this.page.getByPlaceholder(placeholder);
   }
 
-  locator(selector: string): Locator {
+  public locator(selector: string): Locator {
     return this.page.locator(selector);
   }
 
-  getCurrentItemId(): string {
+  public getCurrentItemId(): string {
     const url = this.page.url();
     return url.split("/").at(-1) as string;
   }
 
-  async keypress(key: string, delay?: number): Promise<void> {
+  public async keypress(key: string, delay?: number): Promise<void> {
     await this.page.keyboard.press(key, { delay });
   }
 
   // Common locators shared across POMs
-  get okButton(): Locator {
+  public get okButton(): Locator {
     return this.getByRole("button", { name: "OK" });
   }
 
-  get cancelButton(): Locator {
+  public get cancelButton(): Locator {
     return this.getByRole("button", { name: "Cancel" });
   }
 
-  get saveButton(): Locator {
+  public get saveButton(): Locator {
     return this.getByRole("button", { name: "Save" });
   }
 
-  get backButton(): Locator {
+  public get backButton(): Locator {
     return this.getByLabel("Back");
   }
 
-  get searchInput(): Locator {
+  public get searchInput(): Locator {
     return this.getByPlaceholder("input search text");
   }
 
-  get searchButton(): Locator {
+  public get searchButton(): Locator {
     return this.getByRole("button", { name: "search" });
   }
 
-  get rootElement(): Locator {
+  public get rootElement(): Locator {
     return this.locator("#root");
   }
 }

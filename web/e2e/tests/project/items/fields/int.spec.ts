@@ -94,8 +94,8 @@ test("Int field editing has succeeded", async ({
     await fieldEditorPage.displayNameInput.fill("new int1");
     await fieldEditorPage.fieldKeyInput.click();
     await fieldEditorPage.fieldKeyInput.fill("new-int1");
-    await fieldEditorPage.descriptionOptionalInput.click();
-    await fieldEditorPage.descriptionOptionalInput.fill("new int1 description");
+    await fieldEditorPage.descriptionInput.click();
+    await fieldEditorPage.descriptionInput.fill("new int1 description");
     await fieldEditorPage.supportMultipleValuesCheckbox.check();
     await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
     await page.waitForTimeout(300);

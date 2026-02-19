@@ -6,96 +6,96 @@ import { ProjectScopedPage } from "./project-scoped.page";
 
 export class AssetsPage extends ProjectScopedPage {
   // Toolbar / Actions
-  get uploadButton(): Locator {
+  public get uploadButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.AssetList__UploadButton);
   }
-  get downloadButton(): Locator {
+  public get downloadButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.AssetList__DownloadButton);
   }
-  get deleteButton(): Locator {
+  public get deleteButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.AssetList__DeleteButton);
   }
 
   // Upload modal
-  get urlTab(): Locator {
+  public get urlTab(): Locator {
     return this.getByTestId(DATA_TEST_ID.UploadModal__UrlTab);
   }
-  get localTab(): Locator {
+  public get localTab(): Locator {
     return this.getByTestId(DATA_TEST_ID.UploadModal__LocalTab);
   }
-  get urlInput(): Locator {
+  public get urlInput(): Locator {
     return this.getByTestId(DATA_TEST_ID.UploadModal__UrlInput);
   }
-  get fileInput(): Locator {
+  public get fileInput(): Locator {
     return this.getByTestId(DATA_TEST_ID.UploadModal__LocalTabDragger).locator("input[type='file']");
   }
-  get autoUnzipCheckbox(): Locator {
+  public get autoUnzipCheckbox(): Locator {
     return this.getByTestId(DATA_TEST_ID.UploadModal__AutoUnzipCheckbox);
   }
-  get submitUploadButton(): Locator {
+  public get submitUploadButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.UploadModal__SubmitButton);
   }
 
   // Grid / Rows
-  get assetRows(): Locator {
+  private get assetRows(): Locator {
     return this.locator(".ant-table-tbody .ant-table-row");
   }
-  rowByText(text: string | RegExp): Locator {
+  public rowByText(text: string | RegExp): Locator {
     return this.assetRows.filter({ hasText: text });
   }
-  get selectAssetCheckbox(): Locator {
+  public get selectAssetCheckbox(): Locator {
     // The empty-name checkbox in your current UI
     return this.getByLabel("", { exact: true });
   }
 
   // Details
-  get editIconButton(): Locator {
+  public get editIconButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.AssetList__EditIcon);
   }
 
   // Type select on details
-  get typeSelectTrigger(): Locator {
+  public get typeSelectTrigger(): Locator {
     return this.getByTestId(DATA_TEST_ID.AssetDetail__TypeSelect);
   }
-  typeOption(name: string): Locator {
+  public typeOption(name: string): Locator {
     return this.getByText(name);
   }
   // Preview
-  get canvas(): Locator {
+  public get canvas(): Locator {
     return this.locator("canvas");
   }
-  get fullscreenButton(): Locator {
+  public get fullscreenButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.AssetDetail__FullscreenButton);
   }
-  get fullscreenCloseButton(): Locator {
+  public get fullscreenCloseButton(): Locator {
     return this.page.getByRole("button", { name: "close" });
   }
-  get imagePreview(): Locator {
+  public get imagePreview(): Locator {
     return this.getByRole("img", { name: "asset-preview" });
   }
 
   // Comments
-  get commentButton(): Locator {
+  public get commentButton(): Locator {
     return this.getByLabel("comment");
   }
-  commentsCountButton(count: number | string = 0): Locator {
+  public commentsCountButton(count: number | string = 0): Locator {
     return this.getByRole("button", { name: String(count) });
   }
 
   // Notifications
-  get lastNotification(): Locator {
+  public get lastNotification(): Locator {
     return this.locator(".ant-notification-notice").last();
   }
 
   // Asset detail page locators
-  assetDetailHeading(assetName: string): Locator {
+  public assetDetailHeading(assetName: string): Locator {
     return this.getByText(`Asset / ${assetName}`);
   }
-  get assetTypeText(): Locator {
+  public get assetTypeText(): Locator {
     return this.getByText("Asset TypePNG/JPEG/TIFF/GIF");
   }
 
-  async uploadViaUrl(url: string, autoUnzip = false): Promise<void> {
+  public async uploadViaUrl(url: string, autoUnzip = false): Promise<void> {
     await this.uploadButton.click();
     await this.urlTab.click();
     await this.urlInput.fill(url);

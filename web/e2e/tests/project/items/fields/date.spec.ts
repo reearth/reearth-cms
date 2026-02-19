@@ -68,8 +68,8 @@ test("Date field editing has succeeded", async ({ fieldEditorPage, contentPage, 
   await fieldEditorPage.displayNameInput.fill("new date1");
   await fieldEditorPage.fieldKeyInput.click();
   await fieldEditorPage.fieldKeyInput.fill("new-date1");
-  await fieldEditorPage.descriptionOptionalInput.click();
-  await fieldEditorPage.descriptionOptionalInput.fill("new date1 description");
+  await fieldEditorPage.descriptionInput.click();
+  await fieldEditorPage.descriptionInput.fill("new date1 description");
   await fieldEditorPage.supportMultipleValuesCheckbox.check();
   await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
   await fieldEditorPage.validationTab.click();

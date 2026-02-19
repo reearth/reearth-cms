@@ -21,7 +21,7 @@ test("One-way reference field creating and updating has succeeded", async ({
   schemaPage,
 }) => {
   await test.step("Create reference model with text field and boolean metadata", async () => {
-    await schemaPage.firstPlusAddButton.click();
+    await schemaPage.plusAddButton.click();
     await schemaPage.modelNameInput.fill("ref model");
     await schemaPage.modelKeyInput.fill("ref-model");
     await schemaPage.okButton.click();

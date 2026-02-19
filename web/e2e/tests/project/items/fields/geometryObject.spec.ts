@@ -120,8 +120,8 @@ test("GeometryObject field editing has succeeded", async ({
     await fieldEditorPage.displayNameInput.fill("new geometryObject1");
     await fieldEditorPage.fieldKeyInput.click();
     await fieldEditorPage.fieldKeyInput.fill("new-geometryobject1");
-    await fieldEditorPage.descriptionOptionalInput.click();
-    await fieldEditorPage.descriptionOptionalInput.fill("new geometryObject1 description");
+    await fieldEditorPage.descriptionInput.click();
+    await fieldEditorPage.descriptionInput.fill("new geometryObject1 description");
     await fieldEditorPage.supportMultipleValuesCheckbox.check();
     await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
     await fieldEditorPage.validationTab.click();

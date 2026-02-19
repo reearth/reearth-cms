@@ -6,149 +6,149 @@ import { SettingsScopedPage } from "./settings-scoped.page";
 
 export class IntegrationsPage extends SettingsScopedPage {
   // Navigation
-  get myIntegrationsMenuItem(): Locator {
+  public get myIntegrationsMenuItem(): Locator {
     return this.getByText("My Integrations");
   }
 
   // Integration management
-  get createIntegrationButton(): Locator {
+  public get createIntegrationButton(): Locator {
     return this.getByRole("button", { name: "plus Create new integration" });
   }
-  get integrationNameInput(): Locator {
+  public get integrationNameInput(): Locator {
     return this.getByLabel("Integration Name");
   }
-  get descriptionInput(): Locator {
+  public get descriptionInput(): Locator {
     return this.getByLabel("Description");
   }
-  get createButton(): Locator {
+  public get createButton(): Locator {
     return this.getByRole("button", { name: "Create", exact: true });
   }
-  get removeIntegrationButton(): Locator {
+  public get removeIntegrationButton(): Locator {
     return this.getByTestId(
       DATA_TEST_ID.MyIntegrations__Settings__DangerZone__RemoveIntegrationButton,
     );
   }
-  override get okButton(): Locator {
+  public override get okButton(): Locator {
     return this.getByTestId(
       DATA_TEST_ID.MyIntegrations__Settings__DangerZone__ConfirmRemoveIntegrationButton,
     );
   }
 
   // Webhook management
-  get webhookTab(): Locator {
+  public get webhookTab(): Locator {
     return this.getByRole("tab", { name: "Webhook" });
   }
-  get generalTab(): Locator {
+  public get generalTab(): Locator {
     return this.getByRole("tab", { name: "General" });
   }
-  get newWebhookButton(): Locator {
+  public get newWebhookButton(): Locator {
     return this.getByRole("button", { name: "plus new webhook" }).first();
   }
-  get webhookNameInput(): Locator {
+  public get webhookNameInput(): Locator {
     return this.getByRole("tabpanel").getByLabel("Name");
   }
-  get urlInput(): Locator {
+  public get urlInput(): Locator {
     return this.getByLabel("Url");
   }
-  get secretInput(): Locator {
+  public get secretInput(): Locator {
     return this.getByLabel("Secret");
   }
-  get createCheckbox(): Locator {
+  public get createCheckbox(): Locator {
     return this.getByRole("checkbox", { name: "Create" });
   }
-  get uploadCheckbox(): Locator {
+  public get uploadCheckbox(): Locator {
     return this.getByRole("checkbox", { name: "Upload" });
   }
-  get arrowLeftButton(): Locator {
+  public get arrowLeftButton(): Locator {
     return this.getByRole("button", { name: "arrow-left" });
   }
-  get settingButton(): Locator {
+  public get settingButton(): Locator {
     return this.getByRole("button", { name: "setting" });
   }
-  get webhookSwitch(): Locator {
+  public get webhookSwitch(): Locator {
     return this.getByRole("switch", { name: "OFF" });
   }
-  get deleteWebhookButton(): Locator {
+  public get deleteWebhookButton(): Locator {
     return this.getByRole("button", { name: "delete" });
   }
 
   // Content areas
-  get mainElement(): Locator {
+  public get mainElement(): Locator {
     return this.getByRole("main");
   }
-  get tabPanel(): Locator {
+  public get tabPanel(): Locator {
     return this.getByRole("tabpanel");
   }
-  get webhookLabel(): Locator {
+  public get webhookLabel(): Locator {
     return this.getByLabel("Webhook");
   }
 
   // Dynamic text locators
-  integrationTextByName(name: string, description: string): Locator {
+  public integrationTextByName(name: string, description: string): Locator {
     return this.getByText(`${name}${description}`, { exact: true });
   }
 
-  integrationLinkByText(text: string): Locator {
+  public integrationLinkByText(text: string): Locator {
     return this.getByText(text);
   }
 
   // Switch elements
-  get webhookSwitchElement(): Locator {
+  public get webhookSwitchElement(): Locator {
     return this.getByRole("switch");
   }
 
   // Input fields in tabpanel
-  get tabpanelNameInput(): Locator {
+  public get tabpanelNameInput(): Locator {
     return this.getByRole("tabpanel").getByLabel("Name");
   }
 
   // Integration management
-  get connectIntegrationButton(): Locator {
+  public get connectIntegrationButton(): Locator {
     return this.getByRole("button", { name: "api Connect Integration" }).first();
   }
 
-  get connectButton(): Locator {
+  public get connectButton(): Locator {
     return this.getByRole("button", { name: "Connect", exact: true });
   }
 
-  override get cancelButton(): Locator {
+  public override get cancelButton(): Locator {
     return this.getByRole("button", { name: "Cancel", exact: true });
   }
 
-  get settingSvgButton(): Locator {
+  public get settingSvgButton(): Locator {
     return this.getByRole("cell", { name: "setting" }).locator("svg");
   }
 
-  get readerRoleOption(): Locator {
+  public get readerRoleOption(): Locator {
     return this.getByTitle("Reader").last();
   }
 
-  get writerRoleOption(): Locator {
+  public get writerRoleOption(): Locator {
     return this.getByTitle("Writer");
   }
 
-  get writerCell(): Locator {
+  public get writerCell(): Locator {
     return this.getByRole("cell", { name: "WRITER" });
   }
 
-  get selectAllCheckbox(): Locator {
+  public get selectAllCheckbox(): Locator {
     return this.getByLabel("", { exact: true });
   }
 
-  get removeText(): Locator {
+  public get removeText(): Locator {
     return this.getByText("Remove");
   }
 
   // Dynamic locators for integration-specific content
-  integrationTextById(id: string): Locator {
+  public integrationTextById(id: string): Locator {
     return this.getByText(id, { exact: true }).first();
   }
 
-  integrationCellById(id: string): Locator {
+  public integrationCellById(id: string): Locator {
     return this.getByRole("cell", { name: id, exact: true });
   }
 
-  dialogIntegrationTextById(id: string): Locator {
+  public dialogIntegrationTextById(id: string): Locator {
     return this.getByRole("dialog").getByText(id, { exact: true });
   }
 }

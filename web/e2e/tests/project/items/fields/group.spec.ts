@@ -89,7 +89,7 @@ test("Group field creating and updating has succeeded", async ({
   });
 
   await test.step("Update group text field with validations and default value", async () => {
-    await schemaPage.schemaSpanText.click();
+    await schemaPage.schemaText.click();
     await schemaPage.metaDataTab.click();
     await schemaPage.groupMenuItem("e2e group name").locator("span").click();
     await schemaPage.fieldEditButton.click();
@@ -330,7 +330,7 @@ test("Group field editing has succeeded", async ({
   });
 
   await test.step("Add multiple default values to group text field", async () => {
-    await schemaPage.schemaSpanText.click();
+    await schemaPage.schemaText.click();
     await schemaPage.groupMenuItem("e2e group name").locator("span").click();
     await schemaPage.fieldEditButton.click();
     await fieldEditorPage.supportMultipleValuesCheckbox.check();

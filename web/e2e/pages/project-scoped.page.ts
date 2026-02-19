@@ -6,41 +6,41 @@ import { BasePage } from "./base.page";
 
 export abstract class ProjectScopedPage extends BasePage {
   // Project sidebar navigation
-  get schemaMenuItem(): Locator {
+  public get schemaMenuItem(): Locator {
     return this.getByRole("menuitem", { name: "Schema" });
   }
 
-  get contentMenuItem(): Locator {
+  public get contentMenuItem(): Locator {
     return this.getByRole("menuitem", { name: "Content" });
   }
 
-  get assetMenuItem(): Locator {
+  public get assetMenuItem(): Locator {
     return this.getByRole("menuitem", { name: "Asset" });
   }
 
-  get settingsMenuItem(): Locator {
+  public get settingsMenuItem(): Locator {
     return this.getByTestId(DATA_TEST_ID.ProjectMenu__SettingsItem);
   }
 
-  get accessibilityMenuItem(): Locator {
+  public get accessibilityMenuItem(): Locator {
     return this.getByTestId(DATA_TEST_ID.ProjectMenu__AccessibilityItem);
   }
 
   // Project lifecycle
-  async createProject(name: string): Promise<void> {
+  public async createProject(name: string): Promise<void> {
     await this.getByTestId(DATA_TEST_ID.Workspace__NewProjectButton).click();
     await this.getByRole("dialog").locator("#name").fill(name);
     await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
   }
 
-  async gotoProject(name: string): Promise<void> {
+  public async gotoProject(name: string): Promise<void> {
     await this.getByText(name, { exact: true }).click();
     const projectName = this.getByTestId(DATA_TEST_ID.Header__ProjectName);
     await expect(projectName).toHaveText(name);
   }
 
-  async deleteProject(): Promise<void> {
+  public async deleteProject(): Promise<void> {
     // Dismiss any open modal by pressing Escape
     await this.page.keyboard.press("Escape");
     await this.page.waitForTimeout(300);
@@ -60,7 +60,7 @@ export abstract class ProjectScopedPage extends BasePage {
     await this.closeNotification();
   }
 
-  async createModelFromOverview(name = "e2e model name", key?: string): Promise<void> {
+  public async createModelFromOverview(name = "e2e model name", key?: string): Promise<void> {
     await this.getByTestId(DATA_TEST_ID.ProjectOverview__NewModelButton).click();
     await this.getByLabel("Model name").fill(name);
     if (key) {

@@ -6,14 +6,14 @@ import { SettingsScopedPage } from "./settings-scoped.page";
 
 export class MemberPage extends SettingsScopedPage {
   // Search functionality
-  get clearSearchButton(): Locator {
+  public get clearSearchButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.MemberTable__Search).getByRole("button", {
       name: "close-circle",
     });
   }
 
   // Table elements
-  cellByText(text: string, exact = false): Locator {
+  public cellByText(text: string, exact = false): Locator {
     return this.getByRole("cell", { name: text, exact });
   }
 }

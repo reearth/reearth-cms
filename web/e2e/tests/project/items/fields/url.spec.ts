@@ -68,8 +68,8 @@ test("URL field editing has succeeded", async ({ fieldEditorPage, contentPage, s
   await fieldEditorPage.displayNameInput.fill("new url1");
   await fieldEditorPage.fieldKeyInput.click();
   await fieldEditorPage.fieldKeyInput.fill("new-url1");
-  await fieldEditorPage.descriptionOptionalInput.click();
-  await fieldEditorPage.descriptionOptionalInput.fill("new url1 description");
+  await fieldEditorPage.descriptionInput.click();
+  await fieldEditorPage.descriptionInput.fill("new url1 description");
   await fieldEditorPage.supportMultipleValuesCheckbox.check();
   await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
   await fieldEditorPage.validationTab.click();

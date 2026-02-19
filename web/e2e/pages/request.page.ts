@@ -6,133 +6,133 @@ import { ProjectScopedPage } from "./project-scoped.page";
 
 export class RequestPage extends ProjectScopedPage {
   // Navigation
-  get requestMenuItem(): Locator {
+  public get requestMenuItem(): Locator {
     return this.getByTestId(DATA_TEST_ID.ProjectMenu__RequestItem);
   }
 
   // Table elements
-  tableBodyTextByText(text: string, exact = false): Locator {
+  public tableBodyTextByText(text: string, exact = false): Locator {
     return this.locator("tbody").getByText(text, { exact });
   }
 
   // Edit buttons
-  get editButton(): Locator {
+  public get editButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.RequestTable__EditIcon);
   }
-  override get backButton(): Locator {
+  public override get backButton(): Locator {
     return this.getByLabel("back");
   }
-  get backButtonCapitalized(): Locator {
+  public get backButtonCapitalized(): Locator {
     return this.getByLabel("Back");
   }
 
   // Request actions
-  get assignToButton(): Locator {
+  public get assignToButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.RequestDetail__AssignToButton);
   }
-  get approveButton(): Locator {
+  public get approveButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.RequestDetail__ApproveButton);
   }
-  get closeButton(): Locator {
+  public get closeButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.RequestDetail__CloseButton);
   }
-  get reopenButton(): Locator {
+  public get reopenButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.RequestDetail__ReopenButton);
   }
 
   // Selection controls
-  get closeCircleButton(): Locator {
+  public get closeCircleButton(): Locator {
     return this.getByLabel("close-circle").locator("svg");
   }
-  get selectOverflow(): Locator {
+  public get selectOverflow(): Locator {
     return this.getByTestId(DATA_TEST_ID.RequestDetail__ReviewerSelect);
   }
-  get selectItem(): Locator {
+  public get selectItem(): Locator {
     return this.locator(".ant-select-item");
   }
-  get reviewerHeading(): Locator {
+  public get reviewerHeading(): Locator {
     return this.getByTestId(DATA_TEST_ID.RequestDetail__ReviewerSection);
   }
 
   // Filter controls
-  get stateFilterButton(): Locator {
+  public get stateFilterButton(): Locator {
     return this.getByRole("columnheader", { name: "State filter" }).getByRole("button");
   }
-  waitingMenuItem(): Locator {
+  public waitingMenuItem(): Locator {
     return this.getByRole("menuitem", { name: "WAITING" }).getByLabel("");
   }
   // Status text
-  statusText(status: string): Locator {
+  public statusText(status: string): Locator {
     return this.getByText(status, { exact: true });
   }
 
   // Comments
-  get commentTextbox(): Locator {
+  public get commentTextbox(): Locator {
     return this.getByRole("textbox");
   }
-  commentTextboxWithText(text: string): Locator {
+  public commentTextboxWithText(text: string): Locator {
     return this.getByRole("textbox").filter({ hasText: text });
   }
-  get commentButton(): Locator {
+  public get commentButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.RequestDetail__AddCommentButton);
   }
-  get checkButton(): Locator {
+  public get checkButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.Comment__EditSaveButton);
   }
-  get deleteButton(): Locator {
+  public get deleteButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.Comment__DeleteButton);
   }
-  commentsCountButton(count: number | string = 0): Locator {
+  public commentsCountButton(count: number | string = 0): Locator {
     return this.getByRole("button", { name: String(count) });
   }
 
   // Item management
-  get newItemButton(): Locator {
+  public get newItemButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.ContentList__NewItemButton);
   }
-  get ellipsisButton(): Locator {
+  public get ellipsisButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.ContentForm__EllipsisButton);
   }
-  get addToRequestButton(): Locator {
+  public get addToRequestButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.ContentForm__AddToRequestItem);
   }
-  get selectCheckbox(): Locator {
+  public get selectCheckbox(): Locator {
     return this.getByLabel("", { exact: true });
   }
-  get closeTextButton(): Locator {
+  public get closeTextButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.RequestTable__CloseButton);
   }
 
   // Version history and navigation
-  get versionHistoryTab(): Locator {
+  public get versionHistoryTab(): Locator {
     return this.getByTestId(DATA_TEST_ID.ContentForm__VersionHistoryTab);
   }
-  requestTitleLink(title: string): Locator {
+  public requestTitleLink(title: string): Locator {
     return this.getByRole("link", { name: title });
   }
-  requestPageTitle(title: string): Locator {
+  public requestPageTitle(title: string): Locator {
     return this.getByText(`Request / ${title}`);
   }
-  requestHeading(title: string): Locator {
+  public requestHeading(title: string): Locator {
     return this.getByRole("heading", { name: title });
   }
-  itemTitleButton(title: string): Locator {
+  public itemTitleButton(title: string): Locator {
     return this.getByRole("button", { name: title }).last();
   }
-  titleFieldInput(fieldName: string, title: string): Locator {
+  public titleFieldInput(fieldName: string, title: string): Locator {
     return this.getByLabel(`${fieldName}${title}`);
   }
-  modelPathText(modelName: string, itemId: string): Locator {
+  public modelPathText(modelName: string, itemId: string): Locator {
     return this.getByText(`${modelName} / ${itemId}`);
   }
-  collapsedModelButton(modelName: string, index = 0): Locator {
+  public collapsedModelButton(modelName: string, index = 0): Locator {
     return this.getByRole("button", { name: `collapsed ${modelName}` }).nth(index);
   }
-  collapsedModelItemButton(modelName: string, itemId: string): Locator {
+  public collapsedModelItemButton(modelName: string, itemId: string): Locator {
     return this.getByRole("button", { name: `collapsed ${modelName} / ${itemId}` });
   }
 
-  async assignReviewer(reviewerIndex = 0): Promise<void> {
+  public async assignReviewer(reviewerIndex = 0): Promise<void> {
     await this.assignToButton.click();
     await this.closeCircleButton.click();
     await this.selectOverflow.click();
@@ -140,17 +140,17 @@ export class RequestPage extends ProjectScopedPage {
     await this.reviewerHeading.click();
   }
 
-  async approveRequest(): Promise<void> {
+  public async approveRequest(): Promise<void> {
     await this.approveButton.click();
     await this.closeNotification();
   }
 
-  async closeRequest(): Promise<void> {
+  public async closeRequest(): Promise<void> {
     await this.closeButton.click();
     await this.closeNotification();
   }
 
-  async reopenRequest(): Promise<void> {
+  public async reopenRequest(): Promise<void> {
     await this.reopenButton.click();
     await this.closeNotification();
   }
