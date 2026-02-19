@@ -1,18 +1,12 @@
 // e2e/pages/assets.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 
-import { BasePage } from "./base.page";
+import { ProjectScopedPage } from "./project-scoped.page";
 
-export class AssetsPage extends BasePage {
+export class AssetsPage extends ProjectScopedPage {
   // Toolbar / Actions
   get uploadButton(): Locator {
     return this.getByRole("button", { name: "upload Upload Asset" });
-  }
-  get searchInput(): Locator {
-    return this.getByPlaceholder("input search text");
-  }
-  get searchButton(): Locator {
-    return this.getByRole("button", { name: "search" });
   }
   get downloadButton(): Locator {
     return this.getByRole("button", { name: "download Download" });
@@ -57,9 +51,6 @@ export class AssetsPage extends BasePage {
   get editIconButton(): Locator {
     return this.getByLabel("edit").locator("svg");
   }
-  get backButton(): Locator {
-    return this.getByLabel("Back");
-  }
 
   // Type select on details
   get typeSelectTrigger(): Locator {
@@ -70,10 +61,6 @@ export class AssetsPage extends BasePage {
   typeOption(name: string): Locator {
     return this.getByText(name);
   }
-  get saveButton(): Locator {
-    return this.getByRole("button", { name: "Save" });
-  }
-
   // Preview
   get canvas(): Locator {
     return this.locator("canvas");

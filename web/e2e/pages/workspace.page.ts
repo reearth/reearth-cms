@@ -31,11 +31,6 @@ export class WorkspacePage extends BasePage {
     return this.getByRole("button", { name: "Remove Workspace" });
   }
 
-  // Common buttons
-  get okButton(): Locator {
-    return this.getByRole("button", { name: "OK" });
-  }
-
   // Header and navigation
   get header(): Locator {
     return this.locator("header");
@@ -56,9 +51,6 @@ export class WorkspacePage extends BasePage {
   }
   get searchProjectsInput(): Locator {
     return this.getByPlaceholder("search projects");
-  }
-  get searchButton(): Locator {
-    return this.getByRole("button", { name: "search" });
   }
   get clearSearchButton(): Locator {
     return this.getByRole("button", { name: "close-circle" });

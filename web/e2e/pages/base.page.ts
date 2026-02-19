@@ -147,4 +147,33 @@ export abstract class BasePage {
   async keypress(key: string, delay?: number): Promise<void> {
     await this.page.keyboard.press(key, { delay });
   }
+
+  // Common locators shared across POMs
+  get okButton(): Locator {
+    return this.getByRole("button", { name: "OK" });
+  }
+
+  get cancelButton(): Locator {
+    return this.getByRole("button", { name: "Cancel" });
+  }
+
+  get saveButton(): Locator {
+    return this.getByRole("button", { name: "Save" });
+  }
+
+  get backButton(): Locator {
+    return this.getByLabel("Back");
+  }
+
+  get searchInput(): Locator {
+    return this.getByPlaceholder("input search text");
+  }
+
+  get searchButton(): Locator {
+    return this.getByRole("button", { name: "search" });
+  }
+
+  get rootElement(): Locator {
+    return this.locator("#root");
+  }
 }

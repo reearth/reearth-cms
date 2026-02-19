@@ -1,9 +1,9 @@
 // e2e/pages/project-settings.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 
-import { BasePage } from "./base.page";
+import { ProjectScopedPage } from "./project-scoped.page";
 
-export class ProjectSettingsPage extends BasePage {
+export class ProjectSettingsPage extends ProjectScopedPage {
   // locators
   public settingsTitle(projectName: string): Locator {
     return this.getByRole("heading", { name: projectName, exact: false });

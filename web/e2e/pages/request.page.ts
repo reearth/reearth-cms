@@ -1,20 +1,12 @@
 // e2e/pages/request.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 
-import { BasePage } from "./base.page";
+import { ProjectScopedPage } from "./project-scoped.page";
 
-export class RequestPage extends BasePage {
+export class RequestPage extends ProjectScopedPage {
   // Navigation
   get requestMenuItem(): Locator {
     return this.getByText("Request", { exact: true });
-  }
-
-  // Request management
-  get searchInput(): Locator {
-    return this.getByPlaceholder("input search text");
-  }
-  get searchButton(): Locator {
-    return this.getByRole("button", { name: "search" });
   }
 
   // Table elements
@@ -26,7 +18,7 @@ export class RequestPage extends BasePage {
   get editButton(): Locator {
     return this.getByLabel("edit").locator("svg");
   }
-  get backButton(): Locator {
+  override get backButton(): Locator {
     return this.getByLabel("back");
   }
   get backButtonCapitalized(): Locator {
@@ -68,10 +60,6 @@ export class RequestPage extends BasePage {
   waitingMenuItem(): Locator {
     return this.getByRole("menuitem", { name: "WAITING" }).getByLabel("");
   }
-  get okButton(): Locator {
-    return this.getByRole("button", { name: "OK" });
-  }
-
   // Status text
   statusText(status: string): Locator {
     return this.getByText(status, { exact: true });
@@ -100,9 +88,6 @@ export class RequestPage extends BasePage {
   // Item management
   get newItemButton(): Locator {
     return this.getByRole("button", { name: "plus New Item" });
-  }
-  get saveButton(): Locator {
-    return this.getByRole("button", { name: "Save" });
   }
   get ellipsisButton(): Locator {
     return this.getByRole("button", { name: "ellipsis" });
@@ -169,8 +154,4 @@ export class RequestPage extends BasePage {
     await this.closeNotification();
   }
 
-  getCurrentItemId(): string {
-    const url = this.page.url();
-    return url.split("/").at(-1) as string;
-  }
 }

@@ -2,9 +2,9 @@
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
-import { BasePage } from "./base.page";
+import { ProjectScopedPage } from "./project-scoped.page";
 
-export class ContentPage extends BasePage {
+export class ContentPage extends ProjectScopedPage {
   // Navigation
   get contentText(): Locator {
     return this.getByText("Content");
@@ -14,21 +14,6 @@ export class ContentPage extends BasePage {
   get newItemButton(): Locator {
     return this.getByRole("button", { name: "plus New Item" });
   }
-  get saveButton(): Locator {
-    return this.getByRole("button", { name: "Save" });
-  }
-  get backButton(): Locator {
-    return this.getByLabel("Back");
-  }
-
-  // Search
-  get searchInput(): Locator {
-    return this.getByPlaceholder("input search text");
-  }
-  get searchButton(): Locator {
-    return this.getByRole("button", { name: "search" });
-  }
-
   // Table actions
   get selectAllCheckbox(): Locator {
     return this.getByLabel("", { exact: true });
@@ -115,12 +100,6 @@ export class ContentPage extends BasePage {
   }
   get viewNameInput(): Locator {
     return this.getByLabel("View Name");
-  }
-  get okButton(): Locator {
-    return this.getByRole("button", { name: "OK" });
-  }
-  get cancelButton(): Locator {
-    return this.getByRole("button", { name: "Cancel" });
   }
   get moreButton(): Locator {
     return this.getByLabel("more").locator("svg");
@@ -211,11 +190,6 @@ export class ContentPage extends BasePage {
   // Table headers and structure
   get tableBodyRows(): Locator {
     return this.locator("tbody > tr.ant-table-row");
-  }
-
-  // Root element reference
-  get rootElement(): Locator {
-    return this.locator("#root");
   }
 
   // Cell selection by text and exact matching
@@ -696,11 +670,6 @@ export class ContentPage extends BasePage {
     if (navigateBack) {
       await this.backButton.click();
     }
-  }
-
-  getCurrentItemId(): string {
-    const url = this.page.url();
-    return url.split("/").at(-1) as string;
   }
 
   // ========== Import Content Locators ==========

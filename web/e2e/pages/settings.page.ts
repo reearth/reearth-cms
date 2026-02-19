@@ -1,17 +1,9 @@
 // e2e/pages/settings.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 
-import { BasePage } from "./base.page";
+import { SettingsScopedPage } from "./settings-scoped.page";
 
-export class SettingsPage extends BasePage {
-  // Navigation
-  get settingsMenuItem(): Locator {
-    return this.getByText("Settings").first();
-  }
-  get homeMenuItem(): Locator {
-    return this.getByText("Home");
-  }
-
+export class SettingsPage extends SettingsScopedPage {
   // Tiles management
   get addNewTilesButton(): Locator {
     return this.getByRole("button", { name: "plus Add new Tiles option" });
@@ -101,12 +93,6 @@ export class SettingsPage extends BasePage {
   get closeButton(): Locator {
     return this.getByLabel("Close", { exact: true }).first();
   }
-  get okButton(): Locator {
-    return this.getByRole("button", { name: "OK" });
-  }
-  get saveButton(): Locator {
-    return this.getByRole("button", { name: "Save" });
-  }
   get formElement(): Locator {
     return this.locator("form");
   }
@@ -139,9 +125,6 @@ export class SettingsPage extends BasePage {
   }
   get formSaveButton(): Locator {
     return this.locator("form").getByRole("button").nth(1);
-  }
-  get rootElement(): Locator {
-    return this.locator("#root");
   }
   get japaneseFirstText(): Locator {
     return this.getByText("日本語").first();

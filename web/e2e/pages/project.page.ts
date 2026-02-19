@@ -1,26 +1,11 @@
 // e2e/pages/project.page.ts
-import { expect, type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
-import { BasePage } from "./base.page";
+import { ProjectScopedPage } from "./project-scoped.page";
 
-export class ProjectPage extends BasePage {
+export class ProjectPage extends ProjectScopedPage {
   readonly modelName = "e2e model name";
-  // Navigation menu items
-  get schemaMenuItem(): Locator {
-    return this.getByRole("menuitem", { name: "Schema" });
-  }
-  get contentMenuItem(): Locator {
-    return this.getByRole("menuitem", { name: "Content" });
-  }
-  get assetMenuItem(): Locator {
-    return this.getByRole("menuitem", { name: "Asset" });
-  }
-
-  // Common buttons
-  get okButton(): Locator {
-    return this.getByRole("button", { name: "OK" });
-  }
 
   // Overview page - Model management
   get noModelsYetText(): Locator {
@@ -86,9 +71,6 @@ export class ProjectPage extends BasePage {
   get deleteModelButton(): Locator {
     return this.getByRole("button", { name: "Delete Model" });
   }
-  get rootElement(): Locator {
-    return this.locator("#root");
-  }
   get dialogNewModelText(): Locator {
     return this.getByRole("dialog").getByText("New Model");
   }
@@ -102,9 +84,6 @@ export class ProjectPage extends BasePage {
   }
   get exportCSVButton(): Locator {
     return this.getByRole("button", { name: "Export CSV" });
-  }
-  get cancelButton(): Locator {
-    return this.getByRole("button", { name: "Cancel" });
   }
   get cannotExportGeoJSONText(): Locator {
     return this.getByText("Cannot export GeoJSON");
@@ -150,9 +129,6 @@ export class ProjectPage extends BasePage {
   get confirmDeleteProjectButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.ProjectSettings__DangerZone__ConfirmDeleteProjectButton);
   }
-  get settingsMenuItem(): Locator {
-    return this.getByText("Settings").first();
-  }
   get nameInput(): Locator {
     return this.getByLabel("Name");
   }
@@ -178,9 +154,6 @@ export class ProjectPage extends BasePage {
   }
 
   // Accessibility page locators
-  get accessibilityMenuItem(): Locator {
-    return this.getByText("Accessibility");
-  }
   get accessibilityHeadingFirst(): Locator {
     return this.getByText("Accessibility").first();
   }
@@ -195,82 +168,6 @@ export class ProjectPage extends BasePage {
   }
   get changeProjectVisibilityButton(): Locator {
     return this.getByRole("button", { name: "Change project visibility" });
-  }
-
-  // ========== Action Methods (POM Pattern) ==========
-
-  async createProject(name: string): Promise<void> {
-    await this.getByRole("button", { name: "plus New Project" }).first().click();
-    await this.getByRole("dialog").locator("#name").fill(name);
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
-  }
-
-  async gotoProject(name: string): Promise<void> {
-    await this.getByText(name, { exact: true }).click();
-    const projectName = this.locator(".ant-layout-header p").nth(2);
-    await expect(projectName).toHaveText(name);
-  }
-
-  async deleteProject(): Promise<void> {
-    // Close any open modals/dialogs before attempting to delete
-    // Check if modal is present and stable (not animating)
-    const modalWrap = this.page.locator(".ant-modal-wrap");
-    const isModalVisible = await modalWrap
-      .first()
-      .isVisible({ timeout: 500 })
-      .catch(() => false);
-
-    if (isModalVisible) {
-      // Check if modal is actually blocking (has pointer-events)
-      const modalStyle = await modalWrap
-        .first()
-        .evaluate(el => window.getComputedStyle(el).pointerEvents)
-        .catch(() => "auto");
-
-      if (modalStyle !== "none") {
-        // Try to close the modal using close button
-        const modalClose = this.page.locator(".ant-modal-close");
-        const isCloseButtonVisible = await modalClose
-          .first()
-          .isVisible({ timeout: 500 })
-          .catch(() => false);
-
-        if (isCloseButtonVisible) {
-          try {
-            await modalClose.first().click({ timeout: 2000 });
-            // Wait for modal to fully disappear
-            await modalWrap
-              .first()
-              .waitFor({ state: "hidden", timeout: 2000 })
-              .catch(() => {});
-          } catch {
-            // If clicking fails, try ESC key as fallback
-            await this.page.keyboard.press("Escape");
-            await this.page.waitForTimeout(300);
-          }
-        } else {
-          // No close button, use ESC key
-          await this.page.keyboard.press("Escape");
-          await this.page.waitForTimeout(300);
-        }
-      }
-    }
-
-    await this.getByText("Settings").first().click();
-    await this.deleteProjectButton.click();
-    await this.confirmDeleteProjectButton.click();
-    await this.closeNotification();
-  }
-
-  async createModelFromOverview(name = "e2e model name", key?: string): Promise<void> {
-    await this.getByRole("button", { name: "plus New Model" }).first().click();
-    await this.getByLabel("Model name").fill(name);
-    if (key) {
-      await this.getByLabel("Model key").fill(key);
-    }
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
   }
 
   projectCardDescription(description: string): Locator {

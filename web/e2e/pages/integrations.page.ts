@@ -2,9 +2,9 @@
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
-import { BasePage } from "./base.page";
+import { SettingsScopedPage } from "./settings-scoped.page";
 
-export class IntegrationsPage extends BasePage {
+export class IntegrationsPage extends SettingsScopedPage {
   // Navigation
   get myIntegrationsMenuItem(): Locator {
     return this.getByText("My Integrations");
@@ -23,21 +23,15 @@ export class IntegrationsPage extends BasePage {
   get createButton(): Locator {
     return this.getByRole("button", { name: "Create", exact: true });
   }
-  get saveButton(): Locator {
-    return this.getByRole("button", { name: "Save" });
-  }
   get removeIntegrationButton(): Locator {
     return this.getByTestId(
       DATA_TEST_ID.MyIntegrations__Settings__DangerZone__RemoveIntegrationButton,
     );
   }
-  get okButton(): Locator {
+  override get okButton(): Locator {
     return this.getByTestId(
       DATA_TEST_ID.MyIntegrations__Settings__DangerZone__ConfirmRemoveIntegrationButton,
     );
-  }
-  get backButton(): Locator {
-    return this.getByLabel("Back");
   }
 
   // Webhook management
@@ -79,9 +73,6 @@ export class IntegrationsPage extends BasePage {
   }
 
   // Content areas
-  get rootElement(): Locator {
-    return this.locator("#root");
-  }
   get mainElement(): Locator {
     return this.getByRole("main");
   }
@@ -111,11 +102,7 @@ export class IntegrationsPage extends BasePage {
     return this.getByRole("tabpanel").getByLabel("Name");
   }
 
-  // New locators for integration management
-  get integrationsMenuItem(): Locator {
-    return this.getByText("Integrations", { exact: true });
-  }
-
+  // Integration management
   get connectIntegrationButton(): Locator {
     return this.getByRole("button", { name: "api Connect Integration" }).first();
   }
@@ -124,16 +111,8 @@ export class IntegrationsPage extends BasePage {
     return this.getByRole("button", { name: "Connect", exact: true });
   }
 
-  get cancelButton(): Locator {
+  override get cancelButton(): Locator {
     return this.getByRole("button", { name: "Cancel", exact: true });
-  }
-
-  get searchInput(): Locator {
-    return this.getByPlaceholder("input search text");
-  }
-
-  get searchButton(): Locator {
-    return this.getByRole("button", { name: "search" });
   }
 
   get settingSvgButton(): Locator {

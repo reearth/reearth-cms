@@ -1,21 +1,10 @@
 // e2e/pages/member.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 
-import { BasePage } from "./base.page";
+import { SettingsScopedPage } from "./settings-scoped.page";
 
-export class MemberPage extends BasePage {
-  // Navigation
-  get memberMenuItem(): Locator {
-    return this.getByText("Member");
-  }
-
+export class MemberPage extends SettingsScopedPage {
   // Search functionality
-  get searchInput(): Locator {
-    return this.getByPlaceholder("input search text");
-  }
-  get searchButton(): Locator {
-    return this.getByRole("button", { name: "search" });
-  }
   get clearSearchButton(): Locator {
     return this.getByRole("button", { name: "close-circle" });
   }

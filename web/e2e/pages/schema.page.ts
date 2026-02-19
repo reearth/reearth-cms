@@ -2,14 +2,9 @@
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
-import { BasePage } from "./base.page";
+import { ProjectScopedPage } from "./project-scoped.page";
 
-export class SchemaPage extends BasePage {
-  // Navigation
-  get schemaMenuItem(): Locator {
-    return this.getByRole("menuitem", { name: "Schema" });
-  }
-
+export class SchemaPage extends ProjectScopedPage {
   // Model actions
   get plusAddButton(): Locator {
     return this.getByRole("button", { name: "plus Add" });
@@ -90,11 +85,6 @@ export class SchemaPage extends BasePage {
     return this.locator(".ant-select-selector");
   }
 
-  // Common buttons
-  get okButton(): Locator {
-    return this.getByRole("button", { name: "OK" });
-  }
-
   // Content sections
   get fieldsMetaDataText(): Locator {
     return this.getByText("FieldsMeta Data");
@@ -150,11 +140,6 @@ export class SchemaPage extends BasePage {
   // Text metadata specific
   get textListItem(): Locator {
     return this.getByRole("listitem").filter({ hasText: "Text" });
-  }
-
-  // Navigation menu items
-  get contentMenuItem(): Locator {
-    return this.getByRole("menuitem", { name: "Content" });
   }
 
   // Boolean metadata specific

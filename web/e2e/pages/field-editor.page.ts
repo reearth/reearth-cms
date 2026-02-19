@@ -1,11 +1,11 @@
 // e2e/pages/field-editor.page.ts
-import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { Field, SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
+import { type Locator, expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { DATA_TEST_ID, Test } from "@reearth-cms/test/utils";
 
-import { BasePage } from "./base.page";
+import { ProjectScopedPage } from "./project-scoped.page";
 
-export class FieldEditorPage extends BasePage {
+export class FieldEditorPage extends ProjectScopedPage {
   // Field form elements
   get displayNameInput(): Locator {
     return this.getByLabel("Display name");
@@ -33,39 +33,39 @@ export class FieldEditorPage extends BasePage {
   // Default value tab
   get setDefaultValueInput(): Locator {
     return this.getByLabel("Set default value");
+    // return this.getByTestId(DATA_TEST_ID.Schema__FieldModal__DefaultValue);
   }
 
   // Validation tab
   get maxLengthInput(): Locator {
     return this.getByLabel("Set maximum length");
+    // return this.getByTestId(DATA_TEST_ID.Schema__FieldModal__MaxLength);
   }
   get requiredFieldCheckbox(): Locator {
     return this.getByLabel("Make field required");
+    // return this.getByTestId(DATA_TEST_ID.Schema__FieldModal__Required);
   }
   get uniqueFieldCheckbox(): Locator {
     return this.getByLabel("Set field as unique");
+    // return this.getByTestId(DATA_TEST_ID.Schema__FieldModal__Unique);
   }
   get minValueInput(): Locator {
     return this.getByLabel("Set minimum value");
+    // return this.getByTestId(DATA_TEST_ID.Schema__FieldModal__MinValue);
   }
   get maxValueInput(): Locator {
     return this.getByLabel("Set maximum value");
+    // return this.getByTestId(DATA_TEST_ID.Schema__FieldModal__MaxValue);
   }
 
   // Field options
   get supportMultipleValuesCheckbox(): Locator {
     return this.getByLabel("Support multiple values");
+    // return this.getByTestId(DATA_TEST_ID.Schema__FieldModal__Multiple);
   }
   get useAsTitleCheckbox(): Locator {
     return this.getByLabel("Use as title");
-  }
-
-  // Form buttons
-  get okButton(): Locator {
-    return this.getByRole("button", { name: "OK" });
-  }
-  get cancelButton(): Locator {
-    return this.getByRole("button", { name: "Cancel" });
+    // return this.getByTestId(DATA_TEST_ID.Schema__FieldModal__IsTitle);
   }
 
   // Additional field settings
@@ -74,9 +74,11 @@ export class FieldEditorPage extends BasePage {
   }
   get descriptionInput(): Locator {
     return this.getByLabel("Description(optional)");
+    // return this.getByTestId(DATA_TEST_ID.Schema__FieldModal__Description);
   }
   get descriptionRequiredInput(): Locator {
     return this.getByLabel("Description");
+    // return this.getByTestId(DATA_TEST_ID.Schema__FieldModal__Description);
   }
 
   get supportTypePointCheckbox(): Locator {
@@ -165,14 +167,6 @@ export class FieldEditorPage extends BasePage {
 
   get uploadAndLinkButton(): Locator {
     return this.getByRole("button", { name: "Upload and Link" });
-  }
-
-  get searchInput(): Locator {
-    return this.getByPlaceholder("input search text");
-  }
-
-  get searchButton(): Locator {
-    return this.getByRole("button", { name: "search" });
   }
 
   get antTableRow(): Locator {
@@ -492,6 +486,89 @@ export class FieldEditorPage extends BasePage {
 
     await this.okButton.click();
     await this.closeNotification();
+  }
+
+  async createField2(fieldSetup: Field): Promise<void> {
+    await test.step("select field from field list", async () => {
+      const fieldTypeButton = this.fieldTypeButton(fieldSetup.type);
+      await expect(fieldTypeButton).toBeVisible();
+      await fieldTypeButton.click();
+    });
+
+    await test.step("fill in display name", async () => {
+      await expect(this.displayNameInput).toBeInViewport();
+      await this.displayNameInput.fill(fieldSetup.title);
+    });
+
+    await test.step("fill in field key", async () => {
+      await expect(this.settingsKeyInput).toBeVisible();
+      await this.settingsKeyInput.fill(fieldSetup.key);
+    });
+
+    await test.step("fill in field description", async () => {
+      await expect(this.descriptionInput).toBeVisible();
+      await this.descriptionInput.fill(fieldSetup.description);
+    });
+
+    await test.step("fill in field multiple", async () => {
+      await expect(this.supportMultipleValuesCheckbox).toBeVisible();
+      await this.supportMultipleValuesCheckbox.check();
+    });
+
+    await test.step("fill in field isTitle", async () => {
+      await expect(this.useAsTitleCheckbox).toBeVisible();
+      await this.useAsTitleCheckbox.check();
+    });
+
+    await expect(this.validationTab).toBeVisible();
+    await this.validationTab.click();
+
+    await test.step("fill in maximum length", async () => {
+      test.skip(
+        !["Text", "TextArea", "MarkdownText"].includes(fieldSetup.type),
+        "skip for non text fields",
+      );
+
+      test.skip(!fieldSetup.typeProperty?.maxLength, "no maxLength from fieldSetup");
+      if (!fieldSetup.typeProperty?.maxLength) return;
+
+      await expect(this.maxLengthInput).toBeVisible();
+      await this.maxLengthInput.fill(fieldSetup.typeProperty.maxLength.toString());
+    });
+
+    // await test.step("fill in min value", async () => {
+    //   test.skip(!["Integer", "Number"].includes(fieldSetup.type), "skip for non number fields");
+
+    //   test.skip(!fieldSetup.typeProperty?.min, "no min from fieldSetup");
+    //   if (!fieldSetup.typeProperty?.maxLength) return;
+
+    //   await expect(this.maxLengthInput).toBeVisible();
+    //   await this.maxLengthInput.fill(fieldSetup.typeProperty.maxLength.toString());
+    // });
+
+    await test.step("fill in required", async () => {
+      test.skip(!fieldSetup.required, "skip for non required");
+
+      await expect(this.requiredFieldCheckbox).toBeVisible();
+      await this.requiredFieldCheckbox.check();
+    });
+
+    await test.step("fill in unique", async () => {
+      test.skip(!fieldSetup.unique, "skip for non unique");
+
+      await expect(this.uniqueFieldCheckbox).toBeVisible();
+      await this.uniqueFieldCheckbox.click();
+    });
+
+    await expect(this.defaultValueTab).toBeVisible();
+    await this.defaultValueTab.click();
+
+    await test.step("fill in defaultValue", async () => {
+      test.skip(!fieldSetup.typeProperty?.defaultValue, "skip for non default value");
+    });
+
+    await expect(this.okButton).toBeVisible();
+    await this.okButton.click();
   }
 
   async deleteField(): Promise<void> {
