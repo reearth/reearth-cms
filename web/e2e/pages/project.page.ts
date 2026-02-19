@@ -12,10 +12,10 @@ export class ProjectPage extends ProjectScopedPage {
     return this.getByText("No Models yet");
   }
   get newModelButtonFirst(): Locator {
-    return this.getByRole("button", { name: "plus New Model" }).first();
+    return this.getByTestId(DATA_TEST_ID.ProjectOverview__NewModelButton);
   }
   get newModelButtonLast(): Locator {
-    return this.getByRole("button", { name: "plus New Model" }).last();
+    return this.getByTestId(DATA_TEST_ID.ProjectOverview__NewModelPlaceholderButton);
   }
   get newModelLabelText(): Locator {
     return this.getByLabel("New Model").getByText("New Model");
@@ -30,7 +30,7 @@ export class ProjectPage extends ProjectScopedPage {
     return this.getByLabel("Model key");
   }
   get modelsMenuItem(): Locator {
-    return this.getByText("Models").first();
+    return this.getByTestId(DATA_TEST_ID.ProjectMenu__ModelsItem);
   }
   get modelUtilDropdown(): Locator {
     return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownIcon);
@@ -42,13 +42,13 @@ export class ProjectPage extends ProjectScopedPage {
     return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownImport);
   }
   get modelListLink(): Locator {
-    return this.getByRole("list").locator("a").nth(0);
+    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownIcon);
   }
   get editText(): Locator {
-    return this.getByText("Edit", { exact: true });
+    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownEdit);
   }
   get deleteText(): Locator {
-    return this.getByText("Delete");
+    return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownDelete);
   }
   get exportAsJSONText(): Locator {
     return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownExportContentJSON);
@@ -130,16 +130,16 @@ export class ProjectPage extends ProjectScopedPage {
     return this.getByTestId(DATA_TEST_ID.ProjectSettings__DangerZone__ConfirmDeleteProjectButton);
   }
   get nameInput(): Locator {
-    return this.getByLabel("Name");
+    return this.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__NameInput);
   }
   get descriptionInput(): Locator {
-    return this.getByLabel("Description");
+    return this.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__DescriptionInput);
   }
   get formSaveChangesButton(): Locator {
-    return this.locator("form").getByRole("button", { name: "Save changes" });
+    return this.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__SaveButton);
   }
   get saveChangesButtonSecond(): Locator {
-    return this.getByRole("button", { name: "Save changes" }).nth(1);
+    return this.getByTestId(DATA_TEST_ID.ProjectSettings__RequestOptions__SaveButton);
   }
   get ownerSwitch(): Locator {
     return this.getByRole("row", { name: "Owner" }).getByRole("switch");

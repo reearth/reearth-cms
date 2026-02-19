@@ -343,7 +343,20 @@ export enum DATA_TEST_ID {
   Comment__DeleteButton = "Comment__DeleteButton",
   Comment__EditSaveButton = "Comment__EditSaveButton",
 
+  // Header
+  Header__ProjectName = "Header__ProjectName",
+
+  // Workspace
+  Workspace__NewProjectButton = "Workspace__NewProjectButton",
+
+  // ProjectOverview
+  ProjectOverview__NewModelButton = "ProjectOverview__NewModelButton",
+  ProjectOverview__NewModelPlaceholderButton = "ProjectOverview__NewModelPlaceholderButton",
+
   // ProjectMenu
+  ProjectMenu__ModelsItem = "ProjectMenu__ModelsItem",
+  ProjectMenu__AccessibilityItem = "ProjectMenu__AccessibilityItem",
+  ProjectMenu__SettingsItem = "ProjectMenu__SettingsItem",
   ProjectMenu__RequestItem = "ProjectMenu__RequestItem",
 
   // ContentList
