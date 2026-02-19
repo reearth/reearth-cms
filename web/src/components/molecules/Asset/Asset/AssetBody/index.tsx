@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
-import { RefObject } from "react";
+import { ReactNode, RefObject } from "react";
 import { CesiumComponentRef } from "resium";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -13,13 +13,13 @@ import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/t
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  commentsPanel: JSX.Element;
+  commentsPanel: ReactNode;
   asset: Asset;
   assetFileExt?: string;
   selectedPreviewType?: PreviewType;
   isModalVisible: boolean;
   viewerType?: ViewerType;
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
+  viewerRef: RefObject<CesiumComponentRef<CesiumViewer> | null>;
   displayUnzipFileList: boolean;
   decompressing: boolean;
   isSaveDisabled: boolean;

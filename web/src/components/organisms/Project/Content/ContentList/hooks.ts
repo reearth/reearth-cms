@@ -140,7 +140,7 @@ export default () => {
   const [currentView, setCurrentView] = useState<CurrentView>({});
 
   const viewsRef = useRef<View[]>([]);
-  const prevModelIdRef = useRef<string>();
+  const prevModelIdRef = useRef<string | null>(null);
 
   const { data: viewData, loading: viewLoading } = useQuery(GetViewsDocument, {
     variables: { modelId: modelId ?? "" },
@@ -163,7 +163,7 @@ export default () => {
     } else {
       setCurrentView({});
     }
-    prevModelIdRef.current = modelId;
+    prevModelIdRef.current = modelId ?? null;
     viewsRef.current = viewList ?? [];
   }, [location.state?.currentView, modelId, viewData?.view, viewLoading]);
 

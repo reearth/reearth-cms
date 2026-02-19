@@ -39,7 +39,7 @@ type Props = {
   selectedPreviewType?: PreviewType;
   isModalVisible: boolean;
   viewerType?: ViewerType;
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
+  viewerRef: RefObject<CesiumComponentRef<CesiumViewer> | null>;
   displayUnzipFileList: boolean;
   decompressing: boolean;
   hasUpdateRight: boolean;
@@ -83,7 +83,7 @@ const AssetMolecule: React.FC<Props> = ({
             assetFileExt={assetFileExt}
             isAssetPublic={asset.public}
             url={assetUrl}
-            viewerRef={viewerRef}
+            viewerRef={viewerRef as any}
             workspaceSettings={workspaceSettings}
           />
         );
@@ -93,7 +93,7 @@ const AssetMolecule: React.FC<Props> = ({
             isAssetPublic={asset.public}
             url={assetUrl}
             setAssetUrl={setAssetUrl}
-            viewerRef={viewerRef}
+            viewerRef={viewerRef as any}
             workspaceSettings={workspaceSettings}
           />
         );
@@ -102,7 +102,7 @@ const AssetMolecule: React.FC<Props> = ({
           <MvtViewer
             isAssetPublic={asset.public}
             url={assetUrl}
-            viewerRef={viewerRef}
+            viewerRef={viewerRef as any}
             workspaceSettings={workspaceSettings}
           />
         );
@@ -115,7 +115,7 @@ const AssetMolecule: React.FC<Props> = ({
           <GltfViewer
             isAssetPublic={asset.public}
             url={assetUrl}
-            viewerRef={viewerRef}
+            viewerRef={viewerRef as any}
             workspaceSettings={workspaceSettings}
           />
         );
@@ -124,7 +124,7 @@ const AssetMolecule: React.FC<Props> = ({
           <CsvViewer
             isAssetPublic={asset.public}
             url={assetUrl}
-            viewerRef={viewerRef}
+            viewerRef={viewerRef as any}
             workspaceSettings={workspaceSettings}
           />
         );

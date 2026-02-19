@@ -44,7 +44,7 @@ export default (
   const min = Form.useWatch("min", form);
   const max = Form.useWatch("max", form);
   const [multipleValue, setMultipleValue] = useState(false);
-  const prevKey = useRef<{ key: string; isSuccess: boolean }>();
+  const prevKey = useRef<{ key: string; isSuccess: boolean } | null>(null);
 
   const handleMultipleChange = useCallback(
     (e: CheckboxChangeEvent) => {
@@ -125,7 +125,7 @@ export default (
   }, []);
 
   const changedKeys = useRef(new Set<string>());
-  const defaultValueRef = useRef<Partial<FormTypes>>();
+  const defaultValueRef = useRef<Partial<FormTypes> | null>(null);
 
   useEffect(() => {
     setMultipleValue(!!selectedField?.multiple);
@@ -297,7 +297,7 @@ export default (
   );
 
   const handleModalReset = useCallback(() => {
-    prevKey.current = undefined;
+    prevKey.current = null;
     form.resetFields();
     setActiveTab("settings");
     setMultipleValue(false);
