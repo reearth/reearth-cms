@@ -5,6 +5,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Upload, { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import FileItem from "@reearth-cms/components/molecules/Asset/UploadModal/FileItem";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 const { Dragger } = Upload;
 
@@ -16,7 +17,7 @@ type Props = {
 const LocalTab: React.FC<Props> = ({ uploadProps, alertList = [] }) => {
   const t = useT();
   return (
-    <div>
+    <div data-testid={DATA_TEST_ID.UploadModal__LocalTabDragger}>
       <Dragger
         itemRender={(
           _originNode: ReactElement,

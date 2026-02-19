@@ -307,4 +307,22 @@ export enum DATA_TEST_ID {
 
   // MemberTable
   MemberTable__Search = "MemberTable__Search",
+
+  // AssetList
+  AssetList__UploadButton = "AssetList__UploadButton",
+  AssetList__DownloadButton = "AssetList__DownloadButton",
+  AssetList__DeleteButton = "AssetList__DeleteButton",
+  AssetList__EditIcon = "AssetList__EditIcon",
+
+  // UploadModal
+  UploadModal__UrlTab = "UploadModal__UrlTab",
+  UploadModal__LocalTab = "UploadModal__LocalTab",
+  UploadModal__UrlInput = "UploadModal__UrlInput",
+  UploadModal__AutoUnzipCheckbox = "UploadModal__AutoUnzipCheckbox",
+  UploadModal__LocalTabDragger = "UploadModal__LocalTabDragger",
+  UploadModal__SubmitButton = "UploadModal__SubmitButton",
+
+  // AssetDetail
+  AssetDetail__TypeSelect = "AssetDetail__TypeSelect",
+  AssetDetail__FullscreenButton = "AssetDetail__FullscreenButton",
 }

@@ -4,6 +4,7 @@ import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   uploadUrl: { url: string; autoUnzip: boolean };
@@ -38,6 +39,7 @@ const UrlTab: React.FC<Props> = ({ uploadUrl, setUploadUrl }) => {
           { type: "url", warningOnly: true },
         ]}>
         <Input
+          data-testid={DATA_TEST_ID.UploadModal__UrlInput}
           placeholder={t("Please input a valid URL")}
           onChange={e =>
             setUploadUrl({
@@ -49,6 +51,7 @@ const UrlTab: React.FC<Props> = ({ uploadUrl, setUploadUrl }) => {
       </Form.Item>
       {isCompressedFile && (
         <Checkbox
+          data-testid={DATA_TEST_ID.UploadModal__AutoUnzipCheckbox}
           checked={uploadUrl.autoUnzip}
           onChange={() => {
             setUploadUrl({

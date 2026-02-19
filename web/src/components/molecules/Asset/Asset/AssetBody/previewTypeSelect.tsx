@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 
 import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 export type PreviewType =
   | "GEO"
@@ -40,7 +41,7 @@ export const PreviewTypeSelect: React.FC<Props> = ({ onTypeChange, value, hasUpd
     { name: t("Unknown Type"), value: "UNKNOWN" },
   ];
   return (
-    <StyledSelect value={value} onChange={onTypeChange} disabled={!hasUpdateRight}>
+    <StyledSelect data-testid={DATA_TEST_ID.AssetDetail__TypeSelect} value={value} onChange={onTypeChange} disabled={!hasUpdateRight}>
       {previewTypeList.map((type, index) => (
         <Select.Option key={index} value={type.value}>
           {type.name}
