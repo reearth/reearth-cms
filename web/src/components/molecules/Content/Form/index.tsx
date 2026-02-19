@@ -38,6 +38,7 @@ import {
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { transformDayjsToString, dateTimeFormat } from "@reearth-cms/utils/format";
 
 import FieldWrapper from "./FieldWrapper";
@@ -591,7 +592,7 @@ const ContentForm: React.FC<Props> = ({
     const menuItems = [
       {
         key: "addToRequest",
-        label: t("Add to Request"),
+        label: <span data-testid={DATA_TEST_ID.ContentForm__AddToRequestItem}>{t("Add to Request")}</span>,
         onClick: onAddItemToRequestModalOpen,
         disabled: isInReview || item?.status === "PUBLIC" || !hasRequestUpdateRight,
       },
@@ -725,7 +726,7 @@ const ContentForm: React.FC<Props> = ({
                       </Tooltip>
                     )}
                     <Dropdown menu={{ items }} trigger={["click"]}>
-                      <Button>
+                      <Button data-testid={DATA_TEST_ID.ContentForm__EllipsisButton}>
                         <Icon icon="ellipsis" />
                       </Button>
                     </Dropdown>
@@ -843,7 +844,7 @@ const ContentForm: React.FC<Props> = ({
             </Form>
           </TabPane>
           {versions.length && (
-            <TabPane tab={t("Version History")} key="history">
+            <TabPane tab={<span data-testid={DATA_TEST_ID.ContentForm__VersionHistoryTab}>{t("Version History")}</span>} key="history">
               <TabContent>
                 <Versions
                   versions={versions}

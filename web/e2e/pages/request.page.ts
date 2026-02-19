@@ -1,12 +1,13 @@
 // e2e/pages/request.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { ProjectScopedPage } from "./project-scoped.page";
 
 export class RequestPage extends ProjectScopedPage {
   // Navigation
   get requestMenuItem(): Locator {
-    return this.getByText("Request", { exact: true });
+    return this.getByTestId(DATA_TEST_ID.ProjectMenu__RequestItem);
   }
 
   // Table elements
@@ -16,7 +17,7 @@ export class RequestPage extends ProjectScopedPage {
 
   // Edit buttons
   get editButton(): Locator {
-    return this.getByLabel("edit").locator("svg");
+    return this.getByTestId(DATA_TEST_ID.RequestTable__EditIcon);
   }
   override get backButton(): Locator {
     return this.getByLabel("back");
@@ -27,16 +28,16 @@ export class RequestPage extends ProjectScopedPage {
 
   // Request actions
   get assignToButton(): Locator {
-    return this.getByRole("button", { name: "Assign to" });
+    return this.getByTestId(DATA_TEST_ID.RequestDetail__AssignToButton);
   }
   get approveButton(): Locator {
-    return this.getByRole("button", { name: "Approve" });
+    return this.getByTestId(DATA_TEST_ID.RequestDetail__ApproveButton);
   }
   get closeButton(): Locator {
-    return this.getByRole("button", { name: "Close" });
+    return this.getByTestId(DATA_TEST_ID.RequestDetail__CloseButton);
   }
   get reopenButton(): Locator {
-    return this.getByRole("button", { name: "Reopen" });
+    return this.getByTestId(DATA_TEST_ID.RequestDetail__ReopenButton);
   }
 
   // Selection controls
@@ -44,13 +45,13 @@ export class RequestPage extends ProjectScopedPage {
     return this.getByLabel("close-circle").locator("svg");
   }
   get selectOverflow(): Locator {
-    return this.locator(".ant-select-selection-overflow");
+    return this.getByTestId(DATA_TEST_ID.RequestDetail__ReviewerSelect);
   }
   get selectItem(): Locator {
     return this.locator(".ant-select-item");
   }
   get reviewerHeading(): Locator {
-    return this.getByRole("heading", { name: "Reviewer" });
+    return this.getByTestId(DATA_TEST_ID.RequestDetail__ReviewerSection);
   }
 
   // Filter controls
@@ -73,13 +74,13 @@ export class RequestPage extends ProjectScopedPage {
     return this.getByRole("textbox").filter({ hasText: text });
   }
   get commentButton(): Locator {
-    return this.getByRole("button", { name: "Comment" });
+    return this.getByTestId(DATA_TEST_ID.RequestDetail__AddCommentButton);
   }
   get checkButton(): Locator {
-    return this.getByRole("button", { name: "check" });
+    return this.getByTestId(DATA_TEST_ID.Comment__EditSaveButton);
   }
   get deleteButton(): Locator {
-    return this.getByRole("button", { name: "delete" });
+    return this.getByTestId(DATA_TEST_ID.Comment__DeleteButton);
   }
   commentsCountButton(count: number | string = 0): Locator {
     return this.getByRole("button", { name: String(count) });
@@ -87,24 +88,24 @@ export class RequestPage extends ProjectScopedPage {
 
   // Item management
   get newItemButton(): Locator {
-    return this.getByRole("button", { name: "plus New Item" });
+    return this.getByTestId(DATA_TEST_ID.ContentList__NewItemButton);
   }
   get ellipsisButton(): Locator {
-    return this.getByRole("button", { name: "ellipsis" });
+    return this.getByTestId(DATA_TEST_ID.ContentForm__EllipsisButton);
   }
   get addToRequestButton(): Locator {
-    return this.getByText("Add to Request");
+    return this.getByTestId(DATA_TEST_ID.ContentForm__AddToRequestItem);
   }
   get selectCheckbox(): Locator {
     return this.getByLabel("", { exact: true });
   }
   get closeTextButton(): Locator {
-    return this.getByText("Close");
+    return this.getByTestId(DATA_TEST_ID.RequestTable__CloseButton);
   }
 
   // Version history and navigation
   get versionHistoryTab(): Locator {
-    return this.getByRole("tab", { name: "Version History" });
+    return this.getByTestId(DATA_TEST_ID.ContentForm__VersionHistoryTab);
   }
   requestTitleLink(title: string): Locator {
     return this.getByRole("link", { name: title });
@@ -153,5 +154,4 @@ export class RequestPage extends ProjectScopedPage {
     await this.reopenButton.click();
     await this.closeNotification();
   }
-
 }

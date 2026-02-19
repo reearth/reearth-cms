@@ -11,6 +11,7 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Comment as CommentType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 type Props = {
@@ -62,6 +63,7 @@ const Comment: React.FC<Props> = ({
     if (hasDeleteRight || (hasDeleteRight === null && isMine)) {
       result.push(
         <Button
+          data-testid={DATA_TEST_ID.Comment__DeleteButton}
           color="default"
           variant="link"
           size="small"
@@ -73,6 +75,7 @@ const Comment: React.FC<Props> = ({
     if (hasUpdateRight || (hasUpdateRight === null && isMine)) {
       result.push(
         <Button
+          data-testid={DATA_TEST_ID.Comment__EditSaveButton}
           color="default"
           variant="link"
           size="small"

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   inlineCollapsed: boolean;
@@ -19,7 +20,7 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
     { label: t("Schema"), key: "schema", icon: <Icon icon="unorderedList" /> },
     { label: t("Content"), key: "content", icon: <Icon icon="table" /> },
     { label: t("Asset"), key: "asset", icon: <Icon icon="file" /> },
-    { label: t("Request"), key: "request", icon: <Icon icon="pullRequest" /> },
+    { label: <span data-testid={DATA_TEST_ID.ProjectMenu__RequestItem}>{t("Request")}</span>, key: "request", icon: <Icon icon="pullRequest" /> },
   ];
   const [selected, changeSelected] = useState([defaultSelectedKey ?? "models"]);
 

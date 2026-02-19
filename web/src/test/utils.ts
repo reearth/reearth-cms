@@ -325,4 +325,32 @@ export enum DATA_TEST_ID {
   // AssetDetail
   AssetDetail__TypeSelect = "AssetDetail__TypeSelect",
   AssetDetail__FullscreenButton = "AssetDetail__FullscreenButton",
+
+  // RequestTable
+  RequestTable__EditIcon = "RequestTable__EditIcon",
+  RequestTable__CloseButton = "RequestTable__CloseButton",
+
+  // RequestDetail
+  RequestDetail__CloseButton = "RequestDetail__CloseButton",
+  RequestDetail__ReopenButton = "RequestDetail__ReopenButton",
+  RequestDetail__ApproveButton = "RequestDetail__ApproveButton",
+  RequestDetail__AssignToButton = "RequestDetail__AssignToButton",
+  RequestDetail__ReviewerSelect = "RequestDetail__ReviewerSelect",
+  RequestDetail__ReviewerSection = "RequestDetail__ReviewerSection",
+  RequestDetail__AddCommentButton = "RequestDetail__AddCommentButton",
+
+  // Comment
+  Comment__DeleteButton = "Comment__DeleteButton",
+  Comment__EditSaveButton = "Comment__EditSaveButton",
+
+  // ProjectMenu
+  ProjectMenu__RequestItem = "ProjectMenu__RequestItem",
+
+  // ContentList
+  ContentList__NewItemButton = "ContentList__NewItemButton",
+
+  // ContentForm
+  ContentForm__EllipsisButton = "ContentForm__EllipsisButton",
+  ContentForm__AddToRequestItem = "ContentForm__AddToRequestItem",
+  ContentForm__VersionHistoryTab = "ContentForm__VersionHistoryTab",
 }

@@ -18,6 +18,7 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 type Props = {
@@ -85,7 +86,9 @@ const RequestListTable: React.FC<Props> = ({
         title: "",
         hideInSetting: true,
         render: (_, request) => (
-          <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(request.id)} />
+          <span data-testid={DATA_TEST_ID.RequestTable__EditIcon} onClick={() => onEdit(request.id)}>
+            <Icon icon="edit" color={"#1890ff"} />
+          </span>
         ),
         key: "EDIT_ICON",
         width: 48,
@@ -239,6 +242,7 @@ const RequestListTable: React.FC<Props> = ({
       return (
         <Space size={4}>
           <Button
+            data-testid={DATA_TEST_ID.RequestTable__CloseButton}
             type="link"
             size="small"
             icon={<Icon icon="delete" />}
