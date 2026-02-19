@@ -91,7 +91,7 @@ export class ContentPage extends ProjectScopedPage {
 
   // Table body element
   get tableBodyElement(): Locator {
-    return this.locator(".ant-table-body");
+    return this.getByTestId(DATA_TEST_ID.ContentTable__Wrapper).locator(".ant-table-body");
   }
 
   // Views management
@@ -131,7 +131,7 @@ export class ContentPage extends ProjectScopedPage {
     return this.columnHeaderText.locator("div").locator(".anticon-caret-down");
   }
   tableRow(index: number): Locator {
-    return this.locator(".ant-table-row").nth(index);
+    return this.getByTestId(DATA_TEST_ID.ContentTable__Wrapper).locator("tbody tr").nth(index);
   }
   get statusColumnHeader(): Locator {
     return this.getByRole("columnheader", { name: "Status" });
@@ -189,7 +189,7 @@ export class ContentPage extends ProjectScopedPage {
 
   // Table headers and structure
   get tableBodyRows(): Locator {
-    return this.locator("tbody > tr.ant-table-row");
+    return this.getByTestId(DATA_TEST_ID.ContentTable__Wrapper).locator("tbody tr");
   }
 
   // Cell selection by text and exact matching
@@ -258,7 +258,7 @@ export class ContentPage extends ProjectScopedPage {
 
   // Asset field specific
   cssAssetByIndex(index: number): Locator {
-    return this.locator(".css-7g0azd").nth(index);
+    return this.getByTestId(DATA_TEST_ID.MultiValueAsset__ItemWrapper).nth(index);
   }
 
   get tooltip(): Locator {
@@ -271,7 +271,7 @@ export class ContentPage extends ProjectScopedPage {
 
   // Table row controls for assets
   get antTableRowTd(): Locator {
-    return this.locator(".ant-table-row > td");
+    return this.getByTestId(DATA_TEST_ID.ContentTable__Wrapper).locator("tbody td");
   }
 
   // Tag metadata specific
@@ -293,9 +293,9 @@ export class ContentPage extends ProjectScopedPage {
     return this.getByRole("cell", { name: tagNames });
   }
 
-  // Text metadata specific
+  // Text metadata specific — use tableBodyElement instead
   get antTableBody(): Locator {
-    return this.locator(".ant-table-body");
+    return this.tableBodyElement;
   }
 
   get tooltipTextboxes(): Locator {
@@ -358,16 +358,18 @@ export class ContentPage extends ProjectScopedPage {
 
   // Table column selection
   tableColumnButton(childIndex: number): Locator {
-    return this.locator(`.ant-table-row > td:nth-child(${childIndex})`).getByRole("button");
+    return this.getByTestId(DATA_TEST_ID.ContentTable__Wrapper)
+      .locator(`tbody td:nth-child(${childIndex})`)
+      .getByRole("button");
   }
 
   // Multi-value text containers
   get firstTextContainer(): Locator {
-    return this.locator("div:nth-child(1) > .css-1ago99h");
+    return this.getByTestId(DATA_TEST_ID.MultiValueField__ItemWrapper).first();
   }
 
   get secondTextContainer(): Locator {
-    return this.locator("div:nth-child(2) > .css-1ago99h");
+    return this.getByTestId(DATA_TEST_ID.MultiValueField__ItemWrapper).nth(1);
   }
 
   // Required field validation
@@ -435,21 +437,16 @@ export class ContentPage extends ProjectScopedPage {
 
   // Geometry field specific elements
   get viewLinesEditor(): Locator {
-    return this.locator(".view-lines");
+    return this.getByTestId(DATA_TEST_ID.GeometryItem__EditorWrapper).locator(".view-lines");
   }
 
   get editorContent(): Locator {
     return this.getByLabel("Editor content;Press Alt+F1");
   }
 
-  // Table column selection
-  nthTableColumnButton(index: number): Locator {
-    return this.locator(`.ant-table-row > td:nth-child(${index})`).getByRole("button");
-  }
-
-  // Ant row button by index
-  antRowButton(index: number): Locator {
-    return this.locator(".ant-row").getByRole("button").nth(index);
+  // Geometry delete button
+  get geometryDeleteButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.GeometryItem__DeleteButton);
   }
 
   // Unique field label
@@ -534,8 +531,8 @@ export class ContentPage extends ProjectScopedPage {
     await this.getByRole("menuitem", { name: "New Request" }).click();
     await this.getByLabel("Title").last().click();
     await this.getByLabel("Title").last().fill(title);
-    await this.page.click(".ant-select-selector");
-    const firstItem = this.page.locator(".ant-select-item").first();
+    await this.getByTestId(DATA_TEST_ID.RequestCreationModal__ReviewerSelect).click();
+    const firstItem = this.page.getByRole("option").first();
     await firstItem.click();
     await this.getByLabel("Description").click();
     await this.getByRole("button", { name: "OK" }).click();
@@ -687,7 +684,7 @@ export class ContentPage extends ProjectScopedPage {
   }
 
   get importContentDragger(): Locator {
-    return this.locator(".ant-upload-drag");
+    return this.getByTestId(DATA_TEST_ID.ContentImportModal__Dragger);
   }
 
   get importContentLoadingWrapper(): Locator {

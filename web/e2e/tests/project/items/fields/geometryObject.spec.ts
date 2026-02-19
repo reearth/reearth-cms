@@ -52,14 +52,14 @@ test("GeometryObject field creating and updating has succeeded", async ({
 
   await test.step("Verify geometry saved correctly", async () => {
     await contentPage.backButton.click();
-    await contentPage.nthTableColumnButton(5).click();
+    await contentPage.tableColumnButton(5).click();
     await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [0, 0] }');
     await page.waitForTimeout(300);
   });
 
   await test.step("Edit item and update geometry to [1, 0]", async () => {
     await contentPage.editButton.click();
-    await contentPage.antRowButton(1).click();
+    await contentPage.geometryDeleteButton.click();
     await contentPage.viewLinesEditor.click();
     await contentPage.editorContent.fill('{\n"type": "Point",\n"coordinates": [1, 0]');
     await contentPage.saveButton.click();
@@ -69,7 +69,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
 
   await test.step("Verify updated geometry", async () => {
     await contentPage.backButton.click();
-    await contentPage.nthTableColumnButton(5).click();
+    await contentPage.tableColumnButton(5).click();
     await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [1, 0] }');
     await page.waitForTimeout(300);
   });
@@ -110,7 +110,7 @@ test("GeometryObject field editing has succeeded", async ({
 
   await test.step("Verify item saved with default geometry", async () => {
     await contentPage.backButton.click();
-    await contentPage.nthTableColumnButton(5).click();
+    await contentPage.tableColumnButton(5).click();
     await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [0, 0] }');
     await page.waitForTimeout(300);
   });
@@ -160,7 +160,7 @@ test("GeometryObject field editing has succeeded", async ({
   await test.step("Verify existing item shows old default value", async () => {
     await contentPage.contentText.click();
     await expect(contentPage.tableHead).toContainText("new geometryObject1");
-    await contentPage.nthTableColumnButton(5).click();
+    await contentPage.tableColumnButton(5).click();
     await expect(contentPage.tooltip).toContainText('{ "type": "Point", "coordinates": [0, 0] }');
     await page.waitForTimeout(300);
   });

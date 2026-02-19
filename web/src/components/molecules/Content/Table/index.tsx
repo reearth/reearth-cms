@@ -26,6 +26,7 @@ import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/LinkItemRequestModal/LinkItemRequestModal";
 import Status from "@reearth-cms/components/molecules/Content/Status";
 import {
@@ -796,6 +797,7 @@ const ContentTable: React.FC<Props> = ({
   return (
     <>
       {contentTableColumns ? (
+        <div data-testid={DATA_TEST_ID.ContentTable__Wrapper}>
         <ResizableProTable
           showSorterTooltip={false}
           options={options}
@@ -855,6 +857,7 @@ const ContentTable: React.FC<Props> = ({
             ),
           }}
         />
+        </div>
       ) : null}
       <LinkItemRequestModal
         items={selectedItems.selectedRows}

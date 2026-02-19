@@ -5,6 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { AssetProps } from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import AssetItem from "../../Form/AssetItem";
 import { moveItemInArray } from "../moveItemArray";
@@ -71,7 +72,7 @@ const MultiValueAsset: React.FC<Props> = ({
     <div>
       {Array.isArray(value) &&
         value?.map((valueItem, key) => (
-          <FieldWrapper key={key}>
+          <FieldWrapper key={key} data-testid={DATA_TEST_ID.MultiValueAsset__ItemWrapper}>
             {!disabled && (
               <>
                 <FieldButton

@@ -512,6 +512,7 @@ const GeometryItem: React.FC<Props> = ({
               </Tooltip>
               {!disabled && (
                 <EditorButton
+                  data-testid={DATA_TEST_ID.GeometryItem__DeleteButton}
                   icon={<Icon icon="trash" size={12} />}
                   size="small"
                   onClick={deleteButtonClick}

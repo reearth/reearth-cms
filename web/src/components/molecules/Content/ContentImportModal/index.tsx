@@ -395,6 +395,7 @@ const ContentImportModal: React.FC<Props> = ({
               <p>{t("Checking the data file...")}</p>
             </LoadingWrapper>
           ) : (
+            <div data-testid={DATA_TEST_ID.ContentImportModal__Dragger}>
             <Dragger {...uploadProps}>
               <p className="ant-upload-drag-icon">
                 <Icon icon="inbox" />
@@ -436,6 +437,7 @@ const ContentImportModal: React.FC<Props> = ({
                 />
               ))}
             </Dragger>
+            </div>
           )}
         </>
       ) : (

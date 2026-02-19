@@ -396,4 +396,17 @@ export enum DATA_TEST_ID {
 
   // GeometryItem
   GeometryItem__EditorWrapper = "GeometryItem__EditorWrapper",
+  GeometryItem__DeleteButton = "GeometryItem__DeleteButton",
+
+  // ContentTable
+  ContentTable__Wrapper = "ContentTable__Wrapper",
+
+  // MultiValueAsset
+  MultiValueAsset__ItemWrapper = "MultiValueAsset__ItemWrapper",
+
+  // RequestCreationModal
+  RequestCreationModal__ReviewerSelect = "RequestCreationModal__ReviewerSelect",
+
+  // ContentImportModal
+  ContentImportModal__Dragger = "ContentImportModal__Dragger",
 }

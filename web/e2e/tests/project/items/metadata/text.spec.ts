@@ -65,7 +65,7 @@ test("Text metadata creating and updating has succeeded", async ({
     await contentPage.backButton.click();
     await expect(contentPage.textBoxes).toHaveValue("text1");
     await contentPage.textBoxes.fill("new text1");
-    await contentPage.antTableBody.click();
+    await contentPage.tableBodyElement.click();
     await contentPage.closeNotification();
     await expect(contentPage.textBoxes).toHaveValue("new text1");
     await page.waitForTimeout(300);
