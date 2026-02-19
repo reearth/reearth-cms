@@ -17,8 +17,8 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
 
   const topItems: ItemType[] = [
     { label: t("Models"), key: "models", icon: <Icon icon="block" /> },
-    { label: t("Schema"), key: "schema", icon: <Icon icon="unorderedList" /> },
-    { label: t("Content"), key: "content", icon: <Icon icon="table" /> },
+    { label: <span data-testid={DATA_TEST_ID.ProjectMenu__SchemaItem}>{t("Schema")}</span>, key: "schema", icon: <Icon icon="unorderedList" /> },
+    { label: <span data-testid={DATA_TEST_ID.ProjectMenu__ContentItem}>{t("Content")}</span>, key: "content", icon: <Icon icon="table" /> },
     { label: t("Asset"), key: "asset", icon: <Icon icon="file" /> },
     { label: <span data-testid={DATA_TEST_ID.ProjectMenu__RequestItem}>{t("Request")}</span>, key: "request", icon: <Icon icon="pullRequest" /> },
   ];

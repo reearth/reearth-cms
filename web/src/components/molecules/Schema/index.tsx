@@ -235,7 +235,7 @@ const Schema: React.FC<Props> = ({
     },
     {
       key: "meta-data",
-      label: t("Meta Data"),
+      label: <span data-testid={DATA_TEST_ID.Schema__MetaDataTab}>{t("Meta Data")}</span>,
       children: (
         <div>
           <ModelFieldList
@@ -302,7 +302,7 @@ const Schema: React.FC<Props> = ({
                 ]}
               />
               {selectedSchemaType === "model" && (
-                <StyledTabs activeKey={tab} items={items} onChange={handleTabChange} />
+                <StyledTabs data-testid={DATA_TEST_ID.Schema__FieldsTabs} activeKey={tab} items={items} onChange={handleTabChange} />
               )}
               {selectedSchemaType === "group" && (
                 <GroupFieldsWrapper>

@@ -28,6 +28,7 @@ import {
   SelectedSchemaType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { Constant } from "@reearth-cms/utils/constant";
 
 import useHooks from "./hooks";
@@ -282,7 +283,7 @@ const FieldModal: React.FC<Props> = ({
                 name="group"
                 label={t("Select Group")}
                 rules={[{ required: true, message: t("Please select the group!") }]}>
-                <Select>
+                <Select data-testid={DATA_TEST_ID.Schema__GroupSelect}>
                   {groups?.map(group => (
                     <Select.Option key={group.id} value={group.id}>
                       {group.name}{" "}

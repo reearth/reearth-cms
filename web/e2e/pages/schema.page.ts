@@ -7,10 +7,10 @@ import { ProjectScopedPage } from "./project-scoped.page";
 export class SchemaPage extends ProjectScopedPage {
   // Model actions
   get plusAddButton(): Locator {
-    return this.getByRole("button", { name: "plus Add" });
+    return this.getByTestId(DATA_TEST_ID.Schema__ModelAddButton);
   }
   get firstPlusAddButton(): Locator {
-    return this.getByRole("button", { name: "plus Add" }).first();
+    return this.getByTestId(DATA_TEST_ID.Schema__ModelAddButton);
   }
   get modelNameInput(): Locator {
     return this.locator("#name");
@@ -65,16 +65,16 @@ export class SchemaPage extends ProjectScopedPage {
     return this.locator("li").filter({ hasText: type }).locator("div").first();
   }
   get fieldEditButton(): Locator {
-    return this.getByRole("img", { name: "ellipsis" }).locator("svg");
+    return this.getByTestId(DATA_TEST_ID.Schema__FieldEllipsisButton);
   }
   get fieldsContainer(): Locator {
     return this.getByLabel("Fields");
   }
   get draggableItems(): Locator {
-    return this.getByLabel("Fields").locator(".draggable-item");
+    return this.getByTestId(DATA_TEST_ID.Schema__FieldListItem);
   }
   get grabbableItems(): Locator {
-    return this.getByLabel("Fields").locator(".grabbable");
+    return this.getByTestId(DATA_TEST_ID.Schema__FieldDragHandle);
   }
 
   // Group field specific
@@ -82,16 +82,16 @@ export class SchemaPage extends ProjectScopedPage {
     return this.getByText("Create Group Field");
   }
   get groupSelectTrigger(): Locator {
-    return this.locator(".ant-select-selector");
+    return this.getByTestId(DATA_TEST_ID.Schema__GroupSelect);
   }
 
   // Content sections
   get fieldsMetaDataText(): Locator {
-    return this.getByText("FieldsMeta Data");
+    return this.getByTestId(DATA_TEST_ID.Schema__FieldsTabs);
   }
 
   get metaDataTab(): Locator {
-    return this.getByRole("tab", { name: "Meta Data" });
+    return this.getByTestId(DATA_TEST_ID.Schema__MetaDataTab);
   }
 
   // Dynamic methods for model names
@@ -101,7 +101,7 @@ export class SchemaPage extends ProjectScopedPage {
 
   // Field list item
   fieldEllipsisIcon(fieldText: string): Locator {
-    return this.locator("li").filter({ hasText: fieldText }).locator("svg").nth(3);
+    return this.locator("li").filter({ hasText: fieldText }).getByTestId(DATA_TEST_ID.Schema__FieldEllipsisButton);
   }
 
   // Group field specific methods
@@ -124,7 +124,7 @@ export class SchemaPage extends ProjectScopedPage {
 
   // Schema tab for filtered navigation
   get schemaSpanText(): Locator {
-    return this.locator("span").filter({ hasText: "Schema" });
+    return this.getByTestId(DATA_TEST_ID.ProjectMenu__SchemaItem);
   }
 
   // Tag metadata specific
@@ -154,11 +154,11 @@ export class SchemaPage extends ProjectScopedPage {
 
   // Navigation elements
   get schemaText(): Locator {
-    return this.getByText("Schema");
+    return this.getByTestId(DATA_TEST_ID.ProjectMenu__SchemaItem);
   }
 
   get contentText(): Locator {
-    return this.getByText("Content");
+    return this.getByTestId(DATA_TEST_ID.ProjectMenu__ContentItem);
   }
 
   // Field text display
@@ -184,7 +184,7 @@ export class SchemaPage extends ProjectScopedPage {
   }
 
   async createModelFromSidebar(name = "e2e model name", key?: string): Promise<void> {
-    await this.getByRole("button", { name: "plus Add" }).first().click();
+    await this.getByTestId(DATA_TEST_ID.Schema__ModelAddButton).click();
     await this.createModel(name, key);
   }
 
@@ -206,7 +206,7 @@ export class SchemaPage extends ProjectScopedPage {
 
   // Group CRUD operations
   async createGroup(name: string, key?: string): Promise<void> {
-    await this.getByRole("button", { name: "plus Add" }).last().click();
+    await this.getByTestId(DATA_TEST_ID.Schema__GroupAddButton).click();
     await this.getByLabel("Group name").fill(name);
     if (key) {
       await this.getByLabel("Group key").fill(key);

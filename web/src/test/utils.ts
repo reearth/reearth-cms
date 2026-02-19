@@ -353,4 +353,18 @@ export enum DATA_TEST_ID {
   ContentForm__EllipsisButton = "ContentForm__EllipsisButton",
   ContentForm__AddToRequestItem = "ContentForm__AddToRequestItem",
   ContentForm__VersionHistoryTab = "ContentForm__VersionHistoryTab",
+
+  // ProjectMenu
+  ProjectMenu__SchemaItem = "ProjectMenu__SchemaItem",
+  ProjectMenu__ContentItem = "ProjectMenu__ContentItem",
+
+  // Schema
+  Schema__ModelAddButton = "Schema__ModelAddButton",
+  Schema__GroupAddButton = "Schema__GroupAddButton",
+  Schema__FieldEllipsisButton = "Schema__FieldEllipsisButton",
+  Schema__FieldListItem = "Schema__FieldListItem",
+  Schema__FieldDragHandle = "Schema__FieldDragHandle",
+  Schema__GroupSelect = "Schema__GroupSelect",
+  Schema__MetaDataTab = "Schema__MetaDataTab",
+  Schema__FieldsTabs = "Schema__FieldsTabs",
 }
