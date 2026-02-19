@@ -295,4 +295,16 @@ export enum DATA_TEST_ID {
   Content__List__ImportContentButton = "Content__List__ImportContentButton",
   Content__List__ItemFieldPopoverIcon = "Content__List__ItemFieldPopoverIcon",
   Content__List__ItemFieldPopoverContent = "Content__List__ItemFieldPopoverContent",
+
+  // WorkspaceMenu
+  WorkspaceMenu__HomeItem = "WorkspaceMenu__HomeItem",
+  WorkspaceMenu__MemberItem = "WorkspaceMenu__MemberItem",
+  WorkspaceMenu__IntegrationsItem = "WorkspaceMenu__IntegrationsItem",
+  WorkspaceMenu__MyIntegrationsItem = "WorkspaceMenu__MyIntegrationsItem",
+  WorkspaceMenu__SettingsItem = "WorkspaceMenu__SettingsItem",
+  WorkspaceMenu__WorkspaceSettingsItem = "WorkspaceMenu__WorkspaceSettingsItem",
+  WorkspaceMenu__AccountSettingsItem = "WorkspaceMenu__AccountSettingsItem",
+
+  // MemberTable
+  MemberTable__Search = "MemberTable__Search",
 }

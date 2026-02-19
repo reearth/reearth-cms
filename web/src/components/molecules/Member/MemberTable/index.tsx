@@ -10,6 +10,7 @@ import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import { ListToolBarProps, TableRowSelection } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { User } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
@@ -194,13 +195,15 @@ const MemberTable: React.FC<Props> = ({
   const toolbar: ListToolBarProps = useMemo(
     () => ({
       search: (
-        <Search
-          allowClear
-          placeholder={t("input search text")}
-          onSearch={(value: string) => {
-            onSearchTerm(value);
-          }}
-        />
+        <div data-testid={DATA_TEST_ID.MemberTable__Search}>
+          <Search
+            allowClear
+            placeholder={t("input search text")}
+            onSearch={(value: string) => {
+              onSearchTerm(value);
+            }}
+          />
+        </div>
       ),
     }),
     [onSearchTerm, t],
