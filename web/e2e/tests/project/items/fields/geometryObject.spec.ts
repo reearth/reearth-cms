@@ -20,14 +20,12 @@ test("GeometryObject field creating and updating has succeeded", async ({
   contentPage,
 }) => {
   await test.step("Create GeometryObject field with Point support", async () => {
-    await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
-    await fieldEditorPage.displayNameInput.click();
-    await fieldEditorPage.displayNameInput.fill("geometryObject1");
-    await fieldEditorPage.settingsDescriptionInput.click();
-    await fieldEditorPage.settingsDescriptionInput.fill("geometryObject1 description");
-    await fieldEditorPage.pointCheckbox.check();
-    await fieldEditorPage.okButton.click();
-    await fieldEditorPage.closeNotification();
+    await fieldEditorPage.createField({
+      type: SchemaFieldType.GeometryObject,
+      name: "geometryObject1",
+      description: "geometryObject1 description",
+      supportedTypes: ["POINT"],
+    });
     await page.waitForTimeout(300);
   });
 

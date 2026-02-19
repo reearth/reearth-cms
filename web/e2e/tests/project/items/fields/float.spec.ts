@@ -19,16 +19,12 @@ test("Float field creating and updating has succeeded", async ({
   contentPage,
   schemaPage,
 }) => {
-  await fieldEditorPage.fieldTypeButton(SchemaFieldType.Number).click();
-  await fieldEditorPage.displayNameInput.click();
-  await fieldEditorPage.displayNameInput.fill("float1");
-  await fieldEditorPage.settingsKeyInput.click();
-  await fieldEditorPage.settingsKeyInput.fill("float1");
-  await fieldEditorPage.settingsDescriptionInput.click();
-  await fieldEditorPage.settingsDescriptionInput.fill("float1 description");
-
-  await fieldEditorPage.okButton.click();
-  await contentPage.closeNotification();
+  await fieldEditorPage.createField({
+    type: SchemaFieldType.Number,
+    name: "float1",
+    key: "float1",
+    description: "float1 description",
+  });
 
   await expect(fieldEditorPage.fieldsContainerParagraph).toContainText("float1#float1");
   await schemaPage.contentText.click();
@@ -53,18 +49,13 @@ test("Float field creating and updating has succeeded", async ({
 });
 
 test("Float field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
-  await fieldEditorPage.fieldTypeListItem("Float").click();
-  await fieldEditorPage.displayNameInput.click();
-  await fieldEditorPage.displayNameInput.fill("float1");
-  await fieldEditorPage.settingsKeyInput.click();
-  await fieldEditorPage.settingsKeyInput.fill("float1");
-  await fieldEditorPage.settingsDescriptionInput.click();
-  await fieldEditorPage.settingsDescriptionInput.fill("float1 description");
-  await fieldEditorPage.defaultValueTab.click();
-  await fieldEditorPage.setDefaultValueInput.click();
-  await fieldEditorPage.setDefaultValueInput.fill("1.1");
-  await fieldEditorPage.okButton.click();
-  await contentPage.closeNotification();
+  await fieldEditorPage.createField({
+    type: SchemaFieldType.Number,
+    name: "float1",
+    key: "float1",
+    description: "float1 description",
+    defaultValue: "1.1",
+  });
 
   await schemaPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("float1");

@@ -18,15 +18,12 @@ test("@smoke Boolean field creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
 }) => {
-  await fieldEditorPage.fieldTypeButton(SchemaFieldType.Bool).click();
-  await fieldEditorPage.displayNameInput.click();
-  await fieldEditorPage.displayNameInput.fill("boolean1");
-  await fieldEditorPage.settingsKeyInput.click();
-  await fieldEditorPage.settingsKeyInput.fill("boolean1");
-  await fieldEditorPage.settingsDescriptionInput.click();
-  await fieldEditorPage.settingsDescriptionInput.fill("boolean1 description");
-  await fieldEditorPage.okButton.click();
-  await contentPage.closeNotification();
+  await fieldEditorPage.createField({
+    type: SchemaFieldType.Bool,
+    name: "boolean1",
+    key: "boolean1",
+    description: "boolean1 description",
+  });
 
   await expect(fieldEditorPage.fieldsContainerParagraph).toContainText("boolean1#boolean1");
   await contentPage.contentText.click();
@@ -53,17 +50,13 @@ test("Boolean field editing has succeeded", async ({
   contentPage,
   schemaPage,
 }) => {
-  await fieldEditorPage.fieldTypeListItem("Boolean").click();
-  await fieldEditorPage.displayNameInput.click();
-  await fieldEditorPage.displayNameInput.fill("boolean1");
-  await fieldEditorPage.settingsKeyInput.click();
-  await fieldEditorPage.settingsKeyInput.fill("boolean1");
-  await fieldEditorPage.settingsDescriptionInput.click();
-  await fieldEditorPage.settingsDescriptionInput.fill("boolean1 description");
-  await fieldEditorPage.defaultValueTab.click();
-  await fieldEditorPage.setDefaultValueSwitch.click();
-  await fieldEditorPage.okButton.click();
-  await contentPage.closeNotification();
+  await fieldEditorPage.createField({
+    type: SchemaFieldType.Bool,
+    name: "boolean1",
+    key: "boolean1",
+    description: "boolean1 description",
+    defaultValue: true,
+  });
   await contentPage.contentText.click();
   await expect(contentPage.tableHead).toContainText("boolean1");
   await contentPage.newItemButton.click();

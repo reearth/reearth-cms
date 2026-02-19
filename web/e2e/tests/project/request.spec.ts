@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -6,13 +7,18 @@ const titleFieldName = "e2e title field";
 const requestTitle = "e2e request title";
 const modelName = "e2e model name";
 
-test.beforeEach(async ({ reearth, projectPage, schemaPage, contentPage }) => {
+test.beforeEach(async ({ reearth, projectPage, fieldEditorPage, contentPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
   await projectPage.createModelFromOverview();
-  await schemaPage.createTitleField(titleFieldName, itemTitle);
+  await fieldEditorPage.createField({
+    type: SchemaFieldType.Text,
+    name: titleFieldName,
+    isTitle: true,
+    defaultValue: itemTitle,
+  });
   await contentPage.createItem();
   await contentPage.createRequest(requestTitle);
 });

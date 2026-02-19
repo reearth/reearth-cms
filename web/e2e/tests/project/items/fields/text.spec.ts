@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -20,18 +21,13 @@ test("@smoke Text field editing has succeeded", async ({
   schemaPage,
 }) => {
   await test.step("Create text field with settings and default value", async () => {
-    await fieldEditorPage.fieldTypeButton("Text").click();
-    await fieldEditorPage.displayNameInput.click();
-    await fieldEditorPage.displayNameInput.fill("text1");
-    await fieldEditorPage.settingsKeyInput.click();
-    await fieldEditorPage.settingsKeyInput.fill("text1");
-    await fieldEditorPage.settingsDescriptionInput.click();
-    await fieldEditorPage.settingsDescriptionInput.fill("text1 description");
-    await fieldEditorPage.defaultValueTab.click();
-    await fieldEditorPage.setDefaultValueInput.click();
-    await fieldEditorPage.setDefaultValueInput.fill("text1 default value");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.createField({
+      type: SchemaFieldType.Text,
+      name: "text1",
+      key: "text1",
+      description: "text1 description",
+      defaultValue: "text1 default value",
+    });
     await expect(fieldEditorPage.fieldText("text1", "text1")).toBeVisible();
     await page.waitForTimeout(300);
   });

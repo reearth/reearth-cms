@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -8,8 +9,7 @@ test.beforeEach(async ({ reearth, fieldEditorPage, projectPage, contentPage, sch
   await projectPage.gotoProject(projectName);
   await projectPage.createModelFromOverview();
 
-  await fieldEditorPage.fieldTypeButton("Text").click();
-  await schemaPage.handleFieldForm("text");
+  await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
   await projectPage.contentMenuItem.click();
   await contentPage.newItemButton.click();
   await contentPage.fieldInput("text").fill("test");
@@ -17,8 +17,7 @@ test.beforeEach(async ({ reearth, fieldEditorPage, projectPage, contentPage, sch
   await contentPage.closeNotification();
   await projectPage.schemaMenuItem.click();
   await schemaPage.metaDataTab.click();
-  await schemaPage.booleanListItem.click();
-  await schemaPage.handleFieldForm("boolean");
+  await fieldEditorPage.createField({ type: SchemaFieldType.Bool, name: "boolean" });
   await projectPage.contentMenuItem.click();
 });
 

@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -29,15 +30,12 @@ test("Group field creating and updating has succeeded", async ({
     await schemaPage.createGroup(groupName, groupKey);
     await expect(schemaPage.textByExact("Reference")).toBeHidden();
     await expect(schemaPage.firstTextByExact("Group")).toBeHidden();
-    await fieldEditorPage.fieldTypeButton("Text").click();
-    await fieldEditorPage.displayNameInput.click();
-    await fieldEditorPage.displayNameInput.fill("text1");
-    await fieldEditorPage.settingsKeyInput.click();
-    await fieldEditorPage.settingsKeyInput.fill("text1");
-    await fieldEditorPage.settingsDescriptionInput.click();
-    await fieldEditorPage.settingsDescriptionInput.fill("text1 description");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.createField({
+      type: SchemaFieldType.Text,
+      name: "text1",
+      key: "text1",
+      description: "text1 description",
+    });
     await expect(schemaPage.groupNameByText("text1#text1")).toBeVisible();
     await page.waitForTimeout(300);
   });
@@ -194,15 +192,12 @@ test("Group field editing has succeeded", async ({
     await schemaPage.createGroup(groupName, groupKey);
     await expect(schemaPage.textByExact("Reference")).toBeHidden();
     await expect(schemaPage.firstTextByExact("Group")).toBeHidden();
-    await schemaPage.fieldTypeButton("Text").click();
-    await fieldEditorPage.displayNameInput.click();
-    await fieldEditorPage.displayNameInput.fill("text1");
-    await fieldEditorPage.settingsKeyInput.click();
-    await fieldEditorPage.settingsKeyInput.fill("text1");
-    await fieldEditorPage.settingsDescriptionInput.click();
-    await fieldEditorPage.settingsDescriptionInput.fill("text1 description");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.createField({
+      type: SchemaFieldType.Text,
+      name: "text1",
+      key: "text1",
+      description: "text1 description",
+    });
     await expect(schemaPage.groupNameByText("text1#text1")).toBeVisible();
     await page.waitForTimeout(300);
   });

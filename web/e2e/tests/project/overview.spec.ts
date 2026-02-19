@@ -221,12 +221,12 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelMenuItemByName("model name").click();
 
       // Add a Geometry Object field
-      await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
-      await fieldEditorPage.displayNameInput.fill("location");
-      await fieldEditorPage.settingsDescriptionInput.fill("location field");
-      await fieldEditorPage.supportTypePointCheckbox.check();
-      await fieldEditorPage.okButton.click();
-      await fieldEditorPage.closeNotification();
+      await fieldEditorPage.createField({
+        type: SchemaFieldType.GeometryObject,
+        name: "location",
+        description: "location field",
+        supportedTypes: ["POINT"],
+      });
       await page.waitForTimeout(300);
     });
 
@@ -263,20 +263,20 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelMenuItemByName("model name").click();
 
       // Add first Geometry Object field
-      await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
-      await fieldEditorPage.displayNameInput.fill("location1");
-      await fieldEditorPage.settingsDescriptionInput.fill("first location field");
-      await fieldEditorPage.supportTypePointCheckbox.setChecked(true);
-      await fieldEditorPage.okButton.click();
-      await fieldEditorPage.closeNotification();
+      await fieldEditorPage.createField({
+        type: SchemaFieldType.GeometryObject,
+        name: "location1",
+        description: "first location field",
+        supportedTypes: ["POINT"],
+      });
 
       // Add second Geometry Object field
-      await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
-      await fieldEditorPage.displayNameInput.fill("location2");
-      await fieldEditorPage.settingsDescriptionInput.fill("second location field");
-      await fieldEditorPage.supportTypePointCheckbox.setChecked(true);
-      await fieldEditorPage.okButton.click();
-      await fieldEditorPage.closeNotification();
+      await fieldEditorPage.createField({
+        type: SchemaFieldType.GeometryObject,
+        name: "location2",
+        description: "second location field",
+        supportedTypes: ["POINT"],
+      });
       await page.waitForTimeout(300);
     });
 

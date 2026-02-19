@@ -233,28 +233,6 @@ export class SchemaPage extends ProjectScopedPage {
     await this.closeNotification();
   }
 
-  // Field operations
-  async handleFieldForm(name: string, key = name): Promise<void> {
-    await this.getByLabel("Display name").click();
-    await this.getByLabel("Display name").fill(name);
-    await this.getByLabel("Settings").locator("#key").click();
-    await this.getByLabel("Settings").locator("#key").fill(key);
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
-  }
-
-  async createTitleField(displayName: string, defaultValue: string): Promise<void> {
-    await this.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
-    await this.getByLabel("Display name").click();
-    await this.getByLabel("Display name").fill(displayName);
-    await this.getByLabel("Use as title").check();
-    await this.getByRole("tab", { name: "Default value" }).click();
-    await this.getByLabel("Set default value").click();
-    await this.getByLabel("Set default value").fill(defaultValue);
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
-  }
-
   modelMenuItemSpan(name: string): Locator {
     return this.getByRole("menuitem", { name }).locator("span");
   }

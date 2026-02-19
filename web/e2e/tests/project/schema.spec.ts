@@ -1,6 +1,7 @@
 import path from "path";
 import { fileURLToPath } from "url";
 
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
@@ -226,8 +227,7 @@ test("Group creating from adding field has succeeded", async ({
 
   await test.step("Add text field to model", async () => {
     await expect(fieldEditorPage.fieldTypeListItem("Text")).toBeVisible();
-    await fieldEditorPage.fieldTypeListItem("Text").click();
-    await schemaPage.handleFieldForm("text");
+    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await page.waitForTimeout(300);
   });
 
@@ -275,14 +275,16 @@ test("Group reordering has succeeded", async ({ schemaPage, page }) => {
 test("Text field CRUD has succeeded", async ({ fieldEditorPage, schemaPage, page }) => {
   await test.step("Create model and add text field", async () => {
     await schemaPage.createModelFromSidebar();
-    await fieldEditorPage.fieldTypeListItem("Text").click();
-    await schemaPage.handleFieldForm("text");
+    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await page.waitForTimeout(300);
   });
 
   await test.step("Update text field", async () => {
     await fieldEditorPage.ellipsisMenuButton.click();
-    await schemaPage.handleFieldForm("new text", "new-text");
+    await fieldEditorPage.displayNameInput.fill("new text");
+    await fieldEditorPage.settingsKeyInput.fill("new-text");
+    await fieldEditorPage.okButton.click();
+    await fieldEditorPage.closeNotification();
     await page.waitForTimeout(300);
   });
 
@@ -296,10 +298,8 @@ test("Text field CRUD has succeeded", async ({ fieldEditorPage, schemaPage, page
 test("Schema reordering has succeeded", async ({ schemaPage, fieldEditorPage, page }) => {
   await test.step("Create model and add two text fields", async () => {
     await schemaPage.createModelFromSidebar();
-    await fieldEditorPage.fieldTypeListItem(/Text/).click();
-    await schemaPage.handleFieldForm("text1");
-    await fieldEditorPage.fieldTypeListItem(/Text/).click();
-    await schemaPage.handleFieldForm("text2");
+    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text1" });
+    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text2" });
     await page.waitForTimeout(300);
   });
 

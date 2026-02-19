@@ -22,15 +22,12 @@ test("@smoke Int field creating and updating has succeeded", async ({
   schemaPage,
 }) => {
   await test.step("Create int field with settings", async () => {
-    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Integer).click();
-    await fieldEditorPage.displayNameInput.click();
-    await fieldEditorPage.displayNameInput.fill("int1");
-    await fieldEditorPage.settingsKeyInput.click();
-    await fieldEditorPage.settingsKeyInput.fill("int1");
-    await fieldEditorPage.settingsDescriptionInput.click();
-    await fieldEditorPage.settingsDescriptionInput.fill("int1 description");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.createField({
+      type: SchemaFieldType.Integer,
+      name: "int1",
+      key: "int1",
+      description: "int1 description",
+    });
     await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("int1#int1");
     await page.waitForTimeout(300);
   });
@@ -69,18 +66,13 @@ test("Int field editing has succeeded", async ({
   schemaPage,
 }) => {
   await test.step("Create int field with default value", async () => {
-    await fieldEditorPage.fieldTypeListItem("Int").click();
-    await fieldEditorPage.displayNameInput.click();
-    await fieldEditorPage.displayNameInput.fill("int1");
-    await fieldEditorPage.settingsKeyInput.click();
-    await fieldEditorPage.settingsKeyInput.fill("int1");
-    await fieldEditorPage.settingsDescriptionInput.click();
-    await fieldEditorPage.settingsDescriptionInput.fill("int1 description");
-    await fieldEditorPage.defaultValueTab.click();
-    await fieldEditorPage.setDefaultValueInput.click();
-    await fieldEditorPage.setDefaultValueInput.fill("1");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.createField({
+      type: SchemaFieldType.Integer,
+      name: "int1",
+      key: "int1",
+      description: "int1 description",
+      defaultValue: "1",
+    });
     await page.waitForTimeout(300);
   });
 

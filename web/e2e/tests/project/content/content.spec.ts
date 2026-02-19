@@ -39,11 +39,9 @@ test("@smoke Item CRUD and searching has succeeded", async ({
   contentPage,
   fieldEditorPage,
   projectPage,
-  schemaPage,
 }) => {
   await test.step("Create text field and navigate to content", async () => {
-    await fieldEditorPage.fieldTypeButton("Text").click();
-    await schemaPage.handleFieldForm("text");
+    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await projectPage.contentMenuItem.click();
     await page.waitForTimeout(300);
   });
@@ -100,11 +98,9 @@ test("@smoke Publishing and Unpublishing item from edit page has succeeded", asy
   page,
   contentPage,
   fieldEditorPage,
-  schemaPage,
 }) => {
   await test.step("Create text field and new item", async () => {
-    await fieldEditorPage.fieldTypeListItem("Text").click();
-    await schemaPage.handleFieldForm("text");
+    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await contentPage.contentTextFirst.click();
     await contentPage.newItemButton.click();
     await contentPage.fieldInput("text").click();
@@ -149,11 +145,9 @@ test("Publishing and Unpublishing item from table has succeeded", async ({
   page,
   contentPage,
   fieldEditorPage,
-  schemaPage,
 }) => {
   await test.step("Create text field and new item", async () => {
-    await fieldEditorPage.fieldTypeListItem("Text").click();
-    await schemaPage.handleFieldForm("text");
+    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await contentPage.contentTextFirst.click();
     await contentPage.newItemButton.click();
     await contentPage.fieldInput("text").click();
@@ -200,8 +194,7 @@ test("Showing item title has succeeded", async ({
   schemaPage,
 }) => {
   await test.step("Create text field and new item", async () => {
-    await fieldEditorPage.fieldTypeListItem("Text").click();
-    await schemaPage.handleFieldForm("text");
+    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await contentPage.contentText.click();
     await contentPage.newItemButton.click();
     await expect(contentPage.titleByText("e2e model name", true)).toBeVisible();
@@ -248,11 +241,9 @@ test("@smoke Comment CRUD on Content page has succeeded", async ({
   page,
   contentPage,
   fieldEditorPage,
-  schemaPage,
 }) => {
   await test.step("Create text field and new item", async () => {
-    await fieldEditorPage.fieldTypeListItem("Text").click();
-    await schemaPage.handleFieldForm("text");
+    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await contentPage.contentText.click();
     await contentPage.newItemButton.click();
     await contentPage.fieldInput("text").click();
@@ -284,15 +275,9 @@ test("@smoke Comment CRUD on Content page has succeeded", async ({
   });
 });
 
-test("Comment CRUD on edit page has succeeded", async ({
-  page,
-  contentPage,
-  fieldEditorPage,
-  schemaPage,
-}) => {
+test("Comment CRUD on edit page has succeeded", async ({ page, contentPage, fieldEditorPage }) => {
   await test.step("Create text field and new item", async () => {
-    await fieldEditorPage.fieldTypeListItem("Text").click();
-    await schemaPage.handleFieldForm("text");
+    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await contentPage.contentText.click();
     await contentPage.newItemButton.click();
     await contentPage.fieldInput("text").click();
@@ -334,7 +319,7 @@ test.describe("Import content", () => {
       projectPage,
     }) => {
       await test.step("Create text field matching template schema", async () => {
-        await fieldEditorPage.createField(SchemaFieldType.Text, "text-field-key");
+        await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text-field-key" });
         await projectPage.contentMenuItem.click();
       });
 
@@ -357,16 +342,13 @@ test.describe("Import content", () => {
     projectPage,
   }) => {
     await test.step("Create geometry object field matching template schema", async () => {
-      // TODO: need refactor
-      await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
-      await fieldEditorPage.displayNameInput.click();
-      await fieldEditorPage.displayNameInput.fill("location");
-      await fieldEditorPage.settingsDescriptionInput.click();
-      await fieldEditorPage.pointCheckbox.check();
-      await fieldEditorPage.okButton.click();
-      await fieldEditorPage.closeNotification();
+      await fieldEditorPage.createField({
+        type: SchemaFieldType.GeometryObject,
+        name: "location",
+        supportedTypes: ["POINT"],
+      });
 
-      await fieldEditorPage.createField(SchemaFieldType.Text, "title");
+      await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "title" });
 
       await projectPage.contentMenuItem.click();
     });
@@ -399,23 +381,19 @@ test.describe("Import content", () => {
       projectPage,
     }) => {
       await test.step("Create text field with different key than template", async () => {
-        await fieldEditorPage.createField(
-          SchemaFieldType.Text,
-          "text-field-key",
-          "text-field-key",
-          "",
-          true,
-          false,
-        );
+        await fieldEditorPage.createField({
+          type: SchemaFieldType.Text,
+          name: "text-field-key",
+          key: "text-field-key",
+          required: true,
+        });
 
-        await fieldEditorPage.createField(
-          SchemaFieldType.Number,
-          "number-field-key",
-          "number-field-key",
-          "",
-          true,
-          false,
-        );
+        await fieldEditorPage.createField({
+          type: SchemaFieldType.Number,
+          name: "number-field-key",
+          key: "number-field-key",
+          required: true,
+        });
 
         await projectPage.contentMenuItem.click();
       });
@@ -441,22 +419,18 @@ test.describe("Import content", () => {
     projectPage,
   }) => {
     await test.step("Create text field with different key than template", async () => {
-      await fieldEditorPage.createField(
-        SchemaFieldType.Text,
-        "title-1",
-        "title-1",
-        "",
-        true,
-        false,
-      );
+      await fieldEditorPage.createField({
+        type: SchemaFieldType.Text,
+        name: "title-1",
+        key: "title-1",
+        required: true,
+      });
 
-      // TODO: refactor this
-      await fieldEditorPage.fieldTypeButton(SchemaFieldType.GeometryObject).click();
-      await fieldEditorPage.displayNameInput.click();
-      await fieldEditorPage.displayNameInput.fill("location");
-      await fieldEditorPage.settingsDescriptionInput.click();
-      await fieldEditorPage.pointCheckbox.check();
-      await fieldEditorPage.okButton.click();
+      await fieldEditorPage.createField({
+        type: SchemaFieldType.GeometryObject,
+        name: "location",
+        supportedTypes: ["POINT"],
+      });
 
       await projectPage.contentMenuItem.click();
     });
@@ -480,23 +454,19 @@ test.describe("Import content", () => {
     projectPage,
   }) => {
     await test.step("Create field with unique key not in any template", async () => {
-      await fieldEditorPage.createField(
-        SchemaFieldType.Text,
-        "text-field-key-1",
-        "text-field-key-1",
-        "",
-        true,
-        false,
-      );
+      await fieldEditorPage.createField({
+        type: SchemaFieldType.Text,
+        name: "text-field-key-1",
+        key: "text-field-key-1",
+        required: true,
+      });
 
-      await fieldEditorPage.createField(
-        SchemaFieldType.Number,
-        "number-field-key-1",
-        "number-field-key-1",
-        "",
-        true,
-        false,
-      );
+      await fieldEditorPage.createField({
+        type: SchemaFieldType.Number,
+        name: "number-field-key-1",
+        key: "number-field-key-1",
+        required: true,
+      });
 
       await projectPage.contentMenuItem.click();
     });

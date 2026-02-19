@@ -1,9 +1,248 @@
+/* eslint-disable @typescript-eslint/consistent-type-definitions */
 // e2e/pages/field-editor.page.ts
-import { Field, SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { type Locator, expect, test } from "@reearth-cms/e2e/fixtures/test";
+import {
+  type EditorSupportedType,
+  type ObjectSupportedType,
+  SchemaFieldType,
+} from "@reearth-cms/components/molecules/Schema/types";
+import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { DATA_TEST_ID, Test } from "@reearth-cms/test/utils";
 
 import { ProjectScopedPage } from "./project-scoped.page";
+
+// ── Base interface ──
+interface CreateFieldBase {
+  type: SchemaFieldType;
+  name: string;
+  key?: string;
+  description?: string;
+  required?: boolean;
+  unique?: boolean;
+  multiple?: boolean;
+  isTitle?: boolean;
+}
+
+// ── Text-like bases (Text, TextArea, MarkdownText) ──
+interface CreateTextFieldBase extends CreateFieldBase {
+  maxLength?: number;
+  multiple?: false;
+  defaultValue?: string;
+}
+interface CreateTextFieldBaseMulti extends CreateFieldBase {
+  maxLength?: number;
+  multiple: true;
+  defaultValue?: string[];
+}
+
+// ── Number-like bases (Integer, Number) ──
+interface CreateNumberFieldBase extends CreateFieldBase {
+  min?: number;
+  max?: number;
+  multiple?: false;
+  defaultValue?: string;
+}
+interface CreateNumberFieldBaseMulti extends CreateFieldBase {
+  min?: number;
+  max?: number;
+  multiple: true;
+  defaultValue?: string[];
+}
+
+// ── Individual types ──
+// Text
+interface CreateTextField extends CreateTextFieldBase {
+  type: typeof SchemaFieldType.Text;
+}
+interface CreateTextFieldMulti extends CreateTextFieldBaseMulti {
+  type: typeof SchemaFieldType.Text;
+}
+// TextArea
+interface CreateTextAreaField extends CreateTextFieldBase {
+  type: typeof SchemaFieldType.TextArea;
+}
+interface CreateTextAreaFieldMulti extends CreateTextFieldBaseMulti {
+  type: typeof SchemaFieldType.TextArea;
+}
+// MarkdownText
+interface CreateMarkdownTextField extends CreateTextFieldBase {
+  type: typeof SchemaFieldType.MarkdownText;
+}
+interface CreateMarkdownTextFieldMulti extends CreateTextFieldBaseMulti {
+  type: typeof SchemaFieldType.MarkdownText;
+}
+// URL
+interface CreateURLField extends CreateFieldBase {
+  type: typeof SchemaFieldType.URL;
+  multiple?: false;
+  defaultValue?: string;
+}
+interface CreateURLFieldMulti extends CreateFieldBase {
+  type: typeof SchemaFieldType.URL;
+  multiple: true;
+  defaultValue?: string[];
+}
+// Asset
+interface CreateAssetField extends CreateFieldBase {
+  type: typeof SchemaFieldType.Asset;
+  multiple?: false;
+  defaultValue?: string;
+}
+interface CreateAssetFieldMulti extends CreateFieldBase {
+  type: typeof SchemaFieldType.Asset;
+  multiple: true;
+  defaultValue?: string[];
+}
+// Integer
+interface CreateIntegerField extends CreateNumberFieldBase {
+  type: typeof SchemaFieldType.Integer;
+}
+interface CreateIntegerFieldMulti extends CreateNumberFieldBaseMulti {
+  type: typeof SchemaFieldType.Integer;
+}
+// Number
+interface CreateNumberField extends CreateNumberFieldBase {
+  type: typeof SchemaFieldType.Number;
+}
+interface CreateNumberFieldMulti extends CreateNumberFieldBaseMulti {
+  type: typeof SchemaFieldType.Number;
+}
+// Bool
+interface CreateBoolField extends CreateFieldBase {
+  type: typeof SchemaFieldType.Bool;
+  multiple?: false;
+  defaultValue?: boolean;
+}
+interface CreateBoolFieldMulti extends CreateFieldBase {
+  type: typeof SchemaFieldType.Bool;
+  multiple: true;
+  defaultValue?: boolean[];
+}
+// Checkbox
+interface CreateCheckboxField extends CreateFieldBase {
+  type: typeof SchemaFieldType.Checkbox;
+  multiple?: false;
+  defaultValue?: boolean;
+}
+interface CreateCheckboxFieldMulti extends CreateFieldBase {
+  type: typeof SchemaFieldType.Checkbox;
+  multiple: true;
+  defaultValue?: boolean[];
+}
+// Date
+interface CreateDateField extends CreateFieldBase {
+  type: typeof SchemaFieldType.Date;
+  multiple?: false;
+  defaultValue?: string;
+}
+interface CreateDateFieldMulti extends CreateFieldBase {
+  type: typeof SchemaFieldType.Date;
+  multiple: true;
+  defaultValue?: string[];
+}
+// Select
+interface CreateSelectField extends CreateFieldBase {
+  type: typeof SchemaFieldType.Select;
+  values: string[];
+  multiple?: false;
+  defaultValue?: string;
+}
+interface CreateSelectFieldMulti extends CreateFieldBase {
+  type: typeof SchemaFieldType.Select;
+  values: string[];
+  multiple: true;
+  defaultValue?: string[];
+}
+// Tag
+interface CreateTagField extends CreateFieldBase {
+  type: typeof SchemaFieldType.Tag;
+  tags?: string[];
+  multiple?: false;
+  defaultValue?: string;
+}
+interface CreateTagFieldMulti extends CreateFieldBase {
+  type: typeof SchemaFieldType.Tag;
+  tags?: string[];
+  multiple: true;
+  defaultValue?: string[];
+}
+// GeometryObject
+interface CreateGeometryObjectField extends CreateFieldBase {
+  type: typeof SchemaFieldType.GeometryObject;
+  supportedTypes?: ObjectSupportedType[];
+  multiple?: false;
+  defaultValue?: string;
+}
+interface CreateGeometryObjectFieldMulti extends CreateFieldBase {
+  type: typeof SchemaFieldType.GeometryObject;
+  supportedTypes?: ObjectSupportedType[];
+  multiple: true;
+  defaultValue?: string[];
+}
+// GeometryEditor
+interface CreateGeometryEditorField extends CreateFieldBase {
+  type: typeof SchemaFieldType.GeometryEditor;
+  supportedTypes?: EditorSupportedType[];
+  multiple?: false;
+  defaultValue?: string;
+}
+interface CreateGeometryEditorFieldMulti extends CreateFieldBase {
+  type: typeof SchemaFieldType.GeometryEditor;
+  supportedTypes?: EditorSupportedType[];
+  multiple: true;
+  defaultValue?: string[];
+}
+
+// ── Unions ──
+type CreateFieldOptionsSingle =
+  | CreateTextField
+  | CreateTextAreaField
+  | CreateMarkdownTextField
+  | CreateURLField
+  | CreateAssetField
+  | CreateIntegerField
+  | CreateNumberField
+  | CreateBoolField
+  | CreateCheckboxField
+  | CreateDateField
+  | CreateSelectField
+  | CreateTagField
+  | CreateGeometryObjectField
+  | CreateGeometryEditorField;
+
+type CreateFieldOptionsMulti =
+  | CreateTextFieldMulti
+  | CreateTextAreaFieldMulti
+  | CreateMarkdownTextFieldMulti
+  | CreateURLFieldMulti
+  | CreateAssetFieldMulti
+  | CreateIntegerFieldMulti
+  | CreateNumberFieldMulti
+  | CreateBoolFieldMulti
+  | CreateCheckboxFieldMulti
+  | CreateDateFieldMulti
+  | CreateSelectFieldMulti
+  | CreateTagFieldMulti
+  | CreateGeometryObjectFieldMulti
+  | CreateGeometryEditorFieldMulti;
+
+export type CreateFieldOptions = CreateFieldOptionsSingle | CreateFieldOptionsMulti;
+
+// ── Reference & Group ──
+export interface CreateReferenceFieldOptions {
+  modelName: string;
+  name: string;
+  key?: string;
+  description?: string;
+  required?: boolean;
+  unique?: boolean;
+}
+
+export interface CreateGroupFieldOptions {
+  groupName: string;
+  name: string;
+  key?: string;
+  description?: string;
+}
 
 export class FieldEditorPage extends ProjectScopedPage {
   // Field form elements
@@ -467,112 +706,189 @@ export class FieldEditorPage extends ProjectScopedPage {
     return this.getByRole("button").nth(3);
   }
 
-  async createField(
-    fieldType: SchemaFieldType,
-    displayName: string,
-    key?: string,
-    description?: string,
-    required?: boolean,
-    unique?: boolean,
-  ): Promise<void> {
-    await this.fieldTypeButton(fieldType).click();
-    await this.displayNameInput.fill(displayName);
-    await this.settingsKeyInput.fill(key || displayName);
+  async createField(options: CreateFieldOptions): Promise<void> {
+    // Select field type
+    await this.fieldTypeButton(options.type).click();
 
-    if (description) await this.settingsDescriptionInput.fill(description);
-
-    if (required || unique) {
-      await this.validationTab.click();
-
-      if (required) await this.requiredFieldCheckbox.check();
-      if (unique) await this.uniqueFieldCheckbox.check();
+    // Fill basic settings
+    await this.displayNameInput.fill(options.name);
+    if (options.key !== undefined) {
+      await this.settingsKeyInput.fill(options.key);
+    }
+    if (options.description !== undefined) {
+      await this.settingsDescriptionInput.fill(options.description);
     }
 
+    // Field options
+    if (options.multiple) {
+      await this.supportMultipleValuesCheckbox.check();
+    }
+    if (options.isTitle) {
+      await this.useAsTitleCheckbox.check();
+    }
+
+    // Type-specific settings on Settings tab
+    if (
+      options.type === SchemaFieldType.GeometryObject &&
+      "supportedTypes" in options &&
+      options.supportedTypes
+    ) {
+      for (const st of options.supportedTypes) {
+        await this.getByLabel(this.objectSupportedTypeLabel(st), { exact: true }).check();
+      }
+    }
+    if (
+      options.type === SchemaFieldType.GeometryEditor &&
+      "supportedTypes" in options &&
+      options.supportedTypes
+    ) {
+      for (const st of options.supportedTypes) {
+        await this.getByLabel(this.editorSupportedTypeLabel(st), { exact: true }).check();
+      }
+    }
+    if (options.type === SchemaFieldType.Select && "values" in options) {
+      for (let i = 0; i < options.values.length; i++) {
+        await this.plusNewButton.click();
+        await this.valuesInput.nth(i).fill(options.values[i]);
+      }
+    }
+
+    // Validation tab
+    const needsValidation =
+      options.required ||
+      options.unique ||
+      ("maxLength" in options && options.maxLength !== undefined) ||
+      ("min" in options && options.min !== undefined) ||
+      ("max" in options && options.max !== undefined);
+    if (needsValidation) {
+      await this.validationTab.click();
+      if (options.required) await this.requiredFieldCheckbox.check();
+      if (options.unique) await this.uniqueFieldCheckbox.check();
+      if ("maxLength" in options && options.maxLength !== undefined) {
+        await this.maxLengthInput.fill(options.maxLength.toString());
+      }
+      if ("min" in options && options.min !== undefined) {
+        await this.minValueInput.fill(options.min.toString());
+      }
+      if ("max" in options && options.max !== undefined) {
+        await this.maxValueInput.fill(options.max.toString());
+      }
+    }
+
+    // Default value tab
+    if ("defaultValue" in options && options.defaultValue !== undefined) {
+      await this.defaultValueTab.click();
+      await this.fillDefaultValue(options);
+    }
+
+    // Submit
     await this.okButton.click();
     await this.closeNotification();
   }
 
-  async createField2(fieldSetup: Field): Promise<void> {
-    await test.step("select field from field list", async () => {
-      const fieldTypeButton = this.fieldTypeButton(fieldSetup.type);
-      await expect(fieldTypeButton).toBeVisible();
-      await fieldTypeButton.click();
-    });
+  async createReferenceField(options: CreateReferenceFieldOptions): Promise<void> {
+    // Select Reference field type
+    await this.fieldTypeButton(SchemaFieldType.Reference).click();
 
-    await test.step("fill in display name", async () => {
-      await expect(this.displayNameInput).toBeInViewport();
-      await this.displayNameInput.fill(fieldSetup.title);
-    });
+    // Select model to reference
+    await this.selectModelToReferenceLabel.click();
+    await this.modelOption(options.modelName).click();
 
-    await test.step("fill in field key", async () => {
-      await expect(this.settingsKeyInput).toBeVisible();
-      await this.settingsKeyInput.fill(fieldSetup.key);
-    });
+    // One-way reference (default)
+    await this.nextButton.click();
 
-    await test.step("fill in field description", async () => {
-      await expect(this.descriptionInput).toBeVisible();
-      await this.descriptionInput.fill(fieldSetup.description);
-    });
+    // Fill field settings
+    await this.displayNameInput.fill(options.name);
+    if (options.key !== undefined) {
+      // Reference wizard uses a different key input than the regular field modal
+      await this.getByLabel("Settings").locator("#key").fill(options.key);
+    }
+    if (options.description !== undefined) {
+      await this.descriptionInput.fill(options.description);
+    }
 
-    await test.step("fill in field multiple", async () => {
-      await expect(this.supportMultipleValuesCheckbox).toBeVisible();
-      await this.supportMultipleValuesCheckbox.check();
-    });
+    // Validation
+    if (options.required || options.unique) {
+      await this.validationTab.click();
+      if (options.required) await this.makeFieldRequiredCheckbox.check();
+      if (options.unique) await this.setFieldAsUniqueCheckbox.check();
+    }
 
-    await test.step("fill in field isTitle", async () => {
-      await expect(this.useAsTitleCheckbox).toBeVisible();
-      await this.useAsTitleCheckbox.check();
-    });
+    // Confirm
+    await this.confirmButton.click();
+    await this.closeNotification();
+  }
 
-    await expect(this.validationTab).toBeVisible();
-    await this.validationTab.click();
+  async createGroupField(options: CreateGroupFieldOptions): Promise<void> {
+    // Select Group field type
+    await this.fieldTypeButton(SchemaFieldType.Group).click();
 
-    await test.step("fill in maximum length", async () => {
-      test.skip(
-        !["Text", "TextArea", "MarkdownText"].includes(fieldSetup.type),
-        "skip for non text fields",
-      );
+    // Fill basic settings
+    await this.displayNameInput.fill(options.name);
+    if (options.key !== undefined) {
+      await this.settingsKeyInput.fill(options.key);
+    }
+    if (options.description !== undefined) {
+      await this.settingsDescriptionInput.fill(options.description);
+    }
 
-      test.skip(!fieldSetup.typeProperty?.maxLength, "no maxLength from fieldSetup");
-      if (!fieldSetup.typeProperty?.maxLength) return;
+    // Select group
+    await this.groupSelectTrigger.click();
+    await this.getByText(options.groupName).click();
 
-      await expect(this.maxLengthInput).toBeVisible();
-      await this.maxLengthInput.fill(fieldSetup.typeProperty.maxLength.toString());
-    });
-
-    // await test.step("fill in min value", async () => {
-    //   test.skip(!["Integer", "Number"].includes(fieldSetup.type), "skip for non number fields");
-
-    //   test.skip(!fieldSetup.typeProperty?.min, "no min from fieldSetup");
-    //   if (!fieldSetup.typeProperty?.maxLength) return;
-
-    //   await expect(this.maxLengthInput).toBeVisible();
-    //   await this.maxLengthInput.fill(fieldSetup.typeProperty.maxLength.toString());
-    // });
-
-    await test.step("fill in required", async () => {
-      test.skip(!fieldSetup.required, "skip for non required");
-
-      await expect(this.requiredFieldCheckbox).toBeVisible();
-      await this.requiredFieldCheckbox.check();
-    });
-
-    await test.step("fill in unique", async () => {
-      test.skip(!fieldSetup.unique, "skip for non unique");
-
-      await expect(this.uniqueFieldCheckbox).toBeVisible();
-      await this.uniqueFieldCheckbox.click();
-    });
-
-    await expect(this.defaultValueTab).toBeVisible();
-    await this.defaultValueTab.click();
-
-    await test.step("fill in defaultValue", async () => {
-      test.skip(!fieldSetup.typeProperty?.defaultValue, "skip for non default value");
-    });
-
-    await expect(this.okButton).toBeVisible();
+    // Submit
     await this.okButton.click();
+    await this.closeNotification();
+  }
+
+  private async fillDefaultValue(options: CreateFieldOptions): Promise<void> {
+    if (!("defaultValue" in options) || options.defaultValue === undefined) return;
+
+    const { type, defaultValue } = options;
+
+    switch (type) {
+      case SchemaFieldType.Bool:
+        if (defaultValue === true) await this.setDefaultValueSwitch.click();
+        break;
+      case SchemaFieldType.Checkbox:
+        if (defaultValue === true) await this.setDefaultValueCheckbox.click();
+        break;
+      case SchemaFieldType.Date:
+        await this.selectDatePlaceholder.fill(defaultValue as string);
+        await this.selectDatePlaceholder.press("Enter");
+        break;
+      case SchemaFieldType.Select:
+        await this.setDefaultValueInput.click();
+        await this.optionDiv(defaultValue as string).click();
+        break;
+      default:
+        // Text, TextArea, MarkdownText, URL, Integer, Number
+        await this.setDefaultValueInput.fill(defaultValue as string);
+        break;
+    }
+  }
+
+  private objectSupportedTypeLabel(type: ObjectSupportedType): string {
+    const labels: Record<ObjectSupportedType, string> = {
+      POINT: "Point",
+      MULTIPOINT: "Multi Point",
+      LINESTRING: "Line String",
+      MULTILINESTRING: "Multi Line String",
+      POLYGON: "Polygon",
+      MULTIPOLYGON: "Multi Polygon",
+      GEOMETRYCOLLECTION: "Geometry Collection",
+    };
+    return labels[type];
+  }
+
+  private editorSupportedTypeLabel(type: EditorSupportedType): string {
+    const labels: Record<EditorSupportedType, string> = {
+      POINT: "Point",
+      LINESTRING: "Line String",
+      POLYGON: "Polygon",
+      ANY: "Any",
+    };
+    return labels[type];
   }
 
   async deleteField(): Promise<void> {
