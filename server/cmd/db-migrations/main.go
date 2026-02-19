@@ -15,6 +15,7 @@ var commands = map[string]command{
 	"ref-field-schema":   RefFieldSchema,
 	"item-migration":     ItemMigration,
 	"project-visibility": ProjectVisibility,
+	"text-normalization": TextNormalizationMigration,
 }
 
 func main() {
@@ -55,7 +56,7 @@ func main() {
 	}
 
 	// exec command
-	fmt.Printf("command: '%s' ", *cmd)
+	fmt.Printf("command: '%s' \n", *cmd)
 	ctx := context.Background()
 	if err := command(ctx, dbURL, dbName, *wet); err != nil {
 		fmt.Printf("faild: %s.\n", err)

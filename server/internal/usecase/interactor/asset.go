@@ -23,6 +23,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearth-cms/server/pkg/types"
+	"github.com/reearth/reearth-cms/server/pkg/utils"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
@@ -392,7 +393,7 @@ func (i *Asset) Create(ctx context.Context, inp interfaces.CreateAssetParam, op 
 			ab := asset.New().
 				NewID().
 				Project(inp.ProjectID).
-				FileName(path.Base(file.Name)).
+				FileName(utils.NormalizeText(path.Base(file.Name))).
 				Size(uint64(file.Size)).
 				Type(asset.DetectPreviewType(file)).
 				UUID(uuid).

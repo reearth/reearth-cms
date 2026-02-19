@@ -9,6 +9,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/asset"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/utils"
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -95,8 +96,9 @@ func (r *Asset) Search(ctx context.Context, pID id.ProjectID, filter repo.AssetF
 	}
 
 	if filter.Keyword != nil && *filter.Keyword != "" {
+		normalizedKeyword := utils.NormalizeText(*filter.Keyword)
 		filters["filename"] = bson.M{
-			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*filter.Keyword)), Options: "i"},
+			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(normalizedKeyword)), Options: "i"},
 		}
 	}
 
