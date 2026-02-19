@@ -4,6 +4,7 @@ import ReactDragListView from "react-drag-listview";
 import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { Resource } from "@reearth-cms/components/molecules/Workspace/types";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 export type Props = {
   resources: Resource[];
@@ -35,26 +36,40 @@ const Cards: React.FC<Props> = ({
         {resources.map((resource, index) => {
           return (
             <StyledCard
+              data-testid={DATA_TEST_ID.SettingsCard__Wrapper}
               actions={[
-                <Icon
-                  icon="delete"
-                  key="delete"
-                  onClick={hasUpdateRight ? () => onDelete(isTile, index) : undefined}
-                />,
-                <Icon
-                  icon="edit"
-                  key="edit"
-                  onClick={hasUpdateRight ? () => onModalOpen(index) : undefined}
-                />,
+                <span data-testid={DATA_TEST_ID.SettingsCard__DeleteAction} key="delete">
+                  <Icon
+                    icon="delete"
+                    onClick={hasUpdateRight ? () => onDelete(isTile, index) : undefined}
+                  />
+                </span>,
+                <span data-testid={DATA_TEST_ID.SettingsCard__EditAction} key="edit">
+                  <Icon
+                    icon="edit"
+                    onClick={hasUpdateRight ? () => onModalOpen(index) : undefined}
+                  />
+                </span>,
               ]}
               key={resource.id}
               hasUpdateRight={hasUpdateRight}>
               <TitleWrapper>
                 <StyledMeta
-                  avatar={resource.props?.image ? <img src={resource.props?.image} /> : null}
+                  avatar={
+                    resource.props?.image ? (
+                      <img
+                        data-testid={DATA_TEST_ID.SettingsCard__AvatarImage}
+                        src={resource.props?.image}
+                      />
+                    ) : null
+                  }
                   title={resource.props?.name ? resource.props.name : resource.type}
                 />
-                {hasUpdateRight && <DragIcon icon="menu" className="grabbable" />}
+                {hasUpdateRight && (
+                  <span data-testid={DATA_TEST_ID.SettingsCard__DragHandle}>
+                    <DragIcon icon="menu" className="grabbable" />
+                  </span>
+                )}
               </TitleWrapper>
             </StyledCard>
           );

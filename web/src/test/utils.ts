@@ -409,4 +409,17 @@ export enum DATA_TEST_ID {
 
   // ContentImportModal
   ContentImportModal__Dragger = "ContentImportModal__Dragger",
+
+  // SettingsCard
+  SettingsCard__Wrapper = "SettingsCard__Wrapper",
+  SettingsCard__AvatarImage = "SettingsCard__AvatarImage",
+  SettingsCard__DragHandle = "SettingsCard__DragHandle",
+  SettingsCard__EditAction = "SettingsCard__EditAction",
+  SettingsCard__DeleteAction = "SettingsCard__DeleteAction",
+
+  // IntegrationSettingsModal
+  IntegrationSettingsModal__RoleSelect = "IntegrationSettingsModal__RoleSelect",
+
+  // ProjectCard
+  ProjectCard__Wrapper = "ProjectCard__Wrapper",
 }

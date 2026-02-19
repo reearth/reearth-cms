@@ -120,9 +120,7 @@ export class IntegrationsPage extends SettingsScopedPage {
   }
 
   get readerRoleOption(): Locator {
-    return this.locator("div")
-      .filter({ hasText: /^Reader$/ })
-      .nth(4);
+    return this.getByTitle("Reader").last();
   }
 
   get writerRoleOption(): Locator {

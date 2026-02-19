@@ -1,5 +1,6 @@
 // e2e/pages/settings.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { SettingsScopedPage } from "./settings-scoped.page";
 
@@ -66,21 +67,21 @@ export class SettingsPage extends SettingsScopedPage {
 
   // Card elements
   cardByIndex(index: number): Locator {
-    return this.locator(".ant-card").nth(index);
+    return this.getByTestId(DATA_TEST_ID.SettingsCard__Wrapper).nth(index);
   }
   get cardMetaAvatarImage(): Locator {
-    return this.locator(".ant-card-body .ant-card-meta-avatar > img");
+    return this.getByTestId(DATA_TEST_ID.SettingsCard__AvatarImage);
   }
   grabbableInCard(cardIndex: number): Locator {
-    return this.cardByIndex(cardIndex).locator(".grabbable");
+    return this.getByTestId(DATA_TEST_ID.SettingsCard__DragHandle).nth(cardIndex);
   }
 
   // Action buttons in cards
   get editCardButton(): Locator {
-    return this.locator("div:last-child > .ant-card-actions > li:nth-child(2) > span > .anticon");
+    return this.getByTestId(DATA_TEST_ID.SettingsCard__EditAction).last();
   }
   get deleteCardButton(): Locator {
-    return this.locator("div:last-child > .ant-card-actions > li:nth-child(1) > span > .anticon");
+    return this.getByTestId(DATA_TEST_ID.SettingsCard__DeleteAction).last();
   }
   get editIconButton(): Locator {
     return this.getByLabel("edit").locator("svg");

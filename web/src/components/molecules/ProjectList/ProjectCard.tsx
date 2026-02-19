@@ -6,6 +6,7 @@ import Tag from "@reearth-cms/components/atoms/Tag";
 import { ProjectListItem } from "@reearth-cms/components/molecules/Workspace/types";
 import { ProjectVisibility } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   project: ProjectListItem;
@@ -17,7 +18,7 @@ const ProjectCard: React.FC<Props> = ({ project, onProjectNavigation }) => {
   const { Meta } = Card;
 
   return (
-    <CardWrapper key={project.id}>
+    <CardWrapper key={project.id} data-testid={DATA_TEST_ID.ProjectCard__Wrapper}>
       <StyledProjectCard onClick={() => onProjectNavigation(project.id)}>
         <Meta
           title={

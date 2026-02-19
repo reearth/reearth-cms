@@ -60,7 +60,7 @@ export class WorkspacePage extends BasePage {
   }
 
   async allProjectCards(): Promise<Locator[]> {
-    return await this.locator(".ant-card").all();
+    return await this.getByTestId(DATA_TEST_ID.ProjectCard__Wrapper).all();
   }
 
   get projectSelectSort(): Locator {
@@ -93,7 +93,7 @@ export class WorkspacePage extends BasePage {
 
   // Dynamic project card locators
   projectCardByName(projectName: string): Locator {
-    return this.locator(".ant-card").filter({ hasText: projectName }).first();
+    return this.getByTestId(DATA_TEST_ID.ProjectCard__Wrapper).filter({ hasText: projectName }).first();
   }
   projectTextByName(projectName: string, exact = false): Locator {
     return this.getByText(projectName, { exact });
