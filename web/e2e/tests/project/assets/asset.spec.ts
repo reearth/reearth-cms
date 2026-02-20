@@ -136,7 +136,6 @@ test("Previewing png file on modal has succeeded", async ({ assetsPage, page }) 
   await test.step("Open fullscreen preview and verify image", async () => {
     await expect(assetsPage.fullscreenButton).toBeVisible();
     await assetsPage.fullscreenButton.click();
-    await page.waitForTimeout(300);
     await expect(assetsPage.imagePreview).toBeVisible();
   });
 

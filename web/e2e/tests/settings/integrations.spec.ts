@@ -33,7 +33,7 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage, 
 
   await test.step("Connect integration", async () => {
     await integrationsPage.integrationsMenuItem.click();
-    await page.waitForTimeout(300);
+
     await expect(integrationsPage.connectIntegrationButton).toBeVisible();
     await integrationsPage.connectIntegrationButton.click();
     await expect(integrationsPage.integrationTextById(id)).toBeVisible();
@@ -56,7 +56,7 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage, 
     await integrationsPage.searchInput.click();
     await integrationsPage.searchInput.fill(id);
     await integrationsPage.searchButton.click();
-    await page.waitForTimeout(300);
+
     await expect(integrationsPage.settingSvgButton).toBeVisible();
     await integrationsPage.settingSvgButton.click();
     await expect(integrationsPage.readerRoleOption).toBeVisible();
@@ -72,12 +72,12 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage, 
     await integrationsPage.searchInput.click();
     await integrationsPage.searchInput.fill("no integration");
     await integrationsPage.searchButton.click();
-    await page.waitForTimeout(300);
+
     await expect(integrationsPage.integrationCellById(id)).toBeHidden();
     await integrationsPage.searchInput.click();
     await integrationsPage.searchInput.fill(id);
     await integrationsPage.searchButton.click();
-    await page.waitForTimeout(300);
+
     await expect(integrationsPage.integrationCellById(id)).toBeVisible();
   });
 

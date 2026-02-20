@@ -113,15 +113,12 @@ test.describe("Project List", () => {
   test.beforeEach(async ({ projectPage, page }) => {
     for await (const projectName of PROJECT_ID_LIST) {
       await projectPage.createProject(projectName);
-      await page.waitForTimeout(300);
     }
   });
 
   test("Project list pagination", async ({ workspacePage, page }) => {
     await test.step("Check first page", async () => {
       await workspacePage.clickPagination(1);
-      await page.waitForTimeout(300);
-
       for await (const projectName of FIRST_PAGE_PROJECTS) {
         const projectCard = workspacePage.projectCardByName(projectName);
         await expect(projectCard).toBeVisible();
@@ -130,8 +127,6 @@ test.describe("Project List", () => {
 
     await test.step("Check second page", async () => {
       await workspacePage.clickPagination(2);
-      await page.waitForTimeout(300);
-
       for await (const projectName of SECOND_PAGE_PROJECTS) {
         const projectCard = workspacePage.projectCardByName(projectName);
         await expect(projectCard).toBeVisible();
@@ -140,8 +135,6 @@ test.describe("Project List", () => {
 
     await test.step("Check jump page", async () => {
       await workspacePage.jumpToPage(2);
-      await page.waitForTimeout(300);
-
       for await (const projectName of SECOND_PAGE_PROJECTS) {
         const projectCard = workspacePage.projectCardByName(projectName);
         await expect(projectCard).toBeVisible();
@@ -266,15 +259,14 @@ test.describe("Project List", () => {
   test.afterEach(async ({ workspacePage, projectPage, page }) => {
     for await (const projectName of PROJECT_ID_LIST) {
       await workspacePage.goto("/", { waitUntil: "domcontentloaded" });
-      await page.waitForTimeout(300);
       await workspacePage.searchProjectsInput.fill(projectName);
       await workspacePage.searchButton.click();
+      // Wait for search results to settle before non-retrying isVisible check
       await page.waitForTimeout(300);
       const projectCard = workspacePage.projectCardByName(projectName);
       const isVisible = await projectCard.isVisible().catch(() => false);
       if (isVisible) {
         await projectPage.gotoProject(projectName);
-        await page.waitForTimeout(300);
         await projectPage.deleteProject();
       }
     }

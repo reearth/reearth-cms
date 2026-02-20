@@ -103,7 +103,6 @@ test("Previewing JSON file from content page into new tab succeeded", async ({
       key: "asset1",
       description: "asset1 description",
     });
-    await page.waitForTimeout(300);
     await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("asset1#asset1");
   });
 

@@ -195,7 +195,7 @@ test("Group field editing has succeeded", async ({
   await test.step("Add group field to model and create item", async () => {
     await expect(schemaPage.modelByText("e2e model name")).toBeVisible();
     await schemaPage.modelByText("e2e model name").click();
-    await page.waitForTimeout(300);
+
     await expect(schemaPage.lastTextByExact("Group")).toBeVisible();
     await schemaPage.lastTextByExact("Group").click();
     await expect(fieldEditorPage.displayNameInput).toBeVisible();
@@ -207,7 +207,7 @@ test("Group field editing has succeeded", async ({
     await fieldEditorPage.settingsDescriptionInput.fill("group1 description");
     await expect(fieldEditorPage.groupSelectTrigger).toBeVisible();
     await fieldEditorPage.groupSelectTrigger.click();
-    await page.waitForTimeout(300);
+
     await expect(schemaPage.groupNameByText(`${groupName} #${groupKey}`)).toBeVisible();
     await schemaPage.groupNameByText(`${groupName} #${groupKey}`).click();
     await expect(fieldEditorPage.getByLabel("Settings")).toContainText(`${groupName} #${groupKey}`);
@@ -224,11 +224,11 @@ test("Group field editing has succeeded", async ({
     await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("group1#group1");
     await expect(contentPage.contentText).toBeVisible();
     await contentPage.contentText.click();
-    await page.waitForTimeout(300);
+
     await expect(contentPage.tableHead).toContainText("group1");
     await expect(contentPage.newItemButton).toBeVisible();
     await contentPage.newItemButton.click();
-    await page.waitForTimeout(300);
+
     await expect(contentPage.firstLabel).toContainText("group1");
     await expect(contentPage.mainRole).toContainText("group1 description");
 
@@ -243,10 +243,10 @@ test("Group field editing has succeeded", async ({
   await test.step("Enable multiple values for group field", async () => {
     await expect(schemaPage.schemaText).toBeVisible();
     await schemaPage.schemaText.click();
-    await page.waitForTimeout(300);
+
     await expect(schemaPage.fieldEditButton).toBeVisible();
     await schemaPage.fieldEditButton.click();
-    await page.waitForTimeout(300);
+
     await expect(fieldEditorPage.displayNameInput).toBeVisible();
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.fill("new group1");
@@ -265,18 +265,18 @@ test("Group field editing has succeeded", async ({
   await test.step("Verify multiple values support and add second group instance", async () => {
     await expect(contentPage.contentText).toBeVisible();
     await contentPage.contentText.click();
-    await page.waitForTimeout(300);
+
     await expect(contentPage.tableHead).toContainText("new group1");
     await expect(contentPage.editButton).toBeVisible();
     await contentPage.editButton.click();
-    await page.waitForTimeout(300);
+
     await expect(contentPage.mainRole).toContainText("new group1");
     await expect(contentPage.mainRole).toContainText("new group1 (1)");
     await expect(contentPage.mainRole).toContainText("new group1 description");
     await expect(contentPage.fieldInput("text1")).toHaveValue("text1");
     await expect(fieldEditorPage.plusNewButton).toBeVisible();
     await fieldEditorPage.plusNewButton.click();
-    await page.waitForTimeout(300);
+
     await expect(contentPage.mainRole).toContainText("new group1 (2)");
     await contentPage
       .divFilterByText(/^0text1 description$/)

@@ -248,7 +248,6 @@ test("Switch between views preserves individual view settings", async ({
     await contentPage.filterValueInput.click();
     await contentPage.filterValueInput.fill("text");
     await contentPage.confirmButton.click();
-    await page.waitForTimeout(300);
     await contentPage.settingsButton.click();
     await contentPage.statusCheckbox.click();
   });
@@ -359,7 +358,6 @@ test("Delete view and switch to remaining view", async ({
     await contentPage.filterValueInput.click();
     await contentPage.filterValueInput.fill("text");
     await contentPage.confirmButton.click();
-    await page.waitForTimeout(300);
     await contentPage.settingsButton.click();
     await contentPage.statusCheckbox.click();
   });
