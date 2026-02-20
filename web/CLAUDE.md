@@ -358,6 +358,32 @@ yarn playwright test --grep-invert @redundant
 
 The test is kept in the codebase and still runs in the full suite by default. This allows batch review and removal later.
 
+## Parallel-Safety Rules
+
+### Timing Strategy
+
+| Pattern | Action | Why |
+| --- | --- | --- |
+| `waitForTimeout(300)` as last statement before `});` | Remove | No-op; nothing follows that needs the delay |
+| `waitForTimeout(300)` after `closeNotification()` | Remove | `closeNotification()` already waits for hidden + `domcontentloaded` |
+| `waitForTimeout(300)` before auto-retry assertion (`toHaveText`, `toBeVisible`, etc.) | Remove | Playwright auto-retries; the wait adds latency with no benefit |
+| `waitForTimeout(300)` before `.click()` on potentially unstable element | Replace with `el.waitFor()` | Event-driven wait is deterministic |
+| `waitForTimeout(*)` after drag-drop with no completion event | Keep with `// drag-drop settle` comment | No reliable signal exists |
+| `waitForTimeout(*)` in `viewer.helper.ts` (Cesium poll loop) | Keep | Intentional polling interval |
+
+### Test Data Isolation
+
+- `getId()` returns `${Date.now()}-${random}` — collision-safe across parallel workers
+- Every spec file must use `getId()` for project names, model names, workspace names
+- No hardcoded shared names (e.g. `"e2e workspace name"`) — use `getId()`-based variables
+- Each `test.describe` block gets its own unique names via `const xxxName = getId()` at the top
+
+### Notification Helper
+
+- `closeNotification()` must NOT use `.ant-notification-notice` CSS selectors
+- Use ARIA-scoped selectors: `getByRole("alert")` for the notification, `getByRole("button", { name: "Close" })` for the close button
+- Always assert notification type before closing (check-circle / close-circle)
+
 ## Rules Quick Reference
 
 - [ ] Each spec file uses ONE POM only (composition pattern)
@@ -373,6 +399,9 @@ The test is kept in the codebase and still runs in the full suite by default. Th
 - [ ] E2E tests import from `@reearth-cms/e2e/*`, never from `@reearth-cms/*` (except `test/utils` for DATA_TEST_ID)
 - [ ] `override` keyword on all overridden methods (enforced by `noImplicitOverride: true`)
 - [ ] Sealed methods use `protected readonly` arrow function pattern (non-overridable)
+- [ ] No `waitForTimeout(300)` as trailing statements or after `closeNotification()`
+- [ ] All test names use `getId()` — no hardcoded shared names across parallel workers
+- [ ] Notification helper uses ARIA selectors, not `.ant-notification-*` classes
 
 ## Notes
 
@@ -380,7 +409,7 @@ The test is kept in the codebase and still runs in the full suite by default. Th
 2. **BasePage getByX wrappers**: Keep during refactoring, deprecate in a later pass (removing would touch every POM).
 3. **LoginPage stays standalone**: It operates on external auth provider pages, no hierarchy needed.
 4. **Fixtures will be simplified**: Since Layer 2 provides setup/teardown, fixtures can remove `projectPage` from most tests. Each spec fixture maps 1:1 with the primary POM.
-5. **Notification helper**: `e2e/helpers/notification.helper.ts` uses `.ant-notification-notice` — lower priority, address after main refactoring.
+5. **Notification helper**: `e2e/helpers/notification.helper.ts` uses ARIA-scoped selectors (`getByRole("alert")`, `getByRole("button", { name: "Close" })`).
 6. **Circular composition**: Composition is one-directional. SchemaPage composes ContentPage, but ContentPage does NOT compose SchemaPage. If a content test needs schema setup, it uses inherited Layer 2 methods or its own `beforeEach`.
 
 ## Verification
