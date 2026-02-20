@@ -9,12 +9,8 @@ export async function closeNotification(page: Page, isSuccess = true) {
     timeout: 10000,
   });
 
-  // Find and click the close button
-  const closeButton = page
-    .locator(".ant-notification-notice")
-    .last()
-    .locator(".ant-notification-notice-close");
-
+  // Find and click the close button using ARIA-scoped selector
+  const closeButton = notification.getByRole("button", { name: "Close" });
   await closeButton.click();
 
   // Wait for the notification to be hidden

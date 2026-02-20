@@ -106,14 +106,15 @@ export abstract class ProjectScopedPage extends BasePage {
   public async deleteProject(): Promise<void> {
     // Dismiss any open modal by pressing Escape
     await this.keypress("Escape");
-    await this.page.waitForTimeout(300);
-
-    // Fallback: if Escape didn't work, click the modal's Close (X) button
     const dialog = this.getByRole("dialog");
-    if (await dialog.isVisible({ timeout: 300 }).catch(() => false)) {
-      const closeButton = dialog.getByRole("button", { name: "Close" });
-      await closeButton.click();
-      await this.page.waitForTimeout(300);
+    try {
+      await dialog.waitFor({ state: "hidden", timeout: 1000 });
+    } catch {
+      // Fallback: if Escape didn't work, click the modal's Cancel button
+      if (await dialog.isVisible({ timeout: 300 }).catch(() => false)) {
+        await this.cancelButton.click();
+        await dialog.waitFor({ state: "hidden", timeout: 2000 });
+      }
     }
 
     // Navigate to project settings via direct URL (resilient to sidebar state)
