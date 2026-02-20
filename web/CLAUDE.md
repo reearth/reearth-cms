@@ -127,17 +127,15 @@ test("Text field", async ({ schemaPage, fieldEditorPage, contentPage }) => {
 // text.spec.ts — uses only schemaPage
 test.beforeEach(async ({ schemaPage }) => {
   await schemaPage.goto("/", { waitUntil: "domcontentloaded" });
-  await schemaPage.createProject(projectName);   // inherited from Layer 2
-  await schemaPage.gotoProject(projectName);      // inherited from Layer 2
+  await schemaPage.createProject(projectName); // inherited from Layer 2
+  await schemaPage.gotoProject(projectName); // inherited from Layer 2
 });
 test.afterEach(async ({ schemaPage }) => {
-  await schemaPage.deleteProject();               // inherited from Layer 2
+  await schemaPage.deleteProject(); // inherited from Layer 2
 });
 test("Text field", async ({ schemaPage }) => {
   await schemaPage.createModelFromSidebar(modelName);
-  await schemaPage.createFieldAndVerifyInContent(
-    DATA_TEST_ID.FieldList__Text, "text1", "hello"
-  );
+  await schemaPage.createFieldAndVerifyInContent(DATA_TEST_ID.FieldList__Text, "text1", "hello");
 });
 ```
 

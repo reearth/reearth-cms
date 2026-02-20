@@ -302,7 +302,12 @@ const Schema: React.FC<Props> = ({
                 ]}
               />
               {selectedSchemaType === "model" && (
-                <StyledTabs data-testid={DATA_TEST_ID.Schema__FieldsTabs} activeKey={tab} items={items} onChange={handleTabChange} />
+                <StyledTabs
+                  data-testid={DATA_TEST_ID.Schema__FieldsTabs}
+                  activeKey={tab}
+                  items={items}
+                  onChange={handleTabChange}
+                />
               )}
               {selectedSchemaType === "group" && (
                 <GroupFieldsWrapper>

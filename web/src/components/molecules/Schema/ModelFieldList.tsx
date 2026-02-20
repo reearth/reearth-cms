@@ -170,7 +170,13 @@ const ModelFieldList: React.FC<Props> = ({
                 <List.Item.Meta
                   avatar={
                     <FieldThumbnail>
-                      {hasUpdateRight && <DragIcon icon="menu" className="grabbable" data-testid={DATA_TEST_ID.Schema__FieldDragHandle} />}
+                      {hasUpdateRight && (
+                        <DragIcon
+                          icon="menu"
+                          className="grabbable"
+                          data-testid={DATA_TEST_ID.Schema__FieldDragHandle}
+                        />
+                      )}
                       <StyledIcon
                         icon={fieldTypes[item.type].icon}
                         color={fieldTypes[item.type].color}

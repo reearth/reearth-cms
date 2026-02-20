@@ -30,7 +30,10 @@ const TagField: React.FC<Props> = ({ selectedTags, multiple }) => {
           ))}
         </StyledMultipleSelect>
       ) : (
-        <Select data-testid={DATA_TEST_ID.FieldModal__TagSelect} key={selectedTags?.length} allowClear>
+        <Select
+          data-testid={DATA_TEST_ID.FieldModal__TagSelect}
+          key={selectedTags?.length}
+          allowClear>
           {selectedTags?.map(tag => (
             <Select.Option key={tag.name} value={tag.name}>
               <TagWrapper>

@@ -47,7 +47,12 @@ const RequestEditor: React.FC<Props> = ({ hasCommentCreateRight, onCommentCreate
         />
       </TextAreaItem>
       <ButtonItem>
-        <Button data-testid={DATA_TEST_ID.RequestDetail__AddCommentButton} disabled={isDisabled} loading={submitting} onClick={handleSubmit} type="primary">
+        <Button
+          data-testid={DATA_TEST_ID.RequestDetail__AddCommentButton}
+          disabled={isDisabled}
+          loading={submitting}
+          onClick={handleSubmit}
+          type="primary">
           {t("Add Comment")}
         </Button>
       </ButtonItem>

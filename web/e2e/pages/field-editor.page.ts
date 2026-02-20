@@ -454,13 +454,8 @@ export class FieldEditorPage extends ProjectScopedPage {
   }
 
   // Field type selection
-  public fieldTypeButton(fileType: SchemaFieldType): Locator;
-  public fieldTypeButton(type: string): Locator;
-  public fieldTypeButton(fileType: SchemaFieldType | string): Locator {
-    if (Object.values(SchemaFieldType).includes(fileType as SchemaFieldType)) {
-      return this.getByTestId(Test.getDataTestIdFromSchemaFieldType(fileType as SchemaFieldType));
-    }
-    return this.locator("li").filter({ hasText: fileType }).locator("div").first();
+  public fieldTypeButton(fileType: SchemaFieldType): Locator {
+    return this.getByTestId(Test.getDataTestIdFromSchemaFieldType(fileType));
   }
 
   // Boolean field specific

@@ -43,9 +43,7 @@ const WorkspaceMenu: React.FC<Props> = ({
   const items: WorkspaceItemType[] = useMemo(() => {
     const res = [
       {
-        label: (
-          <span data-testid={DATA_TEST_ID.WorkspaceMenu__MemberItem}>{t("Member")}</span>
-        ),
+        label: <span data-testid={DATA_TEST_ID.WorkspaceMenu__MemberItem}>{t("Member")}</span>,
         key: "members",
         icon: <Icon icon="userGroupAdd" />,
         show: "notPersonal" as MenuShowType,
@@ -71,9 +69,7 @@ const WorkspaceMenu: React.FC<Props> = ({
         show: "personal" as MenuShowType,
       },
       {
-        label: (
-          <span data-testid={DATA_TEST_ID.WorkspaceMenu__SettingsItem}>{t("Settings")}</span>
-        ),
+        label: <span data-testid={DATA_TEST_ID.WorkspaceMenu__SettingsItem}>{t("Settings")}</span>,
         key: "settings",
         icon: <Icon icon="settings" />,
         show: "both" as MenuShowType,

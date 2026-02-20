@@ -16,11 +16,27 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
   const t = useT();
 
   const topItems: ItemType[] = [
-    { label: <span data-testid={DATA_TEST_ID.ProjectMenu__ModelsItem}>{t("Models")}</span>, key: "models", icon: <Icon icon="block" /> },
-    { label: <span data-testid={DATA_TEST_ID.ProjectMenu__SchemaItem}>{t("Schema")}</span>, key: "schema", icon: <Icon icon="unorderedList" /> },
-    { label: <span data-testid={DATA_TEST_ID.ProjectMenu__ContentItem}>{t("Content")}</span>, key: "content", icon: <Icon icon="table" /> },
+    {
+      label: <span data-testid={DATA_TEST_ID.ProjectMenu__ModelsItem}>{t("Models")}</span>,
+      key: "models",
+      icon: <Icon icon="block" />,
+    },
+    {
+      label: <span data-testid={DATA_TEST_ID.ProjectMenu__SchemaItem}>{t("Schema")}</span>,
+      key: "schema",
+      icon: <Icon icon="unorderedList" />,
+    },
+    {
+      label: <span data-testid={DATA_TEST_ID.ProjectMenu__ContentItem}>{t("Content")}</span>,
+      key: "content",
+      icon: <Icon icon="table" />,
+    },
     { label: t("Asset"), key: "asset", icon: <Icon icon="file" /> },
-    { label: <span data-testid={DATA_TEST_ID.ProjectMenu__RequestItem}>{t("Request")}</span>, key: "request", icon: <Icon icon="pullRequest" /> },
+    {
+      label: <span data-testid={DATA_TEST_ID.ProjectMenu__RequestItem}>{t("Request")}</span>,
+      key: "request",
+      icon: <Icon icon="pullRequest" />,
+    },
   ];
   const [selected, changeSelected] = useState([defaultSelectedKey ?? "models"]);
 
@@ -32,7 +48,9 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
 
   const items: ItemType[] = [
     {
-      label: <span data-testid={DATA_TEST_ID.ProjectMenu__AccessibilityItem}>{t("Accessibility")}</span>,
+      label: (
+        <span data-testid={DATA_TEST_ID.ProjectMenu__AccessibilityItem}>{t("Accessibility")}</span>
+      ),
       key: "accessibility",
       icon: <Icon icon="send" />,
     },

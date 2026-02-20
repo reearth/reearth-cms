@@ -276,18 +276,22 @@ The `LoginPage` class handles all authentication interactions, supporting **dual
 ```typescript
 export class LoginPage {
   // Custom login form elements
-  emailInput: Locator;      // getByPlaceholder("username/email")
-  passwordInput: Locator;   // getByPlaceholder("your password")
-  loginButton: Locator;     // getByText("LOG IN")
+  emailInput: Locator; // getByPlaceholder("username/email")
+  passwordInput: Locator; // getByPlaceholder("your password")
+  loginButton: Locator; // getByText("LOG IN")
 
   // Auth0 login form elements
-  auth0EmailInput: Locator;        // getByLabel("Email address")
-  auth0PasswordInput: Locator;     // getByLabel("Password")
-  auth0ContinueButton: Locator;    // getByRole("button", { name: "Continue" })
+  auth0EmailInput: Locator; // getByLabel("Email address")
+  auth0PasswordInput: Locator; // getByLabel("Password")
+  auth0ContinueButton: Locator; // getByRole("button", { name: "Continue" })
   auth0SkipPasskeyButton: Locator; // getByRole("button", { name: "Continue without passkeys" })
 
-  async login(email: string, password: string) { /* custom login flow */ }
-  async loginWithAuth0(email: string, password: string) { /* Auth0 login flow */ }
+  async login(email: string, password: string) {
+    /* custom login flow */
+  }
+  async loginWithAuth0(email: string, password: string) {
+    /* Auth0 login flow */
+  }
 }
 ```
 
@@ -303,14 +307,14 @@ export class LoginPage {
 
 1. **Use Page Objects for UI Interactions**
 
-    ```typescript
-    // ✅ Good
-    await schemaPage.createModel("My Model", "my-model");
+   ```typescript
+   // ✅ Good
+   await schemaPage.createModel("My Model", "my-model");
 
-    // ❌ Bad
-    await page.getByLabel("Model name").fill("My Model");
-    await page.getByRole("button", { name: "OK" }).click();
-    ```
+   // ❌ Bad
+   await page.getByLabel("Model name").fill("My Model");
+   await page.getByRole("button", { name: "OK" }).click();
+   ```
 
 2. **Keep Test Logic in Test Files**
    - Page objects handle "how" to interact with the UI
@@ -318,35 +322,35 @@ export class LoginPage {
 
 3. **Use Fixtures for Page Objects**
 
-    ```typescript
-    test("My test", async ({ schemaPage, contentPage }) => {
-      // Page objects are automatically available
-    });
-    ```
+   ```typescript
+   test("My test", async ({ schemaPage, contentPage }) => {
+     // Page objects are automatically available
+   });
+   ```
 
 4. **Generate Unique Test Data**
 
-    ```typescript
-    import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
+   ```typescript
+   import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-    const projectName = getId(); // Generates unique ID
-    await projectPage.createProject(projectName);
-    ```
+   const projectName = getId(); // Generates unique ID
+   await projectPage.createProject(projectName);
+   ```
 
 5. **Follow beforeEach/afterEach Pattern for Setup/Teardown**
 
-    ```typescript
-    test.beforeEach(async ({ projectPage }) => {
-      const projectName = getId();
+   ```typescript
+   test.beforeEach(async ({ projectPage }) => {
+     const projectName = getId();
 
-      await projectPage.createProject(projectName);
-      await projectPage.gotoProject(projectName);
-    });
+     await projectPage.createProject(projectName);
+     await projectPage.gotoProject(projectName);
+   });
 
-    test.afterEach(async ({ projectPage }) => {
-      await projectPage.deleteProject();
-    });
-    ```
+   test.afterEach(async ({ projectPage }) => {
+     await projectPage.deleteProject();
+   });
+   ```
 
 ## 🏗️ Adding New Tests
 
@@ -362,13 +366,13 @@ import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 export class MyFeaturePage extends BasePage {
   // Locators
   get myButton(): Locator {
-  return this.getByRole("button", { name: "My Button" });
+    return this.getByRole("button", { name: "My Button" });
   }
 
   // Actions
   async doSomething(): Promise<void> {
-  await this.myButton.click();
-  await this.closeNotification();
+    await this.myButton.click();
+    await this.closeNotification();
   }
 }
 ```

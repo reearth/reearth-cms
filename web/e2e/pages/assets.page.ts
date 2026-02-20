@@ -27,7 +27,9 @@ export class AssetsPage extends ProjectScopedPage {
     return this.getByTestId(DATA_TEST_ID.UploadModal__UrlInput);
   }
   public get fileInput(): Locator {
-    return this.getByTestId(DATA_TEST_ID.UploadModal__LocalTabDragger).locator("input[type='file']");
+    return this.getByTestId(DATA_TEST_ID.UploadModal__LocalTabDragger).locator(
+      "input[type='file']",
+    );
   }
   public get autoUnzipCheckbox(): Locator {
     return this.getByTestId(DATA_TEST_ID.UploadModal__AutoUnzipCheckbox);

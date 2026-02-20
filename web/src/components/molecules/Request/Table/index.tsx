@@ -86,7 +86,9 @@ const RequestListTable: React.FC<Props> = ({
         title: "",
         hideInSetting: true,
         render: (_, request) => (
-          <span data-testid={DATA_TEST_ID.RequestTable__EditIcon} onClick={() => onEdit(request.id)}>
+          <span
+            data-testid={DATA_TEST_ID.RequestTable__EditIcon}
+            onClick={() => onEdit(request.id)}>
             <Icon icon="edit" color={"#1890ff"} />
           </span>
         ),

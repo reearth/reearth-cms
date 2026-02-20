@@ -592,7 +592,11 @@ const ContentForm: React.FC<Props> = ({
     const menuItems = [
       {
         key: "addToRequest",
-        label: <span data-testid={DATA_TEST_ID.ContentForm__AddToRequestItem}>{t("Add to Request")}</span>,
+        label: (
+          <span data-testid={DATA_TEST_ID.ContentForm__AddToRequestItem}>
+            {t("Add to Request")}
+          </span>
+        ),
         onClick: onAddItemToRequestModalOpen,
         disabled: isInReview || item?.status === "PUBLIC" || !hasRequestUpdateRight,
       },
@@ -844,7 +848,13 @@ const ContentForm: React.FC<Props> = ({
             </Form>
           </TabPane>
           {versions.length && (
-            <TabPane tab={<span data-testid={DATA_TEST_ID.ContentForm__VersionHistoryTab}>{t("Version History")}</span>} key="history">
+            <TabPane
+              tab={
+                <span data-testid={DATA_TEST_ID.ContentForm__VersionHistoryTab}>
+                  {t("Version History")}
+                </span>
+              }
+              key="history">
               <TabContent>
                 <Versions
                   versions={versions}

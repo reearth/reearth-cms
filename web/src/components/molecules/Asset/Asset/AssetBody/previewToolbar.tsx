@@ -37,7 +37,12 @@ const PreviewToolbar: React.FC<Props> = ({
         </>
       )}
       {isFullScreenButtonVisible && (
-        <Button data-testid={DATA_TEST_ID.AssetDetail__FullscreenButton} type="link" icon={<Icon icon="fullscreen" />} onClick={onFullScreen} />
+        <Button
+          data-testid={DATA_TEST_ID.AssetDetail__FullscreenButton}
+          type="link"
+          icon={<Icon icon="fullscreen" />}
+          onClick={onFullScreen}
+        />
       )}
       <PreviewModal url={url} visible={isModalVisible} onCancel={onModalCancel} />
     </>

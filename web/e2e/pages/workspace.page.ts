@@ -93,7 +93,9 @@ export class WorkspacePage extends BasePage {
 
   // Dynamic project card locators
   public projectCardByName(projectName: string): Locator {
-    return this.getByTestId(DATA_TEST_ID.ProjectCard__Wrapper).filter({ hasText: projectName }).first();
+    return this.getByTestId(DATA_TEST_ID.ProjectCard__Wrapper)
+      .filter({ hasText: projectName })
+      .first();
   }
   public projectTextByName(projectName: string, exact = false): Locator {
     return this.getByText(projectName, { exact });

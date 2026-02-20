@@ -92,7 +92,10 @@ export abstract class BasePage {
     this.page = page;
   }
 
-  public async goto(url: string, options?: { waitUntil?: "domcontentloaded" | "load" | "networkidle" }) {
+  public async goto(
+    url: string,
+    options?: { waitUntil?: "domcontentloaded" | "load" | "networkidle" },
+  ) {
     await this.page.goto(url, options);
   }
 

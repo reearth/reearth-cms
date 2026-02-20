@@ -98,7 +98,9 @@ export class SchemaPage extends ProjectScopedPage {
 
   // Field list item
   public fieldEllipsisIcon(fieldText: string): Locator {
-    return this.locator("li").filter({ hasText: fieldText }).getByTestId(DATA_TEST_ID.Schema__FieldEllipsisButton);
+    return this.locator("li")
+      .filter({ hasText: fieldText })
+      .getByTestId(DATA_TEST_ID.Schema__FieldEllipsisButton);
   }
 
   // Group field specific methods

@@ -88,10 +88,14 @@ const UploadModal: React.FC<Props> = ({
         <h2>{t("Asset Uploader")}</h2>
       </div>
       <Tabs activeKey={uploadType} onChange={handleTabChange}>
-        <TabPane tab={<span data-testid={DATA_TEST_ID.UploadModal__LocalTab}>{t("Local")}</span>} key="local">
+        <TabPane
+          tab={<span data-testid={DATA_TEST_ID.UploadModal__LocalTab}>{t("Local")}</span>}
+          key="local">
           <LocalTab uploadProps={uploadProps} alertList={alertList} />
         </TabPane>
-        <TabPane tab={<span data-testid={DATA_TEST_ID.UploadModal__UrlTab}>{t("URL")}</span>} key="url">
+        <TabPane
+          tab={<span data-testid={DATA_TEST_ID.UploadModal__UrlTab}>{t("URL")}</span>}
+          key="url">
           <UrlTab uploadUrl={uploadUrl} setUploadUrl={setUploadUrl} />
         </TabPane>
       </Tabs>
