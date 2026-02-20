@@ -131,7 +131,9 @@ export class ContentPage extends ProjectScopedPage {
     return this.columnHeaderText.locator("div").locator(".anticon-caret-down");
   }
   public tableRow(index: number): Locator {
-    return this.getByTestId(DATA_TEST_ID.ContentTable__Wrapper).locator("tbody tr").nth(index);
+    return this.getByTestId(DATA_TEST_ID.ContentTable__Wrapper)
+      .locator("tbody tr:not([aria-hidden='true'])")
+      .nth(index);
   }
   public get statusColumnHeader(): Locator {
     return this.getByRole("columnheader", { name: "Status" });
@@ -189,7 +191,7 @@ export class ContentPage extends ProjectScopedPage {
 
   // Table headers and structure
   public get tableBodyRows(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ContentTable__Wrapper).locator("tbody tr");
+    return this.getByTestId(DATA_TEST_ID.ContentTable__Wrapper).locator("tbody tr:visible");
   }
 
   // Cell selection by text and exact matching
@@ -275,6 +277,10 @@ export class ContentPage extends ProjectScopedPage {
   }
 
   // Tag metadata specific
+  public get metadataTagSelect(): Locator {
+    return this.getByTestId(DATA_TEST_ID.MetadataField__TagSelect);
+  }
+
   public get itemInformationHeading(): Locator {
     return this.getByRole("heading", { name: "Item Information" });
   }
@@ -526,9 +532,10 @@ export class ContentPage extends ProjectScopedPage {
     await this.getByRole("menuitem", { name: "New Request" }).click();
     await this.getByLabel("Title").last().click();
     await this.getByLabel("Title").last().fill(title);
-    await this.getByTestId(DATA_TEST_ID.RequestCreationModal__ReviewerSelect).click();
-    const firstItem = this.page.getByRole("option").first();
-    await firstItem.click();
+    await this.getByTestId(DATA_TEST_ID.RequestCreationModal__ReviewerSelect)
+      .locator("input")
+      .click();
+    await this.keypress("Enter");
     await this.getByLabel("Description").click();
     await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();

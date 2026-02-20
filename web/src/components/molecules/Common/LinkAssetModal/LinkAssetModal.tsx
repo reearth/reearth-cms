@@ -132,6 +132,7 @@ const LinkAssetModal: React.FC<Props> = ({
           const isLink = asset.id !== linkedAsset?.id;
           return (
             <Button
+              data-testid={DATA_TEST_ID.LinkAssetModal__LinkButton}
               type="link"
               icon={<Icon icon={isLink ? "linkSolid" : "unlinkSolid"} size={16} />}
               onClick={() => onLinkClick(isLink, asset)}

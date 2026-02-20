@@ -347,6 +347,7 @@ export enum DATA_TEST_ID {
   Header__ProjectName = "Header__ProjectName",
 
   // Workspace
+  Workspace__HeaderActions = "Workspace__HeaderActions",
   Workspace__NewProjectButton = "Workspace__NewProjectButton",
 
   // ProjectOverview
@@ -385,8 +386,12 @@ export enum DATA_TEST_ID {
   FieldModal__TagSelect = "FieldModal__TagSelect",
   FieldModal__SelectValueItem = "FieldModal__SelectValueItem",
 
+  // MetadataField
+  MetadataField__TagSelect = "MetadataField__TagSelect",
+
   // LinkAssetModal
   LinkAssetModal__Table = "LinkAssetModal__Table",
+  LinkAssetModal__LinkButton = "LinkAssetModal__LinkButton",
 
   // Markdown
   Markdown__Preview = "Markdown__Preview",

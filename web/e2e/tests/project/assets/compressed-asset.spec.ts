@@ -39,18 +39,14 @@ test.describe("Zip Upload Tests", () => {
   });
 
   test("Uploading and auto-unzipping ZIP file via Local tab succeeds", async ({ assetsPage }) => {
+    // Local uploads auto-unzip by default (skipDecompression=false) — no checkbox needed
     await assetsPage.uploadButton.click();
     await assetsPage.localTab.click();
-    const uploadInput = assetsPage.fileInput;
-    await uploadInput.setInputFiles(localZipPath);
-    const autoUnzipCheckbox = assetsPage.autoUnzipCheckbox;
-    await autoUnzipCheckbox.setChecked(true);
-    await expect(autoUnzipCheckbox).toBeChecked();
+    await assetsPage.fileInput.setInputFiles(localZipPath);
     await assetsPage.submitUploadButton.click();
     await expect(assetsPage.lastNotification).toContainText(
       "Successfully added one or more assets!",
     );
-
     await assetsPage.closeNotification();
   });
 });

@@ -97,8 +97,6 @@ test("Cancel view deletion", async ({ page, fieldEditorPage, projectPage, conten
   await test.step("Attempt to delete view but cancel", async () => {
     await contentPage.moreButton.click();
     await contentPage.removeViewButton.click();
-    await contentPage.removeButton.click();
-    await contentPage.closeNotification(false);
     await contentPage.cancelButton.click();
     await page.waitForTimeout(300);
   });

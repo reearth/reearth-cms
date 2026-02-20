@@ -23,8 +23,10 @@ export class ProjectSettingsPage extends ProjectScopedPage {
   }
 
   public get errorMessage(): Locator {
-    return this.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__AliasField).getByRole(
-      "alert",
+    // Ant Design renders form field errors in a container with id="${fieldName}_help".
+    // Note: antd v5.24.3 ErrorList does NOT render role="alert", so getByRole is unusable.
+    return this.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__AliasField).locator(
+      "#alias_help",
     );
   }
 

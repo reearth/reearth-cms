@@ -60,7 +60,7 @@ test("Url metadata creating and updating has succeeded", async ({
   await editButton.waitFor({ state: "visible" });
   await editButton.click();
   await contentPage.textBoxes.fill("http://test2.com");
-  await contentPage.tableBodyElement.click();
+  await contentPage.textBoxes.blur();
   await contentPage.closeNotification();
   await expect(contentPage.linkByName("http://test2.com")).toBeVisible();
 

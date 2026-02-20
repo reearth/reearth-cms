@@ -222,8 +222,8 @@ test("Tag metadata editing has succeeded", async ({
   });
 
   await test.step("Add tag back and verify in table view", async () => {
-    await fieldEditorPage.tagSelectTrigger.click();
-    await fieldEditorPage.tagOptionText(tag2).click();
+    await contentPage.metadataTagSelect.click();
+    await contentPage.getByText(tag2).click();
     await contentPage.closeNotification();
     await contentPage.backButton.click();
     await expect(contentPage.optionTextByName(tag2)).toBeVisible();

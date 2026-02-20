@@ -409,7 +409,11 @@ export class FieldEditorPage extends ProjectScopedPage {
   }
 
   public get antTableRow(): Locator {
-    return this.getByTestId(DATA_TEST_ID.LinkAssetModal__Table).locator("tbody tr");
+    return this.getByTestId(DATA_TEST_ID.LinkAssetModal__Table).locator("tbody tr.ant-table-row");
+  }
+
+  public get linkAssetButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.LinkAssetModal__LinkButton);
   }
 
   public get arrowUpButton(): Locator {

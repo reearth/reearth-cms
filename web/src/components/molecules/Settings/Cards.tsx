@@ -66,8 +66,8 @@ const Cards: React.FC<Props> = ({
                   title={resource.props?.name ? resource.props.name : resource.type}
                 />
                 {hasUpdateRight && (
-                  <span data-testid={DATA_TEST_ID.SettingsCard__DragHandle}>
-                    <DragIcon icon="menu" className="grabbable" />
+                  <span className="grabbable" data-testid={DATA_TEST_ID.SettingsCard__DragHandle}>
+                    <DragIcon icon="menu" />
                   </span>
                 )}
               </TitleWrapper>

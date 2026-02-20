@@ -92,7 +92,11 @@ const SchemaPreviewStep: React.FC<Props> = ({
                   <Row>
                     <VerticalCenterCol span={1}>
                       <FieldThumbnail>
-                        {hasUpdateRight && <DragIcon icon="menu" className="grabbable" />}
+                        {hasUpdateRight && (
+                        <span className="grabbable">
+                          <DragIcon icon="menu" />
+                        </span>
+                      )}
                       </FieldThumbnail>
                     </VerticalCenterCol>
                     <AlignLeftCol span={11}>

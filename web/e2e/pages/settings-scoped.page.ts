@@ -6,18 +6,26 @@ import { BasePage } from "./base.page";
 
 export abstract class SettingsScopedPage extends BasePage {
   public get memberMenuItem(): Locator {
-    return this.getByTestId(DATA_TEST_ID.WorkspaceMenu__MemberItem);
+    return this.page.getByRole("menuitem").filter({
+      has: this.page.getByTestId(DATA_TEST_ID.WorkspaceMenu__MemberItem),
+    });
   }
 
   public get integrationsMenuItem(): Locator {
-    return this.getByTestId(DATA_TEST_ID.WorkspaceMenu__IntegrationsItem);
+    return this.page.getByRole("menuitem").filter({
+      has: this.page.getByTestId(DATA_TEST_ID.WorkspaceMenu__IntegrationsItem),
+    });
   }
 
   public get homeMenuItem(): Locator {
-    return this.getByTestId(DATA_TEST_ID.WorkspaceMenu__HomeItem);
+    return this.page.getByRole("menuitem").filter({
+      has: this.page.getByTestId(DATA_TEST_ID.WorkspaceMenu__HomeItem),
+    });
   }
 
   public get settingsMenuItem(): Locator {
-    return this.getByTestId(DATA_TEST_ID.WorkspaceMenu__SettingsItem);
+    return this.page.getByRole("menuitem").filter({
+      has: this.page.getByTestId(DATA_TEST_ID.WorkspaceMenu__SettingsItem),
+    });
   }
 }

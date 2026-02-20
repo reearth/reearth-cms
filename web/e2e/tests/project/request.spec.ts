@@ -146,8 +146,8 @@ test("Comment CRUD on edit page has succeeded", async ({ requestPage }) => {
   });
 
   await test.step("Update the comment", async () => {
-    await expect(requestPage.editButton).toBeVisible();
-    await requestPage.editButton.click();
+    await expect(requestPage.checkButton).toBeVisible();
+    await requestPage.checkButton.click();
     await expect(requestPage.commentTextboxWithText("comment")).toBeVisible();
     await requestPage.commentTextboxWithText("comment").click();
     await requestPage.commentTextboxWithText("comment").fill("new comment");
