@@ -29,14 +29,12 @@ test("@smoke Model CRUD on Overview page has succeeded", async ({
     await projectPage.modelDescriptionInput.fill("model description");
     await schemaPage.okButton.click();
     await projectPage.closeNotification();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify model created successfully", async () => {
     await expect(projectPage.modelTitleByName("model name")).toBeVisible();
     await expect(projectPage.modelKeyTextByKey("model-key")).toBeVisible();
     await expect(projectPage.modelMenuItemByName("model name")).toBeVisible();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Update model name, description and key", async () => {
@@ -48,13 +46,11 @@ test("@smoke Model CRUD on Overview page has succeeded", async ({
     await projectPage.modelKeyInput.fill("new-model-key");
     await projectPage.okButton.click();
     await projectPage.closeNotification();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify model updated successfully", async () => {
     await expect(projectPage.rootElement).toContainText("new model name");
     await expect(projectPage.rootElement).toContainText("new model description");
-    await page.waitForTimeout(300);
   });
 
   await test.step("Delete model", async () => {
@@ -62,13 +58,11 @@ test("@smoke Model CRUD on Overview page has succeeded", async ({
     await projectPage.deleteText.click();
     await projectPage.deleteModelButton.click();
     await projectPage.closeNotification();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify model deleted successfully", async () => {
     await expect(projectPage.rootElement).not.toContainText("new model name");
     await expect(projectPage.noModelsYetText).toBeVisible();
-    await page.waitForTimeout(300);
   });
 });
 
@@ -94,7 +88,6 @@ test.describe("Model Export tests on Overview page", () => {
       await expect(projectPage.modelTitleByName("model name")).toBeVisible();
       await expect(projectPage.modelKeyTextByKey("model-key")).toBeVisible();
       await expect(projectPage.modelMenuItemByName("model name")).toBeVisible();
-      await page.waitForTimeout(300);
     });
 
     await test.step("Export model as JSON", async () => {
@@ -103,7 +96,6 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelExportLink.click();
       await projectPage.exportAsJSONText.click();
       await projectPage.closeNotification();
-      await page.waitForTimeout(300);
     });
   });
 
@@ -121,7 +113,6 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelDescriptionInput.fill("model description");
       await schemaPage.okButton.click();
       await projectPage.closeNotification();
-      await page.waitForTimeout(300);
     });
 
     await test.step("Navigate to export and select CSV", async () => {
@@ -129,7 +120,6 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelUtilDropdown.click();
       await projectPage.modelExportLink.click();
       await projectPage.exportAsCSVText.click();
-      await page.waitForTimeout(300);
     });
 
     await test.step("Verify CSV export warning modal and export", async () => {
@@ -140,7 +130,6 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.exportCSVButton.click();
       // Verify modal closed
       await projectPage.closeNotification();
-      await page.waitForTimeout(300);
     });
   });
 
@@ -154,7 +143,6 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelDescriptionInput.fill("model description");
       await schemaPage.okButton.click();
       await projectPage.closeNotification();
-      await page.waitForTimeout(300);
     });
 
     await test.step("Export schema", async () => {
@@ -163,7 +151,6 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelExportLink.click();
       await projectPage.exportSchemaText.click();
       await projectPage.closeNotification();
-      await page.waitForTimeout(300);
     });
   });
 
@@ -181,7 +168,6 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.modelDescriptionInput.fill("model description");
       await schemaPage.okButton.click();
       await projectPage.closeNotification();
-      await page.waitForTimeout(300);
     });
 
     await test.step("Attempt GeoJSON export and verify error", async () => {
@@ -196,7 +182,6 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.okButton.click();
       // Verify modal closed
       await expect(projectPage.cannotExportGeoJSONText).not.toBeVisible();
-      await page.waitForTimeout(300);
     });
   });
 
@@ -227,7 +212,6 @@ test.describe("Model Export tests on Overview page", () => {
         description: "location field",
         supportedTypes: ["POINT"],
       });
-      await page.waitForTimeout(300);
     });
 
     await test.step("Export as GeoJSON successfully", async () => {
@@ -238,7 +222,6 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.exportAsGeoJSONText.click();
       // Should export directly without modal
       await projectPage.closeNotification();
-      await page.waitForTimeout(300);
     });
   });
 
@@ -277,7 +260,6 @@ test.describe("Model Export tests on Overview page", () => {
         description: "second location field",
         supportedTypes: ["POINT"],
       });
-      await page.waitForTimeout(300);
     });
 
     await test.step("Attempt GeoJSON export and verify warning modal", async () => {
@@ -296,7 +278,6 @@ test.describe("Model Export tests on Overview page", () => {
       await projectPage.cancelButton.click();
       // Verify modal closed
       await expect(projectPage.multipleGeometryFieldsText).not.toBeVisible();
-      await page.waitForTimeout(300);
     });
   });
 });
@@ -319,7 +300,6 @@ test("Import schema dropdown redirects to schema page correctly, with import sch
     await schemaPage.okButton.click();
     await projectPage.closeNotification();
     await expect(projectPage.modelTitleByName(modelName)).toBeVisible();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Open import schema from dropdown", async () => {
@@ -345,13 +325,11 @@ test("Creating Model by using the button on placeholder has succeeded", async ({
     await projectPage.modelNameInput.fill("model name");
     await projectPage.okButton.click();
     await projectPage.closeNotification();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify model created successfully", async () => {
     await expect(projectPage.modelTitleByName("model name")).toBeVisible();
     await expect(projectPage.modelKeyTextByKey("model-name")).toBeVisible();
     await expect(projectPage.modelMenuItemByName("model name")).toBeVisible();
-    await page.waitForTimeout(300);
   });
 });

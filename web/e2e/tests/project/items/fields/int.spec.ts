@@ -29,7 +29,6 @@ test("@smoke Int field creating and updating has succeeded", async ({
       description: "int1 description",
     });
     await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("int1#int1");
-    await page.waitForTimeout(300);
   });
 
   await test.step("Create item with int value", async () => {
@@ -43,7 +42,6 @@ test("@smoke Int field creating and updating has succeeded", async ({
     await contentPage.closeNotification();
     await contentPage.backButtonLabel.click();
     await expect(contentPage.cellByTextExact("1")).toBeVisible();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Update int value", async () => {
@@ -55,7 +53,6 @@ test("@smoke Int field creating and updating has succeeded", async ({
     await contentPage.closeNotification();
     await contentPage.backButtonLabel.click();
     await expect(contentPage.cellByTextExact("2")).toBeVisible();
-    await page.waitForTimeout(300);
   });
 });
 
@@ -73,7 +70,6 @@ test("Int field editing has succeeded", async ({
       description: "int1 description",
       defaultValue: "1",
     });
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify field in content and create item with default value", async () => {
@@ -84,7 +80,6 @@ test("Int field editing has succeeded", async ({
     await contentPage.closeNotification();
     await contentPage.backButtonLabel.click();
     await expect(contentPage.cellByTextExact("1")).toBeVisible();
-    await page.waitForTimeout(300);
   });
   await test.step("Update field with multiple values and validations", async () => {
     await schemaPage.schemaText.click();
@@ -98,7 +93,6 @@ test("Int field editing has succeeded", async ({
     await fieldEditorPage.descriptionInput.fill("new int1 description");
     await fieldEditorPage.supportMultipleValuesCheckbox.check();
     await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Configure min/max validation with value range checks", async () => {
@@ -114,7 +108,6 @@ test("Int field editing has succeeded", async ({
     await fieldEditorPage.maxValueInput.fill("10");
     await fieldEditorPage.requiredFieldCheckbox.check();
     await fieldEditorPage.uniqueFieldCheckbox.check();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Update default values with validation checks", async () => {
@@ -133,7 +126,6 @@ test("Int field editing has succeeded", async ({
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
     await expect(fieldEditorPage.uniqueFieldText("new int1", "new-int1")).toBeVisible();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify updated field in content with multiple values", async () => {
@@ -149,6 +141,5 @@ test("Int field editing has succeeded", async ({
     await contentPage.backButtonLabel.click();
     await contentPage.x2Button.click();
     await expect(contentPage.tooltip).toContainText("new int123");
-    await page.waitForTimeout(300);
   });
 });

@@ -29,7 +29,6 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage, 
     await integrationsPage.descriptionInput.fill("e2e integration description");
     await integrationsPage.createButton.click();
     await integrationsPage.closeNotification();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Connect integration", async () => {
@@ -42,7 +41,6 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage, 
     await expect(integrationsPage.connectButton).toBeVisible();
     await integrationsPage.connectButton.click();
     await integrationsPage.closeNotification();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify integration is connected", async () => {
@@ -52,7 +50,6 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage, 
     await expect(integrationsPage.dialogIntegrationTextById(id)).toBeHidden();
     await expect(integrationsPage.cancelButton).toBeVisible();
     await integrationsPage.cancelButton.click();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Search and update role", async () => {
@@ -69,7 +66,6 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage, 
     await integrationsPage.saveButton.click();
     await integrationsPage.closeNotification();
     await expect(integrationsPage.writerCell).toBeVisible();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Test search filtering", async () => {
@@ -83,7 +79,6 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage, 
     await integrationsPage.searchButton.click();
     await page.waitForTimeout(300);
     await expect(integrationsPage.integrationCellById(id)).toBeVisible();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Remove integration and verify", async () => {
@@ -98,6 +93,5 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage, 
     await expect(integrationsPage.dialogIntegrationTextById(id)).toBeVisible();
     await expect(integrationsPage.cancelButton).toBeVisible();
     await integrationsPage.cancelButton.click();
-    await page.waitForTimeout(300);
   });
 });

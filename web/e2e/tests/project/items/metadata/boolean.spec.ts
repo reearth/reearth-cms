@@ -28,7 +28,6 @@ test("Boolean metadata creating and updating has succeeded", async ({
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
     await expect(fieldEditorPage.fieldText("boolean1", "boolean1")).toBeVisible();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify metadata field settings", async () => {
@@ -44,7 +43,6 @@ test("Boolean metadata creating and updating has succeeded", async ({
     await fieldEditorPage.defaultValueTab.click();
     await expect(fieldEditorPage.setDefaultValueSwitch).toHaveAttribute("aria-checked", "false");
     await fieldEditorPage.cancelButton.click();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Create item with default boolean value", async () => {
@@ -56,7 +54,6 @@ test("Boolean metadata creating and updating has succeeded", async ({
     await contentPage.closeNotification();
     await expect(contentPage.itemInformationHeading).toBeVisible();
     await expect(contentPage.fieldInput("boolean1")).toHaveAttribute("aria-checked", "false");
-    await page.waitForTimeout(300);
   });
 
   await test.step("Update boolean from table view to true", async () => {
@@ -64,7 +61,6 @@ test("Boolean metadata creating and updating has succeeded", async ({
     await contentPage.closeSwitch.click();
     await contentPage.closeNotification();
     await expect(contentPage.checkSwitch).toBeVisible();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Update boolean from edit view to false", async () => {
@@ -73,13 +69,11 @@ test("Boolean metadata creating and updating has succeeded", async ({
     await contentPage.fieldInput("boolean1").click();
     await contentPage.closeNotification();
     await expect(contentPage.fieldInput("boolean1")).toHaveAttribute("aria-checked", "false");
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify updated boolean in table view", async () => {
     await contentPage.backButtonRole.click();
     await expect(contentPage.closeSwitch).toBeVisible();
-    await page.waitForTimeout(300);
   });
 });
 
@@ -99,7 +93,6 @@ test("Boolean metadata editing has succeeded", async ({
     await fieldEditorPage.setDefaultValueSwitch.click();
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify field in content and create item with default value", async () => {
@@ -109,7 +102,6 @@ test("Boolean metadata editing has succeeded", async ({
     await expect(contentPage.fieldInput("boolean1")).toHaveAttribute("aria-checked", "true");
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Update metadata with multiple values", async () => {
@@ -129,7 +121,6 @@ test("Boolean metadata editing has succeeded", async ({
     await contentPage.closeNotification();
     await expect(schemaPage.getByText("new boolean1")).toBeVisible();
     await expect(schemaPage.getByText("#new-boolean1")).toBeVisible();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify updated metadata in content and create new item", async () => {
@@ -145,7 +136,6 @@ test("Boolean metadata editing has succeeded", async ({
     await contentPage.closeNotification();
     await expect(contentPage.switchByIndex(0)).toHaveAttribute("aria-checked", "true");
     await expect(contentPage.switchByIndex(1)).toHaveAttribute("aria-checked", "true");
-    await page.waitForTimeout(300);
   });
 
   await test.step("Update boolean from tooltip in table view", async () => {
@@ -155,7 +145,6 @@ test("Boolean metadata editing has succeeded", async ({
     await expect(contentPage.tooltipSwitchByIndex(1)).toHaveAttribute("aria-checked", "true");
     await contentPage.tooltipSwitchByIndex(0).click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Add third value from edit view", async () => {
@@ -167,7 +156,6 @@ test("Boolean metadata editing has succeeded", async ({
     await expect(contentPage.switchByIndex(0)).toHaveAttribute("aria-checked", "false");
     await expect(contentPage.switchByIndex(1)).toHaveAttribute("aria-checked", "true");
     await expect(contentPage.switchByIndex(2)).toHaveAttribute("aria-checked", "false");
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify all three values in table view", async () => {
@@ -176,6 +164,5 @@ test("Boolean metadata editing has succeeded", async ({
     await expect(contentPage.tooltipSwitchByIndex(0)).toHaveAttribute("aria-checked", "false");
     await expect(contentPage.tooltipSwitchByIndex(1)).toHaveAttribute("aria-checked", "true");
     await expect(contentPage.tooltipSwitchByIndex(2)).toHaveAttribute("aria-checked", "false");
-    await page.waitForTimeout(300);
   });
 });

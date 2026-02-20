@@ -37,7 +37,6 @@ test("@smoke Model CRUD has succeeded", async ({ schemaPage, fieldEditorPage, pa
     await expect(fieldEditorPage.titleByText(modelName, true)).toBeVisible();
     await expect(schemaPage.textByExact(`#${modelKey}`)).toBeVisible();
     await expect(schemaPage.modelMenuItemSpan(modelName)).toBeVisible();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Update model", async () => {
@@ -45,13 +44,11 @@ test("@smoke Model CRUD has succeeded", async ({ schemaPage, fieldEditorPage, pa
     await expect(fieldEditorPage.titleByText(newModelName)).toBeVisible();
     await expect(schemaPage.textByExact(`#${newModelKey}`)).toBeVisible();
     await expect(schemaPage.modelMenuItemSpan(newModelName)).toBeVisible();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Delete model", async () => {
     await schemaPage.deleteModel();
     await expect(fieldEditorPage.titleByText(newModelName)).toBeHidden();
-    await page.waitForTimeout(300);
   });
 });
 
@@ -65,7 +62,6 @@ test("Model reordering has succeeded", async ({ schemaPage, page }) => {
     await schemaPage.createModelFromSidebar(modelName2);
     await expect(schemaPage.modelMenuItems().nth(0)).toContainText(modelName1);
     await expect(schemaPage.modelMenuItems().nth(1)).toContainText(modelName2);
-    await page.waitForTimeout(300);
   });
 
   await test.step("Drag model2 above model1", async () => {
@@ -73,7 +69,6 @@ test("Model reordering has succeeded", async ({ schemaPage, page }) => {
     await schemaPage.closeNotification();
     await expect(schemaPage.modelMenuItems().nth(0)).toContainText(modelName2);
     await expect(schemaPage.modelMenuItems().nth(1)).toContainText(modelName1);
-    await page.waitForTimeout(300);
   });
 
   await test.step("Create third model and verify it appears at the end", async () => {
@@ -81,7 +76,6 @@ test("Model reordering has succeeded", async ({ schemaPage, page }) => {
     await expect(schemaPage.modelMenuItems().nth(0)).toContainText(modelName2);
     await expect(schemaPage.modelMenuItems().nth(1)).toContainText(modelName1);
     await expect(schemaPage.modelMenuItems().nth(2)).toContainText(modelName3);
-    await page.waitForTimeout(300);
   });
 });
 
@@ -93,7 +87,6 @@ test.describe("Test import schema", () => {
     await test.step("Create model in schema page", async () => {
       await schemaPage.createModelFromSidebar(modelName, modelKey);
       await expect(schemaPage.textByExact(`#${modelKey}`)).toBeVisible();
-      await page.waitForTimeout(300);
     });
 
     await test.step("Open import schema modal", async () => {
@@ -115,7 +108,6 @@ test.describe("Test import schema", () => {
 
     await test.step("Verify imported field is visible", async () => {
       await expect(schemaPage.textByExact("#text-field-key")).toBeVisible();
-      await page.waitForTimeout(300);
     });
   });
 
@@ -126,7 +118,6 @@ test.describe("Test import schema", () => {
     await test.step("Create model in schema page", async () => {
       await schemaPage.createModelFromSidebar(modelName, modelKey);
       await expect(schemaPage.textByExact(`#${modelKey}`)).toBeVisible();
-      await page.waitForTimeout(300);
     });
 
     await test.step("Open import schema modal", async () => {
@@ -155,7 +146,6 @@ test.describe("Test import schema", () => {
       await schemaPage.closeNotification();
       await expect(schemaPage.getByText("#url-field-key", { exact: true })).toBeVisible();
       await expect(schemaPage.getByText("#text-field-key", { exact: true })).toHaveCount(0);
-      await page.waitForTimeout(300);
     });
   });
 });
@@ -170,7 +160,6 @@ test("@smoke Group CRUD has succeeded", async ({ schemaPage, fieldEditorPage, pa
     await schemaPage.createGroup(groupName, groupKey);
     await expect(fieldEditorPage.titleByText(groupName, true)).toBeVisible();
     await expect(schemaPage.textByExact(`#${groupKey}`)).toBeVisible();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Update group", async () => {
@@ -178,13 +167,11 @@ test("@smoke Group CRUD has succeeded", async ({ schemaPage, fieldEditorPage, pa
     await expect(fieldEditorPage.titleByText(updateGroupName)).toBeVisible();
     await expect(schemaPage.textByExact(`#${updateGroupKey}`)).toBeVisible();
     await expect(schemaPage.menuItemByName(updateGroupName)).toBeVisible();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Delete group", async () => {
     await schemaPage.deleteGroup();
     await expect(fieldEditorPage.titleByText(updateGroupName)).toBeHidden();
-    await page.waitForTimeout(300);
   });
 });
 
@@ -201,7 +188,6 @@ test("Group creating from adding field has succeeded", async ({
     await schemaPage.addGroupButton.click();
     await expect(schemaPage.newGroupDialog).toContainText("New Group");
     await expect(fieldEditorPage.okButton).toBeDisabled();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Create new group from field dialog", async () => {
@@ -213,7 +199,6 @@ test("Group creating from adding field has succeeded", async ({
     await expect(fieldEditorPage.okButton).toBeEnabled();
     await fieldEditorPage.okButton.click();
     await schemaPage.closeNotification();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify group created and field type restrictions applied", async () => {
@@ -222,13 +207,11 @@ test("Group creating from adding field has succeeded", async ({
     await expect(schemaPage.fieldsMetaDataText).toBeHidden();
     await expect(schemaPage.textByExact("Reference")).toBeHidden();
     await expect(schemaPage.textByExact("Group")).toBeHidden();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Add text field to model", async () => {
     await expect(fieldEditorPage.fieldTypeListItem("Text")).toBeVisible();
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify group can be selected for group field in model", async () => {
@@ -242,7 +225,6 @@ test("Group creating from adding field has succeeded", async ({
     await expect(schemaPage.groupNameByText("e2e group name #e2e-group-key")).toBeVisible();
     await expect(fieldEditorPage.cancelButton).toBeVisible();
     await fieldEditorPage.cancelButton.click();
-    await page.waitForTimeout(300);
   });
 });
 
@@ -252,7 +234,6 @@ test("Group reordering has succeeded", async ({ schemaPage, page }) => {
     await schemaPage.createGroup("group2", "group2");
     await expect(schemaPage.groupMenuItems.nth(0)).toContainText("group1");
     await expect(schemaPage.groupMenuItems.nth(1)).toContainText("group2");
-    await page.waitForTimeout(300);
   });
 
   await test.step("Drag group2 above group1", async () => {
@@ -260,7 +241,6 @@ test("Group reordering has succeeded", async ({ schemaPage, page }) => {
     await schemaPage.closeNotification();
     await expect(schemaPage.groupMenuItems.nth(0)).toContainText("group2");
     await expect(schemaPage.groupMenuItems.nth(1)).toContainText("group1");
-    await page.waitForTimeout(300);
   });
 
   await test.step("Create third group and verify it appears at the end", async () => {
@@ -268,7 +248,6 @@ test("Group reordering has succeeded", async ({ schemaPage, page }) => {
     await expect(schemaPage.groupMenuItems.nth(0)).toContainText("group2");
     await expect(schemaPage.groupMenuItems.nth(1)).toContainText("group1");
     await expect(schemaPage.groupMenuItems.nth(2)).toContainText("group3");
-    await page.waitForTimeout(300);
   });
 });
 
@@ -276,7 +255,6 @@ test("Text field CRUD has succeeded", async ({ fieldEditorPage, schemaPage, page
   await test.step("Create model and add text field", async () => {
     await schemaPage.createModelFromSidebar();
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
-    await page.waitForTimeout(300);
   });
 
   await test.step("Update text field", async () => {
@@ -285,13 +263,11 @@ test("Text field CRUD has succeeded", async ({ fieldEditorPage, schemaPage, page
     await fieldEditorPage.settingsKeyInput.fill("new-text");
     await fieldEditorPage.okButton.click();
     await fieldEditorPage.closeNotification();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Delete text field", async () => {
     await fieldEditorPage.deleteField();
     await expect(schemaPage.fieldText("new text", "new-text")).toBeHidden();
-    await page.waitForTimeout(300);
   });
 });
 
@@ -300,24 +276,20 @@ test("Schema reordering has succeeded", async ({ schemaPage, fieldEditorPage, pa
     await schemaPage.createModelFromSidebar();
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text1" });
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text2" });
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify initial field order", async () => {
     await expect(schemaPage.draggableItems.nth(0)).toContainText("text1#text1");
     await expect(schemaPage.draggableItems.nth(1)).toContainText("text2#text2");
-    await page.waitForTimeout(300);
   });
 
   await test.step("Drag text2 above text1", async () => {
     await schemaPage.grabbableItems.nth(1).dragTo(schemaPage.draggableItems.nth(0));
     await schemaPage.closeNotification();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify field order changed", async () => {
     await expect(schemaPage.draggableItems.nth(0)).toContainText("text2#text2");
     await expect(schemaPage.draggableItems.nth(1)).toContainText("text1#text1");
-    await page.waitForTimeout(300);
   });
 });

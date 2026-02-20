@@ -28,7 +28,6 @@ test("Text metadata creating and updating has succeeded", async ({
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
     await expect(schemaPage.groupNameByText("text1#text1")).toBeVisible();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify metadata field settings", async () => {
@@ -45,7 +44,6 @@ test("Text metadata creating and updating has succeeded", async ({
     await fieldEditorPage.defaultValueTab.click();
     await expect(fieldEditorPage.setDefaultValueInput).toBeEmpty();
     await fieldEditorPage.cancelButton.click();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Create item with metadata value", async () => {
@@ -58,7 +56,6 @@ test("Text metadata creating and updating has succeeded", async ({
     await contentPage.closeNotification();
     await expect(contentPage.itemInformationHeading).toBeVisible();
     await expect(contentPage.fieldInput("text1")).toHaveValue("text1");
-    await page.waitForTimeout(300);
   });
 
   await test.step("Update metadata from table view", async () => {
@@ -68,7 +65,6 @@ test("Text metadata creating and updating has succeeded", async ({
     await contentPage.textBoxes.blur();
     await contentPage.closeNotification();
     await expect(contentPage.textBoxes).toHaveValue("new text1");
-    await page.waitForTimeout(300);
   });
 
   await test.step("Update metadata from edit view", async () => {
@@ -77,13 +73,11 @@ test("Text metadata creating and updating has succeeded", async ({
     await contentPage.fieldInput("text1").fill("text1");
     await contentPage.closeNotification();
     await expect(contentPage.fieldInput("text1")).toHaveValue("text1");
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify updated metadata in table view", async () => {
     await contentPage.backButton.click();
     await expect(contentPage.textBoxes).toHaveValue("text1");
-    await page.waitForTimeout(300);
   });
 });
 
@@ -103,7 +97,6 @@ test("Text metadata editing has succeeded", async ({
     await fieldEditorPage.setDefaultValueInput.fill("text1 default value");
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify field in content and create item with default value", async () => {
@@ -113,7 +106,6 @@ test("Text metadata editing has succeeded", async ({
     await expect(contentPage.fieldInput("text1")).toHaveValue("text1 default value");
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Update metadata with multiple values and validations", async () => {
@@ -137,7 +129,6 @@ test("Text metadata editing has succeeded", async ({
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
     await expect(contentPage.optionTextByName("new text1 *#new-text1(unique)")).toBeVisible();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify updated metadata in content and create new item", async () => {
@@ -156,7 +147,6 @@ test("Text metadata editing has succeeded", async ({
     await contentPage.closeNotification();
     await expect(contentPage.textBoxByIndex(0)).toHaveValue("text1");
     await expect(contentPage.textBoxByIndex(1)).toHaveValue("text2");
-    await page.waitForTimeout(300);
   });
 
   await test.step("Update metadata from tooltip in table view", async () => {
@@ -171,7 +161,6 @@ test("Text metadata editing has succeeded", async ({
     await contentPage.tooltipTextboxes.nth(1).fill("text3");
     await contentPage.tooltipTextByName("new text1").click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Add third value from edit view", async () => {
@@ -184,7 +173,6 @@ test("Text metadata editing has succeeded", async ({
     await expect(contentPage.textBoxByIndex(0)).toHaveValue("text1");
     await expect(contentPage.textBoxByIndex(1)).toHaveValue("text3");
     await expect(contentPage.textBoxByIndex(2)).toHaveValue("text2");
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify all three values in table view", async () => {
@@ -193,6 +181,5 @@ test("Text metadata editing has succeeded", async ({
     await expect(contentPage.tooltipTextboxes.nth(0)).toHaveValue("text1");
     await expect(contentPage.tooltipTextboxes.nth(1)).toHaveValue("text3");
     await expect(contentPage.tooltipTextboxes.nth(2)).toHaveValue("text2");
-    await page.waitForTimeout(300);
   });
 });

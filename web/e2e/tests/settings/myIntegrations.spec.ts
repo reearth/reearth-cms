@@ -31,14 +31,12 @@ test("MyIntegration CRUD has succeeded", async ({ integrationsPage, page }) => {
     await integrationsPage.descriptionInput.fill(newDescription);
     await integrationsPage.saveButton.click();
     await integrationsPage.closeNotification();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify updated integration details", async () => {
     await expect(integrationsPage.rootElement).toContainText(newIntegrationName);
     await integrationsPage.backButton.click();
     await expect(integrationsPage.mainElement).toContainText(newDescription);
-    await page.waitForTimeout(300);
   });
 
   await test.step("Delete integration", async () => {
@@ -50,7 +48,6 @@ test("MyIntegration CRUD has succeeded", async ({ integrationsPage, page }) => {
     await page.waitForLoadState("domcontentloaded");
     await page.waitForTimeout(300);
     await expect(integrationsPage.integrationLinkByText(newDescription)).toBeHidden();
-    await page.waitForTimeout(300);
   });
 });
 
@@ -73,7 +70,6 @@ test("Webhook CRUD has succeeded", async ({ integrationsPage, page }) => {
     await expect(integrationsPage.saveButton).toBeVisible();
     await integrationsPage.saveButton.click();
     await integrationsPage.closeNotification();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify webhook created with correct details", async () => {
@@ -82,7 +78,6 @@ test("Webhook CRUD has succeeded", async ({ integrationsPage, page }) => {
     await page.waitForTimeout(300);
     await expect(integrationsPage.tabPanel).toContainText("webhook name");
     await expect(integrationsPage.tabPanel).toContainText("http://test.com");
-    await page.waitForTimeout(300);
   });
 
   await test.step("Update webhook settings and enable triggers", async () => {
@@ -107,7 +102,6 @@ test("Webhook CRUD has succeeded", async ({ integrationsPage, page }) => {
     await expect(integrationsPage.saveButton).toBeVisible();
     await integrationsPage.saveButton.click();
     await integrationsPage.closeNotification();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify webhook updated correctly", async () => {
@@ -116,7 +110,6 @@ test("Webhook CRUD has succeeded", async ({ integrationsPage, page }) => {
     await page.waitForTimeout(300);
     await expect(integrationsPage.tabPanel).toContainText("new webhook name");
     await expect(integrationsPage.tabPanel).toContainText("http://new.com");
-    await page.waitForTimeout(300);
   });
 
   await test.step("Verify webhook settings persisted", async () => {
@@ -128,7 +121,6 @@ test("Webhook CRUD has succeeded", async ({ integrationsPage, page }) => {
     await expect(integrationsPage.uploadCheckbox).toBeChecked();
     await expect(integrationsPage.arrowLeftButton).toBeVisible();
     await integrationsPage.arrowLeftButton.click();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Enable webhook and verify status", async () => {
@@ -137,7 +129,6 @@ test("Webhook CRUD has succeeded", async ({ integrationsPage, page }) => {
     await page.waitForTimeout(300);
     await expect(integrationsPage.webhookSwitchElement).toContainText("ON");
     await integrationsPage.closeNotification();
-    await page.waitForTimeout(300);
   });
 
   await test.step("Delete webhook", async () => {
@@ -146,7 +137,6 @@ test("Webhook CRUD has succeeded", async ({ integrationsPage, page }) => {
     await page.waitForTimeout(300);
     await integrationsPage.closeNotification();
     await expect(integrationsPage.webhookLabel).not.toContainText("new webhook name");
-    await page.waitForTimeout(300);
   });
 
   await test.step("Clean up: remove integration", async () => {
@@ -158,6 +148,5 @@ test("Webhook CRUD has succeeded", async ({ integrationsPage, page }) => {
     await expect(integrationsPage.okButton).toBeVisible();
     await integrationsPage.okButton.click();
     await integrationsPage.closeNotification();
-    await page.waitForTimeout(300);
   });
 });

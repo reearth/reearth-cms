@@ -24,7 +24,6 @@ test.describe("Project CRUD and searching has succeeded", () => {
 
       await workspacePage.okButton.click();
       await workspacePage.closeNotification();
-      await page.waitForTimeout(300);
     });
   });
 
@@ -33,7 +32,6 @@ test.describe("Project CRUD and searching has succeeded", () => {
       const projectCard = workspacePage.projectCardByName(PROJECT_NAME);
       await expect(projectCard).toBeVisible();
       await expect(projectCard.getByText(PROJECT_DESCRIPTION)).toBeVisible();
-      await page.waitForTimeout(300);
     });
 
     await test.step("Search for non-existent project", async () => {
@@ -41,21 +39,18 @@ test.describe("Project CRUD and searching has succeeded", () => {
       await workspacePage.searchProjectsInput.fill("no project");
       await workspacePage.searchButton.click();
       await expect(projectCard).toBeHidden();
-      await page.waitForTimeout(300);
     });
 
     await test.step("Clear search and verify project appears", async () => {
       const projectCard = workspacePage.projectCardByName(PROJECT_NAME);
       await workspacePage.clearSearchButton.click();
       await expect(projectCard).toBeVisible();
-      await page.waitForTimeout(300);
     });
 
     await test.step("Navigate to project", async () => {
       const projectCard = workspacePage.projectCardByName(PROJECT_NAME);
       await projectCard.click();
       await expect(workspacePage.banner).toContainText(PROJECT_NAME);
-      await page.waitForTimeout(300);
     });
   });
 
@@ -70,7 +65,6 @@ test.describe("Project CRUD and searching has succeeded", () => {
 
       await expect(projectPage.projectSettingsHeading(NEW_PROJECT_NAME)).toBeVisible();
       await expect(projectPage.banner).toContainText(NEW_PROJECT_NAME);
-      await page.waitForTimeout(300);
     });
 
     await test.step("Enable owner switch and verify", async () => {
@@ -81,13 +75,11 @@ test.describe("Project CRUD and searching has succeeded", () => {
       await expect(ownerSwitch).toHaveAttribute("aria-checked", "true");
 
       await projectPage.closeNotification();
-      await page.waitForTimeout(300);
     });
 
     await test.step("Verify updated name persists after navigation", async () => {
       await projectPage.modelsMenuItem.click();
       await expect(projectPage.banner).toContainText(NEW_PROJECT_NAME);
-      await page.waitForTimeout(300);
     });
   });
 
@@ -105,12 +97,10 @@ test.describe("Project CRUD and searching has succeeded", () => {
       await deleteButton.click();
       await projectPage.confirmDeleteProjectButton.click();
       await projectPage.closeNotification();
-      await page.waitForTimeout(300);
     });
 
     await test.step("Verify project no longer appears in list", async () => {
       await expect(workspacePage.projectTextByName(NEW_PROJECT_NAME, true)).toBeHidden();
-      await page.waitForTimeout(300);
     });
   });
 });
@@ -136,7 +126,6 @@ test.describe("Project List", () => {
         const projectCard = workspacePage.projectCardByName(projectName);
         await expect(projectCard).toBeVisible();
       }
-      await page.waitForTimeout(300);
     });
 
     await test.step("Check second page", async () => {
@@ -147,7 +136,6 @@ test.describe("Project List", () => {
         const projectCard = workspacePage.projectCardByName(projectName);
         await expect(projectCard).toBeVisible();
       }
-      await page.waitForTimeout(300);
     });
 
     await test.step("Check jump page", async () => {
@@ -158,7 +146,6 @@ test.describe("Project List", () => {
         const projectCard = workspacePage.projectCardByName(projectName);
         await expect(projectCard).toBeVisible();
       }
-      await page.waitForTimeout(300);
     });
   });
 
@@ -172,7 +159,6 @@ test.describe("Project List", () => {
           (project, index) => project === PROJECT_ID_LIST[index - 1],
         );
         expect(equality).toBe(true);
-        await page.waitForTimeout(300);
       });
     });
 
@@ -187,7 +173,6 @@ test.describe("Project List", () => {
 
       await test.step("Update the first project with new name for deletion", async () => {
         PROJECT_ID_LIST[0] = newFirstProjectName;
-        await page.waitForTimeout(300);
       });
 
       await test.step("Update the first project", async () => {
@@ -200,7 +185,6 @@ test.describe("Project List", () => {
         await nameEl.fill(newFirstProjectName);
         await projectSettingsPage.saveSettings();
         await workspacePage.goto("/", { waitUntil: "domcontentloaded" });
-        await page.waitForTimeout(300);
       });
 
       await test.step("Sort by updatedAt and verify updated project appears first", async () => {
@@ -208,7 +192,6 @@ test.describe("Project List", () => {
 
         const projectCard = workspacePage.projectCardByName(newFirstProjectName);
         await expect(projectCard).toBeVisible();
-        await page.waitForTimeout(300);
       });
     });
 
@@ -219,7 +202,6 @@ test.describe("Project List", () => {
 
         const equality = projectNames.every((project, index) => project === PROJECT_ID_LIST[index]);
         expect(equality).toBe(true);
-        await page.waitForTimeout(300);
       });
     });
   });
@@ -248,7 +230,6 @@ test.describe("Project List", () => {
       await preCondition();
       await workspacePage.selectSortOption("id");
       await checkStatus();
-      await page.waitForTimeout(300);
     });
 
     await test.step("Reset after search project", async () => {
@@ -258,7 +239,6 @@ test.describe("Project List", () => {
 
       await checkStatus(true);
       await workspacePage.clearSearchButton.click();
-      await page.waitForTimeout(300);
     });
 
     await test.step("Reset after cancel search", async () => {
@@ -270,7 +250,6 @@ test.describe("Project List", () => {
       await workspacePage.clearSearchButton.click();
 
       await checkStatus(true);
-      await page.waitForTimeout(300);
     });
 
     await test.step("Reset after create project", async () => {
@@ -281,7 +260,6 @@ test.describe("Project List", () => {
 
       await projectPage.gotoProject(projectName);
       await projectPage.deleteProject();
-      await page.waitForTimeout(300);
     });
   });
 
