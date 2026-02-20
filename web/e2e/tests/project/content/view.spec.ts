@@ -9,7 +9,7 @@ const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 test.beforeEach(async ({ reearth, workspacePage, projectPage }) => {
   test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await workspacePage.createWorkspace("e2e workspace name");
+  await workspacePage.createWorkspace(`e2e-ws-${getId()}`);
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
