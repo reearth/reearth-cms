@@ -87,7 +87,6 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage, 
     await expect(integrationsPage.removeText).toBeVisible();
     await integrationsPage.removeText.click();
     await integrationsPage.closeNotification();
-    await page.waitForTimeout(300);
     await expect(integrationsPage.connectIntegrationButton).toBeVisible();
     await integrationsPage.connectIntegrationButton.click();
     await expect(integrationsPage.dialogIntegrationTextById(id)).toBeVisible();

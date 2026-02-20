@@ -276,7 +276,6 @@ test.describe("Project List", () => {
         await projectPage.gotoProject(projectName);
         await page.waitForTimeout(300);
         await projectPage.deleteProject();
-        await page.waitForTimeout(300);
       }
     }
   });

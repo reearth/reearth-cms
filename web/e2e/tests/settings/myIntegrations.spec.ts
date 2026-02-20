@@ -46,7 +46,6 @@ test("MyIntegration CRUD has succeeded", async ({ integrationsPage, page }) => {
     await integrationsPage.closeNotification();
     // Wait for navigation back to the list and ensure the deleted item is no longer visible
     await page.waitForLoadState("domcontentloaded");
-    await page.waitForTimeout(300);
     await expect(integrationsPage.integrationLinkByText(newDescription)).toBeHidden();
   });
 });
