@@ -78,23 +78,13 @@ test.describe("Model Export tests on Overview page", () => {
     test.skip(!isCI, "This test runs only in CI environment");
   });
 
-  test("Model Export as JSON on Overview page has succeeded", async ({
-    schemaPage,
-    projectPage,
-  }) => {
+  test("Model Export as JSON on Overview page has succeeded", async ({ projectPage }) => {
     const modelName = `model-${getId()}`;
     const modelKey = `key-${getId()}`;
     const modelDescription = `desc-${getId()}`;
 
     await test.step("Create new model", async () => {
-      await expect(projectPage.noModelsYetText).toBeVisible();
-      await projectPage.newModelButtonFirst.click();
-      await expect(projectPage.newModelLabelText).toBeVisible();
-      await schemaPage.modelKeyInput.fill(modelKey);
-      await schemaPage.modelNameInput.fill(modelName);
-      await projectPage.modelDescriptionInput.fill(modelDescription);
-      await schemaPage.okButton.click();
-      await projectPage.closeNotification();
+      await projectPage.createModelFromOverview(modelName, modelKey, modelDescription);
       await expect(projectPage.modelTitleByName(modelName)).toBeVisible();
       await expect(projectPage.modelKeyTextByKey(modelKey)).toBeVisible();
       await expect(projectPage.modelMenuItemByName(modelName)).toBeVisible();
@@ -109,23 +99,13 @@ test.describe("Model Export tests on Overview page", () => {
     });
   });
 
-  test("Model Export as CSV on Overview page has succeeded", async ({
-    schemaPage,
-    projectPage,
-  }) => {
+  test("Model Export as CSV on Overview page has succeeded", async ({ projectPage }) => {
     const modelName = `model-${getId()}`;
     const modelKey = `key-${getId()}`;
     const modelDescription = `desc-${getId()}`;
 
     await test.step("Create new model", async () => {
-      await expect(projectPage.noModelsYetText).toBeVisible();
-      await projectPage.newModelButtonFirst.click();
-      await expect(projectPage.newModelLabelText).toBeVisible();
-      await schemaPage.modelKeyInput.fill(modelKey);
-      await schemaPage.modelNameInput.fill(modelName);
-      await projectPage.modelDescriptionInput.fill(modelDescription);
-      await schemaPage.okButton.click();
-      await projectPage.closeNotification();
+      await projectPage.createModelFromOverview(modelName, modelKey, modelDescription);
     });
 
     await test.step("Navigate to export and select CSV", async () => {
@@ -146,20 +126,13 @@ test.describe("Model Export tests on Overview page", () => {
     });
   });
 
-  test("Model Export Schema has succeeded", async ({ schemaPage, projectPage }) => {
+  test("Model Export Schema has succeeded", async ({ projectPage }) => {
     const modelName = `model-${getId()}`;
     const modelKey = `key-${getId()}`;
     const modelDescription = `desc-${getId()}`;
 
     await test.step("Create new model", async () => {
-      await expect(projectPage.noModelsYetText).toBeVisible();
-      await projectPage.newModelButtonFirst.click();
-      await expect(projectPage.newModelLabelText).toBeVisible();
-      await schemaPage.modelKeyInput.fill(modelKey);
-      await schemaPage.modelNameInput.fill(modelName);
-      await projectPage.modelDescriptionInput.fill(modelDescription);
-      await schemaPage.okButton.click();
-      await projectPage.closeNotification();
+      await projectPage.createModelFromOverview(modelName, modelKey, modelDescription);
     });
 
     await test.step("Export schema", async () => {
@@ -171,23 +144,13 @@ test.describe("Model Export tests on Overview page", () => {
     });
   });
 
-  test("Model Export as GeoJSON without geometry field shows error", async ({
-    schemaPage,
-    projectPage,
-  }) => {
+  test("Model Export as GeoJSON without geometry field shows error", async ({ projectPage }) => {
     const modelName = `model-${getId()}`;
     const modelKey = `key-${getId()}`;
     const modelDescription = `desc-${getId()}`;
 
     await test.step("Create model without geometry field", async () => {
-      await expect(projectPage.noModelsYetText).toBeVisible();
-      await projectPage.newModelButtonFirst.click();
-      await expect(projectPage.newModelLabelText).toBeVisible();
-      await schemaPage.modelKeyInput.fill(modelKey);
-      await schemaPage.modelNameInput.fill(modelName);
-      await projectPage.modelDescriptionInput.fill(modelDescription);
-      await schemaPage.okButton.click();
-      await projectPage.closeNotification();
+      await projectPage.createModelFromOverview(modelName, modelKey, modelDescription);
     });
 
     await test.step("Attempt GeoJSON export and verify error", async () => {
@@ -206,7 +169,6 @@ test.describe("Model Export tests on Overview page", () => {
   });
 
   test("Model Export as GeoJSON with single geometry field succeeds", async ({
-    schemaPage,
     projectPage,
     fieldEditorPage,
   }) => {
@@ -215,14 +177,7 @@ test.describe("Model Export tests on Overview page", () => {
     const modelDescription = `desc-${getId()}`;
 
     await test.step("Create model and add geometry field", async () => {
-      await expect(projectPage.noModelsYetText).toBeVisible();
-      await projectPage.newModelButtonFirst.click();
-      await expect(projectPage.newModelLabelText).toBeVisible();
-      await schemaPage.modelKeyInput.fill(modelKey);
-      await schemaPage.modelNameInput.fill(modelName);
-      await projectPage.modelDescriptionInput.fill(modelDescription);
-      await schemaPage.okButton.click();
-      await projectPage.closeNotification();
+      await projectPage.createModelFromOverview(modelName, modelKey, modelDescription);
 
       // Navigate to schema to add geometry field
       await expect(projectPage.modelMenuItemByName(modelName)).toBeVisible();
@@ -249,7 +204,6 @@ test.describe("Model Export tests on Overview page", () => {
   });
 
   test("Model Export as GeoJSON with multiple geometry fields shows warning", async ({
-    schemaPage,
     projectPage,
     fieldEditorPage,
   }) => {
@@ -258,14 +212,7 @@ test.describe("Model Export tests on Overview page", () => {
     const modelDescription = `desc-${getId()}`;
 
     await test.step("Create model and add two geometry fields", async () => {
-      await expect(projectPage.noModelsYetText).toBeVisible();
-      await projectPage.newModelButtonFirst.click();
-      await expect(projectPage.newModelLabelText).toBeVisible();
-      await schemaPage.modelKeyInput.fill(modelKey);
-      await schemaPage.modelNameInput.fill(modelName);
-      await projectPage.modelDescriptionInput.fill(modelDescription);
-      await schemaPage.okButton.click();
-      await projectPage.closeNotification();
+      await projectPage.createModelFromOverview(modelName, modelKey, modelDescription);
 
       // Navigate to schema to add geometry fields
       await expect(projectPage.modelMenuItemByName(modelName)).toBeVisible();
@@ -317,14 +264,7 @@ test(
     const modelDescription = `desc-${getId()}`;
 
     await test.step("Create new model", async () => {
-      await expect(projectPage.noModelsYetText).toBeVisible();
-      await projectPage.newModelButtonFirst.click();
-      await expect(projectPage.newModelLabelText).toBeVisible();
-      await schemaPage.modelKeyInput.fill(modelKey);
-      await schemaPage.modelNameInput.fill(modelName);
-      await projectPage.modelDescriptionInput.fill(modelDescription);
-      await schemaPage.okButton.click();
-      await projectPage.closeNotification();
+      await projectPage.createModelFromOverview(modelName, modelKey, modelDescription);
       await expect(projectPage.modelTitleByName(modelName)).toBeVisible();
     });
 

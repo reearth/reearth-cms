@@ -139,13 +139,28 @@ export abstract class ProjectScopedPage extends BasePage {
     await this.closeNotification();
   }
 
-  public async createModelFromOverview(name = `model-${getId()}`, key?: string): Promise<void> {
-    await this.getByTestId(DATA_TEST_ID.ProjectOverview__NewModelButton).click();
+  protected async fillModelFormAndSubmit(
+    name: string,
+    key?: string,
+    description?: string,
+  ): Promise<void> {
     await this.getByLabel("Model name").fill(name);
     if (key) {
       await this.getByLabel("Model key").fill(key);
     }
+    if (description) {
+      await this.getByLabel("Model description").fill(description);
+    }
     await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
+  }
+
+  public async createModelFromOverview(
+    name = `model-${getId()}`,
+    key?: string,
+    description?: string,
+  ): Promise<void> {
+    await this.getByTestId(DATA_TEST_ID.ProjectOverview__NewModelButton).click();
+    await this.fillModelFormAndSubmit(name, key, description);
   }
 }

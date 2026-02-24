@@ -1,5 +1,6 @@
 // e2e/pages/schema.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { ProjectScopedPage } from "./project-scoped.page";
@@ -169,17 +170,12 @@ export class SchemaPage extends ProjectScopedPage {
 
   // Model CRUD operations
   public async createModel(name: string, key?: string): Promise<void> {
-    await this.getByLabel("Model name").fill(name);
-    if (key) {
-      await this.getByLabel("Model key").fill(key);
-    }
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
+    await this.fillModelFormAndSubmit(name, key);
   }
 
-  public async createModelFromSidebar(name = "e2e model name", key?: string): Promise<void> {
+  public async createModelFromSidebar(name = `model-${getId()}`, key?: string): Promise<void> {
     await this.getByTestId(DATA_TEST_ID.Schema__ModelAddButton).click();
-    await this.createModel(name, key);
+    await this.fillModelFormAndSubmit(name, key);
   }
 
   public async updateModel(name: string, key: string): Promise<void> {
