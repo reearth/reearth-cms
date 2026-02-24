@@ -1,40 +1,43 @@
 // e2e/pages/login.page.ts
-import { type Locator, type Page } from "@reearth-cms/e2e/fixtures/test";
+import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 
-export class LoginPage {
-  // Custom login form elements
-  public emailInput: Locator;
-  public passwordInput: Locator;
-  public loginButton: Locator;
+import { BasePage } from "./base.page";
 
-  // Auth0 login form elements
-  public auth0EmailInput: Locator;
-  public auth0PasswordInput: Locator;
-  public auth0ContinueButton: Locator;
-  public auth0SkipPasskeyButton: Locator;
-
-  // User menu elements (for logout)
-  public userMenuLink: Locator;
-  public logoutButton: Locator;
-
-  constructor(private page: Page) {
-    // Custom login form
-    this.emailInput = this.page.getByPlaceholder("username/email");
-    this.passwordInput = this.page.getByPlaceholder("your password");
-    this.loginButton = this.page.getByText("LOG IN");
-
-    // Auth0 login form
-    this.auth0EmailInput = this.page.getByLabel("Email address");
-    this.auth0PasswordInput = this.page.getByLabel("Password").first();
-    this.auth0ContinueButton = this.page.getByRole("button", { name: "Continue", exact: true });
-    this.auth0SkipPasskeyButton = this.page.getByRole("button", {
-      name: "Continue without passkeys",
-    });
-
-    // User menu
-    this.userMenuLink = this.page.locator("a").nth(1);
-    this.logoutButton = this.page.getByText("Logout");
+export class LoginPage extends BasePage {
+  // Custom login form
+  private get emailInput(): Locator {
+    return this.getByPlaceholder("username/email");
   }
+  private get passwordInput(): Locator {
+    return this.getByPlaceholder("your password");
+  }
+  private get loginButton(): Locator {
+    return this.getByText("LOG IN");
+  }
+
+  // Auth0 login form
+  public get auth0EmailInput(): Locator {
+    return this.getByLabel("Email address");
+  }
+  private get auth0PasswordInput(): Locator {
+    return this.getByLabel("Password").first();
+  }
+  private get auth0ContinueButton(): Locator {
+    return this.getByRole("button", { name: "Continue", exact: true });
+  }
+  private get auth0SkipPasskeyButton(): Locator {
+    return this.getByRole("button", { name: "Continue without passkeys" });
+  }
+
+  // User menu
+  public get userMenuLink(): Locator {
+    return this.locator("a").nth(1);
+  }
+  public get logoutButton(): Locator {
+    return this.getByText("Logout");
+  }
+
+  // goto(), expectURL() inherited from BasePage
 
   public async login(email: string, password: string) {
     await this.emailInput.click();
