@@ -16,7 +16,6 @@ test.afterEach(async ({ projectPage }) => {
 test("Date metadata creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
-  page,
 }) => {
   await test.step("Create date metadata field", async () => {
     await fieldEditorPage.metaDataTab.click();
@@ -85,7 +84,7 @@ test("Date metadata creating and updating has succeeded", async ({
   });
 });
 
-test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPage, page }) => {
+test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPage }) => {
   await test.step("Create date metadata field with default value", async () => {
     await fieldEditorPage.metaDataTab.click();
     await fieldEditorPage.fieldTypeListItem("Date").click();

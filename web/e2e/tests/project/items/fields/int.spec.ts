@@ -15,7 +15,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("@smoke Int field creating and updating has succeeded", async ({
-  page,
   fieldEditorPage,
   projectPage,
   contentPage,
@@ -56,12 +55,7 @@ test("@smoke Int field creating and updating has succeeded", async ({
   });
 });
 
-test("Int field editing has succeeded", async ({
-  page,
-  fieldEditorPage,
-  contentPage,
-  schemaPage,
-}) => {
+test("Int field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
   await test.step("Create int field with default value", async () => {
     await fieldEditorPage.createField({
       type: SchemaFieldType.Integer,
@@ -134,8 +128,8 @@ test("Int field editing has succeeded", async ({
     await expect(contentPage.cellByTextExact("1")).toBeVisible();
     await contentPage.newItemButton.click();
     await expect(fieldEditorPage.uniqueFieldLabel("new int1")).toBeVisible();
-    await expect(contentPage.spinbuttonByIndex(0)).toHaveValue("2");
-    await expect(contentPage.spinbuttonByIndex(1)).toHaveValue("3");
+    await expect(contentPage.spinButtonByIndex(0)).toHaveValue("2");
+    await expect(contentPage.spinButtonByIndex(1)).toHaveValue("3");
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
     await contentPage.backButtonLabel.click();

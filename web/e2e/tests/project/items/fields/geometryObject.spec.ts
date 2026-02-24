@@ -15,7 +15,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("GeometryObject field creating and updating has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
 }) => {
@@ -68,7 +67,6 @@ test("GeometryObject field creating and updating has succeeded", async ({
 });
 
 test("GeometryObject field editing has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,

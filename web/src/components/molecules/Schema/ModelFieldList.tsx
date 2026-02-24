@@ -171,7 +171,9 @@ const ModelFieldList: React.FC<Props> = ({
                   avatar={
                     <FieldThumbnail>
                       {hasUpdateRight && (
-                        <span className="grabbable" data-testid={DATA_TEST_ID.Schema__FieldDragHandle}>
+                        <span
+                          className="grabbable"
+                          data-testid={DATA_TEST_ID.Schema__FieldDragHandle}>
                           <DragIcon icon="menu" />
                         </span>
                       )}

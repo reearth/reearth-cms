@@ -14,7 +14,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("@smoke Checkbox metadata creating and updating has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -78,7 +77,6 @@ test("@smoke Checkbox metadata creating and updating has succeeded", async ({
 });
 
 test("Checkbox metadata editing has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,

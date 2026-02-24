@@ -15,7 +15,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("One-way reference field creating and updating has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -149,7 +148,6 @@ test("One-way reference field creating and updating has succeeded", async ({
 });
 
 test("Two-way reference field editing has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,

@@ -22,7 +22,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("@smoke Asset field creating and updating has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -90,7 +89,6 @@ test("@smoke Asset field creating and updating has succeeded", async ({
 });
 
 test("Previewing JSON file from content page into new tab succeeded", async ({
-  page,
   context,
   fieldEditorPage,
   contentPage,
@@ -142,12 +140,7 @@ test("Previewing JSON file from content page into new tab succeeded", async ({
   });
 });
 
-test("Asset field editing has succeeded", async ({
-  page,
-  fieldEditorPage,
-  contentPage,
-  schemaPage,
-}) => {
+test("Asset field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
   await test.step("Create asset field with default value", async () => {
     await fieldEditorPage.fieldTypeButton("Asset").click();
     await fieldEditorPage.displayNameInput.click();

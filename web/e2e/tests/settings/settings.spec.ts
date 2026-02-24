@@ -19,7 +19,7 @@ test.afterEach(async ({ workspacePage }) => {
   await workspacePage.deleteWorkspace();
 });
 
-test("Tiles CRUD has succeeded", async ({ settingsPage, page }) => {
+test("Tiles CRUD has succeeded", async ({ settingsPage }) => {
   await test.step("Create new tile with 'Labelled' type", async () => {
     await expect(settingsPage.addNewTilesButton).toBeVisible();
     await settingsPage.addNewTilesButton.click();
@@ -81,7 +81,7 @@ test("Tiles CRUD has succeeded", async ({ settingsPage, page }) => {
   });
 });
 
-test("Terrain on/off and CRUD has succeeded", async ({ settingsPage, page }) => {
+test("Terrain on/off and CRUD has succeeded", async ({ settingsPage }) => {
   await test.step("Enable terrain and add 'ArcGIS Terrain' type", async () => {
     await expect(settingsPage.terrainSwitch).toBeEnabled();
     await settingsPage.terrainSwitch.click();
@@ -143,7 +143,7 @@ test("Terrain on/off and CRUD has succeeded", async ({ settingsPage, page }) => 
   });
 });
 
-test("Tiles reordering has succeeded", async ({ settingsPage, page }) => {
+test("Tiles reordering has succeeded", async ({ settingsPage }) => {
   await test.step("Create two tiles and verify initial order", async () => {
     await settingsPage.addNewTilesButton.click();
     await settingsPage.okButton.click();
@@ -173,7 +173,7 @@ test("Tiles reordering has succeeded", async ({ settingsPage, page }) => {
   });
 });
 
-test("Terrain reordering has succeeded", async ({ settingsPage, page }) => {
+test("Terrain reordering has succeeded", async ({ settingsPage }) => {
   await test.step("Enable terrain and create two terrain items", async () => {
     await expect(settingsPage.terrainSwitch).toBeEnabled();
     await settingsPage.terrainSwitch.click();

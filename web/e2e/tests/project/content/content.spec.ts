@@ -35,7 +35,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("@smoke Item CRUD and searching has succeeded", async ({
-  page,
   contentPage,
   fieldEditorPage,
   projectPage,
@@ -89,7 +88,6 @@ test("@smoke Item CRUD and searching has succeeded", async ({
 });
 
 test("@smoke Publishing and Unpublishing item from edit page has succeeded", async ({
-  page,
   contentPage,
   fieldEditorPage,
 }) => {
@@ -131,7 +129,6 @@ test("@smoke Publishing and Unpublishing item from edit page has succeeded", asy
 });
 
 test("Publishing and Unpublishing item from table has succeeded", async ({
-  page,
   contentPage,
   fieldEditorPage,
 }) => {
@@ -171,12 +168,7 @@ test("Publishing and Unpublishing item from table has succeeded", async ({
   });
 });
 
-test("Showing item title has succeeded", async ({
-  page,
-  contentPage,
-  fieldEditorPage,
-  schemaPage,
-}) => {
+test("Showing item title has succeeded", async ({ contentPage, fieldEditorPage, schemaPage }) => {
   await test.step("Create text field and new item", async () => {
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await contentPage.contentText.click();
@@ -218,7 +210,6 @@ test("Showing item title has succeeded", async ({
 });
 
 test("@smoke Comment CRUD on Content page has succeeded", async ({
-  page,
   contentPage,
   fieldEditorPage,
 }) => {
@@ -250,7 +241,7 @@ test("@smoke Comment CRUD on Content page has succeeded", async ({
   });
 });
 
-test("Comment CRUD on edit page has succeeded", async ({ page, contentPage, fieldEditorPage }) => {
+test("Comment CRUD on edit page has succeeded", async ({ contentPage, fieldEditorPage }) => {
   await test.step("Create text field and new item", async () => {
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await contentPage.contentText.click();

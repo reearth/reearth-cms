@@ -362,14 +362,14 @@ The test is kept in the codebase and still runs in the full suite by default. Th
 
 ### Timing Strategy
 
-| Pattern | Action | Why |
-| --- | --- | --- |
-| `waitForTimeout(300)` as last statement before `});` | Remove | No-op; nothing follows that needs the delay |
-| `waitForTimeout(300)` after `closeNotification()` | Remove | `closeNotification()` already waits for hidden + `domcontentloaded` |
-| `waitForTimeout(300)` before auto-retry assertion (`toHaveText`, `toBeVisible`, etc.) | Remove | Playwright auto-retries; the wait adds latency with no benefit |
-| `waitForTimeout(300)` before `.click()` on potentially unstable element | Replace with `el.waitFor()` | Event-driven wait is deterministic |
-| `waitForTimeout(*)` after drag-drop with no completion event | Keep with `// drag-drop settle` comment | No reliable signal exists |
-| `waitForTimeout(*)` in `viewer.helper.ts` (Cesium poll loop) | Keep | Intentional polling interval |
+| Pattern                                                                               | Action                                  | Why                                                                 |
+| ------------------------------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------- |
+| `waitForTimeout(300)` as last statement before `});`                                  | Remove                                  | No-op; nothing follows that needs the delay                         |
+| `waitForTimeout(300)` after `closeNotification()`                                     | Remove                                  | `closeNotification()` already waits for hidden + `domcontentloaded` |
+| `waitForTimeout(300)` before auto-retry assertion (`toHaveText`, `toBeVisible`, etc.) | Remove                                  | Playwright auto-retries; the wait adds latency with no benefit      |
+| `waitForTimeout(300)` before `.click()` on potentially unstable element               | Replace with `el.waitFor()`             | Event-driven wait is deterministic                                  |
+| `waitForTimeout(*)` after drag-drop with no completion event                          | Keep with `// drag-drop settle` comment | No reliable signal exists                                           |
+| `waitForTimeout(*)` in `viewer.helper.ts` (Cesium poll loop)                          | Keep                                    | Intentional polling interval                                        |
 
 ### Test Data Isolation
 

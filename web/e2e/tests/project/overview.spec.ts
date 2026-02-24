@@ -15,11 +15,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Model CRUD on Overview page has succeeded", async ({
-  schemaPage,
-  projectPage,
-  page,
-}) => {
+test("@smoke Model CRUD on Overview page has succeeded", async ({ schemaPage, projectPage }) => {
   await test.step("Create new model from overview page", async () => {
     await expect(projectPage.noModelsYetText).toBeVisible();
     await projectPage.newModelButtonFirst.click();
@@ -74,7 +70,6 @@ test.describe("Model Export tests on Overview page", () => {
   test("Model Export as JSON on Overview page has succeeded", async ({
     schemaPage,
     projectPage,
-    page,
   }) => {
     await test.step("Create new model", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
@@ -102,7 +97,6 @@ test.describe("Model Export tests on Overview page", () => {
   test("Model Export as CSV on Overview page has succeeded", async ({
     schemaPage,
     projectPage,
-    page,
   }) => {
     await test.step("Create new model", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
@@ -133,7 +127,7 @@ test.describe("Model Export tests on Overview page", () => {
     });
   });
 
-  test("Model Export Schema has succeeded", async ({ schemaPage, projectPage, page }) => {
+  test("Model Export Schema has succeeded", async ({ schemaPage, projectPage }) => {
     await test.step("Create new model", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
       await projectPage.newModelButtonFirst.click();
@@ -157,7 +151,6 @@ test.describe("Model Export tests on Overview page", () => {
   test("Model Export as GeoJSON without geometry field shows error", async ({
     schemaPage,
     projectPage,
-    page,
   }) => {
     await test.step("Create model without geometry field", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
@@ -189,7 +182,6 @@ test.describe("Model Export tests on Overview page", () => {
     schemaPage,
     projectPage,
     fieldEditorPage,
-    page,
   }) => {
     await test.step("Create model and add geometry field", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
@@ -229,7 +221,6 @@ test.describe("Model Export tests on Overview page", () => {
     schemaPage,
     projectPage,
     fieldEditorPage,
-    page,
   }) => {
     await test.step("Create model and add two geometry fields", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
@@ -315,10 +306,7 @@ test("Import schema dropdown redirects to schema page correctly, with import sch
   });
 });
 
-test("Creating Model by using the button on placeholder has succeeded", async ({
-  projectPage,
-  page,
-}) => {
+test("Creating Model by using the button on placeholder has succeeded", async ({ projectPage }) => {
   await test.step("Create model using placeholder button", async () => {
     await projectPage.newModelButtonLast.click();
     await expect(projectPage.dialogNewModelText).toBeVisible();

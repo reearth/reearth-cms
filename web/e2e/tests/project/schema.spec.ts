@@ -26,7 +26,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Model CRUD has succeeded", async ({ schemaPage, fieldEditorPage, page }) => {
+test("@smoke Model CRUD has succeeded", async ({ schemaPage, fieldEditorPage }) => {
   const modelName = "model name";
   const modelKey = "model-key";
   const newModelName = "new model name";
@@ -52,7 +52,7 @@ test("@smoke Model CRUD has succeeded", async ({ schemaPage, fieldEditorPage, pa
   });
 });
 
-test("Model reordering has succeeded", async ({ schemaPage, page }) => {
+test("Model reordering has succeeded", async ({ schemaPage }) => {
   const modelName1 = "model1";
   const modelName2 = "model2";
   const modelName3 = "model3";
@@ -150,7 +150,7 @@ test.describe("Test import schema", () => {
   });
 });
 
-test("@smoke Group CRUD has succeeded", async ({ schemaPage, fieldEditorPage, page }) => {
+test("@smoke Group CRUD has succeeded", async ({ schemaPage, fieldEditorPage }) => {
   const groupName = "e2e group name";
   const groupKey = "e2e-group-key";
   const updateGroupName = "new e2e group name";
@@ -175,11 +175,7 @@ test("@smoke Group CRUD has succeeded", async ({ schemaPage, fieldEditorPage, pa
   });
 });
 
-test("Group creating from adding field has succeeded", async ({
-  schemaPage,
-  fieldEditorPage,
-  page,
-}) => {
+test("Group creating from adding field has succeeded", async ({ schemaPage, fieldEditorPage }) => {
   await test.step("Create model and open group field dialog", async () => {
     await schemaPage.createModelFromSidebar();
     await expect(fieldEditorPage.fieldTypeListItem("Group")).toBeVisible();
@@ -228,7 +224,7 @@ test("Group creating from adding field has succeeded", async ({
   });
 });
 
-test("Group reordering has succeeded", async ({ schemaPage, page }) => {
+test("Group reordering has succeeded", async ({ schemaPage }) => {
   await test.step("Create two groups and verify initial order", async () => {
     await schemaPage.createGroup("group1", "group1");
     await schemaPage.createGroup("group2", "group2");
@@ -251,7 +247,7 @@ test("Group reordering has succeeded", async ({ schemaPage, page }) => {
   });
 });
 
-test("Text field CRUD has succeeded", async ({ fieldEditorPage, schemaPage, page }) => {
+test("Text field CRUD has succeeded", async ({ fieldEditorPage, schemaPage }) => {
   await test.step("Create model and add text field", async () => {
     await schemaPage.createModelFromSidebar();
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
@@ -271,7 +267,7 @@ test("Text field CRUD has succeeded", async ({ fieldEditorPage, schemaPage, page
   });
 });
 
-test("Schema reordering has succeeded", async ({ schemaPage, fieldEditorPage, page }) => {
+test("Schema reordering has succeeded", async ({ schemaPage, fieldEditorPage }) => {
   await test.step("Create model and add two text fields", async () => {
     await schemaPage.createModelFromSidebar();
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text1" });

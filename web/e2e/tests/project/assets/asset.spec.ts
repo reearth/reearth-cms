@@ -122,7 +122,7 @@ test.describe("Json file tests", () => {
   });
 });
 
-test("Previewing png file on modal has succeeded", async ({ assetsPage, page }) => {
+test("Previewing png file on modal has succeeded", async ({ assetsPage }) => {
   await test.step("Upload PNG file via URL", async () => {
     await assetsPage.uploadViaUrl(pngUrl);
   });

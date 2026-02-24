@@ -394,7 +394,7 @@ export class ContentPage extends ProjectScopedPage {
   }
 
   // Spinbutton elements (for numeric fields)
-  public spinbuttonByIndex(index: number): Locator {
+  public spinButtonByIndex(index: number): Locator {
     return this.getByRole("spinbutton").nth(index);
   }
 

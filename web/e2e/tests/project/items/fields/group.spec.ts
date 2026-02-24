@@ -18,7 +18,6 @@ test("Group field creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,
-  page,
 }) => {
   const groupName = "e2e group name";
   const groupKey = "e2e-group-key";
@@ -167,12 +166,7 @@ test("Group field creating and updating has succeeded", async ({
   });
 });
 
-test("Group field editing has succeeded", async ({
-  fieldEditorPage,
-  contentPage,
-  schemaPage,
-  page,
-}) => {
+test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
   const groupName = "e2e group name";
   const groupKey = "e2e-group-key";
 

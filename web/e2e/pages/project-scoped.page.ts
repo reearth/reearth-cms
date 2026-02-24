@@ -69,9 +69,7 @@ export abstract class ProjectScopedPage extends BasePage {
   }
 
   public async gotoProject(name: string): Promise<void> {
-    await this.getByTestId(DATA_TEST_ID.ProjectCard__Wrapper)
-      .filter({ hasText: name })
-      .click();
+    await this.getByTestId(DATA_TEST_ID.ProjectCard__Wrapper).filter({ hasText: name }).click();
     const projectName = this.getByTestId(DATA_TEST_ID.Header__ProjectName);
     await expect(projectName).toHaveText(name);
     // projectBaseUrl is auto-set by the framenavigated listener — no manual storage needed

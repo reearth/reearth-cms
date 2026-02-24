@@ -15,7 +15,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("@smoke Text field editing has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,

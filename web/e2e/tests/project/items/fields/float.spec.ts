@@ -109,8 +109,8 @@ test("Float field editing has succeeded", async ({ fieldEditorPage, contentPage,
   await expect(contentPage.cellByTextExact("1.1")).toBeVisible();
   await contentPage.newItemButton.click();
   await expect(fieldEditorPage.uniqueFieldLabel("new float1")).toBeVisible();
-  await expect(contentPage.spinbuttonByIndex(0)).toHaveValue("2.2");
-  await expect(contentPage.spinbuttonByIndex(1)).toHaveValue("3.3");
+  await expect(contentPage.spinButtonByIndex(0)).toHaveValue("2.2");
+  await expect(contentPage.spinButtonByIndex(1)).toHaveValue("3.3");
   await contentPage.saveButton.click();
   await contentPage.closeNotification();
   await contentPage.backButtonLabel.click();

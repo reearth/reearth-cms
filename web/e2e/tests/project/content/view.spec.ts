@@ -22,7 +22,7 @@ test.afterEach(async ({ projectPage, workspacePage }) => {
   await workspacePage.deleteWorkspace();
 });
 
-test("Create a new view", async ({ page, fieldEditorPage, projectPage, contentPage }) => {
+test("Create a new view", async ({ fieldEditorPage, projectPage, contentPage }) => {
   await test.step("Setup: Create text field and content items", async () => {
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await projectPage.contentMenuItem.click();
@@ -43,7 +43,7 @@ test("Create a new view", async ({ page, fieldEditorPage, projectPage, contentPa
   });
 });
 
-test("Rename an existing view", async ({ page, fieldEditorPage, projectPage, contentPage }) => {
+test("Rename an existing view", async ({ fieldEditorPage, projectPage, contentPage }) => {
   await test.step("Setup: Create text field and content item", async () => {
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await projectPage.contentMenuItem.click();
@@ -71,7 +71,7 @@ test("Rename an existing view", async ({ page, fieldEditorPage, projectPage, con
   });
 });
 
-test("Cancel view deletion", async ({ page, fieldEditorPage, projectPage, contentPage }) => {
+test("Cancel view deletion", async ({ fieldEditorPage, projectPage, contentPage }) => {
   await test.step("Setup: Create text field and content item", async () => {
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await projectPage.contentMenuItem.click();
@@ -96,7 +96,7 @@ test("Cancel view deletion", async ({ page, fieldEditorPage, projectPage, conten
   });
 });
 
-test("Apply sorting to view", async ({ page, fieldEditorPage, projectPage, contentPage }) => {
+test("Apply sorting to view", async ({ fieldEditorPage, projectPage, contentPage }) => {
   await test.step("Setup: Create text field and content items", async () => {
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await projectPage.contentMenuItem.click();
@@ -116,7 +116,7 @@ test("Apply sorting to view", async ({ page, fieldEditorPage, projectPage, conte
   });
 });
 
-test("Apply filter to view", async ({ page, fieldEditorPage, projectPage, contentPage }) => {
+test("Apply filter to view", async ({ fieldEditorPage, projectPage, contentPage }) => {
   await test.step("Setup: Create text field and content items", async () => {
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await projectPage.contentMenuItem.click();
@@ -141,7 +141,6 @@ test("Apply filter to view", async ({ page, fieldEditorPage, projectPage, conten
 });
 
 test("Toggle column visibility in view settings", async ({
-  page,
   fieldEditorPage,
   projectPage,
   contentPage,
@@ -167,7 +166,6 @@ test("Toggle column visibility in view settings", async ({
 });
 
 test("Save view with custom sorting and filtering", async ({
-  page,
   fieldEditorPage,
   projectPage,
   contentPage,
@@ -218,7 +216,6 @@ test("Save view with custom sorting and filtering", async ({
 });
 
 test("Switch between views preserves individual view settings", async ({
-  page,
   fieldEditorPage,
   projectPage,
   contentPage,
@@ -277,7 +274,7 @@ test("Switch between views preserves individual view settings", async ({
   });
 });
 
-test("Update view settings", async ({ page, fieldEditorPage, projectPage, contentPage }) => {
+test("Update view settings", async ({ fieldEditorPage, projectPage, contentPage }) => {
   await test.step("Setup: Create text field and content items", async () => {
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await projectPage.contentMenuItem.click();
@@ -330,7 +327,6 @@ test("Update view settings", async ({ page, fieldEditorPage, projectPage, conten
 });
 
 test("Delete view and switch to remaining view", async ({
-  page,
   fieldEditorPage,
   projectPage,
   contentPage,
@@ -387,7 +383,7 @@ test("Delete view and switch to remaining view", async ({
   });
 });
 
-test("View reordering has succeeded", async ({ page, projectPage, contentPage }) => {
+test("View reordering has succeeded", async ({ projectPage, contentPage }) => {
   await test.step("Navigate to content page", async () => {
     await projectPage.contentMenuItem.click();
     await projectPage.modelMenuItemClick(projectPage.modelName).click();

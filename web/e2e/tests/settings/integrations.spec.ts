@@ -17,7 +17,7 @@ test.afterEach(async ({ integrationsPage }) => {
   await expect(integrationsPage.integrationTextById(id)).toBeHidden();
 });
 
-test("Integration CRUD and searching has succeeded", async ({ integrationsPage, page }) => {
+test("Integration CRUD and searching has succeeded", async ({ integrationsPage }) => {
   await test.step("Create integration", async () => {
     await integrationsPage.myIntegrationsMenuItem.click();
     await expect(integrationsPage.createIntegrationButton).toBeVisible();

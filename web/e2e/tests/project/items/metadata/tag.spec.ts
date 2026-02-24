@@ -19,7 +19,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("@smoke Tag metadata creating and updating has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -99,12 +98,7 @@ test("@smoke Tag metadata creating and updating has succeeded", async ({
   });
 });
 
-test("Tag metadata editing has succeeded", async ({
-  page,
-  fieldEditorPage,
-  contentPage,
-  schemaPage,
-}) => {
+test("Tag metadata editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
   const newFieldName = `new ${fieldName}`;
   const newKey = `new-${fieldName}`;
   const newDescription = `new ${description}`;

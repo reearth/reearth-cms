@@ -50,7 +50,7 @@ test("MyIntegration CRUD has succeeded", async ({ integrationsPage, page }) => {
   });
 });
 
-test("Webhook CRUD has succeeded", async ({ integrationsPage, page }) => {
+test("Webhook CRUD has succeeded", async ({ integrationsPage }) => {
   await test.step("Create webhook with basic configuration", async () => {
     await expect(integrationsPage.webhookTab).toBeVisible();
     await integrationsPage.webhookTab.click();

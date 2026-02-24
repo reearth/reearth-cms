@@ -15,7 +15,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("@smoke Option field creating and updating has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -84,12 +83,7 @@ test("@smoke Option field creating and updating has succeeded", async ({
   });
 });
 
-test("Option field editing has succeeded", async ({
-  page,
-  fieldEditorPage,
-  contentPage,
-  schemaPage,
-}) => {
+test("Option field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
   await test.step("Create option field with three values and default", async () => {
     await schemaPage.fieldTypeButton("Option").click();
     await fieldEditorPage.displayNameInput.click();
