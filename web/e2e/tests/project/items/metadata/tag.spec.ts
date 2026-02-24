@@ -6,8 +6,8 @@ const description = "tag description";
 const tag1 = "Tag1";
 const tag2 = "Tag2";
 
-test.beforeEach(async ({ reearth, projectPage }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+test.beforeEach(async ({ projectPage }) => {
+  await projectPage.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);

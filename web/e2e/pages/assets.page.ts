@@ -97,6 +97,10 @@ export class AssetsPage extends ProjectScopedPage {
     return this.getByText("Asset TypePNG/JPEG/TIFF/GIF");
   }
 
+  public waitForDownload(): Promise<import("@playwright/test").Download> {
+    return this.page.waitForEvent("download");
+  }
+
   public async uploadViaUrl(url: string, autoUnzip = false): Promise<void> {
     await this.uploadButton.click();
     await this.urlTab.click();

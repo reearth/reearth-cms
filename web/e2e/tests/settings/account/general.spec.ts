@@ -3,15 +3,15 @@ import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 let originalUsername: string;
 let originalEmail: string;
 
-test.beforeEach(async ({ reearth, settingsPage }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+test.beforeEach(async ({ settingsPage }) => {
+  await settingsPage.goto("/", { waitUntil: "domcontentloaded" });
   await settingsPage.textByName("Account").click();
   originalUsername = await settingsPage.accountNameInput.inputValue();
   originalEmail = await settingsPage.yourEmailInput.inputValue();
 });
 
-test.afterEach(async ({ reearth, settingsPage }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+test.afterEach(async ({ settingsPage }) => {
+  await settingsPage.goto("/", { waitUntil: "domcontentloaded" });
   await settingsPage.accountText.click();
   const username = await settingsPage.accountNameInput.inputValue();
   const email = await settingsPage.yourEmailInput.inputValue();
@@ -25,9 +25,9 @@ test.afterEach(async ({ reearth, settingsPage }) => {
   }
 });
 
-test("Name and email updating has succeeded", async ({ reearth, settingsPage }) => {
+test("Name and email updating has succeeded", async ({ settingsPage }) => {
   test.skip(process.env.ENV !== "oss", "This test is only for oss");
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+  await settingsPage.goto("/", { waitUntil: "domcontentloaded" });
   await settingsPage.textByName("Account").click();
 
   await settingsPage.accountNameInputExact.click();

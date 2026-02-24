@@ -7,8 +7,8 @@ const EXIST_PROJECT_NAME = getId();
 const PROJECT_NAME = getId();
 const NEW_PROJECT_NAME = getId();
 
-test.beforeEach(async ({ reearth }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+test.beforeEach(async ({ projectSettingsPage }) => {
+  await projectSettingsPage.goto("/", { waitUntil: "domcontentloaded" });
 });
 
 test.describe("Project General Settings", () => {

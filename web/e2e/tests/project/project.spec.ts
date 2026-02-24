@@ -3,8 +3,8 @@ import { getId, getMultipleProjects } from "@reearth-cms/e2e/helpers/mock.helper
 
 test.describe.configure({ mode: "default" });
 
-test.beforeEach(async ({ reearth }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+test.beforeEach(async ({ workspacePage }) => {
+  await workspacePage.goto("/", { waitUntil: "domcontentloaded" });
 });
 
 test.describe("Project CRUD and searching has succeeded", () => {
@@ -249,15 +249,16 @@ test.describe("Project List", () => {
     });
   });
 
-  test.afterEach(async ({ workspacePage, projectPage, page }) => {
+  test.afterEach(async ({ workspacePage, projectPage }) => {
     for await (const projectName of PROJECT_ID_LIST) {
       await workspacePage.goto("/", { waitUntil: "domcontentloaded" });
       await workspacePage.searchProjectsInput.fill(projectName);
       await workspacePage.searchButton.click();
-      // Wait for search results to settle before non-retrying isVisible check
-      await page.waitForTimeout(300);
       const projectCard = workspacePage.projectCardByName(projectName);
-      const isVisible = await projectCard.isVisible().catch(() => false);
+      const isVisible = await projectCard
+        .waitFor({ timeout: 2000 })
+        .then(() => true)
+        .catch(() => false);
       if (isVisible) {
         await projectPage.gotoProject(projectName);
         await projectPage.deleteProject();

@@ -3,8 +3,8 @@ import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 let id: string;
 
-test.beforeEach(async ({ reearth }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+test.beforeEach(async ({ integrationsPage }) => {
+  await integrationsPage.goto("/", { waitUntil: "domcontentloaded" });
   id = getId();
 });
 

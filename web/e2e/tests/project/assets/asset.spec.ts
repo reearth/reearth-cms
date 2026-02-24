@@ -7,8 +7,8 @@ const jsonUrl = `https://assets.cms.plateau.reearth.io/assets/11/6d05db-ed47-4f8
 const pngName = "road_plan2.png";
 const pngUrl = `https://assets.cms.plateau.reearth.io/assets/33/e999c4-7859-446b-ab3c-86625b3c760e/${pngName}`;
 
-test.beforeEach(async ({ reearth, projectPage }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+test.beforeEach(async ({ projectPage }) => {
+  await projectPage.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
@@ -51,7 +51,7 @@ test.describe("Json file tests", () => {
     await assetsPage.closeNotification();
   });
 
-  test("Previewing json file by full screen has succeeded", async ({ page, assetsPage }) => {
+  test("Previewing json file by full screen has succeeded", async ({ assetsPage }) => {
     await assetsPage.editIconButton.click();
 
     // change type
@@ -71,21 +71,21 @@ test.describe("Json file tests", () => {
     // The browser Fullscreen API (canvas.requestFullscreen()) does not work
     // in headless Chromium, so we only assert canvas dimensions when
     // fullscreen actually engaged.
-    const isFullscreen = await page.evaluate(() => document.fullscreenElement !== null);
+    const isFullscreen = await assetsPage.evaluate(() => document.fullscreenElement !== null);
     if (isFullscreen) {
-      const viewportSize = page.viewportSize();
+      const viewportSize = assetsPage.viewportSize();
       expect(viewportSize).toBeTruthy();
       await expect(assetsPage.canvas).toHaveAttribute("width", String(viewportSize?.width));
       await expect(assetsPage.canvas).toHaveAttribute("height", String(viewportSize?.height));
     }
 
-    await page.goBack();
+    await assetsPage.goBack();
   });
 
-  test("Downloading asset has succeeded", async ({ page, assetsPage }) => {
+  test("Downloading asset has succeeded", async ({ assetsPage }) => {
     // select + bulk download
     await assetsPage.selectAssetCheckbox.check();
-    const bulkDownload = page.waitForEvent("download");
+    const bulkDownload = assetsPage.waitForDownload();
     await assetsPage.downloadButton.click();
     const d1 = await bulkDownload;
     expect(d1.suggestedFilename()).toEqual(jsonName);
@@ -93,7 +93,7 @@ test.describe("Json file tests", () => {
 
     // details download
     await assetsPage.editIconButton.click();
-    const detailsDownload = page.waitForEvent("download");
+    const detailsDownload = assetsPage.waitForDownload();
     await assetsPage.downloadButton.click();
     const d2 = await detailsDownload;
     expect(d2.suggestedFilename()).toEqual(jsonName);

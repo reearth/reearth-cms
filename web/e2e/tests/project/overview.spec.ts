@@ -4,8 +4,8 @@ import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 const isCI = !!process.env.CI;
 
-test.beforeEach(async ({ reearth, projectPage }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+test.beforeEach(async ({ projectPage }) => {
+  await projectPage.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
@@ -276,7 +276,6 @@ test.describe("Model Export tests on Overview page", () => {
 test("Import schema dropdown redirects to schema page correctly, with import schema modal opened", async ({
   schemaPage,
   projectPage,
-  page,
 }) => {
   const modelName = `model-${getId()}`;
   const modelKey = `model-key-${getId()}`;
@@ -301,7 +300,7 @@ test("Import schema dropdown redirects to schema page correctly, with import sch
   });
 
   await test.step("Verify schema page and modal opened", async () => {
-    await expect(page).toHaveURL(/\/schema\//);
+    await schemaPage.expectURL(/\/schema\//);
     await expect(schemaPage.importSchemaDialog).toBeVisible();
   });
 });

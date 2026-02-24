@@ -1,4 +1,5 @@
-import { type Page, type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { getAccessToken } from "@reearth-cms/e2e/config/config";
+import { expect, type Page, type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 type Role =
@@ -97,6 +98,34 @@ export abstract class BasePage {
     options?: { waitUntil?: "domcontentloaded" | "load" | "networkidle" },
   ) {
     await this.page.goto(url, options);
+    const token = getAccessToken();
+    if (token) {
+      await this.page.evaluate(
+        `window.REEARTH_E2E_ACCESS_TOKEN = ${JSON.stringify(token)};`,
+      );
+    }
+  }
+
+  public async expectURL(urlOrPattern: string | RegExp): Promise<void> {
+    await expect(this.page).toHaveURL(urlOrPattern);
+  }
+
+  public async evaluate<T>(fn: () => T): Promise<T> {
+    return this.page.evaluate(fn);
+  }
+
+  public viewportSize(): { width: number; height: number } | null {
+    return this.page.viewportSize();
+  }
+
+  public async goBack(): Promise<void> {
+    await this.page.goBack();
+  }
+
+  public async waitForLoadState(
+    state?: "load" | "domcontentloaded" | "networkidle",
+  ): Promise<void> {
+    await this.page.waitForLoadState(state);
   }
 
   public url() {

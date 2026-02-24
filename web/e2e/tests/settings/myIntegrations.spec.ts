@@ -5,11 +5,11 @@ let integrationName: string;
 let newIntegrationName: string;
 let newDescription: string;
 
-test.beforeEach(async ({ reearth, integrationsPage }) => {
+test.beforeEach(async ({ integrationsPage }) => {
   integrationName = getId();
   newIntegrationName = getId();
   newDescription = `newDescription-${getId()}`;
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+  await integrationsPage.goto("/", { waitUntil: "domcontentloaded" });
   await integrationsPage.myIntegrationsMenuItem.click();
   await integrationsPage.createIntegrationButton.click();
 
@@ -23,7 +23,7 @@ test.beforeEach(async ({ reearth, integrationsPage }) => {
   await integrationsPage.integrationTextByName(integrationName, newDescription).last().click();
 });
 
-test("MyIntegration CRUD has succeeded", async ({ integrationsPage, page }) => {
+test("MyIntegration CRUD has succeeded", async ({ integrationsPage }) => {
   await test.step("Update integration name and description", async () => {
     await integrationsPage.integrationNameInput.click();
     await integrationsPage.integrationNameInput.fill(newIntegrationName);
@@ -45,7 +45,7 @@ test("MyIntegration CRUD has succeeded", async ({ integrationsPage, page }) => {
     await integrationsPage.okButton.click();
     await integrationsPage.closeNotification();
     // Wait for navigation back to the list and ensure the deleted item is no longer visible
-    await page.waitForLoadState("domcontentloaded");
+    await integrationsPage.waitForLoadState("domcontentloaded");
     await expect(integrationsPage.integrationLinkByText(newDescription)).toBeHidden();
   });
 });

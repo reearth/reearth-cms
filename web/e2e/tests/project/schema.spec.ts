@@ -14,8 +14,8 @@ const IMPORT_SCHEMA_TEMPLATE_PATH = path.resolve(
   "../../../public/templates/import-schema-template.json",
 );
 
-test.beforeEach(async ({ reearth, projectPage }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+test.beforeEach(async ({ projectPage }) => {
+  await projectPage.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
@@ -80,7 +80,7 @@ test("Model reordering has succeeded", async ({ schemaPage }) => {
 });
 
 test.describe("Test import schema", () => {
-  test("Import schema from static file has succeeded", async ({ schemaPage, page }) => {
+  test("Import schema from static file has succeeded", async ({ schemaPage }) => {
     const modelName = `model-${getId()}`;
     const modelKey = `model-key-${getId()}`;
 
@@ -96,10 +96,10 @@ test.describe("Test import schema", () => {
 
     await test.step("Upload schema file and import", async () => {
       const importModal = schemaPage.importSchemaDialog;
-      await page
+      await schemaPage
         .getByTestId(DATA_TEST_ID.FileSelectionStep__FileSelect)
         .setInputFiles(IMPORT_SCHEMA_TEMPLATE_PATH);
-      await expect(page.getByTestId(DATA_TEST_ID.SchemaPreviewStep__Wrapper)).toBeVisible();
+      await expect(schemaPage.getByTestId(DATA_TEST_ID.SchemaPreviewStep__Wrapper)).toBeVisible();
 
       await schemaPage.importSchemaModalImportButton.click();
       await expect(importModal).toBeHidden();
@@ -111,7 +111,7 @@ test.describe("Test import schema", () => {
     });
   });
 
-  test("Model Import Schema skips unchecked field", async ({ schemaPage, page }) => {
+  test("Model Import Schema skips unchecked field", async ({ schemaPage }) => {
     const modelName = `model-${getId()}`;
     const modelKey = `model-key-${getId()}`;
 
@@ -126,14 +126,14 @@ test.describe("Test import schema", () => {
     });
 
     await test.step("Upload schema file", async () => {
-      await page
+      await schemaPage
         .getByTestId(DATA_TEST_ID.FileSelectionStep__FileSelect)
         .setInputFiles(IMPORT_SCHEMA_TEMPLATE_PATH);
-      await expect(page.getByTestId(DATA_TEST_ID.SchemaPreviewStep__Wrapper)).toBeVisible();
+      await expect(schemaPage.getByTestId(DATA_TEST_ID.SchemaPreviewStep__Wrapper)).toBeVisible();
     });
 
     await test.step("Uncheck a field", async () => {
-      const fieldRow = page
+      const fieldRow = schemaPage
         .getByTestId(DATA_TEST_ID.SchemaPreviewStep__PreviewFieldList)
         .locator(".ant-list-item")
         .filter({ hasText: "#text-field-key", hasNotText: "#text-field-key-multi" });

@@ -17,8 +17,8 @@ function getRgb(colorCode: string) {
   ).replaceAll(",", ", ")})`;
 }
 
-test.beforeEach(async ({ reearth, fieldEditorPage, projectPage, contentPage }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+test.beforeEach(async ({ fieldEditorPage, projectPage, contentPage }) => {
+  await projectPage.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);

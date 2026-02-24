@@ -22,8 +22,8 @@ const TEST_IMPORT_CONTENT_GEO_JSON_PATH = path.resolve(
   "../../../files/test-import-content.geojson",
 );
 
-test.beforeEach(async ({ reearth, projectPage }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+test.beforeEach(async ({ projectPage }) => {
+  await projectPage.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);

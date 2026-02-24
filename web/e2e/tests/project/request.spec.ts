@@ -7,8 +7,8 @@ const titleFieldName = "e2e title field";
 const requestTitle = "e2e request title";
 const modelName = "e2e model name";
 
-test.beforeEach(async ({ reearth, projectPage, fieldEditorPage, contentPage }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+test.beforeEach(async ({ projectPage, fieldEditorPage, contentPage }) => {
+  await projectPage.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
