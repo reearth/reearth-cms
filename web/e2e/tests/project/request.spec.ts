@@ -1,5 +1,5 @@
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 const itemTitle = "e2e item title";
@@ -27,54 +27,56 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Request creating, searching, updating reviewer, and approving has succeeded", async ({
-  requestPage,
-}) => {
-  await test.step("Navigate to request page and verify request is visible", async () => {
-    await requestPage.requestMenuItem.click();
-    await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
-    await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
-  });
+test(
+  "Request creating, searching, updating reviewer, and approving has succeeded",
+  { tag: TAG.SMOKE },
+  async ({ requestPage }) => {
+    await test.step("Navigate to request page and verify request is visible", async () => {
+      await requestPage.requestMenuItem.click();
+      await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
+      await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
+    });
 
-  await test.step("Search for non-existent request", async () => {
-    await requestPage.searchInput.click();
-    await requestPage.searchInput.fill("no request");
-    await requestPage.searchButton.click();
-    await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeHidden();
-    await expect(requestPage.tableBodyTextByText("WAITING")).toBeHidden();
-  });
+    await test.step("Search for non-existent request", async () => {
+      await requestPage.searchInput.click();
+      await requestPage.searchInput.fill("no request");
+      await requestPage.searchButton.click();
+      await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeHidden();
+      await expect(requestPage.tableBodyTextByText("WAITING")).toBeHidden();
+    });
 
-  await test.step("Clear search and verify request is visible again", async () => {
-    await requestPage.searchInput.fill("");
-    await requestPage.searchButton.click();
-    await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
-    await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
-  });
+    await test.step("Clear search and verify request is visible again", async () => {
+      await requestPage.searchInput.fill("");
+      await requestPage.searchButton.click();
+      await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
+      await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
+    });
 
-  await test.step("Assign reviewer to request", async () => {
-    await requestPage.editButton.click();
-    await requestPage.assignToButton.click();
-    await requestPage.closeCircleButton.click();
-    await requestPage.selectOverflow.click();
-    await requestPage.selectItem.click();
-    await requestPage.reviewerHeading.click();
-  });
+    await test.step("Assign reviewer to request", async () => {
+      await requestPage.editButton.click();
+      await requestPage.assignToButton.click();
+      await requestPage.closeCircleButton.click();
+      await requestPage.selectOverflow.click();
+      await requestPage.selectItem.click();
+      await requestPage.reviewerHeading.click();
+    });
 
-  await test.step("Approve request", async () => {
-    await requestPage.approveButton.click();
-    await requestPage.closeNotification();
-    await requestPage.backButton.click();
-  });
+    await test.step("Approve request", async () => {
+      await requestPage.approveButton.click();
+      await requestPage.closeNotification();
+      await requestPage.backButton.click();
+    });
 
-  await test.step("Verify request is approved and filter works correctly", async () => {
-    await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeHidden();
-    await requestPage.stateFilterButton.click();
-    await requestPage.waitingMenuItem().uncheck();
-    await requestPage.okButton.click();
-    await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
-    await expect(requestPage.tableBodyTextByText("APPROVED")).toBeVisible();
-  });
-});
+    await test.step("Verify request is approved and filter works correctly", async () => {
+      await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeHidden();
+      await requestPage.stateFilterButton.click();
+      await requestPage.waitingMenuItem().uncheck();
+      await requestPage.okButton.click();
+      await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
+      await expect(requestPage.tableBodyTextByText("APPROVED")).toBeVisible();
+    });
+  },
+);
 
 test("Request closing and reopening has succeeded", async ({ requestPage }) => {
   await test.step("Navigate to request page and verify initial state", async () => {

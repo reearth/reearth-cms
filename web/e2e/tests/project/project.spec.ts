@@ -1,4 +1,4 @@
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId, getMultipleProjects } from "@reearth-cms/e2e/helpers/mock.helper";
 
 test.describe.configure({ mode: "default" });
@@ -14,7 +14,7 @@ test.describe("Project CRUD and searching has succeeded", () => {
   const NEW_PROJECT_NAME = `new ${PROJECT_NAME}`;
   const NEW_PROJECT_DESCRIPTION = `new ${PROJECT_DESCRIPTION}`;
 
-  test("@smoke Create project", async ({ workspacePage }) => {
+  test("Create project", { tag: TAG.SMOKE }, async ({ workspacePage }) => {
     await test.step("Open new project dialog and fill details", async () => {
       const newProjectButton = workspacePage.newProjectButtonLast;
       await newProjectButton.click();
@@ -54,7 +54,7 @@ test.describe("Project CRUD and searching has succeeded", () => {
     });
   });
 
-  test("@smoke Update project", async ({ projectPage, projectSettingsPage }) => {
+  test("Update project", { tag: TAG.SMOKE }, async ({ projectPage, projectSettingsPage }) => {
     await test.step("Navigate to project settings and update name and description", async () => {
       await projectPage.gotoProject(PROJECT_NAME);
       await projectSettingsPage.goToProjectSettings();
@@ -83,24 +83,28 @@ test.describe("Project CRUD and searching has succeeded", () => {
     });
   });
 
-  test("@smoke Delete project", async ({ projectPage, workspacePage, projectSettingsPage }) => {
-    await test.step("Navigate to project settings and delete project", async () => {
-      await projectPage.gotoProject(NEW_PROJECT_NAME);
-      await projectSettingsPage.goToProjectSettings();
-      const deleteButton = projectPage.deleteProjectButton;
-      await deleteButton.waitFor({ state: "visible" });
-      await deleteButton.click();
-      await projectPage.confirmDeleteProjectButton.click();
-      await projectPage.closeNotification();
-    });
+  test(
+    "Delete project",
+    { tag: TAG.SMOKE },
+    async ({ projectPage, workspacePage, projectSettingsPage }) => {
+      await test.step("Navigate to project settings and delete project", async () => {
+        await projectPage.gotoProject(NEW_PROJECT_NAME);
+        await projectSettingsPage.goToProjectSettings();
+        const deleteButton = projectPage.deleteProjectButton;
+        await deleteButton.waitFor({ state: "visible" });
+        await deleteButton.click();
+        await projectPage.confirmDeleteProjectButton.click();
+        await projectPage.closeNotification();
+      });
 
-    await test.step("Verify project no longer appears in list", async () => {
-      await expect(workspacePage.projectTextByName(NEW_PROJECT_NAME, true)).toBeHidden();
-    });
-  });
+      await test.step("Verify project no longer appears in list", async () => {
+        await expect(workspacePage.projectTextByName(NEW_PROJECT_NAME, true)).toBeHidden();
+      });
+    },
+  );
 });
 
-test.describe("Project List", () => {
+test.describe("Project List", { tag: TAG.REDUNDANT }, () => {
   test.skip();
   const { PROJECT_ID_LIST, FIRST_PAGE_PROJECTS, SECOND_PAGE_PROJECTS, NAME_SEPARATOR } =
     getMultipleProjects();

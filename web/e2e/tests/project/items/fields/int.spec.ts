@@ -1,5 +1,5 @@
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 test.beforeEach(async ({ projectPage }) => {
@@ -14,46 +14,45 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Int field creating and updating has succeeded", async ({
-  fieldEditorPage,
-  projectPage,
-  contentPage,
-  schemaPage,
-}) => {
-  await test.step("Create int field with settings", async () => {
-    await fieldEditorPage.createField({
-      type: SchemaFieldType.Integer,
-      name: "int1",
-      key: "int1",
-      description: "int1 description",
+test(
+  "Int field creating and updating has succeeded",
+  { tag: TAG.SMOKE },
+  async ({ fieldEditorPage, projectPage, contentPage, schemaPage }) => {
+    await test.step("Create int field with settings", async () => {
+      await fieldEditorPage.createField({
+        type: SchemaFieldType.Integer,
+        name: "int1",
+        key: "int1",
+        description: "int1 description",
+      });
+      await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("int1#int1");
     });
-    await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("int1#int1");
-  });
 
-  await test.step("Create item with int value", async () => {
-    await projectPage.contentMenuItem.click();
-    await contentPage.newItemButton.click();
-    await expect(contentPage.firstLabel).toContainText("int1");
-    await expect(contentPage.mainRole).toContainText("int1 description");
-    await contentPage.fieldInput("int1").click();
-    await contentPage.fieldInput("int1").fill("1");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
-    await contentPage.backButtonLabel.click();
-    await expect(contentPage.cellByTextExact("1")).toBeVisible();
-  });
+    await test.step("Create item with int value", async () => {
+      await projectPage.contentMenuItem.click();
+      await contentPage.newItemButton.click();
+      await expect(contentPage.firstLabel).toContainText("int1");
+      await expect(contentPage.mainRole).toContainText("int1 description");
+      await contentPage.fieldInput("int1").click();
+      await contentPage.fieldInput("int1").fill("1");
+      await contentPage.saveButton.click();
+      await contentPage.closeNotification();
+      await contentPage.backButtonLabel.click();
+      await expect(contentPage.cellByTextExact("1")).toBeVisible();
+    });
 
-  await test.step("Update int value", async () => {
-    await contentPage.cellEditButton.click();
-    await expect(contentPage.fieldInput("int1")).toHaveValue("1");
-    await contentPage.fieldInput("int1").click();
-    await contentPage.fieldInput("int1").fill("2");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
-    await contentPage.backButtonLabel.click();
-    await expect(contentPage.cellByTextExact("2")).toBeVisible();
-  });
-});
+    await test.step("Update int value", async () => {
+      await contentPage.cellEditButton.click();
+      await expect(contentPage.fieldInput("int1")).toHaveValue("1");
+      await contentPage.fieldInput("int1").click();
+      await contentPage.fieldInput("int1").fill("2");
+      await contentPage.saveButton.click();
+      await contentPage.closeNotification();
+      await contentPage.backButtonLabel.click();
+      await expect(contentPage.cellByTextExact("2")).toBeVisible();
+    });
+  },
+);
 
 test("Int field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
   await test.step("Create int field with default value", async () => {

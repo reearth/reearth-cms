@@ -1,4 +1,4 @@
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 test.beforeEach(async ({ projectPage }) => {
@@ -13,68 +13,68 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Checkbox metadata creating and updating has succeeded", async ({
-  fieldEditorPage,
-  contentPage,
-  schemaPage,
-}) => {
-  await test.step("Create checkbox metadata field", async () => {
-    await schemaPage.metaDataTab.click();
-    await schemaPage.checkBoxListItem.click();
-    await fieldEditorPage.displayNameInput.fill("checkbox1");
-    await fieldEditorPage.fieldKeyInput.fill("checkbox1");
-    await fieldEditorPage.descriptionRequiredInput.fill("checkbox1 description");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
-    await expect(fieldEditorPage.fieldText("checkbox1", "checkbox1")).toBeVisible();
-  });
+test(
+  "Checkbox metadata creating and updating has succeeded",
+  { tag: TAG.SMOKE },
+  async ({ fieldEditorPage, contentPage, schemaPage }) => {
+    await test.step("Create checkbox metadata field", async () => {
+      await schemaPage.metaDataTab.click();
+      await schemaPage.checkBoxListItem.click();
+      await fieldEditorPage.displayNameInput.fill("checkbox1");
+      await fieldEditorPage.fieldKeyInput.fill("checkbox1");
+      await fieldEditorPage.descriptionRequiredInput.fill("checkbox1 description");
+      await fieldEditorPage.okButton.click();
+      await contentPage.closeNotification();
+      await expect(fieldEditorPage.fieldText("checkbox1", "checkbox1")).toBeVisible();
+    });
 
-  await test.step("Verify metadata field settings", async () => {
-    await fieldEditorPage.ellipsisButton.click();
-    await expect(fieldEditorPage.displayNameInput).toHaveValue("checkbox1");
-    await expect(fieldEditorPage.fieldKeyInput).toHaveValue("checkbox1");
-    await expect(fieldEditorPage.descriptionRequiredInput).toHaveValue("checkbox1 description");
-    await expect(fieldEditorPage.supportMultipleValuesCheckbox).not.toBeChecked();
-    await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
-    await fieldEditorPage.validationTab.click();
-    await expect(fieldEditorPage.requiredFieldCheckbox).toBeDisabled();
-    await expect(fieldEditorPage.uniqueFieldCheckbox).toBeDisabled();
-    await fieldEditorPage.defaultValueTab.click();
-    await expect(fieldEditorPage.setDefaultValueCheckbox).not.toBeChecked();
-    await fieldEditorPage.cancelButton.click();
-  });
+    await test.step("Verify metadata field settings", async () => {
+      await fieldEditorPage.ellipsisButton.click();
+      await expect(fieldEditorPage.displayNameInput).toHaveValue("checkbox1");
+      await expect(fieldEditorPage.fieldKeyInput).toHaveValue("checkbox1");
+      await expect(fieldEditorPage.descriptionRequiredInput).toHaveValue("checkbox1 description");
+      await expect(fieldEditorPage.supportMultipleValuesCheckbox).not.toBeChecked();
+      await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
+      await fieldEditorPage.validationTab.click();
+      await expect(fieldEditorPage.requiredFieldCheckbox).toBeDisabled();
+      await expect(fieldEditorPage.uniqueFieldCheckbox).toBeDisabled();
+      await fieldEditorPage.defaultValueTab.click();
+      await expect(fieldEditorPage.setDefaultValueCheckbox).not.toBeChecked();
+      await fieldEditorPage.cancelButton.click();
+    });
 
-  await test.step("Create item with default checkbox value", async () => {
-    await schemaPage.contentMenuItem.click();
-    await contentPage.newItemButton.click();
-    await expect(contentPage.fieldInput("checkbox1")).toBeVisible();
-    await expect(contentPage.fieldDescriptionText("checkbox1 description")).toBeVisible();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
-    await expect(contentPage.itemInformationHeading).toBeVisible();
-    await expect(contentPage.fieldInput("checkbox1")).not.toBeChecked();
-  });
+    await test.step("Create item with default checkbox value", async () => {
+      await schemaPage.contentMenuItem.click();
+      await contentPage.newItemButton.click();
+      await expect(contentPage.fieldInput("checkbox1")).toBeVisible();
+      await expect(contentPage.fieldDescriptionText("checkbox1 description")).toBeVisible();
+      await contentPage.saveButton.click();
+      await contentPage.closeNotification();
+      await expect(contentPage.itemInformationHeading).toBeVisible();
+      await expect(contentPage.fieldInput("checkbox1")).not.toBeChecked();
+    });
 
-  await test.step("Update checkbox from table view to checked", async () => {
-    await contentPage.backButtonRole.click();
-    await contentPage.lastCellCheckbox.check();
-    await contentPage.closeNotification();
-    await expect(contentPage.lastCellCheckbox).toBeChecked();
-  });
+    await test.step("Update checkbox from table view to checked", async () => {
+      await contentPage.backButtonRole.click();
+      await contentPage.lastCellCheckbox.check();
+      await contentPage.closeNotification();
+      await expect(contentPage.lastCellCheckbox).toBeChecked();
+    });
 
-  await test.step("Update checkbox from edit view to unchecked", async () => {
-    await contentPage.cellEditButton.click();
-    await expect(contentPage.fieldInput("checkbox1")).toBeChecked();
-    await contentPage.fieldInput("checkbox1").uncheck();
-    await contentPage.closeNotification();
-    await expect(contentPage.fieldInput("checkbox1")).not.toBeChecked();
-  });
+    await test.step("Update checkbox from edit view to unchecked", async () => {
+      await contentPage.cellEditButton.click();
+      await expect(contentPage.fieldInput("checkbox1")).toBeChecked();
+      await contentPage.fieldInput("checkbox1").uncheck();
+      await contentPage.closeNotification();
+      await expect(contentPage.fieldInput("checkbox1")).not.toBeChecked();
+    });
 
-  await test.step("Verify updated checkbox in table view", async () => {
-    await contentPage.backButtonRole.click();
-    await expect(contentPage.lastCellCheckbox).not.toBeChecked();
-  });
-});
+    await test.step("Verify updated checkbox in table view", async () => {
+      await contentPage.backButtonRole.click();
+      await expect(contentPage.lastCellCheckbox).not.toBeChecked();
+    });
+  },
+);
 
 test("Checkbox metadata editing has succeeded", async ({
   fieldEditorPage,

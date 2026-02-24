@@ -1,5 +1,5 @@
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 const uploadFileUrl_1 =
@@ -21,72 +21,74 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Asset field creating and updating has succeeded", async ({
-  fieldEditorPage,
-  contentPage,
-  schemaPage,
-}) => {
-  await test.step("Create asset field with description", async () => {
-    await fieldEditorPage.createField({
-      type: SchemaFieldType.Asset,
-      name: "asset1",
-      key: "asset1",
-      description: "asset1 description",
+test(
+  "Asset field creating and updating has succeeded",
+  { tag: TAG.SMOKE },
+  async ({ fieldEditorPage, contentPage, schemaPage }) => {
+    await test.step("Create asset field with description", async () => {
+      await fieldEditorPage.createField({
+        type: SchemaFieldType.Asset,
+        name: "asset1",
+        key: "asset1",
+        description: "asset1 description",
+      });
     });
-  });
 
-  await test.step("Verify field created and navigate to new item", async () => {
-    await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("asset1#asset1");
-    await contentPage.contentText.click();
-    await contentPage.newItemButton.click();
-    await expect(contentPage.locator("label")).toContainText("asset1");
-    await expect(contentPage.mainRole).toContainText("asset1 description");
-  });
+    await test.step("Verify field created and navigate to new item", async () => {
+      await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText(
+        "asset1#asset1",
+      );
+      await contentPage.contentText.click();
+      await contentPage.newItemButton.click();
+      await expect(contentPage.locator("label")).toContainText("asset1");
+      await expect(contentPage.mainRole).toContainText("asset1 description");
+    });
 
-  await test.step("Upload first asset via URL", async () => {
-    await fieldEditorPage.assetButton.click();
-    await fieldEditorPage.uploadAssetButton.click();
-    await fieldEditorPage.urlTab.click();
-    await fieldEditorPage.urlInput.click();
-    await fieldEditorPage.urlInput.fill(uploadFileUrl_1);
-    await fieldEditorPage.uploadAndLinkButton.click();
-    await contentPage.closeNotification();
-  });
+    await test.step("Upload first asset via URL", async () => {
+      await fieldEditorPage.assetButton.click();
+      await fieldEditorPage.uploadAssetButton.click();
+      await fieldEditorPage.urlTab.click();
+      await fieldEditorPage.urlInput.click();
+      await fieldEditorPage.urlInput.fill(uploadFileUrl_1);
+      await fieldEditorPage.uploadAndLinkButton.click();
+      await contentPage.closeNotification();
+    });
 
-  await test.step("Verify first asset uploaded", async () => {
-    await expect(fieldEditorPage.folderButton(uploadFileName_1)).toBeVisible();
-    await expect(fieldEditorPage.filenameButton(uploadFileName_1)).toBeVisible();
-  });
+    await test.step("Verify first asset uploaded", async () => {
+      await expect(fieldEditorPage.folderButton(uploadFileName_1)).toBeVisible();
+      await expect(fieldEditorPage.filenameButton(uploadFileName_1)).toBeVisible();
+    });
 
-  await test.step("Save item and verify asset appears in list", async () => {
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
-    await contentPage.backButton.click();
-    await expect(contentPage.optionTextByName(uploadFileName_1)).toBeVisible();
-  });
+    await test.step("Save item and verify asset appears in list", async () => {
+      await contentPage.saveButton.click();
+      await contentPage.closeNotification();
+      await contentPage.backButton.click();
+      await expect(contentPage.optionTextByName(uploadFileName_1)).toBeVisible();
+    });
 
-  await test.step("Edit item and replace asset with second file", async () => {
-    await contentPage.editButton.click();
-    await fieldEditorPage.folderButton(uploadFileName_1).click();
-    await fieldEditorPage.uploadAssetButton.click();
-    await fieldEditorPage.urlTab.click();
-    await fieldEditorPage.urlInput.click();
-    await fieldEditorPage.urlInput.fill(uploadFileUrl_2);
-    await fieldEditorPage.uploadAndLinkButton.click();
-    await contentPage.closeNotification();
-  });
+    await test.step("Edit item and replace asset with second file", async () => {
+      await contentPage.editButton.click();
+      await fieldEditorPage.folderButton(uploadFileName_1).click();
+      await fieldEditorPage.uploadAssetButton.click();
+      await fieldEditorPage.urlTab.click();
+      await fieldEditorPage.urlInput.click();
+      await fieldEditorPage.urlInput.fill(uploadFileUrl_2);
+      await fieldEditorPage.uploadAndLinkButton.click();
+      await contentPage.closeNotification();
+    });
 
-  await test.step("Verify second asset replaced first and save changes", async () => {
-    await expect(fieldEditorPage.folderButton(uploadFileName_2)).toBeVisible();
-    await expect(fieldEditorPage.filenameButton(uploadFileName_2)).toBeVisible();
-    await contentPage.backButton.click();
-    await contentPage.cancelButton.click();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
-    await contentPage.backButton.click();
-    await expect(contentPage.optionTextByName(uploadFileName_2)).toBeVisible();
-  });
-});
+    await test.step("Verify second asset replaced first and save changes", async () => {
+      await expect(fieldEditorPage.folderButton(uploadFileName_2)).toBeVisible();
+      await expect(fieldEditorPage.filenameButton(uploadFileName_2)).toBeVisible();
+      await contentPage.backButton.click();
+      await contentPage.cancelButton.click();
+      await contentPage.saveButton.click();
+      await contentPage.closeNotification();
+      await contentPage.backButton.click();
+      await expect(contentPage.optionTextByName(uploadFileName_2)).toBeVisible();
+    });
+  },
+);
 
 test("Previewing JSON file from content page into new tab succeeded", async ({
   context,

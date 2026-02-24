@@ -1,6 +1,6 @@
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 
-test("@smoke Language updating has succeeded", async ({ settingsPage }) => {
+test("Language updating has succeeded", { tag: TAG.SMOKE }, async ({ settingsPage }) => {
   await settingsPage.goto("/", { waitUntil: "domcontentloaded" });
   await settingsPage.accountText.click();
   let originalLanguage = await settingsPage.currentLanguageText.innerText();

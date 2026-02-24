@@ -2,7 +2,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
@@ -26,7 +26,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Model CRUD has succeeded", async ({ schemaPage, fieldEditorPage }) => {
+test("Model CRUD has succeeded", { tag: TAG.SMOKE }, async ({ schemaPage, fieldEditorPage }) => {
   const modelName = "model name";
   const modelKey = "model-key";
   const newModelName = "new model name";
@@ -150,7 +150,7 @@ test.describe("Test import schema", () => {
   });
 });
 
-test("@smoke Group CRUD has succeeded", async ({ schemaPage, fieldEditorPage }) => {
+test("Group CRUD has succeeded", { tag: TAG.SMOKE }, async ({ schemaPage, fieldEditorPage }) => {
   const groupName = "e2e group name";
   const groupKey = "e2e-group-key";
   const updateGroupName = "new e2e group name";

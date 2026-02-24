@@ -2,7 +2,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 import { t } from "@reearth-cms/e2e/support/i18n";
 
@@ -34,99 +34,100 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Item CRUD and searching has succeeded", async ({
-  contentPage,
-  fieldEditorPage,
-  projectPage,
-}) => {
-  await test.step("Create text field and navigate to content", async () => {
-    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
-    await projectPage.contentMenuItem.click();
-  });
+test(
+  "Item CRUD and searching has succeeded",
+  { tag: TAG.SMOKE },
+  async ({ contentPage, fieldEditorPage, projectPage }) => {
+    await test.step("Create text field and navigate to content", async () => {
+      await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
+      await projectPage.contentMenuItem.click();
+    });
 
-  await test.step("Create new item with text value", async () => {
-    await contentPage.newItemButton.click();
-    await contentPage.fieldInput("text").click();
-    await contentPage.fieldInput("text").fill("text");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
-    await contentPage.backButton.click();
-    await expect(contentPage.cellByText("text", true)).toBeVisible();
-  });
+    await test.step("Create new item with text value", async () => {
+      await contentPage.newItemButton.click();
+      await contentPage.fieldInput("text").click();
+      await contentPage.fieldInput("text").fill("text");
+      await contentPage.saveButton.click();
+      await contentPage.closeNotification();
+      await contentPage.backButton.click();
+      await expect(contentPage.cellByText("text", true)).toBeVisible();
+    });
 
-  await test.step("Search for non-existent item", async () => {
-    await contentPage.searchInput.click();
-    await contentPage.searchInput.fill("no field");
-    await contentPage.searchButton.click();
-    await expect(contentPage.cellByText("text", true)).toBeHidden();
-  });
+    await test.step("Search for non-existent item", async () => {
+      await contentPage.searchInput.click();
+      await contentPage.searchInput.fill("no field");
+      await contentPage.searchButton.click();
+      await expect(contentPage.cellByText("text", true)).toBeHidden();
+    });
 
-  await test.step("Clear search to show item again", async () => {
-    await contentPage.searchInput.fill("");
-    await contentPage.searchButton.click();
-    await expect(contentPage.cellByText("text", true)).toBeVisible();
-  });
+    await test.step("Clear search to show item again", async () => {
+      await contentPage.searchInput.fill("");
+      await contentPage.searchButton.click();
+      await expect(contentPage.cellByText("text", true)).toBeVisible();
+    });
 
-  await test.step("Edit item with new text value", async () => {
-    await contentPage.cellEditButton.click();
-    await contentPage.fieldInput("text").click();
-    await expect(contentPage.fieldInput("text")).toHaveValue("text");
-    await contentPage.fieldInput("text").click();
-    await contentPage.fieldInput("text").fill("new text");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
-    await contentPage.backButtonLabel.click();
-    await expect(contentPage.cellByText("new text")).toBeVisible();
-  });
+    await test.step("Edit item with new text value", async () => {
+      await contentPage.cellEditButton.click();
+      await contentPage.fieldInput("text").click();
+      await expect(contentPage.fieldInput("text")).toHaveValue("text");
+      await contentPage.fieldInput("text").click();
+      await contentPage.fieldInput("text").fill("new text");
+      await contentPage.saveButton.click();
+      await contentPage.closeNotification();
+      await contentPage.backButtonLabel.click();
+      await expect(contentPage.cellByText("new text")).toBeVisible();
+    });
 
-  await test.step("Delete item", async () => {
-    await contentPage.selectAllCheckbox.check();
-    await contentPage.deleteButton.click();
-    await contentPage.closeNotification();
-    await expect(contentPage.cellByText("new text")).toBeHidden();
-  });
-});
+    await test.step("Delete item", async () => {
+      await contentPage.selectAllCheckbox.check();
+      await contentPage.deleteButton.click();
+      await contentPage.closeNotification();
+      await expect(contentPage.cellByText("new text")).toBeHidden();
+    });
+  },
+);
 
-test("@smoke Publishing and Unpublishing item from edit page has succeeded", async ({
-  contentPage,
-  fieldEditorPage,
-}) => {
-  await test.step("Create text field and new item", async () => {
-    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
-    await contentPage.contentTextFirst.click();
-    await contentPage.newItemButton.click();
-    await contentPage.fieldInput("text").click();
-    await contentPage.fieldInput("text").fill("text");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
-    await expect(contentPage.draftStatus).toBeVisible();
-  });
+test(
+  "Publishing and Unpublishing item from edit page has succeeded",
+  { tag: TAG.SMOKE },
+  async ({ contentPage, fieldEditorPage }) => {
+    await test.step("Create text field and new item", async () => {
+      await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
+      await contentPage.contentTextFirst.click();
+      await contentPage.newItemButton.click();
+      await contentPage.fieldInput("text").click();
+      await contentPage.fieldInput("text").fill("text");
+      await contentPage.saveButton.click();
+      await contentPage.closeNotification();
+      await expect(contentPage.draftStatus).toBeVisible();
+    });
 
-  await test.step("Publish item from edit page", async () => {
-    await contentPage.publishButton.click();
-    await contentPage.closeNotification();
-    await expect(contentPage.publishedStatus).toBeVisible();
-  });
+    await test.step("Publish item from edit page", async () => {
+      await contentPage.publishButton.click();
+      await contentPage.closeNotification();
+      await expect(contentPage.publishedStatus).toBeVisible();
+    });
 
-  await test.step("Verify published status persists", async () => {
-    await contentPage.backButtonLabel.click();
-    await expect(contentPage.publishedStatus).toBeVisible();
-    await contentPage.cellEditButton.click();
-    await expect(contentPage.publishedStatus).toBeVisible();
-  });
+    await test.step("Verify published status persists", async () => {
+      await contentPage.backButtonLabel.click();
+      await expect(contentPage.publishedStatus).toBeVisible();
+      await contentPage.cellEditButton.click();
+      await expect(contentPage.publishedStatus).toBeVisible();
+    });
 
-  await test.step("Unpublish item from edit page", async () => {
-    await contentPage.ellipsisMenuButton.click();
-    await contentPage.unpublishButton.click();
-    await contentPage.closeNotification();
-    await expect(contentPage.draftStatus).toBeVisible();
-  });
+    await test.step("Unpublish item from edit page", async () => {
+      await contentPage.ellipsisMenuButton.click();
+      await contentPage.unpublishButton.click();
+      await contentPage.closeNotification();
+      await expect(contentPage.draftStatus).toBeVisible();
+    });
 
-  await test.step("Verify draft status persists", async () => {
-    await contentPage.backButtonLabel.click();
-    await expect(contentPage.draftStatus).toBeVisible();
-  });
-});
+    await test.step("Verify draft status persists", async () => {
+      await contentPage.backButtonLabel.click();
+      await expect(contentPage.draftStatus).toBeVisible();
+    });
+  },
+);
 
 test("Publishing and Unpublishing item from table has succeeded", async ({
   contentPage,
@@ -209,37 +210,38 @@ test("Showing item title has succeeded", async ({ contentPage, fieldEditorPage, 
   });
 });
 
-test("@smoke Comment CRUD on Content page has succeeded", async ({
-  contentPage,
-  fieldEditorPage,
-}) => {
-  await test.step("Create text field and new item", async () => {
-    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
-    await contentPage.contentText.click();
-    await contentPage.newItemButton.click();
-    await contentPage.fieldInput("text").click();
-    await contentPage.fieldInput("text").fill("text");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
-    await contentPage.backButtonLabel.click();
-  });
+test(
+  "Comment CRUD on Content page has succeeded",
+  { tag: TAG.SMOKE },
+  async ({ contentPage, fieldEditorPage }) => {
+    await test.step("Create text field and new item", async () => {
+      await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
+      await contentPage.contentText.click();
+      await contentPage.newItemButton.click();
+      await contentPage.fieldInput("text").click();
+      await contentPage.fieldInput("text").fill("text");
+      await contentPage.saveButton.click();
+      await contentPage.closeNotification();
+      await contentPage.backButtonLabel.click();
+    });
 
-  await test.step("Open comments panel", async () => {
-    await contentPage.commentsCountButton("0").click();
-  });
+    await test.step("Open comments panel", async () => {
+      await contentPage.commentsCountButton("0").click();
+    });
 
-  await test.step("Create comment", async () => {
-    await contentPage.createComment("comment");
-  });
+    await test.step("Create comment", async () => {
+      await contentPage.createComment("comment");
+    });
 
-  await test.step("Update comment", async () => {
-    await contentPage.updateComment("comment", "new comment");
-  });
+    await test.step("Update comment", async () => {
+      await contentPage.updateComment("comment", "new comment");
+    });
 
-  await test.step("Delete comment", async () => {
-    await contentPage.deleteComment();
-  });
-});
+    await test.step("Delete comment", async () => {
+      await contentPage.deleteComment();
+    });
+  },
+);
 
 test("Comment CRUD on edit page has succeeded", async ({ contentPage, fieldEditorPage }) => {
   await test.step("Create text field and new item", async () => {
@@ -274,63 +276,63 @@ test.describe("Import content", () => {
     { path: TEST_IMPORT_CONTENT_JSON_PATH, type: "JSON" },
     { path: TEST_IMPORT_CONTENT_CSV_PATH, type: "CSV" },
   ].forEach(({ path, type }) => {
-    test(`@smoke Pass Case: Import content with matching schema succeeds with ${type}`, async ({
-      contentPage,
-      fieldEditorPage,
-      projectPage,
-    }) => {
-      await test.step("Create text field matching template schema", async () => {
-        await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text-field-key" });
+    test(
+      `Pass Case: Import content with matching schema succeeds with ${type}`,
+      { tag: TAG.SMOKE },
+      async ({ contentPage, fieldEditorPage, projectPage }) => {
+        await test.step("Create text field matching template schema", async () => {
+          await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text-field-key" });
+          await projectPage.contentMenuItem.click();
+        });
+
+        await test.step("Open import modal and upload JSON file", async () => {
+          await contentPage.openImportContentModal();
+          await contentPage.uploadImportFile(path);
+        });
+
+        await test.step("Verify import job is created and modal closes", async () => {
+          await expect(contentPage.importContentModal).toBeHidden();
+          await contentPage.tableReloadIcon.click();
+          await expect(contentPage.cellByText("text111")).toBeVisible();
+        });
+      },
+    );
+  });
+
+  test(
+    "Pass Case: Import content with matching schema succeeds with GeoJSON",
+    { tag: TAG.SMOKE },
+    async ({ contentPage, fieldEditorPage, projectPage }) => {
+      await test.step("Create geometry object field matching template schema", async () => {
+        await fieldEditorPage.createField({
+          type: SchemaFieldType.GeometryObject,
+          name: "location",
+          supportedTypes: ["POINT"],
+        });
+
+        await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "title" });
+
         await projectPage.contentMenuItem.click();
       });
 
-      await test.step("Open import modal and upload JSON file", async () => {
+      await test.step("Open import modal and upload GeoJSON file", async () => {
         await contentPage.openImportContentModal();
-        await contentPage.uploadImportFile(path);
+        await contentPage.uploadImportFile(TEST_IMPORT_CONTENT_GEO_JSON_PATH);
       });
 
       await test.step("Verify import job is created and modal closes", async () => {
         await expect(contentPage.importContentModal).toBeHidden();
+        await expect(contentPage.tableReloadIcon).toBeVisible();
         await contentPage.tableReloadIcon.click();
-        await expect(contentPage.cellByText("text111")).toBeVisible();
+        await expect(contentPage.tableContentFieldPopoverIcon).toBeVisible();
+        await contentPage.tableContentFieldPopoverIcon.click();
+        await expect(contentPage.tableContentFieldPopoverContent).toBeVisible();
+        await expect(contentPage.tableContentFieldPopoverContent).toHaveText(
+          '{"coordinates":[25.105497,121.597366],"type":"Point"}',
+        );
       });
-    });
-  });
-
-  test("@smoke Pass Case: Import content with matching schema succeeds with GeoJSON", async ({
-    contentPage,
-    fieldEditorPage,
-    projectPage,
-  }) => {
-    await test.step("Create geometry object field matching template schema", async () => {
-      await fieldEditorPage.createField({
-        type: SchemaFieldType.GeometryObject,
-        name: "location",
-        supportedTypes: ["POINT"],
-      });
-
-      await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "title" });
-
-      await projectPage.contentMenuItem.click();
-    });
-
-    await test.step("Open import modal and upload GeoJSON file", async () => {
-      await contentPage.openImportContentModal();
-      await contentPage.uploadImportFile(TEST_IMPORT_CONTENT_GEO_JSON_PATH);
-    });
-
-    await test.step("Verify import job is created and modal closes", async () => {
-      await expect(contentPage.importContentModal).toBeHidden();
-      await expect(contentPage.tableReloadIcon).toBeVisible();
-      await contentPage.tableReloadIcon.click();
-      await expect(contentPage.tableContentFieldPopoverIcon).toBeVisible();
-      await contentPage.tableContentFieldPopoverIcon.click();
-      await expect(contentPage.tableContentFieldPopoverContent).toBeVisible();
-      await expect(contentPage.tableContentFieldPopoverContent).toHaveText(
-        '{"coordinates":[25.105497,121.597366],"type":"Point"}',
-      );
-    });
-  });
+    },
+  );
 
   [
     { path: TEST_IMPORT_CONTENT_JSON_PATH, type: "JSON" },

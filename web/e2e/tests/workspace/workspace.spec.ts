@@ -1,5 +1,5 @@
 import { config } from "@reearth-cms/e2e/config/config";
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { parseConfigBoolean } from "@reearth-cms/e2e/helpers/format.helper";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -10,7 +10,7 @@ test.beforeEach(async ({ workspacePage }) => {
   await workspacePage.goto("/", { waitUntil: "domcontentloaded" });
 });
 
-test("@smoke Workspace CRUD has succeeded", async ({ workspacePage }) => {
+test("Workspace CRUD has succeeded", { tag: TAG.SMOKE }, async ({ workspacePage }) => {
   const wsName = `e2e-ws-${getId()}`;
   const newWsName = `new-${wsName}`;
 

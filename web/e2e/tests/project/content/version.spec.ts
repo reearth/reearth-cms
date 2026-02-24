@@ -1,5 +1,5 @@
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { stateColors } from "@reearth-cms/e2e/helpers/format.helper";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -37,7 +37,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Read versions successfully", async ({ contentPage }) => {
+test("Read versions successfully", { tag: TAG.SMOKE }, async ({ contentPage }) => {
   const requestStatus = contentPage.requestStatusElement;
   await expect(contentPage.textByRegex(dateReg)).toBeVisible();
   await expect(contentPage.currentVersionText).toBeVisible();

@@ -1,5 +1,5 @@
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 const isCI = !!process.env.CI;
@@ -15,52 +15,56 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Model CRUD on Overview page has succeeded", async ({ schemaPage, projectPage }) => {
-  await test.step("Create new model from overview page", async () => {
-    await expect(projectPage.noModelsYetText).toBeVisible();
-    await projectPage.newModelButtonFirst.click();
-    await expect(projectPage.newModelLabelText).toBeVisible();
-    await schemaPage.modelKeyInput.fill("model key");
-    await schemaPage.modelNameInput.fill("model name");
-    await projectPage.modelDescriptionInput.fill("model description");
-    await schemaPage.okButton.click();
-    await projectPage.closeNotification();
-  });
+test(
+  "Model CRUD on Overview page has succeeded",
+  { tag: TAG.SMOKE },
+  async ({ schemaPage, projectPage }) => {
+    await test.step("Create new model from overview page", async () => {
+      await expect(projectPage.noModelsYetText).toBeVisible();
+      await projectPage.newModelButtonFirst.click();
+      await expect(projectPage.newModelLabelText).toBeVisible();
+      await schemaPage.modelKeyInput.fill("model key");
+      await schemaPage.modelNameInput.fill("model name");
+      await projectPage.modelDescriptionInput.fill("model description");
+      await schemaPage.okButton.click();
+      await projectPage.closeNotification();
+    });
 
-  await test.step("Verify model created successfully", async () => {
-    await expect(projectPage.modelTitleByName("model name")).toBeVisible();
-    await expect(projectPage.modelKeyTextByKey("model-key")).toBeVisible();
-    await expect(projectPage.modelMenuItemByName("model name")).toBeVisible();
-  });
+    await test.step("Verify model created successfully", async () => {
+      await expect(projectPage.modelTitleByName("model name")).toBeVisible();
+      await expect(projectPage.modelKeyTextByKey("model-key")).toBeVisible();
+      await expect(projectPage.modelMenuItemByName("model name")).toBeVisible();
+    });
 
-  await test.step("Update model name, description and key", async () => {
-    await projectPage.modelsMenuItem.click();
-    await projectPage.modelListLink.click();
-    await projectPage.editText.click();
-    await projectPage.modelNameInput.fill("new model name");
-    await projectPage.modelDescriptionInput.fill("new model description");
-    await projectPage.modelKeyInput.fill("new-model-key");
-    await projectPage.okButton.click();
-    await projectPage.closeNotification();
-  });
+    await test.step("Update model name, description and key", async () => {
+      await projectPage.modelsMenuItem.click();
+      await projectPage.modelListLink.click();
+      await projectPage.editText.click();
+      await projectPage.modelNameInput.fill("new model name");
+      await projectPage.modelDescriptionInput.fill("new model description");
+      await projectPage.modelKeyInput.fill("new-model-key");
+      await projectPage.okButton.click();
+      await projectPage.closeNotification();
+    });
 
-  await test.step("Verify model updated successfully", async () => {
-    await expect(projectPage.rootElement).toContainText("new model name");
-    await expect(projectPage.rootElement).toContainText("new model description");
-  });
+    await test.step("Verify model updated successfully", async () => {
+      await expect(projectPage.rootElement).toContainText("new model name");
+      await expect(projectPage.rootElement).toContainText("new model description");
+    });
 
-  await test.step("Delete model", async () => {
-    await projectPage.modelListLink.click();
-    await projectPage.deleteText.click();
-    await projectPage.deleteModelButton.click();
-    await projectPage.closeNotification();
-  });
+    await test.step("Delete model", async () => {
+      await projectPage.modelListLink.click();
+      await projectPage.deleteText.click();
+      await projectPage.deleteModelButton.click();
+      await projectPage.closeNotification();
+    });
 
-  await test.step("Verify model deleted successfully", async () => {
-    await expect(projectPage.rootElement).not.toContainText("new model name");
-    await expect(projectPage.noModelsYetText).toBeVisible();
-  });
-});
+    await test.step("Verify model deleted successfully", async () => {
+      await expect(projectPage.rootElement).not.toContainText("new model name");
+      await expect(projectPage.noModelsYetText).toBeVisible();
+    });
+  },
+);
 
 test.describe("Model Export tests on Overview page", () => {
   test.beforeEach(async () => {

@@ -1,5 +1,5 @@
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 test.beforeEach(async ({ projectPage }) => {
@@ -14,74 +14,74 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Option field creating and updating has succeeded", async ({
-  fieldEditorPage,
-  contentPage,
-  schemaPage,
-}) => {
-  await test.step("Create option field and validate duplicate/empty values", async () => {
-    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Select).click();
-    await fieldEditorPage.displayNameInput.click();
-    await fieldEditorPage.displayNameInput.fill("option1");
-    await fieldEditorPage.settingsKeyInput.click();
-    await fieldEditorPage.settingsKeyInput.fill("option1");
-    await fieldEditorPage.settingsDescriptionInput.click();
-    await fieldEditorPage.settingsDescriptionInput.fill("option1 description");
-    await fieldEditorPage.plusNewButton.click();
-    await fieldEditorPage.valuesInput.nth(0).click();
-    await fieldEditorPage.valuesInput.nth(0).fill("first");
-    await fieldEditorPage.plusNewButton.click();
-    await expect(contentPage.optionTextByName("Empty values are not allowed")).toBeVisible();
-    await expect(fieldEditorPage.okButton).toBeDisabled();
-    await fieldEditorPage.valuesInput.nth(1).click();
-    await fieldEditorPage.valuesInput.nth(1).fill("first");
-    await expect(contentPage.optionTextByName("Option must be unique")).toBeVisible();
-    await expect(fieldEditorPage.okButton).toBeDisabled();
-    await fieldEditorPage.valuesInput.nth(1).fill("second");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
-  });
+test(
+  "Option field creating and updating has succeeded",
+  { tag: TAG.SMOKE },
+  async ({ fieldEditorPage, contentPage, schemaPage }) => {
+    await test.step("Create option field and validate duplicate/empty values", async () => {
+      await fieldEditorPage.fieldTypeButton(SchemaFieldType.Select).click();
+      await fieldEditorPage.displayNameInput.click();
+      await fieldEditorPage.displayNameInput.fill("option1");
+      await fieldEditorPage.settingsKeyInput.click();
+      await fieldEditorPage.settingsKeyInput.fill("option1");
+      await fieldEditorPage.settingsDescriptionInput.click();
+      await fieldEditorPage.settingsDescriptionInput.fill("option1 description");
+      await fieldEditorPage.plusNewButton.click();
+      await fieldEditorPage.valuesInput.nth(0).click();
+      await fieldEditorPage.valuesInput.nth(0).fill("first");
+      await fieldEditorPage.plusNewButton.click();
+      await expect(contentPage.optionTextByName("Empty values are not allowed")).toBeVisible();
+      await expect(fieldEditorPage.okButton).toBeDisabled();
+      await fieldEditorPage.valuesInput.nth(1).click();
+      await fieldEditorPage.valuesInput.nth(1).fill("first");
+      await expect(contentPage.optionTextByName("Option must be unique")).toBeVisible();
+      await expect(fieldEditorPage.okButton).toBeDisabled();
+      await fieldEditorPage.valuesInput.nth(1).fill("second");
+      await fieldEditorPage.okButton.click();
+      await contentPage.closeNotification();
+    });
 
-  await test.step("Verify field created and navigate to new item", async () => {
-    await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText(
-      "option1#option1",
-    );
-    await contentPage.contentText.click();
-    await contentPage.newItemButton.click();
-    await expect(contentPage.locator("label")).toContainText("option1");
-    await expect(contentPage.mainRole).toContainText("option1 description");
-  });
+    await test.step("Verify field created and navigate to new item", async () => {
+      await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText(
+        "option1#option1",
+      );
+      await contentPage.contentText.click();
+      await contentPage.newItemButton.click();
+      await expect(contentPage.locator("label")).toContainText("option1");
+      await expect(contentPage.mainRole).toContainText("option1 description");
+    });
 
-  await test.step("Select 'first' option and save item", async () => {
-    await contentPage.fieldInput("option1").click();
-    await expect(fieldEditorPage.optionDiv("first")).toBeVisible();
-    await expect(fieldEditorPage.optionDiv("second")).toBeVisible();
-    await fieldEditorPage.optionDiv("first").click();
-    await expect(contentPage.rootElement.getByText("first").last()).toBeVisible();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
-  });
+    await test.step("Select 'first' option and save item", async () => {
+      await contentPage.fieldInput("option1").click();
+      await expect(fieldEditorPage.optionDiv("first")).toBeVisible();
+      await expect(fieldEditorPage.optionDiv("second")).toBeVisible();
+      await fieldEditorPage.optionDiv("first").click();
+      await expect(contentPage.rootElement.getByText("first").last()).toBeVisible();
+      await contentPage.saveButton.click();
+      await contentPage.closeNotification();
+    });
 
-  await test.step("Verify option saved correctly", async () => {
-    await contentPage.backButton.click();
-    await expect(contentPage.optionTextByName("first")).toBeVisible();
-  });
+    await test.step("Verify option saved correctly", async () => {
+      await contentPage.backButton.click();
+      await expect(contentPage.optionTextByName("first")).toBeVisible();
+    });
 
-  await test.step("Edit item and change option to 'second'", async () => {
-    await contentPage.editButton.click();
-    await contentPage.closeCircleLabel.locator("svg").click();
-    await contentPage.fieldInput("option1").click();
-    await fieldEditorPage.optionDiv("second").click();
-    await expect(contentPage.rootElement.getByText("second").last()).toBeVisible();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
-  });
+    await test.step("Edit item and change option to 'second'", async () => {
+      await contentPage.editButton.click();
+      await contentPage.closeCircleLabel.locator("svg").click();
+      await contentPage.fieldInput("option1").click();
+      await fieldEditorPage.optionDiv("second").click();
+      await expect(contentPage.rootElement.getByText("second").last()).toBeVisible();
+      await contentPage.saveButton.click();
+      await contentPage.closeNotification();
+    });
 
-  await test.step("Verify updated option", async () => {
-    await contentPage.backButton.click();
-    await expect(contentPage.optionTextByName("second")).toBeVisible();
-  });
-});
+    await test.step("Verify updated option", async () => {
+      await contentPage.backButton.click();
+      await expect(contentPage.optionTextByName("second")).toBeVisible();
+    });
+  },
+);
 
 test("Option field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
   await test.step("Create option field with three values and default", async () => {

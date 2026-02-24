@@ -100,9 +100,7 @@ export abstract class BasePage {
     await this.page.goto(url, options);
     const token = getAccessToken();
     if (token) {
-      await this.page.evaluate(
-        `window.REEARTH_E2E_ACCESS_TOKEN = ${JSON.stringify(token)};`,
-      );
+      await this.page.evaluate(`window.REEARTH_E2E_ACCESS_TOKEN = ${JSON.stringify(token)};`);
     }
   }
 

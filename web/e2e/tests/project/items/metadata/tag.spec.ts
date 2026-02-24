@@ -1,4 +1,4 @@
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 const fieldName = "tag";
@@ -18,85 +18,85 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Tag metadata creating and updating has succeeded", async ({
-  fieldEditorPage,
-  contentPage,
-  schemaPage,
-}) => {
-  await test.step("Create tag metadata field with validation checks", async () => {
-    await schemaPage.metaDataTab.click();
-    await schemaPage.tagListItem.click();
-    await fieldEditorPage.displayNameInput.fill(fieldName);
-    await fieldEditorPage.fieldKeyInput.fill(fieldName);
-    await fieldEditorPage.descriptionRequiredInput.fill(description);
-    await fieldEditorPage.plusNewButton.click();
-    await fieldEditorPage.tagFilterDiv.last().click();
-    await fieldEditorPage.lastTextbox.fill(tag1);
-    await fieldEditorPage.plusNewButton.click();
-    await fieldEditorPage.tagFilterDiv.last().click();
-    await fieldEditorPage.lastTextbox.fill("");
-    await expect(contentPage.optionTextByName("Empty values are not allowed")).toBeVisible();
-    await expect(fieldEditorPage.okButton).toBeDisabled();
-    await fieldEditorPage.lastTextbox.fill(tag1);
-    await expect(contentPage.optionTextByName("Labels must be unique")).toBeVisible();
-    await expect(fieldEditorPage.okButton).toBeDisabled();
-    await fieldEditorPage.lastTextbox.fill(tag2);
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
-    await expect(schemaPage.groupNameByText(`${fieldName}#${fieldName}`)).toBeVisible();
-  });
+test(
+  "Tag metadata creating and updating has succeeded",
+  { tag: TAG.SMOKE },
+  async ({ fieldEditorPage, contentPage, schemaPage }) => {
+    await test.step("Create tag metadata field with validation checks", async () => {
+      await schemaPage.metaDataTab.click();
+      await schemaPage.tagListItem.click();
+      await fieldEditorPage.displayNameInput.fill(fieldName);
+      await fieldEditorPage.fieldKeyInput.fill(fieldName);
+      await fieldEditorPage.descriptionRequiredInput.fill(description);
+      await fieldEditorPage.plusNewButton.click();
+      await fieldEditorPage.tagFilterDiv.last().click();
+      await fieldEditorPage.lastTextbox.fill(tag1);
+      await fieldEditorPage.plusNewButton.click();
+      await fieldEditorPage.tagFilterDiv.last().click();
+      await fieldEditorPage.lastTextbox.fill("");
+      await expect(contentPage.optionTextByName("Empty values are not allowed")).toBeVisible();
+      await expect(fieldEditorPage.okButton).toBeDisabled();
+      await fieldEditorPage.lastTextbox.fill(tag1);
+      await expect(contentPage.optionTextByName("Labels must be unique")).toBeVisible();
+      await expect(fieldEditorPage.okButton).toBeDisabled();
+      await fieldEditorPage.lastTextbox.fill(tag2);
+      await fieldEditorPage.okButton.click();
+      await contentPage.closeNotification();
+      await expect(schemaPage.groupNameByText(`${fieldName}#${fieldName}`)).toBeVisible();
+    });
 
-  await test.step("Verify metadata field settings", async () => {
-    await fieldEditorPage.ellipsisButton.click();
-    await expect(fieldEditorPage.displayNameInput).toHaveValue(fieldName);
-    await expect(fieldEditorPage.fieldKeyInput).toHaveValue(fieldName);
-    await expect(fieldEditorPage.descriptionRequiredInput).toHaveValue(description);
-    await expect(fieldEditorPage.tagOptionText(tag1)).toBeVisible();
-    await expect(fieldEditorPage.tagOptionText(tag2)).toBeVisible();
-    await expect(fieldEditorPage.supportMultipleValuesCheckbox).not.toBeChecked();
-    await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
-    await fieldEditorPage.validationTab.click();
-    await expect(fieldEditorPage.requiredFieldCheckbox).not.toBeChecked();
-    await expect(fieldEditorPage.uniqueFieldCheckbox).not.toBeChecked();
-    await fieldEditorPage.defaultValueTab.click();
-    await expect(fieldEditorPage.setDefaultValueInput).toBeEmpty();
-    await fieldEditorPage.cancelButton.click();
-  });
+    await test.step("Verify metadata field settings", async () => {
+      await fieldEditorPage.ellipsisButton.click();
+      await expect(fieldEditorPage.displayNameInput).toHaveValue(fieldName);
+      await expect(fieldEditorPage.fieldKeyInput).toHaveValue(fieldName);
+      await expect(fieldEditorPage.descriptionRequiredInput).toHaveValue(description);
+      await expect(fieldEditorPage.tagOptionText(tag1)).toBeVisible();
+      await expect(fieldEditorPage.tagOptionText(tag2)).toBeVisible();
+      await expect(fieldEditorPage.supportMultipleValuesCheckbox).not.toBeChecked();
+      await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
+      await fieldEditorPage.validationTab.click();
+      await expect(fieldEditorPage.requiredFieldCheckbox).not.toBeChecked();
+      await expect(fieldEditorPage.uniqueFieldCheckbox).not.toBeChecked();
+      await fieldEditorPage.defaultValueTab.click();
+      await expect(fieldEditorPage.setDefaultValueInput).toBeEmpty();
+      await fieldEditorPage.cancelButton.click();
+    });
 
-  await test.step("Create item with tag value", async () => {
-    await schemaPage.menuItemByName("Content").click();
-    await contentPage.newItemButton.click();
-    await expect(contentPage.optionTextByName(description)).toBeVisible();
-    await contentPage.fieldInput(fieldName).click();
-    await fieldEditorPage.tagOptionText(tag1).click();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
-    await expect(contentPage.itemInformationHeading).toBeVisible();
-    await expect(contentPage.tabPanel.getByText(tag1)).toBeVisible();
-  });
+    await test.step("Create item with tag value", async () => {
+      await schemaPage.menuItemByName("Content").click();
+      await contentPage.newItemButton.click();
+      await expect(contentPage.optionTextByName(description)).toBeVisible();
+      await contentPage.fieldInput(fieldName).click();
+      await fieldEditorPage.tagOptionText(tag1).click();
+      await contentPage.saveButton.click();
+      await contentPage.closeNotification();
+      await expect(contentPage.itemInformationHeading).toBeVisible();
+      await expect(contentPage.tabPanel.getByText(tag1)).toBeVisible();
+    });
 
-  await test.step("Update tag from table view", async () => {
-    await contentPage.backButtonRole.click();
-    await contentPage.cellByText(fieldName).locator("div").nth(1).click();
-    await fieldEditorPage.tagOptionText(tag2).last().click();
-    await contentPage.closeNotification();
-    await expect(contentPage.cellByText(tag2)).toBeVisible();
-  });
+    await test.step("Update tag from table view", async () => {
+      await contentPage.backButtonRole.click();
+      await contentPage.cellByText(fieldName).locator("div").nth(1).click();
+      await fieldEditorPage.tagOptionText(tag2).last().click();
+      await contentPage.closeNotification();
+      await expect(contentPage.cellByText(tag2)).toBeVisible();
+    });
 
-  await test.step("Update tag from edit view", async () => {
-    await contentPage.editButton.click();
-    await expect(contentPage.tabPanel.getByText(tag2)).toBeVisible();
-    await fieldEditorPage.tagOptionText(tag2).click();
-    await fieldEditorPage.tagOptionText(tag1).click();
-    await contentPage.closeNotification();
-    await expect(contentPage.tabPanel.getByText(tag1)).toBeVisible();
-  });
+    await test.step("Update tag from edit view", async () => {
+      await contentPage.editButton.click();
+      await expect(contentPage.tabPanel.getByText(tag2)).toBeVisible();
+      await fieldEditorPage.tagOptionText(tag2).click();
+      await fieldEditorPage.tagOptionText(tag1).click();
+      await contentPage.closeNotification();
+      await expect(contentPage.tabPanel.getByText(tag1)).toBeVisible();
+    });
 
-  await test.step("Verify updated tag in table view", async () => {
-    await contentPage.backButton.click();
-    await expect(contentPage.cellByText(tag1)).toBeVisible();
-  });
-});
+    await test.step("Verify updated tag in table view", async () => {
+      await contentPage.backButton.click();
+      await expect(contentPage.cellByText(tag1)).toBeVisible();
+    });
+  },
+);
 
 test("Tag metadata editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
   const newFieldName = `new ${fieldName}`;

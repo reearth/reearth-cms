@@ -1,4 +1,4 @@
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 const jsonName = "tileset.json";
@@ -24,7 +24,7 @@ test.describe("Json file tests", () => {
     await assetsPage.uploadViaUrl(jsonUrl);
   });
 
-  test("@smoke Asset CRUD and Searching has succeeded", async ({ assetsPage }) => {
+  test("Asset CRUD and Searching has succeeded", { tag: TAG.SMOKE }, async ({ assetsPage }) => {
     await expect(assetsPage.rowByText(jsonName)).toBeVisible();
 
     // search no result

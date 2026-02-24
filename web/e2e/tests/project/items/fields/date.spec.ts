@@ -1,5 +1,5 @@
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 test.beforeEach(async ({ projectPage }) => {
@@ -14,37 +14,38 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Date field creating and updating has succeeded", async ({
-  fieldEditorPage,
-  contentPage,
-}) => {
-  await fieldEditorPage.createField({
-    type: SchemaFieldType.Date,
-    name: "date1",
-    key: "date1",
-    description: "date1 description",
-  });
+test(
+  "Date field creating and updating has succeeded",
+  { tag: TAG.SMOKE },
+  async ({ fieldEditorPage, contentPage }) => {
+    await fieldEditorPage.createField({
+      type: SchemaFieldType.Date,
+      name: "date1",
+      key: "date1",
+      description: "date1 description",
+    });
 
-  await expect(fieldEditorPage.fieldsContainerParagraph).toContainText("date1#date1");
-  await contentPage.contentText.click();
-  await contentPage.newItemButton.click();
-  await expect(contentPage.labelElement()).toContainText("date1");
-  await expect(contentPage.mainElement).toContainText("date1 description");
+    await expect(fieldEditorPage.fieldsContainerParagraph).toContainText("date1#date1");
+    await contentPage.contentText.click();
+    await contentPage.newItemButton.click();
+    await expect(contentPage.labelElement()).toContainText("date1");
+    await expect(contentPage.mainElement).toContainText("date1 description");
 
-  await contentPage.selectDatePlaceholder.click();
-  await contentPage.selectDatePlaceholder.fill("2024-01-01");
-  await contentPage.selectDatePlaceholder.press("Enter");
-  await contentPage.saveButton.click();
-  await contentPage.closeNotification();
-  await contentPage.backButton.click();
-  await expect(contentPage.tableBody).toContainText("2024-01-01");
-  await contentPage.editButton.click();
-  await contentPage.closeDateButton.click();
-  await contentPage.saveButton.click();
-  await contentPage.closeNotification();
-  await contentPage.backButton.click();
-  await expect(contentPage.tableBody).not.toContainText("2024-01-01");
-});
+    await contentPage.selectDatePlaceholder.click();
+    await contentPage.selectDatePlaceholder.fill("2024-01-01");
+    await contentPage.selectDatePlaceholder.press("Enter");
+    await contentPage.saveButton.click();
+    await contentPage.closeNotification();
+    await contentPage.backButton.click();
+    await expect(contentPage.tableBody).toContainText("2024-01-01");
+    await contentPage.editButton.click();
+    await contentPage.closeDateButton.click();
+    await contentPage.saveButton.click();
+    await contentPage.closeNotification();
+    await contentPage.backButton.click();
+    await expect(contentPage.tableBody).not.toContainText("2024-01-01");
+  },
+);
 
 test("Date field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
   await fieldEditorPage.createField({
