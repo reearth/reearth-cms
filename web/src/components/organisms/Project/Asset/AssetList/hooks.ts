@@ -32,7 +32,7 @@ import {
 } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
-import { FileUtils } from "@reearth-cms/utils/file.ts";
+import { FileUtils } from "@reearth-cms/utils/file";
 import { ImportSchema, ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
 import { ObjectUtils } from "@reearth-cms/utils/object";
 

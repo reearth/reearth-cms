@@ -28,6 +28,7 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { Constant } from "@reearth-cms/utils/constant";
+import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
 
 import { ItemAsset } from "../Content/types";
 
@@ -152,8 +153,14 @@ const Schema: React.FC<Props> = ({
 
   const [tab, setTab] = useState<Tab>("fields");
 
-  const hasFields = useMemo(() => data && data.schema.fields.length > 0, [data]);
-  const disableImport = useMemo(() => !hasUpdateRight || hasFields, [hasUpdateRight, hasFields]);
+  const hasModelFields = useMemo<boolean>(
+    () => (data ? data.schema.fields.length > 0 : false),
+    [data],
+  );
+  const getImportSchemaUIMetadata = useMemo(
+    () => ImportSchemaUtils.getUIMetadata({ hasSchemaCreateRight: hasCreateRight, hasModelFields }),
+    [hasModelFields, hasCreateRight],
+  );
 
   const dropdownItems = useMemo(
     () => [
@@ -168,14 +175,14 @@ const Schema: React.FC<Props> = ({
         key: "import",
         label: (
           <Tooltip
-            title={disableImport ? t("Only empty schemas can be imported into") : undefined}
+            title={getImportSchemaUIMetadata.tooltipMessage}
             data-testid={DATA_TEST_ID.Schema__ImportSchemaButton}>
             {t("Import")}
           </Tooltip>
         ),
         icon: <StyledIcon icon="import" />,
         onClick: onSchemaImportModalOpen,
-        disabled: disableImport,
+        disabled: getImportSchemaUIMetadata.shouldDisable,
       },
       {
         key: "delete",
@@ -187,13 +194,14 @@ const Schema: React.FC<Props> = ({
       },
     ],
     [
-      onSchemaImportModalOpen,
-      hasDeleteRight,
-      hasUpdateRight,
-      onDeletionModalOpen,
-      onModalOpen,
       t,
-      disableImport,
+      onModalOpen,
+      hasUpdateRight,
+      getImportSchemaUIMetadata.tooltipMessage,
+      getImportSchemaUIMetadata.shouldDisable,
+      onSchemaImportModalOpen,
+      onDeletionModalOpen,
+      hasDeleteRight,
     ],
   );
 
@@ -216,6 +224,7 @@ const Schema: React.FC<Props> = ({
             fields={data?.schema.fields}
             hasUpdateRight={hasUpdateRight}
             hasDeleteRight={hasDeleteRight}
+            hasCreateRight={hasCreateRight}
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
             onFieldDelete={onFieldDelete}
@@ -234,6 +243,7 @@ const Schema: React.FC<Props> = ({
             fields={data && "metadataSchema" in data ? data?.metadataSchema?.fields : undefined}
             hasUpdateRight={hasUpdateRight}
             hasDeleteRight={hasDeleteRight}
+            hasCreateRight={hasCreateRight}
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
             onFieldReorder={onFieldReorder}
             onFieldDelete={onFieldDelete}
@@ -300,6 +310,7 @@ const Schema: React.FC<Props> = ({
                     fields={data?.schema?.fields}
                     hasUpdateRight={hasUpdateRight}
                     hasDeleteRight={hasDeleteRight}
+                    hasCreateRight={hasCreateRight}
                     handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
                     onFieldReorder={onFieldReorder}
                     onFieldDelete={onFieldDelete}
