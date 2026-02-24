@@ -1,8 +1,8 @@
 import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-const fieldName = "tag";
-const description = "tag description";
+const fieldName = `tag-${getId()}`;
+const description = `tag-desc-${getId()}`;
 const tag1 = "Tag1";
 const tag2 = "Tag2";
 
@@ -76,7 +76,7 @@ test(
 
     await test.step("Update tag from table view", async () => {
       await contentPage.backButtonRole.click();
-      await contentPage.cellByText(fieldName).locator("div").nth(1).click();
+      await contentPage.cellByText(tag1).locator("div").nth(1).click();
       await fieldEditorPage.tagOptionText(tag2).last().click();
       await contentPage.closeNotification();
       await expect(contentPage.cellByText(tag2)).toBeVisible();

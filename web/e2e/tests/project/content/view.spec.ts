@@ -23,6 +23,8 @@ test.afterEach(async ({ projectPage, workspacePage }) => {
 });
 
 test("Create a new view", async ({ fieldEditorPage, projectPage, contentPage }) => {
+  const viewName = `view-${getId()}`;
+
   await test.step("Setup: Create text field and content items", async () => {
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await projectPage.contentMenuItem.click();
@@ -32,18 +34,21 @@ test("Create a new view", async ({ fieldEditorPage, projectPage, contentPage }) 
 
   await test.step("Create a new view named 'view1'", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view1");
+    await contentPage.viewNameInput.fill(viewName);
     await contentPage.okButton.click();
     await contentPage.closeNotification();
   });
 
   await test.step("Verify view is created and selected", async () => {
-    await expect(contentPage.viewByName("view1")).toBeVisible();
+    await expect(contentPage.viewByName(viewName)).toBeVisible();
     await expect(contentPage.tab(0)).toHaveAttribute("aria-selected", "true");
   });
 });
 
 test("Rename an existing view", async ({ fieldEditorPage, projectPage, contentPage }) => {
+  const viewName = `view-${getId()}`;
+  const renamedView = `renamed-${getId()}`;
+
   await test.step("Setup: Create text field and content item", async () => {
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await projectPage.contentMenuItem.click();
@@ -52,7 +57,7 @@ test("Rename an existing view", async ({ fieldEditorPage, projectPage, contentPa
 
   await test.step("Create initial view", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view1");
+    await contentPage.viewNameInput.fill(viewName);
     await contentPage.okButton.click();
     await contentPage.closeNotification();
   });
@@ -61,17 +66,19 @@ test("Rename an existing view", async ({ fieldEditorPage, projectPage, contentPa
     await contentPage.moreButton.click();
     await contentPage.renameViewButton.click();
     await contentPage.viewNameInput.click();
-    await contentPage.viewNameInput.fill("renamed view");
+    await contentPage.viewNameInput.fill(renamedView);
     await contentPage.okButton.click();
     await contentPage.closeNotification();
   });
 
   await test.step("Verify view was renamed", async () => {
-    await expect(contentPage.viewByName("renamed view")).toBeVisible();
+    await expect(contentPage.viewByName(renamedView)).toBeVisible();
   });
 });
 
 test("Cancel view deletion", async ({ fieldEditorPage, projectPage, contentPage }) => {
+  const viewName = `view-${getId()}`;
+
   await test.step("Setup: Create text field and content item", async () => {
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await projectPage.contentMenuItem.click();
@@ -80,7 +87,7 @@ test("Cancel view deletion", async ({ fieldEditorPage, projectPage, contentPage 
 
   await test.step("Create initial view", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view1");
+    await contentPage.viewNameInput.fill(viewName);
     await contentPage.okButton.click();
     await contentPage.closeNotification();
   });
@@ -92,7 +99,7 @@ test("Cancel view deletion", async ({ fieldEditorPage, projectPage, contentPage 
   });
 
   await test.step("Verify view still exists", async () => {
-    await expect(contentPage.viewByName("view1")).toBeVisible();
+    await expect(contentPage.viewByName(viewName)).toBeVisible();
   });
 });
 
@@ -170,6 +177,8 @@ test("Save view with custom sorting and filtering", async ({
   projectPage,
   contentPage,
 }) => {
+  const viewName = `view-${getId()}`;
+
   await test.step("Setup: Create text field and content items", async () => {
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await projectPage.contentMenuItem.click();
@@ -201,13 +210,13 @@ test("Save view with custom sorting and filtering", async ({
   await test.step("Save as new view", async () => {
     await contentPage.saveAsNewViewButton.click();
     await contentPage.viewNameInput.click();
-    await contentPage.viewNameInput.fill("filtered view");
+    await contentPage.viewNameInput.fill(viewName);
     await contentPage.okButton.click();
     await contentPage.closeNotification();
   });
 
   await test.step("Verify view saved with all customizations", async () => {
-    await expect(contentPage.viewByName("filtered view")).toBeVisible();
+    await expect(contentPage.viewByName(viewName)).toBeVisible();
     await expect(contentPage.sortUpIcon).toHaveClass(/active/);
     await expect(contentPage.tableRow(0)).toContainText("text1");
     await expect(contentPage.tableRow(1)).toContainText("text2");
@@ -220,6 +229,9 @@ test("Switch between views preserves individual view settings", async ({
   projectPage,
   contentPage,
 }) => {
+  const viewName1 = `view-a-${getId()}`;
+  const viewName2 = `view-b-${getId()}`;
+
   await test.step("Setup: Create text field and content items", async () => {
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await projectPage.contentMenuItem.click();
@@ -231,7 +243,7 @@ test("Switch between views preserves individual view settings", async ({
 
   await test.step("Create first view with no customization", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view1");
+    await contentPage.viewNameInput.fill(viewName1);
     await contentPage.okButton.click();
     await contentPage.closeNotification();
   });
@@ -252,7 +264,7 @@ test("Switch between views preserves individual view settings", async ({
   await test.step("Save as second view with customizations", async () => {
     await contentPage.saveAsNewViewButton.click();
     await contentPage.viewNameInput.click();
-    await contentPage.viewNameInput.fill("view2");
+    await contentPage.viewNameInput.fill(viewName2);
     await contentPage.okButton.click();
     await contentPage.closeNotification();
   });
@@ -265,7 +277,7 @@ test("Switch between views preserves individual view settings", async ({
   });
 
   await test.step("Switch to view1 and verify it has no customizations", async () => {
-    await contentPage.viewByName("view1").click();
+    await contentPage.viewByName(viewName1).click();
     await expect(contentPage.tab(0)).toHaveAttribute("aria-selected", "true");
     await expect(contentPage.sortUpIcon).not.toHaveClass(/active/);
     await expect(contentPage.filterCloseButton("text")).toBeHidden();
@@ -275,6 +287,9 @@ test("Switch between views preserves individual view settings", async ({
 });
 
 test("Update view settings", async ({ fieldEditorPage, projectPage, contentPage }) => {
+  const viewName1 = `view-a-${getId()}`;
+  const viewName2 = `view-b-${getId()}`;
+
   await test.step("Setup: Create text field and content items", async () => {
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await projectPage.contentMenuItem.click();
@@ -284,7 +299,7 @@ test("Update view settings", async ({ fieldEditorPage, projectPage, contentPage 
 
   await test.step("Create initial view", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view1");
+    await contentPage.viewNameInput.fill(viewName1);
     await contentPage.okButton.click();
     await contentPage.closeNotification();
   });
@@ -306,20 +321,20 @@ test("Update view settings", async ({ fieldEditorPage, projectPage, contentPage 
   });
 
   await test.step("Update the view with new settings", async () => {
-    await contentPage.viewTabMoreIcon("view1").click();
+    await contentPage.viewTabMoreIcon(viewName1).click();
     await contentPage.updateViewButton.click();
     await contentPage.closeNotification();
   });
 
   await test.step("Create another view to switch context", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view2");
+    await contentPage.viewNameInput.fill(viewName2);
     await contentPage.okButton.click();
     await contentPage.closeNotification();
   });
 
   await test.step("Switch back to view1 and verify updated settings persisted", async () => {
-    await contentPage.viewByName("view1").click();
+    await contentPage.viewByName(viewName1).click();
     await expect(contentPage.sortDownIcon).toHaveClass(/active/);
     await expect(contentPage.tableRow(0)).toContainText("text1");
     await expect(contentPage.tableRow(1)).toContainText("sample1");
@@ -331,6 +346,9 @@ test("Delete view and switch to remaining view", async ({
   projectPage,
   contentPage,
 }) => {
+  const viewName1 = `view-a-${getId()}`;
+  const viewName2 = `view-b-${getId()}`;
+
   await test.step("Setup: Create text field and content items", async () => {
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await projectPage.contentMenuItem.click();
@@ -340,7 +358,7 @@ test("Delete view and switch to remaining view", async ({
 
   await test.step("Create first view", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view1");
+    await contentPage.viewNameInput.fill(viewName1);
     await contentPage.okButton.click();
     await contentPage.closeNotification();
   });
@@ -360,22 +378,22 @@ test("Delete view and switch to remaining view", async ({
 
   await test.step("Save as second view", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view2");
+    await contentPage.viewNameInput.fill(viewName2);
     await contentPage.okButton.click();
     await contentPage.closeNotification();
   });
 
   await test.step("Delete view1", async () => {
-    await contentPage.viewTabWithMore("view1").click();
-    await contentPage.viewTabMoreIcon("view1").click();
+    await contentPage.viewTabWithMore(viewName1).click();
+    await contentPage.viewTabMoreIcon(viewName1).click();
     await contentPage.removeViewButton.click();
     await contentPage.removeButton.click();
     await contentPage.closeNotification();
   });
 
   await test.step("Verify view1 is deleted and view2 is active with settings preserved", async () => {
-    await expect(contentPage.viewByName("view1")).toBeHidden();
-    await expect(contentPage.viewByName("view2")).toBeVisible();
+    await expect(contentPage.viewByName(viewName1)).toBeHidden();
+    await expect(contentPage.viewByName(viewName2)).toBeVisible();
     await expect(contentPage.tab(0)).toHaveAttribute("aria-selected", "true");
     await expect(contentPage.sortUpIcon).toHaveClass(/active/);
     await expect(contentPage.tableRow(0)).toContainText("text1");
@@ -384,6 +402,10 @@ test("Delete view and switch to remaining view", async ({
 });
 
 test("View reordering has succeeded", async ({ projectPage, contentPage }) => {
+  const viewName1 = `view-a-${getId()}`;
+  const viewName2 = `view-b-${getId()}`;
+  const viewName3 = `view-c-${getId()}`;
+
   await test.step("Navigate to content page", async () => {
     await projectPage.contentMenuItem.click();
     await projectPage.modelMenuItemClick(projectPage.modelName).click();
@@ -391,21 +413,21 @@ test("View reordering has succeeded", async ({ projectPage, contentPage }) => {
 
   await test.step("Create view1", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view1");
+    await contentPage.viewNameInput.fill(viewName1);
     await contentPage.okButton.click();
     await contentPage.closeNotification();
   });
 
   await test.step("Create view2", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view2");
+    await contentPage.viewNameInput.fill(viewName2);
     await contentPage.okButton.click();
     await contentPage.closeNotification();
   });
 
   await test.step("Verify initial view order", async () => {
-    await expect(contentPage.viewTab(0)).toContainText("view1");
-    await expect(contentPage.viewTab(1)).toContainText("view2");
+    await expect(contentPage.viewTab(0)).toContainText(viewName1);
+    await expect(contentPage.viewTab(1)).toContainText(viewName2);
   });
 
   await test.step("Drag view1 to position after view2", async () => {
@@ -414,20 +436,20 @@ test("View reordering has succeeded", async ({ projectPage, contentPage }) => {
   });
 
   await test.step("Verify view order changed", async () => {
-    await expect(contentPage.viewTab(0)).toContainText("view2");
-    await expect(contentPage.viewTab(1)).toContainText("view1");
+    await expect(contentPage.viewTab(0)).toContainText(viewName2);
+    await expect(contentPage.viewTab(1)).toContainText(viewName1);
   });
 
   await test.step("Create view3", async () => {
     await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill("view3");
+    await contentPage.viewNameInput.fill(viewName3);
     await contentPage.okButton.click();
     await contentPage.closeNotification();
   });
 
   await test.step("Verify final view order with view3 at end", async () => {
-    await expect(contentPage.viewTab(0)).toContainText("view2");
-    await expect(contentPage.viewTab(1)).toContainText("view1");
-    await expect(contentPage.viewTab(2)).toContainText("view3");
+    await expect(contentPage.viewTab(0)).toContainText(viewName2);
+    await expect(contentPage.viewTab(1)).toContainText(viewName1);
+    await expect(contentPage.viewTab(2)).toContainText(viewName3);
   });
 });

@@ -22,12 +22,15 @@ const TEST_IMPORT_CONTENT_GEO_JSON_PATH = path.resolve(
   "../../../files/test-import-content.geojson",
 );
 
+let modelName: string;
+
 test.beforeEach(async ({ projectPage }) => {
+  modelName = `model-${getId()}`;
   await projectPage.goto("/");
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
-  await projectPage.createModelFromOverview();
+  await projectPage.createModelFromOverview(modelName);
 });
 
 test.afterEach(async ({ projectPage }) => {
@@ -174,13 +177,13 @@ test("Showing item title has succeeded", async ({ contentPage, fieldEditorPage, 
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
     await contentPage.contentText.click();
     await contentPage.newItemButton.click();
-    await expect(contentPage.titleByText("e2e model name", true)).toBeVisible();
+    await expect(contentPage.titleByText(modelName, true)).toBeVisible();
     await contentPage.fieldInput("text").click();
     await contentPage.fieldInput("text").fill("text");
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
     const itemId = contentPage.getCurrentItemId();
-    await expect(contentPage.titleByText(`e2e model name / ${itemId}`, true)).toBeVisible();
+    await expect(contentPage.titleByText(`${modelName} / ${itemId}`, true)).toBeVisible();
   });
 
   await test.step("Configure field to use as title with default value", async () => {
@@ -197,16 +200,16 @@ test("Showing item title has succeeded", async ({ contentPage, fieldEditorPage, 
   await test.step("Verify title shows field value", async () => {
     await contentPage.contentText.click();
     await contentPage.cellEditButton.click();
-    await expect(contentPage.titleByText(`e2e model name / text`, true)).toBeVisible();
+    await expect(contentPage.titleByText(`${modelName} / text`, true)).toBeVisible();
     await contentPage.backButtonLabel.click();
   });
 
   await test.step("Verify title shows default value for new item", async () => {
     await contentPage.newItemButton.click();
-    await expect(contentPage.titleByText("e2e model name", true)).toBeVisible();
+    await expect(contentPage.titleByText(modelName, true)).toBeVisible();
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
-    await expect(contentPage.titleByText(`e2e model name / default text`, true)).toBeVisible();
+    await expect(contentPage.titleByText(`${modelName} / default text`, true)).toBeVisible();
   });
 });
 

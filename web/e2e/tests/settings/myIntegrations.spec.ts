@@ -51,6 +51,9 @@ test("MyIntegration CRUD has succeeded", async ({ integrationsPage }) => {
 });
 
 test("Webhook CRUD has succeeded", async ({ integrationsPage }) => {
+  const webhookName = `webhook-${getId()}`;
+  const newWebhookName = `new-webhook-${getId()}`;
+
   await test.step("Create webhook with basic configuration", async () => {
     await expect(integrationsPage.webhookTab).toBeVisible();
     await integrationsPage.webhookTab.click();
@@ -59,7 +62,7 @@ test("Webhook CRUD has succeeded", async ({ integrationsPage }) => {
     await integrationsPage.newWebhookButton.click();
     await expect(integrationsPage.webhookNameInput).toBeVisible();
     await integrationsPage.webhookNameInput.click();
-    await integrationsPage.webhookNameInput.fill("webhook name");
+    await integrationsPage.webhookNameInput.fill(webhookName);
     await expect(integrationsPage.urlInput).toBeVisible();
     await integrationsPage.urlInput.click();
     await integrationsPage.urlInput.fill("http://test.com");
@@ -75,7 +78,7 @@ test("Webhook CRUD has succeeded", async ({ integrationsPage }) => {
     await expect(integrationsPage.arrowLeftButton).toBeVisible();
     await integrationsPage.arrowLeftButton.click();
 
-    await expect(integrationsPage.tabPanel).toContainText("webhook name");
+    await expect(integrationsPage.tabPanel).toContainText(webhookName);
     await expect(integrationsPage.tabPanel).toContainText("http://test.com");
   });
 
@@ -85,7 +88,7 @@ test("Webhook CRUD has succeeded", async ({ integrationsPage }) => {
 
     await expect(integrationsPage.tabpanelNameInput).toBeVisible();
     await integrationsPage.tabpanelNameInput.click();
-    await integrationsPage.tabpanelNameInput.fill("new webhook name");
+    await integrationsPage.tabpanelNameInput.fill(newWebhookName);
     await expect(integrationsPage.urlInput).toBeVisible();
     await integrationsPage.urlInput.click();
     await integrationsPage.urlInput.fill("http://new.com");
@@ -107,7 +110,7 @@ test("Webhook CRUD has succeeded", async ({ integrationsPage }) => {
     await expect(integrationsPage.arrowLeftButton).toBeVisible();
     await integrationsPage.arrowLeftButton.click();
 
-    await expect(integrationsPage.tabPanel).toContainText("new webhook name");
+    await expect(integrationsPage.tabPanel).toContainText(newWebhookName);
     await expect(integrationsPage.tabPanel).toContainText("http://new.com");
   });
 
@@ -135,7 +138,7 @@ test("Webhook CRUD has succeeded", async ({ integrationsPage }) => {
     await integrationsPage.deleteWebhookButton.click();
 
     await integrationsPage.closeNotification();
-    await expect(integrationsPage.webhookLabel).not.toContainText("new webhook name");
+    await expect(integrationsPage.webhookLabel).not.toContainText(newWebhookName);
   });
 
   await test.step("Clean up: remove integration", async () => {

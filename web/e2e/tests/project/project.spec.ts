@@ -10,7 +10,7 @@ test.beforeEach(async ({ workspacePage }) => {
 test.describe("Project CRUD and searching has succeeded", () => {
   // setup
   const PROJECT_NAME = getId();
-  const PROJECT_DESCRIPTION = "project description";
+  const PROJECT_DESCRIPTION = `desc-${getId()}`;
   const NEW_PROJECT_NAME = `new ${PROJECT_NAME}`;
   const NEW_PROJECT_DESCRIPTION = `new ${PROJECT_DESCRIPTION}`;
 

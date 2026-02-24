@@ -27,10 +27,10 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Model CRUD has succeeded", { tag: TAG.SMOKE }, async ({ schemaPage, fieldEditorPage }) => {
-  const modelName = "model name";
-  const modelKey = "model-key";
-  const newModelName = "new model name";
-  const newModelKey = "new-model-key";
+  const modelName = `model-${getId()}`;
+  const modelKey = `key-${getId()}`;
+  const newModelName = `new-model-${getId()}`;
+  const newModelKey = `new-key-${getId()}`;
 
   await test.step("Create model", async () => {
     await schemaPage.createModelFromSidebar(modelName, modelKey);
@@ -53,9 +53,9 @@ test("Model CRUD has succeeded", { tag: TAG.SMOKE }, async ({ schemaPage, fieldE
 });
 
 test("Model reordering has succeeded", async ({ schemaPage }) => {
-  const modelName1 = "model1";
-  const modelName2 = "model2";
-  const modelName3 = "model3";
+  const modelName1 = `model-a-${getId()}`;
+  const modelName2 = `model-b-${getId()}`;
+  const modelName3 = `model-c-${getId()}`;
 
   await test.step("Create two models and verify initial order", async () => {
     await schemaPage.createModelFromSidebar(modelName1);
@@ -151,10 +151,10 @@ test.describe("Test import schema", () => {
 });
 
 test("Group CRUD has succeeded", { tag: TAG.SMOKE }, async ({ schemaPage, fieldEditorPage }) => {
-  const groupName = "e2e group name";
-  const groupKey = "e2e-group-key";
-  const updateGroupName = "new e2e group name";
-  const updateGroupKey = "new-e2e-group-key";
+  const groupName = `group-${getId()}`;
+  const groupKey = `gkey-${getId()}`;
+  const updateGroupName = `new-group-${getId()}`;
+  const updateGroupKey = `new-gkey-${getId()}`;
 
   await test.step("Create group", async () => {
     await schemaPage.createGroup(groupName, groupKey);
@@ -176,8 +176,12 @@ test("Group CRUD has succeeded", { tag: TAG.SMOKE }, async ({ schemaPage, fieldE
 });
 
 test("Group creating from adding field has succeeded", async ({ schemaPage, fieldEditorPage }) => {
+  const modelName = `model-${getId()}`;
+  const groupName = `group-${getId()}`;
+  const groupKey = `gkey-${getId()}`;
+
   await test.step("Create model and open group field dialog", async () => {
-    await schemaPage.createModelFromSidebar();
+    await schemaPage.createModelFromSidebar(modelName);
     await expect(fieldEditorPage.fieldTypeListItem("Group")).toBeVisible();
     await fieldEditorPage.fieldTypeListItem("Group").click();
     await expect(schemaPage.addGroupButton).toBeVisible();
@@ -189,17 +193,17 @@ test("Group creating from adding field has succeeded", async ({ schemaPage, fiel
   await test.step("Create new group from field dialog", async () => {
     await expect(schemaPage.groupNameInput).toBeVisible();
     await schemaPage.groupNameInput.click();
-    await schemaPage.groupNameInput.fill("e2e group name");
+    await schemaPage.groupNameInput.fill(groupName);
     await schemaPage.groupKeyInput.click();
-    await schemaPage.groupKeyInput.fill("e2e-group-key");
+    await schemaPage.groupKeyInput.fill(groupKey);
     await expect(fieldEditorPage.okButton).toBeEnabled();
     await fieldEditorPage.okButton.click();
     await schemaPage.closeNotification();
   });
 
   await test.step("Verify group created and field type restrictions applied", async () => {
-    await expect(schemaPage.groupMenuItemSpan("e2e group name")).toBeVisible();
-    await expect(schemaPage.groupNameByText("e2e group name#e2e-group-key")).toBeVisible();
+    await expect(schemaPage.groupMenuItemSpan(groupName)).toBeVisible();
+    await expect(schemaPage.groupNameByText(`${groupName}#${groupKey}`)).toBeVisible();
     await expect(schemaPage.fieldsMetaDataText).toBeHidden();
     await expect(schemaPage.textByExact("Reference")).toBeHidden();
     await expect(schemaPage.textByExact("Group")).toBeHidden();
@@ -211,39 +215,43 @@ test("Group creating from adding field has succeeded", async ({ schemaPage, fiel
   });
 
   await test.step("Verify group can be selected for group field in model", async () => {
-    await expect(schemaPage.modelByText("e2e model name")).toBeVisible();
-    await schemaPage.modelByText("e2e model name").click();
+    await expect(schemaPage.modelByText(modelName)).toBeVisible();
+    await schemaPage.modelByText(modelName).click();
     await expect(schemaPage.lastTextByExact("Group")).toBeVisible();
     await schemaPage.lastTextByExact("Group").click();
     await expect(schemaPage.createGroupFieldButton).toBeVisible();
     await expect(schemaPage.groupSelectTrigger).toBeVisible();
     await schemaPage.groupSelectTrigger.click();
-    await expect(schemaPage.groupNameByText("e2e group name #e2e-group-key")).toBeVisible();
+    await expect(schemaPage.groupNameByText(`${groupName} #${groupKey}`)).toBeVisible();
     await expect(fieldEditorPage.cancelButton).toBeVisible();
     await fieldEditorPage.cancelButton.click();
   });
 });
 
 test("Group reordering has succeeded", async ({ schemaPage }) => {
+  const groupName1 = `group-a-${getId()}`;
+  const groupName2 = `group-b-${getId()}`;
+  const groupName3 = `group-c-${getId()}`;
+
   await test.step("Create two groups and verify initial order", async () => {
-    await schemaPage.createGroup("group1", "group1");
-    await schemaPage.createGroup("group2", "group2");
-    await expect(schemaPage.groupMenuItems.nth(0)).toContainText("group1");
-    await expect(schemaPage.groupMenuItems.nth(1)).toContainText("group2");
+    await schemaPage.createGroup(groupName1, groupName1);
+    await schemaPage.createGroup(groupName2, groupName2);
+    await expect(schemaPage.groupMenuItems.nth(0)).toContainText(groupName1);
+    await expect(schemaPage.groupMenuItems.nth(1)).toContainText(groupName2);
   });
 
   await test.step("Drag group2 above group1", async () => {
     await schemaPage.groupMenuItems.nth(1).dragTo(schemaPage.groupMenuItems.nth(0));
     await schemaPage.closeNotification();
-    await expect(schemaPage.groupMenuItems.nth(0)).toContainText("group2");
-    await expect(schemaPage.groupMenuItems.nth(1)).toContainText("group1");
+    await expect(schemaPage.groupMenuItems.nth(0)).toContainText(groupName2);
+    await expect(schemaPage.groupMenuItems.nth(1)).toContainText(groupName1);
   });
 
   await test.step("Create third group and verify it appears at the end", async () => {
-    await schemaPage.createGroup("group3", "group3");
-    await expect(schemaPage.groupMenuItems.nth(0)).toContainText("group2");
-    await expect(schemaPage.groupMenuItems.nth(1)).toContainText("group1");
-    await expect(schemaPage.groupMenuItems.nth(2)).toContainText("group3");
+    await schemaPage.createGroup(groupName3, groupName3);
+    await expect(schemaPage.groupMenuItems.nth(0)).toContainText(groupName2);
+    await expect(schemaPage.groupMenuItems.nth(1)).toContainText(groupName1);
+    await expect(schemaPage.groupMenuItems.nth(2)).toContainText(groupName3);
   });
 });
 

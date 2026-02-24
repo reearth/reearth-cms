@@ -2,17 +2,21 @@ import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types"
 import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-const itemTitle = "e2e item title";
-const titleFieldName = "e2e title field";
-const requestTitle = "e2e request title";
-const modelName = "e2e model name";
+let itemTitle: string;
+let titleFieldName: string;
+let requestTitle: string;
+let modelName: string;
 
 test.beforeEach(async ({ projectPage, fieldEditorPage, contentPage }) => {
+  modelName = `model-${getId()}`;
+  titleFieldName = `title-field-${getId()}`;
+  itemTitle = `item-title-${getId()}`;
+  requestTitle = `request-${getId()}`;
   await projectPage.goto("/");
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
-  await projectPage.createModelFromOverview();
+  await projectPage.createModelFromOverview(modelName);
   await fieldEditorPage.createField({
     type: SchemaFieldType.Text,
     name: titleFieldName,
@@ -206,8 +210,8 @@ test("Creating a new request and adding to request has succeeded", async ({ requ
     await requestPage.requestMenuItem.click();
     await expect(requestPage.editButton).toBeVisible();
     await requestPage.editButton.click();
-    await expect(requestPage.collapsedModelButton("e2e model name", 0)).toBeVisible();
-    await expect(requestPage.collapsedModelButton("e2e model name", 1)).toBeVisible();
+    await expect(requestPage.collapsedModelButton(modelName, 0)).toBeVisible();
+    await expect(requestPage.collapsedModelButton(modelName, 1)).toBeVisible();
   });
 });
 
@@ -231,21 +235,23 @@ test("Navigating between item and request has succeeded", async ({ contentPage, 
   });
 
   let savedItemId: string;
+  let newRequestTitle: string;
 
   await test.step("Create new request and update item title", async () => {
     savedItemId = requestPage.getCurrentItemId();
     await expect(requestPage.modelPathText(modelName, savedItemId)).toBeVisible();
-    const newRequestTitle = "newRequestTitle";
+    newRequestTitle = `new-request-${getId()}`;
     await contentPage.createRequest(newRequestTitle);
+    const newItemTitle = `new-item-${getId()}`;
     await requestPage.titleFieldInput(titleFieldName, "Title").click();
-    await requestPage.titleFieldInput(titleFieldName, "Title").fill("newItemTitle");
+    await requestPage.titleFieldInput(titleFieldName, "Title").fill(newItemTitle);
     await requestPage.saveButton.click();
     await requestPage.closeNotification();
   });
 
   await test.step("Navigate to new request and verify item is linked", async () => {
     await requestPage.versionHistoryTab.click();
-    await requestPage.requestTitleLink("newRequestTitle").click();
+    await requestPage.requestTitleLink(newRequestTitle).click();
     await expect(requestPage.collapsedModelItemButton(modelName, savedItemId)).toBeVisible();
   });
 });

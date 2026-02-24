@@ -2,12 +2,15 @@ import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types"
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
+let modelName: string;
+
 test.beforeEach(async ({ projectPage }) => {
+  modelName = `model-${getId()}`;
   await projectPage.goto("/");
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
-  await projectPage.createModelFromOverview();
+  await projectPage.createModelFromOverview(modelName);
 });
 
 test.afterEach(async ({ projectPage }) => {
@@ -19,8 +22,8 @@ test("Group field creating and updating has succeeded", async ({
   contentPage,
   schemaPage,
 }) => {
-  const groupName = "e2e group name";
-  const groupKey = "e2e-group-key";
+  const groupName = `group-${getId()}`;
+  const groupKey = `gkey-${getId()}`;
 
   await test.step("Create group and add text field to group", async () => {
     await expect(schemaPage.textByExact("Reference")).toBeVisible();
@@ -39,7 +42,7 @@ test("Group field creating and updating has succeeded", async ({
   });
 
   await test.step("Add group field to model with validations disabled", async () => {
-    await schemaPage.modelByText("e2e model name").click();
+    await schemaPage.modelByText(modelName).click();
     await schemaPage.lastTextByExact("Group").click();
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.fill("group1");
@@ -86,7 +89,7 @@ test("Group field creating and updating has succeeded", async ({
   await test.step("Update group text field with validations and default value", async () => {
     await schemaPage.schemaText.click();
     await schemaPage.metaDataTab.click();
-    await schemaPage.groupMenuItem("e2e group name").locator("span").click();
+    await schemaPage.groupMenuItem(groupName).locator("span").click();
     await schemaPage.fieldEditButton.click();
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.fill("new text1");
@@ -114,7 +117,7 @@ test("Group field creating and updating has succeeded", async ({
 
   await test.step("Verify field updates applied and validate max length", async () => {
     await contentPage.contentText.click();
-    await schemaPage.modelByText("e2e model name").click();
+    await schemaPage.modelByText(modelName).click();
     await contentPage.editButton.click();
     await expect(contentPage.mainRole).toContainText("new text1(unique)");
     await expect(contentPage.mainRole).toContainText("new text1 description");
@@ -167,8 +170,8 @@ test("Group field creating and updating has succeeded", async ({
 });
 
 test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
-  const groupName = "e2e group name";
-  const groupKey = "e2e-group-key";
+  const groupName = `group-${getId()}`;
+  const groupKey = `gkey-${getId()}`;
 
   await test.step("Create group and add text field to group", async () => {
     await expect(schemaPage.textByExact("Reference")).toBeVisible();
@@ -187,8 +190,8 @@ test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage,
   });
 
   await test.step("Add group field to model and create item", async () => {
-    await expect(schemaPage.modelByText("e2e model name")).toBeVisible();
-    await schemaPage.modelByText("e2e model name").click();
+    await expect(schemaPage.modelByText(modelName)).toBeVisible();
+    await schemaPage.modelByText(modelName).click();
 
     await expect(schemaPage.lastTextByExact("Group")).toBeVisible();
     await schemaPage.lastTextByExact("Group").click();
@@ -310,7 +313,7 @@ test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage,
 
   await test.step("Add multiple default values to group text field", async () => {
     await schemaPage.schemaText.click();
-    await schemaPage.groupMenuItem("e2e group name").locator("span").click();
+    await schemaPage.groupMenuItem(groupName).locator("span").click();
     await schemaPage.fieldEditButton.click();
     await fieldEditorPage.supportMultipleValuesCheckbox.check();
     await fieldEditorPage.defaultValueTab.click();
@@ -326,7 +329,7 @@ test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage,
 
   await test.step("Create item with multiple group instances and test default values with reordering", async () => {
     await contentPage.contentText.click();
-    await schemaPage.modelByText("e2e model name").click();
+    await schemaPage.modelByText(modelName).click();
     await contentPage.newItemButton.click();
     await fieldEditorPage.plusNewButton.click();
     await expect(contentPage.textBoxByIndex(0)).toHaveValue("text1");

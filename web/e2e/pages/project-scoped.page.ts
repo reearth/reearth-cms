@@ -1,5 +1,6 @@
 // e2e/pages/project-scoped.page.ts
 import { expect, type Locator, type Page } from "@reearth-cms/e2e/fixtures/test";
+import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { BasePage } from "./base.page";
@@ -138,7 +139,7 @@ export abstract class ProjectScopedPage extends BasePage {
     await this.closeNotification();
   }
 
-  public async createModelFromOverview(name = "e2e model name", key?: string): Promise<void> {
+  public async createModelFromOverview(name = `model-${getId()}`, key?: string): Promise<void> {
     await this.getByTestId(DATA_TEST_ID.ProjectOverview__NewModelButton).click();
     await this.getByLabel("Model name").fill(name);
     if (key) {

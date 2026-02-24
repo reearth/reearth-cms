@@ -2,10 +2,12 @@ import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 let id: string;
+let description: string;
 
 test.beforeEach(async ({ integrationsPage }) => {
   await integrationsPage.goto("/");
   id = getId();
+  description = `desc-${getId()}`;
 });
 
 test.afterEach(async ({ integrationsPage }) => {
@@ -26,7 +28,7 @@ test("Integration CRUD and searching has succeeded", async ({ integrationsPage }
     await integrationsPage.integrationNameInput.click();
     await integrationsPage.integrationNameInput.fill(id);
     await integrationsPage.descriptionInput.click();
-    await integrationsPage.descriptionInput.fill("e2e integration description");
+    await integrationsPage.descriptionInput.fill(description);
     await integrationsPage.createButton.click();
     await integrationsPage.closeNotification();
   });

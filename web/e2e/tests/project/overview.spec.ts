@@ -19,37 +19,44 @@ test(
   "Model CRUD on Overview page has succeeded",
   { tag: TAG.SMOKE },
   async ({ schemaPage, projectPage }) => {
+    const modelName = `model-${getId()}`;
+    const modelKey = `key-${getId()}`;
+    const modelDescription = `desc-${getId()}`;
+    const newModelName = `new-model-${getId()}`;
+    const newModelKey = `new-key-${getId()}`;
+    const newModelDescription = `new-desc-${getId()}`;
+
     await test.step("Create new model from overview page", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
       await projectPage.newModelButtonFirst.click();
       await expect(projectPage.newModelLabelText).toBeVisible();
-      await schemaPage.modelKeyInput.fill("model key");
-      await schemaPage.modelNameInput.fill("model name");
-      await projectPage.modelDescriptionInput.fill("model description");
+      await schemaPage.modelKeyInput.fill(modelKey);
+      await schemaPage.modelNameInput.fill(modelName);
+      await projectPage.modelDescriptionInput.fill(modelDescription);
       await schemaPage.okButton.click();
       await projectPage.closeNotification();
     });
 
     await test.step("Verify model created successfully", async () => {
-      await expect(projectPage.modelTitleByName("model name")).toBeVisible();
-      await expect(projectPage.modelKeyTextByKey("model-key")).toBeVisible();
-      await expect(projectPage.modelMenuItemByName("model name")).toBeVisible();
+      await expect(projectPage.modelTitleByName(modelName)).toBeVisible();
+      await expect(projectPage.modelKeyTextByKey(modelKey)).toBeVisible();
+      await expect(projectPage.modelMenuItemByName(modelName)).toBeVisible();
     });
 
     await test.step("Update model name, description and key", async () => {
       await projectPage.modelsMenuItem.click();
       await projectPage.modelListLink.click();
       await projectPage.editText.click();
-      await projectPage.modelNameInput.fill("new model name");
-      await projectPage.modelDescriptionInput.fill("new model description");
-      await projectPage.modelKeyInput.fill("new-model-key");
+      await projectPage.modelNameInput.fill(newModelName);
+      await projectPage.modelDescriptionInput.fill(newModelDescription);
+      await projectPage.modelKeyInput.fill(newModelKey);
       await projectPage.okButton.click();
       await projectPage.closeNotification();
     });
 
     await test.step("Verify model updated successfully", async () => {
-      await expect(projectPage.rootElement).toContainText("new model name");
-      await expect(projectPage.rootElement).toContainText("new model description");
+      await expect(projectPage.rootElement).toContainText(newModelName);
+      await expect(projectPage.rootElement).toContainText(newModelDescription);
     });
 
     await test.step("Delete model", async () => {
@@ -60,7 +67,7 @@ test(
     });
 
     await test.step("Verify model deleted successfully", async () => {
-      await expect(projectPage.rootElement).not.toContainText("new model name");
+      await expect(projectPage.rootElement).not.toContainText(newModelName);
       await expect(projectPage.noModelsYetText).toBeVisible();
     });
   },
@@ -75,18 +82,22 @@ test.describe("Model Export tests on Overview page", () => {
     schemaPage,
     projectPage,
   }) => {
+    const modelName = `model-${getId()}`;
+    const modelKey = `key-${getId()}`;
+    const modelDescription = `desc-${getId()}`;
+
     await test.step("Create new model", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
       await projectPage.newModelButtonFirst.click();
       await expect(projectPage.newModelLabelText).toBeVisible();
-      await schemaPage.modelKeyInput.fill("model key");
-      await schemaPage.modelNameInput.fill("model name");
-      await projectPage.modelDescriptionInput.fill("model description");
+      await schemaPage.modelKeyInput.fill(modelKey);
+      await schemaPage.modelNameInput.fill(modelName);
+      await projectPage.modelDescriptionInput.fill(modelDescription);
       await schemaPage.okButton.click();
       await projectPage.closeNotification();
-      await expect(projectPage.modelTitleByName("model name")).toBeVisible();
-      await expect(projectPage.modelKeyTextByKey("model-key")).toBeVisible();
-      await expect(projectPage.modelMenuItemByName("model name")).toBeVisible();
+      await expect(projectPage.modelTitleByName(modelName)).toBeVisible();
+      await expect(projectPage.modelKeyTextByKey(modelKey)).toBeVisible();
+      await expect(projectPage.modelMenuItemByName(modelName)).toBeVisible();
     });
 
     await test.step("Export model as JSON", async () => {
@@ -102,13 +113,17 @@ test.describe("Model Export tests on Overview page", () => {
     schemaPage,
     projectPage,
   }) => {
+    const modelName = `model-${getId()}`;
+    const modelKey = `key-${getId()}`;
+    const modelDescription = `desc-${getId()}`;
+
     await test.step("Create new model", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
       await projectPage.newModelButtonFirst.click();
       await expect(projectPage.newModelLabelText).toBeVisible();
-      await schemaPage.modelKeyInput.fill("model key");
-      await schemaPage.modelNameInput.fill("model name");
-      await projectPage.modelDescriptionInput.fill("model description");
+      await schemaPage.modelKeyInput.fill(modelKey);
+      await schemaPage.modelNameInput.fill(modelName);
+      await projectPage.modelDescriptionInput.fill(modelDescription);
       await schemaPage.okButton.click();
       await projectPage.closeNotification();
     });
@@ -132,13 +147,17 @@ test.describe("Model Export tests on Overview page", () => {
   });
 
   test("Model Export Schema has succeeded", async ({ schemaPage, projectPage }) => {
+    const modelName = `model-${getId()}`;
+    const modelKey = `key-${getId()}`;
+    const modelDescription = `desc-${getId()}`;
+
     await test.step("Create new model", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
       await projectPage.newModelButtonFirst.click();
       await expect(projectPage.newModelLabelText).toBeVisible();
-      await schemaPage.modelKeyInput.fill("model key");
-      await schemaPage.modelNameInput.fill("model name");
-      await projectPage.modelDescriptionInput.fill("model description");
+      await schemaPage.modelKeyInput.fill(modelKey);
+      await schemaPage.modelNameInput.fill(modelName);
+      await projectPage.modelDescriptionInput.fill(modelDescription);
       await schemaPage.okButton.click();
       await projectPage.closeNotification();
     });
@@ -156,13 +175,17 @@ test.describe("Model Export tests on Overview page", () => {
     schemaPage,
     projectPage,
   }) => {
+    const modelName = `model-${getId()}`;
+    const modelKey = `key-${getId()}`;
+    const modelDescription = `desc-${getId()}`;
+
     await test.step("Create model without geometry field", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
       await projectPage.newModelButtonFirst.click();
       await expect(projectPage.newModelLabelText).toBeVisible();
-      await schemaPage.modelKeyInput.fill("model key");
-      await schemaPage.modelNameInput.fill("model name");
-      await projectPage.modelDescriptionInput.fill("model description");
+      await schemaPage.modelKeyInput.fill(modelKey);
+      await schemaPage.modelNameInput.fill(modelName);
+      await projectPage.modelDescriptionInput.fill(modelDescription);
       await schemaPage.okButton.click();
       await projectPage.closeNotification();
     });
@@ -187,19 +210,23 @@ test.describe("Model Export tests on Overview page", () => {
     projectPage,
     fieldEditorPage,
   }) => {
+    const modelName = `model-${getId()}`;
+    const modelKey = `key-${getId()}`;
+    const modelDescription = `desc-${getId()}`;
+
     await test.step("Create model and add geometry field", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
       await projectPage.newModelButtonFirst.click();
       await expect(projectPage.newModelLabelText).toBeVisible();
-      await schemaPage.modelKeyInput.fill("model key");
-      await schemaPage.modelNameInput.fill("model name");
-      await projectPage.modelDescriptionInput.fill("model description");
+      await schemaPage.modelKeyInput.fill(modelKey);
+      await schemaPage.modelNameInput.fill(modelName);
+      await projectPage.modelDescriptionInput.fill(modelDescription);
       await schemaPage.okButton.click();
       await projectPage.closeNotification();
 
       // Navigate to schema to add geometry field
-      await expect(projectPage.modelMenuItemByName("model name")).toBeVisible();
-      await projectPage.modelMenuItemByName("model name").click();
+      await expect(projectPage.modelMenuItemByName(modelName)).toBeVisible();
+      await projectPage.modelMenuItemByName(modelName).click();
 
       // Add a Geometry Object field
       await fieldEditorPage.createField({
@@ -226,19 +253,23 @@ test.describe("Model Export tests on Overview page", () => {
     projectPage,
     fieldEditorPage,
   }) => {
+    const modelName = `model-${getId()}`;
+    const modelKey = `key-${getId()}`;
+    const modelDescription = `desc-${getId()}`;
+
     await test.step("Create model and add two geometry fields", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
       await projectPage.newModelButtonFirst.click();
       await expect(projectPage.newModelLabelText).toBeVisible();
-      await schemaPage.modelKeyInput.fill("model key");
-      await schemaPage.modelNameInput.fill("model name");
-      await projectPage.modelDescriptionInput.fill("model description");
+      await schemaPage.modelKeyInput.fill(modelKey);
+      await schemaPage.modelNameInput.fill(modelName);
+      await projectPage.modelDescriptionInput.fill(modelDescription);
       await schemaPage.okButton.click();
       await projectPage.closeNotification();
 
       // Navigate to schema to add geometry fields
-      await expect(projectPage.modelMenuItemByName("model name")).toBeVisible();
-      await projectPage.modelMenuItemByName("model name").click();
+      await expect(projectPage.modelMenuItemByName(modelName)).toBeVisible();
+      await projectPage.modelMenuItemByName(modelName).click();
 
       // Add first Geometry Object field
       await fieldEditorPage.createField({
@@ -277,50 +308,60 @@ test.describe("Model Export tests on Overview page", () => {
   });
 });
 
-test("Import schema dropdown redirects to schema page correctly, with import schema modal opened", async ({
-  schemaPage,
-  projectPage,
-}) => {
-  const modelName = `model-${getId()}`;
-  const modelKey = `model-key-${getId()}`;
+test(
+  "Import schema dropdown redirects to schema page correctly, with import schema modal opened",
+  { tag: TAG.REDUNDANT },
+  async ({ schemaPage, projectPage }) => {
+    const modelName = `model-${getId()}`;
+    const modelKey = `model-key-${getId()}`;
+    const modelDescription = `desc-${getId()}`;
 
-  await test.step("Create new model", async () => {
-    await expect(projectPage.noModelsYetText).toBeVisible();
-    await projectPage.newModelButtonFirst.click();
-    await expect(projectPage.newModelLabelText).toBeVisible();
-    await schemaPage.modelKeyInput.fill(modelKey);
-    await schemaPage.modelNameInput.fill(modelName);
-    await projectPage.modelDescriptionInput.fill("model description");
-    await schemaPage.okButton.click();
-    await projectPage.closeNotification();
-    await expect(projectPage.modelTitleByName(modelName)).toBeVisible();
-  });
+    await test.step("Create new model", async () => {
+      await expect(projectPage.noModelsYetText).toBeVisible();
+      await projectPage.newModelButtonFirst.click();
+      await expect(projectPage.newModelLabelText).toBeVisible();
+      await schemaPage.modelKeyInput.fill(modelKey);
+      await schemaPage.modelNameInput.fill(modelName);
+      await projectPage.modelDescriptionInput.fill(modelDescription);
+      await schemaPage.okButton.click();
+      await projectPage.closeNotification();
+      await expect(projectPage.modelTitleByName(modelName)).toBeVisible();
+    });
 
-  await test.step("Open import schema from dropdown", async () => {
-    await projectPage.modelsMenuItem.click();
-    await projectPage.modelUtilDropdown.click();
-    await projectPage.modelImportLink.click();
-    await projectPage.importSchemaText.click();
-  });
+    await test.step("Open import schema from dropdown", async () => {
+      await projectPage.modelsMenuItem.click();
+      await projectPage.modelUtilDropdown.click();
+      await projectPage.modelImportLink.click();
+      await projectPage.importSchemaText.click();
+    });
 
-  await test.step("Verify schema page and modal opened", async () => {
-    await schemaPage.expectURL(/\/schema\//);
-    await expect(schemaPage.importSchemaDialog).toBeVisible();
-  });
-});
+    await test.step("Verify schema page and modal opened", async () => {
+      await schemaPage.expectURL(/\/schema\//);
+      await expect(schemaPage.importSchemaDialog).toBeVisible();
+    });
+  },
+);
 
-test("Creating Model by using the button on placeholder has succeeded", async ({ projectPage }) => {
-  await test.step("Create model using placeholder button", async () => {
-    await projectPage.newModelButtonLast.click();
-    await expect(projectPage.dialogNewModelText).toBeVisible();
-    await projectPage.modelNameInput.fill("model name");
-    await projectPage.okButton.click();
-    await projectPage.closeNotification();
-  });
+test(
+  "Creating Model by using the button on placeholder has succeeded",
+  { tag: TAG.REDUNDANT },
+  async ({ projectPage }) => {
+    const modelName = `model-${getId()}`;
+    const modelKey = `key-${getId()}`;
 
-  await test.step("Verify model created successfully", async () => {
-    await expect(projectPage.modelTitleByName("model name")).toBeVisible();
-    await expect(projectPage.modelKeyTextByKey("model-name")).toBeVisible();
-    await expect(projectPage.modelMenuItemByName("model name")).toBeVisible();
-  });
-});
+    await test.step("Create model using placeholder button", async () => {
+      await projectPage.newModelButtonLast.click();
+      await expect(projectPage.dialogNewModelText).toBeVisible();
+      await projectPage.modelNameInput.fill(modelName);
+      await projectPage.modelKeyInput.fill(modelKey);
+      await projectPage.okButton.click();
+      await projectPage.closeNotification();
+    });
+
+    await test.step("Verify model created successfully", async () => {
+      await expect(projectPage.modelTitleByName(modelName)).toBeVisible();
+      await expect(projectPage.modelKeyTextByKey(modelKey)).toBeVisible();
+      await expect(projectPage.modelMenuItemByName(modelName)).toBeVisible();
+    });
+  },
+);

@@ -2,12 +2,15 @@ import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types"
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
+let modelName: string;
+
 test.beforeEach(async ({ projectPage }) => {
+  modelName = `model-${getId()}`;
   await projectPage.goto("/");
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
-  await projectPage.createModelFromOverview();
+  await projectPage.createModelFromOverview(modelName);
 });
 
 test.afterEach(async ({ projectPage }) => {
@@ -19,10 +22,13 @@ test("One-way reference field creating and updating has succeeded", async ({
   contentPage,
   schemaPage,
 }) => {
+  const refModelName = `ref-model-${getId()}`;
+  const refModelKey = `ref-key-${getId()}`;
+
   await test.step("Create reference model with text field and boolean metadata", async () => {
     await schemaPage.plusAddButton.click();
-    await schemaPage.modelNameInput.fill("ref model");
-    await schemaPage.modelKeyInput.fill("ref-model");
+    await schemaPage.modelNameInput.fill(refModelName);
+    await schemaPage.modelKeyInput.fill(refModelKey);
     await schemaPage.okButton.click();
     await contentPage.closeNotification();
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text", isTitle: true });
@@ -47,15 +53,15 @@ test("One-way reference field creating and updating has succeeded", async ({
 
   await test.step("Create one-way reference field with validations", async () => {
     await schemaPage.schemaText.click();
-    await schemaPage.modelByText("e2e model name").click();
+    await schemaPage.modelByText(modelName).click();
     await schemaPage.fieldTypeButton("Reference").click();
     await fieldEditorPage.selectModelToReferenceLabel.click();
-    await expect(fieldEditorPage.modelOption("e2e model name #e2e-model-name")).toBeVisible();
-    await expect(fieldEditorPage.modelOption("ref model #ref-model")).toBeVisible();
+    await expect(fieldEditorPage.modelOption(`${modelName} #${modelName}`)).toBeVisible();
+    await expect(fieldEditorPage.modelOption(`${refModelName} #${refModelKey}`)).toBeVisible();
 
-    await fieldEditorPage.modelOption("ref model #ref-model").click();
+    await fieldEditorPage.modelOption(`${refModelName} #${refModelKey}`).click();
     await expect(
-      fieldEditorPage.createReferenceFieldLabel.getByText("ref model #ref-model"),
+      fieldEditorPage.createReferenceFieldLabel.getByText(`${refModelName} #${refModelKey}`),
     ).toBeVisible();
 
     await expect(fieldEditorPage.oneWayReferenceCheckbox).toBeChecked();
@@ -80,7 +86,7 @@ test("One-way reference field creating and updating has succeeded", async ({
 
   await test.step("Verify reference field settings are locked after creation", async () => {
     await schemaPage.fieldEditButton.click();
-    await expect(fieldEditorPage.modelOption("ref model #ref-model")).toBeVisible();
+    await expect(fieldEditorPage.modelOption(`${refModelName} #${refModelKey}`)).toBeVisible();
     await expect(fieldEditorPage.selectModelToReferenceLabel).toBeDisabled();
     await expect(fieldEditorPage.oneWayReferenceCheckbox).toBeDisabled();
     await expect(fieldEditorPage.twoWayReferenceCheckbox).toBeDisabled();
@@ -152,12 +158,15 @@ test("Two-way reference field editing has succeeded", async ({
   contentPage,
   schemaPage,
 }) => {
+  const refModelName = `ref-model-${getId()}`;
+  const refModelKey = `ref-key-${getId()}`;
+
   await test.step("Create reference model with text field and two items", async () => {
     await schemaPage.plusAddButton.first().click();
     await schemaPage.modelNameLabel.click();
-    await schemaPage.modelNameLabel.fill("ref model");
+    await schemaPage.modelNameLabel.fill(refModelName);
     await schemaPage.modelKeyLabel.click();
-    await schemaPage.modelKeyLabel.fill("ref-model");
+    await schemaPage.modelKeyLabel.fill(refModelKey);
     await schemaPage.okButton.click();
     await contentPage.closeNotification();
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text", isTitle: true });
@@ -177,11 +186,11 @@ test("Two-way reference field editing has succeeded", async ({
 
   await test.step("Add text field to main model and create two-way reference", async () => {
     await schemaPage.schemaText.click();
-    await schemaPage.modelByText("e2e model name").click();
+    await schemaPage.modelByText(modelName).click();
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text", isTitle: true });
     await schemaPage.fieldTypeButton("Reference").click();
     await fieldEditorPage.selectModelToReferenceLabel.click();
-    await fieldEditorPage.modelOption("ref model #ref-model").click();
+    await fieldEditorPage.modelOption(`${refModelName} #${refModelKey}`).click();
     await fieldEditorPage.twoWayReferenceCheckbox.check();
     await fieldEditorPage.nextButton.click();
   });
@@ -232,7 +241,7 @@ test("Two-way reference field editing has succeeded", async ({
   await test.step("Verify two-way reference fields created and test editing restrictions", async () => {
     await expect(schemaPage.fieldsContainer).toContainText("ref1 *#ref1");
     await schemaPage.fieldEllipsisIcon("ref1 *#ref1").click();
-    await expect(fieldEditorPage.modelOption("ref model #ref-model")).toBeVisible();
+    await expect(fieldEditorPage.modelOption(`${refModelName} #${refModelKey}`)).toBeVisible();
     await expect(fieldEditorPage.selectModelToReferenceLabel).toBeDisabled();
     await expect(fieldEditorPage.oneWayReferenceCheckbox).toBeDisabled();
     await expect(fieldEditorPage.twoWayReferenceCheckbox).toBeDisabled();
@@ -294,7 +303,7 @@ test("Two-way reference field editing has succeeded", async ({
   await test.step("Verify two-way reference appears in ref model", async () => {
     await expect(contentPage.cellSpanByText("reference text1")).toBeVisible();
     await expect(contentPage.cellSpanByText("reference text2")).toBeVisible();
-    await contentPage.modelLinkByText("ref model").click();
+    await contentPage.modelLinkByText(refModelName).click();
     await expect(contentPage.tableHead).toContainText("ref2");
     await expect(contentPage.cellByTextExact("text1").locator("span").first()).toBeVisible();
     await expect(contentPage.cellByTextExact("text2").locator("span").first()).toBeVisible();
@@ -312,7 +321,7 @@ test("Two-way reference field editing has succeeded", async ({
     await expect(contentPage.cellByTextExact("text1").locator("span").first()).toBeVisible();
     await expect(contentPage.cellByTextExact("text2").locator("span").first()).toBeHidden();
 
-    await contentPage.modelLinkByText("e2e model name").click();
+    await contentPage.modelLinkByText(modelName).click();
     await expect(
       contentPage.cellByTextExact("reference text1").locator("span").first(),
     ).toBeHidden();
