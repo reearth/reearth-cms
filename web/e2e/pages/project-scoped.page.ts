@@ -69,7 +69,9 @@ export abstract class ProjectScopedPage extends BasePage {
   }
 
   public async gotoProject(name: string): Promise<void> {
-    await this.getByText(name, { exact: true }).click();
+    await this.getByTestId(DATA_TEST_ID.ProjectCard__Wrapper)
+      .filter({ hasText: name })
+      .click();
     const projectName = this.getByTestId(DATA_TEST_ID.Header__ProjectName);
     await expect(projectName).toHaveText(name);
     // projectBaseUrl is auto-set by the framenavigated listener — no manual storage needed
@@ -110,10 +112,18 @@ export abstract class ProjectScopedPage extends BasePage {
     try {
       await dialog.waitFor({ state: "hidden", timeout: 1000 });
     } catch {
-      // Fallback: if Escape didn't work, click the modal's Cancel button
+      // Fallback: if Escape didn't work, try Cancel then X close button
       if (await dialog.isVisible({ timeout: 300 }).catch(() => false)) {
-        await this.cancelButton.click();
-        await dialog.waitFor({ state: "hidden", timeout: 2000 });
+        try {
+          await this.cancelButton.click({ timeout: 2000 });
+        } catch {
+          // No Cancel button (e.g. Import Schema dialog) — try X close button
+          await dialog
+            .locator('[aria-label="Close"]')
+            .click({ timeout: 2000 })
+            .catch(() => {});
+        }
+        await dialog.waitFor({ state: "hidden", timeout: 2000 }).catch(() => {});
       }
     }
 

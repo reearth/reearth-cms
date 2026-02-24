@@ -9,14 +9,24 @@ export async function closeNotification(page: Page, isSuccess = true) {
     timeout: 10000,
   });
 
-  // Find and click the close button using ARIA-scoped selector
-  const closeButton = notification.getByRole("button", { name: "Close" });
-  await closeButton.click();
+  // Click the close button. Ant Design (rc-notification) renders it as
+  // <a aria-label="Close">, not <button>, so getByRole("button") won't match.
+  const closeButton = notification.locator('[aria-label="Close"]');
+  try {
+    await closeButton.click({ timeout: 3000 });
+  } catch {
+    // Notification may have auto-closed before we could click
+  }
 
-  // Wait for the notification to be hidden
-  await expect(notification).toBeHidden();
+  // Move mouse away from notifications — Playwright's click hovers over the
+  // notification, which pauses Ant Design's auto-close timer. Moving the mouse
+  // ensures all remaining notifications resume their 2s auto-close countdown.
+  await page.mouse.move(0, 0);
 
-  // Wait for any pending network requests to complete, but with a shorter timeout
-  // This helps ensure state is saved before moving to next action
+  // Wait for the notification to be hidden. If stacking, .last() shifts to
+  // remaining notifications which will auto-close (mouse is no longer hovering).
+  await expect(notification).toBeHidden({ timeout: 10000 });
+
+  // Wait for any pending network requests to complete
   await page.waitForLoadState("domcontentloaded");
 }

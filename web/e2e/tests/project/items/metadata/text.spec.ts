@@ -14,7 +14,6 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Text metadata creating and updating has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -82,7 +81,6 @@ test("Text metadata creating and updating has succeeded", async ({
 });
 
 test("Text metadata editing has succeeded", async ({
-  page,
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -159,7 +157,7 @@ test("Text metadata editing has succeeded", async ({
     await contentPage.closeNotification(false);
     await contentPage.x2Button.click();
     await contentPage.tooltipTextboxes.nth(1).fill("text3");
-    await contentPage.tooltipTextByName("new text1").click();
+    await contentPage.tooltipTextboxes.nth(1).blur();
     await contentPage.closeNotification();
   });
 

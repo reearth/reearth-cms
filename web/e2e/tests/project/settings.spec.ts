@@ -12,11 +12,7 @@ test.beforeEach(async ({ reearth }) => {
 });
 
 test.describe("Project General Settings", () => {
-  test("@smoke Update project general settings", async ({
-    page,
-    projectSettingsPage,
-    projectPage,
-  }) => {
+  test("@smoke Update project general settings", async ({ projectSettingsPage, projectPage }) => {
     await test.step("Project creation setup", async () => {
       await projectPage.createProject(EXIST_PROJECT_NAME);
       await projectSettingsPage.goto("/");
@@ -106,6 +102,7 @@ test.describe("Project General Settings", () => {
 
     await test.step("Delete all projects", async () => {
       const projects = [NEW_PROJECT_NAME, EXIST_PROJECT_NAME];
+      await projectPage.goto("/", { waitUntil: "domcontentloaded" });
 
       for await (const project of projects) {
         await projectPage.gotoProject(project);
