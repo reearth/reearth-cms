@@ -5,6 +5,9 @@ import MyIntegrationCard from "@reearth-cms/components/molecules/MyIntegrations/
 import IntegrationCreationAction from "@reearth-cms/components/molecules/MyIntegrations/List/CreationAction";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
+import { Constant } from "@reearth-cms/utils/constant";
+
+import DocumentationLink from "../../APIDocLinks/DocumentationLink";
 
 type Props = {
   integrations: Integration[];
@@ -24,6 +27,7 @@ const MyIntegrationList: React.FC<Props> = ({
       <PageHeader
         title={t("My Integrations")}
         subTitle={t("Create and test your own integration.")}
+        extra={<DocumentationLink url={Constant.INTEGRATIONS_API_DOCS.en} />}
       />
       <ListWrapper>
         {integrations.map((integration: Integration) => (

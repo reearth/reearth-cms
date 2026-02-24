@@ -15,9 +15,8 @@ import Space from "@reearth-cms/components/atoms/Space";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
 import { useT, Trans } from "@reearth-cms/i18n";
-import { Constant } from "@reearth-cms/utils/constant";
 
-import APIDocLink from "../../APIDocLink";
+import PlaygroundLink from "../../APIDocLinks/PlaygroundLink";
 
 type Props = {
   workspaceIntegrations?: WorkspaceIntegration[];
@@ -181,11 +180,8 @@ const IntegrationTable: React.FC<Props> = ({
         style={{ backgroundColor: "#fff" }}
         extra={
           <>
+            <PlaygroundLink url="./integrations/docs" />
             <ConnectButton />
-            <APIDocLink
-              documentUrl={Constant.INTEGRATIONS_API_DOCS.en}
-              playgroundUrl="./integrations/docs"
-            />
           </>
         }
       />

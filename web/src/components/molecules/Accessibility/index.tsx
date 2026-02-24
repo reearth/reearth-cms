@@ -6,7 +6,7 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 
-import APIDocLink from "../APIDocLink";
+import APIDocLinks from "../APIDocLinks";
 
 import AccessAPIComponent from "./AccessAPI";
 import APIKeyComponent from "./APIKey";
@@ -63,7 +63,7 @@ const Accessibility: React.FC<Props> = ({
       title={t("Accessibility")}
       flexChildren
       subtitle={t("Control the visibility scope of the Content API")}
-      extra={<APIDocLink documentUrl={documentUrl} playgroundUrl="./accessibility/docs" />}>
+      extra={<APIDocLinks documentUrl={documentUrl} playgroundUrl="./accessibility/docs" />}>
       <AccessAPIComponent
         apiUrl={apiUrl}
         initialValues={initialValues}
