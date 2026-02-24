@@ -16,6 +16,8 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 
+import PlaygroundLink from "../../APIDocLinks/PlaygroundLink";
+
 type Props = {
   workspaceIntegrations?: WorkspaceIntegration[];
   onIntegrationConnectModalOpen: () => void;
@@ -176,7 +178,12 @@ const IntegrationTable: React.FC<Props> = ({
       <PageHeader
         title={t("Integrations")}
         style={{ backgroundColor: "#fff" }}
-        extra={<ConnectButton />}
+        extra={
+          <>
+            <PlaygroundLink url="./integrations/docs" />
+            <ConnectButton />
+          </>
+        }
       />
       <ConfigProvider
         renderEmpty={() => (

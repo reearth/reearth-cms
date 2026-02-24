@@ -3,8 +3,8 @@ import { useMemo } from "react";
 import { useProject, useWorkspace } from "@reearth-cms/state";
 
 export default () => {
-  const [currentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
+  const [currentProject] = useProject();
 
   const specUrl = useMemo<string>(() => {
     if (!currentWorkspace?.alias && !currentWorkspace?.id) return "";
@@ -13,8 +13,9 @@ export default () => {
     const workspaceIdentifier = currentWorkspace?.alias || currentWorkspace?.id;
     const projectIdentifier = currentProject?.alias || currentProject?.id;
 
-    return `${window.REEARTH_CONFIG?.api}/p/${workspaceIdentifier}/${projectIdentifier}`;
-  }, [currentWorkspace, currentProject]);
+    // TODO: wait for url of integration playground
+    return `${window.REEARTH_CONFIG?.api}/api/${workspaceIdentifier}/project/${projectIdentifier}`;
+  }, [currentProject?.alias, currentProject?.id, currentWorkspace?.alias, currentWorkspace?.id]);
 
   return {
     specUrl,

@@ -20,6 +20,7 @@ const Accessibility: React.FC = () => {
     handleAPIKeyDelete,
     handlePublicUpdate,
     handleSettingsPageOpen,
+    currentLang,
   } = useHooks();
 
   return (
@@ -40,6 +41,7 @@ const Accessibility: React.FC = () => {
       onAPIKeyDelete={handleAPIKeyDelete}
       onPublicUpdate={handlePublicUpdate}
       onSettingsPageOpen={handleSettingsPageOpen}
+      currentLang={currentLang}
     />
   );
 };
