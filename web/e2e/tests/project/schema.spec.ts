@@ -36,14 +36,14 @@ test("Model CRUD has succeeded", { tag: TAG.SMOKE }, async ({ schemaPage, fieldE
     await schemaPage.createModelFromSidebar(modelName, modelKey);
     await expect(fieldEditorPage.titleByText(modelName, true)).toBeVisible();
     await expect(schemaPage.textByExact(`#${modelKey}`)).toBeVisible();
-    await expect(schemaPage.modelMenuItemSpan(modelName)).toBeVisible();
+    await expect(schemaPage.menuItemSpanByName(modelName)).toBeVisible();
   });
 
   await test.step("Update model", async () => {
     await schemaPage.updateModel(newModelName, newModelKey);
     await expect(fieldEditorPage.titleByText(newModelName)).toBeVisible();
     await expect(schemaPage.textByExact(`#${newModelKey}`)).toBeVisible();
-    await expect(schemaPage.modelMenuItemSpan(newModelName)).toBeVisible();
+    await expect(schemaPage.menuItemSpanByName(newModelName)).toBeVisible();
   });
 
   await test.step("Delete model", async () => {
@@ -65,7 +65,7 @@ test("Model reordering has succeeded", async ({ schemaPage }) => {
   });
 
   await test.step("Drag model2 above model1", async () => {
-    await schemaPage.modelMenuItem(modelName2).dragTo(schemaPage.modelMenuItem(modelName1));
+    await schemaPage.menuItemByName(modelName2).dragTo(schemaPage.menuItemByName(modelName1));
     await schemaPage.closeNotification();
     await expect(schemaPage.modelMenuItems().nth(0)).toContainText(modelName2);
     await expect(schemaPage.modelMenuItems().nth(1)).toContainText(modelName1);
@@ -202,7 +202,7 @@ test("Group creating from adding field has succeeded", async ({ schemaPage, fiel
   });
 
   await test.step("Verify group created and field type restrictions applied", async () => {
-    await expect(schemaPage.groupMenuItemSpan(groupName)).toBeVisible();
+    await expect(schemaPage.menuItemSpanByName(groupName)).toBeVisible();
     await expect(schemaPage.groupNameByText(`${groupName}#${groupKey}`)).toBeVisible();
     await expect(schemaPage.fieldsMetaDataText).toBeHidden();
     await expect(schemaPage.textByExact("Reference")).toBeHidden();

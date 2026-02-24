@@ -109,17 +109,17 @@ export class WorkspacePage extends BasePage {
   // ========== Action Methods (POM Pattern) ==========
 
   public async createWorkspace(name: string): Promise<void> {
-    await this.getByRole("button", { name: "Create a Workspace" }).click();
-    await this.getByLabel("Workspace name").click();
-    await this.getByLabel("Workspace name").fill(name);
-    await this.getByRole("button", { name: "OK" }).click();
+    await this.createWorkspaceButton.click();
+    await this.workspaceNameInput.click();
+    await this.workspaceNameInput.fill(name);
+    await this.okButton.click();
     await this.closeNotification();
   }
 
   public async deleteWorkspace(): Promise<void> {
-    await this.getByText("Workspace Settings", { exact: true }).click();
-    await this.getByRole("button", { name: "Remove Workspace" }).click();
-    await this.getByRole("button", { name: "OK" }).click();
+    await this.workspaceSettingsButton.click();
+    await this.removeWorkspaceButton.click();
+    await this.okButton.click();
     await this.closeNotification();
   }
 

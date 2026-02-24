@@ -31,9 +31,6 @@ export class SchemaPage extends ProjectScopedPage {
   public get importSchemaModalImportButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.ImportSchemaModal__ImportButton);
   }
-  public modelMenuItem(name: string): Locator {
-    return this.getByRole("menuitem", { name });
-  }
   public modelMenuItems(): Locator {
     return this.getByRole("main").getByRole("menuitem");
   }
@@ -46,13 +43,10 @@ export class SchemaPage extends ProjectScopedPage {
     return this.getByLabel("New Group");
   }
   public get groupNameInput(): Locator {
-    return this.getByLabel("New Group").locator("#name");
+    return this.newGroupDialog.locator("#name");
   }
   public get groupKeyInput(): Locator {
-    return this.getByLabel("New Group").locator("#key");
-  }
-  public groupMenuItem(name: string): Locator {
-    return this.getByRole("menuitem", { name });
+    return this.newGroupDialog.locator("#key");
   }
   public get groupMenuItems(): Locator {
     return this.getByRole("main").getByRole("menu").last().getByRole("menuitem");
@@ -166,6 +160,57 @@ export class SchemaPage extends ProjectScopedPage {
     return this.getByText(`${fieldName} *#${key}(unique)`);
   }
 
+  // ========== Action Method Locators (private) ==========
+
+  private get moreButton(): Locator {
+    return this.getByRole("button", { name: "more" });
+  }
+  private get editMenuItemText(): Locator {
+    return this.getByText("Edit", { exact: true });
+  }
+  private get deleteMenuItemText(): Locator {
+    return this.getByText("Delete", { exact: true });
+  }
+
+  // Update Model dialog
+  private get updateModelDialog(): Locator {
+    return this.getByLabel("Update Model");
+  }
+  private get updateModelNameInput(): Locator {
+    return this.updateModelDialog.locator("#name");
+  }
+  private get updateModelKeyInput(): Locator {
+    return this.updateModelDialog.locator("#key");
+  }
+  private get deleteModelConfirmButton(): Locator {
+    return this.getByRole("button", { name: "Delete Model" });
+  }
+
+  // Create Group form
+  private get groupAddButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.Schema__GroupAddButton);
+  }
+  private get groupNameLabel(): Locator {
+    return this.getByLabel("Group name");
+  }
+  private get groupKeyLabel(): Locator {
+    return this.getByLabel("Group key");
+  }
+
+  // Update Group dialog
+  private get updateGroupDialog(): Locator {
+    return this.getByLabel("Update Group");
+  }
+  private get updateGroupNameInput(): Locator {
+    return this.updateGroupDialog.locator("#name");
+  }
+  private get updateGroupKeyInput(): Locator {
+    return this.updateGroupDialog.locator("#key");
+  }
+  private get deleteGroupConfirmButton(): Locator {
+    return this.getByRole("button", { name: "Delete Group" });
+  }
+
   // ========== Action Methods (POM Pattern) ==========
 
   // Model CRUD operations
@@ -174,60 +219,56 @@ export class SchemaPage extends ProjectScopedPage {
   }
 
   public async createModelFromSidebar(name = `model-${getId()}`, key?: string): Promise<void> {
-    await this.getByTestId(DATA_TEST_ID.Schema__ModelAddButton).click();
+    await this.plusAddButton.click();
     await this.fillModelFormAndSubmit(name, key);
   }
 
   public async updateModel(name: string, key: string): Promise<void> {
-    await this.getByRole("button", { name: "more" }).hover();
-    await this.getByText("Edit", { exact: true }).click();
-    await this.getByLabel("Update Model").locator("#name").fill(name);
-    await this.getByLabel("Update Model").locator("#key").fill(key);
-    await this.getByRole("button", { name: "OK" }).click();
+    await this.moreButton.hover();
+    await this.editMenuItemText.click();
+    await this.updateModelNameInput.fill(name);
+    await this.updateModelKeyInput.fill(key);
+    await this.okButton.click();
     await this.closeNotification();
   }
 
   public async deleteModel(): Promise<void> {
-    await this.getByRole("button", { name: "more" }).hover();
-    await this.getByText("Delete", { exact: true }).click();
-    await this.getByRole("button", { name: "Delete Model" }).click();
+    await this.moreButton.hover();
+    await this.deleteMenuItemText.click();
+    await this.deleteModelConfirmButton.click();
     await this.closeNotification();
   }
 
   // Group CRUD operations
   public async createGroup(name: string, key?: string): Promise<void> {
-    await this.getByTestId(DATA_TEST_ID.Schema__GroupAddButton).click();
-    await this.getByLabel("Group name").fill(name);
+    await this.groupAddButton.click();
+    await this.groupNameLabel.fill(name);
     if (key) {
-      await this.getByLabel("Group key").fill(key);
+      await this.groupKeyLabel.fill(key);
     }
-    await this.getByRole("button", { name: "OK" }).click();
+    await this.okButton.click();
     await this.closeNotification();
   }
 
   public async updateGroup(name: string, key?: string): Promise<void> {
-    await this.getByRole("button", { name: "more" }).hover();
-    await this.getByText("Edit", { exact: true }).click();
-    await this.getByLabel("Update Group").locator("#name").fill(name);
+    await this.moreButton.hover();
+    await this.editMenuItemText.click();
+    await this.updateGroupNameInput.fill(name);
     if (key) {
-      await this.getByLabel("Update Group").locator("#key").fill(key);
+      await this.updateGroupKeyInput.fill(key);
     }
-    await this.getByRole("button", { name: "OK" }).click();
+    await this.okButton.click();
     await this.closeNotification();
   }
 
   public async deleteGroup(): Promise<void> {
-    await this.getByRole("button", { name: "more" }).hover();
-    await this.getByText("Delete", { exact: true }).click();
-    await this.getByRole("button", { name: "Delete Group" }).click();
+    await this.moreButton.hover();
+    await this.deleteMenuItemText.click();
+    await this.deleteGroupConfirmButton.click();
     await this.closeNotification();
   }
 
-  public modelMenuItemSpan(name: string): Locator {
-    return this.getByRole("menuitem", { name }).locator("span");
-  }
-
-  public groupMenuItemSpan(name: string): Locator {
+  public menuItemSpanByName(name: string): Locator {
     return this.getByRole("menuitem", { name }).locator("span");
   }
 }

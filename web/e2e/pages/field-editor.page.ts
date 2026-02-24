@@ -697,6 +697,10 @@ export class FieldEditorPage extends ProjectScopedPage {
     return this.getByRole("button").nth(3);
   }
 
+  private typeCheckboxByLabel(label: string): Locator {
+    return this.getByLabel(label, { exact: true });
+  }
+
   public async createField(options: CreateFieldOptions): Promise<void> {
     // Select field type
     await this.fieldTypeButton(options.type).click();
@@ -725,7 +729,7 @@ export class FieldEditorPage extends ProjectScopedPage {
       options.supportedTypes
     ) {
       for (const st of options.supportedTypes) {
-        await this.getByLabel(this.objectSupportedTypeLabel(st), { exact: true }).check();
+        await this.typeCheckboxByLabel(this.objectSupportedTypeLabel(st)).check();
       }
     }
     if (
@@ -734,7 +738,7 @@ export class FieldEditorPage extends ProjectScopedPage {
       options.supportedTypes
     ) {
       for (const st of options.supportedTypes) {
-        await this.getByLabel(this.editorSupportedTypeLabel(st), { exact: true }).check();
+        await this.typeCheckboxByLabel(this.editorSupportedTypeLabel(st)).check();
       }
     }
     if (options.type === SchemaFieldType.Select && "values" in options) {
@@ -791,8 +795,8 @@ export class FieldEditorPage extends ProjectScopedPage {
     // Fill field settings
     await this.displayNameInput.fill(options.name);
     if (options.key !== undefined) {
-      // Reference wizard uses a different key input than the regular field modal
-      await this.getByLabel("Settings").locator("#key").fill(options.key);
+      // Reference wizard uses the same settings key input
+      await this.settingsKeyInput.fill(options.key);
     }
     if (options.description !== undefined) {
       await this.descriptionInput.fill(options.description);

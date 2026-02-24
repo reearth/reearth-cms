@@ -60,12 +60,25 @@ export abstract class ProjectScopedPage extends BasePage {
   }
 
   // Project lifecycle
+  private get createProjectDialogNameInput(): Locator {
+    return this.getByRole("dialog").locator("#name");
+  }
+  private get modelFormNameInput(): Locator {
+    return this.getByLabel("Model name");
+  }
+  private get modelFormKeyInput(): Locator {
+    return this.getByLabel("Model key");
+  }
+  private get modelFormDescriptionInput(): Locator {
+    return this.getByLabel("Model description");
+  }
+
   public async createProject(name: string): Promise<void> {
     await this.getByTestId(DATA_TEST_ID.Workspace__HeaderActions)
       .getByTestId(DATA_TEST_ID.Workspace__NewProjectButton)
       .click();
-    await this.getByRole("dialog").locator("#name").fill(name);
-    await this.getByRole("button", { name: "OK" }).click();
+    await this.createProjectDialogNameInput.fill(name);
+    await this.okButton.click();
     await this.closeNotification();
   }
 
@@ -144,14 +157,14 @@ export abstract class ProjectScopedPage extends BasePage {
     key?: string,
     description?: string,
   ): Promise<void> {
-    await this.getByLabel("Model name").fill(name);
+    await this.modelFormNameInput.fill(name);
     if (key) {
-      await this.getByLabel("Model key").fill(key);
+      await this.modelFormKeyInput.fill(key);
     }
     if (description) {
-      await this.getByLabel("Model description").fill(description);
+      await this.modelFormDescriptionInput.fill(description);
     }
-    await this.getByRole("button", { name: "OK" }).click();
+    await this.okButton.click();
     await this.closeNotification();
   }
 

@@ -518,50 +518,76 @@ export class ContentPage extends ProjectScopedPage {
     return this.getByRole("button", { name: itemId, exact: true });
   }
 
+  // ========== Action Method Locators (private) ==========
+
+  private get newRequestMenuItem(): Locator {
+    return this.getByRole("menuitem", { name: "New Request" });
+  }
+  private get requestTitleInput(): Locator {
+    return this.getByLabel("Title").last();
+  }
+  private get requestDescriptionInput(): Locator {
+    return this.getByLabel("Description");
+  }
+  private get commentContentInput(): Locator {
+    return this.page.locator("#content");
+  }
+  private get commentSubmitButton(): Locator {
+    return this.getByRole("button", { name: "Comment" });
+  }
+  private get commentEditButton(): Locator {
+    return this.getByRole("main").getByRole("complementary").getByLabel("edit").locator("svg");
+  }
+  private get commentSaveCheckButton(): Locator {
+    return this.getByLabel("check").locator("svg").first();
+  }
+  private get commentDeleteButton(): Locator {
+    return this.getByLabel("delete").locator("svg");
+  }
+  private commentTextarea(text: string): Locator {
+    return this.page.locator("textarea").filter({ hasText: text });
+  }
+
   // ========== Action Methods (POM Pattern) ==========
 
   public async createItem(): Promise<void> {
-    await this.getByText("Content").click();
-    await this.getByRole("button", { name: "plus New Item" }).click();
-    await this.getByRole("button", { name: "Save" }).click();
+    await this.contentText.click();
+    await this.newItemButton.click();
+    await this.saveButton.click();
     await this.closeNotification();
   }
 
   public async createRequest(title: string): Promise<void> {
-    await this.getByRole("button", { name: "ellipsis" }).click();
-    await this.getByRole("menuitem", { name: "New Request" }).click();
-    await this.getByLabel("Title").last().click();
-    await this.getByLabel("Title").last().fill(title);
+    await this.ellipsisMenuButton.click();
+    await this.newRequestMenuItem.click();
+    await this.requestTitleInput.click();
+    await this.requestTitleInput.fill(title);
     await this.getByTestId(DATA_TEST_ID.RequestCreationModal__ReviewerSelect)
       .locator("input")
       .click();
     await this.keypress("Enter");
-    await this.getByLabel("Description").click();
-    await this.getByRole("button", { name: "OK" }).click();
+    await this.requestDescriptionInput.click();
+    await this.okButton.click();
     await this.closeNotification();
   }
 
   public async createComment(content: string): Promise<void> {
-    await this.page.locator("#content").click();
-    await this.page.locator("#content").fill(content);
-    await this.getByRole("button", { name: "Comment" }).click();
+    await this.commentContentInput.click();
+    await this.commentContentInput.fill(content);
+    await this.commentSubmitButton.click();
     await this.closeNotification();
   }
 
   public async updateComment(oldText: string, newText: string): Promise<void> {
-    await this.getByRole("main")
-      .getByRole("complementary")
-      .getByLabel("edit")
-      .locator("svg")
-      .click();
-    await this.page.locator("textarea").filter({ hasText: oldText }).click();
-    await this.page.locator("textarea").filter({ hasText: oldText }).fill(newText);
-    await this.getByLabel("check").locator("svg").first().click();
+    await this.commentEditButton.click();
+    await this.commentTextarea(oldText).click();
+    await this.commentTextarea(oldText).fill(newText);
+    await this.commentSaveCheckButton.click();
     await this.closeNotification();
   }
 
   public async deleteComment(): Promise<void> {
-    await this.getByLabel("delete").locator("svg").click();
+    await this.commentDeleteButton.click();
     await this.closeNotification();
   }
 
