@@ -8,7 +8,7 @@ const PROJECT_NAME = getId();
 const NEW_PROJECT_NAME = getId();
 
 test.beforeEach(async ({ projectSettingsPage }) => {
-  await projectSettingsPage.goto("/", { waitUntil: "domcontentloaded" });
+  await projectSettingsPage.goto("/");
 });
 
 test.describe("Project General Settings", () => {
@@ -105,7 +105,7 @@ test.describe("Project General Settings", () => {
 
       await test.step("Delete all projects", async () => {
         const projects = [NEW_PROJECT_NAME, EXIST_PROJECT_NAME];
-        await projectPage.goto("/", { waitUntil: "domcontentloaded" });
+        await projectPage.goto("/");
 
         for await (const project of projects) {
           await projectPage.gotoProject(project);

@@ -5,7 +5,7 @@ import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 const isCI = !!process.env.CI;
 
 test.beforeEach(async ({ projectPage }) => {
-  await projectPage.goto("/", { waitUntil: "domcontentloaded" });
+  await projectPage.goto("/");
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);

@@ -15,7 +15,7 @@ const IMPORT_SCHEMA_TEMPLATE_PATH = path.resolve(
 );
 
 test.beforeEach(async ({ projectPage }) => {
-  await projectPage.goto("/", { waitUntil: "domcontentloaded" });
+  await projectPage.goto("/");
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);

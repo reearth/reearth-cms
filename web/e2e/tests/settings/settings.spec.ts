@@ -8,7 +8,7 @@ const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 let workspaceName: string;
 test.beforeEach(async ({ workspacePage, settingsPage }) => {
   test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
-  await settingsPage.goto("/", { waitUntil: "domcontentloaded" });
+  await settingsPage.goto("/");
   workspaceName = getId();
   await workspacePage.createWorkspace(workspaceName);
   await settingsPage.settingsMenuItem.click();

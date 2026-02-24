@@ -4,7 +4,7 @@ import { getId, getMultipleProjects } from "@reearth-cms/e2e/helpers/mock.helper
 test.describe.configure({ mode: "default" });
 
 test.beforeEach(async ({ workspacePage }) => {
-  await workspacePage.goto("/", { waitUntil: "domcontentloaded" });
+  await workspacePage.goto("/");
 });
 
 test.describe("Project CRUD and searching has succeeded", () => {
@@ -175,7 +175,7 @@ test.describe("Project List", { tag: TAG.REDUNDANT }, () => {
         const nameEl = projectSettingsPage.projectName;
         await nameEl.fill(newFirstProjectName);
         await projectSettingsPage.saveSettings();
-        await workspacePage.goto("/", { waitUntil: "domcontentloaded" });
+        await workspacePage.goto("/");
       });
 
       await test.step("Sort by updatedAt and verify updated project appears first", async () => {
@@ -255,7 +255,7 @@ test.describe("Project List", { tag: TAG.REDUNDANT }, () => {
 
   test.afterEach(async ({ workspacePage, projectPage }) => {
     for await (const projectName of PROJECT_ID_LIST) {
-      await workspacePage.goto("/", { waitUntil: "domcontentloaded" });
+      await workspacePage.goto("/");
       await workspacePage.searchProjectsInput.fill(projectName);
       await workspacePage.searchButton.click();
       const projectCard = workspacePage.projectCardByName(projectName);

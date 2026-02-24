@@ -8,7 +8,7 @@ const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 
 test.beforeEach(async ({ workspacePage, projectPage }) => {
   test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
-  await projectPage.goto("/", { waitUntil: "domcontentloaded" });
+  await projectPage.goto("/");
   await workspacePage.createWorkspace(`e2e-ws-${getId()}`);
   const projectName = getId();
   await projectPage.createProject(projectName);

@@ -7,7 +7,7 @@ const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 
 test.beforeEach(async ({ workspacePage }) => {
   test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
-  await workspacePage.goto("/", { waitUntil: "domcontentloaded" });
+  await workspacePage.goto("/");
 });
 
 test("Workspace CRUD has succeeded", { tag: TAG.SMOKE }, async ({ workspacePage }) => {

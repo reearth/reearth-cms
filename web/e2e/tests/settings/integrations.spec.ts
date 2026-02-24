@@ -4,7 +4,7 @@ import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 let id: string;
 
 test.beforeEach(async ({ integrationsPage }) => {
-  await integrationsPage.goto("/", { waitUntil: "domcontentloaded" });
+  await integrationsPage.goto("/");
   id = getId();
 });
 

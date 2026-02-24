@@ -9,7 +9,7 @@ test.beforeEach(async ({ integrationsPage }) => {
   integrationName = getId();
   newIntegrationName = getId();
   newDescription = `newDescription-${getId()}`;
-  await integrationsPage.goto("/", { waitUntil: "domcontentloaded" });
+  await integrationsPage.goto("/");
   await integrationsPage.myIntegrationsMenuItem.click();
   await integrationsPage.createIntegrationButton.click();
 

@@ -8,7 +8,7 @@ const requestTitle = "e2e request title";
 const modelName = "e2e model name";
 
 test.beforeEach(async ({ projectPage, fieldEditorPage, contentPage }) => {
-  await projectPage.goto("/", { waitUntil: "domcontentloaded" });
+  await projectPage.goto("/");
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);

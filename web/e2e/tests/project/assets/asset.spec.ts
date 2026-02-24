@@ -8,7 +8,7 @@ const pngName = "road_plan2.png";
 const pngUrl = `https://assets.cms.plateau.reearth.io/assets/33/e999c4-7859-446b-ab3c-86625b3c760e/${pngName}`;
 
 test.beforeEach(async ({ projectPage }) => {
-  await projectPage.goto("/", { waitUntil: "domcontentloaded" });
+  await projectPage.goto("/");
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);

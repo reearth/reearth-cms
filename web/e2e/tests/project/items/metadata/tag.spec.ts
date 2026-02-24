@@ -7,7 +7,7 @@ const tag1 = "Tag1";
 const tag2 = "Tag2";
 
 test.beforeEach(async ({ projectPage }) => {
-  await projectPage.goto("/", { waitUntil: "domcontentloaded" });
+  await projectPage.goto("/");
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);

@@ -10,7 +10,7 @@ const uploadFileUrl_2 =
 const uploadFileName_2 = "lowpolycar.gltf";
 
 test.beforeEach(async ({ projectPage }) => {
-  await projectPage.goto("/", { waitUntil: "domcontentloaded" });
+  await projectPage.goto("/");
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);

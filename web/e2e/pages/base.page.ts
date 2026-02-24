@@ -95,7 +95,9 @@ export abstract class BasePage {
 
   public async goto(
     url: string,
-    options?: { waitUntil?: "domcontentloaded" | "load" | "networkidle" },
+    options: { waitUntil?: "domcontentloaded" | "load" | "networkidle" } = {
+      waitUntil: "domcontentloaded",
+    },
   ) {
     await this.page.goto(url, options);
     const token = getAccessToken();
