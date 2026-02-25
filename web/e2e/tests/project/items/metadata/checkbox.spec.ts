@@ -107,18 +107,15 @@ test("Checkbox metadata editing has succeeded", async ({
   await test.step("Update metadata with multiple values", async () => {
     await schemaPage.schemaMenuItem.click();
     await schemaPage.metaDataTab.click();
-    await fieldEditorPage.ellipsisButton.click();
-    await fieldEditorPage.displayNameInput.fill("new checkbox1");
-    await fieldEditorPage.fieldKeyInput.fill("new-checkbox1");
-    await fieldEditorPage.descriptionRequiredInput.fill("new checkbox1 description");
-    await fieldEditorPage.supportMultipleValuesCheckbox.check();
-    await fieldEditorPage.defaultValueTab.click();
-    await expect(fieldEditorPage.firstCheckbox).toBeChecked();
-    await fieldEditorPage.plusNewButton.click();
-    await expect(fieldEditorPage.checkboxByIndex(1)).not.toBeChecked();
-    await fieldEditorPage.checkboxByIndex(1).check();
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.editField({
+      type: SchemaFieldType.Checkbox,
+      metadata: true,
+      name: "new checkbox1",
+      key: "new-checkbox1",
+      description: "new checkbox1 description",
+      multiple: true,
+      addDefaultValues: [true],
+    });
     await expect(schemaPage.getByText("new checkbox1")).toBeVisible();
     await expect(schemaPage.getByText("#new-checkbox1")).toBeVisible();
   });

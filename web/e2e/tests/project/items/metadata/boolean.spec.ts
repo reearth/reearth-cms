@@ -107,18 +107,15 @@ test("Boolean metadata editing has succeeded", async ({
   await test.step("Update metadata with multiple values", async () => {
     await schemaPage.schemaMenuItem.click();
     await schemaPage.metaDataTab.click();
-    await fieldEditorPage.ellipsisButton.click();
-    await fieldEditorPage.displayNameInput.fill("new boolean1");
-    await fieldEditorPage.fieldKeyInput.fill("new-boolean1");
-    await fieldEditorPage.descriptionRequiredInput.fill("new boolean1 description");
-    await fieldEditorPage.supportMultipleValuesCheckbox.check();
-    await fieldEditorPage.defaultValueTab.click();
-    await expect(fieldEditorPage.firstSwitch).toHaveAttribute("aria-checked", "true");
-    await fieldEditorPage.plusNewButton.click();
-    await expect(fieldEditorPage.switchByIndex(1)).toHaveAttribute("aria-checked", "false");
-    await fieldEditorPage.switchByIndex(1).click();
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.editField({
+      type: SchemaFieldType.Bool,
+      metadata: true,
+      name: "new boolean1",
+      key: "new-boolean1",
+      description: "new boolean1 description",
+      multiple: true,
+      addDefaultValues: [true],
+    });
     await expect(schemaPage.getByText("new boolean1")).toBeVisible();
     await expect(schemaPage.getByText("#new-boolean1")).toBeVisible();
   });

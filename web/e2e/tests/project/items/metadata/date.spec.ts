@@ -110,27 +110,20 @@ test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPag
     await contentPage.closeNotification();
   });
 
-  await test.step("Edit field: rename, enable multiple values and validations", async () => {
+  await test.step("Edit field: rename, enable multiple values, validations and defaults", async () => {
     await fieldEditorPage.menuItemByName("Schema").click();
     await fieldEditorPage.metaDataTab.click();
-    await fieldEditorPage.ellipsisButton.click();
-    await fieldEditorPage.displayNameInput.fill("new date1");
-    await fieldEditorPage.fieldKeyInput.fill("new-date1");
-    await fieldEditorPage.descriptionRequiredInput.fill("new date1 description");
-    await fieldEditorPage.supportMultipleValuesCheckbox.check();
-    await fieldEditorPage.validationTab.click();
-    await fieldEditorPage.requiredFieldCheckbox.check();
-    await fieldEditorPage.uniqueFieldCheckbox.check();
-    await fieldEditorPage.defaultValueTab.click();
-    await expect(fieldEditorPage.firstTextbox).toHaveValue("2024-01-01");
-  });
-
-  await test.step("Add second default date value", async () => {
-    await fieldEditorPage.plusNewButton.click();
-    await fieldEditorPage.textboxByIndex(1).fill("2024-01-02");
-    await fieldEditorPage.textboxByIndex(1).press("Enter");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.editField({
+      type: SchemaFieldType.Date,
+      metadata: true,
+      name: "new date1",
+      key: "new-date1",
+      description: "new date1 description",
+      multiple: true,
+      required: true,
+      unique: true,
+      addDefaultValues: ["2024-01-02"],
+    });
     await expect(fieldEditorPage.uniqueFieldText("new date1", "new-date1")).toBeVisible();
   });
 

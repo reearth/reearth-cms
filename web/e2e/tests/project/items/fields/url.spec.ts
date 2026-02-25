@@ -72,26 +72,16 @@ test("URL field editing has succeeded", async ({ fieldEditorPage, contentPage, s
   await expect(contentPage.cellByTextExact(testUrl1)).toBeVisible();
 
   await schemaPage.schemaText.click();
-  await fieldEditorPage.ellipsisMenuButton.click();
-  await fieldEditorPage.settingsTab.click();
-  await fieldEditorPage.displayNameInput.click();
-  await fieldEditorPage.displayNameInput.fill(newFieldName);
-  await fieldEditorPage.fieldKeyInput.click();
-  await fieldEditorPage.fieldKeyInput.fill(newFieldKey);
-  await fieldEditorPage.descriptionInput.click();
-  await fieldEditorPage.descriptionInput.fill(newFieldDescription);
-  await fieldEditorPage.supportMultipleValuesCheckbox.check();
-  await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
-  await fieldEditorPage.validationTab.click();
-  await fieldEditorPage.requiredFieldCheckbox.check();
-  await fieldEditorPage.uniqueFieldCheckbox.check();
-  await fieldEditorPage.defaultValueTab.click();
-  await expect(fieldEditorPage.setDefaultValueInput).toHaveValue(testUrl1);
-  await fieldEditorPage.plusNewButton.click();
-  await fieldEditorPage.defaultValueInputByIndex(1).click();
-  await fieldEditorPage.defaultValueInputByIndex(1).fill(testUrl2);
-  await fieldEditorPage.okButton.click();
-  await contentPage.closeNotification();
+  await fieldEditorPage.editField({
+    type: SchemaFieldType.URL,
+    name: newFieldName,
+    key: newFieldKey,
+    description: newFieldDescription,
+    multiple: true,
+    required: true,
+    unique: true,
+    addDefaultValues: [testUrl2],
+  });
 
   await expect(schemaPage.uniqueFieldText(newFieldName, newFieldKey)).toBeVisible();
   await contentPage.contentText.click();
