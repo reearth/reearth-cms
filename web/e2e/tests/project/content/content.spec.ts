@@ -22,6 +22,14 @@ const TEST_IMPORT_CONTENT_GEO_JSON_PATH = path.resolve(
   "../../../files/test-import-content.geojson",
 );
 
+const textFieldName = "text";
+const newTextValue = "new text";
+const defaultTextValue = "default text";
+const commentText = "comment";
+const newCommentText = "new comment";
+const importTextFieldKey = "text-field-key";
+const importLocationName = "location";
+
 let modelName: string;
 
 test.beforeEach(async ({ projectPage }) => {
@@ -42,50 +50,50 @@ test(
   { tag: TAG.SMOKE },
   async ({ contentPage, fieldEditorPage, projectPage }) => {
     await test.step("Create text field and navigate to content", async () => {
-      await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
+      await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: textFieldName });
       await projectPage.contentMenuItem.click();
     });
 
     await test.step("Create new item with text value", async () => {
       await contentPage.newItemButton.click();
-      await contentPage.fieldInput("text").click();
-      await contentPage.fieldInput("text").fill("text");
+      await contentPage.fieldInput(textFieldName).click();
+      await contentPage.fieldInput(textFieldName).fill(textFieldName);
       await contentPage.saveButton.click();
       await contentPage.closeNotification();
       await contentPage.backButton.click();
-      await expect(contentPage.cellByText("text", true)).toBeVisible();
+      await expect(contentPage.cellByText(textFieldName, true)).toBeVisible();
     });
 
     await test.step("Search for non-existent item", async () => {
       await contentPage.searchInput.click();
       await contentPage.searchInput.fill("no field");
       await contentPage.searchButton.click();
-      await expect(contentPage.cellByText("text", true)).toBeHidden();
+      await expect(contentPage.cellByText(textFieldName, true)).toBeHidden();
     });
 
     await test.step("Clear search to show item again", async () => {
       await contentPage.searchInput.fill("");
       await contentPage.searchButton.click();
-      await expect(contentPage.cellByText("text", true)).toBeVisible();
+      await expect(contentPage.cellByText(textFieldName, true)).toBeVisible();
     });
 
     await test.step("Edit item with new text value", async () => {
       await contentPage.cellEditButton.click();
-      await contentPage.fieldInput("text").click();
-      await expect(contentPage.fieldInput("text")).toHaveValue("text");
-      await contentPage.fieldInput("text").click();
-      await contentPage.fieldInput("text").fill("new text");
+      await contentPage.fieldInput(textFieldName).click();
+      await expect(contentPage.fieldInput(textFieldName)).toHaveValue(textFieldName);
+      await contentPage.fieldInput(textFieldName).click();
+      await contentPage.fieldInput(textFieldName).fill(newTextValue);
       await contentPage.saveButton.click();
       await contentPage.closeNotification();
       await contentPage.backButtonLabel.click();
-      await expect(contentPage.cellByText("new text")).toBeVisible();
+      await expect(contentPage.cellByText(newTextValue)).toBeVisible();
     });
 
     await test.step("Delete item", async () => {
       await contentPage.selectAllCheckbox.check();
       await contentPage.deleteButton.click();
       await contentPage.closeNotification();
-      await expect(contentPage.cellByText("new text")).toBeHidden();
+      await expect(contentPage.cellByText(newTextValue)).toBeHidden();
     });
   },
 );
@@ -95,11 +103,11 @@ test(
   { tag: TAG.SMOKE },
   async ({ contentPage, fieldEditorPage }) => {
     await test.step("Create text field and new item", async () => {
-      await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
+      await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: textFieldName });
       await contentPage.contentTextFirst.click();
       await contentPage.newItemButton.click();
-      await contentPage.fieldInput("text").click();
-      await contentPage.fieldInput("text").fill("text");
+      await contentPage.fieldInput(textFieldName).click();
+      await contentPage.fieldInput(textFieldName).fill(textFieldName);
       await contentPage.saveButton.click();
       await contentPage.closeNotification();
       await expect(contentPage.draftStatus).toBeVisible();
@@ -137,11 +145,11 @@ test("Publishing and Unpublishing item from table has succeeded", async ({
   fieldEditorPage,
 }) => {
   await test.step("Create text field and new item", async () => {
-    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
+    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: textFieldName });
     await contentPage.contentTextFirst.click();
     await contentPage.newItemButton.click();
-    await contentPage.fieldInput("text").click();
-    await contentPage.fieldInput("text").fill("text");
+    await contentPage.fieldInput(textFieldName).click();
+    await contentPage.fieldInput(textFieldName).fill(textFieldName);
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
     await expect(contentPage.draftStatus).toBeVisible();
@@ -174,12 +182,12 @@ test("Publishing and Unpublishing item from table has succeeded", async ({
 
 test("Showing item title has succeeded", async ({ contentPage, fieldEditorPage, schemaPage }) => {
   await test.step("Create text field and new item", async () => {
-    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
+    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: textFieldName });
     await contentPage.contentText.click();
     await contentPage.newItemButton.click();
     await expect(contentPage.titleByText(modelName, true)).toBeVisible();
-    await contentPage.fieldInput("text").click();
-    await contentPage.fieldInput("text").fill("text");
+    await contentPage.fieldInput(textFieldName).click();
+    await contentPage.fieldInput(textFieldName).fill(textFieldName);
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
     const itemId = contentPage.getCurrentItemId();
@@ -192,7 +200,7 @@ test("Showing item title has succeeded", async ({ contentPage, fieldEditorPage, 
     await fieldEditorPage.useAsTitleCheckbox.check();
     await fieldEditorPage.defaultValueTab.click();
     await fieldEditorPage.setDefaultValueInput.click();
-    await fieldEditorPage.defaultValueTextInput.fill("default text");
+    await fieldEditorPage.defaultValueTextInput.fill(defaultTextValue);
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
   });
@@ -218,11 +226,11 @@ test(
   { tag: TAG.SMOKE },
   async ({ contentPage, fieldEditorPage }) => {
     await test.step("Create text field and new item", async () => {
-      await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
+      await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: textFieldName });
       await contentPage.contentText.click();
       await contentPage.newItemButton.click();
-      await contentPage.fieldInput("text").click();
-      await contentPage.fieldInput("text").fill("text");
+      await contentPage.fieldInput(textFieldName).click();
+      await contentPage.fieldInput(textFieldName).fill(textFieldName);
       await contentPage.saveButton.click();
       await contentPage.closeNotification();
       await contentPage.backButtonLabel.click();
@@ -233,11 +241,11 @@ test(
     });
 
     await test.step("Create comment", async () => {
-      await contentPage.createComment("comment");
+      await contentPage.createComment(commentText);
     });
 
     await test.step("Update comment", async () => {
-      await contentPage.updateComment("comment", "new comment");
+      await contentPage.updateComment(commentText, newCommentText);
     });
 
     await test.step("Delete comment", async () => {
@@ -248,11 +256,11 @@ test(
 
 test("Comment CRUD on edit page has succeeded", async ({ contentPage, fieldEditorPage }) => {
   await test.step("Create text field and new item", async () => {
-    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text" });
+    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: textFieldName });
     await contentPage.contentText.click();
     await contentPage.newItemButton.click();
-    await contentPage.fieldInput("text").click();
-    await contentPage.fieldInput("text").fill("text");
+    await contentPage.fieldInput(textFieldName).click();
+    await contentPage.fieldInput(textFieldName).fill(textFieldName);
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
   });
@@ -262,11 +270,11 @@ test("Comment CRUD on edit page has succeeded", async ({ contentPage, fieldEdito
   });
 
   await test.step("Create comment", async () => {
-    await contentPage.createComment("comment");
+    await contentPage.createComment(commentText);
   });
 
   await test.step("Update comment", async () => {
-    await contentPage.updateComment("comment", "new comment");
+    await contentPage.updateComment(commentText, newCommentText);
   });
 
   await test.step("Delete comment", async () => {
@@ -284,7 +292,7 @@ test.describe("Import content", () => {
       { tag: TAG.SMOKE },
       async ({ contentPage, fieldEditorPage, projectPage }) => {
         await test.step("Create text field matching template schema", async () => {
-          await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: "text-field-key" });
+          await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: importTextFieldKey });
           await projectPage.contentMenuItem.click();
         });
 
@@ -309,7 +317,7 @@ test.describe("Import content", () => {
       await test.step("Create geometry object field matching template schema", async () => {
         await fieldEditorPage.createField({
           type: SchemaFieldType.GeometryObject,
-          name: "location",
+          name: importLocationName,
           supportedTypes: ["POINT"],
         });
 
@@ -349,8 +357,8 @@ test.describe("Import content", () => {
       await test.step("Create text field with different key than template", async () => {
         await fieldEditorPage.createField({
           type: SchemaFieldType.Text,
-          name: "text-field-key",
-          key: "text-field-key",
+          name: importTextFieldKey,
+          key: importTextFieldKey,
           required: true,
         });
 
@@ -394,7 +402,7 @@ test.describe("Import content", () => {
 
       await fieldEditorPage.createField({
         type: SchemaFieldType.GeometryObject,
-        name: "location",
+        name: importLocationName,
         supportedTypes: ["POINT"],
       });
 
