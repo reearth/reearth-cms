@@ -100,21 +100,17 @@ test("Url metadata editing has succeeded", async ({ fieldEditorPage, contentPage
   await contentPage.backButtonRole.click();
   await fieldEditorPage.menuItemByName("Schema").click();
   await fieldEditorPage.metaDataTab.click();
-  await fieldEditorPage.ellipsisButton.click();
-  await fieldEditorPage.displayNameInput.fill("new url1");
-  await fieldEditorPage.fieldKeyInput.fill("new-url1");
-  await fieldEditorPage.descriptionRequiredInput.fill("new url1 description");
-  await fieldEditorPage.supportMultipleValuesCheckbox.check();
-  await fieldEditorPage.validationTab.click();
-  await fieldEditorPage.requiredFieldCheckbox.check();
-  await fieldEditorPage.uniqueFieldCheckbox.check();
-  await fieldEditorPage.defaultValueTab.click();
-  await expect(fieldEditorPage.firstTextbox).toHaveValue("http://default1.com");
-
-  await fieldEditorPage.plusNewButton.click();
-  await fieldEditorPage.textboxByIndex(1).fill("http://default2.com");
-  await fieldEditorPage.okButton.click();
-  await contentPage.closeNotification();
+  await fieldEditorPage.editField({
+    type: SchemaFieldType.URL,
+    metadata: true,
+    name: "new url1",
+    key: "new-url1",
+    description: "new url1 description",
+    multiple: true,
+    required: true,
+    unique: true,
+    addDefaultValues: ["http://default2.com"],
+  });
   await expect(fieldEditorPage.uniqueFieldText("new url1", "new-url1")).toBeVisible();
 
   await fieldEditorPage.menuItemByName("Content").click();

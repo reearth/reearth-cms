@@ -160,6 +160,7 @@ test("Option field editing has succeeded", async ({ fieldEditorPage, contentPage
 
   await test.step("Edit field: rename, add fifth option, enable multiple values and validations", async () => {
     await schemaPage.schemaText.click();
+    // TODO(editField): cannot migrate — different open pattern + complex option manipulation
     await schemaPage.fieldEditButton.click();
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.press("Home");
@@ -223,6 +224,7 @@ test("Option field editing has succeeded", async ({ fieldEditorPage, contentPage
     await fieldEditorPage.optionDiv("new third").last().click();
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
+    // TODO(editField): end migration block
   });
 
   await test.step("Verify updated field in schema", async () => {

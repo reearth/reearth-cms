@@ -73,6 +73,7 @@ test("Date field editing has succeeded", async ({ fieldEditorPage, contentPage, 
   await contentPage.backButton.click();
   await expect(contentPage.tableBody).toContainText(defaultDate);
   await schemaPage.schemaText.click();
+  // TODO(editField): cannot migrate — interleaved reorder assertions
   await fieldEditorPage.ellipsisMenuButton.click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill(newFieldName);
@@ -97,6 +98,7 @@ test("Date field editing has succeeded", async ({ fieldEditorPage, contentPage, 
   await expect(fieldEditorPage.selectDatePlaceholder.nth(0)).toHaveValue("2024-01-03");
   await fieldEditorPage.okButton.click();
   await contentPage.closeNotification();
+  // TODO(editField): end migration block
   await expect(schemaPage.uniqueFieldText(newFieldName, newFieldKey)).toBeVisible();
   await contentPage.contentText.click();
   await expect(contentPage.tableHead).toContainText(newFieldName);

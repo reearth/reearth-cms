@@ -105,6 +105,7 @@ test("GeometryObject field editing has succeeded", async ({
 
   await test.step("Edit field settings: rename, enable multiple values, and validations", async () => {
     await schemaPage.schemaText.click();
+    // TODO(editField): cannot migrate — interleaved reorder + geometry assertions
     await fieldEditorPage.ellipsisMenuButton.click();
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.fill(newFieldName);
@@ -135,6 +136,7 @@ test("GeometryObject field editing has succeeded", async ({
     );
     await fieldEditorPage.okButton.click();
     await fieldEditorPage.closeNotification();
+    // TODO(editField): end migration block
   });
 
   await test.step("Verify updated field in schema", async () => {

@@ -245,6 +245,22 @@ export interface CreateGroupFieldOptions {
   description?: string;
 }
 
+export interface EditFieldOptions {
+  type: SchemaFieldType;
+  metadata?: boolean;
+  name?: string;
+  key?: string;
+  description?: string;
+  multiple?: boolean;
+  isTitle?: boolean;
+  required?: boolean;
+  unique?: boolean;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+  addDefaultValues?: (string | boolean)[];
+}
+
 export class FieldEditorPage extends ProjectScopedPage {
   // Field form elements
   public get displayNameInput(): Locator {
@@ -863,6 +879,68 @@ export class FieldEditorPage extends ProjectScopedPage {
     await this.closeNotification();
   }
 
+  public async editField(options: EditFieldOptions): Promise<void> {
+    // 1. Open editor
+    if (options.metadata) {
+      await this.ellipsisButton.click();
+    } else {
+      await this.ellipsisMenuButton.click();
+    }
+
+    // 2. Settings tab for non-metadata editors
+    const hasSettings =
+      options.name !== undefined ||
+      options.key !== undefined ||
+      options.description !== undefined ||
+      options.multiple ||
+      options.isTitle;
+    if (!options.metadata && hasSettings) {
+      await this.settingsTab.click();
+    }
+
+    // 3. Fill basic settings (only provided fields)
+    if (options.name !== undefined) await this.displayNameInput.fill(options.name);
+    if (options.key !== undefined) {
+      const keyInput = options.metadata ? this.fieldKeyInput : this.settingsKeyInput;
+      await keyInput.fill(options.key);
+    }
+    if (options.description !== undefined) {
+      const descInput = options.metadata
+        ? this.descriptionRequiredInput
+        : this.settingsDescriptionInput;
+      await descInput.fill(options.description);
+    }
+    if (options.multiple) await this.supportMultipleValuesCheckbox.check();
+    if (options.isTitle) await this.useAsTitleCheckbox.check();
+
+    // 4. Validation tab
+    const needsValidation =
+      options.required ||
+      options.unique ||
+      options.maxLength !== undefined ||
+      options.min !== undefined ||
+      options.max !== undefined;
+    if (needsValidation) {
+      await this.validationTab.click();
+      if (options.required) await this.requiredFieldCheckbox.check();
+      if (options.unique) await this.uniqueFieldCheckbox.check();
+      if (options.maxLength !== undefined)
+        await this.maxLengthInput.fill(options.maxLength.toString());
+      if (options.min !== undefined) await this.minValueInput.fill(options.min.toString());
+      if (options.max !== undefined) await this.maxValueInput.fill(options.max.toString());
+    }
+
+    // 5. Default values (add new ones)
+    if (options.addDefaultValues?.length) {
+      await this.defaultValueTab.click();
+      await this.addEditDefaultValues(options.type, options.addDefaultValues);
+    }
+
+    // 6. Submit
+    await this.okButton.click();
+    await this.closeNotification();
+  }
+
   private async fillDefaultValue(options: CreateFieldOptions): Promise<void> {
     if (!("defaultValue" in options) || options.defaultValue === undefined) return;
 
@@ -900,6 +978,42 @@ export class FieldEditorPage extends ProjectScopedPage {
         // Text, TextArea, URL, Integer, Number
         await this.setDefaultValueInput.fill(defaultValue as string);
         break;
+    }
+  }
+
+  private async addEditDefaultValues(
+    type: SchemaFieldType,
+    values: (string | boolean)[],
+  ): Promise<void> {
+    for (const value of values) {
+      if (type === SchemaFieldType.Tag) {
+        await this.tagSelectTrigger.click();
+        await this.tagOptionText(value as string).last().click();
+        continue;
+      }
+
+      await this.plusNewButton.click();
+
+      switch (type) {
+        case SchemaFieldType.Bool:
+          if (value === true) await this.getByRole("switch").last().click();
+          break;
+        case SchemaFieldType.Checkbox:
+          if (value === true) await this.getByRole("checkbox").last().check();
+          break;
+        case SchemaFieldType.Date:
+          await this.getByRole("textbox").last().fill(value as string);
+          await this.getByRole("textbox").last().press("Enter");
+          break;
+        case SchemaFieldType.GeometryObject:
+        case SchemaFieldType.GeometryEditor:
+          await this.editorContent.last().fill(value as string);
+          break;
+        default:
+          // Text, TextArea, MarkdownText, URL, Integer, Number
+          await this.defaultValueInput.last().fill(value as string);
+          break;
+      }
     }
   }
 

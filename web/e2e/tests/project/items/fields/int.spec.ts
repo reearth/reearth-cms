@@ -87,6 +87,7 @@ test("Int field editing has succeeded", async ({ fieldEditorPage, contentPage, s
   });
   await test.step("Update field with multiple values and validations", async () => {
     await schemaPage.schemaText.click();
+    // TODO(editField): cannot migrate — interleaved okButton.toBeDisabled assertions (validation range checks)
     await fieldEditorPage.ellipsisMenuButton.click();
     await fieldEditorPage.settingsTab.click();
     await fieldEditorPage.displayNameInput.click();
@@ -129,6 +130,7 @@ test("Int field editing has succeeded", async ({ fieldEditorPage, contentPage, s
     await fieldEditorPage.defaultValueInputByIndex(1).fill("3");
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
+    // TODO(editField): end migration block
     await expect(fieldEditorPage.uniqueFieldText(newFieldName, newFieldKey)).toBeVisible();
   });
 

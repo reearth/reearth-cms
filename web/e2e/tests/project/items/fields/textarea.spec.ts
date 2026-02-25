@@ -63,6 +63,7 @@ test("Textarea field editing has succeeded", async ({
   await contentPage.tableColumnButton(5).click();
   await expect(contentPage.tooltip).toContainText("text1text1 default value");
   await schemaPage.schemaText.click();
+  // TODO(editField): cannot migrate — interleaved reorder assertions
   await fieldEditorPage.ellipsisMenuButton.click();
   await fieldEditorPage.supportMultipleValuesCheckbox.check();
   await fieldEditorPage.useAsTitleCheckbox.check();
@@ -88,6 +89,7 @@ test("Textarea field editing has succeeded", async ({
   await expect(fieldEditorPage.defaultValueInputByIndex(1)).toHaveValue("text1");
   await fieldEditorPage.okButton.click();
   await contentPage.closeNotification();
+  // TODO(editField): end migration block
   await expect(fieldEditorPage.uniqueFieldText(newFieldName, newFieldKey)).toBeVisible();
   await schemaPage.contentText.click();
   await expect(contentPage.tableHead).toContainText(newFieldName);

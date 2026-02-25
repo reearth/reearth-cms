@@ -204,6 +204,7 @@ test("Asset field editing has succeeded", async ({ fieldEditorPage, contentPage,
 
   await test.step("Edit field settings: rename, enable multiple values, and validations", async () => {
     await schemaPage.schemaText.click();
+    // TODO(editField): cannot migrate — different open pattern (schemaPage.fieldEditButton)
     await schemaPage.fieldEditButton.click();
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.fill(newFieldName);
@@ -237,6 +238,7 @@ test("Asset field editing has succeeded", async ({ fieldEditorPage, contentPage,
     await expect(contentPage.cssAssetByIndex(1)).toContainText(uploadFileName_1);
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
+    // TODO(editField): end migration block
   });
 
   await test.step("Verify updated field in schema", async () => {

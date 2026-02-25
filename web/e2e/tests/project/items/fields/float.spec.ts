@@ -77,6 +77,7 @@ test("Float field editing has succeeded", async ({ fieldEditorPage, contentPage,
   await expect(contentPage.cellByTextExact(defaultValue)).toBeVisible();
 
   await schemaPage.schemaText.click();
+  // TODO(editField): cannot migrate — interleaved okButton.toBeDisabled assertions (validation range checks)
   await fieldEditorPage.ellipsisMenuButton.click();
   await fieldEditorPage.settingsTab.click();
   await fieldEditorPage.displayNameInput.click();
@@ -113,6 +114,7 @@ test("Float field editing has succeeded", async ({ fieldEditorPage, contentPage,
   await fieldEditorPage.defaultValueInputByIndex(1).fill("3.3");
   await fieldEditorPage.okButton.click();
   await contentPage.closeNotification();
+  // TODO(editField): end migration block
 
   await expect(fieldEditorPage.uniqueFieldText(newFieldName, newFieldKey)).toBeVisible();
   await schemaPage.contentText.click();

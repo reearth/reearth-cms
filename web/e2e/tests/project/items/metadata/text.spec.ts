@@ -111,6 +111,7 @@ test("Text metadata editing has succeeded", async ({
   await test.step("Update metadata with multiple values and validations", async () => {
     await schemaPage.menuItemByName("Schema").click();
     await schemaPage.metaDataTab.click();
+    // TODO(editField): cannot migrate — interleaved okButton.toBeDisabled assertions (maxLength)
     await fieldEditorPage.ellipsisButton.click();
     await fieldEditorPage.displayNameInput.fill("new text1");
     await fieldEditorPage.fieldKeyInput.fill("new-text1");
@@ -128,6 +129,7 @@ test("Text metadata editing has succeeded", async ({
     await contentPage.textBoxByIndex(0).fill("text1");
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
+    // TODO(editField): end migration block
     await expect(contentPage.optionTextByName("new text1 *#new-text1(unique)")).toBeVisible();
   });
 

@@ -71,6 +71,7 @@ test(
 
     await test.step("Update field with multiple values, validations and new settings", async () => {
       await schemaPage.schemaText.click();
+      // TODO(editField): cannot migrate — interleaved reorder assertions
       await fieldEditorPage.ellipsisMenuButton.click();
       await fieldEditorPage.supportMultipleValuesCheckbox.check();
       await fieldEditorPage.useAsTitleCheckbox.check();
@@ -96,6 +97,7 @@ test(
       await expect(fieldEditorPage.defaultValueInputByIndex(1)).toHaveValue("text1");
       await fieldEditorPage.okButton.click();
       await contentPage.closeNotification();
+      // TODO(editField): end migration block
       await expect(fieldEditorPage.uniqueFieldText(newFieldName, newFieldKey)).toBeVisible();
     });
 

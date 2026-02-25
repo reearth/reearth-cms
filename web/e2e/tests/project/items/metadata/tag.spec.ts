@@ -130,6 +130,7 @@ test("Tag metadata editing has succeeded", async ({ fieldEditorPage, contentPage
   await test.step("Update metadata with multiple values, validations and new tag", async () => {
     await schemaPage.menuItemByName("Schema").click();
     await schemaPage.metaDataTab.click();
+    // TODO(editField): cannot migrate — complex tag manipulation + interleaved assertions
     await fieldEditorPage.ellipsisButton.click();
     await fieldEditorPage.displayNameInput.fill(newFieldName);
     await fieldEditorPage.fieldKeyInput.fill(newKey);
@@ -164,6 +165,7 @@ test("Tag metadata editing has succeeded", async ({ fieldEditorPage, contentPage
     await fieldEditorPage.tagSelectTrigger.click();
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
+    // TODO(editField): end migration block
     await expect(contentPage.optionTextByName(`${newFieldName} *#${newKey}(unique)`)).toBeVisible();
   });
 

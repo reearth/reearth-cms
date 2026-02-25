@@ -75,6 +75,7 @@ test("Boolean field editing has succeeded", async ({
   await contentPage.backButton.click();
   await expect(contentPage.allSwitches).toHaveAttribute("aria-checked", "true");
   await schemaPage.schemaText.click();
+  // TODO(editField): cannot migrate — interleaved reorder + validation disabled assertions
   await fieldEditorPage.ellipsisMenuButton.click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill(newFieldName);
@@ -96,6 +97,7 @@ test("Boolean field editing has succeeded", async ({
   await expect(fieldEditorPage.switchByIndex(1)).toHaveAttribute("aria-checked", "true");
   await fieldEditorPage.okButton.click();
   await contentPage.closeNotification();
+  // TODO(editField): end migration block
   await expect(schemaPage.fieldText(newFieldName, newFieldKey)).toBeVisible();
   await contentPage.contentText.click();
   await expect(contentPage.tableHead).toContainText(newFieldName);
