@@ -264,7 +264,7 @@ test("Text field CRUD has succeeded", async ({ fieldEditorPage, schemaPage }) =>
   await test.step("Update text field", async () => {
     await fieldEditorPage.ellipsisMenuButton.click();
     await fieldEditorPage.displayNameInput.fill("new text");
-    await fieldEditorPage.settingsKeyInput.fill("new-text");
+    await fieldEditorPage.fieldKeyInput.fill("new-text");
     await fieldEditorPage.okButton.click();
     await fieldEditorPage.closeNotification();
   });

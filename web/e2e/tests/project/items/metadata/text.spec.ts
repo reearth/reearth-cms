@@ -35,7 +35,7 @@ test("Text metadata creating and updating has succeeded", async ({
     await fieldEditorPage.ellipsisButton.click();
     await expect(fieldEditorPage.displayNameInput).toHaveValue("text1");
     await expect(fieldEditorPage.fieldKeyInput).toHaveValue("text1");
-    await expect(fieldEditorPage.descriptionRequiredInput).toHaveValue("text1 description");
+    await expect(fieldEditorPage.descriptionInput).toHaveValue("text1 description");
     await expect(fieldEditorPage.supportMultipleValuesCheckbox).not.toBeChecked();
     await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
     await fieldEditorPage.validationTab.click();
@@ -115,7 +115,7 @@ test("Text metadata editing has succeeded", async ({
     await fieldEditorPage.ellipsisButton.click();
     await fieldEditorPage.displayNameInput.fill("new text1");
     await fieldEditorPage.fieldKeyInput.fill("new-text1");
-    await fieldEditorPage.descriptionRequiredInput.fill("new text1 description");
+    await fieldEditorPage.descriptionInput.fill("new text1 description");
     await fieldEditorPage.supportMultipleValuesCheckbox.check();
     await fieldEditorPage.validationTab.click();
     await fieldEditorPage.maxLengthInput.fill("5");

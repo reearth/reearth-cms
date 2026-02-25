@@ -39,8 +39,8 @@ test("Markdown field editing has succeeded", async ({
   await fieldEditorPage.ellipsisMenuButton.click();
   await expect(fieldEditorPage.displayNameInput).toBeVisible();
   await expect(fieldEditorPage.displayNameInput).toHaveValue(fieldName);
-  await expect(fieldEditorPage.settingsKeyInput).toHaveValue(fieldKey);
-  await expect(fieldEditorPage.settingsDescriptionInput).toHaveValue(fieldDescription);
+  await expect(fieldEditorPage.fieldKeyInput).toHaveValue(fieldKey);
+  await expect(fieldEditorPage.descriptionInput).toHaveValue(fieldDescription);
   await expect(fieldEditorPage.supportMultipleValuesCheckbox).not.toBeChecked();
   await expect(fieldEditorPage.useAsTitleCheckbox).not.toBeChecked();
   await fieldEditorPage.validationTab.click();
@@ -48,7 +48,7 @@ test("Markdown field editing has succeeded", async ({
   await expect(fieldEditorPage.requiredFieldCheckbox).not.toBeChecked();
   await expect(fieldEditorPage.uniqueFieldCheckbox).not.toBeChecked();
   await fieldEditorPage.defaultValueTab.click();
-  await expect(fieldEditorPage.defaultValueTextInput).toHaveValue(defaultValue);
+  await expect(fieldEditorPage.setDefaultValueInput).toHaveValue(defaultValue);
   await fieldEditorPage.cancelButton.click();
   await schemaPage.contentText.click();
   await expect(contentPage.tableHead).toContainText(fieldName);
@@ -78,7 +78,7 @@ test("Markdown field editing has succeeded", async ({
   await fieldEditorPage.requiredFieldCheckbox.check();
   await fieldEditorPage.uniqueFieldCheckbox.check();
   await fieldEditorPage.defaultValueTab.click();
-  await expect(fieldEditorPage.defaultValueTextInput).toHaveValue(defaultValue);
+  await expect(fieldEditorPage.setDefaultValueInput).toHaveValue(defaultValue);
   await fieldEditorPage.plusNewButton.click();
   await fieldEditorPage.secondTextContainer.click();
   await fieldEditorPage.lastTextbox.fill(testValue2);

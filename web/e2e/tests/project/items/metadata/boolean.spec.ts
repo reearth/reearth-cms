@@ -35,14 +35,14 @@ test("Boolean metadata creating and updating has succeeded", async ({
     await fieldEditorPage.ellipsisButton.click();
     await expect(fieldEditorPage.displayNameInput).toHaveValue("boolean1");
     await expect(fieldEditorPage.fieldKeyInput).toHaveValue("boolean1");
-    await expect(fieldEditorPage.descriptionRequiredInput).toHaveValue("boolean1 description");
+    await expect(fieldEditorPage.descriptionInput).toHaveValue("boolean1 description");
     await expect(fieldEditorPage.supportMultipleValuesCheckbox).not.toBeChecked();
     await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
     await fieldEditorPage.validationTab.click();
     await expect(fieldEditorPage.requiredFieldCheckbox).toBeDisabled();
     await expect(fieldEditorPage.uniqueFieldCheckbox).toBeDisabled();
     await fieldEditorPage.defaultValueTab.click();
-    await expect(fieldEditorPage.setDefaultValueSwitch).toHaveAttribute("aria-checked", "false");
+    await expect(fieldEditorPage.setDefaultValueInput).toHaveAttribute("aria-checked", "false");
     await fieldEditorPage.cancelButton.click();
   });
 

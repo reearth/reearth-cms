@@ -383,9 +383,28 @@ export enum DATA_TEST_ID {
   Schema__MetaDataTab = "Schema__MetaDataTab",
   Schema__FieldsTabs = "Schema__FieldsTabs",
 
-  // FieldModal
+  // FieldModal (Settings tab)
+  FieldModal__DisplayNameInput = "FieldModal__DisplayNameInput",
+  FieldModal__FieldKeyInput = "FieldModal__FieldKeyInput",
+  FieldModal__DescriptionInput = "FieldModal__DescriptionInput",
+  FieldModal__MultipleCheckbox = "FieldModal__MultipleCheckbox",
+  FieldModal__IsTitleCheckbox = "FieldModal__IsTitleCheckbox",
+  FieldModal__ValuesInput = "FieldModal__ValuesInput",
+  FieldModal__PlusNewButton = "FieldModal__PlusNewButton",
+  FieldModal__PointCheckbox = "FieldModal__PointCheckbox",
   FieldModal__TagSelect = "FieldModal__TagSelect",
   FieldModal__SelectValueItem = "FieldModal__SelectValueItem",
+
+  // FieldModal (Validation tab)
+  FieldModal__MaxLengthInput = "FieldModal__MaxLengthInput",
+  FieldModal__MinValueInput = "FieldModal__MinValueInput",
+  FieldModal__MaxValueInput = "FieldModal__MaxValueInput",
+  FieldModal__RequiredCheckbox = "FieldModal__RequiredCheckbox",
+  FieldModal__UniqueCheckbox = "FieldModal__UniqueCheckbox",
+
+  // FieldModal (Default value tab)
+  FieldModal__SetDefaultValueInput = "FieldModal__SetDefaultValueInput",
+  FieldModal__DateInput = "FieldModal__DateInput",
 
   // MetadataField
   MetadataField__TagSelect = "MetadataField__TagSelect",
@@ -399,6 +418,9 @@ export enum DATA_TEST_ID {
 
   // MultiValueField
   MultiValueField__ItemWrapper = "MultiValueField__ItemWrapper",
+  MultiValueField__ArrowUpButton = "MultiValueField__ArrowUpButton",
+  MultiValueField__ArrowDownButton = "MultiValueField__ArrowDownButton",
+  MultiValueField__DeleteButton = "MultiValueField__DeleteButton",
 
   // GeometryItem
   GeometryItem__EditorWrapper = "GeometryItem__EditorWrapper",

@@ -34,14 +34,14 @@ test(
       await fieldEditorPage.ellipsisButton.click();
       await expect(fieldEditorPage.displayNameInput).toHaveValue("checkbox1");
       await expect(fieldEditorPage.fieldKeyInput).toHaveValue("checkbox1");
-      await expect(fieldEditorPage.descriptionRequiredInput).toHaveValue("checkbox1 description");
+      await expect(fieldEditorPage.descriptionInput).toHaveValue("checkbox1 description");
       await expect(fieldEditorPage.supportMultipleValuesCheckbox).not.toBeChecked();
       await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
       await fieldEditorPage.validationTab.click();
       await expect(fieldEditorPage.requiredFieldCheckbox).toBeDisabled();
       await expect(fieldEditorPage.uniqueFieldCheckbox).toBeDisabled();
       await fieldEditorPage.defaultValueTab.click();
-      await expect(fieldEditorPage.setDefaultValueCheckbox).not.toBeChecked();
+      await expect(fieldEditorPage.setDefaultValueInput).not.toBeChecked();
       await fieldEditorPage.cancelButton.click();
     });
 

@@ -31,7 +31,7 @@ test("Url metadata creating and updating has succeeded", async ({
   await fieldEditorPage.ellipsisButton.click();
   await expect(fieldEditorPage.displayNameInput).toHaveValue("url1");
   await expect(fieldEditorPage.fieldKeyInput).toHaveValue("url1");
-  await expect(fieldEditorPage.descriptionRequiredInput).toHaveValue("url1 description");
+  await expect(fieldEditorPage.descriptionInput).toHaveValue("url1 description");
   await expect(fieldEditorPage.supportMultipleValuesCheckbox).not.toBeChecked();
   await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
 

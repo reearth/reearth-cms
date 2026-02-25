@@ -8,6 +8,7 @@ import Input, { InputProps } from "@reearth-cms/components/atoms/Input";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { moveItemInArray } from "../moveItemArray";
 
@@ -175,7 +176,7 @@ const MultiValueColoredTag: React.FC<Props> = ({
           </FieldWrapper>
         ))}
       {!props.disabled && (
-        <Button icon={<Icon icon="plus" />} type="primary" onClick={handleNewTag}>
+        <Button icon={<Icon icon="plus" />} type="primary" data-testid={DATA_TEST_ID.FieldModal__PlusNewButton} onClick={handleNewTag}>
           {t("New")}
         </Button>
       )}

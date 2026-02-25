@@ -34,7 +34,7 @@ test("Date metadata creating and updating has succeeded", async ({
     await fieldEditorPage.ellipsisButton.click();
     await expect(fieldEditorPage.displayNameInput).toHaveValue("date1");
     await expect(fieldEditorPage.fieldKeyInput).toHaveValue("date1");
-    await expect(fieldEditorPage.descriptionRequiredInput).toHaveValue("date1 description");
+    await expect(fieldEditorPage.descriptionInput).toHaveValue("date1 description");
     await expect(fieldEditorPage.supportMultipleValuesCheckbox).not.toBeChecked();
     await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
 

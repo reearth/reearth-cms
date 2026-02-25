@@ -83,8 +83,8 @@ test("One-way reference field creating and updating has succeeded", async ({
     await expect(fieldEditorPage.supportMultipleValuesCheckbox).toBeDisabled();
     await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
     await fieldEditorPage.validationTab.click();
-    await fieldEditorPage.makeFieldRequiredCheckbox.check();
-    await fieldEditorPage.setFieldAsUniqueCheckbox.check();
+    await fieldEditorPage.requiredFieldCheckbox.check();
+    await fieldEditorPage.uniqueFieldCheckbox.check();
     await fieldEditorPage.confirmButton.click();
     await contentPage.closeNotification();
     await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText(
@@ -221,8 +221,8 @@ test("Two-way reference field editing has succeeded", async ({
     await expect(fieldEditorPage.supportMultipleValuesCheckbox).toBeDisabled();
     await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
     await fieldEditorPage.validationTab.click();
-    await fieldEditorPage.makeFieldRequiredCheckbox.check();
-    await expect(fieldEditorPage.setFieldAsUniqueCheckbox).toBeDisabled();
+    await fieldEditorPage.requiredFieldCheckbox.check();
+    await expect(fieldEditorPage.uniqueFieldCheckbox).toBeDisabled();
     await fieldEditorPage.nextButton.click();
   });
 
@@ -234,7 +234,7 @@ test("Two-way reference field editing has succeeded", async ({
     await fieldEditorPage.descriptionInput.click();
     await fieldEditorPage.descriptionInput.fill("ref2 description");
     await fieldEditorPage.validationTab.click();
-    await fieldEditorPage.makeFieldRequiredCheckbox.check();
+    await fieldEditorPage.requiredFieldCheckbox.check();
   });
 
   await test.step("Navigate between ref1 and ref2 to verify settings persist", async () => {
@@ -243,13 +243,13 @@ test("Two-way reference field editing has succeeded", async ({
     await expect(fieldEditorPage.fieldKeyInput).toHaveValue("ref1");
     await expect(fieldEditorPage.descriptionInput).toHaveValue("ref1 description");
     await fieldEditorPage.validationTab.click();
-    await expect(fieldEditorPage.makeFieldRequiredCheckbox).toBeChecked();
+    await expect(fieldEditorPage.requiredFieldCheckbox).toBeChecked();
     await fieldEditorPage.nextButton.click();
     await expect(fieldEditorPage.displayNameInput).toHaveValue("ref2");
     await expect(fieldEditorPage.fieldKeyInput).toHaveValue("ref2");
     await expect(fieldEditorPage.descriptionInput).toHaveValue("ref2 description");
     await fieldEditorPage.validationTab.click();
-    await expect(fieldEditorPage.makeFieldRequiredCheckbox).toBeChecked();
+    await expect(fieldEditorPage.requiredFieldCheckbox).toBeChecked();
     await fieldEditorPage.confirmButton.click();
     await contentPage.closeNotification();
   });

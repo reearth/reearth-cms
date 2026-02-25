@@ -86,8 +86,8 @@ test("Boolean field editing has succeeded", async ({
   await fieldEditorPage.supportMultipleValuesCheckbox.check();
   await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
   await fieldEditorPage.validationTab.click();
-  await expect(fieldEditorPage.makeFieldRequiredLabel.locator("span").nth(1)).toBeDisabled();
-  await expect(fieldEditorPage.setFieldAsUniqueLabel.locator("span").nth(1)).toBeDisabled();
+  await expect(fieldEditorPage.requiredFieldCheckbox).toBeDisabled();
+  await expect(fieldEditorPage.uniqueFieldCheckbox).toBeDisabled();
   await fieldEditorPage.defaultValueTab.click();
   await expect(fieldEditorPage.switchByIndex(0)).toHaveAttribute("aria-checked", "true");
   await fieldEditorPage.plusNewButton.click();

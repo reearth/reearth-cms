@@ -4,6 +4,7 @@ import { useCallback, useEffect } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import GeometryItem from "@reearth-cms/components/molecules/Common/Form/GeometryItem";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import {
   ObjectSupportedType,
   EditorSupportedType,
@@ -65,6 +66,7 @@ const MultiValueGeometry: React.FC<Props> = ({
                 <FieldButton
                   color="default"
                   variant="link"
+                  data-testid={DATA_TEST_ID.MultiValueField__ArrowUpButton}
                   icon={<Icon icon="arrowUp" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
                   disabled={key === 0}
@@ -72,6 +74,7 @@ const MultiValueGeometry: React.FC<Props> = ({
                 <FieldButton
                   color="default"
                   variant="link"
+                  data-testid={DATA_TEST_ID.MultiValueField__ArrowDownButton}
                   icon={<Icon icon="arrowDown" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
                   disabled={key === value.length - 1}
@@ -91,6 +94,7 @@ const MultiValueGeometry: React.FC<Props> = ({
               <FieldButton
                 color="default"
                 variant="link"
+                data-testid={DATA_TEST_ID.MultiValueField__DeleteButton}
                 icon={<Icon icon="delete" size={16} />}
                 onClick={() => handleInputDelete(key)}
               />
@@ -101,6 +105,7 @@ const MultiValueGeometry: React.FC<Props> = ({
         <Button
           icon={<Icon icon="plus" />}
           type="primary"
+          data-testid={DATA_TEST_ID.FieldModal__PlusNewButton}
           onClick={() => {
             if (!value) value = [];
             onChange?.([...value, ""]);

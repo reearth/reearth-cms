@@ -152,10 +152,10 @@ test("Asset field editing has succeeded", async ({ fieldEditorPage, contentPage,
     await fieldEditorPage.fieldTypeButton("Asset").click();
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.fill(fieldName);
-    await fieldEditorPage.settingsKeyInput.click();
-    await fieldEditorPage.settingsKeyInput.fill(fieldKey);
-    await fieldEditorPage.settingsDescriptionInput.click();
-    await fieldEditorPage.settingsDescriptionInput.fill(fieldDescription);
+    await fieldEditorPage.fieldKeyInput.click();
+    await fieldEditorPage.fieldKeyInput.fill(fieldKey);
+    await fieldEditorPage.descriptionInput.click();
+    await fieldEditorPage.descriptionInput.fill(fieldDescription);
     await fieldEditorPage.defaultValueTab.click();
     await fieldEditorPage.assetButton.click();
     await fieldEditorPage.uploadAssetButton.click();

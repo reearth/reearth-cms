@@ -200,7 +200,7 @@ test("Showing item title has succeeded", async ({ contentPage, fieldEditorPage, 
     await fieldEditorPage.useAsTitleCheckbox.check();
     await fieldEditorPage.defaultValueTab.click();
     await fieldEditorPage.setDefaultValueInput.click();
-    await fieldEditorPage.defaultValueTextInput.fill(defaultTextValue);
+    await fieldEditorPage.setDefaultValueInput.fill(defaultTextValue);
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
   });

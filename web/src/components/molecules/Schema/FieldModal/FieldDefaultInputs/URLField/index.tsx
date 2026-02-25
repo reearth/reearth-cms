@@ -5,6 +5,7 @@ import Input from "@reearth-cms/components/atoms/Input";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import { urlErrorIndexesGet } from "@reearth-cms/components/molecules/Content/Form/fields/utils";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   multiple: boolean;
@@ -34,9 +35,9 @@ const URLField: React.FC<Props> = ({ multiple }) => {
         },
       ]}>
       {multiple ? (
-        <MultiValueField FieldInput={Input} errorIndexes={errorIndexes} />
+        <MultiValueField FieldInput={Input} errorIndexes={errorIndexes} data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput} />
       ) : (
-        <Input isError={errorIndexes.has(0)} />
+        <Input isError={errorIndexes.has(0)} data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput} />
       )}
     </Form.Item>
   );

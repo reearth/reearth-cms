@@ -62,16 +62,16 @@ test("Group field creating and updating has succeeded", async ({
     await schemaPage.lastTextByExact("Group").click();
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.fill(groupFieldName);
-    await fieldEditorPage.settingsKeyInput.click();
-    await fieldEditorPage.settingsKeyInput.fill(groupFieldKey);
-    await fieldEditorPage.settingsDescriptionInput.click();
-    await fieldEditorPage.settingsDescriptionInput.fill(groupFieldDescription);
+    await fieldEditorPage.fieldKeyInput.click();
+    await fieldEditorPage.fieldKeyInput.fill(groupFieldKey);
+    await fieldEditorPage.descriptionInput.click();
+    await fieldEditorPage.descriptionInput.fill(groupFieldDescription);
     await fieldEditorPage.groupSelectTrigger.click();
     await schemaPage.groupNameByText(`${groupName} #${groupKey}`).click();
     await expect(fieldEditorPage.getByLabel("Settings")).toContainText(`${groupName} #${groupKey}`);
     await fieldEditorPage.validationTab.click();
-    await expect(fieldEditorPage.makeFieldRequiredLabel.locator("span").nth(1)).toBeDisabled();
-    await expect(fieldEditorPage.setFieldAsUniqueLabel.locator("span").nth(1)).toBeDisabled();
+    await expect(fieldEditorPage.requiredFieldCheckbox).toBeDisabled();
+    await expect(fieldEditorPage.uniqueFieldCheckbox).toBeDisabled();
     await fieldEditorPage.defaultValueTab.click();
     await expect(fieldEditorPage.setDefaultValueInput).toBeDisabled();
     await fieldEditorPage.okButton.click();
@@ -214,10 +214,10 @@ test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage,
     await expect(fieldEditorPage.displayNameInput).toBeVisible();
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.fill(groupFieldName);
-    await fieldEditorPage.settingsKeyInput.click();
-    await fieldEditorPage.settingsKeyInput.fill(groupFieldKey);
-    await fieldEditorPage.settingsDescriptionInput.click();
-    await fieldEditorPage.settingsDescriptionInput.fill(groupFieldDescription);
+    await fieldEditorPage.fieldKeyInput.click();
+    await fieldEditorPage.fieldKeyInput.fill(groupFieldKey);
+    await fieldEditorPage.descriptionInput.click();
+    await fieldEditorPage.descriptionInput.fill(groupFieldDescription);
     await expect(fieldEditorPage.groupSelectTrigger).toBeVisible();
     await fieldEditorPage.groupSelectTrigger.click();
 
@@ -226,8 +226,8 @@ test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage,
     await expect(fieldEditorPage.getByLabel("Settings")).toContainText(`${groupName} #${groupKey}`);
     await expect(fieldEditorPage.validationTab).toBeVisible();
     await fieldEditorPage.validationTab.click();
-    await expect(fieldEditorPage.makeFieldRequiredLabel.locator("span").nth(1)).toBeDisabled();
-    await expect(fieldEditorPage.setFieldAsUniqueLabel.locator("span").nth(1)).toBeDisabled();
+    await expect(fieldEditorPage.requiredFieldCheckbox).toBeDisabled();
+    await expect(fieldEditorPage.uniqueFieldCheckbox).toBeDisabled();
     await expect(fieldEditorPage.defaultValueTab).toBeVisible();
     await fieldEditorPage.defaultValueTab.click();
     await expect(fieldEditorPage.setDefaultValueInput).toBeDisabled();
@@ -353,7 +353,7 @@ test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage,
     await fieldEditorPage.plusNewButton.nth(1).click();
     await expect(contentPage.textBoxByIndex(2)).toHaveValue(innerFieldName);
     await expect(contentPage.textBoxByIndex(3)).toHaveValue(testValue2);
-    await fieldEditorPage.arrowDownButton.nth(3).click();
+    await fieldEditorPage.arrowDownButton.nth(2).click();
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
     await contentPage.backButton.click();

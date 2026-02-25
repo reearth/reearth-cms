@@ -1,6 +1,7 @@
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
+import { t } from "@reearth-cms/e2e/support/i18n";
 
 const fieldName = `tag-${getId()}`;
 const description = `tag-desc-${getId()}`;
@@ -28,7 +29,7 @@ test(
       await schemaPage.tagListItem.click();
       await fieldEditorPage.displayNameInput.fill(fieldName);
       await fieldEditorPage.fieldKeyInput.fill(fieldName);
-      await fieldEditorPage.descriptionRequiredInput.fill(description);
+      await fieldEditorPage.descriptionInput.fill(description);
       await fieldEditorPage.plusNewButton.click();
       await fieldEditorPage.tagFilterDiv.last().click();
       await fieldEditorPage.lastTextbox.fill(tag1);
@@ -50,7 +51,7 @@ test(
       await fieldEditorPage.ellipsisButton.click();
       await expect(fieldEditorPage.displayNameInput).toHaveValue(fieldName);
       await expect(fieldEditorPage.fieldKeyInput).toHaveValue(fieldName);
-      await expect(fieldEditorPage.descriptionRequiredInput).toHaveValue(description);
+      await expect(fieldEditorPage.descriptionInput).toHaveValue(description);
       await expect(fieldEditorPage.tagOptionText(tag1)).toBeVisible();
       await expect(fieldEditorPage.tagOptionText(tag2)).toBeVisible();
       await expect(fieldEditorPage.supportMultipleValuesCheckbox).not.toBeChecked();
@@ -59,7 +60,7 @@ test(
       await expect(fieldEditorPage.requiredFieldCheckbox).not.toBeChecked();
       await expect(fieldEditorPage.uniqueFieldCheckbox).not.toBeChecked();
       await fieldEditorPage.defaultValueTab.click();
-      await expect(fieldEditorPage.setDefaultValueInput).toBeEmpty();
+      await expect(fieldEditorPage.getByLabel(t("Set default value"))).toBeEmpty();
       await fieldEditorPage.cancelButton.click();
     });
 
@@ -134,7 +135,7 @@ test("Tag metadata editing has succeeded", async ({ fieldEditorPage, contentPage
     await fieldEditorPage.ellipsisButton.click();
     await fieldEditorPage.displayNameInput.fill(newFieldName);
     await fieldEditorPage.fieldKeyInput.fill(newKey);
-    await fieldEditorPage.descriptionRequiredInput.fill(newDescription);
+    await fieldEditorPage.descriptionInput.fill(newDescription);
     await fieldEditorPage.plusNewButton.click();
     await fieldEditorPage.tagFilterDiv.last().click();
     await fieldEditorPage.lastTextbox.fill(tag3);

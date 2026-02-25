@@ -42,8 +42,8 @@ test(
       await fieldEditorPage.ellipsisMenuButton.click();
       await expect(fieldEditorPage.displayNameInput).toBeVisible();
       await expect(fieldEditorPage.displayNameInput).toHaveValue(fieldName);
-      await expect(fieldEditorPage.settingsKeyInput).toHaveValue(fieldKey);
-      await expect(fieldEditorPage.settingsDescriptionInput).toHaveValue(fieldDescription);
+      await expect(fieldEditorPage.fieldKeyInput).toHaveValue(fieldKey);
+      await expect(fieldEditorPage.descriptionInput).toHaveValue(fieldDescription);
       await expect(fieldEditorPage.supportMultipleValuesCheckbox).not.toBeChecked();
       await expect(fieldEditorPage.useAsTitleCheckbox).not.toBeChecked();
       await fieldEditorPage.validationTab.click();
@@ -51,7 +51,7 @@ test(
       await expect(fieldEditorPage.requiredFieldCheckbox).not.toBeChecked();
       await expect(fieldEditorPage.uniqueFieldCheckbox).not.toBeChecked();
       await fieldEditorPage.defaultValueTab.click();
-      await expect(fieldEditorPage.defaultValueTextInput).toHaveValue(defaultValue);
+      await expect(fieldEditorPage.setDefaultValueInput).toHaveValue(defaultValue);
       await fieldEditorPage.cancelButton.click();
     });
 
@@ -87,7 +87,7 @@ test(
       await fieldEditorPage.requiredFieldCheckbox.check();
       await fieldEditorPage.uniqueFieldCheckbox.check();
       await fieldEditorPage.defaultValueTab.click();
-      await expect(fieldEditorPage.defaultValueTextInput).toHaveValue(defaultValue);
+      await expect(fieldEditorPage.setDefaultValueInput).toHaveValue(defaultValue);
       await fieldEditorPage.plusNewButton.click();
       await fieldEditorPage.defaultValueInputByIndex(1).click();
       await fieldEditorPage.defaultValueInputByIndex(1).fill(testValue2);
