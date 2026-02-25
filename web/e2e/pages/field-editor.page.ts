@@ -856,8 +856,12 @@ export class FieldEditorPage extends ProjectScopedPage {
         await this.setDefaultValueInput.click();
         await this.optionDiv(defaultValue as string).click();
         break;
+      case SchemaFieldType.MarkdownText:
+        await this.lastColumn.click();
+        await this.setDefaultValueInput.fill(defaultValue as string);
+        break;
       default:
-        // Text, TextArea, MarkdownText, URL, Integer, Number
+        // Text, TextArea, URL, Integer, Number
         await this.setDefaultValueInput.fill(defaultValue as string);
         break;
     }

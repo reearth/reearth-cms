@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -27,18 +28,13 @@ test("Textarea field editing has succeeded", async ({
   contentPage,
   schemaPage,
 }) => {
-  await fieldEditorPage.fieldTypeButton("TextArea").click();
-  await fieldEditorPage.displayNameInput.click();
-  await fieldEditorPage.displayNameInput.fill(fieldName);
-  await fieldEditorPage.settingsKeyInput.click();
-  await fieldEditorPage.settingsKeyInput.fill(fieldKey);
-  await fieldEditorPage.settingsDescriptionInput.click();
-  await fieldEditorPage.settingsDescriptionInput.fill(fieldDescription);
-  await fieldEditorPage.defaultValueTab.click();
-  await fieldEditorPage.setDefaultValueInput.click();
-  await fieldEditorPage.defaultValueTextInput.fill(defaultValue);
-  await fieldEditorPage.okButton.click();
-  await contentPage.closeNotification();
+  await fieldEditorPage.createField({
+    type: SchemaFieldType.TextArea,
+    name: fieldName,
+    key: fieldKey,
+    description: fieldDescription,
+    defaultValue,
+  });
   await expect(fieldEditorPage.fieldText(fieldName, fieldKey)).toBeVisible();
   await fieldEditorPage.ellipsisMenuButton.click();
   await expect(fieldEditorPage.displayNameInput).toBeVisible();

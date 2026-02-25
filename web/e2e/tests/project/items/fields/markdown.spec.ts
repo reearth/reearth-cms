@@ -28,18 +28,13 @@ test("Markdown field editing has succeeded", async ({
   contentPage,
   schemaPage,
 }) => {
-  await fieldEditorPage.fieldTypeButton(SchemaFieldType.MarkdownText).click();
-  await fieldEditorPage.displayNameInput.click();
-  await fieldEditorPage.displayNameInput.fill(fieldName);
-  await fieldEditorPage.settingsKeyInput.click();
-  await fieldEditorPage.settingsKeyInput.fill(fieldKey);
-  await fieldEditorPage.settingsDescriptionInput.click();
-  await fieldEditorPage.settingsDescriptionInput.fill(fieldDescription);
-  await fieldEditorPage.defaultValueTab.click();
-  await fieldEditorPage.lastColumn.click();
-  await fieldEditorPage.defaultValueTextInput.fill(defaultValue);
-  await fieldEditorPage.okButton.click();
-  await contentPage.closeNotification();
+  await fieldEditorPage.createField({
+    type: SchemaFieldType.MarkdownText,
+    name: fieldName,
+    key: fieldKey,
+    description: fieldDescription,
+    defaultValue,
+  });
   await expect(fieldEditorPage.fieldText(fieldName, fieldKey)).toBeVisible();
   await fieldEditorPage.ellipsisMenuButton.click();
   await expect(fieldEditorPage.displayNameInput).toBeVisible();
