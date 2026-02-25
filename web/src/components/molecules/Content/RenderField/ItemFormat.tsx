@@ -15,8 +15,8 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
-import { dateTimeFormat, transformDayjsToString } from "@reearth-cms/utils/format";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { dateTimeFormat, transformDayjsToString } from "@reearth-cms/utils/format";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 type Props = {
