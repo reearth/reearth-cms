@@ -292,7 +292,10 @@ test.describe("Import content", () => {
       { tag: TAG.SMOKE },
       async ({ contentPage, fieldEditorPage, projectPage }) => {
         await test.step("Create text field matching template schema", async () => {
-          await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: importTextFieldKey });
+          await fieldEditorPage.createField({
+            type: SchemaFieldType.Text,
+            name: importTextFieldKey,
+          });
           await projectPage.contentMenuItem.click();
         });
 

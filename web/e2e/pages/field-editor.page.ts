@@ -967,7 +967,9 @@ export class FieldEditorPage extends ProjectScopedPage {
         break;
       case SchemaFieldType.Tag:
         await this.setDefaultValueInput.click();
-        await this.tagOptionText(defaultValue as string).last().click();
+        await this.tagOptionText(defaultValue as string)
+          .last()
+          .click();
         break;
       case SchemaFieldType.GeometryObject:
       case SchemaFieldType.GeometryEditor:
@@ -988,7 +990,9 @@ export class FieldEditorPage extends ProjectScopedPage {
     for (const value of values) {
       if (type === SchemaFieldType.Tag) {
         await this.tagSelectTrigger.click();
-        await this.tagOptionText(value as string).last().click();
+        await this.tagOptionText(value as string)
+          .last()
+          .click();
         continue;
       }
 
@@ -1002,7 +1006,9 @@ export class FieldEditorPage extends ProjectScopedPage {
           if (value === true) await this.getByRole("checkbox").last().check();
           break;
         case SchemaFieldType.Date:
-          await this.getByRole("textbox").last().fill(value as string);
+          await this.getByRole("textbox")
+            .last()
+            .fill(value as string);
           await this.getByRole("textbox").last().press("Enter");
           break;
         case SchemaFieldType.GeometryObject:

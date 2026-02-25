@@ -1,4 +1,6 @@
 // e2e/pages/assets.page.ts
+import { Download } from "@playwright/test";
+
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
@@ -97,7 +99,7 @@ export class AssetsPage extends ProjectScopedPage {
     return this.getByText("Asset TypePNG/JPEG/TIFF/GIF");
   }
 
-  public waitForDownload(): Promise<import("@playwright/test").Download> {
+  public waitForDownload(): Promise<Download> {
     return this.page.waitForEvent("download");
   }
 
