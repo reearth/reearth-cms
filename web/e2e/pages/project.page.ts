@@ -5,8 +5,6 @@ import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { ProjectScopedPage } from "./project-scoped.page";
 
 export class ProjectPage extends ProjectScopedPage {
-  public readonly modelName = "e2e model name";
-
   // Overview page - Model management
   public get noModelsYetText(): Locator {
     return this.getByText("No Models yet");

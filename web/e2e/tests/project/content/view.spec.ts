@@ -408,7 +408,6 @@ test("View reordering has succeeded", async ({ projectPage, contentPage }) => {
 
   await test.step("Navigate to content page", async () => {
     await projectPage.contentMenuItem.click();
-    await projectPage.modelMenuItemClick(projectPage.modelName).click();
   });
 
   await test.step("Create view1", async () => {

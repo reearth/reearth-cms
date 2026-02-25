@@ -127,7 +127,8 @@ export const test = base.extend<Fixtures>({
 
 export const TAG = {
   SMOKE: "@smoke",
-  REDUNDANT: "@redundant",
+  MIGRATE_TO_COMP_TEST: "@migrateToCompTest",
+  TO_ABANDON: "@toAbandon",
 } as const;
 
 export { chromium, expect, type Page, type Locator } from "@playwright/test";

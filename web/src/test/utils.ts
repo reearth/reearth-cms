@@ -295,6 +295,7 @@ export enum DATA_TEST_ID {
   Content__List__ImportContentButton = "Content__List__ImportContentButton",
   Content__List__ItemFieldPopoverIcon = "Content__List__ItemFieldPopoverIcon",
   Content__List__ItemFieldPopoverContent = "Content__List__ItemFieldPopoverContent",
+  Content__List__UrlEditButton = "Content__List__UrlEditButton",
 
   // WorkspaceMenu
   WorkspaceMenu__HomeItem = "WorkspaceMenu__HomeItem",

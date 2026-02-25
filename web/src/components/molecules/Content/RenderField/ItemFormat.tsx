@@ -16,6 +16,7 @@ import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes"
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, transformDayjsToString } from "@reearth-cms/utils/format";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 type Props = {
@@ -138,9 +139,12 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
             arrow={false}
             placement="right"
             color="#fff"
-            overlayStyle={{ paddingLeft: 0 }}
-            overlayInnerStyle={{ transform: "translateX(-40px)" }}
-            title={<Icon color="#1890ff" icon={"edit"} onClick={() => setIsEditable(true)} />}>
+            align={{ offset: [-40, 0] }}
+            title={
+              <span data-testid={DATA_TEST_ID.Content__List__UrlEditButton}>
+                <Icon color="#1890ff" icon={"edit"} onClick={() => setIsEditable(true)} />
+              </span>
+            }>
             <UrlWrapper>
               <a href={itemState} target="_blank" rel="noreferrer">
                 {itemState}

@@ -86,7 +86,7 @@ export class ContentPage extends ProjectScopedPage {
 
   // Tooltip interactions
   public get tooltipEditButton(): Locator {
-    return this.getByRole("tooltip", { name: "edit" }).locator("svg");
+    return this.page.getByTestId(DATA_TEST_ID.Content__List__UrlEditButton);
   }
 
   // Table body element

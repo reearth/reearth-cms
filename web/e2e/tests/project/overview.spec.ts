@@ -257,7 +257,7 @@ test.describe("Model Export tests on Overview page", () => {
 
 test(
   "Import schema dropdown redirects to schema page correctly, with import schema modal opened",
-  { tag: TAG.REDUNDANT },
+  { tag: TAG.MIGRATE_TO_COMP_TEST },
   async ({ schemaPage, projectPage }) => {
     const modelName = `model-${getId()}`;
     const modelKey = `model-key-${getId()}`;
@@ -284,7 +284,7 @@ test(
 
 test(
   "Creating Model by using the button on placeholder has succeeded",
-  { tag: TAG.REDUNDANT },
+  { tag: TAG.MIGRATE_TO_COMP_TEST },
   async ({ projectPage }) => {
     const modelName = `model-${getId()}`;
     const modelKey = `key-${getId()}`;
