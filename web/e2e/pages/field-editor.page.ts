@@ -6,6 +6,7 @@ import {
   SchemaFieldType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { t } from "@reearth-cms/e2e/support/i18n";
 import { DATA_TEST_ID, Test } from "@reearth-cms/test/utils";
 
 import { ProjectScopedPage } from "./project-scoped.page";
@@ -264,82 +265,63 @@ export interface EditFieldOptions {
 export class FieldEditorPage extends ProjectScopedPage {
   // Field form elements
   public get displayNameInput(): Locator {
-    return this.getByLabel("Display name");
+    return this.getByTestId(DATA_TEST_ID.FieldModal__DisplayNameInput);
   }
-  public get settingsKeyInput(): Locator {
-    return this.getByLabel("Settings").locator("#key");
+  public get fieldKeyInput(): Locator {
+    return this.getByTestId(DATA_TEST_ID.FieldModal__FieldKeyInput);
   }
-  public get settingsDescriptionInput(): Locator {
-    return this.getByLabel("Settings").locator("#description");
+  public get descriptionInput(): Locator {
+    return this.getByTestId(DATA_TEST_ID.FieldModal__DescriptionInput);
   }
 
   // Tabs
   public get settingsTab(): Locator {
-    return this.getByRole("tab", { name: "Settings" });
+    return this.getByRole("tab", { name: t("Settings") });
   }
 
   public get defaultValueTab(): Locator {
-    return this.getByRole("tab", { name: "Default value" });
+    return this.getByRole("tab", { name: t("Default value") });
   }
 
   public get validationTab(): Locator {
-    return this.getByRole("tab", { name: "Validation" });
+    return this.getByRole("tab", { name: t("Validation") });
   }
 
   // Default value tab
   public get setDefaultValueInput(): Locator {
-    return this.getByLabel("Set default value");
-    // return this.getByTestId(DATA_TEST_ID.Schema__FieldModal__DefaultValue);
+    return this.getByTestId(DATA_TEST_ID.FieldModal__SetDefaultValueInput);
   }
 
   // Validation tab
   public get maxLengthInput(): Locator {
-    return this.getByLabel("Set maximum length");
-    // return this.getByTestId(DATA_TEST_ID.Schema__FieldModal__MaxLength);
+    return this.getByTestId(DATA_TEST_ID.FieldModal__MaxLengthInput);
   }
   public get requiredFieldCheckbox(): Locator {
-    return this.getByLabel("Make field required");
-    // return this.getByTestId(DATA_TEST_ID.Schema__FieldModal__Required);
+    return this.getByTestId(DATA_TEST_ID.FieldModal__RequiredCheckbox);
   }
   public get uniqueFieldCheckbox(): Locator {
-    return this.getByLabel("Set field as unique");
-    // return this.getByTestId(DATA_TEST_ID.Schema__FieldModal__Unique);
+    return this.getByTestId(DATA_TEST_ID.FieldModal__UniqueCheckbox);
   }
   public get minValueInput(): Locator {
-    return this.getByLabel("Set minimum value");
-    // return this.getByTestId(DATA_TEST_ID.Schema__FieldModal__MinValue);
+    return this.getByTestId(DATA_TEST_ID.FieldModal__MinValueInput);
   }
   public get maxValueInput(): Locator {
-    return this.getByLabel("Set maximum value");
-    // return this.getByTestId(DATA_TEST_ID.Schema__FieldModal__MaxValue);
+    return this.getByTestId(DATA_TEST_ID.FieldModal__MaxValueInput);
   }
 
   // Field options
   public get supportMultipleValuesCheckbox(): Locator {
-    return this.getByLabel("Support multiple values");
-    // return this.getByTestId(DATA_TEST_ID.Schema__FieldModal__Multiple);
+    return this.getByTestId(DATA_TEST_ID.FieldModal__MultipleCheckbox);
   }
   public get useAsTitleCheckbox(): Locator {
-    return this.getByLabel("Use as title");
-    // return this.getByTestId(DATA_TEST_ID.Schema__FieldModal__IsTitle);
-  }
-
-  // Additional field settings
-  public get fieldKeyInput(): Locator {
-    return this.getByLabel("Field Key");
-  }
-  public get descriptionInput(): Locator {
-    return this.getByLabel("Description(optional)");
-    // return this.getByTestId(DATA_TEST_ID.Schema__FieldModal__Description);
-  }
-  public get descriptionRequiredInput(): Locator {
-    return this.getByLabel("Description");
-    // return this.getByTestId(DATA_TEST_ID.Schema__FieldModal__Description);
+    return this.getByTestId(DATA_TEST_ID.FieldModal__IsTitleCheckbox);
   }
 
   // Default value specific
   public get plusNewButton(): Locator {
-    return this.getByRole("button", { name: "plus New" });
+    return this.page.locator(
+      `[data-testid="${DATA_TEST_ID.FieldModal__PlusNewButton}"]:visible`,
+    );
   }
 
   // Textbox helpers
@@ -352,34 +334,34 @@ export class FieldEditorPage extends ProjectScopedPage {
   }
 
   public get defaultValueInput(): Locator {
-    return this.locator("#defaultValue");
+    return this.getByTestId(DATA_TEST_ID.FieldModal__SetDefaultValueInput);
   }
 
-  // Validation labels
+  // Validation labels (same element as checkbox — Ant Design Checkbox renders a <label> wrapper)
   public get makeFieldRequiredLabel(): Locator {
-    return this.locator("label").filter({ hasText: "Make field required" });
+    return this.getByTestId(DATA_TEST_ID.FieldModal__RequiredCheckbox);
   }
 
   public get setFieldAsUniqueLabel(): Locator {
-    return this.locator("label").filter({ hasText: "Set field as unique" });
+    return this.getByTestId(DATA_TEST_ID.FieldModal__UniqueCheckbox);
   }
 
   // Multiple value controls
   public get arrowDownButton(): Locator {
-    return this.getByRole("button", { name: "arrow-down" });
+    return this.getByTestId(DATA_TEST_ID.MultiValueField__ArrowDownButton);
   }
 
   // Option field specific
   public get valuesInput(): Locator {
-    return this.locator("#values");
+    return this.getByTestId(DATA_TEST_ID.FieldModal__ValuesInput);
   }
 
   public get deleteButton(): Locator {
-    return this.getByRole("button", { name: "delete" });
+    return this.getByTestId(DATA_TEST_ID.MultiValueField__DeleteButton);
   }
 
   public get setOptionsLabel(): Locator {
-    return this.getByLabel("Set Options");
+    return this.getByLabel(t("Set Options"));
   }
 
   public get selectValueItem(): Locator {
@@ -406,11 +388,11 @@ export class FieldEditorPage extends ProjectScopedPage {
 
   // Asset field specific
   public get assetButton(): Locator {
-    return this.getByRole("button", { name: "Asset" });
+    return this.getByRole("button", { name: t("Asset") });
   }
 
   public get uploadAssetButton(): Locator {
-    return this.getByRole("button", { name: "upload Upload Asset" });
+    return this.getByTestId(DATA_TEST_ID.AssetList__UploadButton);
   }
 
   public get urlTab(): Locator {
@@ -418,11 +400,11 @@ export class FieldEditorPage extends ProjectScopedPage {
   }
 
   public get urlInput(): Locator {
-    return this.getByPlaceholder("Please input a valid URL");
+    return this.getByTestId(DATA_TEST_ID.UploadModal__UrlInput);
   }
 
   public get uploadAndLinkButton(): Locator {
-    return this.getByRole("button", { name: "Upload and Link" });
+    return this.getByRole("button", { name: t("Upload and Link") });
   }
 
   public get antTableRow(): Locator {
@@ -434,11 +416,11 @@ export class FieldEditorPage extends ProjectScopedPage {
   }
 
   public get arrowUpButton(): Locator {
-    return this.getByRole("button", { name: "arrow-up" });
+    return this.getByTestId(DATA_TEST_ID.MultiValueField__ArrowUpButton);
   }
 
   public get defaultValueLabel(): Locator {
-    return this.getByLabel("Default value");
+    return this.getByLabel(t("Default value"));
   }
 
   // Dynamic asset button methods
@@ -462,7 +444,7 @@ export class FieldEditorPage extends ProjectScopedPage {
   }
 
   public get defaultValueExactLabel(): Locator {
-    return this.getByLabel("Default value", { exact: true });
+    return this.getByLabel(t("Default value"), { exact: true });
   }
 
   public get updateTagLabel(): Locator {
@@ -479,11 +461,6 @@ export class FieldEditorPage extends ProjectScopedPage {
     return this.getByTestId(Test.getDataTestIdFromSchemaFieldType(fileType));
   }
 
-  // Boolean field specific
-  public get setDefaultValueSwitch(): Locator {
-    return this.getByLabel("Set default value");
-  }
-
   // Switch elements by index
   public switchByIndex(index: number): Locator {
     return this.getByRole("switch").nth(index);
@@ -493,11 +470,6 @@ export class FieldEditorPage extends ProjectScopedPage {
     return this.getByRole("switch").first();
   }
 
-  // Checkbox field specific
-  public get setDefaultValueCheckbox(): Locator {
-    return this.getByLabel("Set default value");
-  }
-
   // Checkbox elements by index
   public checkboxByIndex(index: number): Locator {
     return this.getByRole("checkbox").nth(index);
@@ -505,11 +477,6 @@ export class FieldEditorPage extends ProjectScopedPage {
 
   public get firstCheckbox(): Locator {
     return this.getByRole("checkbox").first();
-  }
-
-  // Markdown/Text field specific
-  public get defaultValueTextInput(): Locator {
-    return this.getByLabel("Set default value");
   }
 
   // Markdown preview
@@ -528,16 +495,16 @@ export class FieldEditorPage extends ProjectScopedPage {
 
   // Field ordering controls
   public arrowUpButtonByIndex(index: number): Locator {
-    return this.getByRole("button", { name: "arrow-up" }).nth(index);
+    return this.getByTestId(DATA_TEST_ID.MultiValueField__ArrowUpButton).nth(index);
   }
 
   public get firstArrowDownButton(): Locator {
-    return this.getByRole("button", { name: "arrow-down" }).first();
+    return this.getByTestId(DATA_TEST_ID.MultiValueField__ArrowDownButton).first();
   }
 
-  // Default value input by ID
+  // Default value input by index
   public defaultValueInputByIndex(index: number): Locator {
-    return this.locator("#defaultValue").nth(index);
+    return this.getByTestId(DATA_TEST_ID.FieldModal__SetDefaultValueInput).nth(index);
   }
 
   // Title helpers
@@ -552,7 +519,7 @@ export class FieldEditorPage extends ProjectScopedPage {
 
   // Field management
   public get ellipsisMenuButton(): Locator {
-    return this.getByRole("img", { name: "ellipsis" }).locator("svg");
+    return this.getByTestId(DATA_TEST_ID.Schema__FieldEllipsisButton);
   }
   public get ellipsisButton(): Locator {
     return this.getByRole("button", { name: "ellipsis" });
@@ -560,7 +527,7 @@ export class FieldEditorPage extends ProjectScopedPage {
 
   // Schema navigation
   public get metaDataTab(): Locator {
-    return this.getByRole("tab", { name: "Meta Data" });
+    return this.getByRole("tab", { name: t("Meta Data") });
   }
 
   // Menu items
@@ -612,14 +579,14 @@ export class FieldEditorPage extends ProjectScopedPage {
     return this.locator("li").filter({ hasText: type }).locator("div").first();
   }
 
-  // Select date placeholder
+  // Date input
   public get selectDatePlaceholder(): Locator {
-    return this.getByPlaceholder("Select date");
+    return this.getByTestId(DATA_TEST_ID.FieldModal__DateInput);
   }
 
   // Geometry field specific
   public get pointCheckbox(): Locator {
-    return this.getByLabel("Point", { exact: true });
+    return this.getByTestId(DATA_TEST_ID.FieldModal__PointCheckbox);
   }
 
   // Code editor elements
@@ -641,7 +608,7 @@ export class FieldEditorPage extends ProjectScopedPage {
 
   // Reference field specific elements
   public get selectModelToReferenceLabel(): Locator {
-    return this.getByLabel("Select the model to reference");
+    return this.getByLabel(t("Select the model to reference"));
   }
 
   public get createReferenceFieldLabel(): Locator {
@@ -649,44 +616,36 @@ export class FieldEditorPage extends ProjectScopedPage {
   }
 
   public get oneWayReferenceCheckbox(): Locator {
-    return this.getByLabel("One-way reference");
+    return this.getByLabel(t("One-way reference"));
   }
 
   public get twoWayReferenceCheckbox(): Locator {
-    return this.getByLabel("Two-way reference");
+    return this.getByLabel(t("Two-way reference"));
   }
 
   public get nextButton(): Locator {
-    return this.getByRole("button", { name: "Next" });
+    return this.getByRole("button", { name: t("Next") });
   }
 
   public get confirmButton(): Locator {
-    return this.getByRole("button", { name: "Confirm" });
+    return this.getByRole("button", { name: t("Confirm") });
   }
 
   public get previousButton(): Locator {
-    return this.getByRole("button", { name: "Previous" });
-  }
-
-  public get makeFieldRequiredCheckbox(): Locator {
-    return this.getByLabel("Make field required");
-  }
-
-  public get setFieldAsUniqueCheckbox(): Locator {
-    return this.getByLabel("Set field as unique");
+    return this.getByRole("button", { name: t("Previous") });
   }
 
   public get closeButton(): Locator {
-    return this.getByLabel("Close", { exact: true });
+    return this.getByRole("button", { name: t("Close") });
   }
 
   // Item reference modal elements
   public get referToItemButton(): Locator {
-    return this.getByRole("button", { name: "Refer to item" });
+    return this.getByRole("button", { name: t("Refer to item") });
   }
 
   public get replaceItemButton(): Locator {
-    return this.getByRole("button", { name: "Replace item" });
+    return this.getByRole("button", { name: t("Replace item") });
   }
 
   // Dynamic selectors
@@ -740,14 +699,10 @@ export class FieldEditorPage extends ProjectScopedPage {
     // Fill basic settings
     await this.displayNameInput.fill(options.name);
     if (options.key !== undefined) {
-      const keyInput = options.metadata ? this.fieldKeyInput : this.settingsKeyInput;
-      await keyInput.fill(options.key);
+      await this.fieldKeyInput.fill(options.key);
     }
     if (options.description !== undefined) {
-      const descInput = options.metadata
-        ? this.descriptionRequiredInput
-        : this.settingsDescriptionInput;
-      await descInput.fill(options.description);
+      await this.descriptionInput.fill(options.description);
     }
 
     // Field options
@@ -838,8 +793,7 @@ export class FieldEditorPage extends ProjectScopedPage {
     // Fill field settings
     await this.displayNameInput.fill(options.name);
     if (options.key !== undefined) {
-      // Reference wizard uses the same settings key input
-      await this.settingsKeyInput.fill(options.key);
+      await this.fieldKeyInput.fill(options.key);
     }
     if (options.description !== undefined) {
       await this.descriptionInput.fill(options.description);
@@ -848,8 +802,8 @@ export class FieldEditorPage extends ProjectScopedPage {
     // Validation
     if (options.required || options.unique) {
       await this.validationTab.click();
-      if (options.required) await this.makeFieldRequiredCheckbox.check();
-      if (options.unique) await this.setFieldAsUniqueCheckbox.check();
+      if (options.required) await this.requiredFieldCheckbox.check();
+      if (options.unique) await this.uniqueFieldCheckbox.check();
     }
 
     // Confirm
@@ -864,10 +818,10 @@ export class FieldEditorPage extends ProjectScopedPage {
     // Fill basic settings
     await this.displayNameInput.fill(options.name);
     if (options.key !== undefined) {
-      await this.settingsKeyInput.fill(options.key);
+      await this.fieldKeyInput.fill(options.key);
     }
     if (options.description !== undefined) {
-      await this.settingsDescriptionInput.fill(options.description);
+      await this.descriptionInput.fill(options.description);
     }
 
     // Select group
@@ -901,14 +855,10 @@ export class FieldEditorPage extends ProjectScopedPage {
     // 3. Fill basic settings (only provided fields)
     if (options.name !== undefined) await this.displayNameInput.fill(options.name);
     if (options.key !== undefined) {
-      const keyInput = options.metadata ? this.fieldKeyInput : this.settingsKeyInput;
-      await keyInput.fill(options.key);
+      await this.fieldKeyInput.fill(options.key);
     }
     if (options.description !== undefined) {
-      const descInput = options.metadata
-        ? this.descriptionRequiredInput
-        : this.settingsDescriptionInput;
-      await descInput.fill(options.description);
+      await this.descriptionInput.fill(options.description);
     }
     if (options.multiple) await this.supportMultipleValuesCheckbox.check();
     if (options.isTitle) await this.useAsTitleCheckbox.check();
@@ -948,10 +898,10 @@ export class FieldEditorPage extends ProjectScopedPage {
 
     switch (type) {
       case SchemaFieldType.Bool:
-        if (defaultValue === true) await this.setDefaultValueSwitch.click();
+        if (defaultValue === true) await this.setDefaultValueInput.click();
         break;
       case SchemaFieldType.Checkbox:
-        if (defaultValue === true) await this.setDefaultValueCheckbox.click();
+        if (defaultValue === true) await this.setDefaultValueInput.click();
         break;
       case SchemaFieldType.Date:
         await this.selectDatePlaceholder.fill(defaultValue as string);
@@ -966,7 +916,7 @@ export class FieldEditorPage extends ProjectScopedPage {
         await this.setDefaultValueInput.fill(defaultValue as string);
         break;
       case SchemaFieldType.Tag:
-        await this.setDefaultValueInput.click();
+        await this.tagSelectTrigger.click();
         await this.tagOptionText(defaultValue as string)
           .last()
           .click();

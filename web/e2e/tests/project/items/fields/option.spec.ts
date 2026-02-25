@@ -35,10 +35,10 @@ test(
       await fieldEditorPage.fieldTypeButton(SchemaFieldType.Select).click();
       await fieldEditorPage.displayNameInput.click();
       await fieldEditorPage.displayNameInput.fill(fieldName);
-      await fieldEditorPage.settingsKeyInput.click();
-      await fieldEditorPage.settingsKeyInput.fill(fieldKey);
-      await fieldEditorPage.settingsDescriptionInput.click();
-      await fieldEditorPage.settingsDescriptionInput.fill(fieldDescription);
+      await fieldEditorPage.fieldKeyInput.click();
+      await fieldEditorPage.fieldKeyInput.fill(fieldKey);
+      await fieldEditorPage.descriptionInput.click();
+      await fieldEditorPage.descriptionInput.fill(fieldDescription);
       await fieldEditorPage.plusNewButton.click();
       await fieldEditorPage.valuesInput.nth(0).click();
       await fieldEditorPage.valuesInput.nth(0).fill(optionFirst);
@@ -99,10 +99,10 @@ test("Option field editing has succeeded", async ({ fieldEditorPage, contentPage
     await schemaPage.fieldTypeButton("Option").click();
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.fill(fieldName);
-    await fieldEditorPage.settingsKeyInput.click();
-    await fieldEditorPage.settingsKeyInput.fill(fieldKey);
-    await fieldEditorPage.settingsDescriptionInput.click();
-    await fieldEditorPage.settingsDescriptionInput.fill(fieldDescription);
+    await fieldEditorPage.fieldKeyInput.click();
+    await fieldEditorPage.fieldKeyInput.fill(fieldKey);
+    await fieldEditorPage.descriptionInput.click();
+    await fieldEditorPage.descriptionInput.fill(fieldDescription);
     await fieldEditorPage.plusNewButton.click();
     await fieldEditorPage.valuesInput.nth(0).click();
     await fieldEditorPage.valuesInput.nth(0).fill(optionFirst);
@@ -122,7 +122,7 @@ test("Option field editing has succeeded", async ({ fieldEditorPage, contentPage
 
   await test.step("Delete 'second' option and add 'forth' option", async () => {
     await fieldEditorPage.settingsTab.click();
-    await fieldEditorPage.deleteButton.nth(2).click();
+    await fieldEditorPage.deleteButton.nth(1).click();
     await fieldEditorPage.plusNewButton.click();
     await fieldEditorPage.valuesInput.nth(2).click();
     await fieldEditorPage.valuesInput.nth(2).fill(optionForth);
