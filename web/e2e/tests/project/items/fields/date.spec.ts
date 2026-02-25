@@ -2,6 +2,15 @@ import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types"
 import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
+const fieldName = "date1";
+const fieldKey = "date1";
+const fieldDescription = "date1 description";
+const fieldHeader = "date1#date1";
+const newFieldName = "new date1";
+const newFieldKey = "new-date1";
+const newFieldDescription = "new date1 description";
+const defaultDate = "2024-01-01";
+
 test.beforeEach(async ({ projectPage }) => {
   await projectPage.goto("/");
   const projectName = getId();
@@ -20,64 +29,64 @@ test(
   async ({ fieldEditorPage, contentPage }) => {
     await fieldEditorPage.createField({
       type: SchemaFieldType.Date,
-      name: "date1",
-      key: "date1",
-      description: "date1 description",
+      name: fieldName,
+      key: fieldKey,
+      description: fieldDescription,
     });
 
-    await expect(fieldEditorPage.fieldsContainerParagraph).toContainText("date1#date1");
+    await expect(fieldEditorPage.fieldsContainerParagraph).toContainText(fieldHeader);
     await contentPage.contentText.click();
     await contentPage.newItemButton.click();
-    await expect(contentPage.labelElement()).toContainText("date1");
-    await expect(contentPage.mainElement).toContainText("date1 description");
+    await expect(contentPage.labelElement()).toContainText(fieldName);
+    await expect(contentPage.mainElement).toContainText(fieldDescription);
 
     await contentPage.selectDatePlaceholder.click();
-    await contentPage.selectDatePlaceholder.fill("2024-01-01");
+    await contentPage.selectDatePlaceholder.fill(defaultDate);
     await contentPage.selectDatePlaceholder.press("Enter");
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
     await contentPage.backButton.click();
-    await expect(contentPage.tableBody).toContainText("2024-01-01");
+    await expect(contentPage.tableBody).toContainText(defaultDate);
     await contentPage.editButton.click();
     await contentPage.closeDateButton.click();
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
     await contentPage.backButton.click();
-    await expect(contentPage.tableBody).not.toContainText("2024-01-01");
+    await expect(contentPage.tableBody).not.toContainText(defaultDate);
   },
 );
 
 test("Date field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
   await fieldEditorPage.createField({
     type: SchemaFieldType.Date,
-    name: "date1",
-    key: "date1",
-    description: "date1 description",
-    defaultValue: "2024-01-01",
+    name: fieldName,
+    key: fieldKey,
+    description: fieldDescription,
+    defaultValue: defaultDate,
   });
   await contentPage.contentText.click();
-  await expect(contentPage.tableHead).toContainText("date1");
+  await expect(contentPage.tableHead).toContainText(fieldName);
   await contentPage.newItemButton.click();
-  await expect(contentPage.selectDatePlaceholder).toHaveValue("2024-01-01");
+  await expect(contentPage.selectDatePlaceholder).toHaveValue(defaultDate);
   await contentPage.saveButton.click();
   await contentPage.closeNotification();
   await contentPage.backButton.click();
-  await expect(contentPage.tableBody).toContainText("2024-01-01");
+  await expect(contentPage.tableBody).toContainText(defaultDate);
   await schemaPage.schemaText.click();
   await fieldEditorPage.ellipsisMenuButton.click();
   await fieldEditorPage.displayNameInput.click();
-  await fieldEditorPage.displayNameInput.fill("new date1");
+  await fieldEditorPage.displayNameInput.fill(newFieldName);
   await fieldEditorPage.fieldKeyInput.click();
-  await fieldEditorPage.fieldKeyInput.fill("new-date1");
+  await fieldEditorPage.fieldKeyInput.fill(newFieldKey);
   await fieldEditorPage.descriptionInput.click();
-  await fieldEditorPage.descriptionInput.fill("new date1 description");
+  await fieldEditorPage.descriptionInput.fill(newFieldDescription);
   await fieldEditorPage.supportMultipleValuesCheckbox.check();
   await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
   await fieldEditorPage.validationTab.click();
   await fieldEditorPage.requiredFieldCheckbox.check();
   await fieldEditorPage.uniqueFieldCheckbox.check();
   await fieldEditorPage.defaultValueTab.click();
-  await expect(fieldEditorPage.selectDatePlaceholder).toHaveValue("2024-01-01");
+  await expect(fieldEditorPage.selectDatePlaceholder).toHaveValue(defaultDate);
   await fieldEditorPage.textboxByIndex(0).click();
   await fieldEditorPage.titleDiv("2024-01-02").click();
   await fieldEditorPage.plusNewButton.click();
@@ -88,10 +97,10 @@ test("Date field editing has succeeded", async ({ fieldEditorPage, contentPage, 
   await expect(fieldEditorPage.selectDatePlaceholder.nth(0)).toHaveValue("2024-01-03");
   await fieldEditorPage.okButton.click();
   await contentPage.closeNotification();
-  await expect(schemaPage.uniqueFieldText("new date1", "new-date1")).toBeVisible();
+  await expect(schemaPage.uniqueFieldText(newFieldName, newFieldKey)).toBeVisible();
   await contentPage.contentText.click();
-  await expect(contentPage.tableHead).toContainText("new date1");
-  await expect(contentPage.tableBody).toContainText("2024-01-01");
+  await expect(contentPage.tableHead).toContainText(newFieldName);
+  await expect(contentPage.tableBody).toContainText(defaultDate);
   await contentPage.newItemButton.click();
   await expect(contentPage.labelElement()).toContainText("new date1(unique)");
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("2024-01-03");

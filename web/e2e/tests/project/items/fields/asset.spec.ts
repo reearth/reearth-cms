@@ -2,6 +2,13 @@ import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types"
 import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
+const fieldName = "asset1";
+const fieldKey = "asset1";
+const fieldDescription = "asset1 description";
+const fieldHeader = "asset1#asset1";
+const newFieldName = "new asset1";
+const newFieldKey = "new-asset1";
+const newFieldDescription = "new asset1 description";
 const uploadFileUrl_1 =
   "https://assets.cms.plateau.reearth.io/assets/11/6d05db-ed47-4f88-b565-9eb385b1ebb0/13100_tokyo23-ku_2022_3dtiles%20_1_1_op_bldg_13101_chiyoda-ku_lod1/tileset.json";
 const uploadFileName_1 = "tileset.json";
@@ -28,20 +35,18 @@ test(
     await test.step("Create asset field with description", async () => {
       await fieldEditorPage.createField({
         type: SchemaFieldType.Asset,
-        name: "asset1",
-        key: "asset1",
-        description: "asset1 description",
+        name: fieldName,
+        key: fieldKey,
+        description: fieldDescription,
       });
     });
 
     await test.step("Verify field created and navigate to new item", async () => {
-      await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText(
-        "asset1#asset1",
-      );
+      await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText(fieldHeader);
       await contentPage.contentText.click();
       await contentPage.newItemButton.click();
-      await expect(contentPage.locator("label")).toContainText("asset1");
-      await expect(contentPage.mainRole).toContainText("asset1 description");
+      await expect(contentPage.locator("label")).toContainText(fieldName);
+      await expect(contentPage.mainRole).toContainText(fieldDescription);
     });
 
     await test.step("Upload first asset via URL", async () => {
@@ -99,18 +104,18 @@ test("Previewing JSON file from content page into new tab succeeded", async ({
   await test.step("Create asset field", async () => {
     await fieldEditorPage.createField({
       type: SchemaFieldType.Asset,
-      name: "asset1",
-      key: "asset1",
-      description: "asset1 description",
+      name: fieldName,
+      key: fieldKey,
+      description: fieldDescription,
     });
-    await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("asset1#asset1");
+    await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText(fieldHeader);
   });
 
   await test.step("Navigate to new item and verify field", async () => {
     await contentPage.contentText.click();
     await contentPage.newItemButton.click();
-    await expect(contentPage.locator("label")).toContainText("asset1");
-    await expect(contentPage.mainRole).toContainText("asset1 description");
+    await expect(contentPage.locator("label")).toContainText(fieldName);
+    await expect(contentPage.mainRole).toContainText(fieldDescription);
   });
 
   await test.step("Upload GLTF asset via URL", async () => {
@@ -146,11 +151,11 @@ test("Asset field editing has succeeded", async ({ fieldEditorPage, contentPage,
   await test.step("Create asset field with default value", async () => {
     await fieldEditorPage.fieldTypeButton("Asset").click();
     await fieldEditorPage.displayNameInput.click();
-    await fieldEditorPage.displayNameInput.fill("asset1");
+    await fieldEditorPage.displayNameInput.fill(fieldName);
     await fieldEditorPage.settingsKeyInput.click();
-    await fieldEditorPage.settingsKeyInput.fill("asset1");
+    await fieldEditorPage.settingsKeyInput.fill(fieldKey);
     await fieldEditorPage.settingsDescriptionInput.click();
-    await fieldEditorPage.settingsDescriptionInput.fill("asset1 description");
+    await fieldEditorPage.settingsDescriptionInput.fill(fieldDescription);
     await fieldEditorPage.defaultValueTab.click();
     await fieldEditorPage.assetButton.click();
     await fieldEditorPage.uploadAssetButton.click();
@@ -182,12 +187,12 @@ test("Asset field editing has succeeded", async ({ fieldEditorPage, contentPage,
 
   await test.step("Create new item and verify default value applied", async () => {
     await contentPage.contentText.click();
-    await expect(contentPage.tableHead).toContainText("asset1");
+    await expect(contentPage.tableHead).toContainText(fieldName);
     await contentPage.newItemButton.click();
     await expect(fieldEditorPage.folderButton(uploadFileName_1)).toBeVisible();
     await expect(fieldEditorPage.filenameButton(uploadFileName_1)).toBeVisible();
-    await expect(contentPage.optionTextByName("asset1")).toBeVisible();
-    await expect(contentPage.optionTextByName("asset1 description")).toBeVisible();
+    await expect(contentPage.optionTextByName(fieldName)).toBeVisible();
+    await expect(contentPage.optionTextByName(fieldDescription)).toBeVisible();
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
   });
@@ -201,11 +206,11 @@ test("Asset field editing has succeeded", async ({ fieldEditorPage, contentPage,
     await schemaPage.schemaText.click();
     await schemaPage.fieldEditButton.click();
     await fieldEditorPage.displayNameInput.click();
-    await fieldEditorPage.displayNameInput.fill("new asset1");
+    await fieldEditorPage.displayNameInput.fill(newFieldName);
     await fieldEditorPage.fieldKeyInput.click();
-    await fieldEditorPage.fieldKeyInput.fill("new-asset1");
+    await fieldEditorPage.fieldKeyInput.fill(newFieldKey);
     await fieldEditorPage.descriptionInput.click();
-    await fieldEditorPage.descriptionInput.fill("new asset1 description");
+    await fieldEditorPage.descriptionInput.fill(newFieldDescription);
     await fieldEditorPage.supportMultipleValuesCheckbox.check();
     await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
     await fieldEditorPage.validationTab.click();
@@ -242,10 +247,10 @@ test("Asset field editing has succeeded", async ({ fieldEditorPage, contentPage,
 
   await test.step("Create new item with updated field and verify multiple assets", async () => {
     await contentPage.contentText.click();
-    await expect(contentPage.tableHead).toContainText("new asset1");
+    await expect(contentPage.tableHead).toContainText(newFieldName);
     await contentPage.newItemButton.click();
     await expect(contentPage.locator("label")).toContainText("new asset1(unique)");
-    await expect(contentPage.mainRole).toContainText("new asset1 description");
+    await expect(contentPage.mainRole).toContainText(newFieldDescription);
     await expect(contentPage.cssAssetByIndex(0)).toContainText(uploadFileName_2);
     await expect(contentPage.cssAssetByIndex(1)).toContainText(uploadFileName_1);
     await fieldEditorPage.plusNewButton.click();
@@ -256,7 +261,7 @@ test("Asset field editing has succeeded", async ({ fieldEditorPage, contentPage,
   await test.step("Verify multiple assets displayed in list view tooltip", async () => {
     await contentPage.backButton.click();
     await contentPage.x2Button.click();
-    await expect(contentPage.tooltip).toContainText(`new asset1`);
+    await expect(contentPage.tooltip).toContainText(newFieldName);
     await expect(contentPage.tooltipParagraphs.first()).toContainText(uploadFileName_2);
     await expect(contentPage.tooltipParagraphs.last()).toContainText(uploadFileName_1);
   });
