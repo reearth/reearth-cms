@@ -37,9 +37,20 @@ const TextAreaField: React.FC<Props> = ({ multiple, maxLength }) => {
         },
       ]}>
       {multiple ? (
-        <MultiValueField rows={1} showCount maxLength={maxLength} FieldInput={TextArea} data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput} />
+        <MultiValueField
+          rows={1}
+          showCount
+          maxLength={maxLength}
+          FieldInput={TextArea}
+          data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput}
+        />
       ) : (
-        <TextArea rows={3} showCount maxLength={maxLength} data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput} />
+        <TextArea
+          rows={3}
+          showCount
+          maxLength={maxLength}
+          data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput}
+        />
       )}
     </Form.Item>
   );

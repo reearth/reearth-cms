@@ -15,7 +15,11 @@ const BooleanField: React.FC<Props> = ({ multiple }) => {
 
   return (
     <Form.Item name="defaultValue" valuePropName="checked" label={t("Set default value")}>
-      {multiple ? <MultiValueBooleanField FieldInput={Switch} /> : <Switch data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput} />}
+      {multiple ? (
+        <MultiValueBooleanField FieldInput={Switch} />
+      ) : (
+        <Switch data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput} />
+      )}
     </Form.Item>
   );
 };

@@ -176,7 +176,11 @@ const MultiValueColoredTag: React.FC<Props> = ({
           </FieldWrapper>
         ))}
       {!props.disabled && (
-        <Button icon={<Icon icon="plus" />} type="primary" data-testid={DATA_TEST_ID.FieldModal__PlusNewButton} onClick={handleNewTag}>
+        <Button
+          icon={<Icon icon="plus" />}
+          type="primary"
+          data-testid={DATA_TEST_ID.FieldModal__PlusNewButton}
+          onClick={handleNewTag}>
           {t("New")}
         </Button>
       )}

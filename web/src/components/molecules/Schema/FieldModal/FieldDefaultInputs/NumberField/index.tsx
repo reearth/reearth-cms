@@ -45,9 +45,20 @@ const NumberField: React.FC<Props> = ({ multiple, min, max }) => {
         },
       ]}>
       {multiple ? (
-        <MultiValueField type="number" FieldInput={InputNumber} min={min} max={max} data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput} />
+        <MultiValueField
+          type="number"
+          FieldInput={InputNumber}
+          min={min}
+          max={max}
+          data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput}
+        />
       ) : (
-        <InputNumber type="number" min={min} max={max} data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput} />
+        <InputNumber
+          type="number"
+          min={min}
+          max={max}
+          data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput}
+        />
       )}
     </Form.Item>
   );

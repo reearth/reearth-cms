@@ -131,7 +131,11 @@ const MultiValueGroup: React.FC<Props> = ({
           );
         })}
       {!disabled && (
-        <Button icon={<Icon icon="plus" />} type="primary" data-testid={DATA_TEST_ID.FieldModal__PlusNewButton} onClick={handleAdd}>
+        <Button
+          icon={<Icon icon="plus" />}
+          type="primary"
+          data-testid={DATA_TEST_ID.FieldModal__PlusNewButton}
+          onClick={handleAdd}>
           {t("New")}
         </Button>
       )}

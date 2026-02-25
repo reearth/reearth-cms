@@ -485,20 +485,29 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 />
               </Form.Item>
               <Form.Item name="description" label={t("Description")}>
-                <TextArea data-testid={DATA_TEST_ID.FieldModal__DescriptionInput} rows={3} showCount maxLength={1000} />
+                <TextArea
+                  data-testid={DATA_TEST_ID.FieldModal__DescriptionInput}
+                  rows={3}
+                  showCount
+                  maxLength={1000}
+                />
               </Form.Item>
               <Form.Item
                 name="multiple"
                 valuePropName="checked"
                 extra={t("Stores a list of values instead of a single value")}>
-                <Checkbox data-testid={DATA_TEST_ID.FieldModal__MultipleCheckbox} disabled>{t("Support multiple values")}</Checkbox>
+                <Checkbox data-testid={DATA_TEST_ID.FieldModal__MultipleCheckbox} disabled>
+                  {t("Support multiple values")}
+                </Checkbox>
               </Form.Item>
               <Form.Item
                 hidden
                 name="isTitle"
                 valuePropName="checked"
                 extra={t("Only one field can be used as the title")}>
-                <Checkbox data-testid={DATA_TEST_ID.FieldModal__IsTitleCheckbox}>{t("Use as title")}</Checkbox>
+                <Checkbox data-testid={DATA_TEST_ID.FieldModal__IsTitleCheckbox}>
+                  {t("Use as title")}
+                </Checkbox>
               </Form.Item>
             </TabPane>
             <TabPane tab={t("Validation")} key="validation" forceRender>
@@ -506,7 +515,9 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 name="required"
                 valuePropName="checked"
                 extra={t("Prevents saving an entry if this field is empty")}>
-                <Checkbox data-testid={DATA_TEST_ID.FieldModal__RequiredCheckbox}>{t("Make field required")}</Checkbox>
+                <Checkbox data-testid={DATA_TEST_ID.FieldModal__RequiredCheckbox}>
+                  {t("Make field required")}
+                </Checkbox>
               </Form.Item>
               <Form.Item
                 name="unique"
@@ -514,7 +525,11 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 extra={t(
                   "Ensures that a multiple entries can't have the same value for this field",
                 )}>
-                <Checkbox data-testid={DATA_TEST_ID.FieldModal__UniqueCheckbox} disabled={isTwoWayReference}>{t("Set field as unique")}</Checkbox>
+                <Checkbox
+                  data-testid={DATA_TEST_ID.FieldModal__UniqueCheckbox}
+                  disabled={isTwoWayReference}>
+                  {t("Set field as unique")}
+                </Checkbox>
               </Form.Item>
             </TabPane>
           </Tabs>
@@ -571,7 +586,12 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 />
               </Form.Item>
               <Form.Item name="description" label={t("Description")}>
-                <TextArea data-testid={DATA_TEST_ID.FieldModal__DescriptionInput} rows={3} showCount maxLength={1000} />
+                <TextArea
+                  data-testid={DATA_TEST_ID.FieldModal__DescriptionInput}
+                  rows={3}
+                  showCount
+                  maxLength={1000}
+                />
               </Form.Item>
             </TabPane>
             <TabPane tab={t("Validation")} key="validation" forceRender>
@@ -579,7 +599,9 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 name="required"
                 valuePropName="checked"
                 extra={t("Prevents saving an entry if this field is empty")}>
-                <Checkbox data-testid={DATA_TEST_ID.FieldModal__RequiredCheckbox}>{t("Make field required")}</Checkbox>
+                <Checkbox data-testid={DATA_TEST_ID.FieldModal__RequiredCheckbox}>
+                  {t("Make field required")}
+                </Checkbox>
               </Form.Item>
             </TabPane>
           </Tabs>

@@ -35,9 +35,16 @@ const URLField: React.FC<Props> = ({ multiple }) => {
         },
       ]}>
       {multiple ? (
-        <MultiValueField FieldInput={Input} errorIndexes={errorIndexes} data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput} />
+        <MultiValueField
+          FieldInput={Input}
+          errorIndexes={errorIndexes}
+          data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput}
+        />
       ) : (
-        <Input isError={errorIndexes.has(0)} data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput} />
+        <Input
+          isError={errorIndexes.has(0)}
+          data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput}
+        />
       )}
     </Form.Item>
   );

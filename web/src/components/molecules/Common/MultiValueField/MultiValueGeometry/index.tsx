@@ -4,12 +4,12 @@ import { useCallback, useEffect } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import GeometryItem from "@reearth-cms/components/molecules/Common/Form/GeometryItem";
-import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import {
   ObjectSupportedType,
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { moveItemInArray } from "../moveItemArray";
 

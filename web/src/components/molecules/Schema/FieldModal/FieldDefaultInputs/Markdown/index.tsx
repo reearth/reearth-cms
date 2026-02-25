@@ -38,9 +38,16 @@ const MarkdownField: React.FC<Props> = ({ multiple, maxLength }) => {
         },
       ]}>
       {multiple ? (
-        <MultiValueField maxLength={maxLength} FieldInput={MarkdownInput} data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput} />
+        <MultiValueField
+          maxLength={maxLength}
+          FieldInput={MarkdownInput}
+          data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput}
+        />
       ) : (
-        <MarkdownInput maxLength={maxLength} data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput} />
+        <MarkdownInput
+          maxLength={maxLength}
+          data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput}
+        />
       )}
     </Form.Item>
   );

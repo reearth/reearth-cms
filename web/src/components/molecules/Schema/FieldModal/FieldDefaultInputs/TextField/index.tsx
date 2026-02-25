@@ -38,9 +38,18 @@ const TextField: React.FC<Props> = ({ multiple, maxLength }) => {
         },
       ]}>
       {multiple ? (
-        <MultiValueField FieldInput={Input} showCount maxLength={maxLength} data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput} />
+        <MultiValueField
+          FieldInput={Input}
+          showCount
+          maxLength={maxLength}
+          data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput}
+        />
       ) : (
-        <Input showCount maxLength={maxLength} data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput} />
+        <Input
+          showCount
+          maxLength={maxLength}
+          data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput}
+        />
       )}
     </Form.Item>
   );

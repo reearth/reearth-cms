@@ -17,7 +17,11 @@ const DateField: React.FC<Props> = ({ multiple }) => {
   return (
     <Form.Item name="defaultValue" label={t("Set default value")}>
       {multiple ? (
-        <MultiValueField type="date" FieldInput={StyledDatePicker} data-testid={DATA_TEST_ID.FieldModal__DateInput} />
+        <MultiValueField
+          type="date"
+          FieldInput={StyledDatePicker}
+          data-testid={DATA_TEST_ID.FieldModal__DateInput}
+        />
       ) : (
         <StyledDatePicker data-testid={DATA_TEST_ID.FieldModal__DateInput} />
       )}

@@ -319,9 +319,7 @@ export class FieldEditorPage extends ProjectScopedPage {
 
   // Default value specific
   public get plusNewButton(): Locator {
-    return this.page.locator(
-      `[data-testid="${DATA_TEST_ID.FieldModal__PlusNewButton}"]:visible`,
-    );
+    return this.page.locator(`[data-testid="${DATA_TEST_ID.FieldModal__PlusNewButton}"]:visible`);
   }
 
   // Textbox helpers

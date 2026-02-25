@@ -206,7 +206,10 @@ const FieldModal: React.FC<Props> = ({
               name="title"
               label={t("Display name")}
               rules={[{ required: true, message: t("Please input the display name of field!") }]}>
-              <Input data-testid={DATA_TEST_ID.FieldModal__DisplayNameInput} onChange={handleNameChange} />
+              <Input
+                data-testid={DATA_TEST_ID.FieldModal__DisplayNameInput}
+                onChange={handleNameChange}
+              />
             </Form.Item>
             <Form.Item
               name="key"
@@ -223,10 +226,20 @@ const FieldModal: React.FC<Props> = ({
                   },
                 },
               ]}>
-              <Input data-testid={DATA_TEST_ID.FieldModal__FieldKeyInput} onChange={handleKeyChange} showCount maxLength={Constant.KEY.MAX_LENGTH} />
+              <Input
+                data-testid={DATA_TEST_ID.FieldModal__FieldKeyInput}
+                onChange={handleKeyChange}
+                showCount
+                maxLength={Constant.KEY.MAX_LENGTH}
+              />
             </Form.Item>
             <Form.Item name="description" label={t("Description")}>
-              <TextArea data-testid={DATA_TEST_ID.FieldModal__DescriptionInput} rows={3} showCount maxLength={1000} />
+              <TextArea
+                data-testid={DATA_TEST_ID.FieldModal__DescriptionInput}
+                rows={3}
+                showCount
+                maxLength={1000}
+              />
             </Form.Item>
             {selectedType === "Select" && (
               <Form.Item
@@ -247,7 +260,11 @@ const FieldModal: React.FC<Props> = ({
                     message: t("Option must be unique"),
                   },
                 ]}>
-                <MultiValueField FieldInput={Input} errorIndexes={errorIndexes} data-testid={DATA_TEST_ID.FieldModal__ValuesInput} />
+                <MultiValueField
+                  FieldInput={Input}
+                  errorIndexes={errorIndexes}
+                  data-testid={DATA_TEST_ID.FieldModal__ValuesInput}
+                />
               </Form.Item>
             )}
             {selectedType === "Tag" && (
@@ -330,7 +347,9 @@ const FieldModal: React.FC<Props> = ({
               name="multiple"
               valuePropName="checked"
               extra={t("Stores a list of values instead of a single value")}>
-              <Checkbox data-testid={DATA_TEST_ID.FieldModal__MultipleCheckbox} onChange={(e: CheckboxChangeEvent) => handleMultipleChange(e)}>
+              <Checkbox
+                data-testid={DATA_TEST_ID.FieldModal__MultipleCheckbox}
+                onChange={(e: CheckboxChangeEvent) => handleMultipleChange(e)}>
                 {t("Support multiple values")}
               </Checkbox>
             </Form.Item>
@@ -339,7 +358,9 @@ const FieldModal: React.FC<Props> = ({
               hidden={isTitleDisabled}
               valuePropName="checked"
               extra={t("Only one field can be used as the title")}>
-              <Checkbox data-testid={DATA_TEST_ID.FieldModal__IsTitleCheckbox}>{t("Use as title")}</Checkbox>
+              <Checkbox data-testid={DATA_TEST_ID.FieldModal__IsTitleCheckbox}>
+                {t("Use as title")}
+              </Checkbox>
             </Form.Item>
           </TabPane>
           <TabPane tab={t("Validation")} key="validation" forceRender>
@@ -348,13 +369,21 @@ const FieldModal: React.FC<Props> = ({
               name="required"
               valuePropName="checked"
               extra={t("Prevents saving an entry if this field is empty")}>
-              <Checkbox data-testid={DATA_TEST_ID.FieldModal__RequiredCheckbox} disabled={isRequiredDisabled}>{t("Make field required")}</Checkbox>
+              <Checkbox
+                data-testid={DATA_TEST_ID.FieldModal__RequiredCheckbox}
+                disabled={isRequiredDisabled}>
+                {t("Make field required")}
+              </Checkbox>
             </Form.Item>
             <Form.Item
               name="unique"
               valuePropName="checked"
               extra={t("Ensures that multiple entries can't have the same value for this field")}>
-              <Checkbox data-testid={DATA_TEST_ID.FieldModal__UniqueCheckbox} disabled={isUniqueDisabled}>{t("Set field as unique")}</Checkbox>
+              <Checkbox
+                data-testid={DATA_TEST_ID.FieldModal__UniqueCheckbox}
+                disabled={isUniqueDisabled}>
+                {t("Set field as unique")}
+              </Checkbox>
             </Form.Item>
           </TabPane>
           <TabPane tab={t("Default value")} key="defaultValue" forceRender>
