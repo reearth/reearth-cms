@@ -180,6 +180,10 @@ export abstract class BasePage {
     await this.page.keyboard.press(key, { delay });
   }
 
+  public async waitForTimeout(timeout: number): Promise<void> {
+    await this.page.waitForTimeout(timeout);
+  }
+
   // Common locators shared across POMs
   public get okButton(): Locator {
     return this.getByRole("button", { name: "OK" });

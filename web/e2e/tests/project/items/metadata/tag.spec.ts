@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -106,21 +107,15 @@ test("Tag metadata editing has succeeded", async ({ fieldEditorPage, contentPage
 
   await test.step("Create tag metadata with default value", async () => {
     await schemaPage.metaDataTab.click();
-    await schemaPage.tagListItem.click();
-    await fieldEditorPage.displayNameInput.fill(fieldName);
-    await fieldEditorPage.fieldKeyInput.fill(fieldName);
-    await fieldEditorPage.descriptionRequiredInput.fill(description);
-    await fieldEditorPage.plusNewButton.click();
-    await fieldEditorPage.tagFilterDiv.last().click();
-    await fieldEditorPage.lastTextbox.fill(tag1);
-    await fieldEditorPage.plusNewButton.click();
-    await fieldEditorPage.tagFilterDiv.last().click();
-    await fieldEditorPage.lastTextbox.fill(tag2);
-    await fieldEditorPage.defaultValueTab.click();
-    await fieldEditorPage.setDefaultValueInput.click();
-    await fieldEditorPage.tagOptionText(tag1).last().click();
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.createField({
+      type: SchemaFieldType.Tag,
+      name: fieldName,
+      key: fieldName,
+      description,
+      tags: [tag1, tag2],
+      defaultValue: tag1,
+      metadata: true,
+    });
   });
 
   await test.step("Verify field in content and create item with default value", async () => {

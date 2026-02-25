@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -20,12 +21,13 @@ test("Text metadata creating and updating has succeeded", async ({
 }) => {
   await test.step("Create text metadata field", async () => {
     await schemaPage.metaDataTab.click();
-    await fieldEditorPage.fieldTypeButton("Text").click();
-    await fieldEditorPage.displayNameInput.fill("text1");
-    await fieldEditorPage.fieldKeyInput.fill("text1");
-    await fieldEditorPage.descriptionRequiredInput.fill("text1 description");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.createField({
+      type: SchemaFieldType.Text,
+      name: "text1",
+      key: "text1",
+      description: "text1 description",
+      metadata: true,
+    });
     await expect(schemaPage.groupNameByText("text1#text1")).toBeVisible();
   });
 
@@ -87,14 +89,14 @@ test("Text metadata editing has succeeded", async ({
 }) => {
   await test.step("Create text metadata with default value", async () => {
     await schemaPage.metaDataTab.click();
-    await schemaPage.textListItem.click();
-    await fieldEditorPage.displayNameInput.fill("text1");
-    await fieldEditorPage.fieldKeyInput.fill("text1");
-    await fieldEditorPage.descriptionRequiredInput.fill("text1 description");
-    await fieldEditorPage.defaultValueTab.click();
-    await fieldEditorPage.setDefaultValueInput.fill("text1 default value");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.createField({
+      type: SchemaFieldType.Text,
+      name: "text1",
+      key: "text1",
+      description: "text1 description",
+      defaultValue: "text1 default value",
+      metadata: true,
+    });
   });
 
   await test.step("Verify field in content and create item with default value", async () => {

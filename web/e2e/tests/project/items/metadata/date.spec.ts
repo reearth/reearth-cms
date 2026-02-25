@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -19,12 +20,13 @@ test("Date metadata creating and updating has succeeded", async ({
 }) => {
   await test.step("Create date metadata field", async () => {
     await fieldEditorPage.metaDataTab.click();
-    await fieldEditorPage.fieldTypeListItem("Date").click();
-    await fieldEditorPage.displayNameInput.fill("date1");
-    await fieldEditorPage.fieldKeyInput.fill("date1");
-    await fieldEditorPage.descriptionRequiredInput.fill("date1 description");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.createField({
+      type: SchemaFieldType.Date,
+      name: "date1",
+      key: "date1",
+      description: "date1 description",
+      metadata: true,
+    });
     await expect(fieldEditorPage.fieldText("date1", "date1")).toBeVisible();
   });
 
@@ -87,15 +89,14 @@ test("Date metadata creating and updating has succeeded", async ({
 test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPage }) => {
   await test.step("Create date metadata field with default value", async () => {
     await fieldEditorPage.metaDataTab.click();
-    await fieldEditorPage.fieldTypeListItem("Date").click();
-    await fieldEditorPage.displayNameInput.fill("date1");
-    await fieldEditorPage.fieldKeyInput.fill("date1");
-    await fieldEditorPage.descriptionRequiredInput.fill("date1 description");
-    await fieldEditorPage.defaultValueTab.click();
-    await fieldEditorPage.setDefaultValueInput.fill("2024-01-01");
-    await fieldEditorPage.selectDatePlaceholder.press("Enter");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.createField({
+      type: SchemaFieldType.Date,
+      name: "date1",
+      key: "date1",
+      description: "date1 description",
+      defaultValue: "2024-01-01",
+      metadata: true,
+    });
   });
 
   await test.step("Verify field created and create item with default value", async () => {

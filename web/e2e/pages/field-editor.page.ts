@@ -20,6 +20,7 @@ interface CreateFieldBase {
   unique?: boolean;
   multiple?: boolean;
   isTitle?: boolean;
+  metadata?: boolean;
 }
 
 // ── Text-like bases (Text, TextArea, MarkdownText) ──
@@ -702,16 +703,35 @@ export class FieldEditorPage extends ProjectScopedPage {
   }
 
   public async createField(options: CreateFieldOptions): Promise<void> {
+    if (options.metadata) {
+      const supported: SchemaFieldType[] = [
+        SchemaFieldType.Text,
+        SchemaFieldType.TextArea,
+        SchemaFieldType.Bool,
+        SchemaFieldType.Checkbox,
+        SchemaFieldType.Date,
+        SchemaFieldType.Tag,
+        SchemaFieldType.URL,
+      ];
+      if (!supported.includes(options.type)) {
+        throw new Error(`metadata: true is not supported for type "${options.type}"`);
+      }
+    }
+
     // Select field type
     await this.fieldTypeButton(options.type).click();
 
     // Fill basic settings
     await this.displayNameInput.fill(options.name);
     if (options.key !== undefined) {
-      await this.settingsKeyInput.fill(options.key);
+      const keyInput = options.metadata ? this.fieldKeyInput : this.settingsKeyInput;
+      await keyInput.fill(options.key);
     }
     if (options.description !== undefined) {
-      await this.settingsDescriptionInput.fill(options.description);
+      const descInput = options.metadata
+        ? this.descriptionRequiredInput
+        : this.settingsDescriptionInput;
+      await descInput.fill(options.description);
     }
 
     // Field options
@@ -745,6 +765,13 @@ export class FieldEditorPage extends ProjectScopedPage {
       for (let i = 0; i < options.values.length; i++) {
         await this.plusNewButton.click();
         await this.valuesInput.nth(i).fill(options.values[i]);
+      }
+    }
+    if (options.type === SchemaFieldType.Tag && "tags" in options && options.tags) {
+      for (const tag of options.tags) {
+        await this.plusNewButton.click();
+        await this.tagFilterDiv.last().click();
+        await this.lastTextbox.fill(tag);
       }
     }
 
@@ -859,6 +886,15 @@ export class FieldEditorPage extends ProjectScopedPage {
       case SchemaFieldType.MarkdownText:
         await this.lastColumn.click();
         await this.setDefaultValueInput.fill(defaultValue as string);
+        break;
+      case SchemaFieldType.Tag:
+        await this.setDefaultValueInput.click();
+        await this.tagOptionText(defaultValue as string).last().click();
+        break;
+      case SchemaFieldType.GeometryObject:
+      case SchemaFieldType.GeometryEditor:
+        await this.viewLinesEditor.click();
+        await this.editorContent.fill(defaultValue as string);
         break;
       default:
         // Text, TextArea, URL, Integer, Number

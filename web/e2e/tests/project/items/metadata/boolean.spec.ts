@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -20,12 +21,13 @@ test("Boolean metadata creating and updating has succeeded", async ({
 }) => {
   await test.step("Create boolean metadata field", async () => {
     await schemaPage.metaDataTab.click();
-    await schemaPage.booleanListItem.click();
-    await fieldEditorPage.displayNameInput.fill("boolean1");
-    await fieldEditorPage.fieldKeyInput.fill("boolean1");
-    await fieldEditorPage.descriptionRequiredInput.fill("boolean1 description");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.createField({
+      type: SchemaFieldType.Bool,
+      name: "boolean1",
+      key: "boolean1",
+      description: "boolean1 description",
+      metadata: true,
+    });
     await expect(fieldEditorPage.fieldText("boolean1", "boolean1")).toBeVisible();
   });
 
@@ -83,14 +85,14 @@ test("Boolean metadata editing has succeeded", async ({
 }) => {
   await test.step("Create boolean metadata with default true value", async () => {
     await schemaPage.metaDataTab.click();
-    await schemaPage.booleanListItem.click();
-    await fieldEditorPage.displayNameInput.fill("boolean1");
-    await fieldEditorPage.fieldKeyInput.fill("boolean1");
-    await fieldEditorPage.descriptionRequiredInput.fill("boolean1 description");
-    await fieldEditorPage.defaultValueTab.click();
-    await fieldEditorPage.setDefaultValueSwitch.click();
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.createField({
+      type: SchemaFieldType.Bool,
+      name: "boolean1",
+      key: "boolean1",
+      description: "boolean1 description",
+      defaultValue: true,
+      metadata: true,
+    });
   });
 
   await test.step("Verify field in content and create item with default value", async () => {

@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -18,12 +19,13 @@ test("Url metadata creating and updating has succeeded", async ({
   contentPage,
 }) => {
   await fieldEditorPage.metaDataTab.click();
-  await fieldEditorPage.fieldTypeListItem("URL").click();
-  await fieldEditorPage.displayNameInput.fill("url1");
-  await fieldEditorPage.fieldKeyInput.fill("url1");
-  await fieldEditorPage.descriptionRequiredInput.fill("url1 description");
-  await fieldEditorPage.okButton.click();
-  await contentPage.closeNotification();
+  await fieldEditorPage.createField({
+    type: SchemaFieldType.URL,
+    name: "url1",
+    key: "url1",
+    description: "url1 description",
+    metadata: true,
+  });
   await expect(fieldEditorPage.fieldText("url1", "url1")).toBeVisible();
 
   await fieldEditorPage.ellipsisButton.click();
@@ -56,6 +58,7 @@ test("Url metadata creating and updating has succeeded", async ({
   const urlLink = contentPage.linkByName("http://test1.com");
   await expect(urlLink).toBeVisible();
   await urlLink.hover();
+  await contentPage.waitForTimeout(300); // tooltip settle
   const editButton = contentPage.tooltipEditButton;
   await editButton.waitFor({ state: "visible" });
   await editButton.click();
@@ -77,14 +80,14 @@ test("Url metadata creating and updating has succeeded", async ({
 
 test("Url metadata editing has succeeded", async ({ fieldEditorPage, contentPage }) => {
   await fieldEditorPage.metaDataTab.click();
-  await fieldEditorPage.fieldTypeListItem("URL").click();
-  await fieldEditorPage.displayNameInput.fill("url1");
-  await fieldEditorPage.fieldKeyInput.fill("url1");
-  await fieldEditorPage.descriptionRequiredInput.fill("url1 description");
-  await fieldEditorPage.defaultValueTab.click();
-  await fieldEditorPage.setDefaultValueInput.fill("http://default1.com");
-  await fieldEditorPage.okButton.click();
-  await contentPage.closeNotification();
+  await fieldEditorPage.createField({
+    type: SchemaFieldType.URL,
+    name: "url1",
+    key: "url1",
+    description: "url1 description",
+    defaultValue: "http://default1.com",
+    metadata: true,
+  });
 
   await fieldEditorPage.menuItemByName("Content").click();
   await expect(fieldEditorPage.columnHeaderWithEdit("url1")).toBeVisible();
@@ -134,7 +137,9 @@ test("Url metadata editing has succeeded", async ({ fieldEditorPage, contentPage
   await expect(tooltipLinks.nth(0)).toContainText("http://default1.com");
   await expect(tooltipLinks.nth(1)).toContainText("http://default2.com");
   const urlLink = contentPage.linkByName("http://default2.com");
+  await expect(urlLink).toBeVisible();
   await urlLink.hover();
+  await contentPage.waitForTimeout(300); // tooltip settle
   const editButton = contentPage.tooltipEditButton;
   await editButton.waitFor({ state: "visible" });
   await editButton.click();

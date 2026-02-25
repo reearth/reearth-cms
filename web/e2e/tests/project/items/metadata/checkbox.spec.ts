@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -19,12 +20,13 @@ test(
   async ({ fieldEditorPage, contentPage, schemaPage }) => {
     await test.step("Create checkbox metadata field", async () => {
       await schemaPage.metaDataTab.click();
-      await schemaPage.checkBoxListItem.click();
-      await fieldEditorPage.displayNameInput.fill("checkbox1");
-      await fieldEditorPage.fieldKeyInput.fill("checkbox1");
-      await fieldEditorPage.descriptionRequiredInput.fill("checkbox1 description");
-      await fieldEditorPage.okButton.click();
-      await contentPage.closeNotification();
+      await fieldEditorPage.createField({
+        type: SchemaFieldType.Checkbox,
+        name: "checkbox1",
+        key: "checkbox1",
+        description: "checkbox1 description",
+        metadata: true,
+      });
       await expect(fieldEditorPage.fieldText("checkbox1", "checkbox1")).toBeVisible();
     });
 
@@ -83,14 +85,14 @@ test("Checkbox metadata editing has succeeded", async ({
 }) => {
   await test.step("Create checkbox metadata with default checked value", async () => {
     await schemaPage.metaDataTab.click();
-    await schemaPage.checkBoxListItem.click();
-    await fieldEditorPage.displayNameInput.fill("checkbox1");
-    await fieldEditorPage.fieldKeyInput.fill("checkbox1");
-    await fieldEditorPage.descriptionRequiredInput.fill("checkbox1 description");
-    await fieldEditorPage.defaultValueTab.click();
-    await fieldEditorPage.setDefaultValueCheckbox.check();
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.createField({
+      type: SchemaFieldType.Checkbox,
+      name: "checkbox1",
+      key: "checkbox1",
+      description: "checkbox1 description",
+      defaultValue: true,
+      metadata: true,
+    });
   });
 
   await test.step("Verify field in content and create item with default value", async () => {
