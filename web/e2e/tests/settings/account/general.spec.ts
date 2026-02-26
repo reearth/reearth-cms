@@ -1,4 +1,4 @@
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 
 let originalUsername: string;
 let originalEmail: string;
@@ -25,7 +25,13 @@ test.afterEach(async ({ settingsPage }) => {
   }
 });
 
-test("Name and email updating has succeeded", async ({ settingsPage }) => {
+test("Name and email updating has succeeded", {
+  tag: TAG.TO_ABANDON,
+  annotation: {
+    type: "consolidate",
+    description: "AccountSettings/GeneralForm.test.tsx (component)",
+  },
+}, async ({ settingsPage }) => {
   test.skip(process.env.ENV !== "oss", "This test is only for oss");
   await settingsPage.goto("/");
   await settingsPage.textByName("Account").click();

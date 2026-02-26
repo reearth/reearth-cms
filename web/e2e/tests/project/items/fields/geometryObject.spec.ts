@@ -1,5 +1,5 @@
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 const fieldName = "geometryObject1";
@@ -21,7 +21,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("GeometryObject field creating and updating has succeeded", async ({
+test("GeometryObject field creating and updating has succeeded", { tag: TAG.FIELD_VARIANT }, async ({
   fieldEditorPage,
   contentPage,
 }) => {
@@ -71,7 +71,7 @@ test("GeometryObject field creating and updating has succeeded", async ({
   });
 });
 
-test("GeometryObject field editing has succeeded", async ({
+test("GeometryObject field editing has succeeded", { tag: TAG.FIELD_VARIANT }, async ({
   fieldEditorPage,
   contentPage,
   schemaPage,

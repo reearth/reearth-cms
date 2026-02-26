@@ -339,7 +339,7 @@ Patterns that emerged during implementation and are now established conventions:
 - **`:visible` pseudo-selector**: Use on locators that match duplicate elements across Ant Design `forceRender` tabs (e.g. `plusNewButton`). The `:visible` filter ensures only the currently-rendered element is matched.
 - **`editField(options)` pattern**: A single `FieldEditorPage.editField()` method handles conditional tab navigation (General / Validation / Default Value) for all field types. Spec files pass an options object instead of manually clicking tabs.
 - **Auto-tracked project base URL**: `ProjectScopedPage` uses a `WeakMap` + `framenavigated` event listener to automatically capture the project base URL after `createProject()`. Subclasses access it via `this.projectBaseUrl` without manual tracking.
-- **Playwright `{ tag }` option**: Tags like `@smoke` and `@redundant` use Playwright's native `test("name", { tag: ["@smoke"] }, ...)` syntax, not title prefixes.
+- **Playwright `{ tag }` option**: Tags like `@smoke`, `@toAbandon`, and `@fieldVariant` use Playwright's native `test("name", { tag: TAG.SMOKE }, ...)` syntax, not title prefixes. `@toAbandon` tests also include an `annotation` with `type: "consolidate"` pointing to the kept test or component test.
 
 ## E2E vs Component Test Responsibility Boundary
 
@@ -363,27 +363,50 @@ Patterns that emerged during implementation and are now established conventions:
 - A component test already verifies pure UI logic (hover states, disabled states, tooltip content) — no need for E2E
 - An E2E test already covers a simple CRUD flow — no need for a component test that mocks the same API calls
 
-### `@redundant` Flag
+### E2E Test Tags
 
-During review, if an E2E test case is fully covered by component tests, flag it with `@redundant` in the test title (same pattern as `@smoke`):
+The TAG enum (`e2e/fixtures/test.ts`) defines these tags:
+
+| Tag | Purpose | Usage |
+|-----|---------|-------|
+| `@smoke` | Critical path tests (~27) | `yarn e2e-smoke` |
+| `@toAbandon` | Tests redundant with component tests (~16) | Excluded from `e2e-fast` |
+| `@fieldVariant` | Repetitive field/metadata type tests (~30) | Excluded from `e2e-fast` |
+| `@migrateToCompTest` | Legacy — being replaced by `@toAbandon` | Treat as `@toAbandon` |
+
+**`@toAbandon` pattern** — always include a Playwright `annotation` pointing to the consolidation target:
 
 ```typescript
-// Before flagging
-test("Text field", async ({ schemaPage }) => { ... });
+test("Comment CRUD on edit page", {
+  tag: TAG.TO_ABANDON,
+  annotation: {
+    type: "consolidate",
+    description: '"Comment CRUD on Content page" in content.spec.ts (@smoke)',
+  },
+}, async (...) => {
+```
 
-// After flagging
-test("@redundant Text field", async ({ schemaPage }) => { ... });
+The annotation is machine-readable (Playwright reporter API) and renders in the HTML test report.
+
+**`@fieldVariant` pattern** — for identical workflows differing only by field type:
+
+```typescript
+test("Float field editing has succeeded", { tag: TAG.FIELD_VARIANT }, async (...) => {
+```
+
+**3-tier CI strategy**:
+
+```bash
+yarn e2e-smoke   # ~27 tests — fast CI gate
+yarn e2e-fast    # ~74 tests — default CI (excludes @toAbandon + @fieldVariant)
+yarn e2e         # ~120 tests — nightly/full validation
 ```
 
 ```bash
-# List all redundant tests
-yarn playwright test --list --grep @redundant
-
-# Run everything except redundant tests
-yarn playwright test --grep-invert @redundant
+# List tagged tests
+yarn playwright test --list --grep @toAbandon
+yarn playwright test --list --grep @fieldVariant
 ```
-
-The test is kept in the codebase and still runs in the full suite by default. This allows batch review and removal later.
 
 ## Parallel-Safety Rules
 
@@ -445,5 +468,7 @@ After each migration phase:
 
 1. Run affected spec files: `yarn playwright test <spec-file>`
 2. Run smoke tests: `yarn e2e-smoke`
-3. After all phases: run full suite locally `yarn e2e` (CI-only tests auto-skip via `test.skip(!isCI)` when `process.env.CI` is unset)
-4. TypeScript check: `yarn tsc --noEmit` (verify `noImplicitOverride` enforcement)
+3. Run fast suite: `yarn e2e-fast` (excludes `@toAbandon` + `@fieldVariant`)
+4. After all phases: run full suite locally `yarn e2e` (CI-only tests auto-skip via `test.skip(!isCI)` when `process.env.CI` is unset)
+5. TypeScript check: `yarn tsc --noEmit` (verify `noImplicitOverride` enforcement)
+6. Component tests: `yarn test` (vitest)

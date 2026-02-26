@@ -78,7 +78,7 @@ test(
   },
 );
 
-test("Checkbox metadata editing has succeeded", async ({
+test("Checkbox metadata editing has succeeded", { tag: TAG.FIELD_VARIANT }, async ({
   fieldEditorPage,
   contentPage,
   schemaPage,

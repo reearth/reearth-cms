@@ -257,7 +257,13 @@ test.describe("Model Export tests on Overview page", () => {
 
 test(
   "Import schema dropdown redirects to schema page correctly, with import schema modal opened",
-  { tag: TAG.MIGRATE_TO_COMP_TEST },
+  {
+    tag: TAG.TO_ABANDON,
+    annotation: {
+      type: "consolidate",
+      description: "Multi-page navigation — keep as E2E but low priority",
+    },
+  },
   async ({ schemaPage, projectPage }) => {
     const modelName = `model-${getId()}`;
     const modelKey = `model-key-${getId()}`;
@@ -284,7 +290,13 @@ test(
 
 test(
   "Creating Model by using the button on placeholder has succeeded",
-  { tag: TAG.MIGRATE_TO_COMP_TEST },
+  {
+    tag: TAG.TO_ABANDON,
+    annotation: {
+      type: "consolidate",
+      description: "ProjectCreationModal/index.test.tsx (component)",
+    },
+  },
   async ({ projectPage }) => {
     const modelName = `model-${getId()}`;
     const modelKey = `key-${getId()}`;

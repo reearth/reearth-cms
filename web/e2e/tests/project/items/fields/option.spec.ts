@@ -94,7 +94,7 @@ test(
   },
 );
 
-test("Option field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
+test("Option field editing has succeeded", { tag: TAG.FIELD_VARIANT }, async ({ fieldEditorPage, contentPage, schemaPage }) => {
   await test.step("Create option field with three values and default", async () => {
     await schemaPage.fieldTypeButton("Option").click();
     await fieldEditorPage.displayNameInput.click();

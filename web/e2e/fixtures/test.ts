@@ -129,6 +129,7 @@ export const TAG = {
   SMOKE: "@smoke",
   MIGRATE_TO_COMP_TEST: "@migrateToCompTest",
   TO_ABANDON: "@toAbandon",
+  FIELD_VARIANT: "@fieldVariant",
 } as const;
 
 export { chromium, expect, type Page, type Locator } from "@playwright/test";

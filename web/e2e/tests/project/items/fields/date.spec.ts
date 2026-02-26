@@ -56,7 +56,7 @@ test(
   },
 );
 
-test("Date field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
+test("Date field editing has succeeded", { tag: TAG.FIELD_VARIANT }, async ({ fieldEditorPage, contentPage, schemaPage }) => {
   await fieldEditorPage.createField({
     type: SchemaFieldType.Date,
     name: fieldName,

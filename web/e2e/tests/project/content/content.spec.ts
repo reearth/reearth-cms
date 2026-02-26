@@ -140,7 +140,13 @@ test(
   },
 );
 
-test("Publishing and Unpublishing item from table has succeeded", async ({
+test("Publishing and Unpublishing item from table has succeeded", {
+  tag: TAG.TO_ABANDON,
+  annotation: {
+    type: "consolidate",
+    description: '"Publishing and Unpublishing item from edit page" in content.spec.ts (@smoke)',
+  },
+}, async ({
   contentPage,
   fieldEditorPage,
 }) => {
@@ -254,7 +260,13 @@ test(
   },
 );
 
-test("Comment CRUD on edit page has succeeded", async ({ contentPage, fieldEditorPage }) => {
+test("Comment CRUD on edit page has succeeded", {
+  tag: TAG.TO_ABANDON,
+  annotation: {
+    type: "consolidate",
+    description: '"Comment CRUD on Content page" in content.spec.ts (@smoke)',
+  },
+}, async ({ contentPage, fieldEditorPage }) => {
   await test.step("Create text field and new item", async () => {
     await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: textFieldName });
     await contentPage.contentText.click();
@@ -352,7 +364,13 @@ test.describe("Import content", () => {
     { path: TEST_IMPORT_CONTENT_JSON_PATH, type: "JSON" },
     { path: TEST_IMPORT_CONTENT_CSV_PATH, type: "CSV" },
   ].forEach(({ path, type }) => {
-    test(`Fail Case: Import content with ${type} file shows schema mismatch warning`, async ({
+    test(`Fail Case: Import content with ${type} file shows schema mismatch warning`, {
+      tag: TAG.TO_ABANDON,
+      annotation: {
+        type: "consolidate",
+        description: "importContent.test.ts (unit) + ContentImportModal/index.test.tsx (component)",
+      },
+    }, async ({
       contentPage,
       fieldEditorPage,
       projectPage,
@@ -390,7 +408,13 @@ test.describe("Import content", () => {
     });
   });
 
-  test("Fail Case: Import content with GeoJSON file shows schema mismatch warning", async ({
+  test("Fail Case: Import content with GeoJSON file shows schema mismatch warning", {
+    tag: TAG.TO_ABANDON,
+    annotation: {
+      type: "consolidate",
+      description: "importContent.test.ts (unit) + ContentImportModal/index.test.tsx (component)",
+    },
+  }, async ({
     contentPage,
     fieldEditorPage,
     projectPage,
@@ -425,7 +449,13 @@ test.describe("Import content", () => {
     });
   });
 
-  test("Fail Case: Import content shows no matching fields error when schema completely mismatches", async ({
+  test("Fail Case: Import content shows no matching fields error when schema completely mismatches", {
+    tag: TAG.TO_ABANDON,
+    annotation: {
+      type: "consolidate",
+      description: "importContent.test.ts (unit) + ContentImportModal/index.test.tsx (component)",
+    },
+  }, async ({
     contentPage,
     fieldEditorPage,
     projectPage,

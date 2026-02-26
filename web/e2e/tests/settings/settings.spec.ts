@@ -1,5 +1,5 @@
 import { config } from "@reearth-cms/e2e/config/config";
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { parseConfigBoolean } from "@reearth-cms/e2e/helpers/format.helper";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -19,7 +19,13 @@ test.afterEach(async ({ workspacePage }) => {
   await workspacePage.deleteWorkspace();
 });
 
-test("Tiles CRUD has succeeded", async ({ settingsPage }) => {
+test("Tiles CRUD has succeeded", {
+  tag: TAG.TO_ABANDON,
+  annotation: {
+    type: "consolidate",
+    description: "Settings/index.test.tsx (component) + settings.spec.ts reordering tests (E2E persistence)",
+  },
+}, async ({ settingsPage }) => {
   await test.step("Create new tile with 'Labelled' type", async () => {
     await expect(settingsPage.addNewTilesButton).toBeVisible();
     await settingsPage.addNewTilesButton.click();
@@ -81,7 +87,13 @@ test("Tiles CRUD has succeeded", async ({ settingsPage }) => {
   });
 });
 
-test("Terrain on/off and CRUD has succeeded", async ({ settingsPage }) => {
+test("Terrain on/off and CRUD has succeeded", {
+  tag: TAG.TO_ABANDON,
+  annotation: {
+    type: "consolidate",
+    description: "Settings/index.test.tsx (component) + settings.spec.ts reordering tests (E2E persistence)",
+  },
+}, async ({ settingsPage }) => {
   await test.step("Enable terrain and add 'ArcGIS Terrain' type", async () => {
     await expect(settingsPage.terrainSwitch).toBeEnabled();
     await settingsPage.terrainSwitch.click();

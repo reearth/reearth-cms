@@ -100,7 +100,7 @@ test(
   },
 );
 
-test("Tag metadata editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
+test("Tag metadata editing has succeeded", { tag: TAG.FIELD_VARIANT }, async ({ fieldEditorPage, contentPage, schemaPage }) => {
   const newFieldName = `new ${fieldName}`;
   const newKey = `new-${fieldName}`;
   const newDescription = `new ${description}`;

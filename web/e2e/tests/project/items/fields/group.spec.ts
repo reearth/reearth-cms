@@ -1,5 +1,5 @@
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 const innerFieldName = "text1";
@@ -33,7 +33,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Group field creating and updating has succeeded", async ({
+test("Group field creating and updating has succeeded", { tag: TAG.FIELD_VARIANT }, async ({
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -185,7 +185,7 @@ test("Group field creating and updating has succeeded", async ({
   });
 });
 
-test("Group field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
+test("Group field editing has succeeded", { tag: TAG.FIELD_VARIANT }, async ({ fieldEditorPage, contentPage, schemaPage }) => {
   const groupName = `group-${getId()}`;
   const groupKey = `gkey-${getId()}`;
 

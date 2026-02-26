@@ -1,5 +1,5 @@
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 test.beforeEach(async ({ projectPage }) => {
@@ -14,7 +14,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Boolean metadata creating and updating has succeeded", async ({
+test("Boolean metadata creating and updating has succeeded", { tag: TAG.FIELD_VARIANT }, async ({
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -78,7 +78,7 @@ test("Boolean metadata creating and updating has succeeded", async ({
   });
 });
 
-test("Boolean metadata editing has succeeded", async ({
+test("Boolean metadata editing has succeeded", { tag: TAG.FIELD_VARIANT }, async ({
   fieldEditorPage,
   contentPage,
   schemaPage,

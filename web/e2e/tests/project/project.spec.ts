@@ -104,7 +104,13 @@ test.describe("Project CRUD and searching has succeeded", () => {
   );
 });
 
-test.describe("Project List", { tag: TAG.MIGRATE_TO_COMP_TEST }, () => {
+test.describe("Project List", {
+  tag: TAG.TO_ABANDON,
+  annotation: {
+    type: "consolidate",
+    description: "ProjectList/ProjectList.test.tsx (component — pagination, sorting, filtering)",
+  },
+}, () => {
   test.skip();
   const { PROJECT_ID_LIST, FIRST_PAGE_PROJECTS, SECOND_PAGE_PROJECTS, NAME_SEPARATOR } =
     getMultipleProjects();

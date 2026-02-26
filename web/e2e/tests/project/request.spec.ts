@@ -135,7 +135,13 @@ test("Request closing and reopening has succeeded", async ({ requestPage }) => {
   });
 });
 
-test("Comment CRUD on edit page has succeeded", async ({ requestPage }) => {
+test("Comment CRUD on edit page has succeeded", {
+  tag: TAG.TO_ABANDON,
+  annotation: {
+    type: "consolidate",
+    description: '"Comment CRUD on Content page" in content.spec.ts (@smoke)',
+  },
+}, async ({ requestPage }) => {
   await test.step("Navigate to request edit page", async () => {
     await requestPage.requestMenuItem.click();
     await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
@@ -171,7 +177,13 @@ test("Comment CRUD on edit page has succeeded", async ({ requestPage }) => {
   });
 });
 
-test("Comment CRUD on Request page has succeeded", async ({ requestPage, contentPage }) => {
+test("Comment CRUD on Request page has succeeded", {
+  tag: TAG.TO_ABANDON,
+  annotation: {
+    type: "consolidate",
+    description: '"Comment CRUD on Content page" in content.spec.ts (@smoke)',
+  },
+}, async ({ requestPage, contentPage }) => {
   await test.step("Navigate to request comments panel", async () => {
     await requestPage.requestMenuItem.click();
     await requestPage.commentsCountButton("0").click();

@@ -1,5 +1,5 @@
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 test.beforeEach(async ({ projectPage }) => {
@@ -14,7 +14,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Date metadata creating and updating has succeeded", async ({
+test("Date metadata creating and updating has succeeded", { tag: TAG.FIELD_VARIANT }, async ({
   fieldEditorPage,
   contentPage,
 }) => {
@@ -86,7 +86,7 @@ test("Date metadata creating and updating has succeeded", async ({
   });
 });
 
-test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPage }) => {
+test("Date metadata editing has succeeded", { tag: TAG.FIELD_VARIANT }, async ({ fieldEditorPage, contentPage }) => {
   await test.step("Create date metadata field with default value", async () => {
     await fieldEditorPage.metaDataTab.click();
     await fieldEditorPage.createField({

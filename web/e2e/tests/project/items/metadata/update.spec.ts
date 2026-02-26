@@ -1,5 +1,5 @@
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 test.beforeEach(async ({ fieldEditorPage, projectPage, contentPage, schemaPage }) => {
@@ -25,7 +25,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Updating metadata added later from table has succeeded", async ({ contentPage }) => {
+test("Updating metadata added later from table has succeeded", { tag: TAG.FIELD_VARIANT }, async ({ contentPage }) => {
   await contentPage.allSwitches.click();
   await contentPage.closeNotification();
   await contentPage.allSwitches.click();
@@ -36,7 +36,7 @@ test("Updating metadata added later from table has succeeded", async ({ contentP
   await expect(contentPage.fieldInput("boolean")).toHaveAttribute("aria-checked", "true");
 });
 
-test("Updating metadata added later from edit page has succeeded", async ({ contentPage }) => {
+test("Updating metadata added later from edit page has succeeded", { tag: TAG.FIELD_VARIANT }, async ({ contentPage }) => {
   await contentPage.editButton.click();
   await expect(contentPage.fieldInput("text")).toHaveValue("test");
   await contentPage.fieldInput("boolean").click();

@@ -65,7 +65,7 @@ test(
   },
 );
 
-test("Int field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
+test("Int field editing has succeeded", { tag: TAG.FIELD_VARIANT }, async ({ fieldEditorPage, contentPage, schemaPage }) => {
   await test.step("Create int field with default value", async () => {
     await fieldEditorPage.createField({
       type: SchemaFieldType.Integer,

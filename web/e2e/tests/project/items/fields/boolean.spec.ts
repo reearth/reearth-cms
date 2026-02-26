@@ -54,7 +54,7 @@ test(
   },
 );
 
-test("Boolean field editing has succeeded", async ({
+test("Boolean field editing has succeeded", { tag: TAG.FIELD_VARIANT }, async ({
   fieldEditorPage,
   contentPage,
   schemaPage,
