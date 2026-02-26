@@ -4,6 +4,14 @@ import { beforeAll, describe, test, expect, vi } from "vitest";
 
 import type { Group } from "@reearth-cms/components/molecules/Schema/types";
 
+let capturedOnDragEnd: (fromIndex: number, toIndex: number) => void;
+vi.mock("react-drag-listview", () => ({
+  default: ({ children, onDragEnd }: { children: React.ReactNode; onDragEnd: (f: number, t: number) => void }) => {
+    capturedOnDragEnd = onDragEnd;
+    return <div>{children}</div>;
+  },
+}));
+
 import GroupsList from "./GroupsList";
 
 beforeAll(() => {
@@ -85,5 +93,45 @@ describe("GroupsList", () => {
   test("renders empty state with no groups", () => {
     render(<GroupsList {...defaultProps} groups={[]} />);
     expect(screen.getByText("GROUPS")).toBeVisible();
+  });
+
+  test("onDragEnd reorders groups and calls onUpdateGroupsOrder", () => {
+    const onUpdateGroupsOrder = vi.fn();
+    const groups = [
+      makeGroup("g1", "A", 0),
+      makeGroup("g2", "B", 1),
+      makeGroup("g3", "C", 2),
+    ];
+    render(
+      <GroupsList {...defaultProps} groups={groups} onUpdateGroupsOrder={onUpdateGroupsOrder} />,
+    );
+    capturedOnDragEnd(0, 2);
+    expect(onUpdateGroupsOrder).toHaveBeenCalledWith(["g2", "g3", "g1"]);
+  });
+
+  test("onDragEnd does not call onUpdateGroupsOrder when toIndex < 0", () => {
+    const onUpdateGroupsOrder = vi.fn();
+    render(<GroupsList {...defaultProps} onUpdateGroupsOrder={onUpdateGroupsOrder} />);
+    capturedOnDragEnd(0, -1);
+    expect(onUpdateGroupsOrder).not.toHaveBeenCalled();
+  });
+
+  test("renders groups sorted by order field", () => {
+    const groups = [
+      makeGroup("g1", "Third", 3),
+      makeGroup("g2", "First", 1),
+      makeGroup("g3", "Second", 2),
+    ];
+    render(<GroupsList {...defaultProps} groups={groups} />);
+    const items = screen.getAllByRole("menuitem");
+    expect(items[0]).toHaveTextContent("First");
+    expect(items[1]).toHaveTextContent("Second");
+    expect(items[2]).toHaveTextContent("Third");
+  });
+
+  test("does not crash when onGroupSelect is undefined", async () => {
+    render(<GroupsList {...defaultProps} onGroupSelect={undefined} />);
+    await user.click(screen.getByText("Details"));
+    // No error thrown — optional chaining handles undefined callback
   });
 });
