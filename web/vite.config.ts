@@ -77,6 +77,8 @@ export default defineConfig({
         "src/config/firebase.ts",
         "src/state/index.ts",
         "src/components/organisms/**/hooks.ts",
+        "src/**/types.ts",
+        "src/components/molecules/Common/Form/GeometryItem/schema/*.ts",
       ],
       reporter: ["text", "json", "lcov"],
     },
