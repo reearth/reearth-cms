@@ -367,12 +367,11 @@ Patterns that emerged during implementation and are now established conventions:
 
 The TAG enum (`e2e/fixtures/test.ts`) defines these tags:
 
-| Tag | Purpose | Usage |
-|-----|---------|-------|
-| `@smoke` | Critical path tests (~27) | `yarn e2e-smoke` |
-| `@toAbandon` | Tests redundant with component tests (~16) | Excluded from `e2e-fast` |
+| Tag             | Purpose                                    | Usage                    |
+| --------------- | ------------------------------------------ | ------------------------ |
+| `@smoke`        | Critical path tests (~27)                  | `yarn e2e-smoke`         |
+| `@toAbandon`    | Tests redundant with component tests (~16) | Excluded from `e2e-fast` |
 | `@fieldVariant` | Repetitive field/metadata type tests (~30) | Excluded from `e2e-fast` |
-| `@migrateToCompTest` | Legacy — being replaced by `@toAbandon` | Treat as `@toAbandon` |
 
 **`@toAbandon` pattern** — always include a Playwright `annotation` pointing to the consolidation target:
 

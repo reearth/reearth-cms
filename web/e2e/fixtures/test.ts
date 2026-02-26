@@ -127,7 +127,6 @@ export const test = base.extend<Fixtures>({
 
 export const TAG = {
   SMOKE: "@smoke",
-  MIGRATE_TO_COMP_TEST: "@migrateToCompTest",
   TO_ABANDON: "@toAbandon",
   FIELD_VARIANT: "@fieldVariant",
 } as const;
