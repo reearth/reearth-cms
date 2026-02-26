@@ -133,6 +133,7 @@ export class RequestPage extends ProjectScopedPage {
   }
 
   public async assignReviewer(reviewerIndex = 0): Promise<void> {
+    this.assertProjectContext();
     await this.assignToButton.click();
     await this.closeCircleButton.click();
     await this.selectOverflow.click();
@@ -141,16 +142,19 @@ export class RequestPage extends ProjectScopedPage {
   }
 
   public async approveRequest(): Promise<void> {
+    this.assertProjectContext();
     await this.approveButton.click();
     await this.closeNotification();
   }
 
   public async closeRequest(): Promise<void> {
+    this.assertProjectContext();
     await this.closeButton.click();
     await this.closeNotification();
   }
 
   public async reopenRequest(): Promise<void> {
+    this.assertProjectContext();
     await this.reopenButton.click();
     await this.closeNotification();
   }

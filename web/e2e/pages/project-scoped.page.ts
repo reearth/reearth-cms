@@ -173,6 +173,7 @@ export abstract class ProjectScopedPage extends BasePage {
     key?: string,
     description?: string,
   ): Promise<void> {
+    this.assertProjectContext();
     await this.getByTestId(DATA_TEST_ID.ProjectOverview__NewModelButton).click();
     await this.fillModelFormAndSubmit(name, key, description);
   }

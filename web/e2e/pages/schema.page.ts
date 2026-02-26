@@ -215,15 +215,18 @@ export class SchemaPage extends ProjectScopedPage {
 
   // Model CRUD operations
   public async createModel(name: string, key?: string): Promise<void> {
+    this.assertProjectContext();
     await this.fillModelFormAndSubmit(name, key);
   }
 
   public async createModelFromSidebar(name = `model-${getId()}`, key?: string): Promise<void> {
+    this.assertProjectContext();
     await this.plusAddButton.click();
     await this.fillModelFormAndSubmit(name, key);
   }
 
   public async updateModel(name: string, key: string): Promise<void> {
+    this.assertProjectContext();
     await this.moreButton.hover();
     await this.editMenuItemText.click();
     await this.updateModelNameInput.fill(name);
@@ -233,6 +236,7 @@ export class SchemaPage extends ProjectScopedPage {
   }
 
   public async deleteModel(): Promise<void> {
+    this.assertProjectContext();
     await this.moreButton.hover();
     await this.deleteMenuItemText.click();
     await this.deleteModelConfirmButton.click();
@@ -241,6 +245,7 @@ export class SchemaPage extends ProjectScopedPage {
 
   // Group CRUD operations
   public async createGroup(name: string, key?: string): Promise<void> {
+    this.assertProjectContext();
     await this.groupAddButton.click();
     await this.groupNameLabel.fill(name);
     if (key) {
@@ -251,6 +256,7 @@ export class SchemaPage extends ProjectScopedPage {
   }
 
   public async updateGroup(name: string, key?: string): Promise<void> {
+    this.assertProjectContext();
     await this.moreButton.hover();
     await this.editMenuItemText.click();
     await this.updateGroupNameInput.fill(name);
@@ -262,6 +268,7 @@ export class SchemaPage extends ProjectScopedPage {
   }
 
   public async deleteGroup(): Promise<void> {
+    this.assertProjectContext();
     await this.moreButton.hover();
     await this.deleteMenuItemText.click();
     await this.deleteGroupConfirmButton.click();

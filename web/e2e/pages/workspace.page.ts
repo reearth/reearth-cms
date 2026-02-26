@@ -80,6 +80,7 @@ export class WorkspacePage extends BasePage {
   }
 
   public async getVisibleProjects(): Promise<string[]> {
+    this.assertWorkspaceContext();
     const projectCards = await this.allProjectCards();
     const projectNames: string[] = [];
 
@@ -106,6 +107,18 @@ export class WorkspacePage extends BasePage {
     return this.getByText(workspaceName);
   }
 
+  // ========== URL Context Validation ==========
+
+  private assertWorkspaceContext(): void {
+    const url = this.page.url();
+    if (!url.match(/\/workspace\/[^/]+/) || url.match(/\/project\//)) {
+      throw new Error(
+        `Expected page to be on a workspace URL (not inside a project).\n` +
+          `  Current URL: ${url}`,
+      );
+    }
+  }
+
   // ========== Action Methods (POM Pattern) ==========
 
   public async createWorkspace(name: string): Promise<void> {
@@ -124,17 +137,20 @@ export class WorkspacePage extends BasePage {
   }
 
   public async clickPagination(page: number): Promise<void> {
+    this.assertWorkspaceContext();
     const pageEl = this.paginationEl(page);
     await pageEl.click();
   }
 
   public async jumpToPage(page: number): Promise<void> {
+    this.assertWorkspaceContext();
     const jumpPageInputEl = this.paginationJumpEl;
     await jumpPageInputEl.fill(page.toString());
     await this.keypress("Enter");
   }
 
   public async selectSortOption(option: SortBy): Promise<void> {
+    this.assertWorkspaceContext();
     await this.projectSelectSort.click();
     const lastModifiedOptionEl = this.getByTestId(`workspace-header-project-sort-option-${option}`);
     await lastModifiedOptionEl.click();

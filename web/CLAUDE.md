@@ -331,6 +331,7 @@ Additional refactoring done after the original 10 phases:
 | `editField()` abstraction in FieldEditorPage  | `5b876dea`, `ffe01127`  | Single method handles conditional tab navigation for all field types        |
 | FieldModal `data-testid` injection            | `9e579fed`              | Added `data-testid` to React FieldModal components                          |
 | `:visible` pseudo-selector on `plusNewButton` | `c7113f67`              | Resolves duplicate element matches from Ant Design `forceRender` tabs       |
+| URL context validation in action methods      | *(uncommitted)*         | 44 action methods now call `assertProjectContext()`/`assertWorkspaceContext()` as first line |
 
 ## Known Patterns
 
@@ -340,6 +341,7 @@ Patterns that emerged during implementation and are now established conventions:
 - **`editField(options)` pattern**: A single `FieldEditorPage.editField()` method handles conditional tab navigation (General / Validation / Default Value) for all field types. Spec files pass an options object instead of manually clicking tabs.
 - **Auto-tracked project base URL**: `ProjectScopedPage` uses a `WeakMap` + `framenavigated` event listener to automatically capture the project base URL after `createProject()`. Subclasses access it via `this.projectBaseUrl` without manual tracking.
 - **Playwright `{ tag }` option**: Tags like `@smoke`, `@toAbandon`, and `@fieldVariant` use Playwright's native `test("name", { tag: TAG.SMOKE }, ...)` syntax, not title prefixes. `@toAbandon` tests also include an `annotation` with `type: "consolidate"` pointing to the kept test or component test.
+- **URL context validation**: Every public action method calls `this.assertProjectContext()` (or `this.assertWorkspaceContext()` for `WorkspacePage`) as its first line. This produces a clear error ("Expected page to be on a project URL") instead of cryptic element-not-found timeouts when navigation fails silently. **Excluded**: context-establishing/teardown methods (`createProject`, `gotoProject`, `deleteProject` in `ProjectScopedPage`; `createWorkspace`, `deleteWorkspace` in `WorkspacePage`) and `LoginPage`. `WorkspacePage` has its own `private assertWorkspaceContext()` that checks for `/workspace/` without `/project/`.
 
 ## E2E vs Component Test Responsibility Boundary
 

@@ -551,6 +551,7 @@ export class ContentPage extends ProjectScopedPage {
   // ========== Action Methods (POM Pattern) ==========
 
   public async createItem(): Promise<void> {
+    this.assertProjectContext();
     await this.contentText.click();
     await this.newItemButton.click();
     await this.saveButton.click();
@@ -558,6 +559,7 @@ export class ContentPage extends ProjectScopedPage {
   }
 
   public async createRequest(title: string): Promise<void> {
+    this.assertProjectContext();
     await this.ellipsisMenuButton.click();
     await this.newRequestMenuItem.click();
     await this.requestTitleInput.click();
@@ -572,6 +574,7 @@ export class ContentPage extends ProjectScopedPage {
   }
 
   public async createComment(content: string): Promise<void> {
+    this.assertProjectContext();
     await this.commentContentInput.click();
     await this.commentContentInput.fill(content);
     await this.commentSubmitButton.click();
@@ -579,6 +582,7 @@ export class ContentPage extends ProjectScopedPage {
   }
 
   public async updateComment(oldText: string, newText: string): Promise<void> {
+    this.assertProjectContext();
     await this.commentEditButton.click();
     await this.commentTextarea(oldText).click();
     await this.commentTextarea(oldText).fill(newText);
@@ -587,6 +591,7 @@ export class ContentPage extends ProjectScopedPage {
   }
 
   public async deleteComment(): Promise<void> {
+    this.assertProjectContext();
     await this.commentDeleteButton.click();
     await this.closeNotification();
   }
@@ -616,6 +621,7 @@ export class ContentPage extends ProjectScopedPage {
   }
 
   public async createView(viewName: string): Promise<void> {
+    this.assertProjectContext();
     await this.saveAsNewViewButton.click();
     await this.viewNameInput.fill(viewName);
     await this.okButton.click();
@@ -623,6 +629,7 @@ export class ContentPage extends ProjectScopedPage {
   }
 
   public async renameView(newName: string): Promise<void> {
+    this.assertProjectContext();
     await this.moreButton.click();
     await this.renameViewButton.click();
     await this.viewNameInput.fill(newName);
@@ -631,6 +638,7 @@ export class ContentPage extends ProjectScopedPage {
   }
 
   public async deleteView(): Promise<void> {
+    this.assertProjectContext();
     await this.moreButton.click();
     await this.removeViewButton.click();
     await this.removeButton.click();
@@ -638,21 +646,25 @@ export class ContentPage extends ProjectScopedPage {
   }
 
   public async searchFor(searchTerm: string): Promise<void> {
+    this.assertProjectContext();
     await this.searchInput.fill(searchTerm);
     await this.searchButton.click();
   }
 
   public async clearSearch(): Promise<void> {
+    this.assertProjectContext();
     await this.searchInput.fill("");
     await this.searchButton.click();
   }
 
   public async publishItem(): Promise<void> {
+    this.assertProjectContext();
     await this.publishButton.click();
     await this.closeNotification();
   }
 
   public async unpublishItem(): Promise<void> {
+    this.assertProjectContext();
     await this.ellipsisMenuButton.click();
     await this.unpublishButton.click();
     await this.closeNotification();
@@ -663,6 +675,7 @@ export class ContentPage extends ProjectScopedPage {
     operator: "is" | "contains" | "end with",
     value: string,
   ): Promise<void> {
+    this.assertProjectContext();
     await this.addFilterButton.click();
     await this.filterMenuItem(fieldName).click();
 
@@ -680,6 +693,7 @@ export class ContentPage extends ProjectScopedPage {
   }
 
   public async removeFilter(fieldName: string): Promise<void> {
+    this.assertProjectContext();
     await this.filterCloseButton(fieldName).click();
   }
 
@@ -688,6 +702,7 @@ export class ContentPage extends ProjectScopedPage {
     fieldValue: string,
     navigateBack = true,
   ): Promise<void> {
+    this.assertProjectContext();
     await this.newItemButton.click();
     await this.fieldInput(fieldName).fill(fieldValue);
     await this.saveButton.click();
@@ -762,15 +777,18 @@ export class ContentPage extends ProjectScopedPage {
   // ========== Import Content Actions ==========
 
   public async openImportContentModal(): Promise<void> {
+    this.assertProjectContext();
     await this.importContentButton.click();
     await this.importContentModal.waitFor({ state: "visible" });
   }
 
   public async uploadImportFile(filePath: string): Promise<void> {
+    this.assertProjectContext();
     await this.importContentFileInput.setInputFiles(filePath);
   }
 
   public async closeImportContentModal(): Promise<void> {
+    this.assertProjectContext();
     await this.importContentModal.getByLabel("Close").click();
   }
 }

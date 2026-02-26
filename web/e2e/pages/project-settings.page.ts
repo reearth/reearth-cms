@@ -32,10 +32,12 @@ export class ProjectSettingsPage extends ProjectScopedPage {
 
   // actions
   public async goToProjectSettings(): Promise<void> {
+    this.assertProjectContext();
     await this.settingsMenuItem.click();
   }
 
   public async saveSettings(): Promise<void> {
+    this.assertProjectContext();
     await this.saveChanges.click();
     await this.closeNotification();
   }

@@ -676,6 +676,7 @@ export class FieldEditorPage extends ProjectScopedPage {
   }
 
   public async createField(options: CreateFieldOptions): Promise<void> {
+    this.assertProjectContext();
     if (options.metadata) {
       const supported: SchemaFieldType[] = [
         SchemaFieldType.Text,
@@ -778,6 +779,7 @@ export class FieldEditorPage extends ProjectScopedPage {
   }
 
   public async createReferenceField(options: CreateReferenceFieldOptions): Promise<void> {
+    this.assertProjectContext();
     // Select Reference field type
     await this.fieldTypeButton(SchemaFieldType.Reference).click();
 
@@ -810,6 +812,7 @@ export class FieldEditorPage extends ProjectScopedPage {
   }
 
   public async createGroupField(options: CreateGroupFieldOptions): Promise<void> {
+    this.assertProjectContext();
     // Select Group field type
     await this.fieldTypeButton(SchemaFieldType.Group).click();
 
@@ -832,6 +835,7 @@ export class FieldEditorPage extends ProjectScopedPage {
   }
 
   public async editField(options: EditFieldOptions): Promise<void> {
+    this.assertProjectContext();
     // 1. Open editor
     if (options.metadata) {
       await this.ellipsisButton.click();
@@ -995,6 +999,7 @@ export class FieldEditorPage extends ProjectScopedPage {
   }
 
   public async deleteField(): Promise<void> {
+    this.assertProjectContext();
     await this.deleteFieldButton.click();
     await this.confirmDeleteFieldButton.click();
     await this.closeNotification();

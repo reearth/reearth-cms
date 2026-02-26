@@ -104,6 +104,7 @@ export class AssetsPage extends ProjectScopedPage {
   }
 
   public async uploadViaUrl(url: string, autoUnzip = false): Promise<void> {
+    this.assertProjectContext();
     await this.uploadButton.click();
     await this.urlTab.click();
     await this.urlInput.fill(url);
