@@ -89,8 +89,10 @@ const MultiValueColoredTag: React.FC<Props> = ({
     [onChange, value],
   );
 
+  // NOTE: use === null instead of !value to avoid clearing form values
+  // when value is transiently undefined (e.g. group fields mounted after async schema fetch)
   useEffect(() => {
-    if (!value) onChange?.([]);
+    if (value === null) onChange?.([]);
   }, [onChange, value]);
 
   const handleInputDelete = useCallback(

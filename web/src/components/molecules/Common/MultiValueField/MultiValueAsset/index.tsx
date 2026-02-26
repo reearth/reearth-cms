@@ -53,7 +53,9 @@ const MultiValueAsset: React.FC<Props> = ({
 
   useEffect(() => {
     if (typeof value === "string") onChange?.([value]);
-    else if (!value) onChange?.([]);
+    // NOTE: use === null instead of !value to avoid clearing form values
+    // when value is transiently undefined (e.g. group fields mounted after async schema fetch)
+    else if (value === null) onChange?.([]);
   }, [onChange, value]);
 
   const handleInputDelete = useCallback(
