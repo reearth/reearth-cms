@@ -43,24 +43,33 @@ func ToItem(vi item.Versioned, s *schema.Schema, gsList schema.List) *Item {
 func toItemFields(fields item.Fields, s *schema.Schema, isGroupSchema bool) []*ItemField {
 	var res []*ItemField
 	for _, sf := range s.Fields() {
-		var f item.Fields
-		if isGroupSchema {
-			f = lo.Filter(fields, func(itf *item.Field, _ int) bool {
-				return itf.FieldID() == sf.ID()
-			})
-		} else {
-			f = item.Fields{fields.Field(sf.ID())}
-		}
-		var v any = nil
-		for _, field := range f {
-			if f != nil {
-				v = ToValue(field.Value(), sf.Multiple())
+		f := lo.Filter(fields, func(itf *item.Field, _ int) bool {
+			if itf == nil {
+				return false
 			}
+			if itf.FieldID() != sf.ID() {
+				return false
+			}
+			if isGroupSchema {
+				return itf.ItemGroup() != nil
+			}
+			return itf.ItemGroup() == nil
+		})
+		if !isGroupSchema && len(f) == 0 {
+			// non-group schema: always return an entry for each schema field
+			res = append(res, &ItemField{
+				SchemaFieldID: IDFrom(sf.ID()),
+				Type:          ToValueType(sf.Type()),
+				Value:         nil,
+			})
+			continue
+		}
+		for _, field := range f {
 			res = append(res, &ItemField{
 				ItemGroupID:   IDFromRef(field.ItemGroup()),
 				SchemaFieldID: IDFrom(sf.ID()),
 				Type:          ToValueType(sf.Type()),
-				Value:         v,
+				Value:         ToValue(field.Value(), sf.Multiple()),
 			})
 		}
 	}
