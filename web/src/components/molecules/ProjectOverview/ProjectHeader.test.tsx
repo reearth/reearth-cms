@@ -21,4 +21,13 @@ describe("ProjectHeader", () => {
     await user.type(searchInput, "test{Enter}");
     expect(onModelSearch).toHaveBeenCalledWith("test", expect.anything(), expect.anything());
   });
+
+  test("calls onModelSort when sort option selected", async () => {
+    const onModelSort = vi.fn();
+    render(<ProjectHeader onModelSearch={vi.fn()} onModelSort={onModelSort} />);
+
+    await user.click(screen.getByRole("combobox"));
+    await user.click(await screen.findByTitle("Name"));
+    expect(onModelSort).toHaveBeenCalledWith("name");
+  });
 });
