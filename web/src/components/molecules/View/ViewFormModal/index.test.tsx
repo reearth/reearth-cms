@@ -102,6 +102,11 @@ describe("ViewFormModal", () => {
     });
   });
 
+  test("Cancel button is disabled when submitting", () => {
+    renderModal({ submitting: true });
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
+  });
+
   test("OK button stays disabled when renamed to same name", async () => {
     renderModal({
       modalState: "rename",

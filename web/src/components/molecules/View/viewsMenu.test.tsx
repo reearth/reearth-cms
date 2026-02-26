@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, test, vi } from "vitest";
 
 import { View } from "@reearth-cms/components/molecules/View/types";
@@ -50,5 +51,34 @@ describe("ViewsMenu", () => {
   test("'Save as new view' button is enabled when has create right", () => {
     renderMenu({ hasCreateRight: true });
     expect(screen.getByText("Save as new view").closest("button")).not.toBeDisabled();
+  });
+
+  test("calls onViewCreateModalOpen when 'Save as new view' is clicked", async () => {
+    const onViewCreateModalOpen = vi.fn();
+    renderMenu({ onViewCreateModalOpen });
+
+    await userEvent.click(screen.getByText("Save as new view"));
+    expect(onViewCreateModalOpen).toHaveBeenCalledOnce();
+  });
+
+  test("renders views sorted by order property", () => {
+    const reversedViews: View[] = [
+      { id: "v3", name: "Third", modelId: "m1", projectId: "p1", order: 2 },
+      { id: "v1", name: "First", modelId: "m1", projectId: "p1", order: 0 },
+      { id: "v2", name: "Second", modelId: "m1", projectId: "p1", order: 1 },
+    ];
+    renderMenu({ views: reversedViews, currentView: { id: "v1", name: "First" } });
+
+    const tabs = screen.getAllByRole("tab");
+    expect(tabs[0]).toHaveTextContent("First");
+    expect(tabs[1]).toHaveTextContent("Second");
+    expect(tabs[2]).toHaveTextContent("Third");
+  });
+
+  test("renders no tabs when views array is empty", () => {
+    renderMenu({ views: [] });
+
+    expect(screen.queryAllByRole("tab")).toHaveLength(0);
+    expect(screen.getByText("Save as new view")).toBeInTheDocument();
   });
 });

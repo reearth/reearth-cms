@@ -87,4 +87,46 @@ describe("ViewsMenuItem", () => {
     const renameItem = screen.getByText("Rename").closest("li");
     expect(renameItem).toHaveClass("ant-dropdown-menu-item-disabled");
   });
+
+  test("calls onDelete with view id when confirming removal", async () => {
+    const onDelete = vi.fn().mockResolvedValue(undefined);
+    renderMenuItem({ onDelete });
+
+    const moreIcon = screen.getByRole("img", { name: "more" });
+    await userEvent.click(moreIcon);
+    await userEvent.click(screen.getByText("Remove View"));
+
+    const removeButtons = screen.getAllByRole("button", { name: "Remove" });
+    await userEvent.click(removeButtons[removeButtons.length - 1]);
+
+    expect(onDelete).toHaveBeenCalledWith("view-1");
+  });
+
+  test("disables all three menu items when both rights are false", async () => {
+    renderMenuItem({ hasUpdateRight: false, hasDeleteRight: false });
+
+    const moreIcon = screen.getByRole("img", { name: "more" });
+    await userEvent.click(moreIcon);
+
+    const updateItem = screen.getByText("Update View").closest("li");
+    const renameItem = screen.getByText("Rename").closest("li");
+    const removeItem = screen.getByText("Remove View").closest("li");
+    expect(updateItem).toHaveClass("ant-dropdown-menu-item-disabled");
+    expect(renameItem).toHaveClass("ant-dropdown-menu-item-disabled");
+    expect(removeItem).toHaveClass("ant-dropdown-menu-item-disabled");
+  });
+
+  test("Update View disabled but Rename and Remove enabled when hasDeleteRight is false", async () => {
+    renderMenuItem({ hasUpdateRight: true, hasDeleteRight: false });
+
+    const moreIcon = screen.getByRole("img", { name: "more" });
+    await userEvent.click(moreIcon);
+
+    const updateItem = screen.getByText("Update View").closest("li");
+    const renameItem = screen.getByText("Rename").closest("li");
+    const removeItem = screen.getByText("Remove View").closest("li");
+    expect(updateItem).toHaveClass("ant-dropdown-menu-item-disabled");
+    expect(renameItem).not.toHaveClass("ant-dropdown-menu-item-disabled");
+    expect(removeItem).not.toHaveClass("ant-dropdown-menu-item-disabled");
+  });
 });
