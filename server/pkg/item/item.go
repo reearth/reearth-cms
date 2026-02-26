@@ -243,6 +243,32 @@ func (i *Item) AssetIDsBySchema(sp schema.Package) AssetIDList {
 	})
 }
 
+func (i *Item) RefItemIDsBySchema(sp schema.Package) IDList {
+	sRefFields := sp.FieldsByType(value.TypeReference)
+	if len(sRefFields) == 0 {
+		return nil
+	}
+	ids := lo.FlatMap(i.Fields().Filter(sRefFields.IDs()), func(f *Field, _ int) []*value.Value {
+		sf := sRefFields.Find(f.FieldID())
+		if sf == nil {
+			return nil
+		}
+		if sf.Multiple() {
+			return f.Value().Values()
+		}
+		if v := f.Value().First(); v != nil {
+			return []*value.Value{v}
+		}
+		return nil
+	})
+	return lo.FilterMap(ids, func(v *value.Value, _ int) (ID, bool) {
+		if refID, ok := v.Value().(ID); ok {
+			return refID, true
+		}
+		return ID{}, false
+	})
+}
+
 func (i *Item) GetTitle(s *schema.Schema) *string {
 	if s == nil || s.TitleField() == nil {
 		return nil

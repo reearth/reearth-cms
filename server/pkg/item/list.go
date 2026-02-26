@@ -62,6 +62,29 @@ func (l List) AssetIDs(sp schema.Package) AssetIDList {
 	return assetIDs
 }
 
+// RefItemIDs collects all unique reference field item IDs from the list
+func (l List) RefItemIDs(sp schema.Package) IDList {
+	if l == nil {
+		return nil
+	}
+	var refIDs IDList
+	seen := make(map[ID]bool)
+
+	for _, itm := range l {
+		if itm == nil {
+			continue
+		}
+		for _, refID := range itm.RefItemIDsBySchema(sp) {
+			if !seen[refID] {
+				refIDs = append(refIDs, refID)
+				seen[refID] = true
+			}
+		}
+	}
+
+	return refIDs
+}
+
 func (l List) ToMap() map[ID]*Item {
 	m := make(map[ID]*Item, len(l))
 	for _, i := range l {

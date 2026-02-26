@@ -12,6 +12,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/reearth/reearthx/i18n"
+	"github.com/reearth/reearthx/log"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
@@ -46,19 +47,6 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 		ModelID: params.ModelID,
 		Schema:  params.SchemaPackage,
 		Options: params.Options,
-		ItemLoader: func(itemIDs id.ItemIDList) (item.List, error) {
-			versioned, err := i.repos.Item.FindByIDs(ctx, itemIDs, version.Public.Ref())
-			if err != nil {
-				return nil, err
-			}
-			return versioned.Unwrap(), nil
-		},
-		AssetLoader: func(assetIDs id.AssetIDList) (asset.List, error) {
-			if !params.Options.IncludeAssets {
-				return nil, nil
-			}
-			return i.repos.Asset.FindByIDs(ctx, assetIDs)
-		},
 	}
 
 	if err := exporter.ValidateRequest(req); err != nil {
@@ -81,9 +69,17 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 		ver = nil
 	}
 
-	totalProcessed := 0
 	pageInfo := &usecasex.PageInfo{}
+
 	for {
+		// Check if context has been cancelled (client disconnect, timeout, etc.)
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+			// Continue processing
+		}
+
 		versionedItems, pi, err := i.repos.Item.FindByModel(ctx, params.ModelID, ver, nil, pagination)
 		if err != nil {
 			return rerror.ErrInternalBy(err)
@@ -95,25 +91,86 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 			break
 		}
 
+		// Pre-load all referenced items for this batch
+		// Note: We load ALL referenced items first, then filter by IncloudRefModels
+		// in the ItemLoader to respect privacy settings while avoiding N+1 queries
+		refItemIDs := items.RefItemIDs(params.SchemaPackage)
+		var referencedItemsMap map[id.ItemID]*item.Item
+		if len(refItemIDs) > 0 {
+			versionedRefs, err := i.repos.Item.FindByIDs(ctx, refItemIDs, ver)
+			if err != nil {
+				log.Errorfc(ctx, "export: failed to pre-load %d referenced items: %v", len(refItemIDs), err)
+			} else {
+				referencedItemsMap = versionedRefs.Unwrap().ToMap()
+			}
+		}
+
+		// Create ItemLoader closure that uses pre-loaded cache
+		// Filter by IncludeRefModels if specified (for public API privacy)
+		req.ItemLoader = func(itemIDs id.ItemIDList) (item.List, error) {
+			if referencedItemsMap == nil {
+				return nil, nil
+			}
+
+			// Build allowed models set if filter is specified
+			var allowedModels map[id.ModelID]bool
+			if len(params.Options.IncludeRefModels) > 0 {
+				allowedModels = make(map[id.ModelID]bool)
+				for _, mid := range params.Options.IncludeRefModels {
+					allowedModels[mid] = true
+				}
+			}
+
+			result := make(item.List, 0, len(itemIDs))
+			for _, iid := range itemIDs {
+				if refItem, ok := referencedItemsMap[iid]; ok {
+					// If filter is set, only include items from allowed models
+					if allowedModels != nil {
+						if allowedModels[refItem.Model()] {
+							result = append(result, refItem)
+						}
+						// If not in allowed models, don't include (will show as ID string)
+					} else {
+						// No filter - include all
+						result = append(result, refItem)
+					}
+				}
+			}
+			return result, nil
+		}
+
 		// Extract and load assets for this batch
 		assetIDs := items.AssetIDs(params.SchemaPackage)
+		var assetsMap asset.Map
 		var assets asset.List
 		if len(assetIDs) > 0 && params.Options.IncludeAssets {
 			assets, err = i.repos.Asset.FindByIDs(ctx, assetIDs)
 			if err != nil {
-				return rerror.ErrInternalBy(err)
-			}
-			if assets != nil {
+				log.Errorfc(ctx, "export: failed to pre-load %d assets: %v", len(assetIDs), err)
+			} else if assets != nil {
 				assets.SetAccessInfoResolver(i.gateways.File.GetAccessInfoResolver())
+				assetsMap = assets.Map()
 			}
+		}
+
+		// Create AssetLoader closure for this batch using pre-loaded cache
+		req.AssetLoader = func(assetIDs id.AssetIDList) (asset.List, error) {
+			if !params.Options.IncludeAssets || assetsMap == nil {
+				return nil, nil
+			}
+			result := make(asset.List, 0, len(assetIDs))
+			for _, aid := range assetIDs {
+				if a, exists := assetsMap[aid]; exists {
+					result = append(result, a)
+				}
+			}
+			return result, nil
 		}
 
 		// Process this batch
 		if err := exporter.ProcessBatch(ctx, items, assets); err != nil {
 			return err
 		}
-
-		totalProcessed += len(items)
 
 		// Check if we have more pages
 		if pageInfo == nil || !pageInfo.HasNextPage {

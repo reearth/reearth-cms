@@ -11,6 +11,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/exporters"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
@@ -54,7 +55,7 @@ func (c *Controller) GetItem(ctx context.Context, wsAlias, pAlias, mKey, i strin
 		}
 	}
 
-	return NewItem(itv, sp, assets, getReferencedItems(ctx, itv, wpm.PublicAssets)), nil
+	return NewItem(itv, sp, assets, getReferencedItems(ctx, itv, sp, wpm.PublicAssets)), nil
 }
 
 func (c *Controller) GetPublicItems(ctx context.Context, wsAlias, pAlias, mKey, ext string, p *usecasex.Pagination, w io.Writer) error {
@@ -88,7 +89,7 @@ func (c *Controller) GetPublicItems(ctx context.Context, wsAlias, pAlias, mKey, 
 			IncludeGeometry:  true,
 			GeometryField:    nil,
 			Pagination:       p,
-			IncloudRefModels: wpm.PublicModels,
+			IncludeRefModels: wpm.PublicModels,
 		},
 	}, w, nil)
 	if err != nil {
@@ -98,7 +99,7 @@ func (c *Controller) GetPublicItems(ctx context.Context, wsAlias, pAlias, mKey, 
 	return nil
 }
 
-func getReferencedItems(ctx context.Context, i *item.Item, prp bool) []Item {
+func getReferencedItems(ctx context.Context, i *item.Item, sp *schema.Package, prp bool) []Item {
 	op := adapter.Operator(ctx)
 	uc := adapter.Usecases(ctx)
 
@@ -106,30 +107,75 @@ func getReferencedItems(ctx context.Context, i *item.Item, prp bool) []Item {
 		return nil
 	}
 
-	var vi []Item
-	for _, f := range i.Fields().FieldsByType(value.TypeReference) {
-		for _, v := range f.Value().Values() {
-			iid, ok := v.Value().(id.ItemID)
-			if !ok {
-				continue
+	// Step 1: Collect all referenced item IDs
+	refItemIDs := item.List{i}.RefItemIDs(*sp)
+
+	if len(refItemIDs) == 0 {
+		return nil
+	}
+
+	// Step 2: Batch load all referenced items
+	referencedItems, err := uc.Item.FindByIDs(ctx, refItemIDs, op)
+	if err != nil || len(referencedItems) == 0 {
+		return nil
+	}
+
+	// Step 3: Build schema map from referenced schemas in the schema package
+	schemaMap := make(map[id.ModelID]*schema.Schema)
+	for _, refSchema := range sp.ReferencedSchemas() {
+		// Get reference fields from main schema to find model ID for this ref schema
+		for _, f := range sp.Schema().FieldsByType(value.TypeReference) {
+			var modelID id.ModelID
+			var schemaID id.SchemaID
+			f.TypeProperty().Match(schema.TypePropertyMatch{
+				Reference: func(rf *schema.FieldReference) {
+					modelID = rf.Model()
+					schemaID = rf.Schema()
+				},
+			})
+			if schemaID == refSchema.ID() {
+				schemaMap[modelID] = refSchema
+				break
 			}
-			ii, err := uc.Item.FindByID(ctx, iid, op)
-			if err != nil || ii == nil {
-				continue
+		}
+	}
+
+	// Step 4: Batch load all assets if needed
+	var assetsMap asset.Map
+	if prp {
+		var allAssetIDs []id.AssetID
+		for _, ii := range referencedItems {
+			allAssetIDs = append(allAssetIDs, ii.Value().AssetIDs()...)
+		}
+		if len(allAssetIDs) > 0 {
+			assets, err := uc.Asset.FindByIDs(ctx, allAssetIDs, nil)
+			if err == nil {
+				assetsMap = assets.Map()
 			}
-			sp, err := uc.Schema.FindByModel(ctx, ii.Value().Model(), op)
-			if err != nil {
-				continue
-			}
-			var assets asset.List
-			if prp {
-				assets, err = uc.Asset.FindByIDs(ctx, ii.Value().AssetIDs(), nil)
-				if err != nil {
-					continue
+		}
+	}
+
+	// Step 5: Build result from loaded data
+	vi := make([]Item, 0, len(referencedItems))
+	for _, ii := range referencedItems {
+		refSchema, ok := schemaMap[ii.Value().Model()]
+		if !ok {
+			continue
+		}
+
+		// Create a simple schema package for the referenced item
+		refSchemaPackage := schema.NewPackage(refSchema, nil, nil, nil)
+
+		var itemAssets asset.List
+		if prp && assetsMap != nil {
+			for _, aid := range ii.Value().AssetIDs() {
+				if a, exists := assetsMap[aid]; exists {
+					itemAssets = append(itemAssets, a)
 				}
 			}
-			vi = append(vi, NewItem(ii.Value(), sp, assets, nil))
 		}
+
+		vi = append(vi, NewItem(ii.Value(), refSchemaPackage, itemAssets, nil))
 	}
 
 	return vi
