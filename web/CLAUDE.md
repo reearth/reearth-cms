@@ -301,18 +301,45 @@ At 783 lines it's large, but the concerns (item CRUD, table, views, filters) are
 
 Each phase: (a) add `data-testid` to React components → (b) update/create POM class → (c) update spec files → (d) run affected tests
 
-| Phase | Target                                                                                  | Size             | Why This Order                                                      |
-| ----- | --------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------- |
-| 0     | Create `ProjectScopedPage` + `SettingsScopedPage` abstract classes, refactor `BasePage` | New files        | Foundation — no spec changes needed                                 |
-| 1     | `ProjectSettingsPage`                                                                   | ~38 lines        | Smallest project-scoped POM; already uses public/private            |
-| 2     | `MemberPage`                                                                            | ~28 lines        | Smallest settings-scoped POM                                        |
-| 3     | `AssetsPage`                                                                            | ~121 lines       | Small, few fragile selectors                                        |
-| 4     | `RequestPage`                                                                           | ~177 lines       | Medium, has `.ant-select-*` to replace                              |
-| 5     | `SchemaPage`                                                                            | ~281 lines       | Medium, has `.draggable-item`, `.grabbable`, `.ant-select-selector` |
-| 6     | Split `ProjectPage` → `ProjectOverviewPage` + merge into `ProjectSettingsPage`          | ~279 lines       | Replace `.ant-layout-header`, `.ant-modal-*`, `.ant-card`           |
-| 7     | `FieldEditorPage`                                                                       | ~503 lines       | Large, has `.css-*` hash selectors, `.ant-col`, `.ant-table-row`    |
-| 8     | `ContentPage`                                                                           | ~783 lines       | Largest POM; most `.ant-table-*`, `.css-*` selectors                |
-| 9     | `SettingsPage` split + `IntegrationsPage` + `WorkspacePage`                             | ~512 lines total | Final cleanup                                                       |
+All 10 phases are complete. The table below records the commit that landed each phase.
+
+| Phase | Status | Target                                                                                  | Commit     |
+| ----- | ------ | --------------------------------------------------------------------------------------- | ---------- |
+| 0     | Done   | Create `ProjectScopedPage` + `SettingsScopedPage` abstract classes, refactor `BasePage` | `6631abf8` |
+| 1     | Done   | `ProjectSettingsPage`                                                                   | `b68f5383` |
+| 2     | Done   | `MemberPage` + `SettingsScopedPage`                                                     | `b5537aca` |
+| 3     | Done   | `AssetsPage`                                                                            | `d0b5896b` |
+| 4     | Done   | `RequestPage`                                                                           | `92f40347` |
+| 5     | Done   | `SchemaPage`                                                                            | `3b9e9ecd` |
+| 6     | Done   | Split `ProjectPage` → `ProjectOverviewPage` + merge into `ProjectSettingsPage`          | `742709c4` |
+| 7     | Done   | `FieldEditorPage`                                                                       | `e436e841` |
+| 8     | Done   | `ContentPage`                                                                           | `f709e949` |
+| 9     | Done   | `SettingsPage` split + `IntegrationsPage` + `WorkspacePage`                             | `bbc81f71` |
+
+### Completed Post-Phase Work
+
+Additional refactoring done after the original 10 phases:
+
+| Work                                          | Commit(s)               | Notes                                                                       |
+| --------------------------------------------- | ----------------------- | --------------------------------------------------------------------------- |
+| Field creation consolidation                  | `8c352ee6`              | Unified field creation flow across POMs                                     |
+| Explicit visibility modifiers                 | `6140baeb`              | All POM members now have explicit `private`/`protected`/`public`            |
+| Parallel-safety (timing + isolation)          | `f979ff2d` — `d4e5389f` | Removed trailing `waitForTimeout`, switched to `getId()` everywhere         |
+| LoginPage refactor                            | `7a0be9bb`              | Standalone page, no hierarchy change                                        |
+| `@smoke`/`@redundant` → Playwright `{ tag }`  | `9da6d187`              | Tags now use Playwright's native `{ tag }` option instead of title prefixes |
+| `BasePage.goto()` default `domcontentloaded`  | `c6973fa0`              | All `goto()` calls default to `waitUntil: "domcontentloaded"`               |
+| `editField()` abstraction in FieldEditorPage  | `5b876dea`, `ffe01127`  | Single method handles conditional tab navigation for all field types        |
+| FieldModal `data-testid` injection            | `9e579fed`              | Added `data-testid` to React FieldModal components                          |
+| `:visible` pseudo-selector on `plusNewButton` | `c7113f67`              | Resolves duplicate element matches from Ant Design `forceRender` tabs       |
+
+## Known Patterns
+
+Patterns that emerged during implementation and are now established conventions:
+
+- **`:visible` pseudo-selector**: Use on locators that match duplicate elements across Ant Design `forceRender` tabs (e.g. `plusNewButton`). The `:visible` filter ensures only the currently-rendered element is matched.
+- **`editField(options)` pattern**: A single `FieldEditorPage.editField()` method handles conditional tab navigation (General / Validation / Default Value) for all field types. Spec files pass an options object instead of manually clicking tabs.
+- **Auto-tracked project base URL**: `ProjectScopedPage` uses a `WeakMap` + `framenavigated` event listener to automatically capture the project base URL after `createProject()`. Subclasses access it via `this.projectBaseUrl` without manual tracking.
+- **Playwright `{ tag }` option**: Tags like `@smoke` and `@redundant` use Playwright's native `test("name", { tag: ["@smoke"] }, ...)` syntax, not title prefixes.
 
 ## E2E vs Component Test Responsibility Boundary
 
