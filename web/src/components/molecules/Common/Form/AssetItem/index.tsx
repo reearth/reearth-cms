@@ -97,6 +97,14 @@ const AssetItem: React.FC<Props> = ({
   const [asset, setAsset] = useState<ItemAsset>();
   const assetInfosRef = useRef<ItemAsset[]>(itemAssets ?? []);
 
+  // NOTE: useRef only captures the initial value of itemAssets.
+  // Sync the ref when itemAssets prop updates so asset lookups use fresh data.
+  useEffect(() => {
+    if (itemAssets) {
+      assetInfosRef.current = itemAssets;
+    }
+  }, [itemAssets]);
+
   const defaultValueGet = useCallback(async () => {
     if (value) {
       const fileName = await onGetAsset(value);
@@ -142,8 +150,13 @@ const AssetItem: React.FC<Props> = ({
     fileList,
   };
 
+  // NOTE: value may arrive as an array when field.multiple is true on the server
+  // but false on the client. Extract the first valid element instead of clearing to "".
   useEffect(() => {
-    if (Array.isArray(value)) onChange?.("");
+    if (Array.isArray(value)) {
+      const first = value.find(v => typeof v === "string" && v);
+      onChange?.(first ?? "");
+    }
   }, [onChange, value]);
 
   return (

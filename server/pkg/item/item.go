@@ -135,10 +135,14 @@ func (i *Item) UpdateFields(fields []*Field) {
 			if g == nil || f == nil {
 				return false
 			}
-			if g.group == nil || f.group == nil {
-				return g.FieldID() == f.FieldID()
+			if g.FieldID() != f.FieldID() {
+				return false
 			}
-			return g.FieldID() == f.FieldID() && *g.group == *f.group
+			// both must have the same group: both nil or both equal
+			if g.group == nil && f.group == nil {
+				return true
+			}
+			return g.group != nil && f.group != nil && *g.group == *f.group
 		})
 
 		if !found {
