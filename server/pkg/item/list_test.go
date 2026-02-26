@@ -471,6 +471,15 @@ func TestList_RefItemIDs(t *testing.T) {
 	mid := id.NewModelID()
 	pid := id.NewProjectID()
 
+	// Create schema with reference and text fields
+	wid := accountdomain.NewWorkspaceID()
+	refModelID := id.NewModelID()
+	refSchemaID := id.NewSchemaID()
+	refField := schema.NewField(schema.NewReference(refModelID, refSchemaID, nil, nil).TypeProperty()).ID(refFieldID).Key(id.RandomKey()).Multiple(true).MustBuild()
+	textField := schema.NewField(schema.NewText(nil).TypeProperty()).ID(textFieldID).Key(id.RandomKey()).MustBuild()
+	s := schema.New().ID(sid).Workspace(wid).Project(pid).Fields([]*schema.Field{refField, textField}).MustBuild()
+	sp := schema.NewPackage(s, nil, nil, nil)
+
 	tests := []struct {
 		name     string
 		list     List
@@ -573,7 +582,7 @@ func TestList_RefItemIDs(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := tt.list.RefItemIDs()
+			got := tt.list.RefItemIDs(*sp)
 
 			if tt.expected == nil {
 				assert.Nil(t, got)

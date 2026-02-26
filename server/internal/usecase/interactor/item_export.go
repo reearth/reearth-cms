@@ -94,7 +94,7 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 		// Pre-load all referenced items for this batch
 		// Note: We load ALL referenced items first, then filter by IncloudRefModels
 		// in the ItemLoader to respect privacy settings while avoiding N+1 queries
-		refItemIDs := items.RefItemIDs()
+		refItemIDs := items.RefItemIDs(params.SchemaPackage)
 		var referencedItemsMap map[id.ItemID]*item.Item
 		if len(refItemIDs) > 0 {
 			versionedRefs, err := i.repos.Item.FindByIDs(ctx, refItemIDs, ver)

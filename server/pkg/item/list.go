@@ -2,7 +2,6 @@ package item
 
 import (
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/samber/lo"
 )
@@ -64,7 +63,7 @@ func (l List) AssetIDs(sp schema.Package) AssetIDList {
 }
 
 // RefItemIDs collects all unique reference field item IDs from the list
-func (l List) RefItemIDs() IDList {
+func (l List) RefItemIDs(sp schema.Package) IDList {
 	if l == nil {
 		return nil
 	}
@@ -75,16 +74,10 @@ func (l List) RefItemIDs() IDList {
 		if itm == nil {
 			continue
 		}
-		for _, f := range itm.Fields() {
-			if f.Type() == value.TypeReference {
-				for _, v := range f.Value().Values() {
-					if refID, ok := v.Value().(ID); ok {
-						if !seen[refID] {
-							refIDs = append(refIDs, refID)
-							seen[refID] = true
-						}
-					}
-				}
+		for _, refID := range itm.RefItemIDsBySchema(sp) {
+			if !seen[refID] {
+				refIDs = append(refIDs, refID)
+				seen[refID] = true
 			}
 		}
 	}
