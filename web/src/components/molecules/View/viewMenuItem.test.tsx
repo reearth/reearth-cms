@@ -66,4 +66,25 @@ describe("ViewsMenuItem", () => {
       screen.getByText("Are you sure you want to delete this view?"),
     ).toBeInTheDocument();
   });
+
+  test("calls onUpdate when Update View is clicked", async () => {
+    const onUpdate = vi.fn();
+    renderMenuItem({ onUpdate });
+
+    const moreIcon = screen.getByRole("img", { name: "more" });
+    await userEvent.click(moreIcon);
+    await userEvent.click(screen.getByText("Update View"));
+
+    expect(onUpdate).toHaveBeenCalledWith(MOCK_VIEW.id, MOCK_VIEW.name);
+  });
+
+  test("disables menu items based on permissions", async () => {
+    renderMenuItem({ hasUpdateRight: false, hasDeleteRight: false });
+
+    const moreIcon = screen.getByRole("img", { name: "more" });
+    await userEvent.click(moreIcon);
+
+    const renameItem = screen.getByText("Rename").closest("li");
+    expect(renameItem).toHaveClass("ant-dropdown-menu-item-disabled");
+  });
 });

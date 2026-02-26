@@ -3097,5 +3097,30 @@ describe("Content import test", () => {
         expect(result.shouldDisable).toEqual(expected);
       },
     );
+
+    test("returns reader tooltip when no create right", () => {
+      const result = ImportContentUtils.getUIMetadata({
+        hasContentCreateRight: false,
+        hasModelFields: true,
+      });
+      expect(result.tooltipMessage).toBe("Reader cannot import content.");
+    });
+
+    test("returns schema tooltip when no model fields", () => {
+      const result = ImportContentUtils.getUIMetadata({
+        hasContentCreateRight: true,
+        hasModelFields: false,
+      });
+      expect(result.tooltipMessage).toBe("Please create a schema first");
+    });
+
+    test("returns undefined tooltip when fully enabled", () => {
+      const result = ImportContentUtils.getUIMetadata({
+        hasContentCreateRight: true,
+        hasModelFields: true,
+      });
+      expect(result.tooltipMessage).toBeUndefined();
+      expect(result.shouldDisable).toBe(false);
+    });
   });
 });

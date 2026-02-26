@@ -76,6 +76,7 @@ export default defineConfig({
         "src/config/aws.ts",
         "src/config/firebase.ts",
         "src/state/index.ts",
+        "src/components/organisms/**/hooks.ts",
       ],
       reporter: ["text", "json", "lcov"],
     },

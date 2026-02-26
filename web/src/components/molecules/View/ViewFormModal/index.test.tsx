@@ -78,4 +78,41 @@ describe("ViewFormModal", () => {
     });
     expect(screen.getByLabelText("View Name")).toHaveValue("Existing View");
   });
+
+  test("calls OnUpdate with viewId and name on rename submit", async () => {
+    const OnUpdate = vi.fn().mockResolvedValue(undefined);
+    const onClose = vi.fn();
+    renderModal({
+      modalState: "rename",
+      currentView: { id: "view-1", name: "Old Name" },
+      OnUpdate,
+      onClose,
+    });
+
+    const input = screen.getByLabelText("View Name");
+    await userEvent.clear(input);
+    await userEvent.type(input, "New Name");
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "OK" })).toBeEnabled();
+    });
+    await userEvent.click(screen.getByRole("button", { name: "OK" }));
+
+    await waitFor(() => {
+      expect(OnUpdate).toHaveBeenCalledWith("view-1", "New Name");
+    });
+  });
+
+  test("OK button stays disabled when renamed to same name", async () => {
+    renderModal({
+      modalState: "rename",
+      currentView: { id: "view-1", name: "Same Name" },
+    });
+
+    const input = screen.getByLabelText("View Name");
+    await userEvent.clear(input);
+    await userEvent.type(input, "Same Name");
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "OK" })).toBeDisabled();
+    });
+  });
 });

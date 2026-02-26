@@ -124,5 +124,24 @@ describe("authInfo", () => {
       logInToTenant();
       expect(window.localStorage.getItem(tenantKey)).toBeNull();
     });
+
+    test("logInToTenant does nothing when auth path has no tenant name", () => {
+      Object.defineProperty(window, "location", {
+        value: { ...window.location, pathname: "/auth/" },
+        writable: true,
+      });
+      logInToTenant();
+      expect(window.localStorage.getItem(tenantKey)).toBeNull();
+    });
+  });
+
+  describe("getSignInCallbackUrl with auth path", () => {
+    test("returns tenant callback URL from auth path", () => {
+      Object.defineProperty(window, "location", {
+        value: { ...window.location, pathname: "/auth/pathTenant" },
+        writable: true,
+      });
+      expect(getSignInCallbackUrl()).toBe(`${window.location.origin}/auth/pathTenant`);
+    });
   });
 });

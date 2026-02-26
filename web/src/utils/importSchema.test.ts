@@ -1683,5 +1683,31 @@ describe("Test import schema", () => {
         expect(result.shouldDisable).toEqual(expected);
       },
     );
+
+    test("returns reader tooltip when no schema create right", () => {
+      const result = ImportSchemaUtils.getUIMetadata({
+        hasSchemaCreateRight: false,
+        hasModelFields: false,
+      });
+      expect(result.tooltipMessage).toBe("Reader cannot import schema.");
+    });
+
+    test("returns undefined tooltip when schema is empty and has right", () => {
+      const result = ImportSchemaUtils.getUIMetadata({
+        hasSchemaCreateRight: true,
+        hasModelFields: false,
+      });
+      expect(result.tooltipMessage).toBeUndefined();
+      expect(result.shouldDisable).toBe(false);
+    });
+
+    test("returns non-empty schema tooltip when model has fields", () => {
+      const result = ImportSchemaUtils.getUIMetadata({
+        hasSchemaCreateRight: true,
+        hasModelFields: true,
+      });
+      expect(result.tooltipMessage).toBe("Only empty schemas can be imported into");
+      expect(result.shouldDisable).toBe(true);
+    });
   });
 });

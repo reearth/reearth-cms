@@ -1,9 +1,9 @@
 import { renderHook, act } from "@testing-library/react";
 import { describe, test, expect, vi } from "vitest";
 
-import { type SelectedSchemaType, type SchemaFieldType } from "../types";
+import { type SelectedSchemaType, type SchemaFieldType, type FormTypes } from "../types";
 
-import useFieldModal from "./hooks";
+import useFieldModal, { getTypeProperty } from "./hooks";
 
 const defaultArgs = {
   selectedSchemaType: "model" as SelectedSchemaType,
@@ -257,6 +257,181 @@ describe("FieldModal hooks", () => {
     test("initially disabled when no title/key set", () => {
       const { result } = renderFieldModal();
       expect(result.current.buttonDisabled).toBe(true);
+    });
+  });
+
+  describe("getTypeProperty", () => {
+    test("Text type (default) returns text property", () => {
+      const result = getTypeProperty({
+        type: "Text",
+        defaultValue: "hello",
+        maxLength: 100,
+      } as FormTypes);
+      expect(result).toEqual({ text: { defaultValue: "hello", maxLength: 100 } });
+    });
+
+    test("TextArea type returns textArea property", () => {
+      const result = getTypeProperty({
+        type: "TextArea",
+        defaultValue: "content",
+        maxLength: 500,
+      } as FormTypes);
+      expect(result).toEqual({ textArea: { defaultValue: "content", maxLength: 500 } });
+    });
+
+    test("MarkdownText type returns markdownText property", () => {
+      const result = getTypeProperty({
+        type: "MarkdownText",
+        defaultValue: "# Title",
+        maxLength: 1000,
+      } as FormTypes);
+      expect(result).toEqual({ markdownText: { defaultValue: "# Title", maxLength: 1000 } });
+    });
+
+    test("Asset type returns asset property", () => {
+      const result = getTypeProperty({ type: "Asset", defaultValue: "asset-id" } as FormTypes);
+      expect(result).toEqual({ asset: { defaultValue: "asset-id" } });
+    });
+
+    test("Select type filters empty strings from array defaultValue", () => {
+      const result = getTypeProperty({
+        type: "Select",
+        defaultValue: ["a", "", "b"],
+        values: ["a", "b"],
+      } as FormTypes);
+      expect(result).toEqual({ select: { defaultValue: ["a", "b"], values: ["a", "b"] } });
+    });
+
+    test("Select type with scalar defaultValue", () => {
+      const result = getTypeProperty({
+        type: "Select",
+        defaultValue: "a",
+        values: ["a", "b"],
+      } as FormTypes);
+      expect(result).toEqual({ select: { defaultValue: "a", values: ["a", "b"] } });
+    });
+
+    test("Select type with undefined defaultValue", () => {
+      const result = getTypeProperty({
+        type: "Select",
+        values: ["a"],
+      } as FormTypes);
+      expect(result).toEqual({ select: { defaultValue: "", values: ["a"] } });
+    });
+
+    test("Integer type filters non-numbers from array and maps min/max", () => {
+      const result = getTypeProperty({
+        type: "Integer",
+        defaultValue: [1, "invalid", 3],
+        min: 0,
+        max: 100,
+      } as FormTypes);
+      expect(result).toEqual({ integer: { defaultValue: [1, 3], min: 0, max: 100 } });
+    });
+
+    test("Number type with undefined min/max uses null", () => {
+      const result = getTypeProperty({
+        type: "Number",
+        defaultValue: 3.14,
+      } as FormTypes);
+      expect(result).toEqual({ number: { defaultValue: 3.14, min: null, max: null } });
+    });
+
+    test("Bool type returns bool property", () => {
+      const result = getTypeProperty({ type: "Bool", defaultValue: true } as FormTypes);
+      expect(result).toEqual({ bool: { defaultValue: true } });
+    });
+
+    test("Date type with non-dayjs value passes through", () => {
+      const result = getTypeProperty({ type: "Date", defaultValue: "plain-string" } as FormTypes);
+      expect(result).toEqual({ date: { defaultValue: "plain-string" } });
+    });
+
+    test("Date type with undefined defaultValue returns empty string", () => {
+      const result = getTypeProperty({ type: "Date" } as FormTypes);
+      expect(result).toEqual({ date: { defaultValue: "" } });
+    });
+
+    test("Tag type cross-references tag names with defaultValue array", () => {
+      const result = getTypeProperty({
+        type: "Tag",
+        defaultValue: ["Tag A", "Tag C"],
+        tags: [
+          { name: "Tag A", color: "red" },
+          { name: "Tag B", color: "blue" },
+          { name: "Tag C", color: "green" },
+        ],
+      } as FormTypes);
+      expect(result).toEqual({
+        tag: {
+          defaultValue: ["Tag A", "Tag C"],
+          tags: [
+            { name: "Tag A", color: "red" },
+            { name: "Tag B", color: "blue" },
+            { name: "Tag C", color: "green" },
+          ],
+        },
+      });
+    });
+
+    test("Tag type with non-array defaultValue", () => {
+      const result = getTypeProperty({
+        type: "Tag",
+        defaultValue: "single",
+        tags: [{ name: "single", color: "red" }],
+      } as FormTypes);
+      expect(result).toEqual({
+        tag: { defaultValue: "single", tags: [{ name: "single", color: "red" }] },
+      });
+    });
+
+    test("Checkbox type returns checkbox property", () => {
+      const result = getTypeProperty({ type: "Checkbox", defaultValue: false } as FormTypes);
+      expect(result).toEqual({ checkbox: { defaultValue: false } });
+    });
+
+    test("URL type returns url property", () => {
+      const result = getTypeProperty({
+        type: "URL",
+        defaultValue: "https://example.com",
+      } as FormTypes);
+      expect(result).toEqual({ url: { defaultValue: "https://example.com" } });
+    });
+
+    test("Group type returns group property with groupId", () => {
+      const result = getTypeProperty({ type: "Group", group: "group-123" } as FormTypes);
+      expect(result).toEqual({ group: { groupId: "group-123" } });
+    });
+
+    test("GeometryObject type returns supportedTypes and defaultValue", () => {
+      const result = getTypeProperty({
+        type: "GeometryObject",
+        defaultValue: "geo-data",
+        supportedTypes: ["POINT", "POLYGON"],
+      } as FormTypes);
+      expect(result).toEqual({
+        geometryObject: { defaultValue: "geo-data", supportedTypes: ["POINT", "POLYGON"] },
+      });
+    });
+
+    test("GeometryEditor type wraps supportedTypes in array", () => {
+      const result = getTypeProperty({
+        type: "GeometryEditor",
+        defaultValue: "geo-data",
+        supportedTypes: "POINT",
+      } as FormTypes);
+      expect(result).toEqual({
+        geometryEditor: { defaultValue: "geo-data", supportedTypes: ["POINT"] },
+      });
+    });
+
+    test("unknown type falls through to Text default", () => {
+      const result = getTypeProperty({
+        type: "UnknownType" as SchemaFieldType,
+        defaultValue: "val",
+        maxLength: 50,
+      } as FormTypes);
+      expect(result).toEqual({ text: { defaultValue: "val", maxLength: 50 } });
     });
   });
 });

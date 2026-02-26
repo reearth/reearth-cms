@@ -26,4 +26,36 @@ describe("FileUtils", () => {
       expect(FileUtils.getExtension(undefined)).toBe("");
     });
   });
+
+  describe("MBtoBytes", () => {
+    test("converts 1 MB to bytes", () => {
+      expect(FileUtils.MBtoBytes(1)).toBe(1048576);
+    });
+
+    test("converts 0 MB to 0 bytes", () => {
+      expect(FileUtils.MBtoBytes(0)).toBe(0);
+    });
+
+    test("converts 0.5 MB to bytes", () => {
+      expect(FileUtils.MBtoBytes(0.5)).toBe(524288);
+    });
+  });
+
+  describe("readInput", () => {
+    test("returns string input as-is", async () => {
+      expect(await FileUtils.readInput("hello")).toBe("hello");
+    });
+
+    test("throws for unsupported input type", async () => {
+      await expect(FileUtils.readInput(42 as never)).rejects.toThrow("Unsupported input type");
+    });
+  });
+
+  describe("parseTextFile", () => {
+    test("resolves with file content", async () => {
+      const file = new File(["file content here"], "test.txt", { type: "text/plain" });
+      const result = await FileUtils.parseTextFile(file as never);
+      expect(result).toBe("file content here");
+    });
+  });
 });

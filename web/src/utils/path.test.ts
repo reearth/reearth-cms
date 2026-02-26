@@ -13,6 +13,10 @@ describe("path", () => {
     expect(splitPathname(pathname3)).toEqual(["workspace", "project", "content"]);
   });
 
+  test("joinPaths returns empty string for no arguments", () => {
+    expect(joinPaths()).toBe("");
+  });
+
   test("joinPaths with URLs", () => {
     expect(joinPaths("http://localhost:3000", "workspace/xxx")).toEqual(
       "http://localhost:3000/workspace/xxx",

@@ -160,6 +160,79 @@ describe("ObjectUtils", () => {
     });
   });
 
+  describe("isEmpty", () => {
+    it("returns true for empty object", () => {
+      expect(ObjectUtils.isEmpty({})).toBe(true);
+    });
+
+    it("returns false for object with own properties", () => {
+      expect(ObjectUtils.isEmpty({ a: 1 })).toBe(false);
+    });
+
+    it("ignores inherited properties", () => {
+      const parent = { inherited: true };
+      const child = Object.create(parent) as Record<string, unknown>;
+      expect(ObjectUtils.isEmpty(child)).toBe(true);
+    });
+  });
+
+  describe("isPlainObject", () => {
+    it("returns true for plain objects", () => {
+      expect(ObjectUtils.isPlainObject({})).toBe(true);
+      expect(ObjectUtils.isPlainObject({ a: 1 })).toBe(true);
+    });
+
+    it("returns false for arrays", () => {
+      expect(ObjectUtils.isPlainObject([])).toBe(false);
+      expect(ObjectUtils.isPlainObject([1, 2])).toBe(false);
+    });
+
+    it("returns false for null and undefined", () => {
+      expect(ObjectUtils.isPlainObject(null)).toBe(false);
+      expect(ObjectUtils.isPlainObject(undefined)).toBe(false);
+    });
+
+    it("returns false for primitives", () => {
+      expect(ObjectUtils.isPlainObject(42)).toBe(false);
+      expect(ObjectUtils.isPlainObject("string")).toBe(false);
+      expect(ObjectUtils.isPlainObject(true)).toBe(false);
+    });
+
+    it("returns true for Date and class instances (typeof object)", () => {
+      expect(ObjectUtils.isPlainObject(new Date())).toBe(true);
+    });
+  });
+
+  describe("validateGeoJson", () => {
+    it("resolves for a valid GeoJSON object", async () => {
+      const geojson = {
+        type: "Point",
+        coordinates: [139.6917, 35.6895],
+      };
+      const result = await ObjectUtils.validateGeoJson(geojson);
+      expect(result.isValid).toBe(true);
+      if (result.isValid) {
+        expect(result.data.type).toBe("Point");
+      }
+    });
+
+    it("resolves for a valid GeoJSON string", async () => {
+      const geojsonStr = JSON.stringify({
+        type: "Point",
+        coordinates: [139.6917, 35.6895],
+      });
+      const result = await ObjectUtils.validateGeoJson(geojsonStr);
+      expect(result.isValid).toBe(true);
+    });
+
+    it("rejects for invalid GeoJSON", async () => {
+      const invalid = { type: "InvalidType", coordinates: [] };
+      await expect(ObjectUtils.validateGeoJson(invalid)).rejects.toEqual(
+        expect.objectContaining({ isValid: false }),
+      );
+    });
+  });
+
   describe("deepJsonParse", () => {
     it("test", () => {
       const raw =
