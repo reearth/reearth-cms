@@ -133,8 +133,8 @@ describe("General form", () => {
     );
     await expect.poll(() => saveButton).toBeEnabled();
     await user.click(saveButton);
-    expect(screen.getByLabelText("loading")).toBeVisible();
-    expect(saveButton).toBeDisabled();
+    await expect.poll(() => screen.queryByLabelText("loading")).toBeVisible();
+    await expect.poll(() => saveButton).toBeDisabled();
     expect(onProjectUpdateMock).toHaveBeenCalledWith(
       `${name}new`,
       `${alias}new`,
@@ -169,7 +169,7 @@ describe("General form", () => {
     );
     await expect.poll(() => saveButton).toBeEnabled();
     await user.click(saveButton);
-    expect(saveButton).toBeDisabled();
+    await expect.poll(() => saveButton).toBeDisabled();
     await expect.poll(() => saveButton).toBeEnabled();
   });
 
