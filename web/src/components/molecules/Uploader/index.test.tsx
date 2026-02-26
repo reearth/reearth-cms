@@ -65,16 +65,17 @@ vi.mock("./useJobState", () => ({
   default: vi.fn(),
 }));
 
-beforeEach(() => {
-  document.body.innerHTML = "";
-});
+describe("Uploader", () => {
+  beforeEach(() => {
+    document.body.innerHTML = "";
+  });
 
-afterEach(() => {
-  cleanup();
-  document.body.innerHTML = "";
-});
+  afterEach(() => {
+    cleanup();
+    document.body.innerHTML = "";
+  });
 
-describe("Test Uploader component", () => {
+  describe("Test Uploader component", () => {
   test("Shows uploading title and queue item", () => {
     renderWithUploaderProvider({
       uploaderState: createMockUploaderState({
@@ -233,5 +234,6 @@ describe("Test Uploader component", () => {
       expect(handleUploaderOpen).not.toHaveBeenCalled();
       expect(handleCancelAll).not.toHaveBeenCalled();
     });
+  });
   });
 });
