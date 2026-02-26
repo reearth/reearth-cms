@@ -52,14 +52,15 @@ const createMockUploaderContext = (overrides?: Partial<UploaderHookState>): Uplo
   ...overrides,
 });
 
-const renderWithUploaderProvider = (contextOverrides?: Partial<UploaderHookState>) =>
-  render(
+const renderWithUploaderProvider = (contextOverrides?: Partial<UploaderHookState>) => {
+  return render(
     <MemoryRouter>
       <UploaderHookStateContext.Provider value={createMockUploaderContext(contextOverrides)}>
         <Uploader constraintsRef={{ current: document.createElement("div") }} />
       </UploaderHookStateContext.Provider>
     </MemoryRouter>,
   );
+};
 
 vi.mock("./useJobState", () => ({
   default: vi.fn(),
@@ -234,6 +235,93 @@ describe("Uploader", () => {
       expect(handleUploaderOpen).not.toHaveBeenCalled();
       expect(handleCancelAll).not.toHaveBeenCalled();
     });
+  });
+
+  test("Shows badge dot when showBadge is true", () => {
+    const { container } = renderWithUploaderProvider({
+      uploaderState: createMockUploaderState({ showBadge: true }),
+    });
+
+    expect(container.querySelector(".ant-badge-dot")).toBeInTheDocument();
+  });
+
+  test("Does not show badge dot when showBadge is false", () => {
+    const { container } = renderWithUploaderProvider({
+      uploaderState: createMockUploaderState({ showBadge: false }),
+    });
+
+    expect(container.querySelector(".ant-badge-dot")).not.toBeInTheDocument();
+  });
+
+  test("Shows empty title when uploadingFileCount is 0", () => {
+    renderWithUploaderProvider({
+      uploaderState: createMockUploaderState({ isOpen: true }),
+      uploadingFileCount: 0,
+    });
+
+    const title = screen.getByTestId(DATA_TEST_ID.Uploader__CardTitle);
+    expect(title).toHaveTextContent("");
+  });
+
+  test("Calls handleUploaderOpen(false) on minimize icon click", () => {
+    const handleUploaderOpen = vi.fn();
+
+    renderWithUploaderProvider({
+      uploaderState: createMockUploaderState({ isOpen: true }),
+      handleUploaderOpen,
+    });
+
+    const minimizeIcon = screen.getByTestId(DATA_TEST_ID.Uploader__MinimizeIcon);
+    fireEvent.click(minimizeIcon);
+
+    expect(handleUploaderOpen).toHaveBeenCalledWith(false);
+  });
+
+  test("Does not open uploader when pointer distance >= threshold (drag)", () => {
+    const handleUploaderOpen = vi.fn();
+
+    renderWithUploaderProvider({
+      uploaderState: createMockUploaderState({ isOpen: false }),
+      handleUploaderOpen,
+    });
+
+    const uploadIcon = screen.getByTestId(DATA_TEST_ID.Uploader__UploadIcon);
+
+    fireEvent.pointerDown(uploadIcon, { clientX: 0, clientY: 0, pointerId: 1, pointerType: "mouse", isPrimary: true });
+    fireEvent.pointerUp(uploadIcon, { clientX: 100, clientY: 100, pointerId: 1, pointerType: "mouse", isPrimary: true });
+
+    expect(handleUploaderOpen).not.toHaveBeenCalled();
+  });
+
+  test("Calls handleUploaderOpen(true) when click distance < threshold", () => {
+    const handleUploaderOpen = vi.fn();
+
+    renderWithUploaderProvider({
+      uploaderState: createMockUploaderState({ isOpen: false }),
+      handleUploaderOpen,
+    });
+
+    const uploadIcon = screen.getByTestId(DATA_TEST_ID.Uploader__UploadIcon);
+
+    fireEvent.pointerDown(uploadIcon, { clientX: 10, clientY: 10, pointerId: 1, pointerType: "mouse", isPrimary: true });
+    fireEvent.pointerUp(uploadIcon, { clientX: 11, clientY: 11, pointerId: 1, pointerType: "mouse", isPrimary: true });
+
+    expect(handleUploaderOpen).toHaveBeenCalledWith(true);
+  });
+
+  test("Renders multiple queue items in card body", () => {
+    const items = [
+      createQueueItem({ jobId: "job-1", fileName: "file1.csv" }),
+      createQueueItem({ jobId: "job-2", fileName: "file2.csv" }),
+      createQueueItem({ jobId: "job-3", fileName: "file3.csv" }),
+    ];
+
+    renderWithUploaderProvider({
+      uploaderState: createMockUploaderState({ isOpen: true, queue: items }),
+    });
+
+    const queueItems = screen.getAllByTestId(DATA_TEST_ID.QueueItem__Wrapper);
+    expect(queueItems).toHaveLength(3);
   });
   });
 });

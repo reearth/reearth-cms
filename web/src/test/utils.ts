@@ -231,6 +231,7 @@ export enum DATA_TEST_ID {
   Uploader__CardTitle = "Uploader__CardTitle",
   Uploader__CardTitleSuffix = "Uploader__CardTitleSuffix",
   Uploader__CancelAllIcon = "Uploader__CancelAllIcon",
+  Uploader__MinimizeIcon = "Uploader__MinimizeIcon",
   Uploader__CompleteIcon = "Uploader__CompleteIcon",
 
   // QueueItem
