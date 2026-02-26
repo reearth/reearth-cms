@@ -8,6 +8,7 @@ import AssetField from "./AssetField";
 import BooleanField from "./BooleanField";
 import CheckboxField from "./CheckboxField";
 import DateField from "./DateField";
+import GeometryField from "./GeometryField";
 import GroupField from "./GroupField";
 import NumberField from "./NumberField";
 import SelectField from "./SelectField";
@@ -340,5 +341,27 @@ describe("AssetField", () => {
       </Form>,
     );
     expect(screen.getByTestId("MultiValueAsset")).toBeInTheDocument();
+  });
+});
+
+describe("GeometryField", () => {
+  test("renders GeometryItem when multiple is false", () => {
+    render(
+      <Form>
+        <GeometryField multiple={false} isEditor={false} />
+      </Form>,
+    );
+    expect(screen.getByTestId("GeometryItem")).toBeInTheDocument();
+    expect(screen.queryByTestId("MultiValueGeometry")).not.toBeInTheDocument();
+  });
+
+  test("renders MultiValueGeometry when multiple is true", () => {
+    render(
+      <Form>
+        <GeometryField multiple={true} isEditor={false} />
+      </Form>,
+    );
+    expect(screen.getByTestId("MultiValueGeometry")).toBeInTheDocument();
+    expect(screen.queryByTestId("GeometryItem")).not.toBeInTheDocument();
   });
 });

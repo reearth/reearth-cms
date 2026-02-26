@@ -309,4 +309,26 @@ describe("FieldModal", () => {
       expect(screen.getByTestId("FieldDefaultInputs")).toBeInTheDocument();
     });
   });
+
+  describe("Loading and disabled states", () => {
+    test("OK button shows loading state when fieldLoading is true", () => {
+      renderModal({ fieldLoading: true });
+      const okButton = screen.getByText("OK").closest("button")!;
+      expect(okButton).toHaveClass("ant-btn-loading");
+    });
+
+    test("Cancel button is disabled when fieldLoading is true", () => {
+      renderModal({ fieldLoading: true });
+      const cancelButton = screen.getByText("Cancel").closest("button")!;
+      expect(cancelButton).toBeDisabled();
+    });
+
+    test("isTitle checkbox is hidden when isTitleDisabled is true", () => {
+      mockState.isTitleDisabled = true;
+      renderModal();
+      expect(
+        screen.getByTestId(DATA_TEST_ID.FieldModal__IsTitleCheckbox),
+      ).not.toBeVisible();
+    });
+  });
 });

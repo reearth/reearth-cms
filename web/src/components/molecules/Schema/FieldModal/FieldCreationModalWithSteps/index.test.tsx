@@ -162,6 +162,30 @@ describe("FieldCreationModalWithSteps", () => {
     });
   });
 
+  describe("Modal close", () => {
+    test("Close button calls onClose", async () => {
+      const user = userEvent.setup();
+      const onClose = vi.fn();
+      renderModal({ onClose });
+      await user.click(screen.getByRole("button", { name: "Close" }));
+      expect(onClose).toHaveBeenCalled();
+    });
+  });
+
+  describe("Step navigation", () => {
+    test("Next advances from step 0 to step 1 when model is selected", async () => {
+      const user = userEvent.setup();
+      renderModal({ selectedField: makeField() });
+      expect(
+        screen.queryByTestId(DATA_TEST_ID.FieldModal__DisplayNameInput),
+      ).not.toBeInTheDocument();
+      await user.click(screen.getByText("Next"));
+      expect(
+        screen.getByTestId(DATA_TEST_ID.FieldModal__DisplayNameInput),
+      ).toBeInTheDocument();
+    });
+  });
+
   describe("States", () => {
     test("direction radios are disabled in update mode", () => {
       renderModal({ selectedField: makeField() });

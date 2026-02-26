@@ -2,6 +2,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, test, expect, vi } from "vitest";
 
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+
 import type { Field } from "./types";
 
 import ModelFieldList from "./ModelFieldList";
@@ -123,5 +125,34 @@ describe("ModelFieldList", () => {
       <ModelFieldList {...defaultProps} fields={fields} hasUpdateRight={true} />,
     );
     expect(container.querySelector(".grabbable")).toBeInTheDocument();
+  });
+
+  test("calls onFieldDelete with field id after PopConfirm confirmation", async () => {
+    const onFieldDelete = vi.fn().mockResolvedValue(undefined);
+    const fields = [makeField({ id: "f1", title: "Name", key: "name" })];
+    render(
+      <ModelFieldList {...defaultProps} fields={fields} onFieldDelete={onFieldDelete} />,
+    );
+    const deleteButton = screen.getByRole("button", { name: "delete" });
+    await user.click(deleteButton);
+    const confirmButton = screen.getByTestId(
+      DATA_TEST_ID.ModelFieldList__ConfirmDeleteFieldButton,
+    );
+    await user.click(confirmButton);
+    expect(onFieldDelete).toHaveBeenCalledWith("f1");
+  });
+
+  test("calls onSchemaImport when import link is clicked in empty state", async () => {
+    const onSchemaImport = vi.fn();
+    render(<ModelFieldList {...defaultProps} fields={[]} onSchemaImport={onSchemaImport} />);
+    const importLink = screen.getByText("import");
+    await user.click(importLink);
+    expect(onSchemaImport).toHaveBeenCalled();
+  });
+
+  test("hides import link in empty state when hasCreateRight is false", () => {
+    render(<ModelFieldList {...defaultProps} fields={[]} hasCreateRight={false} />);
+    expect(screen.getByText("Empty Schema design.", { exact: false })).toBeVisible();
+    expect(screen.queryByText("import")).not.toBeInTheDocument();
   });
 });
