@@ -96,6 +96,10 @@ export default defineConfig({
       { find: "@ant-design/pro-provider", replacement: "@ant-design/pro-provider/es/index.js" },
       { find: "@ant-design/pro-table", replacement: "@ant-design/pro-table/es/index.js" },
       { find: "@ant-design/pro-utils", replacement: "@ant-design/pro-utils/es/index.js" },
+      {
+        find: "monaco-editor",
+        replacement: "monaco-editor/esm/vs/editor/editor.main.js",
+      },
     ],
   },
 });
