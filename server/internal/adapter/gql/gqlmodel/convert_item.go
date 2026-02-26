@@ -44,16 +44,7 @@ func toItemFields(fields item.Fields, s *schema.Schema, isGroupSchema bool) []*I
 	var res []*ItemField
 	for _, sf := range s.Fields() {
 		f := lo.Filter(fields, func(itf *item.Field, _ int) bool {
-			if itf == nil {
-				return false
-			}
-			if itf.FieldID() != sf.ID() {
-				return false
-			}
-			if isGroupSchema {
-				return itf.ItemGroup() != nil
-			}
-			return itf.ItemGroup() == nil
+			return itf != nil && itf.FieldID() == sf.ID()
 		})
 		if !isGroupSchema && len(f) == 0 {
 			// non-group schema: always return an entry for each schema field
