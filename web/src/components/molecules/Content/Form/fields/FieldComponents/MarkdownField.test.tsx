@@ -167,6 +167,27 @@ describe("MarkdownField", () => {
     await expect(formInstance!.validateFields()).rejects.toBeDefined();
   });
 
+  test("maxLength validator resolves when value is null", async () => {
+    renderField({ fieldOverrides: { typeProperty: { maxLength: 5 } } });
+    expect(formInstance).toBeDefined();
+    formInstance!.setFieldValue("field-1", null);
+    await expect(formInstance!.validateFields()).resolves.toBeDefined();
+  });
+
+  test("maxLength validator resolves when maxLength is undefined", async () => {
+    renderField();
+    expect(formInstance).toBeDefined();
+    formInstance!.setFieldValue("field-1", "a very long string that exceeds any reasonable limit");
+    await expect(formInstance!.validateFields()).resolves.toBeDefined();
+  });
+
+  test("maxLength validator ignores non-string items in array", async () => {
+    renderField({ fieldOverrides: { typeProperty: { maxLength: 3 } } });
+    expect(formInstance).toBeDefined();
+    formInstance!.setFieldValue("field-1", [null, undefined, 12345]);
+    await expect(formInstance!.validateFields()).resolves.toBeDefined();
+  });
+
   test("forwards itemHeights and onItemHeightChange to ResponsiveHeight", () => {
     const heights = { "item-1": 100 };
     const handler = vi.fn();
