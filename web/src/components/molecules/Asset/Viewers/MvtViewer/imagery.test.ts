@@ -1,17 +1,19 @@
 import { describe, expect, test } from "vitest";
 
-import { parseMetadata, parseTileJson } from "./Imagery";
+import { getMvtBaseUrl, idFromGeometry, parseMetadata, parseTileJson } from "./Imagery";
 
-describe("Imagery", () => {
-  test("parseMetadata", () => {
+describe("parseMetadata", () => {
+  test("parses full metadata", () => {
     expect(parseMetadata(metadata)).toEqual({
       center: [138.1515732, 35.9939779, 0],
       layers: ["HighLevelUseDistrict"],
       maximumLevel: 15,
     });
   });
+});
 
-  test("parseTileJson", () => {
+describe("parseTileJson", () => {
+  test("parses full tilejson", () => {
     expect(parseTileJson(tilejson)).toEqual({
       center: [139.7, 35.68, 0],
       layers: ["buildings", "roads"],
@@ -19,7 +21,7 @@ describe("Imagery", () => {
     });
   });
 
-  test("parseTileJson with missing fields", () => {
+  test("missing fields", () => {
     expect(parseTileJson({})).toEqual({});
     expect(parseTileJson({ maxzoom: 14 })).toEqual({ maximumLevel: 14 });
     expect(parseTileJson({ center: [140, 36] })).toEqual({ center: [140, 36, 0] });
@@ -28,7 +30,7 @@ describe("Imagery", () => {
     });
   });
 
-  test("parseTileJson with invalid fields", () => {
+  test("invalid fields", () => {
     expect(parseTileJson(null)).toBeUndefined();
     expect(parseTileJson(undefined)).toBeUndefined();
     expect(parseTileJson("string")).toBeUndefined();
@@ -38,6 +40,81 @@ describe("Imagery", () => {
     expect(parseTileJson({ vector_layers: [{ name: "no-id" }, null, { id: 123 }] })).toEqual({
       layers: [],
     });
+  });
+});
+
+describe("getMvtBaseUrl", () => {
+  test("tile template URL", () => {
+    expect(getMvtBaseUrl("https://example.com/tiles/12/345/678.mvt")).toBe(
+      "https://example.com/tiles",
+    );
+  });
+
+  test(".zip URL", () => {
+    expect(getMvtBaseUrl("https://example.com/tiles.zip")).toBe("https://example.com/tiles");
+  });
+
+  test(".7z URL", () => {
+    expect(getMvtBaseUrl("https://example.com/tiles.7z")).toBe("https://example.com/tiles");
+  });
+
+  test("filename URL", () => {
+    expect(getMvtBaseUrl("https://example.com/tiles/metadata.json")).toBe(
+      "https://example.com/tiles",
+    );
+  });
+
+  test("large z/x/y values", () => {
+    expect(getMvtBaseUrl("https://example.com/15/29134/12950.pbf")).toBe("https://example.com");
+  });
+});
+
+describe("idFromGeometry", () => {
+  // idFromGeometry expects Point[][] where Point has { x, y } properties.
+  // We use plain objects cast to the expected type since only x/y are accessed.
+  const makeGeometry = (coords: [number, number][]) =>
+    [coords.map(([x, y]) => ({ x, y }))] as unknown as Parameters<typeof idFromGeometry>[0];
+
+  test("deterministic output", () => {
+    const geom = makeGeometry([[10, 20]]);
+    const tile = { x: 1, y: 2, level: 3 };
+    expect(idFromGeometry(geom, tile)).toBe(idFromGeometry(geom, tile));
+  });
+
+  test("different coordinates produce different hashes", () => {
+    const tile = { x: 1, y: 2, level: 3 };
+    const a = idFromGeometry(makeGeometry([[10, 20]]), tile);
+    const b = idFromGeometry(makeGeometry([[30, 40]]), tile);
+    expect(a).not.toBe(b);
+  });
+
+  test("different tile produces different hash", () => {
+    const geom = makeGeometry([[10, 20]]);
+    const a = idFromGeometry(geom, { x: 1, y: 2, level: 3 });
+    const b = idFromGeometry(geom, { x: 4, y: 5, level: 6 });
+    expect(a).not.toBe(b);
+  });
+
+  test("multi-ring geometry", () => {
+    const geom = [
+      [
+        { x: 1, y: 2 },
+        { x: 3, y: 4 },
+      ],
+      [
+        { x: 5, y: 6 },
+        { x: 7, y: 8 },
+      ],
+    ] as unknown as Parameters<typeof idFromGeometry>[0];
+    const tile = { x: 0, y: 0, level: 0 };
+    const result = idFromGeometry(geom, tile);
+    expect(result).toMatch(/^[0-9a-f]{32}$/);
+  });
+
+  test("result is 32-char hex string", () => {
+    const geom = makeGeometry([[100, 200]]);
+    const tile = { x: 10, y: 20, level: 5 };
+    expect(idFromGeometry(geom, tile)).toMatch(/^[0-9a-f]{32}$/);
   });
 });
 
