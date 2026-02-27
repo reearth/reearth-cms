@@ -158,6 +158,20 @@ describe("ObjectUtils", () => {
       expect(actualOutput.isValid).toBe(true);
       if (actualOutput.isValid) expect(actualOutput.data).toBe(expectedOutput);
     });
+
+    it("recursively parses double-stringified JSON", async () => {
+      const input = JSON.stringify(JSON.stringify({ x: 1 }));
+      const result = await ObjectUtils.safeJSONParse(input);
+
+      expect(result).toEqual({ isValid: true, data: { x: 1 } });
+    });
+
+    it("returns isValid true with raw string when input is malformed JSON", async () => {
+      const input = "{ broken json";
+      const result = await ObjectUtils.safeJSONParse(input);
+
+      expect(result).toEqual({ isValid: true, data: "{ broken json" });
+    });
   });
 
   describe("isEmpty", () => {
@@ -234,7 +248,7 @@ describe("ObjectUtils", () => {
   });
 
   describe("deepJsonParse", () => {
-    it("test", () => {
+    it("recursively parses stringified object with embedded stringified JSON values", () => {
       const raw =
         '{\n  "geo-object-key": {\n    "title": "geo-object-key",\n    "description": "this is geo obj field",\n    "type": "object",\n    "x-defaultValue": "{\\n   \\"coordinates\\": [\\n          139.6917,\\n          35.6895\\n        ],\\n        \\"type\\": \\"Point\\"\\n}",\n    "x-fieldType": "geometryObject",\n    "x-unique": true,\n    "x-required": true,\n    "x-geoSupportedTypes": [\n      "POINT"\n    ]\n  }\n}';
       const expectResult = {
@@ -254,6 +268,50 @@ describe("ObjectUtils", () => {
       };
 
       expect(expectResult).toEqual(ObjectUtils.deepJsonParse(raw));
+    });
+
+    it("returns number as-is", () => {
+      expect(ObjectUtils.deepJsonParse(42)).toBe(42);
+    });
+
+    it("returns boolean as-is", () => {
+      expect(ObjectUtils.deepJsonParse(true)).toBe(true);
+      expect(ObjectUtils.deepJsonParse(false)).toBe(false);
+    });
+
+    it("returns null as-is", () => {
+      expect(ObjectUtils.deepJsonParse(null)).toBeNull();
+    });
+
+    it("returns undefined as-is", () => {
+      expect(ObjectUtils.deepJsonParse(undefined)).toBeUndefined();
+    });
+
+    it("returns a plain non-JSON string as-is", () => {
+      expect(ObjectUtils.deepJsonParse("hello world")).toBe("hello world");
+    });
+
+    it("handles an empty object", () => {
+      expect(ObjectUtils.deepJsonParse({})).toEqual({});
+    });
+
+    it("handles an empty array", () => {
+      expect(ObjectUtils.deepJsonParse([])).toEqual([]);
+    });
+
+    it("recursively parses each element of an array", () => {
+      const input = [1, "text", '{"a":1}', [2, '{"b":2}']];
+      expect(ObjectUtils.deepJsonParse(input)).toEqual([1, "text", { a: 1 }, [2, { b: 2 }]]);
+    });
+
+    it("recursively parses each value of a plain object", () => {
+      const input = { k1: 42, k2: '{"n":"v"}', k3: [1, 2] };
+      expect(ObjectUtils.deepJsonParse(input)).toEqual({ k1: 42, k2: { n: "v" }, k3: [1, 2] });
+    });
+
+    it("unwraps double-stringified JSON", () => {
+      const input = JSON.stringify(JSON.stringify({ a: 1 }));
+      expect(ObjectUtils.deepJsonParse(input)).toEqual({ a: 1 });
     });
   });
 });
