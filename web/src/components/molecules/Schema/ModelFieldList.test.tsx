@@ -6,6 +6,14 @@ import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import type { Field } from "./types";
 
+let capturedOnDragEnd: (fromIndex: number, toIndex: number) => void;
+vi.mock("react-drag-listview", () => ({
+  default: ({ children, onDragEnd }: { children: React.ReactNode; onDragEnd: (f: number, t: number) => void }) => {
+    capturedOnDragEnd = onDragEnd;
+    return <div>{children}</div>;
+  },
+}));
+
 import ModelFieldList from "./ModelFieldList";
 
 const makeField = (overrides?: Partial<Field>): Field => ({
@@ -154,5 +162,72 @@ describe("ModelFieldList", () => {
     render(<ModelFieldList {...defaultProps} fields={[]} hasCreateRight={false} />);
     expect(screen.getByText("Empty Schema design.", { exact: false })).toBeVisible();
     expect(screen.queryByText("import")).not.toBeInTheDocument();
+  });
+
+  test("renders empty state when fields is undefined", () => {
+    render(<ModelFieldList {...defaultProps} fields={undefined} />);
+    expect(screen.getByText("Empty Schema design.", { exact: false })).toBeVisible();
+  });
+
+  test("renders both meta section and field list when isMeta with fields", () => {
+    const fields = [makeField({ id: "f1", title: "Name", key: "name" })];
+    render(<ModelFieldList {...defaultProps} isMeta fields={fields} />);
+    expect(screen.getByText("Item Information")).toBeVisible();
+    expect(screen.getByText("Publish Status")).toBeVisible();
+    expect(screen.getByText("Name")).toBeVisible();
+    expect(screen.getByText("#name")).toBeVisible();
+  });
+
+  test("does not show empty state or import link when fields exist", () => {
+    const fields = [makeField({ id: "f1", title: "Name", key: "name" })];
+    render(<ModelFieldList {...defaultProps} fields={fields} />);
+    expect(screen.queryByText("Empty Schema design.", { exact: false })).not.toBeInTheDocument();
+    expect(screen.queryByText("import")).not.toBeInTheDocument();
+  });
+
+  test("renders all badges simultaneously on a single field", () => {
+    const fields = [
+      makeField({ id: "f1", title: "Name", key: "name", required: true, unique: true, isTitle: true }),
+    ];
+    render(<ModelFieldList {...defaultProps} fields={fields} />);
+    expect(screen.getByText("*", { exact: false })).toBeInTheDocument();
+    expect(screen.getByText("(unique)")).toBeVisible();
+    expect(screen.getByText("Title")).toBeVisible();
+  });
+
+  test("calls onFieldReorder when drag completes", () => {
+    const onFieldReorder = vi.fn();
+    const fields = [
+      makeField({ id: "f1", title: "First", key: "first" }),
+      makeField({ id: "f2", title: "Second", key: "second" }),
+    ];
+    render(<ModelFieldList {...defaultProps} fields={fields} onFieldReorder={onFieldReorder} />);
+    capturedOnDragEnd(0, 1);
+    expect(onFieldReorder).toHaveBeenCalledWith([
+      expect.objectContaining({ id: "f2" }),
+      expect.objectContaining({ id: "f1" }),
+    ]);
+  });
+
+  test("does not call onFieldReorder when drag toIndex is negative", () => {
+    const onFieldReorder = vi.fn();
+    const fields = [makeField({ id: "f1", title: "First", key: "first" })];
+    render(<ModelFieldList {...defaultProps} fields={fields} onFieldReorder={onFieldReorder} />);
+    capturedOnDragEnd(0, -1);
+    expect(onFieldReorder).not.toHaveBeenCalled();
+  });
+
+  test("adds metadata flag to fields when isMeta and drag completes", () => {
+    const onFieldReorder = vi.fn();
+    const fields = [
+      makeField({ id: "f1", title: "First", key: "first" }),
+      makeField({ id: "f2", title: "Second", key: "second" }),
+    ];
+    render(<ModelFieldList {...defaultProps} isMeta fields={fields} onFieldReorder={onFieldReorder} />);
+    capturedOnDragEnd(0, 1);
+    expect(onFieldReorder).toHaveBeenCalledWith([
+      expect.objectContaining({ id: "f2", metadata: true }),
+      expect.objectContaining({ id: "f1", metadata: true }),
+    ]);
   });
 });
