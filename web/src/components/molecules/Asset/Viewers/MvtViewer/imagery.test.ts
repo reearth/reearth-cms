@@ -10,6 +10,37 @@ describe("parseMetadata", () => {
       maximumLevel: 15,
     });
   });
+
+  test("returns undefined for null, undefined, and non-object input", () => {
+    expect(parseMetadata(null)).toBeUndefined();
+    expect(parseMetadata(undefined)).toBeUndefined();
+    expect(parseMetadata("string")).toBeUndefined();
+    expect(parseMetadata(42)).toBeUndefined();
+  });
+
+  test("returns empty object for empty input", () => {
+    expect(parseMetadata({})).toEqual({});
+  });
+
+  test("ignores non-string json field", () => {
+    expect(parseMetadata({ json: 123 })).toEqual({});
+    expect(parseMetadata({ json: null })).toEqual({});
+    expect(parseMetadata({ json: ["array"] })).toEqual({});
+  });
+
+  test("handles invalid JSON string in json field", () => {
+    expect(parseMetadata({ json: "not valid json" })).toEqual({});
+  });
+
+  test("ignores non-string center", () => {
+    expect(parseMetadata({ center: [139.7, 35.68] })).toEqual({});
+    expect(parseMetadata({ center: 123 })).toEqual({});
+  });
+
+  test("ignores non-number maxzoom", () => {
+    expect(parseMetadata({ maxzoom: "16" })).toEqual({});
+    expect(parseMetadata({ maxzoom: null })).toEqual({});
+  });
 });
 
 describe("parseTileJson", () => {
