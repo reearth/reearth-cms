@@ -29,41 +29,41 @@ import { ObjectUtils } from "@reearth-cms/utils/object";
 const { Dragger } = Upload;
 
 type Props = {
-  isOpen: boolean;
+  alertList: AlertProps[];
   dataChecking: boolean;
+  isOpen: boolean;
   modelFields: Model["schema"]["fields"];
-  workspaceId: string | undefined;
-  projectId: string | undefined;
   modelId: string | undefined;
-  onSetDataChecking: (isChecking: boolean) => void;
   onClose: () => void;
   onEnqueueJob: UploaderHookState["handleEnqueueJob"];
-  alertList: AlertProps[];
+  onSetDataChecking: (isChecking: boolean) => void;
+  projectId: string | undefined;
   setAlertList: Dispatch<SetStateAction<AlertProps[]>>;
-  validateImportResult: ValidateImportResult | null;
-  setValidateImportResult: Dispatch<SetStateAction<ValidateImportResult | null>>;
+  setValidateImportResult: Dispatch<SetStateAction<null | ValidateImportResult>>;
+  validateImportResult: null | ValidateImportResult;
+  workspaceId: string | undefined;
 };
 
-const TemplateLink = ({ href, children }: ButtonProps) => (
-  <StyledLink onClick={event => event.stopPropagation()} type="link" href={href} download>
+const TemplateLink = ({ children, href }: ButtonProps) => (
+  <StyledLink download href={href} onClick={event => event.stopPropagation()} type="link">
     {children}
   </StyledLink>
 );
 
 const ContentImportModal: React.FC<Props> = ({
-  isOpen,
+  alertList,
   dataChecking,
+  isOpen,
   modelFields,
-  workspaceId,
-  projectId,
   modelId,
-  onSetDataChecking,
   onClose,
   onEnqueueJob,
-  alertList,
+  onSetDataChecking,
+  projectId,
   setAlertList,
-  validateImportResult,
   setValidateImportResult,
+  validateImportResult,
+  workspaceId,
 }) => {
   const t = useT();
   const location = useLocation();
@@ -71,10 +71,10 @@ const ContentImportModal: React.FC<Props> = ({
   const raiseIllegalFileAlert = useCallback(() => {
     setAlertList([
       {
-        message: t("The uploaded file is empty or invalid"),
-        type: "error",
         closable: true,
+        message: t("The uploaded file is empty or invalid"),
         showIcon: true,
+        type: "error",
       },
     ]);
   }, [setAlertList, t]);
@@ -82,10 +82,10 @@ const ContentImportModal: React.FC<Props> = ({
   const raiseSingleFileAlert = useCallback(() => {
     setAlertList([
       {
-        message: t("Only one file can be uploaded at a time"),
-        type: "error",
         closable: true,
+        message: t("Only one file can be uploaded at a time"),
         showIcon: true,
+        type: "error",
       },
     ]);
   }, [setAlertList, t]);
@@ -93,10 +93,10 @@ const ContentImportModal: React.FC<Props> = ({
   const raiseIllegalFileFormatAlert = useCallback(() => {
     setAlertList([
       {
-        message: t("File format is not supported"),
-        type: "error",
         closable: true,
+        message: t("File format is not supported"),
         showIcon: true,
+        type: "error",
       },
     ]);
   }, [setAlertList, t]);
@@ -104,12 +104,12 @@ const ContentImportModal: React.FC<Props> = ({
   const raiseTooLargeFileSizeAlert = useCallback(() => {
     setAlertList([
       {
+        closable: true,
         message: t("File size should below {{maxSizeInMB}} MB.", {
           maxSizeInMB: Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
         }),
-        type: "error",
-        closable: true,
         showIcon: true,
+        type: "error",
       },
     ]);
   }, [setAlertList, t]);
@@ -122,27 +122,25 @@ const ContentImportModal: React.FC<Props> = ({
         // case: above limit + some mismatch (exceedLimit = true, mismatchFields.size > 0)
         if (errorMeta.typeMismatchFieldKeys.size > 0) {
           setValidateImportResult({
-            type: "error",
-            title: t("Data file is too large and some fields don't match the schema."),
             description: t(
               "The data file can contain a maximum of {{maxRecord}} records and below {{maxSize}} MB. Please split the file and re-upload it. And {{count}} fields do not match the schema.",
               {
+                count: errorMeta.typeMismatchFieldKeys.size,
                 maxRecords: Constant.IMPORT.MAX_CONTENT_RECORDS,
                 maxSize: Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
-                count: errorMeta.typeMismatchFieldKeys.size,
               },
             ),
             hint: t("Unmatched field hint", {
               count: errorMeta.typeMismatchFieldKeys.size,
               fields: Array.from(errorMeta.typeMismatchFieldKeys),
             }),
+            title: t("Data file is too large and some fields don't match the schema."),
+            type: "error",
           });
         }
         // case: above limit, full match (exceedLimit = true, mismatchFields.size = 0)
         else {
           setValidateImportResult({
-            type: "error",
-            title: t("Data file is too large."),
             description: t(
               "The data file can contain a maximum of {{maxRecord}} records and below {{maxSize}} MB. Please split the file and re-upload it",
               {
@@ -150,6 +148,8 @@ const ContentImportModal: React.FC<Props> = ({
                 maxSize: Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
               },
             ),
+            title: t("Data file is too large."),
+            type: "error",
           });
         }
       } else {
@@ -159,8 +159,7 @@ const ContentImportModal: React.FC<Props> = ({
           errorMeta.typeMismatchFieldKeys.size !== modelFields.length
         ) {
           setValidateImportResult({
-            type: "warning",
-            title: t("Some fields don't match the schema"),
+            canForwardToImport: true,
             description: t(
               "{{count}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored.",
               { count: errorMeta.typeMismatchFieldKeys.size },
@@ -169,17 +168,18 @@ const ContentImportModal: React.FC<Props> = ({
               count: errorMeta.typeMismatchFieldKeys.size,
               fields: Array.from(errorMeta.typeMismatchFieldKeys),
             }),
-            canForwardToImport: true,
+            title: t("Some fields don't match the schema"),
+            type: "warning",
           });
         }
         // case: below limit, no match (exceedLimit = false, mismatchFields.size = modelFieldCount)
         else {
           setValidateImportResult({
-            type: "error",
-            title: t("No matching fields found"),
             description: t(
               "The data file does not match the schema. None of the fields could be recognized. Please update the file or use a different schema to continue.",
             ),
+            title: t("No matching fields found"),
+            type: "error",
           });
         }
       }
@@ -222,19 +222,19 @@ const ContentImportModal: React.FC<Props> = ({
         handleStartLoading();
         const content = await FileUtils.parseTextFile(file);
 
-        const handleEnqueueJob = (extension: "json" | "csv" | "geojson") => {
+        const handleEnqueueJob = (extension: "csv" | "geojson" | "json") => {
           if (!workspaceId) throw Error("No workspace id");
           if (!projectId) throw Error("No project id");
           if (!modelId) throw Error("No model id!");
 
           onEnqueueJob({
-            workspaceId,
-            projectId,
-            modelId,
             extension,
-            fileName,
-            url: location.pathname,
             file,
+            fileName,
+            modelId,
+            projectId,
+            url: location.pathname,
+            workspaceId,
           });
           onClose();
         };
@@ -322,10 +322,10 @@ const ContentImportModal: React.FC<Props> = ({
         console.error(error);
         setAlertList([
           {
-            message: t("An unexpected error occurred while processing the file. Please try again."),
-            type: "error",
             closable: true,
+            message: t("An unexpected error occurred while processing the file. Please try again."),
             showIcon: true,
+            type: "error",
           },
         ]);
       } finally {
@@ -357,13 +357,13 @@ const ContentImportModal: React.FC<Props> = ({
 
   const uploadProps = useMemo<UploadProps>(
     () => ({
-      name: "importContentFile",
-      multiple: true,
-      directory: false,
-      showUploadList: false,
-      listType: "picture",
       beforeUpload: handleBeforeUpload,
       "data-testid": DATA_TEST_ID.ContentImportModal__FileSelect,
+      directory: false,
+      listType: "picture",
+      multiple: true,
+      name: "importContentFile",
+      showUploadList: false,
     }),
     [handleBeforeUpload],
   );
@@ -381,12 +381,12 @@ const ContentImportModal: React.FC<Props> = ({
 
   return (
     <Modal
-      styles={{ body: { height: "70vh" } }}
-      title={t("Import content")}
-      open={isOpen}
-      onCancel={onClose}
+      footer={null}
       maskClosable={false}
-      footer={null}>
+      onCancel={onClose}
+      open={isOpen}
+      styles={{ body: { height: "70vh" } }}
+      title={t("Import content")}>
       {!validateImportResult ? (
         <>
           {dataChecking ? (
@@ -408,7 +408,6 @@ const ContentImportModal: React.FC<Props> = ({
               </p>
               <p className="ant-upload-hint">
                 <Trans
-                  i18nKey="You can also download file templates: CSV | JSON | GeoJSON"
                   components={{
                     l1: (
                       <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_CSV}>
@@ -426,6 +425,7 @@ const ContentImportModal: React.FC<Props> = ({
                       </TemplateLink>
                     ),
                   }}
+                  i18nKey="You can also download file templates: CSV | JSON | GeoJSON"
                 />
               </p>
               {alertList.map((alert, index) => (
@@ -440,14 +440,14 @@ const ContentImportModal: React.FC<Props> = ({
         </>
       ) : (
         <StyledFlex
+          align="center"
           data-testid={DATA_TEST_ID.ContentImportModal__ErrorWrapper}
-          vertical
           justify="center"
-          align="center">
+          vertical>
           <Icon
+            color={importErrorIcon}
             data-testid={DATA_TEST_ID.ContentImportModal__ErrorIcon}
             icon="warningSolid"
-            color={importErrorIcon}
           />
           <Typography.Title data-testid={DATA_TEST_ID.ContentImportModal__ErrorTitle} level={4}>
             {validateImportResult.title}
@@ -457,11 +457,11 @@ const ContentImportModal: React.FC<Props> = ({
           </Typography.Paragraph>
           <Space>
             <StyledActionButton
-              type="default"
               onClick={() => {
                 setAlertList([]);
                 setValidateImportResult(null);
-              }}>
+              }}
+              type="default">
               {t("go back")}
             </StyledActionButton>
             {validateImportResult.canForwardToImport && (
@@ -470,8 +470,8 @@ const ContentImportModal: React.FC<Props> = ({
           </Space>
           {validateImportResult.hint && (
             <Typography.Paragraph
-              type="secondary"
-              data-testid={DATA_TEST_ID.ContentImportModal__ErrorHint}>
+              data-testid={DATA_TEST_ID.ContentImportModal__ErrorHint}
+              type="secondary">
               {validateImportResult.hint}
             </Typography.Paragraph>
           )}

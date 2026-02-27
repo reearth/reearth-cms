@@ -2,12 +2,11 @@ import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import {
-  ObjectSupportedType,
   EditorSupportedType,
+  ObjectSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
 
 import { SchemaFieldType } from "../../types";
-
 import AssetField from "./AssetField";
 import BooleanField from "./BooleanField";
 import CheckboxField from "./CheckboxField";
@@ -23,116 +22,116 @@ import TextField from "./TextField";
 import URLField from "./URLField";
 
 type Props = {
-  selectedType: SchemaFieldType;
-  selectedValues?: string[];
-  selectedTags?: { id: string; name: string; color: string }[];
-  selectedSupportedTypes?: ObjectSupportedType[] | EditorSupportedType;
-  maxLength?: number;
-  min?: number;
-  max?: number;
-  multiple: boolean;
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
-  onUploadModalCancel: () => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  max?: number;
+  maxLength?: number;
+  min?: number;
+  multiple: boolean;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsGet: () => void;
   onAssetsReload: () => void;
+  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onUploadModalCancel: () => void;
+  page: number;
+  pageSize: number;
+  selectedSupportedTypes?: EditorSupportedType | ObjectSupportedType[];
+  selectedTags?: { color: string; id: string; name: string; }[];
+  selectedType: SchemaFieldType;
+  selectedValues?: string[];
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
-  onGetAsset: (assetId: string) => Promise<string | undefined>;
+  setUploadType: (type: UploadType) => void;
+  setUploadUrl: (uploadUrl: { autoUnzip: boolean; url: string; }) => void;
+  totalCount: number;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  uploadType: UploadType;
+  uploadUrl: { autoUnzip: boolean; url: string; };
 };
 
 const FieldDefaultInputs: React.FC<Props> = ({
-  selectedType,
-  selectedValues,
-  selectedTags,
-  selectedSupportedTypes,
-  maxLength,
-  min,
-  max,
-  multiple,
   assetList,
   fileList,
   loadingAssets,
-  uploading,
-  uploadModalVisibility,
-  uploadUrl,
-  uploadType,
-  totalCount,
-  page,
-  pageSize,
-  onAssetTableChange,
-  onUploadModalCancel,
-  setUploadUrl,
-  setUploadType,
+  max,
+  maxLength,
+  min,
+  multiple,
+  onAssetCreateFromUrl,
+  onAssetsCreate,
   onAssetSearchTerm,
   onAssetsGet,
   onAssetsReload,
-  onAssetsCreate,
-  onAssetCreateFromUrl,
+  onAssetTableChange,
+  onGetAsset,
+  onUploadModalCancel,
+  page,
+  pageSize,
+  selectedSupportedTypes,
+  selectedTags,
+  selectedType,
+  selectedValues,
   setFileList,
   setUploadModalVisibility,
-  onGetAsset,
+  setUploadType,
+  setUploadUrl,
+  totalCount,
+  uploading,
+  uploadModalVisibility,
+  uploadType,
+  uploadUrl,
 }) => {
   switch (selectedType) {
     case "TextArea":
-      return <TextAreaField multiple={multiple} maxLength={maxLength} />;
+      return <TextAreaField maxLength={maxLength} multiple={multiple} />;
     case "MarkdownText":
-      return <MarkdownField multiple={multiple} maxLength={maxLength} />;
+      return <MarkdownField maxLength={maxLength} multiple={multiple} />;
     case "Integer":
     case "Number":
-      return <NumberField multiple={multiple} min={min} max={max} />;
+      return <NumberField max={max} min={min} multiple={multiple} />;
     case "Bool":
       return <BooleanField multiple={multiple} />;
     case "Date":
       return <DateField multiple={multiple} />;
     case "Tag":
-      return <TagField selectedTags={selectedTags} multiple={multiple} />;
+      return <TagField multiple={multiple} selectedTags={selectedTags} />;
     case "Checkbox":
       return <CheckboxField multiple={multiple} />;
     case "Asset":
       return (
         <AssetField
-          multiple={multiple}
           assetList={assetList}
           fileList={fileList}
           loadingAssets={loadingAssets}
-          uploading={uploading}
-          uploadModalVisibility={uploadModalVisibility}
-          uploadUrl={uploadUrl}
-          uploadType={uploadType}
-          totalCount={totalCount}
-          page={page}
-          pageSize={pageSize}
-          onAssetTableChange={onAssetTableChange}
-          onUploadModalCancel={onUploadModalCancel}
-          setUploadUrl={setUploadUrl}
-          setUploadType={setUploadType}
-          onAssetsCreate={onAssetsCreate}
+          multiple={multiple}
           onAssetCreateFromUrl={onAssetCreateFromUrl}
+          onAssetsCreate={onAssetsCreate}
           onAssetSearchTerm={onAssetSearchTerm}
           onAssetsGet={onAssetsGet}
           onAssetsReload={onAssetsReload}
+          onAssetTableChange={onAssetTableChange}
+          onGetAsset={onGetAsset}
+          onUploadModalCancel={onUploadModalCancel}
+          page={page}
+          pageSize={pageSize}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
-          onGetAsset={onGetAsset}
+          setUploadType={setUploadType}
+          setUploadUrl={setUploadUrl}
+          totalCount={totalCount}
+          uploading={uploading}
+          uploadModalVisibility={uploadModalVisibility}
+          uploadType={uploadType}
+          uploadUrl={uploadUrl}
         />
       );
     case "Select":
-      return <SelectField selectedValues={selectedValues} multiple={multiple} />;
+      return <SelectField multiple={multiple} selectedValues={selectedValues} />;
     case "URL":
       return <URLField multiple={multiple} />;
     case "Group":
@@ -141,14 +140,14 @@ const FieldDefaultInputs: React.FC<Props> = ({
     case "GeometryEditor":
       return (
         <GeometryField
-          supportedTypes={selectedSupportedTypes}
           isEditor={selectedType === "GeometryEditor"}
           multiple={multiple}
+          supportedTypes={selectedSupportedTypes}
         />
       );
     case "Text":
     default:
-      return <TextField multiple={multiple} maxLength={maxLength} />;
+      return <TextField maxLength={maxLength} multiple={multiple} />;
   }
 };
 

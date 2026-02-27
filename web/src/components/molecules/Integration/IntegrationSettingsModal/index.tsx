@@ -15,19 +15,19 @@ type FormValues = {
 };
 
 type Props = {
-  selectedIntegration?: WorkspaceIntegration;
-  open: boolean;
   loading: boolean;
   onClose: () => void;
   onSubmit: (role: Role) => Promise<void>;
+  open: boolean;
+  selectedIntegration?: WorkspaceIntegration;
 };
 
 const IntegrationSettingsModal: React.FC<Props> = ({
-  selectedIntegration,
-  open,
   loading,
   onClose,
   onSubmit,
+  open,
+  selectedIntegration,
 }) => {
   const t = useT();
   const { Option } = Select;
@@ -68,26 +68,26 @@ const IntegrationSettingsModal: React.FC<Props> = ({
   return (
     <Modal
       afterClose={handleAfterClose}
-      title={t("Integration Setting")}
-      open={open}
-      onCancel={onClose}
       footer={[
-        <Button key="back" onClick={onClose} disabled={loading}>
+        <Button disabled={loading} key="back" onClick={onClose}>
           {t("Cancel")}
         </Button>,
         <Button
-          key="submit"
-          type="primary"
-          onClick={handleSubmit}
           disabled={isDisabled}
-          loading={loading}>
+          key="submit"
+          loading={loading}
+          onClick={handleSubmit}
+          type="primary">
           {t("Save")}
         </Button>,
-      ]}>
+      ]}
+      onCancel={onClose}
+      open={open}
+      title={t("Integration Setting")}>
       <Wrapper>
         <Conetnt>
           <LogoWrapper>
-            <Icon icon="api" size={32} color="#b8b8b8" />
+            <Icon color="#b8b8b8" icon="api" size={32} />
           </LogoWrapper>
           <Info>
             <Name>{selectedIntegration?.name}</Name>
@@ -97,19 +97,19 @@ const IntegrationSettingsModal: React.FC<Props> = ({
       </Wrapper>
       <StyledForm
         form={form}
-        layout="vertical"
         initialValues={{ role: selectedIntegration?.role }}
+        layout="vertical"
         requiredMark={false}>
         <Form.Item
-          name="role"
           label={t("Role")}
+          name="role"
           rules={[
             {
-              required: true,
               message: t("Please input the appropriate role for this integration!"),
+              required: true,
             },
           ]}>
-          <StyledSelect placeholder={t("select role")} onSelect={handleSelect}>
+          <StyledSelect onSelect={handleSelect} placeholder={t("select role")}>
             <Option value="READER">{t("Reader")}</Option>
             <Option value="WRITER">{t("Writer")}</Option>
             <Option value="MAINTAINER">{t("Maintainer")}</Option>

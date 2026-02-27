@@ -2,7 +2,7 @@ import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types"
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-test.beforeEach(async ({ reearth, projectPage }) => {
+test.beforeEach(async ({ projectPage, reearth }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
@@ -15,9 +15,9 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("@smoke Option field creating and updating has succeeded", async ({
-  page,
-  fieldEditorPage,
   contentPage,
+  fieldEditorPage,
+  page,
   schemaPage,
 }) => {
   await test.step("Create option field and validate duplicate/empty values", async () => {
@@ -91,9 +91,9 @@ test("@smoke Option field creating and updating has succeeded", async ({
 });
 
 test("Option field editing has succeeded", async ({
-  page,
-  fieldEditorPage,
   contentPage,
+  fieldEditorPage,
+  page,
   schemaPage,
 }) => {
   await test.step("Create option field with three values and default", async () => {

@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import MyIntegrationContent from ".";
 
@@ -10,28 +10,28 @@ describe("Integration creation modal", () => {
   const loading = false;
   const name = "name";
   const integration = {
-    id: "",
-    name,
-    logoUrl: "",
-    developerId: "",
-    developer: {
-      id: "",
-      name: "",
-      email: "",
-    },
-    iType: "Private" as const,
     config: {
       webhooks: [
         {
+          active: true,
           id: "",
           name: "",
-          url: "",
-          active: true,
           secret: "",
           trigger: {},
+          url: "",
         },
       ],
     },
+    developer: {
+      email: "",
+      id: "",
+      name: "",
+    },
+    developerId: "",
+    id: "",
+    iType: "Private" as const,
+    logoUrl: "",
+    name,
   };
   const updateIntegrationLoading = false;
   const regenerateLoading = false;
@@ -60,19 +60,19 @@ describe("Integration creation modal", () => {
   test("Title and tabs are displayed successfully", async () => {
     render(
       <MyIntegrationContent
-        loading={loading}
-        integration={integration}
-        updateIntegrationLoading={updateIntegrationLoading}
-        regenerateLoading={regenerateLoading}
         createWebhookLoading={createWebhookLoading}
-        updateWebhookLoading={updateWebhookLoading}
-        onIntegrationUpdate={onIntegrationUpdate}
+        integration={integration}
+        loading={loading}
         onIntegrationDelete={onIntegrationDelete}
+        onIntegrationHeaderBack={onIntegrationHeaderBack}
+        onIntegrationUpdate={onIntegrationUpdate}
         onRegenerateToken={onRegenerateToken}
         onWebhookCreate={onWebhookCreate}
         onWebhookDelete={onWebhookDelete}
         onWebhookUpdate={onWebhookUpdate}
-        onIntegrationHeaderBack={onIntegrationHeaderBack}
+        regenerateLoading={regenerateLoading}
+        updateIntegrationLoading={updateIntegrationLoading}
+        updateWebhookLoading={updateWebhookLoading}
       />,
     );
 
@@ -88,19 +88,19 @@ describe("Integration creation modal", () => {
   test("Loading is displayed successfully", async () => {
     render(
       <MyIntegrationContent
-        loading={true}
-        integration={integration}
-        updateIntegrationLoading={updateIntegrationLoading}
-        regenerateLoading={regenerateLoading}
         createWebhookLoading={createWebhookLoading}
-        updateWebhookLoading={updateWebhookLoading}
-        onIntegrationUpdate={onIntegrationUpdate}
+        integration={integration}
+        loading={true}
         onIntegrationDelete={onIntegrationDelete}
+        onIntegrationHeaderBack={onIntegrationHeaderBack}
+        onIntegrationUpdate={onIntegrationUpdate}
         onRegenerateToken={onRegenerateToken}
         onWebhookCreate={onWebhookCreate}
         onWebhookDelete={onWebhookDelete}
         onWebhookUpdate={onWebhookUpdate}
-        onIntegrationHeaderBack={onIntegrationHeaderBack}
+        regenerateLoading={regenerateLoading}
+        updateIntegrationLoading={updateIntegrationLoading}
+        updateWebhookLoading={updateWebhookLoading}
       />,
     );
 
@@ -110,19 +110,19 @@ describe("Integration creation modal", () => {
   test("Not found is displayed successfully", async () => {
     render(
       <MyIntegrationContent
-        loading={loading}
-        integration={undefined}
-        updateIntegrationLoading={updateIntegrationLoading}
-        regenerateLoading={regenerateLoading}
         createWebhookLoading={createWebhookLoading}
-        updateWebhookLoading={updateWebhookLoading}
-        onIntegrationUpdate={onIntegrationUpdate}
+        integration={undefined}
+        loading={loading}
         onIntegrationDelete={onIntegrationDelete}
+        onIntegrationHeaderBack={onIntegrationHeaderBack}
+        onIntegrationUpdate={onIntegrationUpdate}
         onRegenerateToken={onRegenerateToken}
         onWebhookCreate={onWebhookCreate}
         onWebhookDelete={onWebhookDelete}
         onWebhookUpdate={onWebhookUpdate}
-        onIntegrationHeaderBack={onIntegrationHeaderBack}
+        regenerateLoading={regenerateLoading}
+        updateIntegrationLoading={updateIntegrationLoading}
+        updateWebhookLoading={updateWebhookLoading}
       />,
     );
 
@@ -134,19 +134,19 @@ describe("Integration creation modal", () => {
 
     render(
       <MyIntegrationContent
-        loading={loading}
-        integration={integration}
-        updateIntegrationLoading={updateIntegrationLoading}
-        regenerateLoading={regenerateLoading}
         createWebhookLoading={createWebhookLoading}
-        updateWebhookLoading={updateWebhookLoading}
-        onIntegrationUpdate={onIntegrationUpdate}
+        integration={integration}
+        loading={loading}
         onIntegrationDelete={onIntegrationDelete}
+        onIntegrationHeaderBack={onBackMock}
+        onIntegrationUpdate={onIntegrationUpdate}
         onRegenerateToken={onRegenerateToken}
         onWebhookCreate={onWebhookCreate}
         onWebhookDelete={onWebhookDelete}
         onWebhookUpdate={onWebhookUpdate}
-        onIntegrationHeaderBack={onBackMock}
+        regenerateLoading={regenerateLoading}
+        updateIntegrationLoading={updateIntegrationLoading}
+        updateWebhookLoading={updateWebhookLoading}
       />,
     );
 

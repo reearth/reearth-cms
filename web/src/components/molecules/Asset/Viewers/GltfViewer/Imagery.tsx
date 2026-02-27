@@ -20,22 +20,22 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url }) => {
       try {
         const headers = await getHeader();
         const resource = new Resource({
-          url: url,
           headers: isAssetPublic ? {} : headers,
+          url: url,
         });
         viewer.entities.removeAll();
         const entity = viewer.entities.add({
+          model: {
+            maximumScale: 20000,
+            minimumPixelSize: 128,
+            show: true,
+            uri: resource,
+          },
           position: Cartesian3.fromDegrees(
             Math.floor(Math.random() * 360 - 180),
             Math.floor(Math.random() * 180 - 90),
             0,
           ),
-          model: {
-            uri: resource,
-            minimumPixelSize: 128,
-            maximumScale: 20000,
-            show: true,
-          },
         });
         viewer.trackedEntity = entity;
         await viewer.zoomTo(entity);

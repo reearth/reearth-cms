@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
@@ -14,18 +14,18 @@ describe("My integrations list", () => {
   const description = "description";
 
   const integration: Integration = {
-    id,
-    name,
+    config: {},
     description,
-    logoUrl: "",
-    developerId: "",
     developer: {
+      email: "",
       id: "",
       name: "",
-      email: "",
     },
+    developerId: "",
+    id,
     iType: "Private",
-    config: {},
+    logoUrl: "",
+    name,
   };
   const onIntegrationNavigate = () => {};
 

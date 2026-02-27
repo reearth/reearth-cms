@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useMemo, MouseEvent, useState, useEffect } from "react";
+import { MouseEvent, useCallback, useEffect, useMemo, useState } from "react";
 
 import Collapse from "@reearth-cms/components/atoms/Collapse";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -15,37 +15,37 @@ import { Field, Group, GroupField } from "@reearth-cms/components/molecules/Sche
 const { Panel } = Collapse;
 
 type Props = {
-  value?: string;
-  disabled: boolean;
-  itemHeights?: Record<string, number>;
-  onItemHeightChange?: (id: string, height: number) => void;
-  parentField: Field;
-  order?: number;
-  onMoveUp?: () => void;
-  onMoveDown?: () => void;
-  onDelete?: () => void;
-  disableMoveUp?: boolean;
-  disableMoveDown?: boolean;
-  onGroupGet: (id: string) => Promise<Group | undefined>;
   assetProps: AssetProps;
+  disabled: boolean;
+  disableMoveDown?: boolean;
+  disableMoveUp?: boolean;
+  itemHeights?: Record<string, number>;
+  onDelete?: () => void;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
+  onItemHeightChange?: (id: string, height: number) => void;
+  onMoveDown?: () => void;
+  onMoveUp?: () => void;
+  order?: number;
+  parentField: Field;
   referenceProps: ReferenceProps;
+  value?: string;
 };
 
 const GroupItem: React.FC<Props> = ({
-  value,
-  disabled,
-  itemHeights,
-  onItemHeightChange,
-  parentField,
-  order,
-  onMoveUp,
-  onMoveDown,
-  onDelete,
-  disableMoveUp,
-  disableMoveDown,
-  onGroupGet,
   assetProps,
+  disabled,
+  disableMoveDown,
+  disableMoveUp,
+  itemHeights,
+  onDelete,
+  onGroupGet,
+  onItemHeightChange,
+  onMoveDown,
+  onMoveUp,
+  order,
+  parentField,
   referenceProps,
+  value,
 }) => {
   const [fields, setFields] = useState<GroupField[]>();
 
@@ -87,8 +87,6 @@ const GroupItem: React.FC<Props> = ({
   return (
     <StyledCollapse defaultActiveKey={["1"]}>
       <Panel
-        header={parentField?.title + (order !== undefined ? ` (${order + 1})` : "")}
-        key="1"
         extra={
           !disabled &&
           order !== undefined && (
@@ -104,15 +102,17 @@ const GroupItem: React.FC<Props> = ({
               </IconWrapper>
             </>
           )
-        }>
+        }
+        header={parentField?.title + (order !== undefined ? ` (${order + 1})` : "")}
+        key="1">
         <div>
           {fields?.map(field => {
             if (field.type === "Asset") {
               return (
                 <StyledFormItemWrapper key={field.id}>
                   <AssetField
-                    field={field}
                     disabled={disabled}
+                    field={field}
                     itemGroupId={itemGroupId}
                     itemHeights={itemHeights}
                     onItemHeightChange={onItemHeightChange}
@@ -124,8 +124,8 @@ const GroupItem: React.FC<Props> = ({
               return (
                 <StyledFormItemWrapper key={field.id}>
                   <ReferenceField
-                    field={field}
                     disabled={disabled}
+                    field={field}
                     itemGroupId={itemGroupId}
                     itemHeights={itemHeights}
                     onItemHeightChange={onItemHeightChange}
@@ -137,12 +137,12 @@ const GroupItem: React.FC<Props> = ({
               const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
               return (
                 <StyledFormItemWrapper
-                  key={field.id}
-                  isFullWidth={field.type === "GeometryObject" || field.type === "GeometryEditor"}>
+                  isFullWidth={field.type === "GeometryObject" || field.type === "GeometryEditor"}
+                  key={field.id}>
                   <FieldComponent
+                    disabled={disabled}
                     field={field}
                     itemGroupId={itemGroupId}
-                    disabled={disabled}
                     itemHeights={itemHeights}
                     onItemHeightChange={onItemHeightChange}
                   />

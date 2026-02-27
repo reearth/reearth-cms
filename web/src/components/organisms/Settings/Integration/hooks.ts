@@ -30,7 +30,7 @@ export default (workspaceId?: string) => {
   const [searchTerm, setSearchTerm] = useState<string>();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const { data, refetch, loading } = useQuery(GetMeDocument, {
+  const { data, loading, refetch } = useQuery(GetMeDocument, {
     fetchPolicy: "cache-and-network",
     notifyOnNetworkStatusChange: true,
   });
@@ -61,15 +61,15 @@ export default (workspaceId?: string) => {
   );
 
   const workspaceIntegrations = useMemo(
-    (): WorkspaceIntegration[] | undefined =>
+    (): undefined | WorkspaceIntegration[] =>
       workspaceIntegrationMembers
         ?.filter(member => !!member.integration?.name.toLowerCase().includes(searchTerm ?? ""))
         .map(member => ({
-          id: member.integration?.id,
-          name: member.integration?.name,
-          description: member.integration?.description ?? undefined,
-          imageUrl: undefined,
           createdBy: member.integration?.developer,
+          description: member.integration?.description ?? undefined,
+          id: member.integration?.id,
+          imageUrl: undefined,
+          name: member.integration?.name,
           role: member.integrationRole,
         })),
     [workspaceIntegrationMembers, searchTerm],
@@ -98,8 +98,8 @@ export default (workspaceId?: string) => {
       const integrationResponse = await addIntegrationToWorkspaceMutation({
         variables: {
           integrationId,
-          workspaceId,
           role: GQLRole.Reader,
+          workspaceId,
         },
       });
       if (integrationResponse.error || !integrationResponse.data?.addIntegrationToWorkspace) {
@@ -122,8 +122,8 @@ export default (workspaceId?: string) => {
       const integration = await updateIntegrationToWorkspaceMutation({
         variables: {
           integrationId: selectedIntegration?.id || "",
-          workspaceId,
           role: role as GQLRole,
+          workspaceId,
         },
       });
       if (integration.error || !integration.data?.updateIntegrationOfWorkspace) {
@@ -148,8 +148,8 @@ export default (workspaceId?: string) => {
         await Promise.all(
           integrationIds.map(async integrationId => {
             const result = await removeIntegrationFromWorkspaceMutation({
-              variables: { workspaceId, integrationId },
               refetchQueries: ["GetMe"],
+              variables: { integrationId, workspaceId },
             });
             if (result.error) {
               throw new Error();
@@ -178,25 +178,25 @@ export default (workspaceId?: string) => {
   }, []);
 
   return {
-    loading,
-    workspaceIntegrations,
-    handleSearchTerm,
-    setSelectedIntegration,
     deleteLoading,
     handleIntegrationRemove,
-    page,
-    pageSize,
+    handleSearchTerm,
     handleTableChange,
     hasConnectRight,
-    hasUpdateRight,
     hasDeleteRight,
+    hasUpdateRight,
+    loading,
+    page,
+    pageSize,
+    setSelectedIntegration,
+    workspaceIntegrations,
 
-    myIntegrations,
     addLoading,
     handleIntegrationConnect,
+    myIntegrations,
 
+    handleUpdateIntegration,
     selectedIntegration,
     updateLoading,
-    handleUpdateIntegration,
   };
 };

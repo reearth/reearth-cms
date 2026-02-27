@@ -11,26 +11,26 @@ import useHooks from "./hooks";
 
 const CMSWrapper: React.FC = () => {
   const {
-    username,
-    profilePictureUrl,
-    personalWorkspace,
-    workspaces,
-    currentWorkspace,
-    workspaceModalShown,
-    currentProject,
-    selectedKey,
-    secondaryRoute,
     collapsedMainMenu,
+    currentProject,
+    currentWorkspace,
     handleCollapse,
+    handleHomeNavigation,
+    handleNavigateToSettings,
     handleProjectMenuNavigate,
+    handleWorkspaceCreate,
     handleWorkspaceMenuNavigate,
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
-    handleWorkspaceCreate,
-    handleNavigateToSettings,
     handleWorkspaceNavigation,
-    handleHomeNavigation,
     logoUrl,
+    personalWorkspace,
+    profilePictureUrl,
+    secondaryRoute,
+    selectedKey,
+    username,
+    workspaceModalShown,
+    workspaces,
   } = useHooks();
   const { isShowUploader, shouldPreventReload, uploaderState } = useUploaderHooks();
 
@@ -38,25 +38,25 @@ const CMSWrapper: React.FC = () => {
     <>
       <CMSWrapperMolecule
         collapsedMainMenu={collapsedMainMenu}
-        shouldPreventReload={shouldPreventReload}
-        isShowUploader={isShowUploader}
-        uploaderState={uploaderState}
-        onCollapse={handleCollapse}
+        contentComponent={<Outlet />}
         headerComponent={
           <MoleculeHeader
-            onWorkspaceModalOpen={handleWorkspaceModalOpen}
-            onNavigateToSettings={handleNavigateToSettings}
-            onWorkspaceNavigation={handleWorkspaceNavigation}
-            onHomeNavigation={handleHomeNavigation}
-            personalWorkspace={personalWorkspace}
-            workspaces={workspaces}
-            currentWorkspace={currentWorkspace}
             currentProject={currentProject}
-            username={username}
-            profilePictureUrl={profilePictureUrl}
+            currentWorkspace={currentWorkspace}
             logoUrl={logoUrl}
+            onHomeNavigation={handleHomeNavigation}
+            onNavigateToSettings={handleNavigateToSettings}
+            onWorkspaceModalOpen={handleWorkspaceModalOpen}
+            onWorkspaceNavigation={handleWorkspaceNavigation}
+            personalWorkspace={personalWorkspace}
+            profilePictureUrl={profilePictureUrl}
+            username={username}
+            workspaces={workspaces}
           />
         }
+        isShowUploader={isShowUploader}
+        onCollapse={handleCollapse}
+        shouldPreventReload={shouldPreventReload}
         sidebarComponent={
           secondaryRoute === "project" ? (
             <ProjectMenu
@@ -73,12 +73,12 @@ const CMSWrapper: React.FC = () => {
             />
           )
         }
-        contentComponent={<Outlet />}
+        uploaderState={uploaderState}
       />
       <WorkspaceCreationModal
-        open={workspaceModalShown}
         onClose={handleWorkspaceModalClose}
         onSubmit={handleWorkspaceCreate}
+        open={workspaceModalShown}
       />
     </>
   );

@@ -11,21 +11,21 @@ import { getLicenseContent, license_options } from "@reearth-cms/data/license";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  needsTemplate?: boolean;
   activeTab?: string;
+  needsTemplate?: boolean;
+  onChooseLicenseTemplate?: (value: string) => void;
+  onMarkdownChange?: ChangeEventHandler<HTMLTextAreaElement>;
   setActiveTab?: (key: string) => void;
   value?: string;
-  onMarkdownChange?: ChangeEventHandler<HTMLTextAreaElement>;
-  onChooseLicenseTemplate?: (value: string) => void;
 };
 
 const MarkdownComponent: React.FC<Props> = ({
-  needsTemplate,
   activeTab,
+  needsTemplate,
+  onChooseLicenseTemplate,
+  onMarkdownChange,
   setActiveTab,
   value,
-  onMarkdownChange,
-  onChooseLicenseTemplate,
 }) => {
   const t = useT();
 
@@ -43,7 +43,7 @@ const MarkdownComponent: React.FC<Props> = ({
   const tabBarExtraContent = useMemo(() => {
     return needsTemplate ? (
       <Dropdown menu={{ items }} placement="bottomLeft" trigger={["click"]}>
-        <Button type="link" icon={<Icon icon="copyright" />}>
+        <Button icon={<Icon icon="copyright" />} type="link">
           {t("Choose a license template")}
         </Button>
       </Dropdown>
@@ -53,17 +53,17 @@ const MarkdownComponent: React.FC<Props> = ({
   return (
     <StyledTabs
       activeKey={activeTab}
-      tabBarExtraContent={tabBarExtraContent}
-      onChange={setActiveTab}>
-      <Tabs.TabPane tab="Edit" key="edit">
+      onChange={setActiveTab}
+      tabBarExtraContent={tabBarExtraContent}>
+      <Tabs.TabPane key="edit" tab="Edit">
         <TextArea
-          rows={30}
-          value={value}
           onChange={onMarkdownChange}
+          rows={30}
           style={{ fontFamily: "monospace" }}
+          value={value}
         />
       </Tabs.TabPane>
-      <Tabs.TabPane tab="Preview" key="preview">
+      <Tabs.TabPane key="preview" tab="Preview">
         <StyledContainer>
           <ReactMarkdown>{value}</ReactMarkdown>
         </StyledContainer>

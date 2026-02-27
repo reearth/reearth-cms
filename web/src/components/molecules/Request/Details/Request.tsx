@@ -12,64 +12,61 @@ import { useT } from "@reearth-cms/i18n";
 import RequestSidebarWrapper from "./SidebarWrapper";
 
 type Props = {
-  me?: User;
+  approveLoading: boolean;
+  currentRequest: Request;
+  deleteLoading: boolean;
   hasCommentCreateRight: boolean;
-  hasCommentUpdateRight: boolean | null;
   hasCommentDeleteRight: boolean | null;
-  isCloseActionEnabled: boolean;
-  isReopenActionEnabled: boolean;
+  hasCommentUpdateRight: boolean | null;
   isApproveActionEnabled: boolean;
   isAssignActionEnabled: boolean;
-  currentRequest: Request;
-  workspaceUserMembers: UserMember[];
-  deleteLoading: boolean;
-  approveLoading: boolean;
-  updateLoading: boolean;
-  onRequestApprove: (requestId: string) => Promise<void>;
-  onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
-  onRequestDelete: (requestsId: string[]) => Promise<void>;
-  onCommentCreate: (content: string) => Promise<void>;
-  onCommentUpdate: (commentId: string, content: string) => Promise<void>;
-  onCommentDelete: (commentId: string) => Promise<void>;
+  isCloseActionEnabled: boolean;
+  isReopenActionEnabled: boolean;
+  me?: User;
   onBack: () => void;
-  onNavigateToItemEdit: (modelId: string, itemId: string) => void;
+  onCommentCreate: (content: string) => Promise<void>;
+  onCommentDelete: (commentId: string) => Promise<void>;
+  onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
+  onNavigateToItemEdit: (modelId: string, itemId: string) => void;
+  onRequestApprove: (requestId: string) => Promise<void>;
+  onRequestDelete: (requestsId: string[]) => Promise<void>;
+  onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
+  updateLoading: boolean;
+  workspaceUserMembers: UserMember[];
 };
 
 const RequestMolecule: React.FC<Props> = ({
-  me,
+  approveLoading,
+  currentRequest,
+  deleteLoading,
   hasCommentCreateRight,
-  hasCommentUpdateRight,
   hasCommentDeleteRight,
-  isCloseActionEnabled,
-  isReopenActionEnabled,
+  hasCommentUpdateRight,
   isApproveActionEnabled,
   isAssignActionEnabled,
-  currentRequest,
-  workspaceUserMembers,
-  deleteLoading,
-  approveLoading,
-  updateLoading,
-  onCommentCreate,
-  onCommentUpdate,
-  onCommentDelete,
-  onRequestApprove,
-  onRequestUpdate,
-  onRequestDelete,
+  isCloseActionEnabled,
+  isReopenActionEnabled,
+  me,
   onBack,
-  onNavigateToItemEdit,
+  onCommentCreate,
+  onCommentDelete,
+  onCommentUpdate,
   onGetAsset,
   onGroupGet,
+  onNavigateToItemEdit,
+  onRequestApprove,
+  onRequestDelete,
+  onRequestUpdate,
+  updateLoading,
+  workspaceUserMembers,
 }) => {
   const t = useT();
 
   return (
     <Content>
       <PageHeader
-        title={`${t("Request")} / ${currentRequest.title}`}
-        onBack={onBack}
-        style={{ backgroundColor: "#fff" }}
         extra={
           <>
             <Button
@@ -79,16 +76,16 @@ const RequestMolecule: React.FC<Props> = ({
               {t("Close")}
             </Button>
             <Button
-              hidden={currentRequest.state !== "CLOSED"}
               disabled={!isReopenActionEnabled}
+              hidden={currentRequest.state !== "CLOSED"}
               loading={updateLoading}
               onClick={() =>
                 onRequestUpdate({
-                  requestId: currentRequest.id,
-                  title: currentRequest?.title,
                   description: currentRequest?.description,
+                  requestId: currentRequest.id,
                   reviewersId: currentRequest.reviewers.map(reviewer => reviewer.id),
                   state: "WAITING",
+                  title: currentRequest?.title,
                 })
               }>
               {t("Reopen")}
@@ -96,24 +93,27 @@ const RequestMolecule: React.FC<Props> = ({
             <Button
               disabled={!isApproveActionEnabled}
               loading={approveLoading}
-              type="primary"
-              onClick={() => onRequestApprove(currentRequest.id)}>
+              onClick={() => onRequestApprove(currentRequest.id)}
+              type="primary">
               {t("Approve")}
             </Button>
           </>
         }
+        onBack={onBack}
+        style={{ backgroundColor: "#fff" }}
+        title={`${t("Request")} / ${currentRequest.title}`}
       />
       <BodyWrapper>
         <ThreadWrapper>
           <RequestThread
-            me={me}
-            hasCommentCreateRight={hasCommentCreateRight}
-            hasCommentUpdateRight={hasCommentUpdateRight}
-            hasCommentDeleteRight={hasCommentDeleteRight}
             currentRequest={currentRequest}
+            hasCommentCreateRight={hasCommentCreateRight}
+            hasCommentDeleteRight={hasCommentDeleteRight}
+            hasCommentUpdateRight={hasCommentUpdateRight}
+            me={me}
             onCommentCreate={onCommentCreate}
-            onCommentUpdate={onCommentUpdate}
             onCommentDelete={onCommentDelete}
+            onCommentUpdate={onCommentUpdate}
             onGetAsset={onGetAsset}
             onGroupGet={onGroupGet}
             onNavigateToItemEdit={onNavigateToItemEdit}
@@ -121,9 +121,9 @@ const RequestMolecule: React.FC<Props> = ({
         </ThreadWrapper>
         <RequestSidebarWrapper
           currentRequest={currentRequest}
-          workspaceUserMembers={workspaceUserMembers}
           isAssignActionEnabled={isAssignActionEnabled}
           onRequestUpdate={onRequestUpdate}
+          workspaceUserMembers={workspaceUserMembers}
         />
       </BodyWrapper>
     </Content>

@@ -15,37 +15,37 @@ import { Constant } from "@reearth-cms/utils/constant";
 const { Dragger } = Upload;
 
 type Props = {
-  fileList: RawUploadFile[];
   alertList?: AlertProps[];
+  dataChecking?: boolean;
+  fileList: RawUploadFile[];
   onFileContentChange: UploadProps["beforeUpload"];
   onFileRemove: UploadProps["onRemove"];
-  dataChecking?: boolean;
 };
 
-const TemplateLink = ({ href, children }: ButtonProps) => (
-  <StyledButton onClick={event => event.stopPropagation()} type="link" href={href} download>
+const TemplateLink = ({ children, href }: ButtonProps) => (
+  <StyledButton download href={href} onClick={event => event.stopPropagation()} type="link">
     {children}
   </StyledButton>
 );
 
 const FileSelectionStep: React.FC<Props> = ({
-  fileList,
   alertList = [],
+  dataChecking = false,
+  fileList,
   onFileContentChange,
   onFileRemove,
-  dataChecking = false,
 }) => {
   const t = useT();
 
   const uploadProps: UploadProps = {
-    name: "importSchemaFile",
-    multiple: true,
-    directory: false,
-    showUploadList: false,
-    listType: "picture",
-    onRemove: onFileRemove,
     beforeUpload: onFileContentChange,
+    directory: false,
     fileList,
+    listType: "picture",
+    multiple: true,
+    name: "importSchemaFile",
+    onRemove: onFileRemove,
+    showUploadList: false,
   };
 
   return (
@@ -62,19 +62,19 @@ const FileSelectionStep: React.FC<Props> = ({
           </p>
           <p className="ant-upload-text">
             <Trans
-              i18nKey="Choose or drag & drop a file"
               components={{ l: <StyledButton type="link">Choose</StyledButton> }}
+              i18nKey="Choose or drag & drop a file"
             />
           </p>
           <p className="ant-upload-hint">{t("Only JSON format is supported")}</p>
           <p>
             <Trans
-              i18nKey="You can also download file templates: JSON"
               components={{
                 l1: (
                   <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_SCHEMA_JSON}>JSON</TemplateLink>
                 ),
               }}
+              i18nKey="You can also download file templates: JSON"
             />
           </p>
           {alertList.map((alert, index) => (

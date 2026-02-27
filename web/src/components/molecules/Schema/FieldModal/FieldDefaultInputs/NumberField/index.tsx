@@ -6,12 +6,12 @@ import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValue
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  multiple: boolean;
-  min?: number;
   max?: number;
+  min?: number;
+  multiple: boolean;
 };
 
-const NumberField: React.FC<Props> = ({ multiple, min, max }) => {
+const NumberField: React.FC<Props> = ({ max, min, multiple }) => {
   const t = useT();
 
   const validate = useCallback(
@@ -28,11 +28,11 @@ const NumberField: React.FC<Props> = ({ multiple, min, max }) => {
 
   return (
     <Form.Item
-      name="defaultValue"
       label={t("Set default value")}
-      validateStatus="success"
+      name="defaultValue"
       rules={[
         {
+          message: "",
           validator: (_, value) => {
             const isError = Array.isArray(value) ? value.some(v => validate(v)) : validate(value);
             if (isError) {
@@ -40,13 +40,13 @@ const NumberField: React.FC<Props> = ({ multiple, min, max }) => {
             }
             return Promise.resolve();
           },
-          message: "",
         },
-      ]}>
+      ]}
+      validateStatus="success">
       {multiple ? (
-        <MultiValueField type="number" FieldInput={InputNumber} min={min} max={max} />
+        <MultiValueField FieldInput={InputNumber} max={max} min={min} type="number" />
       ) : (
-        <InputNumber type="number" min={min} max={max} />
+        <InputNumber max={max} min={min} type="number" />
       )}
     </Form.Item>
   );

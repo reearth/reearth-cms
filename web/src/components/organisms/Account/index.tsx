@@ -3,15 +3,15 @@ import AccountSettingsWrapper from "@reearth-cms/components/molecules/AccountSet
 import useHooks from "./hooks";
 
 const AccountSettings: React.FC = () => {
-  const { me, loading, handleUserUpdate, handleLanguageUpdate, handleUserDelete } = useHooks();
+  const { handleLanguageUpdate, handleUserDelete, handleUserUpdate, loading, me } = useHooks();
 
   return (
     <AccountSettingsWrapper
-      me={me}
       loading={loading}
-      onUserUpdate={handleUserUpdate}
+      me={me}
       onLanguageUpdate={handleLanguageUpdate}
       onUserDelete={handleUserDelete}
+      onUserUpdate={handleUserUpdate}
     />
   );
 };

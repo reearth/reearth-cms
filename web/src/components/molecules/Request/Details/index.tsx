@@ -7,85 +7,85 @@ import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 
 type Props = {
-  me?: User;
+  approveLoading: boolean;
+  currentRequest?: Request;
+  deleteLoading: boolean;
   hasCommentCreateRight: boolean;
-  hasCommentUpdateRight: boolean | null;
   hasCommentDeleteRight: boolean | null;
-  isCloseActionEnabled: boolean;
-  isReopenActionEnabled: boolean;
+  hasCommentUpdateRight: boolean | null;
   isApproveActionEnabled: boolean;
   isAssignActionEnabled: boolean;
-  currentRequest?: Request;
-  workspaceUserMembers: UserMember[];
+  isCloseActionEnabled: boolean;
+  isReopenActionEnabled: boolean;
   loading: boolean;
-  deleteLoading: boolean;
-  approveLoading: boolean;
-  updateLoading: boolean;
-  onRequestApprove: (requestId: string) => Promise<void>;
-  onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
-  onRequestDelete: (requestsId: string[]) => Promise<void>;
-  onCommentCreate: (content: string) => Promise<void>;
-  onCommentUpdate: (commentId: string, content: string) => Promise<void>;
-  onCommentDelete: (commentId: string) => Promise<void>;
+  me?: User;
   onBack: () => void;
-  onNavigateToItemEdit: (modelId: string, itemId: string) => void;
+  onCommentCreate: (content: string) => Promise<void>;
+  onCommentDelete: (commentId: string) => Promise<void>;
+  onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
+  onNavigateToItemEdit: (modelId: string, itemId: string) => void;
+  onRequestApprove: (requestId: string) => Promise<void>;
+  onRequestDelete: (requestsId: string[]) => Promise<void>;
+  onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
+  updateLoading: boolean;
+  workspaceUserMembers: UserMember[];
 };
 
 const RequestDetailsMolecule: React.FC<Props> = ({
-  me,
+  approveLoading,
+  currentRequest,
+  deleteLoading,
   hasCommentCreateRight,
-  hasCommentUpdateRight,
   hasCommentDeleteRight,
-  isCloseActionEnabled,
-  isReopenActionEnabled,
+  hasCommentUpdateRight,
   isApproveActionEnabled,
   isAssignActionEnabled,
-  currentRequest,
-  workspaceUserMembers,
+  isCloseActionEnabled,
+  isReopenActionEnabled,
   loading,
-  deleteLoading,
-  approveLoading,
-  updateLoading,
-  onRequestApprove,
-  onRequestUpdate,
-  onRequestDelete,
-  onCommentCreate,
-  onCommentUpdate,
-  onCommentDelete,
+  me,
   onBack,
-  onNavigateToItemEdit,
+  onCommentCreate,
+  onCommentDelete,
+  onCommentUpdate,
   onGetAsset,
   onGroupGet,
+  onNavigateToItemEdit,
+  onRequestApprove,
+  onRequestDelete,
+  onRequestUpdate,
+  updateLoading,
+  workspaceUserMembers,
 }) => {
   return loading ? (
-    <Loading spinnerSize="large" minHeight="100vh" />
+    <Loading minHeight="100vh" spinnerSize="large" />
   ) : currentRequest ? (
     <RequestMolecule
-      me={me}
+      approveLoading={approveLoading}
+      currentRequest={currentRequest}
+      deleteLoading={deleteLoading}
       hasCommentCreateRight={hasCommentCreateRight}
-      hasCommentUpdateRight={hasCommentUpdateRight}
       hasCommentDeleteRight={hasCommentDeleteRight}
-      isCloseActionEnabled={isCloseActionEnabled}
-      isReopenActionEnabled={isReopenActionEnabled}
+      hasCommentUpdateRight={hasCommentUpdateRight}
       isApproveActionEnabled={isApproveActionEnabled}
       isAssignActionEnabled={isAssignActionEnabled}
-      currentRequest={currentRequest}
-      workspaceUserMembers={workspaceUserMembers}
-      deleteLoading={deleteLoading}
-      approveLoading={approveLoading}
-      updateLoading={updateLoading}
-      onRequestApprove={onRequestApprove}
-      onRequestUpdate={onRequestUpdate}
-      onRequestDelete={onRequestDelete}
-      onCommentCreate={onCommentCreate}
-      onCommentUpdate={onCommentUpdate}
-      onCommentDelete={onCommentDelete}
+      isCloseActionEnabled={isCloseActionEnabled}
+      isReopenActionEnabled={isReopenActionEnabled}
+      me={me}
       onBack={onBack}
-      onNavigateToItemEdit={onNavigateToItemEdit}
+      onCommentCreate={onCommentCreate}
+      onCommentDelete={onCommentDelete}
+      onCommentUpdate={onCommentUpdate}
       onGetAsset={onGetAsset}
       onGroupGet={onGroupGet}
+      onNavigateToItemEdit={onNavigateToItemEdit}
+      onRequestApprove={onRequestApprove}
+      onRequestDelete={onRequestDelete}
+      onRequestUpdate={onRequestUpdate}
+      updateLoading={updateLoading}
+      workspaceUserMembers={workspaceUserMembers}
     />
   ) : (
     <NotFound />

@@ -1,7 +1,6 @@
 import { defineConfig } from "i18next-cli";
 
 export default defineConfig({
-  locales: ["en", "ja"],
   extract: {
     defaultNS: false,
     extractFromComments: false,
@@ -14,6 +13,7 @@ export default defineConfig({
     removeUnusedKeys: true,
     transComponents: ["Trans"],
   },
+  locales: ["en", "ja"],
   types: {
     enableSelector: true, // Enable type-safe key selection
     input: ["src/i18n/translations/en.ts"],

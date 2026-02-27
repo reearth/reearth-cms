@@ -10,36 +10,36 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Row from "@reearth-cms/components/atoms/Row";
 import {
-  WebhookTrigger,
-  TriggerKey,
-  WebhookValues,
   NewWebhook,
+  TriggerKey,
   Webhook,
+  WebhookTrigger,
+  WebhookValues,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 type Props = {
-  webhookInitialValues?: WebhookValues;
   loading: boolean;
   onBack: () => void;
   onWebhookCreate: (data: NewWebhook) => Promise<void>;
   onWebhookUpdate: (data: Webhook) => Promise<void>;
+  webhookInitialValues?: WebhookValues;
 };
 
 type FormType = {
   name: string;
-  url: string;
   secret: string;
   trigger?: TriggerKey[];
+  url: string;
 };
 
 const WebhookForm: React.FC<Props> = ({
-  webhookInitialValues,
   loading,
   onBack,
   onWebhookCreate,
   onWebhookUpdate,
+  webhookInitialValues,
 }) => {
   const t = useT();
   const [form] = Form.useForm<FormType>();
@@ -125,40 +125,40 @@ const WebhookForm: React.FC<Props> = ({
   return (
     <>
       <Button
+        color="default"
         icon={<Icon icon="arrowLeft" />}
         onClick={onBack}
         size="small"
-        color="default"
         variant="link"
       />
       <StyledForm
         form={form}
-        name="webhook"
-        layout="vertical"
         initialValues={webhookInitialValues}
+        layout="vertical"
+        name="webhook"
         onValuesChange={handleValuesChange}>
         <Row gutter={32}>
           <Col span={11}>
             <Form.Item
-              name="name"
-              label={t("Name")}
               extra={t("This is your webhook name")}
+              label={t("Name")}
+              name="name"
               rules={[
                 {
-                  required: true,
                   message: t("Please input the name of the webhook!"),
+                  required: true,
                 },
               ]}>
               <Input />
             </Form.Item>
             <Form.Item
-              name="url"
-              label={t("Url")}
               extra={t("Please note that all webhook URLs must start with http://.")}
+              label={t("Url")}
+              name="url"
               rules={[
                 {
-                  required: true,
                   message: t("URL is not valid"),
+                  required: true,
                   validator: async (_, value) => {
                     return validateURL(value) ? Promise.resolve() : Promise.reject();
                   },
@@ -167,19 +167,19 @@ const WebhookForm: React.FC<Props> = ({
               <Input />
             </Form.Item>
             <Form.Item
-              name="secret"
-              label={t("Secret")}
               extra={t("This secret will be used to sign Webhook request")}
+              label={t("Secret")}
+              name="secret"
               rules={[
                 {
-                  required: true,
                   message: t("Please input secret!"),
+                  required: true,
                 },
               ]}>
               <Input />
             </Form.Item>
             <Form.Item>
-              <Button type="primary" onClick={handleSubmit} disabled={isDisabled} loading={loading}>
+              <Button disabled={isDisabled} loading={loading} onClick={handleSubmit} type="primary">
                 {t("Save")}
               </Button>
             </Form.Item>

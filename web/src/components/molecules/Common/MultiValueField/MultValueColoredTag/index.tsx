@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { ChangeEvent, useCallback, useEffect, useState, useRef } from "react";
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
@@ -28,21 +28,21 @@ const colors = [
 type TagColor = (typeof colors)[number];
 
 type Props = {
-  value?: { id?: string; name: string; color: TagColor }[];
-  onChange?: (value: { id?: string; name: string; color: TagColor }[]) => void;
   errorIndexes: Set<number>;
-} & TextAreaProps &
-  InputProps;
+  onChange?: (value: { color: TagColor; id?: string; name: string; }[]) => void;
+  value?: { color: TagColor; id?: string; name: string; }[];
+} & InputProps &
+  TextAreaProps;
 
 const MultiValueColoredTag: React.FC<Props> = ({
-  value = [],
-  onChange,
   errorIndexes,
+  onChange,
+  value = [],
   ...props
 }) => {
   const t = useT();
   const [lastColorIndex, setLastColorIndex] = useState(0);
-  const [focusedTagIndex, setFocusedTagIndex] = useState<number | null>(null); // New State to hold the focused tag index
+  const [focusedTagIndex, setFocusedTagIndex] = useState<null | number>(null); // New State to hold the focused tag index
   const divRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const handleColorChange = useCallback(
@@ -81,7 +81,7 @@ const MultiValueColoredTag: React.FC<Props> = ({
       onChange?.(
         value?.map((valueItem, index) =>
           index === id
-            ? { id: valueItem?.id, color: valueItem.color, name: e?.target.value }
+            ? { color: valueItem.color, id: valueItem?.id, name: e?.target.value }
             : valueItem,
         ),
       );
@@ -128,54 +128,54 @@ const MultiValueColoredTag: React.FC<Props> = ({
               <>
                 <FieldButton
                   color="default"
-                  variant="link"
+                  disabled={key === 0}
                   icon={<Icon icon="arrowUp" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
-                  disabled={key === 0}
+                  variant="link"
                 />
                 <FieldButton
                   color="default"
-                  variant="link"
+                  disabled={key === value.length - 1}
                   icon={<Icon icon="arrowDown" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
-                  disabled={key === value.length - 1}
+                  variant="link"
                 />
               </>
             )}
             <StyledDiv hidden={focusedTagIndex !== key} ref={el => (divRefs.current[key] = el)}>
               <StyledInput
                 {...props}
+                isError={errorIndexes?.has(key)}
+                onBlur={() => handleInputBlur()}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}
                 value={valueItem.name}
-                onBlur={() => handleInputBlur()}
-                isError={errorIndexes?.has(key)}
               />
             </StyledDiv>
             <StyledTagContainer
               hidden={focusedTagIndex === key} // Hide tag when it is focused
-              onClick={() => handleTagClick(key)}
-              isError={errorIndexes?.has(key)}>
+              isError={errorIndexes?.has(key)}
+              onClick={() => handleTagClick(key)}>
               <StyledTag color={valueItem.color.toLowerCase()}>{valueItem.name}</StyledTag>
             </StyledTagContainer>
             <Dropdown menu={{ items: generateMenuItems(key) }} trigger={["click"]}>
               <FieldButton
                 color="default"
-                variant="link"
                 icon={<Icon icon="colorPalette" size={16} />}
+                variant="link"
               />
             </Dropdown>
             {!props.disabled && (
               <FieldButton
                 color="default"
-                variant="link"
                 icon={<Icon icon="delete" size={16} />}
                 onClick={() => handleInputDelete(key)}
+                variant="link"
               />
             )}
           </FieldWrapper>
         ))}
       {!props.disabled && (
-        <Button icon={<Icon icon="plus" />} type="primary" onClick={handleNewTag}>
+        <Button icon={<Icon icon="plus" />} onClick={handleNewTag} type="primary">
           {t("New")}
         </Button>
       )}

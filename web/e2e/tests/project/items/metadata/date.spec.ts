@@ -1,7 +1,7 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-test.beforeEach(async ({ reearth, projectPage }) => {
+test.beforeEach(async ({ projectPage, reearth }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
@@ -14,8 +14,8 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Date metadata creating and updating has succeeded", async ({
-  fieldEditorPage,
   contentPage,
+  fieldEditorPage,
   page,
 }) => {
   await test.step("Create date metadata field", async () => {
@@ -91,7 +91,7 @@ test("Date metadata creating and updating has succeeded", async ({
   });
 });
 
-test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPage, page }) => {
+test("Date metadata editing has succeeded", async ({ contentPage, fieldEditorPage, page }) => {
   await test.step("Create date metadata field with default value", async () => {
     await fieldEditorPage.metaDataTab.click();
     await fieldEditorPage.fieldTypeListItem("Date").click();

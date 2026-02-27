@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useCallback, useState, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -11,41 +11,41 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import useHook from "@reearth-cms/components/molecules/ProjectSettings/hook";
-import { license_options, getLicenseContent } from "@reearth-cms/data/license";
+import { getLicenseContent, license_options } from "@reearth-cms/data/license";
 import { ProjectVisibility } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 
 export type FormValues = {
-  name: string;
   alias: string;
-  visibility: ProjectVisibility;
   description: string;
   license: string;
+  name: string;
+  visibility: ProjectVisibility;
 };
 
 type Props = {
-  privateProjectsAllowed?: boolean;
-  open: boolean;
   onClose: () => void;
-  onSubmit: (values: FormValues) => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
+  onSubmit: (values: FormValues) => Promise<void>;
+  open: boolean;
+  privateProjectsAllowed?: boolean;
 };
 
 const initialValues: FormValues = {
-  name: "",
   alias: "",
-  visibility: ProjectVisibility.Public,
   description: "",
   license: "",
+  name: "",
+  visibility: ProjectVisibility.Public,
 };
 
 const ProjectCreationModal: React.FC<Props> = ({
-  privateProjectsAllowed,
-  open,
   onClose,
-  onSubmit,
   onProjectAliasCheck,
+  onSubmit,
+  open,
+  privateProjectsAllowed,
 }) => {
   const t = useT();
   const [form] = Form.useForm<FormValues>();
@@ -53,7 +53,7 @@ const ProjectCreationModal: React.FC<Props> = ({
   const [isDisabled, setIsDisabled] = useState(true);
   const { aliasValidate } = useHook(onProjectAliasCheck);
 
-  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeout = useRef<null | ReturnType<typeof setTimeout>>(null);
   const values = Form.useWatch<FormValues | undefined>([], form);
   useEffect(() => {
     if (timeout.current) {
@@ -115,62 +115,62 @@ const ProjectCreationModal: React.FC<Props> = ({
 
   return (
     <Modal
-      open={open}
-      onCancel={handleClose}
       footer={[
-        <Button key="cancel" onClick={handleClose} disabled={isLoading}>
+        <Button disabled={isLoading} key="cancel" onClick={handleClose}>
           {t("Cancel")}
         </Button>,
         <Button
+          disabled={isDisabled}
           key="ok"
-          type="primary"
           loading={isLoading}
           onClick={handleSubmit}
-          disabled={isDisabled}>
+          type="primary">
           {t("OK")}
         </Button>,
-      ]}>
-      <Form form={form} layout="vertical" initialValues={initialValues} validateTrigger="">
+      ]}
+      onCancel={handleClose}
+      open={open}>
+      <Form form={form} initialValues={initialValues} layout="vertical" validateTrigger="">
         <Form.Item
-          name="name"
           label={t("Project name")}
-          rules={[{ required: true, message: t("Please input the name of project!") }]}>
+          name="name"
+          rules={[{ message: t("Please input the name of project!"), required: true }]}>
           <Input onChange={handleNameChange} />
         </Form.Item>
         <Form.Item
-          name="alias"
-          label={t("Project alias")}
           extra={t(
             "Used to create the project URL. Must be unique and at least {{min}} characters long, only lowercase letters, numbers, and hyphens are allowed.",
             { min: Constant.PROJECT_ALIAS.MIN_LENGTH },
           )}
+          label={t("Project alias")}
+          name="alias"
           rules={[{ validator: async (_, value) => await aliasValidate(value) }]}>
           <Input
+            maxLength={Constant.PROJECT_ALIAS.MAX_LENGTH}
             onChange={handleAliasChange}
             showCount
-            maxLength={Constant.PROJECT_ALIAS.MAX_LENGTH}
           />
         </Form.Item>
         <Form.Item
-          name="visibility"
-          label={t("Project visibility")}
           extra={t(
             "Public projects are visible to everyone. Private projects are only accessible to workspace members.",
           )}
+          label={t("Project visibility")}
+          name="visibility"
           rules={[
-            { required: true, message: t("Please choose the visibility settings of the project!") },
+            { message: t("Please choose the visibility settings of the project!"), required: true },
           ]}>
           <StyledRadioGroup defaultValue={ProjectVisibility.Public}>
             <Radio value={ProjectVisibility.Public}>{t("Public")}</Radio>
-            <Radio value={ProjectVisibility.Private} disabled={!privateProjectsAllowed}>
+            <Radio disabled={!privateProjectsAllowed} value={ProjectVisibility.Private}>
               {t("Private")}
             </Radio>
           </StyledRadioGroup>
         </Form.Item>
-        <Form.Item name="description" label={t("Project description")}>
+        <Form.Item label={t("Project description")} name="description">
           <TextArea rows={4} />
         </Form.Item>
-        <Form.Item name="license" label={t("Project license")}>
+        <Form.Item label={t("Project license")} name="license">
           <Select>
             {license_options?.map(option => (
               <Select.Option key={option.value} value={getLicenseContent(option.value)}>

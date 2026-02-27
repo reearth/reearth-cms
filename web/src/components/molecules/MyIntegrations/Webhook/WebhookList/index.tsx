@@ -3,31 +3,31 @@ import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { Webhook } from "@reearth-cms/components/molecules/MyIntegrations/types";
-import { useT, Trans } from "@reearth-cms/i18n";
+import { Trans, useT } from "@reearth-cms/i18n";
 
 import WebhookCard from "./WebhookCard";
 
 type Props = {
-  webhooks: Webhook[];
-  onWebhookDelete: (webhookId: string) => Promise<void>;
-  onWebhookUpdate: (data: Webhook) => Promise<void>;
-  onWebhookSelect: (id: string) => void;
   onShowForm: () => void;
+  onWebhookDelete: (webhookId: string) => Promise<void>;
+  onWebhookSelect: (id: string) => void;
+  onWebhookUpdate: (data: Webhook) => Promise<void>;
+  webhooks: Webhook[];
 };
 
 const WebhookList: React.FC<Props> = ({
-  webhooks,
-  onWebhookDelete,
-  onWebhookUpdate,
-  onWebhookSelect,
   onShowForm,
+  onWebhookDelete,
+  onWebhookSelect,
+  onWebhookUpdate,
+  webhooks,
 }) => {
   const t = useT();
 
   return (
     <>
       <ActionWrapper>
-        <Button onClick={onShowForm} type="primary" icon={<Icon icon="plus" />}>
+        <Button icon={<Icon icon="plus" />} onClick={onShowForm} type="primary">
           {t("New Webhook")}
         </Button>
       </ActionWrapper>
@@ -36,10 +36,10 @@ const WebhookList: React.FC<Props> = ({
           {webhooks.map(webhook => (
             <WebhookCard
               key={webhook.id}
-              webhook={webhook}
               onWebhookDelete={onWebhookDelete}
-              onWebhookUpdate={onWebhookUpdate}
               onWebhookSelect={onWebhookSelect}
+              onWebhookUpdate={onWebhookUpdate}
+              webhook={webhook}
             />
           ))}
         </ListWrapper>
@@ -48,12 +48,12 @@ const WebhookList: React.FC<Props> = ({
           <Title>{t("No Webhook yet")}</Title>
           <Suggestion>
             <Text>{t("Create a new")}</Text>
-            <Button onClick={onShowForm} type="primary" icon={<Icon icon="plus" />}>
+            <Button icon={<Icon icon="plus" />} onClick={onShowForm} type="primary">
               {t("New Webhook")}
             </Button>
           </Suggestion>
           <Suggestion>
-            <Trans i18nKey="readDocument" components={{ l: <a href="" /> }} />
+            <Trans components={{ l: <a href="" /> }} i18nKey="readDocument" />
           </Suggestion>
         </EmptyListWrapper>
       )}

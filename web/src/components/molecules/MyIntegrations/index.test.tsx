@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
-import { expect, test, describe } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
@@ -19,10 +19,10 @@ describe("My integrations", () => {
   test("Create modal is displayed successfully", async () => {
     render(
       <MyIntegrationsWrapper
-        integrations={integrations}
-        onIntegrationNavigate={onIntegrationNavigate}
         createLoading={createLoading}
+        integrations={integrations}
         onIntegrationCreate={onIntegrationCreate}
+        onIntegrationNavigate={onIntegrationNavigate}
       />,
     );
 

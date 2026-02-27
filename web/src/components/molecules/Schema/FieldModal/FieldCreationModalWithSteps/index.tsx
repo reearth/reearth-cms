@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useMemo, useState, useRef, MutableRefObject } from "react";
+import { MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
@@ -17,10 +17,10 @@ import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Commo
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import {
+  CorrespondingField,
   Field,
   FieldModalTabs,
   FormValues,
-  CorrespondingField,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
@@ -30,31 +30,31 @@ const { Step } = Steps;
 const { TabPane } = Tabs;
 
 type Props = {
-  models?: Model[];
-  selectedType: "Reference";
-  selectedField: Field | null;
-  open: boolean;
-  isLoading: boolean;
-  handleReferencedModelGet: (modelId: string) => void;
   handleCorrespondingFieldKeyUnique: (key: string) => boolean;
   handleFieldKeyUnique: (key: string) => boolean;
+  handleReferencedModelGet: (modelId: string) => void;
+  isLoading: boolean;
+  models?: Model[];
   onClose: () => void;
   onSubmit: (values: FormValues) => Promise<void>;
   onUpdate: (values: FormValues) => Promise<void>;
+  open: boolean;
+  selectedField: Field | null;
+  selectedType: "Reference";
 };
 
 const FieldCreationModalWithSteps: React.FC<Props> = ({
-  models,
-  selectedType,
-  selectedField,
-  open,
-  isLoading,
-  handleReferencedModelGet,
   handleCorrespondingFieldKeyUnique,
   handleFieldKeyUnique,
+  handleReferencedModelGet,
+  isLoading,
+  models,
   onClose,
   onSubmit,
   onUpdate,
+  open,
+  selectedField,
+  selectedType,
 }) => {
   const t = useT();
   const [selectedModelId, setSelectedModelId] = useState<string>();
@@ -67,8 +67,8 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const [isDisabled, setIsDisabled] = useState(true);
   const isDisabledCache = useRef<boolean>(true);
-  const prevFieldKey = useRef<{ key: string; isSuccess: boolean }>();
-  const prevCorrespondingKey = useRef<{ key: string; isSuccess: boolean }>();
+  const prevFieldKey = useRef<{ isSuccess: boolean; key: string; }>();
+  const prevCorrespondingKey = useRef<{ isSuccess: boolean; key: string; }>();
   const defaultFieldValues = useRef<Field>();
   const defaultCorrespondingValues = useRef<CorrespondingField>();
   const changedKeys = useRef(new Set<string>());
@@ -97,7 +97,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
 
   const handleValuesChange = useCallback(
     async (
-      changedValues: Field | CorrespondingField,
+      changedValues: CorrespondingField | Field,
       ref: MutableRefObject<typeof changedValues | undefined>,
     ) => {
       const [key, value] = Object.entries(changedValues)[0];
@@ -134,8 +134,8 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
 
   useEffect(() => {
     modelForm.setFieldsValue({
-      model: selectedField?.typeProperty?.modelId,
       direction: selectedField?.typeProperty?.correspondingField ? 2 : 1,
+      model: selectedField?.typeProperty?.modelId,
     });
 
     setSelectedModelId(selectedField?.typeProperty?.modelId);
@@ -151,22 +151,22 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
 
   const initialValues: FormValues = useMemo(
     () => ({
-      title: "",
       description: "",
-      key: "",
-      multiple: false,
-      unique: false,
-      required: false,
       isTitle: false,
+      key: "",
       metadata: false,
+      multiple: false,
+      required: false,
+      title: "",
       type: "Text",
       typeProperty: {
         reference: {
+          correspondingField: null,
           modelId: "",
           schemaId: "",
-          correspondingField: null,
         },
       },
+      unique: false,
     }),
     [],
   );
@@ -249,9 +249,9 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
       values.type = "Reference";
       values.typeProperty = {
         reference: {
+          correspondingField: null,
           modelId: selectedModelId,
           schemaId: schemaIdRef.current,
-          correspondingField: null,
         },
       };
       setField1FormValues(values);
@@ -285,12 +285,12 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
       const fields2Values = await field2Form.validateFields();
       field1FormValues.typeProperty = {
         reference: {
-          modelId: selectedModelId ?? "",
-          schemaId: schemaIdRef.current ?? "",
           correspondingField: {
             ...fields2Values,
             fieldId: selectedField?.typeProperty?.correspondingField?.id,
           },
+          modelId: selectedModelId ?? "",
+          schemaId: schemaIdRef.current ?? "",
         },
       };
       if (selectedField) {
@@ -324,10 +324,10 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
       if (prevKey.current?.key === value) {
         return prevKey.current?.isSuccess ? Promise.resolve() : Promise.reject();
       } else if (validateKey(value) && handleKeyUnique(value)) {
-        prevKey.current = { key: value, isSuccess: true };
+        prevKey.current = { isSuccess: true, key: value };
         return Promise.resolve();
       } else {
-        prevKey.current = { key: value, isSuccess: false };
+        prevKey.current = { isSuccess: false, key: value };
         return Promise.reject();
       }
     },
@@ -336,12 +336,51 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
 
   return (
     <StyledModal
+      afterClose={handleAfterClose}
+      footer={
+        <>
+          {currentStep === 2 ? (
+            <Button disabled={isLoading} key="previous" onClick={prevStep} type="default">
+              {t("Previous")}
+            </Button>
+          ) : (
+            <div key="placeholder" />
+          )}
+          {currentStep === 0 && (
+            <Button disabled={isDisabled} key="next" onClick={handleSettingField} type="primary">
+              {t("Next")}
+            </Button>
+          )}
+          {currentStep === 1 && (
+            <Button
+              disabled={isDisabled}
+              key="next"
+              loading={isLoading}
+              onClick={handleFirstField}
+              type="primary">
+              {currentStep !== numSteps ? t("Next") : t("Confirm")}
+            </Button>
+          )}
+          {currentStep === 2 && (
+            <Button
+              disabled={isDisabled}
+              key="submit"
+              loading={isLoading}
+              onClick={handleSecondField}
+              type="primary">
+              {t("Confirm")}
+            </Button>
+          )}
+        </>
+      }
+      onCancel={onClose}
+      open={open}
       title={
         selectedType ? (
           <FieldThumbnail>
             <StyledIcon
-              icon={fieldTypes[selectedType].icon}
               color={fieldTypes[selectedType].color}
+              icon={fieldTypes[selectedType].icon}
             />
             <h3>
               {selectedField
@@ -351,47 +390,8 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           </FieldThumbnail>
         ) : null
       }
-      onCancel={onClose}
-      afterClose={handleAfterClose}
-      width={572}
-      open={open}
-      footer={
-        <>
-          {currentStep === 2 ? (
-            <Button key="previous" type="default" onClick={prevStep} disabled={isLoading}>
-              {t("Previous")}
-            </Button>
-          ) : (
-            <div key="placeholder" />
-          )}
-          {currentStep === 0 && (
-            <Button key="next" type="primary" onClick={handleSettingField} disabled={isDisabled}>
-              {t("Next")}
-            </Button>
-          )}
-          {currentStep === 1 && (
-            <Button
-              key="next"
-              type="primary"
-              onClick={handleFirstField}
-              disabled={isDisabled}
-              loading={isLoading}>
-              {currentStep !== numSteps ? t("Next") : t("Confirm")}
-            </Button>
-          )}
-          {currentStep === 2 && (
-            <Button
-              key="submit"
-              type="primary"
-              onClick={handleSecondField}
-              disabled={isDisabled}
-              loading={isLoading}>
-              {t("Confirm")}
-            </Button>
-          )}
-        </>
-      }>
-      <StyledSteps progressDot current={currentStep} numSteps={numSteps}>
+      width={572}>
+      <StyledSteps current={currentStep} numSteps={numSteps} progressDot>
         <Step title={t("Reference setting")} />
         <Step title={t("Field")} />
         {numSteps === 2 && <Step title={t("Corresponding field")} />}
@@ -402,31 +402,31 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
           layout="vertical"
           requiredMark={(label, info) => requiredMark(label, info, false)}>
           <StyledFormItem
-            name="model"
             label={t("Select the model to reference")}
-            rules={[{ required: true, message: t("Please select the model!") }]}>
-            <Select value={selectedModelId} onSelect={handleSelectModel} disabled={isUpdate}>
+            name="model"
+            rules={[{ message: t("Please select the model!"), required: true }]}>
+            <Select disabled={isUpdate} onSelect={handleSelectModel} value={selectedModelId}>
               {models?.map(model => (
-                <Select.Option key={model.id} value={model.id} schemaId={model.schema.id}>
+                <Select.Option key={model.id} schemaId={model.schema.id} value={model.id}>
                   {model.name}{" "}
                   <StyledModelKey className="ant-form-item-extra">#{model.key}</StyledModelKey>
                 </Select.Option>
               ))}
             </Select>
           </StyledFormItem>
-          <StyledFormItem name="direction" label={t("Reference direction")}>
+          <StyledFormItem label={t("Reference direction")} name="direction">
             <Radio.Group
+              defaultValue={1}
               onChange={e => setNumSteps(e.target.value)}
-              value={numSteps}
-              defaultValue={1}>
+              value={numSteps}>
               <Space direction="vertical" size={0}>
-                <Radio value={1} disabled={isUpdate}>
+                <Radio disabled={isUpdate} value={1}>
                   {t("One-way reference")}
                 </Radio>
                 <div className="ant-form-item-extra">
                   {t("A unidirectional relationship where an item refers to another item")}
                 </div>
-                <Radio value={2} disabled={isUpdate}>
+                <Radio disabled={isUpdate} value={2}>
                   {t("Two-way reference")}
                 </Radio>
                 <div className="ant-form-item-extra">
@@ -440,18 +440,18 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
       {currentStep === 1 && (
         <Form
           form={field1Form}
-          layout="vertical"
           initialValues={initialValues}
-          requiredMark={requiredMark}
+          layout="vertical"
           onValuesChange={changedValues => {
             handleValuesChange(changedValues, defaultFieldValues);
-          }}>
+          }}
+          requiredMark={requiredMark}>
           <Tabs activeKey={activeTab} onChange={handleTabChange}>
-            <TabPane tab={t("Settings")} key="settings" forceRender>
+            <TabPane forceRender key="settings" tab={t("Settings")}>
               <Form.Item
-                name="title"
                 label={t("Display name")}
-                rules={[{ required: true, message: t("Please input the display name of field!") }]}>
+                name="title"
+                rules={[{ message: t("Please input the display name of field!"), required: true }]}>
                 <Input
                   onChange={e => {
                     handleNameChange(e, field1Form);
@@ -459,11 +459,11 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 />
               </Form.Item>
               <Form.Item
-                name="key"
-                label={t("Field Key")}
                 extra={t(
                   "Field key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
                 )}
+                label={t("Field Key")}
+                name="key"
                 rules={[
                   {
                     message: t("Key is not valid"),
@@ -474,43 +474,43 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                   },
                 ]}>
                 <Input
+                  maxLength={Constant.KEY.MAX_LENGTH}
                   onChange={e => {
                     handleKeyChange(e, field1Form);
                   }}
                   showCount
-                  maxLength={Constant.KEY.MAX_LENGTH}
                 />
               </Form.Item>
-              <Form.Item name="description" label={t("Description")}>
-                <TextArea rows={3} showCount maxLength={1000} />
+              <Form.Item label={t("Description")} name="description">
+                <TextArea maxLength={1000} rows={3} showCount />
               </Form.Item>
               <Form.Item
+                extra={t("Stores a list of values instead of a single value")}
                 name="multiple"
-                valuePropName="checked"
-                extra={t("Stores a list of values instead of a single value")}>
+                valuePropName="checked">
                 <Checkbox disabled>{t("Support multiple values")}</Checkbox>
               </Form.Item>
               <Form.Item
+                extra={t("Only one field can be used as the title")}
                 hidden
                 name="isTitle"
-                valuePropName="checked"
-                extra={t("Only one field can be used as the title")}>
+                valuePropName="checked">
                 <Checkbox>{t("Use as title")}</Checkbox>
               </Form.Item>
             </TabPane>
-            <TabPane tab={t("Validation")} key="validation" forceRender>
+            <TabPane forceRender key="validation" tab={t("Validation")}>
               <Form.Item
+                extra={t("Prevents saving an entry if this field is empty")}
                 name="required"
-                valuePropName="checked"
-                extra={t("Prevents saving an entry if this field is empty")}>
+                valuePropName="checked">
                 <Checkbox>{t("Make field required")}</Checkbox>
               </Form.Item>
               <Form.Item
-                name="unique"
-                valuePropName="checked"
                 extra={t(
                   "Ensures that a multiple entries can't have the same value for this field",
-                )}>
+                )}
+                name="unique"
+                valuePropName="checked">
                 <Checkbox disabled={isTwoWayReference}>{t("Set field as unique")}</Checkbox>
               </Form.Item>
             </TabPane>
@@ -520,18 +520,18 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
       {currentStep === 2 && (
         <Form
           form={field2Form}
-          layout="vertical"
           initialValues={initialValues}
-          requiredMark={requiredMark}
+          layout="vertical"
           onValuesChange={changedValues => {
             handleValuesChange(changedValues, defaultCorrespondingValues);
-          }}>
+          }}
+          requiredMark={requiredMark}>
           <Tabs activeKey={activeTab} onChange={handleTabChange}>
-            <TabPane tab={t("Settings")} key="settings" forceRender>
+            <TabPane forceRender key="settings" tab={t("Settings")}>
               <Form.Item
-                name="title"
                 label={t("Display name")}
-                rules={[{ required: true, message: t("Please input the display name of field!") }]}>
+                name="title"
+                rules={[{ message: t("Please input the display name of field!"), required: true }]}>
                 <Input
                   onChange={e => {
                     handleNameChange(e, field2Form);
@@ -539,11 +539,11 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 />
               </Form.Item>
               <Form.Item
-                name="key"
-                label={t("Field Key")}
                 extra={t(
                   "Field key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
                 )}
+                label={t("Field Key")}
+                name="key"
                 rules={[
                   {
                     message: t("Key is not valid"),
@@ -558,22 +558,22 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                   },
                 ]}>
                 <Input
+                  maxLength={Constant.KEY.MAX_LENGTH}
                   onChange={e => {
                     handleKeyChange(e, field2Form);
                   }}
                   showCount
-                  maxLength={Constant.KEY.MAX_LENGTH}
                 />
               </Form.Item>
-              <Form.Item name="description" label={t("Description")}>
-                <TextArea rows={3} showCount maxLength={1000} />
+              <Form.Item label={t("Description")} name="description">
+                <TextArea maxLength={1000} rows={3} showCount />
               </Form.Item>
             </TabPane>
-            <TabPane tab={t("Validation")} key="validation" forceRender>
+            <TabPane forceRender key="validation" tab={t("Validation")}>
               <Form.Item
+                extra={t("Prevents saving an entry if this field is empty")}
                 name="required"
-                valuePropName="checked"
-                extra={t("Prevents saving an entry if this field is empty")}>
+                valuePropName="checked">
                 <Checkbox>{t("Make field required")}</Checkbox>
               </Form.Item>
             </TabPane>

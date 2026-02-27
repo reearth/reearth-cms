@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { getAuth, onAuthStateChanged, User, EmailAuthProvider } from "firebase/auth";
+import { EmailAuthProvider, getAuth, onAuthStateChanged, User } from "firebase/auth";
 import * as firebaseui from "firebaseui";
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
 
@@ -11,7 +11,7 @@ type Props = {
 };
 
 const FirebaseProvider: React.FC<Props> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<null | User>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {

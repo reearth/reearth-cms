@@ -1,9 +1,9 @@
 import {
-  DefaultField,
-  TagField,
-  DateField,
   BoolField,
   CheckboxField,
+  DateField,
+  DefaultField,
+  TagField,
   URLField,
 } from "./FieldComponents";
 import GeometryField from "./FieldComponents/GeometryField";
@@ -13,17 +13,17 @@ import SelectField from "./FieldComponents/SelectField";
 import TextareaField from "./FieldComponents/TextareaField";
 
 export const FIELD_TYPE_COMPONENT_MAP = {
-  Text: DefaultField,
-  Tag: TagField,
-  Date: DateField,
   Bool: BoolField,
   Checkbox: CheckboxField,
-  URL: URLField,
-  TextArea: TextareaField,
-  MarkdownText: MarkdownField,
+  Date: DateField,
+  GeometryEditor: GeometryField,
+  GeometryObject: GeometryField,
   Integer: NumberField,
+  MarkdownText: MarkdownField,
   Number: NumberField,
   Select: SelectField,
-  GeometryObject: GeometryField,
-  GeometryEditor: GeometryField,
+  Tag: TagField,
+  Text: DefaultField,
+  TextArea: TextareaField,
+  URL: URLField,
 };

@@ -4,19 +4,19 @@ import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
 
 export type PreviewType =
-  | "GEO"
+  | "CSV"
   | "GEO_3D_TILES"
   | "GEO_MVT"
-  | "IMAGE"
+  | "GEO"
   | "IMAGE_SVG"
+  | "IMAGE"
   | "MODEL_3D"
-  | "CSV"
   | "UNKNOWN";
 
 type Props = {
+  hasUpdateRight: boolean;
   onTypeChange: (value: PreviewType) => void;
   value?: PreviewType;
-  hasUpdateRight: boolean;
 };
 
 type PreviewTypeListItem = {
@@ -24,7 +24,7 @@ type PreviewTypeListItem = {
   value: PreviewType;
 };
 
-export const PreviewTypeSelect: React.FC<Props> = ({ onTypeChange, value, hasUpdateRight }) => {
+export const PreviewTypeSelect: React.FC<Props> = ({ hasUpdateRight, onTypeChange, value }) => {
   const t = useT();
   const previewTypeList: PreviewTypeListItem[] = [
     { name: t("PNG/JPEG/TIFF/GIF"), value: "IMAGE" },
@@ -40,7 +40,7 @@ export const PreviewTypeSelect: React.FC<Props> = ({ onTypeChange, value, hasUpd
     { name: t("Unknown Type"), value: "UNKNOWN" },
   ];
   return (
-    <StyledSelect value={value} onChange={onTypeChange} disabled={!hasUpdateRight}>
+    <StyledSelect disabled={!hasUpdateRight} onChange={onTypeChange} value={value}>
       {previewTypeList.map((type, index) => (
         <Select.Option key={index} value={type.value}>
           {type.name}

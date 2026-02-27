@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client/react";
 import { Key, useCallback, useMemo, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { ColumnsState } from "@reearth-cms/components/atoms/ProTable";
@@ -15,7 +15,7 @@ import {
   GetRequestsDocument,
 } from "@reearth-cms/gql/__generated__/requests.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useProject, useWorkspace, useUserId, useUserRights } from "@reearth-cms/state";
+import { useProject, useUserId, useUserRights, useWorkspace } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
@@ -23,13 +23,13 @@ export default () => {
   const navigate = useNavigate();
   const location: {
     state?: {
-      searchTerm?: string;
-      requestState: RequestState[];
-      createdByMe: boolean;
-      reviewedByMe: boolean;
       columns: Record<string, ColumnsState>;
+      createdByMe: boolean;
       page: number;
       pageSize: number;
+      requestState: RequestState[];
+      reviewedByMe: boolean;
+      searchTerm?: string;
     } | null;
   } = useLocation();
 
@@ -77,21 +77,21 @@ export default () => {
 
   const {
     data: rawRequests,
-    refetch,
     loading,
+    refetch,
   } = useQuery(GetRequestsDocument, {
     fetchPolicy: "no-cache",
-    variables: {
-      projectId: projectId ?? "",
-      pagination: { first: pageSize, offset: (page - 1) * pageSize },
-      sort: { key: "createdAt", reverted: true },
-      key: searchTerm,
-      state: requestState.length === 0 ? undefined : (requestState as GQLRequestState[]),
-      reviewer: reviewedByMe && userId ? userId : undefined,
-      createdBy: createdByMe && userId ? userId : undefined,
-    },
     notifyOnNetworkStatusChange: true,
     skip: !projectId,
+    variables: {
+      createdBy: createdByMe && userId ? userId : undefined,
+      key: searchTerm,
+      pagination: { first: pageSize, offset: (page - 1) * pageSize },
+      projectId: projectId ?? "",
+      reviewer: reviewedByMe && userId ? userId : undefined,
+      sort: { key: "createdAt", reverted: true },
+      state: requestState.length === 0 ? undefined : (requestState as GQLRequestState[]),
+    },
   });
 
   const handleRequestsReload = useCallback(() => {
@@ -104,19 +104,19 @@ export default () => {
       .map(r => {
         if (!r) return;
         const request: Request = {
-          id: r.id,
-          title: r.title,
-          description: r.description ?? "",
-          state: r.state,
-          threadId: r.threadId ?? "",
-          comments: r.thread?.comments.map(c => fromGraphQLComment(c as GQLComment)) ?? [],
-          reviewers: r.reviewers,
-          createdBy: r.createdBy ?? undefined,
-          createdAt: r.createdAt,
-          updatedAt: r.updatedAt,
           approvedAt: r.approvedAt ?? undefined,
           closedAt: r.closedAt ?? undefined,
+          comments: r.thread?.comments.map(c => fromGraphQLComment(c as GQLComment)) ?? [],
+          createdAt: r.createdAt,
+          createdBy: r.createdBy ?? undefined,
+          description: r.description ?? "",
+          id: r.id,
           items: [],
+          reviewers: r.reviewers,
+          state: r.state,
+          threadId: r.threadId ?? "",
+          title: r.title,
+          updatedAt: r.updatedAt,
         };
         return request;
       })
@@ -136,7 +136,7 @@ export default () => {
     (requestId: string) => {
       if (!projectId || !currentWorkspace?.id || !requestId) return;
       navigate(`/workspace/${currentWorkspace?.id}/project/${projectId}/request/${requestId}`, {
-        state: { searchTerm, requestState, createdByMe, reviewedByMe, columns, page, pageSize },
+        state: { columns, createdByMe, page, pageSize, requestState, reviewedByMe, searchTerm },
       });
     },
     [
@@ -158,8 +158,8 @@ export default () => {
     async (requestsId: string[]) => {
       if (!projectId) return;
       const result = await deleteRequestMutation({
-        variables: { projectId, requestsId },
         refetchQueries: ["GetRequests"],
+        variables: { projectId, requestsId },
       });
       if (result.error) {
         Notification.error({ message: t("Failed to delete one or more requests.") });
@@ -186,7 +186,7 @@ export default () => {
     (
       page: number,
       pageSize: number,
-      requestState?: RequestState[] | null,
+      requestState?: null | RequestState[],
       createdByMe?: boolean,
       reviewedByMe?: boolean,
     ) => {
@@ -206,29 +206,29 @@ export default () => {
   }, []);
 
   return {
-    requests,
-    loading,
-    collapsedCommentsPanel,
     collapseCommentsPanel,
-    selectedRequest,
-    selection,
+    collapsedCommentsPanel,
+    columns,
+    createdByMe,
+    deleteLoading,
+    handleColumnsChange,
     handleNavigateToRequest,
-    handleSelect,
+    handleRequestDelete,
     handleRequestSelect,
     handleRequestsReload,
-    deleteLoading,
-    handleRequestDelete,
-    searchTerm,
+    handleRequestTableChange,
     handleSearchTerm,
-    reviewedByMe,
-    createdByMe,
-    requestState,
-    totalCount: rawRequests?.requests.totalCount ?? 0,
+    handleSelect,
+    hasCloseRight,
+    loading,
     page,
     pageSize,
-    handleRequestTableChange,
-    columns,
-    handleColumnsChange,
-    hasCloseRight,
+    requests,
+    requestState,
+    reviewedByMe,
+    searchTerm,
+    selectedRequest,
+    selection,
+    totalCount: rawRequests?.requests.totalCount ?? 0,
   };
 };

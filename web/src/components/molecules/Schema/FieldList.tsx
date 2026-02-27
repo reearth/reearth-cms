@@ -10,54 +10,54 @@ import { fieldTypes } from "./fieldTypes";
 import { SchemaFieldType, SelectedSchemaType, Tab } from "./types";
 
 type Props = {
-  currentTab: Tab;
-  selectedSchemaType: SelectedSchemaType;
-  hasCreateRight: boolean;
   addField: (fieldType: SchemaFieldType) => void;
+  currentTab: Tab;
+  hasCreateRight: boolean;
+  selectedSchemaType: SelectedSchemaType;
 };
 
 type FieldListItem = {
-  title: string;
   fields: SchemaFieldType[];
+  title: string;
 };
 
 const FieldList: React.FC<Props> = ({
-  currentTab,
-  selectedSchemaType,
-  hasCreateRight,
   addField,
+  currentTab,
+  hasCreateRight,
+  selectedSchemaType,
 }) => {
   const t = useT();
 
   const common: FieldListItem[] = useMemo(
     () => [
       {
-        title: t("Text"),
         fields: ["Text", "TextArea", "MarkdownText"],
+        title: t("Text"),
       },
       {
-        title: t("Asset"),
         fields: ["Asset"],
+        title: t("Asset"),
       },
       {
-        title: t("Time"),
         fields: ["Date"],
+        title: t("Time"),
       },
       {
-        title: t("Boolean"),
         fields: ["Bool"],
+        title: t("Boolean"),
       },
       {
-        title: t("Select"),
         fields: ["Select"],
+        title: t("Select"),
       },
       {
-        title: t("Number"),
         fields: ["Integer", "Number"],
+        title: t("Number"),
       },
       {
-        title: t("URL"),
         fields: ["URL"],
+        title: t("URL"),
       },
     ],
     [t],
@@ -65,8 +65,8 @@ const FieldList: React.FC<Props> = ({
 
   const geometry: FieldListItem = useMemo(
     () => ({
-      title: t("GeoJSON Geometry"),
       fields: ["GeometryObject", "GeometryEditor"],
+      title: t("GeoJSON Geometry"),
     }),
     [t],
   );
@@ -77,12 +77,12 @@ const FieldList: React.FC<Props> = ({
     () => [
       ...common,
       {
-        title: t("Relation"),
         fields: ["Reference"],
+        title: t("Relation"),
       },
       {
-        title: t("Group"),
         fields: ["Group"],
+        title: t("Group"),
       },
       geometry,
     ],
@@ -92,8 +92,8 @@ const FieldList: React.FC<Props> = ({
   const meta: FieldListItem[] = useMemo(
     () => [
       {
-        title: t("Meta Data"),
         fields: ["Tag", "Bool", "Checkbox", "Date", "Text", "URL"],
+        title: t("Meta Data"),
       },
     ],
     [t],
@@ -108,21 +108,21 @@ const FieldList: React.FC<Props> = ({
     <>
       <StyledTitle>{t("Add Field")}</StyledTitle>
       <FieldStyledList
-        itemLayout="horizontal"
         dataSource={dataSource}
         hasCreateRight={hasCreateRight}
+        itemLayout="horizontal"
         renderItem={item => (
           <>
             <FieldCategoryTitle>{item.title}</FieldCategoryTitle>
             {item.fields.map(field => (
               <List.Item
+                data-testid={Test.getDataTestIdFromSchemaFieldType(field)}
                 key={field}
-                onClick={hasCreateRight ? () => addField(field) : undefined}
-                data-testid={Test.getDataTestIdFromSchemaFieldType(field)}>
+                onClick={hasCreateRight ? () => addField(field) : undefined}>
                 <Meta
-                  avatar={<Icon icon={fieldTypes[field].icon} color={fieldTypes[field].color} />}
-                  title={t(fieldTypes[field].title)}
+                  avatar={<Icon color={fieldTypes[field].color} icon={fieldTypes[field].icon} />}
                   description={t(fieldTypes[field].description)}
+                  title={t(fieldTypes[field].title)}
                 />
               </List.Item>
             ))}

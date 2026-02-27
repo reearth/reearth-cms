@@ -1,12 +1,12 @@
 import styled from "@emotion/styled";
 import dayjs from "dayjs";
-import { useMemo, useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Collapse from "@reearth-cms/components/atoms/Collapse";
 import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import { Request, ItemInRequest } from "@reearth-cms/components/molecules/Request/types";
+import { ItemInRequest, Request } from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
@@ -33,16 +33,16 @@ export const RequestDescription: React.FC<Props> = ({
   );
 
   const headerGet = useCallback(
-    ({ modelName, modelId, id: itemId, title }: ItemInRequest) => {
+    ({ id: itemId, modelId, modelName, title }: ItemInRequest) => {
       if (modelName && modelId) {
         return (
           <>
             {`${modelName} / `}
             <StyledButton
-              type="link"
               onClick={() => {
                 onNavigateToItemEdit(modelId, itemId);
-              }}>
+              }}
+              type="link">
               {title || itemId}
             </StyledButton>
           </>
@@ -68,11 +68,11 @@ export const RequestDescription: React.FC<Props> = ({
                 <Collapse key={item.id}>
                   <StyledPanel header={headerGet(item)} key={1}>
                     <RequestItemForm
-                      schema={item.schema}
                       initialFormValues={item.initialValues}
-                      referencedItems={item.referencedItems}
                       onGetAsset={onGetAsset}
                       onGroupGet={onGroupGet}
+                      referencedItems={item.referencedItems}
+                      schema={item.schema}
                     />
                   </StyledPanel>
                 </Collapse>

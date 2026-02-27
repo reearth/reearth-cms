@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { expect, test, describe } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 
@@ -31,15 +31,15 @@ describe("Project list", () => {
     render(
       <ProjectList
         hasCreateRight={hasCreateRight}
-        projects={projects}
         loading={true}
+        onPageChange={onPageChange}
+        onProjectAliasCheck={onProjectAliasCheck}
+        onProjectCreate={onProjectCreate}
+        onProjectNavigation={onProjectNavigation}
         page={page}
         pageSize={pageSize}
+        projects={projects}
         totalCount={totalCount}
-        onProjectNavigation={onProjectNavigation}
-        onProjectCreate={onProjectCreate}
-        onProjectAliasCheck={onProjectAliasCheck}
-        onPageChange={onPageChange}
       />,
     );
 
@@ -50,15 +50,15 @@ describe("Project list", () => {
     render(
       <ProjectList
         hasCreateRight={hasCreateRight}
-        projects={projects}
         loading={loading}
+        onPageChange={onPageChange}
+        onProjectAliasCheck={onProjectAliasCheck}
+        onProjectCreate={onProjectCreate}
+        onProjectNavigation={onProjectNavigation}
         page={page}
         pageSize={pageSize}
+        projects={projects}
         totalCount={totalCount}
-        onProjectNavigation={onProjectNavigation}
-        onProjectCreate={onProjectCreate}
-        onProjectAliasCheck={onProjectAliasCheck}
-        onPageChange={onPageChange}
       />,
     );
 
@@ -70,15 +70,15 @@ describe("Project list", () => {
     render(
       <ProjectList
         hasCreateRight={false}
-        projects={projects}
         loading={loading}
+        onPageChange={onPageChange}
+        onProjectAliasCheck={onProjectAliasCheck}
+        onProjectCreate={onProjectCreate}
+        onProjectNavigation={onProjectNavigation}
         page={page}
         pageSize={pageSize}
+        projects={projects}
         totalCount={totalCount}
-        onProjectNavigation={onProjectNavigation}
-        onProjectCreate={onProjectCreate}
-        onProjectAliasCheck={onProjectAliasCheck}
-        onPageChange={onPageChange}
       />,
     );
 
@@ -90,29 +90,29 @@ describe("Project list", () => {
     const description = "description";
     const testProjects = [
       {
+        description,
         id: "id1",
         name,
-        description,
       },
       {
+        description,
         id: "id2",
         name,
-        description,
       },
     ];
 
     render(
       <ProjectList
         hasCreateRight={hasCreateRight}
-        projects={testProjects}
         loading={loading}
+        onPageChange={onPageChange}
+        onProjectAliasCheck={onProjectAliasCheck}
+        onProjectCreate={onProjectCreate}
+        onProjectNavigation={onProjectNavigation}
         page={page}
         pageSize={pageSize}
+        projects={testProjects}
         totalCount={totalCount}
-        onProjectNavigation={onProjectNavigation}
-        onProjectCreate={onProjectCreate}
-        onProjectAliasCheck={onProjectAliasCheck}
-        onPageChange={onPageChange}
       />,
     );
 

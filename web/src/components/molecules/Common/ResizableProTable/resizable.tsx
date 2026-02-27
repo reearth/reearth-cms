@@ -1,27 +1,26 @@
+import type { ResizeCallbackData } from "react-resizable";
+
 import styled from "@emotion/styled";
 import { Resizable } from "react-resizable";
-import type { ResizeCallbackData } from "react-resizable";
 
 export type { ResizeCallbackData } from "react-resizable";
 
 export const ResizableTitle = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  props: React.HTMLAttributes<any> & {
+   
+  props: {
+    minWidth: number;
     onResize: (e: React.SyntheticEvent<Element>, data: ResizeCallbackData) => void;
     width: number;
-    minWidth: number;
-  },
+  } & React.HTMLAttributes<any>,
 ) => {
-  const { onResize, width, minWidth, ...restProps } = props;
+  const { minWidth, onResize, width, ...restProps } = props;
   if (!width) {
     return <th {...restProps} />;
   }
 
   return (
     <StyledResizable
-      width={width}
-      height={0}
-      minConstraints={[minWidth, 0]}
+      draggableOpts={{ enableUserSelectHack: false }}
       handle={
         <span
           className="react-resizable-handle"
@@ -30,8 +29,10 @@ export const ResizableTitle = (
           }}
         />
       }
+      height={0}
+      minConstraints={[minWidth, 0]}
       onResize={onResize}
-      draggableOpts={{ enableUserSelectHack: false }}>
+      width={width}>
       <th {...restProps} />
     </StyledResizable>
   );

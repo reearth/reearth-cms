@@ -1,21 +1,21 @@
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import dayjs from "dayjs";
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
 import {
+  emptyConvert,
   keyAutoFill,
   keyReplace,
-  emptyConvert,
 } from "@reearth-cms/components/molecules/Common/Form/utils";
 import {
+  EditorSupportedType,
   Field,
   FieldModalTabs,
-  SchemaFieldType,
-  FormValues,
   FormTypes,
+  FormValues,
   ObjectSupportedType,
-  EditorSupportedType,
+  SchemaFieldType,
   SelectedSchemaType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { transformDayjsToString } from "@reearth-cms/utils/format";
@@ -36,7 +36,7 @@ export default (
   const [activeTab, setActiveTab] = useState<FieldModalTabs>("settings");
   const selectedValues = Form.useWatch("values", form);
   const selectedTags = Form.useWatch("tags", form);
-  const selectedSupportedTypes = Form.useWatch<ObjectSupportedType[] | EditorSupportedType>(
+  const selectedSupportedTypes = Form.useWatch<EditorSupportedType | ObjectSupportedType[]>(
     "supportedTypes",
     form,
   );
@@ -44,7 +44,7 @@ export default (
   const min = Form.useWatch("min", form);
   const max = Form.useWatch("max", form);
   const [multipleValue, setMultipleValue] = useState(false);
-  const prevKey = useRef<{ key: string; isSuccess: boolean }>();
+  const prevKey = useRef<{ isSuccess: boolean; key: string; }>();
 
   const handleMultipleChange = useCallback(
     (e: CheckboxChangeEvent) => {
@@ -130,24 +130,24 @@ export default (
   useEffect(() => {
     setMultipleValue(!!selectedField?.multiple);
     const defaultValue = {
-      fieldId: selectedField?.id,
-      title: selectedField?.title,
-      description: selectedField?.description,
-      key: selectedField?.key,
-      multiple: !!selectedField?.multiple,
-      unique: !!selectedField?.unique,
-      isTitle: !!selectedField?.isTitle,
-      required: !!selectedField?.required,
       defaultValue: selectedField ? defaultValueGet(selectedField) : undefined,
-      min: selectedField?.typeProperty?.min ?? selectedField?.typeProperty?.numberMin,
+      description: selectedField?.description,
+      fieldId: selectedField?.id,
+      group: selectedField?.typeProperty?.groupId,
+      isTitle: !!selectedField?.isTitle,
+      key: selectedField?.key,
       max: selectedField?.typeProperty?.max ?? selectedField?.typeProperty?.numberMax,
       maxLength: selectedField?.typeProperty?.maxLength,
-      values: selectedField?.typeProperty?.values,
-      tags: selectedField?.typeProperty?.tags,
-      group: selectedField?.typeProperty?.groupId,
+      min: selectedField?.typeProperty?.min ?? selectedField?.typeProperty?.numberMin,
+      multiple: !!selectedField?.multiple,
+      required: !!selectedField?.required,
       supportedTypes:
         selectedField?.typeProperty?.objectSupportedTypes ||
         selectedField?.typeProperty?.editorSupportedTypes?.[0],
+      tags: selectedField?.typeProperty?.tags,
+      title: selectedField?.title,
+      unique: !!selectedField?.unique,
+      values: selectedField?.typeProperty?.values,
     };
     form.setFieldsValue(defaultValue);
     defaultValueRef.current = defaultValue;
@@ -184,8 +184,8 @@ export default (
         return {
           [values.type === "Integer" ? "integer" : "number"]: {
             defaultValue,
-            min: values.min ?? null,
             max: values.max ?? null,
+            min: values.min ?? null,
           },
         };
       }
@@ -335,10 +335,10 @@ export default (
       if (prevKey.current?.key === value) {
         return prevKey.current?.isSuccess ? Promise.resolve() : Promise.reject();
       } else if (validateKey(value) && handleFieldKeyUnique(value)) {
-        prevKey.current = { key: value, isSuccess: true };
+        prevKey.current = { isSuccess: true, key: value };
         return Promise.resolve();
       } else {
-        prevKey.current = { key: value, isSuccess: false };
+        prevKey.current = { isSuccess: false, key: value };
         return Promise.reject();
       }
     },
@@ -427,31 +427,31 @@ export default (
   );
 
   return {
-    form,
-    buttonDisabled,
     activeTab,
-    selectedValues,
-    selectedTags,
-    selectedSupportedTypes,
-    maxLength,
-    min,
-    max,
-    multipleValue,
-    handleMultipleChange,
-    handleTabChange,
-    handleValuesChange,
-    handleNameChange,
-    handleKeyChange,
-    handleSubmit,
-    handleModalReset,
-    isRequiredDisabled,
-    isUniqueDisabled,
-    keyValidate,
-    isTitleDisabled,
-    ObjectSupportType,
+    buttonDisabled,
+    duplicatedValidator,
     EditorSupportType,
     emptyValidator,
-    duplicatedValidator,
     errorIndexes,
+    form,
+    handleKeyChange,
+    handleModalReset,
+    handleMultipleChange,
+    handleNameChange,
+    handleSubmit,
+    handleTabChange,
+    handleValuesChange,
+    isRequiredDisabled,
+    isTitleDisabled,
+    isUniqueDisabled,
+    keyValidate,
+    max,
+    maxLength,
+    min,
+    multipleValue,
+    ObjectSupportType,
+    selectedSupportedTypes,
+    selectedTags,
+    selectedValues,
   };
 };

@@ -2,21 +2,21 @@ import styled from "@emotion/styled";
 import { ReactNode } from "react";
 
 type Props = {
-  title?: string;
-  danger?: boolean;
-  headerActions?: ReactNode;
   children?: ReactNode;
+  danger?: boolean;
   description?: string;
   hasPadding?: boolean;
+  headerActions?: ReactNode;
+  title?: string;
 };
 
 const ContentSection: React.FC<Props> = ({
-  title,
-  headerActions,
   children,
   danger,
   description,
   hasPadding = true,
+  headerActions,
+  title,
 }) => {
   return (
     <Wrapper danger={danger}>

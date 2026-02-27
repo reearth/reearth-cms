@@ -1,14 +1,13 @@
+import { config } from ".";
 import { type CognitoParams } from "./aws";
 import { type FirebaseParams } from "./firebase";
-
-import { config } from ".";
 
 const tenantKey = "reearth_tennant";
 
 export type AuthInfo = {
+  auth0Audience?: string;
   auth0ClientId?: string;
   auth0Domain?: string;
-  auth0Audience?: string;
   authProvider?: string;
   cognito?: CognitoParams;
   firebase?: FirebaseParams;
@@ -64,7 +63,7 @@ function getMultitenantAuthInfo(conf = config()): AuthInfo | undefined {
   return;
 }
 
-function getTenantName(): string | null {
+function getTenantName(): null | string {
   const loggingInTenantName = getLogginInTenantName();
   if (loggingInTenantName) {
     return loggingInTenantName;
@@ -72,7 +71,7 @@ function getTenantName(): string | null {
   return window.localStorage.getItem(tenantKey);
 }
 
-function getLogginInTenantName(): string | null {
+function getLogginInTenantName(): null | string {
   const path = window.location.pathname;
   // /auth/<tennant-name>
   if (path.startsWith("/auth/")) {

@@ -13,28 +13,28 @@ import { UploaderQueueItem } from "../types";
 import useJobState from "../useJobState";
 
 type Props = {
-  queue: UploaderQueueItem;
-  onRetry: (id: UploaderQueueItem["jobId"]) => Promise<void>;
   onCancel: (id: UploaderQueueItem["jobId"]) => Promise<void>;
-  onJobUpdate: (payload: Pick<UploaderQueueItem, "jobId" | "jobState">) => void;
   onJobComplete?: (jobId: UploaderQueueItem["jobId"]) => void;
   onJobError?: (jobId: UploaderQueueItem["jobId"], error: string) => void;
+  onJobUpdate: (payload: Pick<UploaderQueueItem, "jobId" | "jobState">) => void;
+  onRetry: (id: UploaderQueueItem["jobId"]) => Promise<void>;
+  queue: UploaderQueueItem;
 };
 
 const QueueItem: React.FC<Props> = (props: Props) => {
-  const { queue, onRetry, onCancel, onJobUpdate, onJobComplete, onJobError } = props;
+  const { onCancel, onJobComplete, onJobError, onJobUpdate, onRetry, queue } = props;
   const t = useT();
 
   useJobState({
     jobId: queue.jobId,
-    shouldSubscribe: ![JobStatus.Completed, JobStatus.Cancelled, JobStatus.Failed].includes(
-      queue.jobState.status,
-    ),
+    onJobCompleteCallback: () => onJobComplete && void onJobComplete(queue.jobId),
+    onJobErrorCallback: error => onJobError && void onJobError(queue.jobId, error.message),
     onJobUpdateCallback: ({ data }) => {
       if (data.data) onJobUpdate({ jobId: queue.jobId, jobState: data.data.jobState });
     },
-    onJobCompleteCallback: () => onJobComplete && void onJobComplete(queue.jobId),
-    onJobErrorCallback: error => onJobError && void onJobError(queue.jobId, error.message),
+    shouldSubscribe: ![JobStatus.Completed, JobStatus.Cancelled, JobStatus.Failed].includes(
+      queue.jobState.status,
+    ),
   });
 
   const renderStatusIcons = useMemo<JSX.Element | null>(() => {
@@ -45,14 +45,14 @@ const QueueItem: React.FC<Props> = (props: Props) => {
             <span
               data-testid={DATA_TEST_ID.QueueItem__CancelIcon}
               onClick={() => void onCancel(queue.jobId)}>
-              <ActionIcon icon="closeCircle" color="#8C8C8C" />
+              <ActionIcon color="#8C8C8C" icon="closeCircle" />
             </span>
           </Tooltip>
         );
       case JobStatus.Completed:
         return (
           <span data-testid={DATA_TEST_ID.Uploader__CompleteIcon}>
-            <InfoIcon icon="checkCircle" color="#52C41A" />
+            <InfoIcon color="#52C41A" icon="checkCircle" />
           </span>
         );
       case JobStatus.Failed:
@@ -62,11 +62,11 @@ const QueueItem: React.FC<Props> = (props: Props) => {
               <span
                 data-testid={DATA_TEST_ID.QueueItem__RetryIcon}
                 onClick={() => void onRetry(queue.jobId)}>
-                <ActionIcon icon="retry" color="#8C8C8C" />
+                <ActionIcon color="#8C8C8C" icon="retry" />
               </span>
             </Tooltip>
             <span data-testid={DATA_TEST_ID.QueueItem__ErrorIcon}>
-              <InfoIcon icon="exclamationSolid" color="#F5222D" />
+              <InfoIcon color="#F5222D" icon="exclamationSolid" />
             </span>
           </>
         );
@@ -76,7 +76,7 @@ const QueueItem: React.FC<Props> = (props: Props) => {
             <span
               data-testid={DATA_TEST_ID.QueueItem__RetryIcon}
               onClick={() => void onRetry(queue.jobId)}>
-              <ActionIcon icon="retry" color="#8C8C8C" />
+              <ActionIcon color="#8C8C8C" icon="retry" />
             </span>
           </Tooltip>
         );
@@ -103,10 +103,10 @@ const QueueItem: React.FC<Props> = (props: Props) => {
     <ItemWrapper data-testid={DATA_TEST_ID.QueueItem__Wrapper}>
       <ItemUpper>
         <UpperLeft>
-          <InfoIcon icon="clip" color="#8C8C8C" />
+          <InfoIcon color="#8C8C8C" icon="clip" />
           <Tooltip title={queue.fileName}>
             {queue.jobState.status === JobStatus.Completed ? (
-              <Link to={queue.url} target="_blank" data-testid={DATA_TEST_ID.QueueItem__FileLink}>
+              <Link data-testid={DATA_TEST_ID.QueueItem__FileLink} target="_blank" to={queue.url}>
                 <FileName>{queue.fileName}</FileName>
               </Link>
             ) : (
@@ -122,8 +122,8 @@ const QueueItem: React.FC<Props> = (props: Props) => {
             data-testid={DATA_TEST_ID.QueueItem__ProgressBar}
             percent={queue.jobState.progress ? queue.jobState.progress.percentage : 0}
             showInfo={false}
-            status="active"
             size={{ height: 3 }}
+            status="active"
           />
         )}
         {renderMessage}

@@ -15,41 +15,41 @@ import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  workspaceUserMembers?: UserMember[];
-  userId?: string;
-  isAbleToLeave: boolean;
-  onMemberRemoveFromWorkspace: (userIds: string[]) => Promise<void>;
-  onLeave: (userId: string) => Promise<void>;
-  onSearchTerm: (term?: string) => void;
-  onRoleModalOpen: (member: UserMember) => void;
-  onMemberAddModalOpen: () => void;
-  page: number;
-  pageSize: number;
-  onTableChange: (page: number, pageSize: number) => void;
-  loading: boolean;
-  onReload: () => void;
+  hasChangeRoleRight: boolean;
   hasInviteRight: boolean;
   hasRemoveRight: boolean;
-  hasChangeRoleRight: boolean;
+  isAbleToLeave: boolean;
+  loading: boolean;
+  onLeave: (userId: string) => Promise<void>;
+  onMemberAddModalOpen: () => void;
+  onMemberRemoveFromWorkspace: (userIds: string[]) => Promise<void>;
+  onReload: () => void;
+  onRoleModalOpen: (member: UserMember) => void;
+  onSearchTerm: (term?: string) => void;
+  onTableChange: (page: number, pageSize: number) => void;
+  page: number;
+  pageSize: number;
+  userId?: string;
+  workspaceUserMembers?: UserMember[];
 };
 
 const MemberTable: React.FC<Props> = ({
-  workspaceUserMembers,
-  userId,
-  isAbleToLeave,
-  onMemberRemoveFromWorkspace,
-  onLeave,
-  onSearchTerm,
-  onRoleModalOpen,
-  onMemberAddModalOpen,
-  page,
-  pageSize,
-  onTableChange,
-  loading,
-  onReload,
+  hasChangeRoleRight,
   hasInviteRight,
   hasRemoveRight,
-  hasChangeRoleRight,
+  isAbleToLeave,
+  loading,
+  onLeave,
+  onMemberAddModalOpen,
+  onMemberRemoveFromWorkspace,
+  onReload,
+  onRoleModalOpen,
+  onSearchTerm,
+  onTableChange,
+  page,
+  pageSize,
+  userId,
+  workspaceUserMembers,
 }) => {
   const t = useT();
   const { confirm } = useModal();
@@ -59,10 +59,7 @@ const MemberTable: React.FC<Props> = ({
   const handleMemberDelete = useCallback(
     (users: User[]) => {
       confirm({
-        title:
-          users.length > 1
-            ? t("Are you sure to remove these members?")
-            : t("Are you sure to remove this member?"),
+        cancelText: t("No"),
         content: (
           <>
             <RemoveUsers>
@@ -83,11 +80,14 @@ const MemberTable: React.FC<Props> = ({
           </>
         ),
         okText: t("Yes"),
-        cancelText: t("No"),
         async onOk() {
           await onMemberRemoveFromWorkspace(users.map(user => user.id));
           setSelection([]);
         },
+        title:
+          users.length > 1
+            ? t("Are you sure to remove these members?")
+            : t("Are you sure to remove this member?"),
       });
     },
     [confirm, onMemberRemoveFromWorkspace, t],
@@ -96,11 +96,11 @@ const MemberTable: React.FC<Props> = ({
   const leaveConfirm = useCallback(
     (userId: string) => {
       confirm({
-        title: t("Are you sure to leave this workspace?"),
         content: t("Leave this workspace means you will not view any content of this workspace."),
         async onOk() {
           await onLeave(userId);
         },
+        title: t("Are you sure to leave this workspace?"),
       });
     },
     [confirm, onLeave, t],
@@ -109,32 +109,32 @@ const MemberTable: React.FC<Props> = ({
   const columns = useMemo(
     () => [
       {
-        title: t("Name"),
         dataIndex: "name",
         key: "name",
-        width: 256,
         minWidth: 256,
+        title: t("Name"),
+        width: 256,
       },
       {
-        title: t("Email"),
         dataIndex: "email",
         key: "email",
-        width: 256,
         minWidth: 256,
+        title: t("Email"),
+        width: 256,
       },
       {
-        title: t("Role"),
         dataIndex: "role",
         key: "role",
-        width: 128,
         minWidth: 128,
+        title: t("Role"),
+        width: 128,
       },
       {
-        title: t("Action"),
         dataIndex: "action",
         key: "action",
-        width: 150,
         minWidth: 150,
+        title: t("Action"),
+        width: 150,
       },
     ],
     [t],
@@ -143,40 +143,40 @@ const MemberTable: React.FC<Props> = ({
   const dataSource = useMemo(
     () =>
       workspaceUserMembers?.map(member => ({
-        id: member.userId,
-        name: member.user.name,
-        email: member.user.email,
-        role: t(member.role),
         action: (
           <>
             <ActionButton
-              type="link"
+              disabled={!hasChangeRoleRight || member.userId === userId}
               onClick={() => onRoleModalOpen(member)}
-              disabled={!hasChangeRoleRight || member.userId === userId}>
+              type="link">
               {t("Change Role?")}
             </ActionButton>
             <Divider type="vertical" />
             {member.userId === userId ? (
               <ActionButton
-                type="link"
+                disabled={!isAbleToLeave}
                 onClick={() => {
                   leaveConfirm(member.userId);
                 }}
-                disabled={!isAbleToLeave}>
+                type="link">
                 {t("Leave")}
               </ActionButton>
             ) : (
               <ActionButton
-                type="link"
+                disabled={!hasRemoveRight}
                 onClick={() => {
                   handleMemberDelete([member.user]);
                 }}
-                disabled={!hasRemoveRight}>
+                type="link">
                 {t("Remove")}
               </ActionButton>
             )}
           </>
         ),
+        email: member.user.email,
+        id: member.userId,
+        name: member.user.name,
+        role: t(member.role),
       })),
     [
       workspaceUserMembers,
@@ -196,10 +196,10 @@ const MemberTable: React.FC<Props> = ({
       search: (
         <Search
           allowClear
-          placeholder={t("input search text")}
           onSearch={(value: string) => {
             onSearchTerm(value);
           }}
+          placeholder={t("input search text")}
         />
       ),
     }),
@@ -208,22 +208,22 @@ const MemberTable: React.FC<Props> = ({
 
   const pagination = useMemo(
     () => ({
-      showSizeChanger: true,
       current: page,
       pageSize: pageSize,
+      showSizeChanger: true,
     }),
     [page, pageSize],
   );
 
   const rowSelection: TableRowSelection = useMemo(
     () => ({
-      selectedRowKeys: selection,
-      onChange: (selectedRowKeys: Key[]) => {
-        setSelection(selectedRowKeys);
-      },
       getCheckboxProps: record => ({
         disabled: record.id === userId,
       }),
+      onChange: (selectedRowKeys: Key[]) => {
+        setSelection(selectedRowKeys);
+      },
+      selectedRowKeys: selection,
     }),
     [selection, userId],
   );
@@ -231,12 +231,12 @@ const MemberTable: React.FC<Props> = ({
   const alertOptions = useCallback(
     (props: { selectedRows: User[] }) => (
       <Button
-        type="link"
-        size="small"
+        danger
+        disabled={!hasRemoveRight}
         icon={<Icon icon="userGroupDelete" />}
         onClick={() => handleMemberDelete(props.selectedRows)}
-        danger
-        disabled={!hasRemoveRight}>
+        size="small"
+        type="link">
         {t("Remove")}
       </Button>
     ),
@@ -253,32 +253,32 @@ const MemberTable: React.FC<Props> = ({
   return (
     <PaddedContent>
       <PageHeader
-        title={t("Members")}
-        style={{ backgroundColor: "#fff" }}
         extra={
           <Button
-            type="primary"
-            onClick={onMemberAddModalOpen}
+            disabled={!hasInviteRight}
             icon={<Icon icon="userGroupAdd" />}
-            disabled={!hasInviteRight}>
+            onClick={onMemberAddModalOpen}
+            type="primary">
             {t("New Member")}
           </Button>
         }
+        style={{ backgroundColor: "#fff" }}
+        title={t("Members")}
       />
       <TableWrapper>
         <ResizableProTable
-          dataSource={dataSource}
           columns={columns}
-          tableAlertOptionRender={alertOptions}
-          pagination={pagination}
-          toolbar={toolbar}
-          options={options}
-          rowSelection={rowSelection}
-          loading={loading}
+          dataSource={dataSource}
           heightOffset={0}
+          loading={loading}
           onChange={pagination => {
             onTableChange(pagination.current ?? 1, pagination.pageSize ?? 10);
           }}
+          options={options}
+          pagination={pagination}
+          rowSelection={rowSelection}
+          tableAlertOptionRender={alertOptions}
+          toolbar={toolbar}
         />
       </TableWrapper>
     </PaddedContent>

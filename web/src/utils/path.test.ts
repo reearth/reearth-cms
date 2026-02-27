@@ -1,6 +1,6 @@
-import { test, expect } from "vitest";
+import { expect, test } from "vitest";
 
-import { splitPathname, joinPaths } from "./path";
+import { joinPaths, splitPathname } from "./path";
 
 test("splitPathname function correctly splits pathname into primary, secondary, and sub routes", () => {
   const pathname1 = "localhost:3000/workspace/xxx";

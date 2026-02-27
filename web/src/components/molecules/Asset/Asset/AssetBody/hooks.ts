@@ -11,5 +11,5 @@ export default () => {
     setSvgRender(true);
   }, []);
 
-  return { svgRender, handleCodeSourceClick, handleRenderClick };
+  return { handleCodeSourceClick, handleRenderClick, svgRender };
 };

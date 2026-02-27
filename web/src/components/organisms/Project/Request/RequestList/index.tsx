@@ -5,67 +5,67 @@ import useHooks from "./hooks";
 
 const RequestList: React.FC = () => {
   const {
-    requests,
-    loading,
-    collapsedCommentsPanel,
-    selectedRequest,
-    selection,
-    handleSelect,
     collapseCommentsPanel,
+    collapsedCommentsPanel,
+    columns,
+    createdByMe,
+    deleteLoading,
+    handleColumnsChange,
+    handleNavigateToRequest,
+    handleRequestDelete,
     handleRequestSelect,
     handleRequestsReload,
-    deleteLoading,
-    handleRequestDelete,
-    searchTerm,
+    handleRequestTableChange,
     handleSearchTerm,
-    handleNavigateToRequest,
-    totalCount,
-    reviewedByMe,
-    createdByMe,
-    requestState,
+    handleSelect,
+    hasCloseRight,
+    loading,
     page,
     pageSize,
-    handleRequestTableChange,
-    columns,
-    handleColumnsChange,
-    hasCloseRight,
+    requests,
+    requestState,
+    reviewedByMe,
+    searchTerm,
+    selectedRequest,
+    selection,
+    totalCount,
   } = useHooks();
 
   return (
     <RequestListMolecule
+      columns={columns}
       commentsPanel={
         <CommentsPanel
+          collapsed={collapsedCommentsPanel}
+          comments={selectedRequest?.comments}
+          onCollapse={collapseCommentsPanel}
+          refetchQueries={["GetRequests"]}
           resourceId={selectedRequest?.id}
           resourceType={"REQUEST"}
-          collapsed={collapsedCommentsPanel}
-          onCollapse={collapseCommentsPanel}
-          comments={selectedRequest?.comments}
           threadId={selectedRequest?.threadId}
-          refetchQueries={["GetRequests"]}
         />
       }
-      requests={requests}
-      onRequestSelect={handleRequestSelect}
-      loading={loading}
-      onRequestsReload={handleRequestsReload}
-      deleteLoading={deleteLoading}
-      onRequestDelete={handleRequestDelete}
-      selectedRequest={selectedRequest}
-      searchTerm={searchTerm}
-      onSearchTerm={handleSearchTerm}
-      selection={selection}
-      onSelect={handleSelect}
-      onEdit={handleNavigateToRequest}
-      totalCount={totalCount}
-      reviewedByMe={reviewedByMe}
       createdByMe={createdByMe}
-      requestState={requestState}
-      page={page}
-      onRequestTableChange={handleRequestTableChange}
-      pageSize={pageSize}
-      columns={columns}
-      onColumnsChange={handleColumnsChange}
+      deleteLoading={deleteLoading}
       hasCloseRight={hasCloseRight}
+      loading={loading}
+      onColumnsChange={handleColumnsChange}
+      onEdit={handleNavigateToRequest}
+      onRequestDelete={handleRequestDelete}
+      onRequestSelect={handleRequestSelect}
+      onRequestsReload={handleRequestsReload}
+      onRequestTableChange={handleRequestTableChange}
+      onSearchTerm={handleSearchTerm}
+      onSelect={handleSelect}
+      page={page}
+      pageSize={pageSize}
+      requests={requests}
+      requestState={requestState}
+      reviewedByMe={reviewedByMe}
+      searchTerm={searchTerm}
+      selectedRequest={selectedRequest}
+      selection={selection}
+      totalCount={totalCount}
     />
   );
 };

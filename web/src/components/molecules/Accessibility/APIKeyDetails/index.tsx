@@ -19,57 +19,57 @@ import AccessAPITable from "../AccessAPI/AccessAPITable";
 
 type Props = {
   apiUrl: string;
-  currentProject?: Project;
+  createLoading?: boolean;
   currentKey?: APIKey;
-  hasPublishRight: boolean;
+  currentProject?: Project;
   hasCreateRight: boolean;
+  hasPublishRight: boolean;
   hasUpdateRight: boolean;
   initialValues: KeyFormType;
   isNewKey: boolean;
   keyId?: string;
-  keyModels: Pick<Model, "name" | "id" | "key">[];
-  createLoading?: boolean;
-  updateLoading?: boolean;
-  regenerateLoading?: boolean;
+  keyModels: Pick<Model, "id" | "key" | "name">[];
   onAPIKeyCreate: (
     name: string,
     description: string,
     publication: {
-      publicModels: string[];
       publicAssets: boolean;
+      publicModels: string[];
     },
   ) => Promise<void>;
+  onAPIKeyRegenerate: (id?: string) => Promise<void>;
   onAPIKeyUpdate: (
     id: string,
     name: string,
     description: string,
     publication: {
-      publicModels: string[];
       publicAssets: boolean;
+      publicModels: string[];
     },
   ) => Promise<void>;
-  onAPIKeyRegenerate: (id?: string) => Promise<void>;
   onBack?: () => void;
+  regenerateLoading?: boolean;
+  updateLoading?: boolean;
 };
 
 const APIKeyDetailsMolecule: React.FC<Props> = ({
   apiUrl,
-  currentProject,
+  createLoading,
   currentKey,
+  currentProject,
   hasCreateRight,
-  hasUpdateRight,
   hasPublishRight,
+  hasUpdateRight,
   initialValues,
   isNewKey,
   keyId,
   keyModels,
-  createLoading,
-  updateLoading,
-  regenerateLoading,
   onAPIKeyCreate,
-  onAPIKeyUpdate,
   onAPIKeyRegenerate,
+  onAPIKeyUpdate,
   onBack,
+  regenerateLoading,
+  updateLoading,
 }) => {
   const t = useT();
   const [form] = Form.useForm<KeyFormType>();
@@ -92,10 +92,10 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
       const name = form.getFieldValue("name") ?? "";
       const description = form.getFieldValue("description") ?? "";
       const publication = {
+        publicAssets: form.getFieldValue("assetPublic") || false,
         publicModels: Object.entries(form.getFieldValue("models") ?? {})
           .filter(([, value]) => value)
           .map(([key]) => key),
-        publicAssets: form.getFieldValue("assetPublic") || false,
       };
       if (isNewKey) {
         await onAPIKeyCreate(name, description, publication);
@@ -135,31 +135,29 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
 
   return (
     <InnerContent
+      flexChildren
+      onBack={onBack}
       title={t(
         `Accessibility / ${!isNewKey && currentKey?.name ? currentKey.name : "New API Key"}`,
-      )}
-      onBack={onBack}
-      flexChildren>
+      )}>
       <ContentSection>
         <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
-          <Form.Item name="name" label={t("Name")}>
+          <Form.Item label={t("Name")} name="name">
             <StyledInput />
           </Form.Item>
           <Form.Item
-            name="description"
+            extra={t("You can write some here to describe this record.")}
             label={t("Description")}
-            extra={t("You can write some here to describe this record.")}>
+            name="description">
             <StyledTextArea />
           </Form.Item>
           {keyId && !isNewKey && (
             <TokenFormItem
-              label={t("API Key")}
-              extra={t("This is your secret token, please use as your env value.")}>
+              extra={t("This is your secret token, please use as your env value.")}
+              label={t("API Key")}>
               <StyledTokenInput
                 data-testid="key"
-                value={keyId ? currentKey?.key : ""}
                 disabled
-                visibilityToggle={{ visible }}
                 iconRender={() => <CopyButton copyable={{ text: currentKey?.key }} />}
                 prefix={
                   <Icon
@@ -169,29 +167,31 @@ const APIKeyDetailsMolecule: React.FC<Props> = ({
                     }}
                   />
                 }
+                value={keyId ? currentKey?.key : ""}
+                visibilityToggle={{ visible }}
               />
               <Button
-                loading={regenerateLoading}
                 disabled={!hasUpdateRight}
+                loading={regenerateLoading}
                 onClick={() => onAPIKeyRegenerate(currentKey?.id)}>
                 {t("Re-generate")}
               </Button>
             </TokenFormItem>
           )}
-          <Form.Item name="permissions" label={t("Permissions")}>
+          <Form.Item label={t("Permissions")} name="permissions">
             <AccessAPITable
               apiUrl={apiUrl}
               hasPublishRight={hasPublishRight}
-              models={keyModels}
               isPublic={currentProject?.accessibility?.visibility === "PUBLIC"}
+              models={keyModels}
               publicModels={currentProject?.accessibility?.publication.publicModels ?? []}
             />
           </Form.Item>
           <Button
-            type="primary"
             disabled={isSaveDisabled}
+            loading={createLoading || updateLoading}
             onClick={handleSave}
-            loading={createLoading || updateLoading}>
+            type="primary">
             {t("Save changes")}
           </Button>
         </Form>

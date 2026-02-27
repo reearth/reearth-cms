@@ -6,30 +6,30 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import { Resource } from "@reearth-cms/components/molecules/Workspace/types";
 
 export type Props = {
-  resources: Resource[];
-  onModalOpen: (index: number) => void;
+  hasUpdateRight: boolean;
   isTile: boolean;
   onDelete: (isTile: boolean, index: number) => void;
   onDragEnd: (fromIndex: number, toIndex: number, isTile: boolean) => void;
-  hasUpdateRight: boolean;
+  onModalOpen: (index: number) => void;
+  resources: Resource[];
 };
 
 const { DragColumn } = ReactDragListView;
 const { Meta } = Card;
 
 const Cards: React.FC<Props> = ({
-  resources,
-  onModalOpen,
+  hasUpdateRight,
   isTile,
   onDelete,
   onDragEnd,
-  hasUpdateRight,
+  onModalOpen,
+  resources,
 }) => {
   return (
     <DragColumn
-      nodeSelector=".ant-card"
       handleSelector=".grabbable"
       lineClassName="dragLineColumn"
+      nodeSelector=".ant-card"
       onDragEnd={(fromIndex, toIndex) => onDragEnd(fromIndex, toIndex, isTile)}>
       <GridArea>
         {resources.map((resource, index) => {
@@ -47,14 +47,14 @@ const Cards: React.FC<Props> = ({
                   onClick={hasUpdateRight ? () => onModalOpen(index) : undefined}
                 />,
               ]}
-              key={resource.id}
-              hasUpdateRight={hasUpdateRight}>
+              hasUpdateRight={hasUpdateRight}
+              key={resource.id}>
               <TitleWrapper>
                 <StyledMeta
                   avatar={resource.props?.image ? <img src={resource.props?.image} /> : null}
                   title={resource.props?.name ? resource.props.name : resource.type}
                 />
-                {hasUpdateRight && <DragIcon icon="menu" className="grabbable" />}
+                {hasUpdateRight && <DragIcon className="grabbable" icon="menu" />}
               </TitleWrapper>
             </StyledCard>
           );

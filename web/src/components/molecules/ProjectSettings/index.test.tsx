@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { expect, test, describe } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import ProjectSettings from ".";
 
@@ -7,15 +7,15 @@ describe("Project settings", () => {
   const name = "name";
 
   const project = {
-    id: "",
-    name,
-    description: "",
     alias: "",
-    readme: "",
-    license: "",
-    scope: "PRIVATE" as const,
     assetPublic: false,
+    description: "",
+    id: "",
+    license: "",
+    name,
+    readme: "",
     requestRoles: [],
+    scope: "PRIVATE" as const,
     token: "",
   };
   const hasPublishRight = true;
@@ -40,15 +40,15 @@ describe("Project settings", () => {
   test("Project name is visible on title successfully", async () => {
     render(
       <ProjectSettings
-        project={project}
+        hasDeleteRight={hasDeleteRight}
         hasPublishRight={hasPublishRight}
         hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-        onProjectDelete={onProjectDelete}
-        onProjectUpdate={onProjectUpdate}
-        onProjectRequestRolesUpdate={onProjectRequestRolesUpdate}
         onProjectAliasCheck={onProjectAliasCheck}
+        onProjectDelete={onProjectDelete}
+        onProjectRequestRolesUpdate={onProjectRequestRolesUpdate}
+        onProjectUpdate={onProjectUpdate}
         onProjectVisibilityChange={onProjectVisibilityChange}
+        project={project}
       />,
     );
 
@@ -58,15 +58,15 @@ describe("Project settings", () => {
   test("Sections are visible successfully", async () => {
     render(
       <ProjectSettings
-        project={project}
+        hasDeleteRight={hasDeleteRight}
         hasPublishRight={hasPublishRight}
         hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-        onProjectDelete={onProjectDelete}
-        onProjectUpdate={onProjectUpdate}
-        onProjectRequestRolesUpdate={onProjectRequestRolesUpdate}
         onProjectAliasCheck={onProjectAliasCheck}
+        onProjectDelete={onProjectDelete}
+        onProjectRequestRolesUpdate={onProjectRequestRolesUpdate}
+        onProjectUpdate={onProjectUpdate}
         onProjectVisibilityChange={onProjectVisibilityChange}
+        project={project}
       />,
     );
 
@@ -78,15 +78,15 @@ describe("Project settings", () => {
   test("Loading is visible successfully", async () => {
     render(
       <ProjectSettings
-        project={undefined}
+        hasDeleteRight={hasDeleteRight}
         hasPublishRight={hasPublishRight}
         hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-        onProjectDelete={onProjectDelete}
-        onProjectUpdate={onProjectUpdate}
-        onProjectRequestRolesUpdate={onProjectRequestRolesUpdate}
         onProjectAliasCheck={onProjectAliasCheck}
+        onProjectDelete={onProjectDelete}
+        onProjectRequestRolesUpdate={onProjectRequestRolesUpdate}
+        onProjectUpdate={onProjectUpdate}
         onProjectVisibilityChange={onProjectVisibilityChange}
+        project={undefined}
       />,
     );
 

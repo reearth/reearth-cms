@@ -22,24 +22,24 @@ import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   integration: IntegrationInfo & Pick<Integration, "config">;
-  updateIntegrationLoading: boolean;
-  regenerateLoading: boolean;
   onIntegrationUpdate: (data: IntegrationInfo) => Promise<void>;
   onRegenerateToken: () => Promise<void>;
+  regenerateLoading: boolean;
+  updateIntegrationLoading: boolean;
 };
 
 type FormType = {
-  name: string;
   description: string;
   logoUrl: string;
+  name: string;
 };
 
 const MyIntegrationForm: React.FC<Props> = ({
   integration,
-  updateIntegrationLoading,
-  regenerateLoading,
   onIntegrationUpdate,
   onRegenerateToken,
+  regenerateLoading,
+  updateIntegrationLoading,
 }) => {
   const t = useT();
   const { confirm } = useModal();
@@ -77,7 +77,6 @@ const MyIntegrationForm: React.FC<Props> = ({
 
   const handleRegenerateToken = useCallback(() => {
     confirm({
-      title: t("Re-generate The Integration Token?"),
       content: t(
         "If you re-generate the integration token, the previous token will become invalid, and this action cannot be undone. Are you sure you want to proceed?",
       ),
@@ -85,6 +84,7 @@ const MyIntegrationForm: React.FC<Props> = ({
       onOk() {
         onRegenerateToken();
       },
+      title: t("Re-generate The Integration Token?"),
     });
   }, [confirm, t, onRegenerateToken]);
 
@@ -94,36 +94,34 @@ const MyIntegrationForm: React.FC<Props> = ({
   return (
     <Form
       form={form}
-      layout="vertical"
       initialValues={integration}
+      layout="vertical"
       onValuesChange={handleValuesChange}>
       <Row gutter={32}>
         <Col span={11}>
           <Form.Item
-            name="name"
             label={t("Integration Name")}
+            name="name"
             rules={[
               {
-                required: true,
                 message: t("Please input the title of the integration!"),
+                required: true,
               },
             ]}>
             <Input />
           </Form.Item>
-          <Form.Item name="description" label={t("Description")}>
-            <TextArea rows={3} showCount maxLength={100} />
+          <Form.Item label={t("Description")} name="description">
+            <TextArea maxLength={100} rows={3} showCount />
           </Form.Item>
           <StyledFormItem
-            label={t("Integration Token")}
-            extra={t("This is your secret token, please use as your env value.")}>
+            extra={t("This is your secret token, please use as your env value.")}
+            label={t("Integration Token")}>
             <StyledTokenInput
-              value={integration.config.token}
               contentEditable={false}
-              visibilityToggle={{ visible }}
               iconRender={() => (
                 <CopyButton
-                  data-testid={DATA_TEST_ID.MyIntegrations__Settings__Form__TokenCopyButton}
                   copyable={{ text: integration.config.token }}
+                  data-testid={DATA_TEST_ID.MyIntegrations__Settings__Form__TokenCopyButton}
                 />
               )}
               prefix={
@@ -134,17 +132,19 @@ const MyIntegrationForm: React.FC<Props> = ({
                   }}
                 />
               }
+              value={integration.config.token}
+              visibilityToggle={{ visible }}
             />
-            <Button onClick={handleRegenerateToken} loading={regenerateLoading}>
+            <Button loading={regenerateLoading} onClick={handleRegenerateToken}>
               {t("Re-generate")}
             </Button>
           </StyledFormItem>
           <Form.Item>
             <Button
-              type="primary"
-              onClick={handleSubmit}
               disabled={isDisabled}
-              loading={updateIntegrationLoading}>
+              loading={updateIntegrationLoading}
+              onClick={handleSubmit}
+              type="primary">
               {t("Save")}
             </Button>
           </Form.Item>
@@ -156,8 +156,8 @@ const MyIntegrationForm: React.FC<Props> = ({
           <CodeExampleTitle>{t("Code Example")}</CodeExampleTitle>
           <CodeExample>
             <StyledCopyButton
-              data-testid={DATA_TEST_ID.MyIntegrations__Settings__Form__CodeExampleCopyButton}
               copyable={{ text: codeExampleText }}
+              data-testid={DATA_TEST_ID.MyIntegrations__Settings__Form__CodeExampleCopyButton}
             />
             <span>curl --location --request POST </span>
             <br />

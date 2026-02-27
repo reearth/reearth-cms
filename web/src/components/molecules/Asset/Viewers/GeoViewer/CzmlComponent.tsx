@@ -4,10 +4,10 @@ import { CzmlDataSource as ResiumCzmlDataSource, useCesium } from "resium";
 
 import { useAuthHeader } from "@reearth-cms/gql";
 
-type Props = ComponentProps<typeof ResiumCzmlDataSource> & {
+type Props = {
   isAssetPublic?: boolean;
   url: string;
-};
+} & ComponentProps<typeof ResiumCzmlDataSource>;
 
 const CzmlComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
   const { viewer } = useCesium();
@@ -20,7 +20,7 @@ const CzmlComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
     const prepareResource = async () => {
       try {
         const headers = await getHeader();
-        setResource(new Resource({ url, headers }));
+        setResource(new Resource({ headers, url }));
       } catch (error) {
         console.error(error);
       }

@@ -15,26 +15,26 @@ import { fieldTypes } from "./fieldTypes";
 import { Field } from "./types";
 
 type Props = {
-  isMeta?: boolean;
   fields?: Field[];
-  hasUpdateRight: boolean;
-  hasDeleteRight: boolean;
-  hasCreateRight: boolean;
-  onFieldReorder: (data: Field[]) => Promise<void>;
-  onFieldDelete: (fieldId: string) => Promise<void>;
   handleFieldUpdateModalOpen: (field: Field) => void;
+  hasCreateRight: boolean;
+  hasDeleteRight: boolean;
+  hasUpdateRight: boolean;
+  isMeta?: boolean;
+  onFieldDelete: (fieldId: string) => Promise<void>;
+  onFieldReorder: (data: Field[]) => Promise<void>;
   onSchemaImport?: () => void;
 };
 
 const ModelFieldList: React.FC<Props> = ({
   fields,
-  isMeta,
-  hasUpdateRight,
-  hasDeleteRight,
-  hasCreateRight,
-  onFieldReorder,
-  onFieldDelete,
   handleFieldUpdateModalOpen,
+  hasCreateRight,
+  hasDeleteRight,
+  hasUpdateRight,
+  isMeta,
+  onFieldDelete,
+  onFieldReorder,
   onSchemaImport,
 }) => {
   const t = useT();
@@ -71,7 +71,7 @@ const ModelFieldList: React.FC<Props> = ({
 
   const hasModelFields = useMemo<boolean>(() => (fields ? fields.length > 0 : false), [fields]);
   const getImportSchemaUIMetadata = useMemo(
-    () => ImportSchemaUtils.getUIMetadata({ hasSchemaCreateRight: hasCreateRight, hasModelFields }),
+    () => ImportSchemaUtils.getUIMetadata({ hasModelFields, hasSchemaCreateRight: hasCreateRight }),
     [hasModelFields, hasCreateRight],
   );
 
@@ -79,21 +79,21 @@ const ModelFieldList: React.FC<Props> = ({
     <>
       {isMeta && (
         <FieldStyledList itemLayout="horizontal">
-          <List.Item key="entryInformation" actions={[null]}>
+          <List.Item actions={[null]} key="entryInformation">
             <List.Item.Meta
               avatar={
                 <FieldThumbnail>
-                  <StyledIcon icon="terminalWindow" color="#40A9FF" />
+                  <StyledIcon color="#40A9FF" icon="terminalWindow" />
                 </FieldThumbnail>
               }
               title={<ItemTitle>{t("Item Information")}</ItemTitle>}
             />
           </List.Item>
-          <List.Item key="publishStatus" actions={[null]}>
+          <List.Item actions={[null]} key="publishStatus">
             <List.Item.Meta
               avatar={
                 <FieldThumbnail>
-                  <StyledIcon icon="LineSegments" color="#FF9C6E" />
+                  <StyledIcon color="#FF9C6E" icon="LineSegments" />
                 </FieldThumbnail>
               }
               title={<ItemTitle>{t("Publish Status")}</ItemTitle>}
@@ -107,71 +107,71 @@ const ModelFieldList: React.FC<Props> = ({
           <br />
           {!getImportSchemaUIMetadata.shouldDisable && (
             <Trans
-              i18nKey="importSchema"
               components={{
                 l: (
                   <ImportButton
-                    type="link"
+                    data-testid={DATA_TEST_ID.ModelFieldList__ImportSchemaButton}
                     onClick={onSchemaImport}
-                    data-testid={DATA_TEST_ID.ModelFieldList__ImportSchemaButton}>
+                    type="link">
                     import
                   </ImportButton>
                 ),
               }}
+              i18nKey="importSchema"
             />
           )}
         </EmptyText>
       ) : (
         <ReactDragListView
-          nodeSelector=".ant-list-item"
           handleSelector=".grabbable"
           lineClassName="dragLine"
+          nodeSelector=".ant-list-item"
           onDragEnd={onDragEnd}>
           <FieldStyledList itemLayout="horizontal">
             {data?.map((item, index) => (
               <List.Item
-                className="draggable-item"
-                key={index}
                 actions={[
                   <Popconfirm
-                    title={
-                      <Trans
-                        i18nKey="Delete {{name}} field?"
-                        values={{ name: item.title }}
-                        components={{ u: <StyledFieldName /> }}
-                      />
-                    }
-                    onConfirm={async () => await onFieldDelete(item.id)}
-                    okText={t("Delete field")}
+                    cancelText={t("Cancel")}
                     okButtonProps={{
                       danger: true,
                       "data-testid": DATA_TEST_ID.ModelFieldList__ConfirmDeleteFieldButton,
                     }}
-                    cancelText={t("Cancel")}>
+                    okText={t("Delete field")}
+                    onConfirm={async () => await onFieldDelete(item.id)}
+                    title={
+                      <Trans
+                        components={{ u: <StyledFieldName /> }}
+                        i18nKey="Delete {{name}} field?"
+                        values={{ name: item.title }}
+                      />
+                    }>
                     <Button
-                      type="text"
+                      disabled={!hasDeleteRight}
+                      icon={<Icon color="#8c8c8c" icon="delete" />}
                       shape="circle"
                       size="small"
-                      icon={<Icon icon="delete" color="#8c8c8c" />}
-                      disabled={!hasDeleteRight}
+                      type="text"
                     />
                   </Popconfirm>,
                   <Button
-                    type="text"
+                    disabled={!hasUpdateRight}
+                    icon={<Icon color="#8c8c8c" icon="ellipsis" />}
+                    onClick={() => handleFieldUpdateModalOpen(item)}
                     shape="circle"
                     size="small"
-                    onClick={() => handleFieldUpdateModalOpen(item)}
-                    icon={<Icon icon="ellipsis" color="#8c8c8c" />}
-                    disabled={!hasUpdateRight}
+                    type="text"
                   />,
-                ]}>
+                ]}
+                className="draggable-item"
+                key={index}>
                 <List.Item.Meta
                   avatar={
                     <FieldThumbnail>
-                      {hasUpdateRight && <DragIcon icon="menu" className="grabbable" />}
+                      {hasUpdateRight && <DragIcon className="grabbable" icon="menu" />}
                       <StyledIcon
-                        icon={fieldTypes[item.type].icon}
                         color={fieldTypes[item.type].color}
+                        icon={fieldTypes[item.type].icon}
                       />
                     </FieldThumbnail>
                   }

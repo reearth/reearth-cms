@@ -6,26 +6,26 @@ import { createIAPBrowserContext } from "./iap-auth-common";
 const TOKEN_CACHE_DURATION_MS = 55 * 60 * 1000; // 55 minutes
 
 export type ServiceAccountIAPConfig = {
-  targetAudience: string;
   serviceAccountJson: string;
+  targetAudience: string;
 };
 
 export type ServiceAccountCredentials = {
-  type: string;
-  project_id: string;
-  private_key_id: string;
-  private_key: string;
+  auth_provider_x509_cert_url: string;
+  auth_uri: string;
   client_email: string;
   client_id: string;
-  auth_uri: string;
-  token_uri: string;
-  auth_provider_x509_cert_url: string;
   client_x509_cert_url: string;
+  private_key: string;
+  private_key_id: string;
+  project_id: string;
+  token_uri: string;
+  type: string;
 };
 
 type CachedToken = {
-  token: string;
   expiresAt: number;
+  token: string;
 };
 
 export class ServiceAccountIAPAuthHelper {
@@ -44,7 +44,7 @@ export class ServiceAccountIAPAuthHelper {
     }
 
     const token = await this.tokenFromServiceAccount();
-    this.cache = { token, expiresAt: Date.now() + TOKEN_CACHE_DURATION_MS };
+    this.cache = { expiresAt: Date.now() + TOKEN_CACHE_DURATION_MS, token };
     return token;
   }
 
@@ -75,14 +75,14 @@ export class ServiceAccountIAPAuthHelper {
       );
     }
 
-    return new ServiceAccountIAPAuthHelper({ targetAudience, serviceAccountJson });
+    return new ServiceAccountIAPAuthHelper({ serviceAccountJson, targetAudience });
   }
 
   private async tokenFromServiceAccount(): Promise<string> {
     const client = new JWT({
+      additionalClaims: { target_audience: this.audience },
       email: this.credentials.client_email,
       key: this.credentials.private_key,
-      additionalClaims: { target_audience: this.audience },
     });
 
     const token = await client.fetchIdToken(this.audience);
@@ -120,8 +120,8 @@ export async function createServiceAccountIAPContext(
   }
 
   const helper = new ServiceAccountIAPAuthHelper({
-    targetAudience,
     serviceAccountJson,
+    targetAudience,
   });
 
   return createIAPBrowserContext(browser, baseUrl, helper, options);

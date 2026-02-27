@@ -5,23 +5,23 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Avatar, { AvatarProps } from "../Avatar";
 
 type Props = {
-  username?: string;
-  shadow?: boolean;
   profilePictureUrl?: string;
+  shadow?: boolean;
+  username?: string;
 } & AvatarProps;
 
-const UserAvatar: React.FC<Props> = ({ username, shadow, profilePictureUrl, ...props }) => {
+const UserAvatar: React.FC<Props> = ({ profilePictureUrl, shadow, username, ...props }) => {
   const anonymous = username === "Anonymous";
   return profilePictureUrl ? (
-    <Avatar src={profilePictureUrl} alt="User avatar" {...props} />
+    <Avatar alt="User avatar" src={profilePictureUrl} {...props} />
   ) : (
-    <UserAvatarWrapper shadow={shadow} anonymous={anonymous} {...props}>
+    <UserAvatarWrapper anonymous={anonymous} shadow={shadow} {...props}>
       {anonymous ? <Icon icon="user" /> : username?.charAt(0)}
     </UserAvatarWrapper>
   );
 };
 
-const UserAvatarWrapper = styled(Avatar)<{ shadow?: boolean; anonymous?: boolean }>`
+const UserAvatarWrapper = styled(Avatar)<{ anonymous?: boolean; shadow?: boolean; }>`
   color: #000000;
   background-color: ${({ anonymous }) => (anonymous ? "#BFBFBF" : "#ECECEC")};
   box-shadow: ${({ shadow }) => (shadow ? "0px 4px 4px rgba(0, 0, 0, 0.25)" : "none")};

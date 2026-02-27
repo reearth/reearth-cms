@@ -40,16 +40,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return domain && clientId ? (
       <Auth0Provider
-        domain={domain}
-        clientId={clientId}
         authorizationParams={{
           audience: audience,
-          scope: "openid profile email offline_access",
           redirect_uri: getSignInCallbackUrl(),
+          scope: "openid profile email offline_access",
         }}
+        cacheLocation="localstorage"
+        clientId={clientId}
+        domain={domain}
         useRefreshTokens
-        useRefreshTokensFallback
-        cacheLocation="localstorage">
+        useRefreshTokensFallback>
         <Auth0Wrapper>{children}</Auth0Wrapper>
       </Auth0Provider>
     ) : null;

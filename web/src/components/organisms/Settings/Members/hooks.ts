@@ -4,12 +4,12 @@ import { useNavigate } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Role } from "@reearth-cms/components/molecules/Member/types";
-import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
+import { MemberInput, UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
+  MemberInput as GQLMemberInput,
   Role as GQLRole,
   Workspace as GQLWorkspace,
-  MemberInput as GQLMemberInput,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { GetMeDocument, GetUsersDocument } from "@reearth-cms/gql/__generated__/user.generated";
 import {
@@ -19,7 +19,7 @@ import {
   UpdateMemberOfWorkspaceDocument,
 } from "@reearth-cms/gql/__generated__/workspace.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace, useUserRights } from "@reearth-cms/state";
+import { useUserRights, useWorkspace } from "@reearth-cms/state";
 import { stringSortCallback } from "@reearth-cms/utils/sort";
 
 export default () => {
@@ -46,13 +46,13 @@ export default () => {
 
   const {
     data: workspaceData,
-    refetch,
     loading,
+    refetch,
   } = useQuery(GetWorkspaceDocument, {
-    variables: { id: workspaceId ?? "" },
     fetchPolicy: "cache-and-network",
     notifyOnNetworkStatusChange: true,
     skip: !workspaceId,
+    variables: { id: workspaceId ?? "" },
   });
 
   const { data, refetch: refetchMe } = useQuery(GetMeDocument, {
@@ -64,15 +64,15 @@ export default () => {
     [data?.me?.id, data?.me?.myWorkspace?.id],
   );
 
-  const workspaceUserMembers = useMemo((): UserMember[] | undefined => {
+  const workspaceUserMembers = useMemo((): undefined | UserMember[] => {
     if (!workspaceData?.node) return;
     return fromGraphQLWorkspace(workspaceData?.node as GQLWorkspace)
-      .members?.map<UserMember | undefined>(member =>
+      .members?.map<undefined | UserMember>(member =>
         "userId" in member
           ? {
-              userId: member.userId,
-              user: member.user,
               role: member.role,
+              user: member.user,
+              userId: member.userId,
             }
           : undefined,
       )
@@ -113,7 +113,7 @@ export default () => {
     async (users: MemberInput[]) => {
       if (!workspaceId) return;
       const result = await addUsersToWorkspaceMutation({
-        variables: { workspaceId, users: users as GQLMemberInput[] },
+        variables: { users: users as GQLMemberInput[], workspaceId },
       });
       const workspace = result.data?.addUsersToWorkspace?.workspace;
       if (result.error || !workspace) {
@@ -135,14 +135,14 @@ export default () => {
       if (!workspaceId) return;
       const result = await updateMemberOfWorkspaceMutation({
         variables: {
-          workspaceId,
-          userId,
           role: {
-            READER: GQLRole.Reader,
-            WRITER: GQLRole.Writer,
             MAINTAINER: GQLRole.Maintainer,
             OWNER: GQLRole.Owner,
+            READER: GQLRole.Reader,
+            WRITER: GQLRole.Writer,
           }[role],
+          userId,
+          workspaceId,
         },
       });
       const workspace = result.data?.updateUserOfWorkspace?.workspace;
@@ -164,7 +164,7 @@ export default () => {
     async (userIds: string[]) => {
       if (!workspaceId) return;
       const result = await removeMultipleMembersFromWorkspaceMutation({
-        variables: { workspaceId, userIds },
+        variables: { userIds, workspaceId },
       });
       if (result.error) {
         Notification.error({
@@ -183,7 +183,7 @@ export default () => {
     async (userId: string) => {
       if (!workspaceId) return;
       const result = await removeMultipleMembersFromWorkspaceMutation({
-        variables: { workspaceId, userIds: [userId] },
+        variables: { userIds: [userId], workspaceId },
       });
       if (result.error) {
         Notification.error({
@@ -217,25 +217,25 @@ export default () => {
   }, []);
 
   return {
-    workspaceUserMembers,
-    userId: me.id,
-    isAbleToLeave,
-    handleSearchTerm,
-    handleUserSearch,
-    searchLoading,
     addLoading,
-    handleUsersAddToWorkspace,
-    updateLoading,
-    handleUpdateRole,
-    handleMemberRemoveFromWorkspace,
     handleLeave,
-    page,
-    pageSize,
-    handleTableChange,
-    loading,
+    handleMemberRemoveFromWorkspace,
     handleReload,
+    handleSearchTerm,
+    handleTableChange,
+    handleUpdateRole,
+    handleUsersAddToWorkspace,
+    handleUserSearch,
+    hasChangeRoleRight,
     hasInviteRight,
     hasRemoveRight,
-    hasChangeRoleRight,
+    isAbleToLeave,
+    loading,
+    page,
+    pageSize,
+    searchLoading,
+    updateLoading,
+    userId: me.id,
+    workspaceUserMembers,
   };
 };

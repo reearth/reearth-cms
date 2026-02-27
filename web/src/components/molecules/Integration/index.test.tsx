@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, test, describe } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import IntegrationWrapper from ".";
 
@@ -9,8 +9,8 @@ describe("Integration wrapper", () => {
 
   const workspaceIntegrations = [
     {
+      createdBy: { email: "", id: "", name: "creatorName" },
       name: "name",
-      createdBy: { id: "", name: "creatorName", email: "" },
       role: "READER" as const,
     },
   ];
@@ -47,24 +47,24 @@ describe("Integration wrapper", () => {
   test("Connect modal works successfully", async () => {
     render(
       <IntegrationWrapper
-        loading={loading}
-        workspaceIntegrations={workspaceIntegrations}
-        onSearchTerm={onSearchTerm}
-        setSelectedIntegration={setSelectedIntegration}
-        onIntegrationRemove={onIntegrationRemove}
+        addLoading={addLoading}
         deleteLoading={deleteLoading}
+        hasConnectRight={hasConnectRight}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
+        loading={loading}
+        myIntegrations={myIntegrations}
+        onIntegrationConnect={onIntegrationConnect}
+        onIntegrationRemove={onIntegrationRemove}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
+        onUpdateIntegration={onUpdateIntegration}
         page={page}
         pageSize={pageSize}
-        onTableChange={onTableChange}
-        hasConnectRight={hasConnectRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-        myIntegrations={myIntegrations}
-        addLoading={addLoading}
-        onIntegrationConnect={onIntegrationConnect}
         selectedIntegration={selectedIntegration}
+        setSelectedIntegration={setSelectedIntegration}
         updateLoading={updateLoading}
-        onUpdateIntegration={onUpdateIntegration}
+        workspaceIntegrations={workspaceIntegrations}
       />,
     );
 
@@ -77,24 +77,24 @@ describe("Integration wrapper", () => {
   test("Setting modal works successfully", async () => {
     render(
       <IntegrationWrapper
-        loading={loading}
-        workspaceIntegrations={workspaceIntegrations}
-        onSearchTerm={onSearchTerm}
-        setSelectedIntegration={setSelectedIntegration}
-        onIntegrationRemove={onIntegrationRemove}
+        addLoading={addLoading}
         deleteLoading={deleteLoading}
+        hasConnectRight={hasConnectRight}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
+        loading={loading}
+        myIntegrations={myIntegrations}
+        onIntegrationConnect={onIntegrationConnect}
+        onIntegrationRemove={onIntegrationRemove}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
+        onUpdateIntegration={onUpdateIntegration}
         page={page}
         pageSize={pageSize}
-        onTableChange={onTableChange}
-        hasConnectRight={hasConnectRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-        myIntegrations={myIntegrations}
-        addLoading={addLoading}
-        onIntegrationConnect={onIntegrationConnect}
         selectedIntegration={selectedIntegration}
+        setSelectedIntegration={setSelectedIntegration}
         updateLoading={updateLoading}
-        onUpdateIntegration={onUpdateIntegration}
+        workspaceIntegrations={workspaceIntegrations}
       />,
     );
 

@@ -7,7 +7,7 @@ const jsonUrl = `https://assets.cms.plateau.reearth.io/assets/11/6d05db-ed47-4f8
 const pngName = "road_plan2.png";
 const pngUrl = `https://assets.cms.plateau.reearth.io/assets/33/e999c4-7859-446b-ab3c-86625b3c760e/${pngName}`;
 
-test.beforeEach(async ({ reearth, projectPage }) => {
+test.beforeEach(async ({ projectPage, reearth }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
@@ -51,7 +51,7 @@ test.describe("Json file tests", () => {
     await assetsPage.closeNotification();
   });
 
-  test("Previewing json file by full screen has succeeded", async ({ page, assetsPage }) => {
+  test("Previewing json file by full screen has succeeded", async ({ assetsPage, page }) => {
     await assetsPage.editIconButton.click();
 
     // change type
@@ -79,7 +79,7 @@ test.describe("Json file tests", () => {
     await page.goBack();
   });
 
-  test("Downloading asset has succeeded", async ({ page, assetsPage }) => {
+  test("Downloading asset has succeeded", async ({ assetsPage, page }) => {
     // select + bulk download
     await assetsPage.selectAssetCheckbox.check();
     const bulkDownload = page.waitForEvent("download");

@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { Webhook } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
@@ -22,11 +22,11 @@ describe("Webhook list", () => {
   test("No webhook text and document link are displayed successfully", async () => {
     render(
       <WebhookList
-        webhooks={webhooks}
-        onWebhookDelete={onWebhookDelete}
-        onWebhookUpdate={onWebhookUpdate}
-        onWebhookSelect={onWebhookSelect}
         onShowForm={onShowForm}
+        onWebhookDelete={onWebhookDelete}
+        onWebhookSelect={onWebhookSelect}
+        onWebhookUpdate={onWebhookUpdate}
+        webhooks={webhooks}
       />,
     );
 
@@ -39,11 +39,11 @@ describe("Webhook list", () => {
 
     render(
       <WebhookList
-        webhooks={webhooks}
-        onWebhookDelete={onWebhookDelete}
-        onWebhookUpdate={onWebhookUpdate}
-        onWebhookSelect={onWebhookSelect}
         onShowForm={onShowFormMock}
+        onWebhookDelete={onWebhookDelete}
+        onWebhookSelect={onWebhookSelect}
+        onWebhookUpdate={onWebhookUpdate}
+        webhooks={webhooks}
       />,
     );
 
@@ -62,28 +62,28 @@ describe("Webhook list", () => {
 
     render(
       <WebhookList
+        onShowForm={onShowForm}
+        onWebhookDelete={onWebhookDelete}
+        onWebhookSelect={onWebhookSelect}
+        onWebhookUpdate={onWebhookUpdate}
         webhooks={[
           {
+            active: false,
             id: "",
             name: name1,
-            url: "",
-            active: false,
             secret: "",
             trigger: {},
+            url: "",
           },
           {
+            active: false,
             id: "",
             name: name2,
-            url: "",
-            active: false,
             secret: "",
             trigger: {},
+            url: "",
           },
         ]}
-        onWebhookDelete={onWebhookDelete}
-        onWebhookUpdate={onWebhookUpdate}
-        onWebhookSelect={onWebhookSelect}
-        onShowForm={onShowForm}
       />,
     );
 

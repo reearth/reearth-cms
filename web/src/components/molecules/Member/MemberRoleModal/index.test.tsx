@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 
@@ -11,9 +11,9 @@ describe("Member role modal", () => {
 
   const open = true;
   const member: UserMember = {
-    userId: "userId",
     role: "OWNER",
-    user: { id: "id1", name: "name1", email: "email1@test.com" },
+    user: { email: "email1@test.com", id: "id1", name: "name1" },
+    userId: "userId",
   };
   const loading = false;
   const onClose = () => {
@@ -26,11 +26,11 @@ describe("Member role modal", () => {
   test("Default value is displayed successfully", async () => {
     render(
       <MemberRoleModal
-        open={open}
-        member={member}
         loading={loading}
+        member={member}
         onClose={onClose}
         onUpdateRole={onUpdateRole}
+        open={open}
       />,
     );
 
@@ -40,11 +40,11 @@ describe("Member role modal", () => {
   test("All options are displayed successfully", async () => {
     render(
       <MemberRoleModal
-        open={open}
-        member={member}
         loading={loading}
+        member={member}
         onClose={onClose}
         onUpdateRole={onUpdateRole}
+        open={open}
       />,
     );
 
@@ -57,11 +57,11 @@ describe("Member role modal", () => {
   test("Ok button is toggled successfully", async () => {
     render(
       <MemberRoleModal
-        open={open}
-        member={member}
         loading={loading}
+        member={member}
         onClose={onClose}
         onUpdateRole={onUpdateRole}
+        open={open}
       />,
     );
 
@@ -82,11 +82,11 @@ describe("Member role modal", () => {
 
     render(
       <MemberRoleModal
-        open={open}
-        member={member}
         loading={loading}
+        member={member}
         onClose={onClose}
         onUpdateRole={onUpdateRoleMock}
+        open={open}
       />,
     );
 
@@ -99,11 +99,11 @@ describe("Member role modal", () => {
   test("Update loading is displayed and cancel button is disabled successfully", async () => {
     render(
       <MemberRoleModal
-        open={open}
-        member={member}
         loading={true}
+        member={member}
         onClose={onClose}
         onUpdateRole={onUpdateRole}
+        open={open}
       />,
     );
 
@@ -116,11 +116,11 @@ describe("Member role modal", () => {
 
     render(
       <MemberRoleModal
-        open={open}
-        member={member}
         loading={loading}
+        member={member}
         onClose={onCloseMock}
         onUpdateRole={onUpdateRole}
+        open={open}
       />,
     );
 

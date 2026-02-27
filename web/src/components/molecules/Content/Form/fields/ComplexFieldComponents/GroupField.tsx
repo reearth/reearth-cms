@@ -7,48 +7,48 @@ import FieldTitle from "@reearth-cms/components/molecules/Content/Form/FieldTitl
 import { ReferenceProps } from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
 import { FieldProps, Group } from "@reearth-cms/components/molecules/Schema/types";
 
-type GroupFieldProps = FieldProps & {
+type GroupFieldProps = {
+  assetProps: AssetProps;
   form?: FormInstance<unknown>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-  assetProps: AssetProps;
   referenceProps: ReferenceProps;
-};
+} & FieldProps;
 
 const GroupField: React.FC<GroupFieldProps> = ({
-  field,
-  disabled,
-  itemHeights,
-  onItemHeightChange,
-  form,
-  onGroupGet,
   assetProps,
+  disabled,
+  field,
+  form,
+  itemHeights,
+  onGroupGet,
+  onItemHeightChange,
   referenceProps,
 }) => {
   return (
     <Form.Item
       extra={field.description}
-      name={field.id}
-      label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
+      label={<FieldTitle isTitle={field.isTitle} isUnique={field.unique} title={field.title} />}
+      name={field.id}>
       <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
         {field.multiple ? (
           <MultiValueGroup
-            field={field}
-            disabled={disabled}
-            itemHeights={itemHeights}
-            onItemHeightChange={onItemHeightChange}
-            form={form}
-            onGroupGet={onGroupGet}
             assetProps={assetProps}
+            disabled={disabled}
+            field={field}
+            form={form}
+            itemHeights={itemHeights}
+            onGroupGet={onGroupGet}
+            onItemHeightChange={onItemHeightChange}
             referenceProps={referenceProps}
           />
         ) : (
           <GroupItem
-            disabled={disabled}
-            parentField={field}
-            itemHeights={itemHeights}
-            onItemHeightChange={onItemHeightChange}
-            onGroupGet={onGroupGet}
             assetProps={assetProps}
+            disabled={disabled}
+            itemHeights={itemHeights}
+            onGroupGet={onGroupGet}
+            onItemHeightChange={onItemHeightChange}
+            parentField={field}
             referenceProps={referenceProps}
           />
         )}

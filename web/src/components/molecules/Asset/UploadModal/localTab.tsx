@@ -9,11 +9,11 @@ import { useT } from "@reearth-cms/i18n";
 const { Dragger } = Upload;
 
 type Props = {
-  uploadProps: UploadProps;
   alertList?: AlertProps[];
+  uploadProps: UploadProps;
 };
 
-const LocalTab: React.FC<Props> = ({ uploadProps, alertList = [] }) => {
+const LocalTab: React.FC<Props> = ({ alertList = [], uploadProps }) => {
   const t = useT();
   return (
     <div>

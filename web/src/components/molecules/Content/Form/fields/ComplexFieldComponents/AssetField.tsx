@@ -10,11 +10,11 @@ import { useT } from "@reearth-cms/i18n";
 
 import { requiredValidator } from "../utils";
 
-type AssetFieldProps = FieldProps & AssetProps;
+type AssetFieldProps = AssetProps & FieldProps;
 
 const AssetField: React.FC<AssetFieldProps> = ({
-  field,
   disabled,
+  field,
   itemGroupId,
   itemHeights,
   onItemHeightChange,
@@ -25,21 +25,21 @@ const AssetField: React.FC<AssetFieldProps> = ({
   return (
     <StyledFormItem
       extra={field.description}
+      label={<FieldTitle isTitle={field.isTitle} isUnique={field.unique} title={field.title} />}
+      name={itemGroupId ? [field.id, itemGroupId] : field.id}
       rules={[
         {
+          message: t("Please input field!"),
           required: field.required,
           validator: requiredValidator,
-          message: t("Please input field!"),
         },
-      ]}
-      name={itemGroupId ? [field.id, itemGroupId] : field.id}
-      label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
+      ]}>
       {field.multiple ? (
         <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
           <MultiValueAsset disabled={disabled} {...props} />
         </ResponsiveHeight>
       ) : (
-        <AssetItem key={field.id} disabled={disabled} {...props} />
+        <AssetItem disabled={disabled} key={field.id} {...props} />
       )}
     </StyledFormItem>
   );

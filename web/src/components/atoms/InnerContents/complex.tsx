@@ -2,12 +2,12 @@ import styled from "@emotion/styled";
 import { ReactNode } from "react";
 
 export type Props = {
-  left?: ReactNode;
   center?: ReactNode;
+  left?: ReactNode;
   right?: ReactNode;
 };
 
-const ComplexInnerContents: React.FC<Props> = ({ left, center, right }) => {
+const ComplexInnerContents: React.FC<Props> = ({ center, left, right }) => {
   return (
     <PaddedContent>
       <Main>

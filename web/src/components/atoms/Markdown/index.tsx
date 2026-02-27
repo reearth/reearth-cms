@@ -1,16 +1,16 @@
 import styled from "@emotion/styled";
-import { useRef, useState, FocusEvent, useCallback, useMemo } from "react";
+import { FocusEvent, useCallback, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { runes } from "runes2";
 
 import TextArea, { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
 
 type Props = {
-  onChange?: (value: string) => void;
   isError?: boolean;
+  onChange?: (value: string) => void;
 } & TextAreaProps;
 
-const MarkdownInput: React.FC<Props> = ({ value, onChange, ...props }) => {
+const MarkdownInput: React.FC<Props> = ({ onChange, value, ...props }) => {
   const [showMD, setShowMD] = useState(true);
   const textareaRef = useRef<HTMLInputElement>(null);
   const isError = useMemo(() => {
@@ -42,15 +42,15 @@ const MarkdownInput: React.FC<Props> = ({ value, onChange, ...props }) => {
     <MarkdownWrapper>
       <TextArea
         {...props}
-        onChange={e => onChange?.(e)}
-        onBlur={handleBlur}
-        value={value}
-        rows={6}
         hidden={showMD}
+        onBlur={handleBlur}
+        onChange={e => onChange?.(e)}
         ref={textareaRef}
+        rows={6}
         showCount
+        value={value}
       />
-      <StyledMD disabled={props.disabled} isError={isError} hidden={!showMD} onClick={handleClick}>
+      <StyledMD disabled={props.disabled} hidden={!showMD} isError={isError} onClick={handleClick}>
         <ReactMarkdown>{typeof value === "string" ? value : undefined}</ReactMarkdown>
       </StyledMD>
     </MarkdownWrapper>

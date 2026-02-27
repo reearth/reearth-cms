@@ -8,8 +8,8 @@ import MyIntegrationSettings from "@reearth-cms/components/molecules/MyIntegrati
 import {
   Integration,
   IntegrationInfo,
-  Webhook as WebhookType,
   NewWebhook,
+  Webhook as WebhookType,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import Webhook from "@reearth-cms/components/molecules/MyIntegrations/Webhook";
 import { useT } from "@reearth-cms/i18n";
@@ -17,65 +17,65 @@ import { useT } from "@reearth-cms/i18n";
 const { TabPane } = Tabs;
 
 type Props = {
-  loading: boolean;
-  integration?: Integration;
-  updateIntegrationLoading: boolean;
-  regenerateLoading: boolean;
   createWebhookLoading: boolean;
-  updateWebhookLoading: boolean;
-  onIntegrationUpdate: (data: IntegrationInfo) => Promise<void>;
+  integration?: Integration;
+  loading: boolean;
   onIntegrationDelete: () => Promise<void>;
+  onIntegrationHeaderBack: () => void;
+  onIntegrationUpdate: (data: IntegrationInfo) => Promise<void>;
   onRegenerateToken: () => Promise<void>;
   onWebhookCreate: (data: NewWebhook) => Promise<void>;
   onWebhookDelete: (webhookId: string) => Promise<void>;
   onWebhookUpdate: (data: WebhookType) => Promise<void>;
-  onIntegrationHeaderBack: () => void;
+  regenerateLoading: boolean;
+  updateIntegrationLoading: boolean;
+  updateWebhookLoading: boolean;
 };
 
 const MyIntegrationContent: React.FC<Props> = ({
-  loading,
-  integration,
-  updateIntegrationLoading,
-  regenerateLoading,
   createWebhookLoading,
-  updateWebhookLoading,
+  integration,
+  loading,
+  onIntegrationDelete,
+  onIntegrationHeaderBack,
   onIntegrationUpdate,
   onRegenerateToken,
   onWebhookCreate,
   onWebhookDelete,
   onWebhookUpdate,
-  onIntegrationHeaderBack,
-  onIntegrationDelete,
+  regenerateLoading,
+  updateIntegrationLoading,
+  updateWebhookLoading,
 }) => {
   const t = useT();
 
   return loading ? (
-    <Loading spinnerSize="large" minHeight="100%" />
+    <Loading minHeight="100%" spinnerSize="large" />
   ) : integration ? (
     <MyIntegrationWrapper>
       <PageHeader
-        title={`${t("My Integration")} / ${integration.name}`}
         onBack={onIntegrationHeaderBack}
+        title={`${t("My Integration")} / ${integration.name}`}
       />
       <MyIntegrationTabs defaultActiveKey="integration">
-        <TabPane tab={t("General")} key="integration">
+        <TabPane key="integration" tab={t("General")}>
           <MyIntegrationSettings
             integration={integration}
-            updateIntegrationLoading={updateIntegrationLoading}
-            regenerateLoading={regenerateLoading}
-            onIntegrationUpdate={onIntegrationUpdate}
             onIntegrationDelete={onIntegrationDelete}
+            onIntegrationUpdate={onIntegrationUpdate}
             onRegenerateToken={onRegenerateToken}
+            regenerateLoading={regenerateLoading}
+            updateIntegrationLoading={updateIntegrationLoading}
           />
         </TabPane>
-        <TabPane tab={t("Webhook")} key="webhooks">
+        <TabPane key="webhooks" tab={t("Webhook")}>
           <Webhook
-            integration={integration}
             createWebhookLoading={createWebhookLoading}
-            updateWebhookLoading={updateWebhookLoading}
+            integration={integration}
             onWebhookCreate={onWebhookCreate}
             onWebhookDelete={onWebhookDelete}
             onWebhookUpdate={onWebhookUpdate}
+            updateWebhookLoading={updateWebhookLoading}
           />
         </TabPane>
       </MyIntegrationTabs>

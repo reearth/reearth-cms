@@ -9,8 +9,8 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import Steps from "@reearth-cms/components/atoms/Step";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import {
-  UploadFile,
   UploadFile as RawUploadFile,
+  UploadFile,
   UploadProps,
 } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
@@ -21,72 +21,71 @@ import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { fieldTypes } from "../fieldTypes";
 import { CreateFieldInput, ImportFieldInput } from "../types";
-
 import FileSelectionStep from "./FileSelectionStep";
 import ImportingStep from "./ImportingStep";
 import SchemaPreviewStep from "./SchemaPreviewStep";
 
 type Props = {
-  visible: boolean;
-  selectFileModalVisibility: boolean;
-  currentPage: number;
-  assetList: Asset[];
-  loading: boolean;
-  fieldsCreationLoading: boolean;
-  totalCount: number;
-  selectedAsset?: ItemAsset;
-  fileList: RawUploadFile[];
   alertList?: AlertProps[];
-  uploadType: UploadType;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  page: number;
-  pageSize: number;
-  hasCreateRight: boolean;
-  hasUpdateRight: boolean;
-  hasDeleteRight: boolean;
-  onUploadModalOpen: () => void;
-  onUploadModalCancel: () => void;
-  toSchemaPreviewStep: () => void;
-  toImportingStep: (fields: CreateFieldInput[]) => Promise<void>;
-  toFileSelectionStep: () => void;
+  assetList: Asset[];
+  currentPage: number;
+  dataChecking: boolean;
   fields: ImportFieldInput[];
   fieldsCreationError?: boolean;
-  setFields: Dispatch<SetStateAction<ImportFieldInput[]>>;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
-  onSearchTerm: (term?: string) => void;
+  fieldsCreationLoading: boolean;
+  fileList: RawUploadFile[];
+  hasCreateRight: boolean;
+  hasDeleteRight: boolean;
+  hasUpdateRight: boolean;
+  loading: boolean;
+  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetSelect: (id: string) => void;
   onAssetsReload: () => void;
   onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
-  onAssetSelect: (id: string) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onSelectFile: () => void;
-  onSelectFileModalCancel: () => void;
-  onModalClose: () => void;
-  dataChecking: boolean;
   onFileContentChange: UploadProps["beforeUpload"];
   onFileRemove: UploadProps["onRemove"];
+  onModalClose: () => void;
+  onSearchTerm: (term?: string) => void;
+  onSelectFile: () => void;
+  onSelectFileModalCancel: () => void;
+  onUploadModalCancel: () => void;
+  onUploadModalOpen: () => void;
+  page: number;
+  pageSize: number;
+  selectedAsset?: ItemAsset;
+  selectFileModalVisibility: boolean;
+  setFields: Dispatch<SetStateAction<ImportFieldInput[]>>;
+  setUploadType: (type: UploadType) => void;
+  setUploadUrl: (uploadUrl: { autoUnzip: boolean; url: string; }) => void;
+  toFileSelectionStep: () => void;
+  toImportingStep: (fields: CreateFieldInput[]) => Promise<void>;
+  toSchemaPreviewStep: () => void;
+  totalCount: number;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  uploadType: UploadType;
+  uploadUrl: { autoUnzip: boolean; url: string; };
+  visible: boolean;
 };
 
 const ImportSchemaModal: React.FC<Props> = ({
-  visible,
-  currentPage,
-  toImportingStep,
-  toFileSelectionStep,
-  fieldsCreationLoading,
-  fileList,
   alertList,
+  currentPage,
+  dataChecking,
   fields,
   fieldsCreationError,
-  setFields,
-  hasUpdateRight,
+  fieldsCreationLoading,
+  fileList,
   hasDeleteRight,
-  onModalClose,
-  dataChecking,
+  hasUpdateRight,
   onFileContentChange,
   onFileRemove,
+  onModalClose,
+  setFields,
+  toFileSelectionStep,
+  toImportingStep,
+  visible,
 }) => {
   const t = useT();
 
@@ -129,52 +128,52 @@ const ImportSchemaModal: React.FC<Props> = ({
 
   const fieldTypeOptions = useMemo(() => {
     return Object.entries(fieldTypes).map(([key, value]) => ({
-      value: key,
       label: (
         <FieldTypeLabel>
-          <Icon icon={value.icon} color={value.color} />
+          <Icon color={value.color} icon={value.icon} />
           <span>{value.title}</span>
         </FieldTypeLabel>
       ),
+      value: key,
     }));
   }, []);
 
   const stepComponents = [
     {
-      title: "Select file",
       content: (
         <FileSelectionStep
-          fileList={fileList}
           alertList={alertList}
+          dataChecking={dataChecking}
+          fileList={fileList}
           onFileContentChange={onFileContentChange}
           onFileRemove={onFileRemove}
-          dataChecking={dataChecking}
         />
       ),
+      title: "Select file",
     },
     {
-      title: "Schema preview",
       content: (
         <SchemaPreviewStep
           fields={fields}
           fieldTypeOptions={fieldTypeOptions}
-          onDragEnd={handleDragEnd}
-          onToggleFieldHide={handleToggleFieldHide}
-          onToggleAllFieldsHide={handleToggleAllFieldHide}
-          hasUpdateRight={hasUpdateRight}
           hasDeleteRight={hasDeleteRight}
+          hasUpdateRight={hasUpdateRight}
+          onDragEnd={handleDragEnd}
+          onToggleAllFieldsHide={handleToggleAllFieldHide}
+          onToggleFieldHide={handleToggleFieldHide}
         />
       ),
+      title: "Schema preview",
     },
     {
-      title: "Importing",
       content: (
         <ImportingStep
-          fieldsCreationLoading={fieldsCreationLoading}
           fieldsCreationError={fieldsCreationError}
+          fieldsCreationLoading={fieldsCreationLoading}
           onModalClose={onModalClose}
         />
       ),
+      title: "Importing",
     },
   ];
 
@@ -182,21 +181,16 @@ const ImportSchemaModal: React.FC<Props> = ({
 
   return (
     <StyledModal
-      title={t("Import Schema")}
       centered
-      open={visible}
-      onCancel={onModalClose}
-      maskClosable={false}
-      width="70vw"
       footer={
         <>
           {currentPage === 1 && (
             <Flex justify="space-between">
               <Button
-                type="default"
                 onClick={() => {
                   toFileSelectionStep();
-                }}>
+                }}
+                type="default">
                 {t("Back")}
               </Button>
               <Tooltip
@@ -206,7 +200,6 @@ const ImportSchemaModal: React.FC<Props> = ({
                     : t("Schema must contain at least one field to import")
                 }>
                 <Button
-                  type="primary"
                   data-testid={DATA_TEST_ID.ImportSchemaModal__ImportButton}
                   disabled={!hasImportFields}
                   onClick={() => {
@@ -217,7 +210,8 @@ const ImportSchemaModal: React.FC<Props> = ({
                         return shouldImport;
                       }),
                     );
-                  }}>
+                  }}
+                  type="primary">
                   {t("Import")}
                 </Button>
               </Tooltip>
@@ -225,11 +219,16 @@ const ImportSchemaModal: React.FC<Props> = ({
           )}
         </>
       }
+      maskClosable={false}
+      onCancel={onModalClose}
+      open={visible}
       styles={{
         body: {
           height: "70vh",
         },
-      }}>
+      }}
+      title={t("Import Schema")}
+      width="70vw">
       <>
         <HiddenSteps current={currentPage} items={items} />
         <StepsContent>{stepComponents[currentPage].content}</StepsContent>

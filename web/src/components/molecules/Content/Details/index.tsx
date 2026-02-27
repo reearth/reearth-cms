@@ -7,11 +7,11 @@ import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentForm from "@reearth-cms/components/molecules/Content/Form";
 import {
-  Item,
   FormItem,
+  FormValues,
+  Item,
   ItemField,
   VersionedItem,
-  FormValues,
 } from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
@@ -23,277 +23,277 @@ import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 
 type Props = {
+  addItemToRequestModalShown: boolean;
+  assetList: Asset[];
+  collapsed: boolean;
+  commentsPanel?: JSX.Element;
+  fileList: UploadFile[];
+  hasItemUpdateRight: boolean;
+  hasPublishRight: boolean;
   hasRequestCreateRight: boolean;
   hasRequestUpdateRight: boolean;
-  hasPublishRight: boolean;
-  hasItemUpdateRight: boolean;
-  loadingReference: boolean;
-  linkedItemsModalList?: FormItem[];
-  showPublishAction: boolean;
-  requests: Request[];
-  collapsed: boolean;
-  model?: Model;
-  modelsMenu: React.ReactNode;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialFormValues: Record<string, any>;
   initialMetaFormValues: Record<string, unknown>;
-  versions: VersionedItem[];
-  title: string;
   item?: Item;
   itemId?: string;
   itemLoading: boolean;
-  loading: boolean;
-  requestCreationLoading: boolean;
-  assetList: Asset[];
-  fileList: UploadFile[];
-  loadingAssets: boolean;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
-  commentsPanel?: JSX.Element;
-  requestModalShown: boolean;
-  addItemToRequestModalShown: boolean;
-  workspaceUserMembers: UserMember[];
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  publishLoading: boolean;
-  requestModalLoading: boolean;
-  requestModalTotalCount: number;
-  requestModalPage: number;
-  requestModalPageSize: number;
-  linkItemModalTitle: string;
-  linkItemModalTotalCount: number;
+  linkedItemsModalList?: FormItem[];
   linkItemModalPage: number;
   linkItemModalPageSize: number;
-  onReferenceModelUpdate: (modelId: string, referenceFieldId: string) => void;
-  onSearchTerm: (term?: string) => void;
-  onLinkItemTableChange: (page: number, pageSize: number) => void;
-  onGetVersionedItem: (version: string) => Promise<FormValues>;
-  onUnpublish: (itemIds: string[]) => Promise<void>;
-  onPublish: (itemIds: string[]) => Promise<void>;
-  onLinkItemTableReload: () => void;
-  onRequestTableChange: (page: number, pageSize: number) => void;
-  onRequestSearchTerm: (term: string) => void;
-  onRequestTableReload: () => void;
-  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
-  onCollapse: (collapse: boolean) => void;
-  onUploadModalCancel: () => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
-  onItemCreate: (data: {
-    schemaId: string;
-    metaSchemaId?: string;
-    fields: ItemField[];
-    metaFields: ItemField[];
-  }) => Promise<void>;
-  onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
-  onMetaItemUpdate: (data: { metaItemId?: string; metaFields: ItemField[] }) => Promise<void>;
-  onBack: () => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetsGet: () => void;
-  onAssetsReload: () => void;
-  onAssetSearchTerm: (term?: string) => void;
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploadModalVisibility: (visible: boolean) => void;
-  onRequestCreate: (data: {
-    title: string;
-    description: string;
-    state: RequestState;
-    reviewersId: string[];
-    items: RequestItem[];
-  }) => Promise<void>;
-  onChange: (request: Request, items: RequestItem[]) => Promise<void>;
-  onModalClose: () => void;
-  onModalOpen: () => void;
+  linkItemModalTitle: string;
+  linkItemModalTotalCount: number;
+  loading: boolean;
+  loadingAssets: boolean;
+  loadingReference: boolean;
+  model?: Model;
+  modelsMenu: React.ReactNode;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
-  onGetAsset: (assetId: string) => Promise<string | undefined>;
-  onGroupGet: (id: string) => Promise<Group | undefined>;
+  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetSearchTerm: (term?: string) => void;
+  onAssetsGet: () => void;
+  onAssetsReload: () => void;
+  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
+  onBack: () => void;
+  onChange: (request: Request, items: RequestItem[]) => Promise<void>;
   onCheckItemReference: (
     itemId: string,
     correspondingFieldId: string,
     groupId?: string,
   ) => Promise<boolean>;
+  onCollapse: (collapse: boolean) => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGetVersionedItem: (version: string) => Promise<FormValues>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
+  onItemCreate: (data: {
+    fields: ItemField[];
+    metaFields: ItemField[];
+    metaSchemaId?: string;
+    schemaId: string;
+  }) => Promise<void>;
+  onItemUpdate: (data: { fields: ItemField[]; itemId: string; }) => Promise<void>;
+  onLinkItemTableChange: (page: number, pageSize: number) => void;
+  onLinkItemTableReload: () => void;
+  onMetaItemUpdate: (data: { metaFields: ItemField[]; metaItemId?: string; }) => Promise<void>;
+  onModalClose: () => void;
+  onModalOpen: () => void;
   onNavigateToRequest: (id: string) => void;
+  onPublish: (itemIds: string[]) => Promise<void>;
+  onReferenceModelUpdate: (modelId: string, referenceFieldId: string) => void;
+  onRequestCreate: (data: {
+    description: string;
+    items: RequestItem[];
+    reviewersId: string[];
+    state: RequestState;
+    title: string;
+  }) => Promise<void>;
+  onRequestSearchTerm: (term: string) => void;
+  onRequestTableChange: (page: number, pageSize: number) => void;
+  onRequestTableReload: () => void;
+  onSearchTerm: (term?: string) => void;
+  onUnpublish: (itemIds: string[]) => Promise<void>;
+  onUploadModalCancel: () => void;
+  page: number;
+  pageSize: number;
+  publishLoading: boolean;
+  requestCreationLoading: boolean;
+  requestModalLoading: boolean;
+  requestModalPage: number;
+  requestModalPageSize: number;
+  requestModalShown: boolean;
+  requestModalTotalCount: number;
+  requests: Request[];
+  setFileList: (fileList: UploadFile<File>[]) => void;
+  setUploadModalVisibility: (visible: boolean) => void;
+  setUploadType: (type: UploadType) => void;
+  setUploadUrl: (uploadUrl: { autoUnzip: boolean; url: string; }) => void;
+  showPublishAction: boolean;
+  title: string;
+  totalCount: number;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  uploadType: UploadType;
+  uploadUrl: { autoUnzip: boolean; url: string; };
+  versions: VersionedItem[];
+  workspaceUserMembers: UserMember[];
 };
 
 const ContentDetailsMolecule: React.FC<Props> = ({
+  addItemToRequestModalShown,
+  assetList,
+  collapsed,
+  commentsPanel,
+  fileList,
+  hasItemUpdateRight,
+  hasPublishRight,
   hasRequestCreateRight,
   hasRequestUpdateRight,
-  hasPublishRight,
-  hasItemUpdateRight,
-  loadingReference,
-  linkedItemsModalList,
-  showPublishAction,
-  requests,
-  collapsed,
-  model,
-  modelsMenu,
   initialFormValues,
   initialMetaFormValues,
-  versions,
-  title,
   item,
   itemId,
   itemLoading,
-  loading,
-  requestCreationLoading,
-  assetList,
-  fileList,
-  loadingAssets,
-  uploading,
-  uploadModalVisibility,
-  uploadUrl,
-  uploadType,
-  commentsPanel,
-  requestModalShown,
-  addItemToRequestModalShown,
-  workspaceUserMembers,
-  totalCount,
-  page,
-  pageSize,
-  onLinkItemTableReload,
-  onRequestTableChange,
-  onRequestSearchTerm,
-  onRequestTableReload,
-  publishLoading,
-  requestModalLoading,
-  requestModalTotalCount,
-  requestModalPage,
-  requestModalPageSize,
-  linkItemModalTitle,
-  linkItemModalTotalCount,
+  linkedItemsModalList,
   linkItemModalPage,
   linkItemModalPageSize,
-  onReferenceModelUpdate,
-  onSearchTerm,
-  onLinkItemTableChange,
-  onGetVersionedItem,
-  onPublish,
-  onUnpublish,
-  onCollapse,
-  onUploadModalCancel,
-  setUploadUrl,
-  setUploadType,
-  onItemCreate,
-  onItemUpdate,
-  onMetaItemUpdate,
-  onBack,
-  onAssetsCreate,
-  onAssetCreateFromUrl,
-  onAssetsGet,
-  onAssetsReload,
-  onAssetSearchTerm,
-  setFileList,
-  setUploadModalVisibility,
-  onRequestCreate,
-  onChange,
-  onModalClose,
-  onModalOpen,
+  linkItemModalTitle,
+  linkItemModalTotalCount,
+  loading,
+  loadingAssets,
+  loadingReference,
+  model,
+  modelsMenu,
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
+  onAssetCreateFromUrl,
+  onAssetsCreate,
+  onAssetSearchTerm,
+  onAssetsGet,
+  onAssetsReload,
   onAssetTableChange,
-  onGetAsset,
-  onGroupGet,
+  onBack,
+  onChange,
   onCheckItemReference,
+  onCollapse,
+  onGetAsset,
+  onGetVersionedItem,
+  onGroupGet,
+  onItemCreate,
+  onItemUpdate,
+  onLinkItemTableChange,
+  onLinkItemTableReload,
+  onMetaItemUpdate,
+  onModalClose,
+  onModalOpen,
   onNavigateToRequest,
+  onPublish,
+  onReferenceModelUpdate,
+  onRequestCreate,
+  onRequestSearchTerm,
+  onRequestTableChange,
+  onRequestTableReload,
+  onSearchTerm,
+  onUnpublish,
+  onUploadModalCancel,
+  page,
+  pageSize,
+  publishLoading,
+  requestCreationLoading,
+  requestModalLoading,
+  requestModalPage,
+  requestModalPageSize,
+  requestModalShown,
+  requestModalTotalCount,
+  requests,
+  setFileList,
+  setUploadModalVisibility,
+  setUploadType,
+  setUploadUrl,
+  showPublishAction,
+  title,
+  totalCount,
+  uploading,
+  uploadModalVisibility,
+  uploadType,
+  uploadUrl,
+  versions,
+  workspaceUserMembers,
 }) => {
   return (
     <ComplexInnerContents
-      left={
-        <Sidebar
-          collapsed={collapsed}
-          onCollapse={onCollapse}
-          collapsedWidth={54}
-          width={208}
-          trigger={<Icon icon={collapsed ? "panelToggleRight" : "panelToggleLeft"} />}>
-          {modelsMenu}
-        </Sidebar>
-      }
       center={
         itemId && !itemLoading && !item ? (
           <NotFound />
         ) : (
           <ContentForm
-            title={title}
-            item={item}
+            addItemToRequestModalShown={addItemToRequestModalShown}
+            assetList={assetList}
+            fileList={fileList}
+            hasItemUpdateRight={hasItemUpdateRight}
+            hasPublishRight={hasPublishRight}
             hasRequestCreateRight={hasRequestCreateRight}
             hasRequestUpdateRight={hasRequestUpdateRight}
-            hasPublishRight={hasPublishRight}
-            hasItemUpdateRight={hasItemUpdateRight}
-            linkItemModalTitle={linkItemModalTitle}
-            linkItemModalTotalCount={linkItemModalTotalCount}
-            linkItemModalPage={linkItemModalPage}
-            linkItemModalPageSize={linkItemModalPageSize}
-            onReferenceModelUpdate={onReferenceModelUpdate}
-            onSearchTerm={onSearchTerm}
-            onLinkItemTableChange={onLinkItemTableChange}
-            loadingReference={loadingReference}
-            linkedItemsModalList={linkedItemsModalList}
-            showPublishAction={showPublishAction}
-            requests={requests}
-            requestCreationLoading={requestCreationLoading}
-            onLinkItemTableReload={onLinkItemTableReload}
-            onRequestTableChange={onRequestTableChange}
-            onRequestSearchTerm={onRequestSearchTerm}
-            onRequestTableReload={onRequestTableReload}
-            publishLoading={publishLoading}
-            requestModalLoading={requestModalLoading}
-            requestModalTotalCount={requestModalTotalCount}
-            requestModalPage={requestModalPage}
-            requestModalPageSize={requestModalPageSize}
-            loading={loading}
-            itemId={itemId}
-            model={model}
             initialFormValues={initialFormValues}
             initialMetaFormValues={initialMetaFormValues}
-            versions={versions}
-            assetList={assetList}
-            onAssetTableChange={onAssetTableChange}
-            totalCount={totalCount}
-            page={page}
-            pageSize={pageSize}
-            fileList={fileList}
+            item={item}
+            itemId={itemId}
+            linkedItemsModalList={linkedItemsModalList}
+            linkItemModalPage={linkItemModalPage}
+            linkItemModalPageSize={linkItemModalPageSize}
+            linkItemModalTitle={linkItemModalTitle}
+            linkItemModalTotalCount={linkItemModalTotalCount}
+            loading={loading}
             loadingAssets={loadingAssets}
-            uploading={uploading}
-            uploadModalVisibility={uploadModalVisibility}
-            uploadUrl={uploadUrl}
-            uploadType={uploadType}
-            onGetVersionedItem={onGetVersionedItem}
-            onPublish={onPublish}
-            onUnpublish={onUnpublish}
-            onChange={onChange}
-            onUploadModalCancel={onUploadModalCancel}
-            setUploadUrl={setUploadUrl}
-            setUploadType={setUploadType}
-            onBack={onBack}
-            onItemCreate={onItemCreate}
-            onItemUpdate={onItemUpdate}
-            onMetaItemUpdate={onMetaItemUpdate}
-            onAssetsCreate={onAssetsCreate}
+            loadingReference={loadingReference}
+            model={model}
+            onAddItemToRequestModalClose={onAddItemToRequestModalClose}
+            onAddItemToRequestModalOpen={onAddItemToRequestModalOpen}
             onAssetCreateFromUrl={onAssetCreateFromUrl}
+            onAssetsCreate={onAssetsCreate}
+            onAssetSearchTerm={onAssetSearchTerm}
             onAssetsGet={onAssetsGet}
             onAssetsReload={onAssetsReload}
-            onAssetSearchTerm={onAssetSearchTerm}
-            setFileList={setFileList}
-            setUploadModalVisibility={setUploadModalVisibility}
-            requestModalShown={requestModalShown}
-            addItemToRequestModalShown={addItemToRequestModalShown}
-            onRequestCreate={onRequestCreate}
+            onAssetTableChange={onAssetTableChange}
+            onBack={onBack}
+            onChange={onChange}
+            onCheckItemReference={onCheckItemReference}
+            onGetAsset={onGetAsset}
+            onGetVersionedItem={onGetVersionedItem}
+            onGroupGet={onGroupGet}
+            onItemCreate={onItemCreate}
+            onItemUpdate={onItemUpdate}
+            onLinkItemTableChange={onLinkItemTableChange}
+            onLinkItemTableReload={onLinkItemTableReload}
+            onMetaItemUpdate={onMetaItemUpdate}
             onModalClose={onModalClose}
             onModalOpen={onModalOpen}
-            onAddItemToRequestModalOpen={onAddItemToRequestModalOpen}
-            onAddItemToRequestModalClose={onAddItemToRequestModalClose}
-            workspaceUserMembers={workspaceUserMembers}
-            onGetAsset={onGetAsset}
-            onGroupGet={onGroupGet}
-            onCheckItemReference={onCheckItemReference}
             onNavigateToRequest={onNavigateToRequest}
+            onPublish={onPublish}
+            onReferenceModelUpdate={onReferenceModelUpdate}
+            onRequestCreate={onRequestCreate}
+            onRequestSearchTerm={onRequestSearchTerm}
+            onRequestTableChange={onRequestTableChange}
+            onRequestTableReload={onRequestTableReload}
+            onSearchTerm={onSearchTerm}
+            onUnpublish={onUnpublish}
+            onUploadModalCancel={onUploadModalCancel}
+            page={page}
+            pageSize={pageSize}
+            publishLoading={publishLoading}
+            requestCreationLoading={requestCreationLoading}
+            requestModalLoading={requestModalLoading}
+            requestModalPage={requestModalPage}
+            requestModalPageSize={requestModalPageSize}
+            requestModalShown={requestModalShown}
+            requestModalTotalCount={requestModalTotalCount}
+            requests={requests}
+            setFileList={setFileList}
+            setUploadModalVisibility={setUploadModalVisibility}
+            setUploadType={setUploadType}
+            setUploadUrl={setUploadUrl}
+            showPublishAction={showPublishAction}
+            title={title}
+            totalCount={totalCount}
+            uploading={uploading}
+            uploadModalVisibility={uploadModalVisibility}
+            uploadType={uploadType}
+            uploadUrl={uploadUrl}
+            versions={versions}
+            workspaceUserMembers={workspaceUserMembers}
           />
         )
+      }
+      left={
+        <Sidebar
+          collapsed={collapsed}
+          collapsedWidth={54}
+          onCollapse={onCollapse}
+          trigger={<Icon icon={collapsed ? "panelToggleRight" : "panelToggleLeft"} />}
+          width={208}>
+          {modelsMenu}
+        </Sidebar>
       }
       right={commentsPanel}
     />

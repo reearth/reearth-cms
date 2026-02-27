@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useState, ChangeEvent } from "react";
+import { ChangeEvent, useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -39,10 +39,10 @@ const RequestEditor: React.FC<Props> = ({ hasCommentCreateRight, onCommentCreate
     <Form form={form} layout="vertical">
       <TextAreaItem name="content">
         <TextArea
-          rows={4}
-          placeholder={t("Leave your comment...")}
-          onChange={handleChange}
           disabled={!hasCommentCreateRight}
+          onChange={handleChange}
+          placeholder={t("Leave your comment...")}
+          rows={4}
         />
       </TextAreaItem>
       <ButtonItem>

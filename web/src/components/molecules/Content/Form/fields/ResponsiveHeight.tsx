@@ -2,15 +2,15 @@ import styled from "@emotion/styled";
 import { cloneElement, ReactElement, useEffect, useRef } from "react";
 
 type Props = {
-  id?: string;
   children: ReactElement;
+  id?: string;
   itemHeights?: Record<string, number>;
   onItemHeightChange?: (id: string, height: number) => void;
 };
 
 const ResponsiveHeight: React.FC<Props> = ({
-  id,
   children,
+  id,
   itemHeights,
   onItemHeightChange,
   ...props

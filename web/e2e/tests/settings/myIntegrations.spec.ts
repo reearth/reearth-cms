@@ -5,7 +5,7 @@ let integrationName: string;
 let newIntegrationName: string;
 let newDescription: string;
 
-test.beforeEach(async ({ reearth, integrationsPage }) => {
+test.beforeEach(async ({ integrationsPage, reearth }) => {
   integrationName = getId();
   newIntegrationName = getId();
   newDescription = `newDescription-${getId()}`;

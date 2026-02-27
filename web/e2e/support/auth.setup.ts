@@ -1,11 +1,11 @@
 import { chromium, expect, test } from "@reearth-cms/e2e/fixtures/test";
 
-import { baseURL, authFile } from "../../playwright.config";
+import { authFile, baseURL } from "../../playwright.config";
 import { config } from "../config/config";
 import { LoginPage } from "../pages/login.page";
 import { createIAPContext } from "../utils/iap/iap-auth";
 
-const { userName, password } = config;
+const { password, userName } = config;
 
 test("@smoke authenticate", async () => {
   expect(userName).toBeTruthy();

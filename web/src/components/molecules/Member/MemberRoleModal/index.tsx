@@ -15,14 +15,14 @@ type FormValues = {
 };
 
 type Props = {
-  open: boolean;
-  member: UserMember;
   loading: boolean;
+  member: UserMember;
   onClose: () => void;
   onUpdateRole: (userId: string, role: Role) => Promise<void>;
+  open: boolean;
 };
 
-const MemberRoleModal: React.FC<Props> = ({ open, member, loading, onClose, onUpdateRole }) => {
+const MemberRoleModal: React.FC<Props> = ({ loading, member, onClose, onUpdateRole, open }) => {
   const t = useT();
   const [form] = Form.useForm<FormValues>();
   const [isDisabled, setIsDisabled] = useState(true);
@@ -58,33 +58,33 @@ const MemberRoleModal: React.FC<Props> = ({ open, member, loading, onClose, onUp
 
   return (
     <Modal
-      title={t("Role Settings")}
-      open={open}
-      onCancel={handleClose}
       footer={[
-        <Button onClick={handleClose} disabled={loading}>
+        <Button disabled={loading} onClick={handleClose}>
           {t("Cancel")}
         </Button>,
-        <Button type="primary" loading={loading} onClick={handleSubmit} disabled={isDisabled}>
+        <Button disabled={isDisabled} loading={loading} onClick={handleSubmit} type="primary">
           {t("OK")}
         </Button>,
-      ]}>
+      ]}
+      onCancel={handleClose}
+      open={open}
+      title={t("Role Settings")}>
       <Form
         form={form}
-        layout="vertical"
         initialValues={{
           role: member.role,
-        }}>
+        }}
+        layout="vertical">
         <Form.Item
-          name="role"
           label={t("Role")}
+          name="role"
           rules={[
             {
-              required: true,
               message: t("Please input the appropriate role for this member!"),
+              required: true,
             },
           ]}>
-          <Select placeholder={t("select role")} onSelect={handleSelect}>
+          <Select onSelect={handleSelect} placeholder={t("select role")}>
             <Option value="OWNER">{t("Owner")}</Option>
             <Option value="MAINTAINER">{t("Maintainer")}</Option>
             <Option value="WRITER">{t("Writer")}</Option>

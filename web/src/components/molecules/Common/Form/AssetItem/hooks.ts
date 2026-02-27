@@ -1,13 +1,13 @@
-import { useState, useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset } from "@reearth-cms/components/molecules/Asset/types";
-import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
+import { useProject, useUserRights, useWorkspace } from "@reearth-cms/state";
 
 export default (
   fileList?: UploadFile[],
-  uploadUrl?: { url: string; autoUnzip: boolean },
+  uploadUrl?: { autoUnzip: boolean; url: string; },
   uploadType?: UploadType,
   onAssetsCreate?: (files: UploadFile[]) => Promise<(Asset | undefined)[]>,
   onAssetCreateFromUrl?: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>,
@@ -49,13 +49,13 @@ export default (
   }, [handleAssetUpload, onChange]);
 
   return {
-    visible,
-    workspaceId: currentWorkspace?.id,
-    projectId: currentProject?.id,
-    hasCreateRight,
+    displayUploadModal,
     handleClick,
     handleLinkAssetModalCancel,
-    displayUploadModal,
     handleUploadAndLink,
+    hasCreateRight,
+    projectId: currentProject?.id,
+    visible,
+    workspaceId: currentWorkspace?.id,
   };
 };

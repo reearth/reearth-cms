@@ -15,24 +15,24 @@ export type InnerProps = {
 };
 
 export type Props = {
-  headerComponent: React.ReactNode;
-  contentComponent: React.ReactNode;
-  sidebarComponent: React.ReactNode;
   collapsedMainMenu: boolean;
+  contentComponent: React.ReactNode;
+  headerComponent: React.ReactNode;
+  isShowUploader: boolean;
   onCollapse: (collapse: boolean) => void;
   shouldPreventReload: boolean;
-  isShowUploader: boolean;
+  sidebarComponent: React.ReactNode;
   uploaderState: UploaderState;
 };
 
 const CMSWrapper: React.FC<Props> = ({
-  contentComponent,
-  sidebarComponent,
-  headerComponent,
   collapsedMainMenu,
+  contentComponent,
+  headerComponent,
+  isShowUploader,
   onCollapse,
   shouldPreventReload,
-  isShowUploader,
+  sidebarComponent,
 }) => {
   const constraintsRef = useRef<HTMLDivElement>(null);
 
@@ -42,10 +42,10 @@ const CMSWrapper: React.FC<Props> = ({
         <HeaderWrapper>{headerComponent}</HeaderWrapper>
         <BodyWrapper>
           <CMSSidebar
-            collapsible
             collapsed={collapsedMainMenu}
-            onCollapse={onCollapse}
-            collapsedWidth={54}>
+            collapsedWidth={54}
+            collapsible
+            onCollapse={onCollapse}>
             {sidebarComponent}
           </CMSSidebar>
           <ContentWrapper>{contentComponent}</ContentWrapper>

@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import IntegrationConnectModal from ".";
 
@@ -33,10 +33,10 @@ describe("Integration connect modal", () => {
             name: "name2",
           },
         ]}
-        open={open}
         loading={loading}
         onClose={onClose}
         onSubmit={onSubmit}
+        open={open}
       />,
     );
 
@@ -48,10 +48,10 @@ describe("Integration connect modal", () => {
     render(
       <IntegrationConnectModal
         integrations={integrations}
-        open={open}
         loading={true}
         onClose={onClose}
         onSubmit={onSubmit}
+        open={open}
       />,
     );
     await expect.poll(() => screen.getByLabelText("loading")).toBeVisible();
@@ -61,10 +61,10 @@ describe("Integration connect modal", () => {
     const { rerender } = render(
       <IntegrationConnectModal
         integrations={integrations}
-        open={open}
         loading={loading}
         onClose={onClose}
         onSubmit={onSubmit}
+        open={open}
       />,
     );
 
@@ -78,10 +78,10 @@ describe("Integration connect modal", () => {
     rerender(
       <IntegrationConnectModal
         integrations={integrations}
-        open={false}
         loading={loading}
         onClose={onClose}
         onSubmit={onSubmit}
+        open={false}
       />,
     );
 
@@ -90,10 +90,10 @@ describe("Integration connect modal", () => {
     rerender(
       <IntegrationConnectModal
         integrations={integrations}
-        open={open}
         loading={loading}
         onClose={onClose}
         onSubmit={onSubmit}
+        open={open}
       />,
     );
 
@@ -105,10 +105,10 @@ describe("Integration connect modal", () => {
     render(
       <IntegrationConnectModal
         integrations={integrations}
-        open={open}
         loading={false}
         onClose={onClose}
         onSubmit={onSubmitMock}
+        open={open}
       />,
     );
 

@@ -12,7 +12,7 @@ test("Workspace creation modal works successfully", async () => {
     return Promise.resolve();
   };
 
-  render(<WorkspaceCreationModal open onClose={onClose} onSubmit={onSubmit} />);
+  render(<WorkspaceCreationModal onClose={onClose} onSubmit={onSubmit} open />);
 
   const input = screen.getByLabelText("Workspace name");
   const saveButton = screen.getByRole("button", { name: "OK" });

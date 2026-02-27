@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { Resource } from "@reearth-cms/components/molecules/Workspace/types";
 
@@ -12,12 +12,12 @@ describe("Cards", () => {
   const resources: Resource[] = [
     {
       id: "",
-      type: "DEFAULT",
       props: {
         image: "",
         name: "",
         url: "",
       },
+      type: "DEFAULT",
     },
   ];
   const hasUpdateRight = true;
@@ -30,31 +30,31 @@ describe("Cards", () => {
 
     render(
       <Cards
-        resources={[
-          {
-            id: "",
-            type: "DEFAULT",
-            props: {
-              image: "",
-              name: "",
-              url: "",
-            },
-          },
-          {
-            id: "",
-            type: "DEFAULT",
-            props: {
-              image: "",
-              name: "",
-              url: "",
-            },
-          },
-        ]}
-        onModalOpen={openMock}
+        hasUpdateRight={hasUpdateRight}
         isTile={isTile}
         onDelete={deleteMock}
         onDragEnd={handleDragEnd}
-        hasUpdateRight={hasUpdateRight}
+        onModalOpen={openMock}
+        resources={[
+          {
+            id: "",
+            props: {
+              image: "",
+              name: "",
+              url: "",
+            },
+            type: "DEFAULT",
+          },
+          {
+            id: "",
+            props: {
+              image: "",
+              name: "",
+              url: "",
+            },
+            type: "DEFAULT",
+          },
+        ]}
       />,
     );
 
@@ -74,12 +74,12 @@ describe("Cards", () => {
 
     render(
       <Cards
-        resources={resources}
-        onModalOpen={openMock}
+        hasUpdateRight={false}
         isTile={isTile}
         onDelete={deleteMock}
         onDragEnd={handleDragEnd}
-        hasUpdateRight={false}
+        onModalOpen={openMock}
+        resources={resources}
       />,
     );
 

@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { useAuthHeader } from "@reearth-cms/gql";
 import { useT } from "@reearth-cms/i18n";
 
-type Props = Omit<React.ImgHTMLAttributes<HTMLImageElement>, "src"> & {
+type Props = {
   isAssetPublic?: boolean;
   svgRender: boolean;
   url: string;
-};
+} & Omit<React.ImgHTMLAttributes<HTMLImageElement>, "src">;
 
 const SvgViewer: React.FC<Props> = ({
   alt = "image-preview",
@@ -28,8 +28,8 @@ const SvgViewer: React.FC<Props> = ({
       try {
         const headers = isAssetPublic ? {} : await getHeader();
         const res = await fetch(url, {
-          method: "GET",
           headers,
+          method: "GET",
         });
         if (!res.ok) {
           throw new Error("Could not fetch svg data");
@@ -63,9 +63,9 @@ const SvgViewer: React.FC<Props> = ({
       {svgRender ? (
         <StyledImage
           alt={alt}
-          src={isAssetPublic ? url : blobUrl}
-          onLoad={() => setLoaded(true)}
           hidden={!loaded}
+          onLoad={() => setLoaded(true)}
+          src={isAssetPublic ? url : blobUrl}
           {...props}
         />
       ) : (

@@ -13,9 +13,9 @@ import FieldTitle from "../../FieldTitle";
 import { requiredValidator } from "../utils";
 
 const DefaultField: React.FC<FieldProps> = ({
+  disabled,
   field,
   itemGroupId,
-  disabled,
   itemHeights,
   onItemHeightChange,
 }) => {
@@ -27,14 +27,16 @@ const DefaultField: React.FC<FieldProps> = ({
   return (
     <StyledFormItem
       extra={field.description}
-      validateStatus="success"
+      label={<FieldTitle isTitle={field.isTitle} isUnique={field.unique} title={field.title} />}
+      name={itemGroupId ? [field.id, itemGroupId] : field.id}
       rules={[
         {
+          message: t("Please input field!"),
           required,
           validator: requiredValidator,
-          message: t("Please input field!"),
         },
         {
+          message: "",
           validator: (_, value) => {
             if (value && maxLength) {
               if (Array.isArray(value)) {
@@ -47,23 +49,21 @@ const DefaultField: React.FC<FieldProps> = ({
             }
             return Promise.resolve();
           },
-          message: "",
         },
       ]}
-      name={itemGroupId ? [field.id, itemGroupId] : field.id}
-      label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
+      validateStatus="success">
       {field.multiple ? (
         <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
           <MultiValueField
-            showCount={true}
-            maxLength={maxLength}
-            FieldInput={Input}
             disabled={disabled}
+            FieldInput={Input}
+            maxLength={maxLength}
             required={required}
+            showCount={true}
           />
         </ResponsiveHeight>
       ) : (
-        <Input showCount={true} maxLength={maxLength} disabled={disabled} required={required} />
+        <Input disabled={disabled} maxLength={maxLength} required={required} showCount={true} />
       )}
     </StyledFormItem>
   );

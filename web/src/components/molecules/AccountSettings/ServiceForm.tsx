@@ -54,12 +54,12 @@ const ServiceForm: React.FC<Props> = ({ initialValues, onLanguageUpdate }) => {
   }, [form, onLanguageUpdate]);
 
   return (
-    <StyledForm form={form} initialValues={initialValues} layout="vertical" autoComplete="off">
+    <StyledForm autoComplete="off" form={form} initialValues={initialValues} layout="vertical">
       <Form.Item
-        name="lang"
+        extra={t("This will change the UI language")}
         label={t("Service Language")}
-        extra={t("This will change the UI language")}>
-        <Select placeholder={t("Language")} onSelect={handleSelect}>
+        name="lang">
+        <Select onSelect={handleSelect} placeholder={t("Language")}>
           {langItems?.map(langItem => (
             <Select.Option key={langItem.key} value={langItem.key}>
               {langItem.label}
@@ -67,7 +67,7 @@ const ServiceForm: React.FC<Props> = ({ initialValues, onLanguageUpdate }) => {
           ))}
         </Select>
       </Form.Item>
-      <Button onClick={handleSubmit} type="primary" disabled={isDisabled} loading={isLoading}>
+      <Button disabled={isDisabled} loading={isLoading} onClick={handleSubmit} type="primary">
         {t("Save")}
       </Button>
     </StyledForm>

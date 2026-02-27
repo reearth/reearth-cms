@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
@@ -8,17 +8,17 @@ import ProjectCreationModal, {
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  privateProjectsAllowed?: boolean;
   hasCreateRight: boolean;
-  onProjectCreate: (values: FormValues) => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
+  onProjectCreate: (values: FormValues) => Promise<void>;
+  privateProjectsAllowed?: boolean;
 };
 
 const CreateProjectButton: React.FC<Props> = ({
-  privateProjectsAllowed,
   hasCreateRight,
-  onProjectCreate,
   onProjectAliasCheck,
+  onProjectCreate,
+  privateProjectsAllowed,
 }) => {
   const t = useT();
   const [projectModalShown, setProjectModalShown] = useState(false);
@@ -44,18 +44,18 @@ const CreateProjectButton: React.FC<Props> = ({
   return (
     <>
       <Button
-        onClick={handleProjectModalOpen}
-        type="primary"
+        disabled={!hasCreateRight}
         icon={<Icon icon="plus" />}
-        disabled={!hasCreateRight}>
+        onClick={handleProjectModalOpen}
+        type="primary">
         {t("New Project")}
       </Button>
       <ProjectCreationModal
-        privateProjectsAllowed={privateProjectsAllowed}
-        open={projectModalShown}
         onClose={handleProjectModalClose}
-        onSubmit={handleSubmit}
         onProjectAliasCheck={onProjectAliasCheck}
+        onSubmit={handleSubmit}
+        open={projectModalShown}
+        privateProjectsAllowed={privateProjectsAllowed}
       />
     </>
   );

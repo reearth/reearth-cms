@@ -1,28 +1,28 @@
 import { NetworkStatus } from "@apollo/client";
 import { useMutation, useQuery } from "@apollo/client/react";
-import { Ion, Viewer as CesiumViewer } from "cesium";
+import { Viewer as CesiumViewer, Ion } from "cesium";
 import fileDownload from "js-file-download";
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { CesiumComponentRef } from "resium";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import {
   Asset,
+  AssetFile,
   AssetItem,
   PreviewType,
   ViewerType,
-  AssetFile,
 } from "@reearth-cms/components/molecules/Asset/types";
 import {
-  geoFormats,
-  geo3dFormats,
-  geoMvtFormat,
-  model3dFormats,
+  compressedFileFormats,
   csvFormats,
+  geo3dFormats,
+  geoFormats,
+  geoMvtFormat,
   imageFormats,
   imageSVGFormat,
-  compressedFileFormats,
+  model3dFormats,
 } from "@reearth-cms/components/molecules/Common/Asset";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
 import { config } from "@reearth-cms/config";
@@ -46,7 +46,7 @@ export default (assetId?: string) => {
   const [userId] = useUserId();
   const [userRights] = useUserRights();
   const navigate = useNavigate();
-  const { workspaceId, projectId } = useParams();
+  const { projectId, workspaceId } = useParams();
   const location = useLocation();
   const [selectedPreviewType, setSelectedPreviewType] = useState<PreviewType>();
   const [decompressing, setDecompressing] = useState(false);
@@ -59,17 +59,17 @@ export default (assetId?: string) => {
   }, []);
 
   const { data: rawAsset, networkStatus } = useQuery(GetAssetItemDocument, {
+    fetchPolicy: "cache-and-network",
     variables: {
       assetId: assetId ?? "",
     },
-    fetchPolicy: "cache-and-network",
   });
 
   const { data: rawFile, loading: fileLoading } = useQuery(GetAssetFileDocument, {
+    fetchPolicy: "cache-and-network",
     variables: {
       assetId: assetId ?? "",
     },
-    fetchPolicy: "cache-and-network",
   });
 
   const convertedAsset: Asset | undefined = useMemo(() => {
@@ -104,8 +104,8 @@ export default (assetId?: string) => {
     async (assetId: string, previewType?: PreviewType) => {
       if (!assetId) return;
       const result = await updateAssetMutation({
-        variables: { id: assetId, previewType: previewType as GQLPreviewType },
         refetchQueries: ["GetAssetItem"],
+        variables: { id: assetId, previewType: previewType as GQLPreviewType },
       });
       if (result.error || !result.data?.updateAsset) {
         Notification.error({ message: t("Failed to update asset.") });
@@ -124,8 +124,8 @@ export default (assetId?: string) => {
         if (!assetId) return;
         setDecompressing(true);
         const result = await decompressAssetMutation({
-          variables: { assetId },
           refetchQueries: ["GetAssetItem"],
+          variables: { assetId },
         });
         setDecompressing(false);
         if (result.error || !result.data?.decompressAsset) {
@@ -154,7 +154,7 @@ export default (assetId?: string) => {
 
   const assetFileExt = FileUtils.getExtension(convertedAsset?.fileName);
 
-  const viewerType = useMemo((): ViewerType | undefined => {
+  const viewerType = useMemo((): undefined | ViewerType => {
     if (!selectedPreviewType || !assetFileExt) return;
 
     switch (true) {
@@ -249,14 +249,14 @@ export default (assetId?: string) => {
       const blob = await response.blob();
       fileDownload(blob, asset.fileName);
       Notification.success({
-        message: t("Download successful"),
         description: asset.fileName,
+        message: t("Download successful"),
       });
     } catch (err) {
       console.error("Download error:", err);
       Notification.error({
-        message: t("Download failed"),
         description: asset.fileName,
+        message: t("Download failed"),
       });
     }
   };
@@ -264,25 +264,25 @@ export default (assetId?: string) => {
   return {
     asset,
     assetFileExt,
-    isLoading: networkStatus === NetworkStatus.loading || fileLoading,
-    selectedPreviewType,
-    isModalVisible,
     collapsed,
-    viewerType,
-    viewerRef,
-    displayUnzipFileList,
     decompressing,
-    isSaveDisabled,
-    updateLoading,
-    hasUpdateRight,
-    handleAssetItemSelect,
+    displayUnzipFileList,
     handleAssetDecompress,
+    handleAssetItemSelect,
+    handleBack,
+    handleFullScreen,
+    handleModalCancel,
+    handleSave,
     handleSingleAssetDownload,
     handleToggleCommentMenu,
     handleTypeChange,
-    handleModalCancel,
-    handleFullScreen,
-    handleSave,
-    handleBack,
+    hasUpdateRight,
+    isLoading: networkStatus === NetworkStatus.loading || fileLoading,
+    isModalVisible,
+    isSaveDisabled,
+    selectedPreviewType,
+    updateLoading,
+    viewerRef,
+    viewerType,
   };
 };

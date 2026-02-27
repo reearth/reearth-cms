@@ -1,17 +1,17 @@
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import {
-  WorkspaceSettings,
   Member,
   Workspace,
+  WorkspaceSettings,
 } from "@reearth-cms/components/molecules/Workspace/types";
 import {
-  WorkspaceSettings as GQLWorkspaceSettings,
-  TileType,
-  TerrainType,
-  UrlResourceProps,
   CesiumResourceProps,
   Integration as GQLIntegration,
   Workspace as GQLWorkspace,
+  WorkspaceSettings as GQLWorkspaceSettings,
+  TerrainType,
+  TileType,
+  UrlResourceProps,
   WorkspaceMember,
   WorkspaceUserMember,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
@@ -20,78 +20,78 @@ export const fromGraphQLWorkspaceSettings = (
   GQLWorkspaceSettings: GQLWorkspaceSettings,
 ): WorkspaceSettings => {
   return {
+    terrains: {
+      enabled: GQLWorkspaceSettings.terrains?.enabled ?? undefined,
+      resources:
+        GQLWorkspaceSettings.terrains?.resources.map(resource => ({
+          id: resource.id,
+          props: {
+            cesiumIonAccessToken: (resource.props as CesiumResourceProps).cesiumIonAccessToken,
+            cesiumIonAssetId: (resource.props as CesiumResourceProps).cesiumIonAssetId,
+            image: (resource.props as CesiumResourceProps).image,
+            name: (resource.props as CesiumResourceProps).name,
+            url: (resource.props as CesiumResourceProps).url,
+          },
+          type: resource.type as TerrainType,
+        })) ?? [],
+      selectedResource: GQLWorkspaceSettings.terrains?.selectedResource ?? undefined,
+    },
     tiles: {
+      enabled: GQLWorkspaceSettings.tiles?.enabled ?? undefined,
       resources:
         GQLWorkspaceSettings.tiles?.resources.map(resource => ({
           id: resource.id,
-          type: resource.type as TileType,
           props: {
             image: (resource.props as UrlResourceProps).image,
             name: (resource.props as UrlResourceProps).name,
             url: (resource.props as UrlResourceProps).url,
           },
+          type: resource.type as TileType,
         })) ?? [],
       selectedResource: GQLWorkspaceSettings.tiles?.selectedResource ?? undefined,
-      enabled: GQLWorkspaceSettings.tiles?.enabled ?? undefined,
-    },
-    terrains: {
-      resources:
-        GQLWorkspaceSettings.terrains?.resources.map(resource => ({
-          id: resource.id,
-          type: resource.type as TerrainType,
-          props: {
-            url: (resource.props as CesiumResourceProps).url,
-            name: (resource.props as CesiumResourceProps).name,
-            image: (resource.props as CesiumResourceProps).image,
-            cesiumIonAccessToken: (resource.props as CesiumResourceProps).cesiumIonAccessToken,
-            cesiumIonAssetId: (resource.props as CesiumResourceProps).cesiumIonAssetId,
-          },
-        })) ?? [],
-      selectedResource: GQLWorkspaceSettings.terrains?.selectedResource ?? undefined,
-      enabled: GQLWorkspaceSettings.terrains?.enabled ?? undefined,
     },
   };
 };
 
 export const fromGraphQLIntegration = (integration: GQLIntegration): Integration => ({
-  id: integration.id,
-  name: integration.name,
-  description: integration.description,
-  logoUrl: integration.logoUrl,
-  developerId: integration.developerId,
-  developer: integration.developer,
-  iType: integration.iType,
   config: {
     token: integration.config?.token,
     webhooks: integration.config?.webhooks.map(webhook => ({
+      active: webhook.active,
+      createdAt: webhook.createdAt,
       id: webhook.id,
       name: webhook.name,
-      url: webhook.url,
-      active: webhook.active,
       secret: webhook.secret,
       trigger: {
+        onAssetDecompress: webhook.trigger.onAssetDecompress,
+        onAssetDelete: webhook.trigger.onAssetDelete,
+        onAssetUpload: webhook.trigger.onAssetUpload,
         onItemCreate: webhook.trigger.onItemCreate,
-        onItemUpdate: webhook.trigger.onItemUpdate,
         onItemDelete: webhook.trigger.onItemDelete,
         onItemPublish: webhook.trigger.onItemPublish,
         onItemUnPublish: webhook.trigger.onItemUnPublish,
-        onAssetUpload: webhook.trigger.onAssetUpload,
-        onAssetDecompress: webhook.trigger.onAssetDecompress,
-        onAssetDelete: webhook.trigger.onAssetDelete,
+        onItemUpdate: webhook.trigger.onItemUpdate,
       },
-      createdAt: webhook.createdAt,
       updatedAt: webhook.updatedAt,
+      url: webhook.url,
     })),
   },
+  description: integration.description,
+  developer: integration.developer,
+  developerId: integration.developerId,
+  id: integration.id,
+  iType: integration.iType,
+  logoUrl: integration.logoUrl,
+  name: integration.name,
 });
 
 export const fromGraphQLWorkspace = (workspace: GQLWorkspace): Workspace => {
   return {
-    id: workspace.id,
-    name: workspace.name,
     alias: workspace.alias ?? "",
-    personal: workspace.personal,
+    id: workspace.id,
     members: workspace.members.map(member => fromGraphQLMember(member)),
+    name: workspace.name,
+    personal: workspace.personal,
   };
 };
 
@@ -99,22 +99,22 @@ export const fromGraphQLMember = (member: WorkspaceMember): Member => {
   switch (member.__typename) {
     case "WorkspaceIntegrationMember":
       return {
-        id: member.integrationId,
         active: member.active,
+        id: member.integrationId,
         integration: member.integration ? fromGraphQLIntegration(member.integration) : undefined,
-        invitedById: member.invitedById,
         integrationRole: member.role,
+        invitedById: member.invitedById,
       };
     case "WorkspaceUserMember":
     default:
       return {
-        userId: (member as WorkspaceUserMember).userId,
         role: member.role,
         user: {
+          email: (member as WorkspaceUserMember).user?.email ?? "",
           id: (member as WorkspaceUserMember).user?.id ?? "",
           name: (member as WorkspaceUserMember).user?.name ?? "",
-          email: (member as WorkspaceUserMember).user?.email ?? "",
         },
+        userId: (member as WorkspaceUserMember).userId,
       };
   }
 };

@@ -14,21 +14,21 @@ import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 type Props = {
-  userId: string;
-  hasUpdateRight: boolean | null;
-  hasDeleteRight: boolean | null;
   comment: CommentType;
-  onCommentUpdate: (commentId: string, content: string) => Promise<void>;
+  hasDeleteRight: boolean | null;
+  hasUpdateRight: boolean | null;
   onCommentDelete: (commentId: string) => Promise<void>;
+  onCommentUpdate: (commentId: string, content: string) => Promise<void>;
+  userId: string;
 };
 
 const Comment: React.FC<Props> = ({
-  userId,
-  hasUpdateRight,
-  hasDeleteRight,
   comment,
-  onCommentUpdate,
+  hasDeleteRight,
+  hasUpdateRight,
   onCommentDelete,
+  onCommentUpdate,
+  userId,
 }) => {
   const t = useT();
   const [showEditor, setShowEditor] = useState(false);
@@ -63,10 +63,10 @@ const Comment: React.FC<Props> = ({
       result.push(
         <Button
           color="default"
-          variant="link"
-          size="small"
           icon={<Icon icon="delete" size={12} />}
           onClick={() => onCommentDelete(comment.id)}
+          size="small"
+          variant="link"
         />,
       );
     }
@@ -74,10 +74,10 @@ const Comment: React.FC<Props> = ({
       result.push(
         <Button
           color="default"
-          variant="link"
-          size="small"
           icon={<Icon icon={showEditor ? "check" : "edit"} size={12} />}
           onClick={showEditor ? handleSubmit : () => setShowEditor(true)}
+          size="small"
+          variant="link"
         />,
       );
     }
@@ -107,7 +107,7 @@ const Comment: React.FC<Props> = ({
       author={displayAuthor}
       content={
         showEditor ? (
-          <TextArea onChange={handleChange} value={value} autoSize={{ maxRows: 4 }} />
+          <TextArea autoSize={{ maxRows: 4 }} onChange={handleChange} value={value} />
         ) : (
           <ReactMarkdown
             components={{

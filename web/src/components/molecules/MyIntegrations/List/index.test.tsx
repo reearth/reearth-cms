@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { expect, test, describe } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
@@ -11,32 +11,32 @@ describe("My integrations list", () => {
 
   const integrations: Integration[] = [
     {
-      id: "",
-      name: name1,
+      config: {},
       description: "",
-      logoUrl: "",
-      developerId: "",
       developer: {
+        email: "",
         id: "",
         name: "",
-        email: "",
       },
+      developerId: "",
+      id: "",
       iType: "Private",
-      config: {},
+      logoUrl: "",
+      name: name1,
     },
     {
-      id: "",
-      name: name2,
+      config: {},
       description: "",
-      logoUrl: "",
-      developerId: "",
       developer: {
+        email: "",
         id: "",
         name: "",
-        email: "",
       },
+      developerId: "",
+      id: "",
       iType: "Private",
-      config: {},
+      logoUrl: "",
+      name: name2,
     },
   ];
   const onIntegrationModalOpen = () => {};

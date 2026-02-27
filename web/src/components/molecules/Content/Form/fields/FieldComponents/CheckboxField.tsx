@@ -5,15 +5,15 @@ import { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 
 import FieldTitle from "../../FieldTitle";
 
-const CheckboxField: React.FC<FieldProps> = ({ field, disabled }) => {
+const CheckboxField: React.FC<FieldProps> = ({ disabled, field }) => {
   return (
     <Form.Item
       extra={field.description}
+      label={<FieldTitle isTitle={false} isUnique={field.unique} title={field.title} />}
       name={field.id}
-      valuePropName="checked"
-      label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
+      valuePropName="checked">
       {field.multiple ? (
-        <MultiValueBooleanField FieldInput={Checkbox} disabled={disabled} />
+        <MultiValueBooleanField disabled={disabled} FieldInput={Checkbox} />
       ) : (
         <Checkbox disabled={disabled} />
       )}

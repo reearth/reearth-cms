@@ -5,7 +5,7 @@ import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 
-test.beforeEach(async ({ reearth, workspacePage, projectPage }) => {
+test.beforeEach(async ({ projectPage, reearth, workspacePage }) => {
   test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   await workspacePage.createWorkspace("e2e workspace name");
@@ -22,10 +22,10 @@ test.afterEach(async ({ projectPage, workspacePage }) => {
 });
 
 test("Create a new view", async ({
-  page,
-  fieldEditorPage,
-  projectPage,
   contentPage,
+  fieldEditorPage,
+  page,
+  projectPage,
   schemaPage,
 }) => {
   await test.step("Setup: Create text field and content items", async () => {
@@ -53,10 +53,10 @@ test("Create a new view", async ({
 });
 
 test("Rename an existing view", async ({
-  page,
-  fieldEditorPage,
-  projectPage,
   contentPage,
+  fieldEditorPage,
+  page,
+  projectPage,
   schemaPage,
 }) => {
   await test.step("Setup: Create text field and content item", async () => {
@@ -92,10 +92,10 @@ test("Rename an existing view", async ({
 });
 
 test("Cancel view deletion", async ({
-  page,
-  fieldEditorPage,
-  projectPage,
   contentPage,
+  fieldEditorPage,
+  page,
+  projectPage,
   schemaPage,
 }) => {
   await test.step("Setup: Create text field and content item", async () => {
@@ -130,10 +130,10 @@ test("Cancel view deletion", async ({
 });
 
 test("Apply sorting to view", async ({
-  page,
-  fieldEditorPage,
-  projectPage,
   contentPage,
+  fieldEditorPage,
+  page,
+  projectPage,
   schemaPage,
 }) => {
   await test.step("Setup: Create text field and content items", async () => {
@@ -160,10 +160,10 @@ test("Apply sorting to view", async ({
 });
 
 test("Apply filter to view", async ({
-  page,
-  fieldEditorPage,
-  projectPage,
   contentPage,
+  fieldEditorPage,
+  page,
+  projectPage,
   schemaPage,
 }) => {
   await test.step("Setup: Create text field and content items", async () => {
@@ -194,10 +194,10 @@ test("Apply filter to view", async ({
 });
 
 test("Toggle column visibility in view settings", async ({
-  page,
-  fieldEditorPage,
-  projectPage,
   contentPage,
+  fieldEditorPage,
+  page,
+  projectPage,
   schemaPage,
 }) => {
   await test.step("Setup: Create text field and content item", async () => {
@@ -226,10 +226,10 @@ test("Toggle column visibility in view settings", async ({
 });
 
 test("Save view with custom sorting and filtering", async ({
-  page,
-  fieldEditorPage,
-  projectPage,
   contentPage,
+  fieldEditorPage,
+  page,
+  projectPage,
   schemaPage,
 }) => {
   await test.step("Setup: Create text field and content items", async () => {
@@ -285,10 +285,10 @@ test("Save view with custom sorting and filtering", async ({
 });
 
 test("Switch between views preserves individual view settings", async ({
-  page,
-  fieldEditorPage,
-  projectPage,
   contentPage,
+  fieldEditorPage,
+  page,
+  projectPage,
   schemaPage,
 }) => {
   await test.step("Setup: Create text field and content items", async () => {
@@ -354,10 +354,10 @@ test("Switch between views preserves individual view settings", async ({
 });
 
 test("Update view settings", async ({
-  page,
-  fieldEditorPage,
-  projectPage,
   contentPage,
+  fieldEditorPage,
+  page,
+  projectPage,
   schemaPage,
 }) => {
   await test.step("Setup: Create text field and content items", async () => {
@@ -420,10 +420,10 @@ test("Update view settings", async ({
 });
 
 test("Delete view and switch to remaining view", async ({
-  page,
-  fieldEditorPage,
-  projectPage,
   contentPage,
+  fieldEditorPage,
+  page,
+  projectPage,
   schemaPage,
 }) => {
   await test.step("Setup: Create text field and content items", async () => {
@@ -486,7 +486,7 @@ test("Delete view and switch to remaining view", async ({
   });
 });
 
-test("View reordering has succeeded", async ({ page, projectPage, contentPage }) => {
+test("View reordering has succeeded", async ({ contentPage, page, projectPage }) => {
   await test.step("Navigate to content page", async () => {
     await projectPage.contentMenuItem.click();
     await projectPage.modelMenuItemClick(projectPage.modelName).click();

@@ -4,12 +4,12 @@ import Tag from "@reearth-cms/components/atoms/Tag";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  title: string;
-  isUnique: boolean;
   isTitle: boolean;
+  isUnique: boolean;
+  title: string;
 };
 
-const FieldTitle: React.FC<Props> = ({ title, isUnique, isTitle }) => {
+const FieldTitle: React.FC<Props> = ({ isTitle, isUnique, title }) => {
   const t = useT();
 
   return (

@@ -9,31 +9,31 @@ import { IntegrationType } from "@reearth-cms/components/molecules/MyIntegration
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  open: boolean;
   loading: boolean;
   onClose: () => void;
   onIntegrationCreate: (values: FormValues) => Promise<void>;
+  open: boolean;
 };
 
 export type FormValues = {
-  name: string;
   description: string;
   logoUrl: string;
+  name: string;
   type: IntegrationType;
 };
 
 const initialValues: FormValues = {
-  name: "",
   description: "",
   logoUrl: "",
+  name: "",
   type: "Private",
 };
 
 const IntegrationCreationModal: React.FC<Props> = ({
-  open,
   loading,
   onClose,
   onIntegrationCreate,
+  open,
 }) => {
   const t = useT();
   const [form] = Form.useForm<FormValues>();
@@ -69,41 +69,41 @@ const IntegrationCreationModal: React.FC<Props> = ({
 
   return (
     <Modal
-      open={open}
-      onCancel={handleClose}
-      onOk={handleSubmit}
-      title={t("New Integration")}
       footer={[
-        <Button key="back" onClick={handleClose} disabled={loading}>
+        <Button disabled={loading} key="back" onClick={handleClose}>
           {t("Cancel")}
         </Button>,
         <Button
-          key="submit"
-          type="primary"
-          onClick={handleSubmit}
           disabled={isDisabled}
-          loading={loading}>
+          key="submit"
+          loading={loading}
+          onClick={handleSubmit}
+          type="primary">
           {t("Create")}
         </Button>,
-      ]}>
+      ]}
+      onCancel={handleClose}
+      onOk={handleSubmit}
+      open={open}
+      title={t("New Integration")}>
       <Form
         form={form}
-        layout="vertical"
         initialValues={initialValues}
+        layout="vertical"
         onValuesChange={handleValuesChange}>
         <Form.Item
-          name="name"
           label={t("Integration Name")}
+          name="name"
           rules={[
             {
-              required: true,
               message: t("Please input the title of the integration!"),
+              required: true,
             },
           ]}>
           <Input />
         </Form.Item>
-        <Form.Item name="description" label={t("Description")}>
-          <TextArea rows={3} showCount maxLength={100} />
+        <Form.Item label={t("Description")} name="description">
+          <TextArea maxLength={100} rows={3} showCount />
         </Form.Item>
       </Form>
     </Modal>

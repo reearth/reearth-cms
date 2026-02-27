@@ -5,16 +5,16 @@ import Progress from "@reearth-cms/components/atoms/Progress";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  fieldsCreationLoading: boolean;
   fieldsCreationError?: boolean;
+  fieldsCreationLoading: boolean;
   onModalClose: () => void;
 };
 
 const AUTO_CLOSE_DELAY = 1000; // milliseconds
 
 const ImportingStep: React.FC<Props> = ({
-  fieldsCreationLoading,
   fieldsCreationError,
+  fieldsCreationLoading,
   onModalClose,
 }) => {
   const t = useT();
@@ -50,7 +50,7 @@ const ImportingStep: React.FC<Props> = ({
 
   return (
     <Container>
-      <Progress type="circle" percent={progress} />
+      <Progress percent={progress} type="circle" />
       <StatusText>{statusMessage}</StatusText>
     </Container>
   );

@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { Comment as CommentType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
@@ -25,10 +25,10 @@ describe("Comments panel", () => {
   const fromNow = dayjs(createdAt).fromNow();
   const commentId = "commentId";
   const comment: CommentType = {
-    id: commentId,
     author: { id: userId, name, type: null },
     content,
     createdAt,
+    id: commentId,
   };
   const onCommentUpdate = () => {
     return Promise.resolve();
@@ -40,12 +40,12 @@ describe("Comments panel", () => {
   test("Author thumbnail, name, createdAt, and content are visible successfully", async () => {
     render(
       <Comment
-        userId={userId}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
         comment={comment}
-        onCommentUpdate={onCommentUpdate}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
         onCommentDelete={onCommentDelete}
+        onCommentUpdate={onCommentUpdate}
+        userId={userId}
       />,
     );
 
@@ -58,12 +58,12 @@ describe("Comments panel", () => {
   test("Accurate creation time is visible when hovering createdAt text successfully", async () => {
     render(
       <Comment
-        userId={userId}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
         comment={comment}
-        onCommentUpdate={onCommentUpdate}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
         onCommentDelete={onCommentDelete}
+        onCommentUpdate={onCommentUpdate}
+        userId={userId}
       />,
     );
 
@@ -78,17 +78,17 @@ describe("Comments panel", () => {
 
     render(
       <Comment
-        userId={userId}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
         comment={{
-          id: commentId,
           author: { id: userId, name, type: null },
           content: headingContent,
           createdAt,
+          id: commentId,
         }}
-        onCommentUpdate={onCommentUpdate}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
         onCommentDelete={onCommentDelete}
+        onCommentUpdate={onCommentUpdate}
+        userId={userId}
       />,
     );
 
@@ -110,12 +110,12 @@ describe("Comments panel", () => {
   test("Buttons are invisible according to user right successfully", async () => {
     const { rerender } = render(
       <Comment
-        userId={userId}
-        hasUpdateRight={false}
-        hasDeleteRight={false}
         comment={comment}
-        onCommentUpdate={onCommentUpdate}
+        hasDeleteRight={false}
+        hasUpdateRight={false}
         onCommentDelete={onCommentDelete}
+        onCommentUpdate={onCommentUpdate}
+        userId={userId}
       />,
     );
 
@@ -124,12 +124,12 @@ describe("Comments panel", () => {
 
     rerender(
       <Comment
-        userId={userId}
-        hasUpdateRight={null}
-        hasDeleteRight={null}
         comment={comment}
-        onCommentUpdate={onCommentUpdate}
+        hasDeleteRight={null}
+        hasUpdateRight={null}
         onCommentDelete={onCommentDelete}
+        onCommentUpdate={onCommentUpdate}
+        userId={userId}
       />,
     );
 
@@ -138,12 +138,12 @@ describe("Comments panel", () => {
 
     rerender(
       <Comment
-        userId={""}
-        hasUpdateRight={null}
-        hasDeleteRight={null}
         comment={comment}
-        onCommentUpdate={onCommentUpdate}
+        hasDeleteRight={null}
+        hasUpdateRight={null}
         onCommentDelete={onCommentDelete}
+        onCommentUpdate={onCommentUpdate}
+        userId={""}
       />,
     );
 
@@ -156,12 +156,12 @@ describe("Comments panel", () => {
 
     render(
       <Comment
-        userId={userId}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
         comment={comment}
-        onCommentUpdate={onCommentUpdate}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
         onCommentDelete={onCommentDeleteMock}
+        onCommentUpdate={onCommentUpdate}
+        userId={userId}
       />,
     );
 
@@ -174,12 +174,12 @@ describe("Comments panel", () => {
 
     render(
       <Comment
-        userId={userId}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
         comment={comment}
-        onCommentUpdate={onCommentUpdateMock}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
         onCommentDelete={onCommentUpdate}
+        onCommentUpdate={onCommentUpdateMock}
+        userId={userId}
       />,
     );
 

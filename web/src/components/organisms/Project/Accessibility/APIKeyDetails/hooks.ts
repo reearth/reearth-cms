@@ -17,7 +17,7 @@ import { useProject, useUserRights, useWorkspace } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
-  const { workspaceId, projectId, keyId } = useParams();
+  const { keyId, projectId, workspaceId } = useParams();
   const [currentWorkspace] = useWorkspace();
   const [currentProject] = useProject();
   const navigate = useNavigate();
@@ -43,11 +43,11 @@ export default () => {
   );
 
   const { data: modelsData } = useQuery(GetModelsDocument, {
-    variables: {
-      projectId: currentProject?.id ?? "",
-      pagination: { first: 100 },
-    },
     skip: !currentProject?.id,
+    variables: {
+      pagination: { first: 100 },
+      projectId: currentProject?.id ?? "",
+    },
   });
 
   const models = useMemo(
@@ -71,14 +71,14 @@ export default () => {
     );
 
     return {
-      name: currentKey?.name ?? "",
+      assetPublic: currentKey?.publication.publicAssets ?? false,
       description: currentKey?.description ?? "",
       key: currentKey?.key ?? "",
-      assetPublic: currentKey?.publication.publicAssets ?? false,
       models: models.reduce<Record<string, boolean>>((acc, model) => {
         acc[model.id] = publicModelSet.has(model.id);
         return acc;
       }, {}),
+      name: currentKey?.name ?? "",
     };
   }, [
     isNewKey,
@@ -95,14 +95,14 @@ export default () => {
     async (
       name: string,
       description: string,
-      publication: { publicModels: string[]; publicAssets: boolean },
+      publication: { publicAssets: boolean; publicModels: string[]; },
     ) => {
       if (!currentProject?.id) return;
       const result = await createAPIKeyMutation({
         variables: {
-          projectId: currentProject.id,
-          name,
           description,
+          name,
+          projectId: currentProject.id,
           publication,
         },
       });
@@ -123,15 +123,15 @@ export default () => {
       id: string,
       name: string,
       description: string,
-      publication: { publicModels: string[]; publicAssets: boolean },
+      publication: { publicAssets: boolean; publicModels: string[]; },
     ) => {
       if (!currentProject?.id) return;
       const result = await updateAPIKeyMutation({
         variables: {
-          id,
-          projectId: currentProject.id,
-          name,
           description,
+          id,
+          name,
+          projectId: currentProject.id,
           publication,
         },
       });
@@ -149,8 +149,8 @@ export default () => {
       if (!currentProject?.id || !id) return;
       const result = await regenerateAPIKeyMutation({
         variables: {
-          projectId: currentProject.id,
           id,
+          projectId: currentProject.id,
         },
       });
       if (result.error || !result.data?.regenerateAPIKey) {
@@ -180,22 +180,22 @@ export default () => {
 
   return {
     apiUrl,
-    keyId,
-    currentProject,
-    currentKey,
     createLoading,
-    hasPublishRight,
+    currentKey,
+    currentProject,
+    handleAPIKeyCreate,
+    handleAPIKeyRegenerate,
+    handleAPIKeyUpdate,
+    handleBack,
     hasCreateRight,
+    hasPublishRight,
     hasUpdateRight,
     initialValues,
     isNewKey,
+    keyId,
     keyModels: models,
-    updateLoading,
     regenerateLoading,
     topRef,
-    handleAPIKeyCreate,
-    handleAPIKeyUpdate,
-    handleAPIKeyRegenerate,
-    handleBack,
+    updateLoading,
   };
 };

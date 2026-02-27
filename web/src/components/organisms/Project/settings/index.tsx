@@ -4,28 +4,28 @@ import useHooks from "./hooks";
 
 const ProjectSettings: React.FC = () => {
   const {
-    project,
-    hasUpdateRight,
+    handleProjectAliasCheck,
+    handleProjectDelete,
+    handleProjectRequestRolesUpdate,
+    handleProjectUpdate,
+    handleProjectVisibilityChange,
     hasDeleteRight,
     hasPublishRight,
-    handleProjectDelete,
-    handleProjectUpdate,
-    handleProjectRequestRolesUpdate,
-    handleProjectAliasCheck,
-    handleProjectVisibilityChange,
+    hasUpdateRight,
+    project,
   } = useHooks();
 
   return (
     <ProjectSettingsWrapper
-      project={project}
-      hasUpdateRight={hasUpdateRight}
       hasDeleteRight={hasDeleteRight}
       hasPublishRight={hasPublishRight}
-      onProjectDelete={handleProjectDelete}
-      onProjectUpdate={handleProjectUpdate}
-      onProjectRequestRolesUpdate={handleProjectRequestRolesUpdate}
+      hasUpdateRight={hasUpdateRight}
       onProjectAliasCheck={handleProjectAliasCheck}
+      onProjectDelete={handleProjectDelete}
+      onProjectRequestRolesUpdate={handleProjectRequestRolesUpdate}
+      onProjectUpdate={handleProjectUpdate}
       onProjectVisibilityChange={handleProjectVisibilityChange}
+      project={project}
     />
   );
 };

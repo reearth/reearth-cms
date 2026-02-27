@@ -1,7 +1,7 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-test.beforeEach(async ({ reearth, projectPage }) => {
+test.beforeEach(async ({ projectPage, reearth }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
@@ -14,8 +14,8 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("@smoke Date field creating and updating has succeeded", async ({
-  fieldEditorPage,
   contentPage,
+  fieldEditorPage,
 }) => {
   await fieldEditorPage.fieldTypeButton("Date").click();
   await fieldEditorPage.displayNameInput.click();
@@ -48,7 +48,7 @@ test("@smoke Date field creating and updating has succeeded", async ({
   await expect(contentPage.tableBody).not.toContainText("2024-01-01");
 });
 
-test("Date field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
+test("Date field editing has succeeded", async ({ contentPage, fieldEditorPage, schemaPage }) => {
   await fieldEditorPage.fieldTypeListItem("Date").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("date1");

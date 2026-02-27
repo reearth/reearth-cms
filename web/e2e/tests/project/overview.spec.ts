@@ -4,7 +4,7 @@ import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 const isCI = !!process.env.CI;
 
-test.beforeEach(async ({ reearth, projectPage }) => {
+test.beforeEach(async ({ projectPage, reearth }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
@@ -16,9 +16,9 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("@smoke Model CRUD on Overview page has succeeded", async ({
-  schemaPage,
-  projectPage,
   page,
+  projectPage,
+  schemaPage,
 }) => {
   await test.step("Create new model from overview page", async () => {
     await expect(projectPage.noModelsYetText).toBeVisible();
@@ -78,9 +78,9 @@ test.describe("Model Export tests on Overview page", () => {
   });
 
   test("Model Export as JSON on Overview page has succeeded", async ({
-    schemaPage,
-    projectPage,
     page,
+    projectPage,
+    schemaPage,
   }) => {
     await test.step("Create new model", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
@@ -108,9 +108,9 @@ test.describe("Model Export tests on Overview page", () => {
   });
 
   test("Model Export as CSV on Overview page has succeeded", async ({
-    schemaPage,
-    projectPage,
     page,
+    projectPage,
+    schemaPage,
   }) => {
     await test.step("Create new model", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
@@ -144,7 +144,7 @@ test.describe("Model Export tests on Overview page", () => {
     });
   });
 
-  test("Model Export Schema has succeeded", async ({ schemaPage, projectPage, page }) => {
+  test("Model Export Schema has succeeded", async ({ page, projectPage, schemaPage }) => {
     await test.step("Create new model", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
       await projectPage.newModelButtonFirst.click();
@@ -168,9 +168,9 @@ test.describe("Model Export tests on Overview page", () => {
   });
 
   test("Model Export as GeoJSON without geometry field shows error", async ({
-    schemaPage,
-    projectPage,
     page,
+    projectPage,
+    schemaPage,
   }) => {
     await test.step("Create model without geometry field", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
@@ -201,10 +201,10 @@ test.describe("Model Export tests on Overview page", () => {
   });
 
   test("Model Export as GeoJSON with single geometry field succeeds", async ({
-    schemaPage,
-    projectPage,
     fieldEditorPage,
     page,
+    projectPage,
+    schemaPage,
   }) => {
     await test.step("Create model and add geometry field", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
@@ -243,10 +243,10 @@ test.describe("Model Export tests on Overview page", () => {
   });
 
   test("Model Export as GeoJSON with multiple geometry fields shows warning", async ({
-    schemaPage,
-    projectPage,
     fieldEditorPage,
     page,
+    projectPage,
+    schemaPage,
   }) => {
     await test.step("Create model and add two geometry fields", async () => {
       await expect(projectPage.noModelsYetText).toBeVisible();
@@ -302,9 +302,9 @@ test.describe("Model Export tests on Overview page", () => {
 });
 
 test("Import schema dropdown redirects to schema page correctly, with import schema modal opened", async ({
-  schemaPage,
-  projectPage,
   page,
+  projectPage,
+  schemaPage,
 }) => {
   const modelName = `model-${getId()}`;
   const modelKey = `model-key-${getId()}`;
@@ -336,8 +336,8 @@ test("Import schema dropdown redirects to schema page correctly, with import sch
 });
 
 test("Creating Model by using the button on placeholder has succeeded", async ({
-  projectPage,
   page,
+  projectPage,
 }) => {
   await test.step("Create model using placeholder button", async () => {
     await projectPage.newModelButtonLast.click();

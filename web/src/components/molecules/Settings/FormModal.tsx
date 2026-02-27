@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form, { Rule } from "@reearth-cms/components/atoms/Form";
@@ -6,10 +6,10 @@ import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
 import {
-  TileType,
+  TerrainInput,
   TerrainType,
   TileInput,
-  TerrainInput,
+  TileType,
   WorkspaceSettings,
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
@@ -17,14 +17,15 @@ import { newID } from "@reearth-cms/utils/id";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 type FormValues = {
-  type: TileType | TerrainType;
-  name?: string;
-  url?: string;
-  image?: string;
-  cesiumIonAssetId?: string;
   cesiumIonAccessToken?: string;
+  cesiumIonAssetId?: string;
+  image?: string;
+  name?: string;
+  type: TerrainType | TileType;
+  url?: string;
 };
 
+/* eslint-disable perfectionist/sort-objects -- Order defines dropdown option order; first entry is the default */
 export const TileTypeFormat: Record<TileType, string> = {
   DEFAULT: "Default",
   LABELLED: "Labelled",
@@ -41,25 +42,26 @@ export const TerrainTypeFormat: Record<TerrainType, string> = {
   ARC_GIS_TERRAIN: "ArcGIS Terrain",
   CESIUM_ION: "Cesium Ion",
 };
+/* eslint-enable perfectionist/sort-objects */
 
 type Props = {
-  open: boolean;
-  onClose: () => void;
-  tiles: TileInput[];
-  terrains: TerrainInput[];
-  setSettings: React.Dispatch<React.SetStateAction<WorkspaceSettings | undefined>>;
-  isTile: boolean;
   index?: number;
+  isTile: boolean;
+  onClose: () => void;
+  open: boolean;
+  setSettings: React.Dispatch<React.SetStateAction<undefined | WorkspaceSettings>>;
+  terrains: TerrainInput[];
+  tiles: TileInput[];
 };
 
 const FormModal: React.FC<Props> = ({
-  open,
-  onClose,
-  tiles,
-  terrains,
-  setSettings,
-  isTile,
   index,
+  isTile,
+  onClose,
+  open,
+  setSettings,
+  terrains,
+  tiles,
 }) => {
   const t = useT();
   const [form] = Form.useForm<FormValues>();
@@ -68,8 +70,8 @@ const FormModal: React.FC<Props> = ({
   const options = useMemo(() => {
     const typeFormat = isTile ? TileTypeFormat : TerrainTypeFormat;
     return Object.keys(typeFormat).map(key => ({
-      value: key,
       label: typeFormat[key as keyof typeof typeFormat],
+      value: key,
     }));
   }, [isTile]);
 
@@ -120,7 +122,7 @@ const FormModal: React.FC<Props> = ({
 
   const handleSubmit = useCallback(async () => {
     const values = await form.validateFields();
-    const { type, name, url, image, cesiumIonAssetId, cesiumIonAccessToken } = values;
+    const { cesiumIonAccessToken, cesiumIonAssetId, image, name, type, url } = values;
     setSettings(prevState => {
       if (!prevState) return;
       const copySettings = structuredClone(prevState);
@@ -132,8 +134,8 @@ const FormModal: React.FC<Props> = ({
         }
         const newTile = {
           id: newID(),
+          props: { image: image ?? "", name: name ?? "", url: url ?? "" },
           type: type as TileType,
-          props: { name: name ?? "", url: url ?? "", image: image ?? "" },
         };
         if (index === undefined) {
           copySettings.tiles.resources.push(newTile);
@@ -148,14 +150,14 @@ const FormModal: React.FC<Props> = ({
         }
         const newTerrain = {
           id: newID(),
-          type: type as TerrainType,
           props: {
+            cesiumIonAccessToken: cesiumIonAccessToken ?? "",
+            cesiumIonAssetId: cesiumIonAssetId ?? "",
+            image: image ?? "",
             name: name ?? "",
             url: url ?? "",
-            image: image ?? "",
-            cesiumIonAssetId: cesiumIonAssetId ?? "",
-            cesiumIonAccessToken: cesiumIonAccessToken ?? "",
           },
+          type: type as TerrainType,
         };
         if (index === undefined) {
           copySettings.terrains.resources.push(newTerrain);
@@ -182,46 +184,46 @@ const FormModal: React.FC<Props> = ({
 
   return (
     <Modal
-      open={open}
-      onCancel={handleClose}
-      title={title}
       footer={[
-        <Button key="submit" type="primary" onClick={handleSubmit}>
+        <Button key="submit" onClick={handleSubmit} type="primary">
           OK
         </Button>,
-      ]}>
+      ]}
+      onCancel={handleClose}
+      open={open}
+      title={title}>
       <Form form={form} layout="vertical">
-        <Form.Item name="type" label={isTile ? t("Tiles type") : t("Terrain type")}>
-          <Select options={options} onSelect={handleSelect} />
+        <Form.Item label={isTile ? t("Tiles type") : t("Terrain type")} name="type">
+          <Select onSelect={handleSelect} options={options} />
         </Form.Item>
         {extraOpen ? (
           isTile ? (
             <>
-              <Form.Item name="name" label={t("Name")} extra={t("Name of tiles")}>
+              <Form.Item extra={t("Name of tiles")} label={t("Name")} name="name">
                 <Input />
               </Form.Item>
-              <Form.Item name="url" label={t("URL")} rules={urlRules}>
+              <Form.Item label={t("URL")} name="url" rules={urlRules}>
                 <Input />
               </Form.Item>
-              <Form.Item name="image" label={t("Image URL")} rules={urlRules}>
+              <Form.Item label={t("Image URL")} name="image" rules={urlRules}>
                 <Input />
               </Form.Item>
             </>
           ) : (
             <>
-              <Form.Item name="name" label={t("Name")} extra={t("Name of terrain")}>
+              <Form.Item extra={t("Name of terrain")} label={t("Name")} name="name">
                 <Input />
               </Form.Item>
-              <Form.Item name="cesiumIonAssetId" label={t("Terrain Cesium Ion asset ID")}>
+              <Form.Item label={t("Terrain Cesium Ion asset ID")} name="cesiumIonAssetId">
                 <Input />
               </Form.Item>
-              <Form.Item name="cesiumIonAccessToken" label={t("Terrain Cesium Ion access token")}>
+              <Form.Item label={t("Terrain Cesium Ion access token")} name="cesiumIonAccessToken">
                 <Input />
               </Form.Item>
-              <Form.Item name="url" label={t("Terrain URL")} rules={urlRules}>
+              <Form.Item label={t("Terrain URL")} name="url" rules={urlRules}>
                 <Input />
               </Form.Item>
-              <Form.Item name="image" label={t("Image URL")} rules={urlRules}>
+              <Form.Item label={t("Image URL")} name="image" rules={urlRules}>
                 <Input />
               </Form.Item>
             </>

@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import MemberAddModal from ".";
 
@@ -10,7 +10,7 @@ describe("Member add modal", () => {
   const open = true;
   const searchLoading = false;
   const addLoading = false;
-  const member = { id: "id", name: "name", email: "email@test.com" };
+  const member = { email: "email@test.com", id: "id", name: "name" };
   const onUserSearch = () => {
     return Promise.resolve([member]);
   };
@@ -25,12 +25,12 @@ describe("Member add modal", () => {
 
     render(
       <MemberAddModal
-        open={open}
-        searchLoading={searchLoading}
         addLoading={addLoading}
-        onUserSearch={onUserSearchMock}
         onClose={onClose}
         onSubmit={onUsersAddToWorkspaceMock}
+        onUserSearch={onUserSearchMock}
+        open={open}
+        searchLoading={searchLoading}
       />,
     );
 
@@ -55,18 +55,18 @@ describe("Member add modal", () => {
     expect(screen.getByText("Writer")).toBeVisible();
 
     await user.click(addButton);
-    expect(onUsersAddToWorkspaceMock).toBeCalledWith([{ userId: member.id, role: "READER" }]);
+    expect(onUsersAddToWorkspaceMock).toBeCalledWith([{ role: "READER", userId: member.id }]);
   });
 
   test("Loadings are displayed successfully", async () => {
     render(
       <MemberAddModal
-        open={open}
-        searchLoading={true}
         addLoading={true}
-        onUserSearch={onUserSearch}
         onClose={onClose}
         onSubmit={onUsersAddToWorkspace}
+        onUserSearch={onUserSearch}
+        open={open}
+        searchLoading={true}
       />,
     );
 

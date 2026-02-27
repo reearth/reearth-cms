@@ -1,4 +1,4 @@
-import { type Page, type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { type Locator, type Page } from "@reearth-cms/e2e/fixtures/test";
 import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 type Role =
@@ -41,12 +41,12 @@ type Role =
   | "main"
   | "marquee"
   | "math"
-  | "meter"
   | "menu"
   | "menubar"
   | "menuitem"
   | "menuitemcheckbox"
   | "menuitemradio"
+  | "meter"
   | "navigation"
   | "none"
   | "note"
@@ -104,24 +104,24 @@ export abstract class BasePage {
     await closeNotification(this.page, isSuccess);
   }
 
-  getByText(text: string | RegExp, options?: { exact?: boolean }): Locator {
+  getByText(text: RegExp | string, options?: { exact?: boolean }): Locator {
     return this.page.getByText(text, options);
   }
 
-  getByTitle(text: string | RegExp, options?: { exact?: boolean }): Locator {
+  getByTitle(text: RegExp | string, options?: { exact?: boolean }): Locator {
     return this.page.getByTitle(text, options);
   }
 
-  getByRole(role: Role, options?: { name?: string | RegExp; exact?: boolean }): Locator {
+  getByRole(role: Role, options?: { exact?: boolean; name?: RegExp | string; }): Locator {
     return this.page.getByRole(role, options);
   }
 
-  getByTestId(testId: string | RegExp): Locator {
+  getByTestId(testId: RegExp | string): Locator {
     return this.page.getByTestId(testId);
   }
 
   getByLabel(
-    text: string | RegExp,
+    text: RegExp | string,
     options?:
       | {
           exact?: boolean | undefined;

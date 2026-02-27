@@ -3,26 +3,26 @@ import "@scalar/api-reference-react/style.css";
 import { FC } from "react";
 
 export type Props = {
-  specUrl: string;
   className?: string;
+  specUrl: string;
 };
 
-const ApiDocs: FC<Props> = ({ specUrl, className }) => {
+const ApiDocs: FC<Props> = ({ className, specUrl }) => {
   return (
     <div className={className}>
       <ApiReferenceReact
         configuration={{
+          customCss: `.scalar-app .h-dvh { height: calc(100dvh - 48px); }`,
+          darkMode: false,
+          forceDarkModeState: "light",
+          hideClientButton: true,
+          hideDarkModeToggle: true,
+          hideDownloadButton: false,
+          hideModels: false,
+          showToolbar: "never",
           spec: {
             url: specUrl,
           },
-          customCss: `.scalar-app .h-dvh { height: calc(100dvh - 48px); }`,
-          hideModels: false,
-          hideDownloadButton: false,
-          darkMode: false,
-          forceDarkModeState: "light",
-          hideDarkModeToggle: true,
-          hideClientButton: true,
-          showToolbar: "never",
         }}
       />
     </div>

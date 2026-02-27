@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, test, describe } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import Accessibility from ".";
 
@@ -14,15 +14,15 @@ describe("Accessibility", () => {
   const model1Id = "model1Id";
   const model1Name = "model1Name";
   const model1Key = "model1Key";
-  const models = [{ id: model1Id, name: model1Name, key: model1Key }];
+  const models = [{ id: model1Id, key: model1Key, name: model1Name }];
   const updateLoading = false;
   const apiUrl = "https://test.com/api/";
   const alias = "alias";
   const initialValues = {
-    scope: "PRIVATE" as const,
     alias,
     assetPublic: false,
     models: { [model1Id]: false },
+    scope: "PRIVATE" as const,
   };
   const onAPIKeyNew = () => {
     return Promise.resolve();
@@ -43,20 +43,20 @@ describe("Accessibility", () => {
   test("Scope, alias, and public status and API end point of models and assets are displayed successfully", async () => {
     render(
       <Accessibility
-        initialValues={initialValues}
+        alias={alias}
+        apiUrl={apiUrl}
         hasCreateRight={hasCreateRight}
-        hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
         hasPublishRight={hasPublishRight}
+        hasUpdateRight={hasUpdateRight}
+        initialValues={initialValues}
         models={models}
-        updateLoading={updateLoading}
-        apiUrl={apiUrl}
-        alias={alias}
-        onAPIKeyNew={onAPIKeyNew}
         onAPIKeyDelete={onAPIKeyDelete}
         onAPIKeyEdit={onAPIKeyEdit}
+        onAPIKeyNew={onAPIKeyNew}
         onPublicUpdate={onPublicUpdate}
         onSettingsPageOpen={onSettingsPageOpen}
+        updateLoading={updateLoading}
       />,
     );
 
@@ -79,20 +79,20 @@ describe("Accessibility", () => {
   test("Toggle save button successfully", async () => {
     render(
       <Accessibility
-        initialValues={initialValues}
+        alias={alias}
+        apiUrl={apiUrl}
         hasCreateRight={hasCreateRight}
-        hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
         hasPublishRight={hasPublishRight}
+        hasUpdateRight={hasUpdateRight}
+        initialValues={initialValues}
         models={models}
-        updateLoading={updateLoading}
-        apiUrl={apiUrl}
-        alias={alias}
-        onAPIKeyNew={onAPIKeyNew}
         onAPIKeyDelete={onAPIKeyDelete}
         onAPIKeyEdit={onAPIKeyEdit}
+        onAPIKeyNew={onAPIKeyNew}
         onPublicUpdate={onPublicUpdate}
         onSettingsPageOpen={onSettingsPageOpen}
+        updateLoading={updateLoading}
       />,
     );
 
@@ -121,20 +121,20 @@ describe("Accessibility", () => {
   test("Disable switch and button according to user right successfully", async () => {
     render(
       <Accessibility
-        initialValues={initialValues}
+        alias={alias}
+        apiUrl={apiUrl}
         hasCreateRight={hasCreateRight}
-        hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
         hasPublishRight={false}
+        hasUpdateRight={hasUpdateRight}
+        initialValues={initialValues}
         models={models}
-        updateLoading={updateLoading}
-        apiUrl={apiUrl}
-        alias={alias}
-        onAPIKeyNew={onAPIKeyNew}
         onAPIKeyDelete={onAPIKeyDelete}
         onAPIKeyEdit={onAPIKeyEdit}
+        onAPIKeyNew={onAPIKeyNew}
         onPublicUpdate={onPublicUpdate}
         onSettingsPageOpen={onSettingsPageOpen}
+        updateLoading={updateLoading}
       />,
     );
 

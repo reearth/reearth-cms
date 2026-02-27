@@ -42,31 +42,30 @@ export abstract class Test {
   };
 
   public static readonly GEO_JSON_POINT: GeoJSONPoint = {
-    type: "Point",
     coordinates: [139.6917, 35.6895],
+    type: "Point",
   };
 
   public static readonly GEO_JSON_MULTI_POINT: GeoJSONMultiPoint = {
-    type: "MultiPoint",
     coordinates: [
       [139.6917, 35.6895],
       [139.7673, 35.6812],
       [139.7514, 35.6938],
     ],
+    type: "MultiPoint",
   };
 
   public static readonly GEO_JSON_LINE_STRING: GeoJSONLineString = {
-    type: "LineString",
     coordinates: [
       [139.6917, 35.6895],
       [139.7673, 35.6812],
       [139.7514, 35.6938],
       [139.7026, 35.658],
     ],
+    type: "LineString",
   };
 
   public static readonly GEO_JSON_MULTI_LINE_STRING = {
-    type: "MultiLineString",
     coordinates: [
       [
         [139.6917, 35.6895],
@@ -77,10 +76,10 @@ export abstract class Test {
         [139.7026, 35.658],
       ],
     ],
+    type: "MultiLineString",
   };
 
   public static readonly GEO_JSON_POLYGON: GeoJSONPolygon = {
-    type: "Polygon",
     coordinates: [
       [
         [139.6917, 35.6895],
@@ -90,10 +89,10 @@ export abstract class Test {
         [139.6917, 35.6895],
       ],
     ],
+    type: "Polygon",
   };
 
   public static readonly GEO_JSON_MULTI_POLYGON: GeoJSONMultiPolygon = {
-    type: "MultiPolygon",
     coordinates: [
       [
         [
@@ -121,20 +120,21 @@ export abstract class Test {
         ],
       ],
     ],
+    type: "MultiPolygon",
   };
 
   public static readonly GEO_JSON_GEO_COLLECTION: GeoJSONGeometryCollection = {
-    type: "GeometryCollection",
     geometries: [
-      { type: "Point", coordinates: [100.0, 0.0] },
+      { coordinates: [100.0, 0.0], type: "Point" },
       {
-        type: "LineString",
         coordinates: [
           [101.0, 0.0],
           [102.0, 1.0],
         ],
+        type: "LineString",
       },
     ],
+    type: "GeometryCollection",
   };
 
   public static getDataTestIdFromSchemaFieldType(fieldType: SchemaFieldType) {

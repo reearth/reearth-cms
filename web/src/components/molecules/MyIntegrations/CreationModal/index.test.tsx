@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import IntegrationCreationModal from ".";
 
@@ -17,10 +17,10 @@ describe("Integration creation modal", () => {
   test("Name and description input are displayed successfully", async () => {
     render(
       <IntegrationCreationModal
-        open={open}
         loading={createLoading}
         onClose={onClose}
         onIntegrationCreate={onIntegrationCreate}
+        open={open}
       />,
     );
 
@@ -33,10 +33,10 @@ describe("Integration creation modal", () => {
 
     render(
       <IntegrationCreationModal
-        open={open}
         loading={createLoading}
         onClose={onClose}
         onIntegrationCreate={onIntegrationCreateMock}
+        open={open}
       />,
     );
 
@@ -51,10 +51,10 @@ describe("Integration creation modal", () => {
   test("Create button is toggled successfully", async () => {
     render(
       <IntegrationCreationModal
-        open={open}
         loading={createLoading}
         onClose={onClose}
         onIntegrationCreate={onIntegrationCreate}
+        open={open}
       />,
     );
 
@@ -73,10 +73,10 @@ describe("Integration creation modal", () => {
   test("Loading is displayed and cancel button is disabled successfully", async () => {
     render(
       <IntegrationCreationModal
-        open={open}
         loading={true}
         onClose={onClose}
         onIntegrationCreate={onIntegrationCreate}
+        open={open}
       />,
     );
 

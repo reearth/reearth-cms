@@ -18,22 +18,22 @@ import { ImportFieldInput } from "../types";
 
 export type Props = {
   fields: ImportFieldInput[];
-  fieldTypeOptions: { value: string; label: JSX.Element }[];
-  onDragEnd: (fromIndex: number, toIndex: number) => void;
-  onToggleFieldHide: (id: string) => void;
-  onToggleAllFieldsHide: () => void;
-  hasUpdateRight: boolean;
+  fieldTypeOptions: { label: JSX.Element; value: string; }[];
   hasDeleteRight: boolean;
+  hasUpdateRight: boolean;
+  onDragEnd: (fromIndex: number, toIndex: number) => void;
+  onToggleAllFieldsHide: () => void;
+  onToggleFieldHide: (id: string) => void;
 };
 
 const SchemaPreviewStep: React.FC<Props> = ({
   fields,
   fieldTypeOptions,
-  onDragEnd,
-  onToggleFieldHide,
-  onToggleAllFieldsHide,
-  hasUpdateRight,
   hasDeleteRight,
+  hasUpdateRight,
+  onDragEnd,
+  onToggleAllFieldsHide,
+  onToggleFieldHide,
 }) => {
   const t = useT();
 
@@ -68,8 +68,8 @@ const SchemaPreviewStep: React.FC<Props> = ({
           </HeaderCol>
           <Col span={1}>
             <Checkbox
-              data-testid={DATA_TEST_ID.SchemaPreviewStep__PreviewSkipAllCheckbox}
               checked={isAllChecked}
+              data-testid={DATA_TEST_ID.SchemaPreviewStep__PreviewSkipAllCheckbox}
               indeterminate={indeterminate}
               onClick={onToggleAllFieldsHide}
             />
@@ -78,9 +78,9 @@ const SchemaPreviewStep: React.FC<Props> = ({
       </Section>
 
       <ReactDragListView
-        nodeSelector=".ant-list-item"
         handleSelector=".grabbable"
         lineClassName="dragLine"
+        nodeSelector=".ant-list-item"
         onDragEnd={onDragEnd}>
         <FieldStyledList
           data-testid={DATA_TEST_ID.SchemaPreviewStep__PreviewFieldList}
@@ -92,7 +92,7 @@ const SchemaPreviewStep: React.FC<Props> = ({
                   <Row>
                     <VerticalCenterCol span={1}>
                       <FieldThumbnail>
-                        {hasUpdateRight && <DragIcon icon="menu" className="grabbable" />}
+                        {hasUpdateRight && <DragIcon className="grabbable" icon="menu" />}
                       </FieldThumbnail>
                     </VerticalCenterCol>
                     <AlignLeftCol span={11}>
@@ -109,10 +109,7 @@ const SchemaPreviewStep: React.FC<Props> = ({
                     <AlignLeftCol span={11}>{fieldLabel(field)}</AlignLeftCol>
                     <VerticalCenterCol span={1}>
                       <Button
-                        type="text"
-                        shape="circle"
-                        size="small"
-                        onClick={() => onToggleFieldHide(field.key)}
+                        disabled={!hasDeleteRight}
                         icon={
                           <Tooltip title={field.hidden ? t("Not import") : t("Import")}>
                             <Checkbox
@@ -121,7 +118,10 @@ const SchemaPreviewStep: React.FC<Props> = ({
                             />
                           </Tooltip>
                         }
-                        disabled={!hasDeleteRight}
+                        onClick={() => onToggleFieldHide(field.key)}
+                        shape="circle"
+                        size="small"
+                        type="text"
                       />
                     </VerticalCenterCol>
                   </Row>

@@ -1,7 +1,7 @@
 import { InputNumber as AntDInputNumber, InputNumberProps } from "antd";
 import { useMemo } from "react";
 
-const InputNumber: <T extends string | number>(
+const InputNumber: <T extends number | string>(
   props: React.PropsWithChildren<InputNumberProps<T>> & React.RefAttributes<HTMLInputElement>,
 ) => React.ReactElement = ({ value, ...props }) => {
   const status = useMemo(() => {
@@ -14,7 +14,7 @@ const InputNumber: <T extends string | number>(
     }
   }, [props.max, props.min, value]);
 
-  return <AntDInputNumber value={value} status={status} style={{ width: "100%" }} {...props} />;
+  return <AntDInputNumber status={status} style={{ width: "100%" }} value={value} {...props} />;
 };
 
 export default InputNumber;

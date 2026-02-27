@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import React, { useCallback, useState, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import AutoComplete from "@reearth-cms/components/atoms/AutoComplete";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -8,18 +8,18 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Search from "@reearth-cms/components/atoms/Search";
 import Select from "@reearth-cms/components/atoms/Select";
-import { User, Role } from "@reearth-cms/components/molecules/Member/types";
-import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
+import { Role, User } from "@reearth-cms/components/molecules/Member/types";
+import { MemberInput, UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  open: boolean;
-  workspaceUserMembers?: UserMember[];
-  searchLoading: boolean;
   addLoading: boolean;
-  onUserSearch: (nameOrEmail: string) => Promise<User[]>;
   onClose: () => void;
   onSubmit: (users: MemberInput[]) => Promise<void>;
+  onUserSearch: (nameOrEmail: string) => Promise<User[]>;
+  open: boolean;
+  searchLoading: boolean;
+  workspaceUserMembers?: UserMember[];
 };
 
 type FormValues = { search: string } & Record<string, Role>;
@@ -27,21 +27,21 @@ type FormValues = { search: string } & Record<string, Role>;
 const { Option } = Select;
 
 const MemberAddModal: React.FC<Props> = ({
-  open,
-  workspaceUserMembers,
-  searchLoading,
   addLoading,
-  onUserSearch,
   onClose,
   onSubmit,
+  onUserSearch,
+  open,
+  searchLoading,
+  workspaceUserMembers,
 }) => {
   const t = useT();
   const [form] = Form.useForm<FormValues>();
   const [options, setOptions] = useState<
     {
-      value: string;
-      user: User;
       label: JSX.Element;
+      user: User;
+      value: string;
     }[]
   >([]);
   const [isResultOpen, setIsResultOpen] = useState(false);
@@ -53,7 +53,7 @@ const MemberAddModal: React.FC<Props> = ({
     setOptions([]);
   }, []);
 
-  const timeout = useRef<ReturnType<typeof setTimeout> | null>();
+  const timeout = useRef<null | ReturnType<typeof setTimeout>>();
 
   const handleMemberNameChange = useCallback(
     (value: string) => {
@@ -95,8 +95,6 @@ const MemberAddModal: React.FC<Props> = ({
   useEffect(() => {
     if (searchedUsers.length) {
       const options = searchedUsers.map(user => ({
-        value: user.id,
-        user,
         label: (
           <UserWrapper>
             <UserInfo>
@@ -105,6 +103,8 @@ const MemberAddModal: React.FC<Props> = ({
             </UserInfo>
           </UserWrapper>
         ),
+        user,
+        value: user.id,
       }));
       setOptions(options);
     } else {
@@ -141,8 +141,8 @@ const MemberAddModal: React.FC<Props> = ({
     try {
       await onSubmit(
         selectedUsers.map(user => ({
-          userId: user.id,
           role: values[user.id] ?? "READER",
+          userId: user.id,
         })),
       );
       setSearchedUsers([]);
@@ -160,47 +160,47 @@ const MemberAddModal: React.FC<Props> = ({
 
   return (
     <StyledModal
-      title={t("Add member")}
-      open={open}
-      onCancel={handleClose}
       footer={[
-        <Button key="back" onClick={handleClose} disabled={addLoading}>
+        <Button disabled={addLoading} key="back" onClick={handleClose}>
           {t("Cancel")}
         </Button>,
         <Button
+          disabled={selectedUsers.length === 0}
           key="submit"
-          type="primary"
-          onClick={handleSubmit}
           loading={addLoading}
-          disabled={selectedUsers.length === 0}>
+          onClick={handleSubmit}
+          type="primary">
           {t("Add to workspace")}
         </Button>,
-      ]}>
+      ]}
+      onCancel={handleClose}
+      open={open}
+      title={t("Add member")}>
       {open && (
         <Form form={form} layout="vertical">
           <Form.Item label={t("Search user")} name="search">
             <AutoComplete
-              open={isResultOpen}
-              options={options}
-              popupMatchSelectWidth={433}
               notFoundContent={t("No result")}
-              onSearch={handleMemberNameChange}
+              onBlur={() => {
+                setIsResultOpen(false);
+              }}
               onFocus={() => {
                 if (options?.length) {
                   setIsResultOpen(true);
                 }
               }}
-              onBlur={() => {
-                setIsResultOpen(false);
-              }}
+              onSearch={handleMemberNameChange}
               onSelect={(_, option) => {
                 handleSelect(option.user);
-              }}>
+              }}
+              open={isResultOpen}
+              options={options}
+              popupMatchSelectWidth={433}>
               <Search
-                size="large"
                 allowClear
                 loading={searchLoading}
                 placeholder={t("Email address or user name")}
+                size="large"
               />
             </AutoComplete>
           </Form.Item>
@@ -221,10 +221,10 @@ const MemberAddModal: React.FC<Props> = ({
                     </Select>
                   </FormItemRole>
                   <Button
-                    type="text"
-                    shape="circle"
-                    onClick={() => handleMemberRemove(user.id)}
                     icon={<Icon icon="close" />}
+                    onClick={() => handleMemberRemove(user.id)}
+                    shape="circle"
+                    type="text"
                   />
                 </Actions>
               </SelectedUser>

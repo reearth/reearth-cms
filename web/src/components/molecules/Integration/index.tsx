@@ -8,45 +8,45 @@ import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
 type Props = {
-  loading: boolean;
-  workspaceIntegrations?: WorkspaceIntegration[];
-  onSearchTerm: (term?: string) => void;
-  setSelectedIntegration: (integration: WorkspaceIntegration) => void;
-  onIntegrationRemove: (integrationIds: string[]) => Promise<void>;
+  addLoading: boolean;
   deleteLoading: boolean;
+  hasConnectRight: boolean;
+  hasDeleteRight: boolean;
+  hasUpdateRight: boolean;
+  loading: boolean;
+  myIntegrations?: Integration[];
+  onIntegrationConnect: (integrationId: string) => Promise<void>;
+  onIntegrationRemove: (integrationIds: string[]) => Promise<void>;
+  onSearchTerm: (term?: string) => void;
+  onTableChange: (page: number, pageSize: number) => void;
+  onUpdateIntegration: (role: Role) => Promise<void>;
   page: number;
   pageSize: number;
-  onTableChange: (page: number, pageSize: number) => void;
-  hasConnectRight: boolean;
-  hasUpdateRight: boolean;
-  hasDeleteRight: boolean;
-  myIntegrations?: Integration[];
-  addLoading: boolean;
-  onIntegrationConnect: (integrationId: string) => Promise<void>;
   selectedIntegration?: WorkspaceIntegration;
+  setSelectedIntegration: (integration: WorkspaceIntegration) => void;
   updateLoading: boolean;
-  onUpdateIntegration: (role: Role) => Promise<void>;
+  workspaceIntegrations?: WorkspaceIntegration[];
 };
 
 const IntegrationWrapper: React.FC<Props> = ({
-  loading,
-  workspaceIntegrations,
-  onSearchTerm,
-  setSelectedIntegration,
-  onIntegrationRemove,
+  addLoading,
   deleteLoading,
+  hasConnectRight,
+  hasDeleteRight,
+  hasUpdateRight,
+  loading,
+  myIntegrations,
+  onIntegrationConnect,
+  onIntegrationRemove,
+  onSearchTerm,
+  onTableChange,
+  onUpdateIntegration,
   page,
   pageSize,
-  onTableChange,
-  hasConnectRight,
-  hasUpdateRight,
-  hasDeleteRight,
-  myIntegrations,
-  addLoading,
-  onIntegrationConnect,
   selectedIntegration,
+  setSelectedIntegration,
   updateLoading,
-  onUpdateIntegration,
+  workspaceIntegrations,
 }) => {
   const [integrationConnectModalShown, setIntegrationConnectModalShown] = useState(false);
   const handleIntegrationConnectModalOpen = useCallback(() => {
@@ -71,33 +71,33 @@ const IntegrationWrapper: React.FC<Props> = ({
   return (
     <>
       <IntegrationTable
-        workspaceIntegrations={workspaceIntegrations}
-        onSearchTerm={onSearchTerm}
-        onIntegrationSettingsModalOpen={handleIntegrationSettingsModalOpen}
-        onIntegrationConnectModalOpen={handleIntegrationConnectModalOpen}
         deleteLoading={deleteLoading}
+        hasConnectRight={hasConnectRight}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
+        loading={loading}
+        onIntegrationConnectModalOpen={handleIntegrationConnectModalOpen}
         onIntegrationRemove={onIntegrationRemove}
+        onIntegrationSettingsModalOpen={handleIntegrationSettingsModalOpen}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
         page={page}
         pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        hasConnectRight={hasConnectRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
+        workspaceIntegrations={workspaceIntegrations}
       />
       <IntegrationConnectModal
         integrations={myIntegrations}
-        open={integrationConnectModalShown}
         loading={addLoading}
         onClose={handleIntegrationConnectModalClose}
         onSubmit={onIntegrationConnect}
+        open={integrationConnectModalShown}
       />
       <IntegrationSettingsModal
-        selectedIntegration={selectedIntegration}
-        open={integrationSettingsModalShown}
         loading={updateLoading}
         onClose={handleIntegrationSettingsModalClose}
         onSubmit={onUpdateIntegration}
+        open={integrationSettingsModalShown}
+        selectedIntegration={selectedIntegration}
       />
     </>
   );

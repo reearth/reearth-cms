@@ -1,7 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-
-import { expect, test, describe } from "vitest";
+import { describe, expect, test } from "vitest";
 import * as z from "zod";
 
 import { Constant } from "./constant";

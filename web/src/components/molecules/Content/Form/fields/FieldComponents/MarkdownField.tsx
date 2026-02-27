@@ -12,9 +12,9 @@ import FieldTitle from "../../FieldTitle";
 import { requiredValidator } from "../utils";
 
 const MarkdownField: React.FC<FieldProps> = ({
+  disabled,
   field,
   itemGroupId,
-  disabled,
   itemHeights,
   onItemHeightChange,
 }) => {
@@ -26,14 +26,16 @@ const MarkdownField: React.FC<FieldProps> = ({
   return (
     <Form.Item
       extra={field.description}
-      validateStatus="success"
+      label={<FieldTitle isTitle={field.isTitle} isUnique={field.unique} title={field.title} />}
+      name={itemGroupId ? [field.id, itemGroupId] : field.id}
       rules={[
         {
+          message: t("Please input field!"),
           required,
           validator: requiredValidator,
-          message: t("Please input field!"),
         },
         {
+          message: "",
           validator: (_, value) => {
             if (value && maxLength) {
               if (Array.isArray(value)) {
@@ -46,21 +48,19 @@ const MarkdownField: React.FC<FieldProps> = ({
             }
             return Promise.resolve();
           },
-          message: "",
         },
       ]}
-      name={itemGroupId ? [field.id, itemGroupId] : field.id}
-      label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
+      validateStatus="success">
       <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
         {field.multiple ? (
           <MultiValueField
-            maxLength={maxLength}
-            FieldInput={MarkdownInput}
             disabled={disabled}
+            FieldInput={MarkdownInput}
+            maxLength={maxLength}
             required={required}
           />
         ) : (
-          <MarkdownInput maxLength={maxLength} disabled={disabled} required={required} />
+          <MarkdownInput disabled={disabled} maxLength={maxLength} required={required} />
         )}
       </ResponsiveHeight>
     </Form.Item>

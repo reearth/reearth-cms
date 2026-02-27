@@ -11,9 +11,9 @@ import FieldTitle from "../../FieldTitle";
 import { requiredValidator } from "../utils";
 
 const DateField: React.FC<FieldProps> = ({
+  disabled,
   field,
   itemGroupId,
-  disabled,
   itemHeights,
   onItemHeightChange,
 }) => {
@@ -22,18 +22,18 @@ const DateField: React.FC<FieldProps> = ({
   return (
     <StyledFormItem
       extra={field.description}
+      label={<FieldTitle isTitle={field.isTitle} isUnique={field.unique} title={field.title} />}
+      name={itemGroupId ? [field.id, itemGroupId] : field.id}
       rules={[
         {
+          message: t("Please input field!"),
           required: field.required,
           validator: requiredValidator,
-          message: t("Please input field!"),
         },
-      ]}
-      name={itemGroupId ? [field.id, itemGroupId] : field.id}
-      label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
+      ]}>
       {field.multiple ? (
         <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
-          <MultiValueField type="date" FieldInput={StyledDatePicker} disabled={disabled} />
+          <MultiValueField disabled={disabled} FieldInput={StyledDatePicker} type="date" />
         </ResponsiveHeight>
       ) : (
         <StyledDatePicker disabled={disabled} />

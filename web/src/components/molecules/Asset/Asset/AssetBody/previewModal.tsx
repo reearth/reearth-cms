@@ -3,23 +3,23 @@ import styled from "@emotion/styled";
 import Modal from "@reearth-cms/components/atoms/Modal";
 
 type Props = {
+  onCancel: () => void;
   url: string;
   visible: boolean;
-  onCancel: () => void;
 };
 
-const PreviewModal: React.FC<Props> = ({ url, visible, onCancel }) => {
+const PreviewModal: React.FC<Props> = ({ onCancel, url, visible }) => {
   return (
     <Modal
       centered
-      open={visible}
-      onCancel={onCancel}
       footer={null}
-      width="90vw"
+      onCancel={onCancel}
+      open={visible}
       styles={{
         body: { height: "90vh" },
-      }}>
-      <PreviewImage src={url} alt="asset-preview" />
+      }}
+      width="90vw">
+      <PreviewImage alt="asset-preview" src={url} />
     </Modal>
   );
 };

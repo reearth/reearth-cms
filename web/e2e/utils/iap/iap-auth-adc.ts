@@ -8,8 +8,8 @@ export type ADCIAPConfig = {
 };
 
 type CachedToken = {
-  token: string;
   expiresAt: number;
+  token: string;
 };
 
 export class ADCIAPAuthHelper {
@@ -28,7 +28,7 @@ export class ADCIAPAuthHelper {
     }
 
     const token = await this.tokenFromADC();
-    this.cache = { token, expiresAt: Date.now() + 55 * 60 * 1000 };
+    this.cache = { expiresAt: Date.now() + 55 * 60 * 1000, token };
     return token;
   }
 
@@ -58,10 +58,10 @@ export class ADCIAPAuthHelper {
   private async tokenFromADC(): Promise<string> {
     const client = await this.adc.getIdTokenClient(this.audience);
     const rawHeaders = (await client.getRequestHeaders()) as unknown;
-    let headerValue: string | null | undefined;
+    let headerValue: null | string | undefined;
 
     if (rawHeaders && typeof (rawHeaders as { get?: unknown }).get === "function") {
-      const headerBag = rawHeaders as { get(name: string): string | null };
+      const headerBag = rawHeaders as { get(name: string): null | string };
       headerValue = headerBag.get("Authorization") ?? headerBag.get("authorization");
     } else {
       const headerRecord = rawHeaders as Record<string, string | undefined>;

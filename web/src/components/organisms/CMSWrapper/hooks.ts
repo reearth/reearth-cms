@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -11,21 +11,21 @@ import {
   fromGraphQLWorkspace,
 } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
-  WorkspaceMember,
-  Workspace as GQLWorkspace,
   Project as GQLProject,
+  Workspace as GQLWorkspace,
+  WorkspaceMember,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { GetProjectDocument } from "@reearth-cms/gql/__generated__/project.generated";
 import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
 import { CreateWorkspaceDocument } from "@reearth-cms/gql/__generated__/workspace.generated";
 import { useT } from "@reearth-cms/i18n";
 import {
-  useWorkspace,
+  useCollapsedMainMenu,
   useProject,
   useUserId,
-  useWorkspaceId,
   useUserRights,
-  useCollapsedMainMenu,
+  useWorkspace,
+  useWorkspaceId,
 } from "@reearth-cms/state";
 import { joinPaths, splitPathname } from "@reearth-cms/utils/path";
 
@@ -77,12 +77,12 @@ export default () => {
     );
     return foundWorkspace
       ? {
-          id: foundWorkspace.id,
-          name: foundWorkspace.name,
           alias: foundWorkspace.alias,
+          id: foundWorkspace.id,
           members: foundWorkspace.members?.map(member =>
             fromGraphQLMember(member as WorkspaceMember),
           ),
+          name: foundWorkspace.name,
         }
       : undefined;
   }, [data?.me?.myWorkspace?.id, workspaces]);
@@ -155,8 +155,8 @@ export default () => {
   }, [dashboardBaseUrl, navigate, personalWorkspace?.id]);
 
   const { data: projectData } = useQuery(GetProjectDocument, {
-    variables: { projectId: projectId ?? "" },
     skip: !projectId,
+    variables: { projectId: projectId ?? "" },
   });
 
   useEffect(() => {
@@ -224,25 +224,25 @@ export default () => {
   }, [currentWorkspace?.id, navigate]);
 
   return {
-    username,
-    profilePictureUrl,
-    personalWorkspace,
-    workspaces,
-    currentWorkspace,
-    workspaceModalShown,
-    currentProject,
-    selectedKey: subRoute,
-    secondaryRoute,
     collapsedMainMenu,
+    currentProject,
+    currentWorkspace,
     handleCollapse,
+    handleHomeNavigation,
+    handleNavigateToSettings,
     handleProjectMenuNavigate,
+    handleWorkspaceCreate,
     handleWorkspaceMenuNavigate,
     handleWorkspaceModalClose,
     handleWorkspaceModalOpen,
-    handleWorkspaceCreate,
-    handleNavigateToSettings,
     handleWorkspaceNavigation,
-    handleHomeNavigation,
     logoUrl,
+    personalWorkspace,
+    profilePictureUrl,
+    secondaryRoute,
+    selectedKey: subRoute,
+    username,
+    workspaceModalShown,
+    workspaces,
   };
 };

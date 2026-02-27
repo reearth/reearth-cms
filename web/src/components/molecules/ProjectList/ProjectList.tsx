@@ -6,32 +6,32 @@ import { FormValues as ProjectFormValues } from "@reearth-cms/components/molecul
 import ProjectCard from "@reearth-cms/components/molecules/ProjectList/ProjectCard";
 import CreateProjectButton from "@reearth-cms/components/molecules/Workspace/CreateProjectButton";
 import { ProjectListItem } from "@reearth-cms/components/molecules/Workspace/types";
-import { useT, Trans } from "@reearth-cms/i18n";
+import { Trans, useT } from "@reearth-cms/i18n";
 
 type Props = {
   hasCreateRight: boolean;
-  projects: ProjectListItem[];
   loading: boolean;
+  onPageChange: (page: number, pageSize: number) => void;
+  onProjectAliasCheck: (alias: string) => Promise<boolean>;
+  onProjectCreate: (values: ProjectFormValues) => Promise<void>;
+  onProjectNavigation: (projectId: string) => void;
   page: number;
   pageSize: number;
+  projects: ProjectListItem[];
   totalCount: number;
-  onProjectNavigation: (projectId: string) => void;
-  onProjectCreate: (values: ProjectFormValues) => Promise<void>;
-  onProjectAliasCheck: (alias: string) => Promise<boolean>;
-  onPageChange: (page: number, pageSize: number) => void;
 };
 
 const ProjectList: React.FC<Props> = ({
   hasCreateRight,
-  projects,
   loading,
+  onPageChange,
+  onProjectAliasCheck,
+  onProjectCreate,
+  onProjectNavigation,
   page,
   pageSize,
+  projects,
   totalCount,
-  onProjectNavigation,
-  onProjectCreate,
-  onProjectAliasCheck,
-  onPageChange,
 }) => {
   const t = useT();
 
@@ -46,12 +46,12 @@ const ProjectList: React.FC<Props> = ({
             <Suggestion>{t("Create a new project")}</Suggestion>
             <CreateProjectButton
               hasCreateRight={hasCreateRight}
-              onProjectCreate={onProjectCreate}
               onProjectAliasCheck={onProjectAliasCheck}
+              onProjectCreate={onProjectCreate}
             />
           </Wrapper>
           <Suggestion>
-            <Trans i18nKey="readDocument" components={{ l: <a role="link" href="" /> }} />
+            <Trans components={{ l: <a href="" role="link" /> }} i18nKey="readDocument" />
           </Suggestion>
         </EmptyListWrapper>
       ) : (
@@ -61,22 +61,22 @@ const ProjectList: React.FC<Props> = ({
               {projects.map(project => (
                 <ProjectCard
                   key={project.id}
-                  project={project}
                   onProjectNavigation={onProjectNavigation}
+                  project={project}
                 />
               ))}
               <SpaceHolder />
             </ProjectCardWrapper>
           </GridContainer>
           <ProjectPagination
-            onChange={onPageChange}
-            onShowSizeChange={onPageChange}
             align="end"
             current={page}
-            total={totalCount}
-            showSizeChanger
-            showQuickJumper
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
             pageSize={pageSize}
+            showQuickJumper
+            showSizeChanger
+            total={totalCount}
           />
         </Content>
       )}

@@ -1,8 +1,10 @@
 import styled from "@emotion/styled";
 import dayjs from "dayjs";
-import { useCallback, useState, FocusEvent } from "react";
+import { FocusEvent, useCallback, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+
+import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import DatePicker from "@reearth-cms/components/atoms/DatePicker";
@@ -13,19 +15,18 @@ import Switch from "@reearth-cms/components/atoms/Switch";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
-import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat, transformDayjsToString } from "@reearth-cms/utils/format";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 type Props = {
-  item: string;
   field: Field;
-  update?: (value: string | boolean, index?: number) => void;
   index?: number;
+  item: string;
+  update?: (value: boolean | string, index?: number) => void;
 };
 
-export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
+export const ItemFormat: React.FC<Props> = ({ field, index, item, update }) => {
   const t = useT();
 
   const [isEditable, setIsEditable] = useState(false);
@@ -65,10 +66,10 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
     case "Text":
       return update ? (
         <StyledInput
-          maxLength={field.typeProperty?.maxLength}
           defaultValue={item}
-          placeholder="-"
+          maxLength={field.typeProperty?.maxLength}
           onBlur={handleTextBlur}
+          placeholder="-"
         />
       ) : (
         item
@@ -89,12 +90,12 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
     case "Date":
       return update ? (
         <StyledDatePicker
-          placeholder="-"
           defaultValue={item ? dayjs(item) : undefined}
-          suffixIcon={undefined}
           onChange={date => {
             update(date ? transformDayjsToString(date) : "", index);
           }}
+          placeholder="-"
+          suffixIcon={undefined}
         />
       ) : (
         dateTimeFormat(item, "YYYY-MM-DD")
@@ -103,18 +104,18 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
       return update ? (
         <Switch
           checkedChildren={<Icon icon={"check"} />}
-          unCheckedChildren={<Icon icon={"close"} />}
           defaultChecked={item === "true"}
           onChange={checked => {
             update(checked, index);
           }}
+          unCheckedChildren={<Icon icon={"close"} />}
         />
       ) : (
         <ReadOnlySwitch
-          checkedChildren={<Icon icon={"check"} />}
-          unCheckedChildren={<Icon icon={"close"} />}
           checked={item === "true"}
+          checkedChildren={<Icon icon={"check"} />}
           disabled
+          unCheckedChildren={<Icon icon={"close"} />}
         />
       );
     case "Asset":
@@ -128,28 +129,28 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
       return update ? (
         !itemState || isEditable ? (
           <StyledInput
-            defaultValue={itemState}
-            placeholder="-"
             autoFocus={isEditable}
+            defaultValue={itemState}
             onBlur={handleUrlBlur}
+            placeholder="-"
           />
         ) : (
           <Tooltip
             arrow={false}
-            placement="right"
             color="#fff"
-            overlayStyle={{ paddingLeft: 0 }}
             overlayInnerStyle={{ transform: "translateX(-40px)" }}
+            overlayStyle={{ paddingLeft: 0 }}
+            placement="right"
             title={<Icon color="#1890ff" icon={"edit"} onClick={() => setIsEditable(true)} />}>
             <UrlWrapper>
-              <a href={itemState} target="_blank" rel="noreferrer">
+              <a href={itemState} rel="noreferrer" target="_blank">
                 {itemState}
               </a>
             </UrlWrapper>
           </Tooltip>
         )
       ) : (
-        <a href={item} target="_blank" rel="noreferrer">
+        <a href={item} rel="noreferrer" target="_blank">
           {item}
         </a>
       );

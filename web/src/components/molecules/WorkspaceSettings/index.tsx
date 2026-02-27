@@ -5,21 +5,21 @@ import WorkspaceGeneralForm from "@reearth-cms/components/molecules/WorkspaceSet
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  workspaceName?: string;
-  updateWorkspaceLoading: boolean;
-  hasUpdateRight: boolean;
   hasDeleteRight: boolean;
-  onWorkspaceUpdate: (name: string) => Promise<void>;
+  hasUpdateRight: boolean;
   onWorkspaceDelete: () => Promise<void>;
+  onWorkspaceUpdate: (name: string) => Promise<void>;
+  updateWorkspaceLoading: boolean;
+  workspaceName?: string;
 };
 
 const WorkspaceSettings: React.FC<Props> = ({
-  workspaceName,
-  updateWorkspaceLoading,
-  hasUpdateRight,
   hasDeleteRight,
-  onWorkspaceUpdate,
+  hasUpdateRight,
   onWorkspaceDelete,
+  onWorkspaceUpdate,
+  updateWorkspaceLoading,
+  workspaceName,
 }) => {
   const t = useT();
 
@@ -27,10 +27,10 @@ const WorkspaceSettings: React.FC<Props> = ({
     <InnerContent title={t("Workspace Settings")}>
       <ContentSection title={t("General")}>
         <WorkspaceGeneralForm
-          workspaceName={workspaceName}
-          updateWorkspaceLoading={updateWorkspaceLoading}
           hasUpdateRight={hasUpdateRight}
           onWorkspaceUpdate={onWorkspaceUpdate}
+          updateWorkspaceLoading={updateWorkspaceLoading}
+          workspaceName={workspaceName}
         />
       </ContentSection>
       <DangerZone hasDeleteRight={hasDeleteRight} onWorkspaceDelete={onWorkspaceDelete} />

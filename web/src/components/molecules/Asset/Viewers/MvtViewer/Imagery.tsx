@@ -1,12 +1,12 @@
 import styled from "@emotion/styled";
 import { VectorTileFeature } from "@mapbox/vector-tile";
 import {
-  Cartesian3,
-  Math,
   BoundingSphere,
+  Cartesian3,
   HeadingPitchRange,
-  ImageryLayerCollection,
   ImageryLayer,
+  ImageryLayerCollection,
+  Math,
 } from "cesium";
 import { CesiumMVTImageryProvider } from "cesium-mvt-imagery-provider";
 import { md5 } from "js-md5";
@@ -21,28 +21,28 @@ const defaultOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 3000000);
 const normalOffset = new HeadingPitchRange(0, Math.toRadians(-90.0), 200000);
 
 type Props = {
+  handleProperties: (prop: Property) => void;
   isAssetPublic?: boolean;
   url: string;
-  handleProperties: (prop: Property) => void;
 };
 
 export type Property = Record<string, unknown>;
 
-type URLTemplate = `http${"s" | ""}://${string}/{z}/{x}/{y}${string}`;
+type URLTemplate = `http${"" | "s"}://${string}/{z}/{x}/{y}${string}`;
 
 type TileCoordinates = {
+  level: number;
   x: number;
   y: number;
-  level: number;
 };
 
 type Metadata = {
-  layers?: string[];
   center?: [lng: number, lat: number, height: number];
+  layers?: string[];
   maximumLevel?: number;
 };
 
-export const Imagery: React.FC<Props> = ({ isAssetPublic, url, handleProperties }) => {
+export const Imagery: React.FC<Props> = ({ handleProperties, isAssetPublic, url }) => {
   const { viewer } = useCesium();
   const { getHeader } = useAuthHeader();
   const [selectedFeature, setSelectedFeature] = useState<string>();
@@ -68,9 +68,9 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url, handleProperties 
     (f: VectorTileFeature, tile: TileCoordinates) => {
       const fid = idFromGeometry(f.loadGeometry(), tile);
       return {
-        strokeStyle: "white",
         fillStyle: selectedFeature === fid ? "orange" : "red",
         lineWidth: VectorTileFeature.types[f.type] === "Point" ? 5 : 1,
+        strokeStyle: "white",
       };
     },
     [selectedFeature],
@@ -111,12 +111,12 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url, handleProperties 
     const addLayer = async () => {
       layers = viewer.scene.imageryLayers;
       const imageryProvider = new CesiumMVTImageryProvider({
-        urlTemplate,
         headers: isAssetPublic ? {} : await getHeader(),
         layerName: currentLayer,
-        style,
-        onSelectFeature,
         maximumLevel,
+        onSelectFeature,
+        style,
+        urlTemplate,
       });
       imageryLayer = layers.addImageryProvider(imageryProvider);
       imageryLayer.alpha = 0.5;
@@ -149,11 +149,11 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url, handleProperties 
 
   return (
     <StyledInput
-      placeholder="Layer name"
-      value={currentLayer}
-      options={options}
       onChange={handleChange}
       onSelect={handleChange}
+      options={options}
+      placeholder="Layer name"
+      value={currentLayer}
     />
   );
 };

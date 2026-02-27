@@ -21,11 +21,11 @@ import FieldValidationInputs from "@reearth-cms/components/molecules/Schema/Fiel
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import {
   Field,
-  SchemaFieldType,
-  Group,
   FormValues,
-  Tag,
+  Group,
+  SchemaFieldType,
   SelectedSchemaType,
+  Tag,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
@@ -33,119 +33,119 @@ import { Constant } from "@reearth-cms/utils/constant";
 import useHooks from "./hooks";
 
 type Props = {
-  groups?: Group[];
-  selectedType: SchemaFieldType;
-  selectedSchemaType: SelectedSchemaType;
-  isMeta: boolean;
-  open: boolean;
-  fieldLoading: boolean;
-  selectedField: Field | null;
-  handleFieldKeyUnique: (key: string) => boolean;
-  onClose: () => void;
-  onSubmit: (values: FormValues) => Promise<void>;
   assetList: Asset[];
+  fieldLoading: boolean;
   fileList: UploadFile[];
+  groups?: Group[];
+  handleFieldKeyUnique: (key: string) => boolean;
+  isMeta: boolean;
   loadingAssets: boolean;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
-  onUploadModalCancel: () => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetSearchTerm: (term?: string) => void;
   onAssetsGet: () => void;
   onAssetsReload: () => void;
+  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
+  onClose: () => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onSubmit: (values: FormValues) => Promise<void>;
+  onUploadModalCancel: () => void;
+  open: boolean;
+  page: number;
+  pageSize: number;
+  selectedField: Field | null;
+  selectedSchemaType: SelectedSchemaType;
+  selectedType: SchemaFieldType;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
-  onGetAsset: (assetId: string) => Promise<string | undefined>;
+  setUploadType: (type: UploadType) => void;
+  setUploadUrl: (uploadUrl: { autoUnzip: boolean; url: string; }) => void;
+  totalCount: number;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  uploadType: UploadType;
+  uploadUrl: { autoUnzip: boolean; url: string; };
 };
 
 const initialValues: FormValues = {
-  fieldId: "",
-  title: "",
   description: "",
+  fieldId: "",
+  isTitle: false,
   key: "",
   metadata: false,
   multiple: false,
-  unique: false,
-  isTitle: false,
   required: false,
+  title: "",
   type: "Text",
   typeProperty: { text: { defaultValue: "", maxLength: 0 } },
+  unique: false,
 };
 
 const { TabPane } = Tabs;
 
 const FieldModal: React.FC<Props> = ({
-  groups,
-  open,
-  isMeta,
-  selectedSchemaType,
-  fieldLoading,
-  selectedType,
-  selectedField,
-  onClose,
-  onSubmit,
-  handleFieldKeyUnique,
   assetList,
+  fieldLoading,
   fileList,
+  groups,
+  handleFieldKeyUnique,
+  isMeta,
   loadingAssets,
-  uploading,
-  uploadModalVisibility,
-  uploadUrl,
-  uploadType,
-  totalCount,
-  page,
-  pageSize,
-  onAssetTableChange,
-  onUploadModalCancel,
-  setUploadUrl,
-  setUploadType,
-  onAssetsCreate,
   onAssetCreateFromUrl,
+  onAssetsCreate,
   onAssetSearchTerm,
   onAssetsGet,
   onAssetsReload,
+  onAssetTableChange,
+  onClose,
+  onGetAsset,
+  onSubmit,
+  onUploadModalCancel,
+  open,
+  page,
+  pageSize,
+  selectedField,
+  selectedSchemaType,
+  selectedType,
   setFileList,
   setUploadModalVisibility,
-  onGetAsset,
+  setUploadType,
+  setUploadUrl,
+  totalCount,
+  uploading,
+  uploadModalVisibility,
+  uploadType,
+  uploadUrl,
 }) => {
   const t = useT();
 
   const {
-    form,
-    buttonDisabled,
     activeTab,
-    selectedValues,
-    selectedTags,
-    selectedSupportedTypes,
-    maxLength,
-    min,
-    max,
-    multipleValue,
-    handleMultipleChange,
-    handleTabChange,
-    handleValuesChange,
-    handleNameChange,
-    handleKeyChange,
-    handleSubmit,
-    handleModalReset,
-    isRequiredDisabled,
-    isUniqueDisabled,
-    keyValidate,
-    isTitleDisabled,
-    ObjectSupportType,
+    buttonDisabled,
+    duplicatedValidator,
     EditorSupportType,
     emptyValidator,
-    duplicatedValidator,
     errorIndexes,
+    form,
+    handleKeyChange,
+    handleModalReset,
+    handleMultipleChange,
+    handleNameChange,
+    handleSubmit,
+    handleTabChange,
+    handleValuesChange,
+    isRequiredDisabled,
+    isTitleDisabled,
+    isUniqueDisabled,
+    keyValidate,
+    max,
+    maxLength,
+    min,
+    multipleValue,
+    ObjectSupportType,
+    selectedSupportedTypes,
+    selectedTags,
+    selectedValues,
   } = useHooks(
     selectedSchemaType,
     selectedType,
@@ -167,9 +167,24 @@ const FieldModal: React.FC<Props> = ({
 
   return (
     <Modal
+      footer={[
+        <Button disabled={fieldLoading} key="cancel" onClick={handleModalReset}>
+          {t("Cancel")}
+        </Button>,
+        <Button
+          disabled={buttonDisabled}
+          key="ok"
+          loading={fieldLoading}
+          onClick={handleSubmit}
+          type="primary">
+          {t("OK")}
+        </Button>,
+      ]}
+      onCancel={handleModalReset}
+      open={open}
       title={
         <FieldThumbnail>
-          <StyledIcon icon={fieldTypes[selectedType].icon} color={fieldTypes[selectedType].color} />
+          <StyledIcon color={fieldTypes[selectedType].color} icon={fieldTypes[selectedType].icon} />
           <StyledTitle>
             {selectedField
               ? t("Update Field", { field: selectedField.title })
@@ -177,42 +192,27 @@ const FieldModal: React.FC<Props> = ({
           </StyledTitle>
         </FieldThumbnail>
       }
-      width={572}
-      open={open}
-      onCancel={handleModalReset}
-      footer={[
-        <Button key="cancel" onClick={handleModalReset} disabled={fieldLoading}>
-          {t("Cancel")}
-        </Button>,
-        <Button
-          key="ok"
-          type="primary"
-          loading={fieldLoading}
-          onClick={handleSubmit}
-          disabled={buttonDisabled}>
-          {t("OK")}
-        </Button>,
-      ]}>
+      width={572}>
       <Form
         form={form}
-        layout="vertical"
         initialValues={initialValues}
-        requiredMark={requiredMark}
-        onValuesChange={handleValuesChange}>
+        layout="vertical"
+        onValuesChange={handleValuesChange}
+        requiredMark={requiredMark}>
         <Tabs activeKey={activeTab} onChange={handleTabChange}>
-          <TabPane tab={t("Settings")} key="settings" forceRender>
+          <TabPane forceRender key="settings" tab={t("Settings")}>
             <Form.Item
-              name="title"
               label={t("Display name")}
-              rules={[{ required: true, message: t("Please input the display name of field!") }]}>
+              name="title"
+              rules={[{ message: t("Please input the display name of field!"), required: true }]}>
               <Input onChange={handleNameChange} />
             </Form.Item>
             <Form.Item
-              name="key"
-              label={t("Field Key")}
               extra={t(
                 "Field key must be unique and at least 1 character long. It can only contain letters, numbers, underscores and dashes.",
               )}
+              label={t("Field Key")}
+              name="key"
               rules={[
                 {
                   message: t("Key is not valid"),
@@ -222,66 +222,66 @@ const FieldModal: React.FC<Props> = ({
                   },
                 },
               ]}>
-              <Input onChange={handleKeyChange} showCount maxLength={Constant.KEY.MAX_LENGTH} />
+              <Input maxLength={Constant.KEY.MAX_LENGTH} onChange={handleKeyChange} showCount />
             </Form.Item>
-            <Form.Item name="description" label={t("Description")}>
-              <TextArea rows={3} showCount maxLength={1000} />
+            <Form.Item label={t("Description")} name="description">
+              <TextArea maxLength={1000} rows={3} showCount />
             </Form.Item>
             {selectedType === "Select" && (
               <Form.Item
-                name="values"
                 label={t("Set Options")}
-                validateStatus={"success"}
+                name="values"
                 rules={[
                   {
-                    required: true,
                     message: t("At least 1 option"),
+                    required: true,
                   },
                   {
-                    validator: async (_, values?: string[]) => emptyValidator(values),
                     message: t("Empty values are not allowed"),
+                    validator: async (_, values?: string[]) => emptyValidator(values),
                   },
                   {
-                    validator: async (_, values?: string[]) => duplicatedValidator(values),
                     message: t("Option must be unique"),
+                    validator: async (_, values?: string[]) => duplicatedValidator(values),
                   },
-                ]}>
-                <MultiValueField FieldInput={Input} errorIndexes={errorIndexes} />
+                ]}
+                validateStatus={"success"}>
+                <MultiValueField errorIndexes={errorIndexes} FieldInput={Input} />
               </Form.Item>
             )}
             {selectedType === "Tag" && (
               <Form.Item
-                name="tags"
                 label={t("Set Tags")}
-                validateStatus={"success"}
+                name="tags"
                 rules={[
                   {
-                    required: true,
                     message: t("At least 1 tag"),
+                    required: true,
                   },
                   {
+                    message: t("Empty values are not allowed"),
                     validator: async (_, values?: Tag[]) => {
                       const names = values?.map(value => value.name);
                       return emptyValidator(names);
                     },
-                    message: t("Empty values are not allowed"),
                   },
                   {
+                    message: t("Labels must be unique"),
                     validator: async (_, values?: Tag[]) => {
                       const names = values?.map(value => value.name);
                       return duplicatedValidator(names);
                     },
-                    message: t("Labels must be unique"),
                   },
-                ]}>
+                ]}
+                validateStatus={"success"}>
                 <MultiValueColoredTag errorIndexes={errorIndexes} />
               </Form.Item>
             )}
             {selectedType === "Group" && (
               <Form.Item
-                name="group"
                 label={t("Select Group")}
-                rules={[{ required: true, message: t("Please select the group!") }]}>
+                name="group"
+                rules={[{ message: t("Please select the group!"), required: true }]}>
                 <Select>
                   {groups?.map(group => (
                     <Select.Option key={group.id} value={group.id}>
@@ -294,10 +294,10 @@ const FieldModal: React.FC<Props> = ({
             )}
             {selectedType === "GeometryObject" && (
               <Form.Item
-                name="supportedTypes"
-                label={t("Support Type")}
                 extra={t("Please select what type of Geometry this field will support")}
-                rules={[{ required: true, message: t("Please select the Support Type!") }]}>
+                label={t("Support Type")}
+                name="supportedTypes"
+                rules={[{ message: t("Please select the Support Type!"), required: true }]}>
                 <StyledCheckboxGroup>
                   {ObjectSupportType.map(item => (
                     <Checkbox value={item.value}>{item.label}</Checkbox>
@@ -307,10 +307,10 @@ const FieldModal: React.FC<Props> = ({
             )}
             {selectedType === "GeometryEditor" && (
               <Form.Item
-                name="supportedTypes"
-                label={t("Support Type")}
                 extra={t("Please select what type of Geometry this field will support")}
-                rules={[{ required: true, message: t("Please select the Support Type!") }]}>
+                label={t("Support Type")}
+                name="supportedTypes"
+                rules={[{ message: t("Please select the Support Type!"), required: true }]}>
                 <Radio.Group>
                   {EditorSupportType.map(item => (
                     <Radio value={item.value}>{item.label}</Radio>
@@ -320,68 +320,68 @@ const FieldModal: React.FC<Props> = ({
             )}
             <OptionTitle>{t("options")}</OptionTitle>
             <Form.Item
+              extra={t("Stores a list of values instead of a single value")}
               name="multiple"
-              valuePropName="checked"
-              extra={t("Stores a list of values instead of a single value")}>
+              valuePropName="checked">
               <Checkbox onChange={(e: CheckboxChangeEvent) => handleMultipleChange(e)}>
                 {t("Support multiple values")}
               </Checkbox>
             </Form.Item>
             <Form.Item
-              name="isTitle"
+              extra={t("Only one field can be used as the title")}
               hidden={isTitleDisabled}
-              valuePropName="checked"
-              extra={t("Only one field can be used as the title")}>
+              name="isTitle"
+              valuePropName="checked">
               <Checkbox>{t("Use as title")}</Checkbox>
             </Form.Item>
           </TabPane>
-          <TabPane tab={t("Validation")} key="validation" forceRender>
-            <FieldValidationInputs selectedType={selectedType} min={min} max={max} />
+          <TabPane forceRender key="validation" tab={t("Validation")}>
+            <FieldValidationInputs max={max} min={min} selectedType={selectedType} />
             <Form.Item
+              extra={t("Prevents saving an entry if this field is empty")}
               name="required"
-              valuePropName="checked"
-              extra={t("Prevents saving an entry if this field is empty")}>
+              valuePropName="checked">
               <Checkbox disabled={isRequiredDisabled}>{t("Make field required")}</Checkbox>
             </Form.Item>
             <Form.Item
+              extra={t("Ensures that multiple entries can't have the same value for this field")}
               name="unique"
-              valuePropName="checked"
-              extra={t("Ensures that multiple entries can't have the same value for this field")}>
+              valuePropName="checked">
               <Checkbox disabled={isUniqueDisabled}>{t("Set field as unique")}</Checkbox>
             </Form.Item>
           </TabPane>
-          <TabPane tab={t("Default value")} key="defaultValue" forceRender>
+          <TabPane forceRender key="defaultValue" tab={t("Default value")}>
             <FieldDefaultInputs
-              multiple={multipleValue}
-              selectedValues={selectedValues}
-              selectedTags={selectedTags}
-              selectedSupportedTypes={selectedSupportedTypes}
-              maxLength={maxLength}
-              min={min}
-              max={max}
-              selectedType={selectedType}
               assetList={assetList}
               fileList={fileList}
               loadingAssets={loadingAssets}
-              uploading={uploading}
-              uploadModalVisibility={uploadModalVisibility}
-              uploadUrl={uploadUrl}
-              uploadType={uploadType}
-              totalCount={totalCount}
-              page={page}
-              pageSize={pageSize}
-              onAssetTableChange={onAssetTableChange}
-              onUploadModalCancel={onUploadModalCancel}
-              setUploadUrl={setUploadUrl}
-              setUploadType={setUploadType}
-              onAssetsCreate={onAssetsCreate}
+              max={max}
+              maxLength={maxLength}
+              min={min}
+              multiple={multipleValue}
               onAssetCreateFromUrl={onAssetCreateFromUrl}
+              onAssetsCreate={onAssetsCreate}
               onAssetSearchTerm={onAssetSearchTerm}
               onAssetsGet={onAssetsGet}
               onAssetsReload={onAssetsReload}
+              onAssetTableChange={onAssetTableChange}
+              onGetAsset={onGetAsset}
+              onUploadModalCancel={onUploadModalCancel}
+              page={page}
+              pageSize={pageSize}
+              selectedSupportedTypes={selectedSupportedTypes}
+              selectedTags={selectedTags}
+              selectedType={selectedType}
+              selectedValues={selectedValues}
               setFileList={setFileList}
               setUploadModalVisibility={setUploadModalVisibility}
-              onGetAsset={onGetAsset}
+              setUploadType={setUploadType}
+              setUploadUrl={setUploadUrl}
+              totalCount={totalCount}
+              uploading={uploading}
+              uploadModalVisibility={uploadModalVisibility}
+              uploadType={uploadType}
+              uploadUrl={uploadUrl}
             />
           </TabPane>
         </Tabs>

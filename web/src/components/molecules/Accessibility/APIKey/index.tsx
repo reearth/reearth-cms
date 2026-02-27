@@ -6,30 +6,29 @@ import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentS
 import { useT } from "@reearth-cms/i18n";
 
 import { APIKey } from "../types";
-
 import APIKeyTable from "./APIKeyTable";
 
 type Props = {
+  hasCreateRight: boolean;
+  hasDeleteRight: boolean;
+  hasUpdateRight: boolean;
   isPublic?: boolean;
   keys?: APIKey[];
-  hasCreateRight: boolean;
-  hasUpdateRight: boolean;
-  hasDeleteRight: boolean;
-  onAPIKeyNew: () => void;
-  onAPIKeyEdit: (keyId?: string) => void;
   onAPIKeyDelete: (id: string) => Promise<void>;
+  onAPIKeyEdit: (keyId?: string) => void;
+  onAPIKeyNew: () => void;
   onSettingsPageOpen: () => void;
 };
 
 const APIKeyComponent: React.FC<Props> = ({
+  hasCreateRight,
+  hasDeleteRight,
+  hasUpdateRight,
   isPublic,
   keys,
-  hasCreateRight,
-  hasUpdateRight,
-  hasDeleteRight,
-  onAPIKeyNew,
-  onAPIKeyEdit,
   onAPIKeyDelete,
+  onAPIKeyEdit,
+  onAPIKeyNew,
   onSettingsPageOpen,
 }) => {
   const t = useT();
@@ -38,8 +37,8 @@ const APIKeyComponent: React.FC<Props> = ({
     <ContentSection title="API Key">
       <StyledTokenInput>
         <Button
-          icon={<Icon icon="plus" />}
           disabled={isPublic || !hasCreateRight}
+          icon={<Icon icon="plus" />}
           onClick={onAPIKeyNew}>
           {t("New Key")}
         </Button>
@@ -50,15 +49,15 @@ const APIKeyComponent: React.FC<Props> = ({
           <Paragraph>
             {t("Customize your API key to control the visibility of your models")}
           </Paragraph>
-          <Button type="primary" onClick={onSettingsPageOpen}>
+          <Button onClick={onSettingsPageOpen} type="primary">
             {t("Change project visibility")}
           </Button>
         </PublicContainer>
       ) : (
         <APIKeyTable
-          keys={keys}
-          hasUpdateRight={hasUpdateRight}
           hasDeleteRight={hasDeleteRight}
+          hasUpdateRight={hasUpdateRight}
+          keys={keys}
           onAPIKeyDelete={onAPIKeyDelete}
           onAPIKeyEdit={onAPIKeyEdit}
         />

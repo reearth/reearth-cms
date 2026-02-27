@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { Role } from "@reearth-cms/components/molecules/Member/types";
 
@@ -22,8 +22,8 @@ describe("Request options", () => {
   test("All roles are visible successfully", async () => {
     render(
       <RequestOptions
-        initialRequestRoles={initialRequestRoles}
         hasUpdateRight={hasUpdateRight}
+        initialRequestRoles={initialRequestRoles}
         onProjectRequestRolesUpdate={onProjectRequestRolesUpdate}
       />,
     );
@@ -42,8 +42,8 @@ describe("Request options", () => {
   test("Save button is toggled successfully", async () => {
     render(
       <RequestOptions
-        initialRequestRoles={initialRequestRoles}
         hasUpdateRight={hasUpdateRight}
+        initialRequestRoles={initialRequestRoles}
         onProjectRequestRolesUpdate={onProjectRequestRolesUpdate}
       />,
     );
@@ -62,8 +62,8 @@ describe("Request options", () => {
 
     render(
       <RequestOptions
-        initialRequestRoles={initialRequestRoles}
         hasUpdateRight={hasUpdateRight}
+        initialRequestRoles={initialRequestRoles}
         onProjectRequestRolesUpdate={onProjectRequestRolesUpdateMock}
       />,
     );
@@ -91,8 +91,8 @@ describe("Request options", () => {
 
     render(
       <RequestOptions
-        initialRequestRoles={initialRequestRoles}
         hasUpdateRight={hasUpdateRight}
+        initialRequestRoles={initialRequestRoles}
         onProjectRequestRolesUpdate={onProjectRequestRolesUpdateFail}
       />,
     );
@@ -109,8 +109,8 @@ describe("Request options", () => {
   test("Switches are disabled according to user right successfully", async () => {
     render(
       <RequestOptions
-        initialRequestRoles={initialRequestRoles}
         hasUpdateRight={false}
+        initialRequestRoles={initialRequestRoles}
         onProjectRequestRolesUpdate={onProjectRequestRolesUpdate}
       />,
     );

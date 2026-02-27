@@ -40,7 +40,7 @@ const RootPage: React.FC = () => {
     setCurrentWorkspaceId,
   ]);
 
-  return isLoading ? <Loading spinnerSize="large" minHeight="100vh" /> : null;
+  return isLoading ? <Loading minHeight="100vh" spinnerSize="large" /> : null;
 };
 
 export default RootPage;

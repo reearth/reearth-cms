@@ -16,13 +16,13 @@ export default () => {
   const t = useT();
   const { logout } = useAuth();
 
-  const me: User | undefined = useMemo(() => {
+  const me: undefined | User = useMemo(() => {
     return data?.me
       ? {
-          id: data.me.id,
-          name: data.me.name,
-          lang: data.me.lang,
           email: data.me.email,
+          id: data.me.id,
+          lang: data.me.lang,
+          name: data.me.name,
         }
       : undefined;
   }, [data]);
@@ -35,7 +35,7 @@ export default () => {
   const handleUserUpdate = useCallback(
     async (name: string, email: string) => {
       if (!name || !email) return;
-      const user = await updateMeMutation({ variables: { name, email } });
+      const user = await updateMeMutation({ variables: { email, name } });
       if (user.error) {
         Notification.error({ message: t("Failed to update user.") });
         return;
@@ -71,10 +71,10 @@ export default () => {
   }, [me, deleteMeMutation, logout, t]);
 
   return {
-    me,
-    loading,
-    handleUserUpdate,
     handleLanguageUpdate,
     handleUserDelete,
+    handleUserUpdate,
+    loading,
+    me,
   };
 };

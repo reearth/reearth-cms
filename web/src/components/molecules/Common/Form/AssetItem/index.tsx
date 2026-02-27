@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
-import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import LinkAssetModal from "@reearth-cms/components/molecules/Common/LinkAssetModal/LinkAssetModal";
@@ -15,75 +15,75 @@ import { useT } from "@reearth-cms/i18n";
 import useHooks from "./hooks";
 
 export type AssetProps = {
-  onGetAsset: (assetId: string) => Promise<string | undefined>;
-  itemAssets?: ItemAsset[];
   assetList?: Asset[];
   fileList?: UploadFile[];
+  itemAssets?: ItemAsset[];
   loadingAssets?: boolean;
-  uploading?: boolean;
-  uploadModalVisibility?: boolean;
-  uploadUrl?: { url: string; autoUnzip: boolean };
-  uploadType?: UploadType;
-  totalCount?: number;
-  page?: number;
-  pageSize?: number;
-  onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
-  onUploadModalCancel?: () => void;
-  setUploadUrl?: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType?: (type: UploadType) => void;
-  onAssetsCreate?: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetCreateFromUrl?: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsCreate?: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetSearchTerm?: (term?: string | undefined) => void;
   onAssetsGet?: () => void;
   onAssetsReload?: () => void;
-  onAssetSearchTerm?: (term?: string | undefined) => void;
+  onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onUploadModalCancel?: () => void;
+  page?: number;
+  pageSize?: number;
   setFileList?: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility?: (visible: boolean) => void;
+  setUploadType?: (type: UploadType) => void;
+  setUploadUrl?: (uploadUrl: { autoUnzip: boolean; url: string; }) => void;
+  totalCount?: number;
+  uploading?: boolean;
+  uploadModalVisibility?: boolean;
+  uploadType?: UploadType;
+  uploadUrl?: { autoUnzip: boolean; url: string; };
 };
 
 type Props = {
-  value?: string;
-  onChange?: (value: string) => void;
   disabled?: boolean;
+  onChange?: (value: string) => void;
+  value?: string;
 } & AssetProps;
 
 const AssetItem: React.FC<Props> = ({
-  value,
-  onGetAsset,
-  itemAssets,
   assetList,
+  disabled,
   fileList,
+  itemAssets,
   loadingAssets,
-  uploading,
-  uploadModalVisibility,
-  uploadUrl,
-  uploadType,
-  totalCount,
-  page,
-  pageSize,
-  onAssetTableChange,
-  onUploadModalCancel,
-  setUploadUrl,
-  setUploadType,
-  onAssetsCreate,
   onAssetCreateFromUrl,
+  onAssetsCreate,
+  onAssetSearchTerm,
   onAssetsGet,
   onAssetsReload,
-  onAssetSearchTerm,
+  onAssetTableChange,
+  onChange,
+  onGetAsset,
+  onUploadModalCancel,
+  page,
+  pageSize,
   setFileList,
   setUploadModalVisibility,
-  onChange,
-  disabled,
+  setUploadType,
+  setUploadUrl,
+  totalCount,
+  uploading,
+  uploadModalVisibility,
+  uploadType,
+  uploadUrl,
+  value,
 }) => {
   const t = useT();
   const {
-    visible,
-    workspaceId,
-    projectId,
-    hasCreateRight,
+    displayUploadModal,
     handleClick,
     handleLinkAssetModalCancel,
-    displayUploadModal,
     handleUploadAndLink,
+    hasCreateRight,
+    projectId,
+    visible,
+    workspaceId,
   } = useHooks(
     fileList,
     uploadUrl,
@@ -100,7 +100,7 @@ const AssetItem: React.FC<Props> = ({
   const defaultValueGet = useCallback(async () => {
     if (value) {
       const fileName = await onGetAsset(value);
-      if (fileName) setAsset({ id: value, fileName });
+      if (fileName) setAsset({ fileName, id: value });
     } else {
       setAsset(undefined);
     }
@@ -125,21 +125,21 @@ const AssetItem: React.FC<Props> = ({
   }, [onChange]);
 
   const uploadProps: UploadProps = {
-    name: "file",
-    multiple: false,
-    maxCount: 1,
-    directory: false,
-    showUploadList: true,
     accept: "*",
-    listType: "picture",
-    onRemove: () => {
-      setFileList?.([]);
-    },
     beforeUpload: file => {
       setFileList?.([file]);
       return false;
     },
+    directory: false,
     fileList,
+    listType: "picture",
+    maxCount: 1,
+    multiple: false,
+    name: "file",
+    onRemove: () => {
+      setFileList?.([]);
+    },
+    showUploadList: true,
   };
 
   useEffect(() => {
@@ -151,19 +151,19 @@ const AssetItem: React.FC<Props> = ({
       {value ? (
         <>
           <AssetDetailsWrapper>
-            <AssetButton enabled={!!asset} disabled={disabled} onClick={handleClick}>
+            <AssetButton disabled={disabled} enabled={!!asset} onClick={handleClick}>
               <Icon icon="folder" size={24} />
               <AssetName>{asset?.fileName ?? value}</AssetName>
             </AssetButton>
             <Tooltip title={asset?.fileName}>
               {asset ? (
                 <Link
-                  to={`/workspace/${workspaceId}/project/${projectId}/asset/${value}`}
-                  target="_blank">
+                  target="_blank"
+                  to={`/workspace/${workspaceId}/project/${projectId}/asset/${value}`}>
                   <AssetLinkedName type="link">{asset.fileName}</AssetLinkedName>
                 </Link>
               ) : (
-                <AssetLinkedName type="link" disabled>
+                <AssetLinkedName disabled type="link">
                   {`${value} (removed)`}
                 </AssetLinkedName>
               )}
@@ -172,21 +172,21 @@ const AssetItem: React.FC<Props> = ({
           <Space />
           {asset && !disabled && (
             <Link
-              to={`/workspace/${workspaceId}/project/${projectId}/asset/${value}`}
-              target="_blank">
+              target="_blank"
+              to={`/workspace/${workspaceId}/project/${projectId}/asset/${value}`}>
               <AssetLink
                 color="default"
-                variant="link"
                 icon={<Icon icon="arrowSquareOut" size={20} />}
+                variant="link"
               />
             </Link>
           )}
           {value && !disabled && (
             <AssetLink
               color="default"
-              variant="link"
               icon={<Icon icon={"unlinkSolid"} size={16} />}
               onClick={onUnlink}
+              variant="link"
             />
           )}
         </>
@@ -198,31 +198,31 @@ const AssetItem: React.FC<Props> = ({
       )}
       {uploadUrl && setUploadUrl && (
         <LinkAssetModal
-          visible={visible}
-          onLinkAssetModalCancel={handleLinkAssetModalCancel}
-          linkedAsset={asset}
           assetList={assetList}
+          displayUploadModal={displayUploadModal}
           fileList={fileList}
+          hasCreateRight={hasCreateRight}
+          linkedAsset={asset}
           loading={loadingAssets}
-          uploading={uploading}
-          uploadProps={uploadProps}
-          uploadModalVisibility={uploadModalVisibility}
-          uploadUrl={uploadUrl}
-          uploadType={uploadType}
-          totalCount={totalCount}
+          onAssetsReload={onAssetsReload}
+          onAssetTableChange={onAssetTableChange}
+          onChange={onChange}
+          onLinkAssetModalCancel={handleLinkAssetModalCancel}
+          onSearchTerm={onAssetSearchTerm}
+          onSelect={onSelect}
+          onUploadAndLink={handleUploadAndLink}
+          onUploadModalCancel={onUploadModalCancel}
           page={page}
           pageSize={pageSize}
-          hasCreateRight={hasCreateRight}
-          onAssetTableChange={onAssetTableChange}
-          setUploadUrl={setUploadUrl}
           setUploadType={setUploadType}
-          onChange={onChange}
-          onSelect={onSelect}
-          onAssetsReload={onAssetsReload}
-          onSearchTerm={onAssetSearchTerm}
-          displayUploadModal={displayUploadModal}
-          onUploadModalCancel={onUploadModalCancel}
-          onUploadAndLink={handleUploadAndLink}
+          setUploadUrl={setUploadUrl}
+          totalCount={totalCount}
+          uploading={uploading}
+          uploadModalVisibility={uploadModalVisibility}
+          uploadProps={uploadProps}
+          uploadType={uploadType}
+          uploadUrl={uploadUrl}
+          visible={visible}
         />
       )}
     </AssetWrapper>

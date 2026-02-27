@@ -1,4 +1,4 @@
-import { type Page, expect } from "@reearth-cms/e2e/fixtures/test";
+import { expect, type Page } from "@reearth-cms/e2e/fixtures/test";
 
 export async function closeNotification(page: Page, isSuccess = true) {
   const text = isSuccess ? "check-circle" : "close-circle";

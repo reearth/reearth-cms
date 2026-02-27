@@ -9,63 +9,63 @@ import { Request, RequestState } from "@reearth-cms/components/molecules/Request
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
+  columns: Record<string, ColumnsState>;
   commentsPanel: JSX.Element;
-  requests: Request[];
-  loading: boolean;
-  selectedRequest?: Request;
-  onRequestSelect: (assetId: string) => void;
-  onEdit: (requestId: string) => void;
-  searchTerm: string;
-  onSearchTerm: (term?: string) => void;
-  selection: {
-    selectedRowKeys: Key[];
-  };
-  onSelect: (selectedRowKeys: Key[], selectedRows: Request[]) => void;
-  onRequestsReload: () => void;
+  createdByMe: boolean;
   deleteLoading: boolean;
+  hasCloseRight: boolean;
+  loading: boolean;
+  onColumnsChange: (cols: Record<string, ColumnsState>) => void;
+  onEdit: (requestId: string) => void;
   onRequestDelete: (requestIds: string[]) => void;
+  onRequestSelect: (assetId: string) => void;
+  onRequestsReload: () => void;
   onRequestTableChange: (
     page: number,
     pageSize: number,
-    requestState?: RequestState[] | null,
+    requestState?: null | RequestState[],
     createdByMe?: boolean,
     reviewedByMe?: boolean,
   ) => void;
-  totalCount: number;
-  reviewedByMe: boolean;
-  createdByMe: boolean;
-  requestState: RequestState[];
+  onSearchTerm: (term?: string) => void;
+  onSelect: (selectedRowKeys: Key[], selectedRows: Request[]) => void;
   page: number;
   pageSize: number;
-  columns: Record<string, ColumnsState>;
-  onColumnsChange: (cols: Record<string, ColumnsState>) => void;
-  hasCloseRight: boolean;
+  requests: Request[];
+  requestState: RequestState[];
+  reviewedByMe: boolean;
+  searchTerm: string;
+  selectedRequest?: Request;
+  selection: {
+    selectedRowKeys: Key[];
+  };
+  totalCount: number;
 };
 
 const RequestListMolecule: React.FC<Props> = ({
+  columns,
   commentsPanel,
-  requests,
-  loading,
-  selectedRequest,
-  onRequestSelect,
-  onEdit,
-  searchTerm,
-  onSearchTerm,
-  selection,
-  onSelect,
-  onRequestsReload,
-  deleteLoading,
-  onRequestDelete,
-  onRequestTableChange,
-  totalCount,
-  reviewedByMe,
   createdByMe,
-  requestState,
+  deleteLoading,
+  hasCloseRight,
+  loading,
+  onColumnsChange,
+  onEdit,
+  onRequestDelete,
+  onRequestSelect,
+  onRequestsReload,
+  onRequestTableChange,
+  onSearchTerm,
+  onSelect,
   page,
   pageSize,
-  columns,
-  onColumnsChange,
-  hasCloseRight,
+  requests,
+  requestState,
+  reviewedByMe,
+  searchTerm,
+  selectedRequest,
+  selection,
+  totalCount,
 }) => {
   const t = useT();
 
@@ -75,28 +75,28 @@ const RequestListMolecule: React.FC<Props> = ({
         <Content>
           <StyledPageHeader title={t("Request")} />
           <RequestListTable
-            requests={requests}
-            selection={selection}
-            loading={loading}
-            searchTerm={searchTerm}
-            onSearchTerm={onSearchTerm}
-            onEdit={onEdit}
-            deleteLoading={deleteLoading}
-            onRequestDelete={onRequestDelete}
-            onRequestsReload={onRequestsReload}
-            onSelect={onSelect}
-            onRequestSelect={onRequestSelect}
-            selectedRequest={selectedRequest}
-            onRequestTableChange={onRequestTableChange}
-            totalCount={totalCount}
-            reviewedByMe={reviewedByMe}
+            columns={columns}
             createdByMe={createdByMe}
-            requestState={requestState}
+            deleteLoading={deleteLoading}
+            hasCloseRight={hasCloseRight}
+            loading={loading}
+            onColumnsChange={onColumnsChange}
+            onEdit={onEdit}
+            onRequestDelete={onRequestDelete}
+            onRequestSelect={onRequestSelect}
+            onRequestsReload={onRequestsReload}
+            onRequestTableChange={onRequestTableChange}
+            onSearchTerm={onSearchTerm}
+            onSelect={onSelect}
             page={page}
             pageSize={pageSize}
-            columns={columns}
-            onColumnsChange={onColumnsChange}
-            hasCloseRight={hasCloseRight}
+            requests={requests}
+            requestState={requestState}
+            reviewedByMe={reviewedByMe}
+            searchTerm={searchTerm}
+            selectedRequest={selectedRequest}
+            selection={selection}
+            totalCount={totalCount}
           />
         </Content>
       }

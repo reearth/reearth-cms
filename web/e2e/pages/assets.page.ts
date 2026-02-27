@@ -38,14 +38,14 @@ export class AssetsPage extends BasePage {
     return this.getByRole("checkbox", { name: "Auto Unzip" });
   }
   get submitUploadButton(): Locator {
-    return this.getByRole("button", { name: "Upload", exact: true });
+    return this.getByRole("button", { exact: true, name: "Upload" });
   }
 
   // Grid / Rows
   get assetRows(): Locator {
     return this.locator(".ant-table-tbody .ant-table-row");
   }
-  rowByText(text: string | RegExp): Locator {
+  rowByText(text: RegExp | string): Locator {
     return this.assetRows.filter({ hasText: text });
   }
   get selectAssetCheckbox(): Locator {

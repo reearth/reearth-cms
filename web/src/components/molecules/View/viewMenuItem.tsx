@@ -7,48 +7,48 @@ import { View } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  view: View;
-  hasUpdateRight: boolean;
   hasDeleteRight: boolean;
-  onViewRenameModalOpen: (view: View) => void;
-  onUpdate: (viewId: string, name: string) => Promise<void>;
+  hasUpdateRight: boolean;
   onDelete: (viewId: string) => Promise<void>;
+  onUpdate: (viewId: string, name: string) => Promise<void>;
+  onViewRenameModalOpen: (view: View) => void;
+  view: View;
 };
 
 const ViewsMenuItem: React.FC<Props> = ({
-  view,
-  hasUpdateRight,
   hasDeleteRight,
-  onViewRenameModalOpen,
-  onUpdate,
+  hasUpdateRight,
   onDelete,
+  onUpdate,
+  onViewRenameModalOpen,
+  view,
 }) => {
   const t = useT();
   const { confirm } = useModal();
 
   const children = [
     {
-      label: t("Update View"),
-      key: "update",
-      icon: <Icon icon="reload" />,
-      onClick: () => onUpdate(view.id, view.name),
       disabled: !hasDeleteRight,
+      icon: <Icon icon="reload" />,
+      key: "update",
+      label: t("Update View"),
+      onClick: () => onUpdate(view.id, view.name),
     },
     {
-      label: t("Rename"),
-      key: "rename",
-      icon: <Icon icon="edit" />,
-      onClick: () => onViewRenameModalOpen(view),
       disabled: !hasUpdateRight,
+      icon: <Icon icon="edit" />,
+      key: "rename",
+      label: t("Rename"),
+      onClick: () => onViewRenameModalOpen(view),
     },
     {
-      label: t("Remove View"),
-      key: "remove",
-      icon: <Icon icon="delete" />,
       danger: true,
+      disabled: !hasUpdateRight,
+      icon: <Icon icon="delete" />,
+      key: "remove",
+      label: t("Remove View"),
       onClick: () => {
         confirm({
-          title: t("Are you sure you want to delete this view?"),
           content: (
             <div>
               <StyledCautionText>
@@ -61,22 +61,22 @@ const ViewsMenuItem: React.FC<Props> = ({
               </StyledCautionText>
             </div>
           ),
-          okText: t("Remove"),
-          okButtonProps: { danger: true },
           maskClosable: true,
+          okButtonProps: { danger: true },
+          okText: t("Remove"),
           async onOk() {
             await onDelete(view.id);
           },
+          title: t("Are you sure you want to delete this view?"),
         });
       },
-      disabled: !hasUpdateRight,
     },
   ];
 
   return (
     <Wrapper>
       {view.name}
-      <StyledDropdown trigger={["click"]} menu={{ items: children }}>
+      <StyledDropdown menu={{ items: children }} trigger={["click"]}>
         <Icon icon="more" size={16} />
       </StyledDropdown>
     </Wrapper>

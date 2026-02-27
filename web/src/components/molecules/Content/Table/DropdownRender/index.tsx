@@ -22,41 +22,41 @@ import useHooks from "./hooks";
 const { Option } = Select;
 
 type Props = {
-  filter: DropdownFilterType;
   close: () => void;
-  defaultValue?: DefaultFilterValueType;
-  open: boolean;
-  isFilter: boolean;
-  index: number;
   currentView: CurrentView;
-  setCurrentView: Dispatch<SetStateAction<CurrentView>>;
+  defaultValue?: DefaultFilterValueType;
+  filter: DropdownFilterType;
+  index: number;
+  isFilter: boolean;
   onFilterChange: (filter?: ConditionInput[]) => void;
+  open: boolean;
+  setCurrentView: Dispatch<SetStateAction<CurrentView>>;
 };
 
 const DropdownRender: React.FC<Props> = ({
-  filter,
   close,
-  defaultValue,
-  open,
-  isFilter,
-  index,
   currentView,
-  setCurrentView,
+  defaultValue,
+  filter,
+  index,
+  isFilter,
   onFilterChange,
+  open,
+  setCurrentView,
 }) => {
   const t = useT();
 
   const {
-    valueOptions,
-    options,
-    form,
     confirm,
+    form,
     isShowInputField,
-    onFilterSelect,
-    onValueSelect,
-    onNumberChange,
-    onInputChange,
     onDateChange,
+    onFilterSelect,
+    onInputChange,
+    onNumberChange,
+    onValueSelect,
+    options,
+    valueOptions,
   } = useHooks(
     filter,
     close,
@@ -69,15 +69,15 @@ const DropdownRender: React.FC<Props> = ({
     defaultValue,
   );
   return (
-    <StyledForm form={form} name="basic" autoComplete="off" colon={false}>
+    <StyledForm autoComplete="off" colon={false} form={form} name="basic">
       <Container>
         <StyledFormItem label={<TextWrapper>{filter.title}</TextWrapper>} name="condition">
           <Select
-            style={{ width: 160 }}
-            options={options}
-            onSelect={onFilterSelect}
             defaultValue={options[0].value}
             getPopupContainer={trigger => trigger.parentNode}
+            onSelect={onFilterSelect}
+            options={options}
+            style={{ width: 160 }}
           />
         </StyledFormItem>
         {isFilter && isShowInputField && (
@@ -88,11 +88,11 @@ const DropdownRender: React.FC<Props> = ({
             filter.type === "Bool" ||
             filter.type === "Checkbox" ? (
               <Select
-                placeholder="Select the value"
+                getPopupContainer={trigger => trigger.parentNode}
                 onSelect={onValueSelect}
-                getPopupContainer={trigger => trigger.parentNode}>
+                placeholder="Select the value">
                 {valueOptions.map(option => (
-                  <Option key={option.value} value={option.value} label={option.label}>
+                  <Option key={option.value} label={option.label} value={option.value}>
                     {filter.type === "Tag" ? (
                       <Tag color={option.color?.toLocaleLowerCase()}>{option.label}</Tag>
                     ) : (
@@ -102,13 +102,13 @@ const DropdownRender: React.FC<Props> = ({
                 ))}
               </Select>
             ) : filter.type === "Integer" || filter.type === "Number" ? (
-              <InputNumber onChange={onNumberChange} stringMode placeholder="Enter the value" />
+              <InputNumber onChange={onNumberChange} placeholder="Enter the value" stringMode />
             ) : filter.type === "Date" ? (
               <DatePicker
                 onChange={onDateChange}
-                style={{ width: "100%" }}
                 placeholder="Select the date"
                 showNow={false}
+                style={{ width: "100%" }}
               />
             ) : (
               <Input onChange={onInputChange} placeholder="Enter the value" />
@@ -119,10 +119,10 @@ const DropdownRender: React.FC<Props> = ({
       <StyledDivider />
       <ButtonsFormItem>
         <Space size="small">
-          <Button type="default" onClick={close}>
+          <Button onClick={close} type="default">
             {t("Cancel")}
           </Button>
-          <Button type="primary" htmlType="submit" onClick={confirm}>
+          <Button htmlType="submit" onClick={confirm} type="primary">
             {t("Confirm")}
           </Button>
         </Space>

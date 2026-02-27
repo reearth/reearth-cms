@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useMemo, useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import ReactDragListView from "react-drag-listview";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -10,25 +10,25 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  selectedKey?: string;
-  models?: Model[];
   collapsed: boolean;
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
+  models?: Model[];
   onModalOpen: () => void;
   onModelSelect: (modelId: string) => void;
   onUpdateModelsOrder: (modelIds: string[]) => Promise<void>;
+  selectedKey?: string;
 };
 
 const ModelsList: React.FC<Props> = ({
-  selectedKey,
-  models,
   collapsed,
   hasCreateRight,
   hasUpdateRight,
+  models,
   onModalOpen,
   onModelSelect,
   onUpdateModelsOrder,
+  selectedKey,
 }) => {
   const t = useT();
 
@@ -69,6 +69,7 @@ const ModelsList: React.FC<Props> = ({
           return 0;
         })
         .map(model => ({
+          key: model.id,
           label: (
             <div ref={model.id === selectedKey ? scrollToSelected : undefined}>
               {collapsed ? (
@@ -82,7 +83,6 @@ const ModelsList: React.FC<Props> = ({
               )}
             </div>
           ),
-          key: model.id,
         })),
     [collapsed, models, scrollToSelected, selectedKey],
   );
@@ -96,10 +96,10 @@ const ModelsList: React.FC<Props> = ({
           <SchemaAction>
             <SchemaStyledMenuTitle>{t("MODELS")}</SchemaStyledMenuTitle>
             <SchemaAddButton
-              onClick={onModalOpen}
+              disabled={!hasCreateRight}
               icon={<Icon icon="plus" />}
-              type="link"
-              disabled={!hasCreateRight}>
+              onClick={onModalOpen}
+              type="link">
               {!collapsed && t("Add")}
             </SchemaAddButton>
           </SchemaAction>
@@ -107,15 +107,15 @@ const ModelsList: React.FC<Props> = ({
       )}
       <MenuWrapper>
         <ReactDragListView
-          nodeSelector={hasUpdateRight ? ".ant-menu-item" : undefined}
           lineClassName="dragLine"
+          nodeSelector={hasUpdateRight ? ".ant-menu-item" : undefined}
           onDragEnd={(fromIndex, toIndex) => onDragEnd(fromIndex, toIndex)}>
           <StyledMenu
-            selectedKeys={selectedKeys}
-            mode={collapsed ? "vertical" : "inline"}
             collapsed={collapsed}
             items={items}
+            mode={collapsed ? "vertical" : "inline"}
             onClick={handleClick}
+            selectedKeys={selectedKeys}
           />
         </ReactDragListView>
       </MenuWrapper>

@@ -9,7 +9,7 @@ type Props = {
 } & InputProps;
 
 const Input = forwardRef<InputRef, Props>(
-  ({ value, isError, maxLength, required, ...props }, ref) => {
+  ({ isError, maxLength, required, value, ...props }, ref) => {
     const status = useMemo(() => {
       if (
         isError ||
@@ -26,9 +26,9 @@ const Input = forwardRef<InputRef, Props>(
           max: maxLength,
           strategy: txt => runes(txt).length,
         }}
-        value={value}
         ref={ref}
         status={status}
+        value={value}
         {...props}
       />
     );

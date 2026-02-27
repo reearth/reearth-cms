@@ -17,7 +17,7 @@ const MyIntegrationCard: React.FC<Props> = ({ integration, onIntegrationNavigate
   return (
     <CardWrapper>
       <Card onClick={onCardClick} role="link">
-        <Icon icon="api" size={40} color="#00000040" />
+        <Icon color="#00000040" icon="api" size={40} />
         <CardTitle>{integration.name}</CardTitle>
         <CardSubTitle>{integration.description}</CardSubTitle>
       </Card>

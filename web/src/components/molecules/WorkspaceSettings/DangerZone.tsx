@@ -17,15 +17,15 @@ const DangerZone: React.FC<Props> = ({ hasDeleteRight, onWorkspaceDelete }) => {
 
   const handleWorkspaceDeleteConfirmation = useCallback(() => {
     confirm({
-      title: t("Are you sure you want to delete this workspace?"),
       async onOk() {
         await onWorkspaceDelete();
       },
+      title: t("Are you sure you want to delete this workspace?"),
     });
   }, [confirm, onWorkspaceDelete, t]);
 
   return (
-    <ContentSection title={t("Danger Zone")} danger>
+    <ContentSection danger title={t("Danger Zone")}>
       <Title>{t("Remove Workspace")}</Title>
       <Text>
         {t(
@@ -33,10 +33,10 @@ const DangerZone: React.FC<Props> = ({ hasDeleteRight, onWorkspaceDelete }) => {
         )}
       </Text>
       <RemoveButton
-        onClick={handleWorkspaceDeleteConfirmation}
-        type="primary"
         danger
-        disabled={!hasDeleteRight}>
+        disabled={!hasDeleteRight}
+        onClick={handleWorkspaceDeleteConfirmation}
+        type="primary">
         {t("Remove Workspace")}
       </RemoveButton>
     </ContentSection>

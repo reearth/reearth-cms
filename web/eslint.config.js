@@ -31,7 +31,7 @@ export default [
   storyBookConfig,
   playwrightConfig,
   {
-    ignores: ["coverage/*", "src/gql/__generated__/*", "amplify/*"],
+    ignores: ["coverage/*", "src/gql/__generated__/*", "amplify/*", "src/i18n/translations/*"],
   },
   {
     plugins: {
@@ -47,11 +47,6 @@ export default [
       "perfectionist/sort-imports": [
         "warn",
         {
-          type: "alphabetical",
-          order: "asc",
-          ignoreCase: true,
-          internalPattern: ["^@reearth-cms/.+"],
-          newlinesBetween: 1,
           groups: [
             "type-import",
             ["value-builtin", "value-external"],
@@ -61,59 +56,64 @@ export default [
             ["value-parent", "value-sibling", "value-index"],
             "unknown",
           ],
+          ignoreCase: true,
+          internalPattern: ["^@reearth-cms/.+"],
+          newlinesBetween: 1,
+          order: "asc",
+          type: "alphabetical",
         },
       ],
       "perfectionist/sort-named-imports": [
         "warn",
         {
-          type: "alphabetical",
-          order: "asc",
           ignoreCase: true,
+          order: "asc",
+          type: "alphabetical",
         },
       ],
 
-      // 2. Object keys & types sorting
-      "perfectionist/sort-objects": [
-        "warn",
-        {
-          type: "alphabetical",
-          order: "asc",
-          ignoreCase: true,
-          partitionByNewLine: true,
-        },
-      ],
-      "perfectionist/sort-object-types": [
-        "warn",
-        {
-          type: "alphabetical",
-          order: "asc",
-          ignoreCase: true,
-          partitionByNewLine: true,
-        },
-      ],
       "perfectionist/sort-interfaces": [
         "warn",
         {
-          type: "alphabetical",
-          order: "asc",
           ignoreCase: true,
+          order: "asc",
           partitionByNewLine: true,
-        },
-      ],
-      "perfectionist/sort-union-types": [
-        "warn",
-        {
           type: "alphabetical",
-          order: "asc",
-          ignoreCase: true,
         },
       ],
       "perfectionist/sort-intersection-types": [
         "warn",
         {
-          type: "alphabetical",
-          order: "asc",
           ignoreCase: true,
+          order: "asc",
+          type: "alphabetical",
+        },
+      ],
+      "perfectionist/sort-object-types": [
+        "warn",
+        {
+          ignoreCase: true,
+          order: "asc",
+          partitionByNewLine: true,
+          type: "alphabetical",
+        },
+      ],
+      // 2. Object keys & types sorting
+      "perfectionist/sort-objects": [
+        "warn",
+        {
+          ignoreCase: true,
+          order: "asc",
+          partitionByNewLine: true,
+          type: "alphabetical",
+        },
+      ],
+      "perfectionist/sort-union-types": [
+        "warn",
+        {
+          ignoreCase: true,
+          order: "asc",
+          type: "alphabetical",
         },
       ],
 
@@ -121,9 +121,9 @@ export default [
       "perfectionist/sort-jsx-props": [
         "warn",
         {
-          type: "alphabetical",
-          order: "asc",
           ignoreCase: true,
+          order: "asc",
+          type: "alphabetical",
         },
       ],
     },

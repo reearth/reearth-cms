@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useState, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
@@ -10,27 +10,26 @@ import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 
 import { Project } from "../Workspace/types";
-
 import useHook from "./hook";
 
 type Props = {
-  project: Project;
   hasUpdateRight: boolean;
-  onProjectUpdate: (name: string, alias: string, description: string) => Promise<void>;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
+  onProjectUpdate: (name: string, alias: string, description: string) => Promise<void>;
+  project: Project;
 };
 
 type FormType = {
-  name: string;
   alias: string;
   description: string;
+  name: string;
 };
 
 const GeneralForm: React.FC<Props> = ({
-  project,
   hasUpdateRight,
-  onProjectUpdate,
   onProjectAliasCheck,
+  onProjectUpdate,
+  project,
 }) => {
   const [form] = Form.useForm<FormType>();
   const t = useT();
@@ -51,7 +50,7 @@ const GeneralForm: React.FC<Props> = ({
     }
   }, [form, onProjectUpdate]);
 
-  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeout = useRef<null | ReturnType<typeof setTimeout>>(null);
   const handleValuesChange = useCallback(
     async (_: unknown, values: FormType) => {
       if (timeout.current) {
@@ -87,39 +86,39 @@ const GeneralForm: React.FC<Props> = ({
 
   return (
     <StyledForm
-      form={form}
-      layout="vertical"
       autoComplete="off"
+      form={form}
       initialValues={project}
+      layout="vertical"
       onFinish={handleSubmit}
       onValuesChange={handleValuesChange}
       validateTrigger="">
       <Form.Item
-        name="name"
         label={t("Name")}
-        rules={[{ required: true, message: t("Please input the name of project!") }]}>
+        name="name"
+        rules={[{ message: t("Please input the name of project!"), required: true }]}>
         <Input disabled={!hasUpdateRight} />
       </Form.Item>
       <Form.Item
-        name="alias"
-        label={t("Alias")}
         extra={t("A simpler way to access to the project.")}
+        label={t("Alias")}
+        name="alias"
         rules={[{ validator: async (_, value) => await aliasValidate(value) }]}>
         <Input
           disabled={!hasUpdateRight}
+          maxLength={Constant.PROJECT_ALIAS.MAX_LENGTH}
           onChange={handleAliasChange}
           showCount
-          maxLength={Constant.PROJECT_ALIAS.MAX_LENGTH}
         />
       </Form.Item>
       <Form.Item
-        name="description"
+        extra={t("Write something here to describe this record.")}
         label={t("Description")}
-        extra={t("Write something here to describe this record.")}>
-        <TextArea rows={4} disabled={!hasUpdateRight} />
+        name="description">
+        <TextArea disabled={!hasUpdateRight} rows={4} />
       </Form.Item>
       <Form.Item>
-        <Button type="primary" htmlType="submit" disabled={isDisabled} loading={isLoading}>
+        <Button disabled={isDisabled} htmlType="submit" loading={isLoading} type="primary">
           {t("Save changes")}
         </Button>
       </Form.Item>

@@ -13,32 +13,32 @@ const Asset: React.FC = () => {
   const {
     asset,
     assetFileExt,
-    isLoading,
-    selectedPreviewType,
-    isModalVisible,
     collapsed,
-    viewerType,
-    viewerRef,
-    displayUnzipFileList,
     decompressing,
-    isSaveDisabled,
-    updateLoading,
-    hasUpdateRight,
+    displayUnzipFileList,
     handleAssetDecompress,
     handleAssetItemSelect,
+    handleBack,
+    handleFullScreen,
+    handleModalCancel,
+    handleSave,
     handleSingleAssetDownload,
     handleToggleCommentMenu,
     handleTypeChange,
-    handleModalCancel,
-    handleFullScreen,
-    handleBack,
-    handleSave,
+    hasUpdateRight,
+    isLoading,
+    isModalVisible,
+    isSaveDisabled,
+    selectedPreviewType,
+    updateLoading,
+    viewerRef,
+    viewerType,
   } = useHooks(assetId);
 
   const { workspaceSettings } = useSettingsHooks();
 
   if (isLoading) {
-    return <Loading spinnerSize="large" minHeight="100vh" />;
+    return <Loading minHeight="100vh" spinnerSize="large" />;
   }
 
   if (!asset) {
@@ -47,36 +47,36 @@ const Asset: React.FC = () => {
 
   return (
     <AssetWrapper
-      commentsPanel={
-        <CommentsPanel
-          resourceId={asset.id}
-          resourceType={"ASSET"}
-          comments={asset.comments}
-          threadId={asset.threadId}
-          collapsed={collapsed}
-          onCollapse={handleToggleCommentMenu}
-          refetchQueries={["GetAssetItem"]}
-        />
-      }
       asset={asset}
       assetFileExt={assetFileExt}
-      selectedPreviewType={selectedPreviewType}
-      isModalVisible={isModalVisible}
-      viewerType={viewerType}
-      viewerRef={viewerRef}
-      displayUnzipFileList={displayUnzipFileList}
+      commentsPanel={
+        <CommentsPanel
+          collapsed={collapsed}
+          comments={asset.comments}
+          onCollapse={handleToggleCommentMenu}
+          refetchQueries={["GetAssetItem"]}
+          resourceId={asset.id}
+          resourceType={"ASSET"}
+          threadId={asset.threadId}
+        />
+      }
       decompressing={decompressing}
-      isSaveDisabled={isSaveDisabled}
-      updateLoading={updateLoading}
+      displayUnzipFileList={displayUnzipFileList}
       hasUpdateRight={hasUpdateRight}
-      onAssetItemSelect={handleAssetItemSelect}
+      isModalVisible={isModalVisible}
+      isSaveDisabled={isSaveDisabled}
       onAssetDecompress={handleAssetDecompress}
       onAssetDownload={handleSingleAssetDownload}
-      onTypeChange={handleTypeChange}
-      onModalCancel={handleModalCancel}
-      onChangeToFullScreen={handleFullScreen}
+      onAssetItemSelect={handleAssetItemSelect}
       onBack={handleBack}
+      onChangeToFullScreen={handleFullScreen}
+      onModalCancel={handleModalCancel}
       onSave={handleSave}
+      onTypeChange={handleTypeChange}
+      selectedPreviewType={selectedPreviewType}
+      updateLoading={updateLoading}
+      viewerRef={viewerRef}
+      viewerType={viewerType}
       workspaceSettings={workspaceSettings}
     />
   );

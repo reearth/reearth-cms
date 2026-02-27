@@ -9,21 +9,20 @@ import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import { useT } from "@reearth-cms/i18n";
 
 import { APIKey, APIKeyModelType } from "../types";
-
 import KeyCell from "./KeyCell";
 
 type Props = {
-  keys?: APIKey[];
-  hasUpdateRight: boolean;
   hasDeleteRight: boolean;
+  hasUpdateRight: boolean;
+  keys?: APIKey[];
   onAPIKeyDelete: (id: string) => Promise<void>;
   onAPIKeyEdit: (keyId?: string) => void;
 };
 
 const APIKeyTable: React.FC<Props> = ({
-  keys,
-  hasUpdateRight,
   hasDeleteRight,
+  hasUpdateRight,
+  keys,
   onAPIKeyDelete,
   onAPIKeyEdit,
 }) => {
@@ -33,12 +32,12 @@ const APIKeyTable: React.FC<Props> = ({
   const confirmDelete = useCallback(
     async (id: string) => {
       confirm({
-        title: t("Are you sure you want to delete this API key?"),
         content: t("This action is not reversible."),
         okText: t("Delete"),
         async onOk() {
           await onAPIKeyDelete(id);
         },
+        title: t("Are you sure you want to delete this API key?"),
       });
     },
     [confirm, onAPIKeyDelete, t],
@@ -47,27 +46,27 @@ const APIKeyTable: React.FC<Props> = ({
   const renderActions = useCallback(
     (keyObj: APIKeyModelType) => (
       <Dropdown
+        arrow
         menu={{
           items: [
             {
+              disabled: !hasUpdateRight,
+              icon: <Icon icon="edit" />,
               key: "edit",
               label: t("Edit"),
               onClick: () => onAPIKeyEdit(keyObj.id),
-              icon: <Icon icon="edit" />,
-              disabled: !hasUpdateRight,
             },
             {
+              danger: true,
+              disabled: !hasDeleteRight,
+              icon: <Icon icon="trash" />,
               key: "delete",
               label: t("Delete"),
               onClick: () => confirmDelete(keyObj.id),
-              icon: <Icon icon="trash" />,
-              danger: true,
-              disabled: !hasDeleteRight,
             },
           ],
         }}
-        placement="bottomLeft"
-        arrow>
+        placement="bottomLeft">
         <Button icon={<Icon icon="ellipsis" />} />
       </Dropdown>
     ),
@@ -77,21 +76,21 @@ const APIKeyTable: React.FC<Props> = ({
   const columns: TableColumnsType<APIKeyModelType> = useMemo(
     () => [
       {
+        dataIndex: "name",
         key: "name",
         title: t("Name"),
-        dataIndex: "name",
         width: 220,
       },
       {
-        key: "key",
-        title: t("Key"),
         dataIndex: "key",
+        key: "key",
         render: key => <KeyCell apiKey={key} />,
+        title: t("Key"),
       },
       {
         key: "actions",
-        title: "",
         render: renderActions,
+        title: "",
         width: 48,
       },
     ],
@@ -102,15 +101,15 @@ const APIKeyTable: React.FC<Props> = ({
     () =>
       keys?.map(key => ({
         id: key.id,
-        name: key.name,
         key: key.key,
+        name: key.name,
       })) ?? [],
     [keys],
   );
 
   return (
     <TableWrapper>
-      <Table dataSource={dataSource} columns={columns} pagination={false} />
+      <Table columns={columns} dataSource={dataSource} pagination={false} />
     </TableWrapper>
   );
 };

@@ -2,19 +2,20 @@ import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/r
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import type { FormValues, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
+
 import { useModal } from "@reearth-cms/components/atoms/Modal";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
   CreateFieldInput,
   Field,
-  SchemaFieldType,
   Group,
-  SelectedSchemaType,
-  Schema,
   MetaDataSchema,
+  Schema,
+  SchemaFieldType,
+  SelectedSchemaType,
 } from "@reearth-cms/components/molecules/Schema/types";
-import type { FormValues, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import {
@@ -25,8 +26,8 @@ import {
   UpdateFieldsDocument,
 } from "@reearth-cms/gql/__generated__/field.generated";
 import {
-  Model as GQLModel,
   Group as GQLGroup,
+  Model as GQLModel,
   SchemaFieldType as GQLSchemaFieldType,
   SchemaFieldTypePropertyInput,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
@@ -47,13 +48,13 @@ import {
   UpdateModelDocument,
 } from "@reearth-cms/gql/__generated__/model.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useModel, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
+import { useCollapsedModelMenu, useModel, useUserRights } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
   const { confirm, error } = useModal();
   const navigate = useNavigate();
-  const { projectId, workspaceId, modelId: schemaId } = useParams();
+  const { modelId: schemaId, projectId, workspaceId } = useParams();
   const [currentModel, setCurrentModel] = useModel();
   const [userRights] = useUserRights();
   const hasCreateRight = useMemo(() => !!userRights?.schema.create, [userRights?.schema.create]);
@@ -67,14 +68,14 @@ export default () => {
   const [fieldModalShown, setFieldModalShown] = useState(false);
   const [isMeta, setIsMeta] = useState(false);
   const [selectedField, setSelectedField] = useState<Field | null>(null);
-  const [selectedType, setSelectedType] = useState<SchemaFieldType | null>(null);
+  const [selectedType, setSelectedType] = useState<null | SchemaFieldType>(null);
   const [collapsed, setCollapsed] = useCollapsedModelMenu();
   const { data: modelsData } = useQuery(GetModelsDocument, {
-    variables: {
-      projectId: projectId ?? "",
-      pagination: { first: 100 },
-    },
     skip: !projectId,
+    variables: {
+      pagination: { first: 100 },
+      projectId: projectId ?? "",
+    },
   });
 
   const models = useMemo(() => {
@@ -86,7 +87,7 @@ export default () => {
   const { data: modelData, refetch: modelRefetch } = useQuery(
     GetModelDocument,
     currentModel
-      ? { variables: { id: currentModel.id }, fetchPolicy: "cache-and-network" }
+      ? { fetchPolicy: "cache-and-network", variables: { id: currentModel.id } }
       : skipToken,
   );
 
@@ -103,10 +104,10 @@ export default () => {
   );
 
   const { data: groupsData } = useQuery(GetGroupsDocument, {
+    skip: !projectId,
     variables: {
       projectId: projectId ?? "",
     },
-    skip: !projectId,
   });
 
   const groups = useMemo(() => {
@@ -117,10 +118,10 @@ export default () => {
 
   const { data: groupData } = useQuery(GetGroupDocument, {
     fetchPolicy: "cache-and-network",
+    skip: !schemaId,
     variables: {
       id: schemaId ?? "",
     },
-    skip: !schemaId,
   });
 
   const group = useMemo(() => fromGraphQLGroup(groupData?.node as GQLGroup), [groupData?.node]);
@@ -158,7 +159,7 @@ export default () => {
   );
 
   const keyUniqueCheck = useCallback(
-    (key: string, fieldId?: string, schema?: Schema | MetaDataSchema) => {
+    (key: string, fieldId?: string, schema?: MetaDataSchema | Schema) => {
       const sameKeyField = schema?.fields?.find(field => field.key === key);
       return !sameKeyField || sameKeyField.id === fieldId;
     },
@@ -199,9 +200,9 @@ export default () => {
       const options = {
         variables: {
           fieldId,
+          groupId: selectedSchemaType === "group" ? schemaId : undefined,
           metadata: isMeta,
           modelId: selectedSchemaType === "model" ? schemaId : undefined,
-          groupId: selectedSchemaType === "group" ? schemaId : undefined,
         },
       };
       const results = await deleteFieldMutation(options);
@@ -221,9 +222,9 @@ export default () => {
       const options = fieldIds.map(fieldId => ({
         variables: {
           fieldId,
+          groupId: selectedSchemaType === "group" ? schemaId : undefined,
           metadata: isMeta,
           modelId: selectedSchemaType === "model" ? schemaId : undefined,
-          groupId: selectedSchemaType === "group" ? schemaId : undefined,
         },
       }));
 
@@ -248,18 +249,18 @@ export default () => {
       if (!schemaId || !data.fieldId) return;
       const options = {
         variables: {
-          fieldId: data.fieldId,
-          title: data.title,
-          metadata: data.metadata,
           description: data.description,
-          key: data.key,
-          multiple: data.multiple,
-          unique: data.unique,
-          isTitle: data.isTitle,
-          required: data.required,
-          typeProperty: data.typeProperty as SchemaFieldTypePropertyInput,
-          modelId: selectedSchemaType === "model" ? schemaId : undefined,
+          fieldId: data.fieldId,
           groupId: selectedSchemaType === "group" ? schemaId : undefined,
+          isTitle: data.isTitle,
+          key: data.key,
+          metadata: data.metadata,
+          modelId: selectedSchemaType === "model" ? schemaId : undefined,
+          multiple: data.multiple,
+          required: data.required,
+          title: data.title,
+          typeProperty: data.typeProperty as SchemaFieldTypePropertyInput,
+          unique: data.unique,
         },
       };
       const field = await updateField(options);
@@ -284,10 +285,10 @@ export default () => {
         variables: {
           updateFieldInput: fields.map((field, index) => ({
             fieldId: field.id,
-            metadata: field.metadata,
-            order: index,
-            modelId: selectedSchemaType === "model" ? schemaId : undefined,
             groupId: selectedSchemaType === "group" ? schemaId : undefined,
+            metadata: field.metadata,
+            modelId: selectedSchemaType === "model" ? schemaId : undefined,
+            order: index,
           })),
         },
       });
@@ -306,18 +307,18 @@ export default () => {
       if (!schemaId) return;
       const options = {
         variables: {
-          title: data.title,
-          metadata: data.metadata,
           description: data.description,
-          key: data.key,
-          multiple: data.multiple,
-          unique: data.unique,
+          groupId: selectedSchemaType === "group" ? schemaId : undefined,
           isTitle: data.isTitle,
+          key: data.key,
+          metadata: data.metadata,
+          modelId: selectedSchemaType === "model" ? schemaId : undefined,
+          multiple: data.multiple,
           required: data.required,
+          title: data.title,
           type: data.type as GQLSchemaFieldType,
           typeProperty: data.typeProperty as SchemaFieldTypePropertyInput,
-          modelId: selectedSchemaType === "model" ? schemaId : undefined,
-          groupId: selectedSchemaType === "group" ? schemaId : undefined,
+          unique: data.unique,
         },
       };
       const field = await createNewField(options);
@@ -363,10 +364,10 @@ export default () => {
 
   const { data: modelsByGroupData } = useQuery(ModelsByGroupDocument, {
     fetchPolicy: "cache-and-network",
+    skip: !schemaId || selectedSchemaType !== "group",
     variables: {
       groupId: schemaId ?? "",
     },
-    skip: !schemaId || selectedSchemaType !== "group",
   });
 
   const [deleteGroup, { loading: deleteGroupLoading }] = useMutation(DeleteGroupDocument, {
@@ -383,10 +384,10 @@ export default () => {
         handleGroupDeletionModalClose();
         const modelNames = modelsByGroup?.map(model => model?.name).join(", ");
         error({
-          title: t("Group cannot be deleted"),
           content: `
           ${group?.name}${t("is used in", { modelNames })}
           ${t("If you want to delete it, please delete the field that uses it first.")}`,
+          title: t("Group cannot be deleted"),
         });
         return;
       }
@@ -422,10 +423,10 @@ export default () => {
       if (!projectId) return;
       const group = await createNewGroup({
         variables: {
-          projectId,
-          name: data.name,
           description: data.description,
           key: data.key,
+          name: data.name,
+          projectId,
         },
       });
       if (group.error || !group.data?.createGroup) {
@@ -450,10 +451,10 @@ export default () => {
       if (!data.id) return;
       const group = await updateNewGroup({
         variables: {
-          groupId: data.id,
-          name: data.name,
           description: data.description,
+          groupId: data.id,
           key: data.key,
+          name: data.name,
         },
       });
       if (group.error || !group.data?.updateGroup) {
@@ -470,15 +471,15 @@ export default () => {
     (fieldType: SchemaFieldType) => {
       if (fieldType === "Group" && groups?.length === 0) {
         confirm({
-          title: t("No available Group"),
           content: t("Please create a Group first to use the field"),
           okText: t("Create Group"),
-          onOk() {
-            handleGroupModalOpen();
-          },
           onCancel() {
             handleGroupModalClose();
           },
+          onOk() {
+            handleGroupModalOpen();
+          },
+          title: t("No available Group"),
         });
       } else {
         setSelectedType(fieldType);
@@ -543,10 +544,10 @@ export default () => {
       if (!data.id) return;
       const model = await updateNewModel({
         variables: {
-          modelId: data.id,
-          name: data.name,
           description: data.description,
           key: data.key,
+          modelId: data.id,
+          name: data.name,
         },
       });
       if (model.error || !model.data?.updateModel) {
@@ -564,10 +565,10 @@ export default () => {
       if (!projectId || !key) return false;
       if (ignoredKey && key === ignoredKey) return true;
       if (isGroup) {
-        const response = await CheckGroupKeyAvailability({ variables: { projectId, key } });
+        const response = await CheckGroupKeyAvailability({ variables: { key, projectId } });
         return response.data ? response.data.checkGroupKeyAvailability.available : false;
       } else {
-        const response = await CheckModelKeyAvailability({ variables: { projectId, key } });
+        const response = await CheckModelKeyAvailability({ variables: { key, projectId } });
         return response.data ? response.data.checkModelKeyAvailability.available : false;
       }
     },
@@ -610,7 +611,7 @@ export default () => {
     [handleGroupDelete, handleModelDelete, isGroup],
   );
 
-  const [createNewFields, { loading: fieldsCreationLoading, error: fieldsCreationError }] =
+  const [createNewFields, { error: fieldsCreationError, loading: fieldsCreationLoading }] =
     useMutation(CreateFieldsDocument, {
       refetchQueries: ["GetModel", "GetGroup", "GetModels"],
     });
@@ -621,18 +622,18 @@ export default () => {
       const response = await createNewFields({
         variables: {
           inputs: fields.map(field => ({
-            title: field.title,
-            metadata: field.metadata,
             description: field.description,
-            key: field.key,
-            multiple: field.multiple,
-            unique: field.unique,
+            groupId: undefined,
             isTitle: field.isTitle,
+            key: field.key,
+            metadata: field.metadata,
+            modelId: schemaId,
+            multiple: field.multiple,
             required: field.required,
+            title: field.title,
             type: field.type as GQLSchemaFieldType,
             typeProperty: field.typeProperty as SchemaFieldTypePropertyInput,
-            modelId: schemaId,
-            groupId: undefined,
+            unique: field.unique,
           })),
         },
       });
@@ -648,53 +649,53 @@ export default () => {
   );
 
   return {
-    workspaceId,
-    projectId,
-    fieldsCreationLoading,
-    fieldsCreationError: !!fieldsCreationError,
-    data,
-    models,
-    groups,
-    isMeta,
-    setIsMeta,
-    fieldModalShown,
-    selectedField,
-    selectedType,
     collapsed,
-    fieldCreationLoading,
-    fieldUpdateLoading,
-    deleteModelLoading,
+    data,
     deleteGroupLoading,
-    setCollapsed,
-    selectedSchemaType,
-    handleModelSelect,
-    handleGroupSelect,
-    handleFieldCreationModalOpen,
-    handleFieldUpdateModalOpen,
-    handleFieldModalClose,
-    handleFieldCreate,
-    handleFieldsCreate,
-    handleReferencedModelGet,
-    handleCorrespondingFieldKeyUnique,
-    handleFieldKeyUnique,
-    handleFieldUpdate,
-    handleFieldOrder,
-    handleFieldDelete,
-    handleAllFieldDelete,
-    handleKeyCheck,
-    handleModalOpen,
-    handleDeletionModalOpen,
-    handleModalClose,
-    handleDeletionModalClose,
-    handleSchemaCreate,
-    handleSchemaUpdate,
-    handleSchemaDelete,
-    groupModalShown,
+    deleteModelLoading,
+    fieldCreationLoading,
+    fieldModalShown,
+    fieldsCreationError: !!fieldsCreationError,
+    fieldsCreationLoading,
+    fieldUpdateLoading,
     groupDeletionModalShown,
-    modelModalShown,
-    modelDeletionModalShown,
+    groupModalShown,
+    groups,
+    handleAllFieldDelete,
+    handleCorrespondingFieldKeyUnique,
+    handleDeletionModalClose,
+    handleDeletionModalOpen,
+    handleFieldCreate,
+    handleFieldCreationModalOpen,
+    handleFieldDelete,
+    handleFieldKeyUnique,
+    handleFieldModalClose,
+    handleFieldOrder,
+    handleFieldsCreate,
+    handleFieldUpdate,
+    handleFieldUpdateModalOpen,
+    handleGroupSelect,
+    handleKeyCheck,
+    handleModalClose,
+    handleModalOpen,
+    handleModelSelect,
+    handleReferencedModelGet,
+    handleSchemaCreate,
+    handleSchemaDelete,
+    handleSchemaUpdate,
     hasCreateRight,
-    hasUpdateRight,
     hasDeleteRight,
+    hasUpdateRight,
+    isMeta,
+    modelDeletionModalShown,
+    modelModalShown,
+    models,
+    projectId,
+    selectedField,
+    selectedSchemaType,
+    selectedType,
+    setCollapsed,
+    setIsMeta,
+    workspaceId,
   };
 };

@@ -14,35 +14,35 @@ import { ImportContentUtils } from "@reearth-cms/utils/importContent";
 import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
 
 export type Props = {
-  model: Model;
-  hasUpdateRight: boolean;
+  exportLoading?: boolean;
+  hasContentCreateRight: boolean;
   hasDeleteRight: boolean;
   hasSchemaCreateRight: boolean;
-  hasContentCreateRight: boolean;
-  exportLoading?: boolean;
-  onSchemaNavigate: (modelId: string) => void;
-  onImportSchemaNavigate: (modelId: string) => void;
+  hasUpdateRight: boolean;
+  model: Model;
   onContentNavigate: (modelId: string) => void;
   onImportContentNavigate: (modelId: string) => void;
+  onImportSchemaNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
-  onModelUpdateModalOpen: (model: Model) => Promise<void>;
   onModelExport: (modelId?: string, format?: ExportFormat) => Promise<void>;
+  onModelUpdateModalOpen: (model: Model) => Promise<void>;
+  onSchemaNavigate: (modelId: string) => void;
 };
 
 const ModelCard: React.FC<Props> = ({
-  model,
-  hasUpdateRight,
+  exportLoading,
+  hasContentCreateRight,
   hasDeleteRight,
   hasSchemaCreateRight,
-  hasContentCreateRight,
-  exportLoading,
-  onSchemaNavigate,
-  onImportSchemaNavigate,
+  hasUpdateRight,
+  model,
   onContentNavigate,
   onImportContentNavigate,
+  onImportSchemaNavigate,
   onModelDeletionModalOpen,
-  onModelUpdateModalOpen,
   onModelExport,
+  onModelUpdateModalOpen,
+  onSchemaNavigate,
 }) => {
   const t = useT();
   const { confirm, error } = useModal();
@@ -57,8 +57,6 @@ const ModelCard: React.FC<Props> = ({
   const handleCSVExport = useCallback(
     async (exportType: ExportFormat) => {
       confirm({
-        width: 550,
-        title: t("Export as CSV"),
         content: (
           <ModalContent>
             <div>{t("CSV export only supports simple fields (text, number, date).")}</div>
@@ -72,6 +70,8 @@ const ModelCard: React.FC<Props> = ({
         async onOk() {
           await onModelExport(model.id, exportType);
         },
+        title: t("Export as CSV"),
+        width: 550,
       });
     },
     [confirm, model.id, onModelExport, t],
@@ -92,7 +92,6 @@ const ModelCard: React.FC<Props> = ({
       const geoFieldsCount = getGeometryFieldsCount();
       if (geoFieldsCount === 0) {
         error({
-          title: t("Cannot export GeoJSON"),
           content: (
             <ModalContent>
               <div>
@@ -103,11 +102,10 @@ const ModelCard: React.FC<Props> = ({
             </ModalContent>
           ),
           okText: t("OK"),
+          title: t("Cannot export GeoJSON"),
         });
       } else if (geoFieldsCount > 1) {
         confirm({
-          width: 550,
-          title: t("Multiple Geometry fields detected"),
           content: (
             <ModalContent>
               <div>{t("This model has multiple Geometry fields.")}</div>
@@ -123,6 +121,8 @@ const ModelCard: React.FC<Props> = ({
           async onOk() {
             await onModelExport(model.id, exportType);
           },
+          title: t("Multiple Geometry fields detected"),
+          width: 550,
         });
       } else {
         await onModelExport(model.id, exportType);
@@ -145,7 +145,7 @@ const ModelCard: React.FC<Props> = ({
   );
 
   const getImportSchemaUIMetadata = useMemo(
-    () => ImportSchemaUtils.getUIMetadata({ hasSchemaCreateRight, hasModelFields }),
+    () => ImportSchemaUtils.getUIMetadata({ hasModelFields, hasSchemaCreateRight }),
     [hasModelFields, hasSchemaCreateRight],
   );
   const getImportContentUIMetadata = useMemo(
@@ -156,22 +156,22 @@ const ModelCard: React.FC<Props> = ({
   const ImportMenuItems = useMemo<MenuProps[]>(
     () => [
       {
+        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownImportSchema,
+        disabled: getImportSchemaUIMetadata.shouldDisable,
         key: "schema",
         label: (
           <Tooltip title={getImportSchemaUIMetadata.tooltipMessage}>{t("Import Schema")}</Tooltip>
         ),
-        disabled: getImportSchemaUIMetadata.shouldDisable,
         onClick: () => onImportSchemaNavigate(model.id),
-        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownImportSchema,
       },
       {
+        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownImportContent,
+        disabled: getImportContentUIMetadata.shouldDisable,
         key: "content",
         label: (
           <Tooltip title={getImportContentUIMetadata.tooltipMessage}>{t("Import content")}</Tooltip>
         ),
-        disabled: getImportContentUIMetadata.shouldDisable,
         onClick: () => onImportContentNavigate(model.id),
-        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownImportContent,
       },
     ],
     [
@@ -189,32 +189,32 @@ const ModelCard: React.FC<Props> = ({
   const ExportMenuItems = useMemo<MenuProps[]>(
     () => [
       {
+        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportSchema,
+        disabled: exportLoading,
         key: "schema",
         label: t("Export Schema"),
         onClick: () => handleModelExportClick(ExportFormat.Schema),
-        disabled: exportLoading,
-        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportSchema,
       },
       {
+        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportContentJSON,
+        disabled: exportLoading,
         key: "json",
         label: t("Export as JSON"),
         onClick: () => handleModelExportClick(ExportFormat.Json),
-        disabled: exportLoading,
-        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportContentJSON,
       },
       {
+        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportContentCSV,
+        disabled: exportLoading,
         key: "csv",
         label: t("Export as CSV"),
         onClick: () => handleModelExportClick(ExportFormat.Csv),
-        disabled: exportLoading,
-        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportContentCSV,
       },
       {
+        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportContentGeoJSON,
+        disabled: exportLoading,
         key: "geojson",
         label: t("Export as GeoJSON"),
         onClick: () => handleModelExportClick(ExportFormat.Geojson),
-        disabled: exportLoading,
-        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExportContentGeoJSON,
       },
     ],
     [t, handleModelExportClick, exportLoading],
@@ -223,31 +223,31 @@ const ModelCard: React.FC<Props> = ({
   const OptionsMenuItems = useMemo<MenuProps["items"]>(
     () => [
       {
+        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownEdit,
+        disabled: !hasUpdateRight,
         key: "edit",
         label: t("Edit"),
         onClick: () => onModelUpdateModalOpen(model),
-        disabled: !hasUpdateRight,
-        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownEdit,
       },
       {
-        key: "import",
-        label: t("Import"),
         children: ImportMenuItems,
         "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownImport,
+        key: "import",
+        label: t("Import"),
       },
       {
-        key: "export",
-        label: t("Export"),
         children: ExportMenuItems,
         "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownExport,
+        key: "export",
+        label: t("Export"),
       },
       {
+        danger: true,
+        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownDelete,
+        disabled: !hasDeleteRight,
         key: "delete",
         label: t("Delete"),
         onClick: () => onModelDeletionModalOpen(model),
-        danger: true,
-        disabled: !hasDeleteRight,
-        "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownDelete,
       },
     ],
     [
@@ -275,7 +275,7 @@ const ModelCard: React.FC<Props> = ({
           </a>
         </Dropdown>,
       ]}>
-      <Meta title={model.name} description={model.description} />
+      <Meta description={model.description} title={model.name} />
     </StyledCard>
   );
 };

@@ -1,16 +1,16 @@
 export type Comment = {
-  id: string;
-  author: { id?: string; name: string; type: "User" | "Integration" | null };
+  author: { id?: string; name: string; type: "Integration" | "User" | null };
   content: string;
   createdAt: string;
+  id: string;
 };
 
 export type RefetchQueries = (
-  | "GetItem"
-  | "SearchItem"
   | "GetAssetItem"
   | "GetAssetsItems"
+  | "GetItem"
   | "GetRequests"
+  | "SearchItem"
 )[];
 
-export type ResourceType = "ITEM" | "ASSET" | "REQUEST";
+export type ResourceType = "ASSET" | "ITEM" | "REQUEST";

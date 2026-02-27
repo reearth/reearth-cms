@@ -14,8 +14,8 @@ test.beforeEach(async ({ reearth }) => {
 test.describe("Project General Settings", () => {
   test("@smoke Update project general settings", async ({
     page,
-    projectSettingsPage,
     projectPage,
+    projectSettingsPage,
   }) => {
     await test.step("Project creation setup", async () => {
       await projectPage.createProject(EXIST_PROJECT_NAME);
@@ -69,8 +69,8 @@ test.describe("Project General Settings", () => {
       await test.step("Alias illegal case 2", async () => {
         await aliasEl.fill("hell");
         const errorMsg2 = t("Your alias must be between {{min}} and {{max}} characters long.", {
-          min: Constant.PROJECT_ALIAS.MIN_LENGTH,
           max: Constant.PROJECT_ALIAS.MAX_LENGTH,
+          min: Constant.PROJECT_ALIAS.MIN_LENGTH,
         });
         await expect(errorEl).toHaveText(errorMsg2);
         await page.waitForTimeout(300);

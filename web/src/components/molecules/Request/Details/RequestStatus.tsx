@@ -14,16 +14,16 @@ const RequestStatus: React.FC<Props> = ({ requestState }) => {
   const { Step } = Steps;
 
   return (
-    <StyledSteps direction="vertical" current={1}>
+    <StyledSteps current={1} direction="vertical">
       {requestState === "APPROVED" && (
         <Step
-          icon={<StyledIcon icon="checkCircle" color="#52C41A" size={28} />}
+          icon={<StyledIcon color="#52C41A" icon="checkCircle" size={28} />}
           title={<StatusTitle>{t("Approved")}</StatusTitle>}
         />
       )}
       {requestState === "CLOSED" && (
         <Step
-          icon={<StyledIcon icon="closeCircle" color="#BFBFBF" size={28} />}
+          icon={<StyledIcon color="#BFBFBF" icon="closeCircle" size={28} />}
           title={<StatusTitle>{t("Closed")}</StatusTitle>}
         />
       )}

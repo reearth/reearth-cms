@@ -1,14 +1,13 @@
-import path from "path";
-
 import { Browser, BrowserContext } from "@playwright/test";
+import path from "path";
 
 export const DEFAULT_USER_AGENT = "Playwright-E2E-Tests";
 
 const AUTH_WHITELIST_HOSTS = ["auth0.com", "googleapis.com", "accounts.google.com"];
 
 export type IAPTokenProvider = {
-  getIdToken(): Promise<string>;
   forceRefresh?(): Promise<void>;
+  getIdToken(): Promise<string>;
 };
 
 export type IAPContextOptions = {
@@ -57,14 +56,14 @@ export async function createIAPBrowserContext(
     : undefined;
 
   const context = await browser.newContext({
+    bypassCSP: true,
     extraHTTPHeaders: {
       "Proxy-Authorization": `Bearer ${initialToken}`,
       "User-Agent": DEFAULT_USER_AGENT,
     },
-    recordVideo: { dir: "videos/", size: { width: 1280, height: 720 } },
     ignoreHTTPSErrors: true,
-    bypassCSP: true,
     permissions: ["geolocation"],
+    recordVideo: { dir: "videos/", size: { height: 720, width: 1280 } },
     storageState: storageStatePath,
   });
 

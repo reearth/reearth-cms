@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import WorkspaceCreationModal, {
@@ -24,9 +24,9 @@ const CreateWorkspaceButton: React.FC<Props> = ({ onWorkspaceCreate }) => {
     <>
       <Button onClick={handleWorkspaceModalOpen}>{t("Create a Workspace")}</Button>
       <WorkspaceCreationModal
-        open={workspaceModalShown}
         onClose={handleWorkspaceModalClose}
         onSubmit={onWorkspaceCreate}
+        open={workspaceModalShown}
       />
     </>
   );

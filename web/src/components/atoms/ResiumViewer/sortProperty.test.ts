@@ -1,4 +1,4 @@
-import { test, expect, describe } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import { sortProperties, tryParseJson } from "./sortProperty";
 
@@ -6,8 +6,8 @@ describe("sort Properties", () => {
   test("sort depth1: simple", () => {
     const obj = {
       a: "a",
-      c: "c",
       b: "b",
+      c: "c",
     };
     const expected = {
       a: "a",
@@ -19,8 +19,8 @@ describe("sort Properties", () => {
   test("sort depth1: other data types", () => {
     const obj = {
       a: ["hoge", "fuga"],
-      c: "c",
       b: 1000,
+      c: "c",
     };
     const expected = {
       a: ["hoge", "fuga"],
@@ -34,16 +34,16 @@ describe("sort Properties", () => {
     const obj = {
       a: {
         a: "a",
-        c: "c",
         b: "b",
+        c: "c",
+      },
+      b: {
+        a: "a",
+        b: "b",
+        c: "c",
       },
       c: ["1", "2", "3"],
       d: 100,
-      b: {
-        a: "a",
-        c: "c",
-        b: "b",
-      },
     };
     const expected = {
       a: {
@@ -56,16 +56,16 @@ describe("sort Properties", () => {
         b: "b",
         c: "c",
       },
-      d: 100,
       c: ["1", "2", "3"],
+      d: 100,
     };
     expect(sortProperties(obj)).toStrictEqual(expected);
   });
 
   test("parse JSON string properties", () => {
     const obj = {
-      name: "test",
       attributes: '{"key": "value", "nested": {"a": 1}}',
+      name: "test",
       normalString: "hello",
     };
     const result = sortProperties(obj);

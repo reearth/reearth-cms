@@ -3,53 +3,53 @@ import { useCallback, useState } from "react";
 import MemberAddModal from "@reearth-cms/components/molecules/Member/MemberAddModal";
 import MemberRoleModal from "@reearth-cms/components/molecules/Member/MemberRoleModal";
 import MemberTable from "@reearth-cms/components/molecules/Member/MemberTable";
-import { User, Role } from "@reearth-cms/components/molecules/Member/types";
-import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
+import { Role, User } from "@reearth-cms/components/molecules/Member/types";
+import { MemberInput, UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 
 type Props = {
-  workspaceUserMembers?: UserMember[];
-  userId?: string;
-  isAbleToLeave: boolean;
-  onMemberRemoveFromWorkspace: (userIds: string[]) => Promise<void>;
-  onLeave: (userId: string) => Promise<void>;
-  onSearchTerm: (term?: string) => void;
-  page: number;
-  pageSize: number;
-  onTableChange: (page: number, pageSize: number) => void;
-  loading: boolean;
-  onReload: () => void;
+  addLoading: boolean;
+  hasChangeRoleRight: boolean;
   hasInviteRight: boolean;
   hasRemoveRight: boolean;
-  hasChangeRoleRight: boolean;
-  updateLoading: boolean;
+  isAbleToLeave: boolean;
+  loading: boolean;
+  onLeave: (userId: string) => Promise<void>;
+  onMemberRemoveFromWorkspace: (userIds: string[]) => Promise<void>;
+  onReload: () => void;
+  onSearchTerm: (term?: string) => void;
+  onTableChange: (page: number, pageSize: number) => void;
   onUpdateRole: (userId: string, role: Role) => Promise<void>;
-  searchLoading: boolean;
-  addLoading: boolean;
-  onUserSearch: (nameOrEmail: string) => Promise<User[]>;
   onUsersAddToWorkspace: (users: MemberInput[]) => Promise<void>;
+  onUserSearch: (nameOrEmail: string) => Promise<User[]>;
+  page: number;
+  pageSize: number;
+  searchLoading: boolean;
+  updateLoading: boolean;
+  userId?: string;
+  workspaceUserMembers?: UserMember[];
 };
 
 const Member: React.FC<Props> = ({
-  workspaceUserMembers,
-  userId,
-  isAbleToLeave,
-  onMemberRemoveFromWorkspace,
-  onLeave,
-  onSearchTerm,
-  page,
-  pageSize,
-  onTableChange,
-  loading,
-  onReload,
+  addLoading,
+  hasChangeRoleRight,
   hasInviteRight,
   hasRemoveRight,
-  hasChangeRoleRight,
-  updateLoading,
+  isAbleToLeave,
+  loading,
+  onLeave,
+  onMemberRemoveFromWorkspace,
+  onReload,
+  onSearchTerm,
+  onTableChange,
   onUpdateRole,
-  searchLoading,
-  addLoading,
-  onUserSearch,
   onUsersAddToWorkspace,
+  onUserSearch,
+  page,
+  pageSize,
+  searchLoading,
+  updateLoading,
+  userId,
+  workspaceUserMembers,
 }) => {
   const [selectedMember, setSelectedMember] = useState<UserMember>();
   const [isRoleModalShow, setIsRoleModalShow] = useState(false);
@@ -75,40 +75,40 @@ const Member: React.FC<Props> = ({
   return (
     <>
       <MemberTable
-        workspaceUserMembers={workspaceUserMembers}
-        userId={userId}
-        isAbleToLeave={isAbleToLeave}
-        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
-        onLeave={onLeave}
-        onSearchTerm={onSearchTerm}
-        onRoleModalOpen={handleRoleModalOpen}
-        onMemberAddModalOpen={handleMemberAddModalOpen}
-        page={page}
-        pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        onReload={onReload}
+        hasChangeRoleRight={hasChangeRoleRight}
         hasInviteRight={hasInviteRight}
         hasRemoveRight={hasRemoveRight}
-        hasChangeRoleRight={hasChangeRoleRight}
+        isAbleToLeave={isAbleToLeave}
+        loading={loading}
+        onLeave={onLeave}
+        onMemberAddModalOpen={handleMemberAddModalOpen}
+        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
+        onReload={onReload}
+        onRoleModalOpen={handleRoleModalOpen}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
+        page={page}
+        pageSize={pageSize}
+        userId={userId}
+        workspaceUserMembers={workspaceUserMembers}
       />
       {selectedMember && (
         <MemberRoleModal
-          open={isRoleModalShow}
-          member={selectedMember}
           loading={updateLoading}
+          member={selectedMember}
           onClose={handleRoleModalClose}
           onUpdateRole={onUpdateRole}
+          open={isRoleModalShow}
         />
       )}
       <MemberAddModal
-        open={isAddModalShow}
-        workspaceUserMembers={workspaceUserMembers}
-        searchLoading={searchLoading}
         addLoading={addLoading}
-        onUserSearch={onUserSearch}
         onClose={handleMemberAddModalClose}
         onSubmit={onUsersAddToWorkspace}
+        onUserSearch={onUserSearch}
+        open={isAddModalShow}
+        searchLoading={searchLoading}
+        workspaceUserMembers={workspaceUserMembers}
       />
     </>
   );

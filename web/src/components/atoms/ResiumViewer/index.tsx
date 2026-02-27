@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Cesium3DTileFeature, Viewer as CesiumViewer, JulianDate, Entity } from "cesium";
+import { Cesium3DTileFeature, Viewer as CesiumViewer, Entity, JulianDate } from "cesium";
 import { RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CesiumComponentRef, CesiumMovementEvent, RootEventTarget, Viewer } from "resium";
 
@@ -12,20 +12,20 @@ import { imageryGet, terrainGet } from "./provider";
 import { sortProperties } from "./sortProperty";
 
 type Props = {
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
   children: React.ReactNode;
+  onSelect?: (id?: string) => void;
   properties?: Property;
   showDescription?: boolean;
-  onSelect?: (id?: string) => void;
+  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
   workspaceSettings: WorkspaceSettings;
 };
 
 const ResiumViewer: React.FC<Props> = ({
-  viewerRef,
   children,
+  onSelect,
   properties: passedProps,
   showDescription,
-  onSelect,
+  viewerRef,
   workspaceSettings,
 }) => {
   const t = useT();
@@ -132,34 +132,34 @@ const ResiumViewer: React.FC<Props> = ({
     <Container>
       {isLoading && <LoadingOverlay>{t("Loading")}</LoadingOverlay>}
       <StyledViewer
+        animation={false}
+        baseLayerPicker={true}
+        fullscreenButton={false}
+        geocoder={false}
+        hidden={isLoading}
+        homeButton={false}
+        imageryProviderViewModels={imagery}
+        infoBox={false}
         key={viewerKey}
         navigationHelpButton={false}
-        homeButton={false}
-        projectionPicker={false}
-        sceneModePicker={false}
-        baseLayerPicker={true}
-        imageryProviderViewModels={imagery}
-        selectedTerrainProviderViewModel={terrain[1]}
-        terrainProviderViewModels={terrain}
-        fullscreenButton={false}
-        vrButton={false}
-        selectionIndicator={false}
-        timeline={false}
-        animation={false}
-        geocoder={false}
-        shouldAnimate={true}
         onClick={handleClick}
-        infoBox={false}
-        hidden={isLoading}
-        ref={viewerRef}>
+        projectionPicker={false}
+        ref={viewerRef}
+        sceneModePicker={false}
+        selectedTerrainProviderViewModel={terrain[1]}
+        selectionIndicator={false}
+        shouldAnimate={true}
+        terrainProviderViewModels={terrain}
+        timeline={false}
+        vrButton={false}>
         {children}
       </StyledViewer>
       <InfoBox
+        description={description}
         infoBoxProps={properties}
         infoBoxVisibility={infoBoxVisibility}
-        title={title}
-        description={description}
         onClose={handleClose}
+        title={title}
       />
     </Container>
   );

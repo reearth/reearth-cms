@@ -5,16 +5,16 @@ import Spin from "@reearth-cms/components/atoms/Spin";
 import { useT } from "@reearth-cms/i18n";
 
 export type Props = {
-  spinnerSize?: "small" | "large" | "default";
   minHeight?: string;
+  spinnerSize?: "default" | "large" | "small";
 };
 
-const Loading: React.FC<Props> = ({ spinnerSize, minHeight }) => {
+const Loading: React.FC<Props> = ({ minHeight, spinnerSize }) => {
   const t = useT();
 
   return (
-    <StyledRow justify="center" align="middle" minHeight={minHeight}>
-      <Spin tip={t("Loading")} size={spinnerSize} data-testid="loading" />
+    <StyledRow align="middle" justify="center" minHeight={minHeight}>
+      <Spin data-testid="loading" size={spinnerSize} tip={t("Loading")} />
     </StyledRow>
   );
 };

@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
 
@@ -29,28 +29,28 @@ describe("Integration table", () => {
   const creatorName = "creatorName";
   const role = "READER";
   const integration: WorkspaceIntegration = {
+    createdBy: { email: "", id: "", name: creatorName },
     id: "id",
     name,
-    createdBy: { id: "", name: creatorName, email: "" },
     role,
   };
 
   test("Page number and number of items per page are displayed successfully", async () => {
     render(
       <IntegrationTable
-        workspaceIntegrations={[integration]}
-        onSearchTerm={onSearchTerm}
-        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
-        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
         deleteLoading={deleteLoading}
+        hasConnectRight={hasConnectRight}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
+        loading={loading}
+        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
         onIntegrationRemove={onIntegrationRemove}
+        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
         page={page}
         pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        hasConnectRight={hasConnectRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
+        workspaceIntegrations={[integration]}
       />,
     );
 
@@ -61,19 +61,19 @@ describe("Integration table", () => {
   test("Document link is displayed on placeholder successfully", () => {
     render(
       <IntegrationTable
-        workspaceIntegrations={workspaceIntegrations}
-        onSearchTerm={onSearchTerm}
-        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
-        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
         deleteLoading={deleteLoading}
+        hasConnectRight={hasConnectRight}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
+        loading={loading}
+        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
         onIntegrationRemove={onIntegrationRemove}
+        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
         page={page}
         pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        hasConnectRight={hasConnectRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
+        workspaceIntegrations={workspaceIntegrations}
       />,
     );
 
@@ -85,19 +85,19 @@ describe("Integration table", () => {
 
     render(
       <IntegrationTable
-        workspaceIntegrations={workspaceIntegrations}
-        onSearchTerm={onSearchTerm}
-        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
-        onIntegrationConnectModalOpen={connectModalOpenMock}
         deleteLoading={deleteLoading}
+        hasConnectRight={hasConnectRight}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
+        loading={loading}
+        onIntegrationConnectModalOpen={connectModalOpenMock}
         onIntegrationRemove={onIntegrationRemove}
+        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
         page={page}
         pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        hasConnectRight={hasConnectRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
+        workspaceIntegrations={workspaceIntegrations}
       />,
     );
 
@@ -111,19 +111,19 @@ describe("Integration table", () => {
 
     render(
       <IntegrationTable
-        workspaceIntegrations={workspaceIntegrations}
-        onSearchTerm={searchMock}
-        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
-        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
         deleteLoading={deleteLoading}
+        hasConnectRight={hasConnectRight}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
+        loading={loading}
+        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
         onIntegrationRemove={onIntegrationRemove}
+        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
+        onSearchTerm={searchMock}
+        onTableChange={onTableChange}
         page={page}
         pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        hasConnectRight={hasConnectRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
+        workspaceIntegrations={workspaceIntegrations}
       />,
     );
 
@@ -138,19 +138,19 @@ describe("Integration table", () => {
   test("Data is displayed successfully", async () => {
     render(
       <IntegrationTable
-        workspaceIntegrations={[integration]}
-        onSearchTerm={onSearchTerm}
-        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
-        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
         deleteLoading={deleteLoading}
+        hasConnectRight={hasConnectRight}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
+        loading={loading}
+        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
         onIntegrationRemove={onIntegrationRemove}
+        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
         page={page}
         pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        hasConnectRight={hasConnectRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
+        workspaceIntegrations={[integration]}
       />,
     );
 
@@ -167,19 +167,19 @@ describe("Integration table", () => {
 
     render(
       <IntegrationTable
-        workspaceIntegrations={[integration]}
-        onSearchTerm={onSearchTerm}
-        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
-        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
         deleteLoading={deleteLoading}
+        hasConnectRight={hasConnectRight}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
+        loading={loading}
+        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
         onIntegrationRemove={onIntegrationRemoveMock}
+        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
         page={page}
         pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        hasConnectRight={hasConnectRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
+        workspaceIntegrations={[integration]}
       />,
     );
 
@@ -191,19 +191,19 @@ describe("Integration table", () => {
   test("Delete loading is displayed successfully", async () => {
     render(
       <IntegrationTable
-        workspaceIntegrations={[integration]}
-        onSearchTerm={onSearchTerm}
-        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
-        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
         deleteLoading={true}
+        hasConnectRight={hasConnectRight}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
+        loading={loading}
+        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
         onIntegrationRemove={onIntegrationRemove}
+        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
         page={page}
         pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        hasConnectRight={hasConnectRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
+        workspaceIntegrations={[integration]}
       />,
     );
 
@@ -214,19 +214,19 @@ describe("Integration table", () => {
   test("Connecting buttons are disabled according to user right successfully", async () => {
     render(
       <IntegrationTable
-        workspaceIntegrations={workspaceIntegrations}
-        onSearchTerm={onSearchTerm}
-        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
-        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
         deleteLoading={deleteLoading}
+        hasConnectRight={false}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
+        loading={loading}
+        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
         onIntegrationRemove={onIntegrationRemove}
+        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
         page={page}
         pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        hasConnectRight={false}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
+        workspaceIntegrations={workspaceIntegrations}
       />,
     );
 
@@ -238,19 +238,19 @@ describe("Integration table", () => {
   test("Update and remove buttons are disabled according to user right successfully", async () => {
     render(
       <IntegrationTable
-        workspaceIntegrations={[integration]}
-        onSearchTerm={onSearchTerm}
-        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
-        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
         deleteLoading={deleteLoading}
+        hasConnectRight={hasConnectRight}
+        hasDeleteRight={false}
+        hasUpdateRight={false}
+        loading={loading}
+        onIntegrationConnectModalOpen={onIntegrationConnectModalOpen}
         onIntegrationRemove={onIntegrationRemove}
+        onIntegrationSettingsModalOpen={onIntegrationSettingsModalOpen}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
         page={page}
         pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        hasConnectRight={hasConnectRight}
-        hasUpdateRight={false}
-        hasDeleteRight={false}
+        workspaceIntegrations={[integration]}
       />,
     );
 

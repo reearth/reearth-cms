@@ -1,4 +1,4 @@
-import { useMemo, useRef, useCallback } from "react";
+import { useCallback, useMemo, useRef } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
 import GeometryItem from "@reearth-cms/components/molecules/Common/Form/GeometryItem";
@@ -11,9 +11,9 @@ import FieldTitle from "../../FieldTitle";
 import { requiredValidator } from "../utils";
 
 const GeometryField: React.FC<FieldProps> = ({
+  disabled,
   field,
   itemGroupId,
-  disabled,
   itemHeights,
   onItemHeightChange,
 }) => {
@@ -38,37 +38,37 @@ const GeometryField: React.FC<FieldProps> = ({
   return (
     <Form.Item
       extra={field.description}
+      label={<FieldTitle isTitle={field.isTitle} isUnique={field.unique} title={field.title} />}
+      name={itemGroupId ? [field.id, itemGroupId] : field.id}
       rules={[
         {
+          message: t("Please input field!"),
           required: field.required,
           validator: requiredValidator,
-          message: t("Please input field!"),
         },
         {
           validator: async () => {
             return errorSet.current.size ? Promise.reject() : Promise.resolve();
           },
         },
-      ]}
-      name={itemGroupId ? [field.id, itemGroupId] : field.id}
-      label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
+      ]}>
       {field.multiple ? (
         <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
           <MultiValueGeometry
-            supportedTypes={supportedTypes}
-            isEditor={isEditor}
             disabled={disabled}
             errorAdd={errorAdd}
             errorDelete={errorDelete}
+            isEditor={isEditor}
+            supportedTypes={supportedTypes}
           />
         </ResponsiveHeight>
       ) : (
         <GeometryItem
-          supportedTypes={supportedTypes}
-          isEditor={isEditor}
           disabled={disabled}
           errorAdd={() => errorAdd(0)}
           errorDelete={() => errorDelete(0)}
+          isEditor={isEditor}
+          supportedTypes={supportedTypes}
         />
       )}
     </Form.Item>

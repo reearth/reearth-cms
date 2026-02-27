@@ -10,7 +10,7 @@ import {
   UpdateWorkspaceDocument,
 } from "@reearth-cms/gql/__generated__/workspace.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace, useUserRights } from "@reearth-cms/state";
+import { useUserRights, useWorkspace } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
@@ -40,8 +40,8 @@ export default () => {
       if (!workspaceId || !name) return;
       const res = await updateWorkspaceMutation({
         variables: {
-          workspaceId,
           name,
+          workspaceId,
         },
       });
       if (res.error || !res.data?.updateWorkspace) {
@@ -69,11 +69,11 @@ export default () => {
   }, [workspaceId, deleteWorkspaceMutation, setCurrentWorkspace, navigate, t]);
 
   return {
-    workspaceName,
-    updateWorkspaceLoading,
-    hasUpdateRight,
-    hasDeleteRight,
-    handleWorkspaceUpdate,
     handleWorkspaceDelete,
+    handleWorkspaceUpdate,
+    hasDeleteRight,
+    hasUpdateRight,
+    updateWorkspaceLoading,
+    workspaceName,
   };
 };

@@ -1,5 +1,5 @@
 import { Auth } from "aws-amplify";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { logOutFromTenant } from "@reearth-cms/config";
 
@@ -7,7 +7,7 @@ import AuthHook from "./AuthHook";
 
 export const useCognitoAuth = (): AuthHook => {
   const [user, setUser] = useState<unknown>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<null | string>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -52,5 +52,5 @@ export const useCognitoAuth = (): AuthHook => {
     }
   };
 
-  return { user, isAuthenticated: !!user, isLoading, error, getAccessToken, login, logout };
+  return { error, getAccessToken, isAuthenticated: !!user, isLoading, login, logout, user };
 };

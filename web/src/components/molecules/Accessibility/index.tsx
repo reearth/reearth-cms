@@ -7,70 +7,70 @@ import AccessAPIComponent from "./AccessAPI";
 import APIKeyComponent from "./APIKey";
 
 type Props = {
-  apiKeys?: APIKey[];
-  isProjectPublic?: boolean;
-  initialValues: FormType;
-  models: Pick<Model, "id" | "name" | "key">[];
-  hasPublishRight: boolean;
-  hasCreateRight: boolean;
-  hasUpdateRight: boolean;
-  hasDeleteRight: boolean;
-  updateLoading: boolean;
-  apiUrl: string;
   alias: string;
-  onAPIKeyNew: () => void;
-  onAPIKeyEdit: (keyId?: string) => void;
+  apiKeys?: APIKey[];
+  apiUrl: string;
+  hasCreateRight: boolean;
+  hasDeleteRight: boolean;
+  hasPublishRight: boolean;
+  hasUpdateRight: boolean;
+  initialValues: FormType;
+  isProjectPublic?: boolean;
+  models: Pick<Model, "id" | "key" | "name">[];
   onAPIKeyDelete: (id: string) => Promise<void>;
+  onAPIKeyEdit: (keyId?: string) => void;
+  onAPIKeyNew: () => void;
   onPublicUpdate: (
     settings: FormType,
     models: { modelId: string; status: boolean }[],
   ) => Promise<void>;
   onSettingsPageOpen: () => void;
+  updateLoading: boolean;
 };
 
 const Accessibility: React.FC<Props> = ({
   apiKeys,
-  isProjectPublic,
-  initialValues,
-  models,
-  hasPublishRight,
-  hasCreateRight,
-  hasUpdateRight,
-  hasDeleteRight,
-  updateLoading,
   apiUrl,
-  onAPIKeyNew,
-  onAPIKeyEdit,
+  hasCreateRight,
+  hasDeleteRight,
+  hasPublishRight,
+  hasUpdateRight,
+  initialValues,
+  isProjectPublic,
+  models,
   onAPIKeyDelete,
+  onAPIKeyEdit,
+  onAPIKeyNew,
   onPublicUpdate,
   onSettingsPageOpen,
+  updateLoading,
 }) => {
   const t = useT();
 
   return (
     <InnerContent
-      title={t("Accessibility")}
       flexChildren
-      subtitle={t("Control the visibility scope of the Content API")}>
+      subtitle={t("Control the visibility scope of the Content API")}
+      title={t("Accessibility")}>
       <AccessAPIComponent
         apiUrl={apiUrl}
+        hasPublishRight={hasPublishRight}
         initialValues={initialValues}
         isPublic={isProjectPublic}
-        hasPublishRight={hasPublishRight}
         models={models}
-        updateLoading={updateLoading}
         onAPIKeyEdit={onAPIKeyEdit}
         onPublicUpdate={onPublicUpdate}
+        updateLoading={updateLoading}
       />
       <APIKeyComponent
-        keys={apiKeys}
-        isPublic={isProjectPublic}
         hasCreateRight={hasCreateRight}
-        hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
-        onAPIKeyNew={onAPIKeyNew}
-        onAPIKeyEdit={onAPIKeyEdit}
+        hasUpdateRight={hasUpdateRight}
+        isPublic={isProjectPublic}
+        keys={apiKeys}
         onAPIKeyDelete={onAPIKeyDelete}
+        onAPIKeyEdit={onAPIKeyEdit}
+        onAPIKeyNew={onAPIKeyNew}
         onSettingsPageOpen={onSettingsPageOpen}
       />
     </InnerContent>

@@ -19,7 +19,7 @@ import { ObjectUtils } from "@reearth-cms/utils/object";
 export default () => {
   const t = useT();
   const navigate = useNavigate();
-  const { workspaceId, projectId } = useParams();
+  const { projectId, workspaceId } = useParams();
   const [currentProject] = useProject();
   const [currentWorkspace] = useWorkspace();
   const [userRights] = useUserRights();
@@ -43,11 +43,11 @@ export default () => {
   );
 
   const { data: modelsData } = useQuery(GetModelsDocument, {
-    variables: {
-      projectId: currentProject?.id ?? "",
-      pagination: { first: 100 },
-    },
     skip: !currentProject?.id,
+    variables: {
+      pagination: { first: 100 },
+      projectId: currentProject?.id ?? "",
+    },
   });
 
   const models = useMemo(
@@ -96,13 +96,13 @@ export default () => {
 
           const projRes = await updateProjectMutation({
             variables: {
-              projectId: currentProject.id,
               accessibility: {
                 publication: {
-                  publicModels,
                   publicAssets: assetPublic,
+                  publicModels,
                 },
               },
+              projectId: currentProject.id,
             },
           });
 
@@ -125,8 +125,8 @@ export default () => {
       try {
         await deleteAPIKeyMutation({
           variables: {
-            projectId: currentProject.id,
             id,
+            projectId: currentProject.id,
           },
         });
         Notification.success({ message: t("API Key deleted successfully.") });
@@ -156,21 +156,21 @@ export default () => {
   };
 
   return {
-    apiKeys,
-    isProjectPublic,
-    initialValues,
-    models,
-    hasPublishRight,
-    hasCreateRight,
-    hasUpdateRight,
-    hasDeleteRight,
-    updateLoading,
-    apiUrl,
     alias,
-    handleAPIKeyNew,
-    handlePublicUpdate,
+    apiKeys,
+    apiUrl,
     handleAPIKeyDelete,
     handleAPIKeyEdit,
+    handleAPIKeyNew,
+    handlePublicUpdate,
     handleSettingsPageOpen,
+    hasCreateRight,
+    hasDeleteRight,
+    hasPublishRight,
+    hasUpdateRight,
+    initialValues,
+    isProjectPublic,
+    models,
+    updateLoading,
   };
 };

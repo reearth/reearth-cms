@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -12,26 +12,26 @@ import AccessAPITable from "./AccessAPITable";
 
 type Props = {
   apiUrl: string;
-  isPublic?: boolean;
-  initialValues: FormType;
   hasPublishRight: boolean;
-  models: Pick<Model, "id" | "name" | "key">[];
-  updateLoading: boolean;
+  initialValues: FormType;
+  isPublic?: boolean;
+  models: Pick<Model, "id" | "key" | "name">[];
   onAPIKeyEdit: (keyId?: string) => void;
   onPublicUpdate: (
     settings: FormType,
     models: { modelId: string; status: boolean }[],
   ) => Promise<void>;
+  updateLoading: boolean;
 };
 
 const AccessAPIComponent: React.FC<Props> = ({
   apiUrl,
-  isPublic,
-  initialValues,
   hasPublishRight,
+  initialValues,
+  isPublic,
   models,
-  updateLoading,
   onPublicUpdate,
+  updateLoading,
 }) => {
   const t = useT();
   const [form] = Form.useForm<FormType>();
@@ -86,15 +86,15 @@ const AccessAPIComponent: React.FC<Props> = ({
         <AccessAPITable
           apiUrl={apiUrl}
           hasPublishRight={hasPublishRight}
-          models={models}
           isPublic={isPublic}
+          models={models}
         />
         {!isPublic && (
           <Button
-            type="primary"
             disabled={isSaveDisabled}
+            loading={updateLoading}
             onClick={handleSave}
-            loading={updateLoading}>
+            type="primary">
             {t("Save changes")}
           </Button>
         )}

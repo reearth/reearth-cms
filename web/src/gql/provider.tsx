@@ -23,7 +23,7 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 type Props = {
   children?: React.ReactNode;
 };
-function _getHttpProtocol(): "HTTP/2" | "HTTP/3" | "HTTP/1.1" | "HTTP/1.0" | "Unknown" {
+function _getHttpProtocol(): "HTTP/1.0" | "HTTP/1.1" | "HTTP/2" | "HTTP/3" | "Unknown" {
   const navEntry = performance.getEntriesByType("navigation")[0] as
     | PerformanceNavigationTiming
     | undefined;
@@ -71,26 +71,26 @@ const Provider: React.FC<Props> = ({ children }) => {
 
   const wsLink = new GraphQLWsLink(
     createClient({
-      url: wsEndpoint,
       connectionParams: async () => {
         const accessToken = window.REEARTH_E2E_ACCESS_TOKEN || (await getAccessToken());
         return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
       },
       on: {
-        connected: () => console.log("[GQL_WS] Connected"),
         closed: event => console.log("[GQL_WS] Closed: ", event),
+        connected: () => console.log("[GQL_WS] Connected"),
         error: error => console.error("[GQL_WS] Error: ", error),
       },
+      url: wsEndpoint,
     }),
   );
 
   const sseClient = createSSEClient({
-    url: endpoint,
-    singleConnection: false,
     headers: async (): Promise<Record<string, string>> => {
       const accessToken = window.REEARTH_E2E_ACCESS_TOKEN || (await getAccessToken());
       return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
     },
+    singleConnection: false,
+    url: endpoint,
   });
 
   const sseLink = new ApolloLink(
@@ -102,14 +102,14 @@ const Provider: React.FC<Props> = ({ children }) => {
         (async () => {
           try {
             iterator = sseClient.iterate({
+              operationName: operation.operationName ?? undefined,
               query: print(operation.query),
               variables: operation.variables,
-              operationName: operation.operationName ?? undefined,
             });
 
             for await (const result of iterator) {
               if (cancelled) break;
-              observer.next(result as { data?: Record<string, unknown> | null });
+              observer.next(result as { data?: null | Record<string, unknown> });
             }
 
             if (!cancelled) observer.complete();
@@ -162,6 +162,8 @@ const Provider: React.FC<Props> = ({ children }) => {
   };
 
   const client = new ApolloClient({
+    cache,
+    devtools: { enabled: process.env.NODE_ENV === "development" },
     link: ApolloLink.from([
       errorLink,
       ApolloLink.split(
@@ -170,8 +172,6 @@ const Provider: React.FC<Props> = ({ children }) => {
         ApolloLink.from([authLink, uploadLink]), // Queries/mutations
       ),
     ]),
-    cache,
-    devtools: { enabled: process.env.NODE_ENV === "development" },
   });
 
   return <ApolloProvider client={client}>{children}</ApolloProvider>;

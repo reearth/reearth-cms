@@ -2,33 +2,34 @@
 import styled from "@emotion/styled";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import ProTable, {
-  ProColumns,
-  ProTableProps,
-  ParamsType,
-} from "@reearth-cms/components/atoms/ProTable";
-import { ResizableTitle } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizable";
 import type { ResizeCallbackData } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizable";
 
-type Props = ProTableProps<Record<string, any> | any, ParamsType, "text"> & {
+import ProTable, {
+  ParamsType,
+  ProColumns,
+  ProTableProps,
+} from "@reearth-cms/components/atoms/ProTable";
+import { ResizableTitle } from "@reearth-cms/components/molecules/Common/ResizableProTable/resizable";
+
+type Props = {
   heightOffset: number;
-};
+} & ProTableProps<any | Record<string, any>, ParamsType, "text">;
 
 const ResizableProTable: React.FC<Props> = ({
-  dataSource,
   columns,
+  columnsState,
+  dataSource,
+  heightOffset,
   loading,
+  locale,
+  onChange,
   options,
+  pagination,
+  rowSelection,
+  showSorterTooltip,
+  tableAlertOptionRender,
   toolbar,
   toolBarRender,
-  rowSelection,
-  tableAlertOptionRender,
-  pagination,
-  onChange,
-  columnsState,
-  showSorterTooltip,
-  heightOffset,
-  locale,
 }) => {
   const [resizableColumns, setResizableColumns] = useState<ProColumns<any, "text">[]>(
     columns ?? [],
@@ -58,9 +59,9 @@ const ResizableProTable: React.FC<Props> = ({
       resizableColumns?.map((col, index): any => ({
         ...col,
         onHeaderCell: (column: ProColumns<any, "text">) => ({
-          minWidth: (column as ProColumns<any, "text"> & { minWidth: number }).minWidth,
-          width: (column as ProColumns<any, "text">).width,
+          minWidth: (column as { minWidth: number } & ProColumns<any, "text">).minWidth,
           onResize: handleResize(index),
+          width: (column as ProColumns<any, "text">).width,
         }),
       })),
     [handleResize, resizableColumns],
@@ -80,29 +81,29 @@ const ResizableProTable: React.FC<Props> = ({
 
   return (
     <StyledProTable
-      dataSource={dataSource}
       columns={mergeColumns}
+      columnsState={columnsState}
       components={{
         header: {
           cell: ResizableTitle,
         },
       }}
-      rowKey="id"
-      search={false}
+      dataSource={dataSource}
+      heightOffset={heightOffset}
+      isRowSelected={isRowSelected}
       loading={loading}
+      locale={locale}
+      onChange={onChange}
+      options={options}
+      pagination={pagination}
+      rowKey="id"
+      rowSelection={rowSelection}
+      scroll={{ x: "", y: "" }}
+      search={false}
+      showSorterTooltip={showSorterTooltip}
+      tableAlertOptionRender={tableAlertOptionRender}
       toolbar={toolbar}
       toolBarRender={toolBarRender}
-      options={options}
-      tableAlertOptionRender={tableAlertOptionRender}
-      rowSelection={rowSelection}
-      isRowSelected={isRowSelected}
-      pagination={pagination}
-      onChange={onChange}
-      columnsState={columnsState}
-      showSorterTooltip={showSorterTooltip}
-      scroll={{ x: "", y: "" }}
-      heightOffset={heightOffset}
-      locale={locale}
     />
   );
 };
@@ -110,8 +111,8 @@ const ResizableProTable: React.FC<Props> = ({
 export default ResizableProTable;
 
 const StyledProTable = styled(ProTable)<{
-  isRowSelected: boolean;
   heightOffset: number;
+  isRowSelected: boolean;
 }>`
   height: ${({ heightOffset }) => `calc(100% - ${heightOffset}px)`};
   .ant-pro-card-body {

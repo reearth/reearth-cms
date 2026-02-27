@@ -1,30 +1,30 @@
-import { useCallback, useState, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import {
   Integration,
-  Webhook as WebhookType,
   NewWebhook,
   TriggerKey,
+  Webhook as WebhookType,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import WebhookForm from "@reearth-cms/components/molecules/MyIntegrations/Webhook/WebhookForm";
 import WebhookList from "@reearth-cms/components/molecules/MyIntegrations/Webhook/WebhookList";
 
 type Props = {
-  integration: Integration;
   createWebhookLoading: boolean;
-  updateWebhookLoading: boolean;
+  integration: Integration;
   onWebhookCreate: (data: NewWebhook) => Promise<void>;
   onWebhookDelete: (webhookId: string) => Promise<void>;
   onWebhookUpdate: (data: WebhookType) => Promise<void>;
+  updateWebhookLoading: boolean;
 };
 
 const Webhook: React.FC<Props> = ({
-  integration,
   createWebhookLoading,
-  updateWebhookLoading,
+  integration,
   onWebhookCreate,
   onWebhookDelete,
   onWebhookUpdate,
+  updateWebhookLoading,
 }) => {
   const [webhookId, setwebhookId] = useState<string>("");
   const [showWebhookForm, changeShowWebhookForm] = useState(false);
@@ -69,19 +69,19 @@ const Webhook: React.FC<Props> = ({
 
   return showWebhookForm ? (
     <WebhookForm
-      webhookInitialValues={webhookInitialValues}
       loading={createWebhookLoading || updateWebhookLoading}
       onBack={handleBack}
       onWebhookCreate={handleWebhookCreate}
       onWebhookUpdate={onWebhookUpdate}
+      webhookInitialValues={webhookInitialValues}
     />
   ) : (
     <WebhookList
-      webhooks={integration.config.webhooks ?? []}
-      onWebhookDelete={onWebhookDelete}
-      onWebhookUpdate={onWebhookUpdate}
-      onWebhookSelect={handleWebhookSelect}
       onShowForm={handleShowForm}
+      onWebhookDelete={onWebhookDelete}
+      onWebhookSelect={handleWebhookSelect}
+      onWebhookUpdate={onWebhookUpdate}
+      webhooks={integration.config.webhooks ?? []}
     />
   );
 };

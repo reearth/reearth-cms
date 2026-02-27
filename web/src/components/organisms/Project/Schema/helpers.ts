@@ -1,10 +1,10 @@
 import {
   EditorSupportedType,
-  SchemaFieldType,
-  ObjectSupportedType,
-  TypeProperty,
-  ImportFieldInput,
   ExportSchemaFieldType,
+  ImportFieldInput,
+  ObjectSupportedType,
+  SchemaFieldType,
+  TypeProperty,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { Constant } from "@reearth-cms/utils/constant";
 import { ImportSchema, ImportSchemaField } from "@reearth-cms/utils/importSchema";
@@ -53,7 +53,7 @@ export function defaultTypePropertyGet(
   type: string,
 ): Record<
   string,
-  TypeProperty & { supportedTypes?: ObjectSupportedType[] | EditorSupportedType[] }
+  { supportedTypes?: EditorSupportedType[] | ObjectSupportedType[] } & TypeProperty
 > {
   switch (type.toLowerCase()) {
     case "textarea":
@@ -81,16 +81,16 @@ export function defaultTypePropertyGet(
       return {
         integer: {
           defaultValue: "",
-          min: undefined,
           max: undefined,
+          min: undefined,
         },
       };
     case "number":
       return {
         number: {
           defaultValue: "",
-          min: undefined,
           max: undefined,
+          min: undefined,
         },
       };
     case "bool":
@@ -151,7 +151,7 @@ function convertImportSchemaTypeProperty(
   field: ImportSchemaField,
 ): Record<
   string,
-  TypeProperty & { supportedTypes?: ObjectSupportedType[] | EditorSupportedType[] }
+  { supportedTypes?: EditorSupportedType[] | ObjectSupportedType[] } & TypeProperty
 > {
   switch (field["x-fieldType"]) {
     case ExportSchemaFieldType.Text:
@@ -193,16 +193,16 @@ function convertImportSchemaTypeProperty(
       return {
         number: {
           defaultValue: field["x-defaultValue"],
-          min: field.minimum,
           max: field.maximum,
+          min: field.minimum,
         },
       };
     case ExportSchemaFieldType.Integer:
       return {
         integer: {
           defaultValue: field["x-defaultValue"],
-          min: field.minimum,
           max: field.maximum,
+          min: field.minimum,
         },
       };
     case ExportSchemaFieldType.Select:
@@ -246,18 +246,18 @@ export function convertImportSchemaData(
   modelId: string | undefined,
 ): ImportFieldInput[] {
   return Object.entries(properties).map(([fieldKey, schemaField]) => ({
-    title: fieldKey,
-    metadata: false,
     description: schemaField.description,
-    key: fieldKey,
-    multiple: schemaField["x-multiple"] || false,
-    unique: schemaField["x-unique"] || false,
-    isTitle: false,
-    required: schemaField["x-required"] || false,
-    type: Constant.IMPORT.FIELD_TYPE_MAPPING[schemaField["x-fieldType"]],
-    modelId: modelId,
     groupId: undefined,
-    typeProperty: convertImportSchemaTypeProperty(schemaField),
     hidden: false,
+    isTitle: false,
+    key: fieldKey,
+    metadata: false,
+    modelId: modelId,
+    multiple: schemaField["x-multiple"] || false,
+    required: schemaField["x-required"] || false,
+    title: fieldKey,
+    type: Constant.IMPORT.FIELD_TYPE_MAPPING[schemaField["x-fieldType"]],
+    typeProperty: convertImportSchemaTypeProperty(schemaField),
+    unique: schemaField["x-unique"] || false,
   }));
 }

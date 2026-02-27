@@ -8,8 +8,8 @@ import { Group, ModelFormValues } from "@reearth-cms/components/molecules/Schema
 import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverters/model";
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import {
-  Model as GQLModel,
   Group as GQLGroup,
+  Model as GQLModel,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
 import {
   CheckGroupKeyAvailabilityDocument,
@@ -25,7 +25,7 @@ import {
   UpdateModelsOrderDocument,
 } from "@reearth-cms/gql/__generated__/model.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useModel, useWorkspace, useProject, useUserRights } from "@reearth-cms/state";
+import { useModel, useProject, useUserRights, useWorkspace } from "@reearth-cms/state";
 
 type Params = {
   modelId?: string;
@@ -53,15 +53,15 @@ export default ({ modelId }: Params) => {
     async (key: string, ignoredKey?: string) => {
       if (!projectId || !key) return false;
       if (ignoredKey && key === ignoredKey) return true;
-      const response = await CheckModelKeyAvailability({ variables: { projectId, key } });
+      const response = await CheckModelKeyAvailability({ variables: { key, projectId } });
       return response.data ? response.data.checkModelKeyAvailability.available : false;
     },
     [projectId, CheckModelKeyAvailability],
   );
 
   const { data } = useQuery(GetModelsDocument, {
-    variables: { projectId: projectId ?? "", pagination: { first: 100 } },
     skip: !projectId,
+    variables: { pagination: { first: 100 }, projectId: projectId ?? "" },
   });
 
   const models = useMemo(() => {
@@ -72,8 +72,8 @@ export default ({ modelId }: Params) => {
 
   const { data: modelData } = useQuery(GetModelDocument, {
     fetchPolicy: "cache-and-network",
-    variables: { id: modelId ?? "" },
     skip: !modelId,
+    variables: { id: modelId ?? "" },
   });
 
   const model = useMemo<Model | undefined>(
@@ -94,10 +94,10 @@ export default ({ modelId }: Params) => {
       if (!projectId) return;
       const model = await createNewModel({
         variables: {
-          projectId,
-          name: data.name,
           description: data.description,
           key: data.key,
+          name: data.name,
+          projectId,
         },
       });
       if (model.error || !model.data?.createModel) {
@@ -141,8 +141,8 @@ export default ({ modelId }: Params) => {
   const [groupModalShown, setGroupModalShown] = useState(false);
 
   const { data: groupData } = useQuery(GetGroupsDocument, {
-    variables: { projectId: projectId ?? "" },
     skip: !projectId,
+    variables: { projectId: projectId ?? "" },
   });
 
   const groups = useMemo(() => {
@@ -162,7 +162,7 @@ export default ({ modelId }: Params) => {
     async (key: string, ignoredKey?: string) => {
       if (!projectId || !key) return false;
       if (ignoredKey && key === ignoredKey) return true;
-      const response = await CheckGroupKeyAvailability({ variables: { projectId, key } });
+      const response = await CheckGroupKeyAvailability({ variables: { key, projectId } });
       return response.data ? response.data.checkGroupKeyAvailability.available : false;
     },
     [projectId, CheckGroupKeyAvailability],
@@ -173,14 +173,14 @@ export default ({ modelId }: Params) => {
   });
 
   const handleGroupCreate = useCallback(
-    async (data: { name: string; description: string; key: string }) => {
+    async (data: { description: string; key: string; name: string; }) => {
       if (!projectId) return;
       const group = await createNewGroup({
         variables: {
-          projectId,
-          name: data.name,
           description: data.description,
           key: data.key,
+          name: data.name,
+          projectId,
         },
       });
       if (group.error || !group.data?.createGroup) {
@@ -217,21 +217,21 @@ export default ({ modelId }: Params) => {
   );
 
   return {
-    models,
-    groups,
-    modelModalShown,
     groupModalShown,
-    hasCreateRight,
-    hasUpdateRight,
-    handleModelModalOpen,
-    handleModelModalClose,
-    handleModelCreate,
-    handleModelKeyCheck,
-    handleGroupModalOpen,
-    handleGroupModalClose,
+    groups,
     handleGroupCreate,
     handleGroupKeyCheck,
-    handleUpdateModelsOrder,
+    handleGroupModalClose,
+    handleGroupModalOpen,
+    handleModelCreate,
+    handleModelKeyCheck,
+    handleModelModalClose,
+    handleModelModalOpen,
     handleUpdateGroupsOrder,
+    handleUpdateModelsOrder,
+    hasCreateRight,
+    hasUpdateRight,
+    modelModalShown,
+    models,
   };
 };

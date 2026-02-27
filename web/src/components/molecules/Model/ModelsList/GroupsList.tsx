@@ -10,25 +10,25 @@ import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  selectedKey?: string;
-  groups?: Group[];
   collapsed?: boolean;
+  groups?: Group[];
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
-  onModalOpen: () => void;
   onGroupSelect?: (groupId: string) => void;
+  onModalOpen: () => void;
   onUpdateGroupsOrder: (groupIds: string[]) => Promise<void>;
+  selectedKey?: string;
 };
 
 const GroupsList: React.FC<Props> = ({
-  selectedKey,
-  groups,
   collapsed,
+  groups,
   hasCreateRight,
   hasUpdateRight,
-  onModalOpen,
   onGroupSelect,
+  onModalOpen,
   onUpdateGroupsOrder,
+  selectedKey,
 }) => {
   const t = useT();
 
@@ -46,6 +46,7 @@ const GroupsList: React.FC<Props> = ({
       groups
         ?.sort((a, b) => a.order - b.order)
         .map(group => ({
+          key: group.id,
           label: (
             <div ref={group.id === selectedKey ? scrollToSelected : undefined}>
               {collapsed ? (
@@ -59,7 +60,6 @@ const GroupsList: React.FC<Props> = ({
               )}
             </div>
           ),
-          key: group.id,
         })),
     [collapsed, groups, scrollToSelected, selectedKey],
   );
@@ -91,10 +91,10 @@ const GroupsList: React.FC<Props> = ({
           <SchemaAction>
             <SchemaStyledMenuTitle>{t("GROUPS")}</SchemaStyledMenuTitle>
             <SchemaAddButton
-              onClick={onModalOpen}
+              disabled={!hasCreateRight}
               icon={<Icon icon="plus" />}
-              type="link"
-              disabled={!hasCreateRight}>
+              onClick={onModalOpen}
+              type="link">
               {!collapsed && t("Add")}
             </SchemaAddButton>
           </SchemaAction>
@@ -102,15 +102,15 @@ const GroupsList: React.FC<Props> = ({
       )}
       <MenuWrapper>
         <ReactDragListView
-          nodeSelector={hasUpdateRight ? ".ant-menu-item" : undefined}
           lineClassName="dragLine"
+          nodeSelector={hasUpdateRight ? ".ant-menu-item" : undefined}
           onDragEnd={(fromIndex, toIndex) => onDragEnd(fromIndex, toIndex)}>
           <StyledMenu
-            selectedKeys={selectedKeys}
-            mode={collapsed ? "vertical" : "inline"}
             collapsed={collapsed}
             items={items}
+            mode={collapsed ? "vertical" : "inline"}
             onClick={handleClick}
+            selectedKeys={selectedKeys}
           />
         </ReactDragListView>
       </MenuWrapper>

@@ -42,7 +42,7 @@ export function useCleanUrl() {
 }
 
 export function useAuthenticationRequired(): [boolean, string | undefined] {
-  const { isAuthenticated, isLoading, error: authError, login, logout } = useAuth();
+  const { error: authError, isAuthenticated, isLoading, login, logout } = useAuth();
 
   useEffect(() => {
     if (isLoading || isAuthenticated) {

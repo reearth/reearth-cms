@@ -12,9 +12,9 @@ import FieldTitle from "../../FieldTitle";
 import { requiredValidator, urlErrorIndexesGet } from "../utils";
 
 const URLField: React.FC<FieldProps> = ({
+  disabled,
   field,
   itemGroupId,
-  disabled,
   itemHeights,
   onItemHeightChange,
 }) => {
@@ -26,14 +26,13 @@ const URLField: React.FC<FieldProps> = ({
   return (
     <StyledFormItem
       extra={field.description}
-      validateStatus="success"
+      label={<FieldTitle isTitle={field.isTitle} isUnique={field.unique} title={field.title} />}
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
-      label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}
       rules={[
         {
+          message: t("Please input field!"),
           required,
           validator: requiredValidator,
-          message: t("Please input field!"),
         },
         {
           message: t("URL is not valid"),
@@ -46,18 +45,19 @@ const URLField: React.FC<FieldProps> = ({
             return Promise.resolve();
           },
         },
-      ]}>
+      ]}
+      validateStatus="success">
       {field.multiple ? (
         <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
           <MultiValueField
-            FieldInput={Input}
             disabled={disabled}
-            required={required}
             errorIndexes={errorIndexes}
+            FieldInput={Input}
+            required={required}
           />
         </ResponsiveHeight>
       ) : (
-        <Input disabled={disabled} required={required} isError={errorIndexes.has(0)} />
+        <Input disabled={disabled} isError={errorIndexes.has(0)} required={required} />
       )}
     </StyledFormItem>
   );

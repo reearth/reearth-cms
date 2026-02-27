@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import GeneralForm from "./GeneralForm";
 
@@ -17,10 +17,10 @@ describe("General form", () => {
   test("Workspace name is diplayed successfully", async () => {
     render(
       <GeneralForm
-        workspaceName={workspaceName}
-        updateWorkspaceLoading={updateWorkspaceLoading}
         hasUpdateRight={hasUpdateRight}
         onWorkspaceUpdate={onWorkspaceUpdate}
+        updateWorkspaceLoading={updateWorkspaceLoading}
+        workspaceName={workspaceName}
       />,
     );
 
@@ -30,10 +30,10 @@ describe("General form", () => {
   test("Loading is displayed successfully", async () => {
     render(
       <GeneralForm
-        workspaceName={workspaceName}
-        updateWorkspaceLoading={true}
         hasUpdateRight={hasUpdateRight}
         onWorkspaceUpdate={onWorkspaceUpdate}
+        updateWorkspaceLoading={true}
+        workspaceName={workspaceName}
       />,
     );
 
@@ -43,10 +43,10 @@ describe("General form", () => {
   test("Input for workspace name is disabled according to user right successfully", () => {
     render(
       <GeneralForm
-        workspaceName={workspaceName}
-        updateWorkspaceLoading={updateWorkspaceLoading}
         hasUpdateRight={false}
         onWorkspaceUpdate={onWorkspaceUpdate}
+        updateWorkspaceLoading={updateWorkspaceLoading}
+        workspaceName={workspaceName}
       />,
     );
 
@@ -58,10 +58,10 @@ describe("General form", () => {
   test("Save button is toggled successfully", async () => {
     render(
       <GeneralForm
-        workspaceName={workspaceName}
-        updateWorkspaceLoading={updateWorkspaceLoading}
         hasUpdateRight={hasUpdateRight}
         onWorkspaceUpdate={onWorkspaceUpdate}
+        updateWorkspaceLoading={updateWorkspaceLoading}
+        workspaceName={workspaceName}
       />,
     );
 
@@ -83,10 +83,10 @@ describe("General form", () => {
     const onWorkspaceUpdateMock = vi.fn();
     render(
       <GeneralForm
-        workspaceName={workspaceName}
-        updateWorkspaceLoading={updateWorkspaceLoading}
         hasUpdateRight={hasUpdateRight}
         onWorkspaceUpdate={onWorkspaceUpdateMock}
+        updateWorkspaceLoading={updateWorkspaceLoading}
+        workspaceName={workspaceName}
       />,
     );
 

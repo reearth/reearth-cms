@@ -7,19 +7,19 @@ import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValue
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  multiple: boolean;
   maxLength?: number;
+  multiple: boolean;
 };
 
-const TextAreaField: React.FC<Props> = ({ multiple, maxLength }) => {
+const TextAreaField: React.FC<Props> = ({ maxLength, multiple }) => {
   const t = useT();
   return (
     <Form.Item
-      name="defaultValue"
       label={t("Set default value")}
-      validateStatus="success"
+      name="defaultValue"
       rules={[
         {
+          message: "",
           validator: (_, value) => {
             if (value && maxLength) {
               if (Array.isArray(value)) {
@@ -32,13 +32,13 @@ const TextAreaField: React.FC<Props> = ({ multiple, maxLength }) => {
             }
             return Promise.resolve();
           },
-          message: "",
         },
-      ]}>
+      ]}
+      validateStatus="success">
       {multiple ? (
-        <MultiValueField rows={1} showCount maxLength={maxLength} FieldInput={TextArea} />
+        <MultiValueField FieldInput={TextArea} maxLength={maxLength} rows={1} showCount />
       ) : (
-        <TextArea rows={3} showCount maxLength={maxLength} />
+        <TextArea maxLength={maxLength} rows={3} showCount />
       )}
     </Form.Item>
   );

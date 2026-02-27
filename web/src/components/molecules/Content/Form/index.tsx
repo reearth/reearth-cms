@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import dayjs from "dayjs";
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useBlocker } from "react-router-dom";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -21,12 +21,12 @@ import LinkItemRequestModal from "@reearth-cms/components/molecules/Content/Link
 import PublishItemModal from "@reearth-cms/components/molecules/Content/PublishItemModal";
 import RequestCreationModal from "@reearth-cms/components/molecules/Content/RequestCreationModal";
 import {
-  Item,
   FormItem,
+  FormValues,
+  Item,
   ItemField,
   ItemValue,
   VersionedItem,
-  FormValues,
 } from "@reearth-cms/components/molecules/Content/types";
 import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
@@ -35,10 +35,10 @@ import {
   RequestItem,
   RequestState,
 } from "@reearth-cms/components/molecules/Request/types";
-import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
+import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
-import { transformDayjsToString, dateTimeFormat } from "@reearth-cms/utils/format";
+import { dateTimeFormat, transformDayjsToString } from "@reearth-cms/utils/format";
 
 import FieldWrapper from "./FieldWrapper";
 import Versions from "./Versions";
@@ -46,173 +46,173 @@ import Versions from "./Versions";
 const { TabPane } = Tabs;
 
 type Props = {
-  title: string;
-  item?: Item;
+  addItemToRequestModalShown: boolean;
+  assetList: Asset[];
+  fileList: UploadFile[];
+  hasItemUpdateRight: boolean;
+  hasPublishRight: boolean;
   hasRequestCreateRight: boolean;
   hasRequestUpdateRight: boolean;
-  hasPublishRight: boolean;
-  hasItemUpdateRight: boolean;
-  loadingReference: boolean;
-  linkedItemsModalList?: FormItem[];
-  showPublishAction: boolean;
-  requests: Request[];
-  itemId?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialFormValues: Record<string, any>;
   initialMetaFormValues: Record<string, unknown>;
-  versions: VersionedItem[];
-  loading: boolean;
-  model?: Model;
-  assetList: Asset[];
-  fileList: UploadFile[];
-  loadingAssets: boolean;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
-  requestModalShown: boolean;
-  requestCreationLoading: boolean;
-  addItemToRequestModalShown: boolean;
-  workspaceUserMembers: UserMember[];
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  publishLoading: boolean;
-  requestModalLoading: boolean;
-  requestModalTotalCount: number;
-  requestModalPage: number;
-  requestModalPageSize: number;
-  linkItemModalTitle: string;
-  linkItemModalTotalCount: number;
+  item?: Item;
+  itemId?: string;
+  linkedItemsModalList?: FormItem[];
   linkItemModalPage: number;
   linkItemModalPageSize: number;
-  onReferenceModelUpdate: (modelId: string, referenceFieldId: string) => void;
-  onSearchTerm: (term?: string) => void;
-  onLinkItemTableReload: () => void;
-  onLinkItemTableChange: (page: number, pageSize: number) => void;
-  onRequestTableChange: (page: number, pageSize: number) => void;
-  onRequestSearchTerm: (term: string) => void;
-  onRequestTableReload: () => void;
-  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
-  onUploadModalCancel: () => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
-  onItemCreate: (data: {
-    schemaId: string;
-    metaSchemaId?: string;
-    fields: ItemField[];
-    metaFields: ItemField[];
-  }) => Promise<void>;
-  onItemUpdate: (data: { itemId: string; fields: ItemField[] }) => Promise<void>;
-  onMetaItemUpdate: (data: { metaItemId?: string; metaFields: ItemField[] }) => Promise<void>;
-  onBack: () => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetsGet: () => void;
-  onAssetsReload: () => void;
-  onAssetSearchTerm: (term?: string | undefined) => void;
-  setFileList: (fileList: UploadFile<File>[]) => void;
-  setUploadModalVisibility: (visible: boolean) => void;
-  onGetVersionedItem: (version: string) => Promise<FormValues>;
-  onUnpublish: (itemIds: string[]) => Promise<void>;
-  onPublish: (itemIds: string[]) => Promise<void>;
-  onRequestCreate: (data: {
-    title: string;
-    description: string;
-    state: RequestState;
-    reviewersId: string[];
-    items: RequestItem[];
-  }) => Promise<void>;
-  onChange: (request: Request, items: RequestItem[]) => Promise<void>;
-  onModalClose: () => void;
-  onModalOpen: () => void;
+  linkItemModalTitle: string;
+  linkItemModalTotalCount: number;
+  loading: boolean;
+  loadingAssets: boolean;
+  loadingReference: boolean;
+  model?: Model;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
-  onGetAsset: (assetId: string) => Promise<string | undefined>;
-  onGroupGet: (id: string) => Promise<Group | undefined>;
+  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetSearchTerm: (term?: string | undefined) => void;
+  onAssetsGet: () => void;
+  onAssetsReload: () => void;
+  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
+  onBack: () => void;
+  onChange: (request: Request, items: RequestItem[]) => Promise<void>;
   onCheckItemReference: (
     itemId: string,
     correspondingFieldId: string,
     groupId?: string,
   ) => Promise<boolean>;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onGetVersionedItem: (version: string) => Promise<FormValues>;
+  onGroupGet: (id: string) => Promise<Group | undefined>;
+  onItemCreate: (data: {
+    fields: ItemField[];
+    metaFields: ItemField[];
+    metaSchemaId?: string;
+    schemaId: string;
+  }) => Promise<void>;
+  onItemUpdate: (data: { fields: ItemField[]; itemId: string; }) => Promise<void>;
+  onLinkItemTableChange: (page: number, pageSize: number) => void;
+  onLinkItemTableReload: () => void;
+  onMetaItemUpdate: (data: { metaFields: ItemField[]; metaItemId?: string; }) => Promise<void>;
+  onModalClose: () => void;
+  onModalOpen: () => void;
   onNavigateToRequest: (id: string) => void;
+  onPublish: (itemIds: string[]) => Promise<void>;
+  onReferenceModelUpdate: (modelId: string, referenceFieldId: string) => void;
+  onRequestCreate: (data: {
+    description: string;
+    items: RequestItem[];
+    reviewersId: string[];
+    state: RequestState;
+    title: string;
+  }) => Promise<void>;
+  onRequestSearchTerm: (term: string) => void;
+  onRequestTableChange: (page: number, pageSize: number) => void;
+  onRequestTableReload: () => void;
+  onSearchTerm: (term?: string) => void;
+  onUnpublish: (itemIds: string[]) => Promise<void>;
+  onUploadModalCancel: () => void;
+  page: number;
+  pageSize: number;
+  publishLoading: boolean;
+  requestCreationLoading: boolean;
+  requestModalLoading: boolean;
+  requestModalPage: number;
+  requestModalPageSize: number;
+  requestModalShown: boolean;
+  requestModalTotalCount: number;
+  requests: Request[];
+  setFileList: (fileList: UploadFile<File>[]) => void;
+  setUploadModalVisibility: (visible: boolean) => void;
+  setUploadType: (type: UploadType) => void;
+  setUploadUrl: (uploadUrl: { autoUnzip: boolean; url: string; }) => void;
+  showPublishAction: boolean;
+  title: string;
+  totalCount: number;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  uploadType: UploadType;
+  uploadUrl: { autoUnzip: boolean; url: string; };
+  versions: VersionedItem[];
+  workspaceUserMembers: UserMember[];
 };
 
 const ContentForm: React.FC<Props> = ({
-  title,
-  item,
-  hasRequestCreateRight,
-  hasRequestUpdateRight,
-  hasPublishRight,
-  hasItemUpdateRight,
-  loadingReference,
-  linkedItemsModalList,
-  showPublishAction,
-  requests,
-  itemId,
-  model,
-  initialFormValues,
-  initialMetaFormValues,
-  versions,
-  loading,
+  addItemToRequestModalShown,
   assetList,
   fileList,
-  loadingAssets,
-  uploading,
-  uploadModalVisibility,
-  uploadUrl,
-  uploadType,
-  requestModalShown,
-  addItemToRequestModalShown,
-  workspaceUserMembers,
-  totalCount,
-  page,
-  pageSize,
-  onLinkItemTableReload,
-  onRequestTableChange,
-  onRequestSearchTerm,
-  onRequestTableReload,
-  publishLoading,
-  requestModalLoading,
-  requestModalTotalCount,
-  requestModalPage,
-  requestModalPageSize,
-  requestCreationLoading,
-  linkItemModalTitle,
-  linkItemModalTotalCount,
+  hasItemUpdateRight,
+  hasPublishRight,
+  hasRequestCreateRight,
+  hasRequestUpdateRight,
+  initialFormValues,
+  initialMetaFormValues,
+  item,
+  itemId,
+  linkedItemsModalList,
   linkItemModalPage,
   linkItemModalPageSize,
-  onReferenceModelUpdate,
-  onSearchTerm,
-  onLinkItemTableChange,
-  onGetVersionedItem,
-  onPublish,
-  onUnpublish,
-  onAssetTableChange,
-  onUploadModalCancel,
-  setUploadUrl,
-  setUploadType,
-  onAssetsCreate,
-  onAssetCreateFromUrl,
-  onItemCreate,
-  onItemUpdate,
-  onMetaItemUpdate,
-  onBack,
-  onAssetsGet,
-  onAssetsReload,
-  onAssetSearchTerm,
-  setFileList,
-  setUploadModalVisibility,
-  onRequestCreate,
-  onChange,
-  onModalClose,
-  onModalOpen,
+  linkItemModalTitle,
+  linkItemModalTotalCount,
+  loading,
+  loadingAssets,
+  loadingReference,
+  model,
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
-  onGetAsset,
-  onGroupGet,
+  onAssetCreateFromUrl,
+  onAssetsCreate,
+  onAssetSearchTerm,
+  onAssetsGet,
+  onAssetsReload,
+  onAssetTableChange,
+  onBack,
+  onChange,
   onCheckItemReference,
+  onGetAsset,
+  onGetVersionedItem,
+  onGroupGet,
+  onItemCreate,
+  onItemUpdate,
+  onLinkItemTableChange,
+  onLinkItemTableReload,
+  onMetaItemUpdate,
+  onModalClose,
+  onModalOpen,
   onNavigateToRequest,
+  onPublish,
+  onReferenceModelUpdate,
+  onRequestCreate,
+  onRequestSearchTerm,
+  onRequestTableChange,
+  onRequestTableReload,
+  onSearchTerm,
+  onUnpublish,
+  onUploadModalCancel,
+  page,
+  pageSize,
+  publishLoading,
+  requestCreationLoading,
+  requestModalLoading,
+  requestModalPage,
+  requestModalPageSize,
+  requestModalShown,
+  requestModalTotalCount,
+  requests,
+  setFileList,
+  setUploadModalVisibility,
+  setUploadType,
+  setUploadUrl,
+  showPublishAction,
+  title,
+  totalCount,
+  uploading,
+  uploadModalVisibility,
+  uploadType,
+  uploadUrl,
+  versions,
+  workspaceUserMembers,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -311,11 +311,11 @@ const ContentForm: React.FC<Props> = ({
             {t("Cancel")}
           </Button>
           <Button
-            type="primary"
             onClick={() => {
               Notification.destroy();
               blocker.proceed?.();
-            }}>
+            }}
+            type="primary">
             {t("Leave")}
           </Button>
         </Space>
@@ -325,12 +325,12 @@ const ContentForm: React.FC<Props> = ({
       });
 
       Notification.info({
-        message: t("This item has unsaved data"),
-        description: t("Are you going to leave?"),
         btn,
-        key,
-        placement: "top",
         closeIcon: false,
+        description: t("Are you going to leave?"),
+        key,
+        message: t("This item has unsaved data"),
+        placement: "top",
       });
     };
     if (blocker.state === "blocked") {
@@ -407,9 +407,9 @@ const ContentForm: React.FC<Props> = ({
       const metaField = metaFieldsMap.get(key);
       if (metaField) {
         result.push({
-          value: inputValueGet(value as ItemValue, metaField),
           schemaFieldId: key,
           type: metaField.type,
+          value: inputValueGet(value as ItemValue, metaField),
         });
       }
     }
@@ -441,10 +441,6 @@ const ContentForm: React.FC<Props> = ({
     };
 
     Notification.info({
-      message: t("Are you sure you want to restore this version's content?"),
-      description: t(
-        "After saving, a new version will be created while keeping the current version unchanged.",
-      ),
       btn: (
         <Space>
           <Button
@@ -453,13 +449,17 @@ const ContentForm: React.FC<Props> = ({
             }}>
             {t("Cancel")}
           </Button>
-          <Button type="primary" onClick={restore}>
+          <Button onClick={restore} type="primary">
             {t("Restore")}
           </Button>
         </Space>
       ),
-      placement: "top",
       closeIcon: false,
+      description: t(
+        "After saving, a new version will be created while keeping the current version unchanged.",
+      ),
+      message: t("Are you sure you want to restore this version's content?"),
+      placement: "top",
     });
   }, [form, handleValuesChange, t, versionForm, versionedItemClose]);
 
@@ -483,19 +483,19 @@ const ContentForm: React.FC<Props> = ({
         const modelField = modelFields.get(key);
         if (modelField) {
           fields.push({
-            value: inputValueGet(value as ItemValue, modelField),
             schemaFieldId: key,
             type: modelField.type,
+            value: inputValueGet(value as ItemValue, modelField),
           });
         } else if (typeof value === "object" && value !== null) {
           for (const [groupFieldKey, groupFieldValue] of Object.entries(value)) {
             const groupField = groupFields.get(key);
             if (groupField) {
               fields.push({
-                value: inputValueGet(groupFieldValue, groupField),
-                schemaFieldId: key,
                 itemGroupId: groupFieldKey,
+                schemaFieldId: key,
                 type: groupField.type,
+                value: inputValueGet(groupFieldValue, groupField),
               });
             }
           }
@@ -504,16 +504,16 @@ const ContentForm: React.FC<Props> = ({
 
       if (itemId) {
         await onItemUpdate?.({
-          itemId: itemId,
           fields,
+          itemId: itemId,
         });
       } else if (model?.schema.id) {
         const metaFields = await metaFieldsGet();
         await onItemCreate?.({
-          schemaId: model?.schema.id,
-          metaSchemaId: model?.metadataSchema?.id,
-          metaFields,
           fields,
+          metaFields,
+          metaSchemaId: model?.metadataSchema?.id,
+          schemaId: model?.schema.id,
         });
       }
 
@@ -540,8 +540,8 @@ const ContentForm: React.FC<Props> = ({
     try {
       const metaFields = await metaFieldsGet();
       await onMetaItemUpdate({
-        metaItemId: item?.metadata?.id,
         metaFields,
+        metaItemId: item?.metadata?.id,
       });
       setIsDisabled(true);
     } catch (info) {
@@ -549,7 +549,7 @@ const ContentForm: React.FC<Props> = ({
     }
   }, [metaFieldsGet, onMetaItemUpdate, item?.metadata?.id]);
 
-  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeout = useRef<null | ReturnType<typeof setTimeout>>(null);
 
   const handleMetaValuesChange = useCallback(
     async (changedValues: Record<string, unknown>) => {
@@ -590,26 +590,26 @@ const ContentForm: React.FC<Props> = ({
   const items: MenuProps["items"] = useMemo(() => {
     const menuItems = [
       {
+        disabled: isInReview || item?.status === "PUBLIC" || !hasRequestUpdateRight,
         key: "addToRequest",
         label: t("Add to Request"),
         onClick: onAddItemToRequestModalOpen,
-        disabled: isInReview || item?.status === "PUBLIC" || !hasRequestUpdateRight,
       },
       {
+        disabled: item?.status === "DRAFT" || item?.status === "REVIEW" || !hasPublishRight,
         key: "unpublish",
         label: t("Unpublish"),
         onClick: () => {
           if (itemId) onUnpublish([itemId]);
         },
-        disabled: item?.status === "DRAFT" || item?.status === "REVIEW" || !hasPublishRight,
       },
     ];
     if (showPublishAction) {
       menuItems.unshift({
+        disabled: isInReview || item?.status === "PUBLIC" || !hasRequestCreateRight,
         key: "NewRequest",
         label: t("New Request"),
         onClick: onModalOpen,
-        disabled: isInReview || item?.status === "PUBLIC" || !hasRequestCreateRight,
       });
     }
     return menuItems;
@@ -676,11 +676,9 @@ const ContentForm: React.FC<Props> = ({
       <Wrapper>
         <HeaderWrapper>
           <StyledPageHeader
-            title={title}
-            onBack={onBack}
             extra={
               <>
-                <Button onClick={handleSubmit} loading={loading} disabled={isDisabled}>
+                <Button disabled={isDisabled} loading={loading} onClick={handleSubmit}>
                   {t("Save")}
                 </Button>
                 {itemId && (
@@ -696,10 +694,10 @@ const ContentForm: React.FC<Props> = ({
                             : null
                         }>
                         <Button
-                          type="primary"
-                          onClick={handlePublishSubmit}
+                          disabled={isInReview || item?.status === "PUBLIC" || !hasPublishRight}
                           loading={publishLoading}
-                          disabled={isInReview || item?.status === "PUBLIC" || !hasPublishRight}>
+                          onClick={handlePublishSubmit}
+                          type="primary">
                           {t("Publish")}
                         </Button>
                       </Tooltip>
@@ -715,11 +713,11 @@ const ContentForm: React.FC<Props> = ({
                             : null
                         }>
                         <Button
-                          type="primary"
-                          onClick={onModalOpen}
                           disabled={
                             isInReview || item?.status === "PUBLIC" || !hasRequestCreateRight
-                          }>
+                          }
+                          onClick={onModalOpen}
+                          type="primary">
                           {t("New Request")}
                         </Button>
                       </Tooltip>
@@ -733,73 +731,75 @@ const ContentForm: React.FC<Props> = ({
                 )}
               </>
             }
+            onBack={onBack}
+            title={title}
           />
           {versionedItem && (
             <VersionHeader
-              title={`${t("Version history")} / ${dateTimeFormat(versionedItem?.timestamp, "YYYY-MM-DD, HH:mm")}`}
-              onBack={versionedItemClose}
               extra={
                 <Button onClick={handleRestore} type="link">
                   {t("Restore")}
                 </Button>
               }
+              onBack={versionedItemClose}
+              title={`${t("Version history")} / ${dateTimeFormat(versionedItem?.timestamp, "YYYY-MM-DD, HH:mm")}`}
             />
           )}
         </HeaderWrapper>
         <FormWrapper ref={formWrapperRef}>
           <StyledForm
             form={form}
-            layout="vertical"
             initialValues={initialFormValues}
+            layout="vertical"
             onValuesChange={handleValuesChange}
             scrollbarWidth={scrollbarWidth}>
             {model?.schema.fields.map(field => (
               <FieldWrapper
-                key={field.id}
-                field={field}
-                disabled={fieldDisabled}
-                itemHeights={itemHeights}
-                onItemHeightChange={handleItemHeightChange}
                 assetProps={{
                   assetList,
-                  itemAssets: item?.assets,
                   fileList,
+                  itemAssets: item?.assets,
                   loadingAssets,
-                  uploading,
-                  uploadModalVisibility,
-                  uploadUrl,
-                  uploadType,
-                  totalCount,
-                  page,
-                  pageSize,
-                  onAssetTableChange,
-                  onUploadModalCancel,
-                  setUploadUrl,
-                  setUploadType,
-                  onAssetsCreate,
                   onAssetCreateFromUrl,
+                  onAssetsCreate,
+                  onAssetSearchTerm,
                   onAssetsGet,
                   onAssetsReload,
-                  onAssetSearchTerm,
+                  onAssetTableChange,
+                  onGetAsset,
+                  onUploadModalCancel,
+                  page,
+                  pageSize,
                   setFileList,
                   setUploadModalVisibility,
-                  onGetAsset,
+                  setUploadType,
+                  setUploadUrl,
+                  totalCount,
+                  uploading,
+                  uploadModalVisibility,
+                  uploadType,
+                  uploadUrl,
                 }}
+                disabled={fieldDisabled}
+                field={field}
+                groupProps={{ form, onGroupGet }}
+                itemHeights={itemHeights}
+                key={field.id}
+                onItemHeightChange={handleItemHeightChange}
                 referenceProps={{
-                  referencedItems,
-                  loading: loadingReference,
                   linkedItemsModalList,
-                  linkItemModalTitle,
-                  linkItemModalTotalCount,
                   linkItemModalPage,
                   linkItemModalPageSize,
+                  linkItemModalTitle,
+                  linkItemModalTotalCount,
+                  loading: loadingReference,
+                  onCheckItemReference,
+                  onLinkItemTableChange,
+                  onLinkItemTableReload,
                   onReferenceModelUpdate,
                   onSearchTerm,
-                  onLinkItemTableReload,
-                  onLinkItemTableChange,
-                  onCheckItemReference,
+                  referencedItems,
                 }}
-                groupProps={{ form, onGroupGet }}
               />
             ))}
           </StyledForm>
@@ -811,14 +811,14 @@ const ContentForm: React.FC<Props> = ({
               scrollbarWidth={scrollbarWidth}>
               {model?.schema.fields.map(field => (
                 <FieldWrapper
-                  key={field.id}
-                  field={field}
-                  disabled
-                  itemHeights={itemHeights}
-                  onItemHeightChange={handleItemHeightChange}
                   assetProps={{ onGetAsset }}
-                  referenceProps={{ referencedItems }}
+                  disabled
+                  field={field}
                   groupProps={{ form, onGroupGet }}
+                  itemHeights={itemHeights}
+                  key={field.id}
+                  onItemHeightChange={handleItemHeightChange}
+                  referenceProps={{ referencedItems }}
                 />
               ))}
             </VersionForm>
@@ -827,28 +827,28 @@ const ContentForm: React.FC<Props> = ({
       </Wrapper>
       {!versionedItem && (model?.metadataSchema.fields || item?.id) && (
         <StyledTabs activeKey={activeKey} onTabClick={key => setActiveKey(key)}>
-          <TabPane tab={t("Meta Data")} key="meta">
+          <TabPane key="meta" tab={t("Meta Data")}>
             <Form
               form={metaForm}
-              layout="vertical"
               initialValues={initialMetaFormValues}
+              layout="vertical"
               onValuesChange={handleMetaValuesChange}>
               <TabContent>
                 <Metadata
-                  item={item}
-                  fields={model?.metadataSchema.fields ?? []}
                   disabled={fieldDisabled}
+                  fields={model?.metadataSchema.fields ?? []}
+                  item={item}
                 />
               </TabContent>
             </Form>
           </TabPane>
           {versions.length && (
-            <TabPane tab={t("Version History")} key="history">
+            <TabPane key="history" tab={t("Version History")}>
               <TabContent>
                 <Versions
-                  versions={versions}
-                  versionClick={versionClick}
                   onNavigateToRequest={onNavigateToRequest}
+                  versionClick={versionClick}
+                  versions={versions}
                 />
               </TabContent>
             </TabPane>
@@ -858,35 +858,35 @@ const ContentForm: React.FC<Props> = ({
       {itemId && (
         <>
           <RequestCreationModal
-            open={requestModalShown}
-            requestCreationLoading={requestCreationLoading}
             item={{ itemId, version: item?.version }}
-            unpublishedItems={unpublishedItems}
-            workspaceUserMembers={workspaceUserMembers}
             onClose={onModalClose}
             onSubmit={onRequestCreate}
+            open={requestModalShown}
+            requestCreationLoading={requestCreationLoading}
+            unpublishedItems={unpublishedItems}
+            workspaceUserMembers={workspaceUserMembers}
           />
           <LinkItemRequestModal
             items={[{ itemId, version: item?.version }]}
             onChange={onChange}
             onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
-            visible={addItemToRequestModalShown}
-            requestList={requests}
+            onRequestSearchTerm={onRequestSearchTerm}
             onRequestTableChange={onRequestTableChange}
+            onRequestTableReload={onRequestTableReload}
+            requestList={requests}
             requestModalLoading={requestModalLoading}
-            requestModalTotalCount={requestModalTotalCount}
             requestModalPage={requestModalPage}
             requestModalPageSize={requestModalPageSize}
-            onRequestSearchTerm={onRequestSearchTerm}
-            onRequestTableReload={onRequestTableReload}
+            requestModalTotalCount={requestModalTotalCount}
+            visible={addItemToRequestModalShown}
           />
           <PublishItemModal
-            open={publishModalOpen}
-            loading={publishLoading}
             itemId={itemId}
-            unpublishedItems={unpublishedItems}
+            loading={publishLoading}
             onClose={handlePublishItemClose}
             onSubmit={onPublish}
+            open={publishModalOpen}
+            unpublishedItems={unpublishedItems}
           />
         </>
       )}

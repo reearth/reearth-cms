@@ -10,23 +10,23 @@ import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
 import { ItemStatus } from "../types";
 
 type Props = {
-  value: string;
-  title: string;
-  modelId?: string;
-  status?: ItemStatus;
-  workspaceId?: string;
-  projectId?: string;
   disabled?: boolean;
+  modelId?: string;
+  projectId?: string;
+  status?: ItemStatus;
+  title: string;
+  value: string;
+  workspaceId?: string;
 };
 
 const ReferenceItem: React.FC<Props> = ({
-  value,
-  title,
-  modelId,
-  status,
-  projectId,
-  workspaceId,
   disabled,
+  modelId,
+  projectId,
+  status,
+  title,
+  value,
+  workspaceId,
 }) => {
   const itemStatus: StateType[] = useMemo(() => status?.split("_") as StateType[], [status]);
 
@@ -43,7 +43,7 @@ const ReferenceItem: React.FC<Props> = ({
       <Tooltip title={title}>
         <StlyedReferenceTitle>{title}</StlyedReferenceTitle>
         {linkTo ? (
-          <Link to={linkTo} target="_blank">
+          <Link target="_blank" to={linkTo}>
             <ReferenceItemName>{value}</ReferenceItemName>
           </Link>
         ) : (
@@ -52,7 +52,7 @@ const ReferenceItem: React.FC<Props> = ({
       </Tooltip>
       <div>
         {itemStatus?.map((state, index) => (
-          <StyledBadge key={index} color={stateColors[state]} />
+          <StyledBadge color={stateColors[state]} key={index} />
         ))}
       </div>
     </StyledReferenceItem>

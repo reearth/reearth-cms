@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
-import { expect, test, describe } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import Webhook from ".";
 
@@ -8,28 +8,28 @@ describe("Webhook", () => {
   const user = userEvent.setup();
 
   const integration = {
-    id: "",
-    name: "",
-    logoUrl: "",
-    developerId: "",
-    developer: {
-      id: "",
-      name: "",
-      email: "",
-    },
-    iType: "Private" as const,
     config: {
       webhooks: [
         {
+          active: true,
           id: "",
           name: "",
-          url: "",
-          active: true,
           secret: "",
           trigger: {},
+          url: "",
         },
       ],
     },
+    developer: {
+      email: "",
+      id: "",
+      name: "",
+    },
+    developerId: "",
+    id: "",
+    iType: "Private" as const,
+    logoUrl: "",
+    name: "",
   };
   const createWebhookLoading = false;
   const updateWebhookLoading = false;
@@ -47,12 +47,12 @@ describe("Webhook", () => {
   test("Toggle webhook form successfully", async () => {
     render(
       <Webhook
-        integration={integration}
         createWebhookLoading={createWebhookLoading}
-        updateWebhookLoading={updateWebhookLoading}
+        integration={integration}
         onWebhookCreate={onWebhookCreate}
         onWebhookDelete={onWebhookDelete}
         onWebhookUpdate={onWebhookUpdate}
+        updateWebhookLoading={updateWebhookLoading}
       />,
     );
 

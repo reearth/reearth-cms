@@ -1,8 +1,8 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { test, expect } from "vitest";
+import { expect, test } from "vitest";
 
-import { dateTimeFormat, bytesFormat, transformDayjsToString, parseConfigBoolean } from "./format";
+import { bytesFormat, dateTimeFormat, parseConfigBoolean, transformDayjsToString } from "./format";
 
 dayjs.extend(utc);
 

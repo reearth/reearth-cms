@@ -23,9 +23,9 @@ export function getMultipleProjects() {
   const SECOND_PAGE_PROJECTS = PROJECT_ID_LIST.slice(0, PROJECT_ID_LIST.length - PAGE_SIZE);
 
   return {
-    PROJECT_ID_LIST,
     FIRST_PAGE_PROJECTS,
-    SECOND_PAGE_PROJECTS,
     NAME_SEPARATOR,
+    PROJECT_ID_LIST,
+    SECOND_PAGE_PROJECTS,
   };
 }

@@ -3,21 +3,21 @@ import { useCallback, useMemo } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import {
-  WorkspaceSettings,
-  TileInput,
   TerrainInput,
+  TileInput,
+  WorkspaceSettings,
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLWorkspaceSettings } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
-  ResourceInput,
   WorkspaceSettings as GQLWorkspaceSettings,
+  ResourceInput,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
 import {
   GetWorkspaceSettingsDocument,
   UpdateWorkspaceSettingsDocument,
 } from "@reearth-cms/gql/__generated__/workspace.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspace, useUserRights } from "@reearth-cms/state";
+import { useUserRights, useWorkspace } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
@@ -25,17 +25,17 @@ export default () => {
   const [currentWorkspace] = useWorkspace();
   const [userRights] = useUserRights();
   const workspaceId = currentWorkspace?.id;
-  const { data, refetch, loading } = useQuery(GetWorkspaceSettingsDocument, {
+  const { data, loading, refetch } = useQuery(GetWorkspaceSettingsDocument, {
     variables: { workspaceId: workspaceId ?? "" },
   });
 
   const defaultSettings: WorkspaceSettings = useMemo(
     () => ({
-      tiles: {
-        resources: [],
-      },
       terrains: {
         enabled: false,
+        resources: [],
+      },
+      tiles: {
         resources: [],
       },
     }),
@@ -58,14 +58,14 @@ export default () => {
       const res = await updateWorkspaceMutation({
         variables: {
           id: workspaceId,
+          terrains: {
+            enabled: isEnable ?? workspaceSettings?.terrains?.enabled,
+            resources: terrains as ResourceInput[],
+            selectedResource: terrains[0]?.terrain?.id,
+          },
           tiles: {
             resources: tiles as ResourceInput[],
             selectedResource: tiles[0]?.tile?.id,
-          },
-          terrains: {
-            resources: terrains as ResourceInput[],
-            selectedResource: terrains[0]?.terrain?.id,
-            enabled: isEnable ?? workspaceSettings?.terrains?.enabled,
           },
         },
       });
@@ -86,10 +86,10 @@ export default () => {
   );
 
   return {
-    loading,
-    workspaceSettings,
-    hasUpdateRight,
-    updateLoading,
     handleWorkspaceSettingsUpdate,
+    hasUpdateRight,
+    loading,
+    updateLoading,
+    workspaceSettings,
   };
 };

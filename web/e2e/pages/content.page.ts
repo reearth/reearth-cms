@@ -85,7 +85,7 @@ export class ContentPage extends BasePage {
 
   // Table cells
   cellByText(text: string, exact = false): Locator {
-    return this.getByRole("cell", { name: text, exact });
+    return this.getByRole("cell", { exact, name: text });
   }
   get cellEditButton(): Locator {
     return this.getByRole("cell").getByLabel("edit").locator("svg");
@@ -220,7 +220,7 @@ export class ContentPage extends BasePage {
 
   // Cell selection by text and exact matching
   cellByTextExact(text: string): Locator {
-    return this.getByRole("cell", { name: text, exact: true });
+    return this.getByRole("cell", { exact: true, name: text });
   }
 
   cellSpanByText(text: string): Locator {
@@ -543,7 +543,7 @@ export class ContentPage extends BasePage {
 
   // Item ID button
   itemIdButton(itemId: string): Locator {
-    return this.getByRole("button", { name: itemId, exact: true });
+    return this.getByRole("button", { exact: true, name: itemId });
   }
 
   // ========== Action Methods (POM Pattern) ==========
@@ -661,7 +661,7 @@ export class ContentPage extends BasePage {
 
   async addFilter(
     fieldName: string,
-    operator: "is" | "contains" | "end with",
+    operator: "contains" | "end with" | "is",
     value: string,
   ): Promise<void> {
     await this.addFilterButton.click();

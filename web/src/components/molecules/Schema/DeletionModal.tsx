@@ -10,29 +10,29 @@ import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { Trans, useT } from "@reearth-cms/i18n";
 
 type Props = {
-  open: boolean;
-  data?: Model | Group;
+  data?: Group | Model;
   deleteLoading: boolean;
+  isModel: boolean;
   onClose: () => void;
   onDelete: (modelId?: string) => Promise<void>;
-  isModel: boolean;
+  open: boolean;
 };
 
 const DeletionModal: React.FC<Props> = ({
-  open,
   data,
   deleteLoading,
+  isModel,
   onClose,
   onDelete,
-  isModel,
+  open,
 }) => {
   const t = useT();
   const title = useMemo(
     () => (
       <Trans
+        components={{ u: <StyledDeleteItemName /> }}
         i18nKey={isModel ? "Delete {{name}} model?" : "Delete {{name}} group?"}
         values={{ name: data?.name }}
-        components={{ u: <StyledDeleteItemName /> }}
       />
     ),
     [data?.name, isModel],
@@ -50,27 +50,27 @@ const DeletionModal: React.FC<Props> = ({
 
   return (
     <Modal
-      title={
-        <StyledTitle>
-          <StyledIcon icon="exclamationSolid" color={gold[5]} size={22} />
-          <span>{title}</span>
-        </StyledTitle>
-      }
-      open={open}
-      onCancel={onClose}
       footer={[
-        <Button key="back" onClick={onClose} disabled={deleteLoading}>
+        <Button disabled={deleteLoading} key="back" onClick={onClose}>
           {t("Cancel")}
         </Button>,
         <Button
-          key="submit"
-          type="primary"
-          onClick={() => onDelete(data?.id)}
           danger
-          loading={deleteLoading}>
+          key="submit"
+          loading={deleteLoading}
+          onClick={() => onDelete(data?.id)}
+          type="primary">
           {confirmBtnText}
         </Button>,
-      ]}>
+      ]}
+      onCancel={onClose}
+      open={open}
+      title={
+        <StyledTitle>
+          <StyledIcon color={gold[5]} icon="exclamationSolid" size={22} />
+          <span>{title}</span>
+        </StyledTitle>
+      }>
       <p>{confirmMessage}</p>
     </Modal>
   );

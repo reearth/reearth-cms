@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useState, useCallback, Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useCallback, useState } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -15,25 +15,25 @@ import { ConditionInput, CurrentView } from "@reearth-cms/components/molecules/V
 import DropdownRender from "./DropdownRender";
 
 type Props = {
-  filter: DropdownFilterType;
-  index: number;
-  defaultValue: DefaultFilterValueType;
-  filterRemove: (index: number) => void;
-  isFilterOpen: boolean;
   currentView: CurrentView;
-  setCurrentView: Dispatch<SetStateAction<CurrentView>>;
+  defaultValue: DefaultFilterValueType;
+  filter: DropdownFilterType;
+  filterRemove: (index: number) => void;
+  index: number;
+  isFilterOpen: boolean;
   onFilterChange: (filter?: ConditionInput[]) => void;
+  setCurrentView: Dispatch<SetStateAction<CurrentView>>;
 };
 
 const FilterDropdown: React.FC<Props> = ({
-  filter,
-  index,
-  defaultValue,
-  filterRemove,
-  isFilterOpen,
   currentView,
-  setCurrentView,
+  defaultValue,
+  filter,
+  filterRemove,
+  index,
+  isFilterOpen,
   onFilterChange,
+  setCurrentView,
 }) => {
   const [open, setOpen] = useState(isFilterOpen);
 
@@ -55,26 +55,26 @@ const FilterDropdown: React.FC<Props> = ({
 
   return (
     <Dropdown
-      key={filter.title}
+      arrow={false}
       dropdownRender={() => (
         <DropdownRender
+          close={close}
+          currentView={currentView}
+          defaultValue={defaultValue}
           filter={filter}
           index={index}
-          close={close}
-          defaultValue={defaultValue}
-          open={open}
           isFilter={true}
-          currentView={currentView}
-          setCurrentView={setCurrentView}
           onFilterChange={onFilterChange}
+          open={open}
+          setCurrentView={setCurrentView}
         />
       )}
-      trigger={["click"]}
-      placement="bottomLeft"
-      arrow={false}
+      key={filter.title}
+      onOpenChange={handleOpenChange}
       open={open}
-      onOpenChange={handleOpenChange}>
-      <Badge offset={[-3, 3]} color="blue" dot>
+      placement="bottomLeft"
+      trigger={["click"]}>
+      <Badge color="blue" dot offset={[-3, 3]}>
         <StyledButton type="text">
           <Space size={10}>
             <Title>{filter.title}</Title>

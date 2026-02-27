@@ -8,21 +8,20 @@ export const errorKey = "reeartherror";
 
 export const useAuth0Auth = (): AuthHook => {
   const {
-    user,
-    isAuthenticated,
     error,
+    getAccessTokenSilently,
+    isAuthenticated,
     isLoading,
     loginWithRedirect,
     logout,
-    getAccessTokenSilently,
+    user,
   } = useAuth0();
 
   return {
-    user,
-    isAuthenticated: !!window.REEARTH_E2E_ACCESS_TOKEN || (isAuthenticated && !error),
-    isLoading,
     error: error?.message ?? null,
     getAccessToken: () => getAccessTokenSilently(),
+    isAuthenticated: !!window.REEARTH_E2E_ACCESS_TOKEN || (isAuthenticated && !error),
+    isLoading,
     login: () => {
       logOutFromTenant();
       return loginWithRedirect();
@@ -37,5 +36,6 @@ export const useAuth0Auth = (): AuthHook => {
         },
       });
     },
+    user,
   };
 };

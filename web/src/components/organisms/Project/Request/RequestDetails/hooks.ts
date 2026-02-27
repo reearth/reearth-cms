@@ -1,7 +1,7 @@
 import { NetworkStatus } from "@apollo/client";
 import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
@@ -26,7 +26,7 @@ import {
 import { CreateThreadWithCommentDocument } from "@reearth-cms/gql/__generated__/thread.generated";
 import { GetMeDocument } from "@reearth-cms/gql/__generated__/user.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useProject, useWorkspace, useUserRights } from "@reearth-cms/state";
+import { useProject, useUserRights, useWorkspace } from "@reearth-cms/state";
 
 export default () => {
   const t = useT();
@@ -52,18 +52,18 @@ export default () => {
 
   const { data: userData } = useQuery(GetMeDocument);
   const { data: rawRequest, networkStatus } = useQuery(GetRequestDocument, {
-    variables: { requestId: requestId ?? "" },
-    skip: !requestId,
     fetchPolicy: "cache-and-network",
+    skip: !requestId,
+    variables: { requestId: requestId ?? "" },
   });
 
-  const me: User | undefined = useMemo(() => {
+  const me: undefined | User = useMemo(() => {
     return userData?.me
       ? {
-          id: userData.me.id,
-          name: userData.me.name,
-          lang: userData.me.lang,
           email: userData.me.email,
+          id: userData.me.id,
+          lang: userData.me.lang,
+          name: userData.me.name,
         }
       : undefined;
   }, [userData]);
@@ -114,12 +114,12 @@ export default () => {
       if (!data.requestId) return;
       const request = await updateRequestMutation({
         variables: {
-          requestId: data.requestId,
-          title: data.title,
           description: data.description,
-          state: data.state as GQLRequestState,
-          reviewersId: data.reviewersId,
           items: data.items,
+          requestId: data.requestId,
+          reviewersId: data.reviewersId,
+          state: data.state as GQLRequestState,
+          title: data.title,
         },
       });
       if (request.error || !request.data?.updateRequest) {
@@ -136,8 +136,8 @@ export default () => {
     async (requestsId: string[]) => {
       if (!projectId) return;
       const result = await deleteRequestMutation({
-        variables: { projectId, requestsId },
         refetchQueries: ["GetRequest"],
+        variables: { projectId, requestsId },
       });
       if (result.error) {
         Notification.error({ message: t("Failed to delete one or more requests.") });
@@ -179,10 +179,10 @@ export default () => {
         if (!currentRequest?.threadId) {
           const { data, error } = await createThreadWithComment({
             variables: {
-              workspaceId: currentWorkspace?.id ?? "",
+              content,
               resourceId: currentRequest?.id ?? "",
               resourceType: GQLResourceType.Request,
-              content,
+              workspaceId: currentWorkspace?.id ?? "",
             },
           });
 
@@ -192,7 +192,7 @@ export default () => {
           }
         } else {
           const { data: commentData, error: commentError } = await createComment({
-            variables: { threadId: currentRequest?.threadId, content },
+            variables: { content, threadId: currentRequest?.threadId },
           });
 
           if (commentError || !commentData?.addComment) {
@@ -240,9 +240,9 @@ export default () => {
       if (!currentRequest?.threadId) return;
       const comment = await updateComment({
         variables: {
-          threadId: currentRequest.threadId,
           commentId,
           content,
+          threadId: currentRequest.threadId,
         },
       });
       if (comment.error || !comment.data?.updateComment) {
@@ -263,8 +263,8 @@ export default () => {
       if (!currentRequest?.threadId) return;
       const comment = await deleteComment({
         variables: {
-          threadId: currentRequest.threadId,
           commentId,
+          threadId: currentRequest.threadId,
         },
       });
       if (comment.error || !comment.data?.deleteComment) {
@@ -277,26 +277,26 @@ export default () => {
   );
 
   return {
-    me,
-    hasCommentCreateRight,
-    hasCommentUpdateRight,
-    hasCommentDeleteRight,
-    isCloseActionEnabled,
-    isReopenActionEnabled,
-    isApproveActionEnabled,
-    isAssignActionEnabled,
-    loading: networkStatus === NetworkStatus.loading,
-    updateRequestLoading,
-    deleteLoading,
     approveLoading,
     currentRequest,
-    handleRequestUpdate,
-    handleRequestDelete,
-    handleRequestApprove,
+    deleteLoading,
     handleCommentCreate,
-    handleCommentUpdate,
     handleCommentDelete,
-    handleNavigateToRequestsList,
+    handleCommentUpdate,
     handleNavigateToItemEdit,
+    handleNavigateToRequestsList,
+    handleRequestApprove,
+    handleRequestDelete,
+    handleRequestUpdate,
+    hasCommentCreateRight,
+    hasCommentDeleteRight,
+    hasCommentUpdateRight,
+    isApproveActionEnabled,
+    isAssignActionEnabled,
+    isCloseActionEnabled,
+    isReopenActionEnabled,
+    loading: networkStatus === NetworkStatus.loading,
+    me,
+    updateRequestLoading,
   };
 };

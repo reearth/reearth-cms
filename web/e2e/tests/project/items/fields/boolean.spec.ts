@@ -2,7 +2,7 @@ import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types"
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-test.beforeEach(async ({ reearth, projectPage }) => {
+test.beforeEach(async ({ projectPage, reearth }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
@@ -15,8 +15,8 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("@smoke Boolean field creating and updating has succeeded", async ({
-  fieldEditorPage,
   contentPage,
+  fieldEditorPage,
 }) => {
   await fieldEditorPage.fieldTypeButton(SchemaFieldType.Bool).click();
   await fieldEditorPage.displayNameInput.click();
@@ -49,8 +49,8 @@ test("@smoke Boolean field creating and updating has succeeded", async ({
 });
 
 test("Boolean field editing has succeeded", async ({
-  fieldEditorPage,
   contentPage,
+  fieldEditorPage,
   schemaPage,
 }) => {
   await fieldEditorPage.fieldTypeListItem("Boolean").click();

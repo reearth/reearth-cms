@@ -1,6 +1,5 @@
-import path from "path";
-
 import { Browser, BrowserContext } from "@playwright/test";
+import path from "path";
 
 import { DEFAULT_USER_AGENT } from "./iap-auth-common";
 
@@ -16,14 +15,14 @@ export async function createIdTokenIAPContext(
     : undefined;
 
   const context = await browser.newContext({
+    bypassCSP: true,
     extraHTTPHeaders: {
       "Proxy-Authorization": `Bearer ${process.env.IAP_ID_TOKEN}`,
       "User-Agent": DEFAULT_USER_AGENT,
     },
-    recordVideo: { dir: "videos/", size: { width: 1280, height: 720 } },
     ignoreHTTPSErrors: true,
-    bypassCSP: true,
     permissions: ["geolocation"],
+    recordVideo: { dir: "videos/", size: { height: 720, width: 1280 } },
     storageState: storageStatePath,
   });
 

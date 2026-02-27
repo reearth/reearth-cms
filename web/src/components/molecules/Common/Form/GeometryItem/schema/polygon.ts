@@ -1,24 +1,24 @@
 export default {
-  type: "object",
-  required: ["type", "coordinates"],
   properties: {
-    type: {
-      type: "string",
-      enum: ["Polygon"],
-    },
     coordinates: {
-      type: "array",
       items: {
-        type: "array",
-        minItems: 4,
         items: {
-          type: "array",
-          minItems: 2,
           items: {
             type: "number",
           },
+          minItems: 2,
+          type: "array",
         },
+        minItems: 4,
+        type: "array",
       },
+      type: "array",
+    },
+    type: {
+      enum: ["Polygon"],
+      type: "string",
     },
   },
+  required: ["type", "coordinates"],
+  type: "object",
 };

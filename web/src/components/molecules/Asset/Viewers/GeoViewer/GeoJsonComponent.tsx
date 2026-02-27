@@ -4,10 +4,10 @@ import { GeoJsonDataSource as ResiumGeoJsonDataSource, useCesium } from "resium"
 
 import { useAuthHeader } from "@reearth-cms/gql";
 
-type Props = ComponentProps<typeof ResiumGeoJsonDataSource> & {
+type Props = {
   isAssetPublic?: boolean;
   url: string;
-};
+} & ComponentProps<typeof ResiumGeoJsonDataSource>;
 
 const GeoJsonComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => {
   const { viewer } = useCesium();
@@ -20,7 +20,7 @@ const GeoJsonComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => 
     const prepareResource = async () => {
       try {
         const headers = await getHeader();
-        setResource(new Resource({ url, headers }));
+        setResource(new Resource({ headers, url }));
       } catch (error) {
         console.error(error);
       }
@@ -42,8 +42,8 @@ const GeoJsonComponent: React.FC<Props> = ({ isAssetPublic, url, ...props }) => 
 
   return (
     <ResiumGeoJsonDataSource
-      data={isAssetPublic ? url : resource}
       clampToGround
+      data={isAssetPublic ? url : resource}
       onLoad={handleLoad}
       {...props}
     />

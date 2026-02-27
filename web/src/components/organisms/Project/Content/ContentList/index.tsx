@@ -11,168 +11,168 @@ const ContentList: React.FC = () => {
   const t = useT();
 
   const {
-    currentModel,
-    contentTableFields,
-    contentTableColumns,
-    collapsedModelMenu,
-    collapsedCommentsPanel,
-    selectedItem,
-    selectedItems,
-    loading,
-    deleteLoading,
-    publishLoading,
-    unpublishLoading,
-    totalCount,
-    views,
-    currentView,
-    searchTerm,
-    page,
-    pageSize,
-    requests,
     addItemToRequestModalShown,
-    hasCreateRight,
-    hasDeleteRight,
-    hasPublishRight,
-    hasRequestUpdateRight,
-    showPublishAction,
-    setCurrentView,
-    handleRequestTableChange,
-    requestModalLoading,
-    requestModalTotalCount,
-    requestModalPage,
-    requestModalPageSize,
-    handleBulkAddItemToRequest: handleAddItemToRequest,
-    handlePublish,
-    handleUnpublish,
+    alertList,
+    collapseCommentsPanel,
+    collapsedCommentsPanel,
+    collapsedModelMenu,
+    collapseModelMenu,
+    contentTableColumns,
+    contentTableFields,
+    currentModel,
+    currentProjectId,
+    currentView,
+    currentWorkspaceId,
+    dataChecking,
+    deleteLoading,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
-    handleSearchTerm,
+    handleBulkAddItemToRequest: handleAddItemToRequest,
+    handleContentTableChange,
+    handleEnqueueJob,
     handleFilterChange,
-    handleSelect,
+    handleImportContentModalClose,
+    handleImportContentModalOpen,
+    handleItemDelete,
     handleItemSelect,
-    collapseCommentsPanel,
-    collapseModelMenu,
+    handleItemsReload,
     handleModelSelect,
+    handleNavigateToItemEditForm,
+    handleNavigateToItemForm,
+    handlePublish,
+    handleRequestSearchTerm,
+    handleRequestTableChange,
+    handleRequestTableReload,
+    handleSearchTerm,
+    handleSelect,
+    handleUnpublish,
     handleViewChange,
     handleViewSelect,
-    handleNavigateToItemForm,
-    handleNavigateToItemEditForm,
-    handleItemsReload,
-    handleItemDelete,
-    handleContentTableChange,
-    handleRequestSearchTerm,
-    handleRequestTableReload,
+    hasCreateRight,
+    hasDeleteRight,
+    hasModelFields,
+    hasPublishRight,
+    hasRequestUpdateRight,
     isImportContentModalOpen,
-    handleImportContentModalOpen,
-    handleImportContentModalClose,
-    handleEnqueueJob,
-    dataChecking,
-    setDataChecking,
+    loading,
     modelFields,
     modelId,
-    currentWorkspaceId,
-    currentProjectId,
-    hasModelFields,
-    alertList,
+    page,
+    pageSize,
+    publishLoading,
+    requestModalLoading,
+    requestModalPage,
+    requestModalPageSize,
+    requestModalTotalCount,
+    requests,
+    searchTerm,
+    selectedItem,
+    selectedItems,
     setAlertList,
-    validateImportResult,
+    setCurrentView,
+    setDataChecking,
     setValidateImportResult,
+    showPublishAction,
+    totalCount,
+    unpublishLoading,
+    validateImportResult,
+    views,
   } = useHooks();
 
   return (
     <>
       <ContentListMolecule
+        addItemToRequestModalShown={addItemToRequestModalShown}
+        collapsed={collapsedModelMenu}
         commentsPanel={
           <CommentsPanel
+            collapsed={collapsedCommentsPanel}
+            comments={selectedItem?.comments}
+            onCollapse={collapseCommentsPanel}
+            refetchQueries={["SearchItem"]}
             resourceId={selectedItem?.id}
             resourceType={"ITEM"}
-            collapsed={collapsedCommentsPanel}
-            onCollapse={collapseCommentsPanel}
-            comments={selectedItem?.comments}
             threadId={selectedItem?.threadId}
-            refetchQueries={["SearchItem"]}
           />
         }
+        contentTableColumns={contentTableColumns}
+        contentTableFields={contentTableFields}
+        currentView={currentView}
+        deleteLoading={deleteLoading}
+        hasCreateRight={hasCreateRight}
+        hasDeleteRight={hasDeleteRight}
+        hasModelFields={hasModelFields}
+        hasPublishRight={hasPublishRight}
+        hasRequestUpdateRight={hasRequestUpdateRight}
+        loading={loading}
+        model={currentModel}
+        modelFields={modelFields}
         modelsMenu={
           <ModelsMenu
-            title={t("Content")}
             collapsed={collapsedModelMenu}
             onModelSelect={handleModelSelect}
             selectedSchemaType="model"
+            title={t("Content")}
             titleIcon={"table"}
           />
         }
-        viewsMenu={
-          <ViewsMenu
-            views={views}
-            currentView={currentView}
-            onViewSelect={handleViewSelect}
-            onViewChange={handleViewChange}
-          />
-        }
-        onContentTableChange={handleContentTableChange}
-        onSearchTerm={handleSearchTerm}
-        onFilterChange={handleFilterChange}
-        selectedItem={selectedItem}
-        onItemSelect={handleItemSelect}
-        collapsed={collapsedModelMenu}
-        loading={loading}
-        deleteLoading={deleteLoading}
-        publishLoading={publishLoading}
-        unpublishLoading={unpublishLoading}
-        currentView={currentView}
-        setCurrentView={setCurrentView}
-        totalCount={totalCount}
-        searchTerm={searchTerm}
-        page={page}
-        pageSize={pageSize}
-        model={currentModel}
-        contentTableFields={contentTableFields}
-        contentTableColumns={contentTableColumns}
-        selectedItems={selectedItems}
-        requests={requests}
-        onRequestTableChange={handleRequestTableChange}
-        requestModalLoading={requestModalLoading}
-        requestModalTotalCount={requestModalTotalCount}
-        requestModalPage={requestModalPage}
-        requestModalPageSize={requestModalPageSize}
-        onSelect={handleSelect}
-        onCollapse={collapseModelMenu}
-        onItemsReload={handleItemsReload}
-        onItemEdit={handleNavigateToItemEditForm}
-        onPublish={handlePublish}
-        onUnpublish={handleUnpublish}
-        onItemDelete={handleItemDelete}
-        onItemAdd={handleNavigateToItemForm}
+        onAddItemToRequest={handleAddItemToRequest}
         onAddItemToRequestModalClose={handleAddItemToRequestModalClose}
         onAddItemToRequestModalOpen={handleAddItemToRequestModalOpen}
-        onAddItemToRequest={handleAddItemToRequest}
-        addItemToRequestModalShown={addItemToRequestModalShown}
-        onRequestSearchTerm={handleRequestSearchTerm}
-        onRequestTableReload={handleRequestTableReload}
-        hasCreateRight={hasCreateRight}
-        hasDeleteRight={hasDeleteRight}
-        hasPublishRight={hasPublishRight}
-        hasRequestUpdateRight={hasRequestUpdateRight}
-        showPublishAction={showPublishAction}
+        onCollapse={collapseModelMenu}
+        onContentTableChange={handleContentTableChange}
+        onFilterChange={handleFilterChange}
         onImportModalOpen={handleImportContentModalOpen}
-        modelFields={modelFields}
-        hasModelFields={hasModelFields}
+        onItemAdd={handleNavigateToItemForm}
+        onItemDelete={handleItemDelete}
+        onItemEdit={handleNavigateToItemEditForm}
+        onItemSelect={handleItemSelect}
+        onItemsReload={handleItemsReload}
+        onPublish={handlePublish}
+        onRequestSearchTerm={handleRequestSearchTerm}
+        onRequestTableChange={handleRequestTableChange}
+        onRequestTableReload={handleRequestTableReload}
+        onSearchTerm={handleSearchTerm}
+        onSelect={handleSelect}
+        onUnpublish={handleUnpublish}
+        page={page}
+        pageSize={pageSize}
+        publishLoading={publishLoading}
+        requestModalLoading={requestModalLoading}
+        requestModalPage={requestModalPage}
+        requestModalPageSize={requestModalPageSize}
+        requestModalTotalCount={requestModalTotalCount}
+        requests={requests}
+        searchTerm={searchTerm}
+        selectedItem={selectedItem}
+        selectedItems={selectedItems}
+        setCurrentView={setCurrentView}
+        showPublishAction={showPublishAction}
+        totalCount={totalCount}
+        unpublishLoading={unpublishLoading}
+        viewsMenu={
+          <ViewsMenu
+            currentView={currentView}
+            onViewChange={handleViewChange}
+            onViewSelect={handleViewSelect}
+            views={views}
+          />
+        }
       />
       <ContentImportModal
-        isOpen={isImportContentModalOpen}
+        alertList={alertList}
         dataChecking={dataChecking}
+        isOpen={isImportContentModalOpen}
         modelFields={modelFields}
         modelId={modelId}
-        workspaceId={currentWorkspaceId}
-        projectId={currentProjectId}
         onClose={handleImportContentModalClose}
-        onSetDataChecking={setDataChecking}
         onEnqueueJob={handleEnqueueJob}
-        alertList={alertList}
+        onSetDataChecking={setDataChecking}
+        projectId={currentProjectId}
         setAlertList={setAlertList}
-        validateImportResult={validateImportResult}
         setValidateImportResult={setValidateImportResult}
+        validateImportResult={validateImportResult}
+        workspaceId={currentWorkspaceId}
       />
     </>
   );

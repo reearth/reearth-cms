@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useRef, useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Comment from "@reearth-cms/components/molecules/Common/CommentsPanel/Comment";
@@ -10,31 +10,31 @@ import { useT } from "@reearth-cms/i18n";
 import Editor from "./Editor";
 
 type Props = {
-  userId: string;
-  hasCreateRight: boolean;
-  hasUpdateRight: boolean | null;
-  hasDeleteRight: boolean | null;
-  resourceId?: string;
-  comments?: CommentType[];
   collapsed: boolean;
+  comments?: CommentType[];
+  hasCreateRight: boolean;
+  hasDeleteRight: boolean | null;
+  hasUpdateRight: boolean | null;
   onCollapse: (value: boolean) => void;
   onCommentCreate: (content: string) => Promise<void>;
-  onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
+  onCommentUpdate: (commentId: string, content: string) => Promise<void>;
+  resourceId?: string;
+  userId: string;
 };
 
 const CommentsPanel: React.FC<Props> = ({
-  userId,
-  hasCreateRight,
-  hasUpdateRight,
-  hasDeleteRight,
-  resourceId,
-  comments,
   collapsed,
+  comments,
+  hasCreateRight,
+  hasDeleteRight,
+  hasUpdateRight,
   onCollapse,
   onCommentCreate,
-  onCommentUpdate,
   onCommentDelete,
+  onCommentUpdate,
+  resourceId,
+  userId,
 }) => {
   const t = useT();
 
@@ -48,12 +48,12 @@ const CommentsPanel: React.FC<Props> = ({
 
   return (
     <Sidebar
-      collapsible
-      width={274}
-      collapsedWidth={54}
       collapsed={collapsed}
+      collapsedWidth={54}
+      collapsible
       onCollapse={value => onCollapse(value)}
-      trigger={<Icon icon={collapsed ? "panelToggleLeft" : "panelToggleRight"} />}>
+      trigger={<Icon icon={collapsed ? "panelToggleLeft" : "panelToggleRight"} />}
+      width={274}>
       <ContentWrapper>
         {collapsed ? (
           <StyledIcon icon="comment" onClick={() => onCollapse(false)} />
@@ -64,13 +64,13 @@ const CommentsPanel: React.FC<Props> = ({
               {comments && comments.length > 0 ? (
                 comments.map(comment => (
                   <Comment
-                    key={comment.id}
-                    userId={userId}
-                    hasUpdateRight={hasUpdateRight}
-                    hasDeleteRight={hasDeleteRight}
                     comment={comment}
-                    onCommentUpdate={onCommentUpdate}
+                    hasDeleteRight={hasDeleteRight}
+                    hasUpdateRight={hasUpdateRight}
+                    key={comment.id}
                     onCommentDelete={onCommentDelete}
+                    onCommentUpdate={onCommentUpdate}
+                    userId={userId}
                   />
                 ))
               ) : (

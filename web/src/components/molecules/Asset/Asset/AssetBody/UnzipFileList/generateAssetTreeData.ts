@@ -6,10 +6,10 @@ export const generateAssetTreeData = (file: AssetFile): FileNode[] => {
   if (!file.filePaths) return [];
 
   const root: FileNode = {
+    children: [],
     key: "0",
     name: file.name,
     path: "/",
-    children: [],
   };
 
   file.filePaths.forEach((filepath, i) => {
@@ -22,11 +22,11 @@ export const generateAssetTreeData = (file: AssetFile): FileNode[] => {
         const key = `${i}-${j}`;
         const path = `${currentNode.path}${part}${/\.[^.]+$/.test(part) ? "" : "/"}`;
         const newNode: FileNode = {
+          children: [],
           key,
-          title: part,
           name: part,
           path,
-          children: [],
+          title: part,
         };
 
         currentNode.children?.push(newNode);

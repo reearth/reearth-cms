@@ -1,5 +1,6 @@
-import { type Dayjs } from "dayjs";
 import type { GeoJSON } from "geojson";
+
+import { type Dayjs } from "dayjs";
 
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { Comment } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
@@ -7,105 +8,105 @@ import { StateType } from "@reearth-cms/components/molecules/Content/Table/types
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 
-export type ItemStatus = "DRAFT" | "PUBLIC" | "REVIEW" | "PUBLIC_REVIEW" | "PUBLIC_DRAFT";
+export type ItemStatus = "DRAFT" | "PUBLIC_DRAFT" | "PUBLIC_REVIEW" | "PUBLIC" | "REVIEW";
 
-export type FormValues = Record<string, FormValue | FormGroupValue>;
+export type FormValues = Record<string, FormGroupValue | FormValue>;
 
 export type FormValue =
-  | string
-  | string[]
-  | number
-  | number[]
+  | ("" | Dayjs)[]
   | boolean
   | boolean[]
+  | Dayjs
   | GeoJSON
   | GeoJSON[]
-  | Dayjs
-  | ("" | Dayjs)[]
   | null
+  | number
+  | number[]
+  | string
+  | string[]
   | undefined;
 
 export type FormGroupValue = Record<string, FormValue>;
 
 export type ItemValue =
-  | string
-  | string[]
-  | number
-  | number[]
   | boolean
   | boolean[]
   | GeoJSON
-  | GeoJSON[];
+  | GeoJSON[]
+  | number
+  | number[]
+  | string
+  | string[];
 
 export type ItemField = {
-  schemaFieldId: string;
   itemGroupId?: string;
+  schemaFieldId: string;
   type: SchemaFieldType;
   value: ItemValue;
 };
 
 export type ItemAsset = {
-  id: string;
   fileName: string;
+  id: string;
 };
 
 export type Metadata = {
+  fields: ItemField[] | null | undefined;
   id?: string;
   version: string;
-  fields: ItemField[] | undefined | null;
 };
 
 export type Item = {
-  id: string;
-  version: string;
-  title: string;
-  schemaId: string;
-  createdBy?: Partial<User>;
-  updatedBy?: Partial<User>;
-  createdAt: Date;
-  updatedAt: Date;
-  status: ItemStatus;
-  referencedItems: FormItem[];
-  fields: ItemField[] | undefined | null;
-  metadata: Metadata;
-  threadId?: string;
-  comments: Comment[];
   assets: ItemAsset[];
+  comments: Comment[];
+  createdAt: Date;
+  createdBy?: Partial<User>;
+  fields: ItemField[] | null | undefined;
+  id: string;
+  metadata: Metadata;
+  referencedItems: FormItem[];
   requests: Pick<Request, "id" | "state" | "title">[];
+  schemaId: string;
+  status: ItemStatus;
+  threadId?: string;
+  title: string;
+  updatedAt: Date;
+  updatedBy?: Partial<User>;
+  version: string;
 };
 
 export type FormItem = {
-  id: string;
-  title: string;
-  schemaId: string;
-  createdBy: string;
-  status: ItemStatus;
-  version?: string;
   createdAt: Date;
+  createdBy: string;
+  id: string;
+  schemaId: string;
+  status: ItemStatus;
+  title: string;
   updatedAt: Date;
+  version?: string;
 };
 
 export type ContentTableField = {
-  id: string;
-  createdBy: { id: string; name: string };
-  updatedBy: string;
-  schemaId: string;
-  status: ItemStatus;
-  modelId?: string;
-  fields: Record<string, unknown>;
   comments: Comment[];
   createdAt: Date;
-  updatedAt: Date;
+  createdBy: { id: string; name: string };
+  fields: Record<string, unknown>;
+  id: string;
   metadata: Record<string, unknown>;
   metadataId: string;
+  modelId?: string;
+  schemaId: string;
+  status: ItemStatus;
+  updatedAt: Date;
+  updatedBy: string;
   version: string;
 };
 
 export type VersionedItem = {
-  version: string;
-  status: StateType;
-  timestamp: Date;
   creator: Pick<User, "name">;
   fields: ItemField[];
   requests: Pick<Request, "id" | "title">[];
+  status: StateType;
+  timestamp: Date;
+  version: string;
 };

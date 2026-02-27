@@ -5,8 +5,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import Notification from "@reearth-cms/components/atoms/Notification";
 import {
   IntegrationInfo,
-  Webhook,
   NewWebhook,
+  Webhook,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import integrationHooks from "@reearth-cms/components/organisms/Settings/MyIntegrations/hooks";
 import {
@@ -23,9 +23,9 @@ import {
 import { useT } from "@reearth-cms/i18n";
 
 export default () => {
-  const { workspaceId, integrationId } = useParams();
+  const { integrationId, workspaceId } = useParams();
   const navigate = useNavigate();
-  const { loading, integrations } = integrationHooks();
+  const { integrations, loading } = integrationHooks();
   const t = useT();
 
   const selectedIntegration = useMemo(
@@ -39,14 +39,14 @@ export default () => {
   );
 
   const handleIntegrationUpdate = useCallback(
-    async ({ name, description, logoUrl }: IntegrationInfo) => {
+    async ({ description, logoUrl, name }: IntegrationInfo) => {
       if (!integrationId) return;
       const result = await updateIntegrationMutation({
         variables: {
-          integrationId,
-          name,
           description,
+          integrationId,
           logoUrl,
+          name,
         },
       });
       if (result.error) {
@@ -101,16 +101,16 @@ export default () => {
   });
 
   const handleWebhookCreate = useCallback(
-    async ({ name, url, active, trigger, secret }: NewWebhook) => {
+    async ({ active, name, secret, trigger, url }: NewWebhook) => {
       if (!integrationId) return;
       const webhook = await createNewWebhook({
         variables: {
+          active,
           integrationId,
           name,
-          url,
-          active,
-          trigger,
           secret,
+          trigger,
+          url,
         },
       });
       if (webhook.error || !webhook.data?.createWebhook) {
@@ -149,17 +149,17 @@ export default () => {
   });
 
   const handleWebhookUpdate = useCallback(
-    async ({ id, name, url, active, trigger, secret }: Webhook) => {
+    async ({ active, id, name, secret, trigger, url }: Webhook) => {
       if (!integrationId) return;
       const webhook = await updateWebhook({
         variables: {
-          integrationId,
-          webhookId: id,
-          name,
           active,
+          integrationId,
+          name,
+          secret,
           trigger,
           url,
-          secret,
+          webhookId: id,
         },
       });
       if (webhook.error || !webhook.data?.updateWebhook) {
@@ -176,18 +176,18 @@ export default () => {
   }, [navigate, workspaceId]);
 
   return {
-    loading,
-    selectedIntegration,
-    updateIntegrationLoading,
-    regenerateLoading,
     createWebhookLoading,
-    updateWebhookLoading,
-    handleIntegrationUpdate,
     handleIntegrationDelete,
+    handleIntegrationHeaderBack,
+    handleIntegrationUpdate,
     handleRegenerateToken,
     handleWebhookCreate,
     handleWebhookDelete,
     handleWebhookUpdate,
-    handleIntegrationHeaderBack,
+    loading,
+    regenerateLoading,
+    selectedIntegration,
+    updateIntegrationLoading,
+    updateWebhookLoading,
   };
 };

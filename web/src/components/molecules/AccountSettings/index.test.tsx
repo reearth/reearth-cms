@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { expect, test, describe } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import AccountSettings from ".";
 
@@ -17,11 +17,11 @@ describe("Account settings", () => {
   test("Loading displays successfully", () => {
     render(
       <AccountSettings
-        me={undefined}
         loading={true}
-        onUserUpdate={onUserUpdate}
+        me={undefined}
         onLanguageUpdate={onLanguageUpdate}
         onUserDelete={onUserDelete}
+        onUserUpdate={onUserUpdate}
       />,
     );
 
@@ -31,19 +31,19 @@ describe("Account settings", () => {
 
   test("Title displays successfully", () => {
     const me = {
-      id: "id",
-      name: "name",
       email: "email",
+      id: "id",
       lang: "lang",
+      name: "name",
     };
 
     render(
       <AccountSettings
-        me={me}
         loading={false}
-        onUserUpdate={onUserUpdate}
+        me={me}
         onLanguageUpdate={onLanguageUpdate}
         onUserDelete={onUserDelete}
+        onUserUpdate={onUserUpdate}
       />,
     );
     expect(screen.queryByTestId("loading")).not.toBeInTheDocument();

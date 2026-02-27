@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import IntegrationSettingsModal from ".";
 
@@ -11,9 +11,9 @@ describe("Integration settings modal", () => {
   const description = "description";
 
   const selectedIntegration = {
+    description,
     id: "id",
     name,
-    description,
     role: "READER" as const,
   };
   const open = true;
@@ -26,11 +26,11 @@ describe("Integration settings modal", () => {
   test("Name, description, and roles are displayed successfully", async () => {
     render(
       <IntegrationSettingsModal
-        selectedIntegration={selectedIntegration}
-        open={open}
         loading={loading}
         onClose={onClose}
         onSubmit={onSubmit}
+        open={open}
+        selectedIntegration={selectedIntegration}
       />,
     );
 
@@ -47,11 +47,11 @@ describe("Integration settings modal", () => {
   test("Loading is displayed successfully", async () => {
     render(
       <IntegrationSettingsModal
-        selectedIntegration={selectedIntegration}
-        open={open}
         loading={true}
         onClose={onClose}
         onSubmit={onSubmit}
+        open={open}
+        selectedIntegration={selectedIntegration}
       />,
     );
 
@@ -61,11 +61,11 @@ describe("Integration settings modal", () => {
   test("Save button is toggled successfully", async () => {
     const { rerender } = render(
       <IntegrationSettingsModal
-        selectedIntegration={selectedIntegration}
-        open={open}
         loading={loading}
         onClose={onClose}
         onSubmit={onSubmit}
+        open={open}
+        selectedIntegration={selectedIntegration}
       />,
     );
 
@@ -80,11 +80,11 @@ describe("Integration settings modal", () => {
 
     rerender(
       <IntegrationSettingsModal
-        selectedIntegration={selectedIntegration}
-        open={false}
         loading={loading}
         onClose={onClose}
         onSubmit={onSubmit}
+        open={false}
+        selectedIntegration={selectedIntegration}
       />,
     );
 
@@ -92,11 +92,11 @@ describe("Integration settings modal", () => {
 
     rerender(
       <IntegrationSettingsModal
-        selectedIntegration={selectedIntegration}
-        open={open}
         loading={loading}
         onClose={onClose}
         onSubmit={onSubmit}
+        open={open}
+        selectedIntegration={selectedIntegration}
       />,
     );
 
@@ -108,11 +108,11 @@ describe("Integration settings modal", () => {
     const onSubmitMock = vi.fn();
     render(
       <IntegrationSettingsModal
-        selectedIntegration={selectedIntegration}
-        open={open}
         loading={loading}
         onClose={onClose}
         onSubmit={onSubmitMock}
+        open={open}
+        selectedIntegration={selectedIntegration}
       />,
     );
 

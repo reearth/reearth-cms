@@ -11,45 +11,45 @@ import { FormItem } from "@reearth-cms/components/molecules/Content/types";
 import { Group, Schema } from "@reearth-cms/components/molecules/Schema/types";
 
 type Props = {
-  schema?: Schema;
   initialFormValues: Record<string, unknown>;
-  referencedItems: FormItem[];
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
+  referencedItems: FormItem[];
+  schema?: Schema;
 };
 
 const RequestItemForm: React.FC<Props> = ({
-  schema,
   initialFormValues,
-  referencedItems,
   onGetAsset,
   onGroupGet,
+  referencedItems,
+  schema,
 }) => {
   const [form] = Form.useForm();
   return (
-    <StyledForm form={form} layout="vertical" initialValues={initialFormValues}>
+    <StyledForm form={form} initialValues={initialFormValues} layout="vertical">
       <div>
         {schema?.fields.map(field => {
           if (field.type === "Asset") {
             return (
               <div key={field.id}>
-                <AssetField field={field} disabled onGetAsset={onGetAsset} />
+                <AssetField disabled field={field} onGetAsset={onGetAsset} />
               </div>
             );
           } else if (field.type === "Reference") {
             return (
               <div key={field.id}>
-                <ReferenceField field={field} disabled referencedItems={referencedItems} />
+                <ReferenceField disabled field={field} referencedItems={referencedItems} />
               </div>
             );
           } else if (field.type === "Group") {
             return (
               <div key={field.id}>
                 <GroupField
-                  field={field}
-                  disabled
-                  onGroupGet={onGroupGet}
                   assetProps={{ onGetAsset }}
+                  disabled
+                  field={field}
+                  onGroupGet={onGroupGet}
                   referenceProps={{ referencedItems }}
                 />
               </div>
@@ -58,7 +58,7 @@ const RequestItemForm: React.FC<Props> = ({
             const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
             return (
               <div key={field.id}>
-                <FieldComponent field={field} disabled />
+                <FieldComponent disabled field={field} />
               </div>
             );
           }

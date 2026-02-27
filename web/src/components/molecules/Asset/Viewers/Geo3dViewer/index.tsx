@@ -1,5 +1,5 @@
-import { Resource, Viewer as CesiumViewer } from "cesium";
-import { useEffect, useMemo, RefObject } from "react";
+import { Viewer as CesiumViewer, Resource } from "cesium";
+import { RefObject, useEffect, useMemo } from "react";
 import { CesiumComponentRef } from "resium";
 
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
@@ -12,18 +12,18 @@ import Cesium3dTileSetComponent from "./Cesium3dTileSetComponent";
 
 type Props = {
   isAssetPublic?: boolean;
-  url: string;
-  workspaceSettings: WorkspaceSettings;
   setAssetUrl: (url: string) => void;
+  url: string;
   viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
+  workspaceSettings: WorkspaceSettings;
 };
 
 const Geo3dViewer: React.FC<Props> = ({
   isAssetPublic,
-  url,
-  workspaceSettings,
   setAssetUrl,
+  url,
   viewerRef,
+  workspaceSettings,
 }) => {
   const { getHeader } = useAuthHeader();
 
@@ -37,8 +37,8 @@ const Geo3dViewer: React.FC<Props> = ({
 
   const resource = useMemo(async () => {
     return new Resource({
-      url: url,
       headers: isAssetPublic ? {} : await getHeader(),
+      url: url,
     });
   }, [getHeader, isAssetPublic, url]);
 

@@ -15,31 +15,31 @@ import { parseConfigBoolean } from "@reearth-cms/utils/format";
 import HeaderDropdown from "./Dropdown";
 
 type Props = {
-  username: string;
-  profilePictureUrl?: string;
-  personalWorkspace?: Workspace;
-  currentWorkspace?: Workspace;
-  workspaces?: Workspace[];
   currentProject?: Project;
-  onWorkspaceModalOpen: () => void;
-  onNavigateToSettings: () => void;
-  onWorkspaceNavigation: (id: string) => void;
-  onHomeNavigation: () => void;
+  currentWorkspace?: Workspace;
   logoUrl?: string;
+  onHomeNavigation: () => void;
+  onNavigateToSettings: () => void;
+  onWorkspaceModalOpen: () => void;
+  onWorkspaceNavigation: (id: string) => void;
+  personalWorkspace?: Workspace;
+  profilePictureUrl?: string;
+  username: string;
+  workspaces?: Workspace[];
 };
 
 const HeaderMolecule: React.FC<Props> = ({
-  username,
-  profilePictureUrl,
-  personalWorkspace,
-  currentWorkspace,
-  workspaces,
   currentProject,
-  onWorkspaceModalOpen,
-  onNavigateToSettings,
-  onWorkspaceNavigation,
-  onHomeNavigation,
+  currentWorkspace,
   logoUrl,
+  onHomeNavigation,
+  onNavigateToSettings,
+  onWorkspaceModalOpen,
+  onWorkspaceNavigation,
+  personalWorkspace,
+  profilePictureUrl,
+  username,
+  workspaces,
 }) => {
   const t = useT();
   const { logout } = useAuth();
@@ -59,56 +59,56 @@ const HeaderMolecule: React.FC<Props> = ({
   const WorkspacesItems: MenuProps["items"] = useMemo(() => {
     const res: MenuProps["items"] = [
       {
-        label: t("Personal Account"),
-        key: "personal-account",
-        type: "group",
         children: workspaces
           ?.filter(workspace => workspace.id === personalWorkspace?.id)
           ?.map(workspace => ({
-            label: (
-              <Tooltip title={workspace.name} placement="right">
-                <MenuText>{workspace.name}</MenuText>
-              </Tooltip>
-            ),
-            key: workspace.id,
             icon: (
               <UserAvatar
                 profilePictureUrl={profilePictureUrl}
-                username={workspace.name}
                 size="small"
+                username={workspace.name}
               />
             ),
-            style: { paddingLeft: 0, paddingRight: 0 },
+            key: workspace.id,
+            label: (
+              <Tooltip placement="right" title={workspace.name}>
+                <MenuText>{workspace.name}</MenuText>
+              </Tooltip>
+            ),
             onClick: () => onWorkspaceNavigation(workspace.id),
+            style: { paddingLeft: 0, paddingRight: 0 },
           })),
+        key: "personal-account",
+        label: t("Personal Account"),
+        type: "group",
       },
       {
         type: "divider",
       },
       {
-        label: t("Workspaces"),
-        key: "workspaces",
-        type: "group",
         children: workspaces
           ?.filter(workspace => workspace.id !== personalWorkspace?.id)
           ?.map(workspace => ({
+            icon: <UserAvatar shape="square" size="small" username={workspace.name} />,
+            key: workspace.id,
             label: (
-              <Tooltip title={workspace.name} placement="right">
+              <Tooltip placement="right" title={workspace.name}>
                 <MenuText>{workspace.name}</MenuText>
               </Tooltip>
             ),
-            key: workspace.id,
-            icon: <UserAvatar username={workspace.name} size="small" shape="square" />,
-            style: { paddingLeft: 0, paddingRight: 0 },
             onClick: () => onWorkspaceNavigation(workspace.id),
+            style: { paddingLeft: 0, paddingRight: 0 },
           })),
+        key: "workspaces",
+        label: t("Workspaces"),
+        type: "group",
       },
     ];
     if (!disableWorkspaceUi) {
       res.push({
-        label: t("Create Workspace"),
-        key: "new-workspace",
         icon: <Icon icon="userGroupAdd" />,
+        key: "new-workspace",
+        label: t("Create Workspace"),
         onClick: onWorkspaceModalOpen,
       });
     }
@@ -126,15 +126,15 @@ const HeaderMolecule: React.FC<Props> = ({
   const AccountItems: MenuProps["items"] = useMemo(
     () => [
       {
-        label: t("Account Settings"),
-        key: "account-settings",
         icon: <Icon icon="user" />,
+        key: "account-settings",
+        label: t("Account Settings"),
         onClick: onNavigateToSettings,
       },
       {
-        label: t("Logout"),
-        key: "logout",
         icon: <Icon icon="logout" />,
+        key: "logout",
+        label: t("Logout"),
         onClick: logout,
       },
     ],
@@ -144,17 +144,17 @@ const HeaderMolecule: React.FC<Props> = ({
   return (
     <MainHeader>
       {logoUrl ? (
-        <LogoIcon src={logoUrl} onClick={onHomeNavigation} />
+        <LogoIcon onClick={onHomeNavigation} src={logoUrl} />
       ) : (
-        <Logo src="/logo.svg" onClick={onHomeNavigation} />
+        <Logo onClick={onHomeNavigation} src="/logo.svg" />
       )}
       <WorkspaceDropdown
-        name={currentWorkspace?.name}
-        profilePictureUrl={profilePictureUrl}
         items={WorkspacesItems}
+        name={currentWorkspace?.name}
         personal={currentIsPersonal}
-        showName={true}
+        profilePictureUrl={profilePictureUrl}
         showArrow={true}
+        showName={true}
       />
       <CurrentProject>
         {currentProject?.name && (
@@ -168,16 +168,16 @@ const HeaderMolecule: React.FC<Props> = ({
         )}
       </CurrentProject>
       <AccountDropdown
-        name={username}
-        profilePictureUrl={profilePictureUrl}
         items={AccountItems}
+        name={username}
         personal={true}
-        showName={false}
+        profilePictureUrl={profilePictureUrl}
         showArrow={false}
+        showName={false}
       />
       {url && (
         <LinkWrapper>
-          <EditorLink rel="noreferrer" href={url.href} target="_blank">
+          <EditorLink href={url.href} rel="noreferrer" target="_blank">
             {t("Go to Editor")}
           </EditorLink>
         </LinkWrapper>

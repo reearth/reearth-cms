@@ -3,53 +3,53 @@ import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 
 type Props = {
-  title: string;
   collapsed?: boolean;
-  selectedKey?: string;
   groups?: Group[];
-  open: boolean;
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
-  onModalOpen: () => void;
-  onGroupKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
   onClose: () => void;
-  onCreate: (data: { name: string; description: string; key: string }) => Promise<void>;
+  onCreate: (data: { description: string; key: string; name: string; }) => Promise<void>;
+  onGroupKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
   onGroupSelect?: (groupId: string) => void;
+  onModalOpen: () => void;
   onUpdateGroupsOrder: (groupIds: string[]) => Promise<void>;
+  open: boolean;
+  selectedKey?: string;
+  title: string;
 };
 
 const Groups: React.FC<Props> = ({
   collapsed,
-  selectedKey,
   groups,
-  open,
   hasCreateRight,
   hasUpdateRight,
-  onModalOpen,
-  onGroupKeyCheck,
   onClose,
   onCreate,
+  onGroupKeyCheck,
   onGroupSelect,
+  onModalOpen,
   onUpdateGroupsOrder,
+  open,
+  selectedKey,
 }) => {
   return (
     <>
       <GroupsList
-        selectedKey={selectedKey}
-        groups={groups}
         collapsed={collapsed}
+        groups={groups}
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}
         onGroupSelect={onGroupSelect}
         onModalOpen={onModalOpen}
         onUpdateGroupsOrder={onUpdateGroupsOrder}
+        selectedKey={selectedKey}
       />
       <FormModal
-        open={open}
+        isModel={false}
         onClose={onClose}
         onCreate={onCreate}
         onKeyCheck={onGroupKeyCheck}
-        isModel={false}
+        open={open}
       />
     </>
   );

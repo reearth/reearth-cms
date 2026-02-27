@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useState, ChangeEvent } from "react";
+import { ChangeEvent, useCallback, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -42,15 +42,15 @@ const Editor: React.FC<EditorProps> = ({ isInputDisabled, onCommentCreate }) => 
   return (
     <Form form={form}>
       <StyledFormItem name="content">
-        <TextArea autoSize={{ maxRows: 4 }} onChange={handleChange} disabled={isInputDisabled} />
+        <TextArea autoSize={{ maxRows: 4 }} disabled={isInputDisabled} onChange={handleChange} />
       </StyledFormItem>
       <ButtonWrapper>
         <Button
           disabled={isSubmitDisabled}
           loading={submitting}
           onClick={handleSubmit}
-          type="primary"
-          size="small">
+          size="small"
+          type="primary">
           {t("Comment")}
         </Button>
       </ButtonWrapper>

@@ -1,12 +1,13 @@
 import styled from "@emotion/styled";
 
+import type { Field } from "@reearth-cms/components/molecules/Schema/types";
+
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Popover from "@reearth-cms/components/atoms/Popover";
 import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
-import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import ItemFormat from "./ItemFormat";
@@ -14,23 +15,22 @@ import ItemFormat from "./ItemFormat";
 export const renderField = (
   el: { props: { children: string | string[] } },
   field: Field,
-  update?: (value?: string | string[] | boolean, index?: number) => void,
+  update?: (value?: boolean | string | string[], index?: number) => void,
 ) => {
   const value = el.props.children;
   const items = Array.isArray(value) ? value : [value];
 
   if ((field.type === "Bool" || field.type === "Checkbox") && !field.multiple) {
-    return <ItemFormat item={items[0]} field={field} update={update} />;
+    return <ItemFormat field={field} item={items[0]} update={update} />;
   } else if (field.type === "Tag") {
     const tags = field.typeProperty?.tags;
     const filteredTags = tags?.filter(tag => value.includes(tag.id)) || [];
     return (
       <StyledSelect
-        mode={field.multiple ? "multiple" : undefined}
-        defaultValue={filteredTags.map(({ name }) => name)}
-        tagRender={props => <>{props.label}</>}
-        suffixIcon={null}
         allowClear={field.multiple ? false : true}
+        defaultValue={filteredTags.map(({ name }) => name)}
+        disabled={!update}
+        mode={field.multiple ? "multiple" : undefined}
         onChange={(_, option) => {
           const value: string | string[] | undefined = Array.isArray(option)
             ? option.map(({ key }) => key)
@@ -38,8 +38,9 @@ export const renderField = (
           update?.(value);
         }}
         placeholder="-"
-        disabled={!update}>
-        {tags?.map(({ id, name, color }) => (
+        suffixIcon={null}
+        tagRender={props => <>{props.label}</>}>
+        {tags?.map(({ color, id, name }) => (
           <Select.Option key={id} value={name}>
             <Tag color={color.toLowerCase()}>{name}</Tag>
           </Select.Option>
@@ -48,7 +49,7 @@ export const renderField = (
     );
   } else if (value === "-") {
     if ((field.type === "Text" || field.type === "Date" || field.type === "URL") && update) {
-      return <ItemFormat item="" field={field} update={update} />;
+      return <ItemFormat field={field} item="" update={update} />;
     }
     return <span>-</span>;
   } else if (field.type === "Select") {
@@ -71,7 +72,7 @@ export const renderField = (
         {items.map((item, index) => {
           return (
             <Content key={index}>
-              <ItemFormat item={item} field={field} update={update} index={index} />
+              <ItemFormat field={field} index={index} item={item} update={update} />
             </Content>
           );
         })}
@@ -79,13 +80,13 @@ export const renderField = (
     );
     return (
       <Popover
-        rootClassName="contentPopover"
         content={
           <div data-testid={DATA_TEST_ID.Content__List__ItemFieldPopoverContent}>{content}</div>
         }
+        placement="bottom"
+        rootClassName="contentPopover"
         title={field.title}
-        trigger="click"
-        placement="bottom">
+        trigger="click">
         <StyledButton data-testid={DATA_TEST_ID.Content__List__ItemFieldPopoverIcon}>
           <Icon icon={fieldTypes[field.type].icon} size={16} />
           {items.length > 1 && <span>x{items.length}</span>}
@@ -93,7 +94,7 @@ export const renderField = (
       </Popover>
     );
   } else {
-    return <ItemFormat item={items[0]} field={field} update={update} />;
+    return <ItemFormat field={field} item={items[0]} update={update} />;
   }
 };
 

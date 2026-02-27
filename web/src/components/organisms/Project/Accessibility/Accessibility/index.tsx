@@ -4,42 +4,42 @@ import useHooks from "./hooks";
 
 const Accessibility: React.FC = () => {
   const {
-    apiKeys,
-    isProjectPublic,
-    initialValues,
-    models,
-    hasPublishRight,
-    hasCreateRight,
-    hasUpdateRight,
-    hasDeleteRight,
-    updateLoading,
-    apiUrl,
     alias,
-    handleAPIKeyNew,
-    handleAPIKeyEdit,
+    apiKeys,
+    apiUrl,
     handleAPIKeyDelete,
+    handleAPIKeyEdit,
+    handleAPIKeyNew,
     handlePublicUpdate,
     handleSettingsPageOpen,
+    hasCreateRight,
+    hasDeleteRight,
+    hasPublishRight,
+    hasUpdateRight,
+    initialValues,
+    isProjectPublic,
+    models,
+    updateLoading,
   } = useHooks();
 
   return (
     <AccessibilityMolecule
-      apiKeys={apiKeys}
-      isProjectPublic={isProjectPublic}
-      initialValues={initialValues}
-      models={models}
-      hasPublishRight={hasPublishRight}
-      hasCreateRight={hasCreateRight}
-      hasUpdateRight={hasUpdateRight}
-      hasDeleteRight={hasDeleteRight}
-      updateLoading={updateLoading}
-      apiUrl={apiUrl}
       alias={alias}
-      onAPIKeyNew={handleAPIKeyNew}
-      onAPIKeyEdit={handleAPIKeyEdit}
+      apiKeys={apiKeys}
+      apiUrl={apiUrl}
+      hasCreateRight={hasCreateRight}
+      hasDeleteRight={hasDeleteRight}
+      hasPublishRight={hasPublishRight}
+      hasUpdateRight={hasUpdateRight}
+      initialValues={initialValues}
+      isProjectPublic={isProjectPublic}
+      models={models}
       onAPIKeyDelete={handleAPIKeyDelete}
+      onAPIKeyEdit={handleAPIKeyEdit}
+      onAPIKeyNew={handleAPIKeyNew}
       onPublicUpdate={handlePublicUpdate}
       onSettingsPageOpen={handleSettingsPageOpen}
+      updateLoading={updateLoading}
     />
   );
 };

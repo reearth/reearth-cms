@@ -14,9 +14,9 @@ const DateField: React.FC<Props> = ({ multiple }) => {
   const t = useT();
 
   return (
-    <Form.Item name="defaultValue" label={t("Set default value")}>
+    <Form.Item label={t("Set default value")} name="defaultValue">
       {multiple ? (
-        <MultiValueField type="date" FieldInput={StyledDatePicker} />
+        <MultiValueField FieldInput={StyledDatePicker} type="date" />
       ) : (
         <StyledDatePicker />
       )}

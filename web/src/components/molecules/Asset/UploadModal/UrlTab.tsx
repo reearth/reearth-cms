@@ -6,15 +6,15 @@ import Input from "@reearth-cms/components/atoms/Input";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  uploadUrl: { url: string; autoUnzip: boolean };
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
+  setUploadUrl: (uploadUrl: { autoUnzip: boolean; url: string; }) => void;
+  uploadUrl: { autoUnzip: boolean; url: string; };
 };
 
 export type FormValues = {
   url: string;
 };
 
-const UrlTab: React.FC<Props> = ({ uploadUrl, setUploadUrl }) => {
+const UrlTab: React.FC<Props> = ({ setUploadUrl, uploadUrl }) => {
   const isCompressedFile = useMemo(() => uploadUrl.url.match(/\.zip|\.7z$/), [uploadUrl]);
   const t = useT();
   const [form] = Form.useForm();
@@ -28,23 +28,23 @@ const UrlTab: React.FC<Props> = ({ uploadUrl, setUploadUrl }) => {
   }, [form, uploadUrl.url]);
 
   return (
-    <Form form={form} layout="vertical" initialValues={initialValues}>
+    <Form form={form} initialValues={initialValues} layout="vertical">
       <Form.Item
-        name="url"
         label={t("URL")}
+        name="url"
         rules={[
           { required: true },
           { message: t("Please input the URL of the asset!") },
           { type: "url", warningOnly: true },
         ]}>
         <Input
-          placeholder={t("Please input a valid URL")}
           onChange={e =>
             setUploadUrl({
               ...uploadUrl,
               url: e.target.value,
             })
           }
+          placeholder={t("Please input a valid URL")}
         />
       </Form.Item>
       {isCompressedFile && (

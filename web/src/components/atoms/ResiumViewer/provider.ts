@@ -1,24 +1,24 @@
 import {
-  ProviderViewModel,
   ArcGisMapServerImageryProvider,
-  OpenStreetMapImageryProvider,
   ArcGISTiledElevationTerrainProvider,
-  UrlTemplateImageryProvider,
-  CesiumTerrainProvider,
-  IonResource,
-  EllipsoidTerrainProvider,
-  createWorldTerrainAsync,
   buildModuleUrl,
+  CesiumTerrainProvider,
   createWorldImageryAsync,
-  IonWorldImageryStyle,
+  createWorldTerrainAsync,
+  EllipsoidTerrainProvider,
   IonImageryProvider,
+  IonResource,
+  IonWorldImageryStyle,
+  OpenStreetMapImageryProvider,
+  ProviderViewModel,
+  UrlTemplateImageryProvider,
 } from "cesium";
 
 import {
-  TileResource,
-  TerrainResource,
-  UrlResourceProps,
   CesiumResourceProps,
+  TerrainResource,
+  TileResource,
+  UrlResourceProps,
 } from "@reearth-cms/components/molecules/Workspace/types";
 
 import ArcgisThumbnail from "./arcgisThumbnail.png";
@@ -27,54 +27,50 @@ import NoImage from "./noImage.jpg";
 const accessToken = window.REEARTH_CONFIG?.cesiumIonAccessToken;
 
 const defaultTile = new ProviderViewModel({
-  name: "Default",
-  iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingAerial.png"),
-  tooltip: "",
   creationFunction: () => {
     return createWorldImageryAsync({
       style: IonWorldImageryStyle.AERIAL,
     });
   },
+  iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingAerial.png"),
+  name: "Default",
+  tooltip: "",
 });
 
 const labelled = new ProviderViewModel({
-  name: "Labelled",
-  iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingAerialLabels.png"),
-  tooltip: "",
   creationFunction: () => {
     return createWorldImageryAsync({
       style: IonWorldImageryStyle.AERIAL_WITH_LABELS,
     });
   },
+  iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingAerialLabels.png"),
+  name: "Labelled",
+  tooltip: "",
 });
 
 const roadMap = new ProviderViewModel({
-  name: "RoadMap",
-  iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingRoads.png"),
-  tooltip: "",
   creationFunction: () => {
     return createWorldImageryAsync({
       style: IonWorldImageryStyle.ROAD,
     });
   },
+  iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/bingRoads.png"),
+  name: "RoadMap",
+  tooltip: "",
 });
 
 const openStreetMap = new ProviderViewModel({
-  name: "OpenStreetMap",
-  iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/openStreetMap.png"),
-  tooltip: "",
   creationFunction: () => {
     return new OpenStreetMapImageryProvider({
       url: "https://a.tile.openstreetmap.org/",
     });
   },
+  iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/openStreetMap.png"),
+  name: "OpenStreetMap",
+  tooltip: "",
 });
 
 const esriTopography = new ProviderViewModel({
-  name: "ESRI Topography",
-  iconUrl:
-    "https://services.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer/tile/0/0/0",
-  tooltip: "",
   creationFunction: () => {
     return ArcGisMapServerImageryProvider.fromUrl(
       "https://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer",
@@ -85,38 +81,42 @@ const esriTopography = new ProviderViewModel({
       },
     );
   },
+  iconUrl:
+    "https://services.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer/tile/0/0/0",
+  name: "ESRI Topography",
+  tooltip: "",
 });
 
 const earthAtNight = new ProviderViewModel({
-  name: "Earth at night",
-  iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/earthAtNight.png"),
-  tooltip: "",
   creationFunction: () => {
     return IonImageryProvider.fromAssetId(3812, { accessToken });
   },
+  iconUrl: buildModuleUrl("Widgets/Images/ImageryProviders/earthAtNight.png"),
+  name: "Earth at night",
+  tooltip: "",
 });
 
 const japanGsi = new ProviderViewModel({
-  name: "Japan GSI Standard Map",
-  iconUrl: "https://maps.gsi.go.jp/xyz/std/0/0/0.png",
-  tooltip: "",
   creationFunction: () => {
     return new OpenStreetMapImageryProvider({
       url: "https://cyberjapandata.gsi.go.jp/xyz/std/",
     });
   },
+  iconUrl: "https://maps.gsi.go.jp/xyz/std/0/0/0.png",
+  name: "Japan GSI Standard Map",
+  tooltip: "",
 });
 
-const urlGet = ({ name, url, image }: UrlResourceProps) => {
+const urlGet = ({ image, name, url }: UrlResourceProps) => {
   return new ProviderViewModel({
-    name,
-    iconUrl: image || NoImage,
-    tooltip: "",
     creationFunction: () => {
       return new UrlTemplateImageryProvider({
         url,
       });
     },
+    iconUrl: image || NoImage,
+    name,
+    tooltip: "",
   });
 };
 
@@ -157,48 +157,45 @@ export const imageryGet = (tiles: TileResource[]) => {
 };
 
 const ellipsoid = new ProviderViewModel({
-  name: "WGS84 Ellipsoid",
-  iconUrl: buildModuleUrl("Widgets/Images/TerrainProviders/Ellipsoid.png"),
-  tooltip: "",
   creationFunction: () => {
     return new EllipsoidTerrainProvider();
   },
+  iconUrl: buildModuleUrl("Widgets/Images/TerrainProviders/Ellipsoid.png"),
+  name: "WGS84 Ellipsoid",
+  tooltip: "",
 });
 
 const cesiumWorld = new ProviderViewModel({
-  name: "Cesium World Terrain",
-  iconUrl: buildModuleUrl("Widgets/Images/TerrainProviders/CesiumWorldTerrain.png"),
-  tooltip: "",
   creationFunction: () => {
     return createWorldTerrainAsync({
-      requestWaterMask: true,
       requestVertexNormals: true,
+      requestWaterMask: true,
     });
   },
+  iconUrl: buildModuleUrl("Widgets/Images/TerrainProviders/CesiumWorldTerrain.png"),
+  name: "Cesium World Terrain",
+  tooltip: "",
 });
 
 const arcGis = new ProviderViewModel({
-  name: "ArcGIS Terrain",
-  iconUrl: ArcgisThumbnail,
-  tooltip: "",
   creationFunction: () => {
     return ArcGISTiledElevationTerrainProvider.fromUrl(
       "https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer",
     );
   },
+  iconUrl: ArcgisThumbnail,
+  name: "ArcGIS Terrain",
+  tooltip: "",
 });
 
 const cesiumIonGet = ({
+  cesiumIonAccessToken,
+  cesiumIonAssetId,
+  image,
   name,
   url,
-  image,
-  cesiumIonAssetId,
-  cesiumIonAccessToken,
 }: CesiumResourceProps) => {
   return new ProviderViewModel({
-    name,
-    iconUrl: image || NoImage,
-    tooltip: "",
     creationFunction: () => {
       return CesiumTerrainProvider.fromUrl(
         url ||
@@ -207,6 +204,9 @@ const cesiumIonGet = ({
           }),
       );
     },
+    iconUrl: image || NoImage,
+    name,
+    tooltip: "",
   });
 };
 

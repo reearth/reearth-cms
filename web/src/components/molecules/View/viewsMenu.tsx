@@ -4,38 +4,38 @@ import ReactDragListView from "react-drag-listview";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
-import { View, CurrentView } from "@reearth-cms/components/molecules/View/types";
+import { CurrentView, View } from "@reearth-cms/components/molecules/View/types";
 import ViewsMenuItem from "@reearth-cms/components/molecules/View/viewMenuItem";
 import { useT } from "@reearth-cms/i18n";
 
 const { DragColumn } = ReactDragListView;
 
 type Props = {
-  views: View[];
-  onViewRenameModalOpen: (view: View) => void;
+  currentView: CurrentView;
+  hasCreateRight: boolean;
+  hasDeleteRight: boolean;
+  hasUpdateRight: boolean;
   onDelete: (viewId: string) => Promise<void>;
   onUpdate: (viewId: string, name: string) => Promise<void>;
-  currentView: CurrentView;
-  onViewCreateModalOpen: () => void;
-  onViewSelect: (key: string) => void;
   onUpdateViewsOrder: (viewIds: string[]) => Promise<void>;
-  hasCreateRight: boolean;
-  hasUpdateRight: boolean;
-  hasDeleteRight: boolean;
+  onViewCreateModalOpen: () => void;
+  onViewRenameModalOpen: (view: View) => void;
+  onViewSelect: (key: string) => void;
+  views: View[];
 };
 
 const ViewsMenuMolecule: React.FC<Props> = ({
-  views,
-  onViewRenameModalOpen,
-  onViewCreateModalOpen,
-  onUpdate,
-  onDelete,
   currentView,
-  onViewSelect,
-  onUpdateViewsOrder,
   hasCreateRight,
-  hasUpdateRight,
   hasDeleteRight,
+  hasUpdateRight,
+  onDelete,
+  onUpdate,
+  onUpdateViewsOrder,
+  onViewCreateModalOpen,
+  onViewRenameModalOpen,
+  onViewSelect,
+  views,
 }) => {
   const t = useT();
 
@@ -54,39 +54,39 @@ const ViewsMenuMolecule: React.FC<Props> = ({
     .sort((a, b) => a.order - b.order)
     .map(view => {
       return {
+        data: view,
+        key: view.id,
         label: (
           <ViewsMenuItem
-            view={view}
-            hasUpdateRight={hasUpdateRight}
             hasDeleteRight={hasDeleteRight}
-            onViewRenameModalOpen={onViewRenameModalOpen}
+            hasUpdateRight={hasUpdateRight}
             onDelete={onDelete}
             onUpdate={onUpdate}
+            onViewRenameModalOpen={onViewRenameModalOpen}
+            view={view}
           />
         ),
-        key: view.id,
-        data: view,
       };
     });
 
   return (
     <Wrapper>
       <DragColumn
-        nodeSelector={hasUpdateRight ? ".ant-tabs-tab" : undefined}
         lineClassName="dragLineColumn"
+        nodeSelector={hasUpdateRight ? ".ant-tabs-tab" : undefined}
         onDragEnd={(fromIndex, toIndex) => onDragEnd(fromIndex, toIndex)}>
         <StyledTabs
+          activeKey={currentView.id}
+          items={menuItems}
+          moreIcon={<Button>All Views</Button>}
+          onChange={onViewSelect}
+          popupClassName="hide-icon-button"
           tabBarExtraContent={
-            <NewViewButton type="text" onClick={onViewCreateModalOpen} disabled={!hasCreateRight}>
+            <NewViewButton disabled={!hasCreateRight} onClick={onViewCreateModalOpen} type="text">
               {t("Save as new view")}
             </NewViewButton>
           }
-          activeKey={currentView.id}
           tabPosition="top"
-          items={menuItems}
-          popupClassName="hide-icon-button"
-          onChange={onViewSelect}
-          moreIcon={<Button>All Views</Button>}
         />
       </DragColumn>
     </Wrapper>

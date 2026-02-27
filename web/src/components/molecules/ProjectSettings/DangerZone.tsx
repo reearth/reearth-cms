@@ -12,42 +12,42 @@ import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { ProjectVisibility } from "../Accessibility/types";
 
 type Props = {
-  projectName: string;
-  visibility?: ProjectVisibility;
   hasDeleteRight: boolean;
   hasPublishRight: boolean;
   onProjectDelete: () => Promise<void>;
   onProjectVisibilityChange: (visibility: string) => Promise<void>;
+  projectName: string;
+  visibility?: ProjectVisibility;
 };
 
 const DangerZone: React.FC<Props> = ({
-  projectName,
-  visibility,
   hasDeleteRight,
   hasPublishRight,
   onProjectDelete,
   onProjectVisibilityChange,
+  projectName,
+  visibility,
 }) => {
   const t = useT();
   const { confirm } = useModal();
 
   const handleProjectDeleteConfirmation = useCallback(() => {
     confirm({
-      title: (
-        <Trans
-          i18nKey="Delete {{projectName}} project?"
-          values={{ projectName }}
-          components={{ u: <StyledProjectName /> }}
-        />
-      ),
-      okText: t("Delete project"),
       okButtonProps: {
         danger: true,
         "data-testid": DATA_TEST_ID.ProjectSettings__DangerZone__ConfirmDeleteProjectButton,
       },
+      okText: t("Delete project"),
       onOk() {
         onProjectDelete();
       },
+      title: (
+        <Trans
+          components={{ u: <StyledProjectName /> }}
+          i18nKey="Delete {{projectName}} project?"
+          values={{ projectName }}
+        />
+      ),
     });
   }, [confirm, projectName, t, onProjectDelete]);
 
@@ -64,19 +64,18 @@ const DangerZone: React.FC<Props> = ({
       const visibility = value as string;
       const isPublic = visibility === "PUBLIC";
       const messages = {
-        title: isPublic
-          ? t("Are you sure you want to set this project to public?")
-          : t("Are you sure you want to set this project to private?"),
         content1: isPublic
           ? t("All published content will be accessible to everyone.")
           : t(
               "Published content will no longer be visible, but you can access it using an API key.",
             ),
         content2: t("This action is not reversible, so please continue with caution."),
+        title: isPublic
+          ? t("Are you sure you want to set this project to public?")
+          : t("Are you sure you want to set this project to private?"),
       };
 
       confirm({
-        title: messages.title,
         content: (
           <>
             <p>{messages.content1}</p>
@@ -86,19 +85,20 @@ const DangerZone: React.FC<Props> = ({
         async onOk() {
           await onProjectVisibilityChange?.(visibility);
         },
+        title: messages.title,
       });
     },
     [onProjectVisibilityChange, t, confirm],
   );
 
   return (
-    <ContentSection title={t("Danger Zone")} danger>
+    <ContentSection danger title={t("Danger Zone")}>
       <Title>{t("Change project visibility")}</Title>
       <StyledSelect
         disabled={!hasPublishRight}
-        value={visibility}
-        onChange={handleVisibilityChange}>
-        {publicScopeList.map(({ value, name }) => (
+        onChange={handleVisibilityChange}
+        value={visibility}>
+        {publicScopeList.map(({ name, value }) => (
           <Select.Option key={value} value={value}>
             {name}
           </Select.Option>
@@ -111,11 +111,11 @@ const DangerZone: React.FC<Props> = ({
         )}
       </Text>
       <StyledButton
-        data-testid={DATA_TEST_ID.ProjectSettings__DangerZone__DeleteProjectButton}
-        onClick={handleProjectDeleteConfirmation}
-        type="primary"
         danger
-        disabled={!hasDeleteRight}>
+        data-testid={DATA_TEST_ID.ProjectSettings__DangerZone__DeleteProjectButton}
+        disabled={!hasDeleteRight}
+        onClick={handleProjectDeleteConfirmation}
+        type="primary">
         {t("Delete project")}
       </StyledButton>
     </ContentSection>

@@ -8,19 +8,19 @@ import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
 
 type RequestOptionsData = {
-  role: string;
   needRequest: Role;
+  role: string;
 };
 
 type Props = {
-  initialRequestRoles: Role[];
   hasUpdateRight: boolean;
+  initialRequestRoles: Role[];
   onProjectRequestRolesUpdate: (role: Role[]) => Promise<void>;
 };
 
 const RequestOptions: React.FC<Props> = ({
-  initialRequestRoles,
   hasUpdateRight,
+  initialRequestRoles,
   onProjectRequestRolesUpdate,
 }) => {
   const t = useT();
@@ -49,22 +49,22 @@ const RequestOptions: React.FC<Props> = ({
   const columns: TableColumnsType<RequestOptionsData> = useMemo(
     () => [
       {
-        title: t("Role"),
         dataIndex: "role",
+        title: t("Role"),
       },
       {
-        title: t("Need request"),
-        dataIndex: "needRequest",
         align: "right",
+        dataIndex: "needRequest",
         render: role => (
           <Switch
             checked={requestRoles.includes(role)}
+            disabled={!hasUpdateRight || role === "READER"}
             onChange={(value: boolean) => {
               handleChange(value, role);
             }}
-            disabled={!hasUpdateRight || role === "READER"}
           />
         ),
+        title: t("Need request"),
       },
     ],
     [handleChange, hasUpdateRight, requestRoles, t],
@@ -73,20 +73,20 @@ const RequestOptions: React.FC<Props> = ({
   const dataSource: RequestOptionsData[] = useMemo(
     () => [
       {
-        role: t("Owner"),
         needRequest: "OWNER",
+        role: t("Owner"),
       },
       {
-        role: t("Maintainer"),
         needRequest: "MAINTAINER",
+        role: t("Maintainer"),
       },
       {
-        role: t("Writer"),
         needRequest: "WRITER",
+        role: t("Writer"),
       },
       {
-        role: t("Reader"),
         needRequest: "READER",
+        role: t("Reader"),
       },
     ],
     [t],
@@ -110,9 +110,9 @@ const RequestOptions: React.FC<Props> = ({
         {t("If this option is chosen, all new model within the project will default follow it.")}
       </SecondaryText>
       <TableWrapper>
-        <Table dataSource={dataSource} columns={columns} pagination={false} />
+        <Table columns={columns} dataSource={dataSource} pagination={false} />
       </TableWrapper>
-      <StyledButton type="primary" disabled={isDisabled} onClick={handleSave} loading={isLoading}>
+      <StyledButton disabled={isDisabled} loading={isLoading} onClick={handleSave} type="primary">
         {t("Save changes")}
       </StyledButton>
     </>

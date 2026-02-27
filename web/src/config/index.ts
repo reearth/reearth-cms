@@ -6,13 +6,13 @@ export { getAuthInfo, getSignInCallbackUrl, logInToTenant, logOutFromTenant } fr
 
 export type Config = {
   api: string;
-  logoUrl?: string;
-  coverImageUrl?: string;
   cesiumIonAccessToken?: string;
-  editorUrl: string;
-  multiTenant?: Record<string, AuthInfo>;
-  disableWorkspaceUi?: string | boolean;
+  coverImageUrl?: string;
   dashboardBaseUrl?: string;
+  disableWorkspaceUi?: boolean | string;
+  editorUrl: string;
+  logoUrl?: string;
+  multiTenant?: Record<string, AuthInfo>;
 } & AuthInfo;
 
 const env = import.meta.env;
@@ -20,23 +20,23 @@ const env = import.meta.env;
 export const defaultConfig: Config = {
   api: env.REEARTH_CMS_API || "/api",
   auth0Audience: env.REEARTH_CMS_AUTH0_AUDIENCE,
-  auth0Domain: env.REEARTH_CMS_AUTH0_DOMAIN,
   auth0ClientId: env.REEARTH_CMS_AUTH0_CLIENT_ID,
+  auth0Domain: env.REEARTH_CMS_AUTH0_DOMAIN,
   authProvider: env.REEARTH_CMS_AUTH_PROVIDER || "auth0",
-  logoUrl: env.REEARTH_CMS_LOGO_URL,
-  coverImageUrl: env.REEARTH_CMS_COVER_URL,
   cesiumIonAccessToken: env.REEARTH_CESIUM_ION_ACCESS_TOKEN || "",
+  coverImageUrl: env.REEARTH_CMS_COVER_URL,
+  dashboardBaseUrl: env.REEARTH_CMS_DASHBOARD_BASE_URL,
+  disableWorkspaceUi: env.REEARTH_CMS_DISABLE_WORKSPACE_UI,
   editorUrl: env.REEARTH_CMS_EDITOR_URL,
   firebase: {
     firebaseApiKey: env.REEARTH_CMS_FIREBASE_API_KEY,
+    firebaseAppId: env.REEARTH_CMS_FIREBASE_APP_ID,
     firebaseAuthDomain: env.REEARTH_CMS_FIREBASE_AUTH_DOMAIN,
+    firebaseMessagingSenderId: env.REEARTH_CMS_FIREBASE_MESSAGING_SENDER_ID,
     firebaseProjectId: env.REEARTH_CMS_FIREBASE_PROJECT_ID,
     firebaseStorageBucket: env.REEARTH_CMS_FIREBASE_STORAGE_BUCKET,
-    firebaseMessagingSenderId: env.REEARTH_CMS_FIREBASE_MESSAGING_SENDER_ID,
-    firebaseAppId: env.REEARTH_CMS_FIREBASE_APP_ID,
   },
-  disableWorkspaceUi: env.REEARTH_CMS_DISABLE_WORKSPACE_UI,
-  dashboardBaseUrl: env.REEARTH_CMS_DASHBOARD_BASE_URL,
+  logoUrl: env.REEARTH_CMS_LOGO_URL,
 };
 
 export default async function loadConfig() {

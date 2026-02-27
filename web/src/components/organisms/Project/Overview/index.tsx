@@ -6,76 +6,76 @@ import useHooks from "./hooks";
 
 const ProjectOverview: React.FC = () => {
   const {
-    models,
-    modelModalShown,
-    selectedModel,
-    modelDeletionModalShown,
     deleteLoading,
     exportLoading,
-    hasCreateRight,
-    hasUpdateRight,
-    hasDeleteRight,
-    hasSchemaCreateRight,
-    hasContentCreateRight,
-    handleProjectUpdate,
-    handleHomeNavigation,
-    handleSchemaNavigation,
-    handleImportSchemaNavigation,
-    handleImportContentNavigation,
     handleContentNavigation,
-    handleModelSearch,
-    handleModelSort,
+    handleHomeNavigation,
+    handleImportContentNavigation,
+    handleImportSchemaNavigation,
+    handleModelCreate,
+    handleModelDelete,
+    handleModelDeletionModalClose,
+    handleModelDeletionModalOpen,
+    handleModelExport,
     handleModelKeyCheck,
     handleModelModalOpen,
     handleModelModalReset,
-    handleModelCreate,
-    handleModelDeletionModalOpen,
-    handleModelDeletionModalClose,
-    handleModelUpdateModalOpen,
-    handleModelDelete,
-    handleModelExport,
+    handleModelSearch,
+    handleModelSort,
     handleModelUpdate,
+    handleModelUpdateModalOpen,
+    handleProjectUpdate,
+    handleSchemaNavigation,
+    hasContentCreateRight,
+    hasCreateRight,
+    hasDeleteRight,
+    hasSchemaCreateRight,
+    hasUpdateRight,
+    modelDeletionModalShown,
+    modelModalShown,
+    models,
+    selectedModel,
   } = useHooks();
 
   return (
     <>
       <ProjectOverviewMolecule
-        models={models}
+        exportLoading={exportLoading}
+        hasContentCreateRight={hasContentCreateRight}
         hasCreateRight={hasCreateRight}
-        hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
         hasSchemaCreateRight={hasSchemaCreateRight}
-        hasContentCreateRight={hasContentCreateRight}
-        exportLoading={exportLoading}
-        onProjectUpdate={handleProjectUpdate}
+        hasUpdateRight={hasUpdateRight}
+        models={models}
+        onContentNavigate={handleContentNavigation}
+        onHomeNavigation={handleHomeNavigation}
+        onImportContentNavigate={handleImportContentNavigation}
+        onImportSchemaNavigate={handleImportSchemaNavigation}
+        onModelDeletionModalOpen={handleModelDeletionModalOpen}
+        onModelExport={handleModelExport}
+        onModelModalOpen={handleModelModalOpen}
         onModelSearch={handleModelSearch}
         onModelSort={handleModelSort}
-        onHomeNavigation={handleHomeNavigation}
-        onSchemaNavigate={handleSchemaNavigation}
-        onImportSchemaNavigate={handleImportSchemaNavigation}
-        onContentNavigate={handleContentNavigation}
-        onImportContentNavigate={handleImportContentNavigation}
-        onModelModalOpen={handleModelModalOpen}
-        onModelDeletionModalOpen={handleModelDeletionModalOpen}
         onModelUpdateModalOpen={handleModelUpdateModalOpen}
-        onModelExport={handleModelExport}
+        onProjectUpdate={handleProjectUpdate}
+        onSchemaNavigate={handleSchemaNavigation}
       />
       <FormModal
         data={selectedModel}
-        open={modelModalShown}
+        isModel
         onClose={handleModelModalReset}
         onCreate={handleModelCreate}
-        onUpdate={handleModelUpdate}
         onKeyCheck={handleModelKeyCheck}
-        isModel
+        onUpdate={handleModelUpdate}
+        open={modelModalShown}
       />
       <DeletionModal
-        open={modelDeletionModalShown}
         data={selectedModel}
         deleteLoading={deleteLoading}
-        onDelete={handleModelDelete}
-        onClose={handleModelDeletionModalClose}
         isModel
+        onClose={handleModelDeletionModalClose}
+        onDelete={handleModelDelete}
+        open={modelDeletionModalShown}
       />
     </>
   );

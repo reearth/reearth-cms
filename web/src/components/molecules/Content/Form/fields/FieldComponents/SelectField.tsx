@@ -13,9 +13,9 @@ import { requiredValidator } from "../utils";
 const { Option } = Select;
 
 const SelectField: React.FC<FieldProps> = ({
+  disabled,
   field,
   itemGroupId,
-  disabled,
   itemHeights,
   onItemHeightChange,
 }) => {
@@ -24,18 +24,18 @@ const SelectField: React.FC<FieldProps> = ({
   return (
     <StyledFormItem
       extra={field.description}
+      label={<FieldTitle isTitle={field.isTitle} isUnique={field.unique} title={field.title} />}
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
-      label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}
       rules={[
         {
+          message: t("Please select an option!"),
           required: field.required,
           validator: requiredValidator,
-          message: t("Please select an option!"),
         },
       ]}>
       {field.multiple ? (
         <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
-          <MultiValueSelect selectedValues={field.typeProperty?.values} disabled={disabled} />
+          <MultiValueSelect disabled={disabled} selectedValues={field.typeProperty?.values} />
         </ResponsiveHeight>
       ) : (
         <Select allowClear disabled={disabled}>

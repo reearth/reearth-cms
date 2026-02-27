@@ -1,14 +1,14 @@
-import { Schema, MetaDataSchema } from "@reearth-cms/components/molecules/Schema/types";
+import { MetaDataSchema, Schema } from "@reearth-cms/components/molecules/Schema/types";
 
 export type Model = {
-  id: string;
-  name: string;
   description: string;
+  id: string;
   key: string;
-  schemaId: string;
-  schema: Schema;
   metadataSchema: MetaDataSchema;
+  name: string;
   order?: number;
+  schema: Schema;
+  schemaId: string;
 };
 
 export enum ExportFormat {

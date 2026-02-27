@@ -4,26 +4,26 @@ import useHooks from "./hooks";
 
 const Readme: React.FC = () => {
   const {
-    readmeValue,
-    projectReadme,
-    readmeEditMode,
-    hasUpdateRight,
     handleProjectUpdate,
-    handleReadmeSave,
     handleReadmeEdit,
     handleReadmeMarkdownChange,
+    handleReadmeSave,
+    hasUpdateRight,
+    projectReadme,
+    readmeEditMode,
+    readmeValue,
   } = useHooks();
 
   return (
     <ReadmeMolecule
-      readmeValue={readmeValue}
-      projectReadme={projectReadme}
-      readmeEditMode={readmeEditMode}
       hasUpdateRight={hasUpdateRight}
       onProjectUpdate={handleProjectUpdate}
-      onReadmeSave={handleReadmeSave}
       onReadmeEdit={handleReadmeEdit}
       onReadmeMarkdownChange={handleReadmeMarkdownChange}
+      onReadmeSave={handleReadmeSave}
+      projectReadme={projectReadme}
+      readmeEditMode={readmeEditMode}
+      readmeValue={readmeValue}
     />
   );
 };

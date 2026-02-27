@@ -11,18 +11,18 @@ type IntegrationType = Pick<Integration, "id" | "name">;
 
 type Props = {
   integrations?: IntegrationType[];
-  open: boolean;
   loading: boolean;
   onClose: () => void;
   onSubmit: (integrationId: string) => Promise<void>;
+  open: boolean;
 };
 
 const IntegrationConnectModal: React.FC<Props> = ({
   integrations,
-  open,
   loading,
   onClose,
   onSubmit,
+  open,
 }) => {
   const t = useT();
   const [selectedIntegration, setSelectedIntegration] = useState<IntegrationType>();
@@ -47,28 +47,28 @@ const IntegrationConnectModal: React.FC<Props> = ({
   return (
     <Modal
       afterClose={() => setSelectedIntegration(undefined)}
-      title={t("Connect Integration")}
-      open={open}
-      onCancel={onClose}
       footer={[
-        <Button key="back" onClick={onClose} disabled={loading}>
+        <Button disabled={loading} key="back" onClick={onClose}>
           {t("Cancel")}
         </Button>,
         <Button
-          key="submit"
-          type="primary"
           disabled={!selectedIntegration}
+          key="submit"
+          loading={loading}
           onClick={handleConnect}
-          loading={loading}>
+          type="primary">
           {t("Connect")}
         </Button>,
-      ]}>
+      ]}
+      onCancel={onClose}
+      open={open}
+      title={t("Connect Integration")}>
       <ModalContent>
         {integrations?.map(integration => (
           <IntegrationCard
+            isSelected={integration.id === selectedIntegration?.id}
             key={integration.id}
             name={integration.name}
-            isSelected={integration.id === selectedIntegration?.id}
             onClick={() => handleIntegrationSelect(integration)}
           />
         ))}

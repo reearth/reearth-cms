@@ -11,31 +11,31 @@ import ModelCard, { Props } from "./ModelCard";
 const user = userEvent.setup();
 
 const buildProps = (overrides: Partial<Props> = {}): Props => ({
-  model: {
-    id: "test-id",
-    name: "test model",
-    description: "test description",
-    key: "test-key",
-    schemaId: "test-schema-id",
-    schema: {
-      id: "test-schema-id",
-      fields: [],
-    },
-    metadataSchema: {},
-    order: 1,
-  },
-  hasUpdateRight: true,
+  exportLoading: false,
+  hasContentCreateRight: true,
   hasDeleteRight: true,
   hasSchemaCreateRight: true,
-  hasContentCreateRight: true,
-  exportLoading: false,
-  onSchemaNavigate: vi.fn(),
-  onImportSchemaNavigate: vi.fn(),
+  hasUpdateRight: true,
+  model: {
+    description: "test description",
+    id: "test-id",
+    key: "test-key",
+    metadataSchema: {},
+    name: "test model",
+    order: 1,
+    schema: {
+      fields: [],
+      id: "test-schema-id",
+    },
+    schemaId: "test-schema-id",
+  },
   onContentNavigate: vi.fn(),
   onImportContentNavigate: vi.fn(),
+  onImportSchemaNavigate: vi.fn(),
   onModelDeletionModalOpen: vi.fn().mockResolvedValue(undefined),
-  onModelUpdateModalOpen: vi.fn().mockResolvedValue(undefined),
   onModelExport: vi.fn().mockResolvedValue(undefined),
+  onModelUpdateModalOpen: vi.fn().mockResolvedValue(undefined),
+  onSchemaNavigate: vi.fn(),
   ...overrides,
 });
 
@@ -94,20 +94,20 @@ describe("Test ModelCard component", () => {
       model: {
         ...baseProps.model,
         schema: {
-          id: "test-schema-id",
           fields: [
             {
-              id: "field-1",
-              type: SchemaFieldType.Text,
-              title: "Title",
-              key: "title",
               description: "",
-              required: false,
-              unique: false,
-              multiple: false,
+              id: "field-1",
               isTitle: false,
+              key: "title",
+              multiple: false,
+              required: false,
+              title: "Title",
+              type: SchemaFieldType.Text,
+              unique: false,
             },
           ],
+          id: "test-schema-id",
         },
       },
     });

@@ -8,11 +8,11 @@ import { ProjectVisibility } from "@reearth-cms/gql/__generated__/graphql.genera
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  project: ProjectListItem;
   onProjectNavigation: (projectId: string) => void;
+  project: ProjectListItem;
 };
 
-const ProjectCard: React.FC<Props> = ({ project, onProjectNavigation }) => {
+const ProjectCard: React.FC<Props> = ({ onProjectNavigation, project }) => {
   const t = useT();
   const { Meta } = Card;
 
@@ -20,6 +20,7 @@ const ProjectCard: React.FC<Props> = ({ project, onProjectNavigation }) => {
     <CardWrapper key={project.id}>
       <StyledProjectCard onClick={() => onProjectNavigation(project.id)}>
         <Meta
+          description={project.description}
           title={
             <TitleContainer>
               <ProjectName>{project.name}</ProjectName>
@@ -36,7 +37,6 @@ const ProjectCard: React.FC<Props> = ({ project, onProjectNavigation }) => {
               </StyledTag>
             </TitleContainer>
           }
-          description={project.description}
         />
       </StyledProjectCard>
     </CardWrapper>

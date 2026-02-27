@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import CommentsPanel from ".";
 
@@ -34,17 +34,17 @@ describe("Comments panel", () => {
   test("Title, placeholder, input, button, and unfold icon are visible successfully", async () => {
     render(
       <CommentsPanel
-        userId={userId}
-        hasCreateRight={hasCreateRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-        resourceId={resourceId}
-        comments={comments}
         collapsed={collapsed}
+        comments={comments}
+        hasCreateRight={hasCreateRight}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
         onCollapse={onCollapse}
         onCommentCreate={onCommentCreate}
-        onCommentUpdate={onCommentUpdate}
         onCommentDelete={onCommentDelete}
+        onCommentUpdate={onCommentUpdate}
+        resourceId={resourceId}
+        userId={userId}
       />,
     );
 
@@ -63,17 +63,17 @@ describe("Comments panel", () => {
   test("Correct placeholder is visible when no comment exists successfully", async () => {
     render(
       <CommentsPanel
-        userId={userId}
-        hasCreateRight={hasCreateRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-        resourceId={resourceId}
-        comments={[]}
         collapsed={collapsed}
+        comments={[]}
+        hasCreateRight={hasCreateRight}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
         onCollapse={onCollapse}
         onCommentCreate={onCommentCreate}
-        onCommentUpdate={onCommentUpdate}
         onCommentDelete={onCommentDelete}
+        onCommentUpdate={onCommentUpdate}
+        resourceId={resourceId}
+        userId={userId}
       />,
     );
 
@@ -85,17 +85,17 @@ describe("Comments panel", () => {
   test("Comment panel is collapsed successfully", async () => {
     render(
       <CommentsPanel
-        userId={userId}
-        hasCreateRight={hasCreateRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-        resourceId={resourceId}
-        comments={comments}
         collapsed={true}
+        comments={comments}
+        hasCreateRight={hasCreateRight}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
         onCollapse={onCollapse}
         onCommentCreate={onCommentCreate}
-        onCommentUpdate={onCommentUpdate}
         onCommentDelete={onCommentDelete}
+        onCommentUpdate={onCommentUpdate}
+        resourceId={resourceId}
+        userId={userId}
       />,
     );
 
@@ -107,17 +107,17 @@ describe("Comments panel", () => {
   test("Textbox is disabled according to user right successfully", async () => {
     render(
       <CommentsPanel
-        userId={userId}
-        hasCreateRight={false}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-        resourceId={resourceId}
-        comments={[]}
         collapsed={collapsed}
+        comments={[]}
+        hasCreateRight={false}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
         onCollapse={onCollapse}
         onCommentCreate={onCommentCreate}
-        onCommentUpdate={onCommentUpdate}
         onCommentDelete={onCommentDelete}
+        onCommentUpdate={onCommentUpdate}
+        resourceId={resourceId}
+        userId={userId}
       />,
     );
 
@@ -130,30 +130,30 @@ describe("Comments panel", () => {
 
     render(
       <CommentsPanel
-        userId={userId}
-        hasCreateRight={hasCreateRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-        resourceId={resourceId}
+        collapsed={collapsed}
         comments={[
           {
-            id: "",
             author: { name: "", type: null },
             content: content1,
             createdAt: "",
+            id: "",
           },
           {
-            id: "",
             author: { name: "", type: null },
             content: content2,
             createdAt: "",
+            id: "",
           },
         ]}
-        collapsed={collapsed}
+        hasCreateRight={hasCreateRight}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
         onCollapse={onCollapse}
         onCommentCreate={onCommentCreate}
-        onCommentUpdate={onCommentUpdate}
         onCommentDelete={onCommentDelete}
+        onCommentUpdate={onCommentUpdate}
+        resourceId={resourceId}
+        userId={userId}
       />,
     );
 
@@ -165,17 +165,17 @@ describe("Comments panel", () => {
     const onCollapseMock = vi.fn();
     const { rerender } = render(
       <CommentsPanel
-        userId={userId}
-        hasCreateRight={hasCreateRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-        resourceId={resourceId}
-        comments={comments}
         collapsed={collapsed}
+        comments={comments}
+        hasCreateRight={hasCreateRight}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
         onCollapse={onCollapseMock}
         onCommentCreate={onCommentCreate}
-        onCommentUpdate={onCommentUpdate}
         onCommentDelete={onCommentDelete}
+        onCommentUpdate={onCommentUpdate}
+        resourceId={resourceId}
+        userId={userId}
       />,
     );
 
@@ -184,17 +184,17 @@ describe("Comments panel", () => {
 
     rerender(
       <CommentsPanel
-        userId={userId}
-        hasCreateRight={hasCreateRight}
-        hasUpdateRight={hasUpdateRight}
-        hasDeleteRight={hasDeleteRight}
-        resourceId={resourceId}
-        comments={comments}
         collapsed={true}
+        comments={comments}
+        hasCreateRight={hasCreateRight}
+        hasDeleteRight={hasDeleteRight}
+        hasUpdateRight={hasUpdateRight}
         onCollapse={onCollapseMock}
         onCommentCreate={onCommentCreate}
-        onCommentUpdate={onCommentUpdate}
         onCommentDelete={onCommentDelete}
+        onCommentUpdate={onCommentUpdate}
+        resourceId={resourceId}
+        userId={userId}
       />,
     );
     await user.click(screen.getByLabelText("comment"));
