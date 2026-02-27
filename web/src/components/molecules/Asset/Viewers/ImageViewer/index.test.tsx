@@ -1,6 +1,8 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
+import ImageViewer from ".";
+
 vi.mock("@reearth-cms/gql", () => ({
   useAuthHeader: () => ({
     getHeader: vi.fn().mockResolvedValue({ Authorization: "Bearer token" }),
@@ -10,8 +12,6 @@ vi.mock("@reearth-cms/gql", () => ({
 vi.mock("@reearth-cms/i18n", () => ({
   useT: () => (key: string) => key,
 }));
-
-import ImageViewer from ".";
 
 describe("ImageViewer", () => {
   const mockRevokeObjectURL = vi.fn();

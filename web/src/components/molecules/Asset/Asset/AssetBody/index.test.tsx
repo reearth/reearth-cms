@@ -2,6 +2,11 @@ import { screen } from "@testing-library/react";
 import { createRef } from "react";
 import { describe, expect, test, vi } from "vitest";
 
+import { Asset } from "@reearth-cms/components/molecules/Asset/types";
+import { render } from "@reearth-cms/test/utils";
+
+import AssetWrapper from ".";
+
 vi.mock("@reearth-cms/i18n", () => ({ useT: () => (key: string) => key }));
 vi.mock("@reearth-cms/components/molecules/Asset/Asset/AssetBody/Asset", () => ({
   default: () => <div data-testid="asset-molecule" />,
@@ -33,11 +38,6 @@ vi.mock("@reearth-cms/components/atoms/PageHeader", () => ({
     </div>
   ),
 }));
-
-import { Asset } from "@reearth-cms/components/molecules/Asset/types";
-import { render } from "@reearth-cms/test/utils";
-
-import AssetWrapper from ".";
 
 const createAsset = (overrides?: Partial<Asset>): Asset => ({
   id: "asset-1",

@@ -1,9 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { describe, test, expect } from "vitest";
 
+import type { Field } from "@reearth-cms/components/molecules/Schema/types";
+
 import { renderTitle } from ".";
 
-import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 
 const baseField: Field = {
   id: "field-1",

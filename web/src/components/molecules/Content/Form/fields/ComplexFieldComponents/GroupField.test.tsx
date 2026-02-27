@@ -5,6 +5,8 @@ import Form from "@reearth-cms/components/atoms/Form";
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
+import GroupField from "./GroupField";
+
 // GroupItem imports FieldTypesMap which transitively imports monaco-editor.
 // Mock both child components to avoid jsdom incompatibility with monaco-editor.
 vi.mock("@reearth-cms/components/molecules/Common/Form/GroupItem", () => ({
@@ -24,8 +26,6 @@ vi.mock("@reearth-cms/components/molecules/Common/MultiValueField/MultiValueGrou
       </div>
     ),
 }));
-
-import GroupField from "./GroupField";
 
 const makeField = (overrides?: Partial<Field>): Field => ({
   id: "field-1",

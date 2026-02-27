@@ -2,13 +2,13 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, test, vi } from "vitest";
 
-vi.mock("@reearth-cms/i18n", () => ({
-  useT: () => (key: string) => key,
-}));
-
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import UrlTab from "./UrlTab";
+
+vi.mock("@reearth-cms/i18n", () => ({
+  useT: () => (key: string) => key,
+}));
 
 const defaultUrl = { url: "", autoUnzip: false };
 

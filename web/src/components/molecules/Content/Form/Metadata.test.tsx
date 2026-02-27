@@ -6,6 +6,8 @@ import { describe, test, expect, vi } from "vitest";
 import type { Item } from "@reearth-cms/components/molecules/Content/types";
 import type { MetadataField } from "@reearth-cms/components/molecules/Schema/types";
 
+import Metadata from "./Metadata";
+
 dayjs.extend(utc);
 
 vi.mock("@reearth-cms/components/molecules/Content/Status", () => ({
@@ -22,8 +24,6 @@ vi.mock("./fields/FieldTypesMap", () => ({
     ),
   },
 }));
-
-import Metadata from "./Metadata";
 
 const makeItem = (overrides?: Partial<Item>): Item => ({
   id: "item-123",

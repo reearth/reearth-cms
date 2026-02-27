@@ -2,6 +2,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, test, vi } from "vitest";
 
+import KeyCell from "./KeyCell";
+
 vi.mock("@reearth-cms/components/atoms/Icon", () => ({
   default: ({ icon, onClick }: { icon: string; onClick?: () => void }) => (
     <span data-testid={`icon-${icon}`} onClick={onClick} />
@@ -13,8 +15,6 @@ vi.mock("@reearth-cms/components/atoms/CopyButton", () => ({
     <span data-testid="copy-button" data-copy-text={copyable.text} />
   ),
 }));
-
-import KeyCell from "./KeyCell";
 
 describe("KeyCell", () => {
   const user = userEvent.setup();

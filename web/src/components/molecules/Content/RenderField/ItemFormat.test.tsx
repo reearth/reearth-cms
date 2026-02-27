@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import userEvent from "@testing-library/user-event";
 import { describe, test, expect, vi, beforeEach } from "vitest";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -146,7 +146,7 @@ describe("ItemFormat", () => {
       // Hover over the picker to reveal the clear icon, then click it
       const input = screen.getByRole("textbox");
       await user.hover(input);
-      // eslint-disable-next-line testing-library/no-node-access
+       
       const clearIcon = document.querySelector(".ant-picker-clear");
       if (clearIcon) {
         await user.click(clearIcon as HTMLElement);
@@ -254,7 +254,7 @@ describe("ItemFormat", () => {
 
       // Click the edit icon inside the data-testid span
       const editButtonSpan = screen.getByTestId(DATA_TEST_ID.Content__List__UrlEditButton);
-      // eslint-disable-next-line testing-library/no-node-access
+       
       await user.click((editButtonSpan.children[0] as HTMLElement) || editButtonSpan);
 
       // Should now show input with the URL value
@@ -269,7 +269,7 @@ describe("ItemFormat", () => {
 
       // Enter edit mode via edit icon
       const editButtonSpan = screen.getByTestId(DATA_TEST_ID.Content__List__UrlEditButton);
-      // eslint-disable-next-line testing-library/no-node-access
+       
       await user.click((editButtonSpan.children[0] as HTMLElement) || editButtonSpan);
 
       // Input should be visible with existing URL

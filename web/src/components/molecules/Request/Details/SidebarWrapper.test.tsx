@@ -1,7 +1,7 @@
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import userEvent from "@testing-library/user-event";
 import { describe, test, expect, vi } from "vitest";
 
 import type { Request } from "@reearth-cms/components/molecules/Request/types";
@@ -121,7 +121,7 @@ describe("RequestSidebarWrapper", () => {
     const combobox = screen.getByRole("combobox");
 
     // Open dropdown via mouseDown on the selector container
-    // eslint-disable-next-line testing-library/no-node-access
+     
     fireEvent.mouseDown(combobox.closest(".ant-select-selector")!);
 
     // Carol is not in reviewers so findByTitle is unambiguous (no Reviewer div conflict)
@@ -159,7 +159,7 @@ describe("RequestSidebarWrapper", () => {
     await user.click(screen.getByText("Assign to"));
     const combobox = screen.getByRole("combobox");
 
-    // eslint-disable-next-line testing-library/no-node-access
+     
     fireEvent.mouseDown(combobox.closest(".ant-select-selector")!);
 
     // Alice is not a reviewer so findByTitle is unambiguous
@@ -221,7 +221,7 @@ describe("RequestSidebarWrapper", () => {
     await user.click(screen.getByText("Assign to"));
     const combobox = screen.getByRole("combobox");
 
-    // eslint-disable-next-line testing-library/no-node-access
+     
     fireEvent.mouseDown(combobox.closest(".ant-select-selector")!);
 
     await user.click(await screen.findByTitle("Carol"));

@@ -2,6 +2,8 @@ import { render, waitFor } from "@testing-library/react";
 import { ConstantProperty, Resource } from "cesium";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
+import KmlComponent from "./KmlComponent";
+
 let capturedProps: { data: unknown; clampToGround?: boolean; onLoad?: (ds: unknown) => void } | undefined;
 const mockZoomTo = vi.fn().mockResolvedValue(undefined);
 
@@ -30,8 +32,6 @@ vi.mock("cesium", () => {
   const MockConstantProperty = vi.fn();
   return { Resource: MockResource, ConstantProperty: MockConstantProperty };
 });
-
-import KmlComponent from "./KmlComponent";
 
 const url = "https://example.com/data.kml";
 

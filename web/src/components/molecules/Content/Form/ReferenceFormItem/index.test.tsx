@@ -3,6 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, test, expect, vi } from "vitest";
 
+import type { FormItem } from "@reearth-cms/components/molecules/Content/types";
+
+import ReferenceFormItem from ".";
+
 vi.mock("@reearth-cms/components/molecules/Content/LinkItemModal", () => ({
   default: ({ visible }: { visible: boolean }) =>
     visible ? <div data-testid="mock-link-item-modal">LinkItemModal</div> : null,
@@ -13,10 +17,6 @@ vi.mock("@reearth-cms/components/molecules/Content/ReferenceItem", () => ({
     <div data-testid="mock-reference-item">{`${value}: ${title}`}</div>
   ),
 }));
-
-import type { FormItem } from "@reearth-cms/components/molecules/Content/types";
-
-import ReferenceFormItem from ".";
 
 const renderWithRouter = (ui: React.ReactElement) =>
   render(

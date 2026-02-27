@@ -1,6 +1,8 @@
 import { render } from "@testing-library/react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
+import Cesium3dTileSetComponent from "./Cesium3dTileSetComponent";
+
 let capturedProps: { onReady?: (tileset: unknown) => void; [key: string]: unknown } | undefined;
 const mockZoomTo = vi.fn().mockResolvedValue(undefined);
 
@@ -13,8 +15,6 @@ vi.mock("resium", () => ({
     viewer: { zoomTo: mockZoomTo },
   }),
 }));
-
-import Cesium3dTileSetComponent from "./Cesium3dTileSetComponent";
 
 describe("Cesium3dTileSetComponent", () => {
   beforeEach(() => {

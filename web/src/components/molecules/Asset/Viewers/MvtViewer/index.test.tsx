@@ -4,6 +4,8 @@ import { createRef } from "react";
 import { CesiumComponentRef } from "resium";
 import { describe, expect, test, vi } from "vitest";
 
+import MvtViewer from ".";
+
 let capturedHandleProperties: ((prop: unknown) => void) | undefined;
 
 vi.mock("@reearth-cms/components/atoms/ResiumViewer", () => ({
@@ -20,8 +22,6 @@ vi.mock("./Imagery", () => ({
     return <div data-testid="imagery" />;
   },
 }));
-
-import MvtViewer from ".";
 
 const defaultProps = {
   url: "https://example.com/tiles/12/345/678.mvt",

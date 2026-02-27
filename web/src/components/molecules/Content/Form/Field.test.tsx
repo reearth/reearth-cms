@@ -5,6 +5,8 @@ import { describe, test, expect, vi } from "vitest";
 import Form from "@reearth-cms/components/atoms/Form";
 import type { Field as FieldType } from "@reearth-cms/components/molecules/Schema/types";
 
+import Field from "./Field";
+
 vi.mock("./fields/ComplexFieldComponents", () => ({
   AssetField: ({ field }: { field: FieldType }) => (
     <div data-testid="mock-asset-field">{field.title}</div>
@@ -30,8 +32,6 @@ vi.mock("./fields/FieldTypesMap", () => ({
     ),
   },
 }));
-
-import Field from "./Field";
 
 const makeField = (overrides?: Partial<FieldType>): FieldType => ({
   id: "field-1",

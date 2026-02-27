@@ -4,6 +4,8 @@ import { describe, expect, test, vi } from "vitest";
 
 import { View } from "@reearth-cms/components/molecules/View/types";
 
+import ViewsMenuMolecule from "./viewsMenu";
+
 let capturedOnDragEnd: (fromIndex: number, toIndex: number) => void;
 let capturedNodeSelector: string | undefined;
 
@@ -24,8 +26,6 @@ vi.mock("react-drag-listview", () => ({
     },
   },
 }));
-
-import ViewsMenuMolecule from "./viewsMenu";
 
 type Props = React.ComponentProps<typeof ViewsMenuMolecule>;
 

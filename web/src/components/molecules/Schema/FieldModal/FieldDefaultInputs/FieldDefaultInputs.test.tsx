@@ -13,8 +13,8 @@ import GroupField from "./GroupField";
 import NumberField from "./NumberField";
 import SelectField from "./SelectField";
 import TagField from "./TagField";
-import TextField from "./TextField";
 import TextAreaField from "./TextArea";
+import TextField from "./TextField";
 import URLField from "./URLField";
 
 vi.mock("@reearth-cms/components/atoms/Markdown", () => ({

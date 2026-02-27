@@ -2,6 +2,11 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, test, vi } from "vitest";
 
+import { AssetFile, ArchiveExtractionStatus } from "@reearth-cms/components/molecules/Asset/types";
+import { render } from "@reearth-cms/test/utils";
+
+import UnzipFileList from ".";
+
 vi.mock("@reearth-cms/i18n", () => ({ useT: () => (key: string) => key }));
 vi.mock("@reearth-cms/components/atoms/Icon", () => ({
   default: ({ icon }: { icon: string }) => <span data-testid={`icon-${icon}`} />,
@@ -9,11 +14,6 @@ vi.mock("@reearth-cms/components/atoms/Icon", () => ({
 vi.mock("@reearth-cms/components/atoms/CopyButton", () => ({
   default: () => <span data-testid="copy-button" />,
 }));
-
-import { AssetFile, ArchiveExtractionStatus } from "@reearth-cms/components/molecules/Asset/types";
-import { render } from "@reearth-cms/test/utils";
-
-import UnzipFileList from ".";
 
 const createFile = (overrides?: Partial<AssetFile>): AssetFile => ({
   name: "root",

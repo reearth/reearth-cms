@@ -4,9 +4,9 @@ import { describe, test, expect, vi } from "vitest";
 
 import { Test } from "@reearth-cms/test/utils";
 
+import FieldList from "./FieldList";
 import { SchemaFieldType } from "./types";
 
-import FieldList from "./FieldList";
 
 const defaultProps = {
   currentTab: "fields" as const,

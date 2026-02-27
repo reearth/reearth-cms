@@ -1,11 +1,11 @@
 import { screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 
-vi.mock("@reearth-cms/i18n", () => ({ useT: () => (key: string) => key }));
-
 import { DATA_TEST_ID, render } from "@reearth-cms/test/utils";
 
 import { PreviewTypeSelect } from "./previewTypeSelect";
+
+vi.mock("@reearth-cms/i18n", () => ({ useT: () => (key: string) => key }));
 
 describe("PreviewTypeSelect", () => {
   test("renders with correct data-testid", () => {

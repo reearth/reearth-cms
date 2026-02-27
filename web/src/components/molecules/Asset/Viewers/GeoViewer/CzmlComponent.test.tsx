@@ -2,6 +2,8 @@ import { render, waitFor } from "@testing-library/react";
 import { Resource } from "cesium";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
+import CzmlComponent from "./CzmlComponent";
+
 let capturedProps: { data: unknown; onLoad?: (ds: unknown) => void } | undefined;
 const mockZoomTo = vi.fn().mockResolvedValue(undefined);
 
@@ -25,8 +27,6 @@ vi.mock("cesium", () => {
   const MockResource = vi.fn();
   return { Resource: MockResource };
 });
-
-import CzmlComponent from "./CzmlComponent";
 
 const url = "https://example.com/data.czml";
 

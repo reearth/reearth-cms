@@ -51,7 +51,7 @@ const openSubmenu = async (testId: DATA_TEST_ID) => {
 };
 
 const buildModelWithFields = (
-  fields: Array<{ id: string; type: SchemaFieldType }>,
+  fields: { id: string; type: SchemaFieldType }[],
 ): Props["model"] => ({
   ...buildProps().model,
   schema: {

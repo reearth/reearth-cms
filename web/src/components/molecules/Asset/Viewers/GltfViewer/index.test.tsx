@@ -4,6 +4,8 @@ import { createRef } from "react";
 import { CesiumComponentRef } from "resium";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
+import GltfViewer from ".";
+
 let capturedImageryProps: { isAssetPublic?: boolean; url: string } | undefined;
 
 vi.mock("@reearth-cms/components/atoms/ResiumViewer", () => ({
@@ -18,8 +20,6 @@ vi.mock("./Imagery", () => ({
     return <div data-testid="imagery" />;
   },
 }));
-
-import GltfViewer from ".";
 
 const defaultProps = {
   url: "https://example.com/model.gltf",

@@ -4,6 +4,8 @@ import { createRef } from "react";
 import { CesiumComponentRef } from "resium";
 import { describe, expect, test, vi } from "vitest";
 
+import Geo3dViewer from ".";
+
 vi.mock("@reearth-cms/components/atoms/ResiumViewer", () => ({
   default: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="resium-viewer">{children}</div>
@@ -23,8 +25,6 @@ vi.mock("@reearth-cms/gql", () => ({
 vi.mock("cesium", () => ({
   Resource: vi.fn(),
 }));
-
-import Geo3dViewer from ".";
 
 const defaultProps = {
   url: "https://example.com/tileset.json",

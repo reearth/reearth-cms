@@ -4,6 +4,8 @@ import { createRef } from "react";
 import { CesiumComponentRef } from "resium";
 import { describe, expect, test, vi } from "vitest";
 
+import GeoViewer from ".";
+
 vi.mock("@reearth-cms/components/atoms/ResiumViewer", () => ({
   default: ({
     children,
@@ -29,8 +31,6 @@ vi.mock("./GeoJsonComponent", () => ({
 vi.mock("./KmlComponent", () => ({
   default: () => <div data-testid="kml-component" />,
 }));
-
-import GeoViewer from ".";
 
 const defaultProps = {
   url: "https://example.com/data.geojson",

@@ -4,7 +4,9 @@ import { describe, test, expect, vi } from "vitest";
 
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
+import ModelFieldList from "./ModelFieldList";
 import type { Field } from "./types";
+
 
 let capturedOnDragEnd: (fromIndex: number, toIndex: number) => void;
 vi.mock("react-drag-listview", () => ({
@@ -13,8 +15,6 @@ vi.mock("react-drag-listview", () => ({
     return <div>{children}</div>;
   },
 }));
-
-import ModelFieldList from "./ModelFieldList";
 
 const makeField = (overrides?: Partial<Field>): Field => ({
   id: "field-1",

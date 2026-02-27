@@ -4,6 +4,8 @@ import { describe, expect, test, vi } from "vitest";
 
 import type { APIKey } from "../types";
 
+import APIKeyComponent from ".";
+
 type APIKeyTableProps = {
   keys?: APIKey[];
   hasUpdateRight: boolean;
@@ -24,8 +26,6 @@ vi.mock("./APIKeyTable", () => ({
     return <div data-testid="mock-api-key-table" />;
   },
 }));
-
-import APIKeyComponent from ".";
 
 const sampleKeys: APIKey[] = [
   { id: "k1", name: "Key One", description: "", key: "sk-1", publication: { publicModels: [], publicAssets: false } },

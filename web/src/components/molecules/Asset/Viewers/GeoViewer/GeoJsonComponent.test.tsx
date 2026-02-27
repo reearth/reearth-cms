@@ -2,6 +2,8 @@ import { render, waitFor } from "@testing-library/react";
 import { Resource } from "cesium";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
+import GeoJsonComponent from "./GeoJsonComponent";
+
 let capturedProps:
   | { data: unknown; clampToGround?: boolean; onLoad?: (ds: unknown) => void }
   | undefined;
@@ -31,8 +33,6 @@ vi.mock("cesium", () => {
   const MockResource = vi.fn();
   return { Resource: MockResource };
 });
-
-import GeoJsonComponent from "./GeoJsonComponent";
 
 const url = "https://example.com/data.geojson";
 

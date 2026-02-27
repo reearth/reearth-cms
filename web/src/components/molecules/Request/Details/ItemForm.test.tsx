@@ -3,6 +3,8 @@ import { describe, test, expect, vi } from "vitest";
 
 import type { Field, Schema } from "@reearth-cms/components/molecules/Schema/types";
 
+import RequestItemForm from "./ItemForm";
+
 const MockAssetField = vi.fn(({ field, disabled, onGetAsset }: Record<string, unknown>) => (
   <div
     data-testid="mock-asset-field"
@@ -61,8 +63,6 @@ vi.mock("@reearth-cms/components/molecules/Content/Form/fields/FieldTypesMap", (
     },
   ),
 }));
-
-import RequestItemForm from "./ItemForm";
 
 const makeField = (overrides: Partial<Field> & { id: string; type: Field["type"] }): Field => ({
   title: "Test Field",

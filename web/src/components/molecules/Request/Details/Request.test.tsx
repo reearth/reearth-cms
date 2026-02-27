@@ -1,16 +1,16 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
-import userEvent from "@testing-library/user-event";
 import { describe, test, expect, vi } from "vitest";
 
 import type { Request } from "@reearth-cms/components/molecules/Request/types";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
-vi.mock("./ItemForm", () => ({ default: () => <div data-testid="ItemForm" /> }));
-
 import RequestMolecule from "./Request";
+
+vi.mock("./ItemForm", () => ({ default: () => <div data-testid="ItemForm" /> }));
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);

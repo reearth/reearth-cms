@@ -2,6 +2,11 @@ import { screen } from "@testing-library/react";
 import { createRef } from "react";
 import { describe, expect, test, vi } from "vitest";
 
+import { Asset, ViewerType } from "@reearth-cms/components/molecules/Asset/types";
+import { render } from "@reearth-cms/test/utils";
+
+import AssetMolecule from "./Asset";
+
 vi.mock("@reearth-cms/i18n", () => ({ useT: () => (key: string) => key }));
 vi.mock("@reearth-cms/utils/format", () => ({
   dateTimeFormat: (date?: string) => date ?? "",
@@ -33,11 +38,6 @@ vi.mock("@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractio
 vi.mock("@reearth-cms/components/molecules/Asset/Asset/AssetBody/UnzipFileList", () => ({
   default: () => <div data-testid="unzip-file-list" />,
 }));
-
-import { Asset, ViewerType } from "@reearth-cms/components/molecules/Asset/types";
-import { render } from "@reearth-cms/test/utils";
-
-import AssetMolecule from "./Asset";
 
 const createAsset = (overrides?: Partial<Asset>): Asset => ({
   id: "asset-1",

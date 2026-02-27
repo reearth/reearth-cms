@@ -2,9 +2,9 @@ import { renderHook } from "@testing-library/react";
 import { createElement } from "react";
 import { describe, expect, test } from "vitest";
 
+import useUploaderHook from "./hooks";
 import { UploaderHookState, UploaderHookStateContext } from "./provider";
 
-import useUploaderHook from "./hooks";
 
 describe("useUploaderHook", () => {
   test("Throws error when used outside UploaderProvider", () => {

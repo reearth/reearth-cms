@@ -8,9 +8,9 @@ import type { VersionedItem } from "@reearth-cms/components/molecules/Content/ty
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
-dayjs.extend(utc);
-
 import Versions from "./Versions";
+
+dayjs.extend(utc);
 
 const makeVersion = (overrides?: Partial<VersionedItem>): VersionedItem => ({
   version: "1",

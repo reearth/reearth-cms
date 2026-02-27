@@ -2,13 +2,13 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, test, vi } from "vitest";
 
-vi.mock("@reearth-cms/i18n", () => ({
-  useT: () => (key: string) => key,
-}));
-
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 
 import FileItem from "./FileItem";
+
+vi.mock("@reearth-cms/i18n", () => ({
+  useT: () => (key: string) => key,
+}));
 
 const makeFile = (name: string, extra?: Partial<UploadFile>): UploadFile => ({
   uid: "1",

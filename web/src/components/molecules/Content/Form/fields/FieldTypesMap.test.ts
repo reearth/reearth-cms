@@ -1,10 +1,10 @@
 import { describe, test, expect, vi } from "vitest";
 
+import { FIELD_TYPE_COMPONENT_MAP } from "./FieldTypesMap";
+
 // GeometryField transitively imports monaco-editor which is incompatible with jsdom.
 vi.mock("monaco-editor", () => ({}));
 vi.mock("@monaco-editor/react", () => ({ default: () => null }));
-
-import { FIELD_TYPE_COMPONENT_MAP } from "./FieldTypesMap";
 
 describe("FIELD_TYPE_COMPONENT_MAP", () => {
   test("contains all 13 expected field type keys", () => {

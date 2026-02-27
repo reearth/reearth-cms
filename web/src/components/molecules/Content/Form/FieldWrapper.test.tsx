@@ -3,13 +3,13 @@ import { describe, test, expect, vi } from "vitest";
 
 import type { Field as FieldType } from "@reearth-cms/components/molecules/Schema/types";
 
+import FieldWrapper from "./FieldWrapper";
+
 vi.mock("./Field", () => ({
   default: ({ field, disabled }: { field: FieldType; disabled: boolean }) => (
     <div data-testid="mock-field">{`${field.type}${disabled ? " (disabled)" : ""}`}</div>
   ),
 }));
-
-import FieldWrapper from "./FieldWrapper";
 
 const makeField = (overrides?: Partial<FieldType>): FieldType => ({
   id: "field-1",

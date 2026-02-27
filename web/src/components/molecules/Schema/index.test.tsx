@@ -2,9 +2,9 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, test, expect, vi } from "vitest";
 
+import type { Model } from "@reearth-cms/components/molecules/Model/types";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
-import type { Model } from "@reearth-cms/components/molecules/Model/types";
 
 import type { Group } from "./types";
 

@@ -4,6 +4,8 @@ import { beforeAll, describe, test, expect, vi } from "vitest";
 
 import type { Model } from "@reearth-cms/components/molecules/Model/types";
 
+import ModelsList from "./ModelsList";
+
 let capturedOnDragEnd: (fromIndex: number, toIndex: number) => void;
 vi.mock("react-drag-listview", () => ({
   default: ({ children, onDragEnd }: { children: React.ReactNode; onDragEnd: (f: number, t: number) => void }) => {
@@ -11,8 +13,6 @@ vi.mock("react-drag-listview", () => ({
     return <div>{children}</div>;
   },
 }));
-
-import ModelsList from "./ModelsList";
 
 beforeAll(() => {
   Element.prototype.scrollIntoView = vi.fn();

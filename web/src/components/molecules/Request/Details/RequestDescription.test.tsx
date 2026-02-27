@@ -6,9 +6,9 @@ import { describe, test, expect, vi } from "vitest";
 
 import type { Request } from "@reearth-cms/components/molecules/Request/types";
 
-vi.mock("./ItemForm", () => ({ default: () => <div data-testid="ItemForm" /> }));
-
 import { RequestDescription } from "./RequestDescription";
+
+vi.mock("./ItemForm", () => ({ default: () => <div data-testid="ItemForm" /> }));
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);

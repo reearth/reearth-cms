@@ -1,5 +1,10 @@
 import { render, waitFor } from "@testing-library/react";
+import { CesiumMVTImageryProvider } from "cesium-mvt-imagery-provider";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+
+// ── Imports after mocks ──
+
+import { Imagery } from "./Imagery";
 
 // ── Capture variable ──
 let capturedAutoCompleteProps: Record<string, unknown> | undefined;
@@ -62,11 +67,6 @@ vi.mock("@reearth-cms/components/atoms/AutoComplete", () => ({
     return <input data-testid="autocomplete" value={(props.value as string) ?? ""} readOnly />;
   },
 }));
-
-// ── Imports after mocks ──
-import { CesiumMVTImageryProvider } from "cesium-mvt-imagery-provider";
-
-import { Imagery } from "./Imagery";
 
 // ── Test data ──
 const testUrl = "https://example.com/tiles/12/345/678.mvt";

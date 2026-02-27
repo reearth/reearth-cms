@@ -2,6 +2,8 @@ import { render, screen, within, cleanup } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
+import APIKeyTable from "./APIKeyTable";
+
 vi.mock("@reearth-cms/components/atoms/Icon", () => ({
   default: ({ icon, onClick }: { icon: string; onClick?: () => void }) => (
     <span data-testid={`icon-${icon}`} onClick={onClick} />
@@ -13,8 +15,6 @@ vi.mock("./KeyCell", () => ({
     <span data-testid="mock-key-cell" data-api-key={apiKey} />
   ),
 }));
-
-import APIKeyTable from "./APIKeyTable";
 
 const sampleKeys = [
   { id: "key-1", name: "Production Key", description: "", key: "sk-prod-abc", publication: { publicModels: [], publicAssets: false } },

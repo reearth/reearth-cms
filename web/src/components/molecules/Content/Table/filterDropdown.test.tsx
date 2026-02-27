@@ -2,6 +2,11 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi, expect, describe, test } from "vitest";
 
+import { render } from "@reearth-cms/test/utils";
+
+import FilterDropdown from "./filterDropdown";
+import { type DefaultFilterValueType, type DropdownFilterType } from "./types";
+
 let capturedDropdownRenderProps: Record<string, unknown> = {};
 
 vi.mock("./DropdownRender", () => ({
@@ -14,11 +19,6 @@ vi.mock("./DropdownRender", () => ({
 vi.mock("@reearth-cms/components/atoms/Icon", () => ({
   default: ({ icon }: { icon: string }) => <span data-testid={`icon-${icon}`} />,
 }));
-
-import { render } from "@reearth-cms/test/utils";
-
-import FilterDropdown from "./filterDropdown";
-import { type DefaultFilterValueType, type DropdownFilterType } from "./types";
 
 function makeFilter(overrides: Partial<DropdownFilterType> = {}): DropdownFilterType {
   return {

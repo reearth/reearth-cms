@@ -1,9 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import { describe, test, expect, vi } from "vitest";
 
-vi.mock("./ItemForm", () => ({ default: () => <div data-testid="ItemForm" /> }));
-
 import RequestDetailsMolecule from "./index";
+
+vi.mock("./ItemForm", () => ({ default: () => <div data-testid="ItemForm" /> }));
 
 const defaultProps = {
   me: undefined,

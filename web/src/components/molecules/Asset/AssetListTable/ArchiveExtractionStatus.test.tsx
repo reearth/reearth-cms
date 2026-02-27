@@ -1,12 +1,12 @@
 import { screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 
-vi.mock("@reearth-cms/i18n", () => ({ useT: () => (key: string) => key }));
-
 import type { ArchiveExtractionStatus as ArchiveExtractionStatusType } from "@reearth-cms/components/molecules/Asset/types";
 import { render } from "@reearth-cms/test/utils";
 
 import ArchiveExtractionStatus from "./ArchiveExtractionStatus";
+
+vi.mock("@reearth-cms/i18n", () => ({ useT: () => (key: string) => key }));
 
 describe("ArchiveExtractionStatus", () => {
   const cases: [ArchiveExtractionStatusType, string, string][] = [
