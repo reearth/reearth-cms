@@ -82,6 +82,8 @@ export default defineConfig({
         "src/components/molecules/Uploader/provider.tsx",
         "src/components/molecules/Uploader/useJobState.ts",
         "src/components/molecules/**/index.ts",
+        "src/components/molecules/Asset/Viewers/GltfViewer/Imagery.tsx",
+        "src/components/molecules/Asset/Viewers/CsvViewer/Imagery.tsx",
       ],
       reporter: ["text", "json", "lcov"],
     },
