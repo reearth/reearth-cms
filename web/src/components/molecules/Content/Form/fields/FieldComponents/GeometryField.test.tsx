@@ -6,6 +6,12 @@ import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 
 import GeometryField from "./GeometryField";
 
+let capturedGeometryItemProps: { errorAdd?: () => void; errorDelete?: () => void } = {};
+let capturedMultiValueProps: {
+  errorAdd?: (index: number) => void;
+  errorDelete?: (index: number) => void;
+} = {};
+
 vi.mock("@reearth-cms/components/molecules/Common/Form/GeometryItem", () => ({
   default: (props: {
     supportedTypes?: unknown;
@@ -13,16 +19,21 @@ vi.mock("@reearth-cms/components/molecules/Common/Form/GeometryItem", () => ({
     disabled?: boolean;
     errorAdd?: () => void;
     errorDelete?: () => void;
-  }) => (
-    <div
-      data-testid="geometry-item"
-      data-supported-types={props.supportedTypes ? JSON.stringify(props.supportedTypes) : undefined}
-      data-is-editor={props.isEditor}
-      data-disabled={props.disabled}
-      data-error-add={props.errorAdd ? "true" : undefined}
-      data-error-delete={props.errorDelete ? "true" : undefined}
-    />
-  ),
+  }) => {
+    capturedGeometryItemProps = { errorAdd: props.errorAdd, errorDelete: props.errorDelete };
+    return (
+      <div
+        data-testid="geometry-item"
+        data-supported-types={
+          props.supportedTypes ? JSON.stringify(props.supportedTypes) : undefined
+        }
+        data-is-editor={props.isEditor}
+        data-disabled={props.disabled}
+        data-error-add={props.errorAdd ? "true" : undefined}
+        data-error-delete={props.errorDelete ? "true" : undefined}
+      />
+    );
+  },
 }));
 
 vi.mock(
@@ -34,18 +45,21 @@ vi.mock(
       disabled?: boolean;
       errorAdd?: (index: number) => void;
       errorDelete?: (index: number) => void;
-    }) => (
-      <div
-        data-testid="multi-value-geometry"
-        data-supported-types={
-          props.supportedTypes ? JSON.stringify(props.supportedTypes) : undefined
-        }
-        data-is-editor={props.isEditor}
-        data-disabled={props.disabled}
-        data-error-add={props.errorAdd ? "true" : undefined}
-        data-error-delete={props.errorDelete ? "true" : undefined}
-      />
-    ),
+    }) => {
+      capturedMultiValueProps = { errorAdd: props.errorAdd, errorDelete: props.errorDelete };
+      return (
+        <div
+          data-testid="multi-value-geometry"
+          data-supported-types={
+            props.supportedTypes ? JSON.stringify(props.supportedTypes) : undefined
+          }
+          data-is-editor={props.isEditor}
+          data-disabled={props.disabled}
+          data-error-add={props.errorAdd ? "true" : undefined}
+          data-error-delete={props.errorDelete ? "true" : undefined}
+        />
+      );
+    },
   }),
 );
 
@@ -97,6 +111,8 @@ const renderField = (options: RenderOptions = {}) => {
   const { fieldOverrides, disabled = false, itemGroupId, itemHeights, onItemHeightChange } =
     options;
   formInstance = undefined;
+  capturedGeometryItemProps = {};
+  capturedMultiValueProps = {};
   render(
     <FormCapture>
       <GeometryField
@@ -230,5 +246,58 @@ describe("GeometryField", () => {
     expect(el).toHaveAttribute("data-disabled", "true");
     expect(el).toHaveAttribute("data-error-add", "true");
     expect(el).toHaveAttribute("data-error-delete", "true");
+  });
+
+  test("errorSet validation rejects when errorAdd has been called", async () => {
+    renderField();
+    expect(capturedGeometryItemProps.errorAdd).toBeDefined();
+    capturedGeometryItemProps.errorAdd!();
+    formInstance!.setFieldValue("field-1", "valid-geom");
+    await expect(formInstance!.validateFields()).rejects.toBeDefined();
+  });
+
+  test("errorSet validation resolves after errorDelete clears errors", async () => {
+    renderField();
+    capturedGeometryItemProps.errorAdd!();
+    capturedGeometryItemProps.errorDelete!();
+    formInstance!.setFieldValue("field-1", "valid-geom");
+    await expect(formInstance!.validateFields()).resolves.toBeDefined();
+  });
+
+  test("single GeometryItem errorAdd wraps with index 0", async () => {
+    renderField();
+    capturedGeometryItemProps.errorAdd!();
+    formInstance!.setFieldValue("field-1", "valid-geom");
+    await expect(formInstance!.validateFields()).rejects.toBeDefined();
+    capturedGeometryItemProps.errorDelete!();
+    await expect(formInstance!.validateFields()).resolves.toBeDefined();
+  });
+
+  test("supportedTypes is undefined when typeProperty is absent", () => {
+    renderField({ fieldOverrides: { typeProperty: undefined } });
+    expect(screen.getByTestId("geometry-item")).not.toHaveAttribute("data-supported-types");
+  });
+
+  test("objectSupportedTypes wins when both type sources are present", () => {
+    const objectTypes = ["POINT", "LINESTRING"];
+    const editorTypes = [["POLYGON", "MULTIPOLYGON"]];
+    renderField({
+      fieldOverrides: {
+        typeProperty: {
+          objectSupportedTypes: objectTypes,
+          editorSupportedTypes: editorTypes,
+        },
+      },
+    });
+    expect(screen.getByTestId("geometry-item")).toHaveAttribute(
+      "data-supported-types",
+      JSON.stringify(objectTypes),
+    );
+  });
+
+  test("non-required field passes validation with empty value", async () => {
+    renderField({ fieldOverrides: { required: false } });
+    formInstance!.setFieldValue("field-1", undefined);
+    await expect(formInstance!.validateFields()).resolves.toBeDefined();
   });
 });
