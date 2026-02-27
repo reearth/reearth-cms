@@ -497,8 +497,7 @@ describe("Content import test", () => {
         });
       });
 
-      // FIXME: handle common error with select out of range
-      describe.skip("[Fail case] Select field key mismatch", () => {
+      describe("[Fail case] Select field key mismatch", () => {
         const COMMON_SETUP = {
           key: "correct-key",
           wrongKey: "wrong-key",
@@ -912,67 +911,6 @@ describe("Content import test", () => {
               required: setup.required,
               multiple: setup.multiple,
               typeProperty: {},
-            },
-          ];
-
-          const contentList = [
-            {
-              [setup.key]: setup.wrongValue,
-            },
-          ];
-
-          const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
-            fields,
-            "JSON",
-            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
-          );
-          expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-          if (contentValidation.isValid) return;
-
-          const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
-            contentValidation.error;
-
-          expect(exceedLimit).toBe(expectedResult.exceedLimit);
-          expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-          expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-        });
-      });
-
-      // FIXME: fix common error with field key mismatch
-      describe.skip("[Fail case] Select field value type mismatch", () => {
-        const COMMON_SETUP = {
-          key: "field-key",
-          required: true,
-          multiple: false,
-          type: SchemaFieldType.Select,
-          typeProperty: {
-            values: ["red", "green", "blue"],
-          },
-        };
-
-        const EXPECTED_RESULT = {
-          exceedLimit: false,
-          typeMismatchFieldKeysCount: 1,
-          outOfRangeFieldKeysCount: 0,
-          isValid: false,
-        };
-
-        test.each([
-          {
-            setup: { ...COMMON_SETUP, wrongValue: "yellow" },
-            expectedResult: EXPECTED_RESULT,
-          },
-        ])("$setup.type field value type mismatch", async ({ setup, expectedResult }) => {
-          const fields = [
-            {
-              ...DEFAULT_COMMON_FIELD,
-              type: setup.type,
-              key: setup.key,
-              required: setup.required,
-              multiple: false,
-              typeProperty: setup.typeProperty,
             },
           ];
 
@@ -1737,7 +1675,7 @@ describe("Content import test", () => {
 
           const contentList = [
             {
-              [setup.key]: setup.typeProperty.defaultValue,
+              [setup.key]: [setup.typeProperty.defaultValue],
             },
           ];
 
@@ -1776,7 +1714,7 @@ describe("Content import test", () => {
 
           const contentList = [
             {
-              [setup.key]: setup.typeProperty.defaultValue,
+              [setup.key]: [setup.typeProperty.defaultValue],
             },
           ];
 
@@ -1921,8 +1859,7 @@ describe("Content import test", () => {
         });
       });
 
-      // FIXME: fix type error for type mismatch
-      describe.skip("[Fail case] Select field with default values type mismatch", () => {
+      describe("[Fail case] Select field with default values type mismatch", () => {
         const COMMON_SETUP = {
           key: "field-key",
           required: true,
@@ -1983,8 +1920,7 @@ describe("Content import test", () => {
         });
       });
 
-      // FIXME: fix type error for type mismatch
-      describe.skip("[Fail case] GeoObject field with default values type mismatch", () => {
+      describe("[Fail case] GeoObject field with default values type mismatch", () => {
         const COMMON_SETUP = {
           key: "field-key",
           required: true,
@@ -2045,7 +1981,7 @@ describe("Content import test", () => {
         });
       });
 
-      describe.skip("[Fail case] GeoEditor field with default values type mismatch", () => {
+      describe("[Fail case] GeoEditor field with default values type mismatch", () => {
         const COMMON_SETUP = {
           ...DEFAULT_COMMON_FIELD,
           key: "field-key",
