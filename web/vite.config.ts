@@ -86,6 +86,7 @@ export default defineConfig({
         "src/components/molecules/Asset/Viewers/GltfViewer/Imagery.tsx",
         "src/components/molecules/Asset/Viewers/CsvViewer/Imagery.tsx",
         "src/components/molecules/Content/utils.ts",
+        "src/components/molecules/Common/Form/AssetItem/hooks.ts",
       ],
       reporter: ["text", "json", "lcov"],
     },
