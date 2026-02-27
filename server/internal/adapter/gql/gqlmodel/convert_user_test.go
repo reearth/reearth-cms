@@ -3,6 +3,8 @@ package gqlmodel
 import (
 	"testing"
 
+	"github.com/reearth/reearth-accounts/server/pkg/id"
+	apiworkspace "github.com/reearth/reearth-accounts/server/pkg/workspace"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/idx"
@@ -148,6 +150,193 @@ func TestFromRole(t *testing.T) {
 			t.Parallel()
 
 			assert.Equal(t, tt.want, FromRole(tt.arg))
+		})
+	}
+}
+
+func TestToWorkspaceFromAPI(t *testing.T) {
+
+	// Create mock IDs
+	wid := id.NewWorkspaceID()
+	uid1 := id.NewUserID()
+	uid2 := id.NewUserID()
+	iid := id.NewIntegrationID()
+	personalWid := id.NewWorkspaceID()
+
+	// Create mock workspace with users and integrations
+	mockWorkspace := apiworkspace.New().
+		ID(wid).
+		Name("Test Workspace").
+		Alias("test-workspace").
+		Personal(false).
+		Members(map[apiworkspace.UserID]apiworkspace.Member{
+			apiworkspace.UserID(uid1): {
+				Role: apiworkspace.RoleOwner,
+				Host: "example.com",
+			},
+			apiworkspace.UserID(uid2): {
+				Role: apiworkspace.RoleWriter,
+				Host: "",
+			},
+		}).
+		Integrations(map[apiworkspace.IntegrationID]apiworkspace.Member{
+			apiworkspace.IntegrationID(iid): {
+				Role:      apiworkspace.RoleReader,
+				InvitedBy: apiworkspace.UserID(uid1),
+				Disabled:  false,
+			},
+		}).
+		MustBuild()
+
+	// Create personal workspace
+	personalWorkspace := apiworkspace.New().
+		ID(personalWid).
+		Name("Personal Workspace").
+		Personal(true).
+		MustBuild()
+
+	tests := []struct {
+		name              string
+		arg               *apiworkspace.Workspace
+		want              *Workspace
+		checkMembers      bool
+		expectedUserCount int
+		expectedIntCount  int
+	}{
+		{
+			name:              "valid workspace with users and integrations",
+			arg:               mockWorkspace,
+			checkMembers:      true,
+			expectedUserCount: 2,
+			expectedIntCount:  1,
+			want: &Workspace{
+				ID:       IDFrom(wid),
+				Name:     "Test Workspace",
+				Alias:    lo.ToPtr("test-workspace"),
+				Personal: false,
+				Members:  nil, // We'll validate members separately
+			},
+		},
+		{
+			name:              "personal workspace",
+			arg:               personalWorkspace,
+			checkMembers:      false,
+			expectedUserCount: 0,
+			expectedIntCount:  0,
+			want: &Workspace{
+				ID:       IDFrom(personalWid),
+				Name:     "Personal Workspace",
+				Alias:    lo.ToPtr(""),
+				Personal: true,
+				Members:  []WorkspaceMember{},
+			},
+		},
+		{
+			name:              "nil workspace",
+			arg:               nil,
+			checkMembers:      false,
+			expectedUserCount: 0,
+			expectedIntCount:  0,
+			want:              nil,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			result := ToWorkspaceFromAPI(tt.arg)
+
+			if tt.want == nil {
+				assert.Nil(t, result)
+				return
+			}
+
+			// Test basic fields
+			assert.NotNil(t, result)
+			assert.Equal(t, tt.want.ID, result.ID)
+			assert.Equal(t, tt.want.Name, result.Name)
+			assert.Equal(t, tt.want.Alias, result.Alias)
+			assert.Equal(t, tt.want.Personal, result.Personal)
+
+			// Test members if needed
+			if tt.checkMembers {
+				// Count members by type
+				userMembers := 0
+				integrationMembers := 0
+
+				for _, member := range result.Members {
+					switch m := member.(type) {
+					case *WorkspaceUserMember:
+						userMembers++
+						// Validate roles are converted correctly
+						assert.Contains(t, []Role{RoleOwner, RoleWriter, RoleReader, RoleMaintainer}, m.Role)
+					case *WorkspaceIntegrationMember:
+						integrationMembers++
+						assert.Contains(t, []Role{RoleOwner, RoleWriter, RoleReader, RoleMaintainer}, m.Role)
+						// Integration should be active (not disabled)
+						assert.True(t, m.Active)
+					}
+				}
+
+				assert.Equal(t, tt.expectedUserCount, userMembers)
+				assert.Equal(t, tt.expectedIntCount, integrationMembers)
+			} else {
+				// For non-member checking tests, just verify count
+				assert.Equal(t, tt.expectedUserCount+tt.expectedIntCount, len(result.Members))
+			}
+		})
+	}
+}
+
+func TestToRoleFromAPI(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		arg  apiworkspace.Role
+		want Role
+	}{
+		{
+			name: "RoleOwner",
+			arg:  apiworkspace.RoleOwner,
+			want: RoleOwner,
+		},
+		{
+			name: "RoleMaintainer",
+			arg:  apiworkspace.RoleMaintainer,
+			want: RoleMaintainer,
+		},
+		{
+			name: "RoleWriter",
+			arg:  apiworkspace.RoleWriter,
+			want: RoleWriter,
+		},
+		{
+			name: "RoleReader",
+			arg:  apiworkspace.RoleReader,
+			want: RoleReader,
+		},
+		{
+			name: "Empty role",
+			arg:  apiworkspace.Role(""),
+			want: Role(""),
+		},
+		{
+			name: "Unknown role",
+			arg:  apiworkspace.Role("unknown"),
+			want: Role(""),
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			result := ToRoleFromAPI(tt.arg)
+			assert.Equal(t, tt.want, result)
 		})
 	}
 }

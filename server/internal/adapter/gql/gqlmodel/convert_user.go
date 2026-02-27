@@ -2,6 +2,7 @@ package gqlmodel
 
 import (
 	apiuser "github.com/reearth/reearth-accounts/server/pkg/user"
+	apiworkspace "github.com/reearth/reearth-accounts/server/pkg/workspace"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/samber/lo"
@@ -107,6 +108,55 @@ func ToTheme(t *Theme) *user.Theme {
 		th = user.ThemeLight
 	}
 	return &th
+}
+
+func ToWorkspaceFromAPI(t *apiworkspace.Workspace) *Workspace {
+	if t == nil {
+		return nil
+	}
+
+	usersMap := t.Members().Users()
+	integrationsMap := t.Members().Integrations()
+	members := make([]WorkspaceMember, 0, len(usersMap)+len(integrationsMap))
+	for u, m := range usersMap {
+		members = append(members, &WorkspaceUserMember{
+			UserID: IDFrom(u),
+			Role:   ToRoleFromAPI(m.Role),
+			Host:   lo.EmptyableToPtr(m.Host),
+		})
+	}
+	for i, m := range integrationsMap {
+		members = append(members, &WorkspaceIntegrationMember{
+			IntegrationID: IDFrom(i),
+			Role:          ToRoleFromAPI(m.Role),
+			Active:        !m.Disabled,
+			InvitedByID:   IDFrom(m.InvitedBy),
+			InvitedBy:     nil,
+			Integration:   nil,
+		})
+	}
+
+	return &Workspace{
+		ID:       IDFrom(t.ID()),
+		Name:     t.Name(),
+		Alias:    lo.ToPtr(t.Alias()),
+		Personal: t.IsPersonal(),
+		Members:  members,
+	}
+}
+
+func ToRoleFromAPI(r apiworkspace.Role) Role {
+	switch r {
+	case apiworkspace.RoleReader:
+		return RoleReader
+	case apiworkspace.RoleWriter:
+		return RoleWriter
+	case apiworkspace.RoleMaintainer:
+		return RoleMaintainer
+	case apiworkspace.RoleOwner:
+		return RoleOwner
+	}
+	return Role("")
 }
 
 func ToWorkspace(t *workspace.Workspace) *Workspace {

@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"testing"
 
+	apiuser "github.com/reearth/reearth-accounts/server/pkg/user"
+	apiworkspace "github.com/reearth/reearth-accounts/server/pkg/workspace"
 	"github.com/reearth/reearth-cms/server/internal/app"
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/account"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
@@ -16,6 +18,7 @@ import (
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/rerror"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/text/language"
 )
@@ -68,7 +71,6 @@ func baseSeederUser(ctx context.Context, r *repo.Container, g *gateway.Container
 	if err := r.User.Save(ctx, u4); err != nil {
 		return err
 	}
-	g.Accounts = account.NewInMemory2(user.List{u, u2, u3, u4})
 	roleOwner := workspace.Member{
 		Role:      workspace.RoleOwner,
 		InvitedBy: uId1,
@@ -114,12 +116,93 @@ func baseSeederUser(ctx context.Context, r *repo.Container, g *gateway.Container
 		return err
 	}
 
+	// Convert domain workspaces to API workspaces for the accounts gateway
+	wid, _ := apiworkspace.IDFrom(wId.String())
+	apiW := apiworkspace.New().
+		ID(wid).
+		Name("e2e").
+		Alias("test-workspace").
+		Personal(false).
+		Members(map[apiworkspace.UserID]apiworkspace.Member{
+			apiworkspace.UserID(uId1): {
+				Role: apiworkspace.RoleOwner,
+				Host: "",
+			},
+			apiworkspace.UserID(uId4): {
+				Role: apiworkspace.RoleMaintainer,
+				Host: "",
+			},
+		}).
+		Integrations(map[apiworkspace.IntegrationID]apiworkspace.Member{
+			apiworkspace.IntegrationID(iId1): {
+				Role:      apiworkspace.RoleOwner,
+				InvitedBy: apiworkspace.UserID(uId1),
+				Disabled:  false,
+			},
+		}).
+		MustBuild()
+
+	wid2, _ := apiworkspace.IDFrom(wId2.String())
+	apiW2 := apiworkspace.New().
+		ID(wid2).
+		Name("e2e2").
+		Personal(false).
+		Members(map[apiworkspace.UserID]apiworkspace.Member{
+			apiworkspace.UserID(uId1): {
+				Role: apiworkspace.RoleOwner,
+				Host: "",
+			},
+			apiworkspace.UserID(uId3): {
+				Role: apiworkspace.RoleReader,
+				Host: "",
+			},
+		}).
+		Integrations(map[apiworkspace.IntegrationID]apiworkspace.Member{
+			apiworkspace.IntegrationID(iId1): {
+				Role:      apiworkspace.RoleOwner,
+				InvitedBy: apiworkspace.UserID(uId1),
+				Disabled:  false,
+			},
+		}).
+		MustBuild()
+
+	// Convert users to API users and setup accounts gateway with workspaces
+	apiUsers := lo.Map(user.List{u, u2, u3, u4}, func(pu *user.User, _ int) *apiuser.User {
+		var photoURL, description, website string
+		var lang language.Tag
+		var theme apiuser.Theme
+
+		if metadata := pu.Metadata(); metadata != nil {
+			photoURL = metadata.PhotoURL()
+			description = metadata.Description()
+			website = metadata.Website()
+			lang = metadata.Lang()
+			theme = apiuser.Theme(metadata.Theme())
+		}
+
+		m := apiuser.MetadataFrom(photoURL, description, website, lang, theme)
+		puID, _ := apiuser.IDFrom(pu.ID().String())
+		ub := apiuser.New().
+			ID(puID).
+			Name(pu.Name()).
+			Alias(pu.Alias()).
+			Email(pu.Email()).
+			Workspace(apiuser.WorkspaceID(pu.Workspace())).
+			Metadata(m)
+		apiU, _ := ub.Build()
+		return apiU
+	})
+
+	g.Accounts = account.NewInMemoryWithWorkspaces(apiUsers, apiworkspace.List{apiW, apiW2})
+
 	return nil
 }
 
 func TestUpdateMe(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeederUser)
-	query := `mutation { updateMe(input: {name: "updated",email:"hoge@test.com",lang: "ja",theme: DEFAULT,password: "Ajsownndww1",passwordConfirmation: "Ajsownndww1"}){ me{ id name email lang theme } }}`
+
+	// Test updateMe for user 1 - full update
+	query := `mutation { updateMe(input: {name: "updated",email:"hoge@test.com",lang: "ja",theme: DEFAULT,password: "Ajsownndww1",passwordConfirmation: "Ajsownndww1"}){ me{ id name email lang theme myWorkspaceId profilePictureUrl } }}`
 	request := GraphQLRequest{
 		Query: query,
 	}
@@ -132,10 +215,60 @@ func TestUpdateMe(t *testing.T) {
 		WithHeader("Content-Type", "application/json").
 		WithHeader("X-Reearth-Debug-User", uId1.String()).
 		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("updateMe").Object().Value("me").Object()
+
+	o.Value("id").String().IsEqual(uId1.String())
 	o.Value("name").String().IsEqual("updated")
 	o.Value("email").String().IsEqual("hoge@test.com")
 	o.Value("lang").String().IsEqual("ja")
 	o.Value("theme").String().IsEqual("default")
+	o.Value("myWorkspaceId").String().IsEqual(wId.String())
+	o.Value("profilePictureUrl").String().IsEqual("")
+
+	// Test partial update for user 2 - only name and theme
+	query2 := `mutation { updateMe(input: {name: "user2-updated", theme: LIGHT}){ me{ id name email lang theme myWorkspaceId profilePictureUrl } }}`
+	request2 := GraphQLRequest{
+		Query: query2,
+	}
+	jsonData2, err := json.Marshal(request2)
+	if err != nil {
+		assert.NoError(t, err)
+	}
+	o2 := e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId2.String()).
+		WithBytes(jsonData2).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("updateMe").Object().Value("me").Object()
+
+	o2.Value("id").String().IsEqual(uId2.String())
+	o2.Value("name").String().IsEqual("user2-updated")
+	o2.Value("email").String().IsEqual("e2e2@e2e.com") // Should remain unchanged
+	o2.Value("lang").String().IsEqual("ja")            // Should remain unchanged
+	o2.Value("theme").String().IsEqual("light")
+	o2.Value("myWorkspaceId").String().IsEqual(wId2.String())
+	o2.Value("profilePictureUrl").String().IsEqual("")
+
+	// Test update with only email for user 3
+	query3 := `mutation { updateMe(input: {email: "newemail@example.com"}){ me{ id name email lang theme myWorkspaceId profilePictureUrl } }}`
+	request3 := GraphQLRequest{
+		Query: query3,
+	}
+	jsonData3, err := json.Marshal(request3)
+	if err != nil {
+		assert.NoError(t, err)
+	}
+	o3 := e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId3.String()).
+		WithBytes(jsonData3).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("updateMe").Object().Value("me").Object()
+
+	o3.Value("id").String().IsEqual(uId3.String())
+	o3.Value("name").String().IsEqual("e2e3") // Should remain unchanged
+	o3.Value("email").String().IsEqual("newemail@example.com")
+	o3.Value("lang").String().IsEqual("ja")       // Should remain unchanged
+	o3.Value("theme").String().IsEqual("default") // Should remain unchanged
+	o3.Value("myWorkspaceId").String().IsEqual(wId2.String())
+	o3.Value("profilePictureUrl").String().IsEqual("")
 }
 
 func TestRemoveMyAuth(t *testing.T) {
@@ -225,6 +358,62 @@ func TestMe(t *testing.T) {
 	o.Value("theme").String().IsEqual("default")
 	o.Value("myWorkspaceId").String().IsEqual(wId2.String())
 	o.Value("profilePictureUrl").String().IsEqual("")
+}
+
+func TestMeWorkspaces(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeederUser)
+
+	// Test workspaces field for user 1 (member of both workspaces)
+	query := `{ me{ id name workspaces { id name alias personal members { ... on WorkspaceUserMember { userId role } ... on WorkspaceIntegrationMember { integrationId role active } } } } }`
+	request := GraphQLRequest{
+		Query: query,
+	}
+	jsonData, err := json.Marshal(request)
+	if err != nil {
+		assert.NoError(t, err)
+	}
+	o := e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId1.String()).
+		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("me").Object()
+
+	// User 1 should be a member of both workspaces
+	workspaces := o.Value("workspaces").Array()
+	workspaces.Length().IsEqual(2)
+
+	// Check workspace details (order might vary)
+	workspace1 := workspaces.Value(0).Object()
+	workspace2 := workspaces.Value(1).Object()
+
+	// Collect workspace names to verify both are present
+	names := []string{
+		workspace1.Value("name").String().Raw(),
+		workspace2.Value("name").String().Raw(),
+	}
+	assert.Contains(t, names, "e2e")
+	assert.Contains(t, names, "e2e2")
+
+	// Test workspaces field for user 3 (member of only wId2/e2e2)
+	o3 := e.POST("/api/graphql").
+		WithHeader("authorization", "Bearer test").
+		WithHeader("Content-Type", "application/json").
+		WithHeader("X-Reearth-Debug-User", uId3.String()).
+		WithBytes(jsonData).Expect().Status(http.StatusOK).JSON().Object().Value("data").Object().Value("me").Object()
+
+	// User 3 should be a member of only one workspace
+	workspaces3 := o3.Value("workspaces").Array()
+	workspaces3.Length().IsEqual(1)
+
+	workspace3 := workspaces3.Value(0).Object()
+	workspace3.Value("name").String().IsEqual("e2e2")
+	workspace3.Value("alias").String().IsEqual("")
+	workspace3.Value("personal").Boolean().IsFalse()
+
+	// Check members array is present and has content
+	members := workspace3.Value("members").Array()
+	memberCount := members.Length().Raw()
+	assert.True(t, memberCount > 0, "Workspace should have members")
 }
 
 func TestUserByNameOrEmail(t *testing.T) {

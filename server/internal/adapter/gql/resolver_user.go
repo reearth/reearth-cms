@@ -11,15 +11,29 @@ import (
 
 	user_api "github.com/reearth/reearth-accounts/server/pkg/user"
 	"github.com/reearth/reearth-cms/server/internal/adapter/gql/gqlmodel"
+	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearthx/account/accountdomain"
-	"github.com/reearth/reearthx/account/accountdomain/user"
-	"github.com/reearth/reearthx/account/accountusecase/accountinterfaces"
 	"github.com/samber/lo"
 )
 
 // Workspaces is the resolver for the workspaces field.
 func (r *meResolver) Workspaces(ctx context.Context, obj *gqlmodel.Me) ([]*gqlmodel.Workspace, error) {
-	return loaders(ctx).Workspace.FindByUser(ctx, obj.ID)
+	g := gateways(ctx)
+	if g == nil {
+		return nil, errors.New("no gateways available")
+	}
+
+	workspaces, err := g.Accounts.FindWorkspacesByUser(ctx, string(obj.ID))
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert from accounts workspace.List to gqlmodel.Workspace
+	result := make([]*gqlmodel.Workspace, len(workspaces))
+	for i, ws := range workspaces {
+		result[i] = gqlmodel.ToWorkspaceFromAPI(ws)
+	}
+	return result, nil
 }
 
 // MyWorkspace is the resolver for the myWorkspace field.
@@ -34,23 +48,36 @@ func (r *meResolver) Integrations(ctx context.Context, obj *gqlmodel.Me) ([]*gql
 
 // UpdateMe is the resolver for the updateMe field.
 func (r *mutationResolver) UpdateMe(ctx context.Context, input gqlmodel.UpdateMeInput) (*gqlmodel.UpdateMePayload, error) {
-	var theme *user.Theme
-	if input.Theme != nil {
-		theme = lo.ToPtr(user.ThemeFrom(input.Theme.String()))
+	g := gateways(ctx)
+	if g == nil {
+		return nil, errors.New("no gateways available")
 	}
-	res, err := usecases(ctx).User.UpdateMe(ctx, accountinterfaces.UpdateMeParam{
+
+	gatewayInput := gateway.UpdateMeInput{
 		Name:                 input.Name,
 		Email:                input.Email,
-		Lang:                 input.Lang,
-		Theme:                theme,
+		Lang:                 nil,
+		Theme:                nil,
 		Password:             input.Password,
 		PasswordConfirmation: input.PasswordConfirmation,
-	}, getAcOperator(ctx))
+	}
+
+	// Handle optional Lang field
+	if input.Lang != nil {
+		gatewayInput.Lang = lo.ToPtr(input.Lang.String())
+	}
+
+	// Handle optional Theme field
+	if input.Theme != nil {
+		gatewayInput.Theme = lo.ToPtr(input.Theme.String())
+	}
+
+	usr, err := g.Accounts.UpdateMe(ctx, gatewayInput)
 	if err != nil {
 		return nil, err
 	}
 
-	return &gqlmodel.UpdateMePayload{Me: gqlmodel.ToMe(res)}, nil
+	return &gqlmodel.UpdateMePayload{Me: gqlmodel.ToMeFromAPI(usr)}, nil
 }
 
 // RemoveMyAuth is the resolver for the removeMyAuth field.
