@@ -2,628 +2,634 @@
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
-import { BasePage } from "./base.page";
+import { ProjectScopedPage } from "./project-scoped.page";
 
-export class ContentPage extends BasePage {
+export class ContentPage extends ProjectScopedPage {
   // Navigation
-  get contentText(): Locator {
+  public get contentText(): Locator {
     return this.getByText("Content");
   }
 
   // Item creation and editing
-  get newItemButton(): Locator {
+  public get newItemButton(): Locator {
     return this.getByRole("button", { name: "plus New Item" });
   }
-  get saveButton(): Locator {
-    return this.getByRole("button", { name: "Save" });
-  }
-  get backButton(): Locator {
-    return this.getByLabel("Back");
-  }
-
-  // Search
-  get searchInput(): Locator {
-    return this.getByPlaceholder("input search text");
-  }
-  get searchButton(): Locator {
-    return this.getByRole("button", { name: "search" });
-  }
-
   // Table actions
-  get selectAllCheckbox(): Locator {
+  public get selectAllCheckbox(): Locator {
     return this.getByLabel("", { exact: true });
   }
-  get editButton(): Locator {
+  public get editButton(): Locator {
     return this.getByRole("cell").getByLabel("edit").locator("svg");
   }
-  get deleteButton(): Locator {
+  public get deleteButton(): Locator {
     return this.getByText("Delete");
   }
 
   // Publishing
-  get publishButton(): Locator {
+  public get publishButton(): Locator {
     return this.getByRole("button", { name: "Publish" });
   }
-  get unpublishButton(): Locator {
+  public get unpublishButton(): Locator {
     return this.getByText("Unpublish");
   }
-  get publishFromTableButton(): Locator {
+  public get publishFromTableButton(): Locator {
     return this.getByText("Publish", { exact: true });
   }
-  get yesButton(): Locator {
+  public get yesButton(): Locator {
     return this.getByRole("button", { name: "Yes" });
   }
-  get ellipsisMenuButton(): Locator {
+  public get ellipsisMenuButton(): Locator {
     return this.getByRole("button", { name: "ellipsis" });
   }
 
   // Status indicators
-  get draftStatus(): Locator {
+  public get draftStatus(): Locator {
     return this.getByText("Draft");
   }
-  get publishedStatus(): Locator {
+  public get publishedStatus(): Locator {
     return this.getByText("Published");
   }
 
   // Comments
-  get commentButton(): Locator {
+  public get commentButton(): Locator {
     return this.getByLabel("comment");
   }
-  commentsCountButton(count: number | string = 0): Locator {
+  public commentsCountButton(count: number | string = 0): Locator {
     return this.getByRole("button", { name: String(count) });
   }
 
   // Dynamic field input
-  fieldInput(fieldName: string): Locator {
+  public fieldInput(fieldName: string): Locator {
     return this.getByLabel(fieldName);
   }
 
   // Field description text
-  fieldDescriptionText(description: string): Locator {
+  public fieldDescriptionText(description: string): Locator {
     return this.getByText(description);
   }
 
   // Table cells
-  cellByText(text: string, exact = false): Locator {
+  public cellByText(text: string, exact = false): Locator {
     return this.getByRole("cell", { name: text, exact });
   }
-  get cellEditButton(): Locator {
+  public get cellEditButton(): Locator {
     return this.getByRole("cell").getByLabel("edit").locator("svg");
   }
-  cellEditButtonByIndex(index: number): Locator {
+  public cellEditButtonByIndex(index: number): Locator {
     return this.getByRole("cell").getByLabel("edit").locator("svg").nth(index);
   }
 
   // Link elements
-  linkByName(name: string): Locator {
+  public linkByName(name: string): Locator {
     return this.getByRole("link", { name });
   }
 
   // Tooltip interactions
-  get tooltipEditButton(): Locator {
-    return this.getByRole("tooltip", { name: "edit" }).locator("svg");
+  public get tooltipEditButton(): Locator {
+    return this.page.getByTestId(DATA_TEST_ID.Content__List__UrlEditButton);
   }
 
   // Table body element
-  get tableBodyElement(): Locator {
-    return this.locator(".ant-table-body");
+  public get tableBodyElement(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ContentTable__Wrapper).locator(".ant-table-body");
   }
 
   // Views management
-  get saveAsNewViewButton(): Locator {
+  public get saveAsNewViewButton(): Locator {
     return this.getByRole("button", { name: "Save as new view" });
   }
-  get viewNameInput(): Locator {
+  public get viewNameInput(): Locator {
     return this.getByLabel("View Name");
   }
-  get okButton(): Locator {
-    return this.getByRole("button", { name: "OK" });
-  }
-  get cancelButton(): Locator {
-    return this.getByRole("button", { name: "Cancel" });
-  }
-  get moreButton(): Locator {
+  public get moreButton(): Locator {
     return this.getByLabel("more").locator("svg");
   }
-  get renameViewButton(): Locator {
+  public get renameViewButton(): Locator {
     return this.getByText("Rename");
   }
-  get removeViewButton(): Locator {
+  public get removeViewButton(): Locator {
     return this.getByText("Remove View");
   }
-  get removeButton(): Locator {
+  public get removeButton(): Locator {
     return this.getByRole("button", { name: "Remove" });
   }
-  get updateViewButton(): Locator {
+  public get updateViewButton(): Locator {
     return this.getByText("Update View");
   }
 
   // Table sorting and filtering
-  textColumnHeader(): Locator {
+  public textColumnHeader(): Locator {
     return this.getByText("text", { exact: true });
   }
-  get columnHeaderText(): Locator {
+  private get columnHeaderText(): Locator {
     return this.getByRole("columnheader", { name: "text" });
   }
-  get sortUpIcon(): Locator {
+  public get sortUpIcon(): Locator {
     return this.columnHeaderText.locator("div").locator(".anticon-caret-up");
   }
-  get sortDownIcon(): Locator {
+  public get sortDownIcon(): Locator {
     return this.columnHeaderText.locator("div").locator(".anticon-caret-down");
   }
-  tableRow(index: number): Locator {
-    return this.locator(".ant-table-row").nth(index);
+  public tableRow(index: number): Locator {
+    return this.getByTestId(DATA_TEST_ID.ContentTable__Wrapper)
+      .locator("tbody tr:not([aria-hidden='true'])")
+      .nth(index);
   }
-  get statusColumnHeader(): Locator {
+  public get statusColumnHeader(): Locator {
     return this.getByRole("columnheader", { name: "Status" });
   }
 
   // Filtering
-  get addFilterButton(): Locator {
+  public get addFilterButton(): Locator {
     return this.getByRole("button", { name: "plus Filter" });
   }
-  filterMenuItem(fieldName: string): Locator {
+  public filterMenuItem(fieldName: string): Locator {
     return this.getByRole("menuitem", { name: fieldName });
   }
-  filterCloseButton(fieldName: string): Locator {
+  public filterCloseButton(fieldName: string): Locator {
     return this.getByRole("button", { name: `${fieldName} close` });
   }
-  get isDropdown(): Locator {
+  public get isDropdown(): Locator {
     return this.getByText("is", { exact: true }).first();
   }
-  get containsOption(): Locator {
+  public get containsOption(): Locator {
     return this.getByText("contains", { exact: true });
   }
-  get endWithOption(): Locator {
+  public get endWithOption(): Locator {
     return this.getByText("end with", { exact: true });
   }
-  get filterValueInput(): Locator {
+  public get filterValueInput(): Locator {
     return this.getByPlaceholder("Enter the value");
   }
-  get confirmButton(): Locator {
+  public get confirmButton(): Locator {
     return this.getByRole("button", { name: "Confirm" });
   }
 
   // Settings
-  get settingsButton(): Locator {
+  public get settingsButton(): Locator {
     return this.getByRole("main").getByLabel("setting").locator("svg");
   }
-  get statusCheckbox(): Locator {
+  public get statusCheckbox(): Locator {
     return this.locator(".ant-tree-checkbox").first();
   }
 
   // Tabs and views
-  tab(index: number): Locator {
+  public tab(index: number): Locator {
     return this.getByRole("tab").nth(index);
   }
-  viewTabWithMore(viewName: string): Locator {
+  public viewTabWithMore(viewName: string): Locator {
     return this.getByRole("tab", { name: `${viewName} more` });
   }
-  get tabList(): Locator {
+  private get tabList(): Locator {
     return this.getByRole("tablist");
   }
 
   // Dynamic methods
-  viewByName(viewName: string): Locator {
+  public viewByName(viewName: string): Locator {
     return this.getByText(viewName);
   }
 
   // Table headers and structure
-  get tableBodyRows(): Locator {
-    return this.locator("tbody > tr.ant-table-row");
-  }
-
-  // Root element reference
-  get rootElement(): Locator {
-    return this.locator("#root");
+  public get tableBodyRows(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ContentTable__Wrapper).locator("tbody tr:visible");
   }
 
   // Cell selection by text and exact matching
-  cellByTextExact(text: string): Locator {
+  public cellByTextExact(text: string): Locator {
     return this.getByRole("cell", { name: text, exact: true });
   }
 
-  cellSpanByText(text: string): Locator {
+  public cellSpanByText(text: string): Locator {
     return this.getByRole("cell", { name: text }).locator("span").first();
   }
 
   // Model navigation
-  modelLinkByText(modelName: string): Locator {
+  public modelLinkByText(modelName: string): Locator {
     return this.getByText(modelName);
   }
 
   // Group field related elements
-  get mainRole(): Locator {
+  public get mainRole(): Locator {
     return this.getByRole("main");
   }
 
-  get firstLabel(): Locator {
+  public get firstLabel(): Locator {
     return this.locator("label").first();
   }
 
-  get textBoxes(): Locator {
+  public get textBoxes(): Locator {
     return this.getByRole("textbox");
   }
 
-  get firstTextbox(): Locator {
+  public get firstTextbox(): Locator {
     return this.getByRole("textbox").first();
   }
 
-  get lastTextbox(): Locator {
+  public get lastTextbox(): Locator {
     return this.getByRole("textbox").last();
   }
 
-  textBoxByIndex(index: number): Locator {
+  public textBoxByIndex(index: number): Locator {
     return this.getByRole("textbox").nth(index);
   }
 
   // Filtered div locators for complex elements
-  divFilterByText(text: RegExp): Locator {
+  public divFilterByText(text: RegExp): Locator {
     return this.locator("div").filter({ hasText: text });
   }
 
   // Character count indicators
-  get characterCountText(): Locator {
+  public get characterCountText(): Locator {
     return this.getByText("/ 5");
   }
 
   // Option field specific
-  get closeCircleLabel(): Locator {
+  public get closeCircleLabel(): Locator {
     return this.getByLabel("close-circle");
   }
 
   // Dynamic option text methods
-  optionTextByName(optionName: string, exact = true): Locator {
+  public optionTextByName(optionName: string, exact = true): Locator {
     return this.getByText(optionName, { exact });
   }
 
   // Complex cell selection
-  cellByComplexName(name: string): Locator {
+  public cellByComplexName(name: string): Locator {
     return this.getByRole("cell", { name });
   }
 
   // Asset field specific
-  cssAssetByIndex(index: number): Locator {
-    return this.locator(".css-7g0azd").nth(index);
+  public cssAssetByIndex(index: number): Locator {
+    return this.getByTestId(DATA_TEST_ID.MultiValueAsset__ItemWrapper).nth(index);
   }
 
-  get tooltip(): Locator {
+  public get tooltip(): Locator {
     return this.getByRole("tooltip");
   }
 
-  get x2Button(): Locator {
+  public get x2Button(): Locator {
     return this.getByRole("button", { name: "x2" });
   }
 
   // Table row controls for assets
-  get antTableRowTd(): Locator {
-    return this.locator(".ant-table-row > td");
+  public get antTableRowTd(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ContentTable__Wrapper).locator("tbody td");
   }
 
   // Tag metadata specific
-  get itemInformationHeading(): Locator {
+  public get metadataTagSelect(): Locator {
+    return this.getByTestId(DATA_TEST_ID.MetadataField__TagSelect);
+  }
+
+  public get itemInformationHeading(): Locator {
     return this.getByRole("heading", { name: "Item Information" });
   }
 
-  get tabPanel(): Locator {
+  public get tabPanel(): Locator {
     return this.getByRole("tabpanel");
   }
 
   // Column header with edit functionality
-  columnHeaderWithEdit(fieldName: string): Locator {
+  public columnHeaderWithEdit(fieldName: string): Locator {
     return this.getByRole("columnheader", { name: `${fieldName} edit` });
   }
 
   // Cell by tag name with multiple values
-  cellByTagNames(tagNames: string): Locator {
+  public cellByTagNames(tagNames: string): Locator {
     return this.getByRole("cell", { name: tagNames });
   }
 
-  // Text metadata specific
-  get antTableBody(): Locator {
-    return this.locator(".ant-table-body");
-  }
-
-  get tooltipTextboxes(): Locator {
+  public get tooltipTextboxes(): Locator {
     return this.getByRole("tooltip").getByRole("textbox");
   }
 
-  tooltipTextByName(text: string): Locator {
+  public tooltipTextByName(text: string): Locator {
     return this.getByRole("tooltip").getByText(text);
   }
 
-  get x3Button(): Locator {
+  public get x3Button(): Locator {
     return this.getByRole("button", { name: "x3" });
   }
 
   // Back button variations
-  get backButtonRole(): Locator {
+  public get backButtonRole(): Locator {
     return this.getByRole("button", { name: "Back" });
   }
-  get backButtonLabel(): Locator {
+  public get backButtonLabel(): Locator {
     return this.getByLabel("Back");
   }
 
   // Boolean/Switch field specific
-  switchByIndex(index: number): Locator {
+  public switchByIndex(index: number): Locator {
     return this.getByRole("switch").nth(index);
   }
 
-  get allSwitches(): Locator {
+  public get allSwitches(): Locator {
     return this.getByRole("switch");
   }
 
   // Switch states
-  get checkSwitch(): Locator {
+  public get checkSwitch(): Locator {
     return this.getByRole("switch", { name: "check" });
   }
 
-  get closeSwitch(): Locator {
+  public get closeSwitch(): Locator {
     return this.getByRole("switch", { name: "close" });
   }
 
   // Tooltip switch elements
-  tooltipSwitchByIndex(index: number): Locator {
+  public tooltipSwitchByIndex(index: number): Locator {
     return this.getByRole("tooltip").getByRole("switch").nth(index);
   }
 
   // Checkbox field specific
-  checkboxByIndex(index: number): Locator {
+  public checkboxByIndex(index: number): Locator {
     return this.getByRole("checkbox").nth(index);
   }
 
   // Cell checkbox elements
-  get lastCellCheckbox(): Locator {
+  public get lastCellCheckbox(): Locator {
     return this.getByRole("cell").getByRole("checkbox").last();
   }
 
   // Tooltip checkbox elements
-  tooltipCheckboxByIndex(index: number): Locator {
+  public tooltipCheckboxByIndex(index: number): Locator {
     return this.getByRole("tooltip").getByRole("checkbox").nth(index);
   }
 
   // Table column selection
-  tableColumnButton(childIndex: number): Locator {
-    return this.locator(`.ant-table-row > td:nth-child(${childIndex})`).getByRole("button");
+  public tableColumnButton(childIndex: number): Locator {
+    return this.getByTestId(DATA_TEST_ID.ContentTable__Wrapper)
+      .locator(`tbody td:nth-child(${childIndex})`)
+      .getByRole("button");
   }
 
   // Multi-value text containers
-  get firstTextContainer(): Locator {
-    return this.locator("div:nth-child(1) > .css-1ago99h");
+  public get firstTextContainer(): Locator {
+    return this.getByTestId(DATA_TEST_ID.MultiValueField__ItemWrapper).first();
   }
 
-  get secondTextContainer(): Locator {
-    return this.locator("div:nth-child(2) > .css-1ago99h");
+  public get secondTextContainer(): Locator {
+    return this.getByTestId(DATA_TEST_ID.MultiValueField__ItemWrapper).nth(1);
   }
 
   // Required field validation
-  get pleaseInputFieldText(): Locator {
+  public get pleaseInputFieldText(): Locator {
     return this.getByText("Please input field!");
   }
 
   // Cell selection with nth
-  cellByIndex(index: number): Locator {
+  public cellByIndex(index: number): Locator {
     return this.getByRole("cell", { name: "edit" }).nth(index);
   }
 
   // Navigation helpers
-  get contentTextFirst(): Locator {
+  public get contentTextFirst(): Locator {
     return this.getByText("Content").first();
   }
 
   // Title helpers
-  titleByText(title: string, exact = false): Locator {
+  public titleByText(title: string, exact = false): Locator {
     return this.getByTitle(title, { exact });
   }
 
   // Spinbutton elements (for numeric fields)
-  spinbuttonByIndex(index: number): Locator {
+  public spinButtonByIndex(index: number): Locator {
     return this.getByRole("spinbutton").nth(index);
   }
 
   // Table elements
-  get tableBody(): Locator {
+  public get tableBody(): Locator {
     return this.locator("tbody");
   }
 
-  get tableHead(): Locator {
+  public get tableHead(): Locator {
     return this.locator("thead");
   }
 
   // Close circle button for clearing values
-  get closeDateButton(): Locator {
+  public get closeDateButton(): Locator {
     return this.getByRole("button", { name: "close-circle" });
   }
 
   // Date placeholder
-  get selectDatePlaceholder(): Locator {
+  public get selectDatePlaceholder(): Locator {
     return this.getByPlaceholder("Select date");
   }
 
   // Label elements
-  labelElement(): Locator {
+  public labelElement(): Locator {
     return this.locator("label");
   }
 
   // Main element
-  get mainElement(): Locator {
+  public get mainElement(): Locator {
     return this.getByRole("main");
   }
 
   // Tooltip paragraph elements
-  get tooltipParagraphs(): Locator {
+  public get tooltipParagraphs(): Locator {
     return this.getByRole("tooltip").locator("p");
   }
 
-  tooltipParagraphByIndex(index: number): Locator {
+  public tooltipParagraphByIndex(index: number): Locator {
     return this.getByRole("tooltip").locator("p").nth(index);
   }
 
   // Geometry field specific elements
-  get viewLinesEditor(): Locator {
-    return this.locator(".view-lines");
+  public get viewLinesEditor(): Locator {
+    return this.getByTestId(DATA_TEST_ID.GeometryItem__EditorWrapper).locator(".view-lines");
   }
 
-  get editorContent(): Locator {
+  public get editorContent(): Locator {
     return this.getByLabel("Editor content;Press Alt+F1");
   }
 
-  // Table column selection
-  nthTableColumnButton(index: number): Locator {
-    return this.locator(`.ant-table-row > td:nth-child(${index})`).getByRole("button");
-  }
-
-  // Ant row button by index
-  antRowButton(index: number): Locator {
-    return this.locator(".ant-row").getByRole("button").nth(index);
+  // Geometry delete button
+  public get geometryDeleteButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.GeometryItem__DeleteButton);
   }
 
   // Unique field label
-  uniqueFieldLabel(fieldName: string): Locator {
+  public uniqueFieldLabel(fieldName: string): Locator {
     return this.getByText(`${fieldName}(unique)`);
   }
 
   // Version history elements
-  get versionHistoryTab(): Locator {
+  public get versionHistoryTab(): Locator {
     return this.getByRole("tab", { name: "Version History" });
   }
 
-  get requestStatusElement(): Locator {
+  public get requestStatusElement(): Locator {
     return this.getByTestId(DATA_TEST_ID.Versions__RequestStatus).locator("span");
   }
 
-  get currentVersionText(): Locator {
+  public get currentVersionText(): Locator {
     return this.getByText("current");
   }
 
-  get currentVersionTextExact(): Locator {
+  public get currentVersionTextExact(): Locator {
     return this.getByText("current", { exact: true });
   }
 
   // Request elements
-  requestLink(title: string): Locator {
+  public requestLink(title: string): Locator {
     return this.getByRole("link", { name: `pull-request ${title}` });
   }
 
-  get approveButton(): Locator {
+  public get approveButton(): Locator {
     return this.getByRole("button", { name: "Approve" });
   }
 
   // Back button for version details
-  get backButtonLast(): Locator {
+  public get backButtonLast(): Locator {
     return this.getByRole("button", { name: "back" }).last();
   }
 
   // Restore button
-  get restoreButton(): Locator {
+  public get restoreButton(): Locator {
     return this.getByRole("button", { name: "Restore" });
   }
 
-  get restoreButtonMain(): Locator {
+  public get restoreButtonMain(): Locator {
     return this.getByRole("main").getByRole("button", { name: "Restore" });
   }
 
-  get restoreButtonAlert(): Locator {
+  public get restoreButtonAlert(): Locator {
     return this.getByRole("alert").getByRole("button", { name: "Restore" });
   }
 
-  get restoreButtonAlertFirst(): Locator {
+  public get restoreButtonAlertFirst(): Locator {
     return this.getByRole("alert").getByRole("button", { name: "Restore" }).first();
   }
 
   // Dynamic text matching with regex
-  textByRegex(regex: RegExp): Locator {
+  public textByRegex(regex: RegExp): Locator {
     return this.getByText(regex);
   }
 
   // Tooltip with specific name
-  tooltipByName(name: string): Locator {
+  public tooltipByName(name: string): Locator {
     return this.getByRole("tooltip", { name });
   }
 
   // Item ID button
-  itemIdButton(itemId: string): Locator {
+  public itemIdButton(itemId: string): Locator {
     return this.getByRole("button", { name: itemId, exact: true });
+  }
+
+  // ========== Action Method Locators (private) ==========
+
+  private get newRequestMenuItem(): Locator {
+    return this.getByRole("menuitem", { name: "New Request" });
+  }
+  private get requestTitleInput(): Locator {
+    return this.getByLabel("Title").last();
+  }
+  private get requestDescriptionInput(): Locator {
+    return this.getByLabel("Description");
+  }
+  private get commentContentInput(): Locator {
+    return this.page.locator("#content");
+  }
+  private get commentSubmitButton(): Locator {
+    return this.getByRole("button", { name: "Comment" });
+  }
+  private get commentEditButton(): Locator {
+    return this.getByRole("main").getByRole("complementary").getByLabel("edit").locator("svg");
+  }
+  private get commentSaveCheckButton(): Locator {
+    return this.getByLabel("check").locator("svg").first();
+  }
+  private get commentDeleteButton(): Locator {
+    return this.getByLabel("delete").locator("svg");
+  }
+  private commentTextarea(text: string): Locator {
+    return this.page.locator("textarea").filter({ hasText: text });
   }
 
   // ========== Action Methods (POM Pattern) ==========
 
-  async createItem(): Promise<void> {
-    await this.getByText("Content").click();
-    await this.getByRole("button", { name: "plus New Item" }).click();
-    await this.getByRole("button", { name: "Save" }).click();
+  public async createItem(): Promise<void> {
+    this.assertProjectContext();
+    await this.contentText.click();
+    await this.newItemButton.click();
+    await this.saveButton.click();
     await this.closeNotification();
   }
 
-  async createRequest(title: string): Promise<void> {
-    await this.getByRole("button", { name: "ellipsis" }).click();
-    await this.getByRole("menuitem", { name: "New Request" }).click();
-    await this.getByLabel("Title").last().click();
-    await this.getByLabel("Title").last().fill(title);
-    await this.page.click(".ant-select-selector");
-    const firstItem = this.page.locator(".ant-select-item").first();
-    await firstItem.click();
-    await this.getByLabel("Description").click();
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
-  }
-
-  async createComment(content: string): Promise<void> {
-    await this.page.locator("#content").click();
-    await this.page.locator("#content").fill(content);
-    await this.getByRole("button", { name: "Comment" }).click();
-    await this.closeNotification();
-  }
-
-  async updateComment(oldText: string, newText: string): Promise<void> {
-    await this.getByRole("main")
-      .getByRole("complementary")
-      .getByLabel("edit")
-      .locator("svg")
+  public async createRequest(title: string): Promise<void> {
+    this.assertProjectContext();
+    await this.ellipsisMenuButton.click();
+    await this.newRequestMenuItem.click();
+    await this.requestTitleInput.click();
+    await this.requestTitleInput.fill(title);
+    await this.getByTestId(DATA_TEST_ID.RequestCreationModal__ReviewerSelect)
+      .locator("input")
       .click();
-    await this.page.locator("textarea").filter({ hasText: oldText }).click();
-    await this.page.locator("textarea").filter({ hasText: oldText }).fill(newText);
-    await this.getByLabel("check").locator("svg").first().click();
+    await this.keypress("Enter");
+    await this.requestDescriptionInput.click();
+    await this.okButton.click();
     await this.closeNotification();
   }
 
-  async deleteComment(): Promise<void> {
-    await this.getByLabel("delete").locator("svg").click();
+  public async createComment(content: string): Promise<void> {
+    this.assertProjectContext();
+    await this.commentContentInput.click();
+    await this.commentContentInput.fill(content);
+    await this.commentSubmitButton.click();
     await this.closeNotification();
   }
 
-  viewTabMoreIcon(viewName: string): Locator {
+  public async updateComment(oldText: string, newText: string): Promise<void> {
+    this.assertProjectContext();
+    await this.commentEditButton.click();
+    await this.commentTextarea(oldText).click();
+    await this.commentTextarea(oldText).fill(newText);
+    await this.commentSaveCheckButton.click();
+    await this.closeNotification();
+  }
+
+  public async deleteComment(): Promise<void> {
+    this.assertProjectContext();
+    await this.commentDeleteButton.click();
+    await this.closeNotification();
+  }
+
+  public viewTabMoreIcon(viewName: string): Locator {
     return this.viewTabWithMore(viewName).locator("svg");
   }
 
-  viewTab(index: number): Locator {
+  public viewTab(index: number): Locator {
     return this.tabList.getByRole("tab").nth(index);
   }
 
-  x2ButtonByIndex(index: number): Locator {
+  public x2ButtonByIndex(index: number): Locator {
     return this.getByRole("button", { name: "x2" }).nth(index);
   }
 
-  tabPanelTextByName(text: string): Locator {
+  public tabPanelTextByName(text: string): Locator {
     return this.tabPanel.getByText(text);
   }
 
-  cellDivByText(text: string, index: number): Locator {
+  public cellDivByText(text: string, index: number): Locator {
     return this.cellByText(text).locator("div").nth(index);
   }
 
-  get closeCircleLabelSvg(): Locator {
+  public get closeCircleLabelSvg(): Locator {
     return this.closeCircleLabel.locator("svg");
   }
 
-  async createView(viewName: string): Promise<void> {
+  public async createView(viewName: string): Promise<void> {
+    this.assertProjectContext();
     await this.saveAsNewViewButton.click();
     await this.viewNameInput.fill(viewName);
     await this.okButton.click();
     await this.closeNotification();
   }
 
-  async renameView(newName: string): Promise<void> {
+  public async renameView(newName: string): Promise<void> {
+    this.assertProjectContext();
     await this.moreButton.click();
     await this.renameViewButton.click();
     await this.viewNameInput.fill(newName);
@@ -631,39 +637,45 @@ export class ContentPage extends BasePage {
     await this.closeNotification();
   }
 
-  async deleteView(): Promise<void> {
+  public async deleteView(): Promise<void> {
+    this.assertProjectContext();
     await this.moreButton.click();
     await this.removeViewButton.click();
     await this.removeButton.click();
     await this.closeNotification();
   }
 
-  async searchFor(searchTerm: string): Promise<void> {
+  public async searchFor(searchTerm: string): Promise<void> {
+    this.assertProjectContext();
     await this.searchInput.fill(searchTerm);
     await this.searchButton.click();
   }
 
-  async clearSearch(): Promise<void> {
+  public async clearSearch(): Promise<void> {
+    this.assertProjectContext();
     await this.searchInput.fill("");
     await this.searchButton.click();
   }
 
-  async publishItem(): Promise<void> {
+  public async publishItem(): Promise<void> {
+    this.assertProjectContext();
     await this.publishButton.click();
     await this.closeNotification();
   }
 
-  async unpublishItem(): Promise<void> {
+  public async unpublishItem(): Promise<void> {
+    this.assertProjectContext();
     await this.ellipsisMenuButton.click();
     await this.unpublishButton.click();
     await this.closeNotification();
   }
 
-  async addFilter(
+  public async addFilter(
     fieldName: string,
     operator: "is" | "contains" | "end with",
     value: string,
   ): Promise<void> {
+    this.assertProjectContext();
     await this.addFilterButton.click();
     await this.filterMenuItem(fieldName).click();
 
@@ -680,15 +692,17 @@ export class ContentPage extends BasePage {
     await this.confirmButton.click();
   }
 
-  async removeFilter(fieldName: string): Promise<void> {
+  public async removeFilter(fieldName: string): Promise<void> {
+    this.assertProjectContext();
     await this.filterCloseButton(fieldName).click();
   }
 
-  async createItemWithField(
+  public async createItemWithField(
     fieldName: string,
     fieldValue: string,
     navigateBack = true,
   ): Promise<void> {
+    this.assertProjectContext();
     await this.newItemButton.click();
     await this.fieldInput(fieldName).fill(fieldValue);
     await this.saveButton.click();
@@ -698,85 +712,83 @@ export class ContentPage extends BasePage {
     }
   }
 
-  getCurrentItemId(): string {
-    const url = this.page.url();
-    return url.split("/").at(-1) as string;
-  }
-
   // ========== Import Content Locators ==========
 
-  get importContentButton(): Locator {
+  private get importContentButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.Content__List__ImportContentButton);
   }
 
-  get importContentModal(): Locator {
+  public get importContentModal(): Locator {
     return this.getByRole("dialog").filter({ hasText: "Import content" });
   }
 
-  get importContentFileInput(): Locator {
+  private get importContentFileInput(): Locator {
     return this.getByTestId(DATA_TEST_ID.ContentImportModal__FileSelect);
   }
 
-  get importContentDragger(): Locator {
-    return this.locator(".ant-upload-drag");
+  public get importContentDragger(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ContentImportModal__Dragger);
   }
 
-  get importContentLoadingWrapper(): Locator {
+  public get importContentLoadingWrapper(): Locator {
     return this.getByTestId(DATA_TEST_ID.ContentImportModal__LoadingWrapper);
   }
 
-  get importContentErrorWrapper(): Locator {
+  public get importContentErrorWrapper(): Locator {
     return this.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorWrapper);
   }
 
-  get importContentErrorTitle(): Locator {
+  public get importContentErrorTitle(): Locator {
     return this.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorTitle);
   }
 
-  get importContentErrorDescription(): Locator {
+  public get importContentErrorDescription(): Locator {
     return this.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorDescription);
   }
 
-  get importContentErrorHint(): Locator {
+  public get importContentErrorHint(): Locator {
     return this.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorHint);
   }
 
-  get importContentGoBackButton(): Locator {
+  public get importContentGoBackButton(): Locator {
     return this.getByRole("button", { name: "Go Back" });
   }
 
-  get importContentImportAnywayButton(): Locator {
+  public get importContentImportAnywayButton(): Locator {
     return this.getByRole("button", { name: "Import Anyway" });
   }
 
-  get uploadSuccessNotification(): Locator {
+  public get uploadSuccessNotification(): Locator {
     return this.getByText("Successfully created upload job!");
   }
 
-  get tableReloadIcon(): Locator {
+  public get tableReloadIcon(): Locator {
     return this.getByLabel("reload");
   }
 
-  get tableContentFieldPopoverIcon(): Locator {
+  public get tableContentFieldPopoverIcon(): Locator {
     return this.getByTestId(DATA_TEST_ID.Content__List__ItemFieldPopoverIcon);
   }
 
-  get tableContentFieldPopoverContent(): Locator {
+  public get tableContentFieldPopoverContent(): Locator {
     return this.getByTestId(DATA_TEST_ID.Content__List__ItemFieldPopoverContent);
   }
 
   // ========== Import Content Actions ==========
 
-  async openImportContentModal(): Promise<void> {
+  public async openImportContentModal(): Promise<void> {
+    this.assertProjectContext();
     await this.importContentButton.click();
     await this.importContentModal.waitFor({ state: "visible" });
   }
 
-  async uploadImportFile(filePath: string): Promise<void> {
+  public async uploadImportFile(filePath: string): Promise<void> {
+    this.assertProjectContext();
     await this.importContentFileInput.setInputFiles(filePath);
   }
 
-  async closeImportContentModal(): Promise<void> {
+  public async closeImportContentModal(): Promise<void> {
+    this.assertProjectContext();
     await this.importContentModal.getByLabel("Close").click();
   }
 }

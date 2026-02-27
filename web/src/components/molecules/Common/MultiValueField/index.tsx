@@ -8,6 +8,7 @@ import { InputProps } from "@reearth-cms/components/atoms/Input";
 import { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
 import { checkIfEmpty } from "@reearth-cms/components/molecules/Content/Form/fields/utils";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { moveItemInArray } from "./moveItemArray";
 
@@ -66,12 +67,13 @@ const MultiValueField: React.FC<Props> = ({
     <div>
       {Array.isArray(value) &&
         value?.map((valueItem, key) => (
-          <FieldWrapper key={key}>
+          <FieldWrapper key={key} data-testid={DATA_TEST_ID.MultiValueField__ItemWrapper}>
             {!props.disabled && (
               <>
                 <FieldButton
                   color="default"
                   variant="link"
+                  data-testid={DATA_TEST_ID.MultiValueField__ArrowUpButton}
                   icon={<Icon icon="arrowUp" size={16} />}
                   onClick={() => {
                     onChange?.(moveItemInArray(value, key, key - 1));
@@ -82,6 +84,7 @@ const MultiValueField: React.FC<Props> = ({
                 <FieldButton
                   color="default"
                   variant="link"
+                  data-testid={DATA_TEST_ID.MultiValueField__ArrowDownButton}
                   icon={<Icon icon="arrowDown" size={16} />}
                   onClick={() => {
                     onChange?.(moveItemInArray(value, key, key + 1));
@@ -103,6 +106,7 @@ const MultiValueField: React.FC<Props> = ({
               <FieldButton
                 color="default"
                 variant="link"
+                data-testid={DATA_TEST_ID.MultiValueField__DeleteButton}
                 icon={<Icon icon="delete" size={16} />}
                 onClick={() => {
                   handleInputDelete(key);
@@ -116,6 +120,7 @@ const MultiValueField: React.FC<Props> = ({
         <Button
           icon={<Icon icon="plus" />}
           type="primary"
+          data-testid={DATA_TEST_ID.FieldModal__PlusNewButton}
           onClick={() => {
             const currentValues = value || [];
             const defaultValue = "";

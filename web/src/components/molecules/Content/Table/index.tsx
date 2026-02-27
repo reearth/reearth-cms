@@ -45,6 +45,7 @@ import {
 } from "@reearth-cms/components/molecules/View/types";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { ImportContentUtils } from "@reearth-cms/utils/importContent";
 
@@ -796,65 +797,67 @@ const ContentTable: React.FC<Props> = ({
   return (
     <>
       {contentTableColumns ? (
-        <ResizableProTable
-          showSorterTooltip={false}
-          options={options}
-          loading={loading}
-          pagination={pagination}
-          toolbar={handleToolbarEvents}
-          toolBarRender={toolBarRender}
-          dataSource={contentTableFields}
-          tableAlertOptionRender={alertOptions}
-          rowSelection={rowSelection}
-          columns={tableColumns}
-          columnsState={{
-            value: settingOptions,
-            onChange: setSettingOptions,
-          }}
-          onChange={(pagination, _, sorter) => {
-            onContentTableChange(
-              pagination.current ?? 1,
-              pagination.pageSize ?? 10,
-              Array.isArray(sorter)
-                ? undefined
-                : sorter.order &&
-                    sorter.column &&
-                    "fieldType" in sorter.column &&
-                    typeof sorter.columnKey === "string"
-                  ? {
-                      field: {
-                        id:
-                          sorter.column.fieldType === "FIELD" ||
-                          sorter.column.fieldType === "META_FIELD"
-                            ? sorter.columnKey
-                            : undefined,
-                        type: sorter.column.fieldType as FieldType,
-                      },
-                      direction: sorter.order === "ascend" ? "ASC" : "DESC",
-                    }
-                  : undefined,
-            );
-          }}
-          heightOffset={102}
-          locale={{
-            emptyText: (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("No Content Data")}>
-                {!getImportContentUIMetadata.shouldDisable && (
-                  <Trans
-                    i18nKey="Please add some items manually or import from JSON/GeoJSON/CSV"
-                    components={{
-                      l: (
-                        <ImportButton type="link" onClick={onImportModalOpen}>
-                          import
-                        </ImportButton>
-                      ),
-                    }}
-                  />
-                )}
-              </Empty>
-            ),
-          }}
-        />
+        <div data-testid={DATA_TEST_ID.ContentTable__Wrapper}>
+          <ResizableProTable
+            showSorterTooltip={false}
+            options={options}
+            loading={loading}
+            pagination={pagination}
+            toolbar={handleToolbarEvents}
+            toolBarRender={toolBarRender}
+            dataSource={contentTableFields}
+            tableAlertOptionRender={alertOptions}
+            rowSelection={rowSelection}
+            columns={tableColumns}
+            columnsState={{
+              value: settingOptions,
+              onChange: setSettingOptions,
+            }}
+            onChange={(pagination, _, sorter) => {
+              onContentTableChange(
+                pagination.current ?? 1,
+                pagination.pageSize ?? 10,
+                Array.isArray(sorter)
+                  ? undefined
+                  : sorter.order &&
+                      sorter.column &&
+                      "fieldType" in sorter.column &&
+                      typeof sorter.columnKey === "string"
+                    ? {
+                        field: {
+                          id:
+                            sorter.column.fieldType === "FIELD" ||
+                            sorter.column.fieldType === "META_FIELD"
+                              ? sorter.columnKey
+                              : undefined,
+                          type: sorter.column.fieldType as FieldType,
+                        },
+                        direction: sorter.order === "ascend" ? "ASC" : "DESC",
+                      }
+                    : undefined,
+              );
+            }}
+            heightOffset={102}
+            locale={{
+              emptyText: (
+                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("No Content Data")}>
+                  {!getImportContentUIMetadata.shouldDisable && (
+                    <Trans
+                      i18nKey="Please add some items manually or import from JSON/GeoJSON/CSV"
+                      components={{
+                        l: (
+                          <ImportButton type="link" onClick={onImportModalOpen}>
+                            import
+                          </ImportButton>
+                        ),
+                      }}
+                    />
+                  )}
+                </Empty>
+              ),
+            }}
+          />
+        </div>
       ) : null}
       <LinkItemRequestModal
         items={selectedItems.selectedRows}

@@ -6,6 +6,7 @@ import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT, Trans } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { SortBy, UpdateProjectInput } from "../Workspace/types";
 
@@ -60,6 +61,7 @@ const ProjectOverview: React.FC<Props> = ({
       title={t("Models")}
       extra={
         <Button
+          data-testid={DATA_TEST_ID.ProjectOverview__NewModelButton}
           type="primary"
           icon={<Icon icon="plus" />}
           onClick={onModelModalOpen}
@@ -97,6 +99,7 @@ const ProjectOverview: React.FC<Props> = ({
               <Actions>
                 {t("Create a new model")}
                 <Button
+                  data-testid={DATA_TEST_ID.ProjectOverview__NewModelPlaceholderButton}
                   type="primary"
                   icon={<Icon icon="plus" />}
                   onClick={onModelModalOpen}

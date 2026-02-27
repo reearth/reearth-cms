@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 
-import { FeatureCollection } from "geojson";
+import { FeatureCollection, GeoJSON } from "geojson";
 import { describe, expect, test } from "vitest";
 
 import {
@@ -497,8 +497,7 @@ describe("Content import test", () => {
         });
       });
 
-      // FIXME: handle common error with select out of range
-      describe.skip("[Fail case] Select field key mismatch", () => {
+      describe("[Fail case] Select field key mismatch", () => {
         const COMMON_SETUP = {
           key: "correct-key",
           wrongKey: "wrong-key",
@@ -912,67 +911,6 @@ describe("Content import test", () => {
               required: setup.required,
               multiple: setup.multiple,
               typeProperty: {},
-            },
-          ];
-
-          const contentList = [
-            {
-              [setup.key]: setup.wrongValue,
-            },
-          ];
-
-          const contentValidation = await ImportContentUtils.validateContent(
-            contentList,
-            fields,
-            "JSON",
-            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
-          );
-          expect(contentValidation.isValid).toBe(expectedResult.isValid);
-
-          if (contentValidation.isValid) return;
-
-          const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
-            contentValidation.error;
-
-          expect(exceedLimit).toBe(expectedResult.exceedLimit);
-          expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
-          expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
-        });
-      });
-
-      // FIXME: fix common error with field key mismatch
-      describe.skip("[Fail case] Select field value type mismatch", () => {
-        const COMMON_SETUP = {
-          key: "field-key",
-          required: true,
-          multiple: false,
-          type: SchemaFieldType.Select,
-          typeProperty: {
-            values: ["red", "green", "blue"],
-          },
-        };
-
-        const EXPECTED_RESULT = {
-          exceedLimit: false,
-          typeMismatchFieldKeysCount: 1,
-          outOfRangeFieldKeysCount: 0,
-          isValid: false,
-        };
-
-        test.each([
-          {
-            setup: { ...COMMON_SETUP, wrongValue: "yellow" },
-            expectedResult: EXPECTED_RESULT,
-          },
-        ])("$setup.type field value type mismatch", async ({ setup, expectedResult }) => {
-          const fields = [
-            {
-              ...DEFAULT_COMMON_FIELD,
-              type: setup.type,
-              key: setup.key,
-              required: setup.required,
-              multiple: false,
-              typeProperty: setup.typeProperty,
             },
           ];
 
@@ -1737,7 +1675,7 @@ describe("Content import test", () => {
 
           const contentList = [
             {
-              [setup.key]: setup.typeProperty.defaultValue,
+              [setup.key]: [setup.typeProperty.defaultValue],
             },
           ];
 
@@ -1776,7 +1714,7 @@ describe("Content import test", () => {
 
           const contentList = [
             {
-              [setup.key]: setup.typeProperty.defaultValue,
+              [setup.key]: [setup.typeProperty.defaultValue],
             },
           ];
 
@@ -1921,8 +1859,7 @@ describe("Content import test", () => {
         });
       });
 
-      // FIXME: fix type error for type mismatch
-      describe.skip("[Fail case] Select field with default values type mismatch", () => {
+      describe("[Fail case] Select field with default values type mismatch", () => {
         const COMMON_SETUP = {
           key: "field-key",
           required: true,
@@ -1983,8 +1920,7 @@ describe("Content import test", () => {
         });
       });
 
-      // FIXME: fix type error for type mismatch
-      describe.skip("[Fail case] GeoObject field with default values type mismatch", () => {
+      describe("[Fail case] GeoObject field with default values type mismatch", () => {
         const COMMON_SETUP = {
           key: "field-key",
           required: true,
@@ -2045,7 +1981,7 @@ describe("Content import test", () => {
         });
       });
 
-      describe.skip("[Fail case] GeoEditor field with default values type mismatch", () => {
+      describe("[Fail case] GeoEditor field with default values type mismatch", () => {
         const COMMON_SETUP = {
           ...DEFAULT_COMMON_FIELD,
           key: "field-key",
@@ -3081,6 +3017,790 @@ describe("Content import test", () => {
         );
       });
     });
+
+    describe("GeometryObject supportedTypes validation", () => {
+      describe("[Pass case] Each geometry type matches its supportedType", () => {
+        test.each([
+          {
+            label: "POINT",
+            supportedTypes: ["POINT"] as ObjectSupportedType[],
+            value: Test.GEO_JSON_POINT,
+          },
+          {
+            label: "MULTIPOINT",
+            supportedTypes: ["MULTIPOINT"] as ObjectSupportedType[],
+            value: Test.GEO_JSON_MULTI_POINT,
+          },
+          {
+            label: "LINESTRING",
+            supportedTypes: ["LINESTRING"] as ObjectSupportedType[],
+            value: Test.GEO_JSON_LINE_STRING,
+          },
+          {
+            label: "MULTILINESTRING",
+            supportedTypes: ["MULTILINESTRING"] as ObjectSupportedType[],
+            value: Test.GEO_JSON_MULTI_LINE_STRING,
+          },
+          {
+            label: "POLYGON",
+            supportedTypes: ["POLYGON"] as ObjectSupportedType[],
+            value: Test.GEO_JSON_POLYGON,
+          },
+          {
+            label: "MULTIPOLYGON",
+            supportedTypes: ["MULTIPOLYGON"] as ObjectSupportedType[],
+            value: Test.GEO_JSON_MULTI_POLYGON,
+          },
+        ])("$label value passes with matching supportedType", async ({ supportedTypes, value }) => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: SchemaFieldType.GeometryObject,
+              key: "geo-key",
+              required: true,
+              multiple: false,
+              typeProperty: { objectSupportedTypes: supportedTypes },
+            },
+          ];
+          const contentList = [{ "geo-key": value }];
+          const result = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(result.isValid).toBe(true);
+        });
+      });
+
+      describe("[Fail case] supportedTypes mismatch and invalid", () => {
+        test("value type not in supportedTypes", async () => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: SchemaFieldType.GeometryObject,
+              key: "geo-key",
+              required: true,
+              multiple: false,
+              typeProperty: { objectSupportedTypes: ["POLYGON"] as ObjectSupportedType[] },
+            },
+          ];
+          const contentList = [{ "geo-key": Test.GEO_JSON_POINT }];
+          const result = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(result.isValid).toBe(false);
+          if (!result.isValid) {
+            expect(result.error.outOfRangeFieldKeys.size).toEqual(1);
+          }
+        });
+
+        test("invalid supportedTypes triggers typeMismatch", async () => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: SchemaFieldType.GeometryObject,
+              key: "geo-key",
+              required: true,
+              multiple: false,
+              typeProperty: {
+                objectSupportedTypes: ["INVALID"] as unknown as ObjectSupportedType[],
+              },
+            },
+          ];
+          const contentList = [{ "geo-key": Test.GEO_JSON_POINT }];
+          const result = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(result.isValid).toBe(false);
+          if (!result.isValid) {
+            expect(result.error.typeMismatchFieldKeys.size).toEqual(1);
+          }
+        });
+
+        test("multiple supportedTypes, value not matching any", async () => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: SchemaFieldType.GeometryObject,
+              key: "geo-key",
+              required: true,
+              multiple: false,
+              typeProperty: {
+                objectSupportedTypes: ["POLYGON", "MULTIPOLYGON"] as ObjectSupportedType[],
+              },
+            },
+          ];
+          const contentList = [{ "geo-key": Test.GEO_JSON_POINT }];
+          const result = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(result.isValid).toBe(false);
+          if (!result.isValid) {
+            expect(result.error.outOfRangeFieldKeys.size).toEqual(1);
+          }
+        });
+      });
+
+      describe("[Skip case] CSV and GEOJSON formats skip GeometryObject validation", () => {
+        test("CSV format skips GeometryObject validation", async () => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: SchemaFieldType.GeometryObject,
+              key: "geo-key",
+              required: true,
+              multiple: false,
+              typeProperty: { objectSupportedTypes: ["POINT"] as ObjectSupportedType[] },
+            },
+          ];
+          const contentList = [{ "geo-key": "not-a-geojson" }];
+          const result = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "CSV",
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(result.isValid).toBe(true);
+        });
+
+        test("GEOJSON format skips GeometryObject validation", async () => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: SchemaFieldType.GeometryObject,
+              key: "geo-key",
+              required: true,
+              multiple: false,
+              typeProperty: { objectSupportedTypes: ["POINT"] as ObjectSupportedType[] },
+            },
+          ];
+          const contentList = [{ "geo-key": "not-a-geojson" }];
+          const result = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "GEOJSON",
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(result.isValid).toBe(true);
+        });
+      });
+    });
+
+    describe("GeometryEditor editorSupportedTypes validation", () => {
+      describe("[Pass case] Geometry types match editorSupportedTypes", () => {
+        test.each([
+          {
+            label: "LINESTRING",
+            editorSupportedTypes: ["LINESTRING"] as EditorSupportedType[],
+            value: Test.GEO_JSON_LINE_STRING,
+          },
+          {
+            label: "POLYGON",
+            editorSupportedTypes: ["POLYGON"] as EditorSupportedType[],
+            value: Test.GEO_JSON_POLYGON,
+          },
+          {
+            label: "multiple types (POINT + LINESTRING)",
+            editorSupportedTypes: ["POINT", "LINESTRING"] as EditorSupportedType[],
+            value: Test.GEO_JSON_POINT,
+          },
+        ])(
+          "$label passes with matching editorSupportedType",
+          async ({ editorSupportedTypes, value }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: SchemaFieldType.GeometryEditor,
+                key: "geo-key",
+                required: true,
+                multiple: false,
+                typeProperty: { editorSupportedTypes },
+              },
+            ];
+            const contentList = [{ "geo-key": value }];
+            const result = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+            expect(result.isValid).toBe(true);
+          },
+        );
+      });
+
+      describe("[Fail case] editorSupportedTypes mismatch and invalid", () => {
+        test("value not in editorSupportedTypes", async () => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: SchemaFieldType.GeometryEditor,
+              key: "geo-key",
+              required: true,
+              multiple: false,
+              typeProperty: { editorSupportedTypes: ["POLYGON"] as EditorSupportedType[] },
+            },
+          ];
+          const contentList = [{ "geo-key": Test.GEO_JSON_POINT }];
+          const result = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(result.isValid).toBe(false);
+          if (!result.isValid) {
+            expect(result.error.outOfRangeFieldKeys.size).toEqual(1);
+          }
+        });
+
+        test("invalid editorSupportedTypes triggers typeMismatch", async () => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: SchemaFieldType.GeometryEditor,
+              key: "geo-key",
+              required: true,
+              multiple: false,
+              typeProperty: {
+                editorSupportedTypes: ["INVALID"] as unknown as EditorSupportedType[],
+              },
+            },
+          ];
+          const contentList = [{ "geo-key": Test.GEO_JSON_POINT }];
+          const result = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(result.isValid).toBe(false);
+          if (!result.isValid) {
+            expect(result.error.typeMismatchFieldKeys.size).toEqual(1);
+          }
+        });
+
+        test("ANY does not wildcard-match geometry types", async () => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: SchemaFieldType.GeometryEditor,
+              key: "geo-key",
+              required: true,
+              multiple: false,
+              typeProperty: { editorSupportedTypes: ["ANY"] as EditorSupportedType[] },
+            },
+          ];
+          const contentList = [{ "geo-key": Test.GEO_JSON_POINT }];
+          const result = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "JSON",
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(result.isValid).toBe(false);
+          if (!result.isValid) {
+            expect(result.error.outOfRangeFieldKeys.size).toEqual(1);
+          }
+        });
+      });
+
+      describe("[Skip case] CSV and GEOJSON formats skip GeometryEditor", () => {
+        test("CSV format skips GeometryEditor validation", async () => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: SchemaFieldType.GeometryEditor,
+              key: "geo-key",
+              required: true,
+              multiple: false,
+              typeProperty: { editorSupportedTypes: ["POINT"] as EditorSupportedType[] },
+            },
+          ];
+          const contentList = [{ "geo-key": "not-a-geojson" }];
+          const result = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "CSV",
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(result.isValid).toBe(true);
+        });
+
+        test("GEOJSON format skips GeometryEditor validation", async () => {
+          const fields = [
+            {
+              ...DEFAULT_COMMON_FIELD,
+              type: SchemaFieldType.GeometryEditor,
+              key: "geo-key",
+              required: true,
+              multiple: false,
+              typeProperty: { editorSupportedTypes: ["POINT"] as EditorSupportedType[] },
+            },
+          ];
+          const contentList = [{ "geo-key": "not-a-geojson" }];
+          const result = await ImportContentUtils.validateContent(
+            contentList,
+            fields,
+            "GEOJSON",
+            Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+          );
+          expect(result.isValid).toBe(true);
+        });
+      });
+
+      test("optional GeometryEditor with missing value passes", async () => {
+        const fields = [
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.GeometryEditor,
+            key: "geo-key",
+            required: false,
+            multiple: false,
+            typeProperty: { editorSupportedTypes: ["POINT"] as EditorSupportedType[] },
+          },
+        ];
+        const contentList = [{}];
+        const result = await ImportContentUtils.validateContent(
+          contentList,
+          fields,
+          "JSON",
+          Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+        );
+        expect(result.isValid).toBe(true);
+      });
+    });
+
+    describe("Error categorization paths", () => {
+      test("URL field with non-URL string triggers typeMismatch", async () => {
+        const fields = [
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.URL,
+            key: "url-key",
+            required: true,
+            multiple: false,
+            typeProperty: {},
+          },
+        ];
+        const contentList = [{ "url-key": "not-a-url" }];
+        const result = await ImportContentUtils.validateContent(
+          contentList,
+          fields,
+          "JSON",
+          Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+        );
+        expect(result.isValid).toBe(false);
+        if (!result.isValid) {
+          expect(result.error.typeMismatchFieldKeys.size).toEqual(1);
+        }
+      });
+
+      test("Integer field given float triggers typeMismatch", async () => {
+        const fields = [
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.Integer,
+            key: "int-key",
+            required: true,
+            multiple: false,
+            typeProperty: {},
+          },
+        ];
+        const contentList = [{ "int-key": 3.14 }];
+        const result = await ImportContentUtils.validateContent(
+          contentList,
+          fields,
+          "JSON",
+          Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+        );
+        expect(result.isValid).toBe(false);
+        if (!result.isValid) {
+          expect(result.error.typeMismatchFieldKeys.size).toEqual(1);
+        }
+      });
+
+      test("Number below min triggers outOfRange", async () => {
+        const fields = [
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.Number,
+            key: "num-key",
+            required: true,
+            multiple: false,
+            typeProperty: { min: 0, max: 10 },
+          },
+        ];
+        const contentList = [{ "num-key": -5 }];
+        const result = await ImportContentUtils.validateContent(
+          contentList,
+          fields,
+          "JSON",
+          Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+        );
+        expect(result.isValid).toBe(false);
+        if (!result.isValid) {
+          expect(result.error.outOfRangeFieldKeys.size).toEqual(1);
+        }
+      });
+
+      test("Integer below min triggers outOfRange", async () => {
+        const fields = [
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.Integer,
+            key: "int-key",
+            required: true,
+            multiple: false,
+            typeProperty: { min: 0, max: 10 },
+          },
+        ];
+        const contentList = [{ "int-key": -3 }];
+        const result = await ImportContentUtils.validateContent(
+          contentList,
+          fields,
+          "JSON",
+          Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+        );
+        expect(result.isValid).toBe(false);
+        if (!result.isValid) {
+          expect(result.error.outOfRangeFieldKeys.size).toEqual(1);
+        }
+      });
+
+      test("Number at exact min boundary passes", async () => {
+        const fields = [
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.Number,
+            key: "num-key",
+            required: true,
+            multiple: false,
+            typeProperty: { min: 5, max: 10 },
+          },
+        ];
+        const contentList = [{ "num-key": 5 }];
+        const result = await ImportContentUtils.validateContent(
+          contentList,
+          fields,
+          "JSON",
+          Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+        );
+        expect(result.isValid).toBe(true);
+      });
+    });
+
+    describe("sourceFormat variations", () => {
+      test("CSV still validates non-geo fields", async () => {
+        const fields = [
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.Text,
+            key: "text-key",
+            required: true,
+            multiple: false,
+            typeProperty: {},
+          },
+        ];
+        const contentList = [{ "text-key": 12345 }];
+        const result = await ImportContentUtils.validateContent(
+          contentList,
+          fields,
+          "CSV",
+          Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+        );
+        expect(result.isValid).toBe(false);
+      });
+
+      test("CSV skips GeometryObject and validates Text", async () => {
+        const fields = [
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.GeometryObject,
+            key: "geo-key",
+            required: true,
+            multiple: false,
+            typeProperty: { objectSupportedTypes: ["POINT"] as ObjectSupportedType[] },
+          },
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.Text,
+            key: "text-key",
+            required: true,
+            multiple: false,
+            typeProperty: {},
+          },
+        ];
+        const contentList = [{ "text-key": "hello" }];
+        const result = await ImportContentUtils.validateContent(
+          contentList,
+          fields,
+          "CSV",
+          Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+        );
+        expect(result.isValid).toBe(true);
+      });
+
+      test("GEOJSON skips GeometryObject and validates Text", async () => {
+        const fields = [
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.GeometryObject,
+            key: "geo-key",
+            required: true,
+            multiple: false,
+            typeProperty: { objectSupportedTypes: ["POINT"] as ObjectSupportedType[] },
+          },
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.Text,
+            key: "text-key",
+            required: true,
+            multiple: false,
+            typeProperty: {},
+          },
+        ];
+        const contentList = [{ "text-key": "hello" }];
+        const result = await ImportContentUtils.validateContent(
+          contentList,
+          fields,
+          "GEOJSON",
+          Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+        );
+        expect(result.isValid).toBe(true);
+      });
+    });
+
+    describe("Edge cases", () => {
+      test("empty content list passes", async () => {
+        const fields = [
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.Text,
+            key: "text-key",
+            required: true,
+            multiple: false,
+            typeProperty: {},
+          },
+        ];
+        const result = await ImportContentUtils.validateContent(
+          [],
+          fields,
+          "JSON",
+          Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+        );
+        expect(result.isValid).toBe(true);
+        if (result.isValid) {
+          expect(result.data).toEqual([]);
+        }
+      });
+
+      test("empty fields array passes", async () => {
+        const contentList = [{ "any-key": "any-value" }];
+        const result = await ImportContentUtils.validateContent(
+          contentList,
+          [],
+          "JSON",
+          Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+        );
+        expect(result.isValid).toBe(true);
+      });
+
+      test("Select with no values property is skipped", async () => {
+        const fields = [
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.Select,
+            key: "select-key",
+            required: true,
+            multiple: false,
+            typeProperty: {},
+          },
+        ];
+        const contentList = [{ "select-key": "anything" }];
+        const result = await ImportContentUtils.validateContent(
+          contentList,
+          fields,
+          "JSON",
+          Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+        );
+        expect(result.isValid).toBe(true);
+      });
+
+      test("mixed errors: type mismatch and out of range", async () => {
+        const fields = [
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.Text,
+            key: "text-key",
+            required: true,
+            multiple: false,
+            typeProperty: {},
+          },
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.Number,
+            key: "num-key",
+            required: true,
+            multiple: false,
+            typeProperty: { min: 0, max: 10 },
+          },
+        ];
+        const contentList = [{ "text-key": 123, "num-key": -5 }];
+        const result = await ImportContentUtils.validateContent(
+          contentList,
+          fields,
+          "JSON",
+          Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+        );
+        expect(result.isValid).toBe(false);
+        if (!result.isValid) {
+          expect(result.error.typeMismatchFieldKeys.size).toEqual(1);
+          expect(result.error.outOfRangeFieldKeys.size).toEqual(1);
+        }
+      });
+
+      test("extra unknown keys are stripped from output", async () => {
+        const fields = [
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.Text,
+            key: "text-key",
+            required: true,
+            multiple: false,
+            typeProperty: {},
+          },
+        ];
+        const contentList = [{ "text-key": "hello", "unknown-key": "world" }];
+        const result = await ImportContentUtils.validateContent(
+          contentList,
+          fields,
+          "JSON",
+          Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+        );
+        expect(result.isValid).toBe(true);
+        if (result.isValid) {
+          expect(result.data[0]).not.toHaveProperty("unknown-key");
+        }
+      });
+    });
+  });
+
+  describe("Test convertCSVToJSON method", () => {
+    test("parses valid CSV with headers", async () => {
+      const csv = "name,age\nAlice,30";
+      const result = await ImportContentUtils.convertCSVToJSON(csv);
+      expect(result.isValid).toBe(true);
+      if (result.isValid) {
+        expect(result.data).toEqual([{ name: "Alice", age: 30 }]);
+      }
+    });
+
+    test("returns empty array for headers-only CSV", async () => {
+      const csv = "name,age\n";
+      const result = await ImportContentUtils.convertCSVToJSON(csv);
+      expect(result.isValid).toBe(true);
+      if (result.isValid) {
+        expect(result.data).toEqual([]);
+      }
+    });
+
+    test("dynamic typing converts booleans and numbers", async () => {
+      const csv = "flag,count\ntrue,42";
+      const result = await ImportContentUtils.convertCSVToJSON(csv);
+      expect(result.isValid).toBe(true);
+      if (result.isValid) {
+        expect(result.data).toEqual([{ flag: true, count: 42 }]);
+      }
+    });
+
+    test("handles empty string input", async () => {
+      const result = await ImportContentUtils.convertCSVToJSON("");
+      expect(result.isValid).toBe(true);
+      if (result.isValid) {
+        expect(result.data).toEqual([]);
+      }
+    });
+  });
+
+  describe("Test convertGeoJSONToJSON method", () => {
+    test("rejects non-FeatureCollection (Point)", async () => {
+      const input: GeoJSON = { type: "Point", coordinates: [0, 0] };
+      const result = await ImportContentUtils.convertGeoJSONToJSON(input);
+      expect(result.isValid).toBe(false);
+      if (!result.isValid) {
+        expect(result.error).toBe("Not feature collection");
+      }
+    });
+
+    test("rejects Feature type", async () => {
+      const input: GeoJSON = {
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [0, 0] },
+        properties: {},
+      };
+      const result = await ImportContentUtils.convertGeoJSONToJSON(input);
+      expect(result.isValid).toBe(false);
+      if (!result.isValid) {
+        expect(result.error).toBe("Not feature collection");
+      }
+    });
+
+    test("extracts properties from FeatureCollection", async () => {
+      const input: FeatureCollection = {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            geometry: { type: "Point", coordinates: [0, 0] },
+            properties: { name: "A" },
+          },
+          {
+            type: "Feature",
+            geometry: { type: "Point", coordinates: [1, 1] },
+            properties: { name: "B" },
+          },
+        ],
+      };
+      const result = await ImportContentUtils.convertGeoJSONToJSON(input);
+      expect(result.isValid).toBe(true);
+      if (result.isValid) {
+        expect(result.data).toEqual([{ name: "A" }, { name: "B" }]);
+      }
+    });
+
+    test("filters out features with null properties", async () => {
+      const input: FeatureCollection = {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            geometry: { type: "Point", coordinates: [0, 0] },
+            properties: { name: "A" },
+          },
+          {
+            type: "Feature",
+            geometry: { type: "Point", coordinates: [1, 1] },
+            properties: null,
+          },
+        ],
+      };
+      const result = await ImportContentUtils.convertGeoJSONToJSON(input);
+      expect(result.isValid).toBe(true);
+      if (result.isValid) {
+        expect(result.data).toEqual([{ name: "A" }]);
+      }
+    });
   });
 
   describe("Test getUIMetadata method", () => {
@@ -3097,5 +3817,30 @@ describe("Content import test", () => {
         expect(result.shouldDisable).toEqual(expected);
       },
     );
+
+    test("returns reader tooltip when no create right", () => {
+      const result = ImportContentUtils.getUIMetadata({
+        hasContentCreateRight: false,
+        hasModelFields: true,
+      });
+      expect(result.tooltipMessage).toBe("Reader cannot import content.");
+    });
+
+    test("returns schema tooltip when no model fields", () => {
+      const result = ImportContentUtils.getUIMetadata({
+        hasContentCreateRight: true,
+        hasModelFields: false,
+      });
+      expect(result.tooltipMessage).toBe("Please create a schema first");
+    });
+
+    test("returns undefined tooltip when fully enabled", () => {
+      const result = ImportContentUtils.getUIMetadata({
+        hasContentCreateRight: true,
+        hasModelFields: true,
+      });
+      expect(result.tooltipMessage).toBeUndefined();
+      expect(result.shouldDisable).toBe(false);
+    });
   });
 });

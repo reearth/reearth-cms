@@ -1,13 +1,14 @@
 import { config } from "@reearth-cms/e2e/config/config";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { parseConfigBoolean } from "@reearth-cms/e2e/helpers/format.helper";
+import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 const disableWorkspaceUI = parseConfigBoolean(config.disableWorkspaceUi);
 
-test.beforeEach(async ({ reearth, workspacePage }) => {
+test.beforeEach(async ({ workspacePage }) => {
   test.skip(disableWorkspaceUI, "Workspace UI is disabled in this configuration");
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
-  await workspacePage.createWorkspace("e2e workspace name");
+  await workspacePage.goto("/");
+  await workspacePage.createWorkspace(`e2e-ws-${getId()}`);
 });
 
 test.afterEach(async ({ workspacePage }) => {

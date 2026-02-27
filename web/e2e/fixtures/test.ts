@@ -125,4 +125,10 @@ export const test = base.extend<Fixtures>({
   },
 });
 
+export const TAG = {
+  SMOKE: "@smoke",
+  TO_ABANDON: "@toAbandon",
+  FIELD_VARIANT: "@fieldVariant",
+} as const;
+
 export { chromium, expect, type Page, type Locator } from "@playwright/test";

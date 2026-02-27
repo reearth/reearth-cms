@@ -5,6 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   hasCommentCreateRight: boolean;
@@ -46,7 +47,12 @@ const RequestEditor: React.FC<Props> = ({ hasCommentCreateRight, onCommentCreate
         />
       </TextAreaItem>
       <ButtonItem>
-        <Button disabled={isDisabled} loading={submitting} onClick={handleSubmit} type="primary">
+        <Button
+          data-testid={DATA_TEST_ID.RequestDetail__AddCommentButton}
+          disabled={isDisabled}
+          loading={submitting}
+          onClick={handleSubmit}
+          type="primary">
           {t("Add Comment")}
         </Button>
       </ButtonItem>

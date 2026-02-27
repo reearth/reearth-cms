@@ -1,41 +1,151 @@
-import { expect, test } from "vitest";
+import { describe, expect, test } from "vitest";
 
-import { parseMetadata, parseTileJson } from "./Imagery";
+import { getMvtBaseUrl, idFromGeometry, parseMetadata, parseTileJson } from "./Imagery";
 
-test("parseMetadata", () => {
-  expect(parseMetadata(metadata)).toEqual({
-    center: [138.1515732, 35.9939779, 0],
-    layers: ["HighLevelUseDistrict"],
-    maximumLevel: 15,
+describe("parseMetadata", () => {
+  test("parses full metadata", () => {
+    expect(parseMetadata(metadata)).toEqual({
+      center: [138.1515732, 35.9939779, 0],
+      layers: ["HighLevelUseDistrict"],
+      maximumLevel: 15,
+    });
+  });
+
+  test("returns undefined for null, undefined, and non-object input", () => {
+    expect(parseMetadata(null)).toBeUndefined();
+    expect(parseMetadata(undefined)).toBeUndefined();
+    expect(parseMetadata("string")).toBeUndefined();
+    expect(parseMetadata(42)).toBeUndefined();
+  });
+
+  test("returns empty object for empty input", () => {
+    expect(parseMetadata({})).toEqual({});
+  });
+
+  test("ignores non-string json field", () => {
+    expect(parseMetadata({ json: 123 })).toEqual({});
+    expect(parseMetadata({ json: null })).toEqual({});
+    expect(parseMetadata({ json: ["array"] })).toEqual({});
+  });
+
+  test("handles invalid JSON string in json field", () => {
+    expect(parseMetadata({ json: "not valid json" })).toEqual({});
+  });
+
+  test("ignores non-string center", () => {
+    expect(parseMetadata({ center: [139.7, 35.68] })).toEqual({});
+    expect(parseMetadata({ center: 123 })).toEqual({});
+  });
+
+  test("ignores non-number maxzoom", () => {
+    expect(parseMetadata({ maxzoom: "16" })).toEqual({});
+    expect(parseMetadata({ maxzoom: null })).toEqual({});
   });
 });
 
-test("parseTileJson", () => {
-  expect(parseTileJson(tilejson)).toEqual({
-    center: [139.7, 35.68, 0],
-    layers: ["buildings", "roads"],
-    maximumLevel: 16,
+describe("parseTileJson", () => {
+  test("parses full tilejson", () => {
+    expect(parseTileJson(tilejson)).toEqual({
+      center: [139.7, 35.68, 0],
+      layers: ["buildings", "roads"],
+      maximumLevel: 16,
+    });
+  });
+
+  test("missing fields", () => {
+    expect(parseTileJson({})).toEqual({});
+    expect(parseTileJson({ maxzoom: 14 })).toEqual({ maximumLevel: 14 });
+    expect(parseTileJson({ center: [140, 36] })).toEqual({ center: [140, 36, 0] });
+    expect(parseTileJson({ vector_layers: [{ id: "layer1" }] })).toEqual({
+      layers: ["layer1"],
+    });
+  });
+
+  test("invalid fields", () => {
+    expect(parseTileJson(null)).toBeUndefined();
+    expect(parseTileJson(undefined)).toBeUndefined();
+    expect(parseTileJson("string")).toBeUndefined();
+    expect(parseTileJson({ center: "invalid" })).toEqual({});
+    expect(parseTileJson({ center: [139.7] })).toEqual({});
+    expect(parseTileJson({ vector_layers: "invalid" })).toEqual({});
+    expect(parseTileJson({ vector_layers: [{ name: "no-id" }, null, { id: 123 }] })).toEqual({
+      layers: [],
+    });
   });
 });
 
-test("parseTileJson with missing fields", () => {
-  expect(parseTileJson({})).toEqual({});
-  expect(parseTileJson({ maxzoom: 14 })).toEqual({ maximumLevel: 14 });
-  expect(parseTileJson({ center: [140, 36] })).toEqual({ center: [140, 36, 0] });
-  expect(parseTileJson({ vector_layers: [{ id: "layer1" }] })).toEqual({
-    layers: ["layer1"],
+describe("getMvtBaseUrl", () => {
+  test("tile template URL", () => {
+    expect(getMvtBaseUrl("https://example.com/tiles/12/345/678.mvt")).toBe(
+      "https://example.com/tiles",
+    );
+  });
+
+  test(".zip URL", () => {
+    expect(getMvtBaseUrl("https://example.com/tiles.zip")).toBe("https://example.com/tiles");
+  });
+
+  test(".7z URL", () => {
+    expect(getMvtBaseUrl("https://example.com/tiles.7z")).toBe("https://example.com/tiles");
+  });
+
+  test("filename URL", () => {
+    expect(getMvtBaseUrl("https://example.com/tiles/metadata.json")).toBe(
+      "https://example.com/tiles",
+    );
+  });
+
+  test("large z/x/y values", () => {
+    expect(getMvtBaseUrl("https://example.com/15/29134/12950.pbf")).toBe("https://example.com");
   });
 });
 
-test("parseTileJson with invalid fields", () => {
-  expect(parseTileJson(null)).toBeUndefined();
-  expect(parseTileJson(undefined)).toBeUndefined();
-  expect(parseTileJson("string")).toBeUndefined();
-  expect(parseTileJson({ center: "invalid" })).toEqual({});
-  expect(parseTileJson({ center: [139.7] })).toEqual({});
-  expect(parseTileJson({ vector_layers: "invalid" })).toEqual({});
-  expect(parseTileJson({ vector_layers: [{ name: "no-id" }, null, { id: 123 }] })).toEqual({
-    layers: [],
+describe("idFromGeometry", () => {
+  // idFromGeometry expects Point[][] where Point has { x, y } properties.
+  // We use plain objects cast to the expected type since only x/y are accessed.
+  const makeGeometry = (coords: [number, number][]) =>
+    [coords.map(([x, y]) => ({ x, y }))] as unknown as Parameters<typeof idFromGeometry>[0];
+
+  test("deterministic output", () => {
+    const geom = makeGeometry([[10, 20]]);
+    const tile = { x: 1, y: 2, level: 3 };
+    expect(idFromGeometry(geom, tile)).toBe(idFromGeometry(geom, tile));
+  });
+
+  test("different coordinates produce different hashes", () => {
+    const tile = { x: 1, y: 2, level: 3 };
+    const a = idFromGeometry(makeGeometry([[10, 20]]), tile);
+    const b = idFromGeometry(makeGeometry([[30, 40]]), tile);
+    expect(a).not.toBe(b);
+  });
+
+  test("different tile produces different hash", () => {
+    const geom = makeGeometry([[10, 20]]);
+    const a = idFromGeometry(geom, { x: 1, y: 2, level: 3 });
+    const b = idFromGeometry(geom, { x: 4, y: 5, level: 6 });
+    expect(a).not.toBe(b);
+  });
+
+  test("multi-ring geometry", () => {
+    const geom = [
+      [
+        { x: 1, y: 2 },
+        { x: 3, y: 4 },
+      ],
+      [
+        { x: 5, y: 6 },
+        { x: 7, y: 8 },
+      ],
+    ] as unknown as Parameters<typeof idFromGeometry>[0];
+    const tile = { x: 0, y: 0, level: 0 };
+    const result = idFromGeometry(geom, tile);
+    expect(result).toMatch(/^[0-9a-f]{32}$/);
+  });
+
+  test("result is 32-char hex string", () => {
+    const geom = makeGeometry([[100, 200]]);
+    const tile = { x: 10, y: 20, level: 5 };
+    expect(idFromGeometry(geom, tile)).toMatch(/^[0-9a-f]{32}$/);
   });
 });
 

@@ -165,7 +165,7 @@ const StyledInput = styled(AutoComplete)`
   width: 147px;
 `;
 
-const getMvtBaseUrl = (url: string): string => {
+export const getMvtBaseUrl = (url: string): string => {
   const templateRegex = /\/\d{1,5}\/\d{1,5}\/\d{1,5}\.\w+$/;
   const compressedExtRegex = /\.(zip|7z)$/;
   const nameRegex = /\/\w+\.\w+$/;
@@ -196,7 +196,7 @@ const fetchLayers = async (url: string) => {
   }
 };
 
-const idFromGeometry = (
+export const idFromGeometry = (
   geometry: ReturnType<VectorTileFeature["loadGeometry"]>,
   tile: TileCoordinates,
 ): string => {

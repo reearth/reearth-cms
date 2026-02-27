@@ -8,6 +8,7 @@ import Tabs from "@reearth-cms/components/atoms/Tabs";
 import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import LocalTab from "./localTab";
 import UrlTab from "./UrlTab";
@@ -67,6 +68,7 @@ const UploadModal: React.FC<Props> = ({
             {t("Cancel")}
           </Button>
           <Button
+            data-testid={DATA_TEST_ID.UploadModal__SubmitButton}
             type="primary"
             onClick={onUpload}
             disabled={fileList?.length === 0 && !uploadUrl.url}
@@ -86,10 +88,14 @@ const UploadModal: React.FC<Props> = ({
         <h2>{t("Asset Uploader")}</h2>
       </div>
       <Tabs activeKey={uploadType} onChange={handleTabChange}>
-        <TabPane tab={t("Local")} key="local">
+        <TabPane
+          tab={<span data-testid={DATA_TEST_ID.UploadModal__LocalTab}>{t("Local")}</span>}
+          key="local">
           <LocalTab uploadProps={uploadProps} alertList={alertList} />
         </TabPane>
-        <TabPane tab={t("URL")} key="url">
+        <TabPane
+          tab={<span data-testid={DATA_TEST_ID.UploadModal__UrlTab}>{t("URL")}</span>}
+          key="url">
           <UrlTab uploadUrl={uploadUrl} setUploadUrl={setUploadUrl} />
         </TabPane>
       </Tabs>

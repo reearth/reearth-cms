@@ -1,115 +1,110 @@
 // e2e/pages/assets.page.ts
+import { Download } from "@playwright/test";
+
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
-import { BasePage } from "./base.page";
+import { ProjectScopedPage } from "./project-scoped.page";
 
-export class AssetsPage extends BasePage {
+export class AssetsPage extends ProjectScopedPage {
   // Toolbar / Actions
-  get uploadButton(): Locator {
-    return this.getByRole("button", { name: "upload Upload Asset" });
+  public get uploadButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.AssetList__UploadButton);
   }
-  get searchInput(): Locator {
-    return this.getByPlaceholder("input search text");
+  public get downloadButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.AssetList__DownloadButton);
   }
-  get searchButton(): Locator {
-    return this.getByRole("button", { name: "search" });
-  }
-  get downloadButton(): Locator {
-    return this.getByRole("button", { name: "download Download" });
-  }
-  get deleteButton(): Locator {
-    return this.getByText("Delete");
+  public get deleteButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.AssetList__DeleteButton);
   }
 
   // Upload modal
-  get urlTab(): Locator {
-    return this.getByRole("tab", { name: "URL" });
+  public get urlTab(): Locator {
+    return this.getByTestId(DATA_TEST_ID.UploadModal__UrlTab);
   }
-  get localTab(): Locator {
-    return this.getByRole("tab", { name: "Local" });
+  public get localTab(): Locator {
+    return this.getByTestId(DATA_TEST_ID.UploadModal__LocalTab);
   }
-  get urlInput(): Locator {
-    return this.getByPlaceholder("Please input a valid URL");
+  public get urlInput(): Locator {
+    return this.getByTestId(DATA_TEST_ID.UploadModal__UrlInput);
   }
-  get fileInput(): Locator {
-    return this.locator(".ant-upload input[type='file']");
+  public get fileInput(): Locator {
+    return this.getByTestId(DATA_TEST_ID.UploadModal__LocalTabDragger).locator(
+      "input[type='file']",
+    );
   }
-  get autoUnzipCheckbox(): Locator {
-    return this.getByRole("checkbox", { name: "Auto Unzip" });
+  public get autoUnzipCheckbox(): Locator {
+    return this.getByTestId(DATA_TEST_ID.UploadModal__AutoUnzipCheckbox);
   }
-  get submitUploadButton(): Locator {
-    return this.getByRole("button", { name: "Upload", exact: true });
+  public get submitUploadButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.UploadModal__SubmitButton);
   }
 
   // Grid / Rows
-  get assetRows(): Locator {
+  private get assetRows(): Locator {
     return this.locator(".ant-table-tbody .ant-table-row");
   }
-  rowByText(text: string | RegExp): Locator {
+  public rowByText(text: string | RegExp): Locator {
     return this.assetRows.filter({ hasText: text });
   }
-  get selectAssetCheckbox(): Locator {
+  public get selectAssetCheckbox(): Locator {
     // The empty-name checkbox in your current UI
     return this.getByLabel("", { exact: true });
   }
 
   // Details
-  get editIconButton(): Locator {
-    return this.getByLabel("edit").locator("svg");
-  }
-  get backButton(): Locator {
-    return this.getByLabel("Back");
+  public get editIconButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.AssetList__EditIcon);
   }
 
   // Type select on details
-  get typeSelectTrigger(): Locator {
-    return this.locator("div")
-      .filter({ hasText: /^Unknown Type$/ })
-      .nth(1);
+  public get typeSelectTrigger(): Locator {
+    return this.getByTestId(DATA_TEST_ID.AssetDetail__TypeSelect);
   }
-  typeOption(name: string): Locator {
+  public typeOption(name: string): Locator {
     return this.getByText(name);
   }
-  get saveButton(): Locator {
-    return this.getByRole("button", { name: "Save" });
-  }
-
   // Preview
-  get canvas(): Locator {
+  public get canvas(): Locator {
     return this.locator("canvas");
   }
-  get fullscreenButton(): Locator {
-    return this.getByLabel("fullscreen");
+  public get fullscreenButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.AssetDetail__FullscreenButton);
   }
-  get fullscreenCloseButton(): Locator {
+  public get fullscreenCloseButton(): Locator {
     return this.page.getByRole("button", { name: "close" });
   }
-  get imagePreview(): Locator {
+  public get imagePreview(): Locator {
     return this.getByRole("img", { name: "asset-preview" });
   }
 
   // Comments
-  get commentButton(): Locator {
+  public get commentButton(): Locator {
     return this.getByLabel("comment");
   }
-  commentsCountButton(count: number | string = 0): Locator {
+  public commentsCountButton(count: number | string = 0): Locator {
     return this.getByRole("button", { name: String(count) });
   }
 
   // Notifications
-  get lastNotification(): Locator {
+  public get lastNotification(): Locator {
     return this.locator(".ant-notification-notice").last();
   }
 
   // Asset detail page locators
-  assetDetailHeading(assetName: string): Locator {
+  public assetDetailHeading(assetName: string): Locator {
     return this.getByText(`Asset / ${assetName}`);
   }
-  get assetTypeText(): Locator {
+  public get assetTypeText(): Locator {
     return this.getByText("Asset TypePNG/JPEG/TIFF/GIF");
   }
 
-  async uploadViaUrl(url: string, autoUnzip = false): Promise<void> {
+  public waitForDownload(): Promise<Download> {
+    return this.page.waitForEvent("download");
+  }
+
+  public async uploadViaUrl(url: string, autoUnzip = false): Promise<void> {
+    this.assertProjectContext();
     await this.uploadButton.click();
     await this.urlTab.click();
     await this.urlInput.fill(url);

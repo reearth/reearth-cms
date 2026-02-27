@@ -23,6 +23,7 @@ import {
   CorrespondingField,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { Constant } from "@reearth-cms/utils/constant";
 import { validateKey } from "@reearth-cms/utils/regex";
 
@@ -453,6 +454,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 label={t("Display name")}
                 rules={[{ required: true, message: t("Please input the display name of field!") }]}>
                 <Input
+                  data-testid={DATA_TEST_ID.FieldModal__DisplayNameInput}
                   onChange={e => {
                     handleNameChange(e, field1Form);
                   }}
@@ -474,6 +476,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                   },
                 ]}>
                 <Input
+                  data-testid={DATA_TEST_ID.FieldModal__FieldKeyInput}
                   onChange={e => {
                     handleKeyChange(e, field1Form);
                   }}
@@ -482,20 +485,29 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 />
               </Form.Item>
               <Form.Item name="description" label={t("Description")}>
-                <TextArea rows={3} showCount maxLength={1000} />
+                <TextArea
+                  data-testid={DATA_TEST_ID.FieldModal__DescriptionInput}
+                  rows={3}
+                  showCount
+                  maxLength={1000}
+                />
               </Form.Item>
               <Form.Item
                 name="multiple"
                 valuePropName="checked"
                 extra={t("Stores a list of values instead of a single value")}>
-                <Checkbox disabled>{t("Support multiple values")}</Checkbox>
+                <Checkbox data-testid={DATA_TEST_ID.FieldModal__MultipleCheckbox} disabled>
+                  {t("Support multiple values")}
+                </Checkbox>
               </Form.Item>
               <Form.Item
                 hidden
                 name="isTitle"
                 valuePropName="checked"
                 extra={t("Only one field can be used as the title")}>
-                <Checkbox>{t("Use as title")}</Checkbox>
+                <Checkbox data-testid={DATA_TEST_ID.FieldModal__IsTitleCheckbox}>
+                  {t("Use as title")}
+                </Checkbox>
               </Form.Item>
             </TabPane>
             <TabPane tab={t("Validation")} key="validation" forceRender>
@@ -503,7 +515,9 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 name="required"
                 valuePropName="checked"
                 extra={t("Prevents saving an entry if this field is empty")}>
-                <Checkbox>{t("Make field required")}</Checkbox>
+                <Checkbox data-testid={DATA_TEST_ID.FieldModal__RequiredCheckbox}>
+                  {t("Make field required")}
+                </Checkbox>
               </Form.Item>
               <Form.Item
                 name="unique"
@@ -511,7 +525,11 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 extra={t(
                   "Ensures that a multiple entries can't have the same value for this field",
                 )}>
-                <Checkbox disabled={isTwoWayReference}>{t("Set field as unique")}</Checkbox>
+                <Checkbox
+                  data-testid={DATA_TEST_ID.FieldModal__UniqueCheckbox}
+                  disabled={isTwoWayReference}>
+                  {t("Set field as unique")}
+                </Checkbox>
               </Form.Item>
             </TabPane>
           </Tabs>
@@ -533,6 +551,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 label={t("Display name")}
                 rules={[{ required: true, message: t("Please input the display name of field!") }]}>
                 <Input
+                  data-testid={DATA_TEST_ID.FieldModal__DisplayNameInput}
                   onChange={e => {
                     handleNameChange(e, field2Form);
                   }}
@@ -558,6 +577,7 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                   },
                 ]}>
                 <Input
+                  data-testid={DATA_TEST_ID.FieldModal__FieldKeyInput}
                   onChange={e => {
                     handleKeyChange(e, field2Form);
                   }}
@@ -566,7 +586,12 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 />
               </Form.Item>
               <Form.Item name="description" label={t("Description")}>
-                <TextArea rows={3} showCount maxLength={1000} />
+                <TextArea
+                  data-testid={DATA_TEST_ID.FieldModal__DescriptionInput}
+                  rows={3}
+                  showCount
+                  maxLength={1000}
+                />
               </Form.Item>
             </TabPane>
             <TabPane tab={t("Validation")} key="validation" forceRender>
@@ -574,7 +599,9 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
                 name="required"
                 valuePropName="checked"
                 extra={t("Prevents saving an entry if this field is empty")}>
-                <Checkbox>{t("Make field required")}</Checkbox>
+                <Checkbox data-testid={DATA_TEST_ID.FieldModal__RequiredCheckbox}>
+                  {t("Make field required")}
+                </Checkbox>
               </Form.Item>
             </TabPane>
           </Tabs>

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   inlineCollapsed: boolean;
@@ -15,11 +16,27 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
   const t = useT();
 
   const topItems: ItemType[] = [
-    { label: t("Models"), key: "models", icon: <Icon icon="block" /> },
-    { label: t("Schema"), key: "schema", icon: <Icon icon="unorderedList" /> },
-    { label: t("Content"), key: "content", icon: <Icon icon="table" /> },
+    {
+      label: <span data-testid={DATA_TEST_ID.ProjectMenu__ModelsItem}>{t("Models")}</span>,
+      key: "models",
+      icon: <Icon icon="block" />,
+    },
+    {
+      label: <span data-testid={DATA_TEST_ID.ProjectMenu__SchemaItem}>{t("Schema")}</span>,
+      key: "schema",
+      icon: <Icon icon="unorderedList" />,
+    },
+    {
+      label: <span data-testid={DATA_TEST_ID.ProjectMenu__ContentItem}>{t("Content")}</span>,
+      key: "content",
+      icon: <Icon icon="table" />,
+    },
     { label: t("Asset"), key: "asset", icon: <Icon icon="file" /> },
-    { label: t("Request"), key: "request", icon: <Icon icon="pullRequest" /> },
+    {
+      label: <span data-testid={DATA_TEST_ID.ProjectMenu__RequestItem}>{t("Request")}</span>,
+      key: "request",
+      icon: <Icon icon="pullRequest" />,
+    },
   ];
   const [selected, changeSelected] = useState([defaultSelectedKey ?? "models"]);
 
@@ -31,7 +48,9 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
 
   const items: ItemType[] = [
     {
-      label: t("Accessibility"),
+      label: (
+        <span data-testid={DATA_TEST_ID.ProjectMenu__AccessibilityItem}>{t("Accessibility")}</span>
+      ),
       key: "accessibility",
       icon: <Icon icon="send" />,
     },
@@ -46,7 +65,7 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
       icon: <Icon icon="copyright" />,
     },
     {
-      label: t("Settings"),
+      label: <span data-testid={DATA_TEST_ID.ProjectMenu__SettingsItem}>{t("Settings")}</span>,
       key: "settings",
       icon: <Icon icon="settings" />,
     },

@@ -4,6 +4,7 @@ import Form from "@reearth-cms/components/atoms/Form";
 import Select from "@reearth-cms/components/atoms/Select";
 import MultiValueSelect from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueSelect";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   selectedValues?: string[];
@@ -19,7 +20,7 @@ const SelectField: React.FC<Props> = ({ selectedValues, multiple }) => {
       {multiple ? (
         <MultiValueSelect selectedValues={selectedValues} />
       ) : (
-        <Select allowClear>
+        <Select allowClear data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput}>
           {selectedValues?.map((value: string) => (
             <Option key={value} value={value}>
               {value}

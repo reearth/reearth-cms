@@ -4,6 +4,7 @@ import Form from "@reearth-cms/components/atoms/Form";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   multiple: boolean;
@@ -44,9 +45,20 @@ const NumberField: React.FC<Props> = ({ multiple, min, max }) => {
         },
       ]}>
       {multiple ? (
-        <MultiValueField type="number" FieldInput={InputNumber} min={min} max={max} />
+        <MultiValueField
+          type="number"
+          FieldInput={InputNumber}
+          min={min}
+          max={max}
+          data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput}
+        />
       ) : (
-        <InputNumber type="number" min={min} max={max} />
+        <InputNumber
+          type="number"
+          min={min}
+          max={max}
+          data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput}
+        />
       )}
     </Form.Item>
   );

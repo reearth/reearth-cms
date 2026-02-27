@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   inlineCollapsed: boolean;
@@ -31,43 +32,64 @@ const WorkspaceMenu: React.FC<Props> = ({
   }, [defaultSelectedKey]);
 
   const topItems: WorkspaceItemType[] = [
-    { label: t("Home"), key: "home", icon: <Icon icon="home" />, show: "both" },
+    {
+      label: <span data-testid={DATA_TEST_ID.WorkspaceMenu__HomeItem}>{t("Home")}</span>,
+      key: "home",
+      icon: <Icon icon="home" />,
+      show: "both",
+    },
   ];
 
   const items: WorkspaceItemType[] = useMemo(() => {
     const res = [
       {
-        label: t("Member"),
+        label: <span data-testid={DATA_TEST_ID.WorkspaceMenu__MemberItem}>{t("Member")}</span>,
         key: "members",
         icon: <Icon icon="userGroupAdd" />,
         show: "notPersonal" as MenuShowType,
       },
       {
-        label: t("Integrations"),
+        label: (
+          <span data-testid={DATA_TEST_ID.WorkspaceMenu__IntegrationsItem}>
+            {t("Integrations")}
+          </span>
+        ),
         key: "integrations",
         icon: <Icon icon="api" />,
         show: "both" as MenuShowType,
       },
       {
-        label: t("My Integrations"),
+        label: (
+          <span data-testid={DATA_TEST_ID.WorkspaceMenu__MyIntegrationsItem}>
+            {t("My Integrations")}
+          </span>
+        ),
         key: "myIntegrations",
         icon: <Icon icon="myIntegrations" />,
         show: "personal" as MenuShowType,
       },
       {
-        label: t("Settings"),
+        label: <span data-testid={DATA_TEST_ID.WorkspaceMenu__SettingsItem}>{t("Settings")}</span>,
         key: "settings",
         icon: <Icon icon="settings" />,
         show: "both" as MenuShowType,
       },
       {
-        label: t("Workspace Settings"),
+        label: (
+          <span data-testid={DATA_TEST_ID.WorkspaceMenu__WorkspaceSettingsItem}>
+            {t("Workspace Settings")}
+          </span>
+        ),
         key: "workspaceSettings",
         icon: <Icon size={"1em"} icon="workspaceSettings" />,
         show: "notPersonal" as MenuShowType,
       },
       {
-        label: t("Account Settings"),
+        label: (
+          <span data-testid={DATA_TEST_ID.WorkspaceMenu__AccountSettingsItem}>
+            {t("Account Settings")}
+          </span>
+        ),
         key: "account",
         icon: <Icon icon="user" />,
         show: "personal" as MenuShowType,

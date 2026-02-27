@@ -154,96 +154,7 @@ export default (
     changedKeys.current.clear();
   }, [defaultValueGet, form, selectedField]);
 
-  const typePropertyGet = useCallback((values: FormTypes) => {
-    switch (values.type) {
-      case "TextArea":
-        return {
-          textArea: { defaultValue: values.defaultValue, maxLength: values.maxLength },
-        };
-      case "MarkdownText":
-        return {
-          markdownText: { defaultValue: values.defaultValue, maxLength: values.maxLength },
-        };
-      case "Asset":
-        return {
-          asset: { defaultValue: values.defaultValue },
-        };
-      case "Select": {
-        const defaultValue = Array.isArray(values.defaultValue)
-          ? values.defaultValue.filter((value: string) => value)
-          : (values.defaultValue ?? "");
-        return {
-          select: { defaultValue, values: values.values ?? [] },
-        };
-      }
-      case "Integer":
-      case "Number": {
-        const defaultValue = Array.isArray(values.defaultValue)
-          ? values.defaultValue.filter((value: number | string) => typeof value === "number")
-          : (values.defaultValue ?? "");
-        return {
-          [values.type === "Integer" ? "integer" : "number"]: {
-            defaultValue,
-            min: values.min ?? null,
-            max: values.max ?? null,
-          },
-        };
-      }
-      case "Bool":
-        return {
-          bool: { defaultValue: values.defaultValue },
-        };
-      case "Date":
-        return {
-          date: { defaultValue: transformDayjsToString(values.defaultValue) ?? "" },
-        };
-      case "Tag": {
-        const defaultValue =
-          Array.isArray(values.defaultValue) && values.defaultValue.length
-            ? values.tags
-                ?.filter(tag => values.defaultValue.includes(tag.name))
-                .map(({ name }) => name)
-            : values.defaultValue;
-        return {
-          tag: {
-            defaultValue,
-            tags: values.tags ?? [],
-          },
-        };
-      }
-      case "Checkbox":
-        return {
-          checkbox: { defaultValue: values.defaultValue },
-        };
-      case "URL":
-        return {
-          url: { defaultValue: values.defaultValue },
-        };
-      case "Group":
-        return {
-          group: { groupId: values.group },
-        };
-      case "GeometryObject":
-        return {
-          geometryObject: {
-            defaultValue: values.defaultValue,
-            supportedTypes: values.supportedTypes,
-          },
-        };
-      case "GeometryEditor":
-        return {
-          geometryEditor: {
-            defaultValue: values.defaultValue,
-            supportedTypes: [values.supportedTypes],
-          },
-        };
-      case "Text":
-      default:
-        return {
-          text: { defaultValue: values.defaultValue, maxLength: values.maxLength },
-        };
-    }
-  }, []);
+  const typePropertyGet = useCallback((values: FormTypes) => getTypeProperty(values), []);
 
   const values = Form.useWatch([], form);
   useEffect(() => {
@@ -455,3 +366,94 @@ export default (
     errorIndexes,
   };
 };
+
+export function getTypeProperty(values: FormTypes) {
+  switch (values.type) {
+    case "TextArea":
+      return {
+        textArea: { defaultValue: values.defaultValue, maxLength: values.maxLength },
+      };
+    case "MarkdownText":
+      return {
+        markdownText: { defaultValue: values.defaultValue, maxLength: values.maxLength },
+      };
+    case "Asset":
+      return {
+        asset: { defaultValue: values.defaultValue },
+      };
+    case "Select": {
+      const defaultValue = Array.isArray(values.defaultValue)
+        ? values.defaultValue.filter((value: string) => value)
+        : (values.defaultValue ?? "");
+      return {
+        select: { defaultValue, values: values.values ?? [] },
+      };
+    }
+    case "Integer":
+    case "Number": {
+      const defaultValue = Array.isArray(values.defaultValue)
+        ? values.defaultValue.filter((value: number | string) => typeof value === "number")
+        : (values.defaultValue ?? "");
+      return {
+        [values.type === "Integer" ? "integer" : "number"]: {
+          defaultValue,
+          min: values.min ?? null,
+          max: values.max ?? null,
+        },
+      };
+    }
+    case "Bool":
+      return {
+        bool: { defaultValue: values.defaultValue },
+      };
+    case "Date":
+      return {
+        date: { defaultValue: transformDayjsToString(values.defaultValue) ?? "" },
+      };
+    case "Tag": {
+      const defaultValue =
+        Array.isArray(values.defaultValue) && values.defaultValue.length
+          ? values.tags
+              ?.filter(tag => values.defaultValue.includes(tag.name))
+              .map(({ name }) => name)
+          : values.defaultValue;
+      return {
+        tag: {
+          defaultValue,
+          tags: values.tags ?? [],
+        },
+      };
+    }
+    case "Checkbox":
+      return {
+        checkbox: { defaultValue: values.defaultValue },
+      };
+    case "URL":
+      return {
+        url: { defaultValue: values.defaultValue },
+      };
+    case "Group":
+      return {
+        group: { groupId: values.group },
+      };
+    case "GeometryObject":
+      return {
+        geometryObject: {
+          defaultValue: values.defaultValue,
+          supportedTypes: values.supportedTypes,
+        },
+      };
+    case "GeometryEditor":
+      return {
+        geometryEditor: {
+          defaultValue: values.defaultValue,
+          supportedTypes: [values.supportedTypes],
+        },
+      };
+    case "Text":
+    default:
+      return {
+        text: { defaultValue: values.defaultValue, maxLength: values.maxLength },
+      };
+  }
+}

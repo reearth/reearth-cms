@@ -23,9 +23,10 @@
     "types": ["@testing-library/jest-dom"],
     "maxNodeModuleJsDepth": 10,
     "allowImportingTsExtensions": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "noImplicitOverride": true
   },
-  "include": ["src", "e2e", "codegen.ts"],
+  "include": ["src", "e2e", "codegen.ts", "class-override-control.ts"],
   "ts-node": {
     "compilerOptions": {
       "module": "CommonJS"

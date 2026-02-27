@@ -8,6 +8,7 @@ import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   selectedKey?: string;
@@ -96,6 +97,7 @@ const ModelsList: React.FC<Props> = ({
           <SchemaAction>
             <SchemaStyledMenuTitle>{t("MODELS")}</SchemaStyledMenuTitle>
             <SchemaAddButton
+              data-testid={DATA_TEST_ID.Schema__ModelAddButton}
               onClick={onModalOpen}
               icon={<Icon icon="plus" />}
               type="link"

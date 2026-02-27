@@ -231,6 +231,7 @@ export enum DATA_TEST_ID {
   Uploader__CardTitle = "Uploader__CardTitle",
   Uploader__CardTitleSuffix = "Uploader__CardTitleSuffix",
   Uploader__CancelAllIcon = "Uploader__CancelAllIcon",
+  Uploader__MinimizeIcon = "Uploader__MinimizeIcon",
   Uploader__CompleteIcon = "Uploader__CompleteIcon",
 
   // QueueItem
@@ -255,6 +256,16 @@ export enum DATA_TEST_ID {
   //  DangerZone (MyIntegrations)
   MyIntegrations__Settings__DangerZone__RemoveIntegrationButton = "MyIntegrations__Settings__DangerZone__RemoveIntegrationButton",
   MyIntegrations__Settings__DangerZone__ConfirmRemoveIntegrationButton = "MyIntegrations__Settings__DangerZone__ConfirmRemoveIntegrationButton",
+
+  // ProjectSettings GeneralForm
+  ProjectSettings__GeneralForm__NameInput = "ProjectSettings__GeneralForm__NameInput",
+  ProjectSettings__GeneralForm__AliasInput = "ProjectSettings__GeneralForm__AliasInput",
+  ProjectSettings__GeneralForm__DescriptionInput = "ProjectSettings__GeneralForm__DescriptionInput",
+  ProjectSettings__GeneralForm__AliasField = "ProjectSettings__GeneralForm__AliasField",
+  ProjectSettings__GeneralForm__SaveButton = "ProjectSettings__GeneralForm__SaveButton",
+
+  // ProjectSettings RequestOptions
+  ProjectSettings__RequestOptions__SaveButton = "ProjectSettings__RequestOptions__SaveButton",
 
   // DangerZone (ProjectSettings)
   ProjectSettings__DangerZone__DeleteProjectButton = "ProjectSettings__DangerZone__DeleteProjectButton",
@@ -285,4 +296,159 @@ export enum DATA_TEST_ID {
   Content__List__ImportContentButton = "Content__List__ImportContentButton",
   Content__List__ItemFieldPopoverIcon = "Content__List__ItemFieldPopoverIcon",
   Content__List__ItemFieldPopoverContent = "Content__List__ItemFieldPopoverContent",
+  Content__List__UrlEditButton = "Content__List__UrlEditButton",
+
+  // WorkspaceMenu
+  WorkspaceMenu__HomeItem = "WorkspaceMenu__HomeItem",
+  WorkspaceMenu__MemberItem = "WorkspaceMenu__MemberItem",
+  WorkspaceMenu__IntegrationsItem = "WorkspaceMenu__IntegrationsItem",
+  WorkspaceMenu__MyIntegrationsItem = "WorkspaceMenu__MyIntegrationsItem",
+  WorkspaceMenu__SettingsItem = "WorkspaceMenu__SettingsItem",
+  WorkspaceMenu__WorkspaceSettingsItem = "WorkspaceMenu__WorkspaceSettingsItem",
+  WorkspaceMenu__AccountSettingsItem = "WorkspaceMenu__AccountSettingsItem",
+
+  // MemberTable
+  MemberTable__Search = "MemberTable__Search",
+
+  // AssetList
+  AssetList__UploadButton = "AssetList__UploadButton",
+  AssetList__DownloadButton = "AssetList__DownloadButton",
+  AssetList__DeleteButton = "AssetList__DeleteButton",
+  AssetList__EditIcon = "AssetList__EditIcon",
+
+  // UploadModal
+  UploadModal__UrlTab = "UploadModal__UrlTab",
+  UploadModal__LocalTab = "UploadModal__LocalTab",
+  UploadModal__UrlInput = "UploadModal__UrlInput",
+  UploadModal__AutoUnzipCheckbox = "UploadModal__AutoUnzipCheckbox",
+  UploadModal__LocalTabDragger = "UploadModal__LocalTabDragger",
+  UploadModal__SubmitButton = "UploadModal__SubmitButton",
+
+  // AssetDetail
+  AssetDetail__TypeSelect = "AssetDetail__TypeSelect",
+  AssetDetail__FullscreenButton = "AssetDetail__FullscreenButton",
+
+  // RequestTable
+  RequestTable__EditIcon = "RequestTable__EditIcon",
+  RequestTable__CloseButton = "RequestTable__CloseButton",
+
+  // RequestDetail
+  RequestDetail__CloseButton = "RequestDetail__CloseButton",
+  RequestDetail__ReopenButton = "RequestDetail__ReopenButton",
+  RequestDetail__ApproveButton = "RequestDetail__ApproveButton",
+  RequestDetail__AssignToButton = "RequestDetail__AssignToButton",
+  RequestDetail__ReviewerSelect = "RequestDetail__ReviewerSelect",
+  RequestDetail__ReviewerSection = "RequestDetail__ReviewerSection",
+  RequestDetail__AddCommentButton = "RequestDetail__AddCommentButton",
+
+  // Comment
+  Comment__DeleteButton = "Comment__DeleteButton",
+  Comment__EditSaveButton = "Comment__EditSaveButton",
+
+  // Header
+  Header__ProjectName = "Header__ProjectName",
+
+  // Workspace
+  Workspace__HeaderActions = "Workspace__HeaderActions",
+  Workspace__NewProjectButton = "Workspace__NewProjectButton",
+
+  // ProjectOverview
+  ProjectOverview__NewModelButton = "ProjectOverview__NewModelButton",
+  ProjectOverview__NewModelPlaceholderButton = "ProjectOverview__NewModelPlaceholderButton",
+
+  // ProjectMenu
+  ProjectMenu__ModelsItem = "ProjectMenu__ModelsItem",
+  ProjectMenu__AccessibilityItem = "ProjectMenu__AccessibilityItem",
+  ProjectMenu__SettingsItem = "ProjectMenu__SettingsItem",
+  ProjectMenu__RequestItem = "ProjectMenu__RequestItem",
+
+  // ContentList
+  ContentList__NewItemButton = "ContentList__NewItemButton",
+
+  // ContentForm
+  ContentForm__EllipsisButton = "ContentForm__EllipsisButton",
+  ContentForm__AddToRequestItem = "ContentForm__AddToRequestItem",
+  ContentForm__VersionHistoryTab = "ContentForm__VersionHistoryTab",
+
+  // ProjectMenu
+  ProjectMenu__SchemaItem = "ProjectMenu__SchemaItem",
+  ProjectMenu__ContentItem = "ProjectMenu__ContentItem",
+
+  // Schema
+  Schema__ModelAddButton = "Schema__ModelAddButton",
+  Schema__GroupAddButton = "Schema__GroupAddButton",
+  Schema__FieldEllipsisButton = "Schema__FieldEllipsisButton",
+  Schema__FieldListItem = "Schema__FieldListItem",
+  Schema__FieldDragHandle = "Schema__FieldDragHandle",
+  Schema__GroupSelect = "Schema__GroupSelect",
+  Schema__MetaDataTab = "Schema__MetaDataTab",
+  Schema__FieldsTabs = "Schema__FieldsTabs",
+
+  // FieldModal (Settings tab)
+  FieldModal__DisplayNameInput = "FieldModal__DisplayNameInput",
+  FieldModal__FieldKeyInput = "FieldModal__FieldKeyInput",
+  FieldModal__DescriptionInput = "FieldModal__DescriptionInput",
+  FieldModal__MultipleCheckbox = "FieldModal__MultipleCheckbox",
+  FieldModal__IsTitleCheckbox = "FieldModal__IsTitleCheckbox",
+  FieldModal__ValuesInput = "FieldModal__ValuesInput",
+  FieldModal__PlusNewButton = "FieldModal__PlusNewButton",
+  FieldModal__PointCheckbox = "FieldModal__PointCheckbox",
+  FieldModal__TagSelect = "FieldModal__TagSelect",
+  FieldModal__SelectValueItem = "FieldModal__SelectValueItem",
+
+  // FieldModal (Validation tab)
+  FieldModal__MaxLengthInput = "FieldModal__MaxLengthInput",
+  FieldModal__MinValueInput = "FieldModal__MinValueInput",
+  FieldModal__MaxValueInput = "FieldModal__MaxValueInput",
+  FieldModal__RequiredCheckbox = "FieldModal__RequiredCheckbox",
+  FieldModal__UniqueCheckbox = "FieldModal__UniqueCheckbox",
+
+  // FieldModal (Default value tab)
+  FieldModal__SetDefaultValueInput = "FieldModal__SetDefaultValueInput",
+  FieldModal__DateInput = "FieldModal__DateInput",
+
+  // MetadataField
+  MetadataField__TagSelect = "MetadataField__TagSelect",
+
+  // LinkAssetModal
+  LinkAssetModal__Table = "LinkAssetModal__Table",
+  LinkAssetModal__LinkButton = "LinkAssetModal__LinkButton",
+
+  // Markdown
+  Markdown__Preview = "Markdown__Preview",
+
+  // MultiValueField
+  MultiValueField__ItemWrapper = "MultiValueField__ItemWrapper",
+  MultiValueField__ArrowUpButton = "MultiValueField__ArrowUpButton",
+  MultiValueField__ArrowDownButton = "MultiValueField__ArrowDownButton",
+  MultiValueField__DeleteButton = "MultiValueField__DeleteButton",
+
+  // GeometryItem
+  GeometryItem__EditorWrapper = "GeometryItem__EditorWrapper",
+  GeometryItem__DeleteButton = "GeometryItem__DeleteButton",
+
+  // ContentTable
+  ContentTable__Wrapper = "ContentTable__Wrapper",
+
+  // MultiValueAsset
+  MultiValueAsset__ItemWrapper = "MultiValueAsset__ItemWrapper",
+
+  // RequestCreationModal
+  RequestCreationModal__ReviewerSelect = "RequestCreationModal__ReviewerSelect",
+
+  // ContentImportModal
+  ContentImportModal__Dragger = "ContentImportModal__Dragger",
+
+  // SettingsCard
+  SettingsCard__Wrapper = "SettingsCard__Wrapper",
+  SettingsCard__AvatarImage = "SettingsCard__AvatarImage",
+  SettingsCard__DragHandle = "SettingsCard__DragHandle",
+  SettingsCard__EditAction = "SettingsCard__EditAction",
+  SettingsCard__DeleteAction = "SettingsCard__DeleteAction",
+
+  // IntegrationSettingsModal
+  IntegrationSettingsModal__RoleSelect = "IntegrationSettingsModal__RoleSelect",
+
+  // ProjectCard
+  ProjectCard__Wrapper = "ProjectCard__Wrapper",
 }

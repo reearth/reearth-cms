@@ -2,6 +2,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, test, describe, vi } from "vitest";
 
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+
 import GeneralForm from "./GeneralForm";
 
 describe("General form", () => {
@@ -45,12 +47,20 @@ describe("General form", () => {
       />,
     );
 
-    expect(screen.getByLabelText("Name")).toBeVisible();
-    expect(screen.getByLabelText("Name")).toHaveValue(name);
-    expect(screen.getByLabelText("Alias")).toBeVisible();
-    expect(screen.getByLabelText("Alias")).toHaveValue(alias);
-    expect(screen.getByLabelText("Description")).toBeVisible();
-    expect(screen.getByLabelText("Description")).toHaveValue(description);
+    expect(screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__NameInput)).toBeVisible();
+    expect(screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__NameInput)).toHaveValue(
+      name,
+    );
+    expect(screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__AliasInput)).toBeVisible();
+    expect(screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__AliasInput)).toHaveValue(
+      alias,
+    );
+    expect(
+      screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__DescriptionInput),
+    ).toBeVisible();
+    expect(
+      screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__DescriptionInput),
+    ).toHaveValue(description);
   });
 
   test("Save button is toggled and alias check is called successfully", async () => {
@@ -65,10 +75,12 @@ describe("General form", () => {
       />,
     );
 
-    const saveButton = screen.getByRole("button", { name: "Save changes" });
-    const nameInput = screen.getByLabelText("Name");
-    const aliasInput = screen.getByLabelText("Alias");
-    const descriptionInput = screen.getByLabelText("Description");
+    const saveButton = screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__SaveButton);
+    const nameInput = screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__NameInput);
+    const aliasInput = screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__AliasInput);
+    const descriptionInput = screen.getByTestId(
+      DATA_TEST_ID.ProjectSettings__GeneralForm__DescriptionInput,
+    );
     expect(saveButton).toBeDisabled();
 
     await user.type(nameInput, "new");
@@ -109,15 +121,24 @@ describe("General form", () => {
       />,
     );
 
-    const saveButton = screen.getByRole("button", { name: "Save changes" });
+    const saveButton = screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__SaveButton);
 
-    await user.type(screen.getByLabelText("Name"), "new");
-    await user.type(screen.getByLabelText("Alias"), "new");
-    await user.type(screen.getByLabelText("Description"), "new");
+    await user.type(
+      screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__NameInput),
+      "new",
+    );
+    await user.type(
+      screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__AliasInput),
+      "new",
+    );
+    await user.type(
+      screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__DescriptionInput),
+      "new",
+    );
     await expect.poll(() => saveButton).toBeEnabled();
     await user.click(saveButton);
-    expect(screen.getByLabelText("loading")).toBeVisible();
-    expect(saveButton).toBeDisabled();
+    await expect.poll(() => screen.queryByLabelText("loading")).toBeVisible();
+    await expect.poll(() => saveButton).toBeDisabled();
     expect(onProjectUpdateMock).toHaveBeenCalledWith(
       `${name}new`,
       `${alias}new`,
@@ -145,11 +166,14 @@ describe("General form", () => {
       />,
     );
 
-    const saveButton = screen.getByRole("button", { name: "Save changes" });
-    await user.type(screen.getByLabelText("Name"), "new");
+    const saveButton = screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__SaveButton);
+    await user.type(
+      screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__NameInput),
+      "new",
+    );
     await expect.poll(() => saveButton).toBeEnabled();
     await user.click(saveButton);
-    expect(saveButton).toBeDisabled();
+    await expect.poll(() => saveButton).toBeDisabled();
     await expect.poll(() => saveButton).toBeEnabled();
   });
 
@@ -163,9 +187,9 @@ describe("General form", () => {
       />,
     );
 
-    const saveButton = screen.getByRole("button", { name: "Save changes" });
-    const nameInput = screen.getByLabelText("Name");
-    const aliasInput = screen.getByLabelText("Alias");
+    const saveButton = screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__SaveButton);
+    const nameInput = screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__NameInput);
+    const aliasInput = screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__AliasInput);
 
     await user.clear(nameInput);
     await expect.poll(() => nameInput).toBeInvalid();
@@ -192,8 +216,12 @@ describe("General form", () => {
       />,
     );
 
-    expect(screen.getByLabelText("Name")).toBeDisabled();
-    expect(screen.getByLabelText("Alias")).toBeDisabled();
-    expect(screen.getByLabelText("Description")).toBeDisabled();
+    expect(screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__NameInput)).toBeDisabled();
+    expect(
+      screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__AliasInput),
+    ).toBeDisabled();
+    expect(
+      screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__DescriptionInput),
+    ).toBeDisabled();
   });
 });

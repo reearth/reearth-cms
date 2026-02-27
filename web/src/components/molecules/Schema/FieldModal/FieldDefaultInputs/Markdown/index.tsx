@@ -5,6 +5,7 @@ import Form from "@reearth-cms/components/atoms/Form";
 import MarkdownInput from "@reearth-cms/components/atoms/Markdown";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   multiple: boolean;
@@ -37,9 +38,16 @@ const MarkdownField: React.FC<Props> = ({ multiple, maxLength }) => {
         },
       ]}>
       {multiple ? (
-        <MultiValueField maxLength={maxLength} FieldInput={MarkdownInput} />
+        <MultiValueField
+          maxLength={maxLength}
+          FieldInput={MarkdownInput}
+          data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput}
+        />
       ) : (
-        <MarkdownInput maxLength={maxLength} />
+        <MarkdownInput
+          maxLength={maxLength}
+          data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput}
+        />
       )}
     </Form.Item>
   );

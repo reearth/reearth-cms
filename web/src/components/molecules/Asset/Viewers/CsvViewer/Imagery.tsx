@@ -11,10 +11,26 @@ type Props = {
   url: string;
 };
 
-type GeoObj = {
+export type GeoObj = {
   lng?: string;
   lat?: string;
   [x: string]: string | undefined;
+};
+
+export const parseCsv = (text: string): GeoObj[] => {
+  const result: GeoObj[] = [];
+  const lines = text.split(/\r\n|\n|\r/);
+  const headers = lines[0].split(",");
+  lines.forEach((line, index) => {
+    if (index === 0) return;
+    const obj: GeoObj = {};
+    const columns = line.split(",");
+    headers.forEach((header, headerIndex) => {
+      obj[header] = columns[headerIndex];
+    });
+    result.push(obj);
+  });
+  return result;
 };
 
 export const Imagery: React.FC<Props> = ({ isAssetPublic, url }) => {
@@ -35,22 +51,6 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url }) => {
       console.error(err);
     }
   }, [getHeader, isAssetPublic, url]);
-
-  const parseCsv = useCallback((text: string): GeoObj[] => {
-    const result: GeoObj[] = [];
-    const lines = text.split(/\r\n|\n|\r/);
-    const headers = lines[0].split(",");
-    lines.forEach((line, index) => {
-      if (index === 0) return;
-      const obj: GeoObj = {};
-      const columns = line.split(",");
-      headers.forEach((header, headerIndex) => {
-        obj[header] = columns[headerIndex];
-      });
-      result.push(obj);
-    });
-    return result;
-  }, []);
 
   const addPointsToViewer = useCallback(
     async (objects: GeoObj[]) => {
@@ -80,7 +80,7 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url }) => {
       if (text) await addPointsToViewer(parseCsv(text));
     };
     loadAndRenderData();
-  }, [dataFetch, parseCsv, addPointsToViewer, viewer]);
+  }, [dataFetch, addPointsToViewer, viewer]);
 
   return null;
 };

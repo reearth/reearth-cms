@@ -1,9 +1,10 @@
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { stateColors } from "@reearth-cms/e2e/helpers/format.helper";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
 const dateReg = /([0-9]{4})\/(0[1-9]|1[0-2])\/([0-2][0-9]|3[01]), ([01][0-9]|2[0-3]):[0-5][0-9]/;
-const requestTitle = "e2e request title";
+const requestTitle = `request-${getId()}`;
 
 const fieldName = "text";
 
@@ -16,14 +17,13 @@ function getRgb(colorCode: string) {
   ).replaceAll(",", ", ")})`;
 }
 
-test.beforeEach(async ({ reearth, fieldEditorPage, projectPage, contentPage, schemaPage }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+test.beforeEach(async ({ fieldEditorPage, projectPage, contentPage }) => {
+  await projectPage.goto("/");
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
   await projectPage.createModelFromOverview();
-  await fieldEditorPage.fieldTypeButton("Text").click();
-  await schemaPage.handleFieldForm(fieldName);
+  await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: fieldName });
   await projectPage.contentMenuItem.click();
   await contentPage.newItemButton.click();
   await contentPage.fieldInput(fieldName).fill("1");
@@ -37,7 +37,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Read versions successfully", async ({ contentPage }) => {
+test("Read versions successfully", { tag: TAG.SMOKE }, async ({ contentPage }) => {
   const requestStatus = contentPage.requestStatusElement;
   await expect(contentPage.textByRegex(dateReg)).toBeVisible();
   await expect(contentPage.currentVersionText).toBeVisible();

@@ -1,4 +1,4 @@
-import { chromium, expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { chromium, expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 
 import { baseURL, authFile } from "../../playwright.config";
 import { config } from "../config/config";
@@ -7,7 +7,7 @@ import { createIAPContext } from "../utils/iap/iap-auth";
 
 const { userName, password } = config;
 
-test("@smoke authenticate", async () => {
+test("authenticate", { tag: TAG.SMOKE }, async () => {
   expect(userName).toBeTruthy();
   expect(password).toBeTruthy();
 

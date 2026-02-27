@@ -5,6 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { moveItemInArray } from "../moveItemArray";
 
@@ -50,6 +51,7 @@ const MultiValueSelect: React.FC<Props> = ({ selectedValues, value = [], onChang
                 <FieldButton
                   color="default"
                   variant="link"
+                  data-testid={DATA_TEST_ID.MultiValueField__ArrowUpButton}
                   icon={<Icon icon="arrowUp" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
                   disabled={key === 0}
@@ -57,6 +59,7 @@ const MultiValueSelect: React.FC<Props> = ({ selectedValues, value = [], onChang
                 <FieldButton
                   color="default"
                   variant="link"
+                  data-testid={DATA_TEST_ID.MultiValueField__ArrowDownButton}
                   icon={<Icon icon="arrowDown" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
                   disabled={key === value.length - 1}
@@ -64,6 +67,7 @@ const MultiValueSelect: React.FC<Props> = ({ selectedValues, value = [], onChang
               </>
             )}
             <StyledSelect
+              data-testid={DATA_TEST_ID.FieldModal__SelectValueItem}
               disabled={disabled}
               value={valueItem}
               onChange={(e: string) => handleInput(e, key)}>
@@ -77,6 +81,7 @@ const MultiValueSelect: React.FC<Props> = ({ selectedValues, value = [], onChang
               <FieldButton
                 color="default"
                 variant="link"
+                data-testid={DATA_TEST_ID.MultiValueField__DeleteButton}
                 icon={<Icon icon="delete" size={16} />}
                 onClick={() => handleInputDelete(key)}
               />
@@ -87,6 +92,7 @@ const MultiValueSelect: React.FC<Props> = ({ selectedValues, value = [], onChang
         <Button
           icon={<Icon icon="plus" />}
           type="primary"
+          data-testid={DATA_TEST_ID.FieldModal__PlusNewButton}
           onClick={() => {
             if (!value) value = [];
             onChange?.([...value, ""]);

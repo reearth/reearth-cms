@@ -5,6 +5,7 @@ import Form from "@reearth-cms/components/atoms/Form";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import MultiValueField from "@reearth-cms/components/molecules/Common/MultiValueField";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   multiple: boolean;
@@ -36,9 +37,20 @@ const TextAreaField: React.FC<Props> = ({ multiple, maxLength }) => {
         },
       ]}>
       {multiple ? (
-        <MultiValueField rows={1} showCount maxLength={maxLength} FieldInput={TextArea} />
+        <MultiValueField
+          rows={1}
+          showCount
+          maxLength={maxLength}
+          FieldInput={TextArea}
+          data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput}
+        />
       ) : (
-        <TextArea rows={3} showCount maxLength={maxLength} />
+        <TextArea
+          rows={3}
+          showCount
+          maxLength={maxLength}
+          data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput}
+        />
       )}
     </Form.Item>
   );

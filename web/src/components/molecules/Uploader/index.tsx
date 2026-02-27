@@ -199,8 +199,10 @@ const Uploader: React.FC<Props> = props => {
           <Title data-testid={DATA_TEST_ID.Uploader__CardTitle}>{titleMessage}</Title>
           <TitleSuffix data-testid={DATA_TEST_ID.Uploader__CardTitleSuffix}>
             <Tooltip title={t("Minimize")}>
-              <span>
-                <CloseIcon icon="down" onClick={() => void handleUploaderOpen(false)} />
+              <span
+                data-testid={DATA_TEST_ID.Uploader__MinimizeIcon}
+                onClick={() => void handleUploaderOpen(false)}>
+                <CloseIcon icon="down" />
               </span>
             </Tooltip>
             <Tooltip title={t("Close")}>

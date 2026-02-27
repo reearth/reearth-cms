@@ -1,280 +1,281 @@
 // e2e/pages/schema.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
-import { BasePage } from "./base.page";
+import { ProjectScopedPage } from "./project-scoped.page";
 
-export class SchemaPage extends BasePage {
-  // Navigation
-  get schemaMenuItem(): Locator {
-    return this.getByRole("menuitem", { name: "Schema" });
-  }
-
+export class SchemaPage extends ProjectScopedPage {
   // Model actions
-  get plusAddButton(): Locator {
-    return this.getByRole("button", { name: "plus Add" });
+  public get plusAddButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.Schema__ModelAddButton);
   }
-  get firstPlusAddButton(): Locator {
-    return this.getByRole("button", { name: "plus Add" }).first();
-  }
-  get modelNameInput(): Locator {
+  public get modelNameInput(): Locator {
     return this.locator("#name");
   }
-  get modelKeyInput(): Locator {
+  public get modelKeyInput(): Locator {
     return this.locator("#key");
   }
-  get modelNameLabel(): Locator {
+  public get modelNameLabel(): Locator {
     return this.getByLabel("Model name");
   }
-  get modelKeyLabel(): Locator {
+  public get modelKeyLabel(): Locator {
     return this.getByLabel("Model key");
   }
-  get importSchemaDialog(): Locator {
+  public get importSchemaDialog(): Locator {
     return this.getByRole("dialog", { name: "Import Schema" });
   }
-  get importSchemaOuterButton(): Locator {
+  public get importSchemaOuterButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.ModelFieldList__ImportSchemaButton);
   }
-  get importSchemaModalImportButton(): Locator {
+  public get importSchemaModalImportButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.ImportSchemaModal__ImportButton);
   }
-  modelMenuItem(name: string): Locator {
-    return this.getByRole("menuitem", { name });
-  }
-  modelMenuItems(): Locator {
+  public modelMenuItems(): Locator {
     return this.getByRole("main").getByRole("menuitem");
   }
 
   // Group actions
-  get addGroupButton(): Locator {
+  public get addGroupButton(): Locator {
     return this.getByRole("button", { name: "Create Group" });
   }
-  get newGroupDialog(): Locator {
+  public get newGroupDialog(): Locator {
     return this.getByLabel("New Group");
   }
-  get groupNameInput(): Locator {
-    return this.getByLabel("New Group").locator("#name");
+  public get groupNameInput(): Locator {
+    return this.newGroupDialog.locator("#name");
   }
-  get groupKeyInput(): Locator {
-    return this.getByLabel("New Group").locator("#key");
+  public get groupKeyInput(): Locator {
+    return this.newGroupDialog.locator("#key");
   }
-  groupMenuItem(name: string): Locator {
-    return this.getByRole("menuitem", { name });
-  }
-  get groupMenuItems(): Locator {
+  public get groupMenuItems(): Locator {
     return this.getByRole("main").getByRole("menu").last().getByRole("menuitem");
   }
 
   // Field actions
-  fieldTypeButton(type: string): Locator {
+  public fieldTypeButton(type: string): Locator {
     return this.locator("li").filter({ hasText: type }).locator("div").first();
   }
-  get fieldEditButton(): Locator {
-    return this.getByRole("img", { name: "ellipsis" }).locator("svg");
+  public get fieldEditButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.Schema__FieldEllipsisButton);
   }
-  get fieldsContainer(): Locator {
+  public get fieldsContainer(): Locator {
     return this.getByLabel("Fields");
   }
-  get draggableItems(): Locator {
-    return this.getByLabel("Fields").locator(".draggable-item");
+  public get draggableItems(): Locator {
+    return this.getByTestId(DATA_TEST_ID.Schema__FieldListItem);
   }
-  get grabbableItems(): Locator {
-    return this.getByLabel("Fields").locator(".grabbable");
+  public get grabbableItems(): Locator {
+    return this.getByTestId(DATA_TEST_ID.Schema__FieldDragHandle);
   }
 
   // Group field specific
-  get createGroupFieldButton(): Locator {
+  public get createGroupFieldButton(): Locator {
     return this.getByText("Create Group Field");
   }
-  get groupSelectTrigger(): Locator {
-    return this.locator(".ant-select-selector");
-  }
-
-  // Common buttons
-  get okButton(): Locator {
-    return this.getByRole("button", { name: "OK" });
+  public get groupSelectTrigger(): Locator {
+    return this.getByTestId(DATA_TEST_ID.Schema__GroupSelect);
   }
 
   // Content sections
-  get fieldsMetaDataText(): Locator {
-    return this.getByText("FieldsMeta Data");
+  public get fieldsMetaDataText(): Locator {
+    return this.getByTestId(DATA_TEST_ID.Schema__FieldsTabs);
   }
 
-  get metaDataTab(): Locator {
-    return this.getByRole("tab", { name: "Meta Data" });
+  public get metaDataTab(): Locator {
+    return this.getByTestId(DATA_TEST_ID.Schema__MetaDataTab);
   }
 
   // Dynamic methods for model names
-  modelByText(modelName: string): Locator {
+  public modelByText(modelName: string): Locator {
     return this.getByText(modelName);
   }
 
   // Field list item
-  fieldEllipsisIcon(fieldText: string): Locator {
-    return this.locator("li").filter({ hasText: fieldText }).locator("svg").nth(3);
+  public fieldEllipsisIcon(fieldText: string): Locator {
+    return this.locator("li")
+      .filter({ hasText: fieldText })
+      .getByTestId(DATA_TEST_ID.Schema__FieldEllipsisButton);
   }
 
   // Group field specific methods
-  groupNameByText(groupName: string): Locator {
+  public groupNameByText(groupName: string): Locator {
     return this.getByText(groupName);
   }
 
   // Dynamic text selection
-  textByExact(text: string): Locator {
+  public textByExact(text: string): Locator {
     return this.getByText(text, { exact: true });
   }
 
-  firstTextByExact(text: string): Locator {
+  public firstTextByExact(text: string): Locator {
     return this.getByText(text, { exact: true }).first();
   }
 
-  lastTextByExact(text: string): Locator {
+  public lastTextByExact(text: string): Locator {
     return this.getByText(text, { exact: true }).last();
   }
 
-  // Schema tab for filtered navigation
-  get schemaSpanText(): Locator {
-    return this.locator("span").filter({ hasText: "Schema" });
-  }
-
   // Tag metadata specific
-  get tagListItem(): Locator {
+  public get tagListItem(): Locator {
     return this.getByRole("listitem").filter({ hasText: "Tag" });
   }
 
   // Menu items
-  menuItemByName(itemName: string): Locator {
+  public menuItemByName(itemName: string): Locator {
     return this.getByRole("menuitem", { name: itemName });
   }
 
   // Text metadata specific
-  get textListItem(): Locator {
+  public get textListItem(): Locator {
     return this.getByRole("listitem").filter({ hasText: "Text" });
   }
 
-  // Navigation menu items
-  get contentMenuItem(): Locator {
-    return this.getByRole("menuitem", { name: "Content" });
-  }
-
   // Boolean metadata specific
-  get booleanListItem(): Locator {
+  public get booleanListItem(): Locator {
     return this.getByRole("listitem").filter({ hasText: "Boolean" });
   }
 
   // Checkbox metadata specific
-  get checkBoxListItem(): Locator {
+  public get checkBoxListItem(): Locator {
     return this.getByRole("listitem").filter({ hasText: "Check Box" });
   }
 
   // Navigation elements
-  get schemaText(): Locator {
-    return this.getByText("Schema");
+  public get schemaText(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ProjectMenu__SchemaItem);
   }
 
-  get contentText(): Locator {
-    return this.getByText("Content");
+  public get contentText(): Locator {
+    return this.getByTestId(DATA_TEST_ID.ProjectMenu__ContentItem);
   }
 
   // Field text display
-  fieldText(fieldName: string, key: string): Locator {
+  public fieldText(fieldName: string, key: string): Locator {
     return this.getByText(`${fieldName}#${key}`);
   }
 
   // Unique field text display
-  uniqueFieldText(fieldName: string, key: string): Locator {
+  public uniqueFieldText(fieldName: string, key: string): Locator {
     return this.getByText(`${fieldName} *#${key}(unique)`);
+  }
+
+  // ========== Action Method Locators (private) ==========
+
+  private get moreButton(): Locator {
+    return this.getByRole("button", { name: "more" });
+  }
+  private get editMenuItemText(): Locator {
+    return this.getByText("Edit", { exact: true });
+  }
+  private get deleteMenuItemText(): Locator {
+    return this.getByText("Delete", { exact: true });
+  }
+
+  // Update Model dialog
+  private get updateModelDialog(): Locator {
+    return this.getByLabel("Update Model");
+  }
+  private get updateModelNameInput(): Locator {
+    return this.updateModelDialog.locator("#name");
+  }
+  private get updateModelKeyInput(): Locator {
+    return this.updateModelDialog.locator("#key");
+  }
+  private get deleteModelConfirmButton(): Locator {
+    return this.getByRole("button", { name: "Delete Model" });
+  }
+
+  // Create Group form
+  private get groupAddButton(): Locator {
+    return this.getByTestId(DATA_TEST_ID.Schema__GroupAddButton);
+  }
+  private get groupNameLabel(): Locator {
+    return this.getByLabel("Group name");
+  }
+  private get groupKeyLabel(): Locator {
+    return this.getByLabel("Group key");
+  }
+
+  // Update Group dialog
+  private get updateGroupDialog(): Locator {
+    return this.getByLabel("Update Group");
+  }
+  private get updateGroupNameInput(): Locator {
+    return this.updateGroupDialog.locator("#name");
+  }
+  private get updateGroupKeyInput(): Locator {
+    return this.updateGroupDialog.locator("#key");
+  }
+  private get deleteGroupConfirmButton(): Locator {
+    return this.getByRole("button", { name: "Delete Group" });
   }
 
   // ========== Action Methods (POM Pattern) ==========
 
   // Model CRUD operations
-  async createModel(name: string, key?: string): Promise<void> {
-    await this.getByLabel("Model name").fill(name);
-    if (key) {
-      await this.getByLabel("Model key").fill(key);
-    }
-    await this.getByRole("button", { name: "OK" }).click();
+  public async createModel(name: string, key?: string): Promise<void> {
+    this.assertProjectContext();
+    await this.fillModelFormAndSubmit(name, key);
+  }
+
+  public async createModelFromSidebar(name = `model-${getId()}`, key?: string): Promise<void> {
+    this.assertProjectContext();
+    await this.plusAddButton.click();
+    await this.fillModelFormAndSubmit(name, key);
+  }
+
+  public async updateModel(name: string, key: string): Promise<void> {
+    this.assertProjectContext();
+    await this.moreButton.hover();
+    await this.editMenuItemText.click();
+    await this.updateModelNameInput.fill(name);
+    await this.updateModelKeyInput.fill(key);
+    await this.okButton.click();
     await this.closeNotification();
   }
 
-  async createModelFromSidebar(name = "e2e model name", key?: string): Promise<void> {
-    await this.getByRole("button", { name: "plus Add" }).first().click();
-    await this.createModel(name, key);
-  }
-
-  async updateModel(name: string, key: string): Promise<void> {
-    await this.getByRole("button", { name: "more" }).hover();
-    await this.getByText("Edit", { exact: true }).click();
-    await this.getByLabel("Update Model").locator("#name").fill(name);
-    await this.getByLabel("Update Model").locator("#key").fill(key);
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
-  }
-
-  async deleteModel(): Promise<void> {
-    await this.getByRole("button", { name: "more" }).hover();
-    await this.getByText("Delete", { exact: true }).click();
-    await this.getByRole("button", { name: "Delete Model" }).click();
+  public async deleteModel(): Promise<void> {
+    this.assertProjectContext();
+    await this.moreButton.hover();
+    await this.deleteMenuItemText.click();
+    await this.deleteModelConfirmButton.click();
     await this.closeNotification();
   }
 
   // Group CRUD operations
-  async createGroup(name: string, key?: string): Promise<void> {
-    await this.getByRole("button", { name: "plus Add" }).last().click();
-    await this.getByLabel("Group name").fill(name);
+  public async createGroup(name: string, key?: string): Promise<void> {
+    this.assertProjectContext();
+    await this.groupAddButton.click();
+    await this.groupNameLabel.fill(name);
     if (key) {
-      await this.getByLabel("Group key").fill(key);
+      await this.groupKeyLabel.fill(key);
     }
-    await this.getByRole("button", { name: "OK" }).click();
+    await this.okButton.click();
     await this.closeNotification();
   }
 
-  async updateGroup(name: string, key?: string): Promise<void> {
-    await this.getByRole("button", { name: "more" }).hover();
-    await this.getByText("Edit", { exact: true }).click();
-    await this.getByLabel("Update Group").locator("#name").fill(name);
+  public async updateGroup(name: string, key?: string): Promise<void> {
+    this.assertProjectContext();
+    await this.moreButton.hover();
+    await this.editMenuItemText.click();
+    await this.updateGroupNameInput.fill(name);
     if (key) {
-      await this.getByLabel("Update Group").locator("#key").fill(key);
+      await this.updateGroupKeyInput.fill(key);
     }
-    await this.getByRole("button", { name: "OK" }).click();
+    await this.okButton.click();
     await this.closeNotification();
   }
 
-  async deleteGroup(): Promise<void> {
-    await this.getByRole("button", { name: "more" }).hover();
-    await this.getByText("Delete", { exact: true }).click();
-    await this.getByRole("button", { name: "Delete Group" }).click();
+  public async deleteGroup(): Promise<void> {
+    this.assertProjectContext();
+    await this.moreButton.hover();
+    await this.deleteMenuItemText.click();
+    await this.deleteGroupConfirmButton.click();
     await this.closeNotification();
   }
 
-  // Field operations
-  async handleFieldForm(name: string, key = name): Promise<void> {
-    await this.getByLabel("Display name").click();
-    await this.getByLabel("Display name").fill(name);
-    await this.getByLabel("Settings").locator("#key").click();
-    await this.getByLabel("Settings").locator("#key").fill(key);
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
-  }
-
-  async createTitleField(displayName: string, defaultValue: string): Promise<void> {
-    await this.locator("li").filter({ hasText: "Text" }).locator("div").first().click();
-    await this.getByLabel("Display name").click();
-    await this.getByLabel("Display name").fill(displayName);
-    await this.getByLabel("Use as title").check();
-    await this.getByRole("tab", { name: "Default value" }).click();
-    await this.getByLabel("Set default value").click();
-    await this.getByLabel("Set default value").fill(defaultValue);
-    await this.getByRole("button", { name: "OK" }).click();
-    await this.closeNotification();
-  }
-
-  modelMenuItemSpan(name: string): Locator {
-    return this.getByRole("menuitem", { name }).locator("span");
-  }
-
-  groupMenuItemSpan(name: string): Locator {
+  public menuItemSpanByName(name: string): Locator {
     return this.getByRole("menuitem", { name }).locator("span");
   }
 }

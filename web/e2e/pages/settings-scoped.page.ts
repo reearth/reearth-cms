@@ -1,0 +1,31 @@
+// e2e/pages/settings-scoped.page.ts
+import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+
+import { BasePage } from "./base.page";
+
+export abstract class SettingsScopedPage extends BasePage {
+  public get memberMenuItem(): Locator {
+    return this.page.getByRole("menuitem").filter({
+      has: this.page.getByTestId(DATA_TEST_ID.WorkspaceMenu__MemberItem),
+    });
+  }
+
+  public get integrationsMenuItem(): Locator {
+    return this.page.getByRole("menuitem").filter({
+      has: this.page.getByTestId(DATA_TEST_ID.WorkspaceMenu__IntegrationsItem),
+    });
+  }
+
+  public get homeMenuItem(): Locator {
+    return this.page.getByRole("menuitem").filter({
+      has: this.page.getByTestId(DATA_TEST_ID.WorkspaceMenu__HomeItem),
+    });
+  }
+
+  public get settingsMenuItem(): Locator {
+    return this.page.getByRole("menuitem").filter({
+      has: this.page.getByTestId(DATA_TEST_ID.WorkspaceMenu__SettingsItem),
+    });
+  }
+}
