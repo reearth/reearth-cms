@@ -1,11 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach } from "vitest";
 
-import {
-  getAuthInfo,
-  getSignInCallbackUrl,
-  logInToTenant,
-  logOutFromTenant,
-} from "./authInfo";
+import { getAuthInfo, getSignInCallbackUrl, logInToTenant, logOutFromTenant } from "./authInfo";
 
 describe("authInfo", () => {
   const tenantKey = "reearth_tennant";

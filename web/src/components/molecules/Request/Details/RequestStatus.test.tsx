@@ -1,8 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, test, expect } from "vitest";
 
-import type { RequestState } from "@reearth-cms/components/molecules/Request/types";
-
 import RequestStatus from "./RequestStatus";
 
 describe("RequestStatus", () => {

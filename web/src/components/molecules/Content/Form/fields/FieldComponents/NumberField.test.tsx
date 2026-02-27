@@ -63,8 +63,13 @@ const FormCapture: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 const renderField = (options: RenderOptions = {}) => {
-  const { fieldOverrides, disabled = false, itemGroupId, itemHeights, onItemHeightChange } =
-    options;
+  const {
+    fieldOverrides,
+    disabled = false,
+    itemGroupId,
+    itemHeights,
+    onItemHeightChange,
+  } = options;
   formInstance = undefined;
   render(
     <FormCapture>
@@ -111,44 +116,50 @@ describe("NumberField", () => {
   test("itemGroupId produces compound form name", () => {
     renderField({ itemGroupId: "group-1" });
     expect(formInstance).toBeDefined();
-    formInstance!.setFieldValue(["field-1", "group-1"], 42);
-    const values = formInstance!.getFieldsValue(true);
+    if (!formInstance) return;
+    formInstance.setFieldValue(["field-1", "group-1"], 42);
+    const values = formInstance.getFieldsValue(true);
     expect(values).toHaveProperty(["field-1", "group-1"], 42);
   });
 
   test("min/max validator rejects value below min", async () => {
     renderField({ fieldOverrides: { typeProperty: { min: 5 } } });
     expect(formInstance).toBeDefined();
-    formInstance!.setFieldValue("field-1", 3);
-    await expect(formInstance!.validateFields()).rejects.toBeDefined();
+    if (!formInstance) return;
+    formInstance.setFieldValue("field-1", 3);
+    await expect(formInstance.validateFields()).rejects.toBeDefined();
   });
 
   test("min/max validator resolves value within range", async () => {
     renderField({ fieldOverrides: { typeProperty: { min: 1, max: 100 } } });
     expect(formInstance).toBeDefined();
-    formInstance!.setFieldValue("field-1", 50);
-    await expect(formInstance!.validateFields()).resolves.toBeDefined();
+    if (!formInstance) return;
+    formInstance.setFieldValue("field-1", 50);
+    await expect(formInstance.validateFields()).resolves.toBeDefined();
   });
 
   test("min/max validator rejects value above max", async () => {
     renderField({ fieldOverrides: { typeProperty: { max: 10 } } });
     expect(formInstance).toBeDefined();
-    formInstance!.setFieldValue("field-1", 15);
-    await expect(formInstance!.validateFields()).rejects.toBeDefined();
+    if (!formInstance) return;
+    formInstance.setFieldValue("field-1", 15);
+    await expect(formInstance.validateFields()).rejects.toBeDefined();
   });
 
   test("min/max validator rejects array item outside range", async () => {
     renderField({ fieldOverrides: { typeProperty: { max: 10 } } });
     expect(formInstance).toBeDefined();
-    formInstance!.setFieldValue("field-1", [5, 15]);
-    await expect(formInstance!.validateFields()).rejects.toBeDefined();
+    if (!formInstance) return;
+    formInstance.setFieldValue("field-1", [5, 15]);
+    await expect(formInstance.validateFields()).rejects.toBeDefined();
   });
 
   test("min/max validator accepts null value", async () => {
     renderField({ fieldOverrides: { typeProperty: { min: 1, max: 100 } } });
     expect(formInstance).toBeDefined();
-    formInstance!.setFieldValue("field-1", null);
-    await expect(formInstance!.validateFields()).resolves.toBeDefined();
+    if (!formInstance) return;
+    formInstance.setFieldValue("field-1", null);
+    await expect(formInstance.validateFields()).resolves.toBeDefined();
   });
 
   test("forwards itemHeights and onItemHeightChange to ResponsiveHeight", () => {

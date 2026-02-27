@@ -122,22 +122,14 @@ describe("FieldCreationModalWithSteps", () => {
 
     test("renders Display name, Field Key, Description inputs", async () => {
       await navigateToStep1();
-      expect(
-        screen.getByTestId(DATA_TEST_ID.FieldModal__DisplayNameInput),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByTestId(DATA_TEST_ID.FieldModal__FieldKeyInput),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByTestId(DATA_TEST_ID.FieldModal__DescriptionInput),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId(DATA_TEST_ID.FieldModal__DisplayNameInput)).toBeInTheDocument();
+      expect(screen.getByTestId(DATA_TEST_ID.FieldModal__FieldKeyInput)).toBeInTheDocument();
+      expect(screen.getByTestId(DATA_TEST_ID.FieldModal__DescriptionInput)).toBeInTheDocument();
     });
 
     test("Multiple checkbox is disabled on step 1", async () => {
       await navigateToStep1();
-      expect(
-        screen.getByTestId(DATA_TEST_ID.FieldModal__MultipleCheckbox),
-      ).toBeDisabled();
+      expect(screen.getByTestId(DATA_TEST_ID.FieldModal__MultipleCheckbox)).toBeDisabled();
     });
 
     test("renders Settings and Validation tabs", async () => {
@@ -148,12 +140,8 @@ describe("FieldCreationModalWithSteps", () => {
 
     test("renders Required and Unique checkboxes (forceRender)", async () => {
       await navigateToStep1();
-      expect(
-        screen.getByTestId(DATA_TEST_ID.FieldModal__RequiredCheckbox),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByTestId(DATA_TEST_ID.FieldModal__UniqueCheckbox),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId(DATA_TEST_ID.FieldModal__RequiredCheckbox)).toBeInTheDocument();
+      expect(screen.getByTestId(DATA_TEST_ID.FieldModal__UniqueCheckbox)).toBeInTheDocument();
     });
 
     test("renders Confirm button for one-way reference", async () => {
@@ -180,9 +168,7 @@ describe("FieldCreationModalWithSteps", () => {
         screen.queryByTestId(DATA_TEST_ID.FieldModal__DisplayNameInput),
       ).not.toBeInTheDocument();
       await user.click(screen.getByText("Next"));
-      expect(
-        screen.getByTestId(DATA_TEST_ID.FieldModal__DisplayNameInput),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId(DATA_TEST_ID.FieldModal__DisplayNameInput)).toBeInTheDocument();
     });
   });
 
@@ -228,9 +214,7 @@ describe("FieldCreationModalWithSteps", () => {
 
       // Navigate to step 1
       await user.click(screen.getByText("Next"));
-      expect(
-        screen.getByTestId(DATA_TEST_ID.FieldModal__DisplayNameInput),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId(DATA_TEST_ID.FieldModal__DisplayNameInput)).toBeInTheDocument();
     });
   });
 });

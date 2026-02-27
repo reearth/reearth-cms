@@ -18,13 +18,9 @@ vi.mock("@reearth-cms/components/atoms/Badge", () => ({
   ),
 }));
 vi.mock("@reearth-cms/components/atoms/Radio", () => {
-  const RadioComponent = ({
-    value,
-    children,
-  }: {
-    value?: string;
-    children?: React.ReactNode;
-  }) => <span data-testid={`radio-${value}`}>{children}</span>;
+  const RadioComponent = ({ value, children }: { value?: string; children?: React.ReactNode }) => (
+    <span data-testid={`radio-${value}`}>{children}</span>
+  );
   const Group = ({
     onChange,
     value,
@@ -209,9 +205,7 @@ describe("LinkItemRequestModal", () => {
   test("search calls onRequestSearchTerm", async () => {
     const onRequestSearchTerm = vi.fn();
     const user = userEvent.setup();
-    render(
-      <LinkItemRequestModal {...defaultProps} onRequestSearchTerm={onRequestSearchTerm} />,
-    );
+    render(<LinkItemRequestModal {...defaultProps} onRequestSearchTerm={onRequestSearchTerm} />);
     const searchInput = screen.getByPlaceholderText("input search text");
     await user.type(searchInput, "test query{Enter}");
     expect(onRequestSearchTerm).toHaveBeenCalledWith(
@@ -223,9 +217,7 @@ describe("LinkItemRequestModal", () => {
 
   test("table change calls onRequestTableChange", () => {
     const onRequestTableChange = vi.fn();
-    render(
-      <LinkItemRequestModal {...defaultProps} onRequestTableChange={onRequestTableChange} />,
-    );
+    render(<LinkItemRequestModal {...defaultProps} onRequestTableChange={onRequestTableChange} />);
     screen.getByTestId("trigger-table-change").click();
     expect(onRequestTableChange).toHaveBeenCalledWith(2, 20);
   });
@@ -239,9 +231,7 @@ describe("LinkItemRequestModal", () => {
   test("cancel button calls onLinkItemRequestModalCancel", async () => {
     const onCancel = vi.fn();
     const user = userEvent.setup();
-    render(
-      <LinkItemRequestModal {...defaultProps} onLinkItemRequestModalCancel={onCancel} />,
-    );
+    render(<LinkItemRequestModal {...defaultProps} onLinkItemRequestModalCancel={onCancel} />);
     const cancelButton = screen.getByRole("button", { name: "Cancel" });
     await user.click(cancelButton);
     expect(onCancel).toHaveBeenCalled();
@@ -259,10 +249,7 @@ describe("LinkItemRequestModal", () => {
 
   test("handles empty reviewers array", () => {
     render(
-      <LinkItemRequestModal
-        {...defaultProps}
-        requestList={[createRequest({ reviewers: [] })]}
-      />,
+      <LinkItemRequestModal {...defaultProps} requestList={[createRequest({ reviewers: [] })]} />,
     );
     expect(screen.getByTestId("table-row-0")).toBeInTheDocument();
   });

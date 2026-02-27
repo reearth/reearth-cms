@@ -28,10 +28,7 @@ const mockViewer = {
 
 // ── Module mocks (hoisted before imports) ──
 vi.mock("cesium", () => ({
-  HeadingPitchRange: vi.fn(function (
-    this: Record<string, unknown>,
-    ...args: unknown[]
-  ) {
+  HeadingPitchRange: vi.fn(function (this: Record<string, unknown>, ...args: unknown[]) {
     this.heading = args[0];
     this.pitch = args[1];
     this.range = args[2];
@@ -292,7 +289,8 @@ describe("Imagery", () => {
       expect(capturedAutoCompleteProps?.value).toBe("buildings");
     });
 
-    const onChange = capturedAutoCompleteProps!.onChange as (value: unknown) => void;
+    if (!capturedAutoCompleteProps) return;
+    const onChange = capturedAutoCompleteProps.onChange as (value: unknown) => void;
     onChange("roads");
 
     await waitFor(() => {
@@ -312,7 +310,8 @@ describe("Imagery", () => {
       expect(capturedAutoCompleteProps?.value).toBe("buildings");
     });
 
-    const onChange = capturedAutoCompleteProps!.onChange as (value: unknown) => void;
+    if (!capturedAutoCompleteProps) return;
+    const onChange = capturedAutoCompleteProps.onChange as (value: unknown) => void;
     onChange(123);
 
     expect(capturedAutoCompleteProps?.value).toBe("buildings");
@@ -380,19 +379,13 @@ describe("Imagery", () => {
     const tile = { x: 1, y: 2, level: 3 };
 
     // Polygon (type 3) → lineWidth 1
-    const polygonResult = styleFn(
-      { type: 3, loadGeometry: () => [[{ x: 10, y: 20 }]] },
-      tile,
-    );
+    const polygonResult = styleFn({ type: 3, loadGeometry: () => [[{ x: 10, y: 20 }]] }, tile);
     expect(polygonResult.fillStyle).toBe("red");
     expect(polygonResult.strokeStyle).toBe("white");
     expect(polygonResult.lineWidth).toBe(1);
 
     // Point (type 1) → lineWidth 5
-    const pointResult = styleFn(
-      { type: 1, loadGeometry: () => [[{ x: 30, y: 40 }]] },
-      tile,
-    );
+    const pointResult = styleFn({ type: 1, loadGeometry: () => [[{ x: 30, y: 40 }]] }, tile);
     expect(pointResult.lineWidth).toBe(5);
   });
 

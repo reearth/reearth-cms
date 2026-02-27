@@ -135,66 +135,74 @@ test("Request closing and reopening has succeeded", async ({ requestPage }) => {
   });
 });
 
-test("Comment CRUD on edit page has succeeded", {
-  tag: TAG.TO_ABANDON,
-  annotation: {
-    type: "consolidate",
-    description: '"Comment CRUD on Content page" in content.spec.ts (@smoke)',
+test(
+  "Comment CRUD on edit page has succeeded",
+  {
+    tag: TAG.TO_ABANDON,
+    annotation: {
+      type: "consolidate",
+      description: '"Comment CRUD on Content page" in content.spec.ts (@smoke)',
+    },
   },
-}, async ({ requestPage }) => {
-  await test.step("Navigate to request edit page", async () => {
-    await requestPage.requestMenuItem.click();
-    await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
-    await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
-    await requestPage.editButton.click();
-  });
+  async ({ requestPage }) => {
+    await test.step("Navigate to request edit page", async () => {
+      await requestPage.requestMenuItem.click();
+      await expect(requestPage.tableBodyTextByText(requestTitle, true)).toBeVisible();
+      await expect(requestPage.tableBodyTextByText("WAITING")).toBeVisible();
+      await requestPage.editButton.click();
+    });
 
-  await test.step("Create a comment", async () => {
-    await requestPage.commentTextbox.click();
-    await requestPage.commentTextbox.fill("comment");
-    await requestPage.commentButton.click();
-    await requestPage.closeNotification();
-    await expect(requestPage.statusText("comment")).toBeVisible();
-  });
+    await test.step("Create a comment", async () => {
+      await requestPage.commentTextbox.click();
+      await requestPage.commentTextbox.fill("comment");
+      await requestPage.commentButton.click();
+      await requestPage.closeNotification();
+      await expect(requestPage.statusText("comment")).toBeVisible();
+    });
 
-  await test.step("Update the comment", async () => {
-    await expect(requestPage.checkButton).toBeVisible();
-    await requestPage.checkButton.click();
-    await expect(requestPage.commentTextboxWithText("comment")).toBeVisible();
-    await requestPage.commentTextboxWithText("comment").click();
-    await requestPage.commentTextboxWithText("comment").fill("new comment");
-    await expect(requestPage.checkButton).toBeVisible();
-    await requestPage.checkButton.click();
-    await requestPage.closeNotification();
-    await expect(requestPage.getByText("new comment")).toBeVisible();
-  });
+    await test.step("Update the comment", async () => {
+      await expect(requestPage.checkButton).toBeVisible();
+      await requestPage.checkButton.click();
+      await expect(requestPage.commentTextboxWithText("comment")).toBeVisible();
+      await requestPage.commentTextboxWithText("comment").click();
+      await requestPage.commentTextboxWithText("comment").fill("new comment");
+      await expect(requestPage.checkButton).toBeVisible();
+      await requestPage.checkButton.click();
+      await requestPage.closeNotification();
+      await expect(requestPage.getByText("new comment")).toBeVisible();
+    });
 
-  await test.step("Delete the comment", async () => {
-    await expect(requestPage.deleteButton).toBeVisible();
-    await requestPage.deleteButton.click();
-    await requestPage.closeNotification();
-    await expect(requestPage.getByText("new comment")).toBeHidden();
-  });
-});
-
-test("Comment CRUD on Request page has succeeded", {
-  tag: TAG.TO_ABANDON,
-  annotation: {
-    type: "consolidate",
-    description: '"Comment CRUD on Content page" in content.spec.ts (@smoke)',
+    await test.step("Delete the comment", async () => {
+      await expect(requestPage.deleteButton).toBeVisible();
+      await requestPage.deleteButton.click();
+      await requestPage.closeNotification();
+      await expect(requestPage.getByText("new comment")).toBeHidden();
+    });
   },
-}, async ({ requestPage, contentPage }) => {
-  await test.step("Navigate to request comments panel", async () => {
-    await requestPage.requestMenuItem.click();
-    await requestPage.commentsCountButton("0").click();
-  });
+);
 
-  await test.step("Create, update, and delete comment", async () => {
-    await contentPage.createComment("comment");
-    await contentPage.updateComment("comment", "new comment");
-    await contentPage.deleteComment();
-  });
-});
+test(
+  "Comment CRUD on Request page has succeeded",
+  {
+    tag: TAG.TO_ABANDON,
+    annotation: {
+      type: "consolidate",
+      description: '"Comment CRUD on Content page" in content.spec.ts (@smoke)',
+    },
+  },
+  async ({ requestPage, contentPage }) => {
+    await test.step("Navigate to request comments panel", async () => {
+      await requestPage.requestMenuItem.click();
+      await requestPage.commentsCountButton("0").click();
+    });
+
+    await test.step("Create, update, and delete comment", async () => {
+      await contentPage.createComment("comment");
+      await contentPage.updateComment("comment", "new comment");
+      await contentPage.deleteComment();
+    });
+  },
+);
 
 test("Creating a new request and adding to request has succeeded", async ({ requestPage }) => {
   await test.step("Create a new item", async () => {

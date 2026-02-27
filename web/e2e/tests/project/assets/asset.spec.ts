@@ -106,32 +106,40 @@ test.describe("Json file tests", () => {
     await assetsPage.closeNotification();
   });
 
-  test("Comment CRUD on edit page has succeeded", {
-    tag: TAG.TO_ABANDON,
-    annotation: {
-      type: "consolidate",
-      description: '"Comment CRUD on Content page" in content.spec.ts (@smoke)',
+  test(
+    "Comment CRUD on edit page has succeeded",
+    {
+      tag: TAG.TO_ABANDON,
+      annotation: {
+        type: "consolidate",
+        description: '"Comment CRUD on Content page" in content.spec.ts (@smoke)',
+      },
     },
-  }, async ({ assetsPage, contentPage }) => {
-    await assetsPage.editIconButton.click();
-    await assetsPage.commentButton.click();
-    await contentPage.createComment("comment");
-    await contentPage.updateComment("comment", "new comment");
-    await contentPage.deleteComment();
-  });
+    async ({ assetsPage, contentPage }) => {
+      await assetsPage.editIconButton.click();
+      await assetsPage.commentButton.click();
+      await contentPage.createComment("comment");
+      await contentPage.updateComment("comment", "new comment");
+      await contentPage.deleteComment();
+    },
+  );
 
-  test("Comment CRUD on Asset page has succeeded", {
-    tag: TAG.TO_ABANDON,
-    annotation: {
-      type: "consolidate",
-      description: '"Comment CRUD on Content page" in content.spec.ts (@smoke)',
+  test(
+    "Comment CRUD on Asset page has succeeded",
+    {
+      tag: TAG.TO_ABANDON,
+      annotation: {
+        type: "consolidate",
+        description: '"Comment CRUD on Content page" in content.spec.ts (@smoke)',
+      },
     },
-  }, async ({ assetsPage, contentPage }) => {
-    await assetsPage.commentsCountButton(0).click();
-    await contentPage.createComment("comment");
-    await contentPage.updateComment("comment", "new comment");
-    await contentPage.deleteComment();
-  });
+    async ({ assetsPage, contentPage }) => {
+      await assetsPage.commentsCountButton(0).click();
+      await contentPage.createComment("comment");
+      await contentPage.updateComment("comment", "new comment");
+      await contentPage.deleteComment();
+    },
+  );
 });
 
 test("Previewing png file on modal has succeeded", async ({ assetsPage }) => {

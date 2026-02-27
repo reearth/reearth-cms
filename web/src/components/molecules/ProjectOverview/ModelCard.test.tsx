@@ -50,9 +50,7 @@ const openSubmenu = async (testId: DATA_TEST_ID) => {
   await user.hover(trigger);
 };
 
-const buildModelWithFields = (
-  fields: { id: string; type: SchemaFieldType }[],
-): Props["model"] => ({
+const buildModelWithFields = (fields: { id: string; type: SchemaFieldType }[]): Props["model"] => ({
   ...buildProps().model,
   schema: {
     id: "test-schema-id",
@@ -198,9 +196,7 @@ describe("Test ModelCard component", () => {
     render(<ModelCard {...props} />);
     await openDropdown();
     await openSubmenu(DATA_TEST_ID.ModelCard__UtilDropdownExport);
-    await user.click(
-      await screen.findByTestId(DATA_TEST_ID.ModelCard__UtilDropdownExportSchema),
-    );
+    await user.click(await screen.findByTestId(DATA_TEST_ID.ModelCard__UtilDropdownExportSchema));
     expect(props.onModelExport).toHaveBeenCalledWith("test-id", ExportFormat.Schema);
   });
 
@@ -225,9 +221,7 @@ describe("Test ModelCard component", () => {
   });
 
   test("GeoJSON export with 1 geometry field exports directly", async () => {
-    const model = buildModelWithFields([
-      { id: "geo1", type: SchemaFieldType.GeometryEditor },
-    ]);
+    const model = buildModelWithFields([{ id: "geo1", type: SchemaFieldType.GeometryEditor }]);
     const props = buildProps({ model });
     render(<ModelCard {...props} />);
     await openDropdown();

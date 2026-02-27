@@ -62,9 +62,7 @@ describe("ViewsMenuItem", () => {
     await userEvent.click(moreIcon);
     await userEvent.click(screen.getByText("Remove View"));
 
-    expect(
-      screen.getByText("Are you sure you want to delete this view?"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Are you sure you want to delete this view?")).toBeInTheDocument();
   });
 
   test("calls onUpdate when Update View is clicked", async () => {

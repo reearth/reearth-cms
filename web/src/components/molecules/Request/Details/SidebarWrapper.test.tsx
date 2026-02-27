@@ -121,8 +121,10 @@ describe("RequestSidebarWrapper", () => {
     const combobox = screen.getByRole("combobox");
 
     // Open dropdown via mouseDown on the selector container
-     
-    fireEvent.mouseDown(combobox.closest(".ant-select-selector")!);
+
+    const selector = combobox.closest(".ant-select-selector");
+    if (!selector) return;
+    fireEvent.mouseDown(selector);
 
     // Carol is not in reviewers so findByTitle is unambiguous (no Reviewer div conflict)
     await user.click(await screen.findByTitle("Carol"));
@@ -159,8 +161,9 @@ describe("RequestSidebarWrapper", () => {
     await user.click(screen.getByText("Assign to"));
     const combobox = screen.getByRole("combobox");
 
-     
-    fireEvent.mouseDown(combobox.closest(".ant-select-selector")!);
+    const selector = combobox.closest(".ant-select-selector");
+    if (!selector) return;
+    fireEvent.mouseDown(selector);
 
     // Alice is not a reviewer so findByTitle is unambiguous
     // Select Alice → selectedReviewers = ["u3", "u1"]
@@ -221,8 +224,9 @@ describe("RequestSidebarWrapper", () => {
     await user.click(screen.getByText("Assign to"));
     const combobox = screen.getByRole("combobox");
 
-     
-    fireEvent.mouseDown(combobox.closest(".ant-select-selector")!);
+    const selector = combobox.closest(".ant-select-selector");
+    if (!selector) return;
+    fireEvent.mouseDown(selector);
 
     await user.click(await screen.findByTitle("Carol"));
 

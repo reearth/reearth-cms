@@ -25,7 +25,12 @@ describe("initialValuesGet", () => {
 
   test("converts Date type fields using dateConvert", () => {
     const fields = [
-      { schemaFieldId: "dateField", type: "Date", value: "2024-01-15T10:30:00Z", itemGroupId: null },
+      {
+        schemaFieldId: "dateField",
+        type: "Date",
+        value: "2024-01-15T10:30:00Z",
+        itemGroupId: null,
+      },
     ];
     const result = initialValuesGet(fields as never);
     expect(result.dateField).toBeTruthy();

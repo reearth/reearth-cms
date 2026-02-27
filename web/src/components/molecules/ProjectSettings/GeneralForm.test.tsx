@@ -48,9 +48,13 @@ describe("General form", () => {
     );
 
     expect(screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__NameInput)).toBeVisible();
-    expect(screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__NameInput)).toHaveValue(name);
+    expect(screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__NameInput)).toHaveValue(
+      name,
+    );
     expect(screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__AliasInput)).toBeVisible();
-    expect(screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__AliasInput)).toHaveValue(alias);
+    expect(screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__AliasInput)).toHaveValue(
+      alias,
+    );
     expect(
       screen.getByTestId(DATA_TEST_ID.ProjectSettings__GeneralForm__DescriptionInput),
     ).toBeVisible();

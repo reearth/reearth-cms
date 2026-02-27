@@ -5,7 +5,6 @@ import { describe, expect, test } from "vitest";
 import useUploaderHook from "./hooks";
 import { UploaderHookState, UploaderHookStateContext } from "./provider";
 
-
 describe("useUploaderHook", () => {
   test("Throws error when used outside UploaderProvider", () => {
     expect(() => renderHook(() => useUploaderHook())).toThrow(

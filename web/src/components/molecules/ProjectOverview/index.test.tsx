@@ -84,9 +84,7 @@ describe("ProjectOverview", () => {
   test("placeholder button calls onModelModalOpen", async () => {
     const props = buildProps({ models: [] });
     render(<ProjectOverview {...props} />);
-    await user.click(
-      screen.getByTestId(DATA_TEST_ID.ProjectOverview__NewModelPlaceholderButton),
-    );
+    await user.click(screen.getByTestId(DATA_TEST_ID.ProjectOverview__NewModelPlaceholderButton));
     expect(props.onModelModalOpen).toHaveBeenCalledOnce();
   });
 

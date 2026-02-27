@@ -18,16 +18,12 @@ describe("LocalTab", () => {
 
   test("renders drag-and-drop instruction text", () => {
     render(<LocalTab uploadProps={{}} />);
-    expect(
-      screen.getByText("Click or drag files to this area to upload"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Click or drag files to this area to upload")).toBeInTheDocument();
   });
 
   test("shows multiple-file hint when uploadProps.multiple is true", () => {
     render(<LocalTab uploadProps={{ multiple: true }} />);
-    expect(
-      screen.getByText("Single or multiple file upload is supported"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Single or multiple file upload is supported")).toBeInTheDocument();
   });
 
   test("shows single-file hint when uploadProps.multiple is false", () => {
@@ -42,10 +38,7 @@ describe("LocalTab", () => {
 
   test("renders alert from alertList", () => {
     render(
-      <LocalTab
-        uploadProps={{}}
-        alertList={[{ message: "File too large", type: "error" }]}
-      />,
+      <LocalTab uploadProps={{}} alertList={[{ message: "File too large", type: "error" }]} />,
     );
     expect(screen.getByText("File too large")).toBeInTheDocument();
   });
@@ -74,10 +67,7 @@ describe("LocalTab", () => {
     const parentClick = vi.fn();
     render(
       <div onClick={parentClick}>
-        <LocalTab
-          uploadProps={{}}
-          alertList={[{ message: "Size limit", type: "warning" }]}
-        />
+        <LocalTab uploadProps={{}} alertList={[{ message: "Size limit", type: "warning" }]} />
       </div>,
     );
     await user.click(screen.getByText("Size limit"));

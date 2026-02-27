@@ -24,78 +24,86 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("URL field creating and updating has succeeded", { tag: TAG.FIELD_VARIANT }, async ({ fieldEditorPage, contentPage }) => {
-  await fieldEditorPage.createField({
-    type: SchemaFieldType.URL,
-    name: fieldName,
-    key: fieldKey,
-    description: fieldDescription,
-  });
+test(
+  "URL field creating and updating has succeeded",
+  { tag: TAG.FIELD_VARIANT },
+  async ({ fieldEditorPage, contentPage }) => {
+    await fieldEditorPage.createField({
+      type: SchemaFieldType.URL,
+      name: fieldName,
+      key: fieldKey,
+      description: fieldDescription,
+    });
 
-  await expect(fieldEditorPage.fieldsContainerParagraph).toContainText(fieldHeader);
-  await contentPage.contentText.click();
-  await contentPage.newItemButton.click();
-  await expect(contentPage.labelElement()).toContainText(fieldName);
-  await expect(contentPage.mainElement).toContainText(fieldDescription);
-  await contentPage.fieldInput(fieldName).click();
-  await contentPage.fieldInput(fieldName).fill(testUrl1);
-  await contentPage.saveButton.click();
-  await contentPage.closeNotification();
-  await contentPage.backButton.click();
-  await expect(contentPage.cellByTextExact(testUrl1)).toBeVisible();
+    await expect(fieldEditorPage.fieldsContainerParagraph).toContainText(fieldHeader);
+    await contentPage.contentText.click();
+    await contentPage.newItemButton.click();
+    await expect(contentPage.labelElement()).toContainText(fieldName);
+    await expect(contentPage.mainElement).toContainText(fieldDescription);
+    await contentPage.fieldInput(fieldName).click();
+    await contentPage.fieldInput(fieldName).fill(testUrl1);
+    await contentPage.saveButton.click();
+    await contentPage.closeNotification();
+    await contentPage.backButton.click();
+    await expect(contentPage.cellByTextExact(testUrl1)).toBeVisible();
 
-  await contentPage.editButton.click();
-  await expect(contentPage.fieldInput(fieldName)).toHaveValue(testUrl1);
-  await contentPage.fieldInput(fieldName).click();
-  await contentPage.fieldInput(fieldName).fill(testUrl2);
-  await contentPage.saveButton.click();
-  await contentPage.closeNotification();
-  await contentPage.backButton.click();
-  await expect(contentPage.cellByTextExact(testUrl2)).toBeVisible();
-});
+    await contentPage.editButton.click();
+    await expect(contentPage.fieldInput(fieldName)).toHaveValue(testUrl1);
+    await contentPage.fieldInput(fieldName).click();
+    await contentPage.fieldInput(fieldName).fill(testUrl2);
+    await contentPage.saveButton.click();
+    await contentPage.closeNotification();
+    await contentPage.backButton.click();
+    await expect(contentPage.cellByTextExact(testUrl2)).toBeVisible();
+  },
+);
 
-test("URL field editing has succeeded", { tag: TAG.FIELD_VARIANT }, async ({ fieldEditorPage, contentPage, schemaPage }) => {
-  await fieldEditorPage.createField({
-    type: SchemaFieldType.URL,
-    name: fieldName,
-    key: fieldKey,
-    description: fieldDescription,
-    defaultValue: testUrl1,
-  });
+test(
+  "URL field editing has succeeded",
+  { tag: TAG.FIELD_VARIANT },
+  async ({ fieldEditorPage, contentPage, schemaPage }) => {
+    await fieldEditorPage.createField({
+      type: SchemaFieldType.URL,
+      name: fieldName,
+      key: fieldKey,
+      description: fieldDescription,
+      defaultValue: testUrl1,
+    });
 
-  await contentPage.contentText.click();
-  await expect(contentPage.tableHead).toContainText(fieldName);
-  await contentPage.newItemButton.click();
-  await contentPage.saveButton.click();
-  await contentPage.closeNotification();
-  await contentPage.backButton.click();
-  await expect(contentPage.cellByTextExact(testUrl1)).toBeVisible();
+    await contentPage.contentText.click();
+    await expect(contentPage.tableHead).toContainText(fieldName);
+    await contentPage.newItemButton.click();
+    await contentPage.saveButton.click();
+    await contentPage.closeNotification();
+    await contentPage.backButton.click();
+    await expect(contentPage.cellByTextExact(testUrl1)).toBeVisible();
 
-  await schemaPage.schemaText.click();
-  await fieldEditorPage.editField({
-    type: SchemaFieldType.URL,
-    name: newFieldName,
-    key: newFieldKey,
-    description: newFieldDescription,
-    multiple: true,
-    required: true,
-    unique: true,
-    addDefaultValues: [testUrl2],
-  });
+    await schemaPage.schemaText.click();
+    await fieldEditorPage.editField({
+      type: SchemaFieldType.URL,
+      name: newFieldName,
+      key: newFieldKey,
+      description: newFieldDescription,
+      multiple: true,
+      required: true,
+      unique: true,
+      addDefaultValues: [testUrl2],
+    });
 
-  await expect(schemaPage.uniqueFieldText(newFieldName, newFieldKey)).toBeVisible();
-  await contentPage.contentText.click();
-  await expect(contentPage.tableHead).toContainText(newFieldName);
-  await expect(contentPage.cellByTextExact(testUrl1)).toBeVisible();
-  await contentPage.newItemButton.click();
-  await expect(contentPage.uniqueFieldLabel(newFieldName)).toBeVisible();
-  await expect(contentPage.textBoxByIndex(0)).toHaveValue(testUrl1);
-  await expect(contentPage.textBoxByIndex(1)).toHaveValue(testUrl2);
-  await contentPage.saveButton.click();
-  await contentPage.closeNotification();
-  await contentPage.backButton.click();
-  await contentPage.x2Button.click();
-  await expect(contentPage.tooltip).toContainText("http://test1.comhttp://test2.com");
+    await expect(schemaPage.uniqueFieldText(newFieldName, newFieldKey)).toBeVisible();
+    await contentPage.contentText.click();
+    await expect(contentPage.tableHead).toContainText(newFieldName);
+    await expect(contentPage.cellByTextExact(testUrl1)).toBeVisible();
+    await contentPage.newItemButton.click();
+    await expect(contentPage.uniqueFieldLabel(newFieldName)).toBeVisible();
+    await expect(contentPage.textBoxByIndex(0)).toHaveValue(testUrl1);
+    await expect(contentPage.textBoxByIndex(1)).toHaveValue(testUrl2);
+    await contentPage.saveButton.click();
+    await contentPage.closeNotification();
+    await contentPage.backButton.click();
+    await contentPage.x2Button.click();
+    await expect(contentPage.tooltip).toContainText("http://test1.comhttp://test2.com");
 
-  await expect(contentPage.tooltip).toContainText("new url1http://test1.comhttp://test2.com");
-});
+    await expect(contentPage.tooltip).toContainText("new url1http://test1.comhttp://test2.com");
+  },
+);

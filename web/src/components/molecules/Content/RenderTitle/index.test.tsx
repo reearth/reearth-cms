@@ -5,7 +5,6 @@ import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 
 import { renderTitle } from ".";
 
-
 const baseField: Field = {
   id: "field-1",
   type: "Text",

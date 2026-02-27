@@ -43,7 +43,9 @@ describe("Content Form field utils", () => {
     });
 
     test("rejects when required and array has all empty values", async () => {
-      await expect(requiredValidator({ required: true }, ["", null, undefined])).rejects.toBeUndefined();
+      await expect(
+        requiredValidator({ required: true }, ["", null, undefined]),
+      ).rejects.toBeUndefined();
     });
 
     test("resolves when required and value is non-empty", async () => {
@@ -73,7 +75,9 @@ describe("Content Form field utils", () => {
     });
 
     test("returns indexes of invalid URLs in array", () => {
-      expect(urlErrorIndexesGet(["https://example.com", "bad-url", "https://valid.org"])).toEqual([1]);
+      expect(urlErrorIndexesGet(["https://example.com", "bad-url", "https://valid.org"])).toEqual([
+        1,
+      ]);
     });
 
     test("returns empty array when all URLs in array are valid", () => {

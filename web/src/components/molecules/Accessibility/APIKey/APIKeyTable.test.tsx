@@ -17,8 +17,20 @@ vi.mock("./KeyCell", () => ({
 }));
 
 const sampleKeys = [
-  { id: "key-1", name: "Production Key", description: "", key: "sk-prod-abc", publication: { publicModels: [], publicAssets: false } },
-  { id: "key-2", name: "Staging Key", description: "", key: "sk-staging-xyz", publication: { publicModels: [], publicAssets: false } },
+  {
+    id: "key-1",
+    name: "Production Key",
+    description: "",
+    key: "sk-prod-abc",
+    publication: { publicModels: [], publicAssets: false },
+  },
+  {
+    id: "key-2",
+    name: "Staging Key",
+    description: "",
+    key: "sk-staging-xyz",
+    publication: { publicModels: [], publicAssets: false },
+  },
 ];
 
 describe("APIKeyTable", () => {

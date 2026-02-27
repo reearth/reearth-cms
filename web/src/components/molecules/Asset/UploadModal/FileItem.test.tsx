@@ -57,10 +57,7 @@ describe("FileItem", () => {
 
   test("checkbox unchecked when skipDecompression is true", () => {
     render(
-      <FileItem
-        file={makeFile("archive.zip", { skipDecompression: true })}
-        remove={vi.fn()}
-      />,
+      <FileItem file={makeFile("archive.zip", { skipDecompression: true })} remove={vi.fn()} />,
     );
     expect(screen.getByRole("checkbox")).not.toBeChecked();
   });

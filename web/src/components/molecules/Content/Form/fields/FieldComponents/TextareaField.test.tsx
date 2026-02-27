@@ -62,8 +62,13 @@ const FormCapture: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 const renderField = (options: RenderOptions = {}) => {
-  const { fieldOverrides, disabled = false, itemGroupId, itemHeights, onItemHeightChange } =
-    options;
+  const {
+    fieldOverrides,
+    disabled = false,
+    itemGroupId,
+    itemHeights,
+    onItemHeightChange,
+  } = options;
   formInstance = undefined;
   render(
     <FormCapture>
@@ -115,51 +120,58 @@ describe("TextareaField", () => {
   test("itemGroupId produces compound form name", () => {
     renderField({ itemGroupId: "group-1" });
     expect(formInstance).toBeDefined();
-    formInstance!.setFieldValue(["field-1", "group-1"], "test-value");
-    const values = formInstance!.getFieldsValue(true);
+    if (!formInstance) return;
+    formInstance.setFieldValue(["field-1", "group-1"], "test-value");
+    const values = formInstance.getFieldsValue(true);
     expect(values).toHaveProperty(["field-1", "group-1"], "test-value");
   });
 
   test("maxLength validator rejects string exceeding limit", async () => {
     renderField({ fieldOverrides: { typeProperty: { maxLength: 5 } } });
     expect(formInstance).toBeDefined();
-    formInstance!.setFieldValue("field-1", "abcdef");
-    await expect(formInstance!.validateFields()).rejects.toBeDefined();
+    if (!formInstance) return;
+    formInstance.setFieldValue("field-1", "abcdef");
+    await expect(formInstance.validateFields()).rejects.toBeDefined();
   });
 
   test("maxLength validator resolves string within limit", async () => {
     renderField({ fieldOverrides: { typeProperty: { maxLength: 10 } } });
     expect(formInstance).toBeDefined();
-    formInstance!.setFieldValue("field-1", "abc");
-    await expect(formInstance!.validateFields()).resolves.toBeDefined();
+    if (!formInstance) return;
+    formInstance.setFieldValue("field-1", "abc");
+    await expect(formInstance.validateFields()).resolves.toBeDefined();
   });
 
   test("maxLength validator rejects array item exceeding limit", async () => {
     renderField({ fieldOverrides: { typeProperty: { maxLength: 3 } } });
     expect(formInstance).toBeDefined();
-    formInstance!.setFieldValue("field-1", ["ab", "abcd"]);
-    await expect(formInstance!.validateFields()).rejects.toBeDefined();
+    if (!formInstance) return;
+    formInstance.setFieldValue("field-1", ["ab", "abcd"]);
+    await expect(formInstance.validateFields()).rejects.toBeDefined();
   });
 
   test("maxLength validator resolves when value is null", async () => {
     renderField({ fieldOverrides: { typeProperty: { maxLength: 5 } } });
     expect(formInstance).toBeDefined();
-    formInstance!.setFieldValue("field-1", null);
-    await expect(formInstance!.validateFields()).resolves.toBeDefined();
+    if (!formInstance) return;
+    formInstance.setFieldValue("field-1", null);
+    await expect(formInstance.validateFields()).resolves.toBeDefined();
   });
 
   test("maxLength validator resolves when maxLength is undefined", async () => {
     renderField();
     expect(formInstance).toBeDefined();
-    formInstance!.setFieldValue("field-1", "a very long string that exceeds any reasonable limit");
-    await expect(formInstance!.validateFields()).resolves.toBeDefined();
+    if (!formInstance) return;
+    formInstance.setFieldValue("field-1", "a very long string that exceeds any reasonable limit");
+    await expect(formInstance.validateFields()).resolves.toBeDefined();
   });
 
   test("maxLength validator ignores non-string items in array", async () => {
     renderField({ fieldOverrides: { typeProperty: { maxLength: 3 } } });
     expect(formInstance).toBeDefined();
-    formInstance!.setFieldValue("field-1", [null, undefined, 12345]);
-    await expect(formInstance!.validateFields()).resolves.toBeDefined();
+    if (!formInstance) return;
+    formInstance.setFieldValue("field-1", [null, undefined, 12345]);
+    await expect(formInstance.validateFields()).resolves.toBeDefined();
   });
 
   test("forwards itemHeights and onItemHeightChange to ResponsiveHeight", () => {

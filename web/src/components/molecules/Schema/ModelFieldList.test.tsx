@@ -7,10 +7,15 @@ import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import ModelFieldList from "./ModelFieldList";
 import type { Field } from "./types";
 
-
 let capturedOnDragEnd: (fromIndex: number, toIndex: number) => void;
 vi.mock("react-drag-listview", () => ({
-  default: ({ children, onDragEnd }: { children: React.ReactNode; onDragEnd: (f: number, t: number) => void }) => {
+  default: ({
+    children,
+    onDragEnd,
+  }: {
+    children: React.ReactNode;
+    onDragEnd: (f: number, t: number) => void;
+  }) => {
     capturedOnDragEnd = onDragEnd;
     return <div>{children}</div>;
   },
@@ -138,14 +143,10 @@ describe("ModelFieldList", () => {
   test("calls onFieldDelete with field id after PopConfirm confirmation", async () => {
     const onFieldDelete = vi.fn().mockResolvedValue(undefined);
     const fields = [makeField({ id: "f1", title: "Name", key: "name" })];
-    render(
-      <ModelFieldList {...defaultProps} fields={fields} onFieldDelete={onFieldDelete} />,
-    );
+    render(<ModelFieldList {...defaultProps} fields={fields} onFieldDelete={onFieldDelete} />);
     const deleteButton = screen.getByRole("button", { name: "delete" });
     await user.click(deleteButton);
-    const confirmButton = screen.getByTestId(
-      DATA_TEST_ID.ModelFieldList__ConfirmDeleteFieldButton,
-    );
+    const confirmButton = screen.getByTestId(DATA_TEST_ID.ModelFieldList__ConfirmDeleteFieldButton);
     await user.click(confirmButton);
     expect(onFieldDelete).toHaveBeenCalledWith("f1");
   });
@@ -187,7 +188,14 @@ describe("ModelFieldList", () => {
 
   test("renders all badges simultaneously on a single field", () => {
     const fields = [
-      makeField({ id: "f1", title: "Name", key: "name", required: true, unique: true, isTitle: true }),
+      makeField({
+        id: "f1",
+        title: "Name",
+        key: "name",
+        required: true,
+        unique: true,
+        isTitle: true,
+      }),
     ];
     render(<ModelFieldList {...defaultProps} fields={fields} />);
     expect(screen.getByText("*", { exact: false })).toBeInTheDocument();
@@ -223,7 +231,9 @@ describe("ModelFieldList", () => {
       makeField({ id: "f1", title: "First", key: "first" }),
       makeField({ id: "f2", title: "Second", key: "second" }),
     ];
-    render(<ModelFieldList {...defaultProps} isMeta fields={fields} onFieldReorder={onFieldReorder} />);
+    render(
+      <ModelFieldList {...defaultProps} isMeta fields={fields} onFieldReorder={onFieldReorder} />,
+    );
     capturedOnDragEnd(0, 1);
     expect(onFieldReorder).toHaveBeenCalledWith([
       expect.objectContaining({ id: "f2", metadata: true }),

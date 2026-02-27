@@ -36,10 +36,7 @@ describe("Versions", () => {
   });
 
   test("shows 'current' tag on first version only", () => {
-    const versions = [
-      makeVersion({ version: "2" }),
-      makeVersion({ version: "1" }),
-    ];
+    const versions = [makeVersion({ version: "2" }), makeVersion({ version: "1" })];
     render(<Versions versions={versions} {...defaultProps()} />);
     const currentTags = screen.getAllByText("current");
     expect(currentTags).toHaveLength(1);
@@ -101,12 +98,7 @@ describe("Versions", () => {
   });
 
   test("renders Versions__RequestStatus badge", () => {
-    render(
-      <Versions
-        versions={[makeVersion({ status: "DRAFT" })]}
-        {...defaultProps()}
-      />,
-    );
+    render(<Versions versions={[makeVersion({ status: "DRAFT" })]} {...defaultProps()} />);
     expect(screen.getByTestId(DATA_TEST_ID.Versions__RequestStatus)).toBeInTheDocument();
   });
 

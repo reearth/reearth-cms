@@ -70,11 +70,7 @@ describe("UnzipFileList", () => {
     const setAssetUrl = vi.fn();
     const user = userEvent.setup();
     render(
-      <UnzipFileList
-        {...defaultProps}
-        setAssetUrl={setAssetUrl}
-        archiveExtractionStatus="DONE"
-      />,
+      <UnzipFileList {...defaultProps} setAssetUrl={setAssetUrl} archiveExtractionStatus="DONE" />,
     );
     const file1 = screen.getByText("file1.txt");
     await user.click(file1);

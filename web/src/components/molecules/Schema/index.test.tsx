@@ -5,7 +5,6 @@ import { describe, test, expect, vi } from "vitest";
 import type { Model } from "@reearth-cms/components/molecules/Model/types";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
-
 import type { Group } from "./types";
 
 import SchemaComponent from ".";
@@ -135,36 +134,18 @@ describe("Schema", () => {
   });
 
   test("renders tabs for model schema type", () => {
-    render(
-      <SchemaComponent
-        {...defaultProps}
-        data={makeModelData()}
-        selectedSchemaType="model"
-      />,
-    );
+    render(<SchemaComponent {...defaultProps} data={makeModelData()} selectedSchemaType="model" />);
     expect(screen.getByText("Fields")).toBeVisible();
     expect(screen.getByTestId(DATA_TEST_ID.Schema__MetaDataTab)).toBeVisible();
   });
 
   test("does not render tabs for group schema type", () => {
-    render(
-      <SchemaComponent
-        {...defaultProps}
-        data={makeGroupData()}
-        selectedSchemaType="group"
-      />,
-    );
+    render(<SchemaComponent {...defaultProps} data={makeGroupData()} selectedSchemaType="group" />);
     expect(screen.queryByTestId(DATA_TEST_ID.Schema__FieldsTabs)).not.toBeInTheDocument();
   });
 
   test("renders ModelFieldList in group mode without tabs", () => {
-    render(
-      <SchemaComponent
-        {...defaultProps}
-        data={makeGroupData()}
-        selectedSchemaType="group"
-      />,
-    );
+    render(<SchemaComponent {...defaultProps} data={makeGroupData()} selectedSchemaType="group" />);
     const fieldLists = screen.getAllByTestId("ModelFieldList");
     expect(fieldLists.length).toBeGreaterThan(0);
   });
@@ -200,13 +181,7 @@ describe("Schema", () => {
   });
 
   test("renders PageHeader with group name for group data", () => {
-    render(
-      <SchemaComponent
-        {...defaultProps}
-        data={makeGroupData()}
-        selectedSchemaType="group"
-      />,
-    );
+    render(<SchemaComponent {...defaultProps} data={makeGroupData()} selectedSchemaType="group" />);
     expect(screen.getByText("TestGroup")).toBeVisible();
     expect(screen.getByText("#test-group")).toBeVisible();
   });
@@ -235,9 +210,7 @@ describe("Schema", () => {
 
   test("calls onModalOpen when Edit dropdown item is clicked", async () => {
     const onModalOpen = vi.fn();
-    render(
-      <SchemaComponent {...defaultProps} data={makeModelData()} onModalOpen={onModalOpen} />,
-    );
+    render(<SchemaComponent {...defaultProps} data={makeModelData()} onModalOpen={onModalOpen} />);
     const moreButton = screen.getByRole("button", { name: "more" });
     await user.hover(moreButton);
     // Wait for dropdown menu to appear

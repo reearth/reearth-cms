@@ -1,7 +1,6 @@
 import { screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 
-import { ViewerType } from "@reearth-cms/components/molecules/Asset/types";
 import { render } from "@reearth-cms/test/utils";
 
 import PreviewToolbar from "./previewToolbar";
@@ -49,7 +48,11 @@ describe("PreviewToolbar", () => {
   test("calls onCodeSourceClick on Source Code click", () => {
     const onCodeSourceClick = vi.fn();
     render(
-      <PreviewToolbar {...defaultProps} viewerType="image_svg" onCodeSourceClick={onCodeSourceClick} />,
+      <PreviewToolbar
+        {...defaultProps}
+        viewerType="image_svg"
+        onCodeSourceClick={onCodeSourceClick}
+      />,
     );
     screen.getByText("Source Code").click();
     expect(onCodeSourceClick).toHaveBeenCalledOnce();
@@ -66,10 +69,10 @@ describe("PreviewToolbar", () => {
 
   test("calls onFullScreen on fullscreen button click", () => {
     const onFullScreen = vi.fn();
-    render(
-      <PreviewToolbar {...defaultProps} viewerType="image" onFullScreen={onFullScreen} />,
-    );
-    screen.getByTestId("icon-fullscreen").closest("button")!.click();
+    render(<PreviewToolbar {...defaultProps} viewerType="image" onFullScreen={onFullScreen} />);
+    const button = screen.getByTestId("icon-fullscreen").closest("button");
+    if (!button) return;
+    button.click();
     expect(onFullScreen).toHaveBeenCalledOnce();
   });
 });

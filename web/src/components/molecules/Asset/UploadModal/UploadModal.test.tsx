@@ -39,9 +39,7 @@ describe("UploadModal", () => {
 
   test("submit button shows Upload by default", () => {
     render(<UploadModal {...DEFAULT_PROPS} />);
-    expect(screen.getByTestId(DATA_TEST_ID.UploadModal__SubmitButton)).toHaveTextContent(
-      "Upload",
-    );
+    expect(screen.getByTestId(DATA_TEST_ID.UploadModal__SubmitButton)).toHaveTextContent("Upload");
   });
 
   test("submit button shows Upload and Link when alsoLink", () => {
@@ -64,12 +62,7 @@ describe("UploadModal", () => {
   });
 
   test("submit button enabled when fileList has items", () => {
-    render(
-      <UploadModal
-        {...DEFAULT_PROPS}
-        fileList={[{ uid: "1", name: "test.png" }]}
-      />,
-    );
+    render(<UploadModal {...DEFAULT_PROPS} fileList={[{ uid: "1", name: "test.png" }]} />);
     expect(screen.getByTestId(DATA_TEST_ID.UploadModal__SubmitButton)).not.toBeDisabled();
   });
 

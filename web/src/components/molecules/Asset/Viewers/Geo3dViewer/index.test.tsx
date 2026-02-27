@@ -36,7 +36,11 @@ describe("Geo3dViewer", () => {
   test(".zip URL triggers setAssetUrl with tileset.json", () => {
     const setAssetUrl = vi.fn();
     render(
-      <Geo3dViewer {...defaultProps} url="https://example.com/model.zip" setAssetUrl={setAssetUrl} />,
+      <Geo3dViewer
+        {...defaultProps}
+        url="https://example.com/model.zip"
+        setAssetUrl={setAssetUrl}
+      />,
     );
     expect(setAssetUrl).toHaveBeenCalledWith("https://example.com/model/tileset.json");
   });
@@ -44,7 +48,11 @@ describe("Geo3dViewer", () => {
   test(".7z URL triggers setAssetUrl with tileset.json", () => {
     const setAssetUrl = vi.fn();
     render(
-      <Geo3dViewer {...defaultProps} url="https://example.com/model.7z" setAssetUrl={setAssetUrl} />,
+      <Geo3dViewer
+        {...defaultProps}
+        url="https://example.com/model.7z"
+        setAssetUrl={setAssetUrl}
+      />,
     );
     expect(setAssetUrl).toHaveBeenCalledWith("https://example.com/model/tileset.json");
   });

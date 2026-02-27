@@ -42,9 +42,7 @@ describe("TextField", () => {
         <TextField multiple={false} />
       </Form>,
     );
-    expect(
-      screen.getByTestId(DATA_TEST_ID.FieldModal__SetDefaultValueInput),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.FieldModal__SetDefaultValueInput)).toBeInTheDocument();
   });
 
   test("renders multi value field when multiple is true", () => {
@@ -74,9 +72,7 @@ describe("TextAreaField", () => {
         <TextAreaField multiple={false} />
       </Form>,
     );
-    expect(
-      screen.getByTestId(DATA_TEST_ID.FieldModal__SetDefaultValueInput),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.FieldModal__SetDefaultValueInput)).toBeInTheDocument();
   });
 
   test("renders multi value field when multiple is true", () => {
@@ -106,9 +102,7 @@ describe("NumberField", () => {
         <NumberField multiple={false} />
       </Form>,
     );
-    expect(
-      screen.getByTestId(DATA_TEST_ID.FieldModal__SetDefaultValueInput),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.FieldModal__SetDefaultValueInput)).toBeInTheDocument();
   });
 
   test("renders multi value field when multiple is true", () => {
@@ -138,9 +132,7 @@ describe("BooleanField", () => {
         <BooleanField multiple={false} />
       </Form>,
     );
-    expect(
-      screen.getByTestId(DATA_TEST_ID.FieldModal__SetDefaultValueInput),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.FieldModal__SetDefaultValueInput)).toBeInTheDocument();
   });
 
   test("renders multi value boolean field when multiple is true", () => {
@@ -214,9 +206,7 @@ describe("CheckboxField", () => {
         <CheckboxField multiple={false} />
       </Form>,
     );
-    expect(
-      screen.getByTestId(DATA_TEST_ID.FieldModal__SetDefaultValueInput),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.FieldModal__SetDefaultValueInput)).toBeInTheDocument();
   });
 
   test("renders multi value checkbox field when multiple is true", () => {
@@ -238,9 +228,7 @@ describe("SelectField", () => {
         <SelectField selectedValues={values} multiple={false} />
       </Form>,
     );
-    expect(
-      screen.getByTestId(DATA_TEST_ID.FieldModal__SetDefaultValueInput),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.FieldModal__SetDefaultValueInput)).toBeInTheDocument();
   });
 
   test("renders multi select when multiple is true", () => {
@@ -258,9 +246,7 @@ describe("SelectField", () => {
         <SelectField multiple={false} />
       </Form>,
     );
-    expect(
-      screen.getByTestId(DATA_TEST_ID.FieldModal__SetDefaultValueInput),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.FieldModal__SetDefaultValueInput)).toBeInTheDocument();
   });
 });
 
@@ -271,9 +257,7 @@ describe("URLField", () => {
         <URLField multiple={false} />
       </Form>,
     );
-    expect(
-      screen.getByTestId(DATA_TEST_ID.FieldModal__SetDefaultValueInput),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.FieldModal__SetDefaultValueInput)).toBeInTheDocument();
   });
 
   test("renders multi value field when multiple is true", () => {

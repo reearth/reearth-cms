@@ -31,9 +31,7 @@ describe("DangerZone", () => {
     await user.click(screen.getByRole("button", { name: "Delete Personal Account" }));
     await expect.poll(() => screen.getByRole("dialog")).toBeVisible();
 
-    await user.click(
-      within(screen.getByRole("dialog")).getByRole("button", { name: "OK" }),
-    );
+    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "OK" }));
     expect(onUserDeleteMock).toHaveBeenCalledOnce();
   });
 
@@ -45,9 +43,7 @@ describe("DangerZone", () => {
     await user.click(screen.getByRole("button", { name: "Delete Personal Account" }));
     await expect.poll(() => screen.getByRole("dialog")).toBeVisible();
 
-    await user.click(
-      within(screen.getByRole("dialog")).getByRole("button", { name: "Cancel" }),
-    );
+    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Cancel" }));
     expect(onUserDeleteMock).not.toHaveBeenCalled();
   });
 });

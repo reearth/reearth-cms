@@ -33,9 +33,7 @@ const defaultProps = () => ({
 
 describe("FieldWrapper", () => {
   test("renders Field component", () => {
-    const { getByTestId } = render(
-      <FieldWrapper field={makeField()} {...defaultProps()} />,
-    );
+    const { getByTestId } = render(<FieldWrapper field={makeField()} {...defaultProps()} />);
     expect(getByTestId("mock-field")).toHaveTextContent("Text");
   });
 

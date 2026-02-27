@@ -24,7 +24,7 @@ const mockState = {
 };
 
 vi.mock("./hooks", () => ({
-  default: () => {
+  default: function useFieldModal() {
     const [form] = Form.useForm();
     return {
       form,
@@ -70,19 +70,13 @@ vi.mock("./hooks", () => ({
   },
 }));
 
-vi.mock(
-  "@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs",
-  () => ({
-    default: () => <div data-testid="FieldDefaultInputs" />,
-  }),
-);
+vi.mock("@reearth-cms/components/molecules/Schema/FieldModal/FieldDefaultInputs", () => ({
+  default: () => <div data-testid="FieldDefaultInputs" />,
+}));
 
-vi.mock(
-  "@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs",
-  () => ({
-    default: () => <div data-testid="FieldValidationInputs" />,
-  }),
-);
+vi.mock("@reearth-cms/components/molecules/Schema/FieldModal/FieldValidationInputs", () => ({
+  default: () => <div data-testid="FieldValidationInputs" />,
+}));
 
 // Must import after vi.mock declarations
 const { default: FieldModal } = await import(".");
@@ -197,30 +191,20 @@ describe("FieldModal", () => {
   describe("Settings tab", () => {
     test("renders Display name, Field Key, Description inputs", () => {
       renderModal();
-      expect(
-        screen.getByTestId(DATA_TEST_ID.FieldModal__DisplayNameInput),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByTestId(DATA_TEST_ID.FieldModal__FieldKeyInput),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByTestId(DATA_TEST_ID.FieldModal__DescriptionInput),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId(DATA_TEST_ID.FieldModal__DisplayNameInput)).toBeInTheDocument();
+      expect(screen.getByTestId(DATA_TEST_ID.FieldModal__FieldKeyInput)).toBeInTheDocument();
+      expect(screen.getByTestId(DATA_TEST_ID.FieldModal__DescriptionInput)).toBeInTheDocument();
     });
 
     test("renders Multiple checkbox", () => {
       renderModal();
-      expect(
-        screen.getByTestId(DATA_TEST_ID.FieldModal__MultipleCheckbox),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId(DATA_TEST_ID.FieldModal__MultipleCheckbox)).toBeInTheDocument();
     });
 
     test("renders isTitle checkbox when not disabled", () => {
       mockState.isTitleDisabled = false;
       renderModal();
-      expect(
-        screen.getByTestId(DATA_TEST_ID.FieldModal__IsTitleCheckbox),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId(DATA_TEST_ID.FieldModal__IsTitleCheckbox)).toBeInTheDocument();
     });
   });
 
@@ -232,9 +216,7 @@ describe("FieldModal", () => {
 
     test("does not render Select options for Text type", () => {
       renderModal({ selectedType: "Text" });
-      expect(
-        screen.queryByTestId(DATA_TEST_ID.FieldModal__ValuesInput),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByTestId(DATA_TEST_ID.FieldModal__ValuesInput)).not.toBeInTheDocument();
     });
 
     test("renders Group select for Group type", () => {
@@ -258,9 +240,7 @@ describe("FieldModal", () => {
 
     test("renders GeometryObject checkboxes for GeometryObject type", () => {
       renderModal({ selectedType: "GeometryObject" });
-      expect(
-        screen.getByTestId(DATA_TEST_ID.FieldModal__PointCheckbox),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId(DATA_TEST_ID.FieldModal__PointCheckbox)).toBeInTheDocument();
     });
 
     test("renders GeometryEditor radios for GeometryEditor type", () => {
@@ -273,28 +253,20 @@ describe("FieldModal", () => {
   describe("Validation tab", () => {
     test("renders Required and Unique checkboxes (forceRender)", () => {
       renderModal();
-      expect(
-        screen.getByTestId(DATA_TEST_ID.FieldModal__RequiredCheckbox),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByTestId(DATA_TEST_ID.FieldModal__UniqueCheckbox),
-      ).toBeInTheDocument();
+      expect(screen.getByTestId(DATA_TEST_ID.FieldModal__RequiredCheckbox)).toBeInTheDocument();
+      expect(screen.getByTestId(DATA_TEST_ID.FieldModal__UniqueCheckbox)).toBeInTheDocument();
     });
 
     test("Required checkbox is disabled when isRequiredDisabled", () => {
       mockState.isRequiredDisabled = true;
       renderModal();
-      expect(
-        screen.getByTestId(DATA_TEST_ID.FieldModal__RequiredCheckbox),
-      ).toBeDisabled();
+      expect(screen.getByTestId(DATA_TEST_ID.FieldModal__RequiredCheckbox)).toBeDisabled();
     });
 
     test("Unique checkbox is disabled when isUniqueDisabled", () => {
       mockState.isUniqueDisabled = true;
       renderModal();
-      expect(
-        screen.getByTestId(DATA_TEST_ID.FieldModal__UniqueCheckbox),
-      ).toBeDisabled();
+      expect(screen.getByTestId(DATA_TEST_ID.FieldModal__UniqueCheckbox)).toBeDisabled();
     });
 
     test("renders FieldValidationInputs marker", () => {
@@ -313,22 +285,22 @@ describe("FieldModal", () => {
   describe("Loading and disabled states", () => {
     test("OK button shows loading state when fieldLoading is true", () => {
       renderModal({ fieldLoading: true });
-      const okButton = screen.getByText("OK").closest("button")!;
+      const okButton = screen.getByText("OK").closest("button");
+      if (!okButton) return;
       expect(okButton).toHaveClass("ant-btn-loading");
     });
 
     test("Cancel button is disabled when fieldLoading is true", () => {
       renderModal({ fieldLoading: true });
-      const cancelButton = screen.getByText("Cancel").closest("button")!;
+      const cancelButton = screen.getByText("Cancel").closest("button");
+      if (!cancelButton) return;
       expect(cancelButton).toBeDisabled();
     });
 
     test("isTitle checkbox is hidden when isTitleDisabled is true", () => {
       mockState.isTitleDisabled = true;
       renderModal();
-      expect(
-        screen.getByTestId(DATA_TEST_ID.FieldModal__IsTitleCheckbox),
-      ).not.toBeVisible();
+      expect(screen.getByTestId(DATA_TEST_ID.FieldModal__IsTitleCheckbox)).not.toBeVisible();
     });
   });
 });

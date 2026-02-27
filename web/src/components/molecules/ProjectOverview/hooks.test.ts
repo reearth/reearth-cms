@@ -96,9 +96,7 @@ describe("ProjectOverview hooks", () => {
 
     test("returns early when project is undefined", async () => {
       const onProjectUpdate = vi.fn().mockResolvedValue(undefined);
-      const { result } = renderHook(() =>
-        useHook({ project: undefined, onProjectUpdate }),
-      );
+      const { result } = renderHook(() => useHook({ project: undefined, onProjectUpdate }));
 
       await act(async () => {
         await result.current.handleReadmeSave();
@@ -147,9 +145,7 @@ describe("ProjectOverview hooks", () => {
 
     test("returns early when project is undefined", async () => {
       const onProjectUpdate = vi.fn().mockResolvedValue(undefined);
-      const { result } = renderHook(() =>
-        useHook({ project: undefined, onProjectUpdate }),
-      );
+      const { result } = renderHook(() => useHook({ project: undefined, onProjectUpdate }));
 
       await act(async () => {
         await result.current.handleLicenseSave();

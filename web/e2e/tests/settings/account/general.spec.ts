@@ -25,29 +25,33 @@ test.afterEach(async ({ settingsPage }) => {
   }
 });
 
-test("Name and email updating has succeeded", {
-  tag: TAG.TO_ABANDON,
-  annotation: {
-    type: "consolidate",
-    description: "AccountSettings/GeneralForm.test.tsx (component)",
+test(
+  "Name and email updating has succeeded",
+  {
+    tag: TAG.TO_ABANDON,
+    annotation: {
+      type: "consolidate",
+      description: "AccountSettings/GeneralForm.test.tsx (component)",
+    },
   },
-}, async ({ settingsPage }) => {
-  test.skip(process.env.ENV !== "oss", "This test is only for oss");
-  await settingsPage.goto("/");
-  await settingsPage.textByName("Account").click();
+  async ({ settingsPage }) => {
+    test.skip(process.env.ENV !== "oss", "This test is only for oss");
+    await settingsPage.goto("/");
+    await settingsPage.textByName("Account").click();
 
-  await settingsPage.accountNameInputExact.click();
-  await settingsPage.accountNameInputExact.fill("new name");
-  await settingsPage.yourEmailInputExact.click();
-  await settingsPage.yourEmailInputExact.fill("test@test.com");
-  await settingsPage.formSubmitButton.click();
-  await settingsPage.closeNotification();
+    await settingsPage.accountNameInputExact.click();
+    await settingsPage.accountNameInputExact.fill("new name");
+    await settingsPage.yourEmailInputExact.click();
+    await settingsPage.yourEmailInputExact.fill("test@test.com");
+    await settingsPage.formSubmitButton.click();
+    await settingsPage.closeNotification();
 
-  await settingsPage.accountNameInputExact.click();
-  await settingsPage.accountNameInputExact.fill(originalUsername);
-  await settingsPage.yourEmailInputExact.click();
-  await settingsPage.yourEmailInputExact.fill(originalEmail);
-  await settingsPage.formSubmitButton.click();
-  await settingsPage.closeNotification();
-  await expect(settingsPage.headerElement).toContainText(originalUsername);
-});
+    await settingsPage.accountNameInputExact.click();
+    await settingsPage.accountNameInputExact.fill(originalUsername);
+    await settingsPage.yourEmailInputExact.click();
+    await settingsPage.yourEmailInputExact.fill(originalEmail);
+    await settingsPage.formSubmitButton.click();
+    await settingsPage.closeNotification();
+    await expect(settingsPage.headerElement).toContainText(originalUsername);
+  },
+);

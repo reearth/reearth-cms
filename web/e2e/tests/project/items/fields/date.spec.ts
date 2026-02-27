@@ -56,66 +56,70 @@ test(
   },
 );
 
-test("Date field editing has succeeded", { tag: TAG.FIELD_VARIANT }, async ({ fieldEditorPage, contentPage, schemaPage }) => {
-  await fieldEditorPage.createField({
-    type: SchemaFieldType.Date,
-    name: fieldName,
-    key: fieldKey,
-    description: fieldDescription,
-    defaultValue: defaultDate,
-  });
-  await contentPage.contentText.click();
-  await expect(contentPage.tableHead).toContainText(fieldName);
-  await contentPage.newItemButton.click();
-  await expect(contentPage.selectDatePlaceholder).toHaveValue(defaultDate);
-  await contentPage.saveButton.click();
-  await contentPage.closeNotification();
-  await contentPage.backButton.click();
-  await expect(contentPage.tableBody).toContainText(defaultDate);
-  await schemaPage.schemaText.click();
-  // TODO(editField): cannot migrate — interleaved reorder assertions
-  await fieldEditorPage.ellipsisMenuButton.click();
-  await fieldEditorPage.displayNameInput.click();
-  await fieldEditorPage.displayNameInput.fill(newFieldName);
-  await fieldEditorPage.fieldKeyInput.click();
-  await fieldEditorPage.fieldKeyInput.fill(newFieldKey);
-  await fieldEditorPage.descriptionInput.click();
-  await fieldEditorPage.descriptionInput.fill(newFieldDescription);
-  await fieldEditorPage.supportMultipleValuesCheckbox.check();
-  await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
-  await fieldEditorPage.validationTab.click();
-  await fieldEditorPage.requiredFieldCheckbox.check();
-  await fieldEditorPage.uniqueFieldCheckbox.check();
-  await fieldEditorPage.defaultValueTab.click();
-  await expect(fieldEditorPage.selectDatePlaceholder).toHaveValue(defaultDate);
-  await fieldEditorPage.textboxByIndex(0).click();
-  await fieldEditorPage.titleDiv("2024-01-02").click();
-  await fieldEditorPage.plusNewButton.click();
-  await fieldEditorPage.textboxByIndex(1).click();
-  await fieldEditorPage.textboxByIndex(1).fill("2024-01-03");
-  await fieldEditorPage.textboxByIndex(1).press("Enter");
-  await fieldEditorPage.firstArrowDownButton.click();
-  await expect(fieldEditorPage.selectDatePlaceholder.nth(0)).toHaveValue("2024-01-03");
-  await fieldEditorPage.okButton.click();
-  await contentPage.closeNotification();
-  // TODO(editField): end migration block
-  await expect(schemaPage.uniqueFieldText(newFieldName, newFieldKey)).toBeVisible();
-  await contentPage.contentText.click();
-  await expect(contentPage.tableHead).toContainText(newFieldName);
-  await expect(contentPage.tableBody).toContainText(defaultDate);
-  await contentPage.newItemButton.click();
-  await expect(contentPage.labelElement()).toContainText("new date1(unique)");
-  await expect(contentPage.textBoxByIndex(0)).toHaveValue("2024-01-03");
-  await expect(contentPage.textBoxByIndex(1)).toHaveValue("2024-01-02");
-  await fieldEditorPage.plusNewButton.click();
-  await contentPage.textBoxByIndex(2).click();
-  await contentPage.textBoxByIndex(2).fill("2024-01-04");
-  await contentPage.textBoxByIndex(2).press("Enter");
-  await contentPage.saveButton.click();
-  await contentPage.closeNotification();
-  await contentPage.backButton.click();
-  await contentPage.x3Button.click();
-  await expect(contentPage.tooltipParagraphByIndex(0)).toContainText("2024-01-03");
-  await expect(contentPage.tooltipParagraphByIndex(1)).toContainText("2024-01-02");
-  await expect(contentPage.tooltipParagraphByIndex(2)).toContainText("2024-01-04");
-});
+test(
+  "Date field editing has succeeded",
+  { tag: TAG.FIELD_VARIANT },
+  async ({ fieldEditorPage, contentPage, schemaPage }) => {
+    await fieldEditorPage.createField({
+      type: SchemaFieldType.Date,
+      name: fieldName,
+      key: fieldKey,
+      description: fieldDescription,
+      defaultValue: defaultDate,
+    });
+    await contentPage.contentText.click();
+    await expect(contentPage.tableHead).toContainText(fieldName);
+    await contentPage.newItemButton.click();
+    await expect(contentPage.selectDatePlaceholder).toHaveValue(defaultDate);
+    await contentPage.saveButton.click();
+    await contentPage.closeNotification();
+    await contentPage.backButton.click();
+    await expect(contentPage.tableBody).toContainText(defaultDate);
+    await schemaPage.schemaText.click();
+    // TODO(editField): cannot migrate — interleaved reorder assertions
+    await fieldEditorPage.ellipsisMenuButton.click();
+    await fieldEditorPage.displayNameInput.click();
+    await fieldEditorPage.displayNameInput.fill(newFieldName);
+    await fieldEditorPage.fieldKeyInput.click();
+    await fieldEditorPage.fieldKeyInput.fill(newFieldKey);
+    await fieldEditorPage.descriptionInput.click();
+    await fieldEditorPage.descriptionInput.fill(newFieldDescription);
+    await fieldEditorPage.supportMultipleValuesCheckbox.check();
+    await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
+    await fieldEditorPage.validationTab.click();
+    await fieldEditorPage.requiredFieldCheckbox.check();
+    await fieldEditorPage.uniqueFieldCheckbox.check();
+    await fieldEditorPage.defaultValueTab.click();
+    await expect(fieldEditorPage.selectDatePlaceholder).toHaveValue(defaultDate);
+    await fieldEditorPage.textboxByIndex(0).click();
+    await fieldEditorPage.titleDiv("2024-01-02").click();
+    await fieldEditorPage.plusNewButton.click();
+    await fieldEditorPage.textboxByIndex(1).click();
+    await fieldEditorPage.textboxByIndex(1).fill("2024-01-03");
+    await fieldEditorPage.textboxByIndex(1).press("Enter");
+    await fieldEditorPage.firstArrowDownButton.click();
+    await expect(fieldEditorPage.selectDatePlaceholder.nth(0)).toHaveValue("2024-01-03");
+    await fieldEditorPage.okButton.click();
+    await contentPage.closeNotification();
+    // TODO(editField): end migration block
+    await expect(schemaPage.uniqueFieldText(newFieldName, newFieldKey)).toBeVisible();
+    await contentPage.contentText.click();
+    await expect(contentPage.tableHead).toContainText(newFieldName);
+    await expect(contentPage.tableBody).toContainText(defaultDate);
+    await contentPage.newItemButton.click();
+    await expect(contentPage.labelElement()).toContainText("new date1(unique)");
+    await expect(contentPage.textBoxByIndex(0)).toHaveValue("2024-01-03");
+    await expect(contentPage.textBoxByIndex(1)).toHaveValue("2024-01-02");
+    await fieldEditorPage.plusNewButton.click();
+    await contentPage.textBoxByIndex(2).click();
+    await contentPage.textBoxByIndex(2).fill("2024-01-04");
+    await contentPage.textBoxByIndex(2).press("Enter");
+    await contentPage.saveButton.click();
+    await contentPage.closeNotification();
+    await contentPage.backButton.click();
+    await contentPage.x3Button.click();
+    await expect(contentPage.tooltipParagraphByIndex(0)).toContainText("2024-01-03");
+    await expect(contentPage.tooltipParagraphByIndex(1)).toContainText("2024-01-02");
+    await expect(contentPage.tooltipParagraphByIndex(2)).toContainText("2024-01-04");
+  },
+);

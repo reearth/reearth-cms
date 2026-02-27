@@ -7,11 +7,7 @@ import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 import URLField from "./URLField";
 
 vi.mock("@reearth-cms/components/molecules/Common/MultiValueField", () => ({
-  default: (props: {
-    disabled?: boolean;
-    required?: boolean;
-    errorIndexes?: Set<number>;
-  }) => (
+  default: (props: { disabled?: boolean; required?: boolean; errorIndexes?: Set<number> }) => (
     <div
       data-testid="multi-value-field"
       data-disabled={props.disabled}
@@ -66,8 +62,13 @@ const FormCapture: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 const renderField = (options: RenderOptions = {}) => {
-  const { fieldOverrides, disabled = false, itemGroupId, itemHeights, onItemHeightChange } =
-    options;
+  const {
+    fieldOverrides,
+    disabled = false,
+    itemGroupId,
+    itemHeights,
+    onItemHeightChange,
+  } = options;
   formInstance = undefined;
   render(
     <FormCapture>
@@ -114,37 +115,42 @@ describe("URLField", () => {
   test("itemGroupId produces compound form name", () => {
     renderField({ itemGroupId: "group-1" });
     expect(formInstance).toBeDefined();
-    formInstance!.setFieldValue(["field-1", "group-1"], "https://example.com");
-    const values = formInstance!.getFieldsValue(true);
+    if (!formInstance) return;
+    formInstance.setFieldValue(["field-1", "group-1"], "https://example.com");
+    const values = formInstance.getFieldsValue(true);
     expect(values).toHaveProperty(["field-1", "group-1"], "https://example.com");
   });
 
   test("URL validator rejects invalid URL", async () => {
     renderField();
     expect(formInstance).toBeDefined();
-    formInstance!.setFieldValue("field-1", "not-a-url");
-    await expect(formInstance!.validateFields()).rejects.toBeDefined();
+    if (!formInstance) return;
+    formInstance.setFieldValue("field-1", "not-a-url");
+    await expect(formInstance.validateFields()).rejects.toBeDefined();
   });
 
   test("URL validator resolves valid URL", async () => {
     renderField();
     expect(formInstance).toBeDefined();
-    formInstance!.setFieldValue("field-1", "https://example.com");
-    await expect(formInstance!.validateFields()).resolves.toBeDefined();
+    if (!formInstance) return;
+    formInstance.setFieldValue("field-1", "https://example.com");
+    await expect(formInstance.validateFields()).resolves.toBeDefined();
   });
 
   test("URL validator rejects invalid URL in array", async () => {
     renderField();
     expect(formInstance).toBeDefined();
-    formInstance!.setFieldValue("field-1", ["https://example.com", "bad-url"]);
-    await expect(formInstance!.validateFields()).rejects.toBeDefined();
+    if (!formInstance) return;
+    formInstance.setFieldValue("field-1", ["https://example.com", "bad-url"]);
+    await expect(formInstance.validateFields()).rejects.toBeDefined();
   });
 
   test("URL validator resolves null value", async () => {
     renderField();
     expect(formInstance).toBeDefined();
-    formInstance!.setFieldValue("field-1", null);
-    await expect(formInstance!.validateFields()).resolves.toBeDefined();
+    if (!formInstance) return;
+    formInstance.setFieldValue("field-1", null);
+    await expect(formInstance.validateFields()).resolves.toBeDefined();
   });
 
   test("forwards itemHeights and onItemHeightChange to ResponsiveHeight", () => {

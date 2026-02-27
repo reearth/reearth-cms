@@ -140,51 +140,52 @@ test(
   },
 );
 
-test("Publishing and Unpublishing item from table has succeeded", {
-  tag: TAG.TO_ABANDON,
-  annotation: {
-    type: "consolidate",
-    description: '"Publishing and Unpublishing item from edit page" in content.spec.ts (@smoke)',
+test(
+  "Publishing and Unpublishing item from table has succeeded",
+  {
+    tag: TAG.TO_ABANDON,
+    annotation: {
+      type: "consolidate",
+      description: '"Publishing and Unpublishing item from edit page" in content.spec.ts (@smoke)',
+    },
   },
-}, async ({
-  contentPage,
-  fieldEditorPage,
-}) => {
-  await test.step("Create text field and new item", async () => {
-    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: textFieldName });
-    await contentPage.contentTextFirst.click();
-    await contentPage.newItemButton.click();
-    await contentPage.fieldInput(textFieldName).click();
-    await contentPage.fieldInput(textFieldName).fill(textFieldName);
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
-    await expect(contentPage.draftStatus).toBeVisible();
-  });
+  async ({ contentPage, fieldEditorPage }) => {
+    await test.step("Create text field and new item", async () => {
+      await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: textFieldName });
+      await contentPage.contentTextFirst.click();
+      await contentPage.newItemButton.click();
+      await contentPage.fieldInput(textFieldName).click();
+      await contentPage.fieldInput(textFieldName).fill(textFieldName);
+      await contentPage.saveButton.click();
+      await contentPage.closeNotification();
+      await expect(contentPage.draftStatus).toBeVisible();
+    });
 
-  await test.step("Navigate to table and verify draft status", async () => {
-    await contentPage.backButtonLabel.click();
-    await expect(contentPage.draftStatus).toBeVisible();
-  });
+    await test.step("Navigate to table and verify draft status", async () => {
+      await contentPage.backButtonLabel.click();
+      await expect(contentPage.draftStatus).toBeVisible();
+    });
 
-  await test.step("Publish item from table", async () => {
-    await contentPage.selectAllCheckbox.check();
-    await contentPage.publishFromTableButton.click();
-    await contentPage.yesButton.click();
-    await contentPage.closeNotification();
-    await expect(contentPage.publishedStatus).toBeVisible();
-  });
+    await test.step("Publish item from table", async () => {
+      await contentPage.selectAllCheckbox.check();
+      await contentPage.publishFromTableButton.click();
+      await contentPage.yesButton.click();
+      await contentPage.closeNotification();
+      await expect(contentPage.publishedStatus).toBeVisible();
+    });
 
-  await test.step("Unpublish item from table", async () => {
-    await contentPage.unpublishButton.click();
-    await contentPage.closeNotification();
-    await expect(contentPage.draftStatus).toBeVisible();
-  });
+    await test.step("Unpublish item from table", async () => {
+      await contentPage.unpublishButton.click();
+      await contentPage.closeNotification();
+      await expect(contentPage.draftStatus).toBeVisible();
+    });
 
-  await test.step("Verify draft status in edit page", async () => {
-    await contentPage.cellEditButton.click();
-    await expect(contentPage.draftStatus).toBeVisible();
-  });
-});
+    await test.step("Verify draft status in edit page", async () => {
+      await contentPage.cellEditButton.click();
+      await expect(contentPage.draftStatus).toBeVisible();
+    });
+  },
+);
 
 test("Showing item title has succeeded", async ({ contentPage, fieldEditorPage, schemaPage }) => {
   await test.step("Create text field and new item", async () => {
@@ -260,39 +261,43 @@ test(
   },
 );
 
-test("Comment CRUD on edit page has succeeded", {
-  tag: TAG.TO_ABANDON,
-  annotation: {
-    type: "consolidate",
-    description: '"Comment CRUD on Content page" in content.spec.ts (@smoke)',
+test(
+  "Comment CRUD on edit page has succeeded",
+  {
+    tag: TAG.TO_ABANDON,
+    annotation: {
+      type: "consolidate",
+      description: '"Comment CRUD on Content page" in content.spec.ts (@smoke)',
+    },
   },
-}, async ({ contentPage, fieldEditorPage }) => {
-  await test.step("Create text field and new item", async () => {
-    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: textFieldName });
-    await contentPage.contentText.click();
-    await contentPage.newItemButton.click();
-    await contentPage.fieldInput(textFieldName).click();
-    await contentPage.fieldInput(textFieldName).fill(textFieldName);
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
-  });
+  async ({ contentPage, fieldEditorPage }) => {
+    await test.step("Create text field and new item", async () => {
+      await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: textFieldName });
+      await contentPage.contentText.click();
+      await contentPage.newItemButton.click();
+      await contentPage.fieldInput(textFieldName).click();
+      await contentPage.fieldInput(textFieldName).fill(textFieldName);
+      await contentPage.saveButton.click();
+      await contentPage.closeNotification();
+    });
 
-  await test.step("Open comments panel", async () => {
-    await contentPage.commentButton.click();
-  });
+    await test.step("Open comments panel", async () => {
+      await contentPage.commentButton.click();
+    });
 
-  await test.step("Create comment", async () => {
-    await contentPage.createComment(commentText);
-  });
+    await test.step("Create comment", async () => {
+      await contentPage.createComment(commentText);
+    });
 
-  await test.step("Update comment", async () => {
-    await contentPage.updateComment(commentText, newCommentText);
-  });
+    await test.step("Update comment", async () => {
+      await contentPage.updateComment(commentText, newCommentText);
+    });
 
-  await test.step("Delete comment", async () => {
-    await contentPage.deleteComment();
-  });
-});
+    await test.step("Delete comment", async () => {
+      await contentPage.deleteComment();
+    });
+  },
+);
 
 test.describe("Import content", () => {
   [
@@ -364,29 +369,114 @@ test.describe("Import content", () => {
     { path: TEST_IMPORT_CONTENT_JSON_PATH, type: "JSON" },
     { path: TEST_IMPORT_CONTENT_CSV_PATH, type: "CSV" },
   ].forEach(({ path, type }) => {
-    test(`Fail Case: Import content with ${type} file shows schema mismatch warning`, {
+    test(
+      `Fail Case: Import content with ${type} file shows schema mismatch warning`,
+      {
+        tag: TAG.TO_ABANDON,
+        annotation: {
+          type: "consolidate",
+          description:
+            "importContent.test.ts (unit) + ContentImportModal/index.test.tsx (component)",
+        },
+      },
+      async ({ contentPage, fieldEditorPage, projectPage }) => {
+        await test.step("Create text field with different key than template", async () => {
+          await fieldEditorPage.createField({
+            type: SchemaFieldType.Text,
+            name: importTextFieldKey,
+            key: importTextFieldKey,
+            required: true,
+          });
+
+          await fieldEditorPage.createField({
+            type: SchemaFieldType.Number,
+            name: "number-field-key",
+            key: "number-field-key",
+            required: true,
+          });
+
+          await projectPage.contentMenuItem.click();
+        });
+
+        await test.step("Open import modal and upload JSON file", async () => {
+          await contentPage.openImportContentModal();
+          await contentPage.uploadImportFile(path);
+        });
+
+        await test.step("Verify schema mismatch warning is displayed", async () => {
+          await expect(contentPage.importContentErrorWrapper).toBeVisible();
+          await expect(contentPage.importContentErrorTitle).toContainText(
+            t("Some fields don't match the schema"),
+          );
+          await expect(contentPage.importContentGoBackButton).toBeVisible();
+        });
+      },
+    );
+  });
+
+  test(
+    "Fail Case: Import content with GeoJSON file shows schema mismatch warning",
+    {
       tag: TAG.TO_ABANDON,
       annotation: {
         type: "consolidate",
         description: "importContent.test.ts (unit) + ContentImportModal/index.test.tsx (component)",
       },
-    }, async ({
-      contentPage,
-      fieldEditorPage,
-      projectPage,
-    }) => {
+    },
+    async ({ contentPage, fieldEditorPage, projectPage }) => {
       await test.step("Create text field with different key than template", async () => {
         await fieldEditorPage.createField({
           type: SchemaFieldType.Text,
-          name: importTextFieldKey,
-          key: importTextFieldKey,
+          name: "title-1",
+          key: "title-1",
+          required: true,
+        });
+
+        await fieldEditorPage.createField({
+          type: SchemaFieldType.GeometryObject,
+          name: importLocationName,
+          supportedTypes: ["POINT"],
+        });
+
+        await projectPage.contentMenuItem.click();
+      });
+
+      await test.step("Open import modal and upload GeoJSON file", async () => {
+        await contentPage.openImportContentModal();
+        await contentPage.uploadImportFile(TEST_IMPORT_CONTENT_GEO_JSON_PATH);
+      });
+
+      await test.step("Verify schema mismatch warning is displayed", async () => {
+        await expect(contentPage.importContentErrorWrapper).toBeVisible();
+        await expect(contentPage.importContentErrorTitle).toContainText(
+          t("Some fields don't match the schema"),
+        );
+      });
+    },
+  );
+
+  test(
+    "Fail Case: Import content shows no matching fields error when schema completely mismatches",
+    {
+      tag: TAG.TO_ABANDON,
+      annotation: {
+        type: "consolidate",
+        description: "importContent.test.ts (unit) + ContentImportModal/index.test.tsx (component)",
+      },
+    },
+    async ({ contentPage, fieldEditorPage, projectPage }) => {
+      await test.step("Create field with unique key not in any template", async () => {
+        await fieldEditorPage.createField({
+          type: SchemaFieldType.Text,
+          name: "text-field-key-1",
+          key: "text-field-key-1",
           required: true,
         });
 
         await fieldEditorPage.createField({
           type: SchemaFieldType.Number,
-          name: "number-field-key",
-          key: "number-field-key",
+          name: "number-field-key-1",
+          key: "number-field-key-1",
           required: true,
         });
 
@@ -395,101 +485,17 @@ test.describe("Import content", () => {
 
       await test.step("Open import modal and upload JSON file", async () => {
         await contentPage.openImportContentModal();
-        await contentPage.uploadImportFile(path);
+        await contentPage.uploadImportFile(TEST_IMPORT_CONTENT_JSON_PATH);
       });
 
-      await test.step("Verify schema mismatch warning is displayed", async () => {
+      await test.step("Verify error is displayed for no matching fields", async () => {
         await expect(contentPage.importContentErrorWrapper).toBeVisible();
+
+        await expect(contentPage.importContentErrorTitle).toBeVisible();
         await expect(contentPage.importContentErrorTitle).toContainText(
-          t("Some fields don't match the schema"),
+          t("No matching fields found"),
         );
-        await expect(contentPage.importContentGoBackButton).toBeVisible();
       });
-    });
-  });
-
-  test("Fail Case: Import content with GeoJSON file shows schema mismatch warning", {
-    tag: TAG.TO_ABANDON,
-    annotation: {
-      type: "consolidate",
-      description: "importContent.test.ts (unit) + ContentImportModal/index.test.tsx (component)",
     },
-  }, async ({
-    contentPage,
-    fieldEditorPage,
-    projectPage,
-  }) => {
-    await test.step("Create text field with different key than template", async () => {
-      await fieldEditorPage.createField({
-        type: SchemaFieldType.Text,
-        name: "title-1",
-        key: "title-1",
-        required: true,
-      });
-
-      await fieldEditorPage.createField({
-        type: SchemaFieldType.GeometryObject,
-        name: importLocationName,
-        supportedTypes: ["POINT"],
-      });
-
-      await projectPage.contentMenuItem.click();
-    });
-
-    await test.step("Open import modal and upload GeoJSON file", async () => {
-      await contentPage.openImportContentModal();
-      await contentPage.uploadImportFile(TEST_IMPORT_CONTENT_GEO_JSON_PATH);
-    });
-
-    await test.step("Verify schema mismatch warning is displayed", async () => {
-      await expect(contentPage.importContentErrorWrapper).toBeVisible();
-      await expect(contentPage.importContentErrorTitle).toContainText(
-        t("Some fields don't match the schema"),
-      );
-    });
-  });
-
-  test("Fail Case: Import content shows no matching fields error when schema completely mismatches", {
-    tag: TAG.TO_ABANDON,
-    annotation: {
-      type: "consolidate",
-      description: "importContent.test.ts (unit) + ContentImportModal/index.test.tsx (component)",
-    },
-  }, async ({
-    contentPage,
-    fieldEditorPage,
-    projectPage,
-  }) => {
-    await test.step("Create field with unique key not in any template", async () => {
-      await fieldEditorPage.createField({
-        type: SchemaFieldType.Text,
-        name: "text-field-key-1",
-        key: "text-field-key-1",
-        required: true,
-      });
-
-      await fieldEditorPage.createField({
-        type: SchemaFieldType.Number,
-        name: "number-field-key-1",
-        key: "number-field-key-1",
-        required: true,
-      });
-
-      await projectPage.contentMenuItem.click();
-    });
-
-    await test.step("Open import modal and upload JSON file", async () => {
-      await contentPage.openImportContentModal();
-      await contentPage.uploadImportFile(TEST_IMPORT_CONTENT_JSON_PATH);
-    });
-
-    await test.step("Verify error is displayed for no matching fields", async () => {
-      await expect(contentPage.importContentErrorWrapper).toBeVisible();
-
-      await expect(contentPage.importContentErrorTitle).toBeVisible();
-      await expect(contentPage.importContentErrorTitle).toContainText(
-        t("No matching fields found"),
-      );
-    });
-  });
+  );
 });

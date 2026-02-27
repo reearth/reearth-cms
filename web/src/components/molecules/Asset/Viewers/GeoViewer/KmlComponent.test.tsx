@@ -4,7 +4,9 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import KmlComponent from "./KmlComponent";
 
-let capturedProps: { data: unknown; clampToGround?: boolean; onLoad?: (ds: unknown) => void } | undefined;
+let capturedProps:
+  | { data: unknown; clampToGround?: boolean; onLoad?: (ds: unknown) => void }
+  | undefined;
 const mockZoomTo = vi.fn().mockResolvedValue(undefined);
 
 vi.mock("resium", () => ({

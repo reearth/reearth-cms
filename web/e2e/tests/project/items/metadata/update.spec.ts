@@ -25,22 +25,30 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Updating metadata added later from table has succeeded", { tag: TAG.FIELD_VARIANT }, async ({ contentPage }) => {
-  await contentPage.allSwitches.click();
-  await contentPage.closeNotification();
-  await contentPage.allSwitches.click();
-  await contentPage.closeNotification();
-  await contentPage.allSwitches.click();
-  await contentPage.closeNotification();
-  await contentPage.editButton.click();
-  await expect(contentPage.fieldInput("boolean")).toHaveAttribute("aria-checked", "true");
-});
+test(
+  "Updating metadata added later from table has succeeded",
+  { tag: TAG.FIELD_VARIANT },
+  async ({ contentPage }) => {
+    await contentPage.allSwitches.click();
+    await contentPage.closeNotification();
+    await contentPage.allSwitches.click();
+    await contentPage.closeNotification();
+    await contentPage.allSwitches.click();
+    await contentPage.closeNotification();
+    await contentPage.editButton.click();
+    await expect(contentPage.fieldInput("boolean")).toHaveAttribute("aria-checked", "true");
+  },
+);
 
-test("Updating metadata added later from edit page has succeeded", { tag: TAG.FIELD_VARIANT }, async ({ contentPage }) => {
-  await contentPage.editButton.click();
-  await expect(contentPage.fieldInput("text")).toHaveValue("test");
-  await contentPage.fieldInput("boolean").click();
-  await contentPage.closeNotification();
-  await contentPage.backButtonRole.click();
-  await expect(contentPage.allSwitches).toHaveAttribute("aria-checked", "true");
-});
+test(
+  "Updating metadata added later from edit page has succeeded",
+  { tag: TAG.FIELD_VARIANT },
+  async ({ contentPage }) => {
+    await contentPage.editButton.click();
+    await expect(contentPage.fieldInput("text")).toHaveValue("test");
+    await contentPage.fieldInput("boolean").click();
+    await contentPage.closeNotification();
+    await contentPage.backButtonRole.click();
+    await expect(contentPage.allSwitches).toHaveAttribute("aria-checked", "true");
+  },
+);

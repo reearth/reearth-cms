@@ -59,9 +59,7 @@ describe("ReferenceFormItem", () => {
   });
 
   test("hides unreference button when disabled", () => {
-    renderWithRouter(
-      <ReferenceFormItem {...baseProps()} value="item-1" disabled={true} />,
-    );
+    renderWithRouter(<ReferenceFormItem {...baseProps()} value="item-1" disabled={true} />);
     // ReferenceItem should be present but no unreference button
     expect(screen.getByTestId("mock-reference-item")).toBeVisible();
     // The unreference button has an arrowUpRightSlash icon - no buttons should be present
@@ -71,17 +69,14 @@ describe("ReferenceFormItem", () => {
   test("calls onChange when unreference button is clicked", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
-    renderWithRouter(
-      <ReferenceFormItem {...baseProps()} value="item-1" onChange={onChange} />,
-    );
+    renderWithRouter(<ReferenceFormItem {...baseProps()} value="item-1" onChange={onChange} />);
     // The unreference button is the second button (first is Replace item)
     const buttons = screen.getAllByRole("button");
     // Find the unreference button (it doesn't have text, just an icon)
-    const unreferButton = buttons.find(
-      btn => !btn.textContent?.includes("Replace item"),
-    );
+    const unreferButton = buttons.find(btn => !btn.textContent?.includes("Replace item"));
     expect(unreferButton).toBeDefined();
-    await user.click(unreferButton!);
+    if (!unreferButton) return;
+    await user.click(unreferButton);
     expect(onChange).toHaveBeenCalledWith();
   });
 
@@ -122,19 +117,13 @@ describe("ReferenceFormItem", () => {
       },
     ];
     renderWithRouter(
-      <ReferenceFormItem
-        fieldId="field-1"
-        referencedItems={referencedItems}
-        value="item-1"
-      />,
+      <ReferenceFormItem fieldId="field-1" referencedItems={referencedItems} value="item-1" />,
     );
     expect(screen.getByTestId("mock-reference-item")).toHaveTextContent("item-1: Found Item");
   });
 
   test("shows empty title when value does not match any referencedItem", () => {
-    renderWithRouter(
-      <ReferenceFormItem {...baseProps()} value="nonexistent" />,
-    );
+    renderWithRouter(<ReferenceFormItem {...baseProps()} value="nonexistent" />);
     expect(screen.getByTestId("mock-reference-item")).toHaveTextContent("nonexistent:");
   });
 });

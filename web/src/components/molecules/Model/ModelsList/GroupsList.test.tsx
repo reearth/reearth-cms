@@ -8,7 +8,13 @@ import GroupsList from "./GroupsList";
 
 let capturedOnDragEnd: (fromIndex: number, toIndex: number) => void;
 vi.mock("react-drag-listview", () => ({
-  default: ({ children, onDragEnd }: { children: React.ReactNode; onDragEnd: (f: number, t: number) => void }) => {
+  default: ({
+    children,
+    onDragEnd,
+  }: {
+    children: React.ReactNode;
+    onDragEnd: (f: number, t: number) => void;
+  }) => {
     capturedOnDragEnd = onDragEnd;
     return <div>{children}</div>;
   },
@@ -97,11 +103,7 @@ describe("GroupsList", () => {
 
   test("onDragEnd reorders groups and calls onUpdateGroupsOrder", () => {
     const onUpdateGroupsOrder = vi.fn();
-    const groups = [
-      makeGroup("g1", "A", 0),
-      makeGroup("g2", "B", 1),
-      makeGroup("g3", "C", 2),
-    ];
+    const groups = [makeGroup("g1", "A", 0), makeGroup("g2", "B", 1), makeGroup("g3", "C", 2)];
     render(
       <GroupsList {...defaultProps} groups={groups} onUpdateGroupsOrder={onUpdateGroupsOrder} />,
     );

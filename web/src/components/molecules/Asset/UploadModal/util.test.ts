@@ -54,10 +54,14 @@ describe("isImageUrl", () => {
 
   test("prefers type over URL when thumbUrl is absent", () => {
     expect(isImageUrl(file({ type: "image/png", url: "https://example.com/file.pdf" }))).toBe(true);
-    expect(isImageUrl(file({ type: "application/pdf", url: "https://example.com/photo.png" }))).toBe(false);
+    expect(
+      isImageUrl(file({ type: "application/pdf", url: "https://example.com/photo.png" })),
+    ).toBe(false);
   });
 
   test("uses thumbUrl when type has thumbUrl", () => {
-    expect(isImageUrl(file({ type: "image/png", thumbUrl: "https://example.com/file.pdf" }))).toBe(false);
+    expect(isImageUrl(file({ type: "image/png", thumbUrl: "https://example.com/file.pdf" }))).toBe(
+      false,
+    );
   });
 });

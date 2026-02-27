@@ -37,9 +37,7 @@ function renderModal(overrides: Partial<Props> = {}) {
 describe("ContentImportModal", () => {
   test("renders dragger when no validation result and not loading", () => {
     renderModal();
-    expect(
-      screen.getByTestId(DATA_TEST_ID.ContentImportModal__Dragger),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.ContentImportModal__Dragger)).toBeInTheDocument();
     expect(
       screen.queryByTestId(DATA_TEST_ID.ContentImportModal__ErrorWrapper),
     ).not.toBeInTheDocument();
@@ -47,12 +45,8 @@ describe("ContentImportModal", () => {
 
   test("renders loading wrapper when dataChecking is true", () => {
     renderModal({ dataChecking: true });
-    expect(
-      screen.getByTestId(DATA_TEST_ID.ContentImportModal__LoadingWrapper),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByTestId(DATA_TEST_ID.ContentImportModal__Dragger),
-    ).not.toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.ContentImportModal__LoadingWrapper)).toBeInTheDocument();
+    expect(screen.queryByTestId(DATA_TEST_ID.ContentImportModal__Dragger)).not.toBeInTheDocument();
   });
 
   test("renders error wrapper when validateImportResult has partial mismatch warning", () => {
@@ -65,18 +59,16 @@ describe("ContentImportModal", () => {
     };
     renderModal({ validateImportResult: result });
 
-    expect(
-      screen.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorWrapper),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorTitle),
-    ).toHaveTextContent("Some fields don't match the schema");
-    expect(
-      screen.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorDescription),
-    ).toHaveTextContent("2 fields do not match the schema.");
-    expect(
-      screen.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorHint),
-    ).toHaveTextContent("Unmatched fields: field1, field2");
+    expect(screen.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorWrapper)).toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorTitle)).toHaveTextContent(
+      "Some fields don't match the schema",
+    );
+    expect(screen.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorDescription)).toHaveTextContent(
+      "2 fields do not match the schema.",
+    );
+    expect(screen.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorHint)).toHaveTextContent(
+      "Unmatched fields: field1, field2",
+    );
   });
 
   test("renders error wrapper for complete mismatch without hint", () => {
@@ -87,9 +79,9 @@ describe("ContentImportModal", () => {
     };
     renderModal({ validateImportResult: result });
 
-    expect(
-      screen.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorTitle),
-    ).toHaveTextContent("No matching fields found");
+    expect(screen.getByTestId(DATA_TEST_ID.ContentImportModal__ErrorTitle)).toHaveTextContent(
+      "No matching fields found",
+    );
     expect(
       screen.queryByTestId(DATA_TEST_ID.ContentImportModal__ErrorHint),
     ).not.toBeInTheDocument();

@@ -75,7 +75,10 @@ describe("SvgViewer", () => {
     render(<SvgViewer url="https://example.com/icon.svg" svgRender isAssetPublic />);
 
     await waitFor(() => {
-      expect(screen.getByRole("img", { hidden: true })).toHaveAttribute("src", "https://example.com/icon.svg");
+      expect(screen.getByRole("img", { hidden: true })).toHaveAttribute(
+        "src",
+        "https://example.com/icon.svg",
+      );
     });
   });
 
@@ -84,12 +87,13 @@ describe("SvgViewer", () => {
       ok: true,
       text: () => Promise.resolve("<svg></svg>"),
     } as Response);
-    render(
-      <SvgViewer url="https://example.com/icon.svg" svgRender isAssetPublic={false} />,
-    );
+    render(<SvgViewer url="https://example.com/icon.svg" svgRender isAssetPublic={false} />);
 
     await waitFor(() => {
-      expect(screen.getByRole("img", { hidden: true })).toHaveAttribute("src", "blob:http://localhost/svg");
+      expect(screen.getByRole("img", { hidden: true })).toHaveAttribute(
+        "src",
+        "blob:http://localhost/svg",
+      );
     });
   });
 

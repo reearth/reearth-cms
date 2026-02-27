@@ -7,7 +7,6 @@ import { Test } from "@reearth-cms/test/utils";
 import FieldList from "./FieldList";
 import { SchemaFieldType } from "./types";
 
-
 const defaultProps = {
   currentTab: "fields" as const,
   selectedSchemaType: "model" as const,
@@ -24,30 +23,20 @@ describe("FieldList", () => {
   });
 
   test("renders model field items for model + fields tab", () => {
-    render(
-      <FieldList {...defaultProps} selectedSchemaType="model" currentTab="fields" />,
-    );
-    expect(
-      screen.getByTestId(Test.getDataTestIdFromSchemaFieldType("Text")),
-    ).toBeInTheDocument();
+    render(<FieldList {...defaultProps} selectedSchemaType="model" currentTab="fields" />);
+    expect(screen.getByTestId(Test.getDataTestIdFromSchemaFieldType("Text"))).toBeInTheDocument();
     expect(
       screen.getByTestId(Test.getDataTestIdFromSchemaFieldType("Reference")),
     ).toBeInTheDocument();
-    expect(
-      screen.getByTestId(Test.getDataTestIdFromSchemaFieldType("Group")),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId(Test.getDataTestIdFromSchemaFieldType("Group"))).toBeInTheDocument();
     expect(
       screen.getByTestId(Test.getDataTestIdFromSchemaFieldType("GeometryObject")),
     ).toBeInTheDocument();
   });
 
   test("does not render Reference/Group for model + meta-data tab", () => {
-    render(
-      <FieldList {...defaultProps} selectedSchemaType="model" currentTab="meta-data" />,
-    );
-    expect(
-      screen.getByTestId(Test.getDataTestIdFromSchemaFieldType("Tag")),
-    ).toBeInTheDocument();
+    render(<FieldList {...defaultProps} selectedSchemaType="model" currentTab="meta-data" />);
+    expect(screen.getByTestId(Test.getDataTestIdFromSchemaFieldType("Tag"))).toBeInTheDocument();
     expect(
       screen.getByTestId(Test.getDataTestIdFromSchemaFieldType("Checkbox")),
     ).toBeInTheDocument();
@@ -60,12 +49,8 @@ describe("FieldList", () => {
   });
 
   test("renders group field items without Reference/Group for group type", () => {
-    render(
-      <FieldList {...defaultProps} selectedSchemaType="group" currentTab="fields" />,
-    );
-    expect(
-      screen.getByTestId(Test.getDataTestIdFromSchemaFieldType("Text")),
-    ).toBeInTheDocument();
+    render(<FieldList {...defaultProps} selectedSchemaType="group" currentTab="fields" />);
+    expect(screen.getByTestId(Test.getDataTestIdFromSchemaFieldType("Text"))).toBeInTheDocument();
     expect(
       screen.getByTestId(Test.getDataTestIdFromSchemaFieldType("GeometryObject")),
     ).toBeInTheDocument();
@@ -78,9 +63,7 @@ describe("FieldList", () => {
   });
 
   test("renders correct data-testid for each model field type", () => {
-    render(
-      <FieldList {...defaultProps} selectedSchemaType="model" currentTab="fields" />,
-    );
+    render(<FieldList {...defaultProps} selectedSchemaType="model" currentTab="fields" />);
     const modelFieldTypes: SchemaFieldType[] = [
       "Text",
       "TextArea",
@@ -105,9 +88,7 @@ describe("FieldList", () => {
   });
 
   test("renders correct data-testid for each meta-data field type", () => {
-    render(
-      <FieldList {...defaultProps} selectedSchemaType="model" currentTab="meta-data" />,
-    );
+    render(<FieldList {...defaultProps} selectedSchemaType="model" currentTab="meta-data" />);
     const metaFieldTypes: SchemaFieldType[] = ["Tag", "Bool", "Checkbox", "Date", "Text", "URL"];
     for (const fieldType of metaFieldTypes) {
       expect(
@@ -133,9 +114,7 @@ describe("FieldList", () => {
   });
 
   test("renders category titles for model fields", () => {
-    render(
-      <FieldList {...defaultProps} selectedSchemaType="model" currentTab="fields" />,
-    );
+    render(<FieldList {...defaultProps} selectedSchemaType="model" currentTab="fields" />);
     const headings = screen.getAllByRole("heading", { level: 2 });
     const titles = headings.map(h => h.textContent);
     expect(titles).toContain("Text");
@@ -151,18 +130,14 @@ describe("FieldList", () => {
   });
 
   test("renders Meta Data category title for meta-data tab", () => {
-    render(
-      <FieldList {...defaultProps} selectedSchemaType="model" currentTab="meta-data" />,
-    );
+    render(<FieldList {...defaultProps} selectedSchemaType="model" currentTab="meta-data" />);
     const headings = screen.getAllByRole("heading", { level: 2 });
     const titles = headings.map(h => h.textContent);
     expect(titles).toContain("Meta Data");
   });
 
   test("group type ignores currentTab and always shows group data source", () => {
-    render(
-      <FieldList {...defaultProps} selectedSchemaType="group" currentTab="meta-data" />,
-    );
+    render(<FieldList {...defaultProps} selectedSchemaType="group" currentTab="meta-data" />);
     expect(
       screen.getByTestId(Test.getDataTestIdFromSchemaFieldType("GeometryObject")),
     ).toBeInTheDocument();

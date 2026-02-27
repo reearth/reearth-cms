@@ -95,9 +95,7 @@ describe("RequestItemForm", () => {
   });
 
   test("renders empty when schema.fields is empty", () => {
-    const { container } = render(
-      <RequestItemForm {...defaultProps} schema={makeSchema([])} />,
-    );
+    const { container } = render(<RequestItemForm {...defaultProps} schema={makeSchema([])} />);
     expect(container.querySelector("form")).toBeInTheDocument();
     expect(screen.queryByTestId(/mock-/)).not.toBeInTheDocument();
   });
@@ -162,10 +160,7 @@ describe("RequestItemForm", () => {
     const onGetAsset = vi.fn();
     const schema = makeSchema([makeField({ id: "f1", type: "Asset" })]);
     render(<RequestItemForm {...defaultProps} schema={schema} onGetAsset={onGetAsset} />);
-    expect(screen.getByTestId("mock-asset-field")).toHaveAttribute(
-      "data-has-on-get-asset",
-      "true",
-    );
+    expect(screen.getByTestId("mock-asset-field")).toHaveAttribute("data-has-on-get-asset", "true");
   });
 
   test("ReferenceField receives referencedItems", () => {

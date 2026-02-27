@@ -106,9 +106,7 @@ describe("DangerZone", () => {
     );
     await expect.poll(() => screen.getByRole("dialog")).toBeVisible();
 
-    await user.click(
-      within(screen.getByRole("dialog")).getByRole("button", { name: "Cancel" }),
-    );
+    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Cancel" }));
     expect(onProjectDelete).not.toHaveBeenCalled();
   });
 
@@ -141,9 +139,7 @@ describe("DangerZone", () => {
     await user.click(await screen.findByTitle("Public"));
     await expect.poll(() => screen.getByRole("dialog")).toBeVisible();
 
-    await user.click(
-      within(screen.getByRole("dialog")).getByRole("button", { name: "OK" }),
-    );
+    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "OK" }));
     expect(onProjectVisibilityChange).toHaveBeenCalledWith("PUBLIC");
   });
 
@@ -161,9 +157,7 @@ describe("DangerZone", () => {
     await user.click(await screen.findByTitle("Public"));
     await expect.poll(() => screen.getByRole("dialog")).toBeVisible();
 
-    await user.click(
-      within(screen.getByRole("dialog")).getByRole("button", { name: "Cancel" }),
-    );
+    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Cancel" }));
     expect(onProjectVisibilityChange).not.toHaveBeenCalled();
   });
 
@@ -194,9 +188,7 @@ describe("DangerZone", () => {
     await user.click(await screen.findByTitle("Private"));
     await expect.poll(() => screen.getByRole("dialog")).toBeVisible();
 
-    await user.click(
-      within(screen.getByRole("dialog")).getByRole("button", { name: "OK" }),
-    );
+    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "OK" }));
     expect(onProjectVisibilityChange).toHaveBeenCalledWith("PRIVATE");
   });
 });

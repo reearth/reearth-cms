@@ -28,7 +28,13 @@ vi.mock("./APIKeyTable", () => ({
 }));
 
 const sampleKeys: APIKey[] = [
-  { id: "k1", name: "Key One", description: "", key: "sk-1", publication: { publicModels: [], publicAssets: false } },
+  {
+    id: "k1",
+    name: "Key One",
+    description: "",
+    key: "sk-1",
+    publication: { publicModels: [], publicAssets: false },
+  },
 ];
 
 describe("APIKeyComponent", () => {
@@ -81,7 +87,9 @@ describe("APIKeyComponent", () => {
 
   test("shows public message and visibility button when isPublic=true", async () => {
     const onSettingsPageOpen = vi.fn();
-    render(<APIKeyComponent {...defaultProps} isPublic={true} onSettingsPageOpen={onSettingsPageOpen} />);
+    render(
+      <APIKeyComponent {...defaultProps} isPublic={true} onSettingsPageOpen={onSettingsPageOpen} />,
+    );
 
     expect(
       screen.getByText("Please transfer your project to private to use the API key"),
@@ -101,11 +109,12 @@ describe("APIKeyComponent", () => {
 
     expect(screen.getByTestId("mock-api-key-table")).toBeVisible();
     expect(capturedTableProps).not.toBeNull();
-    expect(capturedTableProps!.keys).toBe(defaultProps.keys);
-    expect(capturedTableProps!.hasUpdateRight).toBe(true);
-    expect(capturedTableProps!.hasDeleteRight).toBe(true);
-    expect(capturedTableProps!.onAPIKeyDelete).toBe(defaultProps.onAPIKeyDelete);
-    expect(capturedTableProps!.onAPIKeyEdit).toBe(defaultProps.onAPIKeyEdit);
+    if (!capturedTableProps) return;
+    expect(capturedTableProps.keys).toBe(defaultProps.keys);
+    expect(capturedTableProps.hasUpdateRight).toBe(true);
+    expect(capturedTableProps.hasDeleteRight).toBe(true);
+    expect(capturedTableProps.onAPIKeyDelete).toBe(defaultProps.onAPIKeyDelete);
+    expect(capturedTableProps.onAPIKeyEdit).toBe(defaultProps.onAPIKeyEdit);
 
     expect(
       screen.queryByText("Please transfer your project to private to use the API key"),

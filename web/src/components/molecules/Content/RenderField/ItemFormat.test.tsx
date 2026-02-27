@@ -17,13 +17,7 @@ vi.mock("@reearth-cms/components/atoms/Notification", () => ({
 }));
 
 vi.mock("@reearth-cms/components/atoms/Tooltip", () => ({
-  default: ({
-    title,
-    children,
-  }: {
-    title?: React.ReactNode;
-    children?: React.ReactNode;
-  }) => (
+  default: ({ title, children }: { title?: React.ReactNode; children?: React.ReactNode }) => (
     <div>
       {children}
       <div>{title}</div>
@@ -146,7 +140,7 @@ describe("ItemFormat", () => {
       // Hover over the picker to reveal the clear icon, then click it
       const input = screen.getByRole("textbox");
       await user.hover(input);
-       
+
       const clearIcon = document.querySelector(".ant-picker-clear");
       if (clearIcon) {
         await user.click(clearIcon as HTMLElement);
@@ -245,16 +239,14 @@ describe("ItemFormat", () => {
 
     test("enters edit mode when edit icon is clicked", async () => {
       const update = vi.fn();
-      render(
-        <ItemFormat item="https://example.com" field={makeField("URL")} update={update} />,
-      );
+      render(<ItemFormat item="https://example.com" field={makeField("URL")} update={update} />);
 
       // Link should be visible initially (Tooltip is mocked to render title inline)
       expect(screen.getByRole("link", { name: "https://example.com" })).toBeVisible();
 
       // Click the edit icon inside the data-testid span
       const editButtonSpan = screen.getByTestId(DATA_TEST_ID.Content__List__UrlEditButton);
-       
+
       await user.click((editButtonSpan.children[0] as HTMLElement) || editButtonSpan);
 
       // Should now show input with the URL value
@@ -263,17 +255,15 @@ describe("ItemFormat", () => {
 
     test("returns to link display on blur with unchanged URL after entering edit mode", async () => {
       const update = vi.fn();
-      render(
-        <ItemFormat item="https://example.com" field={makeField("URL")} update={update} />,
-      );
+      render(<ItemFormat item="https://example.com" field={makeField("URL")} update={update} />);
 
       // Enter edit mode via edit icon
       const editButtonSpan = screen.getByTestId(DATA_TEST_ID.Content__List__UrlEditButton);
-       
+
       await user.click((editButtonSpan.children[0] as HTMLElement) || editButtonSpan);
 
       // Input should be visible with existing URL
-      const input = screen.getByDisplayValue("https://example.com");
+      screen.getByDisplayValue("https://example.com");
 
       // Blur without changing the value
       await user.tab();

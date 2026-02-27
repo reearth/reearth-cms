@@ -8,7 +8,13 @@ import ModelsList from "./ModelsList";
 
 let capturedOnDragEnd: (fromIndex: number, toIndex: number) => void;
 vi.mock("react-drag-listview", () => ({
-  default: ({ children, onDragEnd }: { children: React.ReactNode; onDragEnd: (f: number, t: number) => void }) => {
+  default: ({
+    children,
+    onDragEnd,
+  }: {
+    children: React.ReactNode;
+    onDragEnd: (f: number, t: number) => void;
+  }) => {
     capturedOnDragEnd = onDragEnd;
     return <div>{children}</div>;
   },
@@ -98,11 +104,7 @@ describe("ModelsList", () => {
 
   test("onDragEnd reorders models and calls onUpdateModelsOrder", () => {
     const onUpdateModelsOrder = vi.fn();
-    const models = [
-      makeModel("m1", "A", 0),
-      makeModel("m2", "B", 1),
-      makeModel("m3", "C", 2),
-    ];
+    const models = [makeModel("m1", "A", 0), makeModel("m2", "B", 1), makeModel("m3", "C", 2)];
     render(
       <ModelsList {...defaultProps} models={models} onUpdateModelsOrder={onUpdateModelsOrder} />,
     );

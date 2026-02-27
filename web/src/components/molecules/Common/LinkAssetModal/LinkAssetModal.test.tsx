@@ -1,4 +1,4 @@
-import { screen, within } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 
 import { Asset } from "@reearth-cms/components/molecules/Asset/types";
@@ -77,7 +77,9 @@ vi.mock("@reearth-cms/components/molecules/Common/ResizableProTable", () => ({
       </table>
       <button
         data-testid="trigger-table-change"
-        onClick={() => onChange?.({ current: 2, pageSize: 20 }, null, { columnKey: "DATE", order: "ascend" })}>
+        onClick={() =>
+          onChange?.({ current: 2, pageSize: 20 }, null, { columnKey: "DATE", order: "ascend" })
+        }>
         change
       </button>
     </div>
@@ -183,7 +185,9 @@ describe("LinkAssetModal", () => {
         onLinkAssetModalCancel={onCancel}
       />,
     );
-    screen.getByTestId("icon-linkSolid").closest("button")!.click();
+    const button = screen.getByTestId("icon-linkSolid").closest("button");
+    if (!button) return;
+    button.click();
     expect(onChange).toHaveBeenCalledWith("asset-1");
     expect(onSelect).toHaveBeenCalledWith({ id: "asset-1", fileName: "test-file.png" });
     expect(onCancel).toHaveBeenCalled();
@@ -201,7 +205,9 @@ describe("LinkAssetModal", () => {
         onLinkAssetModalCancel={onCancel}
       />,
     );
-    screen.getByTestId("icon-unlinkSolid").closest("button")!.click();
+    const button = screen.getByTestId("icon-unlinkSolid").closest("button");
+    if (!button) return;
+    button.click();
     expect(onChange).toHaveBeenCalledWith("");
     expect(onCancel).toHaveBeenCalled();
   });
@@ -217,9 +223,7 @@ describe("LinkAssetModal", () => {
 
   test("table change calls onAssetTableChange with page, pageSize, and sort", () => {
     const onAssetTableChange = vi.fn();
-    render(
-      <LinkAssetModal {...defaultProps} onAssetTableChange={onAssetTableChange} />,
-    );
+    render(<LinkAssetModal {...defaultProps} onAssetTableChange={onAssetTableChange} />);
     screen.getByTestId("trigger-table-change").click();
     expect(onAssetTableChange).toHaveBeenCalledWith(2, 20, { direction: "ASC", type: "DATE" });
   });
