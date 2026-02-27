@@ -88,6 +88,7 @@ export default defineConfig({
         "src/components/molecules/Content/utils.ts",
         "src/components/molecules/Common/Form/AssetItem/hooks.ts",
         "src/components/molecules/Content/Table/DropdownRender/hooks.ts",
+        "src/components/molecules/Schema/FieldModal/hooks.ts",
       ],
       reporter: ["text", "json", "lcov"],
     },
