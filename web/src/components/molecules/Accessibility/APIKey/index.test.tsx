@@ -110,11 +110,12 @@ describe("APIKeyComponent", () => {
     expect(screen.getByTestId("mock-api-key-table")).toBeVisible();
     expect(capturedTableProps).not.toBeNull();
     if (!capturedTableProps) return;
-    expect(capturedTableProps.keys).toBe(defaultProps.keys);
-    expect(capturedTableProps.hasUpdateRight).toBe(true);
-    expect(capturedTableProps.hasDeleteRight).toBe(true);
-    expect(capturedTableProps.onAPIKeyDelete).toBe(defaultProps.onAPIKeyDelete);
-    expect(capturedTableProps.onAPIKeyEdit).toBe(defaultProps.onAPIKeyEdit);
+    const props = capturedTableProps as APIKeyTableProps;
+    expect(props.keys).toBe(defaultProps.keys);
+    expect(props.hasUpdateRight).toBe(true);
+    expect(props.hasDeleteRight).toBe(true);
+    expect(props.onAPIKeyDelete).toBe(defaultProps.onAPIKeyDelete);
+    expect(props.onAPIKeyEdit).toBe(defaultProps.onAPIKeyEdit);
 
     expect(
       screen.queryByText("Please transfer your project to private to use the API key"),

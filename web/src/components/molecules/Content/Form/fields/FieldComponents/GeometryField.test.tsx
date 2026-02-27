@@ -2,7 +2,11 @@ import { render, screen } from "@testing-library/react";
 import { describe, test, expect, vi } from "vitest";
 
 import Form, { FormInstance } from "@reearth-cms/components/atoms/Form";
-import type { Field } from "@reearth-cms/components/molecules/Schema/types";
+import type {
+  EditorSupportedType,
+  Field,
+  ObjectSupportedType,
+} from "@reearth-cms/components/molecules/Schema/types";
 
 import GeometryField from "./GeometryField";
 
@@ -146,7 +150,7 @@ describe("GeometryField", () => {
   });
 
   test("supportedTypes from objectSupportedTypes", () => {
-    const types = ["POINT", "LINESTRING"];
+    const types: ObjectSupportedType[] = ["POINT", "LINESTRING"];
     renderField({ fieldOverrides: { typeProperty: { objectSupportedTypes: types } } });
     expect(screen.getByTestId("geometry-item")).toHaveAttribute(
       "data-supported-types",
@@ -155,7 +159,7 @@ describe("GeometryField", () => {
   });
 
   test("supportedTypes falls back to first editorSupportedTypes", () => {
-    const editorTypes = [["POINT", "POLYGON"]];
+    const editorTypes: EditorSupportedType[] = ["POINT", "POLYGON"];
     renderField({
       fieldOverrides: { typeProperty: { editorSupportedTypes: editorTypes } },
     });
@@ -212,7 +216,7 @@ describe("GeometryField", () => {
   });
 
   test("passes supportedTypes, isEditor, disabled to MultiValueGeometry", () => {
-    const types = ["POLYGON"];
+    const types: ObjectSupportedType[] = ["POLYGON"];
     renderField({
       fieldOverrides: {
         multiple: true,
@@ -230,7 +234,7 @@ describe("GeometryField", () => {
   });
 
   test("passes supportedTypes, isEditor, disabled to GeometryItem", () => {
-    const types = ["POINT"];
+    const types: ObjectSupportedType[] = ["POINT"];
     renderField({
       fieldOverrides: {
         type: "GeometryEditor",
@@ -280,8 +284,8 @@ describe("GeometryField", () => {
   });
 
   test("objectSupportedTypes wins when both type sources are present", () => {
-    const objectTypes = ["POINT", "LINESTRING"];
-    const editorTypes = [["POLYGON", "MULTIPOLYGON"]];
+    const objectTypes: ObjectSupportedType[] = ["POINT", "LINESTRING"];
+    const editorTypes: EditorSupportedType[] = ["POLYGON", "ANY"];
     renderField({
       fieldOverrides: {
         typeProperty: {
