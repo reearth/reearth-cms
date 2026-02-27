@@ -42,6 +42,8 @@ import { UploaderProvider } from "./components/molecules/Uploader/provider";
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
 
+console.log("test");
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
