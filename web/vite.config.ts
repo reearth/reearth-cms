@@ -78,6 +78,7 @@ export default defineConfig({
         "src/auth/**/*",
         "src/config/aws.ts",
         "src/config/firebase.ts",
+        "src/config/index.ts",
         "src/state/index.ts",
         "src/components/molecules/Uploader/provider.tsx",
         "src/components/molecules/Uploader/useJobState.ts",
