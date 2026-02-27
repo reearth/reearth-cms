@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, test, vi } from "vitest";
 
 vi.mock("@reearth-cms/i18n", () => ({
@@ -66,5 +67,28 @@ describe("LocalTab", () => {
   test("renders no alerts when alertList is empty", () => {
     render(<LocalTab uploadProps={{}} alertList={[]} />);
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  test("alert click does not propagate to parent", async () => {
+    const user = userEvent.setup();
+    const parentClick = vi.fn();
+    render(
+      <div onClick={parentClick}>
+        <LocalTab
+          uploadProps={{}}
+          alertList={[{ message: "Size limit", type: "warning" }]}
+        />
+      </div>,
+    );
+    await user.click(screen.getByText("Size limit"));
+    expect(parentClick).not.toHaveBeenCalled();
+  });
+
+  test("forwards uploadProps to Dragger", () => {
+    render(<LocalTab uploadProps={{ accept: ".png,.jpg" }} />);
+    const input = screen
+      .getByTestId(DATA_TEST_ID.UploadModal__LocalTabDragger)
+      .querySelector("input[type='file']");
+    expect(input).toHaveAttribute("accept", ".png,.jpg");
   });
 });
