@@ -2,11 +2,34 @@ import { render, screen } from "@testing-library/react";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import userEvent from "@testing-library/user-event";
-import { describe, test, expect, vi } from "vitest";
+import { describe, test, expect, vi, beforeEach } from "vitest";
 
+import Notification from "@reearth-cms/components/atoms/Notification";
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { ItemFormat } from "./ItemFormat";
+
+vi.mock("@reearth-cms/components/atoms/Notification", () => ({
+  default: {
+    error: vi.fn(),
+  },
+}));
+
+vi.mock("@reearth-cms/components/atoms/Tooltip", () => ({
+  default: ({
+    title,
+    children,
+  }: {
+    title?: React.ReactNode;
+    children?: React.ReactNode;
+  }) => (
+    <div>
+      {children}
+      <div>{title}</div>
+    </div>
+  ),
+}));
 
 dayjs.extend(utc);
 
@@ -25,6 +48,10 @@ const makeField = (type: Field["type"], overrides?: Partial<Field>): Field => ({
 
 describe("ItemFormat", () => {
   const user = userEvent.setup();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   describe("Text field", () => {
     test("renders text value when not editable", () => {
@@ -55,6 +82,15 @@ describe("ItemFormat", () => {
       await user.tab();
       expect(update).not.toHaveBeenCalled();
     });
+
+    test("passes index to update on blur", async () => {
+      const update = vi.fn();
+      render(<ItemFormat item="" field={makeField("Text")} update={update} index={2} />);
+      const input = screen.getByRole("textbox");
+      await user.type(input, "indexed value");
+      await user.tab();
+      expect(update).toHaveBeenCalledWith("indexed value", 2);
+    });
   });
 
   describe("MarkdownText field", () => {
@@ -67,6 +103,15 @@ describe("ItemFormat", () => {
       render(<ItemFormat item="plain text" field={makeField("MarkdownText")} />);
       expect(screen.getByText("plain text")).toBeVisible();
     });
+
+    test("renders link with target='_blank'", () => {
+      render(
+        <ItemFormat item="[click here](https://example.com)" field={makeField("MarkdownText")} />,
+      );
+      const link = screen.getByRole("link", { name: "click here" });
+      expect(link).toHaveAttribute("target", "_blank");
+      expect(link).toHaveAttribute("href", "https://example.com");
+    });
   });
 
   describe("Date field", () => {
@@ -78,6 +123,35 @@ describe("ItemFormat", () => {
     test("renders date picker when update is provided", () => {
       render(<ItemFormat item="" field={makeField("Date")} update={vi.fn()} />);
       expect(screen.getByPlaceholderText("-")).toBeVisible();
+    });
+
+    test("calls update when date is selected", async () => {
+      const update = vi.fn();
+      render(<ItemFormat item="" field={makeField("Date")} update={update} />);
+      const input = screen.getByPlaceholderText("-");
+
+      await user.click(input);
+      // Type a valid date and press Enter to trigger onChange
+      await user.type(input, "2024-06-15");
+      await user.keyboard("{Enter}");
+
+      expect(update).toHaveBeenCalled();
+      expect(typeof update.mock.calls[0][0]).toBe("string");
+    });
+
+    test("calls update with empty string when date is cleared", async () => {
+      const update = vi.fn();
+      render(<ItemFormat item="2024-01-15T10:00:00Z" field={makeField("Date")} update={update} />);
+
+      // Hover over the picker to reveal the clear icon, then click it
+      const input = screen.getByRole("textbox");
+      await user.hover(input);
+      // eslint-disable-next-line testing-library/no-node-access
+      const clearIcon = document.querySelector(".ant-picker-clear");
+      if (clearIcon) {
+        await user.click(clearIcon as HTMLElement);
+        expect(update).toHaveBeenCalledWith("", undefined);
+      }
     });
   });
 
@@ -128,6 +202,85 @@ describe("ItemFormat", () => {
     test("renders input when editable and no value", () => {
       render(<ItemFormat item="" field={makeField("URL")} update={vi.fn()} />);
       expect(screen.getByRole("textbox")).toBeVisible();
+    });
+
+    test("does not call update on blur when URL unchanged", async () => {
+      const update = vi.fn();
+      render(<ItemFormat item="" field={makeField("URL")} update={update} />);
+      const input = screen.getByRole("textbox");
+      await user.click(input);
+      await user.tab();
+      expect(update).not.toHaveBeenCalled();
+    });
+
+    test("shows error notification on blur with invalid URL", async () => {
+      const update = vi.fn();
+      render(<ItemFormat item="" field={makeField("URL")} update={update} />);
+      const input = screen.getByRole("textbox");
+      await user.type(input, "not-a-url");
+      await user.tab();
+      expect(update).not.toHaveBeenCalled();
+      expect(Notification.error).toHaveBeenCalledWith(
+        expect.objectContaining({ message: expect.any(String) }),
+      );
+    });
+
+    test("calls update on blur with valid new URL", async () => {
+      const update = vi.fn();
+      render(<ItemFormat item="" field={makeField("URL")} update={update} />);
+      const input = screen.getByRole("textbox");
+      await user.type(input, "https://new.example.com");
+      await user.tab();
+      expect(update).toHaveBeenCalledWith("https://new.example.com", undefined);
+    });
+
+    test("passes index to update on URL blur", async () => {
+      const update = vi.fn();
+      render(<ItemFormat item="" field={makeField("URL")} update={update} index={3} />);
+      const input = screen.getByRole("textbox");
+      await user.type(input, "https://example.com");
+      await user.tab();
+      expect(update).toHaveBeenCalledWith("https://example.com", 3);
+    });
+
+    test("enters edit mode when edit icon is clicked", async () => {
+      const update = vi.fn();
+      render(
+        <ItemFormat item="https://example.com" field={makeField("URL")} update={update} />,
+      );
+
+      // Link should be visible initially (Tooltip is mocked to render title inline)
+      expect(screen.getByRole("link", { name: "https://example.com" })).toBeVisible();
+
+      // Click the edit icon inside the data-testid span
+      const editButtonSpan = screen.getByTestId(DATA_TEST_ID.Content__List__UrlEditButton);
+      // eslint-disable-next-line testing-library/no-node-access
+      await user.click((editButtonSpan.children[0] as HTMLElement) || editButtonSpan);
+
+      // Should now show input with the URL value
+      expect(screen.getByDisplayValue("https://example.com")).toBeVisible();
+    });
+
+    test("returns to link display on blur with unchanged URL after entering edit mode", async () => {
+      const update = vi.fn();
+      render(
+        <ItemFormat item="https://example.com" field={makeField("URL")} update={update} />,
+      );
+
+      // Enter edit mode via edit icon
+      const editButtonSpan = screen.getByTestId(DATA_TEST_ID.Content__List__UrlEditButton);
+      // eslint-disable-next-line testing-library/no-node-access
+      await user.click((editButtonSpan.children[0] as HTMLElement) || editButtonSpan);
+
+      // Input should be visible with existing URL
+      const input = screen.getByDisplayValue("https://example.com");
+
+      // Blur without changing the value
+      await user.tab();
+
+      // Should return to link display (setIsEditable(false) called)
+      expect(update).not.toHaveBeenCalled();
+      expect(screen.getByRole("link", { name: "https://example.com" })).toBeVisible();
     });
   });
 

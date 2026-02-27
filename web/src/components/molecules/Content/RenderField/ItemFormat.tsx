@@ -78,9 +78,8 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
       return (
         <ReactMarkdown
           components={{
-            a(props) {
-              delete props.node;
-              return <a target="_blank" {...props} />;
+            a({ node, ...rest }) {
+              return <a target="_blank" {...rest} />;
             },
           }}
           remarkPlugins={[remarkGfm]}>
