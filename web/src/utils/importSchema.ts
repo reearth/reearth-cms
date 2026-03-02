@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/consistent-type-definitions */
 /* eslint-disable @typescript-eslint/no-extraneous-class */
-import { GeoJSONPoint } from "ol/format/GeoJSON";
 import z from "zod";
 import {
   GeoJSONGeometryCollection,
@@ -13,6 +12,7 @@ import {
   GeoJSONMultiPointSchema,
   GeoJSONMultiPolygon,
   GeoJSONMultiPolygonSchema,
+  GeoJSONPoint,
   GeoJSONPointSchema,
   GeoJSONPolygon,
   GeoJSONPolygonSchema,

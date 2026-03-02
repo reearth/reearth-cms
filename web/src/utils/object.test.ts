@@ -160,6 +160,57 @@ describe("ObjectUtils", () => {
     });
   });
 
+  describe("validateGeoJson", () => {
+    it("resolves with isValid true for a valid GeoJSON Point object", async () => {
+      const point = { type: "Point", coordinates: [139.6917, 35.6895] };
+      const result = await ObjectUtils.validateGeoJson(point);
+      expect(result.isValid).toBe(true);
+      if (result.isValid) {
+        expect(result.data).toEqual(point);
+      }
+    });
+
+    it("resolves with isValid true for a valid GeoJSON FeatureCollection", async () => {
+      const featureCollection = {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            geometry: { type: "Point", coordinates: [0, 0] },
+            properties: { name: "test" },
+          },
+        ],
+      };
+      const result = await ObjectUtils.validateGeoJson(featureCollection);
+      expect(result.isValid).toBe(true);
+      if (result.isValid) {
+        expect(result.data).toEqual(featureCollection);
+      }
+    });
+
+    it("resolves with isValid true for a valid GeoJSON string input", async () => {
+      const pointStr = JSON.stringify({ type: "Point", coordinates: [139.6917, 35.6895] });
+      const result = await ObjectUtils.validateGeoJson(pointStr);
+      expect(result.isValid).toBe(true);
+      if (result.isValid) {
+        expect(result.data).toEqual({ type: "Point", coordinates: [139.6917, 35.6895] });
+      }
+    });
+
+    it("rejects with isValid false for invalid GeoJSON", async () => {
+      const invalid = { type: "InvalidType", coordinates: [0, 0] };
+      await expect(ObjectUtils.validateGeoJson(invalid)).rejects.toEqual(
+        expect.objectContaining({ isValid: false }),
+      );
+    });
+
+    it("rejects with isValid false for an invalid JSON string", async () => {
+      await expect(ObjectUtils.validateGeoJson("{not valid json}")).rejects.toEqual(
+        expect.objectContaining({ isValid: false, error: "Invalid JSON string" }),
+      );
+    });
+  });
+
   describe("deepJsonParse", () => {
     it("test", () => {
       const raw =

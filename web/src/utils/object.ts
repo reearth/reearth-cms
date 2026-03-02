@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
-import { check, getIssues, HintIssue } from "@placemarkio/check-geojson";
 import type { GeoJSON } from "geojson";
+import { GeoJSONSchema } from "zod-geojson";
 
 import { PerformanceTimer } from "@reearth-cms/utils/performance";
 
@@ -85,21 +85,32 @@ export abstract class ObjectUtils {
         setTimeout(() => {
           const timer = new PerformanceTimer("validateGeoJson");
 
-          const parseRaw: string = typeof raw === "string" ? raw : JSON.stringify(raw);
-          const issues: HintIssue[] = getIssues(parseRaw);
+          let parsed: unknown;
+          if (typeof raw === "string") {
+            try {
+              parsed = JSON.parse(raw);
+            } catch {
+              timer.log();
+              reject({ isValid: false, error: "Invalid JSON string" });
+              return;
+            }
+          } else {
+            parsed = raw;
+          }
 
-          if (issues.length > 0) {
+          const validation = GeoJSONSchema.safeParse(parsed);
+
+          if (validation.success) {
+            resolve({ isValid: true, data: validation.data as unknown as GeoJSON });
+          } else {
             reject({
               isValid: false,
               error: JSON.stringify(
-                issues.map(issue => issue.message),
+                validation.error.issues.map(i => i.message),
                 null,
                 2,
               ),
             });
-          } else {
-            const data = check(parseRaw);
-            resolve({ isValid: true, data });
           }
 
           timer.log();
