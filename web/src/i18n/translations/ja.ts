@@ -641,6 +641,7 @@ export default {
   "This action is not reversible, so please continue with caution.": "この操作は元に戻せませんので、慎重に進めてください。",
   "This action is not reversible.": "この操作は元に戻せません。",
   "This action will replace the previously entered value. Do you want to continue?": "この操作は以前に入力された値を置き換えます。続けますか？",
+  "This function is currently experimental and remains somewhat unstable": "これは現在、実験的な機能であり、やや不安定な状態です。",
   "This is the name that will be visible within Re:Earth and Re:Earth CMS. This could be your company's name, department's name, the theme of your projects, etc.": "ワークスペース名はワークスペースを判別するために表示されます。あなたの会社名、部署名、その他プロジェクトのテーマなどを利用することをお勧めします。",
   "This is the title of the view": "ビューのタイトル",
   "This is your ID that is used between Re:Earth and Re:Earth CMS.": "アカウントのIDです。",
