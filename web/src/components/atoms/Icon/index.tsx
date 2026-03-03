@@ -3,12 +3,13 @@ import svgToMiniDataURI from "mini-svg-data-uri";
 import React, { ComponentProps, CSSProperties, memo, useMemo } from "react";
 import { ReactSVG } from "react-svg";
 
-import Icons from "./icons";
-import type { IconName } from "./icons";
+import Icons, { type IconName } from "./icons";
+
+export type IconProp = IconName | `<svg ${string}`;
 
 type Props = {
   className?: string;
-  icon?: IconName;
+  icon?: IconProp;
   size?: string | number;
   alt?: string;
   color?: string;
