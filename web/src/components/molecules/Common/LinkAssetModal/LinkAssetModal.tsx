@@ -38,13 +38,13 @@ type Props = {
   page?: number;
   pageSize?: number;
   setUploadType?: (type: UploadType) => void;
-  setUploadUrl: (uploadUrl: { autoUnzip: boolean; url: string; }) => void;
+  setUploadUrl: (uploadUrl: { autoUnzip: boolean; url: string }) => void;
   totalCount?: number;
   uploading?: boolean;
   uploadModalVisibility?: boolean;
   uploadProps: UploadProps;
   uploadType?: UploadType;
-  uploadUrl: { autoUnzip: boolean; url: string; };
+  uploadUrl: { autoUnzip: boolean; url: string };
   visible: boolean;
 };
 

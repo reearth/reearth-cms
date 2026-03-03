@@ -32,12 +32,12 @@ export type AssetProps = {
   setFileList?: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility?: (visible: boolean) => void;
   setUploadType?: (type: UploadType) => void;
-  setUploadUrl?: (uploadUrl: { autoUnzip: boolean; url: string; }) => void;
+  setUploadUrl?: (uploadUrl: { autoUnzip: boolean; url: string }) => void;
   totalCount?: number;
   uploading?: boolean;
   uploadModalVisibility?: boolean;
   uploadType?: UploadType;
-  uploadUrl?: { autoUnzip: boolean; url: string; };
+  uploadUrl?: { autoUnzip: boolean; url: string };
 };
 
 type Props = {

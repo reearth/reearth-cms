@@ -164,7 +164,7 @@ export type FieldTypePropertyInput = {
   group?: {
     groupId: string;
   };
-  integer?: { defaultValue: "" | number; max: null | number; min: null | number; };
+  integer?: { defaultValue: "" | number; max: null | number; min: null | number };
   markdownText?: { defaultValue?: string; maxLength?: number };
   reference?: {
     correspondingField: {

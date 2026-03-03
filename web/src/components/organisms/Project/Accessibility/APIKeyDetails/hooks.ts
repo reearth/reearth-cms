@@ -95,7 +95,7 @@ export default () => {
     async (
       name: string,
       description: string,
-      publication: { publicAssets: boolean; publicModels: string[]; },
+      publication: { publicAssets: boolean; publicModels: string[] },
     ) => {
       if (!currentProject?.id) return;
       const result = await createAPIKeyMutation({
@@ -123,7 +123,7 @@ export default () => {
       id: string,
       name: string,
       description: string,
-      publication: { publicAssets: boolean; publicModels: string[]; },
+      publication: { publicAssets: boolean; publicModels: string[] },
     ) => {
       if (!currentProject?.id) return;
       const result = await updateAPIKeyMutation({

@@ -18,7 +18,7 @@ import { ImportFieldInput } from "../types";
 
 export type Props = {
   fields: ImportFieldInput[];
-  fieldTypeOptions: { label: JSX.Element; value: string; }[];
+  fieldTypeOptions: { label: JSX.Element; value: string }[];
   hasDeleteRight: boolean;
   hasUpdateRight: boolean;
   onDragEnd: (fromIndex: number, toIndex: number) => void;

@@ -57,7 +57,7 @@ type Props = {
   selectFileModalVisibility: boolean;
   setFields: Dispatch<SetStateAction<ImportFieldInput[]>>;
   setUploadType: (type: UploadType) => void;
-  setUploadUrl: (uploadUrl: { autoUnzip: boolean; url: string; }) => void;
+  setUploadUrl: (uploadUrl: { autoUnzip: boolean; url: string }) => void;
   toFileSelectionStep: () => void;
   toImportingStep: (fields: CreateFieldInput[]) => Promise<void>;
   toSchemaPreviewStep: () => void;
@@ -65,7 +65,7 @@ type Props = {
   uploading: boolean;
   uploadModalVisibility: boolean;
   uploadType: UploadType;
-  uploadUrl: { autoUnzip: boolean; url: string; };
+  uploadUrl: { autoUnzip: boolean; url: string };
   visible: boolean;
 };
 

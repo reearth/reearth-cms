@@ -7,7 +7,7 @@ import { useProject, useUserRights, useWorkspace } from "@reearth-cms/state";
 
 export default (
   fileList?: UploadFile[],
-  uploadUrl?: { autoUnzip: boolean; url: string; },
+  uploadUrl?: { autoUnzip: boolean; url: string },
   uploadType?: UploadType,
   onAssetsCreate?: (files: UploadFile[]) => Promise<(Asset | undefined)[]>,
   onAssetCreateFromUrl?: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>,

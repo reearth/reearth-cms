@@ -299,7 +299,7 @@ export interface ImportSchema {
 export abstract class ImportSchemaUtils {
   public static validateSchemaFromJSON(
     json: ImportSchema,
-  ): { data: ImportSchema; isValid: true; } | { error: string; isValid: false; } {
+  ): { data: ImportSchema; isValid: true } | { error: string; isValid: false } {
     const timer = new PerformanceTimer("validateSchemaFromJSON");
 
     const validation = this.IMPORT_SCHEMA_VALIDATOR.safeParse(json);
@@ -806,7 +806,7 @@ export abstract class ImportSchemaUtils {
     ),
   });
 
-  public static getUIMetadata(params: { hasModelFields: boolean; hasSchemaCreateRight: boolean; }): {
+  public static getUIMetadata(params: { hasModelFields: boolean; hasSchemaCreateRight: boolean }): {
     shouldDisable: boolean;
     tooltipMessage: string | undefined;
   } {

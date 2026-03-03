@@ -81,14 +81,14 @@ export default [
           type: "alphabetical",
         },
       ],
-      "perfectionist/sort-intersection-types": [
-        "warn",
-        {
-          ignoreCase: true,
-          order: "asc",
-          type: "alphabetical",
-        },
-      ],
+      // "perfectionist/sort-intersection-types": [
+      //   "warn",
+      //   {
+      //     ignoreCase: true,
+      //     order: "asc",
+      //     type: "alphabetical",
+      //   },
+      // ],
       "perfectionist/sort-object-types": [
         "warn",
         {

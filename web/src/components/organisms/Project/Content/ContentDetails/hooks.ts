@@ -321,7 +321,7 @@ export default () => {
   });
 
   const handleItemUpdate = useCallback(
-    async ({ fields, itemId }: { fields: ItemField[]; itemId: string; }) => {
+    async ({ fields, itemId }: { fields: ItemField[]; itemId: string }) => {
       const item = await updateItem({
         variables: {
           fields: fields as ItemFieldInput[],
@@ -339,7 +339,7 @@ export default () => {
   );
 
   const handleMetaItemUpdate = useCallback(
-    async ({ metaFields, metaItemId }: { metaFields: ItemField[]; metaItemId?: string; }) => {
+    async ({ metaFields, metaItemId }: { metaFields: ItemField[]; metaItemId?: string }) => {
       if (metaItemId) {
         const item = await updateItem({
           variables: {

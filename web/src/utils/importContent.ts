@@ -37,10 +37,10 @@ export abstract class ImportContentUtils {
     sourceFormat: ContentSourceFormat,
     maxRecordLimit = Constant.IMPORT.MAX_CONTENT_RECORDS,
   ): Promise<
-    { data: ImportContentItem[]; isValid: true; } | { error: ValidationErrorMeta; isValid: false; }
+    { data: ImportContentItem[]; isValid: true } | { error: ValidationErrorMeta; isValid: false }
   > {
     return new Promise<
-      { data: ImportContentItem[]; isValid: true; } | { error: ValidationErrorMeta; isValid: false; }
+      { data: ImportContentItem[]; isValid: true } | { error: ValidationErrorMeta; isValid: false }
     >((resolve, _reject) => {
       const timer = new PerformanceTimer("validateContentFromJSON");
 
@@ -322,8 +322,9 @@ export abstract class ImportContentUtils {
                 >
               | z.ZodOptional<z.ZodOptional<z.ZodUnion<z.ZodLiteral<string>[]>>>
               | z.ZodOptional<z.ZodUnion<z.ZodLiteral<string>[]>>
-              | z.ZodUnion<z.ZodLiteral<string>[]> =
-              z.union(field.typeProperty.values.map(value => z.literal(value)));
+              | z.ZodUnion<z.ZodLiteral<string>[]> = z.union(
+              field.typeProperty.values.map(value => z.literal(value)),
+            );
 
             // validate multiple and add into schema
             const multiple = z.boolean().parse(field.multiple);
@@ -627,8 +628,8 @@ export abstract class ImportContentUtils {
 
   public static convertCSVToJSON<T extends Record<string, unknown>>(
     csvString: string,
-  ): Promise<{ data: T[]; isValid: true; } | { error: string; isValid: false; }> {
-    return new Promise<{ data: T[]; isValid: true; } | { error: string; isValid: false; }>(
+  ): Promise<{ data: T[]; isValid: true } | { error: string; isValid: false }> {
+    return new Promise<{ data: T[]; isValid: true } | { error: string; isValid: false }>(
       (resolve, reject) => {
         setTimeout(() => {
           const timer = new PerformanceTimer("convertCSVToJSON");
@@ -654,10 +655,10 @@ export abstract class ImportContentUtils {
   public static async convertGeoJSONToJSON(
     raw: GeoJSON,
   ): Promise<
-    { data: Record<string, ItemValue>[]; isValid: true; } | { error: string; isValid: false; }
+    { data: Record<string, ItemValue>[]; isValid: true } | { error: string; isValid: false }
   > {
     return new Promise<
-      { data: Record<string, ItemValue>[]; isValid: true; } | { error: string; isValid: false; }
+      { data: Record<string, ItemValue>[]; isValid: true } | { error: string; isValid: false }
     >((resolve, _reject) => {
       const timer = new PerformanceTimer("convertGeoJSONToJSON");
 

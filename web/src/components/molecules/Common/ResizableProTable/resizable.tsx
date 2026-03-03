@@ -6,7 +6,6 @@ import { Resizable } from "react-resizable";
 export type { ResizeCallbackData } from "react-resizable";
 
 export const ResizableTitle = (
-   
   props: {
     minWidth: number;
     onResize: (e: React.SyntheticEvent<Element>, data: ResizeCallbackData) => void;

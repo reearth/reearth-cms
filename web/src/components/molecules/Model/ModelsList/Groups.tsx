@@ -8,7 +8,7 @@ type Props = {
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
   onClose: () => void;
-  onCreate: (data: { description: string; key: string; name: string; }) => Promise<void>;
+  onCreate: (data: { description: string; key: string; name: string }) => Promise<void>;
   onGroupKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
   onGroupSelect?: (groupId: string) => void;
   onModalOpen: () => void;

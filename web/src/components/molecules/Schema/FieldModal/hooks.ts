@@ -44,7 +44,7 @@ export default (
   const min = Form.useWatch("min", form);
   const max = Form.useWatch("max", form);
   const [multipleValue, setMultipleValue] = useState(false);
-  const prevKey = useRef<{ isSuccess: boolean; key: string; }>();
+  const prevKey = useRef<{ isSuccess: boolean; key: string }>();
 
   const handleMultipleChange = useCallback(
     (e: CheckboxChangeEvent) => {

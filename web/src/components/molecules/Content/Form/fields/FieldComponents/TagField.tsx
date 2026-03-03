@@ -28,7 +28,7 @@ const TagField: React.FC<FieldProps> = ({ disabled, field }) => {
           disabled={disabled}
           mode="multiple"
           tagRender={props => <>{props.label}</>}>
-          {field.typeProperty?.tags?.map((tag: { color: string; id: string; name: string; }) => (
+          {field.typeProperty?.tags?.map((tag: { color: string; id: string; name: string }) => (
             <Select.Option key={tag.name} value={tag.id}>
               <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>
             </Select.Option>
@@ -36,7 +36,7 @@ const TagField: React.FC<FieldProps> = ({ disabled, field }) => {
         </StyledMultipleSelect>
       ) : (
         <Select allowClear disabled={disabled}>
-          {field.typeProperty?.tags?.map((tag: { color: string; id: string; name: string; }) => (
+          {field.typeProperty?.tags?.map((tag: { color: string; id: string; name: string }) => (
             <Select.Option key={tag.name} value={tag.id}>
               <TagWrapper>
                 <Tag color={tag.color.toLowerCase()}>{tag.name}</Tag>

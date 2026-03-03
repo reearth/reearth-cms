@@ -6,8 +6,8 @@ import Input from "@reearth-cms/components/atoms/Input";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  setUploadUrl: (uploadUrl: { autoUnzip: boolean; url: string; }) => void;
-  uploadUrl: { autoUnzip: boolean; url: string; };
+  setUploadUrl: (uploadUrl: { autoUnzip: boolean; url: string }) => void;
+  uploadUrl: { autoUnzip: boolean; url: string };
 };
 
 export type FormValues = {

@@ -17,12 +17,12 @@ type Props = {
   onUploadModalCancel?: () => void;
   onUploadModalClose?: () => void;
   setUploadType?: (type: UploadType) => void;
-  setUploadUrl: (uploadUrl: { autoUnzip: boolean; url: string; }) => void;
+  setUploadUrl: (uploadUrl: { autoUnzip: boolean; url: string }) => void;
   uploading?: boolean;
   uploadModalVisibility?: boolean;
   uploadProps: UploadProps;
   uploadType?: UploadType;
-  uploadUrl: { autoUnzip: boolean; url: string; };
+  uploadUrl: { autoUnzip: boolean; url: string };
 };
 
 const UploadAsset: React.FC<Props> = ({

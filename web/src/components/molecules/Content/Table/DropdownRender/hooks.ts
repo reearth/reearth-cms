@@ -251,7 +251,7 @@ export default (
     return options;
   }, [filter]);
 
-  const filterOption = useRef<{ operatorType: string; value: Operator | SortDirection; }>();
+  const filterOption = useRef<{ operatorType: string; value: Operator | SortDirection }>();
   const filterValue = useRef<string>();
 
   useEffect(() => {

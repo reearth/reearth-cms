@@ -36,7 +36,7 @@ export type DropdownFilterType = {
   required: boolean;
   title: string;
   type: FilterType;
-  typeProperty: { tags?: { color: string; id: string; name: string }[]; values?: string[]; };
+  typeProperty: { tags?: { color: string; id: string; name: string }[]; values?: string[] };
 };
 
 export type Operator =

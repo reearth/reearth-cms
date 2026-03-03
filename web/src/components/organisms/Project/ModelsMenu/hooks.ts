@@ -173,7 +173,7 @@ export default ({ modelId }: Params) => {
   });
 
   const handleGroupCreate = useCallback(
-    async (data: { description: string; key: string; name: string; }) => {
+    async (data: { description: string; key: string; name: string }) => {
       if (!projectId) return;
       const group = await createNewGroup({
         variables: {

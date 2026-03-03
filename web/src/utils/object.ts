@@ -23,8 +23,8 @@ export abstract class ObjectUtils {
 
   public static async safeJSONParse<T = Record<string, unknown>>(
     str: string,
-  ): Promise<{ data: T; isValid: true; } | { error: string; isValid: false; }> {
-    return new Promise<{ data: T; isValid: true; } | { error: string; isValid: false; }>(
+  ): Promise<{ data: T; isValid: true } | { error: string; isValid: false }> {
+    return new Promise<{ data: T; isValid: true } | { error: string; isValid: false }>(
       (resolve, _reject) => {
         setTimeout(() => {
           const timer = new PerformanceTimer("safeJSONParse");
@@ -80,8 +80,8 @@ export abstract class ObjectUtils {
 
   public static validateGeoJson(
     raw: GeoJSON | Record<string, unknown> | string,
-  ): Promise<{ data: GeoJSON; isValid: true; } | { error: string; isValid: false; }> {
-    return new Promise<{ data: GeoJSON; isValid: true; } | { error: string; isValid: false; }>(
+  ): Promise<{ data: GeoJSON; isValid: true } | { error: string; isValid: false }> {
+    return new Promise<{ data: GeoJSON; isValid: true } | { error: string; isValid: false }>(
       (resolve, reject) => {
         setTimeout(() => {
           const timer = new PerformanceTimer("validateGeoJson");

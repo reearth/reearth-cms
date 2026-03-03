@@ -40,18 +40,18 @@ type Props = {
   page: number;
   pageSize: number;
   selectedSupportedTypes?: EditorSupportedType | ObjectSupportedType[];
-  selectedTags?: { color: string; id: string; name: string; }[];
+  selectedTags?: { color: string; id: string; name: string }[];
   selectedType: SchemaFieldType;
   selectedValues?: string[];
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
   setUploadType: (type: UploadType) => void;
-  setUploadUrl: (uploadUrl: { autoUnzip: boolean; url: string; }) => void;
+  setUploadUrl: (uploadUrl: { autoUnzip: boolean; url: string }) => void;
   totalCount: number;
   uploading: boolean;
   uploadModalVisibility: boolean;
   uploadType: UploadType;
-  uploadUrl: { autoUnzip: boolean; url: string; };
+  uploadUrl: { autoUnzip: boolean; url: string };
 };
 
 const FieldDefaultInputs: React.FC<Props> = ({

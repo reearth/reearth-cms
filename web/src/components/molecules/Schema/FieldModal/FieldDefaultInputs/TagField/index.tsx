@@ -8,7 +8,7 @@ import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   multiple: boolean;
-  selectedTags?: { color: string; id: string; name: string; }[];
+  selectedTags?: { color: string; id: string; name: string }[];
 };
 
 const TagField: React.FC<Props> = ({ multiple, selectedTags }) => {

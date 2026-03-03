@@ -112,7 +112,7 @@ export abstract class BasePage {
     return this.page.getByTitle(text, options);
   }
 
-  getByRole(role: Role, options?: { exact?: boolean; name?: RegExp | string; }): Locator {
+  getByRole(role: Role, options?: { exact?: boolean; name?: RegExp | string }): Locator {
     return this.page.getByRole(role, options);
   }
 

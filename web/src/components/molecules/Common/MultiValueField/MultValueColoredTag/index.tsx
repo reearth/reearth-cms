@@ -29,8 +29,8 @@ type TagColor = (typeof colors)[number];
 
 type Props = {
   errorIndexes: Set<number>;
-  onChange?: (value: { color: TagColor; id?: string; name: string; }[]) => void;
-  value?: { color: TagColor; id?: string; name: string; }[];
+  onChange?: (value: { color: TagColor; id?: string; name: string }[]) => void;
+  value?: { color: TagColor; id?: string; name: string }[];
 } & InputProps &
   TextAreaProps;
 
