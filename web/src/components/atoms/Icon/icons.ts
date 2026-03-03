@@ -105,7 +105,7 @@ import Unzip from "./Icons/unzip.svg";
 import WarningSolid from "./Icons/warningSolid.svg";
 import WorkspaceSettings from "./Icons/workspaceSettings.svg";
 
-export default {
+const icons = {
   home: HomeOutlined,
   download: DownloadOutlined,
   api: ApiOutlined,
@@ -210,3 +210,7 @@ export default {
   retry: RetryFilled,
   warningSolid: WarningSolid,
 };
+
+export type IconName = keyof typeof icons;
+
+export default icons;

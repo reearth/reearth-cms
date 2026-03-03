@@ -1,11 +1,12 @@
 import styled from "@emotion/styled";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
+import type { IconName } from "@reearth-cms/components/atoms/Icon";
 
 type Props = {
   title: string;
   collapsed: boolean;
-  titleIcon: string;
+  titleIcon: IconName;
 };
 
 const ModelListHeader: React.FC<Props> = ({ title, collapsed, titleIcon }) => {
