@@ -7,7 +7,7 @@ export async function isCesiumViewerReady(
 ): Promise<boolean> {
   const canvas = page.locator("canvas").first();
   const startTime = Date.now();
-  const snap = async (): Promise<string | null> => {
+  const snap = async (): Promise<null | string> => {
     try {
       await canvas.waitFor({ state: "visible", timeout: 15000 });
       const buf = await canvas.screenshot();
@@ -16,7 +16,7 @@ export async function isCesiumViewerReady(
       return null;
     }
   };
-  let prevSig: string | null = await snap();
+  let prevSig: null | string = await snap();
 
   while (Date.now() - startTime < maxWaitTime) {
     await page.waitForTimeout(interval);

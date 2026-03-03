@@ -45,55 +45,55 @@ dayjs.extend(utc);
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route index element={<RootPage />} />
-      <Route path="auth/*" element={<RootPage />} />
-      <Route path="workspace" element={<CMSPageWrapper />}>
-        <Route index element={<Workspace />} />
-        <Route path=":workspaceId" element={<Workspace />} />
-        <Route path=":workspaceId/account" element={<AccountSettings />} />
-        <Route path=":workspaceId/members" element={<Members />} />
-        <Route path=":workspaceId/myIntegrations" element={<MyIntegrations />} />
+      <Route element={<RootPage />} index />
+      <Route element={<RootPage />} path="auth/*" />
+      <Route element={<CMSPageWrapper />} path="workspace">
+        <Route element={<Workspace />} index />
+        <Route element={<Workspace />} path=":workspaceId" />
+        <Route element={<AccountSettings />} path=":workspaceId/account" />
+        <Route element={<Members />} path=":workspaceId/members" />
+        <Route element={<MyIntegrations />} path=":workspaceId/myIntegrations" />
         <Route
-          path=":workspaceId/myIntegrations/:integrationId"
           element={<MyIntegrationDetails />}
+          path=":workspaceId/myIntegrations/:integrationId"
         />
-        <Route path=":workspaceId/integrations" element={<Integration />} />
-        <Route path=":workspaceId/settings" element={<Settings />} />
-        <Route path=":workspaceId/workspaceSettings" element={<WorkspaceSettings />} />
-        <Route path=":workspaceId/project/:projectId" element={<ProjectOverview />} />
-        <Route path=":workspaceId/project/:projectId/schema" element={<Schema />} />
-        <Route path=":workspaceId/project/:projectId/schema/:modelId" element={<Schema />} />
-        <Route path=":workspaceId/project/:projectId/accessibility" element={<Accessibility />} />
+        <Route element={<Integration />} path=":workspaceId/integrations" />
+        <Route element={<Settings />} path=":workspaceId/settings" />
+        <Route element={<WorkspaceSettings />} path=":workspaceId/workspaceSettings" />
+        <Route element={<ProjectOverview />} path=":workspaceId/project/:projectId" />
+        <Route element={<Schema />} path=":workspaceId/project/:projectId/schema" />
+        <Route element={<Schema />} path=":workspaceId/project/:projectId/schema/:modelId" />
+        <Route element={<Accessibility />} path=":workspaceId/project/:projectId/accessibility" />
         <Route
-          path=":workspaceId/project/:projectId/accessibility/:keyId"
           element={<APIKeyDetails />}
+          path=":workspaceId/project/:projectId/accessibility/:keyId"
         />
         <Route
-          path=":workspaceId/project/:projectId/accessibility/docs"
           element={<AccessibilityDocs />}
+          path=":workspaceId/project/:projectId/accessibility/docs"
         />
-        <Route path=":workspaceId/project/:projectId/readme" element={<Readme />} />
-        <Route path=":workspaceId/project/:projectId/license" element={<License />} />
-        <Route path=":workspaceId/project/:projectId/settings" element={<ProjectSettings />} />
-        <Route path=":workspaceId/project/:projectId/content" element={<Content />} />
-        <Route path=":workspaceId/project/:projectId/content/:modelId" element={<Content />} />
+        <Route element={<Readme />} path=":workspaceId/project/:projectId/readme" />
+        <Route element={<License />} path=":workspaceId/project/:projectId/license" />
+        <Route element={<ProjectSettings />} path=":workspaceId/project/:projectId/settings" />
+        <Route element={<Content />} path=":workspaceId/project/:projectId/content" />
+        <Route element={<Content />} path=":workspaceId/project/:projectId/content/:modelId" />
         <Route
+          element={<ContentDetails />}
           path=":workspaceId/project/:projectId/content/:modelId/details"
-          element={<ContentDetails />}
         />
         <Route
+          element={<ContentDetails />}
           path=":workspaceId/project/:projectId/content/:modelId/details/:itemId"
-          element={<ContentDetails />}
         />
-        <Route path=":workspaceId/project/:projectId/asset" element={<AssetList />} />
-        <Route path=":workspaceId/project/:projectId/asset/:assetId" element={<Asset />} />
-        <Route path=":workspaceId/project/:projectId/request" element={<RequestList />} />
+        <Route element={<AssetList />} path=":workspaceId/project/:projectId/asset" />
+        <Route element={<Asset />} path=":workspaceId/project/:projectId/asset/:assetId" />
+        <Route element={<RequestList />} path=":workspaceId/project/:projectId/request" />
         <Route
-          path=":workspaceId/project/:projectId/request/:requestId"
           element={<RequestDetails />}
+          path=":workspaceId/project/:projectId/request/:requestId"
         />
       </Route>
-      <Route path="*" element={<NotFound />} />
+      <Route element={<NotFound />} path="*" />
     </>,
   ),
 );

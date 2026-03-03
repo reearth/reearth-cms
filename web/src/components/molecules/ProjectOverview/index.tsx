@@ -5,88 +5,87 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
-import { useT, Trans } from "@reearth-cms/i18n";
+import { Trans, useT } from "@reearth-cms/i18n";
 
 import { SortBy, UpdateProjectInput } from "../Workspace/types";
-
 import ModelCard from "./ModelCard";
 import ProjectHeader from "./ProjectHeader";
 
 type Props = {
-  models?: Model[];
+  exportLoading?: boolean;
+  hasContentCreateRight: boolean;
   hasCreateRight: boolean;
-  hasUpdateRight: boolean;
   hasDeleteRight: boolean;
   hasSchemaCreateRight: boolean;
-  hasContentCreateRight: boolean;
-  exportLoading?: boolean;
-  onProjectUpdate: (data: UpdateProjectInput) => Promise<void>;
+  hasUpdateRight: boolean;
+  models?: Model[];
+  onContentNavigate: (modelId: string) => void;
+  onHomeNavigation: () => void;
+  onImportContentNavigate: (modelId: string) => void;
+  onImportSchemaNavigate: (modelId: string) => void;
+  onModelDeletionModalOpen: (model: Model) => Promise<void>;
+  onModelExport: (modelId?: string, format?: ExportFormat) => Promise<void>;
+  onModelModalOpen: () => void;
   onModelSearch: (value: string) => void;
   onModelSort: (sort: SortBy) => void;
-  onModelModalOpen: () => void;
-  onHomeNavigation: () => void;
-  onSchemaNavigate: (modelId: string) => void;
-  onImportSchemaNavigate: (modelId: string) => void;
-  onContentNavigate: (modelId: string) => void;
-  onImportContentNavigate: (modelId: string) => void;
-  onModelDeletionModalOpen: (model: Model) => Promise<void>;
   onModelUpdateModalOpen: (model: Model) => Promise<void>;
-  onModelExport: (modelId?: string, format?: ExportFormat) => Promise<void>;
+  onProjectUpdate: (data: UpdateProjectInput) => Promise<void>;
+  onSchemaNavigate: (modelId: string) => void;
 };
 
 const ProjectOverview: React.FC<Props> = ({
-  models,
+  exportLoading,
+  hasContentCreateRight,
   hasCreateRight,
-  hasUpdateRight,
   hasDeleteRight,
   hasSchemaCreateRight,
-  hasContentCreateRight,
-  exportLoading,
-  onModelSearch,
-  onModelSort,
-  onModelModalOpen,
-  onSchemaNavigate,
-  onImportSchemaNavigate,
+  hasUpdateRight,
+  models,
   onContentNavigate,
   onImportContentNavigate,
+  onImportSchemaNavigate,
   onModelDeletionModalOpen,
-  onModelUpdateModalOpen,
   onModelExport,
+  onModelModalOpen,
+  onModelSearch,
+  onModelSort,
+  onModelUpdateModalOpen,
+  onSchemaNavigate,
 }) => {
   const t = useT();
 
   return (
     <InnerContent
-      title={t("Models")}
       extra={
         <Button
-          type="primary"
+          disabled={!hasCreateRight}
           icon={<Icon icon="plus" />}
           onClick={onModelModalOpen}
-          disabled={!hasCreateRight}>
+          type="primary">
           {t("New Model")}
         </Button>
-      }>
+      }
+      title={t("Models")}>
       <ContentSection>
         <ProjectHeader onModelSearch={onModelSearch} onModelSort={onModelSort} />
         {models?.length ? (
           <GridArea>
             {models.map(m => (
               <ModelCard
-                key={m.id}
-                model={m}
-                hasUpdateRight={hasUpdateRight}
+                exportLoading={exportLoading}
+                hasContentCreateRight={hasContentCreateRight}
                 hasDeleteRight={hasDeleteRight}
                 hasSchemaCreateRight={hasSchemaCreateRight}
-                hasContentCreateRight={hasContentCreateRight}
-                exportLoading={exportLoading}
-                onSchemaNavigate={onSchemaNavigate}
-                onImportSchemaNavigate={onImportSchemaNavigate}
+                hasUpdateRight={hasUpdateRight}
+                key={m.id}
+                model={m}
                 onContentNavigate={onContentNavigate}
                 onImportContentNavigate={onImportContentNavigate}
+                onImportSchemaNavigate={onImportSchemaNavigate}
                 onModelDeletionModalOpen={onModelDeletionModalOpen}
-                onModelUpdateModalOpen={onModelUpdateModalOpen}
                 onModelExport={onModelExport}
+                onModelUpdateModalOpen={onModelUpdateModalOpen}
+                onSchemaNavigate={onSchemaNavigate}
               />
             ))}
           </GridArea>
@@ -97,15 +96,15 @@ const ProjectOverview: React.FC<Props> = ({
               <Actions>
                 {t("Create a new model")}
                 <Button
-                  type="primary"
+                  disabled={!hasCreateRight}
                   icon={<Icon icon="plus" />}
                   onClick={onModelModalOpen}
-                  disabled={!hasCreateRight}>
+                  type="primary">
                   {t("New Model")}
                 </Button>
               </Actions>
               <span>
-                <Trans i18nKey="readDocument" components={{ l: <a href="" /> }} />
+                <Trans components={{ l: <a href="" /> }} i18nKey="readDocument" />
               </span>
             </Content>
           </Placeholder>

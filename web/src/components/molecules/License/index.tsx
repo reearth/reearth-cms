@@ -12,60 +12,60 @@ import MarkdownComponent from "../Common/MarkdownComponent";
 import { UpdateProjectInput } from "../Workspace/types";
 
 type Props = {
-  licenseValue: string;
-  projectLicense?: string;
-  licenseEditMode: boolean;
   hasUpdateRight: boolean;
-  onProjectUpdate: (data: UpdateProjectInput) => Promise<void>;
-  onLicenseSave: () => Promise<void>;
+  licenseEditMode: boolean;
+  licenseValue: string;
+  onChooseLicenseTemplate: (value: string) => void;
   onLicenseEdit: () => void;
   onLicenseMarkdownChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
-  onChooseLicenseTemplate: (value: string) => void;
+  onLicenseSave: () => Promise<void>;
+  onProjectUpdate: (data: UpdateProjectInput) => Promise<void>;
+  projectLicense?: string;
 };
 
 const License: React.FC<Props> = ({
-  licenseValue,
-  projectLicense,
-  licenseEditMode,
   hasUpdateRight,
-  onLicenseSave,
+  licenseEditMode,
+  licenseValue,
+  onChooseLicenseTemplate,
   onLicenseEdit,
   onLicenseMarkdownChange,
-  onChooseLicenseTemplate,
+  onLicenseSave,
+  projectLicense,
 }) => {
   const t = useT();
 
   return (
     <InnerContent
-      title={t("License")}
-      flexChildren
-      subtitle={t("License defines whether others can legally use and share your project & data")}
       extra={
         licenseEditMode ? (
           <Button
-            type="primary"
+            disabled={!hasUpdateRight}
             icon={<Icon icon="save" />}
             onClick={onLicenseSave}
-            disabled={!hasUpdateRight}>
+            type="primary">
             {t("Save Changes")}
           </Button>
         ) : (
           <Button
-            type="primary"
+            disabled={!hasUpdateRight}
             icon={<Icon icon="edit" />}
             onClick={onLicenseEdit}
-            disabled={!hasUpdateRight}>
+            type="primary">
             {t("Edit")}
           </Button>
         )
-      }>
+      }
+      flexChildren
+      subtitle={t("License defines whether others can legally use and share your project & data")}
+      title={t("License")}>
       <ContentSection>
         {licenseEditMode ? (
           <MarkdownComponent
             needsTemplate
-            value={licenseValue}
-            onMarkdownChange={onLicenseMarkdownChange}
             onChooseLicenseTemplate={onChooseLicenseTemplate}
+            onMarkdownChange={onLicenseMarkdownChange}
+            value={licenseValue}
           />
         ) : (
           <StyledContainer>

@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo, useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 
@@ -19,10 +19,10 @@ export default (
 
   const pagination = useMemo(
     () => ({
-      showSizeChanger: true,
       current: requestModalPage,
-      total: requestModalTotalCount,
       pageSize: requestModalPageSize,
+      showSizeChanger: true,
+      total: requestModalTotalCount,
     }),
     [requestModalPage, requestModalTotalCount, requestModalPageSize],
   );
@@ -52,5 +52,5 @@ export default (
     }
   }, [items, onChange, onLinkItemRequestModalCancel]);
 
-  return { pagination, submit, resetFlag, selectedRequestId, select, isDisabled, isLoading };
+  return { isDisabled, isLoading, pagination, resetFlag, select, selectedRequestId, submit };
 };

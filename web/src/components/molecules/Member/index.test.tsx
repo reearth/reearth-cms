@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
-import { expect, test, describe } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 
@@ -20,11 +20,11 @@ describe("Member", () => {
   const onSearchTerm = () => {};
   const workspaceUserMembers: UserMember[] = [
     {
-      userId: "userId2",
       role: "OWNER",
-      user: { id: "id2", name: "name2", email: "email2@test.com" },
+      user: { email: "email2@test.com", id: "id2", name: "name2" },
+      userId: "userId2",
     },
-    { userId, role: "OWNER", user: { id: "id1", name: "name1", email: "email1@test.com" } },
+    { role: "OWNER", user: { email: "email1@test.com", id: "id1", name: "name1" }, userId },
   ];
   const page = 1;
   const pageSize = 10;
@@ -52,26 +52,26 @@ describe("Member", () => {
   test("Add member modal is opened successfully", async () => {
     render(
       <MemberWrapper
-        workspaceUserMembers={workspaceUserMembers}
-        userId={userId}
-        isAbleToLeave={isAbleToLeave}
-        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
-        onLeave={onLeave}
-        onSearchTerm={onSearchTerm}
-        page={page}
-        pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        onReload={onReload}
+        addLoading={addLoading}
+        hasChangeRoleRight={hasChangeRoleRight}
         hasInviteRight={hasInviteRight}
         hasRemoveRight={hasRemoveRight}
-        hasChangeRoleRight={hasChangeRoleRight}
-        updateLoading={updateLoading}
+        isAbleToLeave={isAbleToLeave}
+        loading={loading}
+        onLeave={onLeave}
+        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
+        onReload={onReload}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
         onUpdateRole={onUpdateRole}
-        searchLoading={searchLoading}
-        addLoading={addLoading}
-        onUserSearch={onUserSearch}
         onUsersAddToWorkspace={onUsersAddToWorkspace}
+        onUserSearch={onUserSearch}
+        page={page}
+        pageSize={pageSize}
+        searchLoading={searchLoading}
+        updateLoading={updateLoading}
+        userId={userId}
+        workspaceUserMembers={workspaceUserMembers}
       />,
     );
 
@@ -85,26 +85,26 @@ describe("Member", () => {
   test("Role settings modal is displayed successfully", async () => {
     render(
       <MemberWrapper
-        workspaceUserMembers={workspaceUserMembers}
-        userId={userId}
-        isAbleToLeave={isAbleToLeave}
-        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
-        onLeave={onLeave}
-        onSearchTerm={onSearchTerm}
-        page={page}
-        pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        onReload={onReload}
+        addLoading={addLoading}
+        hasChangeRoleRight={hasChangeRoleRight}
         hasInviteRight={hasInviteRight}
         hasRemoveRight={hasRemoveRight}
-        hasChangeRoleRight={hasChangeRoleRight}
-        updateLoading={updateLoading}
+        isAbleToLeave={isAbleToLeave}
+        loading={loading}
+        onLeave={onLeave}
+        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
+        onReload={onReload}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
         onUpdateRole={onUpdateRole}
-        searchLoading={searchLoading}
-        addLoading={addLoading}
-        onUserSearch={onUserSearch}
         onUsersAddToWorkspace={onUsersAddToWorkspace}
+        onUserSearch={onUserSearch}
+        page={page}
+        pageSize={pageSize}
+        searchLoading={searchLoading}
+        updateLoading={updateLoading}
+        userId={userId}
+        workspaceUserMembers={workspaceUserMembers}
       />,
     );
 

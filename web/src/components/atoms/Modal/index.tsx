@@ -11,7 +11,7 @@ export function useModal() {
   const t = useT();
   const { confirm, error } = Modal;
 
-  const defaultConfig: Pick<ModalFuncProps, "icon" | "cancelText"> = {
+  const defaultConfig: Pick<ModalFuncProps, "cancelText" | "icon"> = {
     // icon: <StyledModalConfirmIcon icon="exclamationSolid" color={gold[5]} size={22} />,
     cancelText: t("Cancel"),
   };

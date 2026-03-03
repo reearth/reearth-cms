@@ -17,12 +17,12 @@ type FormValues = {
 };
 
 type Props = {
-  open: boolean;
-  loading: boolean;
   itemId: string;
-  unpublishedItems: FormItem[];
+  loading: boolean;
   onClose: () => void;
   onSubmit: (data: string[]) => Promise<void>;
+  open: boolean;
+  unpublishedItems: FormItem[];
 };
 
 const initialValues: FormValues = {
@@ -30,12 +30,12 @@ const initialValues: FormValues = {
 };
 
 const PublishItemModal: React.FC<Props> = ({
-  open,
-  loading,
   itemId,
-  unpublishedItems,
+  loading,
   onClose,
   onSubmit,
+  open,
+  unpublishedItems,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -78,18 +78,18 @@ const PublishItemModal: React.FC<Props> = ({
 
   return (
     <Modal
-      open={open}
-      onCancel={handleClose}
-      title={t("Publish")}
       footer={[
-        <Button onClick={handleClose} disabled={loading}>
+        <Button disabled={loading} onClick={handleClose}>
           {t("Cancel")}
         </Button>,
-        <Button type="primary" loading={loading} onClick={handleSubmit}>
+        <Button loading={loading} onClick={handleSubmit} type="primary">
           {t("OK")}
         </Button>,
-      ]}>
-      <Form form={form} layout="vertical" initialValues={initialValues}>
+      ]}
+      onCancel={handleClose}
+      open={open}
+      title={t("Publish")}>
+      <Form form={form} initialValues={initialValues} layout="vertical">
         {unpublishedItems?.length !== 0 && (
           <WarningText
             text={t(
@@ -100,9 +100,9 @@ const PublishItemModal: React.FC<Props> = ({
         {unpublishedItems?.map((item, index) => (
           <StyledRow key={index}>
             <StyledCheckbox
-              value={selectedItems[item.id]}
-              onChange={e => handleCheckboxChange(item.id, e.target.checked)}>
-              <ReferenceItem value={item.id} status={item.status} title={item.title} />
+              onChange={e => handleCheckboxChange(item.id, e.target.checked)}
+              value={selectedItems[item.id]}>
+              <ReferenceItem status={item.status} title={item.title} value={item.id} />
             </StyledCheckbox>
           </StyledRow>
         ))}

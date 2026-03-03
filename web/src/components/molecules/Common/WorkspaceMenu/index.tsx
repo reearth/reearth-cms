@@ -7,20 +7,20 @@ import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
+  defaultSelectedKey?: string;
   inlineCollapsed: boolean;
   isPersonalWorkspace: boolean;
-  defaultSelectedKey?: string;
   onNavigate: (info: MenuInfo) => void;
 };
 
-type MenuShowType = "personal" | "notPersonal" | "both";
+type MenuShowType = "both" | "notPersonal" | "personal";
 
-type WorkspaceItemType = ItemType & { show: MenuShowType };
+type WorkspaceItemType = { show: MenuShowType } & ItemType;
 
 const WorkspaceMenu: React.FC<Props> = ({
+  defaultSelectedKey,
   inlineCollapsed,
   isPersonalWorkspace,
-  defaultSelectedKey,
   onNavigate,
 }) => {
   const t = useT();
@@ -31,45 +31,45 @@ const WorkspaceMenu: React.FC<Props> = ({
   }, [defaultSelectedKey]);
 
   const topItems: WorkspaceItemType[] = [
-    { label: t("Home"), key: "home", icon: <Icon icon="home" />, show: "both" },
+    { icon: <Icon icon="home" />, key: "home", label: t("Home"), show: "both" },
   ];
 
   const items: WorkspaceItemType[] = useMemo(() => {
     const res = [
       {
-        label: t("Member"),
-        key: "members",
         icon: <Icon icon="userGroupAdd" />,
+        key: "members",
+        label: t("Member"),
         show: "notPersonal" as MenuShowType,
       },
       {
-        label: t("Integrations"),
-        key: "integrations",
         icon: <Icon icon="api" />,
+        key: "integrations",
+        label: t("Integrations"),
         show: "both" as MenuShowType,
       },
       {
-        label: t("My Integrations"),
-        key: "myIntegrations",
         icon: <Icon icon="myIntegrations" />,
+        key: "myIntegrations",
+        label: t("My Integrations"),
         show: "personal" as MenuShowType,
       },
       {
-        label: t("Settings"),
-        key: "settings",
         icon: <Icon icon="settings" />,
+        key: "settings",
+        label: t("Settings"),
         show: "both" as MenuShowType,
       },
       {
-        label: t("Workspace Settings"),
+        icon: <Icon icon="workspaceSettings" size={"1em"} />,
         key: "workspaceSettings",
-        icon: <Icon size={"1em"} icon="workspaceSettings" />,
+        label: t("Workspace Settings"),
         show: "notPersonal" as MenuShowType,
       },
       {
-        label: t("Account Settings"),
-        key: "account",
         icon: <Icon icon="user" />,
+        key: "account",
+        label: t("Account Settings"),
         show: "personal" as MenuShowType,
       },
     ];
@@ -93,18 +93,18 @@ const WorkspaceMenu: React.FC<Props> = ({
   return (
     <>
       <StyledMenu
+        inlineCollapsed={inlineCollapsed}
+        items={topItems}
+        mode="inline"
         onClick={onClick}
         selectedKeys={selected}
-        inlineCollapsed={inlineCollapsed}
-        mode="inline"
-        items={topItems}
       />
       <StyledMenu
+        inlineCollapsed={inlineCollapsed}
+        items={items}
+        mode="inline"
         onClick={onClick}
         selectedKeys={selected}
-        inlineCollapsed={inlineCollapsed}
-        mode="inline"
-        items={items}
       />
     </>
   );

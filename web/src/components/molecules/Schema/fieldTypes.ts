@@ -5,106 +5,106 @@ import type { SchemaFieldType } from "./types";
 export const fieldTypes: Record<
   SchemaFieldType,
   {
+    color: string;
+    description: string;
     icon: string;
     title: string;
-    description: string;
-    color: string;
   }
 > = {
-  Text: {
-    icon: "textT",
-    title: t("Text"),
-    description: t("Heading and titles, one-line field"),
-    color: "#FF7875",
-  },
-  TextArea: {
-    icon: "textAlignLeft",
-    title: t("TextArea"),
-    description: t("Multi line text"),
-    color: "#FF7875",
-  },
-  MarkdownText: {
-    icon: "markdown",
-    title: t("Markdown text"),
-    description: t("Rich text which supports md style"),
-    color: "#FF7875",
-  },
   Asset: {
+    color: "#FF9C6E",
+    description: t("Asset file"),
     icon: "asset",
     title: t("Asset"),
-    description: t("Asset file"),
-    color: "#FF9C6E",
   },
   Bool: {
+    color: "#FFD666",
+    description: t("true/false field"),
     icon: "boolean",
     title: t("Boolean"),
-    description: t("true/false field"),
-    color: "#FFD666",
-  },
-  Select: {
-    icon: "listBullets",
-    title: t("Option"),
-    description: t("Multiple select"),
-    color: "#7CB305",
-  },
-  Integer: {
-    icon: "numberNine",
-    title: t("Int"),
-    description: t("Integer"),
-    color: "#36CFC9",
-  },
-  Number: {
-    icon: "infinity",
-    title: t("Float"),
-    description: t("Fractional"),
-    color: "#36CFC9",
-  },
-  URL: {
-    icon: "link",
-    title: t("URL"),
-    description: "http/https URL",
-    color: "#9254DE",
-  },
-  Reference: {
-    icon: "arrowUpRight",
-    title: t("Reference"),
-    description: t("Reference other models and items"),
-    color: "#597EF7",
-  },
-  Date: {
-    icon: "date",
-    title: t("Date"),
-    description: t("Date picker"),
-    color: "#FFC069",
-  },
-  Tag: {
-    icon: "tag",
-    title: t("Tag"),
-    description: t("Select from a list of tags"),
-    color: "#7CB305",
   },
   Checkbox: {
+    color: "#FFC069",
+    description: t("Select from a list of checkboxes"),
     icon: "checkSquare",
     title: t("Check Box"),
-    description: t("Select from a list of checkboxes"),
+  },
+  Date: {
     color: "#FFC069",
-  },
-  Group: {
-    icon: "group",
-    title: t("Group"),
-    description: t("Customize a group of fields"),
-    color: "#36CFC9",
-  },
-  GeometryObject: {
-    icon: "curlyBrackets",
-    title: t("Geometry Object"),
-    description: t("Input GeoJSON and preview"),
-    color: "#73D13D",
+    description: t("Date picker"),
+    icon: "date",
+    title: t("Date"),
   },
   GeometryEditor: {
+    color: "#73D13D",
+    description: t("Draw the geometry on map"),
     icon: "pencil",
     title: t("Geometry Editor"),
-    description: t("Draw the geometry on map"),
+  },
+  GeometryObject: {
     color: "#73D13D",
+    description: t("Input GeoJSON and preview"),
+    icon: "curlyBrackets",
+    title: t("Geometry Object"),
+  },
+  Group: {
+    color: "#36CFC9",
+    description: t("Customize a group of fields"),
+    icon: "group",
+    title: t("Group"),
+  },
+  Integer: {
+    color: "#36CFC9",
+    description: t("Integer"),
+    icon: "numberNine",
+    title: t("Int"),
+  },
+  MarkdownText: {
+    color: "#FF7875",
+    description: t("Rich text which supports md style"),
+    icon: "markdown",
+    title: t("Markdown text"),
+  },
+  Number: {
+    color: "#36CFC9",
+    description: t("Fractional"),
+    icon: "infinity",
+    title: t("Float"),
+  },
+  Reference: {
+    color: "#597EF7",
+    description: t("Reference other models and items"),
+    icon: "arrowUpRight",
+    title: t("Reference"),
+  },
+  Select: {
+    color: "#7CB305",
+    description: t("Multiple select"),
+    icon: "listBullets",
+    title: t("Option"),
+  },
+  Tag: {
+    color: "#7CB305",
+    description: t("Select from a list of tags"),
+    icon: "tag",
+    title: t("Tag"),
+  },
+  Text: {
+    color: "#FF7875",
+    description: t("Heading and titles, one-line field"),
+    icon: "textT",
+    title: t("Text"),
+  },
+  TextArea: {
+    color: "#FF7875",
+    description: t("Multi line text"),
+    icon: "textAlignLeft",
+    title: t("TextArea"),
+  },
+  URL: {
+    color: "#9254DE",
+    description: "http/https URL",
+    icon: "link",
+    title: t("URL"),
   },
 };

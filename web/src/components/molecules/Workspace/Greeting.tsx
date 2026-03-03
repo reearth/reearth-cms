@@ -4,11 +4,11 @@ import React from "react";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  username?: string;
   coverImageUrl?: string;
+  username?: string;
 };
 
-const Greeting: React.FC<Props> = ({ username, coverImageUrl }) => {
+const Greeting: React.FC<Props> = ({ coverImageUrl, username }) => {
   const t = useT();
 
   return coverImageUrl ? (

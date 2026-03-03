@@ -10,17 +10,17 @@ import { Webhook } from "@reearth-cms/components/molecules/MyIntegrations/types"
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  webhook: Webhook;
   onWebhookDelete: (webhookId: string) => Promise<void>;
-  onWebhookUpdate: (data: Webhook) => Promise<void>;
   onWebhookSelect: (webhookId: string) => void;
+  onWebhookUpdate: (data: Webhook) => Promise<void>;
+  webhook: Webhook;
 };
 
 const WebhookCard: React.FC<Props> = ({
-  webhook,
   onWebhookDelete,
-  onWebhookUpdate,
   onWebhookSelect,
+  onWebhookUpdate,
+  webhook,
 }) => {
   const t = useT();
   const [isLoading, setIsLoading] = useState(false);
@@ -49,38 +49,38 @@ const WebhookCard: React.FC<Props> = ({
 
   return (
     <StyledCard
+      extra={
+        <Space size={4}>
+          <Button
+            icon={<Icon icon="settings" size={16} />}
+            onClick={() => onWebhookSelect(webhook.id)}
+            shape="circle"
+            size="small"
+            type="text"
+          />
+          <Button
+            icon={<Icon icon="delete" size={16} />}
+            loading={isLoading}
+            onClick={handleWebhookDelete}
+            shape="circle"
+            size="small"
+            type="text"
+          />
+        </Space>
+      }
       title={
         <TitleWrapper>
           <WebhookTitle>{webhook.name}</WebhookTitle>
           <SwitchWrapper>
             <Switch
-              checkedChildren={t("ON")}
-              unCheckedChildren={t("OFF")}
               checked={webhook.active}
-              onClick={handleWebhookUpdate}
+              checkedChildren={t("ON")}
               loading={isUpdateLoading}
+              onClick={handleWebhookUpdate}
+              unCheckedChildren={t("OFF")}
             />
           </SwitchWrapper>
         </TitleWrapper>
-      }
-      extra={
-        <Space size={4}>
-          <Button
-            type="text"
-            shape="circle"
-            size="small"
-            onClick={() => onWebhookSelect(webhook.id)}
-            icon={<Icon icon="settings" size={16} />}
-          />
-          <Button
-            type="text"
-            shape="circle"
-            size="small"
-            onClick={handleWebhookDelete}
-            loading={isLoading}
-            icon={<Icon icon="delete" size={16} />}
-          />
-        </Space>
       }>
       <Content>{webhook.url}</Content>
     </StyledCard>

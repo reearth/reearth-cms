@@ -6,92 +6,92 @@ import useHooks from "./hooks";
 const AssetList: React.FC = () => {
   const {
     assetList,
-    selection,
-    fileList,
-    uploading,
-    uploadModalVisibility,
-    loading,
-    deleteLoading,
-    uploadUrl,
-    uploadType,
-    selectedAsset,
     collapsed,
-    totalCount,
-    page,
-    pageSize,
-    sort,
-    searchTerm,
     columns,
-    hasCreateRight,
-    hasDeleteRight,
-    handleColumnsChange,
-    handleToggleCommentMenu,
-    handleAssetItemSelect,
-    handleAssetSelect,
-    handleUploadModalCancel,
-    setUploadUrl,
-    setUploadType,
-    handleSelect,
-    setFileList,
-    setUploadModalVisibility,
-    handleAssetsCreate,
+    deleteLoading,
+    fileList,
     handleAssetCreateFromUrl,
     handleAssetDelete,
-    handleMultipleAssetDownload,
-    handleSearchTerm,
+    handleAssetItemSelect,
+    handleAssetsCreate,
+    handleAssetSelect,
     handleAssetsReload,
-    handleNavigateToAsset,
     handleAssetTableChange,
+    handleColumnsChange,
+    handleMultipleAssetDownload,
+    handleNavigateToAsset,
+    handleSearchTerm,
+    handleSelect,
+    handleToggleCommentMenu,
+    handleUploadModalCancel,
+    hasCreateRight,
+    hasDeleteRight,
+    loading,
+    page,
+    pageSize,
+    searchTerm,
+    selectedAsset,
+    selection,
+    setFileList,
+    setUploadModalVisibility,
+    setUploadType,
+    setUploadUrl,
+    sort,
+    totalCount,
+    uploading,
+    uploadModalVisibility,
+    uploadType,
+    uploadUrl,
   } = useHooks(true);
 
   return (
     <AssetListBody
+      assetList={assetList}
+      columns={columns}
       commentsPanel={
         <CommentsPanel
+          collapsed={collapsed}
+          comments={selectedAsset?.comments}
+          onCollapse={handleToggleCommentMenu}
+          refetchQueries={["GetAssetsItems"]}
           resourceId={selectedAsset?.id}
           resourceType={"ASSET"}
-          collapsed={collapsed}
-          onCollapse={handleToggleCommentMenu}
-          comments={selectedAsset?.comments}
           threadId={selectedAsset?.threadId}
-          refetchQueries={["GetAssetsItems"]}
         />
       }
-      assetList={assetList}
-      onAssetTableChange={handleAssetTableChange}
-      totalCount={totalCount}
-      page={page}
-      pageSize={pageSize}
-      sort={sort}
-      searchTerm={searchTerm}
-      columns={columns}
-      onColumnsChange={handleColumnsChange}
-      fileList={fileList}
-      selection={selection}
-      uploading={uploading}
-      uploadModalVisibility={uploadModalVisibility}
-      loading={loading}
       deleteLoading={deleteLoading}
-      uploadUrl={uploadUrl}
-      uploadType={uploadType}
+      fileList={fileList}
       hasCreateRight={hasCreateRight}
       hasDeleteRight={hasDeleteRight}
-      onAssetItemSelect={handleAssetItemSelect}
-      onAssetSelect={handleAssetSelect}
-      onUploadModalCancel={handleUploadModalCancel}
-      setUploadUrl={setUploadUrl}
-      setUploadType={setUploadType}
-      selectedAsset={selectedAsset}
-      onAssetsCreate={handleAssetsCreate}
+      loading={loading}
       onAssetCreateFromUrl={handleAssetCreateFromUrl}
       onAssetDelete={handleAssetDelete}
       onAssetDownload={handleMultipleAssetDownload}
+      onAssetItemSelect={handleAssetItemSelect}
+      onAssetsCreate={handleAssetsCreate}
+      onAssetSelect={handleAssetSelect}
       onAssetsReload={handleAssetsReload}
-      onSearchTerm={handleSearchTerm}
+      onAssetTableChange={handleAssetTableChange}
+      onColumnsChange={handleColumnsChange}
       onEdit={handleNavigateToAsset}
+      onSearchTerm={handleSearchTerm}
       onSelect={handleSelect}
+      onUploadModalCancel={handleUploadModalCancel}
+      page={page}
+      pageSize={pageSize}
+      searchTerm={searchTerm}
+      selectedAsset={selectedAsset}
+      selection={selection}
       setFileList={setFileList}
       setUploadModalVisibility={setUploadModalVisibility}
+      setUploadType={setUploadType}
+      setUploadUrl={setUploadUrl}
+      sort={sort}
+      totalCount={totalCount}
+      uploading={uploading}
+      uploadModalVisibility={uploadModalVisibility}
+      uploadType={uploadType}
+      uploadUrl={uploadUrl}
     />
   );
 };

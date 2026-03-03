@@ -14,7 +14,7 @@ test.describe("Project CRUD and searching has succeeded", () => {
   const NEW_PROJECT_NAME = `new ${PROJECT_NAME}`;
   const NEW_PROJECT_DESCRIPTION = `new ${PROJECT_DESCRIPTION}`;
 
-  test("@smoke Create project", async ({ workspacePage, page }) => {
+  test("@smoke Create project", async ({ page, workspacePage }) => {
     await test.step("Open new project dialog and fill details", async () => {
       const newProjectButton = workspacePage.newProjectButtonLast;
       await newProjectButton.click();
@@ -28,7 +28,7 @@ test.describe("Project CRUD and searching has succeeded", () => {
     });
   });
 
-  test("Read project and search project", async ({ workspacePage, page }) => {
+  test("Read project and search project", async ({ page, workspacePage }) => {
     await test.step("Verify project card is visible with description", async () => {
       const projectCard = workspacePage.projectCardByName(PROJECT_NAME);
       await expect(projectCard).toBeVisible();
@@ -59,7 +59,7 @@ test.describe("Project CRUD and searching has succeeded", () => {
     });
   });
 
-  test("@smoke Update project", async ({ projectPage, projectSettingsPage, page }) => {
+  test("@smoke Update project", async ({ page, projectPage, projectSettingsPage }) => {
     await test.step("Navigate to project settings and update name and description", async () => {
       await projectPage.gotoProject(PROJECT_NAME);
       await projectSettingsPage.goToProjectSettings();
@@ -92,10 +92,10 @@ test.describe("Project CRUD and searching has succeeded", () => {
   });
 
   test("@smoke Delete project", async ({
-    projectPage,
-    workspacePage,
-    projectSettingsPage,
     page,
+    projectPage,
+    projectSettingsPage,
+    workspacePage,
   }) => {
     await test.step("Navigate to project settings and delete project", async () => {
       await projectPage.gotoProject(NEW_PROJECT_NAME);
@@ -117,17 +117,17 @@ test.describe("Project CRUD and searching has succeeded", () => {
 
 test.describe("Project List", () => {
   test.skip();
-  const { PROJECT_ID_LIST, FIRST_PAGE_PROJECTS, SECOND_PAGE_PROJECTS, NAME_SEPARATOR } =
+  const { FIRST_PAGE_PROJECTS, NAME_SEPARATOR, PROJECT_ID_LIST, SECOND_PAGE_PROJECTS } =
     getMultipleProjects();
 
-  test.beforeEach(async ({ projectPage, page }) => {
+  test.beforeEach(async ({ page, projectPage }) => {
     for await (const projectName of PROJECT_ID_LIST) {
       await projectPage.createProject(projectName);
       await page.waitForTimeout(300);
     }
   });
 
-  test("Project list pagination", async ({ workspacePage, page }) => {
+  test("Project list pagination", async ({ page, workspacePage }) => {
     await test.step("Check first page", async () => {
       await workspacePage.clickPagination(1);
       await page.waitForTimeout(300);
@@ -163,7 +163,7 @@ test.describe("Project List", () => {
   });
 
   test.describe("Project list sorting", () => {
-    test("Check sort with createdAt (latest to oldest)", async ({ workspacePage, page }) => {
+    test("Check sort with createdAt (latest to oldest)", async ({ page, workspacePage }) => {
       await test.step("Sort by ID and verify order", async () => {
         await workspacePage.selectSortOption("id");
         const projectNames = await workspacePage.getVisibleProjects();
@@ -177,10 +177,10 @@ test.describe("Project List", () => {
     });
 
     test("Check sort with updatedAt (latest to oldest)", async ({
-      workspacePage,
+      page,
       projectPage,
       projectSettingsPage,
-      page,
+      workspacePage,
     }) => {
       const firstProjectName = PROJECT_ID_LIST[0];
       const newFirstProjectName = "new-" + firstProjectName;
@@ -212,7 +212,7 @@ test.describe("Project List", () => {
       });
     });
 
-    test("Check sort with name (a-z)", async ({ workspacePage, page }) => {
+    test("Check sort with name (a-z)", async ({ page, workspacePage }) => {
       await test.step("Sort by name and verify alphabetical order", async () => {
         await workspacePage.selectSortOption("name");
         const projectNames = await workspacePage.getVisibleProjects();
@@ -225,9 +225,9 @@ test.describe("Project List", () => {
   });
 
   test("Check reset state: search input, sort select, pagination", async ({
+    page,
     projectPage,
     workspacePage,
-    page,
   }) => {
     const preCondition = async () => {
       await workspacePage.clickPagination(2);
@@ -285,7 +285,7 @@ test.describe("Project List", () => {
     });
   });
 
-  test.afterEach(async ({ workspacePage, projectPage, page }) => {
+  test.afterEach(async ({ page, projectPage, workspacePage }) => {
     for await (const projectName of PROJECT_ID_LIST) {
       await workspacePage.goto("/", { waitUntil: "domcontentloaded" });
       await page.waitForTimeout(300);

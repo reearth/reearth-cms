@@ -6,20 +6,20 @@ import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  inlineCollapsed: boolean;
   defaultSelectedKey?: string;
+  inlineCollapsed: boolean;
   onNavigate: (info: MenuInfo) => void;
 };
 
-const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onNavigate }) => {
+const ProjectMenu: React.FC<Props> = ({ defaultSelectedKey, inlineCollapsed, onNavigate }) => {
   const t = useT();
 
   const topItems: ItemType[] = [
-    { label: t("Models"), key: "models", icon: <Icon icon="block" /> },
-    { label: t("Schema"), key: "schema", icon: <Icon icon="unorderedList" /> },
-    { label: t("Content"), key: "content", icon: <Icon icon="table" /> },
-    { label: t("Asset"), key: "asset", icon: <Icon icon="file" /> },
-    { label: t("Request"), key: "request", icon: <Icon icon="pullRequest" /> },
+    { icon: <Icon icon="block" />, key: "models", label: t("Models") },
+    { icon: <Icon icon="unorderedList" />, key: "schema", label: t("Schema") },
+    { icon: <Icon icon="table" />, key: "content", label: t("Content") },
+    { icon: <Icon icon="file" />, key: "asset", label: t("Asset") },
+    { icon: <Icon icon="pullRequest" />, key: "request", label: t("Request") },
   ];
   const [selected, changeSelected] = useState([defaultSelectedKey ?? "models"]);
 
@@ -31,24 +31,24 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
 
   const items: ItemType[] = [
     {
-      label: t("Accessibility"),
-      key: "accessibility",
       icon: <Icon icon="send" />,
+      key: "accessibility",
+      label: t("Accessibility"),
     },
     {
-      label: t("Readme"),
-      key: "readme",
       icon: <Icon icon="read" />,
+      key: "readme",
+      label: t("Readme"),
     },
     {
-      label: t("License"),
-      key: "license",
       icon: <Icon icon="copyright" />,
+      key: "license",
+      label: t("License"),
     },
     {
-      label: t("Settings"),
-      key: "settings",
       icon: <Icon icon="settings" />,
+      key: "settings",
+      label: t("Settings"),
     },
   ];
 
@@ -63,18 +63,18 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
   return (
     <>
       <Menu
+        inlineCollapsed={inlineCollapsed}
+        items={topItems}
+        mode="inline"
         onClick={onClick}
         selectedKeys={selected}
-        inlineCollapsed={inlineCollapsed}
-        mode="inline"
-        items={topItems}
       />
       <Menu
+        inlineCollapsed={inlineCollapsed}
+        items={items}
+        mode="inline"
         onClick={onClick}
         selectedKeys={selected}
-        inlineCollapsed={inlineCollapsed}
-        mode="inline"
-        items={items}
       />
     </>
   );

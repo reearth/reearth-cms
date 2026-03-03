@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useMemo, useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 import Form from "@reearth-cms/components/atoms/Form";
 import InputNumber from "@reearth-cms/components/atoms/InputNumber";
@@ -12,9 +12,9 @@ import FieldTitle from "../../FieldTitle";
 import { requiredValidator } from "../utils";
 
 const NumberField: React.FC<FieldProps> = ({
+  disabled,
   field,
   itemGroupId,
-  disabled,
   itemHeights,
   onItemHeightChange,
 }) => {
@@ -42,13 +42,16 @@ const NumberField: React.FC<FieldProps> = ({
   return (
     <StyledFormItem
       extra={field.description}
+      label={<FieldTitle isTitle={field.isTitle} isUnique={field.unique} title={field.title} />}
+      name={itemGroupId ? [field.id, itemGroupId] : field.id}
       rules={[
         {
+          message: t("Please input field!"),
           required: field.required,
           validator: requiredValidator,
-          message: t("Please input field!"),
         },
         {
+          message: "",
           validator: (_, value) => {
             const isError = Array.isArray(value) ? value.some(v => validate(v)) : validate(value);
             if (isError) {
@@ -56,23 +59,20 @@ const NumberField: React.FC<FieldProps> = ({
             }
             return Promise.resolve();
           },
-          message: "",
         },
-      ]}
-      name={itemGroupId ? [field.id, itemGroupId] : field.id}
-      label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
+      ]}>
       {field.multiple ? (
         <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
           <MultiValueField
-            type="number"
-            min={min}
-            max={max}
-            FieldInput={InputNumber}
             disabled={disabled}
+            FieldInput={InputNumber}
+            max={max}
+            min={min}
+            type="number"
           />
         </ResponsiveHeight>
       ) : (
-        <InputNumber type="number" min={min} max={max} disabled={disabled} />
+        <InputNumber disabled={disabled} max={max} min={min} type="number" />
       )}
     </StyledFormItem>
   );

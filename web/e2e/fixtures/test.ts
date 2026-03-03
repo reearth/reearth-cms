@@ -1,6 +1,6 @@
 import { test as base, type Page } from "@playwright/test";
 
-import { config, getAccessToken, type Config } from "../config/config";
+import { config, type Config, getAccessToken } from "../config/config";
 import { AssetsPage } from "../pages/assets.page";
 import { ContentPage } from "../pages/content.page";
 import { FieldEditorPage } from "../pages/field-editor.page";
@@ -16,27 +16,27 @@ import { WorkspacePage } from "../pages/workspace.page";
 
 export type PageObjects = {
   assetsPage: AssetsPage;
-  loginPage: LoginPage;
   contentPage: ContentPage;
   fieldEditorPage: FieldEditorPage;
   integrationsPage: IntegrationsPage;
+  loginPage: LoginPage;
   memberPage: MemberPage;
   projectPage: ProjectPage;
+  projectSettingsPage: ProjectSettingsPage;
   requestPage: RequestPage;
   schemaPage: SchemaPage;
   settingsPage: SettingsPage;
   workspacePage: WorkspacePage;
-  projectSettingsPage: ProjectSettingsPage;
 };
 
 export type Reearth = {
   goto: Page["goto"];
-  token: string | undefined;
   gql: <T = unknown>(
     query: string,
     variables?: Record<string, unknown>,
     options?: { ignoreError?: boolean },
   ) => Promise<T>;
+  token: string | undefined;
 } & Config;
 
 type Fixtures = { reearth: Reearth } & PageObjects;
@@ -45,7 +45,6 @@ export const test = base.extend<Fixtures>({
   reearth: async ({ page, request }, use) => {
     use({
       ...config,
-      token: getAccessToken(),
       async goto(url, options) {
         const res = await page.goto(url, options);
         if (this.token) {
@@ -73,6 +72,7 @@ export const test = base.extend<Fixtures>({
 
         return body;
       },
+      token: getAccessToken(),
     });
   },
 

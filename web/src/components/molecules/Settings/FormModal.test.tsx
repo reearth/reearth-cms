@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, test, describe } from "vitest";
+import { describe, expect, test } from "vitest";
 
-import { TileInput, TerrainInput } from "@reearth-cms/components/molecules/Workspace/types";
+import { TerrainInput, TileInput } from "@reearth-cms/components/molecules/Workspace/types";
 
-import FormModal, { TileTypeFormat, TerrainTypeFormat } from "./FormModal";
+import FormModal, { TerrainTypeFormat, TileTypeFormat } from "./FormModal";
 
 describe("FormModal", () => {
   const user = userEvent.setup();
@@ -18,12 +18,12 @@ describe("FormModal", () => {
   test("Tile options are displayed successfully", async () => {
     render(
       <FormModal
-        open={open}
-        onClose={onClose}
-        tiles={tiles}
-        terrains={terrains}
-        setSettings={setSettings}
         isTile={true}
+        onClose={onClose}
+        open={open}
+        setSettings={setSettings}
+        terrains={terrains}
+        tiles={tiles}
       />,
     );
 
@@ -40,25 +40,25 @@ describe("FormModal", () => {
 
     render(
       <FormModal
-        open={open}
+        index={0}
+        isTile={true}
         onClose={onClose}
+        open={open}
+        setSettings={setSettings}
+        terrains={terrains}
         tiles={[
           {
             tile: {
               id: "",
-              type: "URL",
               props: {
+                image,
                 name,
                 url,
-                image,
               },
+              type: "URL",
             },
           },
         ]}
-        terrains={terrains}
-        setSettings={setSettings}
-        isTile={true}
-        index={0}
       />,
     );
 
@@ -70,12 +70,12 @@ describe("FormModal", () => {
   test("Terrain options are displayed successfully", async () => {
     render(
       <FormModal
-        open={open}
-        onClose={onClose}
-        tiles={tiles}
-        terrains={terrains}
-        setSettings={setSettings}
         isTile={false}
+        onClose={onClose}
+        open={open}
+        setSettings={setSettings}
+        terrains={terrains}
+        tiles={tiles}
       />,
     );
 
@@ -94,27 +94,27 @@ describe("FormModal", () => {
 
     render(
       <FormModal
-        open={open}
+        index={0}
+        isTile={false}
         onClose={onClose}
-        tiles={tiles}
+        open={open}
+        setSettings={setSettings}
         terrains={[
           {
             terrain: {
               id: "",
-              type: "CESIUM_ION",
               props: {
+                cesiumIonAccessToken,
+                cesiumIonAssetId,
+                image,
                 name,
                 url,
-                image,
-                cesiumIonAssetId,
-                cesiumIonAccessToken,
               },
+              type: "CESIUM_ION",
             },
           },
         ]}
-        setSettings={setSettings}
-        isTile={false}
-        index={0}
+        tiles={tiles}
       />,
     );
 

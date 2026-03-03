@@ -9,12 +9,12 @@ import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
 
 type Props = {
-  item?: Item;
-  fields: MetadataField[];
   disabled: boolean;
+  fields: MetadataField[];
+  item?: Item;
 };
 
-const Metadata: React.FC<Props> = ({ item, fields, disabled }) => {
+const Metadata: React.FC<Props> = ({ disabled, fields, item }) => {
   const t = useT();
 
   return (
@@ -64,7 +64,7 @@ const Metadata: React.FC<Props> = ({ item, fields, disabled }) => {
               const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
               return (
                 <MetaFormItemWrapper key={field.id}>
-                  <FieldComponent field={field} disabled={disabled} />
+                  <FieldComponent disabled={disabled} field={field} />
                 </MetaFormItemWrapper>
               );
             })}

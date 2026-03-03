@@ -22,6 +22,6 @@ export class MemberPage extends BasePage {
 
   // Table elements
   cellByText(text: string, exact = false): Locator {
-    return this.getByRole("cell", { name: text, exact });
+    return this.getByRole("cell", { exact, name: text });
   }
 }

@@ -12,54 +12,54 @@ import MarkdownComponent from "../Common/MarkdownComponent";
 import { UpdateProjectInput } from "../Workspace/types";
 
 type Props = {
-  readmeValue: string;
-  projectReadme?: string;
-  readmeEditMode: boolean;
   hasUpdateRight: boolean;
   onProjectUpdate: (data: UpdateProjectInput) => Promise<void>;
-  onReadmeSave: () => Promise<void>;
   onReadmeEdit: () => void;
   onReadmeMarkdownChange: (e: ChangeEvent<HTMLTextAreaElement>) => void;
+  onReadmeSave: () => Promise<void>;
+  projectReadme?: string;
+  readmeEditMode: boolean;
+  readmeValue: string;
 };
 
 const Readme: React.FC<Props> = ({
-  readmeValue,
-  projectReadme,
-  readmeEditMode,
   hasUpdateRight,
-  onReadmeSave,
   onReadmeEdit,
   onReadmeMarkdownChange,
+  onReadmeSave,
+  projectReadme,
+  readmeEditMode,
+  readmeValue,
 }) => {
   const t = useT();
 
   return (
     <InnerContent
-      title={t("Readme")}
-      flexChildren
-      subtitle={t("README is a crucial document helping people quickly understand your project")}
       extra={
         readmeEditMode ? (
           <Button
-            type="primary"
+            disabled={!hasUpdateRight}
             icon={<Icon icon="save" />}
             onClick={onReadmeSave}
-            disabled={!hasUpdateRight}>
+            type="primary">
             {t("Save Changes")}
           </Button>
         ) : (
           <Button
-            type="primary"
+            disabled={!hasUpdateRight}
             icon={<Icon icon="edit" />}
             onClick={onReadmeEdit}
-            disabled={!hasUpdateRight}>
+            type="primary">
             {t("Edit")}
           </Button>
         )
-      }>
+      }
+      flexChildren
+      subtitle={t("README is a crucial document helping people quickly understand your project")}
+      title={t("Readme")}>
       <ContentSection>
         {readmeEditMode ? (
-          <MarkdownComponent value={readmeValue} onMarkdownChange={onReadmeMarkdownChange} />
+          <MarkdownComponent onMarkdownChange={onReadmeMarkdownChange} value={readmeValue} />
         ) : (
           <StyledContainer>
             <ReactMarkdown>{projectReadme}</ReactMarkdown>

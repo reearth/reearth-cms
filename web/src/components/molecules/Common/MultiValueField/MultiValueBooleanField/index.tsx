@@ -10,16 +10,16 @@ import { moveItemInArray } from "../moveItemArray";
 
 type Props = {
   checked?: boolean[];
-  onChange?: (value: (string | number | boolean)[]) => void;
+  disabled?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   FieldInput: React.FunctionComponent<any>;
-  disabled?: boolean;
+  onChange?: (value: (boolean | number | string)[]) => void;
 };
 
 const MultiValueBooleanField: React.FC<Props> = ({
   checked = [],
-  FieldInput,
   disabled,
+  FieldInput,
   onChange,
 }) => {
   const t = useT();
@@ -56,33 +56,33 @@ const MultiValueBooleanField: React.FC<Props> = ({
               <>
                 <FieldButton
                   color="default"
-                  variant="link"
+                  disabled={key === 0}
                   icon={<Icon icon="arrowUp" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(checked, key, key - 1))}
-                  disabled={key === 0}
+                  variant="link"
                 />
                 <FieldButton
                   color="default"
-                  variant="link"
+                  disabled={key === checked.length - 1}
                   icon={<Icon icon="arrowDown" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(checked, key, key + 1))}
-                  disabled={key === checked.length - 1}
+                  variant="link"
                 />
               </>
             )}
             <FieldInput
-              onChange={(e: boolean | CheckboxChangeEvent) => handleInput(e, key)}
               checked={valueItem}
               disabled={disabled}
+              onChange={(e: boolean | CheckboxChangeEvent) => handleInput(e, key)}
             />
 
             <FlexSpace />
             {!disabled && (
               <FieldButton
                 color="default"
-                variant="link"
                 icon={<Icon icon="delete" size={16} />}
                 onClick={() => handleInputDelete(key)}
+                variant="link"
               />
             )}
           </FieldWrapper>
@@ -90,11 +90,11 @@ const MultiValueBooleanField: React.FC<Props> = ({
       {!disabled && (
         <Button
           icon={<Icon icon="plus" />}
-          type="primary"
           onClick={() => {
             if (!checked) checked = [];
             onChange?.([...checked, false]);
-          }}>
+          }}
+          type="primary">
           {t("New")}
         </Button>
       )}

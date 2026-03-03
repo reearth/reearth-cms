@@ -9,26 +9,26 @@ import { Field as FieldType, Group } from "@reearth-cms/components/molecules/Sch
 import Field from "./Field";
 
 type Props = {
-  field: FieldType;
-  disabled: boolean;
-  itemHeights?: Record<string, number>;
-  onItemHeightChange?: (id: string, height: number) => void;
   assetProps: AssetProps;
-  referenceProps: ReferenceProps;
+  disabled: boolean;
+  field: FieldType;
   groupProps: {
     form: FormInstance<unknown>;
     onGroupGet: (id: string) => Promise<Group | undefined>;
   };
+  itemHeights?: Record<string, number>;
+  onItemHeightChange?: (id: string, height: number) => void;
+  referenceProps: ReferenceProps;
 };
 
 const FieldWrapper: React.FC<Props> = ({
-  field,
+  assetProps,
   disabled,
+  field,
+  groupProps,
   itemHeights,
   onItemHeightChange,
-  assetProps,
   referenceProps,
-  groupProps,
 }) => {
   const isFullWidth = useMemo(
     () =>
@@ -37,15 +37,15 @@ const FieldWrapper: React.FC<Props> = ({
   );
 
   return (
-    <Wrapper key={field.id} isFullWidth={isFullWidth}>
+    <Wrapper isFullWidth={isFullWidth} key={field.id}>
       <Field
-        field={field}
+        assetProps={assetProps}
         disabled={disabled}
+        field={field}
+        groupProps={groupProps}
         itemHeights={itemHeights}
         onItemHeightChange={onItemHeightChange}
-        assetProps={assetProps}
         referenceProps={referenceProps}
-        groupProps={groupProps}
       />
     </Wrapper>
   );

@@ -1,4 +1,4 @@
-import { test, expect, assert } from "vitest";
+import { assert, expect, test } from "vitest";
 
 import { aliasRegex, validateKey, validateURL } from "./regex";
 

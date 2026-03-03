@@ -1,93 +1,93 @@
 import { t } from "@reearth-cms/i18n";
 
 export type User = {
+  email: string;
   id: string;
   name: string;
-  email: string;
 };
 
-export type Role = "READER" | "WRITER" | "MAINTAINER" | "OWNER";
+export type Role = "MAINTAINER" | "OWNER" | "READER" | "WRITER";
 t("WRITER");
 t("READER");
 t("MAINTAINER");
 t("OWNER");
 
 export type UserRights = {
-  role: Role;
-  workspace: {
-    update: boolean;
-    delete: boolean;
-  };
-  workspaceSetting: {
-    update: boolean;
-  };
-  integrations: {
-    connect: boolean;
-    update: boolean;
-    delete: boolean;
-  };
-  members: {
-    invite: boolean;
-    remove: boolean;
-    changeRole: boolean;
-    leave: boolean;
-  };
-  project: {
+  apiKey: {
     create: boolean;
+    delete: boolean;
     read: boolean;
     update: boolean;
-    delete: boolean;
-    publish: boolean;
-  };
-  model: {
-    create: boolean;
-    read: boolean;
-    update: boolean;
-    delete: boolean;
-    publish: boolean;
-  };
-  schema: {
-    create: boolean;
-    read: boolean;
-    update: boolean;
-    delete: boolean;
-  };
-  view: {
-    create: boolean;
-    read: boolean;
-    update: boolean;
-    delete: boolean;
-  };
-  content: {
-    create: boolean;
-    read: boolean;
-    update: boolean | null;
-    delete: boolean | null;
-    publish: boolean;
   };
   asset: {
     create: boolean;
-    read: boolean;
-    update: boolean | null;
     delete: boolean | null;
-  };
-  request: {
-    create: boolean;
     read: boolean;
     update: boolean | null;
-    close: boolean | null;
-    approve: boolean;
   };
   comment: {
     create: boolean;
+    delete: boolean | null;
     read: boolean;
     update: boolean | null;
-    delete: boolean | null;
   };
-  apiKey: {
+  content: {
     create: boolean;
+    delete: boolean | null;
+    publish: boolean;
+    read: boolean;
+    update: boolean | null;
+  };
+  integrations: {
+    connect: boolean;
+    delete: boolean;
+    update: boolean;
+  };
+  members: {
+    changeRole: boolean;
+    invite: boolean;
+    leave: boolean;
+    remove: boolean;
+  };
+  model: {
+    create: boolean;
+    delete: boolean;
+    publish: boolean;
     read: boolean;
     update: boolean;
+  };
+  project: {
+    create: boolean;
     delete: boolean;
+    publish: boolean;
+    read: boolean;
+    update: boolean;
+  };
+  request: {
+    approve: boolean;
+    close: boolean | null;
+    create: boolean;
+    read: boolean;
+    update: boolean | null;
+  };
+  role: Role;
+  schema: {
+    create: boolean;
+    delete: boolean;
+    read: boolean;
+    update: boolean;
+  };
+  view: {
+    create: boolean;
+    delete: boolean;
+    read: boolean;
+    update: boolean;
+  };
+  workspace: {
+    delete: boolean;
+    update: boolean;
+  };
+  workspaceSetting: {
+    update: boolean;
   };
 };

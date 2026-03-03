@@ -2,11 +2,11 @@ import styled from "@emotion/styled";
 import { CSSProperties } from "react";
 
 type CustomTagProps = {
-  value?: number | string;
   color?: CSSProperties["color"];
+  value?: number | string;
 };
 
-const CustomTag: React.FC<CustomTagProps> = ({ value, color }) => {
+const CustomTag: React.FC<CustomTagProps> = ({ color, value }) => {
   return (
     <CustomTagWrapper color={color ?? "#bfbfbf"}>
       <span>{value ?? ""}</span>

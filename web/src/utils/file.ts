@@ -24,7 +24,7 @@ export abstract class FileUtils {
     });
   }
 
-  public static async readInput(input: string | ArrayBuffer | Blob): Promise<string> {
+  public static async readInput(input: ArrayBuffer | Blob | string): Promise<string> {
     if (typeof input === "string") return input;
 
     if (input instanceof Blob) {

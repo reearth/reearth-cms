@@ -2,8 +2,9 @@ import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import Notification from "@reearth-cms/components/atoms/Notification";
 import type { FormValues } from "@reearth-cms/components/molecules/MyIntegrations/CreationModal";
+
+import Notification from "@reearth-cms/components/atoms/Notification";
 import { fromGraphQLIntegration } from "@reearth-cms/components/organisms/DataConverters/setting";
 import { IntegrationType } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { CreateIntegrationDocument } from "@reearth-cms/gql/__generated__/integration.generated";
@@ -26,12 +27,12 @@ export default () => {
   );
 
   const handleIntegrationCreate = useCallback(
-    async ({ name, description, logoUrl, type }: FormValues) => {
+    async ({ description, logoUrl, name, type }: FormValues) => {
       const integration = await createNewIntegration({
         variables: {
-          name,
           description,
           logoUrl,
+          name,
           type: type === "Private" ? IntegrationType.Private : IntegrationType.Public,
         },
       });
@@ -54,10 +55,10 @@ export default () => {
   );
 
   return {
-    loading,
-    integrations,
     createLoading,
     handleIntegrationCreate,
     handleIntegrationNavigate,
+    integrations,
+    loading,
   };
 };

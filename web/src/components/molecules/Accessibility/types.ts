@@ -1,22 +1,22 @@
 export type ProjectVisibility = "PRIVATE" | "PUBLIC";
 
 export type PublicationSettings = {
-  publicModels: string[];
   publicAssets: boolean;
+  publicModels: string[];
 };
 
 export type APIKey = {
-  id: string;
-  name: string;
   description: string;
+  id: string;
   key: string;
+  name: string;
   publication: PublicationSettings;
 };
 
 export type ProjectAccessibility = {
-  visibility: ProjectVisibility;
-  publication: PublicationSettings;
   apiKeys: APIKey[];
+  publication: PublicationSettings;
+  visibility: ProjectVisibility;
 };
 
 export type FormType = {
@@ -25,22 +25,22 @@ export type FormType = {
 };
 
 export type KeyFormType = {
-  name: string;
+  assetPublic: boolean;
   description: string;
   key: string;
-  assetPublic: boolean;
   models: Record<string, boolean>;
+  name: string;
 };
 
 export type ModelDataType = {
+  endpoint: string;
+  id: string | string[];
   key: string;
   name: string;
-  id: string | string[];
-  endpoint: string;
 };
 
 export type APIKeyModelType = {
-  name: string;
-  key: string;
   id: string;
+  key: string;
+  name: string;
 };

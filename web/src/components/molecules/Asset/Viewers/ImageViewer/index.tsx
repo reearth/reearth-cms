@@ -4,10 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuthHeader } from "@reearth-cms/gql";
 import { useT } from "@reearth-cms/i18n";
 
-type Props = Omit<React.ImgHTMLAttributes<HTMLImageElement>, "src"> & {
+type Props = {
   isAssetPublic?: boolean;
   url: string;
-};
+} & Omit<React.ImgHTMLAttributes<HTMLImageElement>, "src">;
 
 const ImageViewer: React.FC<Props> = ({ alt = "image-preview", isAssetPublic, url, ...props }) => {
   const t = useT();
@@ -18,7 +18,7 @@ const ImageViewer: React.FC<Props> = ({ alt = "image-preview", isAssetPublic, ur
   useEffect(() => {
     if (!url || isAssetPublic) return;
 
-    let revokeUrl: string | null = null;
+    let revokeUrl: null | string = null;
 
     const fetchProtectedImage = async () => {
       try {
@@ -26,8 +26,8 @@ const ImageViewer: React.FC<Props> = ({ alt = "image-preview", isAssetPublic, ur
         if (!headers) throw new Error("No auth headers");
 
         const response = await fetch(url, {
-          method: "GET",
           headers: headers,
+          method: "GET",
         });
 
         if (!response.ok) throw new Error("Failed to fetch protected image");
@@ -53,7 +53,7 @@ const ImageViewer: React.FC<Props> = ({ alt = "image-preview", isAssetPublic, ur
   return (
     <Container>
       {!loaded && <Loading>{t("Loading")}</Loading>}
-      <Image src={imageSrc} alt={alt} onLoad={() => setLoaded(true)} hidden={!loaded} {...props} />
+      <Image alt={alt} hidden={!loaded} onLoad={() => setLoaded(true)} src={imageSrc} {...props} />
     </Container>
   );
 };

@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Viewer as CesiumViewer } from "cesium";
-import { useMemo, useState, RefObject } from "react";
+import { RefObject, useMemo, useState } from "react";
 import { CesiumComponentRef } from "resium";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -19,59 +19,59 @@ import ViewerNotSupported from "@reearth-cms/components/molecules/Asset/Asset/As
 import ArchiveExtractionStatus from "@reearth-cms/components/molecules/Asset/AssetListTable/ArchiveExtractionStatus";
 import { Asset, AssetItem, ViewerType } from "@reearth-cms/components/molecules/Asset/types";
 import {
-  GeoViewer,
-  Geo3dViewer,
-  SvgViewer,
-  ImageViewer,
-  GltfViewer,
   CsvViewer,
+  Geo3dViewer,
+  GeoViewer,
+  GltfViewer,
+  ImageViewer,
   MvtViewer,
+  SvgViewer,
 } from "@reearth-cms/components/molecules/Asset/Viewers";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
-import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
+import { bytesFormat, dateTimeFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
 
 type Props = {
   asset: Asset;
   assetFileExt?: string;
-  selectedPreviewType?: PreviewType;
-  isModalVisible: boolean;
-  viewerType?: ViewerType;
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
-  displayUnzipFileList: boolean;
   decompressing: boolean;
+  displayUnzipFileList: boolean;
   hasUpdateRight: boolean;
-  onAssetItemSelect: (item: AssetItem) => void;
+  isModalVisible: boolean;
   onAssetDecompress: (assetId: string) => void;
   onAssetDownload: (asset: Asset) => Promise<void>;
+  onAssetItemSelect: (item: AssetItem) => void;
+  onChangeToFullScreen: () => void;
   onModalCancel: () => void;
   onTypeChange: (value: PreviewType) => void;
-  onChangeToFullScreen: () => void;
+  selectedPreviewType?: PreviewType;
+  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
+  viewerType?: ViewerType;
   workspaceSettings: WorkspaceSettings;
 };
 
 const AssetMolecule: React.FC<Props> = ({
   asset,
   assetFileExt,
-  selectedPreviewType,
-  isModalVisible,
-  viewerType,
-  viewerRef,
-  displayUnzipFileList,
   decompressing,
+  displayUnzipFileList,
   hasUpdateRight,
-  onAssetItemSelect,
+  isModalVisible,
   onAssetDecompress,
   onAssetDownload,
-  onTypeChange,
-  onModalCancel,
+  onAssetItemSelect,
   onChangeToFullScreen,
+  onModalCancel,
+  onTypeChange,
+  selectedPreviewType,
+  viewerRef,
+  viewerType,
   workspaceSettings,
 }) => {
   const t = useT();
-  const { svgRender, handleCodeSourceClick, handleRenderClick } = useHooks();
+  const { handleCodeSourceClick, handleRenderClick, svgRender } = useHooks();
   const [assetUrl, setAssetUrl] = useState(asset.url);
   const assetBaseUrl = asset.url.slice(0, asset.url.lastIndexOf("/"));
 
@@ -91,8 +91,8 @@ const AssetMolecule: React.FC<Props> = ({
         return (
           <Geo3dViewer
             isAssetPublic={asset.public}
-            url={assetUrl}
             setAssetUrl={setAssetUrl}
+            url={assetUrl}
             viewerRef={viewerRef}
             workspaceSettings={workspaceSettings}
           />
@@ -148,21 +148,21 @@ const AssetMolecule: React.FC<Props> = ({
                 />
                 <DownloadButton
                   disabled={!asset}
-                  onlyIcon
                   onDownload={() => onAssetDownload(asset)}
+                  onlyIcon
                 />
               </Buttons>
             </>
           }
           toolbar={
             <PreviewToolbar
-              url={assetUrl}
               isModalVisible={isModalVisible}
-              viewerType={viewerType}
               onCodeSourceClick={handleCodeSourceClick}
-              onRenderClick={handleRenderClick}
               onFullScreen={onChangeToFullScreen}
               onModalCancel={onModalCancel}
+              onRenderClick={handleRenderClick}
+              url={assetUrl}
+              viewerType={viewerType}
             />
           }>
           {viewerComponent}
@@ -175,18 +175,18 @@ const AssetMolecule: React.FC<Props> = ({
                 <ArchiveExtractionStatus archiveExtractionStatus={asset.archiveExtractionStatus} />
                 {asset.archiveExtractionStatus === "SKIPPED" && (
                   <UnzipButton
-                    onClick={() => onAssetDecompress(asset.id)}
+                    icon={<Icon icon="unzip" />}
                     loading={decompressing}
-                    icon={<Icon icon="unzip" />}>
+                    onClick={() => onAssetDecompress(asset.id)}>
                     {t("Unzip")}
                   </UnzipButton>
                 )}
               </>
             }>
             <UnzipFileList
-              file={asset.file}
-              assetBaseUrl={assetBaseUrl}
               archiveExtractionStatus={asset.archiveExtractionStatus}
+              assetBaseUrl={assetBaseUrl}
+              file={asset.file}
               setAssetUrl={setAssetUrl}
             />
           </Card>
@@ -200,9 +200,9 @@ const AssetMolecule: React.FC<Props> = ({
       <SideBarWrapper>
         <SideBarCard title={t("Asset Type")}>
           <PreviewTypeSelect
-            value={selectedPreviewType}
-            onTypeChange={onTypeChange}
             hasUpdateRight={hasUpdateRight}
+            onTypeChange={onTypeChange}
+            value={selectedPreviewType}
           />
         </SideBarCard>
         <SideBarCard title={t("Asset Information")}>
@@ -228,7 +228,7 @@ const AssetMolecule: React.FC<Props> = ({
         <SideBarCard title={t("Linked to")}>
           {asset.items.map(item => (
             <div key={item.itemId}>
-              <StyledButton type="link" onClick={() => onAssetItemSelect(item)}>
+              <StyledButton onClick={() => onAssetItemSelect(item)} type="link">
                 {item.itemId}
               </StyledButton>
             </div>

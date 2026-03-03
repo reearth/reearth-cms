@@ -1,20 +1,20 @@
 export type View = {
-  id: string;
-  name: string;
-  modelId: string;
-  projectId: string;
-  order: number;
-  sort?: ItemSort;
-  filter?: ConditionInput;
   columns?: Column[];
+  filter?: ConditionInput;
+  id: string;
+  modelId: string;
+  name: string;
+  order: number;
+  projectId: string;
+  sort?: ItemSort;
 };
 
 export type CurrentView = Partial<View>;
 
 export type Column = {
   field: FieldSelector;
-  visible: boolean;
   fixed?: "left" | "right";
+  visible: boolean;
 };
 
 export type ColumnSelectionInput = {
@@ -23,13 +23,13 @@ export type ColumnSelectionInput = {
 };
 
 export type ItemSort = {
-  field: FieldSelector;
   direction: SortDirection;
+  field: FieldSelector;
 };
 
 export type FieldSelector = {
-  type: FieldType;
   id?: string;
+  type: FieldType;
 };
 
 export const metaColumn = [
@@ -42,19 +42,19 @@ export const metaColumn = [
 ] as const;
 type MetaColumnType = (typeof metaColumn)[number];
 
-export type FieldType = MetaColumnType | "FIELD" | "META_FIELD";
+export type FieldType = "FIELD" | "META_FIELD" | MetaColumnType;
 
 export type SortDirection = "ASC" | "DESC";
 
 export type ConditionInput = {
   and?: AndConditionInput;
-  or?: OrConditionInput;
   basic?: BasicFieldConditionInput;
-  nullable?: NumberFieldConditionInput;
-  multiple?: MultipleFieldConditionInput;
   bool?: BoolFieldConditionInput;
-  string?: StringFieldConditionInput;
+  multiple?: MultipleFieldConditionInput;
+  nullable?: NumberFieldConditionInput;
   number?: NumberFieldConditionInput;
+  or?: OrConditionInput;
+  string?: StringFieldConditionInput;
   time?: TimeFieldConditionInput;
 };
 
@@ -109,13 +109,13 @@ export type TimeFieldConditionInput = {
 
 export type Condition =
   | AndCondition
-  | OrCondition
   | BasicFieldCondition
-  | NullableFieldCondition
-  | MultipleFieldCondition
   | BoolFieldCondition
-  | StringFieldCondition
+  | MultipleFieldCondition
+  | NullableFieldCondition
   | NumberFieldCondition
+  | OrCondition
+  | StringFieldCondition
   | TimeFieldCondition;
 
 export type AndCondition = {

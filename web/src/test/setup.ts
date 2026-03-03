@@ -2,7 +2,7 @@
 import { type EmotionMatchers, matchers as emotionMatchers } from "@emotion/jest";
 import * as domMatchers from "@testing-library/jest-dom/matchers";
 import { cleanup } from "@testing-library/react";
-import { beforeAll, afterEach, expect } from "vitest";
+import { afterEach, beforeAll, expect } from "vitest";
 
 declare global {
   namespace Vi {
@@ -19,14 +19,14 @@ expect.extend(emotionMatchers as any);
 
 Object.defineProperty(window, "matchMedia", {
   value: () => ({
+    addEventListener: () => {},
+    addListener: () => {},
+    dispatchEvent: () => false,
     matches: false,
     media: "",
     onchange: null,
-    addListener: () => {},
-    removeListener: () => {},
-    addEventListener: () => {},
     removeEventListener: () => {},
-    dispatchEvent: () => false,
+    removeListener: () => {},
   }),
 });
 

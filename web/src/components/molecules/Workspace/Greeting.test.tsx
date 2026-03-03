@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { expect, test, describe } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import Greeting from "./Greeting";
 

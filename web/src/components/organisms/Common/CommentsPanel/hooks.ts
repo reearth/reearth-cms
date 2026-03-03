@@ -14,16 +14,16 @@ import {
 import { ResourceType as GQLResourceType } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { CreateThreadWithCommentDocument } from "@reearth-cms/gql/__generated__/thread.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useWorkspaceId, useUserRights, useUserId } from "@reearth-cms/state";
+import { useUserId, useUserRights, useWorkspaceId } from "@reearth-cms/state";
 
 type Params = {
+  refetchQueries: RefetchQueries;
   resourceId?: string;
   resourceType: ResourceType;
   threadId?: string;
-  refetchQueries: RefetchQueries;
 };
 
-export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) => {
+export default ({ refetchQueries, resourceId, resourceType, threadId }: Params) => {
   const t = useT();
   const [currentWorkspaceId] = useWorkspaceId();
   const [userId] = useUserId();
@@ -53,10 +53,10 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
         if (!threadId) {
           const { data, error } = await createThreadWithComment({
             variables: {
-              workspaceId: currentWorkspaceId ?? "",
+              content,
               resourceId: resourceId ?? "",
               resourceType: resourceType as GQLResourceType,
-              content,
+              workspaceId: currentWorkspaceId ?? "",
             },
           });
 
@@ -66,7 +66,7 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
           }
         } else {
           const { data: commentData, error: commentErrors } = await createComment({
-            variables: { threadId, content },
+            variables: { content, threadId },
           });
 
           if (commentErrors || !commentData?.addComment) {
@@ -100,9 +100,9 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
       if (!threadId) return;
       const comment = await updateComment({
         variables: {
-          threadId,
           commentId,
           content,
+          threadId,
         },
       });
       if (comment.error || !comment.data?.updateComment) {
@@ -123,8 +123,8 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
       if (!threadId) return;
       const comment = await deleteComment({
         variables: {
-          threadId,
           commentId,
+          threadId,
         },
       });
       if (comment.error || !comment.data?.deleteComment) {
@@ -137,12 +137,12 @@ export default ({ resourceId, resourceType, threadId, refetchQueries }: Params) 
   );
 
   return {
-    userId: userId ?? "",
-    hasCreateRight,
-    hasUpdateRight,
-    hasDeleteRight,
     handleCommentCreate,
-    handleCommentUpdate,
     handleCommentDelete,
+    handleCommentUpdate,
+    hasCreateRight,
+    hasDeleteRight,
+    hasUpdateRight,
+    userId: userId ?? "",
   };
 };

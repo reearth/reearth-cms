@@ -4,53 +4,53 @@ import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
 import { ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 
 type Props = {
-  title: string;
   collapsed: boolean;
-  selectedKey?: string;
-  models?: Model[];
-  open: boolean;
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
-  onModalOpen: () => void;
-  onModelKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
+  models?: Model[];
   onClose: () => void;
   onCreate: (data: ModelFormValues) => Promise<void>;
+  onModalOpen: () => void;
+  onModelKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
   onModelSelect: (modelId: string) => void;
   onUpdateModelsOrder: (modelIds: string[]) => Promise<void>;
+  open: boolean;
+  selectedKey?: string;
+  title: string;
 };
 
 const Models: React.FC<Props> = ({
   collapsed,
-  selectedKey,
-  models,
-  open,
   hasCreateRight,
   hasUpdateRight,
-  onModalOpen,
-  onModelKeyCheck,
+  models,
   onClose,
   onCreate,
+  onModalOpen,
+  onModelKeyCheck,
   onModelSelect,
   onUpdateModelsOrder,
+  open,
+  selectedKey,
 }) => {
   return (
     <>
       <ModelsList
-        selectedKey={selectedKey}
-        models={models}
         collapsed={collapsed}
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}
-        onModelSelect={onModelSelect}
+        models={models}
         onModalOpen={onModalOpen}
+        onModelSelect={onModelSelect}
         onUpdateModelsOrder={onUpdateModelsOrder}
+        selectedKey={selectedKey}
       />
       <FormModal
-        open={open}
-        onKeyCheck={onModelKeyCheck}
+        isModel
         onClose={onClose}
         onCreate={onCreate}
-        isModel
+        onKeyCheck={onModelKeyCheck}
+        open={open}
       />
     </>
   );

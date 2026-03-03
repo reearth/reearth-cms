@@ -2,31 +2,31 @@ import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 import { Project as GQLProject } from "@reearth-cms/gql/__generated__/graphql.generated";
 
 export const fromGraphQLProject = (project: GQLProject): Project => ({
-  id: project.id,
-  name: project.name,
-  description: project.description,
-  alias: project.alias,
-  readme: project.readme,
-  license: project.license,
-  requestRoles: project.requestRoles ?? [],
   accessibility: project.accessibility
     ? {
-        visibility: project.accessibility.visibility ?? "PRIVATE",
-        publication: {
-          publicModels: project.accessibility.publication?.publicModels ?? [],
-          publicAssets: project.accessibility.publication?.publicAssets ?? false,
-        },
         apiKeys:
           project.accessibility.apiKeys?.map(apiKey => ({
-            id: apiKey.id,
-            name: apiKey.name,
             description: apiKey.description,
+            id: apiKey.id,
             key: apiKey.key,
+            name: apiKey.name,
             publication: {
-              publicModels: apiKey.publication?.publicModels ?? [],
               publicAssets: apiKey.publication?.publicAssets ?? false,
+              publicModels: apiKey.publication?.publicModels ?? [],
             },
           })) ?? [],
+        publication: {
+          publicAssets: project.accessibility.publication?.publicAssets ?? false,
+          publicModels: project.accessibility.publication?.publicModels ?? [],
+        },
+        visibility: project.accessibility.visibility ?? "PRIVATE",
       }
     : undefined,
+  alias: project.alias,
+  description: project.description,
+  id: project.id,
+  license: project.license,
+  name: project.name,
+  readme: project.readme,
+  requestRoles: project.requestRoles ?? [],
 });

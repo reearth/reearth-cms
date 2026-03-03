@@ -6,30 +6,30 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
 
 type DownloadButtonProps = {
-  title?: string;
-  displayDefaultIcon?: boolean;
   disabled?: boolean;
-  onlyIcon?: boolean;
+  displayDefaultIcon?: boolean;
   onDownload?: MouseEventHandler<HTMLElement>;
+  onlyIcon?: boolean;
+  title?: string;
 } & ButtonProps;
 
 const DownloadButton: React.FC<DownloadButtonProps> = ({
-  title,
-  displayDefaultIcon,
   disabled,
-  onlyIcon,
+  displayDefaultIcon,
   onDownload,
+  onlyIcon,
+  title,
   ...props
 }) => {
   const t = useT();
   return onlyIcon ? (
-    <IconWrapper role="button" onClick={onDownload}>
+    <IconWrapper onClick={onDownload} role="button">
       <Icon icon="download" />
     </IconWrapper>
   ) : (
     <Button
-      icon={displayDefaultIcon && <Icon icon="download" />}
       disabled={disabled}
+      icon={displayDefaultIcon && <Icon icon="download" />}
       onClick={onDownload}
       {...props}>
       {title ?? t("Download")}

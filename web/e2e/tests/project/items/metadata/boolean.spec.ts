@@ -1,7 +1,7 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-test.beforeEach(async ({ reearth, projectPage }) => {
+test.beforeEach(async ({ projectPage, reearth }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
@@ -14,9 +14,9 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Boolean metadata creating and updating has succeeded", async ({
-  page,
-  fieldEditorPage,
   contentPage,
+  fieldEditorPage,
+  page,
   schemaPage,
 }) => {
   await test.step("Create boolean metadata field", async () => {
@@ -84,9 +84,9 @@ test("Boolean metadata creating and updating has succeeded", async ({
 });
 
 test("Boolean metadata editing has succeeded", async ({
-  page,
-  fieldEditorPage,
   contentPage,
+  fieldEditorPage,
+  page,
   schemaPage,
 }) => {
   await test.step("Create boolean metadata with default true value", async () => {

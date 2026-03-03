@@ -6,7 +6,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import { FormInstance } from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { ReferenceProps } from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
-import { Field, Group, FieldProps } from "@reearth-cms/components/molecules/Schema/types";
+import { Field, FieldProps, Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { newID } from "@reearth-cms/utils/id";
 
@@ -14,27 +14,27 @@ import { AssetProps } from "../../Form/AssetItem";
 import GroupItem from "../../Form/GroupItem";
 import { moveItemInArray } from "../moveItemArray";
 
-type Props = FieldProps & {
-  value?: string[];
-  onChange?: (value: string[]) => void;
+type Props = {
+  assetProps: AssetProps;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form?: FormInstance<any>;
+  onChange?: (value: string[]) => void;
   onGroupGet: (id: string) => Promise<Group | undefined>;
-  assetProps: AssetProps;
   referenceProps: ReferenceProps;
-};
+  value?: string[];
+} & FieldProps;
 
 const MultiValueGroup: React.FC<Props> = ({
-  value = [],
-  onChange,
-  field,
-  disabled,
-  itemHeights,
-  onItemHeightChange,
-  form,
-  onGroupGet,
   assetProps,
+  disabled,
+  field,
+  form,
+  itemHeights,
+  onChange,
+  onGroupGet,
+  onItemHeightChange,
   referenceProps,
+  value = [],
 }) => {
   const t = useT();
 
@@ -111,26 +111,26 @@ const MultiValueGroup: React.FC<Props> = ({
           return (
             <FieldWrapper key={key}>
               <GroupItem
-                value={valueItem}
-                parentField={field}
-                disabled={disabled}
-                itemHeights={itemHeights}
-                onItemHeightChange={onItemHeightChange}
-                order={key}
-                onMoveUp={() => onChange?.(moveItemInArray(value, key, key - 1))}
-                onMoveDown={() => onChange?.(moveItemInArray(value, key, key + 1))}
-                onDelete={() => handleInputDelete(key)}
-                disableMoveUp={key === 0}
-                disableMoveDown={key === value.length - 1}
-                onGroupGet={onGroupGet}
                 assetProps={assetProps}
+                disabled={disabled}
+                disableMoveDown={key === value.length - 1}
+                disableMoveUp={key === 0}
+                itemHeights={itemHeights}
+                onDelete={() => handleInputDelete(key)}
+                onGroupGet={onGroupGet}
+                onItemHeightChange={onItemHeightChange}
+                onMoveDown={() => onChange?.(moveItemInArray(value, key, key + 1))}
+                onMoveUp={() => onChange?.(moveItemInArray(value, key, key - 1))}
+                order={key}
+                parentField={field}
                 referenceProps={referenceProps}
+                value={valueItem}
               />
             </FieldWrapper>
           );
         })}
       {!disabled && (
-        <Button icon={<Icon icon="plus" />} type="primary" onClick={handleAdd}>
+        <Button icon={<Icon icon="plus" />} onClick={handleAdd} type="primary">
           {t("New")}
         </Button>
       )}

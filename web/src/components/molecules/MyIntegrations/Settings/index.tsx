@@ -10,29 +10,29 @@ import {
 
 type Props = {
   integration: Integration;
-  updateIntegrationLoading: boolean;
-  regenerateLoading: boolean;
-  onIntegrationUpdate: (data: IntegrationInfo) => Promise<void>;
   onIntegrationDelete: () => Promise<void>;
+  onIntegrationUpdate: (data: IntegrationInfo) => Promise<void>;
   onRegenerateToken: () => Promise<void>;
+  regenerateLoading: boolean;
+  updateIntegrationLoading: boolean;
 };
 
 const MyIntegrationSettings: React.FC<Props> = ({
   integration,
-  updateIntegrationLoading,
-  regenerateLoading,
-  onIntegrationUpdate,
   onIntegrationDelete,
+  onIntegrationUpdate,
   onRegenerateToken,
+  regenerateLoading,
+  updateIntegrationLoading,
 }) => {
   return (
     <Wrapper>
       <MyIntegrationForm
         integration={integration}
-        updateIntegrationLoading={updateIntegrationLoading}
-        regenerateLoading={regenerateLoading}
         onIntegrationUpdate={onIntegrationUpdate}
         onRegenerateToken={onRegenerateToken}
+        regenerateLoading={regenerateLoading}
+        updateIntegrationLoading={updateIntegrationLoading}
       />
       <DangerZone onIntegrationDelete={onIntegrationDelete} />
     </Wrapper>

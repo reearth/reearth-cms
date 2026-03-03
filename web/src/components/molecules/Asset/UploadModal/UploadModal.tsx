@@ -5,7 +5,7 @@ import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Tabs from "@reearth-cms/components/atoms/Tabs";
-import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { useT } from "@reearth-cms/i18n";
 
@@ -15,35 +15,35 @@ import UrlTab from "./UrlTab";
 const { TabPane } = Tabs;
 
 type Props = {
-  alsoLink?: boolean;
-  visible?: boolean;
-  uploadProps: UploadProps;
-  fileList?: UploadFile<File>[];
   alertList?: AlertProps[];
-  uploading?: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType?: UploadType;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType?: (type: UploadType) => void;
-  onUploadModalClose?: () => void;
-  onUpload: () => void;
+  alsoLink?: boolean;
+  fileList?: UploadFile<File>[];
   onCancel?: () => void;
+  onUpload: () => void;
+  onUploadModalClose?: () => void;
+  setUploadType?: (type: UploadType) => void;
+  setUploadUrl: (uploadUrl: { autoUnzip: boolean; url: string }) => void;
+  uploading?: boolean;
+  uploadProps: UploadProps;
+  uploadType?: UploadType;
+  uploadUrl: { autoUnzip: boolean; url: string };
+  visible?: boolean;
 };
 
 const UploadModal: React.FC<Props> = ({
-  alsoLink,
-  visible,
-  uploadProps,
-  uploading,
-  fileList,
   alertList,
-  uploadUrl,
-  uploadType,
-  setUploadUrl,
-  setUploadType,
-  onUploadModalClose,
-  onUpload,
+  alsoLink,
+  fileList,
   onCancel,
+  onUpload,
+  onUploadModalClose,
+  setUploadType,
+  setUploadUrl,
+  uploading,
+  uploadProps,
+  uploadType,
+  uploadUrl,
+  visible,
 }) => {
   const t = useT();
 
@@ -56,41 +56,41 @@ const UploadModal: React.FC<Props> = ({
 
   return (
     <StyledModal
+      afterClose={onUploadModalClose}
       centered
-      open={visible}
-      onCancel={onCancel}
       closable={!uploading}
-      maskClosable={!uploading}
       footer={
         <>
-          <Button type="default" disabled={uploading} onClick={onCancel}>
+          <Button disabled={uploading} onClick={onCancel} type="default">
             {t("Cancel")}
           </Button>
           <Button
-            type="primary"
-            onClick={onUpload}
             disabled={fileList?.length === 0 && !uploadUrl.url}
-            loading={uploading}>
+            loading={uploading}
+            onClick={onUpload}
+            type="primary">
             {uploading ? t("Uploading") : alsoLink ? t("Upload and Link") : t("Upload")}
           </Button>
         </>
       }
-      width="50vw"
-      afterClose={onUploadModalClose}
+      maskClosable={!uploading}
+      onCancel={onCancel}
+      open={visible}
       styles={{
         body: {
           minHeight: "50vh",
         },
-      }}>
+      }}
+      width="50vw">
       <div>
         <h2>{t("Asset Uploader")}</h2>
       </div>
       <Tabs activeKey={uploadType} onChange={handleTabChange}>
-        <TabPane tab={t("Local")} key="local">
-          <LocalTab uploadProps={uploadProps} alertList={alertList} />
+        <TabPane key="local" tab={t("Local")}>
+          <LocalTab alertList={alertList} uploadProps={uploadProps} />
         </TabPane>
-        <TabPane tab={t("URL")} key="url">
-          <UrlTab uploadUrl={uploadUrl} setUploadUrl={setUploadUrl} />
+        <TabPane key="url" tab={t("URL")}>
+          <UrlTab setUploadUrl={setUploadUrl} uploadUrl={uploadUrl} />
         </TabPane>
       </Tabs>
     </StyledModal>

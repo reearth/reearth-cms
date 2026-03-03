@@ -17,12 +17,12 @@ const onWorkspaceDelete = () => {
 test("Workspace settings wrapper works successfully", async () => {
   render(
     <WorkspaceSettingsWrapper
-      workspaceName={workspaceName}
-      updateWorkspaceLoading={updateWorkspaceLoading}
-      hasUpdateRight={hasUpdateRight}
       hasDeleteRight={hasDeleteRight}
-      onWorkspaceUpdate={onWorkspaceUpdate}
+      hasUpdateRight={hasUpdateRight}
       onWorkspaceDelete={onWorkspaceDelete}
+      onWorkspaceUpdate={onWorkspaceUpdate}
+      updateWorkspaceLoading={updateWorkspaceLoading}
+      workspaceName={workspaceName}
     />,
   );
 

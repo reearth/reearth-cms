@@ -8,46 +8,46 @@ const Integration: React.FC = () => {
   const { workspaceId } = useParams();
 
   const {
-    loading,
-    workspaceIntegrations,
-    handleSearchTerm,
-    setSelectedIntegration,
+    addLoading,
     deleteLoading,
+    handleIntegrationConnect,
     handleIntegrationRemove,
+    handleSearchTerm,
+    handleTableChange,
+    handleUpdateIntegration,
+    hasConnectRight,
+    hasDeleteRight,
+    hasUpdateRight,
+    loading,
+    myIntegrations,
     page,
     pageSize,
-    handleTableChange,
-    hasConnectRight,
-    hasUpdateRight,
-    hasDeleteRight,
-    myIntegrations,
-    addLoading,
-    handleIntegrationConnect,
     selectedIntegration,
+    setSelectedIntegration,
     updateLoading,
-    handleUpdateIntegration,
+    workspaceIntegrations,
   } = useHooks(workspaceId);
 
   return (
     <IntegrationWrapper
-      loading={loading}
-      workspaceIntegrations={workspaceIntegrations}
-      onSearchTerm={handleSearchTerm}
-      setSelectedIntegration={setSelectedIntegration}
-      onIntegrationRemove={handleIntegrationRemove}
+      addLoading={addLoading}
       deleteLoading={deleteLoading}
+      hasConnectRight={hasConnectRight}
+      hasDeleteRight={hasDeleteRight}
+      hasUpdateRight={hasUpdateRight}
+      loading={loading}
+      myIntegrations={myIntegrations}
+      onIntegrationConnect={handleIntegrationConnect}
+      onIntegrationRemove={handleIntegrationRemove}
+      onSearchTerm={handleSearchTerm}
+      onTableChange={handleTableChange}
+      onUpdateIntegration={handleUpdateIntegration}
       page={page}
       pageSize={pageSize}
-      onTableChange={handleTableChange}
-      hasConnectRight={hasConnectRight}
-      hasUpdateRight={hasUpdateRight}
-      hasDeleteRight={hasDeleteRight}
-      myIntegrations={myIntegrations}
-      addLoading={addLoading}
-      onIntegrationConnect={handleIntegrationConnect}
       selectedIntegration={selectedIntegration}
+      setSelectedIntegration={setSelectedIntegration}
       updateLoading={updateLoading}
-      onUpdateIntegration={handleUpdateIntegration}
+      workspaceIntegrations={workspaceIntegrations}
     />
   );
 };

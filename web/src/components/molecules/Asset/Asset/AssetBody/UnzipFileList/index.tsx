@@ -13,16 +13,16 @@ import { generateAssetTreeData } from "./generateAssetTreeData";
 import { FileNode } from "./types";
 
 type Props = {
-  file: AssetFile;
-  assetBaseUrl: string;
   archiveExtractionStatus: ArchiveExtractionStatus;
+  assetBaseUrl: string;
+  file: AssetFile;
   setAssetUrl: (url: string) => void;
 };
 
 const UnzipFileList: React.FC<Props> = ({
-  file,
-  assetBaseUrl,
   archiveExtractionStatus,
+  assetBaseUrl,
+  file,
   setAssetUrl,
 }) => {
   const t = useT();
@@ -55,11 +55,11 @@ const UnzipFileList: React.FC<Props> = ({
     <UnzipFileListWrapper>
       {archiveExtractionStatus === "IN_PROGRESS" || archiveExtractionStatus === "PENDING" ? (
         <ExtractionInProgressWrapper>
-          <Spin tip={t("Decompressing...")} size="large" />
+          <Spin size="large" tip={t("Decompressing...")} />
         </ExtractionInProgressWrapper>
       ) : archiveExtractionStatus === "FAILED" ? (
         <ExtractionFailedWrapper>
-          <ExtractionFailedIcon icon="closeCircle" color="#FF4D4F" size="56px" />
+          <ExtractionFailedIcon color="#FF4D4F" icon="closeCircle" size="56px" />
           <ExtractionFailedText>
             {t("Failed to decompress. Please check the file and try again.")}
           </ExtractionFailedText>
@@ -67,16 +67,15 @@ const UnzipFileList: React.FC<Props> = ({
       ) : (
         treeData && (
           <Tree
+            defaultExpandedKeys={["0-0"]}
+            multiple={false}
+            onSelect={handleSelect}
+            selectedKeys={selectedKeys}
+            showLine={{ showLeafIcon: true }}
             switcherIcon={({ expanded }) => (
               <SwitcherIcon icon={expanded ? "folderOpen" : "folder"} size={14} />
             )}
-            defaultExpandedKeys={["0-0"]}
-            selectedKeys={selectedKeys}
-            onSelect={handleSelect}
-            treeData={treeData}
-            multiple={false}
-            showLine={{ showLeafIcon: true }}
-            titleRender={({ title, key, path }) => {
+            titleRender={({ key, path, title }) => {
               if (typeof title !== "function") {
                 return (
                   <TitleWrapper>
@@ -93,6 +92,7 @@ const UnzipFileList: React.FC<Props> = ({
                 );
               }
             }}
+            treeData={treeData}
           />
         )
       )}

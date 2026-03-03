@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-extraneous-class */
-import { check, getIssues, HintIssue } from "@placemarkio/check-geojson";
 import type { GeoJSON } from "geojson";
+
+import { check, getIssues, HintIssue } from "@placemarkio/check-geojson";
 
 import { PerformanceTimer } from "@reearth-cms/utils/performance";
 
-type JsonValue = string | number | boolean | null | JsonObject | JsonArray;
+type JsonValue = boolean | JsonArray | JsonObject | null | number | string;
 type JsonObject = {
   [key: string]: JsonValue;
 };
@@ -22,18 +23,18 @@ export abstract class ObjectUtils {
 
   public static async safeJSONParse<T = Record<string, unknown>>(
     str: string,
-  ): Promise<{ isValid: true; data: T } | { isValid: false; error: string }> {
-    return new Promise<{ isValid: true; data: T } | { isValid: false; error: string }>(
+  ): Promise<{ data: T; isValid: true } | { error: string; isValid: false }> {
+    return new Promise<{ data: T; isValid: true } | { error: string; isValid: false }>(
       (resolve, _reject) => {
         setTimeout(() => {
           const timer = new PerformanceTimer("safeJSONParse");
           try {
             const data = this.deepJsonParse(str) as T;
-            resolve({ isValid: true, data });
+            resolve({ data, isValid: true });
           } catch (error) {
             resolve({
-              isValid: false,
               error: error instanceof Error ? error.message : "Invalid JSON",
+              isValid: false,
             });
           } finally {
             timer.log();
@@ -78,9 +79,9 @@ export abstract class ObjectUtils {
   }
 
   public static validateGeoJson(
-    raw: Record<string, unknown> | string | GeoJSON,
-  ): Promise<{ isValid: true; data: GeoJSON } | { isValid: false; error: string }> {
-    return new Promise<{ isValid: true; data: GeoJSON } | { isValid: false; error: string }>(
+    raw: GeoJSON | Record<string, unknown> | string,
+  ): Promise<{ data: GeoJSON; isValid: true } | { error: string; isValid: false }> {
+    return new Promise<{ data: GeoJSON; isValid: true } | { error: string; isValid: false }>(
       (resolve, reject) => {
         setTimeout(() => {
           const timer = new PerformanceTimer("validateGeoJson");
@@ -90,16 +91,16 @@ export abstract class ObjectUtils {
 
           if (issues.length > 0) {
             reject({
-              isValid: false,
               error: JSON.stringify(
                 issues.map(issue => issue.message),
                 null,
                 2,
               ),
+              isValid: false,
             });
           } else {
             const data = check(parseRaw);
-            resolve({ isValid: true, data });
+            resolve({ data, isValid: true });
           }
 
           timer.log();

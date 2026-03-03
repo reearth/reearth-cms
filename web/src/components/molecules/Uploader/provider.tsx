@@ -19,27 +19,27 @@ import { UploaderQueueItem, UploaderState } from "./types";
 import MutateResult = ApolloClient.MutateResult;
 
 export type UploaderHookState = {
-  isShowUploader: boolean;
-  uploaderState: UploaderState;
-  shouldPreventReload: boolean;
-  uploadingFileCount: number;
-  handleUploaderOpen: (isOpen: boolean) => void;
-  handleUploadCancel: (id: UploaderQueueItem["jobId"]) => Promise<void>;
-  handleUploadRetry: (id: UploaderQueueItem["jobId"]) => Promise<void>;
   handleCancelAll: () => Promise<void>;
   handleEnqueueJob: (payload: {
-    workspaceId: string;
-    projectId: string;
-    modelId: string;
-    fileName: string;
-    extension: "csv" | "json" | "geojson";
-    url: string;
+    extension: "csv" | "geojson" | "json";
     file: RcFile;
+    fileName: string;
+    modelId: string;
+    projectId: string;
+    url: string;
+    workspaceId: string;
   }) => Promise<void>;
   handleJobUpdate: (payload: Pick<UploaderQueueItem, "jobId" | "jobState">) => void;
+  handleUploadCancel: (id: UploaderQueueItem["jobId"]) => Promise<void>;
+  handleUploaderOpen: (isOpen: boolean) => void;
+  handleUploadRetry: (id: UploaderQueueItem["jobId"]) => Promise<void>;
+  isShowUploader: boolean;
+  shouldPreventReload: boolean;
+  uploaderState: UploaderState;
+  uploadingFileCount: number;
 };
 
-export const UploaderHookStateContext = createContext<UploaderHookState | undefined>(undefined);
+export const UploaderHookStateContext = createContext<undefined | UploaderHookState>(undefined);
 
 export const UploaderProvider = ({ children }: { children: ReactNode }) => {
   const [uploaderState, setUploaderState] = useUploader();
@@ -61,9 +61,9 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
                   ...item,
                   jobState: {
                     ...item.jobState,
+                    error: jobRes.data?.job ? jobRes.data.job.error : item.jobState.error,
                     progress: jobRes.data?.job ? jobRes.data.job.progress : item.jobState.progress,
                     status: jobRes.data?.job ? jobRes.data.job.status : item.jobState.status,
-                    error: jobRes.data?.job ? jobRes.data.job.error : item.jobState.error,
                   },
                 }
               : item,
@@ -75,7 +75,7 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const handleEnqueueJob = useCallback<UploaderHookState["handleEnqueueJob"]>(
-    async ({ workspaceId, projectId, modelId, fileName, extension, url, file }) => {
+    async ({ extension, file, fileName, modelId, projectId, url, workspaceId }) => {
       const importItemsRes = await importItemsAsyncMutation({
         variables: {
           input: { file, modelId },
@@ -91,26 +91,26 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
         return;
       }
 
-      const { id: jobId, status, progress } = importItemsRes.data.importItemsAsync.job;
+      const { id: jobId, progress, status } = importItemsRes.data.importItemsAsync.job;
 
       setUploaderState(prev => {
         const newQueueItem: UploaderQueueItem = {
-          workspaceId,
-          projectId,
-          modelId,
-          jobId,
-          fileName,
           extension,
-          url,
           file,
-          jobState: { status, progress },
+          fileName,
+          jobId,
+          jobState: { progress, status },
+          modelId,
+          projectId,
+          url,
+          workspaceId,
         };
 
         return {
           ...prev,
           isOpen: true,
-          showBadge: true,
           queue: [newQueueItem, ...prev.queue],
+          showBadge: true,
         };
       });
 
@@ -138,7 +138,7 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
       if (findRetryItem) {
         const importItemsRes = await importItemsAsyncMutation({
           variables: {
-            input: { modelId: findRetryItem.modelId, file: findRetryItem.file },
+            input: { file: findRetryItem.file, modelId: findRetryItem.modelId },
           },
         });
 
@@ -151,7 +151,7 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
           return;
         }
 
-        const { id: newJobId, status, progress } = importItemsRes.data.importItemsAsync.job;
+        const { id: newJobId, progress, status } = importItemsRes.data.importItemsAsync.job;
 
         setUploaderState(prev => ({
           ...prev,
@@ -160,7 +160,7 @@ export const UploaderProvider = ({ children }: { children: ReactNode }) => {
               ? {
                   ..._prev,
                   jobId: newJobId,
-                  jobState: { status, progress },
+                  jobState: { progress, status },
                 }
               : _prev,
           ),

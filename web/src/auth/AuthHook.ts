@@ -1,11 +1,11 @@
 type AuthHook = {
-  user: unknown; // TODO: Replace 'unknown' with your user type
+  error: null | string;
+  getAccessToken: () => Promise<string>;
   isAuthenticated: boolean;
   isLoading: boolean;
-  error: string | null;
-  getAccessToken: () => Promise<string>;
   login: () => void;
   logout: () => void;
+  user: unknown; // TODO: Replace 'unknown' with your user type
 };
 
 export default AuthHook;

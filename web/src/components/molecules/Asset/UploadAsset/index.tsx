@@ -8,64 +8,64 @@ import { useT } from "@reearth-cms/i18n";
 import UploadModal from "../UploadModal/UploadModal";
 
 type Props = {
-  alsoLink?: boolean;
-  uploadProps: UploadProps;
-  fileList?: UploadFile<File>[];
   alertList?: AlertProps[];
+  alsoLink?: boolean;
+  displayUploadModal: () => void;
+  fileList?: UploadFile<File>[];
+  hasCreateRight: boolean;
+  onUpload: () => void;
+  onUploadModalCancel?: () => void;
+  onUploadModalClose?: () => void;
+  setUploadType?: (type: UploadType) => void;
+  setUploadUrl: (uploadUrl: { autoUnzip: boolean; url: string }) => void;
   uploading?: boolean;
   uploadModalVisibility?: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
+  uploadProps: UploadProps;
   uploadType?: UploadType;
-  hasCreateRight: boolean;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType?: (type: UploadType) => void;
-  onUploadModalClose?: () => void;
-  displayUploadModal: () => void;
-  onUploadModalCancel?: () => void;
-  onUpload: () => void;
+  uploadUrl: { autoUnzip: boolean; url: string };
 };
 
 const UploadAsset: React.FC<Props> = ({
-  alsoLink,
-  uploadProps,
-  fileList,
   alertList,
+  alsoLink,
+  displayUploadModal,
+  fileList,
+  hasCreateRight,
+  onUpload,
+  onUploadModalCancel,
+  onUploadModalClose,
+  setUploadType,
+  setUploadUrl,
   uploading,
   uploadModalVisibility,
-  uploadUrl,
+  uploadProps,
   uploadType,
-  hasCreateRight,
-  onUploadModalClose,
-  displayUploadModal,
-  onUploadModalCancel,
-  setUploadUrl,
-  setUploadType,
-  onUpload,
+  uploadUrl,
 }) => {
   const t = useT();
   return (
     <>
       <Button
-        type="primary"
+        disabled={!hasCreateRight}
         icon={<Icon icon="upload" />}
         onClick={displayUploadModal}
-        disabled={!hasCreateRight}>
+        type="primary">
         {t("Upload Asset")}
       </Button>
       <UploadModal
-        alsoLink={alsoLink}
-        uploadProps={uploadProps}
-        fileList={fileList}
         alertList={alertList}
-        uploading={uploading}
-        uploadUrl={uploadUrl}
-        uploadType={uploadType}
-        setUploadUrl={setUploadUrl}
-        setUploadType={setUploadType}
-        onUploadModalClose={onUploadModalClose}
-        onUpload={onUpload}
-        visible={uploadModalVisibility}
+        alsoLink={alsoLink}
+        fileList={fileList}
         onCancel={onUploadModalCancel}
+        onUpload={onUpload}
+        onUploadModalClose={onUploadModalClose}
+        setUploadType={setUploadType}
+        setUploadUrl={setUploadUrl}
+        uploading={uploading}
+        uploadProps={uploadProps}
+        uploadType={uploadType}
+        uploadUrl={uploadUrl}
+        visible={uploadModalVisibility}
       />
     </>
   );

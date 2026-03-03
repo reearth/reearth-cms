@@ -9,8 +9,8 @@ import { SortBy } from "@reearth-cms/components/molecules/Workspace/types";
 import { fromGraphQLProject } from "@reearth-cms/components/organisms/DataConverters/project";
 import { fromGraphQLWorkspace } from "@reearth-cms/components/organisms/DataConverters/setting";
 import {
-  Workspace as GQLWorkspace,
   Project as GQLProject,
+  Workspace as GQLWorkspace,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
 import {
   CheckProjectAliasDocument,
@@ -37,10 +37,10 @@ export default () => {
 
   const location: {
     state?: {
-      searchTerm?: string;
-      sort: SortBy;
       page: number;
       pageSize: number;
+      searchTerm?: string;
+      sort: SortBy;
     } | null;
   } = useLocation();
 
@@ -66,13 +66,13 @@ export default () => {
     loading,
     refetch: projectsRefetch,
   } = useQuery(GetProjectsDocument, {
-    variables: {
-      workspaceId: workspaceId ?? "",
-      keyword: searchedProjectName,
-      sort: { key: projectSort, reverted: projectSort !== "name" },
-      pagination: { first: pageSize, offset: (page - 1) * pageSize },
-    },
     skip: !workspaceId,
+    variables: {
+      keyword: searchedProjectName,
+      pagination: { first: pageSize, offset: (page - 1) * pageSize },
+      sort: { key: projectSort, reverted: projectSort !== "name" },
+      workspaceId: workspaceId ?? "",
+    },
   });
 
   const projects = useMemo(
@@ -114,12 +114,12 @@ export default () => {
       if (!workspaceId) throw new Error();
       const project = await createNewProject({
         variables: {
-          workspaceId,
-          name: data.name,
           alias: data.alias,
           description: data.description,
-          visibility: data.visibility,
           license: data.license,
+          name: data.name,
+          visibility: data.visibility,
+          workspaceId,
         },
       });
       if (project.error || !project.data?.createProject) {
@@ -175,15 +175,15 @@ export default () => {
       if (!workspaceId) {
         throw new Error("Workspace ID is required to check project alias");
       }
-      const response = await CheckProjectAlias({ variables: { workspaceId, alias } });
+      const response = await CheckProjectAlias({ variables: { alias, workspaceId } });
       return response.data ? response.data.checkProjectAlias.available : false;
     },
     [CheckProjectAlias, workspaceId],
   );
 
   const { data: projectLimitsData } = useQuery(CheckProjectLimitsDocument, {
-    variables: { workspaceId: workspaceId ?? "" },
     skip: !workspaceId,
+    variables: { workspaceId: workspaceId ?? "" },
   });
 
   const privateProjectsAllowed = useMemo(() => {
@@ -191,23 +191,23 @@ export default () => {
   }, [projectLimitsData]);
 
   return {
-    username,
-    privateProjectsAllowed,
     coverImageUrl,
-    projects,
-    loading,
-    hasCreateRight,
-    page,
-    pageSize,
-    projectSort,
-    totalCount: data?.projects.totalCount ?? 0,
-    handleProjectSearch,
-    handleProjectSort,
+    handlePageChange,
+    handleProjectAliasCheck,
     handleProjectCreate,
     handleProjectNavigation,
+    handleProjectSearch,
+    handleProjectSort,
     handleWorkspaceCreate,
-    handleProjectAliasCheck,
+    hasCreateRight,
+    loading,
+    page,
+    pageSize,
+    privateProjectsAllowed,
+    projects,
+    projectSort,
     projectsRefetch,
-    handlePageChange,
+    totalCount: data?.projects.totalCount ?? 0,
+    username,
   };
 };

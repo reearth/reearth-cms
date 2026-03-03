@@ -5,8 +5,8 @@ import Notification from "@reearth-cms/components/atoms/Notification";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import { fromGraphQLRequest } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
-  RequestState as GQLRequestState,
   Request as GQLRequest,
+  RequestState as GQLRequestState,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
 import {
   PublishItemDocument,
@@ -17,7 +17,7 @@ import {
   UpdateRequestDocument,
 } from "@reearth-cms/gql/__generated__/requests.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useModel, useProject, useWorkspace, useUserId, useUserRights } from "@reearth-cms/state";
+import { useModel, useProject, useUserId, useUserRights, useWorkspace } from "@reearth-cms/state";
 
 export default () => {
   const [currentModel] = useModel();
@@ -43,7 +43,7 @@ export default () => {
     setPageSize(+pageSize);
   }, [setPage, setPageSize, page, pageSize]);
 
-  const [getModalRequests, { data, refetch, loading }] = useLazyQuery(GetModalRequestsDocument, {
+  const [getModalRequests, { data, loading, refetch }] = useLazyQuery(GetModalRequestsDocument, {
     fetchPolicy: "cache-and-network",
   });
 
@@ -68,15 +68,15 @@ export default () => {
       }
       const item = await updateRequest({
         variables: {
-          requestId: request.id,
           description: request.description,
           items: [
             ...request.items.map(item => ({ itemId: item.id, version: item.version })),
             ...items.map(item => ({ itemId: item.itemId, version: item.version })),
           ],
+          requestId: request.id,
           reviewersId: request.reviewers.map(reviewer => reviewer.id),
-          title: request.title,
           state: request.state as GQLRequestState,
+          title: request.title,
         },
       });
       if (item.error || !item.data?.updateRequest) {
@@ -139,12 +139,12 @@ export default () => {
     setAddItemToRequestModalShown(true);
     getModalRequests({
       variables: {
-        projectId: currentProject?.id ?? "",
+        createdBy: userRights?.request.update === null ? userId : undefined,
+        key: searchTerm,
         pagination: { first: pageSize, offset: (page - 1) * pageSize },
+        projectId: currentProject?.id ?? "",
         sort: { key: "createdAt", reverted: true },
         state: ["WAITING"] as GQLRequestState[],
-        key: searchTerm,
-        createdBy: userRights?.request.update === null ? userId : undefined,
       },
     });
   }, [
@@ -172,25 +172,25 @@ export default () => {
   }, [refetch]);
 
   return {
-    currentWorkspace,
+    addItemToRequestModalShown,
     currentModel,
     currentProject,
-    requests,
-    addItemToRequestModalShown,
-    handlePublish,
-    handleUnpublish,
-    handleRequestTableChange,
-    handleRequestSearchTerm,
-    handleRequestTableReload,
+    currentWorkspace,
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
+    handlePublish,
+    handleRequestSearchTerm,
+    handleRequestTableChange,
+    handleRequestTableReload,
+    handleUnpublish,
     loading,
-    publishLoading,
-    unpublishLoading,
-    totalCount: data?.requests.totalCount ?? 0,
     page,
     pageSize,
+    publishLoading,
+    requests,
     showPublishAction,
+    totalCount: data?.requests.totalCount ?? 0,
+    unpublishLoading,
   };
 };

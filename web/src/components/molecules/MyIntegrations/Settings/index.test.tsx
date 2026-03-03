@@ -1,32 +1,32 @@
 import { render, screen } from "@testing-library/react";
-import { expect, test, describe } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import MyIntegrationSettings from ".";
 
 describe("My integration general settings", () => {
   const integration = {
-    id: "",
-    name: "",
-    logoUrl: "",
-    developerId: "",
-    developer: {
-      id: "",
-      name: "",
-      email: "",
-    },
-    iType: "Private" as const,
     config: {
       webhooks: [
         {
+          active: true,
           id: "",
           name: "",
-          url: "",
-          active: true,
           secret: "",
           trigger: {},
+          url: "",
         },
       ],
     },
+    developer: {
+      email: "",
+      id: "",
+      name: "",
+    },
+    developerId: "",
+    id: "",
+    iType: "Private" as const,
+    logoUrl: "",
+    name: "",
   };
   const updateIntegrationLoading = false;
   const regenerateLoading = false;
@@ -44,11 +44,11 @@ describe("My integration general settings", () => {
     render(
       <MyIntegrationSettings
         integration={integration}
-        updateIntegrationLoading={updateIntegrationLoading}
-        regenerateLoading={regenerateLoading}
-        onIntegrationUpdate={onIntegrationUpdate}
         onIntegrationDelete={onIntegrationDelete}
+        onIntegrationUpdate={onIntegrationUpdate}
         onRegenerateToken={onRegenerateToken}
+        regenerateLoading={regenerateLoading}
+        updateIntegrationLoading={updateIntegrationLoading}
       />,
     );
 

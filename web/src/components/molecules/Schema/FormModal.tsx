@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form from "@reearth-cms/components/atoms/Form";
@@ -7,43 +7,43 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { keyAutoFill, keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
-import { ModelFormValues, Group } from "@reearth-cms/components/molecules/Schema/types";
+import { Group, ModelFormValues } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 import { validateKey } from "@reearth-cms/utils/regex";
 
 type Props = {
-  data?: Model | Group;
-  open: boolean;
+  data?: Group | Model;
+  isModel: boolean;
   onClose: () => void;
   onCreate?: (values: ModelFormValues) => Promise<void>;
-  onUpdate?: (values: ModelFormValues) => Promise<void>;
   onKeyCheck: (key: string, ignoredKey?: string) => Promise<boolean>;
-  isModel: boolean;
+  onUpdate?: (values: ModelFormValues) => Promise<void>;
+  open: boolean;
 };
 
 type FormType = {
-  name: string;
   description: string;
   key: string;
+  name: string;
 };
 
 const FormModal: React.FC<Props> = ({
   data,
-  open,
+  isModel,
   onClose,
   onCreate,
-  onUpdate,
   onKeyCheck,
-  isModel,
+  onUpdate,
+  open,
 }) => {
   const t = useT();
   const [form] = Form.useForm<FormType>();
   const [isLoading, setIsLoading] = useState(false);
   const [isDisabled, setIsDisabled] = useState(true);
-  const prevKey = useRef<{ key: string; isSuccess: boolean }>();
+  const prevKey = useRef<{ isSuccess: boolean; key: string }>();
 
-  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeout = useRef<null | ReturnType<typeof setTimeout>>(null);
   const values = Form.useWatch<FormType | undefined>([], form);
   useEffect(() => {
     if (timeout.current) {
@@ -166,10 +166,10 @@ const FormModal: React.FC<Props> = ({
       if (prevKey.current?.key === value) {
         return prevKey.current?.isSuccess ? Promise.resolve() : Promise.reject();
       } else if (value.length >= 3 && validateKey(value) && (await onKeyCheck(value, data?.key))) {
-        prevKey.current = { key: value, isSuccess: true };
+        prevKey.current = { isSuccess: true, key: value };
         return Promise.resolve();
       } else {
-        prevKey.current = { key: value, isSuccess: false };
+        prevKey.current = { isSuccess: false, key: value };
         return Promise.reject();
       }
     },
@@ -178,41 +178,41 @@ const FormModal: React.FC<Props> = ({
 
   return (
     <Modal
-      open={open}
-      onCancel={handleClose}
-      title={title}
       footer={[
-        <Button key="cancel" onClick={handleClose} disabled={isLoading}>
+        <Button disabled={isLoading} key="cancel" onClick={handleClose}>
           {t("Cancel")}
         </Button>,
         <Button
+          disabled={isDisabled}
           key="ok"
-          type="primary"
           loading={isLoading}
           onClick={handleSubmit}
-          disabled={isDisabled}>
+          type="primary">
           {t("OK")}
         </Button>,
-      ]}>
+      ]}
+      onCancel={handleClose}
+      open={open}
+      title={title}>
       <Form form={form} layout="vertical" validateTrigger="">
         <Form.Item
-          name="name"
           label={nameLabel}
+          name="name"
           rules={[
             {
-              required: true,
               message: nameMessage,
+              required: true,
             },
           ]}>
           <Input onChange={handleNameChange} />
         </Form.Item>
-        <Form.Item name="description" label={descriptionLabel}>
+        <Form.Item label={descriptionLabel} name="description">
           <TextArea rows={4} />
         </Form.Item>
         <Form.Item
-          name="key"
-          label={keyLabel}
           extra={keyExtra}
+          label={keyLabel}
+          name="key"
           rules={[
             {
               message: t("Key is not valid"),
@@ -222,7 +222,7 @@ const FormModal: React.FC<Props> = ({
               },
             },
           ]}>
-          <Input onChange={handleKeyChange} showCount maxLength={Constant.KEY.MAX_LENGTH} />
+          <Input maxLength={Constant.KEY.MAX_LENGTH} onChange={handleKeyChange} showCount />
         </Form.Item>
       </Form>
     </Modal>

@@ -1,22 +1,23 @@
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
+
+import type { FormValues } from "@reearth-cms/components/molecules/MyIntegrations/CreationModal";
 
 import IntegrationCreationModal from "@reearth-cms/components/molecules/MyIntegrations/CreationModal";
-import type { FormValues } from "@reearth-cms/components/molecules/MyIntegrations/CreationModal";
 import MyIntegrationList from "@reearth-cms/components/molecules/MyIntegrations/List";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
 type Props = {
-  integrations: Integration[];
-  onIntegrationNavigate: (integrationId: string) => void;
   createLoading: boolean;
+  integrations: Integration[];
   onIntegrationCreate: (values: FormValues) => Promise<void>;
+  onIntegrationNavigate: (integrationId: string) => void;
 };
 
 const MyIntegrationsWrapper: React.FC<Props> = ({
-  integrations,
-  onIntegrationNavigate,
   createLoading,
+  integrations,
   onIntegrationCreate,
+  onIntegrationNavigate,
 }) => {
   const [isModalShown, setIsModalShown] = useState(false);
   const handleIntegrationModalClose = useCallback(() => {
@@ -33,10 +34,10 @@ const MyIntegrationsWrapper: React.FC<Props> = ({
         onIntegrationNavigate={onIntegrationNavigate}
       />
       <IntegrationCreationModal
-        open={isModalShown}
         loading={createLoading}
         onClose={handleIntegrationModalClose}
         onIntegrationCreate={onIntegrationCreate}
+        open={isModalShown}
       />
     </>
   );

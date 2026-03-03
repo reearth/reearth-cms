@@ -11,28 +11,28 @@ import RequestEditor from "./Editor";
 import RequestStatus from "./RequestStatus";
 
 type Props = {
-  me?: User;
-  hasCommentCreateRight: boolean;
-  hasCommentUpdateRight: boolean | null;
-  hasCommentDeleteRight: boolean | null;
   currentRequest: Request;
+  hasCommentCreateRight: boolean;
+  hasCommentDeleteRight: boolean | null;
+  hasCommentUpdateRight: boolean | null;
+  me?: User;
   onCommentCreate: (content: string) => Promise<void>;
-  onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onCommentDelete: (commentId: string) => Promise<void>;
+  onCommentUpdate: (commentId: string, content: string) => Promise<void>;
   onGetAsset: (assetId: string) => Promise<string | undefined>;
   onGroupGet: (id: string) => Promise<Group | undefined>;
   onNavigateToItemEdit: (modelId: string, itemId: string) => void;
 };
 
 const RequestThread: React.FC<Props> = ({
-  me,
-  hasCommentCreateRight,
-  hasCommentUpdateRight,
-  hasCommentDeleteRight,
   currentRequest,
+  hasCommentCreateRight,
+  hasCommentDeleteRight,
+  hasCommentUpdateRight,
+  me,
   onCommentCreate,
-  onCommentUpdate,
   onCommentDelete,
+  onCommentUpdate,
   onGetAsset,
   onGroupGet,
   onNavigateToItemEdit,
@@ -49,13 +49,13 @@ const RequestThread: React.FC<Props> = ({
         <CommentWrapper>
           {currentRequest.comments.map(comment => (
             <Comment
-              key={comment.id}
-              userId={me?.id ?? ""}
-              hasUpdateRight={hasCommentUpdateRight}
-              hasDeleteRight={hasCommentDeleteRight}
               comment={comment}
-              onCommentUpdate={onCommentUpdate}
+              hasDeleteRight={hasCommentDeleteRight}
+              hasUpdateRight={hasCommentUpdateRight}
+              key={comment.id}
               onCommentDelete={onCommentDelete}
+              onCommentUpdate={onCommentUpdate}
+              userId={me?.id ?? ""}
             />
           ))}
         </CommentWrapper>

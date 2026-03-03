@@ -1,7 +1,7 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-test.beforeEach(async ({ reearth, projectPage }) => {
+test.beforeEach(async ({ projectPage, reearth }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("URL field creating and updating has succeeded", async ({ fieldEditorPage, contentPage }) => {
+test("URL field creating and updating has succeeded", async ({ contentPage, fieldEditorPage }) => {
   await fieldEditorPage.fieldTypeButton("URL").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("url1");
@@ -47,7 +47,7 @@ test("URL field creating and updating has succeeded", async ({ fieldEditorPage, 
   await expect(contentPage.cellByTextExact("http://test2.com")).toBeVisible();
 });
 
-test("URL field editing has succeeded", async ({ fieldEditorPage, contentPage, schemaPage }) => {
+test("URL field editing has succeeded", async ({ contentPage, fieldEditorPage, schemaPage }) => {
   await fieldEditorPage.fieldTypeListItem("URL").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("url1");

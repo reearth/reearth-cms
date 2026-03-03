@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Divider from "@reearth-cms/components/atoms/Divider";
@@ -11,30 +11,30 @@ import Switch from "@reearth-cms/components/atoms/Switch";
 import Cards from "@reearth-cms/components/molecules/Settings/Cards";
 import FormModal from "@reearth-cms/components/molecules/Settings/FormModal";
 import {
-  WorkspaceSettings,
-  TileInput,
   TerrainInput,
+  TileInput,
+  WorkspaceSettings,
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  loading: boolean;
-  workspaceSettings: WorkspaceSettings;
   hasUpdateRight: boolean;
-  updateLoading: boolean;
+  loading: boolean;
   onWorkspaceSettingsUpdate: (
     tiles: TileInput[],
     terrains: TerrainInput[],
     isEnable?: boolean,
   ) => Promise<void>;
+  updateLoading: boolean;
+  workspaceSettings: WorkspaceSettings;
 };
 
 const Settings: React.FC<Props> = ({
-  loading,
-  workspaceSettings,
   hasUpdateRight,
-  updateLoading,
+  loading,
   onWorkspaceSettingsUpdate,
+  updateLoading,
+  workspaceSettings,
 }) => {
   const t = useT();
 
@@ -61,7 +61,7 @@ const Settings: React.FC<Props> = ({
   }, [settings]);
 
   const isTileRef = useRef(true);
-  const indexRef = useRef<undefined | number>(undefined);
+  const indexRef = useRef<number | undefined>(undefined);
 
   const onTileModalOpen = (index?: number) => {
     setOpen(true);
@@ -130,25 +130,25 @@ const Settings: React.FC<Props> = ({
   ) : (
     <InnerContent title={t("Settings")}>
       <ContentSection
-        title={t("Geospatial asset preview setting")}
-        description={t("For asset viewer (formats like 3D Tiles, MVT, GeoJSON, CZML ... )")}>
+        description={t("For asset viewer (formats like 3D Tiles, MVT, GeoJSON, CZML ... )")}
+        title={t("Geospatial asset preview setting")}>
         <Title>{t("Tiles")}</Title>
         <SecondaryText>{t("The first one in the list will be the default Tile.")}</SecondaryText>
         {settings?.tiles?.resources?.length ? (
           <Cards
-            resources={settings?.tiles?.resources}
-            onModalOpen={onTileModalOpen}
+            hasUpdateRight={hasUpdateRight}
             isTile={true}
             onDelete={handleDelete}
             onDragEnd={handleDragEnd}
-            hasUpdateRight={hasUpdateRight}
+            onModalOpen={onTileModalOpen}
+            resources={settings?.tiles?.resources}
           />
         ) : null}
         <Button
-          type="link"
-          onClick={() => onTileModalOpen()}
+          disabled={!hasUpdateRight}
           icon={<Icon icon="plus" />}
-          disabled={!hasUpdateRight}>
+          onClick={() => onTileModalOpen()}
+          type="link">
           {t("Add new Tiles option")}
         </Button>
         <Divider />
@@ -157,8 +157,8 @@ const Settings: React.FC<Props> = ({
         <SwitchWrapper>
           <Switch
             checked={settings?.terrains?.enabled}
-            onChange={onChange}
             disabled={!hasUpdateRight}
+            onChange={onChange}
           />
           <Text>{t("Enable")}</Text>
         </SwitchWrapper>
@@ -166,40 +166,40 @@ const Settings: React.FC<Props> = ({
           <>
             {settings?.terrains?.resources?.length ? (
               <Cards
-                resources={settings?.terrains?.resources}
-                onModalOpen={onTerrainModalOpen}
+                hasUpdateRight={hasUpdateRight}
                 isTile={false}
                 onDelete={handleDelete}
                 onDragEnd={handleDragEnd}
-                hasUpdateRight={hasUpdateRight}
+                onModalOpen={onTerrainModalOpen}
+                resources={settings?.terrains?.resources}
               />
             ) : null}
             <Button
-              type="link"
-              onClick={() => onTerrainModalOpen()}
+              disabled={!hasUpdateRight}
               icon={<Icon icon="plus" />}
-              disabled={!hasUpdateRight}>
+              onClick={() => onTerrainModalOpen()}
+              type="link">
               {t("Add new Terrain option")}
             </Button>
           </>
         )}
         <ButtonWrapper>
           <Button
-            type="primary"
-            onClick={handleWorkspaceSettingsSave}
             disabled={isDisabled}
-            loading={updateLoading}>
+            loading={updateLoading}
+            onClick={handleWorkspaceSettingsSave}
+            type="primary">
             {t("Save")}
           </Button>
         </ButtonWrapper>
         <FormModal
-          open={open}
-          onClose={onClose}
-          tiles={tiles}
-          terrains={terrains}
-          setSettings={setSettings}
-          isTile={isTileRef.current}
           index={indexRef.current}
+          isTile={isTileRef.current}
+          onClose={onClose}
+          open={open}
+          setSettings={setSettings}
+          terrains={terrains}
+          tiles={tiles}
         />
       </ContentSection>
     </InnerContent>

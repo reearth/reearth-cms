@@ -13,7 +13,7 @@ const BooleanField: React.FC<Props> = ({ multiple }) => {
   const t = useT();
 
   return (
-    <Form.Item name="defaultValue" valuePropName="checked" label={t("Set default value")}>
+    <Form.Item label={t("Set default value")} name="defaultValue" valuePropName="checked">
       {multiple ? <MultiValueBooleanField FieldInput={Switch} /> : <Switch />}
     </Form.Item>
   );

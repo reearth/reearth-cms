@@ -4,44 +4,44 @@ import useHooks from "./hooks";
 
 const Workspace: React.FC = () => {
   const {
-    username,
-    privateProjectsAllowed,
     coverImageUrl,
-    projects,
-    loading,
-    hasCreateRight,
-    page,
-    pageSize,
-    projectSort,
-    totalCount,
-    handleProjectSearch,
-    handleProjectSort,
+    handlePageChange,
+    handleProjectAliasCheck,
     handleProjectCreate,
     handleProjectNavigation,
+    handleProjectSearch,
+    handleProjectSort,
     handleWorkspaceCreate,
-    handleProjectAliasCheck,
-    handlePageChange,
+    hasCreateRight,
+    loading,
+    page,
+    pageSize,
+    privateProjectsAllowed,
+    projects,
+    projectSort,
+    totalCount,
+    username,
   } = useHooks();
 
   return (
     <WorkspaceWrapper
-      username={username}
-      privateProjectsAllowed={privateProjectsAllowed}
       coverImageUrl={coverImageUrl}
-      projects={projects}
-      loading={loading}
       hasCreateRight={hasCreateRight}
-      page={page}
-      pageSize={pageSize}
-      projectSort={projectSort}
-      totalCount={totalCount}
+      loading={loading}
+      onPageChange={handlePageChange}
+      onProjectAliasCheck={handleProjectAliasCheck}
+      onProjectCreate={handleProjectCreate}
+      onProjectNavigation={handleProjectNavigation}
       onProjectSearch={handleProjectSearch}
       onProjectSort={handleProjectSort}
-      onProjectNavigation={handleProjectNavigation}
-      onProjectCreate={handleProjectCreate}
       onWorkspaceCreate={handleWorkspaceCreate}
-      onProjectAliasCheck={handleProjectAliasCheck}
-      onPageChange={handlePageChange}
+      page={page}
+      pageSize={pageSize}
+      privateProjectsAllowed={privateProjectsAllowed}
+      projects={projects}
+      projectSort={projectSort}
+      totalCount={totalCount}
+      username={username}
     />
   );
 };

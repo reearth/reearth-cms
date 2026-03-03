@@ -1,87 +1,87 @@
 import styled from "@emotion/styled";
-import { useRef, useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import {
-  StretchColumn,
   ListToolBarProps,
   OptionConfig,
+  StretchColumn,
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import { SorterResult, TablePaginationConfig } from "@reearth-cms/components/atoms/Table";
-import { UploadProps, UploadFile } from "@reearth-cms/components/atoms/Upload";
+import { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { useT } from "@reearth-cms/i18n";
-import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
+import { bytesFormat, dateTimeFormat } from "@reearth-cms/utils/format";
 
 type Props = {
-  visible: boolean;
-  onLinkAssetModalCancel: () => void;
-  linkedAsset?: ItemAsset;
   assetList?: Asset[];
+  displayUploadModal: () => void;
   fileList?: UploadFile<File>[];
+  hasCreateRight: boolean;
+  linkedAsset?: ItemAsset;
   loading?: boolean;
-  uploading?: boolean;
-  uploadProps: UploadProps;
-  uploadModalVisibility?: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType?: UploadType;
-  totalCount?: number;
+  onAssetsReload?: () => void;
+  onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
+  onChange?: (value: string) => void;
+  onLinkAssetModalCancel: () => void;
+  onSearchTerm?: (term?: string) => void;
+  onSelect: (selectedAsset: ItemAsset) => void;
+  onUploadAndLink: () => void;
+  onUploadModalCancel?: () => void;
   page?: number;
   pageSize?: number;
-  hasCreateRight: boolean;
-  onAssetTableChange?: (page: number, pageSize: number, sorter?: SortType) => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType?: (type: UploadType) => void;
-  onChange?: (value: string) => void;
-  onSelect: (selectedAsset: ItemAsset) => void;
-  onAssetsReload?: () => void;
-  onSearchTerm?: (term?: string) => void;
-  displayUploadModal: () => void;
-  onUploadModalCancel?: () => void;
-  onUploadAndLink: () => void;
+  setUploadUrl: (uploadUrl: { autoUnzip: boolean; url: string }) => void;
+  totalCount?: number;
+  uploading?: boolean;
+  uploadModalVisibility?: boolean;
+  uploadProps: UploadProps;
+  uploadType?: UploadType;
+  uploadUrl: { autoUnzip: boolean; url: string };
+  visible: boolean;
 };
 
 const LinkAssetModal: React.FC<Props> = ({
-  visible,
-  onLinkAssetModalCancel,
-  linkedAsset,
   assetList,
+  displayUploadModal,
   fileList,
+  hasCreateRight,
+  linkedAsset,
   loading,
-  uploading,
-  uploadProps,
-  uploadModalVisibility,
-  uploadUrl,
-  uploadType,
-  totalCount,
+  onAssetsReload,
+  onAssetTableChange,
+  onChange,
+  onLinkAssetModalCancel,
+  onSearchTerm,
+  onSelect,
+  onUploadAndLink,
+  onUploadModalCancel,
   page,
   pageSize,
-  hasCreateRight,
-  onAssetTableChange,
-  setUploadUrl,
   setUploadType,
-  onChange,
-  onSelect,
-  onAssetsReload,
-  onSearchTerm,
-  displayUploadModal,
-  onUploadModalCancel,
-  onUploadAndLink,
+  setUploadUrl,
+  totalCount,
+  uploading,
+  uploadModalVisibility,
+  uploadProps,
+  uploadType,
+  uploadUrl,
+  visible,
 }) => {
   const t = useT();
   const resetFlag = useRef(false);
 
   const options: OptionConfig = useMemo(
     () => ({
-      search: true,
       reload: onAssetsReload,
+      search: true,
     }),
     [onAssetsReload],
   );
@@ -90,21 +90,21 @@ const LinkAssetModal: React.FC<Props> = ({
     search: (
       <Search
         allowClear
-        placeholder={t("input search text")}
+        key={+resetFlag.current}
         onSearch={(value: string) => {
           onSearchTerm?.(value);
         }}
-        key={+resetFlag.current}
+        placeholder={t("input search text")}
       />
     ),
   };
 
   const pagination = useMemo(
     () => ({
-      showSizeChanger: true,
       current: page,
-      total: totalCount,
       pageSize: pageSize,
+      showSizeChanger: true,
+      total: totalCount,
     }),
     [page, pageSize, totalCount],
   );
@@ -113,7 +113,7 @@ const LinkAssetModal: React.FC<Props> = ({
     (isLink: boolean, asset: Asset) => {
       onChange?.(isLink ? asset.id : "");
       onLinkAssetModalCancel();
-      if (isLink) onSelect({ id: asset.id, fileName: asset.fileName });
+      if (isLink) onSelect({ fileName: asset.fileName, id: asset.id });
     },
     [onChange, onLinkAssetModalCancel, onSelect],
   );
@@ -121,65 +121,65 @@ const LinkAssetModal: React.FC<Props> = ({
   const columns: StretchColumn<Asset>[] = useMemo(
     () => [
       {
-        title: "",
-        hideInSetting: true,
-        fixed: "left",
         align: "center",
-        width: 48,
+        fixed: "left",
+        hideInSetting: true,
         minWidth: 48,
         render: (_, asset) => {
           const isLink = asset.id !== linkedAsset?.id;
           return (
             <Button
-              type="link"
               icon={<Icon icon={isLink ? "linkSolid" : "unlinkSolid"} size={16} />}
               onClick={() => onLinkClick(isLink, asset)}
+              type="link"
             />
           );
         },
+        title: "",
+        width: 48,
       },
       {
-        title: t("File"),
         dataIndex: "fileName",
+        ellipsis: true,
         key: "fileName",
-        ellipsis: true,
-        width: 170,
         minWidth: 170,
+        title: t("File"),
+        width: 170,
       },
       {
-        title: t("Size"),
         dataIndex: "size",
+        ellipsis: true,
         key: "size",
+        minWidth: 130,
         render: (_text, record) => bytesFormat(record.size),
-        ellipsis: true,
+        title: t("Size"),
         width: 130,
-        minWidth: 130,
       },
       {
-        title: t("Preview Type"),
         dataIndex: "previewType",
-        key: "previewType",
         ellipsis: true,
-        width: 130,
+        key: "previewType",
         minWidth: 130,
+        title: t("Preview Type"),
+        width: 130,
       },
       {
-        title: t("Created At"),
         dataIndex: "createdAt",
-        key: "createdAt",
         ellipsis: true,
-        width: 130,
+        key: "createdAt",
         minWidth: 130,
         render: (_text, record) => dateTimeFormat(record.createdAt),
+        title: t("Created At"),
+        width: 130,
       },
       {
-        title: t("Created By"),
         dataIndex: ["createdBy", "name"],
-        key: "createdBy",
         ellipsis: true,
-        width: 100,
+        key: "createdBy",
         minWidth: 100,
         render: (_, item) => item.createdBy.name,
+        title: t("Created By"),
+        width: 100,
       },
     ],
     [linkedAsset?.id, onLinkClick, t],
@@ -211,51 +211,51 @@ const LinkAssetModal: React.FC<Props> = ({
 
   return (
     <StyledModal
-      title={t("Link Asset")}
-      centered
-      open={visible}
-      onCancel={onLinkAssetModalCancel}
       afterClose={() => {
         onSearchTerm?.();
         resetFlag.current = !resetFlag.current;
       }}
+      centered
       footer={[
         <UploadAsset
-          key={1}
           alsoLink
-          fileList={fileList}
-          uploading={uploading}
-          uploadProps={uploadProps}
-          uploadModalVisibility={uploadModalVisibility}
-          uploadUrl={uploadUrl}
-          uploadType={uploadType}
-          hasCreateRight={hasCreateRight}
-          setUploadUrl={setUploadUrl}
-          setUploadType={setUploadType}
           displayUploadModal={displayUploadModal}
-          onUploadModalCancel={onUploadModalCancel}
+          fileList={fileList}
+          hasCreateRight={hasCreateRight}
+          key={1}
           onUpload={onUploadAndLink}
+          onUploadModalCancel={onUploadModalCancel}
           onUploadModalClose={onLinkAssetModalCancel}
+          setUploadType={setUploadType}
+          setUploadUrl={setUploadUrl}
+          uploading={uploading}
+          uploadModalVisibility={uploadModalVisibility}
+          uploadProps={uploadProps}
+          uploadType={uploadType}
+          uploadUrl={uploadUrl}
         />,
       ]}
-      width="70vw"
+      onCancel={onLinkAssetModalCancel}
+      open={visible}
       styles={{
         body: {
           height: "70vh",
         },
-      }}>
+      }}
+      title={t("Link Asset")}
+      width="70vw">
       <ResizableProTable
-        dataSource={assetList}
         columns={columns}
-        search={false}
-        options={options}
-        pagination={pagination}
-        toolbar={toolbar}
+        dataSource={assetList}
+        heightOffset={0}
         loading={loading}
         onChange={(pagination, _, sorter) => {
           handleChange(pagination, sorter);
         }}
-        heightOffset={0}
+        options={options}
+        pagination={pagination}
+        search={false}
+        toolbar={toolbar}
       />
     </StyledModal>
   );

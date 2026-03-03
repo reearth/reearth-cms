@@ -12,9 +12,9 @@ type Props = {
 };
 
 type GeoObj = {
-  lng?: string;
-  lat?: string;
   [x: string]: string | undefined;
+  lat?: string;
+  lng?: string;
 };
 
 export const Imagery: React.FC<Props> = ({ isAssetPublic, url }) => {
@@ -24,8 +24,8 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url }) => {
   const dataFetch = useCallback(async () => {
     try {
       const res = await fetch(url, {
-        method: "GET",
         headers: isAssetPublic ? {} : await getHeader(),
+        method: "GET",
       });
       if (!res.ok) {
         throw new Error("Error loading CSV data");
@@ -58,13 +58,13 @@ export const Imagery: React.FC<Props> = ({ isAssetPublic, url }) => {
       for (const obj of objects) {
         if (obj.lng && obj.lat) {
           viewer?.entities.add({
-            position: Cartesian3.fromDegrees(Number(obj.lng), Number(obj.lat)),
             billboard: {
+              disableDepthTestDistance: Number.POSITIVE_INFINITY,
+              height: 30,
               image: mapPin,
               width: 30,
-              height: 30,
-              disableDepthTestDistance: Number.POSITIVE_INFINITY,
             },
+            position: Cartesian3.fromDegrees(Number(obj.lng), Number(obj.lat)),
             properties: obj,
           });
         }

@@ -12,58 +12,58 @@ import { useT } from "@reearth-cms/i18n";
 import { FormItem } from "../../types";
 
 export type ReferenceProps = {
-  referencedItems: FormItem[];
-  loading?: boolean;
   linkedItemsModalList?: FormItem[];
-  linkItemModalTitle?: string;
-  linkItemModalTotalCount?: number;
   linkItemModalPage?: number;
   linkItemModalPageSize?: number;
-  onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
-  onSearchTerm?: (term?: string) => void;
-  onLinkItemTableReload?: () => void;
-  onLinkItemTableChange?: (page: number, pageSize: number) => void;
+  linkItemModalTitle?: string;
+  linkItemModalTotalCount?: number;
+  loading?: boolean;
   onCheckItemReference?: (
     itemId: string,
     correspondingFieldId: string,
     groupId?: string,
   ) => Promise<boolean>;
+  onLinkItemTableChange?: (page: number, pageSize: number) => void;
+  onLinkItemTableReload?: () => void;
+  onReferenceModelUpdate?: (modelId: string, referenceFieldId: string) => void;
+  onSearchTerm?: (term?: string) => void;
+  referencedItems: FormItem[];
 };
 
 type Props = {
-  value?: string;
-  onChange?: (value?: string) => void;
-  disabled?: boolean;
-  itemGroupId?: string;
-  fieldId: string;
-  modelId?: string;
-  titleFieldId?: string | null;
   correspondingField?: CorrespondingField;
+  disabled?: boolean;
+  fieldId: string;
+  itemGroupId?: string;
+  modelId?: string;
+  onChange?: (value?: string) => void;
+  titleFieldId?: null | string;
+  value?: string;
 } & ReferenceProps;
 
 const ReferenceFormItem: React.FC<Props> = ({
-  value,
-  fieldId,
-  referencedItems,
-  loading,
-  linkedItemsModalList,
-  disabled,
-  itemGroupId,
   correspondingField,
-  modelId,
-  titleFieldId,
-  linkItemModalTitle,
-  linkItemModalTotalCount,
+  disabled,
+  fieldId,
+  itemGroupId,
+  linkedItemsModalList,
   linkItemModalPage,
   linkItemModalPageSize,
+  linkItemModalTitle,
+  linkItemModalTotalCount,
+  loading,
+  modelId,
+  onChange,
+  onCheckItemReference,
+  onLinkItemTableChange,
+  onLinkItemTableReload,
   onReferenceModelUpdate,
   onSearchTerm,
-  onLinkItemTableReload,
-  onLinkItemTableChange,
-  onCheckItemReference,
-  onChange,
+  referencedItems,
+  titleFieldId,
+  value,
 }) => {
-  const { workspaceId, projectId } = useParams();
+  const { projectId, workspaceId } = useParams();
 
   const t = useT();
   const [visible, setVisible] = useState(false);
@@ -92,22 +92,22 @@ const ReferenceFormItem: React.FC<Props> = ({
       {value && (
         <ReferenceItemWrapper>
           <ReferenceItem
-            value={value}
-            title={currentItem?.title ?? ""}
-            status={currentItem?.status}
-            workspaceId={workspaceId}
-            projectId={projectId}
-            modelId={modelId}
             disabled={disabled}
+            modelId={modelId}
+            projectId={projectId}
+            status={currentItem?.status}
+            title={currentItem?.title ?? ""}
+            value={value}
+            workspaceId={workspaceId}
           />
           {!disabled && (
             <UnreferButton
               color="default"
-              variant="link"
               icon={<Icon icon={"arrowUpRightSlash"} size={16} />}
               onClick={() => {
                 onChange?.();
               }}
+              variant="link"
             />
           )}
         </ReferenceItemWrapper>
@@ -122,23 +122,23 @@ const ReferenceFormItem: React.FC<Props> = ({
         !!onLinkItemTableChange &&
         !!onCheckItemReference && (
           <LinkItemModal
-            visible={visible}
-            loading={!!loading}
+            correspondingField={correspondingField}
             fieldId={fieldId}
             itemGroupId={itemGroupId}
-            correspondingField={correspondingField}
-            linkedItemsModalList={linkedItemsModalList}
             linkedItem={value}
-            linkItemModalTitle={linkItemModalTitle}
-            linkItemModalTotalCount={linkItemModalTotalCount}
+            linkedItemsModalList={linkedItemsModalList}
             linkItemModalPage={linkItemModalPage}
             linkItemModalPageSize={linkItemModalPageSize}
-            onSearchTerm={onSearchTerm}
-            onLinkItemTableReload={onLinkItemTableReload}
-            onLinkItemTableChange={onLinkItemTableChange}
-            onLinkItemModalCancel={handleLinkItemModalCancel}
+            linkItemModalTitle={linkItemModalTitle}
+            linkItemModalTotalCount={linkItemModalTotalCount}
+            loading={!!loading}
             onChange={onChange}
             onCheckItemReference={onCheckItemReference}
+            onLinkItemModalCancel={handleLinkItemModalCancel}
+            onLinkItemTableChange={onLinkItemTableChange}
+            onLinkItemTableReload={onLinkItemTableReload}
+            onSearchTerm={onSearchTerm}
+            visible={visible}
           />
         )}
     </>

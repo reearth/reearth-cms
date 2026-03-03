@@ -22,14 +22,14 @@ const MyIntegrationList: React.FC<Props> = ({
   return (
     <Wrapper>
       <PageHeader
-        title={t("My Integrations")}
         subTitle={t("Create and test your own integration.")}
+        title={t("My Integrations")}
       />
       <ListWrapper>
         {integrations.map((integration: Integration) => (
           <MyIntegrationCard
-            key={integration.id}
             integration={integration}
+            key={integration.id}
             onIntegrationNavigate={onIntegrationNavigate}
           />
         ))}

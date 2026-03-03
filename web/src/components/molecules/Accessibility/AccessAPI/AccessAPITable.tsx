@@ -12,17 +12,17 @@ import { ModelDataType } from "../types";
 type Props = {
   apiUrl: string;
   hasPublishRight: boolean;
-  models: Pick<Model, "id" | "name" | "key">[];
   isPublic?: boolean;
+  models: Pick<Model, "id" | "key" | "name">[];
   publicModels?: string[];
 };
 
 const AccessAPITable: React.FC<Props> = ({
   apiUrl,
-  models,
-  isPublic,
-  publicModels,
   hasPublishRight,
+  isPublic,
+  models,
+  publicModels,
 }) => {
   const t = useT();
   const publicModelsSet = useMemo(() => new Set(publicModels), [publicModels]);
@@ -31,11 +31,9 @@ const AccessAPITable: React.FC<Props> = ({
     const cols: TableColumnsType<ModelDataType> = [];
     if (!isPublic) {
       cols.push({
-        key: "enable",
-        title: t("Enable"),
-        dataIndex: "id",
         align: "center",
-        width: 90,
+        dataIndex: "id",
+        key: "enable",
         render: (id: [string, string] | string) => (
           <StyledFormItem name={id}>
             <Switch
@@ -43,24 +41,26 @@ const AccessAPITable: React.FC<Props> = ({
             />
           </StyledFormItem>
         ),
+        title: t("Enable"),
+        width: 90,
       });
     }
     cols.push(
       {
+        dataIndex: "name",
         key: "name",
         title: t("Model"),
-        dataIndex: "name",
         width: 220,
       },
       {
-        key: "endpoint",
-        title: t("End point"),
         dataIndex: "endpoint",
+        key: "endpoint",
         render: url => (
-          <StyledAnchor target="_blank" href={url} rel="noreferrer">
+          <StyledAnchor href={url} rel="noreferrer" target="_blank">
             {url}
           </StyledAnchor>
         ),
+        title: t("End point"),
       },
     );
     return cols;
@@ -68,23 +68,23 @@ const AccessAPITable: React.FC<Props> = ({
 
   const dataSource = useMemo<ModelDataType[]>(() => {
     const modelRows = models.map(model => ({
+      endpoint: `${apiUrl}${model.key}`,
+      id: ["models", model.id],
       key: model.key,
       name: model.name,
-      id: ["models", model.id],
-      endpoint: `${apiUrl}${model.key}`,
     }));
     const assetRow: ModelDataType = {
+      endpoint: `${apiUrl}assets`,
+      id: "assetPublic",
       key: "assets",
       name: t("Assets"),
-      id: "assetPublic",
-      endpoint: `${apiUrl}assets`,
     };
     return [...modelRows, assetRow];
   }, [models, apiUrl, t]);
 
   return (
     <TableWrapper>
-      <Table dataSource={dataSource} columns={columns} pagination={false} />
+      <Table columns={columns} dataSource={dataSource} pagination={false} />
     </TableWrapper>
   );
 };

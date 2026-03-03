@@ -1,46 +1,46 @@
 import { User } from "@reearth-cms/components/molecules/Member/types";
 
 export type Integration = {
-  id: string;
-  name: string;
-  description?: string | null;
-  logoUrl: string;
-  developerId: string;
-  developer: User;
-  iType: IntegrationType;
   config: {
     token?: string;
     webhooks?: Webhook[];
   };
+  description?: null | string;
+  developer: User;
+  developerId: string;
+  id: string;
+  iType: IntegrationType;
+  logoUrl: string;
+  name: string;
 };
 
-export type IntegrationInfo = Pick<Integration, "name" | "description" | "logoUrl">;
+export type IntegrationInfo = Pick<Integration, "description" | "logoUrl" | "name">;
 
 export type IntegrationType = "Private" | "Public";
 
 export type Webhook = {
+  active: boolean;
   id: string;
   name: string;
-  url: string;
-  active: boolean;
   secret: string;
   trigger: WebhookTrigger;
+  url: string;
 };
 
 export type NewWebhook = Omit<Webhook, "id">;
 
 export type TriggerKey =
+  | "onAssetDecompress"
+  | "onAssetDelete"
+  | "onAssetUpload"
   | "onItemCreate"
-  | "onItemUpdate"
   | "onItemDelete"
   | "onItemPublish"
   | "onItemUnPublish"
-  | "onAssetUpload"
-  | "onAssetDecompress"
-  | "onAssetDelete";
+  | "onItemUpdate";
 
 export type WebhookTrigger = Partial<Record<TriggerKey, boolean | null>>;
 
-export type WebhookValues = Webhook & {
+export type WebhookValues = {
   trigger: TriggerKey[];
-};
+} & Webhook;

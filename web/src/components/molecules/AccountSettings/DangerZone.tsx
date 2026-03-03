@@ -16,22 +16,22 @@ const DangerZone: React.FC<Props> = ({ onUserDelete }) => {
 
   const handleAccountDeleteConfirmation = useCallback(() => {
     confirm({
-      title: t("Are you sure you want to delete your account?"),
       async onOk() {
         await onUserDelete();
       },
+      title: t("Are you sure you want to delete your account?"),
     });
   }, [confirm, onUserDelete, t]);
 
   return (
-    <ContentSection title={t("Danger Zone")} danger>
+    <ContentSection danger title={t("Danger Zone")}>
       <Title>{t("Delete Personal Account")}</Title>
       <Text>
         {t(
           "Permanently removes your personal account and all of its contents from Re:Earth CMS. This action is not reversible, so please continue with caution.",
         )}
       </Text>
-      <StyledButton onClick={handleAccountDeleteConfirmation} type="primary" danger>
+      <StyledButton danger onClick={handleAccountDeleteConfirmation} type="primary">
         {t("Delete Personal Account")}
       </StyledButton>
     </ContentSection>

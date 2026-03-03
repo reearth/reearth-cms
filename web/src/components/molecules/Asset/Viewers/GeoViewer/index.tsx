@@ -1,5 +1,5 @@
 import { Viewer as CesiumViewer } from "cesium";
-import { useMemo, RefObject } from "react";
+import { RefObject, useMemo } from "react";
 import { CesiumComponentRef } from "resium";
 
 import ResiumViewer from "@reearth-cms/components/atoms/ResiumViewer";
@@ -11,17 +11,17 @@ import GeoJsonComponent from "./GeoJsonComponent";
 import KmlComponent from "./KmlComponent";
 
 type Props = {
+  assetFileExt?: string;
   isAssetPublic?: boolean;
   url: string;
-  assetFileExt?: string;
   viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
   workspaceSettings: WorkspaceSettings;
 };
 
 const GeoViewer: React.FC<Props> = ({
+  assetFileExt,
   isAssetPublic,
   url,
-  assetFileExt,
   viewerRef,
   workspaceSettings,
 }) => {
@@ -30,12 +30,12 @@ const GeoViewer: React.FC<Props> = ({
   const geoComponent = useMemo(() => {
     switch (ext?.toLowerCase()) {
       case "czml":
-        return <CzmlComponent url={url} isAssetPublic={isAssetPublic} />;
+        return <CzmlComponent isAssetPublic={isAssetPublic} url={url} />;
       case "kml":
-        return <KmlComponent url={url} isAssetPublic={isAssetPublic} />;
+        return <KmlComponent isAssetPublic={isAssetPublic} url={url} />;
       case "geojson":
       default:
-        return <GeoJsonComponent url={url} isAssetPublic={isAssetPublic} />;
+        return <GeoJsonComponent isAssetPublic={isAssetPublic} url={url} />;
     }
   }, [ext, url, isAssetPublic]);
 

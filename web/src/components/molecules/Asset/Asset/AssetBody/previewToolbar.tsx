@@ -5,23 +5,23 @@ import { ViewerType } from "@reearth-cms/components/molecules/Asset/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  url: string;
   isModalVisible: boolean;
-  viewerType?: ViewerType;
   onCodeSourceClick: () => void;
-  onRenderClick: () => void;
   onFullScreen: () => void;
   onModalCancel: () => void;
+  onRenderClick: () => void;
+  url: string;
+  viewerType?: ViewerType;
 };
 
 const PreviewToolbar: React.FC<Props> = ({
-  url,
   isModalVisible,
-  viewerType,
   onCodeSourceClick,
-  onRenderClick,
   onFullScreen,
   onModalCancel,
+  onRenderClick,
+  url,
+  viewerType,
 }) => {
   const t = useT();
   const isSVGButtonVisible = viewerType === "image_svg";
@@ -36,9 +36,9 @@ const PreviewToolbar: React.FC<Props> = ({
         </>
       )}
       {isFullScreenButtonVisible && (
-        <Button type="link" icon={<Icon icon="fullscreen" />} onClick={onFullScreen} />
+        <Button icon={<Icon icon="fullscreen" />} onClick={onFullScreen} type="link" />
       )}
-      <PreviewModal url={url} visible={isModalVisible} onCancel={onModalCancel} />
+      <PreviewModal onCancel={onModalCancel} url={url} visible={isModalVisible} />
     </>
   );
 };

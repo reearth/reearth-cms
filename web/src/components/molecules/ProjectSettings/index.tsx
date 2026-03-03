@@ -10,27 +10,27 @@ import { useT } from "@reearth-cms/i18n";
 import { Project } from "../Workspace/types";
 
 type Props = {
-  project?: Project;
-  hasUpdateRight: boolean;
   hasDeleteRight: boolean;
   hasPublishRight: boolean;
-  onProjectUpdate: (name: string, alias: string, description: string) => Promise<void>;
-  onProjectRequestRolesUpdate: (role: Role[]) => Promise<void>;
-  onProjectDelete: () => Promise<void>;
+  hasUpdateRight: boolean;
   onProjectAliasCheck: (alias: string) => Promise<boolean>;
+  onProjectDelete: () => Promise<void>;
+  onProjectRequestRolesUpdate: (role: Role[]) => Promise<void>;
+  onProjectUpdate: (name: string, alias: string, description: string) => Promise<void>;
   onProjectVisibilityChange: (visibility: string) => Promise<void>;
+  project?: Project;
 };
 
 const ProjectSettings: React.FC<Props> = ({
-  project,
-  hasUpdateRight,
   hasDeleteRight,
   hasPublishRight,
-  onProjectDelete,
-  onProjectUpdate,
-  onProjectRequestRolesUpdate,
+  hasUpdateRight,
   onProjectAliasCheck,
+  onProjectDelete,
+  onProjectRequestRolesUpdate,
+  onProjectUpdate,
   onProjectVisibilityChange,
+  project,
 }) => {
   const t = useT();
 
@@ -40,26 +40,26 @@ const ProjectSettings: React.FC<Props> = ({
     <InnerContent title={`${t("Project Settings")} / ${project.name}`}>
       <ContentSection title={t("General")}>
         <GeneralForm
-          project={project}
           hasUpdateRight={hasUpdateRight}
-          onProjectUpdate={onProjectUpdate}
           onProjectAliasCheck={onProjectAliasCheck}
+          onProjectUpdate={onProjectUpdate}
+          project={project}
         />
       </ContentSection>
       <ContentSection title={t("Request")}>
         <RequestOptions
-          initialRequestRoles={project.requestRoles}
           hasUpdateRight={hasUpdateRight}
+          initialRequestRoles={project.requestRoles}
           onProjectRequestRolesUpdate={onProjectRequestRolesUpdate}
         />
       </ContentSection>
       <DangerZone
-        projectName={project.name}
-        visibility={project.accessibility?.visibility}
         hasDeleteRight={hasDeleteRight}
         hasPublishRight={hasPublishRight}
         onProjectDelete={onProjectDelete}
         onProjectVisibilityChange={onProjectVisibilityChange}
+        projectName={project.name}
+        visibility={project.accessibility?.visibility}
       />
     </InnerContent>
   );

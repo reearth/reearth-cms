@@ -17,50 +17,50 @@ import { useT } from "@reearth-cms/i18n";
 import { FormItem } from "../types";
 
 type FormValues = {
-  title: string;
   description: string;
-  state: RequestState;
-  reviewersId: string[];
   items: RequestItem[];
+  reviewersId: string[];
+  state: RequestState;
+  title: string;
 };
 
 type Props = {
-  open: boolean;
-  requestCreationLoading: boolean;
   item: RequestItem;
-  unpublishedItems: FormItem[];
-  workspaceUserMembers: UserMember[];
   onClose: () => void;
   onSubmit: (data: FormValues) => Promise<void>;
+  open: boolean;
+  requestCreationLoading: boolean;
+  unpublishedItems: FormItem[];
+  workspaceUserMembers: UserMember[];
 };
 
 const initialValues: FormValues = {
-  title: "",
   description: "",
-  state: "WAITING",
-  reviewersId: [],
   items: [
     {
       itemId: "",
       version: "",
     },
   ],
+  reviewersId: [],
+  state: "WAITING",
+  title: "",
 };
 
 type SelectedItem = {
+  checked?: boolean;
   id: string;
   version?: string;
-  checked?: boolean;
 };
 
 const RequestCreationModal: React.FC<Props> = ({
-  open,
-  requestCreationLoading,
   item,
-  unpublishedItems,
-  workspaceUserMembers,
   onClose,
   onSubmit,
+  open,
+  requestCreationLoading,
+  unpublishedItems,
+  workspaceUserMembers,
 }) => {
   const t = useT();
   const [form] = Form.useForm();
@@ -87,7 +87,7 @@ const RequestCreationModal: React.FC<Props> = ({
     (item: FormItem, checked: boolean) => {
       setSelectedItems(prevState => ({
         ...prevState,
-        [item.id]: { id: item.id, version: item.version, checked },
+        [item.id]: { checked, id: item.id, version: item.version },
       }));
     },
     [setSelectedItems],
@@ -118,44 +118,44 @@ const RequestCreationModal: React.FC<Props> = ({
 
   return (
     <Modal
-      open={open}
+      cancelButtonProps={{ disabled: requestCreationLoading }}
+      confirmLoading={requestCreationLoading}
+      okButtonProps={{ disabled: isDisabled }}
       onCancel={handleClose}
       onOk={handleSubmit}
-      confirmLoading={requestCreationLoading}
-      title={t("New Request")}
-      cancelButtonProps={{ disabled: requestCreationLoading }}
-      okButtonProps={{ disabled: isDisabled }}>
+      open={open}
+      title={t("New Request")}>
       <Form
         form={form}
-        layout="vertical"
         initialValues={initialValues}
+        layout="vertical"
         onValuesChange={handleValuesChange}>
         <Form.Item
-          name="title"
           label={t("Title")}
-          rules={[{ required: true, message: t("Please input the title of your request!") }]}>
+          name="title"
+          rules={[{ message: t("Please input the title of your request!"), required: true }]}>
           <Input />
         </Form.Item>
-        <Form.Item name="description" label={t("Description")}>
-          <TextArea rows={4} showCount maxLength={100} />
+        <Form.Item label={t("Description")} name="description">
+          <TextArea maxLength={100} rows={4} showCount />
         </Form.Item>
         <Form.Item
-          name="reviewersId"
           label="Reviewer"
+          name="reviewersId"
           rules={[
             {
-              required: true,
               message: t("Please select a reviewer!"),
+              required: true,
             },
           ]}>
           <Select
+            allowClear
             filterOption={(input, option) =>
               (option?.label?.toString().toLowerCase() ?? "").includes(input.toLowerCase())
             }
-            placeholder={t("Reviewer")}
             mode="multiple"
             options={reviewers}
-            allowClear
+            placeholder={t("Reviewer")}
           />
         </Form.Item>
         {unpublishedItems?.length !== 0 && (
@@ -168,9 +168,9 @@ const RequestCreationModal: React.FC<Props> = ({
         {unpublishedItems?.map((item, index) => (
           <StyledRow key={index}>
             <StyledCheckbox
-              value={selectedItems[item.id]?.checked}
-              onChange={e => handleCheckboxChange(item, e.target.checked)}>
-              <ReferenceItem value={item.id} status={item.status} title={item.title} />
+              onChange={e => handleCheckboxChange(item, e.target.checked)}
+              value={selectedItems[item.id]?.checked}>
+              <ReferenceItem status={item.status} title={item.title} value={item.id} />
             </StyledCheckbox>
           </StyledRow>
         ))}

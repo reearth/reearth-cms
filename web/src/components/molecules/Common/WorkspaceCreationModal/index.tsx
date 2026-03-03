@@ -11,16 +11,16 @@ export type FormValues = {
 };
 
 type Props = {
-  open: boolean;
   onClose: () => void;
   onSubmit: (values: FormValues) => Promise<void>;
+  open: boolean;
 };
 
 const initialValues: FormValues = {
   name: "",
 };
 
-const WorkspaceCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) => {
+const WorkspaceCreationModal: React.FC<Props> = ({ onClose, onSubmit, open }) => {
   const t = useT();
   const [form] = Form.useForm<FormValues>();
   const [loading, setLoading] = useState(false);
@@ -55,28 +55,28 @@ const WorkspaceCreationModal: React.FC<Props> = ({ open, onClose, onSubmit }) =>
 
   return (
     <Modal
-      open={open}
-      onCancel={handleCancel}
       footer={[
-        <Button key="cancel" onClick={handleCancel} disabled={loading}>
+        <Button disabled={loading} key="cancel" onClick={handleCancel}>
           {t("Cancel")}
         </Button>,
-        <Button key="ok" type="primary" loading={loading} onClick={handleOk} disabled={isDisabled}>
+        <Button disabled={isDisabled} key="ok" loading={loading} onClick={handleOk} type="primary">
           {t("OK")}
         </Button>,
-      ]}>
+      ]}
+      onCancel={handleCancel}
+      open={open}>
       <Form
         form={form}
-        layout="vertical"
         initialValues={initialValues}
+        layout="vertical"
         onValuesChange={handleValuesChange}>
         <Form.Item
-          name="name"
           label={t("Workspace name")}
+          name="name"
           rules={[
             {
-              required: true,
               message: t("Please input the title of the new workspace!"),
+              required: true,
             },
           ]}>
           <Input />

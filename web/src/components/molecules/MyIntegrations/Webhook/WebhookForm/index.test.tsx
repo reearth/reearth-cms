@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { WebhookValues } from "@reearth-cms/components/molecules/MyIntegrations/types";
 
@@ -13,10 +13,9 @@ describe("Webhook form", () => {
   const url = "http://test.com";
   const secret = "secret";
   const webhookInitialValues: WebhookValues = {
+    active: false,
     id: "id",
     name,
-    url,
-    active: false,
     secret,
     trigger: [
       "onItemCreate",
@@ -28,6 +27,7 @@ describe("Webhook form", () => {
       "onAssetDecompress",
       "onAssetDelete",
     ],
+    url,
   };
   const loading = false;
   const onBack = () => {};
@@ -41,11 +41,11 @@ describe("Webhook form", () => {
   test("All values are displayed successfully", async () => {
     render(
       <WebhookForm
-        webhookInitialValues={webhookInitialValues}
         loading={loading}
         onBack={onBack}
         onWebhookCreate={onWebhookCreate}
         onWebhookUpdate={onWebhookUpdate}
+        webhookInitialValues={webhookInitialValues}
       />,
     );
 
@@ -75,11 +75,11 @@ describe("Webhook form", () => {
   test("Loading is displayed successfully", async () => {
     render(
       <WebhookForm
-        webhookInitialValues={webhookInitialValues}
         loading={true}
         onBack={onBack}
         onWebhookCreate={onWebhookCreate}
         onWebhookUpdate={onWebhookUpdate}
+        webhookInitialValues={webhookInitialValues}
       />,
     );
 
@@ -91,11 +91,11 @@ describe("Webhook form", () => {
 
     render(
       <WebhookForm
-        webhookInitialValues={webhookInitialValues}
         loading={loading}
         onBack={onBackMock}
         onWebhookCreate={onWebhookCreate}
         onWebhookUpdate={onWebhookUpdate}
+        webhookInitialValues={webhookInitialValues}
       />,
     );
 
@@ -106,11 +106,11 @@ describe("Webhook form", () => {
   test("Button is toggled successfully", async () => {
     render(
       <WebhookForm
-        webhookInitialValues={webhookInitialValues}
         loading={loading}
         onBack={onBack}
         onWebhookCreate={onWebhookCreate}
         onWebhookUpdate={onWebhookUpdate}
+        webhookInitialValues={webhookInitialValues}
       />,
     );
 
@@ -138,11 +138,11 @@ describe("Webhook form", () => {
 
     render(
       <WebhookForm
-        webhookInitialValues={undefined}
         loading={loading}
         onBack={onBack}
         onWebhookCreate={onWebhookCreateMock}
         onWebhookUpdate={onWebhookUpdate}
+        webhookInitialValues={undefined}
       />,
     );
 
@@ -161,11 +161,11 @@ describe("Webhook form", () => {
     await user.type(secretInput, secret);
     await user.click(saveButton);
     expect(onWebhookCreateMock).toHaveBeenCalledWith({
-      name,
-      url,
       active: false,
+      name,
       secret,
       trigger: {},
+      url,
     });
     expect(saveButton).toBeDisabled();
   });
@@ -175,11 +175,11 @@ describe("Webhook form", () => {
 
     render(
       <WebhookForm
-        webhookInitialValues={webhookInitialValues}
         loading={loading}
         onBack={onBack}
         onWebhookCreate={onWebhookCreate}
         onWebhookUpdate={onWebhookUpdateMock}
+        webhookInitialValues={webhookInitialValues}
       />,
     );
 
@@ -192,14 +192,14 @@ describe("Webhook form", () => {
       ...webhookInitialValues,
       name: webhookInitialValues.name + newText,
       trigger: {
+        onAssetDecompress: true,
+        onAssetDelete: true,
+        onAssetUpload: true,
         onItemCreate: true,
-        onItemUpdate: true,
         onItemDelete: true,
         onItemPublish: true,
         onItemUnPublish: true,
-        onAssetUpload: true,
-        onAssetDecompress: true,
-        onAssetDelete: true,
+        onItemUpdate: true,
       },
     });
     expect(saveButton).toBeDisabled();
@@ -208,11 +208,11 @@ describe("Webhook form", () => {
   test("Form validation works successfully", async () => {
     render(
       <WebhookForm
-        webhookInitialValues={undefined}
         loading={loading}
         onBack={onBack}
         onWebhookCreate={onWebhookCreate}
         onWebhookUpdate={onWebhookUpdate}
+        webhookInitialValues={undefined}
       />,
     );
 

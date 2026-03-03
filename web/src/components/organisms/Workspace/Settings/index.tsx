@@ -4,22 +4,22 @@ import useHooks from "./hooks";
 
 const WorkspaceSettings: React.FC = () => {
   const {
-    workspaceName,
-    updateWorkspaceLoading,
-    hasUpdateRight,
-    hasDeleteRight,
-    handleWorkspaceUpdate,
     handleWorkspaceDelete,
+    handleWorkspaceUpdate,
+    hasDeleteRight,
+    hasUpdateRight,
+    updateWorkspaceLoading,
+    workspaceName,
   } = useHooks();
 
   return (
     <WorkspaceSettingsWrapper
-      workspaceName={workspaceName}
-      updateWorkspaceLoading={updateWorkspaceLoading}
-      hasUpdateRight={hasUpdateRight}
       hasDeleteRight={hasDeleteRight}
-      onWorkspaceUpdate={handleWorkspaceUpdate}
+      hasUpdateRight={hasUpdateRight}
       onWorkspaceDelete={handleWorkspaceDelete}
+      onWorkspaceUpdate={handleWorkspaceUpdate}
+      updateWorkspaceLoading={updateWorkspaceLoading}
+      workspaceName={workspaceName}
     />
   );
 };

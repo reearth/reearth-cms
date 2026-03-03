@@ -6,16 +6,16 @@ import MultiValueSelect from "@reearth-cms/components/molecules/Common/MultiValu
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  selectedValues?: string[];
   multiple: boolean;
+  selectedValues?: string[];
 };
 
-const SelectField: React.FC<Props> = ({ selectedValues, multiple }) => {
+const SelectField: React.FC<Props> = ({ multiple, selectedValues }) => {
   const t = useT();
   const { Option } = Select;
 
   return (
-    <Form.Item name="defaultValue" label={t("Set default value")}>
+    <Form.Item label={t("Set default value")} name="defaultValue">
       {multiple ? (
         <MultiValueSelect selectedValues={selectedValues} />
       ) : (

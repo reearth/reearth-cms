@@ -1,19 +1,19 @@
 import { t } from "@reearth-cms/i18n";
 
 export type CreateAssetUploadPayload = {
-  url: string;
-  token: string;
-  contentType: string;
-  contentLength: number;
   contentEncoding: string;
+  contentLength: number;
+  contentType: string;
   next: string;
+  token: string;
+  url: string;
 };
 
 export type CreateAssetUploadFunc = (params: {
-  filename: string;
-  contentLength: number;
   contentEncoding?: string;
+  contentLength: number;
   cursor?: string;
+  filename: string;
 }) => Promise<CreateAssetUploadPayload | undefined>;
 
 export type CreateAssetFunc<T, U> = (token: string, file: T) => Promise<U>;
@@ -32,16 +32,16 @@ export async function uploadFiles<T extends File, U>(
 
       while (true) {
         const res = await createAssetUpload({
-          filename: file.name,
-          contentLength: file.size ?? 0,
           contentEncoding: gzip ? "gzip" : "",
+          contentLength: file.size ?? 0,
           cursor,
+          filename: file.name,
         });
         if (!res) {
           return;
         }
 
-        const { url, token, contentType, contentLength, contentEncoding, next } = res;
+        const { contentEncoding, contentLength, contentType, next, token, url } = res;
         uploadToken = token ?? "";
 
         if (url === "") {
@@ -52,12 +52,12 @@ export async function uploadFiles<T extends File, U>(
         const body: BodyInit =
           contentLength > 0 ? file.slice(offset, offset + contentLength) : file;
         const resp = await fetch(url, {
-          method: "PUT",
           body: gzip ? gzipStreamFromBlob(body) : body,
           headers: {
             ...(contentType && { "Content-Type": contentType }),
             ...(contentEncoding && { "Content-Encoding": contentEncoding }),
           },
+          method: "PUT",
           // https://developer.chrome.com/docs/capabilities/web-apis/fetch-streaming-requests
           ...(gzip
             ? {

@@ -10,12 +10,12 @@ import { useT } from "@reearth-cms/i18n";
 
 type Props = {
   currentView: CurrentView;
-  open: boolean;
   modalState: modalStateType;
-  submitting: boolean;
   onClose: () => void;
   onCreate: (name: string) => Promise<void>;
   OnUpdate: (viewId: string, name: string) => Promise<void>;
+  open: boolean;
+  submitting: boolean;
 };
 
 type FormType = {
@@ -24,12 +24,12 @@ type FormType = {
 
 const ViewFormModal: React.FC<Props> = ({
   currentView,
-  open,
   modalState,
-  submitting,
   onClose,
   onCreate,
   OnUpdate,
+  open,
+  submitting,
 }) => {
   const t = useT();
   const [form] = Form.useForm<FormType>();
@@ -84,28 +84,28 @@ const ViewFormModal: React.FC<Props> = ({
 
   return (
     <Modal
-      open={open}
-      onCancel={handleClose}
-      title={modalState === "create" ? t("New View") : t("Update View")}
       footer={[
-        <Button key="back" onClick={handleClose} disabled={submitting}>
+        <Button disabled={submitting} key="back" onClick={handleClose}>
           {t("Cancel")}
         </Button>,
         <Button
+          disabled={isDisabled}
           key="submit"
-          type="primary"
           loading={submitting}
           onClick={handleSubmit}
-          disabled={isDisabled}>
+          type="primary">
           {t("OK")}
         </Button>,
-      ]}>
+      ]}
+      onCancel={handleClose}
+      open={open}
+      title={modalState === "create" ? t("New View") : t("Update View")}>
       <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
         <Form.Item
-          name="name"
-          label={t("View Name")}
           extra={t("This is the title of the view")}
-          rules={[{ required: true, message: t("Please input the view name!") }]}>
+          label={t("View Name")}
+          name="name"
+          rules={[{ message: t("Please input the view name!"), required: true }]}>
           <Input />
         </Form.Item>
       </Form>

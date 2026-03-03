@@ -1,12 +1,12 @@
 import { useMutation } from "@apollo/client/react";
-import { useCallback, useState, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { CurrentView } from "@reearth-cms/components/molecules/View/types";
 import {
   toGraphColumnSelectionInput,
-  toGraphItemSort,
   toGraphConditionInput,
+  toGraphItemSort,
 } from "@reearth-cms/components/organisms/DataConverters/table";
 import {
   CreateViewDocument,
@@ -15,14 +15,14 @@ import {
   UpdateViewsOrderDocument,
 } from "@reearth-cms/gql/__generated__/view.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useProject, useModel, useUserRights } from "@reearth-cms/state";
+import { useModel, useProject, useUserRights } from "@reearth-cms/state";
 
 type Params = {
   currentView: CurrentView;
   onViewChange: () => void;
 };
 
-export type modalStateType = "rename" | "create";
+export type modalStateType = "create" | "rename";
 
 export default ({ currentView, onViewChange }: Params) => {
   const t = useT();
@@ -57,12 +57,12 @@ export default ({ currentView, onViewChange }: Params) => {
     async (name: string) => {
       const view = await createNewView({
         variables: {
-          name,
-          projectId: currentProject?.id ?? "",
-          modelId: currentModel?.id ?? "",
-          sort: toGraphItemSort(currentView.sort),
           columns: toGraphColumnSelectionInput(currentView.columns),
           filter: toGraphConditionInput(currentView.filter),
+          modelId: currentModel?.id ?? "",
+          name,
+          projectId: currentProject?.id ?? "",
+          sort: toGraphItemSort(currentView.sort),
         },
       });
       if (view.error || !view.data?.createView) {
@@ -93,11 +93,11 @@ export default ({ currentView, onViewChange }: Params) => {
     async (viewId: string, name: string) => {
       const view = await updateNewView({
         variables: {
-          viewId,
-          name,
-          sort: toGraphItemSort(currentView.sort),
           columns: toGraphColumnSelectionInput(currentView.columns),
           filter: toGraphConditionInput(currentView.filter),
+          name,
+          sort: toGraphItemSort(currentView.sort),
+          viewId,
         },
       });
       if (view.error || !view.data?.updateView) {
@@ -114,11 +114,11 @@ export default ({ currentView, onViewChange }: Params) => {
     async (viewId: string, name: string) => {
       const view = await updateNewView({
         variables: {
-          viewId,
-          name,
-          sort: toGraphItemSort(currentView?.sort),
           columns: toGraphColumnSelectionInput(currentView.columns),
           filter: toGraphConditionInput(currentView.filter),
+          name,
+          sort: toGraphItemSort(currentView?.sort),
+          viewId,
         },
       });
       if (view.error || !view.data?.updateView) {
@@ -169,19 +169,19 @@ export default ({ currentView, onViewChange }: Params) => {
   );
 
   return {
-    modalState,
-    viewModalShown,
-    submitting: createLoading || updateLoading,
-    hasCreateRight,
-    hasUpdateRight,
-    hasDeleteRight,
-    handleViewRenameModalOpen,
-    handleViewCreateModalOpen,
-    handleViewModalReset,
-    handleViewCreate,
-    handleViewUpdate,
-    handleViewRename,
-    handleViewDelete,
     handleUpdateViewsOrder,
+    handleViewCreate,
+    handleViewCreateModalOpen,
+    handleViewDelete,
+    handleViewModalReset,
+    handleViewRename,
+    handleViewRenameModalOpen,
+    handleViewUpdate,
+    hasCreateRight,
+    hasDeleteRight,
+    hasUpdateRight,
+    modalState,
+    submitting: createLoading || updateLoading,
+    viewModalShown,
   };
 };

@@ -6,59 +6,59 @@ import useHooks from "./hooks";
 
 const RequestDetails: React.FC = () => {
   const {
-    me,
-    hasCommentCreateRight,
-    hasCommentUpdateRight,
-    hasCommentDeleteRight,
-    isCloseActionEnabled,
-    isReopenActionEnabled,
-    isApproveActionEnabled,
-    isAssignActionEnabled,
-    currentRequest,
-    loading,
-    updateRequestLoading,
-    deleteLoading,
     approveLoading,
-    handleRequestUpdate,
+    currentRequest,
+    deleteLoading,
+    handleCommentCreate,
+    handleCommentDelete,
+    handleCommentUpdate,
+    handleNavigateToItemEdit,
+    handleNavigateToRequestsList,
     handleRequestApprove,
     handleRequestDelete,
-    handleCommentCreate,
-    handleCommentUpdate,
-    handleCommentDelete,
-    handleNavigateToRequestsList,
-    handleNavigateToItemEdit,
+    handleRequestUpdate,
+    hasCommentCreateRight,
+    hasCommentDeleteRight,
+    hasCommentUpdateRight,
+    isApproveActionEnabled,
+    isAssignActionEnabled,
+    isCloseActionEnabled,
+    isReopenActionEnabled,
+    loading,
+    me,
+    updateRequestLoading,
   } = useHooks();
 
   const { handleGetAsset } = useAssetHooks(false);
 
-  const { workspaceUserMembers, handleGroupGet } = useContentHooks();
+  const { handleGroupGet, workspaceUserMembers } = useContentHooks();
 
   return (
     <RequestDetailsMolecule
-      me={me}
+      approveLoading={approveLoading}
+      currentRequest={currentRequest}
+      deleteLoading={deleteLoading}
       hasCommentCreateRight={hasCommentCreateRight}
-      hasCommentUpdateRight={hasCommentUpdateRight}
       hasCommentDeleteRight={hasCommentDeleteRight}
-      isCloseActionEnabled={isCloseActionEnabled}
-      isReopenActionEnabled={isReopenActionEnabled}
+      hasCommentUpdateRight={hasCommentUpdateRight}
       isApproveActionEnabled={isApproveActionEnabled}
       isAssignActionEnabled={isAssignActionEnabled}
-      currentRequest={currentRequest}
-      workspaceUserMembers={workspaceUserMembers}
+      isCloseActionEnabled={isCloseActionEnabled}
+      isReopenActionEnabled={isReopenActionEnabled}
       loading={loading}
-      deleteLoading={deleteLoading}
-      approveLoading={approveLoading}
-      updateLoading={updateRequestLoading}
-      onRequestApprove={handleRequestApprove}
-      onRequestUpdate={handleRequestUpdate}
-      onRequestDelete={handleRequestDelete}
-      onCommentCreate={handleCommentCreate}
-      onCommentUpdate={handleCommentUpdate}
-      onCommentDelete={handleCommentDelete}
+      me={me}
       onBack={handleNavigateToRequestsList}
-      onNavigateToItemEdit={handleNavigateToItemEdit}
+      onCommentCreate={handleCommentCreate}
+      onCommentDelete={handleCommentDelete}
+      onCommentUpdate={handleCommentUpdate}
       onGetAsset={handleGetAsset}
       onGroupGet={handleGroupGet}
+      onNavigateToItemEdit={handleNavigateToItemEdit}
+      onRequestApprove={handleRequestApprove}
+      onRequestDelete={handleRequestDelete}
+      onRequestUpdate={handleRequestUpdate}
+      updateLoading={updateRequestLoading}
+      workspaceUserMembers={workspaceUserMembers}
     />
   );
 };

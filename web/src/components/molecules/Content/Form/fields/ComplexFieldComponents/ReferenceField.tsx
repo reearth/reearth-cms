@@ -10,8 +10,8 @@ import { useT } from "@reearth-cms/i18n";
 type ReferenceFieldProps = FieldProps & ReferenceProps;
 
 const ReferenceField: React.FC<ReferenceFieldProps> = ({
-  field,
   disabled,
+  field,
   itemGroupId,
   itemHeights,
   onItemHeightChange,
@@ -22,23 +22,23 @@ const ReferenceField: React.FC<ReferenceFieldProps> = ({
   return (
     <Form.Item
       extra={field.description}
+      label={<FieldTitle isTitle={false} isUnique={field.unique} title={field.title} />}
+      name={itemGroupId ? [field.id, itemGroupId] : field.id}
       rules={[
         {
-          required: field.required,
           message: t("Please input field!"),
+          required: field.required,
         },
-      ]}
-      name={itemGroupId ? [field.id, itemGroupId] : field.id}
-      label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
+      ]}>
       <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
         <ReferenceFormItem
-          key={field.id}
+          correspondingField={field.typeProperty?.correspondingField}
           disabled={disabled}
-          itemGroupId={itemGroupId}
           fieldId={field.id}
+          itemGroupId={itemGroupId}
+          key={field.id}
           modelId={field.typeProperty?.modelId}
           titleFieldId={field.typeProperty?.schema?.titleFieldId}
-          correspondingField={field.typeProperty?.correspondingField}
           {...props}
         />
       </ResponsiveHeight>

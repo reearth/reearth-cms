@@ -7,32 +7,32 @@ import { AssetField, GroupField, ReferenceField } from "./fields/ComplexFieldCom
 import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
 
 type Props = {
-  field: FieldType;
+  assetProps: AssetProps;
   disabled: boolean;
+  field: FieldType;
+  groupProps: {
+    form: FormInstance<unknown>;
+    onGroupGet: (id: string) => Promise<Group | undefined>;
+  };
   itemHeights?: Record<string, number>;
   onItemHeightChange?: (id: string, height: number) => void;
-  assetProps: AssetProps;
   referenceProps: ReferenceProps;
-  groupProps: {
-    onGroupGet: (id: string) => Promise<Group | undefined>;
-    form: FormInstance<unknown>;
-  };
 };
 
 const Field: React.FC<Props> = ({
-  field,
+  assetProps,
   disabled,
+  field,
+  groupProps,
   itemHeights,
   onItemHeightChange,
-  assetProps,
   referenceProps,
-  groupProps,
 }) => {
   if (field.type === "Asset") {
     return (
       <AssetField
-        field={field}
         disabled={disabled}
+        field={field}
         itemHeights={itemHeights}
         onItemHeightChange={onItemHeightChange}
         {...assetProps}
@@ -41,8 +41,8 @@ const Field: React.FC<Props> = ({
   } else if (field.type === "Reference") {
     return (
       <ReferenceField
-        field={field}
         disabled={disabled}
+        field={field}
         itemHeights={itemHeights}
         onItemHeightChange={onItemHeightChange}
         {...referenceProps}
@@ -51,11 +51,11 @@ const Field: React.FC<Props> = ({
   } else if (field.type === "Group") {
     return (
       <GroupField
-        field={field}
+        assetProps={assetProps}
         disabled={disabled}
+        field={field}
         itemHeights={itemHeights}
         onItemHeightChange={onItemHeightChange}
-        assetProps={assetProps}
         referenceProps={referenceProps}
         {...groupProps}
       />
@@ -64,8 +64,8 @@ const Field: React.FC<Props> = ({
     const FieldComponent = FIELD_TYPE_COMPONENT_MAP[field.type];
     return (
       <FieldComponent
-        field={field}
         disabled={disabled}
+        field={field}
         itemHeights={itemHeights}
         onItemHeightChange={onItemHeightChange}
       />

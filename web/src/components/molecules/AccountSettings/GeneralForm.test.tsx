@@ -10,8 +10,8 @@ test("General form works successfully", async () => {
   const name = "name";
   const email = "email";
   const me = {
-    name,
     email,
+    name,
   };
   const onUserUpdate = () => {
     return Promise.resolve();

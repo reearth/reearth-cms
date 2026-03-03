@@ -1,13 +1,13 @@
 import styled from "@emotion/styled";
 import React, {
+  Dispatch,
   Key,
-  useMemo,
-  useState,
-  useRef,
+  SetStateAction,
   useCallback,
   useEffect,
-  Dispatch,
-  SetStateAction,
+  useMemo,
+  useRef,
+  useState,
 } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -18,9 +18,9 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
 import {
-  TableRowSelection,
-  ListToolBarProps,
   ColumnsState,
+  ListToolBarProps,
+  TableRowSelection,
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
@@ -36,11 +36,11 @@ import {
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
-  ItemSort,
-  FieldType,
   Column,
   ConditionInput,
   CurrentView,
+  FieldType,
+  ItemSort,
   metaColumn,
 } from "@reearth-cms/components/molecules/View/types";
 import { Trans, useT } from "@reearth-cms/i18n";
@@ -52,97 +52,97 @@ import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
 
 export type Props = {
-  contentTableFields?: ContentTableField[];
-  contentTableColumns?: ExtendedColumns[];
-  loading: boolean;
-  deleteLoading: boolean;
-  publishLoading: boolean;
-  unpublishLoading: boolean;
-  selectedItem?: Item;
-  selectedItems: { selectedRows: { itemId: string; version?: string }[] };
-  totalCount: number;
-  currentView: CurrentView;
-  setCurrentView: Dispatch<SetStateAction<CurrentView>>;
-  searchTerm: string;
-  page: number;
-  pageSize: number;
-  requestModalLoading: boolean;
-  requestModalTotalCount: number;
-  requestModalPage: number;
-  requestModalPageSize: number;
-  onRequestTableChange: (page: number, pageSize: number) => void;
-  onSearchTerm: (term?: string) => void;
-  onFilterChange: (filter?: ConditionInput[]) => void;
-  onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
-  onItemSelect: (itemId: string) => void;
-  onSelect: (selectedRowKeys: Key[], selectedRows: ContentTableField[]) => void;
-  onItemEdit: (itemId: string) => void;
-  onItemDelete: (itemIds: string[]) => Promise<void>;
-  onPublish: (itemIds: string[]) => Promise<void>;
-  onUnpublish: (itemIds: string[]) => Promise<void>;
-  onItemsReload: () => void;
-  requests: Request[];
   addItemToRequestModalShown: boolean;
+  contentTableColumns?: ExtendedColumns[];
+  contentTableFields?: ContentTableField[];
+  currentView: CurrentView;
+  deleteLoading: boolean;
+  hasCreateRight: boolean;
+  hasDeleteRight: boolean;
+  hasModelFields: boolean;
+  hasPublishRight: boolean;
+  hasRequestUpdateRight: boolean;
+  loading: boolean;
+  modelKey?: string;
   onAddItemToRequest: (request: Request, items: RequestItem[]) => Promise<void>;
   onAddItemToRequestModalClose: () => void;
   onAddItemToRequestModalOpen: () => void;
-  modelKey?: string;
-  onRequestSearchTerm: (term: string) => void;
-  onRequestTableReload: () => void;
-  hasDeleteRight: boolean;
-  hasPublishRight: boolean;
-  hasCreateRight: boolean;
-  hasRequestUpdateRight: boolean;
-  showPublishAction: boolean;
+  onContentTableChange: (page: number, pageSize: number, sorter?: ItemSort) => void;
+  onFilterChange: (filter?: ConditionInput[]) => void;
   onImportModalOpen: () => void;
-  hasModelFields: boolean;
+  onItemDelete: (itemIds: string[]) => Promise<void>;
+  onItemEdit: (itemId: string) => void;
+  onItemSelect: (itemId: string) => void;
+  onItemsReload: () => void;
+  onPublish: (itemIds: string[]) => Promise<void>;
+  onRequestSearchTerm: (term: string) => void;
+  onRequestTableChange: (page: number, pageSize: number) => void;
+  onRequestTableReload: () => void;
+  onSearchTerm: (term?: string) => void;
+  onSelect: (selectedRowKeys: Key[], selectedRows: ContentTableField[]) => void;
+  onUnpublish: (itemIds: string[]) => Promise<void>;
+  page: number;
+  pageSize: number;
+  publishLoading: boolean;
+  requestModalLoading: boolean;
+  requestModalPage: number;
+  requestModalPageSize: number;
+  requestModalTotalCount: number;
+  requests: Request[];
+  searchTerm: string;
+  selectedItem?: Item;
+  selectedItems: { selectedRows: { itemId: string; version?: string }[] };
+  setCurrentView: Dispatch<SetStateAction<CurrentView>>;
+  showPublishAction: boolean;
+  totalCount: number;
+  unpublishLoading: boolean;
 };
 
 const ContentTable: React.FC<Props> = ({
-  contentTableFields,
-  contentTableColumns,
-  loading,
-  deleteLoading,
-  publishLoading,
-  unpublishLoading,
-  selectedItem,
-  selectedItems,
-  totalCount,
-  currentView,
-  page,
-  pageSize,
-  requests,
   addItemToRequestModalShown,
-  setCurrentView,
-  searchTerm,
-  onRequestTableChange,
-  requestModalLoading,
-  requestModalTotalCount,
-  requestModalPage,
-  requestModalPageSize,
+  contentTableColumns,
+  contentTableFields,
+  currentView,
+  deleteLoading,
+  hasCreateRight,
+  hasDeleteRight,
+  hasModelFields,
+  hasPublishRight,
+  hasRequestUpdateRight,
+  loading,
+  modelKey,
   onAddItemToRequest,
   onAddItemToRequestModalClose,
   onAddItemToRequestModalOpen,
-  onPublish,
-  onUnpublish,
-  onSearchTerm,
-  onFilterChange,
   onContentTableChange,
-  onItemSelect,
-  onSelect,
-  onItemEdit,
-  onItemDelete,
-  onItemsReload,
-  modelKey,
-  onRequestSearchTerm,
-  onRequestTableReload,
-  hasDeleteRight,
-  hasPublishRight,
-  hasRequestUpdateRight,
-  hasCreateRight,
-  showPublishAction,
+  onFilterChange,
   onImportModalOpen,
-  hasModelFields,
+  onItemDelete,
+  onItemEdit,
+  onItemSelect,
+  onItemsReload,
+  onPublish,
+  onRequestSearchTerm,
+  onRequestTableChange,
+  onRequestTableReload,
+  onSearchTerm,
+  onSelect,
+  onUnpublish,
+  page,
+  pageSize,
+  publishLoading,
+  requestModalLoading,
+  requestModalPage,
+  requestModalPageSize,
+  requestModalTotalCount,
+  requests,
+  searchTerm,
+  selectedItem,
+  selectedItems,
+  setCurrentView,
+  showPublishAction,
+  totalCount,
+  unpublishLoading,
 }) => {
   const [currentWorkspace] = useWorkspace();
   const t = useT();
@@ -161,47 +161,47 @@ const ContentTable: React.FC<Props> = ({
   const actionsColumns: ExtendedColumns[] = useMemo(
     () => [
       {
-        title: "",
-        hideInSetting: true,
-        render: (_, contentField) => (
-          <Icon icon="edit" color={"#1890ff"} onClick={() => onItemEdit(contentField.id)} />
-        ),
-        dataIndex: "editIcon",
-        fieldType: "EDIT_ICON",
-        key: "EDIT_ICON",
-        width: 48,
-        minWidth: 48,
-        ellipsis: true,
         align: "center",
+        dataIndex: "editIcon",
+        ellipsis: true,
+        fieldType: "EDIT_ICON",
+        hideInSetting: true,
+        key: "EDIT_ICON",
+        minWidth: 48,
+        render: (_, contentField) => (
+          <Icon color={"#1890ff"} icon="edit" onClick={() => onItemEdit(contentField.id)} />
+        ),
+        title: "",
+        width: 48,
       },
       {
-        title: () => <Icon icon="message" />,
-        hideInSetting: true,
+        align: "center",
         dataIndex: "commentsCount",
         fieldType: "commentsCount",
+        hideInSetting: true,
         key: "commentsCount",
+        minWidth: 48,
         render: (_, item) => {
           return (
-            <StyledButton type="link" onClick={() => onItemSelect(item.id)}>
+            <StyledButton onClick={() => onItemSelect(item.id)} type="link">
               <CustomTag
-                value={item.comments?.length || 0}
                 color={item.id === selectedItem?.id ? "#87e8de" : undefined}
+                value={item.comments?.length || 0}
               />
             </StyledButton>
           );
         },
+        title: () => <Icon icon="message" />,
         width: 48,
-        minWidth: 48,
-        align: "center",
       },
       {
-        title: t("Status"),
         dataIndex: "Status",
         fieldType: "STATUS",
         key: "STATUS",
-        render: (_, item) => <Status status={item.status} />,
-        width: 148,
         minWidth: 148,
+        render: (_, item) => <Status status={item.status} />,
+        title: t("Status"),
+        width: 148,
       },
     ],
     [t, onItemEdit, selectedItem?.id, onItemSelect],
@@ -210,60 +210,60 @@ const ContentTable: React.FC<Props> = ({
   const systemMetaDataColumns: ExtendedColumns[] = useMemo(
     () => [
       {
-        title: t("Created At"),
         dataIndex: "createdAt",
+        defaultSortOrder: sortOrderGet("CREATION_DATE"),
+        ellipsis: true,
         fieldType: "CREATION_DATE",
         key: "CREATION_DATE",
-        sortOrder: sortOrderGet("CREATION_DATE"),
+        minWidth: 148,
         render: (_, item) => dateTimeFormat(item.createdAt),
         sorter: true,
-        defaultSortOrder: sortOrderGet("CREATION_DATE"),
-        width: 148,
-        minWidth: 148,
-        ellipsis: true,
+        sortOrder: sortOrderGet("CREATION_DATE"),
+        title: t("Created At"),
         type: "Date",
+        width: 148,
       },
       {
-        title: t("Created By"),
         dataIndex: "createdBy",
+        defaultSortOrder: sortOrderGet("CREATION_USER"),
+        ellipsis: true,
         fieldType: "CREATION_USER",
         key: "CREATION_USER",
-        sortOrder: sortOrderGet("CREATION_USER"),
+        minWidth: 148,
         render: (_, item) => item.createdBy.name,
         sorter: true,
-        defaultSortOrder: sortOrderGet("CREATION_USER"),
-        width: 148,
-        minWidth: 148,
+        sortOrder: sortOrderGet("CREATION_USER"),
+        title: t("Created By"),
         type: "Person",
-        ellipsis: true,
+        width: 148,
       },
       {
-        title: t("Updated At"),
         dataIndex: "updatedAt",
+        defaultSortOrder: sortOrderGet("MODIFICATION_DATE"),
+        ellipsis: true,
         fieldType: "MODIFICATION_DATE",
         key: "MODIFICATION_DATE",
-        sortOrder: sortOrderGet("MODIFICATION_DATE"),
+        minWidth: 148,
         render: (_, item) => dateTimeFormat(item.updatedAt),
         sorter: true,
-        defaultSortOrder: sortOrderGet("MODIFICATION_DATE"),
-        width: 148,
-        minWidth: 148,
-        ellipsis: true,
+        sortOrder: sortOrderGet("MODIFICATION_DATE"),
+        title: t("Updated At"),
         type: "Date",
+        width: 148,
       },
       {
-        title: t("Updated By"),
         dataIndex: "updatedBy",
+        defaultSortOrder: sortOrderGet("MODIFICATION_USER"),
+        ellipsis: true,
         fieldType: "MODIFICATION_USER",
         key: "MODIFICATION_USER",
-        sortOrder: sortOrderGet("MODIFICATION_USER"),
+        minWidth: 148,
         render: (_, item) => (item.updatedBy ? item.updatedBy : "-"),
         sorter: true,
-        defaultSortOrder: sortOrderGet("MODIFICATION_USER"),
-        width: 148,
-        minWidth: 148,
+        sortOrder: sortOrderGet("MODIFICATION_USER"),
+        title: t("Updated By"),
         type: "Person",
-        ellipsis: true,
+        width: 148,
       },
     ],
     [t, sortOrderGet],
@@ -277,8 +277,8 @@ const ContentTable: React.FC<Props> = ({
 
   const rowSelection: TableRowSelection = useMemo(
     () => ({
-      selectedRowKeys: selectedItems.selectedRows.map(item => item.itemId),
       onChange: onSelect,
+      selectedRowKeys: selectedItems.selectedRows.map(item => item.itemId),
     }),
     [onSelect, selectedItems.selectedRows],
   );
@@ -286,13 +286,13 @@ const ContentTable: React.FC<Props> = ({
   const publishConfirm = useCallback(
     (itemIds: string[]) => {
       confirm({
-        title: t("Publish items"),
-        content: t("All selected items will be published. You can unpublish them anytime."),
         cancelText: t("No"),
+        content: t("All selected items will be published. You can unpublish them anytime."),
         okText: t("Yes"),
         async onOk() {
           await onPublish(itemIds);
         },
+        title: t("Publish items"),
       });
     },
     [confirm, onPublish, t],
@@ -304,41 +304,41 @@ const ContentTable: React.FC<Props> = ({
       return (
         <Space size={4}>
           <Button
-            type="link"
-            size="small"
+            disabled={!hasPublishRight || !showPublishAction}
             icon={<Icon icon="upload" />}
+            loading={publishLoading}
             onClick={() => {
               publishConfirm(props.selectedRowKeys);
             }}
-            loading={publishLoading}
-            disabled={!hasPublishRight || !showPublishAction}>
+            size="small"
+            type="link">
             {t("Publish")}
           </Button>
           <Button
-            type="link"
-            size="small"
+            disabled={!hasRequestUpdateRight}
             icon={<Icon icon="plus" />}
             onClick={() => onAddItemToRequestModalOpen()}
-            disabled={!hasRequestUpdateRight}>
+            size="small"
+            type="link">
             {t("Add to Request")}
           </Button>
           <Button
-            type="link"
-            size="small"
+            disabled={!hasPublishRight}
             icon={<Icon icon="eyeInvisible" />}
-            onClick={() => onUnpublish(props.selectedRowKeys)}
             loading={unpublishLoading}
-            disabled={!hasPublishRight}>
+            onClick={() => onUnpublish(props.selectedRowKeys)}
+            size="small"
+            type="link">
             {t("Unpublish")}
           </Button>
           <Button
-            type="link"
-            size="small"
-            icon={<Icon icon="delete" />}
-            onClick={() => onItemDelete(props.selectedRowKeys)}
             danger
+            disabled={!hasDeleteRight}
+            icon={<Icon icon="delete" />}
             loading={deleteLoading}
-            disabled={!hasDeleteRight}>
+            onClick={() => onItemDelete(props.selectedRowKeys)}
+            size="small"
+            type="link">
             {t("Delete")}
           </Button>
         </Space>
@@ -386,7 +386,7 @@ const ContentTable: React.FC<Props> = ({
       for (const c of currentView.filter.and.conditions) {
         const condition = Object.values(c)[0];
         if (!condition || !("operator" in condition)) break;
-        const { operator, fieldId } = condition;
+        const { fieldId, operator } = condition;
         const value = "value" in condition ? (condition.value as string) : "";
         const operatorType = Object.keys(c)[0];
         const columns =
@@ -395,7 +395,7 @@ const ContentTable: React.FC<Props> = ({
             : actionsColumns;
         const column = columns.find(c => c.key === fieldId.id);
         if (column) {
-          const { dataIndex, title, type, typeProperty, key, required, multiple } = column;
+          const { dataIndex, key, multiple, required, title, type, typeProperty } = column;
           const members = currentWorkspace?.members;
           if (
             dataIndex &&
@@ -409,15 +409,15 @@ const ContentTable: React.FC<Props> = ({
           ) {
             newFilters.push({
               dataIndex: dataIndex as string | string[],
+              id: key as string,
+              members,
+              multiple,
+              required,
               title: title as string,
               type,
               typeProperty,
-              members,
-              id: key as string,
-              required,
-              multiple,
             });
-            newDefaultValues.push({ operatorType, operator, value });
+            newDefaultValues.push({ operator, operatorType, value });
           }
         }
       }
@@ -458,7 +458,7 @@ const ContentTable: React.FC<Props> = ({
   const getOptions = useCallback(
     (isFromMenu: boolean): MenuProps["items"] => {
       const optionClick = (isFilter: boolean, column: ExtendedColumns) => {
-        const { dataIndex, title, type, typeProperty, key, required, multiple } = column;
+        const { dataIndex, key, multiple, required, title, type, typeProperty } = column;
         const members = currentWorkspace?.members;
         if (
           dataIndex &&
@@ -472,13 +472,13 @@ const ContentTable: React.FC<Props> = ({
         ) {
           const filter: DropdownFilterType = {
             dataIndex: dataIndex as string | string[],
+            id: key as string,
+            members,
+            multiple,
+            required,
             title: title as string,
             type,
             typeProperty,
-            members,
-            id: key as string,
-            required,
-            multiple,
           };
           if (isFilter) {
             setFilters(prevState => [...prevState, filter]);
@@ -554,20 +554,20 @@ const ContentTable: React.FC<Props> = ({
 
   const sharedProps = useMemo(
     () => ({
-      menu: { items },
+      arrow: false,
       dropdownRender: (menu: React.ReactNode) => (
         <Wrapper>
           <InputWrapper>
             <Input
-              value={inputValue}
-              placeholder={isFilter.current ? "Filter by..." : "Sort by..."}
               onChange={handleChange}
+              placeholder={isFilter.current ? "Filter by..." : "Sort by..."}
+              value={inputValue}
             />
           </InputWrapper>
           {React.cloneElement(menu as React.ReactElement)}
         </Wrapper>
       ),
-      arrow: false,
+      menu: { items },
     }),
     [handleChange, inputValue, items],
   );
@@ -578,39 +578,39 @@ const ContentTable: React.FC<Props> = ({
         <StyledSearchContainer>
           <Search
             allowClear
-            placeholder={t("input search text")}
+            defaultValue={searchTerm}
+            key={`${modelKey}${currentView.id}`}
             onSearch={(value: string) => {
               onSearchTerm(value);
             }}
-            defaultValue={searchTerm}
-            key={`${modelKey}${currentView.id}`}
+            placeholder={t("input search text")}
           />
           <StyledFilterWrapper>
             <StyledFilterSpace size={[0, 8]}>
               {filters.map((filter, index) => (
                 <FilterDropdown
-                  key={index}
-                  filter={filter}
-                  defaultValue={defaultFilterValues.current[index]}
-                  index={index}
-                  filterRemove={filterRemove}
-                  isFilterOpen={isFilterOpen.current}
                   currentView={currentView}
-                  setCurrentView={setCurrentView}
+                  defaultValue={defaultFilterValues.current[index]}
+                  filter={filter}
+                  filterRemove={filterRemove}
+                  index={index}
+                  isFilterOpen={isFilterOpen.current}
+                  key={index}
                   onFilterChange={onFilterChange}
+                  setCurrentView={setCurrentView}
                 />
               ))}
             </StyledFilterSpace>
             <Dropdown
               {...sharedProps}
-              placement="bottomLeft"
-              trigger={["click"]}
               onOpenChange={() => {
                 isFilter.current = true;
                 setInputValue("");
                 setItems(defaultItems);
-              }}>
-              <StyledFilterButton type="text" icon={<Icon icon="plus" />}>
+              }}
+              placement="bottomLeft"
+              trigger={["click"]}>
+              <StyledFilterButton icon={<Icon icon="plus" />} type="text">
                 {t("Filter")}
               </StyledFilterButton>
             </Dropdown>
@@ -635,19 +635,19 @@ const ContentTable: React.FC<Props> = ({
 
   const pagination = useMemo(
     () => ({
-      showSizeChanger: true,
       current: page,
-      total: totalCount,
       pageSize: pageSize,
+      showSizeChanger: true,
+      total: totalCount,
     }),
     [page, pageSize, totalCount],
   );
 
   const options = useMemo(
     () => ({
-      search: true,
       fullScreen: true,
       reload: onItemsReload,
+      search: true,
       setting: true,
     }),
     [onItemsReload],
@@ -656,14 +656,14 @@ const ContentTable: React.FC<Props> = ({
   const toolBarItems: MenuProps["items"] = useMemo(
     () => [
       {
-        label: t("Add Filter"),
-        key: "filter",
         icon: <Icon icon="filter" />,
+        key: "filter",
+        label: t("Add Filter"),
       },
       {
-        label: t("Add Sort"),
-        key: "sort",
         icon: <Icon icon="sortAscending" />,
+        key: "sort",
+        label: t("Add Sort"),
       },
     ],
     [t],
@@ -673,39 +673,39 @@ const ContentTable: React.FC<Props> = ({
     return [
       <Dropdown
         {...sharedProps}
-        placement="bottom"
-        trigger={["click"]}
-        open={optionsOpen}
+        key="control"
         onOpenChange={handleOptionsOpenChange}
-        key="control">
+        open={optionsOpen}
+        placement="bottom"
+        trigger={["click"]}>
         <Dropdown
+          arrow={false}
           dropdownRender={() =>
             selectedFilter && (
               <DropdownRender
-                filter={selectedFilter}
                 close={close}
-                index={filters.length - 1}
-                open={conditionMenuOpen}
-                isFilter={isFilter.current}
                 currentView={currentView}
-                setCurrentView={setCurrentView}
-                onFilterChange={onFilterChange}
+                filter={selectedFilter}
+                index={filters.length - 1}
+                isFilter={isFilter.current}
                 key={Math.random()}
+                onFilterChange={onFilterChange}
+                open={conditionMenuOpen}
+                setCurrentView={setCurrentView}
               />
             )
           }
-          trigger={["click"]}
-          placement="bottom"
-          arrow={false}
+          onOpenChange={handleConditionMenuOpenChange}
           open={conditionMenuOpen}
-          onOpenChange={handleConditionMenuOpenChange}>
+          placement="bottom"
+          trigger={["click"]}>
           <Dropdown
-            menu={{ items: toolBarItems, onClick: toolBarItemClick }}
-            placement="bottom"
-            trigger={["click"]}
             arrow={false}
+            menu={{ items: toolBarItems, onClick: toolBarItemClick }}
+            onOpenChange={handleControlMenuOpenChange}
             open={controlMenuOpen}
-            onOpenChange={handleControlMenuOpenChange}>
+            placement="bottom"
+            trigger={["click"]}>
             <Tooltip title={t("Control")}>
               <IconWrapper>
                 <Icon icon="control" size={18} />
@@ -740,7 +740,7 @@ const ContentTable: React.FC<Props> = ({
       const colKey = (metaColumn as readonly string[]).includes(col.field.type)
         ? col.field.type
         : (col.field.id ?? "");
-      cols[colKey] = { show: col.visible, order: index, fixed: col.fixed };
+      cols[colKey] = { fixed: col.fixed, order: index, show: col.visible };
     });
     return cols;
   }, [currentView.columns]);
@@ -759,23 +759,23 @@ const ContentTable: React.FC<Props> = ({
           const colFieldType = col.fieldType as FieldType;
           return {
             field: {
-              type: colFieldType,
               id: colFieldType === "FIELD" || colFieldType === "META_FIELD" ? colKey : undefined,
+              type: colFieldType,
             },
-            visible: options[colKey]?.show ?? true,
-            order: options[colKey]?.order ?? index,
             fixed:
               colFieldType === "FIELD" || colFieldType === "META_FIELD"
                 ? options[colKey]?.fixed
                 : options[colFieldType]?.fixed,
+            order: options[colKey]?.order ?? index,
+            visible: options[colKey]?.show ?? true,
           };
         })
         .sort((a, b) => a.order - b.order)
         .map(col => {
           return {
             field: col.field,
-            visible: col.visible,
             fixed: col.fixed,
+            visible: col.visible,
           };
         });
 
@@ -797,19 +797,31 @@ const ContentTable: React.FC<Props> = ({
     <>
       {contentTableColumns ? (
         <ResizableProTable
-          showSorterTooltip={false}
-          options={options}
-          loading={loading}
-          pagination={pagination}
-          toolbar={handleToolbarEvents}
-          toolBarRender={toolBarRender}
-          dataSource={contentTableFields}
-          tableAlertOptionRender={alertOptions}
-          rowSelection={rowSelection}
           columns={tableColumns}
           columnsState={{
-            value: settingOptions,
             onChange: setSettingOptions,
+            value: settingOptions,
+          }}
+          dataSource={contentTableFields}
+          heightOffset={102}
+          loading={loading}
+          locale={{
+            emptyText: (
+              <Empty description={t("No Content Data")} image={Empty.PRESENTED_IMAGE_SIMPLE}>
+                {!getImportContentUIMetadata.shouldDisable && (
+                  <Trans
+                    components={{
+                      l: (
+                        <ImportButton onClick={onImportModalOpen} type="link">
+                          import
+                        </ImportButton>
+                      ),
+                    }}
+                    i18nKey="Please add some items manually or import from JSON/GeoJSON/CSV"
+                  />
+                )}
+              </Empty>
+            ),
           }}
           onChange={(pagination, _, sorter) => {
             onContentTableChange(
@@ -822,6 +834,7 @@ const ContentTable: React.FC<Props> = ({
                     "fieldType" in sorter.column &&
                     typeof sorter.columnKey === "string"
                   ? {
+                      direction: sorter.order === "ascend" ? "ASC" : "DESC",
                       field: {
                         id:
                           sorter.column.fieldType === "FIELD" ||
@@ -830,45 +843,32 @@ const ContentTable: React.FC<Props> = ({
                             : undefined,
                         type: sorter.column.fieldType as FieldType,
                       },
-                      direction: sorter.order === "ascend" ? "ASC" : "DESC",
                     }
                   : undefined,
             );
           }}
-          heightOffset={102}
-          locale={{
-            emptyText: (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("No Content Data")}>
-                {!getImportContentUIMetadata.shouldDisable && (
-                  <Trans
-                    i18nKey="Please add some items manually or import from JSON/GeoJSON/CSV"
-                    components={{
-                      l: (
-                        <ImportButton type="link" onClick={onImportModalOpen}>
-                          import
-                        </ImportButton>
-                      ),
-                    }}
-                  />
-                )}
-              </Empty>
-            ),
-          }}
+          options={options}
+          pagination={pagination}
+          rowSelection={rowSelection}
+          showSorterTooltip={false}
+          tableAlertOptionRender={alertOptions}
+          toolbar={handleToolbarEvents}
+          toolBarRender={toolBarRender}
         />
       ) : null}
       <LinkItemRequestModal
         items={selectedItems.selectedRows}
         onChange={onAddItemToRequest}
         onLinkItemRequestModalCancel={onAddItemToRequestModalClose}
-        visible={addItemToRequestModalShown}
-        requestList={requests}
+        onRequestSearchTerm={onRequestSearchTerm}
         onRequestTableChange={onRequestTableChange}
+        onRequestTableReload={onRequestTableReload}
+        requestList={requests}
         requestModalLoading={requestModalLoading}
-        requestModalTotalCount={requestModalTotalCount}
         requestModalPage={requestModalPage}
         requestModalPageSize={requestModalPageSize}
-        onRequestSearchTerm={onRequestSearchTerm}
-        onRequestTableReload={onRequestTableReload}
+        requestModalTotalCount={requestModalTotalCount}
+        visible={addItemToRequestModalShown}
       />
     </>
   );

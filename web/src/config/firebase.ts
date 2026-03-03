@@ -2,11 +2,11 @@ import { initializeApp } from "firebase/app";
 
 export type FirebaseParams = {
   firebaseApiKey?: string;
+  firebaseAppId?: string;
   firebaseAuthDomain?: string;
+  firebaseMessagingSenderId?: string;
   firebaseProjectId?: string;
   firebaseStorageBucket?: string;
-  firebaseMessagingSenderId?: string;
-  firebaseAppId?: string;
 };
 
 export function configureFirebase(firebase: FirebaseParams) {
@@ -19,11 +19,11 @@ export function configureFirebase(firebase: FirebaseParams) {
 
   const config = {
     apiKey: firebaseApiKey,
+    appId: firebaseAppId,
     authDomain: firebaseAuthDomain,
+    messagingSenderId: firebaseMessagingSenderId,
     projectId: firebaseProjectId,
     storageBucket: firebaseStorageBucket,
-    messagingSenderId: firebaseMessagingSenderId,
-    appId: firebaseAppId,
   };
 
   initializeApp(config);

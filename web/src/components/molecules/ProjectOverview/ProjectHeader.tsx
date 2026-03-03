@@ -27,9 +27,9 @@ const ProjectHeader: React.FC<Props> = ({ onModelSearch, onModelSort }) => {
   return (
     <Container>
       <StyledSearch
+        allowClear
         onSearch={onModelSearch}
         placeholder={t("search models")}
-        allowClear
         type="text"
       />
       <Wrapper>

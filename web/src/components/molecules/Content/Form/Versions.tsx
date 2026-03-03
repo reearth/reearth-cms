@@ -12,12 +12,12 @@ import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 type Props = {
-  versions: VersionedItem[];
-  versionClick: (versionedItem: VersionedItem) => Promise<void>;
   onNavigateToRequest: (id: string) => void;
+  versionClick: (versionedItem: VersionedItem) => Promise<void>;
+  versions: VersionedItem[];
 };
 
-const Versions: React.FC<Props> = ({ versions, versionClick, onNavigateToRequest }) => {
+const Versions: React.FC<Props> = ({ onNavigateToRequest, versionClick, versions }) => {
   const t = useT();
   return (
     <>
@@ -45,9 +45,9 @@ const Versions: React.FC<Props> = ({ versions, versionClick, onNavigateToRequest
               <Requests>
                 {version.requests?.map(request => (
                   <RequestWrapper
-                    role="link"
                     key={request.id}
-                    onClick={() => onNavigateToRequest(request.id)}>
+                    onClick={() => onNavigateToRequest(request.id)}
+                    role="link">
                     <Icon icon="pullRequest" />
                     <RequestTitle>{request.title}</RequestTitle>
                   </RequestWrapper>

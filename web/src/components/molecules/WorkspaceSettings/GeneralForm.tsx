@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Form, { ValidateErrorEntity } from "@reearth-cms/components/atoms/Form";
@@ -7,10 +7,10 @@ import Input from "@reearth-cms/components/atoms/Input";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  workspaceName?: string;
-  updateWorkspaceLoading: boolean;
   hasUpdateRight: boolean;
   onWorkspaceUpdate: (name: string) => Promise<void>;
+  updateWorkspaceLoading: boolean;
+  workspaceName?: string;
 };
 
 type FormType = {
@@ -18,10 +18,10 @@ type FormType = {
 };
 
 const WorkspaceGeneralForm: React.FC<Props> = ({
-  workspaceName,
-  updateWorkspaceLoading,
   hasUpdateRight,
   onWorkspaceUpdate,
+  updateWorkspaceLoading,
+  workspaceName,
 }) => {
   const t = useT();
   const [form] = Form.useForm<FormType>();
@@ -58,30 +58,30 @@ const WorkspaceGeneralForm: React.FC<Props> = ({
 
   return (
     <StyledForm
+      autoComplete="off"
       form={form}
       layout="vertical"
-      autoComplete="off"
       onValuesChange={handleValuesChange}
       requiredMark={false}>
       <Form.Item
-        name="name"
-        label={t("Workspace Name")}
         extra={t(
           "This is the name that will be visible within Re:Earth and Re:Earth CMS. This could be your company's name, department's name, the theme of your projects, etc.",
         )}
+        label={t("Workspace Name")}
+        name="name"
         rules={[
           {
-            required: true,
             message: t("Please input a new workspace name!"),
+            required: true,
           },
         ]}>
         <Input disabled={!hasUpdateRight} />
       </Form.Item>
       <Button
-        onClick={handleSubmit}
-        type="primary"
+        disabled={isDisabled}
         loading={updateWorkspaceLoading}
-        disabled={isDisabled}>
+        onClick={handleSubmit}
+        type="primary">
         {t("Save changes")}
       </Button>
     </StyledForm>

@@ -7,26 +7,26 @@ import { useT } from "@reearth-cms/i18n";
 import { SchemaFieldType } from "../../types";
 
 type Props = {
-  selectedType: SchemaFieldType;
-  min?: number;
   max?: number;
+  min?: number;
+  selectedType: SchemaFieldType;
 };
 
-const FieldValidationInputs: React.FC<Props> = ({ selectedType, min, max }) => {
+const FieldValidationInputs: React.FC<Props> = ({ max, min, selectedType }) => {
   const t = useT();
   return selectedType === "Text" ||
     selectedType === "TextArea" ||
     selectedType === "MarkdownText" ? (
-    <Form.Item name="maxLength" label={t("Set maximum length")}>
-      <InputNumber type="number" min={1} />
+    <Form.Item label={t("Set maximum length")} name="maxLength">
+      <InputNumber min={1} type="number" />
     </Form.Item>
   ) : selectedType === "Integer" || selectedType === "Number" ? (
     <>
-      <Form.Item name="min" label={t("Set minimum value")}>
-        <InputNumber type="number" max={max} />
+      <Form.Item label={t("Set minimum value")} name="min">
+        <InputNumber max={max} type="number" />
       </Form.Item>
-      <Form.Item name="max" label={t("Set maximum value")}>
-        <InputNumber type="number" min={min} />
+      <Form.Item label={t("Set maximum value")} name="max">
+        <InputNumber min={min} type="number" />
       </Form.Item>
     </>
   ) : null;

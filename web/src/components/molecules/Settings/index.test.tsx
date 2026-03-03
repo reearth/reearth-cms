@@ -1,6 +1,6 @@
-import { render, screen, getByText } from "@testing-library/react";
+import { getByText, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import Settings from ".";
 
@@ -9,11 +9,11 @@ describe("Settings", () => {
 
   const loading = false;
   const workspaceSettings = {
-    tiles: {
-      resources: [],
-    },
     terrains: {
       enabled: true,
+      resources: [],
+    },
+    tiles: {
       resources: [],
     },
   };
@@ -26,11 +26,11 @@ describe("Settings", () => {
   test("Loading is displayed successfully", () => {
     render(
       <Settings
-        loading={true}
-        workspaceSettings={workspaceSettings}
         hasUpdateRight={hasUpdateRight}
-        updateLoading={updateLoading}
+        loading={true}
         onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
+        updateLoading={updateLoading}
+        workspaceSettings={workspaceSettings}
       />,
     );
 
@@ -40,41 +40,41 @@ describe("Settings", () => {
   test("Cards are displayed successfully", async () => {
     render(
       <Settings
+        hasUpdateRight={hasUpdateRight}
         loading={loading}
+        onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
+        updateLoading={updateLoading}
         workspaceSettings={{
+          terrains: {
+            enabled: true,
+            resources: [
+              {
+                id: "",
+                props: {
+                  cesiumIonAccessToken: "",
+                  cesiumIonAssetId: "",
+                  image: "",
+                  name: "",
+                  url: "",
+                },
+                type: "CESIUM_WORLD_TERRAIN",
+              },
+            ],
+          },
           tiles: {
             resources: [
               {
                 id: "",
+                props: {
+                  image: "",
+                  name: "",
+                  url: "",
+                },
                 type: "DEFAULT",
-                props: {
-                  name: "",
-                  url: "",
-                  image: "",
-                },
               },
             ],
-          },
-          terrains: {
-            resources: [
-              {
-                id: "",
-                type: "CESIUM_WORLD_TERRAIN",
-                props: {
-                  name: "",
-                  url: "",
-                  image: "",
-                  cesiumIonAssetId: "",
-                  cesiumIonAccessToken: "",
-                },
-              },
-            ],
-            enabled: true,
           },
         }}
-        hasUpdateRight={hasUpdateRight}
-        updateLoading={updateLoading}
-        onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
       />,
     );
 
@@ -92,11 +92,11 @@ describe("Settings", () => {
   test("Loading on button are displayed successfully", () => {
     render(
       <Settings
-        loading={loading}
-        workspaceSettings={workspaceSettings}
         hasUpdateRight={hasUpdateRight}
-        updateLoading={true}
+        loading={loading}
         onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
+        updateLoading={true}
+        workspaceSettings={workspaceSettings}
       />,
     );
 
@@ -106,11 +106,11 @@ describe("Settings", () => {
   test("Action is correctly disabled based on user right", () => {
     render(
       <Settings
-        loading={loading}
-        workspaceSettings={workspaceSettings}
         hasUpdateRight={false}
-        updateLoading={updateLoading}
+        loading={loading}
         onWorkspaceSettingsUpdate={onWorkspaceSettingsUpdate}
+        updateLoading={updateLoading}
+        workspaceSettings={workspaceSettings}
       />,
     );
 
@@ -125,11 +125,11 @@ describe("Settings", () => {
 
     render(
       <Settings
-        loading={loading}
-        workspaceSettings={workspaceSettings}
         hasUpdateRight={hasUpdateRight}
-        updateLoading={updateLoading}
+        loading={loading}
         onWorkspaceSettingsUpdate={updateMock}
+        updateLoading={updateLoading}
+        workspaceSettings={workspaceSettings}
       />,
     );
 
@@ -153,11 +153,11 @@ describe("Settings", () => {
 
     render(
       <Settings
-        loading={loading}
-        workspaceSettings={workspaceSettings}
         hasUpdateRight={hasUpdateRight}
-        updateLoading={updateLoading}
+        loading={loading}
         onWorkspaceSettingsUpdate={updateMock}
+        updateLoading={updateLoading}
+        workspaceSettings={workspaceSettings}
       />,
     );
 
@@ -181,29 +181,29 @@ describe("Settings", () => {
 
     const { container } = render(
       <Settings
+        hasUpdateRight={hasUpdateRight}
         loading={loading}
+        onWorkspaceSettingsUpdate={updateMock}
+        updateLoading={updateLoading}
         workspaceSettings={{
+          terrains: {
+            enabled: true,
+            resources: [],
+          },
           tiles: {
             resources: [
               {
                 id: "",
-                type: "DEFAULT",
                 props: {
+                  image: "",
                   name: "",
                   url: "",
-                  image: "",
                 },
+                type: "DEFAULT",
               },
             ],
           },
-          terrains: {
-            resources: [],
-            enabled: true,
-          },
         }}
-        hasUpdateRight={hasUpdateRight}
-        updateLoading={updateLoading}
-        onWorkspaceSettingsUpdate={updateMock}
       />,
     );
 
@@ -231,31 +231,31 @@ describe("Settings", () => {
 
     const { container } = render(
       <Settings
+        hasUpdateRight={hasUpdateRight}
         loading={loading}
+        onWorkspaceSettingsUpdate={updateMock}
+        updateLoading={updateLoading}
         workspaceSettings={{
-          tiles: {
-            resources: [],
-          },
           terrains: {
+            enabled: true,
             resources: [
               {
                 id: "",
-                type: "CESIUM_WORLD_TERRAIN",
                 props: {
+                  cesiumIonAccessToken: "",
+                  cesiumIonAssetId: "",
+                  image: "",
                   name: "",
                   url: "",
-                  image: "",
-                  cesiumIonAssetId: "",
-                  cesiumIonAccessToken: "",
                 },
+                type: "CESIUM_WORLD_TERRAIN",
               },
             ],
-            enabled: true,
+          },
+          tiles: {
+            resources: [],
           },
         }}
-        hasUpdateRight={hasUpdateRight}
-        updateLoading={updateLoading}
-        onWorkspaceSettingsUpdate={updateMock}
       />,
     );
 
@@ -283,29 +283,29 @@ describe("Settings", () => {
 
     render(
       <Settings
+        hasUpdateRight={hasUpdateRight}
         loading={loading}
+        onWorkspaceSettingsUpdate={updateMock}
+        updateLoading={updateLoading}
         workspaceSettings={{
+          terrains: {
+            enabled: true,
+            resources: [],
+          },
           tiles: {
             resources: [
               {
                 id: "",
-                type: "DEFAULT",
                 props: {
+                  image: "",
                   name: "",
                   url: "",
-                  image: "",
                 },
+                type: "DEFAULT",
               },
             ],
           },
-          terrains: {
-            resources: [],
-            enabled: true,
-          },
         }}
-        hasUpdateRight={hasUpdateRight}
-        updateLoading={updateLoading}
-        onWorkspaceSettingsUpdate={updateMock}
       />,
     );
 
@@ -326,31 +326,31 @@ describe("Settings", () => {
 
     render(
       <Settings
+        hasUpdateRight={hasUpdateRight}
         loading={loading}
+        onWorkspaceSettingsUpdate={updateMock}
+        updateLoading={updateLoading}
         workspaceSettings={{
-          tiles: {
-            resources: [],
-          },
           terrains: {
+            enabled: true,
             resources: [
               {
                 id: "",
-                type: "CESIUM_WORLD_TERRAIN",
                 props: {
+                  cesiumIonAccessToken: "",
+                  cesiumIonAssetId: "",
+                  image: "",
                   name: "",
                   url: "",
-                  image: "",
-                  cesiumIonAssetId: "",
-                  cesiumIonAccessToken: "",
                 },
+                type: "CESIUM_WORLD_TERRAIN",
               },
             ],
-            enabled: true,
+          },
+          tiles: {
+            resources: [],
           },
         }}
-        hasUpdateRight={hasUpdateRight}
-        updateLoading={updateLoading}
-        onWorkspaceSettingsUpdate={updateMock}
       />,
     );
 

@@ -1,26 +1,26 @@
 import { ApolloClient } from "@apollo/client";
 import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
-import { useCallback, useMemo, useState, useRef, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import {
-  FormValues,
-  FormValue,
   FormGroupValue,
   FormItem,
+  FormValue,
+  FormValues,
   Item,
-  ItemStatus,
   ItemField,
+  ItemStatus,
 } from "@reearth-cms/components/molecules/Content/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import {
-  RequestState,
-  RequestItem,
   Request,
+  RequestItem,
+  RequestState,
 } from "@reearth-cms/components/molecules/Request/types";
-import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
+import { Field, Group } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import {
   fromGraphQLItem,
@@ -30,12 +30,12 @@ import { fromGraphQLModel } from "@reearth-cms/components/organisms/DataConverte
 import { fromGraphQLGroup } from "@reearth-cms/components/organisms/DataConverters/schema";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
 import {
+  FieldType as GQLFieldType,
+  Group as GQLGroup,
   Item as GQLItem,
   Model as GQLModel,
-  Group as GQLGroup,
-  VersionedItem as GQLVersionedItem,
   RequestState as GQLRequestState,
-  FieldType as GQLFieldType,
+  VersionedItem as GQLVersionedItem,
   ItemFieldInput,
   StringOperator,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
@@ -59,25 +59,25 @@ import { dateConvert } from "./utils";
 
 export default () => {
   const {
-    currentModel,
-    currentWorkspace,
-    currentProject,
-    requests,
     addItemToRequestModalShown,
-    handlePublish: _handlePublish,
-    handleUnpublish: _handleUnpublish,
+    currentModel,
+    currentProject,
+    currentWorkspace,
     handleAddItemToRequest: _handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
-    handleRequestTableChange,
+    handlePublish: _handlePublish,
     handleRequestSearchTerm,
+    handleRequestTableChange,
     handleRequestTableReload,
+    handleUnpublish: _handleUnpublish,
     loading,
-    publishLoading,
-    totalCount,
     page,
     pageSize,
+    publishLoading,
+    requests,
     showPublishAction,
+    totalCount,
   } = useContentHooks();
   const navigate = useNavigate();
   const location = useLocation();
@@ -138,15 +138,6 @@ export default () => {
           fetchPolicy: "cache-and-network",
           variables: {
             searchItemInput: {
-              query: {
-                project: currentProject.id,
-                model: referenceModel.id,
-                schema: referenceModel?.schema.id,
-              },
-              pagination: {
-                first: linkItemModalPageSize,
-                offset: (linkItemModalPage - 1) * linkItemModalPageSize,
-              },
               filter:
                 searchTerm && titleId.current
                   ? {
@@ -163,6 +154,15 @@ export default () => {
                       },
                     }
                   : undefined,
+              pagination: {
+                first: linkItemModalPageSize,
+                offset: (linkItemModalPage - 1) * linkItemModalPageSize,
+              },
+              query: {
+                model: referenceModel.id,
+                project: currentProject.id,
+                schema: referenceModel?.schema.id,
+              },
             },
           },
         }
@@ -188,11 +188,11 @@ export default () => {
       ?.map(item =>
         item
           ? {
+              createdAt: item.createdAt,
+              createdBy: item.createdBy?.name,
               id: item.id,
               schemaId: item.schemaId,
               status: item.status as ItemStatus,
-              createdBy: item.createdBy?.name,
-              createdAt: item.createdAt,
               title: item.title,
               updatedAt: item.updatedAt,
             }
@@ -201,13 +201,13 @@ export default () => {
       .filter((contentTableField): contentTableField is FormItem => !!contentTableField);
   }, [itemsData?.searchItem.nodes]);
 
-  const me: User | undefined = useMemo(() => {
+  const me: undefined | User = useMemo(() => {
     return userData?.me
       ? {
-          id: userData.me.id,
-          name: userData.me.name,
-          lang: userData.me.lang,
           email: userData.me.email,
+          id: userData.me.id,
+          lang: userData.me.lang,
+          name: userData.me.name,
         }
       : undefined;
   }, [userData]);
@@ -270,24 +270,24 @@ export default () => {
 
   const handleItemCreate = useCallback(
     async ({
-      schemaId,
-      metaSchemaId,
       fields,
       metaFields,
+      metaSchemaId,
+      schemaId,
     }: {
-      schemaId: string;
-      metaSchemaId?: string;
       fields: ItemField[];
       metaFields: ItemField[];
+      metaSchemaId?: string;
+      schemaId: string;
     }) => {
       if (!currentModel?.id) return;
       let metadataId = null;
       if (metaSchemaId) {
         const metaItem = await createItem({
           variables: {
+            fields: metaFields as ItemFieldInput[],
             modelId: currentModel.id,
             schemaId: metaSchemaId,
-            fields: metaFields as ItemFieldInput[],
           },
         });
         if (metaItem.error || !metaItem.data?.createItem) {
@@ -298,10 +298,10 @@ export default () => {
       }
       const item = await createItem({
         variables: {
-          modelId: currentModel.id,
-          schemaId: schemaId,
           fields: fields as ItemFieldInput[],
           metadataId,
+          modelId: currentModel.id,
+          schemaId: schemaId,
         },
       });
       if (item.error || !item.data?.createItem) {
@@ -321,11 +321,11 @@ export default () => {
   });
 
   const handleItemUpdate = useCallback(
-    async ({ itemId, fields }: { itemId: string; fields: ItemField[] }) => {
+    async ({ fields, itemId }: { fields: ItemField[]; itemId: string }) => {
       const item = await updateItem({
         variables: {
-          itemId: itemId,
           fields: fields as ItemFieldInput[],
+          itemId: itemId,
           version: currentItem?.version ?? "",
         },
       });
@@ -339,12 +339,12 @@ export default () => {
   );
 
   const handleMetaItemUpdate = useCallback(
-    async ({ metaItemId, metaFields }: { metaItemId?: string; metaFields: ItemField[] }) => {
+    async ({ metaFields, metaItemId }: { metaFields: ItemField[]; metaItemId?: string }) => {
       if (metaItemId) {
         const item = await updateItem({
           variables: {
-            itemId: metaItemId,
             fields: metaFields as ItemFieldInput[],
+            itemId: metaItemId,
             version: currentItem?.metadata?.version ?? "",
           },
         });
@@ -360,9 +360,9 @@ export default () => {
       ) {
         const metaItem = await createItem({
           variables: {
+            fields: metaFields as ItemFieldInput[],
             modelId: currentModel.id,
             schemaId: currentModel.metadataSchema.id,
-            fields: metaFields as ItemFieldInput[],
           },
         });
         if (metaItem.error || !metaItem.data?.createItem) {
@@ -371,11 +371,11 @@ export default () => {
         }
         const item = await updateItem({
           variables: {
-            itemId: currentItem.id,
             fields: currentItem.fields.map(field => ({
               ...field,
               value: field.value ?? "",
             })) as ItemFieldInput[],
+            itemId: currentItem.id,
             metadataId: metaItem?.data.createItem.item.id,
             version: currentItem.version,
           },
@@ -432,7 +432,7 @@ export default () => {
   }, []);
 
   const [initialFormValues, setInitialFormValues] = useState<
-    Record<string, FormValue | FormGroupValue>
+    Record<string, FormGroupValue | FormValue>
   >({});
 
   const initialValueGet = useCallback(
@@ -521,12 +521,12 @@ export default () => {
   const workspaceUserMembers = useMemo((): UserMember[] => {
     return (
       currentWorkspace?.members
-        ?.map<UserMember | undefined>(member =>
+        ?.map<undefined | UserMember>(member =>
           "userId" in member
             ? {
-                userId: member.userId,
-                user: member.user,
                 role: member.role,
+                user: member.user,
+                userId: member.userId,
               }
             : undefined,
         )
@@ -544,21 +544,21 @@ export default () => {
 
   const handleRequestCreate = useCallback(
     async (data: {
-      title: string;
       description: string;
-      state: RequestState;
-      reviewersId: string[];
       items: RequestItem[];
+      reviewersId: string[];
+      state: RequestState;
+      title: string;
     }) => {
       if (!currentProject?.id) return;
       const request = await createRequestMutation({
         variables: {
-          projectId: currentProject.id,
-          title: data.title,
           description: data.description,
-          state: data.state as GQLRequestState,
-          reviewersId: data.reviewersId,
           items: data.items,
+          projectId: currentProject.id,
+          reviewersId: data.reviewersId,
+          state: data.state as GQLRequestState,
+          title: data.title,
         },
       });
       if (request.error || !request.data?.createRequest) {
@@ -605,7 +605,7 @@ export default () => {
         return false;
       }
       const res = await checkIfItemIsReferenced({
-        variables: { itemId, correspondingFieldId },
+        variables: { correspondingFieldId, itemId },
       });
       return res.data?.isItemReferenced ?? false;
     },
@@ -685,64 +685,64 @@ export default () => {
   );
 
   return {
-    loadingReference: itemsLoading,
-    linkedItemsModalList,
-    showPublishAction,
-    requests,
-    itemId,
-    itemLoading,
-    requestCreationLoading,
-    currentModel,
-    title,
-    currentItem,
-    initialFormValues,
-    initialMetaFormValues,
-    versions,
-    itemCreationLoading,
-    itemUpdatingLoading,
-    collapsedModelMenu,
-    collapsedCommentsPanel,
-    requestModalShown,
     addItemToRequestModalShown,
-    workspaceUserMembers,
-    linkItemModalTitle: referenceModel?.name ?? "",
-    linkItemModalTotalCount: itemsData?.searchItem.totalCount || 0,
-    linkItemModalPage,
-    linkItemModalPageSize,
-    handleReferenceModelUpdate,
-    handleSearchTerm,
-    handleLinkItemTableReload,
-    handleLinkItemTableChange,
-    handleRequestTableChange,
-    handleRequestSearchTerm,
-    handleRequestTableReload,
-    publishLoading,
-    requestModalLoading: loading,
-    requestModalTotalCount: totalCount,
-    requestModalPage: page,
-    requestModalPageSize: pageSize,
-    handleGetVersionedItem,
-    handlePublish,
-    handleUnpublish,
-    handleAddItemToRequest,
     collapseCommentsPanel,
+    collapsedCommentsPanel,
+    collapsedModelMenu,
     collapseModelMenu,
-    handleItemCreate,
-    handleItemUpdate,
-    handleMetaItemUpdate,
-    handleNavigateToModel,
-    handleNavigateToRequest,
-    handleBack,
-    handleRequestCreate,
-    handleModalClose,
-    handleModalOpen,
+    currentItem,
+    currentModel,
+    handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
-    handleGroupGet,
+    handleBack,
     handleCheckItemReference,
+    handleGetVersionedItem,
+    handleGroupGet,
+    handleItemCreate,
+    handleItemUpdate,
+    handleLinkItemTableChange,
+    handleLinkItemTableReload,
+    handleMetaItemUpdate,
+    handleModalClose,
+    handleModalOpen,
+    handleNavigateToModel,
+    handleNavigateToRequest,
+    handlePublish,
+    handleReferenceModelUpdate,
+    handleRequestCreate,
+    handleRequestSearchTerm,
+    handleRequestTableChange,
+    handleRequestTableReload,
+    handleSearchTerm,
+    handleUnpublish,
+    hasItemUpdateRight,
+    hasPublishRight,
     hasRequestCreateRight,
     hasRequestUpdateRight,
-    hasPublishRight,
-    hasItemUpdateRight,
+    initialFormValues,
+    initialMetaFormValues,
+    itemCreationLoading,
+    itemId,
+    itemLoading,
+    itemUpdatingLoading,
+    linkedItemsModalList,
+    linkItemModalPage,
+    linkItemModalPageSize,
+    linkItemModalTitle: referenceModel?.name ?? "",
+    linkItemModalTotalCount: itemsData?.searchItem.totalCount || 0,
+    loadingReference: itemsLoading,
+    publishLoading,
+    requestCreationLoading,
+    requestModalLoading: loading,
+    requestModalPage: page,
+    requestModalPageSize: pageSize,
+    requestModalShown,
+    requestModalTotalCount: totalCount,
+    requests,
+    showPublishAction,
+    title,
+    versions,
+    workspaceUserMembers,
   };
 };

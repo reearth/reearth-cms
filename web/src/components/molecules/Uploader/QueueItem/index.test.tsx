@@ -1,15 +1,15 @@
+import type { ComponentProps } from "react";
+
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import type { ComponentProps } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, test, vi } from "vitest";
 
 import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { DATA_TEST_ID, Test } from "@reearth-cms/test/utils";
 
-import { type UploaderQueueItem } from "../types";
-
 import QueueItem from ".";
+import { type UploaderQueueItem } from "../types";
 
 vi.mock("../useJobState", () => ({
   default: vi.fn(),
@@ -18,15 +18,15 @@ vi.mock("../useJobState", () => ({
 const user = userEvent.setup();
 
 const baseQueue: UploaderQueueItem = {
-  jobId: "queue-1",
-  jobState: { status: JobStatus.Pending, progress: null },
-  fileName: "test.csv",
   extension: "csv",
-  url: "/assets/test.csv",
   file: Test.createMockRcFile({ name: "test.csv" }),
-  workspaceId: "workspace-1",
-  projectId: "project-1",
+  fileName: "test.csv",
+  jobId: "queue-1",
+  jobState: { progress: null, status: JobStatus.Pending },
   modelId: "model-1",
+  projectId: "project-1",
+  url: "/assets/test.csv",
+  workspaceId: "workspace-1",
 };
 
 const renderQueueItem = (
@@ -40,16 +40,16 @@ const renderQueueItem = (
   render(
     <MemoryRouter>
       <QueueItem
-        queue={queue}
-        onRetry={onRetry}
         onCancel={onCancel}
         onJobUpdate={onJobProgressUpdate}
+        onRetry={onRetry}
+        queue={queue}
         {...props}
       />
     </MemoryRouter>,
   );
 
-  return { onRetry, onCancel };
+  return { onCancel, onRetry };
 };
 
 describe("Test QueueItem component", () => {
@@ -57,8 +57,8 @@ describe("Test QueueItem component", () => {
     renderQueueItem({
       ...baseQueue,
       jobState: {
-        status: JobStatus.Completed,
         progress: { percentage: 100, processed: 100, total: 100 },
+        status: JobStatus.Completed,
       },
     });
 
@@ -75,8 +75,8 @@ describe("Test QueueItem component", () => {
     const { onCancel } = renderQueueItem({
       ...baseQueue,
       jobState: {
-        status: JobStatus.InProgress,
         progress: { percentage: 42, processed: 42, total: 100 },
+        status: JobStatus.InProgress,
       },
     });
 
@@ -94,7 +94,7 @@ describe("Test QueueItem component", () => {
   test("Test failed item", async () => {
     const { onRetry } = renderQueueItem({
       ...baseQueue,
-      jobState: { status: JobStatus.Failed, progress: null, error: "upload failed" },
+      jobState: { error: "upload failed", progress: null, status: JobStatus.Failed },
     });
 
     const progressBar = screen.queryByTestId(DATA_TEST_ID.QueueItem__ProgressBar);
@@ -117,7 +117,7 @@ describe("Test QueueItem component", () => {
   test("Test cancelled item", async () => {
     const { onRetry } = renderQueueItem({
       ...baseQueue,
-      jobState: { status: JobStatus.Cancelled, progress: null },
+      jobState: { progress: null, status: JobStatus.Cancelled },
     });
 
     const progressBar = screen.queryByTestId(DATA_TEST_ID.QueueItem__ProgressBar);
@@ -133,7 +133,7 @@ describe("Test QueueItem component", () => {
   test("Test pending item", async () => {
     renderQueueItem({
       ...baseQueue,
-      jobState: { status: JobStatus.Pending, progress: null },
+      jobState: { progress: null, status: JobStatus.Pending },
     });
 
     const progressBar = screen.queryByTestId(DATA_TEST_ID.QueueItem__ProgressBar);

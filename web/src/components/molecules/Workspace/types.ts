@@ -1,77 +1,77 @@
 import { ProjectAccessibility } from "@reearth-cms/components/molecules/Accessibility/types";
 import { IntegrationMember } from "@reearth-cms/components/molecules/Integration/types";
-import { User, Role } from "@reearth-cms/components/molecules/Member/types";
+import { Role, User } from "@reearth-cms/components/molecules/Member/types";
 
 export type Project = {
-  id: string;
-  name: string;
-  description: string;
-  alias: string;
-  readme: string;
-  license: string;
-  requestRoles: Role[];
   accessibility?: ProjectAccessibility;
+  alias: string;
+  description: string;
+  id: string;
+  license: string;
+  name: string;
+  readme: string;
+  requestRoles: Role[];
 };
 
 export type UpdateProjectInput = {
-  projectId: string;
-  name?: string;
-  description?: string;
-  alias?: string;
-  readme?: string;
-  license?: string;
-  requestRoles?: Role[];
   accessibility?: ProjectAccessibility;
+  alias?: string;
+  description?: string;
+  license?: string;
+  name?: string;
+  projectId: string;
+  readme?: string;
+  requestRoles?: Role[];
 };
 
-export type ProjectListItem = Pick<Project, "id" | "name" | "description"> & {
+export type ProjectListItem = {
   accessibility?: ProjectAccessibility;
-};
+} & Pick<Project, "description" | "id" | "name">;
 
 export type UserMember = {
-  userId: string;
   role: Role;
   user: User;
+  userId: string;
 };
 
-export type Member = UserMember | IntegrationMember;
+export type Member = IntegrationMember | UserMember;
 
 export type MemberInput = {
-  userId: string;
   role: Role;
+  userId: string;
 };
 
 export type Workspace = {
-  id: string;
-  name: string;
   alias?: string;
-  personal?: boolean;
+  id: string;
   members?: Member[];
+  name: string;
+  personal?: boolean;
 };
 
 export type WorkspaceSettings = {
-  tiles?: ResourceList<TileResource>;
   terrains?: ResourceList<TerrainResource>;
+  tiles?: ResourceList<TileResource>;
 };
 
 type ResourceList<T> = {
+  enabled?: boolean;
   resources: T[];
   selectedResource?: string;
-  enabled?: boolean;
 };
 
-export type Resource = TileResource | TerrainResource;
+export type Resource = TerrainResource | TileResource;
 
 export type TileResource = {
   id: string;
-  type: TileType;
   props: UrlResourceProps;
+  type: TileType;
 };
 
 export type TerrainResource = {
   id: string;
-  type: TerrainType;
   props: CesiumResourceProps;
+  type: TerrainType;
 };
 
 export type TileInput = {
@@ -84,31 +84,31 @@ export type TerrainInput = {
 
 export type TileType =
   | "DEFAULT"
-  | "LABELLED"
-  | "ROAD_MAP"
-  | "OPEN_STREET_MAP"
-  | "ESRI_TOPOGRAPHY"
   | "EARTH_AT_NIGHT"
+  | "ESRI_TOPOGRAPHY"
   | "JAPAN_GSI_STANDARD_MAP"
+  | "LABELLED"
+  | "OPEN_STREET_MAP"
+  | "ROAD_MAP"
   | "URL";
 
-export type TerrainType = "CESIUM_WORLD_TERRAIN" | "ARC_GIS_TERRAIN" | "CESIUM_ION";
+export type TerrainType = "ARC_GIS_TERRAIN" | "CESIUM_ION" | "CESIUM_WORLD_TERRAIN";
 
 export type UrlResourceProps = {
+  image: string;
   name: string;
   url: string;
-  image: string;
 };
 
 export type CesiumResourceProps = {
+  cesiumIonAccessToken: string;
+  cesiumIonAssetId: string;
+  image: string;
   name: string;
   url: string;
-  image: string;
-  cesiumIonAssetId: string;
-  cesiumIonAccessToken: string;
 };
 
-export type SortBy = "id" | "updatedat" | "name";
+export type SortBy = "id" | "name" | "updatedat";
 
 export type SortOption = {
   key: SortBy;

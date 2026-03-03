@@ -12,8 +12,8 @@ type Props = {
 };
 
 type FormType = {
-  name: string;
   email: string;
+  name: string;
 };
 
 const GeneralForm: React.FC<Props> = ({ initialValues, onUserUpdate }) => {
@@ -53,37 +53,37 @@ const GeneralForm: React.FC<Props> = ({ initialValues, onUserUpdate }) => {
 
   return (
     <StyledForm
+      autoComplete="on"
       form={form}
       initialValues={initialValues}
       layout="vertical"
-      autoComplete="on"
-      requiredMark={false}
-      onValuesChange={handleValuesChange}>
+      onValuesChange={handleValuesChange}
+      requiredMark={false}>
       <Form.Item
-        name="name"
-        label={t("Account Name")}
         extra={t("This is your ID that is used between Re:Earth and Re:Earth CMS.")}
+        label={t("Account Name")}
+        name="name"
         rules={[
           {
-            required: true,
             message: t("Please input Account Name!"),
+            required: true,
           },
         ]}>
         <Input />
       </Form.Item>
       <Form.Item
-        name="email"
-        label={t("Your Email")}
         extra={t("Please enter the email address you want to use to log in with Re:Earth CMS.")}
+        label={t("Your Email")}
+        name="email"
         rules={[
           {
-            required: true,
             message: t("Please input Your Email!"),
+            required: true,
           },
         ]}>
         <Input />
       </Form.Item>
-      <Button onClick={handleSubmit} type="primary" disabled={isDisabled} loading={isLoading}>
+      <Button disabled={isDisabled} loading={isLoading} onClick={handleSubmit} type="primary">
         {t("Save")}
       </Button>
     </StyledForm>

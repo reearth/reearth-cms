@@ -5,39 +5,39 @@ import { PreviewType as PreviewTypeType } from "./Asset/AssetBody/previewTypeSel
 
 export type PreviewType = PreviewTypeType;
 export type ArchiveExtractionStatus =
-  | "SKIPPED"
-  | "PENDING"
-  | "IN_PROGRESS"
   | "DONE"
   | "FAILED"
+  | "IN_PROGRESS"
+  | "PENDING"
+  | "SKIPPED"
   | undefined;
 
 export type ViewerType =
-  | "geo"
+  | "csv"
   | "geo_3d_tiles"
   | "geo_mvt"
-  | "image"
+  | "geo"
   | "image_svg"
+  | "image"
   | "model_3d"
-  | "csv"
   | "unknown";
 
 export type Asset = {
-  id: string;
+  archiveExtractionStatus?: ArchiveExtractionStatus;
+  comments: Comment[];
   createdAt: string;
   createdBy: { id: string; name: string };
   createdByType: string;
   file?: AssetFile;
   fileName: string;
+  id: string;
+  items: AssetItem[];
   previewType?: PreviewType;
   projectId: string;
-  size: number;
-  url: string;
-  threadId?: string;
-  comments: Comment[];
-  archiveExtractionStatus?: ArchiveExtractionStatus;
-  items: AssetItem[];
   public: boolean;
+  size: number;
+  threadId?: string;
+  url: string;
 };
 
 export type AssetItem = {
@@ -54,6 +54,6 @@ export type AssetFile = {
 export type AssetSortType = "DATE" | "NAME" | "SIZE";
 
 export type SortType = {
-  type: AssetSortType;
   direction: SortDirection;
+  type: AssetSortType;
 };

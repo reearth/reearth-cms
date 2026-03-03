@@ -6,7 +6,7 @@ import { BasePage } from "./base.page";
 export class ProjectSettingsPage extends BasePage {
   // locators
   public settingsTitle(projectName: string): Locator {
-    return this.getByRole("heading", { name: projectName, exact: false });
+    return this.getByRole("heading", { exact: false, name: projectName });
   }
 
   public get projectName(): Locator {

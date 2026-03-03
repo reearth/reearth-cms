@@ -5,45 +5,45 @@ import useHooks from "./hooks";
 const APIKeyDetails: React.FC = () => {
   const {
     apiUrl,
-    keyId,
-    currentProject,
-    currentKey,
     createLoading,
-    hasPublishRight,
+    currentKey,
+    currentProject,
+    handleAPIKeyCreate,
+    handleAPIKeyRegenerate,
+    handleAPIKeyUpdate,
+    handleBack,
     hasCreateRight,
+    hasPublishRight,
     hasUpdateRight,
     initialValues,
     isNewKey,
+    keyId,
     keyModels,
-    updateLoading,
     regenerateLoading,
     topRef,
-    handleAPIKeyCreate,
-    handleAPIKeyUpdate,
-    handleAPIKeyRegenerate,
-    handleBack,
+    updateLoading,
   } = useHooks();
 
   return (
     <div ref={topRef}>
       <APIKeyDetailsMolecule
         apiUrl={apiUrl}
-        currentProject={currentProject}
+        createLoading={createLoading}
         currentKey={currentKey}
+        currentProject={currentProject}
         hasCreateRight={hasCreateRight}
-        hasUpdateRight={hasUpdateRight}
         hasPublishRight={hasPublishRight}
+        hasUpdateRight={hasUpdateRight}
         initialValues={initialValues}
         isNewKey={isNewKey}
-        keyModels={keyModels}
         keyId={keyId}
-        createLoading={createLoading}
-        updateLoading={updateLoading}
-        regenerateLoading={regenerateLoading}
+        keyModels={keyModels}
         onAPIKeyCreate={handleAPIKeyCreate}
-        onAPIKeyUpdate={handleAPIKeyUpdate}
         onAPIKeyRegenerate={handleAPIKeyRegenerate}
+        onAPIKeyUpdate={handleAPIKeyUpdate}
         onBack={handleBack}
+        regenerateLoading={regenerateLoading}
+        updateLoading={updateLoading}
       />
     </div>
   );

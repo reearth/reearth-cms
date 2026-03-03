@@ -1,12 +1,12 @@
 import { useMutation } from "@apollo/client/react";
-import { useCallback, useState, useMemo, useEffect, ChangeEvent } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { UpdateProjectInput } from "@reearth-cms/components/molecules/Workspace/types";
 import {
-  Role as GQLRole,
   ProjectAccessibility as GQLProjectAccessibility,
+  Role as GQLRole,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { UpdateProjectDocument } from "@reearth-cms/gql/__generated__/project.generated";
 import { useT } from "@reearth-cms/i18n";
@@ -28,14 +28,14 @@ export default () => {
       if (!data.projectId) return;
       const Project = await updateProjectMutation({
         variables: {
-          projectId: data.projectId,
-          name: data.name,
-          description: data.description,
-          readme: data.readme,
-          license: data.license,
-          alias: data.alias,
-          requestRoles: data.requestRoles as GQLRole[],
           accessibility: data.accessibility as GQLProjectAccessibility,
+          alias: data.alias,
+          description: data.description,
+          license: data.license,
+          name: data.name,
+          projectId: data.projectId,
+          readme: data.readme,
+          requestRoles: data.requestRoles as GQLRole[],
         },
       });
       if (Project.error || !Project.data?.updateProject) {
@@ -71,13 +71,13 @@ export default () => {
   }, []);
 
   return {
-    readmeValue,
-    projectReadme: currentProject?.readme,
-    readmeEditMode,
-    hasUpdateRight,
     handleProjectUpdate,
-    handleReadmeSave,
     handleReadmeEdit,
     handleReadmeMarkdownChange,
+    handleReadmeSave,
+    hasUpdateRight,
+    projectReadme: currentProject?.readme,
+    readmeEditMode,
+    readmeValue,
   };
 };

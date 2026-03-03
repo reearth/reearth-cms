@@ -17,13 +17,13 @@ import { Model } from "@reearth-cms/components/molecules/Model/types";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
 import {
-  Field,
-  SchemaFieldType,
-  Group,
-  Tab,
-  SelectedSchemaType,
   CreateFieldInput,
+  Field,
+  Group,
   ImportFieldInput,
+  SchemaFieldType,
+  SelectedSchemaType,
+  Tab,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
@@ -31,123 +31,122 @@ import { Constant } from "@reearth-cms/utils/constant";
 import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
 
 import { ItemAsset } from "../Content/types";
-
 import ImportSchemaModal from "./ImportSchemaModal";
 
 type Props = {
-  data?: Model | Group;
-  collapsed: boolean;
-  page: number;
-  pageSize: number;
-  assetList: Asset[];
-  loading: boolean;
-  fieldsCreationLoading: boolean;
-  selectedAsset?: ItemAsset;
-  selectedSchemaType: SelectedSchemaType;
-  hasCreateRight: boolean;
-  hasUpdateRight: boolean;
-  hasDeleteRight: boolean;
-  fileList: UploadFile[];
   alertList?: AlertProps[];
-  uploadType: UploadType;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploading: boolean;
-  importFields: ImportFieldInput[];
+  assetList: Asset[];
+  collapsed: boolean;
+  currentImportSchemaModalPage: number;
+  data?: Group | Model;
+  dataChecking: boolean;
   fieldsCreationError?: boolean;
-  setImportFields: Dispatch<SetStateAction<ImportFieldInput[]>>;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
-  totalCount: number;
-  onSearchTerm: (term?: string) => void;
-  onAssetsReload: () => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
-  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
-  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
-  onAssetSelect: (id?: string) => void;
-  onModalOpen: () => void;
-  onDeletionModalOpen: () => void;
+  fieldsCreationLoading: boolean;
+  fileList: UploadFile[];
+  hasCreateRight: boolean;
+  hasDeleteRight: boolean;
+  hasUpdateRight: boolean;
+  importFields: ImportFieldInput[];
+  importSchemaModalVisibility: boolean;
+  loading: boolean;
   modelsMenu: JSX.Element;
-  setIsMeta: (isMeta: boolean) => void;
+  onAllFieldsDelete: (fieldIds: string[]) => Promise<void>;
+  onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  onAssetSelect: (id?: string) => void;
+  onAssetsReload: () => void;
+  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
   onCollapse: (collapse: boolean) => void;
-  onFieldReorder: (data: Field[]) => Promise<void>;
-  onFieldUpdateModalOpen: (field: Field) => void;
+  onDeletionModalOpen: () => void;
   onFieldCreationModalOpen: (fieldType: SchemaFieldType) => void;
   onFieldDelete: (fieldId: string) => Promise<void>;
-  onAllFieldsDelete: (fieldIds: string[]) => Promise<void>;
-  importSchemaModalVisibility: boolean;
-  selectFileModalVisibility: boolean;
-  uploadModalVisibility: boolean;
-  onSchemaImportModalOpen: () => void;
-  onSchemaImportModalCancel: () => void;
-  onSelectFileModalOpen: () => void;
-  onSelectFileModalCancel: () => void;
-  onUploadModalOpen: () => void;
-  onUploadModalCancel: () => void;
-  currentImportSchemaModalPage: number;
-  toSchemaPreviewStep: () => void;
-  toImportingStep: (fields: CreateFieldInput[]) => Promise<void>;
-  toFileSelectionStep: () => void;
-  dataChecking: boolean;
+  onFieldReorder: (data: Field[]) => Promise<void>;
+  onFieldUpdateModalOpen: (field: Field) => void;
   onFileContentChange: UploadProps["beforeUpload"];
   onFileRemove: UploadProps["onRemove"];
+  onModalOpen: () => void;
+  onSchemaImportModalCancel: () => void;
+  onSchemaImportModalOpen: () => void;
+  onSearchTerm: (term?: string) => void;
+  onSelectFileModalCancel: () => void;
+  onSelectFileModalOpen: () => void;
+  onUploadModalCancel: () => void;
+  onUploadModalOpen: () => void;
+  page: number;
+  pageSize: number;
+  selectedAsset?: ItemAsset;
+  selectedSchemaType: SelectedSchemaType;
+  selectFileModalVisibility: boolean;
+  setImportFields: Dispatch<SetStateAction<ImportFieldInput[]>>;
+  setIsMeta: (isMeta: boolean) => void;
+  setUploadType: (type: UploadType) => void;
+  setUploadUrl: (uploadUrl: { autoUnzip: boolean; url: string }) => void;
+  toFileSelectionStep: () => void;
+  toImportingStep: (fields: CreateFieldInput[]) => Promise<void>;
+  toSchemaPreviewStep: () => void;
+  totalCount: number;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  uploadType: UploadType;
+  uploadUrl: { autoUnzip: boolean; url: string };
 };
 
 const Schema: React.FC<Props> = ({
-  data,
-  collapsed,
-  page,
-  pageSize,
-  assetList,
-  loading,
-  fieldsCreationLoading,
-  selectedAsset,
-  selectedSchemaType,
-  hasCreateRight,
-  hasUpdateRight,
-  hasDeleteRight,
-  fileList,
   alertList,
-  uploadType,
-  uploadUrl,
-  uploading,
-  importFields,
+  assetList,
+  collapsed,
+  currentImportSchemaModalPage,
+  data,
+  dataChecking,
   fieldsCreationError,
-  setImportFields,
-  setUploadUrl,
-  setUploadType,
-  totalCount,
-  onSearchTerm,
+  fieldsCreationLoading,
+  fileList,
+  hasCreateRight,
+  hasDeleteRight,
+  hasUpdateRight,
+  importFields,
+  importSchemaModalVisibility,
+  loading,
+  modelsMenu,
+  onAllFieldsDelete,
+  onAssetCreateFromUrl,
+  onAssetsCreate,
+  onAssetSelect,
   onAssetsReload,
   onAssetTableChange,
-  onAssetSelect,
-  onAssetsCreate,
-  onAssetCreateFromUrl,
-  onModalOpen,
-  onDeletionModalOpen,
-  modelsMenu,
-  setIsMeta,
   onCollapse,
-  onFieldReorder,
-  onFieldUpdateModalOpen,
+  onDeletionModalOpen,
   onFieldCreationModalOpen,
   onFieldDelete,
-  onAllFieldsDelete,
-  uploadModalVisibility,
-  importSchemaModalVisibility,
-  selectFileModalVisibility,
-  onSchemaImportModalOpen,
-  onSchemaImportModalCancel,
-  onSelectFileModalOpen,
-  onSelectFileModalCancel,
-  onUploadModalOpen,
-  onUploadModalCancel,
-  currentImportSchemaModalPage,
-  toSchemaPreviewStep,
-  toImportingStep,
-  toFileSelectionStep,
-  dataChecking,
+  onFieldReorder,
+  onFieldUpdateModalOpen,
   onFileContentChange,
   onFileRemove,
+  onModalOpen,
+  onSchemaImportModalCancel,
+  onSchemaImportModalOpen,
+  onSearchTerm,
+  onSelectFileModalCancel,
+  onSelectFileModalOpen,
+  onUploadModalCancel,
+  onUploadModalOpen,
+  page,
+  pageSize,
+  selectedAsset,
+  selectedSchemaType,
+  selectFileModalVisibility,
+  setImportFields,
+  setIsMeta,
+  setUploadType,
+  setUploadUrl,
+  toFileSelectionStep,
+  toImportingStep,
+  toSchemaPreviewStep,
+  totalCount,
+  uploading,
+  uploadModalVisibility,
+  uploadType,
+  uploadUrl,
 }) => {
   const t = useT();
 
@@ -158,39 +157,39 @@ const Schema: React.FC<Props> = ({
     [data],
   );
   const getImportSchemaUIMetadata = useMemo(
-    () => ImportSchemaUtils.getUIMetadata({ hasSchemaCreateRight: hasCreateRight, hasModelFields }),
+    () => ImportSchemaUtils.getUIMetadata({ hasModelFields, hasSchemaCreateRight: hasCreateRight }),
     [hasModelFields, hasCreateRight],
   );
 
   const dropdownItems = useMemo(
     () => [
       {
+        disabled: !hasUpdateRight,
+        icon: <StyledIcon icon="edit" />,
         key: "edit",
         label: t("Edit"),
-        icon: <StyledIcon icon="edit" />,
         onClick: onModalOpen,
-        disabled: !hasUpdateRight,
       },
       {
+        disabled: getImportSchemaUIMetadata.shouldDisable,
+        icon: <StyledIcon icon="import" />,
         key: "import",
         label: (
           <Tooltip
-            title={getImportSchemaUIMetadata.tooltipMessage}
-            data-testid={DATA_TEST_ID.Schema__ImportSchemaButton}>
+            data-testid={DATA_TEST_ID.Schema__ImportSchemaButton}
+            title={getImportSchemaUIMetadata.tooltipMessage}>
             {t("Import")}
           </Tooltip>
         ),
-        icon: <StyledIcon icon="import" />,
         onClick: onSchemaImportModalOpen,
-        disabled: getImportSchemaUIMetadata.shouldDisable,
       },
       {
-        key: "delete",
-        label: t("Delete"),
-        icon: <StyledIcon icon="delete" />,
-        onClick: onDeletionModalOpen,
         danger: true,
         disabled: !hasDeleteRight,
+        icon: <StyledIcon icon="delete" />,
+        key: "delete",
+        label: t("Delete"),
+        onClick: onDeletionModalOpen,
       },
     ],
     [
@@ -208,7 +207,7 @@ const Schema: React.FC<Props> = ({
   const DropdownMenu = useCallback(
     () => (
       <Dropdown key="more" menu={{ items: dropdownItems }} placement="bottomRight">
-        <Button type="text" icon={<Icon icon="more" size={20} />} />
+        <Button icon={<Icon icon="more" size={20} />} type="text" />
       </Dropdown>
     ),
     [dropdownItems],
@@ -216,40 +215,40 @@ const Schema: React.FC<Props> = ({
 
   const items: TabsProps["items"] = [
     {
-      key: "fields",
-      label: t("Fields"),
       children: (
         <div>
           <ModelFieldList
             fields={data?.schema.fields}
-            hasUpdateRight={hasUpdateRight}
-            hasDeleteRight={hasDeleteRight}
-            hasCreateRight={hasCreateRight}
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
-            onFieldReorder={onFieldReorder}
+            hasCreateRight={hasCreateRight}
+            hasDeleteRight={hasDeleteRight}
+            hasUpdateRight={hasUpdateRight}
             onFieldDelete={onFieldDelete}
+            onFieldReorder={onFieldReorder}
             onSchemaImport={onSchemaImportModalOpen}
           />
         </div>
       ),
+      key: "fields",
+      label: t("Fields"),
     },
     {
-      key: "meta-data",
-      label: t("Meta Data"),
       children: (
         <div>
           <ModelFieldList
-            isMeta={true}
             fields={data && "metadataSchema" in data ? data?.metadataSchema?.fields : undefined}
-            hasUpdateRight={hasUpdateRight}
-            hasDeleteRight={hasDeleteRight}
-            hasCreateRight={hasCreateRight}
             handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
-            onFieldReorder={onFieldReorder}
+            hasCreateRight={hasCreateRight}
+            hasDeleteRight={hasDeleteRight}
+            hasUpdateRight={hasUpdateRight}
+            isMeta={true}
             onFieldDelete={onFieldDelete}
+            onFieldReorder={onFieldReorder}
           />
         </div>
       ),
+      key: "meta-data",
+      label: t("Meta Data"),
     },
   ];
 
@@ -263,43 +262,33 @@ const Schema: React.FC<Props> = ({
 
   return (
     <ComplexInnerContents
-      left={
-        <Sidebar
-          collapsed={collapsed}
-          onCollapse={onCollapse}
-          collapsedWidth={54}
-          width={208}
-          trigger={<Icon icon={collapsed ? "panelToggleRight" : "panelToggleLeft"} />}>
-          {modelsMenu}
-        </Sidebar>
-      }
       center={
         <Content>
           {data && (
             <>
               <PageHeader
-                title={data.name}
-                subTitle={`#${data.key}`}
-                style={{ backgroundColor: "#fff" }}
                 extra={[
                   Constant.IS_DEV && (
                     <Button
-                      type="default"
-                      shape="default"
-                      size="small"
                       color="red"
-                      variant="outlined"
+                      disabled={!hasDeleteRight}
                       onClick={() =>
                         data?.schema?.fields &&
                         onAllFieldsDelete(data.schema.fields.map(field => field.id))
                       }
-                      disabled={!hasDeleteRight}>
+                      shape="default"
+                      size="small"
+                      type="default"
+                      variant="outlined">
                       Delete All Fields (Dev Only)
                     </Button>
                   ),
 
                   <DropdownMenu key="more" />,
                 ]}
+                style={{ backgroundColor: "#fff" }}
+                subTitle={`#${data.key}`}
+                title={data.name}
               />
               {selectedSchemaType === "model" && (
                 <StyledTabs activeKey={tab} items={items} onChange={handleTabChange} />
@@ -308,69 +297,79 @@ const Schema: React.FC<Props> = ({
                 <GroupFieldsWrapper>
                   <ModelFieldList
                     fields={data?.schema?.fields}
-                    hasUpdateRight={hasUpdateRight}
-                    hasDeleteRight={hasDeleteRight}
-                    hasCreateRight={hasCreateRight}
                     handleFieldUpdateModalOpen={onFieldUpdateModalOpen}
-                    onFieldReorder={onFieldReorder}
+                    hasCreateRight={hasCreateRight}
+                    hasDeleteRight={hasDeleteRight}
+                    hasUpdateRight={hasUpdateRight}
                     onFieldDelete={onFieldDelete}
+                    onFieldReorder={onFieldReorder}
                   />
                 </GroupFieldsWrapper>
               )}
             </>
           )}
           <ImportSchemaModal
-            page={page}
-            pageSize={pageSize}
-            assetList={assetList}
-            loading={loading}
-            fieldsCreationLoading={fieldsCreationLoading}
-            visible={importSchemaModalVisibility}
-            selectFileModalVisibility={selectFileModalVisibility}
-            currentPage={currentImportSchemaModalPage}
-            toSchemaPreviewStep={toSchemaPreviewStep}
-            toImportingStep={toImportingStep}
-            toFileSelectionStep={toFileSelectionStep}
-            hasUpdateRight={hasUpdateRight}
-            hasDeleteRight={hasDeleteRight}
-            onUploadModalOpen={onUploadModalOpen}
-            onUploadModalCancel={onUploadModalCancel}
-            fileList={fileList}
             alertList={alertList}
-            totalCount={totalCount}
-            selectedAsset={selectedAsset}
-            uploadType={uploadType}
-            uploadUrl={uploadUrl}
-            uploading={uploading}
+            assetList={assetList}
+            currentPage={currentImportSchemaModalPage}
+            dataChecking={dataChecking}
             fields={importFields}
             fieldsCreationError={fieldsCreationError}
-            setFields={setImportFields}
-            setUploadUrl={setUploadUrl}
-            setUploadType={setUploadType}
+            fieldsCreationLoading={fieldsCreationLoading}
+            fileList={fileList}
             hasCreateRight={hasCreateRight}
-            uploadModalVisibility={uploadModalVisibility}
-            onSearchTerm={onSearchTerm}
+            hasDeleteRight={hasDeleteRight}
+            hasUpdateRight={hasUpdateRight}
+            loading={loading}
+            onAssetCreateFromUrl={onAssetCreateFromUrl}
+            onAssetsCreate={onAssetsCreate}
+            onAssetSelect={onAssetSelect}
             onAssetsReload={onAssetsReload}
             onAssetTableChange={onAssetTableChange}
-            onAssetSelect={onAssetSelect}
-            onAssetsCreate={onAssetsCreate}
-            onAssetCreateFromUrl={onAssetCreateFromUrl}
-            onSelectFile={onSelectFileModalOpen}
-            onSelectFileModalCancel={onSelectFileModalCancel}
-            onModalClose={onSchemaImportModalCancel}
-            dataChecking={dataChecking}
             onFileContentChange={onFileContentChange}
             onFileRemove={onFileRemove}
+            onModalClose={onSchemaImportModalCancel}
+            onSearchTerm={onSearchTerm}
+            onSelectFile={onSelectFileModalOpen}
+            onSelectFileModalCancel={onSelectFileModalCancel}
+            onUploadModalCancel={onUploadModalCancel}
+            onUploadModalOpen={onUploadModalOpen}
+            page={page}
+            pageSize={pageSize}
+            selectedAsset={selectedAsset}
+            selectFileModalVisibility={selectFileModalVisibility}
+            setFields={setImportFields}
+            setUploadType={setUploadType}
+            setUploadUrl={setUploadUrl}
+            toFileSelectionStep={toFileSelectionStep}
+            toImportingStep={toImportingStep}
+            toSchemaPreviewStep={toSchemaPreviewStep}
+            totalCount={totalCount}
+            uploading={uploading}
+            uploadModalVisibility={uploadModalVisibility}
+            uploadType={uploadType}
+            uploadUrl={uploadUrl}
+            visible={importSchemaModalVisibility}
           />
         </Content>
+      }
+      left={
+        <Sidebar
+          collapsed={collapsed}
+          collapsedWidth={54}
+          onCollapse={onCollapse}
+          trigger={<Icon icon={collapsed ? "panelToggleRight" : "panelToggleLeft"} />}
+          width={208}>
+          {modelsMenu}
+        </Sidebar>
       }
       right={
         <FieldListWrapper>
           <FieldList
-            currentTab={tab}
-            selectedSchemaType={selectedSchemaType}
-            hasCreateRight={hasCreateRight}
             addField={onFieldCreationModalOpen}
+            currentTab={tab}
+            hasCreateRight={hasCreateRight}
+            selectedSchemaType={selectedSchemaType}
           />
         </FieldListWrapper>
       }

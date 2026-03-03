@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import IntegrationCreationAction from ".";
 

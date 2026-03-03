@@ -193,7 +193,7 @@ export class FieldEditorPage extends BasePage {
   }
 
   filenameButton(filename: string): Locator {
-    return this.getByRole("button", { name: filename, exact: true });
+    return this.getByRole("button", { exact: true, name: filename });
   }
 
   // Tag metadata specific
@@ -363,7 +363,7 @@ export class FieldEditorPage extends BasePage {
   }
 
   // Field type list item helper
-  fieldTypeListItem(type: string | RegExp): Locator {
+  fieldTypeListItem(type: RegExp | string): Locator {
     return this.locator("li").filter({ hasText: type }).locator("div").first();
   }
 

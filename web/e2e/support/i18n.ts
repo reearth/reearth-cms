@@ -11,13 +11,13 @@ const resources = {
 export const availableLanguages = Object.keys(resources);
 
 i18n.init({
-  resources,
+  defaultNS: false,
   fallbackLng: "en",
+  keySeparator: false,
   // allow keys to be phrases having `:`, `.`
   nsSeparator: false,
-  keySeparator: false,
+  resources,
   returnEmptyString: false,
-  defaultNS: false,
 });
 
 export { t } from "i18next";

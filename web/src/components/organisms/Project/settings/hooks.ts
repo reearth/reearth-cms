@@ -44,10 +44,10 @@ export default () => {
       if (!projectId || !name) return;
       const result = await updateProjectMutation({
         variables: {
-          projectId,
-          name,
           alias,
           description,
+          name,
+          projectId,
           requestRoles: currentProject?.requestRoles as GQLRole[],
         },
       });
@@ -81,8 +81,8 @@ export default () => {
   const handleProjectDelete = useCallback(async () => {
     if (!projectId) return;
     const results = await deleteProjectMutation({
-      variables: { projectId },
       refetchQueries: ["GetProjects"],
+      variables: { projectId },
     });
     if (results.error) {
       Notification.error({ message: t("Failed to delete project.") });
@@ -104,7 +104,7 @@ export default () => {
       if (!workspaceId) {
         throw new Error("Workspace ID is required to check project alias");
       }
-      const response = await CheckProjectAlias({ variables: { workspaceId, alias } });
+      const response = await CheckProjectAlias({ variables: { alias, workspaceId } });
       return response.data ? response.data.checkProjectAlias.available : false;
     },
     [CheckProjectAlias, workspaceId],
@@ -115,11 +115,11 @@ export default () => {
       if (!projectId || !visibility) return;
       const result = await updateProjectMutation({
         variables: {
-          projectId,
           accessibility: {
             visibility:
               visibility === "PUBLIC" ? ProjectVisibility.Public : ProjectVisibility.Private,
           },
+          projectId,
         },
       });
       if (result.error || !result.data?.updateProject) {
@@ -132,14 +132,14 @@ export default () => {
   );
 
   return {
-    project: currentProject,
-    hasUpdateRight,
+    handleProjectAliasCheck,
+    handleProjectDelete,
+    handleProjectRequestRolesUpdate,
+    handleProjectUpdate,
+    handleProjectVisibilityChange,
     hasDeleteRight,
     hasPublishRight,
-    handleProjectUpdate,
-    handleProjectRequestRolesUpdate,
-    handleProjectDelete,
-    handleProjectAliasCheck,
-    handleProjectVisibilityChange,
+    hasUpdateRight,
+    project: currentProject,
   };
 };

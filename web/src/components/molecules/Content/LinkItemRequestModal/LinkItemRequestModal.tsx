@@ -16,35 +16,35 @@ import useHooks from "./hooks";
 
 type Props = {
   items: RequestItem[];
-  visible: boolean;
+  onChange: (value: Request, items: RequestItem[]) => Promise<void>;
   onLinkItemRequestModalCancel: () => void;
+  onRequestSearchTerm: (term: string) => void;
+  onRequestTableChange: (page: number, pageSize: number) => void;
+  onRequestTableReload: () => void;
+  requestList: Request[];
   requestModalLoading: boolean;
-  requestModalTotalCount: number;
   requestModalPage: number;
   requestModalPageSize: number;
-  onRequestTableChange: (page: number, pageSize: number) => void;
-  requestList: Request[];
-  onChange: (value: Request, items: RequestItem[]) => Promise<void>;
-  onRequestSearchTerm: (term: string) => void;
-  onRequestTableReload: () => void;
+  requestModalTotalCount: number;
+  visible: boolean;
 };
 
 const LinkItemRequestModal: React.FC<Props> = ({
   items,
-  visible,
+  onChange,
   onLinkItemRequestModalCancel,
-  requestList,
+  onRequestSearchTerm,
   onRequestTableChange,
+  onRequestTableReload,
+  requestList,
   requestModalLoading,
-  requestModalTotalCount,
   requestModalPage,
   requestModalPageSize,
-  onChange,
-  onRequestSearchTerm,
-  onRequestTableReload,
+  requestModalTotalCount,
+  visible,
 }) => {
   const t = useT();
-  const { pagination, submit, resetFlag, selectedRequestId, select, isDisabled, isLoading } =
+  const { isDisabled, isLoading, pagination, resetFlag, select, selectedRequestId, submit } =
     useHooks(
       items,
       onLinkItemRequestModalCancel,
@@ -58,11 +58,9 @@ const LinkItemRequestModal: React.FC<Props> = ({
   const columns: StretchColumn<Request>[] = useMemo(
     () => [
       {
-        title: "",
-        hideInSetting: true,
-        fixed: "left",
         align: "center",
-        width: 32,
+        fixed: "left",
+        hideInSetting: true,
         minWidth: 32,
         render: (_, request) => {
           return (
@@ -75,52 +73,54 @@ const LinkItemRequestModal: React.FC<Props> = ({
             </Radio.Group>
           );
         },
+        title: "",
+        width: 32,
       },
       {
-        title: t("Title"),
         dataIndex: "title",
-        key: "title",
         ellipsis: true,
-        width: 200,
+        key: "title",
         minWidth: 200,
+        title: t("Title"),
+        width: 200,
       },
       {
-        title: t("State"),
         dataIndex: "requestState",
-        key: "requestState",
         ellipsis: true,
-        width: 130,
+        key: "requestState",
         minWidth: 130,
         render: (_, request) => (
           <Badge color={badgeColors[request.state]} text={t(request.state)} />
         ),
+        title: t("State"),
+        width: 130,
       },
       {
-        title: t("Created By"),
         dataIndex: ["createdBy", "name"],
-        key: "createdBy",
         ellipsis: true,
-        width: 100,
+        key: "createdBy",
         minWidth: 100,
         render: (_, request) => request.createdBy?.name,
+        title: t("Created By"),
+        width: 100,
       },
       {
-        title: t("Reviewers"),
         dataIndex: "reviewers.name",
-        key: "reviewers",
         ellipsis: true,
-        width: 130,
+        key: "reviewers",
         minWidth: 130,
         render: (_, request) => request.reviewers.map(reviewer => reviewer.name).join(", "),
+        title: t("Reviewers"),
+        width: 130,
       },
       {
-        title: t("Created At"),
         dataIndex: "createdAt",
-        key: "createdAt",
         ellipsis: true,
-        width: 130,
+        key: "createdAt",
         minWidth: 130,
         render: (_text, record) => dateTimeFormat(record.createdAt),
+        title: t("Created At"),
+        width: 130,
       },
     ],
     [selectedRequestId, select, t],
@@ -137,44 +137,44 @@ const LinkItemRequestModal: React.FC<Props> = ({
     search: (
       <Search
         allowClear
-        placeholder={t("input search text")}
-        onSearch={onRequestSearchTerm}
         key={+resetFlag.current}
+        onSearch={onRequestSearchTerm}
+        placeholder={t("input search text")}
       />
     ),
   };
 
   return (
     <StyledModal
-      open={visible}
-      title={t("Add to Request")}
+      afterClose={() => {
+        resetFlag.current = !resetFlag.current;
+      }}
+      cancelButtonProps={{ disabled: isLoading }}
       centered
-      onOk={submit}
+      confirmLoading={isLoading}
+      okButtonProps={{ disabled: isDisabled }}
       onCancel={onLinkItemRequestModalCancel}
-      width="70vw"
+      onOk={submit}
+      open={visible}
       styles={{
         body: {
           height: "70vh",
         },
       }}
-      afterClose={() => {
-        resetFlag.current = !resetFlag.current;
-      }}
-      confirmLoading={isLoading}
-      cancelButtonProps={{ disabled: isLoading }}
-      okButtonProps={{ disabled: isDisabled }}>
+      title={t("Add to Request")}
+      width="70vw">
       <ResizableProTable
-        dataSource={requestList}
         columns={columns}
-        search={false}
-        pagination={pagination}
+        dataSource={requestList}
+        heightOffset={0}
         loading={requestModalLoading}
         onChange={pagination => {
           onRequestTableChange(pagination.current ?? 1, pagination.pageSize ?? 10);
         }}
         options={options}
+        pagination={pagination}
+        search={false}
         toolbar={toolbar}
-        heightOffset={0}
       />
     </StyledModal>
   );

@@ -6,20 +6,20 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 
 type Props = {
+  description?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   infoBoxProps: any;
   infoBoxVisibility: boolean;
-  title?: string;
-  description?: string;
   onClose: () => void;
+  title?: string;
 };
 
 const InfoBox: React.FC<Props> = ({
+  description,
   infoBoxProps,
   infoBoxVisibility,
-  title,
-  description,
   onClose,
+  title,
 }) => {
   const theme = {
     base00: "#ffffff",
@@ -46,7 +46,7 @@ const InfoBox: React.FC<Props> = ({
         <InfoBoxWrapper color={theme.base00}>
           <Header>
             <Title>{title}</Title>
-            <Button type="text" icon={<Icon icon="close" />} onClick={onClose} />
+            <Button icon={<Icon icon="close" />} onClick={onClose} type="text" />
           </Header>
           <Box>
             {infoBoxProps && <JSONTree data={infoBoxProps ?? {}} theme={theme} />}

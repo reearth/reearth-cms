@@ -1,7 +1,7 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-test.beforeEach(async ({ reearth, projectPage }) => {
+test.beforeEach(async ({ projectPage, reearth }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
@@ -14,10 +14,10 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Group field creating and updating has succeeded", async ({
-  fieldEditorPage,
   contentPage,
-  schemaPage,
+  fieldEditorPage,
   page,
+  schemaPage,
 }) => {
   const groupName = "e2e group name";
   const groupKey = "e2e-group-key";
@@ -179,10 +179,10 @@ test("Group field creating and updating has succeeded", async ({
 });
 
 test("Group field editing has succeeded", async ({
-  fieldEditorPage,
   contentPage,
-  schemaPage,
+  fieldEditorPage,
   page,
+  schemaPage,
 }) => {
   const groupName = "e2e group name";
   const groupKey = "e2e-group-key";

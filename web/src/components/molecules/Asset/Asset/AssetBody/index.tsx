@@ -13,50 +13,50 @@ import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/t
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  commentsPanel: JSX.Element;
   asset: Asset;
   assetFileExt?: string;
-  selectedPreviewType?: PreviewType;
-  isModalVisible: boolean;
-  viewerType?: ViewerType;
-  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
-  displayUnzipFileList: boolean;
+  commentsPanel: JSX.Element;
   decompressing: boolean;
-  isSaveDisabled: boolean;
-  updateLoading: boolean;
+  displayUnzipFileList: boolean;
   hasUpdateRight: boolean;
-  onAssetItemSelect: (item: AssetItem) => void;
+  isModalVisible: boolean;
+  isSaveDisabled: boolean;
   onAssetDecompress: (assetId: string) => void;
   onAssetDownload: (asset: Asset) => Promise<void>;
-  onTypeChange: (value: PreviewType) => void;
-  onModalCancel: () => void;
-  onChangeToFullScreen: () => void;
+  onAssetItemSelect: (item: AssetItem) => void;
   onBack: () => void;
+  onChangeToFullScreen: () => void;
+  onModalCancel: () => void;
   onSave: () => void;
+  onTypeChange: (value: PreviewType) => void;
+  selectedPreviewType?: PreviewType;
+  updateLoading: boolean;
+  viewerRef: RefObject<CesiumComponentRef<CesiumViewer>>;
+  viewerType?: ViewerType;
   workspaceSettings: WorkspaceSettings;
 };
 
 const AssetWrapper: React.FC<Props> = ({
   asset,
   assetFileExt,
-  selectedPreviewType,
-  isModalVisible,
-  viewerType,
-  viewerRef,
-  displayUnzipFileList,
-  decompressing,
   commentsPanel,
-  isSaveDisabled,
-  updateLoading,
+  decompressing,
+  displayUnzipFileList,
   hasUpdateRight,
-  onAssetItemSelect,
+  isModalVisible,
+  isSaveDisabled,
   onAssetDecompress,
   onAssetDownload,
-  onTypeChange,
-  onModalCancel,
-  onChangeToFullScreen,
+  onAssetItemSelect,
   onBack,
+  onChangeToFullScreen,
+  onModalCancel,
   onSave,
+  onTypeChange,
+  selectedPreviewType,
+  updateLoading,
+  viewerRef,
+  viewerType,
   workspaceSettings,
 }) => {
   const t = useT();
@@ -66,30 +66,30 @@ const AssetWrapper: React.FC<Props> = ({
       center={
         <Wrapper>
           <PageHeader
-            title={`${t("Asset")} / ${asset?.fileName}`}
             extra={
-              <Button onClick={onSave} disabled={isSaveDisabled} loading={updateLoading}>
+              <Button disabled={isSaveDisabled} loading={updateLoading} onClick={onSave}>
                 {t("Save")}
               </Button>
             }
             onBack={onBack}
+            title={`${t("Asset")} / ${asset?.fileName}`}
           />
           <AssetMolecule
             asset={asset}
             assetFileExt={assetFileExt}
-            selectedPreviewType={selectedPreviewType}
-            isModalVisible={isModalVisible}
-            viewerType={viewerType}
-            viewerRef={viewerRef}
-            displayUnzipFileList={displayUnzipFileList}
             decompressing={decompressing}
+            displayUnzipFileList={displayUnzipFileList}
             hasUpdateRight={hasUpdateRight}
+            isModalVisible={isModalVisible}
             onAssetDecompress={onAssetDecompress}
-            onAssetItemSelect={onAssetItemSelect}
             onAssetDownload={onAssetDownload}
-            onTypeChange={onTypeChange}
-            onModalCancel={onModalCancel}
+            onAssetItemSelect={onAssetItemSelect}
             onChangeToFullScreen={onChangeToFullScreen}
+            onModalCancel={onModalCancel}
+            onTypeChange={onTypeChange}
+            selectedPreviewType={selectedPreviewType}
+            viewerRef={viewerRef}
+            viewerType={viewerType}
             workspaceSettings={workspaceSettings}
           />
         </Wrapper>

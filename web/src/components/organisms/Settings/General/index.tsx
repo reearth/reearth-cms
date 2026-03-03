@@ -4,20 +4,20 @@ import useHooks from "./hooks";
 
 const WorkspaceSettings: React.FC = () => {
   const {
-    loading,
-    workspaceSettings,
-    hasUpdateRight,
-    updateLoading,
     handleWorkspaceSettingsUpdate,
+    hasUpdateRight,
+    loading,
+    updateLoading,
+    workspaceSettings,
   } = useHooks();
 
   return (
     <Settings
-      loading={loading}
-      workspaceSettings={workspaceSettings}
       hasUpdateRight={hasUpdateRight}
-      updateLoading={updateLoading}
+      loading={loading}
       onWorkspaceSettingsUpdate={handleWorkspaceSettingsUpdate}
+      updateLoading={updateLoading}
+      workspaceSettings={workspaceSettings}
     />
   );
 };

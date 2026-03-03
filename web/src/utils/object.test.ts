@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { ObjectUtils } from "./object";
 
@@ -62,7 +62,7 @@ describe("ObjectUtils", () => {
 
     it("Pass case: nested object", async () => {
       const input = '{"x":1,"y":"hello","z":{"name":"john","age":20}}';
-      const expectedOutput = { x: 1, y: "hello", z: { name: "john", age: 20 } };
+      const expectedOutput = { x: 1, y: "hello", z: { age: 20, name: "john" } };
       const actualOutput = await ObjectUtils.safeJSONParse(input);
 
       expect(actualOutput.isValid).toBe(true);
@@ -118,11 +118,11 @@ describe("ObjectUtils", () => {
       const input =
         '{"x":1,"y":"hello","z":{"name":"john","age":20},"w":["green","red","blue"],"a":false}';
       const expectedOutput = {
+        a: false,
+        w: ["green", "red", "blue"],
         x: 1,
         y: "hello",
-        z: { name: "john", age: 20 },
-        w: ["green", "red", "blue"],
-        a: false,
+        z: { age: 20, name: "john" },
       };
       const actualOutput = await ObjectUtils.safeJSONParse(input);
 
@@ -166,17 +166,17 @@ describe("ObjectUtils", () => {
         '{\n  "geo-object-key": {\n    "title": "geo-object-key",\n    "description": "this is geo obj field",\n    "type": "object",\n    "x-defaultValue": "{\\n   \\"coordinates\\": [\\n          139.6917,\\n          35.6895\\n        ],\\n        \\"type\\": \\"Point\\"\\n}",\n    "x-fieldType": "geometryObject",\n    "x-unique": true,\n    "x-required": true,\n    "x-geoSupportedTypes": [\n      "POINT"\n    ]\n  }\n}';
       const expectResult = {
         "geo-object-key": {
-          title: "geo-object-key",
           description: "this is geo obj field",
+          title: "geo-object-key",
           type: "object",
           "x-defaultValue": {
             coordinates: [139.6917, 35.6895],
             type: "Point",
           },
           "x-fieldType": "geometryObject",
-          "x-unique": true,
-          "x-required": true,
           "x-geoSupportedTypes": ["POINT"],
+          "x-required": true,
+          "x-unique": true,
         },
       };
 

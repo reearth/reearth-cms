@@ -1,6 +1,6 @@
-import { render, screen, getByText } from "@testing-library/react";
+import { getByText, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 
@@ -21,7 +21,7 @@ describe("Member table", () => {
   const onRoleModalOpen = () => {};
   const onMemberAddModalOpen = () => {};
   const workspaceUserMembers: UserMember[] = [
-    { userId, role: "OWNER", user: { id: "id1", name: "name1", email: "email1@test.com" } },
+    { role: "OWNER", user: { email: "email1@test.com", id: "id1", name: "name1" }, userId },
   ];
   const page = 1;
   const pageSize = 10;
@@ -32,29 +32,29 @@ describe("Member table", () => {
   const hasRemoveRight = true;
   const hasChangeRoleRight = true;
 
-  const secondMember = { id: "id2", name: "name2", email: "email2@test.com" };
+  const secondMember = { email: "email2@test.com", id: "id2", name: "name2" };
 
   test("Table options works successfully", async () => {
     const reloadMock = vi.fn();
 
     render(
       <MemberTable
-        workspaceUserMembers={workspaceUserMembers}
-        userId={userId}
-        isAbleToLeave={isAbleToLeave}
-        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
-        onLeave={onLeave}
-        onSearchTerm={onSearchTerm}
-        onRoleModalOpen={onRoleModalOpen}
-        onMemberAddModalOpen={onMemberAddModalOpen}
-        page={page}
-        pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        onReload={reloadMock}
+        hasChangeRoleRight={hasChangeRoleRight}
         hasInviteRight={hasInviteRight}
         hasRemoveRight={hasRemoveRight}
-        hasChangeRoleRight={hasChangeRoleRight}
+        isAbleToLeave={isAbleToLeave}
+        loading={loading}
+        onLeave={onLeave}
+        onMemberAddModalOpen={onMemberAddModalOpen}
+        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
+        onReload={reloadMock}
+        onRoleModalOpen={onRoleModalOpen}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
+        page={page}
+        pageSize={pageSize}
+        userId={userId}
+        workspaceUserMembers={workspaceUserMembers}
       />,
     );
 
@@ -73,22 +73,22 @@ describe("Member table", () => {
   test("Page number and number of items per page are displayed successfully", () => {
     render(
       <MemberTable
-        workspaceUserMembers={workspaceUserMembers}
-        userId={userId}
-        isAbleToLeave={isAbleToLeave}
-        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
-        onLeave={onLeave}
-        onSearchTerm={onSearchTerm}
-        onRoleModalOpen={onRoleModalOpen}
-        onMemberAddModalOpen={onMemberAddModalOpen}
-        page={page}
-        pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        onReload={onReload}
+        hasChangeRoleRight={hasChangeRoleRight}
         hasInviteRight={hasInviteRight}
         hasRemoveRight={hasRemoveRight}
-        hasChangeRoleRight={hasChangeRoleRight}
+        isAbleToLeave={isAbleToLeave}
+        loading={loading}
+        onLeave={onLeave}
+        onMemberAddModalOpen={onMemberAddModalOpen}
+        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
+        onReload={onReload}
+        onRoleModalOpen={onRoleModalOpen}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
+        page={page}
+        pageSize={pageSize}
+        userId={userId}
+        workspaceUserMembers={workspaceUserMembers}
       />,
     );
 
@@ -101,22 +101,22 @@ describe("Member table", () => {
 
     render(
       <MemberTable
-        workspaceUserMembers={workspaceUserMembers}
-        userId={userId}
-        isAbleToLeave={isAbleToLeave}
-        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
-        onLeave={onLeave}
-        onSearchTerm={searchMock}
-        onRoleModalOpen={onRoleModalOpen}
-        onMemberAddModalOpen={onMemberAddModalOpen}
-        page={page}
-        pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        onReload={onReload}
+        hasChangeRoleRight={hasChangeRoleRight}
         hasInviteRight={hasInviteRight}
         hasRemoveRight={hasRemoveRight}
-        hasChangeRoleRight={hasChangeRoleRight}
+        isAbleToLeave={isAbleToLeave}
+        loading={loading}
+        onLeave={onLeave}
+        onMemberAddModalOpen={onMemberAddModalOpen}
+        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
+        onReload={onReload}
+        onRoleModalOpen={onRoleModalOpen}
+        onSearchTerm={searchMock}
+        onTableChange={onTableChange}
+        page={page}
+        pageSize={pageSize}
+        userId={userId}
+        workspaceUserMembers={workspaceUserMembers}
       />,
     );
 
@@ -131,26 +131,26 @@ describe("Member table", () => {
   test("Data is displayed successfully", () => {
     render(
       <MemberTable
-        workspaceUserMembers={workspaceUserMembers}
-        userId={userId}
-        isAbleToLeave={isAbleToLeave}
-        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
-        onLeave={onLeave}
-        onSearchTerm={onSearchTerm}
-        onRoleModalOpen={onRoleModalOpen}
-        onMemberAddModalOpen={onMemberAddModalOpen}
-        page={page}
-        pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        onReload={onReload}
+        hasChangeRoleRight={hasChangeRoleRight}
         hasInviteRight={hasInviteRight}
         hasRemoveRight={hasRemoveRight}
-        hasChangeRoleRight={hasChangeRoleRight}
+        isAbleToLeave={isAbleToLeave}
+        loading={loading}
+        onLeave={onLeave}
+        onMemberAddModalOpen={onMemberAddModalOpen}
+        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
+        onReload={onReload}
+        onRoleModalOpen={onRoleModalOpen}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
+        page={page}
+        pageSize={pageSize}
+        userId={userId}
+        workspaceUserMembers={workspaceUserMembers}
       />,
     );
 
-    const { user, role } = workspaceUserMembers[0];
+    const { role, user } = workspaceUserMembers[0];
 
     expect(screen.getByText("Name")).toBeInTheDocument();
     expect(screen.getByText("Email")).toBeInTheDocument();
@@ -164,22 +164,22 @@ describe("Member table", () => {
   test("Own checkbox, change role button, and leave button are disabled successfully", async () => {
     render(
       <MemberTable
-        workspaceUserMembers={workspaceUserMembers}
-        userId={userId}
-        isAbleToLeave={isAbleToLeave}
-        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
-        onLeave={onLeave}
-        onSearchTerm={onSearchTerm}
-        onRoleModalOpen={onRoleModalOpen}
-        onMemberAddModalOpen={onMemberAddModalOpen}
-        page={page}
-        pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        onReload={onReload}
+        hasChangeRoleRight={hasChangeRoleRight}
         hasInviteRight={hasInviteRight}
         hasRemoveRight={hasRemoveRight}
-        hasChangeRoleRight={hasChangeRoleRight}
+        isAbleToLeave={isAbleToLeave}
+        loading={loading}
+        onLeave={onLeave}
+        onMemberAddModalOpen={onMemberAddModalOpen}
+        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
+        onReload={onReload}
+        onRoleModalOpen={onRoleModalOpen}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
+        page={page}
+        pageSize={pageSize}
+        userId={userId}
+        workspaceUserMembers={workspaceUserMembers}
       />,
     );
 
@@ -194,22 +194,22 @@ describe("Member table", () => {
 
     render(
       <MemberTable
-        workspaceUserMembers={workspaceUserMembers}
-        userId={userId}
-        isAbleToLeave={true}
-        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
-        onLeave={onLeaveMock}
-        onSearchTerm={onSearchTerm}
-        onRoleModalOpen={onRoleModalOpen}
-        onMemberAddModalOpen={onMemberAddModalOpen}
-        page={page}
-        pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        onReload={onReload}
+        hasChangeRoleRight={hasChangeRoleRight}
         hasInviteRight={hasInviteRight}
         hasRemoveRight={hasRemoveRight}
-        hasChangeRoleRight={hasChangeRoleRight}
+        isAbleToLeave={true}
+        loading={loading}
+        onLeave={onLeaveMock}
+        onMemberAddModalOpen={onMemberAddModalOpen}
+        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
+        onReload={onReload}
+        onRoleModalOpen={onRoleModalOpen}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
+        page={page}
+        pageSize={pageSize}
+        userId={userId}
+        workspaceUserMembers={workspaceUserMembers}
       />,
     );
 
@@ -221,38 +221,38 @@ describe("Member table", () => {
   test("Removing multiple members is fired successfully", async () => {
     const onMemberRemoveFromWorkspaceMock = vi.fn();
 
-    const thirdMember = { id: "id3", name: "name3", email: "email3@test.com" };
+    const thirdMember = { email: "email3@test.com", id: "id3", name: "name3" };
 
     render(
       <MemberTable
+        hasChangeRoleRight={hasChangeRoleRight}
+        hasInviteRight={hasInviteRight}
+        hasRemoveRight={hasRemoveRight}
+        isAbleToLeave={isAbleToLeave}
+        loading={loading}
+        onLeave={onLeave}
+        onMemberAddModalOpen={onMemberAddModalOpen}
+        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspaceMock}
+        onReload={onReload}
+        onRoleModalOpen={onRoleModalOpen}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
+        page={page}
+        pageSize={pageSize}
+        userId={userId}
         workspaceUserMembers={[
           ...workspaceUserMembers,
           {
-            userId: "userId2",
             role: "OWNER",
             user: secondMember,
+            userId: "userId2",
           },
           {
-            userId: "userId3",
             role: "OWNER",
             user: thirdMember,
+            userId: "userId3",
           },
         ]}
-        userId={userId}
-        isAbleToLeave={isAbleToLeave}
-        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspaceMock}
-        onLeave={onLeave}
-        onSearchTerm={onSearchTerm}
-        onRoleModalOpen={onRoleModalOpen}
-        onMemberAddModalOpen={onMemberAddModalOpen}
-        page={page}
-        pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        onReload={onReload}
-        hasInviteRight={hasInviteRight}
-        hasRemoveRight={hasRemoveRight}
-        hasChangeRoleRight={hasChangeRoleRight}
       />,
     );
 
@@ -273,29 +273,29 @@ describe("Member table", () => {
     const onMemberRemoveFromWorkspaceMock = vi.fn();
     render(
       <MemberTable
+        hasChangeRoleRight={hasChangeRoleRight}
+        hasInviteRight={hasInviteRight}
+        hasRemoveRight={hasRemoveRight}
+        isAbleToLeave={isAbleToLeave}
+        loading={loading}
+        onLeave={onLeave}
+        onMemberAddModalOpen={onMemberAddModalOpen}
+        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspaceMock}
+        onReload={onReload}
+        onRoleModalOpen={onRoleModalOpen}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
+        page={page}
+        pageSize={pageSize}
+        userId={userId}
         workspaceUserMembers={[
           ...workspaceUserMembers,
           {
-            userId: "userId2",
             role: "OWNER",
             user: secondMember,
+            userId: "userId2",
           },
         ]}
-        userId={userId}
-        isAbleToLeave={isAbleToLeave}
-        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspaceMock}
-        onLeave={onLeave}
-        onSearchTerm={onSearchTerm}
-        onRoleModalOpen={onRoleModalOpen}
-        onMemberAddModalOpen={onMemberAddModalOpen}
-        page={page}
-        pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        onReload={onReload}
-        hasInviteRight={hasInviteRight}
-        hasRemoveRight={hasRemoveRight}
-        hasChangeRoleRight={hasChangeRoleRight}
       />,
     );
 
@@ -311,29 +311,29 @@ describe("Member table", () => {
   test("Buttons are disabled according to user right successfully", async () => {
     render(
       <MemberTable
+        hasChangeRoleRight={false}
+        hasInviteRight={false}
+        hasRemoveRight={false}
+        isAbleToLeave={isAbleToLeave}
+        loading={loading}
+        onLeave={onLeave}
+        onMemberAddModalOpen={onMemberAddModalOpen}
+        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
+        onReload={onReload}
+        onRoleModalOpen={onRoleModalOpen}
+        onSearchTerm={onSearchTerm}
+        onTableChange={onTableChange}
+        page={page}
+        pageSize={pageSize}
+        userId={userId}
         workspaceUserMembers={[
           {
-            userId: "userId2",
             role: "OWNER",
             user: secondMember,
+            userId: "userId2",
           },
           ...workspaceUserMembers,
         ]}
-        userId={userId}
-        isAbleToLeave={isAbleToLeave}
-        onMemberRemoveFromWorkspace={onMemberRemoveFromWorkspace}
-        onLeave={onLeave}
-        onSearchTerm={onSearchTerm}
-        onRoleModalOpen={onRoleModalOpen}
-        onMemberAddModalOpen={onMemberAddModalOpen}
-        page={page}
-        pageSize={pageSize}
-        onTableChange={onTableChange}
-        loading={loading}
-        onReload={onReload}
-        hasInviteRight={false}
-        hasRemoveRight={false}
-        hasChangeRoleRight={false}
       />,
     );
 

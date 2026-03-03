@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import GeneralForm from "./GeneralForm";
 
@@ -12,15 +12,15 @@ describe("General form", () => {
   const description = "description";
 
   const project = {
-    id: "",
-    name,
-    description,
     alias,
-    readme: "",
-    license: "",
-    scope: "PRIVATE" as const,
     assetPublic: false,
+    description,
+    id: "",
+    license: "",
+    name,
+    readme: "",
     requestRoles: [],
+    scope: "PRIVATE" as const,
     token: "",
   };
   const hasUpdateRight = true;
@@ -38,10 +38,10 @@ describe("General form", () => {
   test("Name, alias, and description are visible successfully", async () => {
     render(
       <GeneralForm
-        project={project}
         hasUpdateRight={hasUpdateRight}
-        onProjectUpdate={onProjectUpdate}
         onProjectAliasCheck={onProjectAliasCheck}
+        onProjectUpdate={onProjectUpdate}
+        project={project}
       />,
     );
 
@@ -58,10 +58,10 @@ describe("General form", () => {
 
     render(
       <GeneralForm
-        project={project}
         hasUpdateRight={hasUpdateRight}
-        onProjectUpdate={onProjectUpdate}
         onProjectAliasCheck={onProjectAliasCheckMock}
+        onProjectUpdate={onProjectUpdate}
+        project={project}
       />,
     );
 
@@ -102,10 +102,10 @@ describe("General form", () => {
 
     render(
       <GeneralForm
-        project={project}
         hasUpdateRight={hasUpdateRight}
-        onProjectUpdate={onProjectUpdateMock}
         onProjectAliasCheck={onProjectAliasCheck}
+        onProjectUpdate={onProjectUpdateMock}
+        project={project}
       />,
     );
 
@@ -138,10 +138,10 @@ describe("General form", () => {
 
     render(
       <GeneralForm
-        project={project}
         hasUpdateRight={hasUpdateRight}
-        onProjectUpdate={onProjectUpdateFail}
         onProjectAliasCheck={onProjectAliasCheck}
+        onProjectUpdate={onProjectUpdateFail}
+        project={project}
       />,
     );
 
@@ -156,10 +156,10 @@ describe("General form", () => {
   test("Validate works successfully", async () => {
     render(
       <GeneralForm
-        project={project}
         hasUpdateRight={hasUpdateRight}
-        onProjectUpdate={onProjectUpdate}
         onProjectAliasCheck={onProjectAliasCheck}
+        onProjectUpdate={onProjectUpdate}
+        project={project}
       />,
     );
 
@@ -185,10 +185,10 @@ describe("General form", () => {
   test("All Inputs are disabled according to user right successfully", async () => {
     render(
       <GeneralForm
-        project={project}
         hasUpdateRight={false}
-        onProjectUpdate={onProjectUpdate}
         onProjectAliasCheck={onProjectAliasCheck}
+        onProjectUpdate={onProjectUpdate}
+        project={project}
       />,
     );
 

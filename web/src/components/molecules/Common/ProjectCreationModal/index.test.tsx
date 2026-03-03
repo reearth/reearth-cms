@@ -17,10 +17,10 @@ test("Project creation modal works successfully", async () => {
 
   render(
     <ProjectCreationModal
-      open
       onClose={onClose}
-      onSubmit={onSubmit}
       onProjectAliasCheck={onProjectAliasCheck}
+      onSubmit={onSubmit}
+      open
     />,
   );
 

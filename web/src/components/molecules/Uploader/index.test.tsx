@@ -6,19 +6,14 @@ import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { t } from "@reearth-cms/i18n";
 import { DATA_TEST_ID, Test } from "@reearth-cms/test/utils";
 
+import Uploader from "./index";
 import { UploaderHookState, UploaderHookStateContext } from "./provider";
 import { UploaderQueueItem, UploaderState } from "./types";
 
-import Uploader from "./index";
-
 const createQueueItem = (overrides?: Partial<UploaderQueueItem>): UploaderQueueItem => ({
-  fileName: "sample.csv",
   extension: "csv",
-  url: "/assets/sample.csv",
   file: Test.createMockRcFile({ name: "sample.csv", type: "text/csv" }),
-  workspaceId: "workspaceId",
-  projectId: "projectId",
-  modelId: "modelId",
+  fileName: "sample.csv",
   jobId: "jobId",
   jobState: {
     progress: {
@@ -28,27 +23,31 @@ const createQueueItem = (overrides?: Partial<UploaderQueueItem>): UploaderQueueI
     },
     status: JobStatus.InProgress,
   },
+  modelId: "modelId",
+  projectId: "projectId",
+  url: "/assets/sample.csv",
+  workspaceId: "workspaceId",
   ...overrides,
 });
 
 const createMockUploaderState = (overrides?: Partial<UploaderState>): UploaderState => ({
   isOpen: false,
-  showBadge: false,
   queue: [],
+  showBadge: false,
   ...overrides,
 });
 
 const createMockUploaderContext = (overrides?: Partial<UploaderHookState>): UploaderHookState => ({
-  isShowUploader: true,
-  uploaderState: createMockUploaderState(),
-  shouldPreventReload: false,
-  uploadingFileCount: 0,
-  handleUploaderOpen: vi.fn(),
-  handleUploadCancel: vi.fn().mockResolvedValue(undefined),
-  handleUploadRetry: vi.fn().mockResolvedValue(undefined),
   handleCancelAll: vi.fn().mockResolvedValue(undefined),
   handleEnqueueJob: vi.fn().mockResolvedValue(undefined),
   handleJobUpdate: vi.fn(),
+  handleUploadCancel: vi.fn().mockResolvedValue(undefined),
+  handleUploaderOpen: vi.fn(),
+  handleUploadRetry: vi.fn().mockResolvedValue(undefined),
+  isShowUploader: true,
+  shouldPreventReload: false,
+  uploaderState: createMockUploaderState(),
+  uploadingFileCount: 0,
   ...overrides,
 });
 
@@ -79,8 +78,8 @@ describe("Test Uploader component", () => {
     renderWithUploaderProvider({
       uploaderState: createMockUploaderState({
         isOpen: true,
-        showBadge: true,
         queue: [createQueueItem()],
+        showBadge: true,
       }),
       uploadingFileCount: 1,
     });
@@ -100,9 +99,9 @@ describe("Test Uploader component", () => {
     const pointerEventProps = {
       clientX: 10,
       clientY: 10,
+      isPrimary: true,
       pointerId: 1,
       pointerType: "mouse",
-      isPrimary: true,
     };
 
     fireEvent.pointerDown(test as Element, pointerEventProps);
@@ -116,19 +115,19 @@ describe("Test Uploader component", () => {
       const completedItem = createQueueItem({
         jobId: "job-completed",
         jobState: {
-          status: JobStatus.Completed,
           progress: { percentage: 100, processed: 100, total: 100 },
+          status: JobStatus.Completed,
         },
       });
 
       renderWithUploaderProvider({
+        handleCancelAll,
+        handleUploaderOpen,
+        shouldPreventReload: false,
         uploaderState: createMockUploaderState({
           isOpen: true,
           queue: [completedItem],
         }),
-        shouldPreventReload: false,
-        handleCancelAll,
-        handleUploaderOpen,
       });
 
       const closeIcon = screen.getByTestId(DATA_TEST_ID.Uploader__CancelAllIcon);
@@ -144,19 +143,19 @@ describe("Test Uploader component", () => {
       const inProgressItem = createQueueItem({
         jobId: "job-in-progress",
         jobState: {
-          status: JobStatus.InProgress,
           progress: { percentage: 10, processed: 0, total: 0 },
+          status: JobStatus.InProgress,
         },
       });
 
       renderWithUploaderProvider({
+        handleCancelAll,
+        handleUploaderOpen,
+        shouldPreventReload: true,
         uploaderState: createMockUploaderState({
           isOpen: true,
           queue: [inProgressItem],
         }),
-        shouldPreventReload: true,
-        handleCancelAll,
-        handleUploaderOpen,
       });
 
       const closeIcon = screen.getByTestId(DATA_TEST_ID.Uploader__CancelAllIcon);
@@ -178,19 +177,19 @@ describe("Test Uploader component", () => {
       const inProgressItem = createQueueItem({
         jobId: "job-in-progress-2",
         jobState: {
-          status: JobStatus.InProgress,
           progress: { percentage: 10, processed: 0, total: 0 },
+          status: JobStatus.InProgress,
         },
       });
 
       renderWithUploaderProvider({
+        handleCancelAll,
+        handleUploaderOpen,
+        shouldPreventReload: true,
         uploaderState: createMockUploaderState({
           isOpen: true,
           queue: [inProgressItem],
         }),
-        shouldPreventReload: true,
-        handleCancelAll,
-        handleUploaderOpen,
       });
 
       const closeIcon = screen.getByTestId(DATA_TEST_ID.Uploader__CancelAllIcon);
@@ -209,19 +208,19 @@ describe("Test Uploader component", () => {
       const inProgressItem = createQueueItem({
         jobId: "job-in-progress-3",
         jobState: {
-          status: JobStatus.InProgress,
           progress: { percentage: 10, processed: 0, total: 0 },
+          status: JobStatus.InProgress,
         },
       });
 
       renderWithUploaderProvider({
+        handleCancelAll,
+        handleUploaderOpen,
+        shouldPreventReload: true,
         uploaderState: createMockUploaderState({
           isOpen: true,
           queue: [inProgressItem],
         }),
-        shouldPreventReload: true,
-        handleCancelAll,
-        handleUploaderOpen,
       });
 
       const closeIcon = screen.getByTestId(DATA_TEST_ID.Uploader__CancelAllIcon);

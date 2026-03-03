@@ -5,36 +5,36 @@ import Content from "@reearth-cms/components/atoms/Content";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 
 type Props = {
-  title?: ReactNode;
-  subtitle?: ReactNode;
+  children?: ReactNode;
   extra?: ReactNode;
-  onBack?: () => void;
   flexChildren?: boolean;
   isFullHeight?: boolean;
-  children?: ReactNode;
+  onBack?: () => void;
+  subtitle?: ReactNode;
+  title?: ReactNode;
 };
 
 const BasicInnerContents: React.FC<Props> = ({
-  title,
-  subtitle,
+  children,
   extra,
-  onBack,
   flexChildren,
   isFullHeight = false,
-  children,
+  onBack,
+  subtitle,
+  title,
 }) => {
   const childrenArray = Children.toArray(children);
 
   return (
     <PaddedContent isFullHeight={isFullHeight}>
       <Header
-        title={title && <div role="heading">{title}</div>}
-        subTitle={subtitle}
         extra={extra}
         onBack={onBack}
+        subTitle={subtitle}
+        title={title && <div role="heading">{title}</div>}
       />
       {childrenArray.map((child, idx) => (
-        <Section key={idx} flex={flexChildren} lastChild={childrenArray.length - 1 === idx}>
+        <Section flex={flexChildren} key={idx} lastChild={childrenArray.length - 1 === idx}>
           {child}
         </Section>
       ))}

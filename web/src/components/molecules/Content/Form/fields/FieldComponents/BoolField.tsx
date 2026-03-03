@@ -7,21 +7,21 @@ import { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import FieldTitle from "../../FieldTitle";
 
 const BoolField: React.FC<FieldProps> = ({
+  disabled,
   field,
   itemGroupId,
-  disabled,
   itemHeights,
   onItemHeightChange,
 }) => {
   return (
     <Form.Item
       extra={field.description}
+      label={<FieldTitle isTitle={field.isTitle} isUnique={field.unique} title={field.title} />}
       name={itemGroupId ? [field.id, itemGroupId] : field.id}
-      valuePropName="checked"
-      label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
+      valuePropName="checked">
       {field.multiple ? (
         <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
-          <MultiValueBooleanField FieldInput={Switch} disabled={disabled} />
+          <MultiValueBooleanField disabled={disabled} FieldInput={Switch} />
         </ResponsiveHeight>
       ) : (
         <Switch disabled={disabled} />

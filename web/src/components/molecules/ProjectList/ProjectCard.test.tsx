@@ -7,15 +7,15 @@ test("Project card displays successfully", () => {
   const name = "name";
   const description = "description";
   const project = {
+    description,
     id: "id",
     name,
-    description,
   };
   const onProjectNavigation = () => {
     return Promise.resolve();
   };
 
-  render(<ProjectCard project={project} onProjectNavigation={onProjectNavigation} />);
+  render(<ProjectCard onProjectNavigation={onProjectNavigation} project={project} />);
 
   expect(screen.getByText(name)).toBeInTheDocument();
   expect(screen.getByText(description)).toBeInTheDocument();

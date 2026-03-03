@@ -4,28 +4,28 @@ import useHooks from "./hooks";
 
 const License: React.FC = () => {
   const {
-    licenseValue,
-    projectLicense,
-    licenseEditMode,
-    hasUpdateRight,
-    handleProjectUpdate,
-    handleLicenseSave,
+    handleChooseLicenseTemplate,
     handleLicenseEdit,
     handleLicenseMarkdownChange,
-    handleChooseLicenseTemplate,
+    handleLicenseSave,
+    handleProjectUpdate,
+    hasUpdateRight,
+    licenseEditMode,
+    licenseValue,
+    projectLicense,
   } = useHooks();
 
   return (
     <LicenseMolecule
-      licenseValue={licenseValue}
-      projectLicense={projectLicense}
-      licenseEditMode={licenseEditMode}
       hasUpdateRight={hasUpdateRight}
-      onProjectUpdate={handleProjectUpdate}
-      onLicenseSave={handleLicenseSave}
+      licenseEditMode={licenseEditMode}
+      licenseValue={licenseValue}
+      onChooseLicenseTemplate={handleChooseLicenseTemplate}
       onLicenseEdit={handleLicenseEdit}
       onLicenseMarkdownChange={handleLicenseMarkdownChange}
-      onChooseLicenseTemplate={handleChooseLicenseTemplate}
+      onLicenseSave={handleLicenseSave}
+      onProjectUpdate={handleProjectUpdate}
+      projectLicense={projectLicense}
     />
   );
 };

@@ -1,7 +1,7 @@
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-test.beforeEach(async ({ reearth, projectPage }) => {
+test.beforeEach(async ({ projectPage, reearth }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
@@ -14,9 +14,9 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("@smoke Text field editing has succeeded", async ({
-  page,
-  fieldEditorPage,
   contentPage,
+  fieldEditorPage,
+  page,
   schemaPage,
 }) => {
   await test.step("Create text field with settings and default value", async () => {

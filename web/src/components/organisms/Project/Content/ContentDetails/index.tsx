@@ -10,193 +10,193 @@ const ContentDetails: React.FC = () => {
   const t = useT();
 
   const {
-    loadingReference,
-    linkedItemsModalList,
-    showPublishAction,
-    requests,
-    itemId,
-    itemLoading,
-    currentModel,
-    title,
-    currentItem,
-    initialFormValues,
-    initialMetaFormValues,
-    versions,
-    itemCreationLoading,
-    itemUpdatingLoading,
-    requestCreationLoading,
-    collapsedModelMenu,
-    collapsedCommentsPanel,
-    requestModalShown,
     addItemToRequestModalShown,
-    workspaceUserMembers,
-    linkItemModalTitle,
-    linkItemModalTotalCount,
-    linkItemModalPage,
-    linkItemModalPageSize,
-    handleReferenceModelUpdate,
-    handleSearchTerm,
-    handleLinkItemTableReload,
-    handleLinkItemTableChange,
-    handleRequestTableChange,
-    handleRequestTableReload,
-    handleRequestSearchTerm,
-    publishLoading,
-    requestModalLoading,
-    requestModalTotalCount,
-    requestModalPage,
-    requestModalPageSize,
-    handleGetVersionedItem,
-    handlePublish,
-    handleUnpublish,
-    handleAddItemToRequest,
     collapseCommentsPanel,
+    collapsedCommentsPanel,
+    collapsedModelMenu,
     collapseModelMenu,
-    handleItemCreate,
-    handleItemUpdate,
-    handleMetaItemUpdate,
-    handleNavigateToModel,
-    handleNavigateToRequest,
-    handleBack,
-    handleRequestCreate,
-    handleModalClose,
-    handleModalOpen,
+    currentItem,
+    currentModel,
+    handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
-    handleGroupGet,
+    handleBack,
     handleCheckItemReference,
+    handleGetVersionedItem,
+    handleGroupGet,
+    handleItemCreate,
+    handleItemUpdate,
+    handleLinkItemTableChange,
+    handleLinkItemTableReload,
+    handleMetaItemUpdate,
+    handleModalClose,
+    handleModalOpen,
+    handleNavigateToModel,
+    handleNavigateToRequest,
+    handlePublish,
+    handleReferenceModelUpdate,
+    handleRequestCreate,
+    handleRequestSearchTerm,
+    handleRequestTableChange,
+    handleRequestTableReload,
+    handleSearchTerm,
+    handleUnpublish,
+    hasItemUpdateRight,
+    hasPublishRight,
     hasRequestCreateRight,
     hasRequestUpdateRight,
-    hasPublishRight,
-    hasItemUpdateRight,
+    initialFormValues,
+    initialMetaFormValues,
+    itemCreationLoading,
+    itemId,
+    itemLoading,
+    itemUpdatingLoading,
+    linkedItemsModalList,
+    linkItemModalPage,
+    linkItemModalPageSize,
+    linkItemModalTitle,
+    linkItemModalTotalCount,
+    loadingReference,
+    publishLoading,
+    requestCreationLoading,
+    requestModalLoading,
+    requestModalPage,
+    requestModalPageSize,
+    requestModalShown,
+    requestModalTotalCount,
+    requests,
+    showPublishAction,
+    title,
+    versions,
+    workspaceUserMembers,
   } = useHooks();
 
   const {
     assetList,
     fileList,
-    loading,
-    uploading,
-    uploadModalVisibility,
-    uploadUrl,
-    uploadType,
-    handleUploadModalCancel,
-    setUploadUrl,
-    setUploadType,
-    setFileList,
-    setUploadModalVisibility,
-    handleAssetsCreate,
     handleAssetCreateFromUrl,
+    handleAssetsCreate,
     handleAssetsGet,
     handleAssetsReload,
-    handleSearchTerm: handleAssetSearchTerm,
-    totalCount,
-    page,
-    pageSize,
     handleAssetTableChange,
     handleGetAsset,
+    handleSearchTerm: handleAssetSearchTerm,
+    handleUploadModalCancel,
+    loading,
+    page,
+    pageSize,
+    setFileList,
+    setUploadModalVisibility,
+    setUploadType,
+    setUploadUrl,
+    totalCount,
+    uploading,
+    uploadModalVisibility,
+    uploadType,
+    uploadUrl,
   } = useAssetHooks(false);
 
   return (
     <ContentDetailsMolecule
-      hasRequestCreateRight={hasRequestCreateRight}
-      hasRequestUpdateRight={hasRequestUpdateRight}
-      hasPublishRight={hasPublishRight}
-      hasItemUpdateRight={hasItemUpdateRight}
-      linkItemModalTitle={linkItemModalTitle}
-      linkItemModalTotalCount={linkItemModalTotalCount}
-      linkItemModalPage={linkItemModalPage}
-      linkItemModalPageSize={linkItemModalPageSize}
-      onSearchTerm={handleSearchTerm}
-      onLinkItemTableReload={handleLinkItemTableReload}
-      onLinkItemTableChange={handleLinkItemTableChange}
-      onReferenceModelUpdate={handleReferenceModelUpdate}
-      loadingReference={loadingReference}
-      linkedItemsModalList={linkedItemsModalList}
-      showPublishAction={showPublishAction}
-      requests={requests}
-      requestCreationLoading={requestCreationLoading}
-      onRequestTableChange={handleRequestTableChange}
-      onRequestSearchTerm={handleRequestSearchTerm}
-      onRequestTableReload={handleRequestTableReload}
-      publishLoading={publishLoading}
-      requestModalLoading={requestModalLoading}
-      requestModalTotalCount={requestModalTotalCount}
-      requestModalPage={requestModalPage}
-      requestModalPageSize={requestModalPageSize}
+      addItemToRequestModalShown={addItemToRequestModalShown}
+      assetList={assetList}
       collapsed={collapsedModelMenu}
-      onCollapse={collapseModelMenu}
       commentsPanel={
         currentItem ? (
           <CommentsPanel
-            resourceId={currentItem.id}
-            resourceType={"ITEM"}
-            comments={currentItem.comments}
-            threadId={currentItem.threadId}
             collapsed={collapsedCommentsPanel}
+            comments={currentItem.comments}
             onCollapse={collapseCommentsPanel}
             refetchQueries={["GetItem"]}
+            resourceId={currentItem.id}
+            resourceType={"ITEM"}
+            threadId={currentItem.threadId}
           />
         ) : undefined
       }
-      title={title}
+      fileList={fileList}
+      hasItemUpdateRight={hasItemUpdateRight}
+      hasPublishRight={hasPublishRight}
+      hasRequestCreateRight={hasRequestCreateRight}
+      hasRequestUpdateRight={hasRequestUpdateRight}
+      initialFormValues={initialFormValues}
+      initialMetaFormValues={initialMetaFormValues}
       item={currentItem}
       itemId={itemId}
       itemLoading={itemLoading}
-      model={currentModel}
-      initialFormValues={initialFormValues}
-      initialMetaFormValues={initialMetaFormValues}
-      versions={versions}
+      linkedItemsModalList={linkedItemsModalList}
+      linkItemModalPage={linkItemModalPage}
+      linkItemModalPageSize={linkItemModalPageSize}
+      linkItemModalTitle={linkItemModalTitle}
+      linkItemModalTotalCount={linkItemModalTotalCount}
       loading={itemCreationLoading || itemUpdatingLoading}
-      onItemCreate={handleItemCreate}
-      onItemUpdate={handleItemUpdate}
-      onMetaItemUpdate={handleMetaItemUpdate}
-      onBack={handleBack}
+      loadingAssets={loading}
+      loadingReference={loadingReference}
+      model={currentModel}
       modelsMenu={
         <ModelsMenu
           collapsed={collapsedModelMenu}
-          title={t("Content")}
           onModelSelect={handleNavigateToModel}
           selectedSchemaType="model"
+          title={t("Content")}
           titleIcon={"table"}
         />
       }
-      onChange={handleAddItemToRequest}
-      assetList={assetList}
-      onAssetTableChange={handleAssetTableChange}
-      totalCount={totalCount}
-      page={page}
-      pageSize={pageSize}
-      fileList={fileList}
-      loadingAssets={loading}
-      uploading={uploading}
-      uploadModalVisibility={uploadModalVisibility}
-      uploadUrl={uploadUrl}
-      uploadType={uploadType}
-      onGetVersionedItem={handleGetVersionedItem}
-      onUnpublish={handleUnpublish}
-      onPublish={handlePublish}
-      onUploadModalCancel={handleUploadModalCancel}
-      setUploadUrl={setUploadUrl}
-      setUploadType={setUploadType}
-      onAssetsCreate={handleAssetsCreate}
-      onAssetCreateFromUrl={handleAssetCreateFromUrl}
-      onAssetsGet={handleAssetsGet}
-      onAssetsReload={handleAssetsReload}
-      onAssetSearchTerm={handleAssetSearchTerm}
-      setFileList={setFileList}
-      setUploadModalVisibility={setUploadModalVisibility}
-      requestModalShown={requestModalShown}
-      addItemToRequestModalShown={addItemToRequestModalShown}
-      onRequestCreate={handleRequestCreate}
-      onModalClose={handleModalClose}
-      onModalOpen={handleModalOpen}
       onAddItemToRequestModalClose={handleAddItemToRequestModalClose}
       onAddItemToRequestModalOpen={handleAddItemToRequestModalOpen}
-      workspaceUserMembers={workspaceUserMembers}
-      onGetAsset={handleGetAsset}
-      onGroupGet={handleGroupGet}
+      onAssetCreateFromUrl={handleAssetCreateFromUrl}
+      onAssetsCreate={handleAssetsCreate}
+      onAssetSearchTerm={handleAssetSearchTerm}
+      onAssetsGet={handleAssetsGet}
+      onAssetsReload={handleAssetsReload}
+      onAssetTableChange={handleAssetTableChange}
+      onBack={handleBack}
+      onChange={handleAddItemToRequest}
       onCheckItemReference={handleCheckItemReference}
+      onCollapse={collapseModelMenu}
+      onGetAsset={handleGetAsset}
+      onGetVersionedItem={handleGetVersionedItem}
+      onGroupGet={handleGroupGet}
+      onItemCreate={handleItemCreate}
+      onItemUpdate={handleItemUpdate}
+      onLinkItemTableChange={handleLinkItemTableChange}
+      onLinkItemTableReload={handleLinkItemTableReload}
+      onMetaItemUpdate={handleMetaItemUpdate}
+      onModalClose={handleModalClose}
+      onModalOpen={handleModalOpen}
       onNavigateToRequest={handleNavigateToRequest}
+      onPublish={handlePublish}
+      onReferenceModelUpdate={handleReferenceModelUpdate}
+      onRequestCreate={handleRequestCreate}
+      onRequestSearchTerm={handleRequestSearchTerm}
+      onRequestTableChange={handleRequestTableChange}
+      onRequestTableReload={handleRequestTableReload}
+      onSearchTerm={handleSearchTerm}
+      onUnpublish={handleUnpublish}
+      onUploadModalCancel={handleUploadModalCancel}
+      page={page}
+      pageSize={pageSize}
+      publishLoading={publishLoading}
+      requestCreationLoading={requestCreationLoading}
+      requestModalLoading={requestModalLoading}
+      requestModalPage={requestModalPage}
+      requestModalPageSize={requestModalPageSize}
+      requestModalShown={requestModalShown}
+      requestModalTotalCount={requestModalTotalCount}
+      requests={requests}
+      setFileList={setFileList}
+      setUploadModalVisibility={setUploadModalVisibility}
+      setUploadType={setUploadType}
+      setUploadUrl={setUploadUrl}
+      showPublishAction={showPublishAction}
+      title={title}
+      totalCount={totalCount}
+      uploading={uploading}
+      uploadModalVisibility={uploadModalVisibility}
+      uploadType={uploadType}
+      uploadUrl={uploadUrl}
+      versions={versions}
+      workspaceUserMembers={workspaceUserMembers}
     />
   );
 };

@@ -1,12 +1,11 @@
 /// <reference types="vite/client" />
 /// <reference types="vitest" />
 
+import yaml from "@rollup/plugin-yaml";
+import react from "@vitejs/plugin-react";
 import { execSync } from "child_process";
 import { readFileSync } from "fs";
 import { resolve } from "path";
-
-import yaml from "@rollup/plugin-yaml";
-import react from "@vitejs/plugin-react";
 import { readEnv } from "read-env";
 import { defineConfig, loadEnv, type Plugin } from "vite";
 import cesium from "vite-plugin-cesium";
@@ -27,16 +26,18 @@ const cesiumPackageJson = JSON.parse(
 );
 
 export default defineConfig({
-  server: {
-    port: 3000,
-    open: true,
-    host: "127.0.0.1",
+  css: {
+    preprocessorOptions: {
+      less: {
+        javascriptEnabled: true,
+      },
+    },
   },
-  envPrefix: "REEARTH_CMS_",
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
     __REEARTH_COMMIT_HASH__: JSON.stringify(process.env.GITHUB_SHA || commitHash),
   },
+  envPrefix: "REEARTH_CMS_",
   plugins: [
     react(),
     yaml(),
@@ -46,28 +47,12 @@ export default defineConfig({
     tsconfigPaths(),
     injectCommitHashMeta(process.env.GITHUB_SHA || commitHash),
   ],
-  css: {
-    preprocessorOptions: {
-      less: {
-        javascriptEnabled: true,
-      },
-    },
+  server: {
+    host: "127.0.0.1",
+    open: true,
+    port: 3000,
   },
   test: {
-    environment: "jsdom",
-    setupFiles: "./src/test/setup.ts",
-    exclude: [...configDefaults.exclude, "e2e/**/*"],
-    testTimeout: 30 * 1000,
-    coverage: {
-      include: ["src/**/*.ts", "src/**/*.tsx"],
-      exclude: [
-        "src/**/*.d.ts",
-        "src/**/*.stories.tsx",
-        "src/gql/graphql-client-api.tsx",
-        "src/test/**/*",
-      ],
-      reporter: ["text", "json", "lcov"],
-    },
     alias: [
       { find: "@ant-design/pro-card", replacement: "@ant-design/pro-card/es/index.js" },
       { find: "@ant-design/pro-components", replacement: "@ant-design/pro-components/es/index.js" },
@@ -83,24 +68,37 @@ export default defineConfig({
       { find: "@ant-design/pro-table", replacement: "@ant-design/pro-table/es/index.js" },
       { find: "@ant-design/pro-utils", replacement: "@ant-design/pro-utils/es/index.js" },
     ],
+    coverage: {
+      exclude: [
+        "src/**/*.d.ts",
+        "src/**/*.stories.tsx",
+        "src/gql/graphql-client-api.tsx",
+        "src/test/**/*",
+      ],
+      include: ["src/**/*.ts", "src/**/*.tsx"],
+      reporter: ["text", "json", "lcov"],
+    },
+    environment: "jsdom",
+    exclude: [...configDefaults.exclude, "e2e/**/*"],
+    setupFiles: "./src/test/setup.ts",
+    testTimeout: 30 * 1000,
   },
 });
 
 function serverHeaders(): Plugin {
   return {
-    name: "server-headers",
     configureServer(server) {
       server.middlewares.use((_req, res, next) => {
         res.setHeader("Service-Worker-Allowed", "/");
         next();
       });
     },
+    name: "server-headers",
   };
 }
 
 function config(): Plugin {
   return {
-    name: "reearth-config",
     async configureServer(server) {
       const envs = loadEnv(
         server.config.mode,
@@ -138,6 +136,7 @@ function config(): Plugin {
         }
       });
     },
+    name: "reearth-config",
   };
 }
 

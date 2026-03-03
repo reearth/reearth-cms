@@ -6,30 +6,30 @@ import { Schema } from "@reearth-cms/components/molecules/Schema/types";
 export type RequestState = "APPROVED" | "CLOSED" | "DRAFT" | "WAITING";
 
 export type Request = {
-  id: string;
-  threadId?: string;
-  title: string;
-  description: string;
-  comments: Comment[];
-  createdAt: Date;
-  reviewers: User[];
-  state: RequestState;
-  createdBy?: User;
-  updatedAt: Date;
   approvedAt?: Date;
   closedAt?: Date;
+  comments: Comment[];
+  createdAt: Date;
+  createdBy?: User;
+  description: string;
+  id: string;
   items: ItemInRequest[];
+  reviewers: User[];
+  state: RequestState;
+  threadId?: string;
+  title: string;
+  updatedAt: Date;
 };
 
 export type ItemInRequest = {
   id: string;
-  title: string;
+  initialValues: Record<string, unknown>;
   modelId?: string;
   modelName?: string;
-  version?: string;
-  schema?: Schema;
-  initialValues: Record<string, unknown>;
   referencedItems: FormItem[];
+  schema?: Schema;
+  title: string;
+  version?: string;
 };
 
 export type RequestItem = {
@@ -38,10 +38,10 @@ export type RequestItem = {
 };
 
 export type RequestUpdatePayload = {
-  requestId: string;
-  title?: string;
   description?: string;
-  state?: RequestState;
-  reviewersId?: string[];
   items?: RequestItem[];
+  requestId: string;
+  reviewersId?: string[];
+  state?: RequestState;
+  title?: string;
 };

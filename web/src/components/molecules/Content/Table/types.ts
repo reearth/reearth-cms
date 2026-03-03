@@ -4,55 +4,55 @@ import { SchemaFieldType, TypeProperty } from "@reearth-cms/components/molecules
 import {
   BasicOperator,
   BoolOperator,
+  FieldType as ColumnType,
+  MultipleOperator,
   NullableOperator,
   NumberOperator,
-  TimeOperator,
   StringOperator,
-  MultipleOperator,
-  FieldType as ColumnType,
+  TimeOperator,
 } from "@reearth-cms/components/molecules/View/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import { t } from "@reearth-cms/i18n";
 
-export type ColorType = "#BFBFBF" | "#52C41A" | "#FA8C16";
+export type ColorType = "#52C41A" | "#BFBFBF" | "#FA8C16";
 export type StateType = "DRAFT" | "PUBLIC" | "REVIEW";
 t("DRAFT");
 t("PUBLIC");
 t("REVIEW");
 
 export type DefaultFilterValueType = {
-  operatorType: string;
   operator: Operator;
+  operatorType: string;
   value?: string;
 };
 
-export type FilterType = SchemaFieldType | "Person";
+export type FilterType = "Person" | SchemaFieldType;
 
 export type DropdownFilterType = {
   dataIndex: string | string[];
-  title: string;
-  type: FilterType;
-  typeProperty: { values?: string[]; tags?: { color: string; id: string; name: string }[] };
-  members: Member[];
   id: string;
+  members: Member[];
   multiple: boolean;
   required: boolean;
+  title: string;
+  type: FilterType;
+  typeProperty: { tags?: { color: string; id: string; name: string }[]; values?: string[] };
 };
 
 export type Operator =
   | BasicOperator
   | BoolOperator
+  | MultipleOperator
   | NullableOperator
   | NumberOperator
-  | TimeOperator
   | StringOperator
-  | MultipleOperator;
+  | TimeOperator;
 
-export type ExtendedColumns = StretchColumn<ContentTableField> & {
-  type?: SchemaFieldType | "Person";
-  fieldType: ColumnType | "EDIT_ICON" | "commentsCount";
-  sortOrder?: "descend" | "ascend" | null;
-  typeProperty?: TypeProperty;
-  required?: boolean;
+export type ExtendedColumns = {
+  fieldType: "commentsCount" | "EDIT_ICON" | ColumnType;
   multiple?: boolean;
-};
+  required?: boolean;
+  sortOrder?: "ascend" | "descend" | null;
+  type?: "Person" | SchemaFieldType;
+  typeProperty?: TypeProperty;
+} & StretchColumn<ContentTableField>;

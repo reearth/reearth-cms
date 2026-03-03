@@ -1,4 +1,4 @@
-export function parseConfigBoolean(value: string | boolean | undefined | null): boolean {
+export function parseConfigBoolean(value: boolean | null | string | undefined): boolean {
   if (value === true) return true;
   if (typeof value === "string") return value.toLowerCase() === "true";
   return false;

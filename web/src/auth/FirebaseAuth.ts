@@ -1,20 +1,20 @@
 import {
+  EmailAuthProvider,
   getAuth,
   onAuthStateChanged,
   signInWithRedirect,
   signOut,
-  EmailAuthProvider,
   User,
 } from "firebase/auth";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { logOutFromTenant } from "@reearth-cms/config";
 
 import AuthHook from "./AuthHook";
 
 export const useFirebaseAuth = (): AuthHook => {
-  const [user, setUser] = useState<User | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<null | User>(null);
+  const [error, setError] = useState<null | string>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -70,5 +70,5 @@ export const useFirebaseAuth = (): AuthHook => {
     }
   };
 
-  return { user, isAuthenticated: !!user, isLoading, error, getAccessToken, login, logout };
+  return { error, getAccessToken, isAuthenticated: !!user, isLoading, login, logout, user };
 };

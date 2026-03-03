@@ -1,4 +1,4 @@
-import { useState, useEffect, ChangeEvent, useCallback, useMemo } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 
 export default (
   linkItemModalTotalCount?: number,
@@ -10,10 +10,10 @@ export default (
 
   const pagination = useMemo(
     () => ({
-      showSizeChanger: true,
       current: linkItemModalPage,
-      total: linkItemModalTotalCount,
       pageSize: linkItemModalPageSize,
+      showSizeChanger: true,
+      total: linkItemModalTotalCount,
     }),
     [linkItemModalPage, linkItemModalTotalCount, linkItemModalPageSize],
   );
@@ -29,8 +29,8 @@ export default (
   }, [visible]);
 
   return {
-    value,
-    pagination,
     handleInput,
+    pagination,
+    value,
   };
 };

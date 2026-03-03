@@ -8,52 +8,52 @@ import {
 import useHooks from "./hooks";
 
 type Props = {
+  collapsed: boolean;
+  comments?: Comment[];
+  onCollapse: (value: boolean) => void;
+  refetchQueries: RefetchQueries;
   resourceId?: string;
   resourceType: ResourceType;
   threadId?: string;
-  comments?: Comment[];
-  collapsed: boolean;
-  onCollapse: (value: boolean) => void;
-  refetchQueries: RefetchQueries;
 };
 
 const CommentsPanel: React.FC<Props> = ({
+  collapsed,
+  comments,
+  onCollapse,
+  refetchQueries,
   resourceId,
   resourceType,
   threadId,
-  comments,
-  collapsed,
-  onCollapse,
-  refetchQueries,
 }) => {
   const {
-    userId,
-    hasCreateRight,
-    hasUpdateRight,
-    hasDeleteRight,
     handleCommentCreate,
-    handleCommentUpdate,
     handleCommentDelete,
+    handleCommentUpdate,
+    hasCreateRight,
+    hasDeleteRight,
+    hasUpdateRight,
+    userId,
   } = useHooks({
+    refetchQueries,
     resourceId,
     resourceType,
     threadId,
-    refetchQueries,
   });
 
   return (
     <CommentsPanelWrapper
-      userId={userId}
-      hasCreateRight={hasCreateRight}
-      hasUpdateRight={hasUpdateRight}
-      hasDeleteRight={hasDeleteRight}
-      resourceId={resourceId}
-      comments={comments}
       collapsed={collapsed}
+      comments={comments}
+      hasCreateRight={hasCreateRight}
+      hasDeleteRight={hasDeleteRight}
+      hasUpdateRight={hasUpdateRight}
       onCollapse={onCollapse}
       onCommentCreate={handleCommentCreate}
-      onCommentUpdate={handleCommentUpdate}
       onCommentDelete={handleCommentDelete}
+      onCommentUpdate={handleCommentUpdate}
+      resourceId={resourceId}
+      userId={userId}
     />
   );
 };

@@ -4,9 +4,9 @@ import { atomWithStorage } from "jotai/utils";
 import { UserRights } from "@reearth-cms/components/molecules/Member/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { UploaderState } from "@reearth-cms/components/molecules/Uploader/types";
-import { Workspace, Project } from "@reearth-cms/components/molecules/Workspace/types";
+import { Project, Workspace } from "@reearth-cms/components/molecules/Workspace/types";
 
-const workspace = atom<Workspace | undefined>(undefined);
+const workspace = atom<undefined | Workspace>(undefined);
 export const useWorkspace = () => useAtom(workspace);
 
 const workspaceId = atomWithStorage<string | undefined>("workspaceId", undefined);
@@ -27,12 +27,12 @@ export const useCollapsedModelMenu = () => useAtom(collapsedModelMenu);
 const collapsedMainMenu = atomWithStorage<boolean>("collapsedMainMenu", false);
 export const useCollapsedMainMenu = () => useAtom(collapsedMainMenu);
 
-const userRights = atom<UserRights | undefined>(undefined);
+const userRights = atom<undefined | UserRights>(undefined);
 export const useUserRights = () => useAtom(userRights);
 
 const uploader = atom<UploaderState>({
   isOpen: false,
-  showBadge: true,
   queue: [],
+  showBadge: true,
 });
 export const useUploader = () => useAtom(uploader);

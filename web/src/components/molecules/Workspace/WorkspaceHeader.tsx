@@ -9,9 +9,9 @@ import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { SortBy, SortOption } from "./types";
 
 type Props = {
-  projectSort: SortBy;
   onProjectSearch: (value: string) => void;
   onProjectSort: (sort: SortBy) => void;
+  projectSort: SortBy;
 };
 
 const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort, projectSort }) => {
@@ -29,24 +29,24 @@ const WorkspaceHeader: React.FC<Props> = ({ onProjectSearch, onProjectSort, proj
   return (
     <Container>
       <StyledSearch
+        allowClear
         onSearch={onProjectSearch}
         placeholder={t("search projects")}
-        allowClear
         type="text"
       />
       <Wrapper>
         <Label>{t("Sort by")}</Label>
         <StyledSelect
           data-testid={DATA_TEST_ID.WorkspaceHeader__ProjectSortSelect}
-          value={projectSort}
           onChange={value => {
             onProjectSort(value as SortBy);
-          }}>
+          }}
+          value={projectSort}>
           {projectSortOptions.map(option => (
             <Select.Option
+              data-testid={`workspace-header-project-sort-option-${option.key}`}
               key={option.key}
-              value={option.key}
-              data-testid={`workspace-header-project-sort-option-${option.key}`}>
+              value={option.key}>
               {option.label}
             </Select.Option>
           ))}

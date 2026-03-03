@@ -17,7 +17,6 @@ const DangerZone: React.FC<Props> = ({ onIntegrationDelete }) => {
 
   const handleWorkspaceDeleteConfirmation = useCallback(() => {
     confirm({
-      title: t("Are you sure to remove this integration?"),
       content: (
         <>
           {t("Permanently remove your Integration and all of its contents from the Re:Earth CMS.")}
@@ -34,11 +33,12 @@ const DangerZone: React.FC<Props> = ({ onIntegrationDelete }) => {
       async onOk() {
         await onIntegrationDelete();
       },
+      title: t("Are you sure to remove this integration?"),
     });
   }, [confirm, onIntegrationDelete, t]);
 
   return (
-    <ContentSection title={t("Danger Zone")} danger>
+    <ContentSection danger title={t("Danger Zone")}>
       <Title>{t("Remove integration")}</Title>
       <Text>
         {t(
@@ -46,10 +46,10 @@ const DangerZone: React.FC<Props> = ({ onIntegrationDelete }) => {
         )}
       </Text>
       <StyledDeleteButton
-        onClick={handleWorkspaceDeleteConfirmation}
-        type="primary"
         danger
-        data-testid={DATA_TEST_ID.MyIntegrations__Settings__DangerZone__RemoveIntegrationButton}>
+        data-testid={DATA_TEST_ID.MyIntegrations__Settings__DangerZone__RemoveIntegrationButton}
+        onClick={handleWorkspaceDeleteConfirmation}
+        type="primary">
         {t("Remove integration")}
       </StyledDeleteButton>
     </ContentSection>

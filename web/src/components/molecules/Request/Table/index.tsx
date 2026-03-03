@@ -1,16 +1,16 @@
 import styled from "@emotion/styled";
-import { Key, useMemo, useCallback } from "react";
+import { Key, useCallback, useMemo } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import {
-  ListToolBarProps,
-  StretchColumn,
-  OptionConfig,
-  TableRowSelection,
   ColumnsState,
+  ListToolBarProps,
+  OptionConfig,
+  StretchColumn,
+  TableRowSelection,
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
@@ -21,170 +21,170 @@ import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 type Props = {
-  requests: Request[];
-  loading: boolean;
-  selectedRequest?: Request;
-  onRequestSelect: (assetId: string) => void;
-  onEdit: (requestId: string) => void;
-  searchTerm: string;
-  onSearchTerm: (term?: string) => void;
-  selection: {
-    selectedRowKeys: Key[];
-  };
-  onSelect: (selectedRowKeys: Key[], selectedRows: Request[]) => void;
-  onRequestsReload: () => void;
+  columns: Record<string, ColumnsState>;
+  createdByMe: boolean;
   deleteLoading: boolean;
+  hasCloseRight: boolean;
+  loading: boolean;
+  onColumnsChange: (cols: Record<string, ColumnsState>) => void;
+  onEdit: (requestId: string) => void;
   onRequestDelete: (requestIds: string[]) => void;
+  onRequestSelect: (assetId: string) => void;
+  onRequestsReload: () => void;
   onRequestTableChange: (
     page: number,
     pageSize: number,
-    requestState?: RequestState[] | null,
+    requestState?: null | RequestState[],
     createdByMe?: boolean,
     reviewedByMe?: boolean,
   ) => void;
-  totalCount: number;
-  reviewedByMe: boolean;
-  createdByMe: boolean;
-  requestState: RequestState[];
+  onSearchTerm: (term?: string) => void;
+  onSelect: (selectedRowKeys: Key[], selectedRows: Request[]) => void;
   page: number;
   pageSize: number;
-  columns: Record<string, ColumnsState>;
-  onColumnsChange: (cols: Record<string, ColumnsState>) => void;
-  hasCloseRight: boolean;
+  requests: Request[];
+  requestState: RequestState[];
+  reviewedByMe: boolean;
+  searchTerm: string;
+  selectedRequest?: Request;
+  selection: {
+    selectedRowKeys: Key[];
+  };
+  totalCount: number;
 };
 
 const RequestListTable: React.FC<Props> = ({
-  requests,
-  loading,
-  selectedRequest,
-  onRequestSelect,
-  onEdit,
-  searchTerm,
-  onSearchTerm,
-  selection,
-  onSelect,
-  onRequestsReload,
-  deleteLoading,
-  onRequestDelete,
-  onRequestTableChange,
-  totalCount,
-  reviewedByMe,
+  columns: columnsState,
   createdByMe,
-  requestState,
+  deleteLoading,
+  hasCloseRight,
+  loading,
+  onColumnsChange,
+  onEdit,
+  onRequestDelete,
+  onRequestSelect,
+  onRequestsReload,
+  onRequestTableChange,
+  onSearchTerm,
+  onSelect,
   page,
   pageSize,
-  columns: columnsState,
-  onColumnsChange,
-  hasCloseRight,
+  requests,
+  requestState,
+  reviewedByMe,
+  searchTerm,
+  selectedRequest,
+  selection,
+  totalCount,
 }) => {
   const t = useT();
 
   const columns: StretchColumn<Request>[] = useMemo(
     () => [
       {
-        title: "",
-        hideInSetting: true,
-        render: (_, request) => (
-          <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(request.id)} />
-        ),
-        key: "EDIT_ICON",
-        width: 48,
-        minWidth: 48,
         align: "center",
+        hideInSetting: true,
+        key: "EDIT_ICON",
+        minWidth: 48,
+        render: (_, request) => (
+          <Icon color={"#1890ff"} icon="edit" onClick={() => onEdit(request.id)} />
+        ),
+        title: "",
+        width: 48,
       },
       {
-        title: () => <Icon icon="message" />,
-        hideInSetting: true,
+        align: "center",
         dataIndex: "commentsCount",
+        hideInSetting: true,
         key: "commentsCount",
+        minWidth: 48,
         render: (_, request) => {
           return (
-            <CommentsButton type="link" onClick={() => onRequestSelect(request.id)}>
+            <CommentsButton onClick={() => onRequestSelect(request.id)} type="link">
               <CustomTag
-                value={request.comments?.length || 0}
                 color={request.id === selectedRequest?.id ? "#87e8de" : undefined}
+                value={request.comments?.length || 0}
               />
             </CommentsButton>
           );
         },
+        title: () => <Icon icon="message" />,
         width: 48,
-        minWidth: 48,
-        align: "center",
       },
       {
-        title: t("Title"),
         dataIndex: "title",
-        key: "title",
-        width: 100,
-        minWidth: 100,
         ellipsis: true,
+        key: "title",
+        minWidth: 100,
+        title: t("Title"),
+        width: 100,
       },
       {
-        title: t("State"),
         dataIndex: "requestState",
-        key: "requestState",
-        render: (_, request) => (
-          <Badge color={badgeColors[request.state]} text={t(request.state)} />
-        ),
+        defaultFilteredValue: requestState,
         filters: [
           { text: t("WAITING"), value: "WAITING" },
           { text: t("APPROVED"), value: "APPROVED" },
           { text: t("CLOSED"), value: "CLOSED" },
           { text: t("DRAFT"), value: "DRAFT" },
         ],
-        defaultFilteredValue: requestState,
-        width: 130,
+        key: "requestState",
         minWidth: 130,
+        render: (_, request) => (
+          <Badge color={badgeColors[request.state]} text={t(request.state)} />
+        ),
+        title: t("State"),
+        width: 130,
       },
       {
-        title: t("Created By"),
         dataIndex: "createdBy.name",
+        defaultFilteredValue: createdByMe ? ["createdByMe"] : null,
+        ellipsis: true,
+        filters: true,
         key: "createdBy",
+        minWidth: 105,
         render: (_, request) => request.createdBy?.name,
+        title: t("Created By"),
         valueEnum: {
-          all: { text: "All", status: "Default" },
+          all: { status: "Default", text: "All" },
           createdByMe: {
             text: t("Current user"),
           },
         },
-        filters: true,
-        defaultFilteredValue: createdByMe ? ["createdByMe"] : null,
         width: 105,
-        minWidth: 105,
-        ellipsis: true,
       },
       {
-        title: t("Reviewers"),
         dataIndex: "reviewers.name",
+        defaultFilteredValue: reviewedByMe ? ["reviewedByMe"] : null,
+        ellipsis: true,
+        filters: true,
         key: "reviewers",
+        minWidth: 105,
         render: (_, request) => request.reviewers.map(reviewer => reviewer.name).join(", "),
+        title: t("Reviewers"),
         valueEnum: {
-          all: { text: "All", status: "Default" },
+          all: { status: "Default", text: "All" },
           reviewedByMe: {
             text: t("Current user"),
           },
         },
-        filters: true,
-        defaultFilteredValue: reviewedByMe ? ["reviewedByMe"] : null,
         width: 105,
-        minWidth: 105,
-        ellipsis: true,
       },
       {
-        title: t("Created At"),
         dataIndex: "createdAt",
         key: "createdAt",
-        render: (_text, record) => dateTimeFormat(record.createdAt),
-        width: 150,
         minWidth: 150,
+        render: (_text, record) => dateTimeFormat(record.createdAt),
+        title: t("Created At"),
+        width: 150,
       },
       {
-        title: t("Updated At"),
         dataIndex: "updatedAt",
         key: "updatedAt",
-        render: (_text, record) => dateTimeFormat(record.createdAt),
-        width: 150,
         minWidth: 150,
+        render: (_text, record) => dateTimeFormat(record.createdAt),
+        title: t("Updated At"),
+        width: 150,
       },
     ],
     [createdByMe, onEdit, onRequestSelect, requestState, reviewedByMe, selectedRequest?.id, t],
@@ -192,27 +192,27 @@ const RequestListTable: React.FC<Props> = ({
 
   const options: OptionConfig = useMemo(
     () => ({
-      search: true,
       fullScreen: true,
       reload: onRequestsReload,
+      search: true,
     }),
     [onRequestsReload],
   );
 
   const pagination = useMemo(
     () => ({
-      showSizeChanger: true,
       current: page,
-      total: totalCount,
       pageSize: pageSize,
+      showSizeChanger: true,
+      total: totalCount,
     }),
     [page, pageSize, totalCount],
   );
 
   const rowSelection: TableRowSelection = useMemo(
     () => ({
-      selectedRowKeys: selection.selectedRowKeys,
       onChange: onSelect,
+      selectedRowKeys: selection.selectedRowKeys,
     }),
     [onSelect, selection.selectedRowKeys],
   );
@@ -222,11 +222,11 @@ const RequestListTable: React.FC<Props> = ({
       search: (
         <Search
           allowClear
-          placeholder={t("input search text")}
+          defaultValue={searchTerm}
           onSearch={(value: string) => {
             onSearchTerm(value);
           }}
-          defaultValue={searchTerm}
+          placeholder={t("input search text")}
         />
       ),
     }),
@@ -239,13 +239,13 @@ const RequestListTable: React.FC<Props> = ({
       return (
         <Space size={4}>
           <Button
-            type="link"
-            size="small"
-            icon={<Icon icon="delete" />}
-            onClick={() => onRequestDelete(props.selectedRowKeys)}
             danger
+            disabled={!hasCloseRight}
+            icon={<Icon icon="delete" />}
             loading={deleteLoading}
-            disabled={!hasCloseRight}>
+            onClick={() => onRequestDelete(props.selectedRowKeys)}
+            size="small"
+            type="link">
             {t("Close")}
           </Button>
         </Space>
@@ -256,31 +256,31 @@ const RequestListTable: React.FC<Props> = ({
 
   return (
     <ResizableProTable
-      dataSource={requests}
       columns={columns}
       columnsState={{
         defaultValue: {},
-        value: columnsState,
         onChange: onColumnsChange,
+        value: columnsState,
       }}
-      tableAlertOptionRender={alertOptions}
-      search={false}
-      rowKey="id"
-      options={options}
-      pagination={pagination}
-      toolbar={handleToolbarEvents}
-      rowSelection={rowSelection}
+      dataSource={requests}
+      heightOffset={73}
       loading={loading}
       onChange={(pagination, filters) => {
         onRequestTableChange(
           pagination.current ?? 1,
           pagination.pageSize ?? 10,
-          filters?.requestState as RequestState[] | null,
+          filters?.requestState as null | RequestState[],
           !!filters.createdBy?.[0],
           !!filters?.reviewers?.[0],
         );
       }}
-      heightOffset={73}
+      options={options}
+      pagination={pagination}
+      rowKey="id"
+      rowSelection={rowSelection}
+      search={false}
+      tableAlertOptionRender={alertOptions}
+      toolbar={handleToolbarEvents}
     />
   );
 };

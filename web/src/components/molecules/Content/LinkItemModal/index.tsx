@@ -5,9 +5,9 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Modal, { useModal } from "@reearth-cms/components/atoms/Modal";
 import {
-  StretchColumn,
   ListToolBarProps,
   OptionConfig,
+  StretchColumn,
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
@@ -16,56 +16,55 @@ import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import { FormItem } from "../types";
-
 import useHooks from "./hooks";
 
 type Props = {
-  visible: boolean;
-  loading: boolean;
+  correspondingField?: CorrespondingField;
   fieldId: string;
   itemGroupId?: string;
-  correspondingField?: CorrespondingField;
-  linkedItemsModalList?: FormItem[];
   linkedItem?: string;
-  linkItemModalTitle?: string;
-  linkItemModalTotalCount?: number;
+  linkedItemsModalList?: FormItem[];
   linkItemModalPage?: number;
   linkItemModalPageSize?: number;
-  onSearchTerm: (term?: string) => void;
-  onLinkItemTableReload: () => void;
-  onLinkItemTableChange: (page: number, pageSize: number) => void;
-  onLinkItemModalCancel: () => void;
+  linkItemModalTitle?: string;
+  linkItemModalTotalCount?: number;
+  loading: boolean;
   onChange?: (value: string) => void;
   onCheckItemReference: (
     itemId: string,
     correspondingFieldId: string,
     groupId?: string,
   ) => Promise<boolean>;
+  onLinkItemModalCancel: () => void;
+  onLinkItemTableChange: (page: number, pageSize: number) => void;
+  onLinkItemTableReload: () => void;
+  onSearchTerm: (term?: string) => void;
+  visible: boolean;
 };
 
 const LinkItemModal: React.FC<Props> = ({
-  visible,
-  loading,
+  correspondingField,
   fieldId,
   itemGroupId,
-  correspondingField,
-  linkedItemsModalList,
   linkedItem,
-  linkItemModalTitle,
-  linkItemModalTotalCount,
+  linkedItemsModalList,
   linkItemModalPage,
   linkItemModalPageSize,
-  onSearchTerm,
-  onLinkItemTableReload,
-  onLinkItemTableChange,
-  onLinkItemModalCancel,
+  linkItemModalTitle,
+  linkItemModalTotalCount,
+  loading,
   onChange,
   onCheckItemReference,
+  onLinkItemModalCancel,
+  onLinkItemTableChange,
+  onLinkItemTableReload,
+  onSearchTerm,
+  visible,
 }) => {
   const t = useT();
   const { confirm } = useModal();
 
-  const { value, pagination, handleInput } = useHooks(
+  const { handleInput, pagination, value } = useHooks(
     linkItemModalTotalCount,
     linkItemModalPage,
     linkItemModalPageSize,
@@ -102,13 +101,13 @@ const LinkItemModal: React.FC<Props> = ({
       const isReferenced = await onCheckItemReference(item.id, fieldId, itemGroupId);
       if (isReferenced) {
         confirm({
-          title: t("This item has been referenced"),
           content: t(
             "Are you going to refer to it? The previous reference will be canceled automatically",
           ),
           onOk() {
             handleChange(item.id);
           },
+          title: t("This item has been referenced"),
         });
       } else {
         handleChange(item.id);
@@ -120,55 +119,55 @@ const LinkItemModal: React.FC<Props> = ({
   const columns: StretchColumn<FormItem>[] = useMemo(
     () => [
       {
-        title: "",
-        hideInSetting: true,
-        fixed: "left",
         align: "center",
-        width: 48,
+        fixed: "left",
+        hideInSetting: true,
         minWidth: 48,
         render: (_, item) => {
           const isLink = item.id !== linkedItem;
           return (
             <Button
-              type="link"
               icon={<Icon icon={isLink ? "arrowUpRight" : "arrowUpRightSlash"} size={18} />}
               onClick={() => handleClick(isLink, item)}
+              type="link"
             />
           );
         },
+        title: "",
+        width: 48,
       },
       {
-        title: "ID",
         dataIndex: "id",
+        ellipsis: true,
         key: "id",
-        ellipsis: true,
-        width: 210,
         minWidth: 210,
+        title: "ID",
+        width: 210,
       },
       {
-        title: t("Title"),
         dataIndex: "title",
+        ellipsis: true,
         key: "title",
-        ellipsis: true,
-        width: 230,
         minWidth: 230,
+        title: t("Title"),
+        width: 230,
       },
       {
-        title: t("Created By"),
         dataIndex: "createdBy",
-        key: "createdBy",
         ellipsis: true,
-        width: 100,
+        key: "createdBy",
         minWidth: 100,
+        title: t("Created By"),
+        width: 100,
       },
       {
-        title: t("Created At"),
         dataIndex: "createdAt",
-        key: "createdAt",
         ellipsis: true,
-        width: 130,
+        key: "createdAt",
         minWidth: 130,
         render: (_text, record) => dateTimeFormat(record.createdAt),
+        title: t("Created At"),
+        width: 130,
       },
     ],
     [t, linkedItem, handleClick],
@@ -179,12 +178,12 @@ const LinkItemModal: React.FC<Props> = ({
       search: (
         <Search
           allowClear
-          placeholder={t("input search text")}
+          onChange={handleInput}
           onSearch={(value: string) => {
             onSearchTerm(value);
           }}
+          placeholder={t("input search text")}
           value={value}
-          onChange={handleInput}
         />
       ),
     }),
@@ -193,29 +192,29 @@ const LinkItemModal: React.FC<Props> = ({
 
   return (
     <StyledModal
-      open={visible}
-      title={linkItemModalTitle}
       centered
-      width="70vw"
       footer={null}
       onCancel={onLinkItemModalCancel}
+      open={visible}
       styles={{
         body: {
           height: "70vh",
         },
-      }}>
+      }}
+      title={linkItemModalTitle}
+      width="70vw">
       <ResizableProTable
-        dataSource={linkedItemsModalList}
         columns={columns}
-        search={false}
-        options={options}
-        toolbar={toolbar}
-        pagination={pagination}
+        dataSource={linkedItemsModalList}
+        heightOffset={0}
         loading={loading}
         onChange={pagination => {
           onLinkItemTableChange(pagination.current ?? 1, pagination.pageSize ?? 10);
         }}
-        heightOffset={0}
+        options={options}
+        pagination={pagination}
+        search={false}
+        toolbar={toolbar}
       />
     </StyledModal>
   );

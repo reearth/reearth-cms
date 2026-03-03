@@ -4,50 +4,50 @@ import useHooks from "./hooks";
 
 const Members: React.FC = () => {
   const {
-    userId,
-    isAbleToLeave,
-    handleSearchTerm,
-    handleUserSearch,
-    searchLoading,
     addLoading,
-    handleUsersAddToWorkspace,
-    updateLoading,
-    handleUpdateRole,
-    handleMemberRemoveFromWorkspace,
     handleLeave,
-    workspaceUserMembers,
-    page,
-    pageSize,
-    handleTableChange,
-    loading,
+    handleMemberRemoveFromWorkspace,
     handleReload,
+    handleSearchTerm,
+    handleTableChange,
+    handleUpdateRole,
+    handleUsersAddToWorkspace,
+    handleUserSearch,
+    hasChangeRoleRight,
     hasInviteRight,
     hasRemoveRight,
-    hasChangeRoleRight,
+    isAbleToLeave,
+    loading,
+    page,
+    pageSize,
+    searchLoading,
+    updateLoading,
+    userId,
+    workspaceUserMembers,
   } = useHooks();
 
   return (
     <MemberWrapper
-      workspaceUserMembers={workspaceUserMembers}
-      userId={userId}
-      isAbleToLeave={isAbleToLeave}
-      onMemberRemoveFromWorkspace={handleMemberRemoveFromWorkspace}
-      onLeave={handleLeave}
-      onSearchTerm={handleSearchTerm}
-      page={page}
-      pageSize={pageSize}
-      onTableChange={handleTableChange}
-      loading={loading}
-      onReload={handleReload}
+      addLoading={addLoading}
+      hasChangeRoleRight={hasChangeRoleRight}
       hasInviteRight={hasInviteRight}
       hasRemoveRight={hasRemoveRight}
-      hasChangeRoleRight={hasChangeRoleRight}
-      updateLoading={updateLoading}
+      isAbleToLeave={isAbleToLeave}
+      loading={loading}
+      onLeave={handleLeave}
+      onMemberRemoveFromWorkspace={handleMemberRemoveFromWorkspace}
+      onReload={handleReload}
+      onSearchTerm={handleSearchTerm}
+      onTableChange={handleTableChange}
       onUpdateRole={handleUpdateRole}
-      searchLoading={searchLoading}
-      addLoading={addLoading}
-      onUserSearch={handleUserSearch}
       onUsersAddToWorkspace={handleUsersAddToWorkspace}
+      onUserSearch={handleUserSearch}
+      page={page}
+      pageSize={pageSize}
+      searchLoading={searchLoading}
+      updateLoading={updateLoading}
+      userId={userId}
+      workspaceUserMembers={workspaceUserMembers}
     />
   );
 };

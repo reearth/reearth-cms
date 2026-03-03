@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, test, describe } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import CreateProjectButton from "./CreateProjectButton";
 
@@ -18,8 +18,8 @@ describe("Create project button", () => {
     render(
       <CreateProjectButton
         hasCreateRight={true}
-        onProjectCreate={onProjectCreate}
         onProjectAliasCheck={onProjectAliasCheck}
+        onProjectCreate={onProjectCreate}
       />,
     );
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -35,8 +35,8 @@ describe("Create project button", () => {
     render(
       <CreateProjectButton
         hasCreateRight={false}
-        onProjectCreate={onProjectCreate}
         onProjectAliasCheck={onProjectAliasCheck}
+        onProjectCreate={onProjectCreate}
       />,
     );
 

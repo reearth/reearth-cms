@@ -9,81 +9,81 @@ import { SelectedSchemaType } from "@reearth-cms/components/molecules/Schema/typ
 import useHooks from "./hooks";
 
 type Props = {
-  title: string;
   collapsed: boolean;
-  selectedSchemaType: SelectedSchemaType;
   displayGroups?: boolean;
-  titleIcon: string;
-  onModelSelect: (modelId: string) => void;
   onGroupSelect?: (groupId: string) => void;
+  onModelSelect: (modelId: string) => void;
+  selectedSchemaType: SelectedSchemaType;
+  title: string;
+  titleIcon: string;
 };
 
 const ModelsMenu: React.FC<Props> = ({
-  title,
   collapsed,
-  selectedSchemaType,
   displayGroups,
-  titleIcon,
-  onModelSelect,
   onGroupSelect,
+  onModelSelect,
+  selectedSchemaType,
+  title,
+  titleIcon,
 }) => {
   const { modelId: schemaId } = useParams();
 
   const {
-    models,
-    groups,
-    modelModalShown,
     groupModalShown,
+    groups,
+    handleGroupCreate,
+    handleGroupKeyCheck,
+    handleGroupModalClose,
+    handleGroupModalOpen,
+    handleModelCreate,
+    handleModelKeyCheck,
+    handleModelModalClose,
+    handleModelModalOpen,
+    handleUpdateGroupsOrder,
+    handleUpdateModelsOrder,
     hasCreateRight,
     hasUpdateRight,
-    handleModelModalOpen,
-    handleModelModalClose,
-    handleGroupModalOpen,
-    handleGroupModalClose,
-    handleModelCreate,
-    handleGroupCreate,
-    handleModelKeyCheck,
-    handleGroupKeyCheck,
-    handleUpdateModelsOrder,
-    handleUpdateGroupsOrder,
+    modelModalShown,
+    models,
   } = useHooks({
     modelId: selectedSchemaType === "model" ? schemaId : undefined,
   });
 
   return (
     <>
-      <ModelListHeader title={title} collapsed={collapsed} titleIcon={titleIcon} />
+      <ModelListHeader collapsed={collapsed} title={title} titleIcon={titleIcon} />
       <ModelListBody collapsed={collapsed}>
         <Models
-          title={title}
           collapsed={collapsed}
-          selectedKey={schemaId}
-          models={models}
-          open={modelModalShown}
           hasCreateRight={hasCreateRight}
           hasUpdateRight={hasUpdateRight}
-          onModalOpen={handleModelModalOpen}
-          onModelSelect={onModelSelect}
-          onModelKeyCheck={handleModelKeyCheck}
+          models={models}
           onClose={handleModelModalClose}
           onCreate={handleModelCreate}
+          onModalOpen={handleModelModalOpen}
+          onModelKeyCheck={handleModelKeyCheck}
+          onModelSelect={onModelSelect}
           onUpdateModelsOrder={handleUpdateModelsOrder}
+          open={modelModalShown}
+          selectedKey={schemaId}
+          title={title}
         />
         {displayGroups && (
           <Groups
-            title={title}
             collapsed={collapsed}
-            selectedKey={schemaId}
             groups={groups}
-            open={groupModalShown}
             hasCreateRight={hasCreateRight}
             hasUpdateRight={hasUpdateRight}
-            onModalOpen={handleGroupModalOpen}
-            onGroupKeyCheck={handleGroupKeyCheck}
             onClose={handleGroupModalClose}
             onCreate={handleGroupCreate}
+            onGroupKeyCheck={handleGroupKeyCheck}
             onGroupSelect={onGroupSelect}
+            onModalOpen={handleGroupModalOpen}
             onUpdateGroupsOrder={handleUpdateGroupsOrder}
+            open={groupModalShown}
+            selectedKey={schemaId}
+            title={title}
           />
         )}
       </ModelListBody>

@@ -13,9 +13,9 @@ import FieldTitle from "../../FieldTitle";
 import { requiredValidator } from "../utils";
 
 const TextareaField: React.FC<FieldProps> = ({
+  disabled,
   field,
   itemGroupId,
-  disabled,
   itemHeights,
   onItemHeightChange,
 }) => {
@@ -27,14 +27,16 @@ const TextareaField: React.FC<FieldProps> = ({
   return (
     <StyledFormItem
       extra={field.description}
-      validateStatus="success"
+      label={<FieldTitle isTitle={field.isTitle} isUnique={field.unique} title={field.title} />}
+      name={itemGroupId ? [field.id, itemGroupId] : field.id}
       rules={[
         {
+          message: t("Please input field!"),
           required,
           validator: requiredValidator,
-          message: t("Please input field!"),
         },
         {
+          message: "",
           validator: (_, value) => {
             if (value && maxLength) {
               if (Array.isArray(value)) {
@@ -47,28 +49,26 @@ const TextareaField: React.FC<FieldProps> = ({
             }
             return Promise.resolve();
           },
-          message: "",
         },
       ]}
-      name={itemGroupId ? [field.id, itemGroupId] : field.id}
-      label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={field.isTitle} />}>
+      validateStatus="success">
       <ResponsiveHeight itemHeights={itemHeights} onItemHeightChange={onItemHeightChange}>
         {field.multiple ? (
           <MultiValueField
+            disabled={disabled}
+            FieldInput={TextArea}
+            maxLength={maxLength}
+            required={required}
             rows={3}
             showCount
-            maxLength={maxLength}
-            FieldInput={TextArea}
-            disabled={disabled}
-            required={required}
           />
         ) : (
           <TextArea
+            disabled={disabled}
+            maxLength={maxLength}
+            required={required}
             rows={3}
             showCount
-            maxLength={maxLength}
-            disabled={disabled}
-            required={required}
           />
         )}
       </ResponsiveHeight>

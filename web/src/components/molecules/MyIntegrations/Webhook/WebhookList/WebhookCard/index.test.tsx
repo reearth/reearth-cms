@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import WebhookCard from ".";
 
@@ -12,12 +12,12 @@ describe("Webhook card", () => {
   const url = "url";
 
   const webhook = {
+    active: false,
     id,
     name,
-    url,
-    active: false,
     secret: "",
     trigger: {},
+    url,
   };
   const onWebhookDelete = () => {
     return new Promise<void>(resolve => {
@@ -38,10 +38,10 @@ describe("Webhook card", () => {
   test("Name, url, status, setting button, and delete button are displayed successfully", async () => {
     render(
       <WebhookCard
-        webhook={webhook}
         onWebhookDelete={onWebhookDelete}
-        onWebhookUpdate={onWebhookUpdate}
         onWebhookSelect={onWebhookSelect}
+        onWebhookUpdate={onWebhookUpdate}
+        webhook={webhook}
       />,
     );
 
@@ -57,10 +57,10 @@ describe("Webhook card", () => {
     const onWebhookUpdateMock = vi.fn(onWebhookUpdate);
     const { rerender } = render(
       <WebhookCard
-        webhook={webhook}
         onWebhookDelete={onWebhookDelete}
-        onWebhookUpdate={onWebhookUpdateMock}
         onWebhookSelect={onWebhookSelect}
+        onWebhookUpdate={onWebhookUpdateMock}
+        webhook={webhook}
       />,
     );
 
@@ -71,10 +71,10 @@ describe("Webhook card", () => {
 
     rerender(
       <WebhookCard
-        webhook={webhook}
         onWebhookDelete={onWebhookDelete}
-        onWebhookUpdate={onWebhookUpdateMock}
         onWebhookSelect={onWebhookSelect}
+        onWebhookUpdate={onWebhookUpdateMock}
+        webhook={webhook}
       />,
     );
     await expect.poll(() => screen.queryByLabelText("loading")).not.toBeInTheDocument();
@@ -86,10 +86,10 @@ describe("Webhook card", () => {
     const onWebhookSettingsMock = vi.fn();
     render(
       <WebhookCard
-        webhook={webhook}
         onWebhookDelete={onWebhookDelete}
-        onWebhookUpdate={onWebhookUpdate}
         onWebhookSelect={onWebhookSettingsMock}
+        onWebhookUpdate={onWebhookUpdate}
+        webhook={webhook}
       />,
     );
 
@@ -101,10 +101,10 @@ describe("Webhook card", () => {
     const onWebhookDeleteMock = vi.fn(onWebhookDelete);
     render(
       <WebhookCard
-        webhook={webhook}
         onWebhookDelete={onWebhookDeleteMock}
-        onWebhookUpdate={onWebhookUpdate}
         onWebhookSelect={onWebhookSelect}
+        onWebhookUpdate={onWebhookUpdate}
+        webhook={webhook}
       />,
     );
 

@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { FocusEventHandler, useCallback, useState, useMemo } from "react";
+import { FocusEventHandler, useCallback, useMemo, useState } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
@@ -16,16 +16,16 @@ const { Option } = Select;
 
 type Props = {
   currentRequest: Request;
-  workspaceUserMembers: UserMember[];
   isAssignActionEnabled: boolean;
   onRequestUpdate: (data: RequestUpdatePayload) => Promise<void>;
+  workspaceUserMembers: UserMember[];
 };
 
 const RequestSidebarWrapper: React.FC<Props> = ({
   currentRequest,
-  workspaceUserMembers,
   isAssignActionEnabled,
   onRequestUpdate,
+  workspaceUserMembers,
 }) => {
   const t = useT();
   const formattedCreatedAt = dateTimeFormat(currentRequest?.createdAt);
@@ -62,11 +62,11 @@ const RequestSidebarWrapper: React.FC<Props> = ({
 
     try {
       await onRequestUpdate({
-        requestId: requestId,
-        title: currentRequest?.title,
         description: currentRequest?.description,
-        state: currentRequest?.state,
+        requestId: requestId,
         reviewersId: selectedReviewers,
+        state: currentRequest?.state,
+        title: currentRequest?.title,
       });
     } catch (error) {
       console.error("Validate Failed:", error);
@@ -95,23 +95,23 @@ const RequestSidebarWrapper: React.FC<Props> = ({
       <SidebarCard title={t("Reviewer")}>
         <ReviewerContainer>
           {currentRequest?.reviewers.map((reviewer, index) => (
-            <Reviewer title={reviewer.name} key={index}>
+            <Reviewer key={index} title={reviewer.name}>
               {reviewer.name}
             </Reviewer>
           ))}
         </ReviewerContainer>
         {viewReviewers ? (
           <StyledSelect
+            allowClear
             autoFocus
             defaultValue={defaultValue}
-            placeholder={t("Reviewer")}
-            mode="multiple"
             filterOption={(input, option) =>
               option?.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }
-            onChange={value => setSelectedReviewers(value as string[])}
+            mode="multiple"
             onBlur={handleSubmit}
-            allowClear>
+            onChange={value => setSelectedReviewers(value as string[])}
+            placeholder={t("Reviewer")}>
             {reviewers.map(reviewer => (
               <Option key={reviewer.value} label={reviewer.label}>
                 {reviewer.label}
@@ -121,9 +121,9 @@ const RequestSidebarWrapper: React.FC<Props> = ({
         ) : (
           <ViewReviewers>
             <StyledButton
-              type="link"
+              disabled={!isAssignActionEnabled}
               onClick={displayViewReviewers}
-              disabled={!isAssignActionEnabled}>
+              type="link">
               {t("Assign to")}
             </StyledButton>
           </ViewReviewers>

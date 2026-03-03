@@ -41,10 +41,10 @@ const FileItem: React.FC<Props> = ({ file, remove }) => {
           </Checkbox>
         )}
         <Button
-          type="text"
-          title={t("Remove file")}
           icon={<Icon icon="delete" />}
           onClick={remove}
+          title={t("Remove file")}
+          type="text"
         />
       </span>
     </div>

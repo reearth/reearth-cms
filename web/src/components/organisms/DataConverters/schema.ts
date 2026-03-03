@@ -1,34 +1,34 @@
-import { GroupField, Group } from "@reearth-cms/components/molecules/Schema/types";
-import { Maybe, Group as GQLGroup } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { Group, GroupField } from "@reearth-cms/components/molecules/Schema/types";
+import { Group as GQLGroup, Maybe } from "@reearth-cms/gql/__generated__/graphql.generated";
 
 export const fromGraphQLGroup = (group: Maybe<GQLGroup>): Group | undefined => {
   if (!group) return;
 
   return {
-    id: group.id,
-    schemaId: group.schemaId,
-    projectId: group.projectId,
-    name: group.name,
     description: group.description,
+    id: group.id,
     key: group.key,
+    name: group.name,
     order: group.order,
+    projectId: group.projectId,
     schema: {
-      id: group.schema?.id,
       fields: group.schema?.fields.map(
         field =>
           ({
-            id: field.id,
             description: field.description,
-            title: field.title,
-            type: field.type,
-            key: field.key,
-            unique: field.unique,
+            id: field.id,
             isTitle: field.isTitle,
+            key: field.key,
             multiple: field.multiple,
             required: field.required,
+            title: field.title,
+            type: field.type,
             typeProperty: field.typeProperty,
+            unique: field.unique,
           }) as GroupField,
       ),
+      id: group.schema?.id,
     },
+    schemaId: group.schemaId,
   };
 };

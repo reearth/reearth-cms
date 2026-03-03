@@ -1,7 +1,7 @@
 import { Upload } from "antd";
 import {
-  UploadChangeParam,
   UploadFile as ANTDFileUpload,
+  UploadChangeParam,
   UploadProps,
 } from "antd/lib/upload/interface";
 

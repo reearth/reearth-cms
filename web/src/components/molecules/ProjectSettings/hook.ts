@@ -34,8 +34,8 @@ export default (
       ) {
         return Promise.reject(
           t(`Your alias must be between {{min}} and {{max}} characters long.`, {
-            min: Constant.PROJECT_ALIAS.MIN_LENGTH,
             max: Constant.PROJECT_ALIAS.MAX_LENGTH,
+            min: Constant.PROJECT_ALIAS.MIN_LENGTH,
           }),
         );
       }

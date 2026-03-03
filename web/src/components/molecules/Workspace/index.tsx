@@ -14,63 +14,63 @@ import { parseConfigBoolean } from "@reearth-cms/utils/format";
 import WorkspaceHeader from "./WorkspaceHeader";
 
 type Props = {
-  username?: string;
-  privateProjectsAllowed?: boolean;
   coverImageUrl?: string;
-  projects: Project[];
-  loading: boolean;
   hasCreateRight: boolean;
-  page: number;
-  pageSize: number;
-  projectSort: SortBy;
-  totalCount: number;
+  loading: boolean;
+  onPageChange: (page: number, pageSize: number) => void;
+  onProjectAliasCheck: (alias: string) => Promise<boolean>;
+  onProjectCreate: (values: ProjectFormValues) => Promise<void>;
+  onProjectNavigation: (projectId: string) => void;
   onProjectSearch: (value: string) => void;
   onProjectSort: (sort: SortBy) => void;
-  onProjectNavigation: (projectId: string) => void;
-  onProjectCreate: (values: ProjectFormValues) => Promise<void>;
   onWorkspaceCreate: (values: WorkspaceFormValues) => Promise<void>;
-  onProjectAliasCheck: (alias: string) => Promise<boolean>;
-  onPageChange: (page: number, pageSize: number) => void;
+  page: number;
+  pageSize: number;
+  privateProjectsAllowed?: boolean;
+  projects: Project[];
+  projectSort: SortBy;
+  totalCount: number;
+  username?: string;
 };
 
 const WorkspaceWrapper: React.FC<Props> = ({
-  username,
-  privateProjectsAllowed,
   coverImageUrl,
-  projects,
-  loading,
   hasCreateRight,
-  page,
-  pageSize,
-  projectSort,
-  totalCount,
+  loading,
+  onPageChange,
+  onProjectAliasCheck,
+  onProjectCreate,
+  onProjectNavigation,
   onProjectSearch,
   onProjectSort,
-  onProjectNavigation,
   onWorkspaceCreate,
-  onProjectCreate,
-  onProjectAliasCheck,
-  onPageChange,
+  page,
+  pageSize,
+  privateProjectsAllowed,
+  projects,
+  projectSort,
+  totalCount,
+  username,
 }) => {
   const disableWorkspaceUi = parseConfigBoolean(window.REEARTH_CONFIG?.disableWorkspaceUi);
 
   return (
     <InnerContent isFullHeight>
-      <Greeting username={username} coverImageUrl={coverImageUrl} />
+      <Greeting coverImageUrl={coverImageUrl} username={username} />
       <ContentSection
-        title="Projects"
+        hasPadding={false}
         headerActions={
           <ButtonWrapper>
             {!disableWorkspaceUi && <CreateWorkspaceButton onWorkspaceCreate={onWorkspaceCreate} />}
             <CreateProjectButton
-              privateProjectsAllowed={privateProjectsAllowed}
               hasCreateRight={hasCreateRight}
-              onProjectCreate={onProjectCreate}
               onProjectAliasCheck={onProjectAliasCheck}
+              onProjectCreate={onProjectCreate}
+              privateProjectsAllowed={privateProjectsAllowed}
             />
           </ButtonWrapper>
         }
-        hasPadding={false}>
+        title="Projects">
         <WorkspaceHeader
           onProjectSearch={onProjectSearch}
           onProjectSort={onProjectSort}
@@ -78,15 +78,15 @@ const WorkspaceWrapper: React.FC<Props> = ({
         />
         <ProjectList
           hasCreateRight={hasCreateRight}
-          projects={projects}
           loading={loading}
+          onPageChange={onPageChange}
+          onProjectAliasCheck={onProjectAliasCheck}
+          onProjectCreate={onProjectCreate}
+          onProjectNavigation={onProjectNavigation}
           page={page}
           pageSize={pageSize}
+          projects={projects}
           totalCount={totalCount}
-          onProjectNavigation={onProjectNavigation}
-          onProjectCreate={onProjectCreate}
-          onProjectAliasCheck={onProjectAliasCheck}
-          onPageChange={onPageChange}
         />
       </ContentSection>
     </InnerContent>

@@ -3,11 +3,11 @@ import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { Project, UpdateProjectInput } from "../Workspace/types";
 
 export default ({
-  project,
   onProjectUpdate,
+  project,
 }: {
-  project?: Project;
   onProjectUpdate: (data: UpdateProjectInput) => Promise<void>;
+  project?: Project;
 }) => {
   const [activeReadmeTab, setActiveReadmeTab] = useState("edit");
   const [readmeEditMode, setReadmeEditMode] = useState(false);
@@ -48,8 +48,8 @@ export default ({
     setActiveLicenseTab("edit");
     setLicenseEditMode(false);
     await onProjectUpdate({
-      projectId: project.id,
       license: licenseValue,
+      projectId: project.id,
     });
   }, [onProjectUpdate, project?.id, licenseValue]);
 
@@ -70,20 +70,20 @@ export default ({
   }, []);
 
   return {
-    activeReadmeTab,
-    setActiveReadmeTab,
-    readmeEditMode,
-    readmeValue,
     activeLicenseTab,
-    setActiveLicenseTab,
+    activeReadmeTab,
+    handleChooseLicenseTemplate,
+    handleLicenseEdit,
+    handleLicenseMarkdownChange,
+    handleLicenseSave,
+    handleReadmeEdit,
+    handleReadmeMarkdownChange,
+    handleReadmeSave,
     licenseEditMode,
     licenseValue,
-    handleReadmeSave,
-    handleReadmeEdit,
-    handleLicenseSave,
-    handleLicenseEdit,
-    handleReadmeMarkdownChange,
-    handleLicenseMarkdownChange,
-    handleChooseLicenseTemplate,
+    readmeEditMode,
+    readmeValue,
+    setActiveLicenseTab,
+    setActiveReadmeTab,
   };
 };

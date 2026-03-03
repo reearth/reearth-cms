@@ -10,11 +10,6 @@ import { UploaderQueueItem } from "./types";
 
 type Params = {
   jobId: UploaderQueueItem["jobId"];
-  shouldSubscribe?: boolean;
-  onJobUpdateCallback: useSubscription.Base.Options<
-    JobStateSubscription,
-    Exact<{ jobId: Scalars["ID"]["input"] }>
-  >["onData"];
   onJobCompleteCallback?: useSubscription.Base.Options<
     JobStateSubscription,
     Exact<{ jobId: Scalars["ID"]["input"] }>
@@ -23,23 +18,28 @@ type Params = {
     JobStateSubscription,
     Exact<{ jobId: Scalars["ID"]["input"] }>
   >["onError"];
+  onJobUpdateCallback: useSubscription.Base.Options<
+    JobStateSubscription,
+    Exact<{ jobId: Scalars["ID"]["input"] }>
+  >["onData"];
+  shouldSubscribe?: boolean;
 };
 
 export default function useJobState(params: Params): void {
   const {
     jobId,
-    shouldSubscribe = true,
-    onJobUpdateCallback,
     onJobCompleteCallback,
     onJobErrorCallback,
+    onJobUpdateCallback,
+    shouldSubscribe = true,
   } = params;
 
   useSubscription(JobStateDocument, {
-    variables: { jobId },
-    skip: !shouldSubscribe,
+    fetchPolicy: "network-only",
+    onComplete: onJobCompleteCallback,
     onData: onJobUpdateCallback,
     onError: onJobErrorCallback,
-    onComplete: onJobCompleteCallback,
-    fetchPolicy: "network-only",
+    skip: !shouldSubscribe,
+    variables: { jobId },
   });
 }

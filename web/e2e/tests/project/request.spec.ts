@@ -6,7 +6,7 @@ const titleFieldName = "e2e title field";
 const requestTitle = "e2e request title";
 const modelName = "e2e model name";
 
-test.beforeEach(async ({ reearth, projectPage, schemaPage, contentPage }) => {
+test.beforeEach(async ({ contentPage, projectPage, reearth, schemaPage }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
@@ -159,7 +159,7 @@ test("Comment CRUD on edit page has succeeded", async ({ requestPage }) => {
   });
 });
 
-test("Comment CRUD on Request page has succeeded", async ({ requestPage, contentPage }) => {
+test("Comment CRUD on Request page has succeeded", async ({ contentPage, requestPage }) => {
   await test.step("Navigate to request comments panel", async () => {
     await requestPage.requestMenuItem.click();
     await requestPage.commentsCountButton("0").click();
@@ -173,8 +173,8 @@ test("Comment CRUD on Request page has succeeded", async ({ requestPage, content
 });
 
 test("Creating a new request and adding to request has succeeded", async ({
-  requestPage,
   page,
+  requestPage,
 }) => {
   await test.step("Create a new item", async () => {
     await expect(requestPage.backButtonCapitalized).toBeVisible();

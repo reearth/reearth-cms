@@ -8,18 +8,18 @@ import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  me?: User;
   loading: boolean;
-  onUserUpdate: (name: string, email: string) => Promise<void>;
+  me?: User;
   onLanguageUpdate: (lang: string) => Promise<void>;
   onUserDelete: () => Promise<void>;
+  onUserUpdate: (name: string, email: string) => Promise<void>;
 };
 
 const AccountSettings: React.FC<Props> = ({
-  me,
   loading,
-  onUserDelete,
+  me,
   onLanguageUpdate,
+  onUserDelete,
   onUserUpdate,
 }) => {
   const t = useT();

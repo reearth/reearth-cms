@@ -27,8 +27,8 @@ const Status: React.FC<Props> = ({ status }) => {
     <BadgeWrapper>
       {itemStatus.map((state, index) => (
         <Badge
-          key={index}
           color={stateColors[state]}
+          key={index}
           text={index === itemStatus.length - 1 ? text : undefined}
         />
       ))}

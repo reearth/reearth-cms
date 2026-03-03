@@ -28,7 +28,7 @@ type Props = {
 };
 
 function checkCorner(x: number, y: number): Corner {
-  const { innerWidth, innerHeight } = window;
+  const { innerHeight, innerWidth } = window;
   const shouldGoTop = y <= innerHeight / 2;
   const shouldGoLeft = x <= innerWidth / 2;
 
@@ -55,14 +55,14 @@ const Uploader: React.FC<Props> = props => {
 
   // states for data
   const {
-    uploaderState,
-    shouldPreventReload,
-    uploadingFileCount,
-    handleUploaderOpen,
-    handleUploadCancel,
-    handleUploadRetry,
     handleCancelAll,
     handleJobUpdate,
+    handleUploadCancel,
+    handleUploaderOpen,
+    handleUploadRetry,
+    shouldPreventReload,
+    uploaderState,
+    uploadingFileCount,
   } = useHooks();
 
   const titleMessage = useMemo(
@@ -74,18 +74,10 @@ const Uploader: React.FC<Props> = props => {
     (corner: Corner) => {
       if (!uploaderWrapperRef.current) return;
 
-      const { innerWidth, innerHeight } = window;
-      const { offsetWidth, offsetHeight } = uploaderWrapperRef.current;
+      const { innerHeight, innerWidth } = window;
+      const { offsetHeight, offsetWidth } = uploaderWrapperRef.current;
 
       const positions: Record<Corner, { x: number; y: number }> = {
-        [Corner.TopLeft]: {
-          x: -(innerWidth - offsetWidth - UPLOADER_PADDING - offsetWidth / 2),
-          y: -(innerHeight - offsetHeight - UPLOADER_PADDING - offsetHeight / 2),
-        },
-        [Corner.TopRight]: {
-          x: 0,
-          y: -(innerHeight - offsetHeight - UPLOADER_PADDING - offsetHeight / 2),
-        },
         [Corner.BottomLeft]: {
           x: -(innerWidth - offsetWidth - UPLOADER_PADDING - offsetWidth / 2),
           y: 0,
@@ -94,17 +86,25 @@ const Uploader: React.FC<Props> = props => {
           x: 0,
           y: 0,
         },
+        [Corner.TopLeft]: {
+          x: -(innerWidth - offsetWidth - UPLOADER_PADDING - offsetWidth / 2),
+          y: -(innerHeight - offsetHeight - UPLOADER_PADDING - offsetHeight / 2),
+        },
+        [Corner.TopRight]: {
+          x: 0,
+          y: -(innerHeight - offsetHeight - UPLOADER_PADDING - offsetHeight / 2),
+        },
       };
 
       animationControls.start({
-        x: positions[corner].x,
-        y: positions[corner].y,
         transition: {
-          type: "spring",
-          stiffness: 150,
           damping: 20,
           duration: 0.5,
+          stiffness: 150,
+          type: "spring",
         },
+        x: positions[corner].x,
+        y: positions[corner].y,
       });
     },
     [animationControls],
@@ -123,14 +123,14 @@ const Uploader: React.FC<Props> = props => {
 
   const cancelModalCommonProps = useMemo<ModalFuncProps>(
     () => ({
-      title: t("Cancel upload?"),
+      cancelText: t("Keep uploading"),
       content: t(
         "Your file hasn't finished uploading yet. Are you sure you want to cancel upload?",
       ),
-      cancelText: t("Keep uploading"),
-      okText: t("Cancel upload"),
-      okButtonProps: { variant: "solid", color: "danger" },
       maskClosable: false,
+      okButtonProps: { color: "danger", variant: "solid" },
+      okText: t("Cancel upload"),
+      title: t("Cancel upload?"),
     }),
     [t],
   );
@@ -152,20 +152,19 @@ const Uploader: React.FC<Props> = props => {
 
   return (
     <UploaderWrapper
+      animate={animationControls}
       data-testid={DATA_TEST_ID.Uploader__Wrapper}
-      ref={uploaderWrapperRef}
       drag={!uploaderState.isOpen}
       dragConstraints={props.constraintsRef}
-      dragMomentum={false}
       dragControls={dragControls}
-      animate={animationControls}
-      whileDrag={{ scale: 1.1 }}
-      onDragEnd={handleDragEnd}>
+      dragMomentum={false}
+      onDragEnd={handleDragEnd}
+      ref={uploaderWrapperRef}
+      whileDrag={{ scale: 1.1 }}>
       <UploadIcon
+        animate={uploaderState.isOpen ? "open" : "closed"}
         data-testid={DATA_TEST_ID.Uploader__UploadIcon}
         initial="closed"
-        variants={uploadIconVariants}
-        animate={uploaderState.isOpen ? "open" : "closed"}
         onPointerDown={e => {
           dragStart.current = { x: e.clientX, y: e.clientY };
         }}
@@ -177,24 +176,25 @@ const Uploader: React.FC<Props> = props => {
           if (distance < DRAG_THRESHOLD) {
             handleUploaderOpen(true);
           }
-        }}>
+        }}
+        variants={uploadIconVariants}>
         <Badge
           color="#ffffff"
+          dot={uploaderState.showBadge}
           size="small"
-          style={{ boxShadow: "none" }}
-          dot={uploaderState.showBadge}>
-          <Icon icon="upload" size={26} color="#ffffff" />
+          style={{ boxShadow: "none" }}>
+          <Icon color="#ffffff" icon="upload" size={26} />
         </Badge>
       </UploadIcon>
 
       <Card
-        data-testid={DATA_TEST_ID.Uploader__Card}
-        data-corner={corner}
-        layout="size"
-        initial="closed"
-        variants={cardVariants}
         animate={uploaderState.isOpen ? "open" : "closed"}
-        transition={{ duration: 0 }}>
+        data-corner={corner}
+        data-testid={DATA_TEST_ID.Uploader__Card}
+        initial="closed"
+        layout="size"
+        transition={{ duration: 0 }}
+        variants={cardVariants}>
         <CardHead data-testid={DATA_TEST_ID.Uploader__CardHead}>
           <Title data-testid={DATA_TEST_ID.Uploader__CardTitle}>{titleMessage}</Title>
           <TitleSuffix data-testid={DATA_TEST_ID.Uploader__CardTitleSuffix}>
@@ -216,10 +216,10 @@ const Uploader: React.FC<Props> = props => {
           {uploaderState.queue.map((queue, _index) => (
             <QueueItem
               key={queue.jobId}
-              queue={queue}
-              onRetry={handleUploadRetry}
               onCancel={handleUploadCancel}
               onJobUpdate={handleJobUpdate}
+              onRetry={handleUploadRetry}
+              queue={queue}
             />
           ))}
         </CardBody>
@@ -346,24 +346,24 @@ const UploadIcon = styled(motion.div)`
 `;
 
 const uploadIconVariants: Variants = {
-  open: {
-    opacity: 0,
-  },
   closed: {
     opacity: 100,
+  },
+  open: {
+    opacity: 0,
   },
 };
 
 const cardVariants: Variants = {
-  open: {
-    width: "300px",
-    height: "auto",
-    opacity: 1,
-  },
   closed: {
-    width: 0,
     height: 0,
     opacity: 0,
+    width: 0,
+  },
+  open: {
+    height: "auto",
+    opacity: 1,
+    width: "300px",
   },
 };
 

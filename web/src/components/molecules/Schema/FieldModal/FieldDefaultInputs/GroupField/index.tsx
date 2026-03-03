@@ -8,7 +8,7 @@ const GroupField: React.FC = () => {
   const t = useT();
 
   return (
-    <Form.Item name="defaultValue" label={t("Set default value")}>
+    <Form.Item label={t("Set default value")} name="defaultValue">
       <Input disabled />
     </Form.Item>
   );

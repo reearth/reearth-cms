@@ -6,7 +6,7 @@ const description = "tag description";
 const tag1 = "Tag1";
 const tag2 = "Tag2";
 
-test.beforeEach(async ({ reearth, projectPage }) => {
+test.beforeEach(async ({ projectPage, reearth }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
@@ -19,9 +19,9 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("@smoke Tag metadata creating and updating has succeeded", async ({
-  page,
-  fieldEditorPage,
   contentPage,
+  fieldEditorPage,
+  page,
   schemaPage,
 }) => {
   await test.step("Create tag metadata field with validation checks", async () => {
@@ -106,9 +106,9 @@ test("@smoke Tag metadata creating and updating has succeeded", async ({
 });
 
 test("Tag metadata editing has succeeded", async ({
-  page,
-  fieldEditorPage,
   contentPage,
+  fieldEditorPage,
+  page,
   schemaPage,
 }) => {
   const newFieldName = `new ${fieldName}`;

@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { t } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
@@ -11,12 +11,12 @@ describe("Integration creation modal", () => {
   const user = userEvent.setup();
 
   const integration = {
-    name: "name",
-    description: "description",
-    logoUrl: "logoUrl",
     config: {
       token: "token",
     },
+    description: "description",
+    logoUrl: "logoUrl",
+    name: "name",
   };
   const updateIntegrationLoading = false;
   const regenerateLoading = false;
@@ -33,10 +33,10 @@ describe("Integration creation modal", () => {
     render(
       <MyIntegrationForm
         integration={integration}
-        updateIntegrationLoading={updateIntegrationLoading}
-        regenerateLoading={regenerateLoading}
         onIntegrationUpdate={onIntegrationUpdate}
         onRegenerateToken={onRegenerateToken}
+        regenerateLoading={regenerateLoading}
+        updateIntegrationLoading={updateIntegrationLoading}
       />,
     );
 
@@ -52,10 +52,10 @@ describe("Integration creation modal", () => {
     render(
       <MyIntegrationForm
         integration={integration}
-        updateIntegrationLoading={true}
-        regenerateLoading={true}
         onIntegrationUpdate={onIntegrationUpdate}
         onRegenerateToken={onRegenerateToken}
+        regenerateLoading={true}
+        updateIntegrationLoading={true}
       />,
     );
 
@@ -67,10 +67,10 @@ describe("Integration creation modal", () => {
     render(
       <MyIntegrationForm
         integration={integration}
-        updateIntegrationLoading={updateIntegrationLoading}
-        regenerateLoading={regenerateLoading}
         onIntegrationUpdate={onIntegrationUpdate}
         onRegenerateToken={onRegenerateToken}
+        regenerateLoading={regenerateLoading}
+        updateIntegrationLoading={updateIntegrationLoading}
       />,
     );
 
@@ -89,10 +89,10 @@ describe("Integration creation modal", () => {
     render(
       <MyIntegrationForm
         integration={integration}
-        updateIntegrationLoading={updateIntegrationLoading}
-        regenerateLoading={regenerateLoading}
         onIntegrationUpdate={onIntegrationUpdate}
         onRegenerateToken={onRegenerateTokenMock}
+        regenerateLoading={regenerateLoading}
+        updateIntegrationLoading={updateIntegrationLoading}
       />,
     );
 
@@ -105,10 +105,10 @@ describe("Integration creation modal", () => {
     render(
       <MyIntegrationForm
         integration={integration}
-        updateIntegrationLoading={updateIntegrationLoading}
-        regenerateLoading={regenerateLoading}
         onIntegrationUpdate={onIntegrationUpdate}
         onRegenerateToken={onRegenerateToken}
+        regenerateLoading={regenerateLoading}
+        updateIntegrationLoading={updateIntegrationLoading}
       />,
     );
 
@@ -143,10 +143,10 @@ describe("Integration creation modal", () => {
     render(
       <MyIntegrationForm
         integration={integration}
-        updateIntegrationLoading={updateIntegrationLoading}
-        regenerateLoading={regenerateLoading}
         onIntegrationUpdate={onIntegrationUpdate}
         onRegenerateToken={onRegenerateToken}
+        regenerateLoading={regenerateLoading}
+        updateIntegrationLoading={updateIntegrationLoading}
       />,
     );
 
@@ -166,10 +166,10 @@ describe("Integration creation modal", () => {
     render(
       <MyIntegrationForm
         integration={integration}
-        updateIntegrationLoading={updateIntegrationLoading}
-        regenerateLoading={regenerateLoading}
         onIntegrationUpdate={onIntegrationUpdate}
         onRegenerateToken={onRegenerateToken}
+        regenerateLoading={regenerateLoading}
+        updateIntegrationLoading={updateIntegrationLoading}
       />,
     );
 
@@ -193,10 +193,10 @@ describe("Integration creation modal", () => {
     render(
       <MyIntegrationForm
         integration={integration}
-        updateIntegrationLoading={updateIntegrationLoading}
-        regenerateLoading={regenerateLoading}
         onIntegrationUpdate={onIntegrationUpdateMock}
         onRegenerateToken={onRegenerateToken}
+        regenerateLoading={regenerateLoading}
+        updateIntegrationLoading={updateIntegrationLoading}
       />,
     );
 

@@ -22,7 +22,7 @@ const TEST_IMPORT_CONTENT_GEO_JSON_PATH = path.resolve(
   "../../../files/test-import-content.geojson",
 );
 
-test.beforeEach(async ({ reearth, projectPage }) => {
+test.beforeEach(async ({ projectPage, reearth }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
@@ -35,9 +35,9 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("@smoke Item CRUD and searching has succeeded", async ({
-  page,
   contentPage,
   fieldEditorPage,
+  page,
   projectPage,
   schemaPage,
 }) => {
@@ -97,9 +97,9 @@ test("@smoke Item CRUD and searching has succeeded", async ({
 });
 
 test("@smoke Publishing and Unpublishing item from edit page has succeeded", async ({
-  page,
   contentPage,
   fieldEditorPage,
+  page,
   schemaPage,
 }) => {
   await test.step("Create text field and new item", async () => {
@@ -146,9 +146,9 @@ test("@smoke Publishing and Unpublishing item from edit page has succeeded", asy
 });
 
 test("Publishing and Unpublishing item from table has succeeded", async ({
-  page,
   contentPage,
   fieldEditorPage,
+  page,
   schemaPage,
 }) => {
   await test.step("Create text field and new item", async () => {
@@ -194,9 +194,9 @@ test("Publishing and Unpublishing item from table has succeeded", async ({
 });
 
 test("Showing item title has succeeded", async ({
-  page,
   contentPage,
   fieldEditorPage,
+  page,
   schemaPage,
 }) => {
   await test.step("Create text field and new item", async () => {
@@ -245,9 +245,9 @@ test("Showing item title has succeeded", async ({
 });
 
 test("@smoke Comment CRUD on Content page has succeeded", async ({
-  page,
   contentPage,
   fieldEditorPage,
+  page,
   schemaPage,
 }) => {
   await test.step("Create text field and new item", async () => {
@@ -285,9 +285,9 @@ test("@smoke Comment CRUD on Content page has succeeded", async ({
 });
 
 test("Comment CRUD on edit page has succeeded", async ({
-  page,
   contentPage,
   fieldEditorPage,
+  page,
   schemaPage,
 }) => {
   await test.step("Create text field and new item", async () => {

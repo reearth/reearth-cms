@@ -20,7 +20,7 @@ export const sortProperties = <T extends Record<string, any>>(properties: T) => 
   return sortedProperties;
 };
 
-export function tryParseJson(value: string): object | null {
+export function tryParseJson(value: string): null | object {
   const trimmed = value.trim();
   if (
     !(trimmed.startsWith("{") && trimmed.endsWith("}")) &&

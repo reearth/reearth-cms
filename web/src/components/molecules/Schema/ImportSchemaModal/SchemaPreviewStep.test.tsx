@@ -7,28 +7,27 @@ import { t } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { ImportFieldInput } from "../types";
-
 import SchemaPreviewStep, { type Props } from "./SchemaPreviewStep";
 
 const user = userEvent.setup();
 
 const createMockField = (overrides: Partial<ImportFieldInput> = {}): ImportFieldInput => ({
-  type: SchemaFieldType.Text,
-  title: "Test Field",
-  key: "test-field",
   description: "",
-  multiple: false,
-  unique: false,
-  required: false,
-  isTitle: false,
-  typeProperty: {},
   hidden: false,
+  isTitle: false,
+  key: "test-field",
+  multiple: false,
+  required: false,
+  title: "Test Field",
+  type: SchemaFieldType.Text,
+  typeProperty: {},
+  unique: false,
   ...overrides,
 });
 
 const createFieldTypeOption = (type: string, label: string) => ({
-  value: type,
   label: <span data-testid={`field-type-${type}`}>{label}</span>,
+  value: type,
 });
 
 const buildProps = (overrides: Partial<Props> = {}): Props => ({
@@ -42,11 +41,11 @@ const buildProps = (overrides: Partial<Props> = {}): Props => ({
     createFieldTypeOption(SchemaFieldType.Integer, "Integer"),
     createFieldTypeOption(SchemaFieldType.Bool, "Boolean"),
   ],
-  onDragEnd: vi.fn(),
-  onToggleFieldHide: vi.fn(),
-  onToggleAllFieldsHide: vi.fn(),
-  hasUpdateRight: true,
   hasDeleteRight: true,
+  hasUpdateRight: true,
+  onDragEnd: vi.fn(),
+  onToggleAllFieldsHide: vi.fn(),
+  onToggleFieldHide: vi.fn(),
   ...overrides,
 });
 
@@ -101,7 +100,7 @@ describe("SchemaPreviewStep", () => {
 
   test("renders required indicator for required fields", () => {
     const props = buildProps({
-      fields: [createMockField({ key: "required-field", title: "Required Field", required: true })],
+      fields: [createMockField({ key: "required-field", required: true, title: "Required Field" })],
     });
     render(<SchemaPreviewStep {...props} />);
 
@@ -120,7 +119,7 @@ describe("SchemaPreviewStep", () => {
 
   test("renders title tag for title fields", () => {
     const props = buildProps({
-      fields: [createMockField({ key: "title-field", title: "Title Field", isTitle: true })],
+      fields: [createMockField({ isTitle: true, key: "title-field", title: "Title Field" })],
     });
     render(<SchemaPreviewStep {...props} />);
 
@@ -155,8 +154,8 @@ describe("SchemaPreviewStep", () => {
   test("shows all checkboxes as checked when no fields are hidden", () => {
     const props = buildProps({
       fields: [
-        createMockField({ key: "field-1", hidden: false }),
-        createMockField({ key: "field-2", hidden: false }),
+        createMockField({ hidden: false, key: "field-1" }),
+        createMockField({ hidden: false, key: "field-2" }),
       ],
     });
     render(<SchemaPreviewStep {...props} />);
@@ -170,8 +169,8 @@ describe("SchemaPreviewStep", () => {
   test("shows checkbox as unchecked when field is hidden", () => {
     const props = buildProps({
       fields: [
-        createMockField({ key: "field-1", hidden: true }),
-        createMockField({ key: "field-2", hidden: false }),
+        createMockField({ hidden: true, key: "field-1" }),
+        createMockField({ hidden: false, key: "field-2" }),
       ],
     });
     render(<SchemaPreviewStep {...props} />);

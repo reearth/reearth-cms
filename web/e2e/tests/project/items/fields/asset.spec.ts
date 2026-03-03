@@ -9,7 +9,7 @@ const uploadFileUrl_2 =
   "https://assets.cms.plateau.reearth.io/assets/ec/0de34c-889a-459a-b49c-47c89d02ee3e/lowpolycar.gltf";
 const uploadFileName_2 = "lowpolycar.gltf";
 
-test.beforeEach(async ({ reearth, projectPage }) => {
+test.beforeEach(async ({ projectPage, reearth }) => {
   await reearth.goto("/", { waitUntil: "domcontentloaded" });
   const projectName = getId();
   await projectPage.createProject(projectName);
@@ -22,9 +22,9 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("@smoke Asset field creating and updating has succeeded", async ({
-  page,
-  fieldEditorPage,
   contentPage,
+  fieldEditorPage,
+  page,
   schemaPage,
 }) => {
   await test.step("Create asset field with description", async () => {
@@ -100,10 +100,10 @@ test("@smoke Asset field creating and updating has succeeded", async ({
 });
 
 test("Previewing JSON file from content page into new tab succeeded", async ({
-  page,
+  contentPage,
   context,
   fieldEditorPage,
-  contentPage,
+  page,
   schemaPage,
 }) => {
   await test.step("Create asset field", async () => {
@@ -156,9 +156,9 @@ test("Previewing JSON file from content page into new tab succeeded", async ({
 });
 
 test("Asset field editing has succeeded", async ({
-  page,
-  fieldEditorPage,
   contentPage,
+  fieldEditorPage,
+  page,
   schemaPage,
 }) => {
   await test.step("Create asset field with default value", async () => {

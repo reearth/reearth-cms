@@ -9,13 +9,13 @@ import { useT } from "@reearth-cms/i18n";
 import { moveItemInArray } from "../moveItemArray";
 
 type Props = {
+  disabled?: boolean;
+  onChange?: (value: string[]) => void;
   selectedValues?: string[];
   value?: string[];
-  onChange?: (value: string[]) => void;
-  disabled?: boolean;
 };
 
-const MultiValueSelect: React.FC<Props> = ({ selectedValues, value = [], onChange, disabled }) => {
+const MultiValueSelect: React.FC<Props> = ({ disabled, onChange, selectedValues, value = [] }) => {
   const t = useT();
   const { Option } = Select;
   const handleInput = useCallback(
@@ -49,24 +49,24 @@ const MultiValueSelect: React.FC<Props> = ({ selectedValues, value = [], onChang
               <>
                 <FieldButton
                   color="default"
-                  variant="link"
+                  disabled={key === 0}
                   icon={<Icon icon="arrowUp" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
-                  disabled={key === 0}
+                  variant="link"
                 />
                 <FieldButton
                   color="default"
-                  variant="link"
+                  disabled={key === value.length - 1}
                   icon={<Icon icon="arrowDown" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
-                  disabled={key === value.length - 1}
+                  variant="link"
                 />
               </>
             )}
             <StyledSelect
               disabled={disabled}
-              value={valueItem}
-              onChange={(e: string) => handleInput(e, key)}>
+              onChange={(e: string) => handleInput(e, key)}
+              value={valueItem}>
               {selectedValues?.map((value: string) => (
                 <Option key={value} value={value}>
                   {value}
@@ -76,9 +76,9 @@ const MultiValueSelect: React.FC<Props> = ({ selectedValues, value = [], onChang
             {!disabled && (
               <FieldButton
                 color="default"
-                variant="link"
                 icon={<Icon icon="delete" size={16} />}
                 onClick={() => handleInputDelete(key)}
+                variant="link"
               />
             )}
           </FieldWrapper>
@@ -86,11 +86,11 @@ const MultiValueSelect: React.FC<Props> = ({ selectedValues, value = [], onChang
       {!disabled && (
         <Button
           icon={<Icon icon="plus" />}
-          type="primary"
           onClick={() => {
             if (!value) value = [];
             onChange?.([...value, ""]);
-          }}>
+          }}
+          type="primary">
           {t("New")}
         </Button>
       )}

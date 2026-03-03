@@ -16,10 +16,9 @@ const URLField: React.FC<Props> = ({ multiple }) => {
 
   return (
     <Form.Item
-      name="defaultValue"
-      validateStatus="success"
-      label={t("Set default value")}
       extra={t("Default value must be a valid URL and start with 'http://' or 'https://'.")}
+      label={t("Set default value")}
+      name="defaultValue"
       rules={[
         {
           message: t("URL is not valid"),
@@ -32,9 +31,10 @@ const URLField: React.FC<Props> = ({ multiple }) => {
             return Promise.resolve();
           },
         },
-      ]}>
+      ]}
+      validateStatus="success">
       {multiple ? (
-        <MultiValueField FieldInput={Input} errorIndexes={errorIndexes} />
+        <MultiValueField errorIndexes={errorIndexes} FieldInput={Input} />
       ) : (
         <Input isError={errorIndexes.has(0)} />
       )}

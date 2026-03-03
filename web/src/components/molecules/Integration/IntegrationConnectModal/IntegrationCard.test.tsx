@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, test, describe, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import IntegrationCard from "./IntegrationCard";
 
@@ -12,14 +12,14 @@ describe("Integration card", () => {
   const onClick = () => {};
 
   test("Name is diplayed successfully", async () => {
-    render(<IntegrationCard name={name} isSelected={isSelected} onClick={onClick} />);
+    render(<IntegrationCard isSelected={isSelected} name={name} onClick={onClick} />);
 
     expect(screen.getByText(name)).toBeVisible();
   });
 
   test("Clicking integration event is fired successfully", async () => {
     const onClickMock = vi.fn();
-    render(<IntegrationCard name={name} isSelected={isSelected} onClick={onClickMock} />);
+    render(<IntegrationCard isSelected={isSelected} name={name} onClick={onClickMock} />);
 
     await user.click(screen.getByTestId("integration"));
     expect(onClickMock).toHaveBeenCalled();

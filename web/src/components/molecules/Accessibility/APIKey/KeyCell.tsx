@@ -15,9 +15,7 @@ const KeyCell: React.FC<Props> = ({ apiKey }) => {
   return (
     <StyledTokenInput
       data-testid="key"
-      value={apiKey}
       disabled
-      visibilityToggle={{ visible }}
       iconRender={() => <CopyButton copyable={{ text: apiKey }} />}
       prefix={
         <Icon
@@ -27,6 +25,8 @@ const KeyCell: React.FC<Props> = ({ apiKey }) => {
           }}
         />
       }
+      value={apiKey}
+      visibilityToggle={{ visible }}
     />
   );
 };

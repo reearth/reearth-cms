@@ -1,7 +1,7 @@
 import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
 import fileDownload from "js-file-download";
-import { useState, useCallback, Key, useMemo } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { Key, useCallback, useMemo, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -27,8 +27,8 @@ import {
 import {
   AssetSortType,
   ContentTypesEnum,
-  SortDirection,
   Asset as GQLAsset,
+  SortDirection,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
@@ -40,24 +40,24 @@ import { uploadFiles } from "./upload";
 
 type UploadType = "local" | "url";
 
-type UploadFile = RcFile & {
+type UploadFile = {
   skipDecompression?: boolean;
-};
+} & RcFile;
 
 export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = []) => {
   const t = useT();
   const [userRights] = useUserRights();
   const [userId] = useUserId();
-  const { workspaceId, projectId, modelId } = useParams();
+  const { modelId, projectId, workspaceId } = useParams();
   const navigate = useNavigate();
   const location: {
     state?: {
-      searchTerm?: string;
-      sort: SortType;
       columns: Record<string, ColumnsState>;
+      isImportModalOpen: boolean;
       page: number;
       pageSize: number;
-      isImportModalOpen: boolean;
+      searchTerm?: string;
+      sort: SortType;
     } | null;
   } = useLocation();
 
@@ -77,8 +77,8 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   const [fileList, setFileList] = useState<RawUploadFile[]>([]);
   const [alertList, setAlertList] = useState<AlertProps[]>([]);
   const [uploadUrl, setUploadUrl] = useState({
-    url: "",
     autoUnzip: true,
+    url: "",
   });
   const [uploadType, setUploadType] = useState<UploadType>("local");
   const [collapsed, setCollapsed] = useState(true);
@@ -125,24 +125,24 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     [getAsset],
   );
 
-  const { data, refetch, loading } = useQuery(
+  const { data, loading, refetch } = useQuery(
     isItemsRequired ? GetAssetsItemsDocument : GetAssetsDocument,
     projectId
       ? {
           fetchPolicy: "cache-and-network",
+          notifyOnNetworkStatusChange: true,
           variables: {
-            projectId,
+            contentTypes: contentTypes,
+            keyword: searchTerm,
             pagination: { first: pageSize, offset: (page - 1) * pageSize },
+            projectId,
             sort: sort
               ? {
-                  sortBy: sort.type as AssetSortType,
                   direction: sort.direction as SortDirection,
+                  sortBy: sort.type as AssetSortType,
                 }
-              : { sortBy: "DATE" as AssetSortType, direction: "DESC" as SortDirection },
-            keyword: searchTerm,
-            contentTypes: contentTypes,
+              : { direction: "DESC" as SortDirection, sortBy: "DATE" as AssetSortType },
           },
-          notifyOnNetworkStatusChange: true,
         }
       : skipToken,
   );
@@ -170,7 +170,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   const handleUploadModalCancel = useCallback(() => {
     setUploadModalVisibility(false);
     setFileList([]);
-    setUploadUrl({ url: "", autoUnzip: true });
+    setUploadUrl({ autoUnzip: true, url: "" });
     setUploadType("local");
     setAlertList([]);
   }, []);
@@ -210,14 +210,14 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
         results = (
           await uploadFiles<UploadFile, Asset | undefined>(
             files as UploadFile[],
-            async ({ contentLength, contentEncoding, cursor, filename }) => {
+            async ({ contentEncoding, contentLength, cursor, filename }) => {
               const result = await createAssetUploadMutation({
                 variables: {
-                  projectId,
-                  filename,
-                  contentLength,
                   contentEncoding,
+                  contentLength,
                   cursor: cursor ?? "",
+                  filename,
+                  projectId,
                 },
               });
 
@@ -228,21 +228,21 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
               }
 
               return {
-                url: result.data.createAssetUpload.url,
-                token: result.data.createAssetUpload.token,
+                contentEncoding: result.data.createAssetUpload.contentEncoding ?? "",
                 contentLength: result.data.createAssetUpload.contentLength,
                 contentType: result.data.createAssetUpload.contentType ?? "",
-                contentEncoding: result.data.createAssetUpload.contentEncoding ?? "",
                 next: result.data.createAssetUpload.next ?? "",
+                token: result.data.createAssetUpload.token,
+                url: result.data.createAssetUpload.url,
               };
             },
             async (token, file) => {
               return createAssetMutation({
                 variables: {
-                  projectId,
-                  token,
                   file: token === "" ? file : null,
+                  projectId,
                   skipDecompression: !!file?.skipDecompression,
+                  token,
                 },
               }).then(result => {
                 if (result.error || !result.data?.createAsset) {
@@ -287,9 +287,9 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
         const result = await createAssetMutation({
           variables: {
             projectId,
+            skipDecompression: !autoUnzip,
             token: null,
             url,
-            skipDecompression: !autoUnzip,
           },
         });
         if (result.data?.createAsset) {
@@ -341,7 +341,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   const handleNavigateToAsset = useCallback(
     (assetId: string) => {
       navigate(`/workspace/${workspaceId}/project/${projectId}/asset/${assetId}`, {
-        state: { searchTerm, sort, columns, page, pageSize },
+        state: { columns, page, pageSize, searchTerm, sort },
       });
     },
     [navigate, workspaceId, projectId, searchTerm, sort, columns, page, pageSize],
@@ -410,15 +410,15 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
 
     if (failedAssets.length === selected.length) {
       Notification.error({
-        message: t("All downloads failed"),
         description: failedAssets.join(", "),
+        message: t("All downloads failed"),
       });
     } else if (failedAssets.length > 0) {
       Notification.warning({
-        message: t("Some downloads failed"),
         description: t(
           `Success: ${selected.length - failedAssets.length}, Failed: ${failedAssets.join(", ")}`,
         ),
+        message: t("Some downloads failed"),
       });
     } else {
       Notification.success({
@@ -430,10 +430,10 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   const raiseIllegalFileAlert = useCallback(() => {
     setAlertList([
       {
-        message: t("The uploaded file is empty or invalid"),
-        type: "error",
         closable: true,
+        message: t("The uploaded file is empty or invalid"),
         showIcon: true,
+        type: "error",
       },
     ]);
   }, [setAlertList, t]);
@@ -441,10 +441,10 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   const raiseSingleFileAlert = useCallback(() => {
     setAlertList([
       {
-        message: t("Only one file can be uploaded at a time"),
-        type: "error",
         closable: true,
+        message: t("Only one file can be uploaded at a time"),
         showIcon: true,
+        type: "error",
       },
     ]);
   }, [setAlertList, t]);
@@ -452,10 +452,10 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   const raiseIllegalFileFormatAlert = useCallback(() => {
     setAlertList([
       {
-        message: t("File format is not supported"),
-        type: "error",
         closable: true,
+        message: t("File format is not supported"),
         showIcon: true,
+        type: "error",
       },
     ]);
   }, [setAlertList, t]);
@@ -526,58 +526,58 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   };
 
   return {
-    importFields,
-    importSchemaModalVisibility,
-    selectFileModalVisibility,
-    assetList,
-    selection,
-    fileList,
     alertList,
-    uploading,
-    uploadModalVisibility,
-    loading,
-    deleteLoading,
-    uploadUrl,
-    uploadType,
-    selectedAsset,
+    assetList,
     collapsed,
-    totalCount: data?.assets.totalCount ?? 0,
-    page,
-    pageSize,
-    sort,
-    searchTerm,
     columns,
-    hasCreateRight,
-    hasDeleteRight,
-    handleUploadModalOpen,
-    handleSelectFileModalOpen,
-    handleSchemaImportModalOpen,
-    handleUploadModalCancel,
-    handleSelectFileModalCancel,
-    handleSchemaImportModalCancel,
-    handleColumnsChange,
-    handleToggleCommentMenu,
-    handleAssetItemSelect,
-    handleAssetSelect,
-    setUploadUrl,
-    setUploadType,
-    setImportFields,
-    handleSelect,
-    setFileList,
-    setAlertList,
-    setUploadModalVisibility,
-    handleAssetsCreate,
+    dataChecking,
+    deleteLoading,
+    fileList,
     handleAssetCreateFromUrl,
-    handleAssetTableChange,
     handleAssetDelete,
-    handleMultipleAssetDownload,
-    handleSearchTerm,
+    handleAssetItemSelect,
+    handleAssetsCreate,
+    handleAssetSelect,
     handleAssetsGet,
     handleAssetsReload,
-    handleNavigateToAsset,
+    handleAssetTableChange,
+    handleColumnsChange,
     handleGetAsset,
-    dataChecking,
     handleImportSchemaFileChange,
     handleImportSchemaFileRemove,
+    handleMultipleAssetDownload,
+    handleNavigateToAsset,
+    handleSchemaImportModalCancel,
+    handleSchemaImportModalOpen,
+    handleSearchTerm,
+    handleSelect,
+    handleSelectFileModalCancel,
+    handleSelectFileModalOpen,
+    handleToggleCommentMenu,
+    handleUploadModalCancel,
+    handleUploadModalOpen,
+    hasCreateRight,
+    hasDeleteRight,
+    importFields,
+    importSchemaModalVisibility,
+    loading,
+    page,
+    pageSize,
+    searchTerm,
+    selectedAsset,
+    selectFileModalVisibility,
+    selection,
+    setAlertList,
+    setFileList,
+    setImportFields,
+    setUploadModalVisibility,
+    setUploadType,
+    setUploadUrl,
+    sort,
+    totalCount: data?.assets.totalCount ?? 0,
+    uploading,
+    uploadModalVisibility,
+    uploadType,
+    uploadUrl,
   };
 };

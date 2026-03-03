@@ -4,323 +4,323 @@ export const userRightsGet = (role: Role): UserRights => {
   switch (role) {
     case "OWNER":
       return {
-        role,
-        workspace: {
-          update: true,
+        apiKey: {
+          create: true,
           delete: true,
+          read: true,
+          update: true,
         },
-        workspaceSetting: {
+        asset: {
+          create: true,
+          delete: true,
+          read: true,
+          update: true,
+        },
+        comment: {
+          create: true,
+          delete: true,
+          read: true,
+          update: true,
+        },
+        content: {
+          create: true,
+          delete: true,
+          publish: true,
+          read: true,
           update: true,
         },
         integrations: {
           connect: true,
-          update: true,
           delete: true,
+          update: true,
         },
         members: {
-          invite: true,
-          remove: true,
           changeRole: true,
+          invite: true,
           leave: true,
-        },
-        project: {
-          create: true,
-          read: true,
-          update: true,
-          delete: true,
-          publish: true,
+          remove: true,
         },
         model: {
           create: true,
-          read: true,
-          update: true,
           delete: true,
           publish: true,
+          read: true,
+          update: true,
         },
-        schema: {
+        project: {
+          create: true,
+          delete: true,
+          publish: true,
+          read: true,
+          update: true,
+        },
+        request: {
+          approve: true,
+          close: true,
           create: true,
           read: true,
           update: true,
+        },
+        role,
+        schema: {
+          create: true,
           delete: true,
+          read: true,
+          update: true,
         },
         view: {
           create: true,
-          read: true,
-          update: true,
           delete: true,
-        },
-        content: {
-          create: true,
           read: true,
           update: true,
+        },
+        workspace: {
           delete: true,
-          publish: true,
-        },
-        asset: {
-          create: true,
-          read: true,
           update: true,
-          delete: true,
         },
-        request: {
-          create: true,
-          read: true,
+        workspaceSetting: {
           update: true,
-          close: true,
-          approve: true,
-        },
-        comment: {
-          create: true,
-          read: true,
-          update: true,
-          delete: true,
-        },
-        apiKey: {
-          create: true,
-          read: true,
-          update: true,
-          delete: true,
         },
       };
     case "MAINTAINER":
       return {
-        role,
-        workspace: {
-          update: false,
-          delete: false,
+        apiKey: {
+          create: true,
+          delete: true,
+          read: true,
+          update: true,
         },
-        workspaceSetting: {
+        asset: {
+          create: true,
+          delete: true,
+          read: true,
+          update: true,
+        },
+        comment: {
+          create: true,
+          delete: true,
+          read: true,
+          update: true,
+        },
+        content: {
+          create: true,
+          delete: true,
+          publish: true,
+          read: true,
           update: true,
         },
         integrations: {
           connect: true,
-          update: true,
           delete: true,
+          update: true,
         },
         members: {
-          invite: true,
-          remove: true,
           changeRole: true,
+          invite: true,
           leave: true,
-        },
-        project: {
-          create: true,
-          read: true,
-          update: true,
-          delete: true,
-          publish: true,
+          remove: true,
         },
         model: {
           create: true,
-          read: true,
-          update: true,
           delete: true,
           publish: true,
+          read: true,
+          update: true,
         },
-        schema: {
+        project: {
+          create: true,
+          delete: true,
+          publish: true,
+          read: true,
+          update: true,
+        },
+        request: {
+          approve: true,
+          close: true,
           create: true,
           read: true,
           update: true,
+        },
+        role,
+        schema: {
+          create: true,
           delete: true,
+          read: true,
+          update: true,
         },
         view: {
           create: true,
-          read: true,
-          update: true,
           delete: true,
-        },
-        content: {
-          create: true,
           read: true,
           update: true,
-          delete: true,
-          publish: true,
         },
-        asset: {
-          create: true,
-          read: true,
-          update: true,
-          delete: true,
+        workspace: {
+          delete: false,
+          update: false,
         },
-        request: {
-          create: true,
-          read: true,
+        workspaceSetting: {
           update: true,
-          close: true,
-          approve: true,
-        },
-        comment: {
-          create: true,
-          read: true,
-          update: true,
-          delete: true,
-        },
-        apiKey: {
-          create: true,
-          read: true,
-          update: true,
-          delete: true,
         },
       };
     case "WRITER":
       return {
-        role,
-        workspace: {
-          update: false,
+        apiKey: {
+          create: true,
           delete: false,
-        },
-        workspaceSetting: {
-          update: false,
-        },
-        integrations: {
-          connect: false,
-          update: false,
-          delete: false,
-        },
-        members: {
-          invite: false,
-          remove: false,
-          changeRole: false,
-          leave: true,
-        },
-        project: {
-          create: true,
           read: true,
           update: false,
-          delete: true,
-          publish: true,
-        },
-        model: {
-          create: true,
-          read: true,
-          update: true,
-          delete: true,
-          publish: true,
-        },
-        schema: {
-          create: true,
-          read: true,
-          update: true,
-          delete: true,
-        },
-        view: {
-          create: false,
-          read: true,
-          update: false,
-          delete: false,
-        },
-        content: {
-          create: true,
-          read: true,
-          update: null,
-          delete: null,
-          publish: true,
         },
         asset: {
           create: true,
-          read: true,
-          update: null,
           delete: null,
-        },
-        request: {
-          create: true,
           read: true,
           update: null,
-          close: null,
-          approve: false,
         },
         comment: {
           create: true,
+          delete: null,
           read: true,
           update: null,
-          delete: null,
         },
-        apiKey: {
+        content: {
           create: true,
+          delete: null,
+          publish: true,
+          read: true,
+          update: null,
+        },
+        integrations: {
+          connect: false,
+          delete: false,
+          update: false,
+        },
+        members: {
+          changeRole: false,
+          invite: false,
+          leave: true,
+          remove: false,
+        },
+        model: {
+          create: true,
+          delete: true,
+          publish: true,
+          read: true,
+          update: true,
+        },
+        project: {
+          create: true,
+          delete: true,
+          publish: true,
           read: true,
           update: false,
+        },
+        request: {
+          approve: false,
+          close: null,
+          create: true,
+          read: true,
+          update: null,
+        },
+        role,
+        schema: {
+          create: true,
+          delete: true,
+          read: true,
+          update: true,
+        },
+        view: {
+          create: false,
           delete: false,
+          read: true,
+          update: false,
+        },
+        workspace: {
+          delete: false,
+          update: false,
+        },
+        workspaceSetting: {
+          update: false,
         },
       };
     case "READER":
     default:
       return {
-        role,
-        workspace: {
-          update: false,
+        apiKey: {
+          create: false,
           delete: false,
+          read: true,
+          update: false,
         },
-        workspaceSetting: {
+        asset: {
+          create: false,
+          delete: false,
+          read: true,
+          update: false,
+        },
+        comment: {
+          create: false,
+          delete: false,
+          read: true,
+          update: false,
+        },
+        content: {
+          create: false,
+          delete: false,
+          publish: false,
+          read: true,
           update: false,
         },
         integrations: {
           connect: false,
-          update: false,
           delete: false,
+          update: false,
         },
         members: {
-          invite: false,
-          remove: false,
           changeRole: false,
+          invite: false,
           leave: true,
-        },
-        project: {
-          create: false,
-          read: true,
-          update: false,
-          delete: false,
-          publish: false,
+          remove: false,
         },
         model: {
           create: false,
-          read: true,
-          update: false,
           delete: false,
           publish: false,
+          read: true,
+          update: false,
         },
-        schema: {
+        project: {
+          create: false,
+          delete: false,
+          publish: false,
+          read: true,
+          update: false,
+        },
+        request: {
+          approve: false,
+          close: false,
           create: false,
           read: true,
           update: false,
+        },
+        role,
+        schema: {
+          create: false,
           delete: false,
+          read: true,
+          update: false,
         },
         view: {
           create: false,
-          read: true,
-          update: false,
           delete: false,
-        },
-        content: {
-          create: false,
           read: true,
           update: false,
+        },
+        workspace: {
           delete: false,
-          publish: false,
-        },
-        asset: {
-          create: false,
-          read: true,
           update: false,
-          delete: false,
         },
-        request: {
-          create: false,
-          read: true,
+        workspaceSetting: {
           update: false,
-          close: false,
-          approve: false,
-        },
-        comment: {
-          create: false,
-          read: true,
-          update: false,
-          delete: false,
-        },
-        apiKey: {
-          create: false,
-          read: true,
-          update: false,
-          delete: false,
         },
       };
   }

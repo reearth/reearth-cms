@@ -21,7 +21,7 @@ export class IntegrationsPage extends BasePage {
     return this.getByLabel("Description");
   }
   get createButton(): Locator {
-    return this.getByRole("button", { name: "Create", exact: true });
+    return this.getByRole("button", { exact: true, name: "Create" });
   }
   get saveButton(): Locator {
     return this.getByRole("button", { name: "Save" });
@@ -121,11 +121,11 @@ export class IntegrationsPage extends BasePage {
   }
 
   get connectButton(): Locator {
-    return this.getByRole("button", { name: "Connect", exact: true });
+    return this.getByRole("button", { exact: true, name: "Connect" });
   }
 
   get cancelButton(): Locator {
-    return this.getByRole("button", { name: "Cancel", exact: true });
+    return this.getByRole("button", { exact: true, name: "Cancel" });
   }
 
   get searchInput(): Locator {
@@ -168,7 +168,7 @@ export class IntegrationsPage extends BasePage {
   }
 
   integrationCellById(id: string): Locator {
-    return this.getByRole("cell", { name: id, exact: true });
+    return this.getByRole("cell", { exact: true, name: id });
   }
 
   dialogIntegrationTextById(id: string): Locator {

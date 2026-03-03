@@ -7,108 +7,108 @@ import MultiValueAsset from "@reearth-cms/components/molecules/Common/MultiValue
 import { useT } from "@reearth-cms/i18n";
 
 type Props = {
-  multiple: boolean;
   assetList: Asset[];
   fileList: UploadFile[];
   loadingAssets: boolean;
-  uploading: boolean;
-  uploadModalVisibility: boolean;
-  uploadUrl: { url: string; autoUnzip: boolean };
-  uploadType: UploadType;
-  totalCount: number;
-  page: number;
-  pageSize: number;
-  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
-  onUploadModalCancel: () => void;
-  setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
-  setUploadType: (type: UploadType) => void;
-  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
+  multiple: boolean;
   onAssetCreateFromUrl: (url: string, autoUnzip: boolean) => Promise<Asset | undefined>;
+  onAssetsCreate: (files: UploadFile[]) => Promise<(Asset | undefined)[]>;
   onAssetSearchTerm: (term?: string | undefined) => void;
   onAssetsGet: () => void;
   onAssetsReload: () => void;
+  onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
+  onGetAsset: (assetId: string) => Promise<string | undefined>;
+  onUploadModalCancel: () => void;
+  page: number;
+  pageSize: number;
   setFileList: (fileList: UploadFile<File>[]) => void;
   setUploadModalVisibility: (visible: boolean) => void;
-  onGetAsset: (assetId: string) => Promise<string | undefined>;
+  setUploadType: (type: UploadType) => void;
+  setUploadUrl: (uploadUrl: { autoUnzip: boolean; url: string }) => void;
+  totalCount: number;
+  uploading: boolean;
+  uploadModalVisibility: boolean;
+  uploadType: UploadType;
+  uploadUrl: { autoUnzip: boolean; url: string };
 };
 const AssetField: React.FC<Props> = ({
-  multiple,
   assetList,
   fileList,
   loadingAssets,
-  uploading,
-  uploadModalVisibility,
-  uploadUrl,
-  uploadType,
-  totalCount,
-  page,
-  pageSize,
-  onAssetTableChange,
-  onUploadModalCancel,
-  setUploadUrl,
-  setUploadType,
-  onAssetsCreate,
+  multiple,
   onAssetCreateFromUrl,
+  onAssetsCreate,
   onAssetSearchTerm,
   onAssetsGet,
   onAssetsReload,
+  onAssetTableChange,
+  onGetAsset,
+  onUploadModalCancel,
+  page,
+  pageSize,
   setFileList,
   setUploadModalVisibility,
-  onGetAsset,
+  setUploadType,
+  setUploadUrl,
+  totalCount,
+  uploading,
+  uploadModalVisibility,
+  uploadType,
+  uploadUrl,
 }) => {
   const t = useT();
 
   return (
-    <Form.Item name="defaultValue" label={t("Set default value")}>
+    <Form.Item label={t("Set default value")} name="defaultValue">
       {multiple ? (
         <MultiValueAsset
           assetList={assetList}
           fileList={fileList}
           loadingAssets={loadingAssets}
-          uploading={uploading}
-          uploadModalVisibility={uploadModalVisibility}
-          uploadUrl={uploadUrl}
-          uploadType={uploadType}
-          onAssetTableChange={onAssetTableChange}
-          totalCount={totalCount}
-          page={page}
-          pageSize={pageSize}
-          onUploadModalCancel={onUploadModalCancel}
-          setUploadUrl={setUploadUrl}
-          setUploadType={setUploadType}
-          onAssetsCreate={onAssetsCreate}
           onAssetCreateFromUrl={onAssetCreateFromUrl}
+          onAssetsCreate={onAssetsCreate}
           onAssetSearchTerm={onAssetSearchTerm}
           onAssetsGet={onAssetsGet}
           onAssetsReload={onAssetsReload}
+          onAssetTableChange={onAssetTableChange}
+          onGetAsset={onGetAsset}
+          onUploadModalCancel={onUploadModalCancel}
+          page={page}
+          pageSize={pageSize}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
-          onGetAsset={onGetAsset}
+          setUploadType={setUploadType}
+          setUploadUrl={setUploadUrl}
+          totalCount={totalCount}
+          uploading={uploading}
+          uploadModalVisibility={uploadModalVisibility}
+          uploadType={uploadType}
+          uploadUrl={uploadUrl}
         />
       ) : (
         <AssetItem
           assetList={assetList}
           fileList={fileList}
           loadingAssets={loadingAssets}
-          uploading={uploading}
-          uploadModalVisibility={uploadModalVisibility}
-          uploadUrl={uploadUrl}
-          uploadType={uploadType}
-          onAssetTableChange={onAssetTableChange}
-          totalCount={totalCount}
-          page={page}
-          pageSize={pageSize}
-          onUploadModalCancel={onUploadModalCancel}
-          setUploadUrl={setUploadUrl}
-          setUploadType={setUploadType}
-          onAssetsCreate={onAssetsCreate}
           onAssetCreateFromUrl={onAssetCreateFromUrl}
+          onAssetsCreate={onAssetsCreate}
           onAssetSearchTerm={onAssetSearchTerm}
           onAssetsGet={onAssetsGet}
           onAssetsReload={onAssetsReload}
+          onAssetTableChange={onAssetTableChange}
+          onGetAsset={onGetAsset}
+          onUploadModalCancel={onUploadModalCancel}
+          page={page}
+          pageSize={pageSize}
           setFileList={setFileList}
           setUploadModalVisibility={setUploadModalVisibility}
-          onGetAsset={onGetAsset}
+          setUploadType={setUploadType}
+          setUploadUrl={setUploadUrl}
+          totalCount={totalCount}
+          uploading={uploading}
+          uploadModalVisibility={uploadModalVisibility}
+          uploadType={uploadType}
+          uploadUrl={uploadUrl}
         />
       )}
     </Form.Item>

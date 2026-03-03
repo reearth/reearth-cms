@@ -11,14 +11,14 @@ test("returns empty array if filePaths property is not provided", () => {
 
 test("returns correct file tree data", () => {
   const file: AssetFile = {
-    name: "root",
-    path: "/",
     filePaths: [
       "/folder1/file1.txt",
       "/folder1/folder2/file2.txt",
       "/folder3/file3.txt",
       "/folder3/file4.txt",
     ],
+    name: "root",
+    path: "/",
   };
   const result = generateAssetTreeData(file);
 

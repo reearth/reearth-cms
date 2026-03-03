@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Key, useMemo, useCallback, useState } from "react";
+import { Key, useCallback, useMemo, useState } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import ConfigProvider from "@reearth-cms/components/atoms/ConfigProvider";
@@ -7,45 +7,45 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
 import {
   ListToolBarProps,
-  TableRowSelection,
   StretchColumn,
+  TableRowSelection,
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
-import { useT, Trans } from "@reearth-cms/i18n";
+import { Trans, useT } from "@reearth-cms/i18n";
 
 type Props = {
-  workspaceIntegrations?: WorkspaceIntegration[];
-  onIntegrationConnectModalOpen: () => void;
-  onSearchTerm: (term?: string) => void;
-  onIntegrationSettingsModalOpen: (integrationMember: WorkspaceIntegration) => void;
   deleteLoading: boolean;
+  hasConnectRight: boolean;
+  hasDeleteRight: boolean;
+  hasUpdateRight: boolean;
+  loading: boolean;
+  onIntegrationConnectModalOpen: () => void;
   onIntegrationRemove: (integrationIds: string[]) => Promise<void>;
+  onIntegrationSettingsModalOpen: (integrationMember: WorkspaceIntegration) => void;
+  onSearchTerm: (term?: string) => void;
+  onTableChange: (page: number, pageSize: number) => void;
   page: number;
   pageSize: number;
-  onTableChange: (page: number, pageSize: number) => void;
-  loading: boolean;
-  hasConnectRight: boolean;
-  hasUpdateRight: boolean;
-  hasDeleteRight: boolean;
+  workspaceIntegrations?: WorkspaceIntegration[];
 };
 
 const IntegrationTable: React.FC<Props> = ({
-  workspaceIntegrations,
-  onIntegrationConnectModalOpen,
-  onSearchTerm,
-  onIntegrationSettingsModalOpen,
   deleteLoading,
+  hasConnectRight,
+  hasDeleteRight,
+  hasUpdateRight,
+  loading,
+  onIntegrationConnectModalOpen,
   onIntegrationRemove,
+  onIntegrationSettingsModalOpen,
+  onSearchTerm,
+  onTableChange,
   page,
   pageSize,
-  onTableChange,
-  loading,
-  hasConnectRight,
-  hasUpdateRight,
-  hasDeleteRight,
+  workspaceIntegrations,
 }) => {
   const t = useT();
 
@@ -54,41 +54,41 @@ const IntegrationTable: React.FC<Props> = ({
   const columns: StretchColumn<WorkspaceIntegration>[] = useMemo(
     () => [
       {
-        title: t("Name"),
         dataIndex: "name",
-        key: "name",
         filters: [],
-        width: 250,
+        key: "name",
         minWidth: 100,
+        title: t("Name"),
+        width: 250,
       },
       {
-        title: t("Role"),
         dataIndex: "role",
         key: "role",
-        render: text => (typeof text === "string" ? t(text) : text),
-        width: 100,
         minWidth: 100,
+        render: text => (typeof text === "string" ? t(text) : text),
+        title: t("Role"),
+        width: 100,
       },
       {
-        title: t("Creator"),
         dataIndex: ["createdBy", "name"],
         key: "creator",
-        width: 250,
         minWidth: 100,
         render: (_, item) => item.createdBy?.name,
+        title: t("Creator"),
+        width: 250,
       },
       {
         key: "action",
+        minWidth: 48,
         render: (_, integrationMember) => (
           <Button
-            type="link"
-            onClick={() => onIntegrationSettingsModalOpen(integrationMember)}
-            icon={<Icon size={18} icon="settings" />}
             disabled={!hasUpdateRight}
+            icon={<Icon icon="settings" size={18} />}
+            onClick={() => onIntegrationSettingsModalOpen(integrationMember)}
+            type="link"
           />
         ),
         width: 48,
-        minWidth: 48,
       },
     ],
     [hasUpdateRight, onIntegrationSettingsModalOpen, t],
@@ -99,10 +99,10 @@ const IntegrationTable: React.FC<Props> = ({
       search: (
         <Search
           allowClear
-          placeholder={t("input search text")}
           onSearch={(value: string) => {
             onSearchTerm(value);
           }}
+          placeholder={t("input search text")}
         />
       ),
     }),
@@ -111,19 +111,19 @@ const IntegrationTable: React.FC<Props> = ({
 
   const pagination = useMemo(
     () => ({
-      showSizeChanger: true,
       current: page,
       pageSize,
+      showSizeChanger: true,
     }),
     [page, pageSize],
   );
 
   const rowSelection: TableRowSelection = useMemo(
     () => ({
-      selectedRowKeys: selection,
       onChange: (selectedRowKeys: Key[]) => {
         setSelection(selectedRowKeys);
       },
+      selectedRowKeys: selection,
     }),
     [selection, setSelection],
   );
@@ -144,13 +144,13 @@ const IntegrationTable: React.FC<Props> = ({
     (props: { selectedRowKeys: Key[] }) => (
       <Space size={4}>
         <Button
-          type="link"
-          size="small"
-          icon={<Icon icon="delete" />}
-          onClick={() => handleRemove(props.selectedRowKeys)}
           danger
+          disabled={!hasDeleteRight}
+          icon={<Icon icon="delete" />}
           loading={deleteLoading}
-          disabled={!hasDeleteRight}>
+          onClick={() => handleRemove(props.selectedRowKeys)}
+          size="small"
+          type="link">
           {t("Remove")}
         </Button>
       </Space>
@@ -161,10 +161,10 @@ const IntegrationTable: React.FC<Props> = ({
   const ConnectButton = useCallback(
     () => (
       <Button
-        type="primary"
-        onClick={onIntegrationConnectModalOpen}
+        disabled={!hasConnectRight}
         icon={<Icon icon="api" />}
-        disabled={!hasConnectRight}>
+        onClick={onIntegrationConnectModalOpen}
+        type="primary">
         {t("Connect Integration")}
       </Button>
     ),
@@ -174,9 +174,9 @@ const IntegrationTable: React.FC<Props> = ({
   return (
     <Wrapper>
       <PageHeader
-        title={t("Integrations")}
-        style={{ backgroundColor: "#fff" }}
         extra={<ConnectButton />}
+        style={{ backgroundColor: "#fff" }}
+        title={t("Integrations")}
       />
       <ConfigProvider
         renderEmpty={() => (
@@ -187,26 +187,26 @@ const IntegrationTable: React.FC<Props> = ({
               <ConnectButton />
             </Action>
             <span>
-              <Trans i18nKey="readDocument" components={{ l: <a href="" /> }} />
+              <Trans components={{ l: <a href="" /> }} i18nKey="readDocument" />
             </span>
           </EmptyTableWrapper>
         )}>
         <TableWrapper>
           <ResizableProTable
-            dataSource={workspaceIntegrations}
             columns={columns}
-            tableAlertOptionRender={alertOptions}
-            search={false}
-            rowKey="id"
-            options={false}
-            pagination={pagination}
-            toolbar={toolbar}
-            rowSelection={rowSelection}
-            loading={loading}
+            dataSource={workspaceIntegrations}
             heightOffset={0}
+            loading={loading}
             onChange={pagination => {
               onTableChange(pagination.current ?? 1, pagination.pageSize ?? 10);
             }}
+            options={false}
+            pagination={pagination}
+            rowKey="id"
+            rowSelection={rowSelection}
+            search={false}
+            tableAlertOptionRender={alertOptions}
+            toolbar={toolbar}
           />
         </TableWrapper>
       </ConfigProvider>

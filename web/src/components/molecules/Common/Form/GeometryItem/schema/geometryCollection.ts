@@ -6,18 +6,18 @@ import point from "./point";
 import polygon from "./polygon";
 
 export default {
-  type: "object",
-  required: ["type", "geometries"],
   properties: {
-    type: {
-      type: "string",
-      enum: ["GeometryCollection"],
-    },
     geometries: {
-      type: "array",
       items: {
         oneOf: [point, lineString, polygon, multiPoint, multiLineString, multiPolygon],
       },
+      type: "array",
+    },
+    type: {
+      enum: ["GeometryCollection"],
+      type: "string",
     },
   },
+  required: ["type", "geometries"],
+  type: "object",
 };

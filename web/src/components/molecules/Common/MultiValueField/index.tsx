@@ -12,22 +12,22 @@ import { useT } from "@reearth-cms/i18n";
 import { moveItemInArray } from "./moveItemArray";
 
 type Props = {
-  value?: (string | number | Dayjs)[];
-  onChange?: (value: (string | number | Dayjs)[]) => void;
-  onBlur?: () => Promise<void>;
+  errorIndexes?: Set<number>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   FieldInput: React.FunctionComponent<any>;
-  errorIndexes?: Set<number>;
-} & TextAreaProps &
-  InputProps;
+  onBlur?: () => Promise<void>;
+  onChange?: (value: (Dayjs | number | string)[]) => void;
+  value?: (Dayjs | number | string)[];
+} & InputProps &
+  TextAreaProps;
 
 const MultiValueField: React.FC<Props> = ({
-  value = [],
-  onChange,
-  onBlur,
-  FieldInput,
   errorIndexes,
+  FieldInput,
+  onBlur,
+  onChange,
   required,
+  value = [],
   ...props
 }) => {
   const t = useT();
@@ -71,43 +71,43 @@ const MultiValueField: React.FC<Props> = ({
               <>
                 <FieldButton
                   color="default"
-                  variant="link"
+                  disabled={key === 0}
                   icon={<Icon icon="arrowUp" size={16} />}
                   onClick={() => {
                     onChange?.(moveItemInArray(value, key, key - 1));
                     onBlur?.();
                   }}
-                  disabled={key === 0}
+                  variant="link"
                 />
                 <FieldButton
                   color="default"
-                  variant="link"
+                  disabled={key === value.length - 1}
                   icon={<Icon icon="arrowDown" size={16} />}
                   onClick={() => {
                     onChange?.(moveItemInArray(value, key, key + 1));
                     onBlur?.();
                   }}
-                  disabled={key === value.length - 1}
+                  variant="link"
                 />
               </>
             )}
             <FieldInput
               style={{ flex: 1 }}
               {...props}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}
-              onBlur={() => onBlur?.()}
-              value={valueItem}
               isError={(required && value.every(v => checkIfEmpty(v))) || errorIndexes?.has(key)}
+              onBlur={() => onBlur?.()}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => handleInput(e, key)}
+              value={valueItem}
             />
             {!props.disabled && (
               <FieldButton
                 color="default"
-                variant="link"
                 icon={<Icon icon="delete" size={16} />}
                 onClick={() => {
                   handleInputDelete(key);
                   onBlur?.();
                 }}
+                variant="link"
               />
             )}
           </FieldWrapper>
@@ -115,7 +115,6 @@ const MultiValueField: React.FC<Props> = ({
       {!props.disabled && (
         <Button
           icon={<Icon icon="plus" />}
-          type="primary"
           onClick={() => {
             const currentValues = value || [];
             const defaultValue = "";
@@ -124,7 +123,8 @@ const MultiValueField: React.FC<Props> = ({
             } else {
               onChange?.([currentValues, defaultValue]);
             }
-          }}>
+          }}
+          type="primary">
           {t("New")}
         </Button>
       )}

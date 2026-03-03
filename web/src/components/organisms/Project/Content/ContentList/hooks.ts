@@ -1,6 +1,6 @@
 import { skipToken, useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
-import { useCallback, useEffect, useMemo, useState, useRef, Key } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { Key, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Notification from "@reearth-cms/components/atoms/Notification";
@@ -11,8 +11,8 @@ import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table
 import {
   ContentTableField,
   Item,
-  ItemStatus,
   ItemField,
+  ItemStatus,
   Metadata,
 } from "@reearth-cms/components/molecules/Content/types";
 import { selectedTagIdsGet } from "@reearth-cms/components/molecules/Content/utils";
@@ -22,28 +22,28 @@ import useUploaderHook from "@reearth-cms/components/molecules/Uploader/hooks";
 import { UploaderQueueItem } from "@reearth-cms/components/molecules/Uploader/types";
 import {
   ConditionInput,
+  CurrentView,
   ItemSort,
   View,
-  CurrentView,
 } from "@reearth-cms/components/molecules/View/types";
 import {
-  fromGraphQLItem,
   fromGraphQLComment,
+  fromGraphQLItem,
 } from "@reearth-cms/components/organisms/DataConverters/content";
 import {
   fromGraphQLView,
-  toGraphItemSort,
   toGraphConditionInput,
+  toGraphItemSort,
 } from "@reearth-cms/components/organisms/DataConverters/table";
 import useContentHooks from "@reearth-cms/components/organisms/Project/Content/hooks";
 import {
-  Item as GQLItem,
-  Comment as GQLComment,
   Asset as GQLAsset,
-  SchemaFieldType,
+  Comment as GQLComment,
+  Item as GQLItem,
   View as GQLView,
   ItemFieldInput,
   JobStatus,
+  SchemaFieldType,
 } from "@reearth-cms/gql/__generated__/graphql.generated";
 import {
   CreateItemDocument,
@@ -54,7 +54,7 @@ import {
 } from "@reearth-cms/gql/__generated__/item.generated";
 import { GetViewsDocument } from "@reearth-cms/gql/__generated__/view.generated";
 import { useT } from "@reearth-cms/i18n";
-import { useUserId, useCollapsedModelMenu, useUserRights } from "@reearth-cms/state";
+import { useCollapsedModelMenu, useUserId, useUserRights } from "@reearth-cms/state";
 
 import { fileName } from "./utils";
 
@@ -66,35 +66,35 @@ const defaultViewSort: ItemSort = {
 };
 
 export type ValidateImportResult = {
-  type: "warning" | "error";
-  title: string;
-  description: string;
   canForwardToImport?: boolean;
+  description: string;
   hint?: string;
+  title: string;
+  type: "error" | "warning";
 };
 
 export default () => {
   const {
-    currentModel,
-    currentWorkspace,
-    currentProject,
-    requests,
     addItemToRequestModalShown,
-    handlePublish: _handlePublish,
-    handleUnpublish: _handleUnpublish,
+    currentModel,
+    currentProject,
+    currentWorkspace,
     handleAddItemToRequest,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
-    handleRequestTableChange,
+    handlePublish: _handlePublish,
     handleRequestSearchTerm,
+    handleRequestTableChange,
     handleRequestTableReload,
+    handleUnpublish: _handleUnpublish,
     loading: requestModalLoading,
-    publishLoading,
-    unpublishLoading,
-    totalCount: requestModalTotalCount,
     page: requestModalPage,
     pageSize: requestModalPageSize,
+    publishLoading,
+    requests,
     showPublishAction,
+    totalCount: requestModalTotalCount,
+    unpublishLoading,
   } = useContentHooks();
   const t = useT();
   const { handleEnqueueJob, uploaderState } = useUploaderHook();
@@ -103,11 +103,11 @@ export default () => {
   const { modelId } = useParams();
   const location: {
     state?: {
-      searchTerm?: string;
       currentView: CurrentView;
+      isImportModalOpen: boolean;
       page: number;
       pageSize: number;
-      isImportModalOpen: boolean;
+      searchTerm?: string;
     } | null;
   } = useLocation();
 
@@ -119,7 +119,7 @@ export default () => {
   );
   const [dataChecking, setDataChecking] = useState(false);
   const [alertList, setAlertList] = useState<AlertProps[]>([]);
-  const [validateImportResult, setValidateImportResult] = useState<ValidateImportResult | null>(
+  const [validateImportResult, setValidateImportResult] = useState<null | ValidateImportResult>(
     null,
   );
 
@@ -143,8 +143,8 @@ export default () => {
   const prevModelIdRef = useRef<string>();
 
   const { data: viewData, loading: viewLoading } = useQuery(GetViewsDocument, {
-    variables: { modelId: modelId ?? "" },
     skip: !modelId,
+    variables: { modelId: modelId ?? "" },
   });
 
   useEffect(() => {
@@ -167,25 +167,25 @@ export default () => {
     viewsRef.current = viewList ?? [];
   }, [location.state?.currentView, modelId, viewData?.view, viewLoading]);
 
-  const { data, refetch, loading } = useQuery(
+  const { data, loading, refetch } = useQuery(
     SearchItemDocument,
     currentProject?.id && currentModel?.id && !viewLoading
       ? {
           fetchPolicy: "no-cache",
+          notifyOnNetworkStatusChange: true,
           variables: {
             searchItemInput: {
-              query: {
-                project: currentProject.id,
-                model: currentModel.id,
-                schema: currentModel.schema.id,
-                q: searchTerm,
-              },
-              pagination: { first: pageSize, offset: (page - 1) * pageSize },
-              sort: toGraphItemSort(currentView.sort ?? defaultViewSort),
               filter: toGraphConditionInput(currentView.filter),
+              pagination: { first: pageSize, offset: (page - 1) * pageSize },
+              query: {
+                model: currentModel.id,
+                project: currentProject.id,
+                q: searchTerm,
+                schema: currentModel.schema.id,
+              },
+              sort: toGraphItemSort(currentView.sort ?? defaultViewSort),
             },
           },
-          notifyOnNetworkStatusChange: true,
         }
       : skipToken,
   );
@@ -246,7 +246,7 @@ export default () => {
     async (
       updateItemId: string,
       key: string,
-      value?: string | string[] | boolean | boolean[],
+      value?: boolean | boolean[] | string | string[],
       index?: number,
     ) => {
       const target = data?.searchItem.nodes.find(item => item?.id === updateItemId);
@@ -308,8 +308,8 @@ export default () => {
           }
           const item = await updateItemMutation({
             variables: {
-              itemId: metadata.id,
               fields,
+              itemId: metadata.id,
               version: metadata.version,
             },
           });
@@ -319,15 +319,15 @@ export default () => {
           }
         } else {
           const fields = [...metaFieldsMap].map(field => ({
-            value: field[1].id === key ? value : "",
             schemaFieldId: key,
             type: field[1].type as SchemaFieldType,
+            value: field[1].id === key ? value : "",
           }));
           const metaItem = await createNewItem({
             variables: {
+              fields,
               modelId: currentModel.id,
               schemaId: currentModel.metadataSchema.id,
-              fields,
             },
           });
           if (metaItem.error || !metaItem.data?.createItem) {
@@ -336,11 +336,11 @@ export default () => {
           }
           const item = await updateItemMutation({
             variables: {
-              itemId: target.id,
               fields: target.fields.map(field => ({
                 ...field,
                 value: field.value ?? "",
               })),
+              itemId: target.id,
               metadataId: metaItem?.data.createItem.item.id,
               version: target?.version ?? "",
             },
@@ -424,20 +424,20 @@ export default () => {
       ?.map(item =>
         item
           ? {
-              id: item.id,
-              schemaId: item.schemaId,
-              status: item.status as ItemStatus,
-              createdBy: { id: item.createdBy?.id ?? "", name: item.createdBy?.name ?? "" },
-              updatedBy: item.updatedBy?.name ?? "",
-              fields: fieldsGet(item as unknown as Item),
               comments: item.thread?.comments.map(comment =>
                 fromGraphQLComment(comment as GQLComment),
               ),
-              version: item.version,
               createdAt: item.createdAt,
-              updatedAt: item.updatedAt,
+              createdBy: { id: item.createdBy?.id ?? "", name: item.createdBy?.name ?? "" },
+              fields: fieldsGet(item as unknown as Item),
+              id: item.id,
               metadata: metadataGet(item?.metadata?.fields as ItemField[] | undefined),
               metadataId: item.metadata?.id,
+              schemaId: item.schemaId,
+              status: item.status as ItemStatus,
+              updatedAt: item.updatedAt,
+              updatedBy: item.updatedBy?.name ?? "",
+              version: item.version,
             }
           : undefined,
       )
@@ -468,47 +468,47 @@ export default () => {
   const contentTableColumns: ExtendedColumns[] | undefined = useMemo(() => {
     if (!currentModel) return;
     const fieldsColumns = currentModel?.schema?.fields?.map(field => ({
-      title: field.title,
       dataIndex: ["fields", field.id],
+      ellipsis: true,
       fieldType: "FIELD" as const,
       key: field.id,
-      ellipsis: true,
-      type: field.type,
-      typeProperty: field.typeProperty,
-      width: 128,
       minWidth: 128,
       multiple: field.multiple,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      render: (el: any) => renderField(el, field),
       required: field.required,
       sorter: true,
       sortOrder: sortOrderGet(field.id),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      render: (el: any) => renderField(el, field),
+      title: field.title,
+      type: field.type,
+      typeProperty: field.typeProperty,
+      width: 128,
     }));
 
     const metadataColumns =
       currentModel?.metadataSchema?.fields?.map(field => ({
-        title: renderTitle(field),
         dataIndex: ["metadata", field.id],
+        ellipsis: true,
         fieldType: "META_FIELD" as const,
         key: field.id,
-        ellipsis: true,
-        type: field.type,
-        typeProperty: field.typeProperty,
-        width: 128,
         minWidth: 128,
         multiple: field.multiple,
-        required: field.required,
-        sorter: true,
-        sortOrder: sortOrderGet(field.id),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         render: (el: any, record: ContentTableField) => {
           const update = hasRightGet(record.createdBy.id)
-            ? async (value?: string | string[] | boolean, index?: number) => {
+            ? async (value?: boolean | string | string[], index?: number) => {
                 await handleMetaItemUpdate(record.id, field.id, value, index);
               }
             : undefined;
           return renderField(el, field, update);
         },
+        required: field.required,
+        sorter: true,
+        sortOrder: sortOrderGet(field.id),
+        title: renderTitle(field),
+        type: field.type,
+        typeProperty: field.typeProperty,
+        width: 128,
       })) || [];
 
     return [...fieldsColumns, ...metadataColumns];
@@ -561,7 +561,7 @@ export default () => {
     (itemId: string) => {
       navigate(
         `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${currentModel?.id}/details/${itemId}`,
-        { state: { searchTerm, currentView, page, pageSize } },
+        { state: { currentView, page, pageSize, searchTerm } },
       );
     },
     [
@@ -581,8 +581,8 @@ export default () => {
     (itemIds: string[]) =>
       (async () => {
         const result = await deleteItemsMutation({
-          variables: { itemIds },
           refetchQueries: ["SearchItem"],
+          variables: { itemIds },
         });
         if (result.error || !result.data?.deleteItems) {
           Notification.error({ message: t("Failed to delete one or more items.") });
@@ -704,71 +704,71 @@ export default () => {
   ]);
 
   return {
-    currentModel,
-    loading,
-    deleteLoading,
-    publishLoading,
-    unpublishLoading,
-    contentTableFields,
-    contentTableColumns,
-    collapsedModelMenu,
-    collapsedCommentsPanel,
-    selectedItem,
-    selectedItems,
-    totalCount: data?.searchItem.totalCount ?? 0,
-    views: viewsRef.current,
-    currentView,
-    searchTerm,
-    page,
-    pageSize,
-    requests,
     addItemToRequestModalShown,
-    hasCreateRight,
-    hasDeleteRight,
-    hasPublishRight,
-    hasRequestUpdateRight,
-    showPublishAction,
-    setCurrentView,
-    handleRequestTableChange,
-    requestModalLoading,
-    requestModalTotalCount,
-    requestModalPage,
-    requestModalPageSize,
-    handlePublish,
-    handleUnpublish,
-    handleBulkAddItemToRequest,
+    alertList,
+    collapseCommentsPanel,
+    collapsedCommentsPanel,
+    collapsedModelMenu,
+    collapseModelMenu,
+    contentTableColumns,
+    contentTableFields,
+    currentModel,
+    currentProjectId,
+    currentView,
+    currentWorkspaceId,
+    dataChecking,
+    deleteLoading,
     handleAddItemToRequestModalClose,
     handleAddItemToRequestModalOpen,
-    handleSearchTerm,
+    handleBulkAddItemToRequest,
+    handleContentTableChange,
+    handleEnqueueJob,
     handleFilterChange,
-    handleSelect,
+    handleImportContentModalClose,
+    handleImportContentModalOpen,
+    handleItemDelete,
     handleItemSelect,
-    collapseCommentsPanel,
-    collapseModelMenu,
+    handleItemsReload,
     handleModelSelect,
+    handleNavigateToItemEditForm,
+    handleNavigateToItemForm,
+    handlePublish,
+    handleRequestSearchTerm,
+    handleRequestTableChange,
+    handleRequestTableReload,
+    handleSearchTerm,
+    handleSelect,
+    handleUnpublish,
     handleViewChange,
     handleViewSelect,
-    handleNavigateToItemForm,
-    handleNavigateToItemEditForm,
-    handleItemsReload,
-    handleItemDelete,
-    handleContentTableChange,
-    handleRequestSearchTerm,
-    handleRequestTableReload,
+    hasCreateRight,
+    hasDeleteRight,
+    hasModelFields,
+    hasPublishRight,
+    hasRequestUpdateRight,
     isImportContentModalOpen,
-    handleImportContentModalOpen,
-    handleImportContentModalClose,
-    dataChecking,
-    setDataChecking,
-    handleEnqueueJob,
+    loading,
     modelFields,
     modelId,
-    currentWorkspaceId,
-    currentProjectId,
-    hasModelFields,
-    alertList,
+    page,
+    pageSize,
+    publishLoading,
+    requestModalLoading,
+    requestModalPage,
+    requestModalPageSize,
+    requestModalTotalCount,
+    requests,
+    searchTerm,
+    selectedItem,
+    selectedItems,
     setAlertList,
-    validateImportResult,
+    setCurrentView,
+    setDataChecking,
     setValidateImportResult,
+    showPublishAction,
+    totalCount: data?.searchItem.totalCount ?? 0,
+    unpublishLoading,
+    validateImportResult,
+    views: viewsRef.current,
   };
 };

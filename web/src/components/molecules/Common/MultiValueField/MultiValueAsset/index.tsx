@@ -10,38 +10,38 @@ import AssetItem from "../../Form/AssetItem";
 import { moveItemInArray } from "../moveItemArray";
 
 type Props = {
-  value?: string[];
-  onChange?: (value: string[]) => void;
   disabled?: boolean;
+  onChange?: (value: string[]) => void;
+  value?: string[];
 } & AssetProps;
 
 const MultiValueAsset: React.FC<Props> = ({
-  value = [],
-  disabled,
-  onChange,
-  onGetAsset,
-  itemAssets,
   assetList,
+  disabled,
   fileList,
+  itemAssets,
   loadingAssets,
-  uploading,
-  uploadModalVisibility,
-  uploadUrl,
-  uploadType,
-  totalCount,
-  page,
-  pageSize,
-  onAssetTableChange,
-  onUploadModalCancel,
-  setUploadUrl,
-  setUploadType,
-  onAssetsCreate,
   onAssetCreateFromUrl,
+  onAssetsCreate,
+  onAssetSearchTerm,
   onAssetsGet,
   onAssetsReload,
-  onAssetSearchTerm,
+  onAssetTableChange,
+  onChange,
+  onGetAsset,
+  onUploadModalCancel,
+  page,
+  pageSize,
   setFileList,
   setUploadModalVisibility,
+  setUploadType,
+  setUploadUrl,
+  totalCount,
+  uploading,
+  uploadModalVisibility,
+  uploadType,
+  uploadUrl,
+  value = [],
 }) => {
   const t = useT();
   const handleInput = useCallback(
@@ -76,54 +76,54 @@ const MultiValueAsset: React.FC<Props> = ({
               <>
                 <FieldButton
                   color="default"
-                  variant="link"
+                  disabled={key === 0}
                   icon={<Icon icon="arrowUp" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
-                  disabled={key === 0}
+                  variant="link"
                 />
                 <FieldButton
                   color="default"
-                  variant="link"
+                  disabled={key === value.length - 1}
                   icon={<Icon icon="arrowDown" size={16} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
-                  disabled={key === value.length - 1}
+                  variant="link"
                 />
               </>
             )}
             <AssetItem
-              itemAssets={itemAssets}
-              disabled={disabled}
-              value={valueItem}
               assetList={assetList}
+              disabled={disabled}
               fileList={fileList}
+              itemAssets={itemAssets}
               loadingAssets={loadingAssets}
-              uploading={uploading}
-              uploadModalVisibility={uploadModalVisibility}
-              uploadUrl={uploadUrl}
-              uploadType={uploadType}
-              totalCount={totalCount}
-              page={page}
-              pageSize={pageSize}
-              onAssetTableChange={onAssetTableChange}
-              onUploadModalCancel={onUploadModalCancel}
-              setUploadUrl={setUploadUrl}
-              setUploadType={setUploadType}
-              onAssetsCreate={onAssetsCreate}
               onAssetCreateFromUrl={onAssetCreateFromUrl}
+              onAssetsCreate={onAssetsCreate}
+              onAssetSearchTerm={onAssetSearchTerm}
               onAssetsGet={onAssetsGet}
               onAssetsReload={onAssetsReload}
-              onAssetSearchTerm={onAssetSearchTerm}
-              setFileList={setFileList}
-              setUploadModalVisibility={setUploadModalVisibility}
+              onAssetTableChange={onAssetTableChange}
               onChange={(e: string) => handleInput(e, key)}
               onGetAsset={onGetAsset}
+              onUploadModalCancel={onUploadModalCancel}
+              page={page}
+              pageSize={pageSize}
+              setFileList={setFileList}
+              setUploadModalVisibility={setUploadModalVisibility}
+              setUploadType={setUploadType}
+              setUploadUrl={setUploadUrl}
+              totalCount={totalCount}
+              uploading={uploading}
+              uploadModalVisibility={uploadModalVisibility}
+              uploadType={uploadType}
+              uploadUrl={uploadUrl}
+              value={valueItem}
             />
             {!disabled && (
               <FieldButton
                 color="default"
-                variant="link"
                 icon={<Icon icon="delete" size={16} />}
                 onClick={() => handleInputDelete(key)}
+                variant="link"
               />
             )}
           </FieldWrapper>
@@ -131,11 +131,11 @@ const MultiValueAsset: React.FC<Props> = ({
       {!disabled && (
         <Button
           icon={<Icon icon="plus" />}
-          type="primary"
           onClick={() => {
             if (!value) value = [];
             onChange?.([...value, ""]);
-          }}>
+          }}
+          type="primary">
           {t("New")}
         </Button>
       )}
