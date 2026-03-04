@@ -211,6 +211,7 @@ func (i *Item) HasField(fid FieldID, value any) bool {
 	return false
 }
 
+// Deprecated: AssetIDs does not respect the schema, use AssetIDsBySchema instead
 func (i *Item) AssetIDs() AssetIDList {
 	fm := lo.FlatMap(i.fields, func(f *Field, _ int) []*value.Value {
 		return f.Value().Values()
@@ -241,6 +242,33 @@ func (i *Item) AssetIDsBySchema(sp schema.Package) AssetIDList {
 	return lo.FilterMap(ids, func(v *value.Value, _ int) (AssetID, bool) {
 		return v.ValueAsset()
 	})
+}
+
+func (i *Item) RefItemsIds(sp schema.Package) IDList {
+	sRefFields := sp.FieldsByType(value.TypeReference)
+	if len(sRefFields) == 0 {
+		return nil
+	}
+
+	ids := lo.FlatMap(i.Fields().Filter(sRefFields.IDs()), func(f *Field, _ int) []id.ItemID {
+		sf := sRefFields.Find(f.FieldID())
+		if sf == nil {
+			return nil
+		}
+
+		var vals []*value.Value
+		if sf.Multiple() {
+			vals = f.Value().Values()
+		} else if v := f.Value().First(); v != nil {
+			vals = []*value.Value{v}
+		}
+
+		return lo.FilterMap(vals, func(v *value.Value, _ int) (id.ItemID, bool) {
+			return v.ValueReference()
+		})
+	})
+
+	return lo.Uniq(IDList(ids))
 }
 
 func (i *Item) GetTitle(s *schema.Schema) *string {

@@ -62,6 +62,16 @@ func (l List) AssetIDs(sp schema.Package) AssetIDList {
 	return assetIDs
 }
 
+func (l List) RefItemsIDs(sp schema.Package) IDList {
+	if l == nil {
+		return nil
+	}
+	ids := lo.FlatMap(l, func(i *Item, _ int) []ID {
+		return i.RefItemsIds(sp)
+	})
+	return lo.Uniq(IDList(ids))
+}
+
 func (l List) ToMap() map[ID]*Item {
 	m := make(map[ID]*Item, len(l))
 	for _, i := range l {

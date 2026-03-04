@@ -140,6 +140,15 @@ type AssetContext struct {
 	All   bool
 }
 
+func (c *AssetContext) Add(list asset.List) {
+	if c.Map == nil {
+		c.Map = asset.Map{}
+	}
+	for _, a := range list {
+		c.Map[a.ID()] = a
+	}
+}
+
 func (c *AssetContext) ResolveAsset(id asset.ID) *Asset {
 	if c.Map != nil {
 		if a, ok := c.Map[id]; ok {
