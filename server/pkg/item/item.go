@@ -211,7 +211,6 @@ func (i *Item) HasField(fid FieldID, value any) bool {
 	return false
 }
 
-// Deprecated: AssetIDs does not respect the schema, use AssetIDsBySchema instead
 func (i *Item) AssetIDs() AssetIDList {
 	fm := lo.FlatMap(i.fields, func(f *Field, _ int) []*value.Value {
 		return f.Value().Values()
