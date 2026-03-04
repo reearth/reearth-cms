@@ -589,7 +589,7 @@ func TestItem_RefItemsIds(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tt.expected, tt.item.RefItemsIds(tt.pkg))
+			assert.Equal(t, tt.expected, tt.item.RefItemsIDs(tt.pkg))
 		})
 	}
 }

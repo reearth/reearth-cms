@@ -243,7 +243,7 @@ func (i *Item) AssetIDsBySchema(sp schema.Package) AssetIDList {
 	})
 }
 
-func (i *Item) refItemIDs(sp schema.Package, filter func(*schema.Field) bool) IDList {
+func (i *Item) refItemsIDs(sp schema.Package, filter func(*schema.Field) bool) IDList {
 	sRefFields := sp.FieldsByType(value.TypeReference)
 	if len(sRefFields) == 0 {
 		return nil
@@ -273,12 +273,12 @@ func (i *Item) refItemIDs(sp schema.Package, filter func(*schema.Field) bool) ID
 	return lo.Uniq(validIDs)
 }
 
-func (i *Item) RefItemIDs(sp schema.Package) IDList {
-	return i.refItemIDs(sp, nil)
+func (i *Item) RefItemsIDs(sp schema.Package) IDList {
+	return i.refItemsIDs(sp, nil)
 }
 
-func (i *Item) RefItemIDsByModels(sp schema.Package, modelIDs id.ModelIDList) IDList {
-	return i.refItemIDs(sp, func(sf *schema.Field) bool {
+func (i *Item) RefItemsIDsByModels(sp schema.Package, modelIDs id.ModelIDList) IDList {
+	return i.refItemsIDs(sp, func(sf *schema.Field) bool {
 		found := false
 		sf.TypeProperty().Match(schema.TypePropertyMatch{
 			Reference: func(rf *schema.FieldReference) {
