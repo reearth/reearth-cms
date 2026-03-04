@@ -67,7 +67,7 @@ func (l List) RefItemsIDs(sp schema.Package) IDList {
 		return nil
 	}
 	ids := lo.FlatMap(l, func(i *Item, _ int) []ID {
-		return i.RefItemsIds(sp)
+		return i.RefItemsIDs(sp)
 	})
 	return lo.Uniq(IDList(ids))
 }

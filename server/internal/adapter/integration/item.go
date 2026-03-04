@@ -73,7 +73,7 @@ func (s *Server) ItemFilter(ctx context.Context, request ItemFilterRequestObject
 				return metaItem.Value().Schema() == s.ID()
 			})
 		}
-		return integrationapi.NewVersionedItem(i, sp.Schema(), ac, getReferencedItems(ctx, i.Value().RefItemsIds(*sp), sp, ac), metaSchema, metaItem, sp.GroupSchemas()), nil
+		return integrationapi.NewVersionedItem(i, sp.Schema(), ac, getReferencedItems(ctx, i.Value().RefItemsIDs(*sp), sp, ac), metaSchema, metaItem, sp.GroupSchemas()), nil
 	})
 	if err != nil {
 		return ItemFilter400Response{}, err
@@ -144,7 +144,7 @@ func (s *Server) ItemFilterPost(ctx context.Context, request ItemFilterPostReque
 				return metaItem.Value().Schema() == s.ID()
 			})
 		}
-		return integrationapi.NewVersionedItem(i, sp.Schema(), ac, getReferencedItems(ctx, i.Value().RefItemsIds(*sp), sp, ac), metaSchema, metaItem, sp.GroupSchemas()), nil
+		return integrationapi.NewVersionedItem(i, sp.Schema(), ac, getReferencedItems(ctx, i.Value().RefItemsIDs(*sp), sp, ac), metaSchema, metaItem, sp.GroupSchemas()), nil
 	})
 	if err != nil {
 		return ItemFilterPost400Response{}, err
@@ -338,7 +338,7 @@ func (s *Server) ItemUpdate(ctx context.Context, request ItemUpdateRequestObject
 	}
 	ac := assetContext(ctx, assets, request.Body.Asset)
 
-	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItem(i, sp.Schema(), ac, getReferencedItems(ctx, i.Value().RefItemsIds(*sp), sp, ac), sp.MetaSchema(), metaItem, sp.GroupSchemas())), nil
+	return ItemUpdate200JSONResponse(integrationapi.NewVersionedItem(i, sp.Schema(), ac, getReferencedItems(ctx, i.Value().RefItemsIDs(*sp), sp, ac), sp.MetaSchema(), metaItem, sp.GroupSchemas())), nil
 }
 
 func (s *Server) ItemDelete(ctx context.Context, request ItemDeleteRequestObject) (ItemDeleteResponseObject, error) {
@@ -433,7 +433,7 @@ func (s *Server) ItemGet(ctx context.Context, request ItemGetRequestObject) (Ite
 		schm = sp.MetaSchema()
 	}
 
-	return ItemGet200JSONResponse(integrationapi.NewVersionedItem(i, schm, ac, getReferencedItems(ctx, i.Value().RefItemsIds(*sp), sp, ac), ms, mi, sp.GroupSchemas())), nil
+	return ItemGet200JSONResponse(integrationapi.NewVersionedItem(i, schm, ac, getReferencedItems(ctx, i.Value().RefItemsIDs(*sp), sp, ac), ms, mi, sp.GroupSchemas())), nil
 }
 
 func (s *Server) ItemPublish(ctx context.Context, request ItemPublishRequestObject) (ItemPublishResponseObject, error) {
@@ -501,7 +501,7 @@ func (s *Server) ItemPublish(ctx context.Context, request ItemPublishRequestObje
 		schm = sp.MetaSchema()
 	}
 
-	return ItemPublish200JSONResponse(integrationapi.NewVersionedItem(i, schm, ac, getReferencedItems(ctx, i.Value().RefItemsIds(*sp), sp, ac), ms, mi, sp.GroupSchemas())), nil
+	return ItemPublish200JSONResponse(integrationapi.NewVersionedItem(i, schm, ac, getReferencedItems(ctx, i.Value().RefItemsIDs(*sp), sp, ac), ms, mi, sp.GroupSchemas())), nil
 }
 
 func createItem(ctx context.Context, uc *interfaces.Container, m *model.Model, fields, metaFields *[]integrationapi.Field, op *usecase.Operator) (*integrationapi.VersionedItem, error) {
@@ -545,7 +545,7 @@ func createItem(ctx context.Context, uc *interfaces.Container, m *model.Model, f
 	}
 	ac := assetContext(ctx, assets, lo.ToPtr(integrationapi.All))
 
-	return lo.ToPtr(integrationapi.NewVersionedItem(i, sp.Schema(), ac, getReferencedItems(ctx, i.Value().RefItemsIds(*sp), sp, ac), sp.MetaSchema(), metaItem, sp.GroupSchemas())), nil
+	return lo.ToPtr(integrationapi.NewVersionedItem(i, sp.Schema(), ac, getReferencedItems(ctx, i.Value().RefItemsIDs(*sp), sp, ac), sp.MetaSchema(), metaItem, sp.GroupSchemas())), nil
 }
 
 func assetContext(ctx context.Context, m asset.Map, asset *integrationapi.AssetEmbedding) *integrationapi.AssetContext {
