@@ -317,6 +317,7 @@ const Schema: React.FC<Props> = ({
               {selectedSchemaType === "group" && (
                 <GroupFieldsWrapper>
                   <ModelFieldList
+                    isGroup={true}
                     fields={data?.schema?.fields}
                     hasUpdateRight={hasUpdateRight}
                     hasDeleteRight={hasDeleteRight}
