@@ -1761,7 +1761,14 @@ describe("Test import schema", () => {
       },
     ])(
       "hasSchemaCreateRight: $hasSchemaCreateRight, hasModelFields: $hasModelFields, isFieldTab: $isFieldTab, isModel: $isModel",
-      ({ hasSchemaCreateRight, hasModelFields, isFieldTab, isModel, expectedDisable, expectedTooltip }) => {
+      ({
+        hasSchemaCreateRight,
+        hasModelFields,
+        isFieldTab,
+        isModel,
+        expectedDisable,
+        expectedTooltip,
+      }) => {
         const result = ImportSchemaUtils.getUIMetadata({
           hasSchemaCreateRight,
           hasModelFields,

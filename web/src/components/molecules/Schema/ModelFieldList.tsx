@@ -8,7 +8,6 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
 import Popconfirm from "@reearth-cms/components/atoms/PopConfirm";
 import Tag from "@reearth-cms/components/atoms/Tag";
-import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
