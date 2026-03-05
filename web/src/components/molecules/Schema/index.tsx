@@ -159,8 +159,14 @@ const Schema: React.FC<Props> = ({
     [data],
   );
   const getImportSchemaUIMetadata = useMemo(
-    () => ImportSchemaUtils.getUIMetadata({ hasSchemaCreateRight: hasCreateRight, hasModelFields }),
-    [hasModelFields, hasCreateRight],
+    () =>
+      ImportSchemaUtils.getUIMetadata({
+        hasSchemaCreateRight: hasCreateRight,
+        hasModelFields,
+        isFieldTab: tab === "fields",
+        isModel: selectedSchemaType === "model",
+      }),
+    [hasCreateRight, hasModelFields, tab, selectedSchemaType],
   );
 
   const dropdownItems = useMemo(
@@ -179,7 +185,7 @@ const Schema: React.FC<Props> = ({
             title={getImportSchemaUIMetadata.tooltipMessage}
             data-testid={DATA_TEST_ID.Schema__ImportSchemaButton}>
             <StyledImportMenuItem>
-              {t("Import")}
+              <div>{t("Import")}</div>
               <ExperimentIcon disabled={getImportSchemaUIMetadata.shouldDisable} />
             </StyledImportMenuItem>
           </Tooltip>
@@ -421,5 +427,5 @@ const StyledIcon = styled(Icon)`
 
 const StyledImportMenuItem = styled.div`
   display: flex;
-  gap: 8;
+  gap: 8px;
 `;

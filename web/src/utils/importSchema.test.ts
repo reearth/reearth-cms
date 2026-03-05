@@ -1671,16 +1671,106 @@ describe("Test import schema", () => {
 
   describe("Test getUIMetadata method", () => {
     test.each([
-      { hasSchemaCreateRight: true, hasModelFields: true, expected: true },
-      { hasSchemaCreateRight: true, hasModelFields: false, expected: false },
-      { hasSchemaCreateRight: false, hasModelFields: true, expected: true },
-      { hasSchemaCreateRight: false, hasModelFields: false, expected: true },
+      {
+        hasSchemaCreateRight: true,
+        hasModelFields: false,
+        isFieldTab: true,
+        isModel: true,
+        expectedDisable: false,
+        expectedTooltip: undefined,
+      },
+      {
+        hasSchemaCreateRight: true,
+        hasModelFields: false,
+        isFieldTab: false,
+        isModel: true,
+        expectedDisable: true,
+        expectedTooltip: "Importing into groups is not supported",
+      },
+      {
+        hasSchemaCreateRight: true,
+        hasModelFields: false,
+        isFieldTab: true,
+        isModel: false,
+        expectedDisable: true,
+        expectedTooltip: "Importing into meta data is not supported",
+      },
+      {
+        hasSchemaCreateRight: true,
+        hasModelFields: false,
+        isFieldTab: false,
+        isModel: false,
+        expectedDisable: true,
+        expectedTooltip: "Importing into meta data is not supported",
+      },
+      {
+        hasSchemaCreateRight: true,
+        hasModelFields: true,
+        isFieldTab: true,
+        isModel: true,
+        expectedDisable: true,
+        expectedTooltip: "Only empty schemas can be imported into",
+      },
+      {
+        hasSchemaCreateRight: true,
+        hasModelFields: true,
+        isFieldTab: false,
+        isModel: true,
+        expectedDisable: true,
+        expectedTooltip: "Importing into groups is not supported",
+      },
+      {
+        hasSchemaCreateRight: false,
+        hasModelFields: false,
+        isFieldTab: true,
+        isModel: true,
+        expectedDisable: true,
+        expectedTooltip: "Reader cannot import schema.",
+      },
+      {
+        hasSchemaCreateRight: false,
+        hasModelFields: true,
+        isFieldTab: true,
+        isModel: true,
+        expectedDisable: true,
+        expectedTooltip: "Reader cannot import schema.",
+      },
+      {
+        hasSchemaCreateRight: false,
+        hasModelFields: false,
+        isFieldTab: false,
+        isModel: true,
+        expectedDisable: true,
+        expectedTooltip: "Importing into groups is not supported",
+      },
+      {
+        hasSchemaCreateRight: false,
+        hasModelFields: false,
+        isFieldTab: true,
+        isModel: false,
+        expectedDisable: true,
+        expectedTooltip: "Importing into meta data is not supported",
+      },
+      {
+        hasSchemaCreateRight: false,
+        hasModelFields: false,
+        isFieldTab: false,
+        isModel: false,
+        expectedDisable: true,
+        expectedTooltip: "Importing into meta data is not supported",
+      },
     ])(
-      "hasSchemaCreateRight: $hasSchemaCreateRight, hasModelFields: $hasModelFields, expected: $expected",
-      ({ hasSchemaCreateRight, hasModelFields, expected }) => {
-        const result = ImportSchemaUtils.getUIMetadata({ hasSchemaCreateRight, hasModelFields });
+      "hasSchemaCreateRight: $hasSchemaCreateRight, hasModelFields: $hasModelFields, isFieldTab: $isFieldTab, isModel: $isModel",
+      ({ hasSchemaCreateRight, hasModelFields, isFieldTab, isModel, expectedDisable, expectedTooltip }) => {
+        const result = ImportSchemaUtils.getUIMetadata({
+          hasSchemaCreateRight,
+          hasModelFields,
+          isFieldTab,
+          isModel,
+        });
 
-        expect(result.shouldDisable).toEqual(expected);
+        expect(result.shouldDisable).toEqual(expectedDisable);
+        expect(result.tooltipMessage).toEqual(expectedTooltip);
       },
     );
   });
