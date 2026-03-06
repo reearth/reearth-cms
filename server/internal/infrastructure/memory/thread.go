@@ -82,6 +82,26 @@ func (r *Thread) FindByIDs(ctx context.Context, ids id.ThreadIDList) ([]*thread.
 	return res, nil
 }
 
+func (r *Thread) Remove(_ context.Context, thid id.ThreadID) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	r.data.Delete(thid)
+	return nil
+}
+
+func (r *Thread) RemoveByIDs(_ context.Context, ids id.ThreadIDList) error {
+	if r.err != nil {
+		return r.err
+	}
+
+	for _, thid := range ids {
+		r.data.Delete(thid)
+	}
+	return nil
+}
+
 func SetThreadError(r repo.Thread, err error) {
 	r.(*Thread).err = err
 }

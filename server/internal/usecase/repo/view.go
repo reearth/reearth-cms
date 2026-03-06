@@ -15,4 +15,5 @@ type View interface {
 	Save(context.Context, *view.View) error
 	SaveAll(context.Context, view.List) error
 	Remove(context.Context, id.ViewID) error
+	RemoveByModel(context.Context, id.ModelID) error
 }

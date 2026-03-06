@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	eventIndexes       = []string{"user", "integration"}
+	eventIndexes       = []string{"user", "integration", "project"}
 	eventUniqueIndexes = []string{"id"}
 )
 
@@ -49,6 +49,10 @@ func (r *Event) SaveAll(ctx context.Context, ev event.List) error {
 		return err
 	}
 	return r.client.SaveAll(ctx, eID, lo.ToAnySlice(doc))
+}
+
+func (r *Event) RemoveByProject(ctx context.Context, projectID id.ProjectID) error {
+	return r.client.RemoveAll(ctx, bson.M{"project": projectID.String()})
 }
 
 func (r *Event) findOne(ctx context.Context, filter any) (*event.Event[any], error) {

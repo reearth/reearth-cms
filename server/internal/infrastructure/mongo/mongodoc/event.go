@@ -17,6 +17,7 @@ type EventDocument struct {
 	Integration *string
 	Machine     bool
 	Type        string
+	Project     *string
 	Object      Document
 }
 
@@ -26,6 +27,10 @@ func NewEvent(e *event.Event[any]) (*EventDocument, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
+	var prjID *string
+	if p := e.Project(); p != nil {
+		prjID = &p.ID
+	}
 	return &EventDocument{
 		ID:          eId,
 		Timestamp:   e.Timestamp(),
@@ -33,6 +38,7 @@ func NewEvent(e *event.Event[any]) (*EventDocument, string, error) {
 		Integration: e.Operator().Integration().StringRef(),
 		Machine:     e.Operator().Machine(),
 		Type:        string(e.Type()),
+		Project:     prjID,
 		Object:      objDoc,
 	}, eId, nil
 }

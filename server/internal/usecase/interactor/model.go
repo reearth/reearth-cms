@@ -10,7 +10,9 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/task"
@@ -219,6 +221,42 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 				return interfaces.ErrOperationDenied
 			}
 
+			// 1. Delete all views for this model
+			if err := i.repos.View.RemoveByModel(ctx, modelID); err != nil {
+				return err
+			}
+
+			// 2. Build schema.Package — needed by BatchDelete for reference field cleanup
+			sp, err := i.buildSchemaPackage(ctx, m)
+			if err != nil {
+				return err
+			}
+
+			// 3. Fetch all items for this model and delete them in batches
+			//    BatchDelete handles metadata items and cross-item reference cleanup
+			if err := i.deleteItemsByModel(ctx, modelID, sp, operator); err != nil {
+				return err
+			}
+
+			// 4. Delete the model's schema
+			if err := i.repos.Schema.Remove(ctx, m.Schema()); err != nil {
+				return err
+			}
+
+			// 5. Delete the metadata schema if present
+			if m.Metadata() != nil {
+				if err := i.repos.Schema.Remove(ctx, *m.Metadata()); err != nil {
+					return err
+				}
+			}
+
+			// 6. Delete events for this project
+			// Note: events are scoped to project, not model. We only delete them
+			// here when the project itself is being deleted (called from project delete).
+			// When deleting a single model, events from other models in the same
+			// project must be preserved, so we skip event deletion at this level.
+
+			// 7. Delete the model and reorder siblings
 			models, _, err := i.repos.Model.FindByProject(ctx, m.Project(), usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
 			if err != nil {
 				return err
@@ -227,11 +265,86 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 			if err := i.repos.Model.Remove(ctx, modelID); err != nil {
 				return err
 			}
-			if err := i.repos.Model.SaveAll(ctx, res); err != nil {
+			return i.repos.Model.SaveAll(ctx, res)
+		})
+}
+
+// buildSchemaPackage constructs a schema.Package for a model, which is required
+// by BatchDelete to resolve and clean up cross-item reference fields.
+func (i Model) buildSchemaPackage(ctx context.Context, m *model.Model) (schema.Package, error) {
+	sIDs := id.SchemaIDList{m.Schema()}
+	if m.Metadata() != nil {
+		sIDs = append(sIDs, *m.Metadata())
+	}
+	sList, err := i.repos.Schema.FindByIDs(ctx, sIDs)
+	if err != nil {
+		return schema.Package{}, err
+	}
+	s := sList.Schema(lo.ToPtr(m.Schema()))
+	if s == nil {
+		return schema.Package{}, nil
+	}
+	groups, err := i.repos.Group.FindByIDs(ctx, s.Groups())
+	if err != nil {
+		return schema.Package{}, err
+	}
+	sl, err := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs().Add(s.ReferencedSchemas()...))
+	if err != nil {
+		return schema.Package{}, err
+	}
+	gsm := lo.SliceToMap(groups, func(g *group.Group) (id.GroupID, *schema.Schema) {
+		return g.ID(), sl.Schema(lo.ToPtr(g.Schema()))
+	})
+	rs := lo.Map(s.ReferencedSchemas(), func(s schema.ID, _ int) *schema.Schema {
+		return sl.Schema(&s)
+	})
+	return *schema.NewPackage(s, sList.Schema(m.Metadata()), gsm, rs), nil
+}
+
+// deleteItemsByModel fetches all items for a model in pages and deletes them.
+// It uses BatchDelete (not a raw deleteMany) to preserve reference field cleanup
+// and metadata item deletion that BatchDelete handles internally.
+func (i Model) deleteItemsByModel(ctx context.Context, modelID id.ModelID, sp schema.Package, operator *usecase.Operator) error {
+	const pageSize = int64(100)
+	var cursor *usecasex.Cursor
+
+	itemInteractor := NewItem(i.repos, i.gateways)
+
+	for {
+		vList, pageInfo, err := i.repos.Item.FindByModel(ctx, modelID, nil, nil,
+			usecasex.CursorPagination{First: lo.ToPtr(pageSize), After: cursor}.Wrap())
+		if err != nil {
+			return err
+		}
+
+		items := vList.Unwrap()
+		if len(items) > 0 {
+			// Collect thread IDs before deletion
+			threadIDs := lo.FilterMap(items, func(itm *item.Item, _ int) (id.ThreadID, bool) {
+				if itm.Thread() == nil {
+					return id.ThreadID{}, false
+				}
+				return *itm.Thread(), true
+			})
+
+			if _, err := itemInteractor.BatchDelete(ctx, items.IDs(), sp, operator); err != nil {
 				return err
 			}
-			return nil
-		})
+
+			// Delete threads that belonged to the deleted items
+			if len(threadIDs) > 0 {
+				if err := i.repos.Thread.RemoveByIDs(ctx, threadIDs); err != nil {
+					return err
+				}
+			}
+		}
+
+		if !pageInfo.HasNextPage {
+			break
+		}
+		cursor = pageInfo.EndCursor
+	}
+	return nil
 }
 
 func (i Model) FindOrCreateSchema(ctx context.Context, param interfaces.FindOrCreateSchemaParam, operator *usecase.Operator) (*schema.Schema, error) {
