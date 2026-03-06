@@ -62,6 +62,7 @@ import {
   DownOutlined,
   PaperClipOutlined,
   ExclamationCircleFilled,
+  ExperimentOutlined,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
@@ -209,4 +210,5 @@ export default {
   clip: PaperClipOutlined,
   retry: RetryFilled,
   warningSolid: WarningSolid,
+  experimentOutlined: ExperimentOutlined,
 };
