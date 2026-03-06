@@ -62,6 +62,7 @@ import {
   DownOutlined,
   PaperClipOutlined,
   ExclamationCircleFilled,
+  ExperimentOutlined,
 } from "@ant-design/icons";
 
 import ArrowSquareOut from "./Icons/arrowSquareOut.svg";
@@ -209,6 +210,7 @@ const icons = {
   clip: PaperClipOutlined,
   retry: RetryFilled,
   warningSolid: WarningSolid,
+  experimentOutlined: ExperimentOutlined,
 };
 
 export type IconName = keyof typeof icons;
