@@ -1685,7 +1685,7 @@ describe("Test import schema", () => {
         isFieldTab: false,
         isModel: true,
         expectedDisable: true,
-        expectedTooltip: "Importing into groups is not supported",
+        expectedTooltip: "Importing into meta data is not supported",
       },
       {
         hasSchemaCreateRight: true,
@@ -1693,7 +1693,7 @@ describe("Test import schema", () => {
         isFieldTab: true,
         isModel: false,
         expectedDisable: true,
-        expectedTooltip: "Importing into meta data is not supported",
+        expectedTooltip: "Importing into groups is not supported",
       },
       {
         hasSchemaCreateRight: true,
@@ -1701,7 +1701,7 @@ describe("Test import schema", () => {
         isFieldTab: false,
         isModel: false,
         expectedDisable: true,
-        expectedTooltip: "Importing into meta data is not supported",
+        expectedTooltip: "Importing into groups is not supported",
       },
       {
         hasSchemaCreateRight: true,
@@ -1717,7 +1717,7 @@ describe("Test import schema", () => {
         isFieldTab: false,
         isModel: true,
         expectedDisable: true,
-        expectedTooltip: "Importing into groups is not supported",
+        expectedTooltip: "Importing into meta data is not supported",
       },
       {
         hasSchemaCreateRight: false,
@@ -1741,7 +1741,7 @@ describe("Test import schema", () => {
         isFieldTab: false,
         isModel: true,
         expectedDisable: true,
-        expectedTooltip: "Importing into groups is not supported",
+        expectedTooltip: "Importing into meta data is not supported",
       },
       {
         hasSchemaCreateRight: false,
@@ -1749,7 +1749,7 @@ describe("Test import schema", () => {
         isFieldTab: true,
         isModel: false,
         expectedDisable: true,
-        expectedTooltip: "Importing into meta data is not supported",
+        expectedTooltip: "Importing into groups is not supported",
       },
       {
         hasSchemaCreateRight: false,
@@ -1757,7 +1757,7 @@ describe("Test import schema", () => {
         isFieldTab: false,
         isModel: false,
         expectedDisable: true,
-        expectedTooltip: "Importing into meta data is not supported",
+        expectedTooltip: "Importing into groups is not supported",
       },
     ])(
       "hasSchemaCreateRight: $hasSchemaCreateRight, hasModelFields: $hasModelFields, isFieldTab: $isFieldTab, isModel: $isModel",

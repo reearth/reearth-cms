@@ -820,23 +820,19 @@ export abstract class ImportSchemaUtils {
 
     let tooltipMessage: TooltipProps["title"] = undefined;
 
-    // check model field first
-    if (isFieldTab && isModel) {
-      if (!hasSchemaCreateRight) {
-        tooltipMessage = t("Reader cannot import schema.");
-      } else {
-        if (hasModelFields) {
-          tooltipMessage = t("Only empty schemas can be imported into");
-        }
-      }
-    } else {
-      if (!isFieldTab) tooltipMessage = t("Importing into groups is not supported");
-      if (!isModel) tooltipMessage = t("Importing into meta data is not supported");
+    if (!isModel) {
+      tooltipMessage = t("Importing into groups is not supported");
+    } else if (!isFieldTab) {
+      tooltipMessage = t("Importing into meta data is not supported");
+    } else if (!hasSchemaCreateRight) {
+      tooltipMessage = t("Reader cannot import schema.");
+    } else if (hasModelFields) {
+      tooltipMessage = t("Only empty schemas can be imported into");
     }
 
     return {
       tooltipMessage,
-      shouldDisable: hasModelFields || !hasSchemaCreateRight || !isFieldTab || !isModel,
+      shouldDisable: !isModel || !isFieldTab || !hasSchemaCreateRight || hasModelFields,
     };
   }
 }
