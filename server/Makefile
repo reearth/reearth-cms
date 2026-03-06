@@ -43,4 +43,9 @@ grpc:
       --go-grpc_out=./internal/adapter/internalapi/ --go-grpc_opt=paths=source_relative  \
         ./schemas/internalapi/v1/schema.proto
 
-.PHONY: lint test build check run-app run-db gql i18n i18n-ci oapi grpc
+gen-cerbos-policies:
+	go run ./cmd/policy-generator
+
+gen-policies: gen-cerbos-policies
+
+.PHONY: lint test build check run-app run-db gql i18n i18n-ci oapi grpc gen-cerbos-policies gen-policies
