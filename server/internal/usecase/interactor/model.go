@@ -12,7 +12,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
-	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/task"
@@ -301,15 +300,19 @@ func (i Model) buildSchemaPackage(ctx context.Context, m *model.Model) (schema.P
 	return *schema.NewPackage(s, sList.Schema(m.Metadata()), gsm, rs), nil
 }
 
-// deleteItemsByModel fetches all items for a model in pages and deletes them.
-// It uses BatchDelete (not a raw deleteMany) to preserve reference field cleanup
-// and metadata item deletion that BatchDelete handles internally.
+// deleteItemsByModel deletes all items for a model.
+// It pages through items to collect thread IDs, metadata IDs, and clear cross-model
+// reference fields, then removes all items with a single bulk delete by model ID.
 func (i Model) deleteItemsByModel(ctx context.Context, modelID id.ModelID, sp schema.Package, operator *usecase.Operator) error {
 	const pageSize = int64(100)
 	var cursor *usecasex.Cursor
 
 	itemInteractor := NewItem(i.repos, i.gateways)
 
+	var allThreadIDs id.ThreadIDList
+	var allMetadataIDs id.ItemIDList
+
+	// Pass 1: collect thread IDs, metadata IDs, and clean up cross-model references
 	for {
 		vList, pageInfo, err := i.repos.Item.FindByModel(ctx, modelID, nil, nil,
 			usecasex.CursorPagination{First: lo.ToPtr(pageSize), After: cursor}.Wrap())
@@ -319,23 +322,15 @@ func (i Model) deleteItemsByModel(ctx context.Context, modelID id.ModelID, sp sc
 
 		items := vList.Unwrap()
 		if len(items) > 0 {
-			// Collect thread IDs before deletion
-			threadIDs := lo.FilterMap(items, func(itm *item.Item, _ int) (id.ThreadID, bool) {
-				if itm.Thread() == nil {
-					return id.ThreadID{}, false
+			for _, itm := range items {
+				if itm.Thread() != nil {
+					allThreadIDs = append(allThreadIDs, *itm.Thread())
 				}
-				return *itm.Thread(), true
-			})
-
-			if _, err := itemInteractor.BatchDelete(ctx, items.IDs(), sp, operator); err != nil {
-				return err
 			}
+			allMetadataIDs = append(allMetadataIDs, items.MetadataIDs()...)
 
-			// Delete threads that belonged to the deleted items
-			if len(threadIDs) > 0 {
-				if err := i.repos.Thread.RemoveByIDs(ctx, threadIDs); err != nil {
-					return err
-				}
+			if err := itemInteractor.handelRelatedReferenceFields(ctx, items.IDs(), sp); err != nil {
+				return err
 			}
 		}
 
@@ -344,6 +339,26 @@ func (i Model) deleteItemsByModel(ctx context.Context, modelID id.ModelID, sp sc
 		}
 		cursor = pageInfo.EndCursor
 	}
+
+	// Delete metadata items
+	if len(allMetadataIDs) > 0 {
+		if err := i.repos.Item.BatchRemove(ctx, allMetadataIDs); err != nil {
+			return err
+		}
+	}
+
+	// Bulk delete all items for this model in one query
+	if err := i.repos.Item.RemoveByModel(ctx, modelID); err != nil {
+		return err
+	}
+
+	// Delete threads that belonged to the deleted items
+	if len(allThreadIDs) > 0 {
+		if err := i.repos.Thread.RemoveByIDs(ctx, allThreadIDs); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
