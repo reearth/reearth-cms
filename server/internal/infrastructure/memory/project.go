@@ -46,7 +46,17 @@ func (r *Project) Search(_ context.Context, f interfaces.ProjectFilter) (project
 				return false
 			}
 		}
-		return f.WorkspaceIds.Has(v.Workspace()) && r.f.CanRead(v.Workspace())
+		if !f.WorkspaceIds.Has(v.Workspace()) || !r.f.CanRead(v.Workspace()) {
+			return false
+		}
+		// Apply MemberWorkspaces visibility filtering
+		if f.MemberWorkspaces != nil && f.Visibility == nil {
+			isMember := f.MemberWorkspaces.Has(v.Workspace())
+			if !isMember && v.Accessibility().Visibility() != project.VisibilityPublic {
+				return false
+			}
+		}
+		return true
 	})).SortByID()
 
 	var startCursor, endCursor *usecasex.Cursor

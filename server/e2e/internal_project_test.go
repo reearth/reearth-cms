@@ -91,6 +91,7 @@ func TestInternalListProjectsAPI(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Should only return the public project (p1), not the private one (p2)
+		assert.Equal(t, int64(1), l.TotalCount)
 		assert.Equal(t, 1, len(l.Projects))
 		assert.Equal(t, pid.String(), l.Projects[0].Id)
 		assert.Equal(t, "p1", l.Projects[0].Name)

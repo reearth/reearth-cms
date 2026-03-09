@@ -104,25 +104,20 @@ func (r *ProjectRepo) Search(ctx context.Context, f interfaces.ProjectFilter) (p
 	// Apply visibility rules within the specified workspaces:
 	// - Projects in workspaces where the user is a member are always visible
 	// - Projects in other workspaces are visible only if they are public
-	// - If MemberWorkspaces is nil (unknown membership), default to public only for safety
-	if f.WorkspaceIds != nil && f.Visibility == nil {
-		if f.MemberWorkspaces != nil {
-			specifiedMemberWorkspaceIds := lo.Intersect(
-				f.WorkspaceIds.Strings(),
-				f.MemberWorkspaces.Strings(),
-			)
-			if len(specifiedMemberWorkspaceIds) > 0 {
-				visibilityFilter := bson.A{
-					bson.M{"workspace": bson.M{"$in": specifiedMemberWorkspaceIds}},
-					bson.M{"accessibility.visibility": project.VisibilityPublic.String()},
-				}
-				filter["$or"] = visibilityFilter
-			} else {
-				// User is not a member of any specified workspace - only show public projects
-				filter["accessibility.visibility"] = project.VisibilityPublic.String()
+	// - If MemberWorkspaces is nil, no additional filtering is applied (backward compatibility)
+	if f.WorkspaceIds != nil && f.Visibility == nil && f.MemberWorkspaces != nil {
+		specifiedMemberWorkspaceIds := lo.Intersect(
+			f.WorkspaceIds.Strings(),
+			f.MemberWorkspaces.Strings(),
+		)
+		if len(specifiedMemberWorkspaceIds) > 0 {
+			visibilityFilter := bson.A{
+				bson.M{"workspace": bson.M{"$in": specifiedMemberWorkspaceIds}},
+				bson.M{"accessibility.visibility": project.VisibilityPublic.String()},
 			}
+			filter["$or"] = visibilityFilter
 		} else {
-			// No membership info provided - default to public only for safety
+			// User is not a member of any specified workspace - only show public projects
 			filter["accessibility.visibility"] = project.VisibilityPublic.String()
 		}
 	}

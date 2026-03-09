@@ -1592,16 +1592,16 @@ func Test_projectRepo_Search(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:  "MemberWorkspaces: nil MemberWorkspaces defaults to public only for safety",
+			name:  "MemberWorkspaces: nil MemberWorkspaces does not apply visibility filter (backward compatibility)",
 			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				filter: interfaces.ProjectFilter{
 					WorkspaceIds:     &accountdomain.WorkspaceIDList{tid1},
-					MemberWorkspaces: nil, // nil means unknown membership
+					MemberWorkspaces: nil, // nil means no visibility filtering
 					Pagination:       usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
 				},
 			},
-			want:    project.List{p1, p4}, // p2 excluded (private, default to public only)
+			want:    project.List{p1, p2, p4}, // all projects in workspace (no filtering)
 			wantErr: nil,
 		},
 	}
