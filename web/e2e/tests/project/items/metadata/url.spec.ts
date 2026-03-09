@@ -14,6 +14,7 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Url metadata creating and updating has succeeded", async ({
+  page,
   fieldEditorPage,
   contentPage,
 }) => {
