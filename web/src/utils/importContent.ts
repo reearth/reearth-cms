@@ -72,17 +72,13 @@ export abstract class ImportContentUtils {
         case "Text":
         case "TextArea":
         case "MarkdownText": {
-          let stringField:
-            | z.ZodString
-            | z.ZodDefault<z.ZodString>
-            | z.ZodOptional<z.ZodString>
-            | z.ZodOptional<z.ZodDefault<z.ZodString>>
-            | z.ZodDefault<z.ZodArray<z.ZodString>>
-            | z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodString>>> = z.string();
+          let stringField: z.ZodString = z.string();
 
           // validate maxLength and add into schema
           const maxLength = z.int().nonnegative().safeParse(field.typeProperty?.maxLength);
           if (maxLength.success) stringField = stringField.max(maxLength.data);
+
+          let stringFieldAny: z.ZodTypeAny = stringField;
 
           // validate multiple and add into schema
           const multiple = z.boolean().parse(field.multiple);
@@ -102,7 +98,7 @@ export abstract class ImportContentUtils {
               .safeParse(field.typeProperty?.defaultValue);
 
             if (defaultValuesValidation.success && defaultValuesValidation.data)
-              stringField = stringField.array().default(defaultValuesValidation.data);
+              stringFieldAny = stringFieldAny.array().default(defaultValuesValidation.data);
           } else {
             const defaultValueValidation = z
               .string()
@@ -114,12 +110,12 @@ export abstract class ImportContentUtils {
               .safeParse(field.typeProperty?.defaultValue);
 
             if (defaultValueValidation.success && defaultValueValidation.data)
-              stringField = stringField.default(defaultValueValidation.data);
+              stringFieldAny = stringFieldAny.default(defaultValueValidation.data);
           }
 
           validateObj[field.key] = !field.required
-            ? stringField.nullable().optional()
-            : stringField;
+            ? stringFieldAny.nullable().optional()
+            : stringFieldAny;
 
           break;
         }
@@ -160,15 +156,7 @@ export abstract class ImportContentUtils {
         }
 
         case "Bool": {
-          let booleanField:
-            | z.ZodBoolean
-            | z.ZodDefault<z.ZodBoolean>
-            | z.ZodOptional<z.ZodBoolean>
-            | z.ZodOptional<z.ZodDefault<z.ZodBoolean>>
-            | z.ZodDefault<z.ZodArray<z.ZodBoolean>>
-            | z.ZodOptional<z.ZodBoolean>
-            | z.ZodOptional<z.ZodDefault<z.ZodBoolean>>
-            | z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodBoolean>>> = z.boolean();
+          let booleanField: z.ZodTypeAny = z.boolean();
 
           // validate multiple and add into schema
           const multiple = z.boolean().parse(field.multiple);
@@ -200,13 +188,7 @@ export abstract class ImportContentUtils {
         }
 
         case "Integer": {
-          let intField:
-            | z.ZodNumber
-            | z.ZodDefault<z.ZodNumber>
-            | z.ZodOptional<z.ZodNumber>
-            | z.ZodOptional<z.ZodDefault<z.ZodNumber>>
-            | z.ZodDefault<z.ZodArray<z.ZodNumber>>
-            | z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodNumber>>> = z.number().int();
+          let intField: z.ZodNumber = z.number().int();
 
           // validate min and add into schema
           const min = z.int().safeParse(field.typeProperty?.min);
@@ -216,9 +198,11 @@ export abstract class ImportContentUtils {
           const max = z.int().safeParse(field.typeProperty?.max);
           if (max.success) intField = intField.max(max.data);
 
+          let intFieldAny: z.ZodTypeAny = intField;
+
           // max should greater than min
           if (min.success && max.success)
-            intField = intField.refine(_val => max.data > min.data, {
+            intFieldAny = intFieldAny.refine(_val => max.data > min.data, {
               error: "max value should be greater than min value",
             });
 
@@ -234,7 +218,7 @@ export abstract class ImportContentUtils {
               .safeParse(field.typeProperty?.defaultValue);
 
             if (defaultValuesValidation.success && defaultValuesValidation.data)
-              intField = intField.array().default(defaultValuesValidation.data);
+              intFieldAny = intFieldAny.array().default(defaultValuesValidation.data);
           } else {
             const defaultValueValidation = z
               .int()
@@ -242,22 +226,18 @@ export abstract class ImportContentUtils {
               .safeParse(field.typeProperty?.defaultValue);
 
             if (defaultValueValidation.success && defaultValueValidation.data)
-              intField = intField.default(defaultValueValidation.data);
+              intFieldAny = intFieldAny.default(defaultValueValidation.data);
           }
 
-          validateObj[field.key] = !field.required ? intField.nullable().optional() : intField;
+          validateObj[field.key] = !field.required
+            ? intFieldAny.nullable().optional()
+            : intFieldAny;
 
           break;
         }
 
         case "Number": {
-          let floatField:
-            | z.ZodNumber
-            | z.ZodDefault<z.ZodNumber>
-            | z.ZodOptional<z.ZodNumber>
-            | z.ZodOptional<z.ZodDefault<z.ZodNumber>>
-            | z.ZodDefault<z.ZodArray<z.ZodNumber>>
-            | z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodNumber>>> = z.number();
+          let floatField: z.ZodNumber = z.number();
 
           // validate min and add into schema
           const min = z.number().safeParse(field.typeProperty?.min);
@@ -267,9 +247,11 @@ export abstract class ImportContentUtils {
           const max = z.number().safeParse(field.typeProperty?.max);
           if (max.success) floatField = floatField.max(max.data);
 
+          let floatFieldAny: z.ZodTypeAny = floatField;
+
           // max should greater than min
           if (min.success && max.success)
-            floatField = floatField.refine(_val => max.data > min.data, {
+            floatFieldAny = floatFieldAny.refine(_val => max.data > min.data, {
               error: "max value should be greater than min value",
             });
 
@@ -285,7 +267,7 @@ export abstract class ImportContentUtils {
               .safeParse(field.typeProperty?.defaultValue);
 
             if (defaultValuesValidation.success && defaultValuesValidation.data)
-              floatField = floatField.array().default(defaultValuesValidation.data);
+              floatFieldAny = floatFieldAny.array().default(defaultValuesValidation.data);
           } else {
             const defaultValueValidation = z
               .number()
@@ -293,28 +275,21 @@ export abstract class ImportContentUtils {
               .safeParse(field.typeProperty?.defaultValue);
 
             if (defaultValueValidation.success && defaultValueValidation.data)
-              floatField = floatField.default(defaultValueValidation.data);
+              floatFieldAny = floatFieldAny.default(defaultValueValidation.data);
           }
 
-          validateObj[field.key] = !field.required ? floatField.nullable().optional() : floatField;
+          validateObj[field.key] = !field.required
+            ? floatFieldAny.nullable().optional()
+            : floatFieldAny;
 
           break;
         }
 
         case "Select": {
           if (field.typeProperty?.values) {
-            let optionField:
-              | z.ZodUnion<z.ZodLiteral<string>[]>
-              | z.ZodDefault<z.ZodUnion<readonly z.ZodLiteral<string>[]>>
-              | z.ZodOptional<z.ZodUnion<z.ZodLiteral<string>[]>>
-              | z.ZodOptional<z.ZodDefault<z.ZodUnion<readonly z.ZodLiteral<string>[]>>>
-              | z.ZodOptional<z.ZodOptional<z.ZodUnion<z.ZodLiteral<string>[]>>>
-              | z.ZodOptional<
-                  z.ZodOptional<z.ZodDefault<z.ZodUnion<readonly z.ZodLiteral<string>[]>>>
-                >
-              | z.ZodDefault<z.ZodArray<z.ZodUnion<z.ZodLiteral<string>[]>>>
-              | z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodUnion<z.ZodLiteral<string>[]>>>> =
-              z.union(field.typeProperty.values.map(value => z.literal(value)));
+            let optionField: z.ZodTypeAny = z.union(
+              field.typeProperty.values.map(value => z.literal(value)),
+            );
 
             // validate multiple and add into schema
             const multiple = z.boolean().parse(field.multiple);
@@ -348,13 +323,7 @@ export abstract class ImportContentUtils {
         }
 
         case "URL": {
-          let urlField:
-            | z.ZodURL
-            | z.ZodOptional<z.ZodURL>
-            | z.ZodDefault<z.ZodArray<z.ZodURL>>
-            | z.ZodDefault<z.ZodURL>
-            | z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodURL>>>
-            | z.ZodOptional<z.ZodDefault<z.ZodURL>> = z.url();
+          let urlField: z.ZodTypeAny = z.url();
 
           // validate multiple and add into schema
           const multiple = z.boolean().parse(field.multiple);
