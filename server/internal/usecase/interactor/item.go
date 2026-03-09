@@ -851,7 +851,7 @@ func refFields(s schema.Schema, refSchemaID schema.ID) item.FieldIDList {
 	})
 }
 
-func (i Item) handelRelatedReferenceFields(ctx context.Context, itemIDs id.ItemIDList, sp schema.Package) error {
+func (i Item) handleRelatedReferenceFields(ctx context.Context, itemIDs id.ItemIDList, sp schema.Package) error {
 	if len(itemIDs) == 0 {
 		return nil
 	}
@@ -1000,7 +1000,7 @@ func (i Item) BatchDelete(ctx context.Context, iIDs id.ItemIDList, sp schema.Pac
 			}
 		}
 
-		if err := i.handelRelatedReferenceFields(ctx, iList.IDs(), sp); err != nil {
+		if err := i.handleRelatedReferenceFields(ctx, iList.IDs(), sp); err != nil {
 			return nil, err
 		}
 

@@ -14,6 +14,8 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/item"
+	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -412,47 +414,136 @@ func TestModel_Create(t *testing.T) {
 }
 
 func TestModel_Delete(t *testing.T) {
-	type args struct {
-		modelID  id.ModelID
-		sp       schema.Package
-		operator *usecase.Operator
-	}
-	type seeds struct {
-		model   model.List
-		project project.List
-	}
-	tests := []struct {
-		name    string
-		seeds   seeds
-		args    args
-		mockErr bool
-		wantErr error
-	}{
-		// {},
-	}
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
+	t.Parallel()
 
-			ctx := context.Background()
-			db := memory.New()
-			if tt.mockErr {
-				memory.SetModelError(db.Model, tt.wantErr)
-			}
-			for _, m := range tt.seeds.model {
-				err := db.Model.Save(ctx, m.Clone())
-				assert.NoError(t, err)
-			}
-			for _, p := range tt.seeds.project {
-				err := db.Project.Save(ctx, p.Clone())
-				assert.NoError(t, err)
-			}
-			u := NewModel(db, nil)
-
-			assert.Equal(t, tt.wantErr, u.Delete(ctx, tt.args.modelID, tt.args.sp, tt.args.operator))
-		})
+	wid := accountdomain.NewWorkspaceID()
+	op := &usecase.Operator{
+		OwningProjects: []id.ProjectID{},
+		AcOperator: &accountusecase.Operator{
+			User: accountdomain.NewUserID().Ref(),
+		},
 	}
+
+	newModel := func(pid id.ProjectID, sid id.SchemaID) *model.Model {
+		return model.New().NewID().Key(id.RandomKey()).Project(pid).Schema(sid).MustBuild()
+	}
+	newSchema := func(pid id.ProjectID) *schema.Schema {
+		return schema.New().NewID().Workspace(wid).Project(pid).MustBuild()
+	}
+
+	t.Run("not found", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.Background()
+		db := memory.New()
+		u := NewModel(db, nil)
+
+		sp := *schema.NewPackage(nil, nil, nil, nil)
+		err := u.Delete(ctx, id.NewModelID(), sp, op)
+		assert.ErrorIs(t, err, rerror.ErrNotFound)
+	})
+
+	t.Run("operation denied", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.Background()
+		db := memory.New()
+
+		p := project.New().NewID().Workspace(wid).MustBuild()
+		s := newSchema(p.ID())
+		m := newModel(p.ID(), s.ID())
+
+		assert.NoError(t, db.Project.Save(ctx, p.Clone()))
+		assert.NoError(t, db.Model.Save(ctx, m.Clone()))
+		assert.NoError(t, db.Schema.Save(ctx, s.Clone()))
+
+		// operator does not own this project
+		restrictedOp := &usecase.Operator{
+			OwningProjects: []id.ProjectID{},
+			AcOperator:     &accountusecase.Operator{User: accountdomain.NewUserID().Ref()},
+		}
+		sp := *schema.NewPackage(s, nil, nil, nil)
+		u := NewModel(db, nil)
+		err := u.Delete(ctx, m.ID(), sp, restrictedOp)
+		assert.ErrorIs(t, err, interfaces.ErrOperationDenied)
+	})
+
+	t.Run("deletes model with views and items", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.Background()
+		db := memory.New()
+
+		p := project.New().NewID().Workspace(wid).MustBuild()
+		s := newSchema(p.ID())
+		m := newModel(p.ID(), s.ID())
+
+		ownerOp := &usecase.Operator{
+			OwningProjects: []id.ProjectID{p.ID()},
+			AcOperator:     &accountusecase.Operator{User: accountdomain.NewUserID().Ref()},
+		}
+
+		assert.NoError(t, db.Project.Save(ctx, p.Clone()))
+		assert.NoError(t, db.Model.Save(ctx, m.Clone()))
+		assert.NoError(t, db.Schema.Save(ctx, s.Clone()))
+
+		// seed a view for the model
+		v := view.New().NewID().Model(m.ID()).Project(p.ID()).MustBuild()
+		assert.NoError(t, db.View.Save(ctx, v))
+
+		// seed an item for the model
+		it := item.New().NewID().Schema(s.ID()).Model(m.ID()).Project(p.ID()).Thread(id.NewThreadID().Ref()).MustBuild()
+		assert.NoError(t, db.Item.Save(ctx, it))
+
+		sp := *schema.NewPackage(s, nil, nil, nil)
+		u := NewModel(db, nil)
+		err := u.Delete(ctx, m.ID(), sp, ownerOp)
+		assert.NoError(t, err)
+
+		// model should be gone
+		_, err = db.Model.FindByID(ctx, m.ID())
+		assert.ErrorIs(t, err, rerror.ErrNotFound)
+
+		// view should be gone
+		views, _ := db.View.FindByModel(ctx, m.ID())
+		assert.Empty(t, views)
+
+		// item should be gone
+		_, err = db.Item.FindByID(ctx, it.ID(), nil)
+		assert.ErrorIs(t, err, rerror.ErrNotFound)
+
+		// schema should be gone
+		_, err = db.Schema.FindByID(ctx, s.ID())
+		assert.ErrorIs(t, err, rerror.ErrNotFound)
+	})
+
+	t.Run("deletes metadata schema when present", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.Background()
+		db := memory.New()
+
+		p := project.New().NewID().Workspace(wid).MustBuild()
+		s := newSchema(p.ID())
+		meta := newSchema(p.ID())
+		m := model.New().NewID().Key(id.RandomKey()).Project(p.ID()).Schema(s.ID()).Metadata(meta.ID().Ref()).MustBuild()
+
+		ownerOp := &usecase.Operator{
+			OwningProjects: []id.ProjectID{p.ID()},
+			AcOperator:     &accountusecase.Operator{User: accountdomain.NewUserID().Ref()},
+		}
+
+		assert.NoError(t, db.Project.Save(ctx, p.Clone()))
+		assert.NoError(t, db.Model.Save(ctx, m))
+		assert.NoError(t, db.Schema.Save(ctx, s.Clone()))
+		assert.NoError(t, db.Schema.Save(ctx, meta.Clone()))
+
+		sp := *schema.NewPackage(s, meta, nil, nil)
+		u := NewModel(db, nil)
+		err := u.Delete(ctx, m.ID(), sp, ownerOp)
+		assert.NoError(t, err)
+
+		_, err = db.Schema.FindByID(ctx, s.ID())
+		assert.ErrorIs(t, err, rerror.ErrNotFound)
+		_, err = db.Schema.FindByID(ctx, meta.ID())
+		assert.ErrorIs(t, err, rerror.ErrNotFound)
+	})
 }
 
 func TestModel_FindByIDs(t *testing.T) {
