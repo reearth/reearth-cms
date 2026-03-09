@@ -56,17 +56,3 @@ func (r *Event) SaveAll(_ context.Context, ev event.List) error {
 	}))
 	return nil
 }
-
-func (r *Event) RemoveByProject(_ context.Context, projectID id.ProjectID) error {
-	if r.err != nil {
-		return r.err
-	}
-
-	r.data.Range(func(k id.EventID, v *event.Event[any]) bool {
-		if p := v.Project(); p != nil && p.ID == projectID.String() {
-			r.data.Delete(k)
-		}
-		return true
-	})
-	return nil
-}

@@ -220,42 +220,35 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 				return interfaces.ErrOperationDenied
 			}
 
-			// 1. Delete all views for this model
+			// delete all views for this model
 			if err := i.repos.View.RemoveByModel(ctx, modelID); err != nil {
 				return err
 			}
 
-			// 2. Build schema.Package — needed by BatchDelete for reference field cleanup
+			// build schema.Package
 			sp, err := i.buildSchemaPackage(ctx, m)
 			if err != nil {
 				return err
 			}
 
-			// 3. Fetch all items for this model and delete them in batches
-			//    BatchDelete handles metadata items and cross-item reference cleanup
+			// delete all items for this model
 			if err := i.deleteItemsByModel(ctx, modelID, sp, operator); err != nil {
 				return err
 			}
 
-			// 4. Delete the model's schema
+			// delete the model's schema
 			if err := i.repos.Schema.Remove(ctx, m.Schema()); err != nil {
 				return err
 			}
 
-			// 5. Delete the metadata schema if present
+			// delete the metadata schema if present
 			if m.Metadata() != nil {
 				if err := i.repos.Schema.Remove(ctx, *m.Metadata()); err != nil {
 					return err
 				}
 			}
 
-			// 6. Delete events for this project
-			// Note: events are scoped to project, not model. We only delete them
-			// here when the project itself is being deleted (called from project delete).
-			// When deleting a single model, events from other models in the same
-			// project must be preserved, so we skip event deletion at this level.
-
-			// 7. Delete the model and reorder siblings
+			// delete the model and reorder siblings
 			models, _, err := i.repos.Model.FindByProject(ctx, m.Project(), usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
 			if err != nil {
 				return err
@@ -268,8 +261,6 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 		})
 }
 
-// buildSchemaPackage constructs a schema.Package for a model, which is required
-// by BatchDelete to resolve and clean up cross-item reference fields.
 func (i Model) buildSchemaPackage(ctx context.Context, m *model.Model) (schema.Package, error) {
 	sIDs := id.SchemaIDList{m.Schema()}
 	if m.Metadata() != nil {
@@ -300,9 +291,6 @@ func (i Model) buildSchemaPackage(ctx context.Context, m *model.Model) (schema.P
 	return *schema.NewPackage(s, sList.Schema(m.Metadata()), gsm, rs), nil
 }
 
-// deleteItemsByModel deletes all items for a model.
-// It pages through items to collect thread IDs, metadata IDs, and clear cross-model
-// reference fields, then removes all items with a single bulk delete by model ID.
 func (i Model) deleteItemsByModel(ctx context.Context, modelID id.ModelID, sp schema.Package, operator *usecase.Operator) error {
 	const pageSize = int64(100)
 	var cursor *usecasex.Cursor
@@ -312,7 +300,7 @@ func (i Model) deleteItemsByModel(ctx context.Context, modelID id.ModelID, sp sc
 	var allThreadIDs id.ThreadIDList
 	var allMetadataIDs id.ItemIDList
 
-	// Pass 1: collect thread IDs, metadata IDs, and clean up cross-model references
+	// collect thread IDs, metadata IDs, and clean up cross-model references
 	for {
 		vList, pageInfo, err := i.repos.Item.FindByModel(ctx, modelID, nil, nil,
 			usecasex.CursorPagination{First: lo.ToPtr(pageSize), After: cursor}.Wrap())
@@ -340,19 +328,19 @@ func (i Model) deleteItemsByModel(ctx context.Context, modelID id.ModelID, sp sc
 		cursor = pageInfo.EndCursor
 	}
 
-	// Delete metadata items
+	// delete metadata items
 	if len(allMetadataIDs) > 0 {
 		if err := i.repos.Item.BatchRemove(ctx, allMetadataIDs); err != nil {
 			return err
 		}
 	}
 
-	// Bulk delete all items for this model in one query
+	// bulk delete all items for this model in one query
 	if err := i.repos.Item.RemoveByModel(ctx, modelID); err != nil {
 		return err
 	}
 
-	// Delete threads that belonged to the deleted items
+	// delete threads that belonged to the deleted items
 	if len(allThreadIDs) > 0 {
 		if err := i.repos.Thread.RemoveByIDs(ctx, allThreadIDs); err != nil {
 			return err
