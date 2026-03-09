@@ -5,12 +5,8 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
-
 	"github.com/reearth/reearth-cms/server/internal/infrastructure/mongo/mongodoc"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
@@ -18,6 +14,10 @@ import (
 	"github.com/reearth/reearthx/mongox"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
+	"github.com/samber/lo"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (
@@ -101,15 +101,50 @@ func (r *ProjectRepo) Search(ctx context.Context, f interfaces.ProjectFilter) (p
 		}
 	}
 
+	// Apply visibility rules within the specified workspaces:
+	// - Projects in workspaces where the user is a member are always visible
+	// - Projects in other workspaces are visible only if they are public
+	// - If MemberWorkspaces is nil (unknown membership), default to public only for safety
+	if f.WorkspaceIds != nil && f.Visibility == nil {
+		if f.MemberWorkspaces != nil {
+			specifiedMemberWorkspaceIds := lo.Intersect(
+				f.WorkspaceIds.Strings(),
+				f.MemberWorkspaces.Strings(),
+			)
+			if len(specifiedMemberWorkspaceIds) > 0 {
+				visibilityFilter := bson.A{
+					bson.M{"workspace": bson.M{"$in": specifiedMemberWorkspaceIds}},
+					bson.M{"accessibility.visibility": project.VisibilityPublic.String()},
+				}
+				filter["$or"] = visibilityFilter
+			} else {
+				// User is not a member of any specified workspace - only show public projects
+				filter["accessibility.visibility"] = project.VisibilityPublic.String()
+			}
+		} else {
+			// No membership info provided - default to public only for safety
+			filter["accessibility.visibility"] = project.VisibilityPublic.String()
+		}
+	}
+
 	if f.Keyword != nil && *f.Keyword != "" {
 		p := fmt.Sprintf(".*%s.*", regexp.QuoteMeta(*f.Keyword))
 		regx := bson.M{"$regex": primitive.Regex{Pattern: p, Options: "i"}}
-		filter["$or"] = bson.A{
+		keywordFilter := bson.A{
 			bson.M{"name": regx},
 			bson.M{"alias": regx},
 			bson.M{"description": regx},
 			bson.M{"topics": regx},
 			bson.M{"id": *f.Keyword},
+		}
+		if existingOr, ok := filter["$or"]; ok {
+			filter["$and"] = bson.A{
+				bson.M{"$or": existingOr},
+				bson.M{"$or": keywordFilter},
+			}
+			delete(filter, "$or")
+		} else {
+			filter["$or"] = keywordFilter
 		}
 	}
 

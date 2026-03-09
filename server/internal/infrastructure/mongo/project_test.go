@@ -1212,8 +1212,9 @@ func Test_projectRepo_Search(t *testing.T) {
 			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				filter: interfaces.ProjectFilter{
-					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1},
-					Pagination:   usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					WorkspaceIds:     &accountdomain.WorkspaceIDList{tid1},
+					MemberWorkspaces: &accountdomain.WorkspaceIDList{tid1}, // member of workspace
+					Pagination:       usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p1, p2, p4},
@@ -1224,8 +1225,9 @@ func Test_projectRepo_Search(t *testing.T) {
 			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				filter: interfaces.ProjectFilter{
-					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1, tid2},
-					Pagination:   usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					WorkspaceIds:     &accountdomain.WorkspaceIDList{tid1, tid2},
+					MemberWorkspaces: &accountdomain.WorkspaceIDList{tid1, tid2}, // member of both workspaces
+					Pagination:       usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p1, p2, p3, p4},
@@ -1345,9 +1347,10 @@ func Test_projectRepo_Search(t *testing.T) {
 			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				filter: interfaces.ProjectFilter{
-					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1},
-					Keyword:      lo.ToPtr("project"),
-					Pagination:   usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+					WorkspaceIds:     &accountdomain.WorkspaceIDList{tid1},
+					MemberWorkspaces: &accountdomain.WorkspaceIDList{tid1}, // member of workspace
+					Keyword:          lo.ToPtr("project"),
+					Pagination:       usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
 				},
 			},
 			want:    project.List{p1, p2},
@@ -1358,8 +1361,9 @@ func Test_projectRepo_Search(t *testing.T) {
 			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				filter: interfaces.ProjectFilter{
-					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1},
-					Pagination:   usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap(),
+					WorkspaceIds:     &accountdomain.WorkspaceIDList{tid1},
+					MemberWorkspaces: &accountdomain.WorkspaceIDList{tid1}, // member of workspace
+					Pagination:       usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap(),
 				},
 			},
 			want:    project.List{p1, p2},
@@ -1370,8 +1374,9 @@ func Test_projectRepo_Search(t *testing.T) {
 			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				filter: interfaces.ProjectFilter{
-					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1},
-					Pagination:   usecasex.CursorPagination{Last: lo.ToPtr(int64(2))}.Wrap(),
+					WorkspaceIds:     &accountdomain.WorkspaceIDList{tid1},
+					MemberWorkspaces: &accountdomain.WorkspaceIDList{tid1}, // member of workspace
+					Pagination:       usecasex.CursorPagination{Last: lo.ToPtr(int64(2))}.Wrap(),
 				},
 			},
 			want:    project.List{p2, p4},
@@ -1424,7 +1429,8 @@ func Test_projectRepo_Search(t *testing.T) {
 			seeds: project.List{p1, p2, p3, p4},
 			args: args{
 				filter: interfaces.ProjectFilter{
-					WorkspaceIds: &accountdomain.WorkspaceIDList{tid1},
+					WorkspaceIds:     &accountdomain.WorkspaceIDList{tid1},
+					MemberWorkspaces: &accountdomain.WorkspaceIDList{tid1}, // member of workspace
 					Sort: &usecasex.Sort{
 						Key:      "updatedAt",
 						Reverted: true,
@@ -1531,6 +1537,71 @@ func Test_projectRepo_Search(t *testing.T) {
 				},
 			},
 			want:    project.List{p4},
+			wantErr: nil,
+		},
+		{
+			name:  "MemberWorkspaces: member of workspace should see all projects including private",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					WorkspaceIds:     &accountdomain.WorkspaceIDList{tid1},
+					MemberWorkspaces: &accountdomain.WorkspaceIDList{tid1},
+					Pagination:       usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p1, p2, p4}, // p2 is private but user is member
+			wantErr: nil,
+		},
+		{
+			name:  "MemberWorkspaces: non-member of workspace should see only public projects",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					WorkspaceIds:     &accountdomain.WorkspaceIDList{tid1},
+					MemberWorkspaces: &accountdomain.WorkspaceIDList{tid2}, // member of tid2, not tid1
+					Pagination:       usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p1, p4}, // p2 is private and user is not member, so excluded
+			wantErr: nil,
+		},
+		{
+			name:  "MemberWorkspaces: mixed workspaces - member of some, not others",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					WorkspaceIds:     &accountdomain.WorkspaceIDList{tid1, tid2},
+					MemberWorkspaces: &accountdomain.WorkspaceIDList{tid2}, // member of tid2 only
+					Pagination:       usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p1, p3, p4}, // p2 excluded (private in non-member workspace), p3 included (in member workspace)
+			wantErr: nil,
+		},
+		{
+			name:  "MemberWorkspaces: empty MemberWorkspaces means user is not a member - show only public",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					WorkspaceIds:     &accountdomain.WorkspaceIDList{tid1},
+					MemberWorkspaces: &accountdomain.WorkspaceIDList{},
+					Pagination:       usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p1, p4}, // p2 excluded (private, user not a member)
+			wantErr: nil,
+		},
+		{
+			name:  "MemberWorkspaces: nil MemberWorkspaces defaults to public only for safety",
+			seeds: project.List{p1, p2, p3, p4},
+			args: args{
+				filter: interfaces.ProjectFilter{
+					WorkspaceIds:     &accountdomain.WorkspaceIDList{tid1},
+					MemberWorkspaces: nil, // nil means unknown membership
+					Pagination:       usecasex.CursorPagination{First: lo.ToPtr(int64(10))}.Wrap(),
+				},
+			},
+			want:    project.List{p1, p4}, // p2 excluded (private, default to public only)
 			wantErr: nil,
 		},
 	}

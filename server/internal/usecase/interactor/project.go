@@ -56,9 +56,14 @@ func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.Works
 	return i.repos.Project.Search(ctx, *f)
 }
 
-func (i *Project) Search(ctx context.Context, f interfaces.ProjectFilter, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+func (i *Project) Search(ctx context.Context, f interfaces.ProjectFilter, op *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
 	if f.WorkspaceIds == nil || len(*f.WorkspaceIds) == 0 {
 		f.Visibility = lo.ToPtr(project.VisibilityPublic)
+	} else if op != nil {
+		// Always set MemberWorkspaces when WorkspaceIds is specified
+		// This ensures non-members only see public projects
+		memberWorkspaces := op.AllReadableWorkspaces()
+		f.MemberWorkspaces = &memberWorkspaces
 	}
 	return i.repos.Project.Search(ctx, f)
 }

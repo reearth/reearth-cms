@@ -79,6 +79,23 @@ func TestInternalListProjectsAPI(t *testing.T) {
 		assert.Equal(t, lo.ToPtr("p2 desc"), p2.Description)
 	})
 
+	t.Run("List Projects for the workspace should NOT return private projects to non-member users", func(t *testing.T) {
+		// uId_2 is NOT a member of wId0, so they should only see public projects
+		mdNonMember := metadata.New(map[string]string{
+			"Authorization": "Bearer TestToken",
+			"User-Id":       uId_2.String(),
+		})
+		mdCtxNonMember := metadata.NewOutgoingContext(t.Context(), mdNonMember)
+
+		l, err := client.ListProjects(mdCtxNonMember, &pb.ListProjectsRequest{WorkspaceIds: []string{wId0.String()}})
+		assert.NoError(t, err)
+
+		// Should only return the public project (p1), not the private one (p2)
+		assert.Equal(t, 1, len(l.Projects))
+		assert.Equal(t, pid.String(), l.Projects[0].Id)
+		assert.Equal(t, "p1", l.Projects[0].Name)
+	})
+
 	t.Run("List Projects for the workspace with PublicOnly = true should return only public projects in the workspace", func(t *testing.T) {
 		l, err := client.ListProjects(mdCtx, &pb.ListProjectsRequest{WorkspaceIds: []string{wId0.String()}, PublicOnly: true})
 		assert.NoError(t, err)
