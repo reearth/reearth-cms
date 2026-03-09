@@ -14,7 +14,7 @@ import {
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { ImportFieldInput } from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
-import { convertImportSchemaData } from "@reearth-cms/components/organisms/Project/Schema/helpers";
+import { SchemaHelpers } from "@reearth-cms/components/organisms/Project/Schema/helpers";
 import { useAuthHeader } from "@reearth-cms/gql";
 import {
   CreateAssetDocument,
@@ -509,7 +509,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
         return false;
       }
 
-      const fields = convertImportSchemaData(importSchema.data.properties, modelId);
+      const fields = SchemaHelpers.convertImportSchemaData(importSchema.data.properties, modelId);
 
       setImportFields(fields);
 
