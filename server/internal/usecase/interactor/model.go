@@ -10,7 +10,6 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
-	"github.com/reearth/reearth-cms/server/pkg/group"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
@@ -209,7 +208,7 @@ func (i Model) CheckKey(ctx context.Context, pId id.ProjectID, s string) (bool, 
 		})
 }
 
-func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase.Operator) error {
+func (i Model) Delete(ctx context.Context, modelID id.ModelID, sp schema.Package, operator *usecase.Operator) error {
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) error {
 			m, err := i.repos.Model.FindByID(ctx, modelID)
@@ -222,12 +221,6 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 
 			// delete all views for this model
 			if err := i.repos.View.RemoveByModel(ctx, modelID); err != nil {
-				return err
-			}
-
-			// build schema.Package
-			sp, err := i.buildSchemaPackage(ctx, m)
-			if err != nil {
 				return err
 			}
 
@@ -259,36 +252,6 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 			}
 			return i.repos.Model.SaveAll(ctx, res)
 		})
-}
-
-func (i Model) buildSchemaPackage(ctx context.Context, m *model.Model) (schema.Package, error) {
-	sIDs := id.SchemaIDList{m.Schema()}
-	if m.Metadata() != nil {
-		sIDs = append(sIDs, *m.Metadata())
-	}
-	sList, err := i.repos.Schema.FindByIDs(ctx, sIDs)
-	if err != nil {
-		return schema.Package{}, err
-	}
-	s := sList.Schema(lo.ToPtr(m.Schema()))
-	if s == nil {
-		return schema.Package{}, nil
-	}
-	groups, err := i.repos.Group.FindByIDs(ctx, s.Groups())
-	if err != nil {
-		return schema.Package{}, err
-	}
-	sl, err := i.repos.Schema.FindByIDs(ctx, groups.SchemaIDs().Add(s.ReferencedSchemas()...))
-	if err != nil {
-		return schema.Package{}, err
-	}
-	gsm := lo.SliceToMap(groups, func(g *group.Group) (id.GroupID, *schema.Schema) {
-		return g.ID(), sl.Schema(lo.ToPtr(g.Schema()))
-	})
-	rs := lo.Map(s.ReferencedSchemas(), func(s schema.ID, _ int) *schema.Schema {
-		return sl.Schema(&s)
-	})
-	return *schema.NewPackage(s, sList.Schema(m.Metadata()), gsm, rs), nil
 }
 
 func (i Model) deleteItemsByModel(ctx context.Context, modelID id.ModelID, sp schema.Package, operator *usecase.Operator) error {

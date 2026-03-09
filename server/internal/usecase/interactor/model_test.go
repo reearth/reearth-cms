@@ -414,6 +414,7 @@ func TestModel_Create(t *testing.T) {
 func TestModel_Delete(t *testing.T) {
 	type args struct {
 		modelID  id.ModelID
+		sp       schema.Package
 		operator *usecase.Operator
 	}
 	type seeds struct {
@@ -449,7 +450,7 @@ func TestModel_Delete(t *testing.T) {
 			}
 			u := NewModel(db, nil)
 
-			assert.Equal(t, tt.wantErr, u.Delete(ctx, tt.args.modelID, tt.args.operator))
+			assert.Equal(t, tt.wantErr, u.Delete(ctx, tt.args.modelID, tt.args.sp, tt.args.operator))
 		})
 	}
 }

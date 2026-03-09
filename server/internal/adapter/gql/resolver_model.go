@@ -108,7 +108,12 @@ func (r *mutationResolver) DeleteModel(ctx context.Context, input gqlmodel.Delet
 		return nil, err
 	}
 
-	err = usecases(ctx).Model.Delete(ctx, mid, getOperator(ctx))
+	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
+	sp, err := uc.Schema.FindByModel(ctx, mid, op)
+	if err != nil {
+		return nil, err
+	}
+	err = uc.Model.Delete(ctx, mid, *sp, op)
 	if err != nil {
 		return nil, err
 	}
