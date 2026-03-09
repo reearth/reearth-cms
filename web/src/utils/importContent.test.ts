@@ -1126,6 +1126,292 @@ describe("Content import test", () => {
           expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
         });
       });
+
+      describe("[Pass case] Null value accepted for non-required fields", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: false,
+          multiple: false,
+          typeProperty: {},
+        };
+
+        const EXPECTED_RESULT = true;
+
+        test.each([
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Text },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Date },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Number },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.URL },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Select,
+              typeProperty: { values: ["v1", "v2"] },
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])(
+          "$setup.type field accepts null value when not required",
+          async ({ setup, expectedResult }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key,
+                required: setup.required,
+                multiple: setup.multiple,
+                typeProperty: setup.typeProperty,
+              },
+            ];
+
+            const contentList = [{ [setup.key]: null }];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+            expect(contentValidation.isValid).toBe(expectedResult);
+          },
+        );
+      });
+
+      describe("[Fail case] Null value rejected for required fields", () => {
+        const COMMON_SETUP = {
+          key: "field-key",
+          required: true,
+          multiple: false,
+          typeProperty: {},
+        };
+
+        const EXPECTED_RESULT = {
+          exceedLimit: false,
+          typeMismatchFieldKeysCount: 1,
+          outOfRangeFieldKeysCount: 0,
+          isValid: false,
+        };
+
+        test.each([
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Text },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.TextArea },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.MarkdownText },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Date },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Bool },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Integer },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Number },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.URL },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])(
+          "$setup.type field rejects null value when required",
+          async ({ setup, expectedResult }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key,
+                required: setup.required,
+                multiple: setup.multiple,
+                typeProperty: setup.typeProperty,
+              },
+            ];
+
+            const contentList = [{ [setup.key]: null }];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+            expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+            if (contentValidation.isValid) return;
+
+            const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+              contentValidation.error;
+
+            expect(exceedLimit).toBe(expectedResult.exceedLimit);
+            expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+            expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+          },
+        );
+      });
+
+      describe("[Pass case] Null value accepted for non-required GeometryObject/GeometryEditor fields", () => {
+        const EXPECTED_RESULT = true;
+
+        test.each([
+          {
+            setup: {
+              key: "field-key",
+              required: false,
+              multiple: false,
+              type: SchemaFieldType.GeometryObject,
+              typeProperty: {
+                objectSupportedTypes: ["POINT"] as ObjectSupportedType[],
+              },
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              key: "field-key",
+              required: false,
+              multiple: false,
+              type: SchemaFieldType.GeometryEditor,
+              typeProperty: {
+                editorSupportedTypes: ["POINT"] as EditorSupportedType[],
+              },
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])(
+          "$setup.type field accepts null value when not required",
+          async ({ setup, expectedResult }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key,
+                required: setup.required,
+                multiple: setup.multiple,
+                typeProperty: setup.typeProperty,
+              },
+            ];
+
+            const contentList = [{ [setup.key]: null }];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+            expect(contentValidation.isValid).toBe(expectedResult);
+          },
+        );
+      });
+
+      describe("[Fail case] Null value rejected for required GeometryObject/GeometryEditor fields", () => {
+        const EXPECTED_RESULT = {
+          exceedLimit: false,
+          typeMismatchFieldKeysCount: 1,
+          outOfRangeFieldKeysCount: 0,
+          isValid: false,
+        };
+
+        test.each([
+          {
+            setup: {
+              key: "field-key",
+              required: true,
+              multiple: false,
+              type: SchemaFieldType.GeometryObject,
+              typeProperty: {
+                objectSupportedTypes: ["POINT"] as ObjectSupportedType[],
+              },
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              key: "field-key",
+              required: true,
+              multiple: false,
+              type: SchemaFieldType.GeometryEditor,
+              typeProperty: {
+                editorSupportedTypes: ["POINT"] as EditorSupportedType[],
+              },
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
+        ])(
+          "$setup.type field rejects null value when required",
+          async ({ setup, expectedResult }) => {
+            const fields = [
+              {
+                ...DEFAULT_COMMON_FIELD,
+                type: setup.type,
+                key: setup.key,
+                required: setup.required,
+                multiple: setup.multiple,
+                typeProperty: setup.typeProperty,
+              },
+            ];
+
+            const contentList = [{ [setup.key]: null }];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+            expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+            if (contentValidation.isValid) return;
+
+            const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+              contentValidation.error;
+
+            expect(exceedLimit).toBe(expectedResult.exceedLimit);
+            expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+            expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+          },
+        );
+      });
     });
 
     describe("Control variables: multiple (false), required, with default value", () => {

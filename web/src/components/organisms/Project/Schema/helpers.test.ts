@@ -35,9 +35,7 @@ describe("convertImportSchemaData", () => {
         type: "Text",
         modelId: "model-1",
         groupId: undefined,
-        typeProperty: {
-          text: { defaultValue: ["hello"], maxLength: 100 },
-        },
+        typeProperty: { defaultValue: ["hello"], maxLength: 100 },
         hidden: false,
       },
     ]);
@@ -138,7 +136,44 @@ describe("convertImportSchemaData", () => {
     const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
 
     expect(result[0].typeProperty).toEqual({
-      text: { defaultValue: "default", maxLength: 50 },
+      defaultValue: "default",
+      maxLength: 50,
+    });
+  });
+
+  test("typeProperty for textArea with maxLength", () => {
+    const properties: ImportSchema["properties"] = {
+      field: {
+        title: "Title",
+        "x-fieldType": ExportSchemaFieldType.TextArea,
+        "x-defaultValue": "some text",
+        maxLength: 200,
+      },
+    };
+
+    const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
+
+    expect(result[0].typeProperty).toEqual({
+      defaultValue: "some text",
+      maxLength: 200,
+    });
+  });
+
+  test("typeProperty for markdown with maxLength", () => {
+    const properties: ImportSchema["properties"] = {
+      field: {
+        title: "Title",
+        "x-fieldType": ExportSchemaFieldType.Markdown,
+        "x-defaultValue": "# Hello",
+        maxLength: 500,
+      },
+    };
+
+    const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
+
+    expect(result[0].typeProperty).toEqual({
+      defaultValue: "# Hello",
+      maxLength: 500,
     });
   });
 
@@ -156,7 +191,29 @@ describe("convertImportSchemaData", () => {
     const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
 
     expect(result[0].typeProperty).toEqual({
-      number: { defaultValue: 10, min: 0, max: 100 },
+      defaultValue: 10,
+      min: 0,
+      max: 100,
+    });
+  });
+
+  test("typeProperty for integer with min/max", () => {
+    const properties: ImportSchema["properties"] = {
+      field: {
+        title: "Title",
+        "x-fieldType": ExportSchemaFieldType.Integer,
+        "x-defaultValue": 5,
+        minimum: 1,
+        maximum: 10,
+      },
+    };
+
+    const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
+
+    expect(result[0].typeProperty).toEqual({
+      defaultValue: 5,
+      min: 1,
+      max: 10,
     });
   });
 
@@ -173,7 +230,27 @@ describe("convertImportSchemaData", () => {
     const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
 
     expect(result[0].typeProperty).toEqual({
-      select: { defaultValue: "opt1", values: ["opt1", "opt2", "opt3"] },
+      selectDefaultValue: "opt1",
+      values: ["opt1", "opt2", "opt3"],
+    });
+  });
+
+  test("typeProperty for select with multiple default values", () => {
+    const properties: ImportSchema["properties"] = {
+      field: {
+        title: "Title",
+        "x-fieldType": ExportSchemaFieldType.Select,
+        "x-multiple": true,
+        "x-defaultValue": ["opt1", "opt2"],
+        "x-options": ["opt1", "opt2", "opt3"],
+      },
+    };
+
+    const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
+
+    expect(result[0].typeProperty).toEqual({
+      selectDefaultValue: ["opt1", "opt2"],
+      values: ["opt1", "opt2", "opt3"],
     });
   });
 
@@ -189,7 +266,8 @@ describe("convertImportSchemaData", () => {
     const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
 
     expect(result[0].typeProperty).toEqual({
-      geometryObject: { defaultValue: undefined, supportedTypes: ["POINT", "POLYGON"] },
+      defaultValue: undefined,
+      objectSupportedTypes: ["POINT", "POLYGON"],
     });
   });
 
@@ -205,7 +283,96 @@ describe("convertImportSchemaData", () => {
     const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
 
     expect(result[0].typeProperty).toEqual({
-      geometryEditor: { defaultValue: undefined, supportedTypes: ["POINT"] },
+      defaultValue: undefined,
+      editorSupportedTypes: ["POINT"],
+    });
+  });
+
+  test("typeProperty for geometryEditor without supportedType", () => {
+    const properties: ImportSchema["properties"] = {
+      field: {
+        title: "Title",
+        "x-fieldType": ExportSchemaFieldType.GeometryEditor,
+      } as ImportSchemaField,
+    };
+
+    const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
+
+    expect(result[0].typeProperty).toEqual({
+      defaultValue: undefined,
+      editorSupportedTypes: [],
+    });
+  });
+
+  test("typeProperty for bool", () => {
+    const properties: ImportSchema["properties"] = {
+      field: {
+        title: "Title",
+        "x-fieldType": ExportSchemaFieldType.Bool,
+        "x-defaultValue": true,
+      },
+    };
+
+    const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
+
+    expect(result[0].typeProperty).toEqual({
+      defaultValue: true,
+    });
+  });
+
+  test("typeProperty for url", () => {
+    const properties: ImportSchema["properties"] = {
+      field: {
+        title: "Title",
+        "x-fieldType": ExportSchemaFieldType.URL,
+        "x-defaultValue": "https://example.com",
+      },
+    };
+
+    const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
+
+    expect(result[0].typeProperty).toEqual({
+      defaultValue: "https://example.com",
+    });
+  });
+
+  test("typeProperty for text with multiple default values", () => {
+    const properties: ImportSchema["properties"] = {
+      field: {
+        title: "Title",
+        "x-fieldType": ExportSchemaFieldType.Text,
+        "x-multiple": true,
+        "x-defaultValue": ["a", "b"],
+        maxLength: 100,
+      },
+    };
+
+    const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
+
+    expect(result[0].typeProperty).toEqual({
+      defaultValue: ["a", "b"],
+      maxLength: 100,
+    });
+  });
+
+  test("typeProperty for number with multiple default values", () => {
+    const properties: ImportSchema["properties"] = {
+      field: {
+        title: "Title",
+        "x-fieldType": ExportSchemaFieldType.Number,
+        "x-multiple": true,
+        "x-defaultValue": [1, 2, 3],
+        minimum: 0,
+        maximum: 100,
+      },
+    };
+
+    const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
+
+    expect(result[0].typeProperty).toEqual({
+      defaultValue: [1, 2, 3],
+      min: 0,
+      max: 100,
     });
   });
 

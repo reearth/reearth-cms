@@ -117,22 +117,19 @@ export abstract class ImportContentUtils {
               stringField = stringField.default(defaultValueValidation.data);
           }
 
-          if (!field.required) stringField = stringField.optional();
-
-          validateObj[field.key] = stringField;
+          validateObj[field.key] = !field.required
+            ? stringField.nullable().optional()
+            : stringField;
 
           break;
         }
         case "Date": {
-          let dateField:
-            | z.ZodCoercedDate
-            | z.ZodDefault<z.ZodCoercedDate>
-            | z.ZodOptional<z.ZodCoercedDate>
-            | z.ZodOptional<z.ZodDefault<z.ZodCoercedDate>>
-            | z.ZodOptional<z.ZodCoercedDate<unknown>>
-            | z.ZodDefault<z.ZodArray<z.ZodCoercedDate<unknown>>>
-            | z.ZodOptional<z.ZodDefault<z.ZodCoercedDate<unknown>>>
-            | z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodCoercedDate<unknown>>>> = z.coerce.date();
+          // Use preprocess to convert input to Date while rejecting null/undefined
+          // (z.coerce.date() alone would coerce null to epoch via new Date(null))
+          let dateField: z.ZodTypeAny = z.preprocess(
+            val => (val === null || val === undefined ? val : new Date(val as string | number)),
+            z.date(),
+          );
 
           // validate multiple and add into schema
           const multiple = z.boolean().parse(field.multiple);
@@ -157,9 +154,7 @@ export abstract class ImportContentUtils {
               dateField = dateField.default(defaultValueValidation.data);
           }
 
-          if (!field.required) dateField = dateField.optional();
-
-          validateObj[field.key] = dateField;
+          validateObj[field.key] = !field.required ? dateField.nullable().optional() : dateField;
 
           break;
         }
@@ -197,9 +192,9 @@ export abstract class ImportContentUtils {
               booleanField = booleanField.default(defaultValueValidation.data);
           }
 
-          if (!field.required) booleanField = booleanField.optional();
-
-          validateObj[field.key] = booleanField;
+          validateObj[field.key] = !field.required
+            ? booleanField.nullable().optional()
+            : booleanField;
 
           break;
         }
@@ -250,9 +245,7 @@ export abstract class ImportContentUtils {
               intField = intField.default(defaultValueValidation.data);
           }
 
-          if (!field.required) intField = intField.optional();
-
-          validateObj[field.key] = intField;
+          validateObj[field.key] = !field.required ? intField.nullable().optional() : intField;
 
           break;
         }
@@ -303,9 +296,7 @@ export abstract class ImportContentUtils {
               floatField = floatField.default(defaultValueValidation.data);
           }
 
-          if (!field.required) floatField = floatField.optional();
-
-          validateObj[field.key] = floatField;
+          validateObj[field.key] = !field.required ? floatField.nullable().optional() : floatField;
 
           break;
         }
@@ -348,9 +339,9 @@ export abstract class ImportContentUtils {
                 optionField = optionField.default(defaultValueValidation.data);
             }
 
-            if (!field.required) optionField = optionField.optional();
-
-            validateObj[field.key] = optionField;
+            validateObj[field.key] = !field.required
+              ? optionField.nullable().optional()
+              : optionField;
           }
 
           break;
@@ -388,9 +379,7 @@ export abstract class ImportContentUtils {
               urlField = urlField.default(defaultValueValidation.data);
           }
 
-          if (!field.required) urlField = urlField.optional();
-
-          validateObj[field.key] = urlField;
+          validateObj[field.key] = !field.required ? urlField.nullable().optional() : urlField;
 
           break;
         }
@@ -471,9 +460,9 @@ export abstract class ImportContentUtils {
               });
             }
 
-            if (!field.required) geoObjectField = geoObjectField.optional();
-
-            validateObj[field.key] = geoObjectField;
+            validateObj[field.key] = !field.required
+              ? geoObjectField.nullable().optional()
+              : geoObjectField;
           }
 
           break;
@@ -547,9 +536,9 @@ export abstract class ImportContentUtils {
               });
             }
 
-            if (!field.required) geoEditorField = geoEditorField.optional();
-
-            validateObj[field.key] = geoEditorField;
+            validateObj[field.key] = !field.required
+              ? geoEditorField.nullable().optional()
+              : geoEditorField;
           }
 
           break;

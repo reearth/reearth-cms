@@ -149,96 +149,58 @@ export abstract class SchemaHelpers {
     }
   }
 
-  private static convertImportSchemaTypeProperty(
-    field: ImportSchemaField,
-  ): Record<
-    string,
-    TypeProperty & { supportedTypes?: ObjectSupportedType[] | EditorSupportedType[] }
-  > {
+  private static convertImportSchemaTypeProperty(field: ImportSchemaField): TypeProperty {
     switch (field["x-fieldType"]) {
       case ExportSchemaFieldType.Text:
-        return {
-          text: {
-            defaultValue: field["x-defaultValue"],
-            maxLength: field.maxLength,
-          },
-        };
       case ExportSchemaFieldType.TextArea:
-        return {
-          textArea: {
-            defaultValue: field["x-defaultValue"],
-            maxLength: field.maxLength,
-          },
-        };
       case ExportSchemaFieldType.Markdown:
         return {
-          markdownText: {
-            defaultValue: field["x-defaultValue"],
-            maxLength: field.maxLength,
-          },
+          defaultValue: field["x-defaultValue"],
+          maxLength: field.maxLength,
         };
       case ExportSchemaFieldType.Asset:
         return {
-          asset: {
-            defaultValue: field["x-defaultValue"],
-          },
+          defaultValue: field["x-defaultValue"],
         };
       case ExportSchemaFieldType.Bool:
         return {
-          bool: { defaultValue: field["x-defaultValue"] },
+          defaultValue: field["x-defaultValue"],
         };
       case ExportSchemaFieldType.Datetime:
         return {
-          date: { defaultValue: field["x-defaultValue"] },
+          defaultValue: field["x-defaultValue"],
         };
       case ExportSchemaFieldType.Number:
-        return {
-          number: {
-            defaultValue: field["x-defaultValue"],
-            min: field.minimum,
-            max: field.maximum,
-          },
-        };
       case ExportSchemaFieldType.Integer:
         return {
-          integer: {
-            defaultValue: field["x-defaultValue"],
-            min: field.minimum,
-            max: field.maximum,
-          },
+          defaultValue: field["x-defaultValue"],
+          min: field.minimum,
+          max: field.maximum,
         };
       case ExportSchemaFieldType.Select:
         return {
-          select: {
-            defaultValue: field["x-defaultValue"],
-            values: field["x-options"],
-          },
+          selectDefaultValue: field["x-defaultValue"],
+          values: field["x-options"],
         };
       case ExportSchemaFieldType.URL:
         return {
-          url: {
-            defaultValue: field["x-defaultValue"],
-          },
+          defaultValue: field["x-defaultValue"],
         };
       case ExportSchemaFieldType.GeometryObject:
         return {
-          geometryObject: {
-            defaultValue: field["x-defaultValue"],
-            supportedTypes: field["x-geoSupportedTypes"],
-          },
+          defaultValue: field["x-defaultValue"],
+          objectSupportedTypes: field["x-geoSupportedTypes"],
         };
       case ExportSchemaFieldType.GeometryEditor:
         return {
-          geometryEditor: {
-            defaultValue: field["x-defaultValue"],
-            supportedTypes: [field["x-geoSupportedType"]],
-          },
+          defaultValue: field["x-defaultValue"],
+          editorSupportedTypes: field["x-geoSupportedType"]
+            ? [field["x-geoSupportedType"]]
+            : [],
         };
       default:
         return {
-          text: {
-            defaultValue: undefined,
-          },
+          defaultValue: undefined,
         };
     }
   }
