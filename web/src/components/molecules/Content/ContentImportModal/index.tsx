@@ -1,6 +1,6 @@
 import { gold, red } from "@ant-design/colors";
 import styled from "@emotion/styled";
-import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
+import { Dispatch, SetStateAction, useCallback, useMemo, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 import Alert, { type AlertProps } from "@reearth-cms/components/atoms/Alert";
@@ -11,7 +11,7 @@ import Loading from "@reearth-cms/components/atoms/Loading";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Space from "@reearth-cms/components/atoms/Space";
 import Typography from "@reearth-cms/components/atoms/Typography";
-import Upload, { UploadProps } from "@reearth-cms/components/atoms/Upload";
+import Upload, { RcFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { UploaderHookState } from "@reearth-cms/components/molecules/Uploader/provider";
 import { ValidateImportResult } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
@@ -67,6 +67,11 @@ const ContentImportModal: React.FC<Props> = ({
 }) => {
   const t = useT();
   const location = useLocation();
+  const pendingImportRef = useRef<{
+    file: RcFile;
+    fileName: string;
+    extension: "json" | "csv" | "geojson";
+  } | null>(null);
 
   const raiseIllegalFileAlert = useCallback(() => {
     setAlertList([
@@ -254,6 +259,7 @@ const ContentImportModal: React.FC<Props> = ({
             );
 
             if (!jsonContentValidation.isValid) {
+              pendingImportRef.current = { file, fileName, extension };
               schemaValidationAlert(jsonContentValidation.error);
               return;
             }
@@ -285,6 +291,7 @@ const ContentImportModal: React.FC<Props> = ({
             );
 
             if (!geoJSONContentValidation.isValid) {
+              pendingImportRef.current = { file, fileName, extension };
               schemaValidationAlert(geoJSONContentValidation.error);
               return;
             }
@@ -308,6 +315,7 @@ const ContentImportModal: React.FC<Props> = ({
             );
 
             if (!csvContentValidation.isValid) {
+              pendingImportRef.current = { file, fileName, extension };
               schemaValidationAlert(csvContentValidation.error);
               return;
             }
@@ -462,13 +470,32 @@ const ContentImportModal: React.FC<Props> = ({
             <StyledActionButton
               type="default"
               onClick={() => {
+                pendingImportRef.current = null;
                 setAlertList([]);
                 setValidateImportResult(null);
               }}>
               {t("go back")}
             </StyledActionButton>
             {validateImportResult.canForwardToImport && (
-              <StyledActionButton type="primary">{t("import anyway")}</StyledActionButton>
+              <StyledActionButton
+                type="primary"
+                onClick={() => {
+                  if (!pendingImportRef.current) return;
+                  const { file, fileName, extension } = pendingImportRef.current;
+                  if (!workspaceId || !projectId || !modelId) return;
+                  onEnqueueJob({
+                    workspaceId,
+                    projectId,
+                    modelId,
+                    extension,
+                    fileName,
+                    url: location.pathname,
+                    file,
+                  });
+                  onClose();
+                }}>
+                {t("import anyway")}
+              </StyledActionButton>
             )}
           </Space>
           {validateImportResult.hint && (
