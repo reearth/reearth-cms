@@ -6,16 +6,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
-	"github.com/samber/lo"
-	"github.com/stretchr/testify/assert"
-
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/rerror"
-	"github.com/reearth/reearthx/usecasex"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestProjectRepo_CountByWorkspace(t *testing.T) {
@@ -592,155 +588,6 @@ func TestProjectRepo_IsAliasAvailable(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, tc.want, got)
-		})
-	}
-}
-
-func TestProjectRepo_FindByWorkspaces(t *testing.T) {
-	tid1 := accountdomain.NewWorkspaceID()
-	p1 := project.New().NewID().Workspace(tid1).UpdatedAt(time.Now().Add(-time.Hour)).MustBuild()
-	p2 := project.New().NewID().Workspace(tid1).MustBuild()
-
-	type args struct {
-		wids  accountdomain.WorkspaceIDList
-		pInfo *usecasex.Pagination
-	}
-	tests := []struct {
-		name    string
-		seeds   project.List
-		args    args
-		filter  *repo.WorkspaceFilter
-		want    project.List
-		wantErr error
-		mockErr bool
-	}{
-		{
-			name:    "0 count in empty db",
-			seeds:   project.List{},
-			args:    args{accountdomain.WorkspaceIDList{accountdomain.NewWorkspaceID()}, nil},
-			filter:  nil,
-			want:    nil,
-			wantErr: nil,
-		},
-		{
-			name: "0 count with project for another workspaces",
-			seeds: project.List{
-				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
-			},
-			args:    args{accountdomain.WorkspaceIDList{accountdomain.NewWorkspaceID()}, nil},
-			filter:  nil,
-			want:    nil,
-			wantErr: nil,
-		},
-		{
-			name: "1 count with single project",
-			seeds: project.List{
-				p1,
-			},
-			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
-			filter:  nil,
-			want:    project.List{p1},
-			wantErr: nil,
-		},
-		{
-			name: "1 count with multi projects",
-			seeds: project.List{
-				p1,
-				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
-				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
-			},
-			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
-			filter:  nil,
-			want:    project.List{p1},
-			wantErr: nil,
-		},
-		{
-			name: "2 count with multi projects",
-			seeds: project.List{
-				p1,
-				p2,
-				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
-				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
-			},
-			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(2))}.Wrap()},
-			filter:  nil,
-			want:    project.List{p1, p2},
-			wantErr: nil,
-		},
-		{
-			name: "get 1st page of 2",
-			seeds: project.List{
-				p1,
-				p2,
-				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
-				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
-			},
-			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
-			filter:  nil,
-			want:    project.List{p1, p2},
-			wantErr: nil,
-		},
-		{
-			name: "get last page of 2",
-			seeds: project.List{
-				p1,
-				p2,
-				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
-				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
-			},
-			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{Last: lo.ToPtr(int64(1))}.Wrap()},
-			filter:  nil,
-			want:    project.List{p1, p2},
-			wantErr: nil,
-		},
-		{
-			name: "Filtered sholud not 1 count with multi projects",
-			seeds: project.List{
-				p1,
-				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
-				project.New().NewID().Workspace(accountdomain.NewWorkspaceID()).MustBuild(),
-			},
-			args:    args{accountdomain.WorkspaceIDList{tid1}, usecasex.CursorPagination{First: lo.ToPtr(int64(1))}.Wrap()},
-			filter:  &repo.WorkspaceFilter{Readable: []accountdomain.WorkspaceID{accountdomain.NewWorkspaceID()}, Writable: []accountdomain.WorkspaceID{}},
-			want:    nil,
-			wantErr: nil,
-		},
-		{
-			name:    "must mock error",
-			wantErr: errors.New("test"),
-			mockErr: true,
-		},
-	}
-
-	for _, tc := range tests {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			r := NewProject()
-			if tc.mockErr {
-				SetProjectError(r, tc.wantErr)
-			}
-			ctx := context.Background()
-			for _, p := range tc.seeds {
-				err := r.Save(ctx, p.Clone())
-				assert.NoError(t, err)
-			}
-
-			if tc.filter != nil {
-				r = r.Filtered(*tc.filter)
-			}
-
-			got, _, err := r.Search(ctx, interfaces.ProjectFilter{
-				WorkspaceIds: &tc.args.wids,
-				Pagination:   tc.args.pInfo,
-			})
-			if tc.wantErr != nil {
-				assert.ErrorIs(t, err, tc.wantErr)
-				return
-			}
-
 			assert.Equal(t, tc.want, got)
 		})
 	}

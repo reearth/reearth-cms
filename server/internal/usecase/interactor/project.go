@@ -45,17 +45,6 @@ func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.Workspa
 	return i.repos.Project.Search(ctx, *f)
 }
 
-func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
-	if f == nil {
-		f = &interfaces.ProjectFilter{}
-	}
-	if f.WorkspaceIds == nil {
-		f.WorkspaceIds = &accountdomain.WorkspaceIDList{}
-	}
-	f.WorkspaceIds = lo.ToPtr(append(*f.WorkspaceIds, wIds...))
-	return i.repos.Project.Search(ctx, *f)
-}
-
 func (i *Project) Search(ctx context.Context, f interfaces.ProjectFilter, op *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
 	if f.WorkspaceIds == nil || len(*f.WorkspaceIds) == 0 {
 		f.Visibility = lo.ToPtr(project.VisibilityPublic)
