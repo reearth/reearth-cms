@@ -56,6 +56,7 @@ test("Url metadata creating and updating has succeeded", async ({
   const urlLink = contentPage.linkByName("http://test1.com");
   await expect(urlLink).toBeVisible();
   await urlLink.hover();
+  await page.waitForTimeout(300);
   const editButton = contentPage.tooltipEditButton;
   await editButton.waitFor({ state: "visible" });
   await editButton.click();
@@ -75,7 +76,7 @@ test("Url metadata creating and updating has succeeded", async ({
   await expect(contentPage.linkByName("http://test3.com")).toBeVisible();
 });
 
-test("Url metadata editing has succeeded", async ({ fieldEditorPage, contentPage }) => {
+test("Url metadata editing has succeeded", async ({ page, fieldEditorPage, contentPage }) => {
   await fieldEditorPage.metaDataTab.click();
   await fieldEditorPage.fieldTypeListItem("URL").click();
   await fieldEditorPage.displayNameInput.fill("url1");
@@ -130,6 +131,7 @@ test("Url metadata editing has succeeded", async ({ fieldEditorPage, contentPage
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://default2.com");
   await contentPage.backButtonRole.click();
   await contentPage.x2Button.click();
+  await page.waitForTimeout(300);
   const tooltipLinks = fieldEditorPage.tooltip.getByRole("link");
   await expect(tooltipLinks.nth(0)).toContainText("http://default1.com");
   await expect(tooltipLinks.nth(1)).toContainText("http://default2.com");
