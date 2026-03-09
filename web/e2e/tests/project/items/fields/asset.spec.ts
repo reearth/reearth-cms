@@ -106,7 +106,6 @@ test("Previewing JSON file from content page into new tab succeeded", async ({
   contentPage,
   schemaPage,
 }) => {
-  test.skip();
   await test.step("Create asset field", async () => {
     await fieldEditorPage.fieldTypeButton("Asset").click();
     await fieldEditorPage.displayNameInput.fill("asset1");

@@ -28,7 +28,6 @@ test("Create a new view", async ({
   contentPage,
   schemaPage,
 }) => {
-  test.skip();
   await test.step("Setup: Create text field and content items", async () => {
     await fieldEditorPage.fieldTypeButton("Text").click();
     await schemaPage.handleFieldForm("text");
