@@ -331,7 +331,7 @@ export abstract class ImportSchemaUtils {
     })
     .superRefine((values, context) => {
       const { "x-defaultValue": defaultValue, maxLength } = values;
-      if (defaultValue && maxLength && defaultValue.length > maxLength) {
+      if (defaultValue !== undefined && maxLength !== undefined && defaultValue.length > maxLength) {
         context.addIssue({
           code: "too_big",
           origin: "string",
@@ -351,7 +351,7 @@ export abstract class ImportSchemaUtils {
     })
     .superRefine((values, context) => {
       const { "x-defaultValue": defaultValue, maxLength } = values;
-      if (defaultValue && maxLength && defaultValue.some(value => value.length > maxLength)) {
+      if (defaultValue !== undefined && maxLength !== undefined && defaultValue.some(value => value.length > maxLength)) {
         context.addIssue({
           code: "too_big",
           origin: "string",
@@ -400,7 +400,7 @@ export abstract class ImportSchemaUtils {
       );
 
       const defaultValueType =
-        defaultValue.type.toLocaleLowerCase() as Lowercase<ObjectSupportedType>;
+        defaultValue.type.toLowerCase() as Lowercase<ObjectSupportedType>;
 
       if (!geoSupportTypeSet.has(defaultValueType)) {
         context.addIssue({
@@ -451,7 +451,7 @@ export abstract class ImportSchemaUtils {
       );
 
       const defaultValueTypes = defaultValue.map(_defaultValue =>
-        _defaultValue.type.toLocaleLowerCase(),
+        _defaultValue.type.toLowerCase(),
       ) as Lowercase<ObjectSupportedType>[];
 
       if (defaultValueTypes.some(defaultValueType => !supportTypeSet.has(defaultValueType))) {
@@ -628,7 +628,7 @@ export abstract class ImportSchemaUtils {
           .superRefine((values, context) => {
             const { maximum, minimum, "x-defaultValue": defaultValue } = values;
 
-            if (minimum && defaultValue && defaultValue < minimum) {
+            if (minimum !== undefined && defaultValue !== undefined && defaultValue < minimum) {
               context.addIssue({
                 code: "too_small",
                 origin: "number",
@@ -638,7 +638,7 @@ export abstract class ImportSchemaUtils {
               });
             }
 
-            if (maximum && defaultValue && defaultValue > maximum) {
+            if (maximum !== undefined && defaultValue !== undefined && defaultValue > maximum) {
               context.addIssue({
                 code: "too_big",
                 origin: "number",
@@ -660,7 +660,7 @@ export abstract class ImportSchemaUtils {
           .superRefine((values, context) => {
             const { maximum, minimum, "x-defaultValue": defaultValue } = values;
 
-            if (minimum && defaultValue && defaultValue.some(value => value < minimum)) {
+            if (minimum !== undefined && defaultValue !== undefined && defaultValue.some(value => value < minimum)) {
               context.addIssue({
                 code: "too_small",
                 origin: "number",
@@ -670,7 +670,7 @@ export abstract class ImportSchemaUtils {
               });
             }
 
-            if (maximum && defaultValue && defaultValue.some(value => value > maximum)) {
+            if (maximum !== undefined && defaultValue !== undefined && defaultValue.some(value => value > maximum)) {
               context.addIssue({
                 code: "too_big",
                 origin: "number",
@@ -692,7 +692,7 @@ export abstract class ImportSchemaUtils {
           .superRefine((values, context) => {
             const { maximum, minimum, "x-defaultValue": defaultValue } = values;
 
-            if (minimum && defaultValue && defaultValue < minimum) {
+            if (minimum !== undefined && defaultValue !== undefined && defaultValue < minimum) {
               context.addIssue({
                 code: "too_small",
                 origin: "int",
@@ -702,7 +702,7 @@ export abstract class ImportSchemaUtils {
               });
             }
 
-            if (maximum && defaultValue && defaultValue > maximum) {
+            if (maximum !== undefined && defaultValue !== undefined && defaultValue > maximum) {
               context.addIssue({
                 code: "too_big",
                 origin: "int",
@@ -724,7 +724,7 @@ export abstract class ImportSchemaUtils {
           .superRefine((values, context) => {
             const { maximum, minimum, "x-defaultValue": defaultValue } = values;
 
-            if (minimum && defaultValue && defaultValue.some(value => value < minimum)) {
+            if (minimum !== undefined && defaultValue !== undefined && defaultValue.some(value => value < minimum)) {
               context.addIssue({
                 code: "too_small",
                 origin: "int",
@@ -734,7 +734,7 @@ export abstract class ImportSchemaUtils {
               });
             }
 
-            if (maximum && defaultValue && defaultValue.some(value => value > maximum)) {
+            if (maximum !== undefined && defaultValue !== undefined && defaultValue.some(value => value > maximum)) {
               context.addIssue({
                 code: "too_big",
                 origin: "int",

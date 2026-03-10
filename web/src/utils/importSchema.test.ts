@@ -670,6 +670,106 @@ describe("Test import schema", () => {
           } as FieldIntegerMulti,
           expectedResult: EXPECTED_RESULT,
         },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            "x-fieldType": ExportSchemaFieldType.Text,
+            maxLength: 0,
+            "x-defaultValue": "a",
+            "x-multiple": false,
+          } as FieldText,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            "x-fieldType": ExportSchemaFieldType.Text,
+            maxLength: 0,
+            "x-defaultValue": ["a"],
+            "x-multiple": true,
+          } as FieldTextMulti,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            "x-fieldType": ExportSchemaFieldType.Number,
+            minimum: 0,
+            "x-defaultValue": -1,
+            "x-multiple": false,
+          } as FieldNumber,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            "x-fieldType": ExportSchemaFieldType.Number,
+            minimum: 0,
+            "x-defaultValue": [-1],
+            "x-multiple": true,
+          } as FieldNumberMulti,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            "x-fieldType": ExportSchemaFieldType.Number,
+            maximum: 0,
+            "x-defaultValue": 1,
+            "x-multiple": false,
+          } as FieldNumber,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            "x-fieldType": ExportSchemaFieldType.Number,
+            maximum: 0,
+            "x-defaultValue": [1],
+            "x-multiple": true,
+          } as FieldNumberMulti,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            "x-fieldType": ExportSchemaFieldType.Integer,
+            minimum: 0,
+            "x-defaultValue": -1,
+            "x-multiple": false,
+          } as FieldInteger,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            "x-fieldType": ExportSchemaFieldType.Integer,
+            minimum: 0,
+            "x-defaultValue": [-1],
+            "x-multiple": true,
+          } as FieldIntegerMulti,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            "x-fieldType": ExportSchemaFieldType.Integer,
+            maximum: 0,
+            "x-defaultValue": 1,
+            "x-multiple": false,
+          } as FieldInteger,
+          expectedResult: EXPECTED_RESULT,
+        },
+        {
+          setup: {
+            ...COMMON_SCHEMA_FIELD,
+            "x-fieldType": ExportSchemaFieldType.Integer,
+            maximum: 0,
+            "x-defaultValue": [1],
+            "x-multiple": true,
+          } as FieldIntegerMulti,
+          expectedResult: EXPECTED_RESULT,
+        },
       ])(
         "$setup.type field are illegal with default value & multiple: $setup.x-multiple",
         async ({ setup, expectedResult }) => {
