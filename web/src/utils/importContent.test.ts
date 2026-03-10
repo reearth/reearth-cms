@@ -3786,6 +3786,155 @@ describe("Content import test", () => {
           expect(contentValidation.error.typeMismatchFieldKeys.has("url-key")).toBe(true);
         }
       });
+
+      test("multiple fields with different error types", async () => {
+        const fields = [
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.Text,
+            key: "text-key",
+            required: true,
+            multiple: false,
+            typeProperty: { maxLength: 5 },
+          },
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.Bool,
+            key: "bool-key",
+            required: true,
+            multiple: false,
+            typeProperty: {},
+          },
+        ];
+
+        const contentList = [{ "text-key": "toolong", "bool-key": "not-a-bool" }];
+
+        const contentValidation = await ImportContentUtils.validateContent(
+          contentList,
+          fields,
+          "JSON",
+          Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+        );
+
+        expect(contentValidation.isValid).toBe(false);
+
+        if (!contentValidation.isValid) {
+          expect(contentValidation.error.outOfRangeFieldKeys.has("text-key")).toBe(true);
+          expect(contentValidation.error.typeMismatchFieldKeys.has("bool-key")).toBe(true);
+        }
+      });
+
+      test("too_small number is categorized as outOfRange", async () => {
+        const fields = [
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.Integer,
+            key: "int-key",
+            required: true,
+            multiple: false,
+            typeProperty: { min: 10 },
+          },
+        ];
+
+        const contentList = [{ "int-key": 5 }];
+
+        const contentValidation = await ImportContentUtils.validateContent(
+          contentList,
+          fields,
+          "JSON",
+          Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+        );
+
+        expect(contentValidation.isValid).toBe(false);
+
+        if (!contentValidation.isValid) {
+          expect(contentValidation.error.outOfRangeFieldKeys.has("int-key")).toBe(true);
+        }
+      });
+
+      test("invalid_union missing key categorized as typeMismatch for Select", async () => {
+        const fields = [
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.Select,
+            key: "select-key",
+            required: true,
+            multiple: false,
+            typeProperty: { values: ["a", "b", "c"] },
+          },
+        ];
+
+        // key absent from content row
+        const contentList = [{ "other-key": "a" }];
+
+        const contentValidation = await ImportContentUtils.validateContent(
+          contentList,
+          fields,
+          "JSON",
+          Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+        );
+
+        expect(contentValidation.isValid).toBe(false);
+
+        if (!contentValidation.isValid) {
+          expect(contentValidation.error.typeMismatchFieldKeys.has("select-key")).toBe(true);
+          expect(contentValidation.error.outOfRangeFieldKeys.has("select-key")).toBe(false);
+        }
+      });
+
+      test("multiple errors on same field across rows", async () => {
+        const fields = [
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.Integer,
+            key: "int-key",
+            required: true,
+            multiple: false,
+            typeProperty: { min: 0, max: 100 },
+          },
+        ];
+
+        const contentList = [{ "int-key": -5 }, { "int-key": 200 }];
+
+        const contentValidation = await ImportContentUtils.validateContent(
+          contentList,
+          fields,
+          "JSON",
+          Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+        );
+
+        expect(contentValidation.isValid).toBe(false);
+
+        if (!contentValidation.isValid) {
+          expect(contentValidation.error.outOfRangeFieldKeys.has("int-key")).toBe(true);
+        }
+      });
+
+      test("unknown field type (no classifier) is silently ignored", async () => {
+        const fields = [
+          {
+            ...DEFAULT_COMMON_FIELD,
+            type: SchemaFieldType.Text,
+            key: "text-key",
+            required: true,
+            multiple: false,
+            typeProperty: {},
+          },
+        ];
+
+        // content has a field not in the schema — validation passes because
+        // z.object is not strict; the unknown field is simply ignored
+        const contentList = [{ "text-key": "valid", "unknown-key": 12345 }];
+
+        const contentValidation = await ImportContentUtils.validateContent(
+          contentList,
+          fields,
+          "JSON",
+          Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+        );
+
+        expect(contentValidation.isValid).toBe(true);
+      });
     });
 
     describe("sourceFormat variations", () => {

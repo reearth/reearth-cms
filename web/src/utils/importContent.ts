@@ -23,6 +23,18 @@ export interface ValidationErrorMeta {
 
 export type ContentSourceFormat = "CSV" | "JSON" | "GEOJSON";
 
+type FieldErrorCategory = "typeMismatch" | "outOfRange";
+
+type FieldClassifier = (
+  issue: z.core.$ZodIssue,
+  contentList: Record<string, unknown>[],
+) => FieldErrorCategory | null;
+
+interface ValidatorWithClassifiers {
+  schema: z.ZodType<ImportContentItem>;
+  classifiers: Record<string, FieldClassifier>;
+}
+
 enum CustomError {
   SUPPORTED_TYPES_INVALID = "invalid supportedTypes",
   SUPPORTED_TYPES_OUT_OF_RANGE = "supportedTypes out of range",
@@ -44,7 +56,7 @@ export abstract class ImportContentUtils {
     >((resolve, _reject) => {
       const timer = new PerformanceTimer("validateContentFromJSON");
 
-      const validator = this._getValidatorMeta(modelFields, sourceFormat);
+      const { schema: validator, classifiers } = this.getValidatorMeta(modelFields, sourceFormat);
 
       const validation = validator.array().max(maxRecordLimit).safeParse(importContentList);
 
@@ -53,7 +65,7 @@ export abstract class ImportContentUtils {
       } else {
         resolve({
           isValid: false,
-          error: this.getErrorMeta(validation, importContentList),
+          error: this.getErrorMeta(validation, importContentList, classifiers),
         });
       }
 
@@ -61,11 +73,12 @@ export abstract class ImportContentUtils {
     });
   }
 
-  private static _getValidatorMeta(
+  private static getValidatorMeta(
     fieldData: Model["schema"]["fields"],
     sourceFormat: ContentSourceFormat,
-  ): z.ZodType<ImportContentItem> {
+  ): ValidatorWithClassifiers {
     const validateObj: Record<string, z.ZodTypeAny> = {};
+    const classifiers: Record<string, FieldClassifier> = {};
 
     fieldData.forEach(field => {
       switch (field.type) {
@@ -117,6 +130,7 @@ export abstract class ImportContentUtils {
           validateObj[field.key] = !field.required
             ? stringFieldAny.nullable().optional()
             : stringFieldAny;
+          classifiers[field.key] = this.typeAndRangeClassifier();
 
           break;
         }
@@ -153,6 +167,7 @@ export abstract class ImportContentUtils {
           }
 
           validateObj[field.key] = !field.required ? dateField.nullable().optional() : dateField;
+          classifiers[field.key] = this.typeOnlyClassifier();
 
           break;
         }
@@ -186,6 +201,7 @@ export abstract class ImportContentUtils {
           validateObj[field.key] = !field.required
             ? booleanField.nullable().optional()
             : booleanField;
+          classifiers[field.key] = this.typeOnlyClassifier();
 
           break;
         }
@@ -236,6 +252,7 @@ export abstract class ImportContentUtils {
           validateObj[field.key] = !field.required
             ? intFieldAny.nullable().optional()
             : intFieldAny;
+          classifiers[field.key] = this.typeAndRangeClassifier();
 
           break;
         }
@@ -286,6 +303,7 @@ export abstract class ImportContentUtils {
           validateObj[field.key] = !field.required
             ? floatFieldAny.nullable().optional()
             : floatFieldAny;
+          classifiers[field.key] = this.typeAndRangeClassifier();
 
           break;
         }
@@ -323,6 +341,7 @@ export abstract class ImportContentUtils {
             validateObj[field.key] = !field.required
               ? optionField.nullable().optional()
               : optionField;
+            classifiers[field.key] = this.selectClassifier();
           }
 
           break;
@@ -358,6 +377,7 @@ export abstract class ImportContentUtils {
           validateObj[field.key] = !field.required
             ? assetField.nullable().optional()
             : assetField;
+          classifiers[field.key] = this.typeOnlyClassifier();
 
           break;
         }
@@ -390,6 +410,7 @@ export abstract class ImportContentUtils {
           }
 
           validateObj[field.key] = !field.required ? urlField.nullable().optional() : urlField;
+          classifiers[field.key] = this.urlClassifier();
 
           break;
         }
@@ -474,6 +495,10 @@ export abstract class ImportContentUtils {
             validateObj[field.key] = !field.required
               ? geoObjectField.nullable().optional()
               : geoObjectField;
+            classifiers[field.key] = this.geoClassifier(
+              CustomError.SUPPORTED_TYPES_INVALID,
+              CustomError.SUPPORTED_TYPES_OUT_OF_RANGE,
+            );
           }
 
           break;
@@ -551,6 +576,10 @@ export abstract class ImportContentUtils {
             validateObj[field.key] = !field.required
               ? geoEditorField.nullable().optional()
               : geoEditorField;
+            classifiers[field.key] = this.geoClassifier(
+              CustomError.EDITOR_SUPPORTED_TYPES_INVALID,
+              CustomError.EDITOR_SUPPORTED_TYPES_OUT_OF_RANGE,
+            );
           }
 
           break;
@@ -560,80 +589,35 @@ export abstract class ImportContentUtils {
       }
     });
 
-    return z.object(validateObj) as z.ZodType<ImportContentItem>;
+    return { schema: z.object(validateObj) as z.ZodType<ImportContentItem>, classifiers };
   }
 
   private static getErrorMeta(
     schemaValidation: z.ZodSafeParseError<Record<string, unknown>[]>,
     contentList: Record<string, unknown>[],
+    classifiers: Record<string, FieldClassifier>,
   ): ValidationErrorMeta {
     return schemaValidation.error.issues.reduce<ValidationErrorMeta>(
-      (acc, curr, _index, _arr) => {
-        // exceed limit records
-        if (curr.code === "too_big" && curr.origin === "array" && curr.path.length === 0)
-          return { ...acc, exceedLimit: true };
-
-        // invalid value type
-        if (curr.path[1] && curr.code === "invalid_type")
-          return { ...acc, typeMismatchFieldKeys: acc.typeMismatchFieldKeys.add(curr.path[1]) };
-
-        // invalid value type (url)
-        if (curr.path[1] && curr.code === "invalid_format" && curr.format === "url")
-          return { ...acc, typeMismatchFieldKeys: acc.typeMismatchFieldKeys.add(curr.path[1]) };
-
-        // invalid option (for select) or missing key
-        if (curr.path[1] && curr.code === "invalid_union") {
-          const rowIndex = curr.path[0];
-          const fieldKey = curr.path[1];
-          if (
-            typeof rowIndex === "number" &&
-            typeof fieldKey === "string" &&
-            contentList[rowIndex] &&
-            !(fieldKey in contentList[rowIndex])
-          ) {
-            return { ...acc, typeMismatchFieldKeys: acc.typeMismatchFieldKeys.add(fieldKey) };
-          }
-          if (typeof fieldKey === "string") acc.outOfRangeFieldKeys.add(fieldKey);
-          return { ...acc, outOfRangeFieldKeys: acc.outOfRangeFieldKeys };
+      (acc, issue) => {
+        // Top-level: array exceeds record limit
+        if (issue.code === "too_big" && issue.origin === "array" && issue.path.length === 0) {
+          acc.exceedLimit = true;
+          return acc;
         }
 
-        if (
-          // number out of range (too big or too small)
-          ((curr.code === "too_big" || curr.code === "too_small") && curr.origin === "number") ||
-          // string out of range (too big)
-          (curr.code === "too_big" && curr.origin === "string")
-        ) {
-          if (typeof curr.path[1] === "string") acc.outOfRangeFieldKeys.add(curr.path[1]);
-          return { ...acc, outOfRangeFieldKeys: acc.outOfRangeFieldKeys };
-        }
+        const fieldKey = issue.path[1];
+        if (typeof fieldKey !== "string") return acc;
 
-        // custom error (GeoObject, GeoEditor)
-        if (curr.code === "custom") {
-          if (
-            curr.message === CustomError.SUPPORTED_TYPES_INVALID ||
-            curr.message === CustomError.EDITOR_SUPPORTED_TYPES_INVALID
-          ) {
-            if (typeof curr.path[1] === "string")
-              acc.typeMismatchFieldKeys.add(curr.path[1]);
-            return { ...acc, typeMismatchFieldKeys: acc.typeMismatchFieldKeys };
-          }
+        const classifier = classifiers[fieldKey];
+        if (!classifier) return acc;
 
-          if (
-            curr.message === CustomError.SUPPORTED_TYPES_OUT_OF_RANGE ||
-            curr.message === CustomError.EDITOR_SUPPORTED_TYPES_OUT_OF_RANGE
-          ) {
-            if (typeof curr.path[1] === "string") acc.outOfRangeFieldKeys.add(curr.path[1]);
-            return { ...acc, outOfRangeFieldKeys: acc.outOfRangeFieldKeys };
-          }
-        }
+        const category = classifier(issue, contentList);
+        if (category === "typeMismatch") acc.typeMismatchFieldKeys.add(fieldKey);
+        else if (category === "outOfRange") acc.outOfRangeFieldKeys.add(fieldKey);
 
         return acc;
       },
-      {
-        exceedLimit: false,
-        typeMismatchFieldKeys: new Set(),
-        outOfRangeFieldKeys: new Set(),
-      },
+      { exceedLimit: false, typeMismatchFieldKeys: new Set(), outOfRangeFieldKeys: new Set() },
     );
   }
 
@@ -704,6 +688,62 @@ export abstract class ImportContentUtils {
           ? t("Please create a schema first")
           : undefined,
       shouldDisable: !hasModelFields || !hasContentCreateRight,
+    };
+  }
+
+  private static typeOnlyClassifier(): FieldClassifier {
+    return issue => {
+      if (issue.code === "invalid_type") return "typeMismatch";
+      return null;
+    };
+  }
+
+  private static typeAndRangeClassifier(): FieldClassifier {
+    return issue => {
+      if (issue.code === "invalid_type") return "typeMismatch";
+      if (issue.code === "too_big" || issue.code === "too_small") return "outOfRange";
+      return null;
+    };
+  }
+
+  private static urlClassifier(): FieldClassifier {
+    return issue => {
+      if (issue.code === "invalid_type") return "typeMismatch";
+      if (issue.code === "invalid_format" && "format" in issue && issue.format === "url")
+        return "typeMismatch";
+      return null;
+    };
+  }
+
+  private static selectClassifier(): FieldClassifier {
+    return (issue, contentList) => {
+      if (issue.code === "invalid_type") return "typeMismatch";
+      if (issue.code === "invalid_union") {
+        const rowIndex = issue.path[0];
+        const fieldKey = issue.path[1];
+        if (
+          typeof rowIndex === "number" &&
+          typeof fieldKey === "string" &&
+          contentList[rowIndex] &&
+          !(fieldKey in contentList[rowIndex])
+        ) {
+          return "typeMismatch";
+        }
+        return "outOfRange";
+      }
+      return null;
+    };
+  }
+
+  private static geoClassifier(invalidMsg: string, outOfRangeMsg: string): FieldClassifier {
+    return issue => {
+      if (issue.code === "custom") {
+        if (issue.message === invalidMsg) return "typeMismatch";
+        if (issue.message === outOfRangeMsg) return "outOfRange";
+      }
+      // Other errors (from GeoJSON2DSchema validation) are type mismatches
+      if (issue.code === "invalid_type" || issue.code === "invalid_union") return "typeMismatch";
+      return null;
     };
   }
 }
