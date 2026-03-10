@@ -11,15 +11,6 @@ on:
         type: boolean
         required: false
         default: false
-      test_suite:
-        description: "Test suite to run"
-        type: choice
-        required: false
-        default: "full"
-        options:
-          - full
-          - fast
-          - smoke
   schedule:
     - cron: "0 3 * * 1-5"
   workflow_call:
@@ -68,13 +59,8 @@ env:
   REEARTH_CMS_E2E_PASSWORD: ${{ secrets.REEARTH_WEB_E2E_PASSWORD }}
 jobs:
   e2e:
-    name: playwright (${{ matrix.shardIndex }}/${{ matrix.shardTotal }})
+    name: playwright
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        shardIndex: [1, 2, 3, 4]
-        shardTotal: [4]
     permissions:
       contents: read
       id-token: write
@@ -134,72 +120,16 @@ jobs:
           echo "REEARTH_CMS_API is $REEARTH_CMS_API"
           echo "REEARTH_CMS_E2E_BASEURL is $REEARTH_CMS_E2E_BASEURL"
           echo "REEARTH_CMS_E2E_USERNAME is $REEARTH_CMS_E2E_USERNAME"
-      - name: Determine test command
-        id: test-cmd
-        run: |
-          SUITE="${{ inputs.test_suite || 'full' }}"
-          SMOKE="${{ inputs.smoke_only }}"
-          if [ "$SMOKE" = "true" ] || [ "$SUITE" = "smoke" ]; then
-            echo "cmd=yarn e2e-smoke" >> $GITHUB_OUTPUT
-            echo "skip_shard=true" >> $GITHUB_OUTPUT
-          elif [ "$SUITE" = "fast" ]; then
-            echo "cmd=yarn e2e-fast --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}" >> $GITHUB_OUTPUT
-            echo "skip_shard=false" >> $GITHUB_OUTPUT
-          else
-            echo "cmd=yarn e2e --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}" >> $GITHUB_OUTPUT
-            echo "skip_shard=false" >> $GITHUB_OUTPUT
-          fi
       - name: Run Playwright tests
-        if: steps.test-cmd.outputs.skip_shard == 'false' || matrix.shardIndex == 1
         timeout-minutes: 120
         env:
           USE_IAP_AUTH: ${{ inputs.use_iap || false }}
           IAP_AUTH_METHOD: ${{ inputs.token_format || 'id-token' }}
           IAP_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
-        run: ${{ steps.test-cmd.outputs.cmd }}
-      - uses: actions/upload-artifact@v6
-        if: always()
-        with:
-          name: blob-report-${{ matrix.shardIndex }}
-          path: web/blob-report/
-          retention-days: 7
+        run: ${{ inputs.smoke_only && 'yarn e2e-smoke' || 'yarn e2e' }}
       - uses: actions/upload-artifact@v6
         if: failure()
         with:
-          name: test-results-${{ matrix.shardIndex }}
+          name: test-results
           path: web/test-results/
           retention-days: 7
-
-  merge-reports:
-    name: Merge reports
-    if: always() && !cancelled()
-    needs: [e2e]
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: web
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          repository: reearth/reearth-cms
-          ref: ${{ inputs.branch || 'main' }}
-      - uses: actions/setup-node@v6
-        with:
-          node-version: lts/*
-          cache: yarn
-          cache-dependency-path: "**/yarn.lock"
-      - name: Install dependencies
-        run: yarn install
-      - name: Download blob reports
-        uses: actions/download-artifact@v6
-        with:
-          path: web/all-blob-reports
-          pattern: blob-report-*
-          merge-multiple: true
-      - name: Merge reports
-        run: yarn playwright merge-reports --reporter=html ./all-blob-reports
-      - uses: actions/upload-artifact@v6
-        with:
-          name: html-report
-          path: web/playwright-report/
-          retention-days: 14
