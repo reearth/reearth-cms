@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 export type FormValues = {
   items: string[];
@@ -24,7 +25,7 @@ const RequestWarning = styled.div`
     float: left;
     margin-right: 8px;
     font-size: 16px;
-    color: #faad14;
+    color: ${AntdColor.GOLD.GOLD_5};
   }
   p {
     display: block;

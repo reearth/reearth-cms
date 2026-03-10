@@ -7,6 +7,7 @@ import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentS
 import { FormType } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 import AccessAPITable from "./AccessAPITable";
 
@@ -106,6 +107,6 @@ const AccessAPIComponent: React.FC<Props> = ({
 export default AccessAPIComponent;
 
 const Paragraph = styled.p`
-  color: #8c8c8c;
+  color: ${AntdColor.GREY.GREY_2};
   padding-bottom: 16px;
 `;

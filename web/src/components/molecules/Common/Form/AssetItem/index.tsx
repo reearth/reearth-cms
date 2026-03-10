@@ -11,6 +11,7 @@ import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import LinkAssetModal from "@reearth-cms/components/molecules/Common/LinkAssetModal/LinkAssetModal";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 import useHooks from "./hooks";
 
@@ -260,7 +261,7 @@ const AssetLink = styled(Button)`
 `;
 
 const AssetLinkedName = styled(Button)<{ disabled?: boolean }>`
-  color: ${({ disabled }) => (disabled ? "#00000040" : "#1890ff")};
+  color: ${({ disabled }) => (disabled ? "#00000040" : AntdColor.BLUE.BLUE_5 /* originally #1890ff */)};
   margin-left: 12px;
   span {
     text-align: start;

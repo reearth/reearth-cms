@@ -15,6 +15,7 @@ import Space from "@reearth-cms/components/atoms/Space";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
 import { useT, Trans } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 type Props = {
   workspaceIntegrations?: WorkspaceIntegration[];
@@ -226,7 +227,7 @@ const EmptyTableWrapper = styled.div`
   align-items: center;
   gap: 8px;
   margin: 24px 0;
-  color: #8c8c8c;
+  color: ${AntdColor.GREY.GREY_2};
 `;
 
 const Action = styled.span`

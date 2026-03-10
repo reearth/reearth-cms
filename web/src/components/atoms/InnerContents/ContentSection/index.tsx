@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
 
+import { AntdColor } from "@reearth-cms/utils/color";
+
 type Props = {
   title?: string;
   danger?: boolean;
@@ -42,7 +44,7 @@ const Wrapper = styled.div<{ danger?: boolean }>`
   height: 100%;
   background-color: #fff;
   color: rgba(0, 0, 0, 0.85);
-  ${({ danger }) => danger && "border: 1px solid #FF4D4F;"}
+  ${({ danger }) => danger && `border: 1px solid ${AntdColor.RED.RED_4};`}
 `;
 
 const Header = styled.div`

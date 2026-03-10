@@ -15,6 +15,7 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 import { dateTimeFormat, transformDayjsToString } from "@reearth-cms/utils/format";
 import { validateURL } from "@reearth-cms/utils/regex";
 
@@ -140,7 +141,7 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
             color="#fff"
             overlayStyle={{ paddingLeft: 0 }}
             overlayInnerStyle={{ transform: "translateX(-40px)" }}
-            title={<Icon color="#1890ff" icon={"edit"} onClick={() => setIsEditable(true)} />}>
+            title={<Icon color={AntdColor.BLUE.BLUE_5} icon={"edit"} onClick={() => setIsEditable(true)} />}>
             <UrlWrapper>
               <a href={itemState} target="_blank" rel="noreferrer">
                 {itemState}
@@ -213,7 +214,7 @@ const StyledInput = styled(Input)`
   }
   :focus {
     cursor: text;
-    border-color: #40a9ff;
+    border-color: ${AntdColor.BLUE.BLUE_4};
     ::placeholder {
       color: transparent;
     }
@@ -244,7 +245,7 @@ const StyledDatePicker = styled(DatePicker)`
     border-color: transparent;
   }
   &.ant-picker-focused {
-    border-color: #40a9ff;
+    border-color: ${AntdColor.BLUE.BLUE_4};
   }
 `;
 

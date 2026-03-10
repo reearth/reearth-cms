@@ -1,9 +1,9 @@
-import { gold } from "@ant-design/colors";
 import styled from "@emotion/styled";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 type Props = {
   disabled?: boolean;
@@ -20,7 +20,7 @@ const ExperimentIcon: React.FC<Props> = ({ disabled = false }) => {
           : t("This function is currently experimental and remains somewhat unstable")
       }>
       <IconWrapper disabled={disabled}>
-        <Icon icon="experimentOutlined" color={gold[5]} />
+        <Icon icon="experimentOutlined" color={AntdColor.GOLD.GOLD_5} />
       </IconWrapper>
     </Tooltip>
   );

@@ -8,6 +8,7 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 import { UploaderQueueItem } from "../types";
 import useJobState from "../useJobState";
@@ -45,14 +46,14 @@ const QueueItem: React.FC<Props> = (props: Props) => {
             <span
               data-testid={DATA_TEST_ID.QueueItem__CancelIcon}
               onClick={() => void onCancel(queue.jobId)}>
-              <ActionIcon icon="closeCircle" color="#8C8C8C" />
+              <ActionIcon icon="closeCircle" color={AntdColor.GREY.GREY_2} />
             </span>
           </Tooltip>
         );
       case JobStatus.Completed:
         return (
           <span data-testid={DATA_TEST_ID.Uploader__CompleteIcon}>
-            <InfoIcon icon="checkCircle" color="#52C41A" />
+            <InfoIcon icon="checkCircle" color={AntdColor.GREEN.GREEN_5} />
           </span>
         );
       case JobStatus.Failed:
@@ -62,11 +63,11 @@ const QueueItem: React.FC<Props> = (props: Props) => {
               <span
                 data-testid={DATA_TEST_ID.QueueItem__RetryIcon}
                 onClick={() => void onRetry(queue.jobId)}>
-                <ActionIcon icon="retry" color="#8C8C8C" />
+                <ActionIcon icon="retry" color={AntdColor.GREY.GREY_2} />
               </span>
             </Tooltip>
             <span data-testid={DATA_TEST_ID.QueueItem__ErrorIcon}>
-              <InfoIcon icon="exclamationSolid" color="#F5222D" />
+              <InfoIcon icon="exclamationSolid" color={AntdColor.RED.RED_5} />
             </span>
           </>
         );
@@ -76,7 +77,7 @@ const QueueItem: React.FC<Props> = (props: Props) => {
             <span
               data-testid={DATA_TEST_ID.QueueItem__RetryIcon}
               onClick={() => void onRetry(queue.jobId)}>
-              <ActionIcon icon="retry" color="#8C8C8C" />
+              <ActionIcon icon="retry" color={AntdColor.GREY.GREY_2} />
             </span>
           </Tooltip>
         );
@@ -103,7 +104,7 @@ const QueueItem: React.FC<Props> = (props: Props) => {
     <ItemWrapper data-testid={DATA_TEST_ID.QueueItem__Wrapper}>
       <ItemUpper>
         <UpperLeft>
-          <InfoIcon icon="clip" color="#8C8C8C" />
+          <InfoIcon icon="clip" color={AntdColor.GREY.GREY_2} />
           <Tooltip title={queue.fileName}>
             {queue.jobState.status === JobStatus.Completed ? (
               <Link to={queue.url} target="_blank" data-testid={DATA_TEST_ID.QueueItem__FileLink}>
@@ -190,7 +191,7 @@ const InfoIcon = styled(Icon)`
 `;
 
 const ErrorMessage = styled(Tooltip)`
-  color: #f5222d;
+  color: ${AntdColor.RED.RED_5};
   font-size: 12px;
   padding-left: 22px;
   line-height: 20px;
@@ -201,7 +202,7 @@ const ErrorMessage = styled(Tooltip)`
 `;
 
 const Message = styled.div`
-  color: #8c8c8c;
+  color: ${AntdColor.GREY.GREY_2};
   font-size: 12px;
   padding-left: 22px;
   line-height: 22px;

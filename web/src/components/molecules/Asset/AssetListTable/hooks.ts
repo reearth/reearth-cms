@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import { ArchiveExtractionStatus } from "@reearth-cms/components/molecules/Asset/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 export default (archiveExtractionStatus: ArchiveExtractionStatus) => {
   const t = useT();
@@ -18,23 +19,23 @@ export default (archiveExtractionStatus: ArchiveExtractionStatus) => {
   useEffect(() => {
     switch (archiveExtractionStatus) {
       case "DONE":
-        setStatusColor("#52C41A");
+        setStatusColor(AntdColor.GREEN.GREEN_5);
         setStatus(DECOMPRESSED);
         break;
       case "FAILED":
-        setStatusColor("#F5222D");
+        setStatusColor(AntdColor.RED.RED_5);
         setStatus(FAILED);
         break;
       case "IN_PROGRESS":
-        setStatusColor("#FA8C16");
+        setStatusColor(AntdColor.ORANGE.ORANGE_5);
         setStatus(DECOMPRESSING);
         break;
       case "SKIPPED":
-        setStatusColor("#BFBFBF");
+        setStatusColor(AntdColor.GREY.GREY_0); // originally #BFBFBF
         setStatus(SKIPPED);
         break;
       case "PENDING":
-        setStatusColor("#BFBFBF");
+        setStatusColor(AntdColor.GREY.GREY_0); // originally #BFBFBF
         setStatus(PENDING);
         break;
       default:

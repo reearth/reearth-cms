@@ -6,6 +6,7 @@ import Badge from "@reearth-cms/components/atoms/Badge";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 import { ItemStatus } from "../types";
 
@@ -76,7 +77,7 @@ const StyledReferenceItem = styled.div<{ disabled?: boolean }>`
 
 const ReferenceItemName = styled.p`
   margin: 0;
-  color: #1890ff;
+  color: ${AntdColor.BLUE.BLUE_5};
 `;
 
 const StyledBadge = styled(Badge)`

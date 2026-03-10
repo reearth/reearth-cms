@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
 import { CSSProperties } from "react";
 
+import { AntdColor } from "@reearth-cms/utils/color";
+
 type CustomTagProps = {
   value?: number | string;
   color?: CSSProperties["color"];
@@ -8,7 +10,7 @@ type CustomTagProps = {
 
 const CustomTag: React.FC<CustomTagProps> = ({ value, color }) => {
   return (
-    <CustomTagWrapper color={color ?? "#bfbfbf"}>
+    <CustomTagWrapper color={color ?? AntdColor.GREY.GREY_0 /* originally #BFBFBF */}>
       <span>{value ?? ""}</span>
     </CustomTagWrapper>
   );

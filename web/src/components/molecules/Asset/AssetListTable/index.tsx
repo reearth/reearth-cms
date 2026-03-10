@@ -25,6 +25,7 @@ import {
 } from "@reearth-cms/components/molecules/Asset/types";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 import { FileUtils } from "@reearth-cms/utils/file";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
@@ -95,7 +96,7 @@ const AssetListTable: React.FC<Props> = ({
         title: "",
         hideInSetting: true,
         render: (_, asset) => (
-          <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(asset.id)} />
+          <Icon icon="edit" color={AntdColor.BLUE.BLUE_5 /* originally #1890ff */} onClick={() => onEdit(asset.id)} />
         ),
         key: "EDIT_ICON",
         align: "center",
@@ -112,7 +113,7 @@ const AssetListTable: React.FC<Props> = ({
             <CommentsButton type="link" onClick={() => onAssetSelect(asset.id)}>
               <CustomTag
                 value={asset.comments?.length || 0}
-                color={asset.id === selectedAsset?.id ? "#87e8de" : undefined}
+                color={asset.id === selectedAsset?.id ? AntdColor.CYAN.CYAN_2 : undefined}
               />
             </CommentsButton>
           );
@@ -360,7 +361,7 @@ const MoreItemsButton = styled(Button)`
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #1890ff;
+  color: ${AntdColor.BLUE.BLUE_5}; /* originally #1890ff */
 `;
 
 const StyledButton = styled(Button)`

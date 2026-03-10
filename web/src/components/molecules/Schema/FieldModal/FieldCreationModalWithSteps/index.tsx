@@ -23,6 +23,7 @@ import {
   CorrespondingField,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 import { Constant } from "@reearth-cms/utils/constant";
 import { validateKey } from "@reearth-cms/utils/regex";
 
@@ -585,12 +586,12 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
 };
 
 const Required = styled.span`
-  color: #ff4d4f;
+  color: ${AntdColor.RED.RED_4};
   margin-right: 4px;
 `;
 
 const Optional = styled.span`
-  color: #8c8c8c;
+  color: ${AntdColor.GREY.GREY_2};
   margin-left: 4px;
 `;
 

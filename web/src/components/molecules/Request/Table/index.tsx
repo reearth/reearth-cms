@@ -18,6 +18,7 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 type Props = {
@@ -85,7 +86,7 @@ const RequestListTable: React.FC<Props> = ({
         title: "",
         hideInSetting: true,
         render: (_, request) => (
-          <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(request.id)} />
+          <Icon icon="edit" color={AntdColor.BLUE.BLUE_5 /* originally #1890ff */} onClick={() => onEdit(request.id)} />
         ),
         key: "EDIT_ICON",
         width: 48,
@@ -102,7 +103,7 @@ const RequestListTable: React.FC<Props> = ({
             <CommentsButton type="link" onClick={() => onRequestSelect(request.id)}>
               <CustomTag
                 value={request.comments?.length || 0}
-                color={request.id === selectedRequest?.id ? "#87e8de" : undefined}
+                color={request.id === selectedRequest?.id ? AntdColor.CYAN.CYAN_2 : undefined}
               />
             </CommentsButton>
           );

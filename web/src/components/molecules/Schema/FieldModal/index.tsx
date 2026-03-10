@@ -28,6 +28,7 @@ import {
   SelectedSchemaType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 import { Constant } from "@reearth-cms/utils/constant";
 
 import useHooks from "./hooks";
@@ -391,12 +392,12 @@ const FieldModal: React.FC<Props> = ({
 };
 
 const Required = styled.span`
-  color: #ff4d4f;
+  color: ${AntdColor.RED.RED_4};
   margin-right: 4px;
 `;
 
 const Optional = styled.span`
-  color: #8c8c8c;
+  color: ${AntdColor.GREY.GREY_2};
   margin-left: 4px;
 `;
 

@@ -8,6 +8,7 @@ import Spin from "@reearth-cms/components/atoms/Spin";
 import Tree, { TreeProps } from "@reearth-cms/components/atoms/Tree";
 import { ArchiveExtractionStatus, AssetFile } from "@reearth-cms/components/molecules/Asset/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 import { generateAssetTreeData } from "./generateAssetTreeData";
 import { FileNode } from "./types";
@@ -59,7 +60,7 @@ const UnzipFileList: React.FC<Props> = ({
         </ExtractionInProgressWrapper>
       ) : archiveExtractionStatus === "FAILED" ? (
         <ExtractionFailedWrapper>
-          <ExtractionFailedIcon icon="closeCircle" color="#FF4D4F" size="56px" />
+          <ExtractionFailedIcon icon="closeCircle" color={AntdColor.RED.RED_4} size="56px" />
           <ExtractionFailedText>
             {t("Failed to decompress. Please check the file and try again.")}
           </ExtractionFailedText>

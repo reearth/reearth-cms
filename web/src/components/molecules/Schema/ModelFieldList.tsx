@@ -1,4 +1,3 @@
-import { blue } from "@ant-design/colors";
 import styled from "@emotion/styled";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactDragListView from "react-drag-listview";
@@ -10,6 +9,7 @@ import Popconfirm from "@reearth-cms/components/atoms/PopConfirm";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { AntdColor } from "@reearth-cms/utils/color";
 import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
 
 import { fieldTypes } from "./fieldTypes";
@@ -86,7 +86,7 @@ const ModelFieldList: React.FC<Props> = ({
             <List.Item.Meta
               avatar={
                 <FieldThumbnail>
-                  <StyledIcon icon="terminalWindow" color="#40A9FF" />
+                  <StyledIcon icon="terminalWindow" color={AntdColor.BLUE.BLUE_4} />
                 </FieldThumbnail>
               }
               title={<ItemTitle>{t("Item Information")}</ItemTitle>}
@@ -96,7 +96,7 @@ const ModelFieldList: React.FC<Props> = ({
             <List.Item.Meta
               avatar={
                 <FieldThumbnail>
-                  <StyledIcon icon="LineSegments" color="#FF9C6E" />
+                  <StyledIcon icon="LineSegments" color={AntdColor.VOLCANO.VOLCANO_3} />
                 </FieldThumbnail>
               }
               title={<ItemTitle>{t("Publish Status")}</ItemTitle>}
@@ -163,7 +163,7 @@ const ModelFieldList: React.FC<Props> = ({
                       type="text"
                       shape="circle"
                       size="small"
-                      icon={<Icon icon="delete" color="#8c8c8c" />}
+                      icon={<Icon icon="delete" color={AntdColor.GREY.GREY_2} />}
                       disabled={!hasDeleteRight}
                     />
                   </Popconfirm>,
@@ -172,7 +172,7 @@ const ModelFieldList: React.FC<Props> = ({
                     shape="circle"
                     size="small"
                     onClick={() => handleFieldUpdateModalOpen(item)}
-                    icon={<Icon icon="ellipsis" color="#8c8c8c" />}
+                    icon={<Icon icon="ellipsis" color={AntdColor.GREY.GREY_2} />}
                     disabled={!hasUpdateRight}
                   />,
                 ]}>
@@ -215,11 +215,11 @@ const DragIcon = styled(Icon)`
 
 const ImportButton = styled(Button)`
   padding: 0;
-  /* color: ${blue[5]}; */
+  /* color: ${AntdColor.BLUE.BLUE_5}; */
   /* text-decoration: underline; */
 
   /* :hover { */
-  /* color: ${blue[3]}; */
+  /* color: ${AntdColor.BLUE.BLUE_3}; */
   /* } */
 `;
 

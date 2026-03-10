@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 const NotFound: React.FC = () => {
   const t = useT();
@@ -42,7 +43,7 @@ const Circle = styled.div`
   align-items: center;
   justify-content: center;
   font-size: 96px;
-  color: #bfbfbf;
+  color: ${AntdColor.GREY.GREY_0}; /* originally #BFBFBF */
   font-weight: 700;
   background-color: #d9d9d9;
   width: 240px;
@@ -58,7 +59,7 @@ const Content = styled.div`
 
 const StyledTitle = styled.h1`
   text-align: center;
-  color: #1890ff;
+  color: ${AntdColor.BLUE.BLUE_5}; /* originally #1890ff */
   font-weight: 500;
   font-size: 38px;
   line-height: 46px;

@@ -4,6 +4,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 import { APIKey } from "../types";
 
@@ -88,6 +89,6 @@ const Header = styled.h3`
 `;
 
 const Paragraph = styled.p`
-  color: #8c8c8c;
+  color: ${AntdColor.GREY.GREY_2};
   padding-bottom: 162x;
 `;

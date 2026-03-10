@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 export type Props = {
   onIntegrationModalOpen: () => void;
@@ -43,8 +44,8 @@ const Card = styled.button`
   cursor: pointer;
   background-color: #fff;
   &:hover {
-    color: #1890ff;
-    background-color: #e6f7ff;
+    color: ${AntdColor.BLUE.BLUE_5};
+    background-color: ${AntdColor.BLUE.BLUE_0}; /* originally #E6F7FF */
   }
 `;
 

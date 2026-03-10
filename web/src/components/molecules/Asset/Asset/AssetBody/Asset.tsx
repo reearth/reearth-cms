@@ -29,6 +29,7 @@ import {
 } from "@reearth-cms/components/molecules/Asset/Viewers";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
@@ -309,7 +310,7 @@ const InfoValue = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #8c8c8c;
+  color: ${AntdColor.GREY.GREY_2};
 `;
 
 const ID = styled(InfoValue)`

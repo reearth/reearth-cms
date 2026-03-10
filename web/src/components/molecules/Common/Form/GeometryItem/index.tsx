@@ -31,6 +31,7 @@ import {
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 import schema from "./schema";
 
@@ -91,9 +92,9 @@ const GeometryItem: React.FC<Props> = ({
         type: isRectangle ? "Circle" : drawType,
         style: {
           "stroke-width": 3,
-          "stroke-color": "#1677FF",
+          "stroke-color": AntdColor.BLUE.BLUE_5,
           "stroke-line-dash": [5, 10],
-          "fill-color": "#1677FF40",
+          "fill-color": `${AntdColor.BLUE.BLUE_5}40`,
         },
         geometryFunction: isRectangle ? createBox() : undefined,
       });
@@ -632,7 +633,7 @@ const StyledResizable = styled(Resizable as any)`
 const EditorWrapper = styled.div<{ hasError: boolean; width: number }>`
   width: ${({ width }) => `${width}px`};
   position: relative;
-  border: 1px solid ${({ hasError }) => (hasError ? "#ff4d4f" : "transparent")};
+  border: 1px solid ${({ hasError }) => (hasError ? AntdColor.RED.RED_4 : "transparent")};
   .glyphMargin {
     background: #ecabbb;
     width: 5px !important;
@@ -642,7 +643,7 @@ const EditorWrapper = styled.div<{ hasError: boolean; width: number }>`
 const EditorButtons = styled.div`
   position: absolute;
   right: 8px;
-  color: #8c8c8c;
+  color: ${AntdColor.GREY.GREY_2};
   z-index: 1;
   display: flex;
   flex-direction: column;
@@ -651,7 +652,7 @@ const EditorButtons = styled.div`
 `;
 
 const EditorButton = styled(Button)`
-  color: #8c8c8c;
+  color: ${AntdColor.GREY.GREY_2};
 `;
 
 const Placeholder = styled.div<{ isEmpty: boolean }>`
@@ -661,7 +662,7 @@ const Placeholder = styled.div<{ isEmpty: boolean }>`
   top: 0px;
   left: 52px;
   font-size: 14px;
-  color: #bfbfbf;
+  color: ${AntdColor.GREY.GREY_0}; /* originally #BFBFBF */
   font-family: Consolas, "Courier New", monospace;
   pointer-events: none;
   user-select: none;
@@ -690,7 +691,7 @@ const StyledSearch = styled(Search)`
     height: 24px;
     border-color: #d9d9d9 !important;
     :hover {
-      border-color: #1677ff !important;
+      border-color: ${AntdColor.BLUE.BLUE_5} !important;
     }
     :focus-within {
       box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1) !important;
@@ -717,7 +718,7 @@ const GeoButtons = styled.div`
 `;
 
 const GeoButton = styled(Button)<{ selected: boolean }>`
-  color: ${({ selected }) => (selected ? "#1677ff" : "#434343")};
+  color: ${({ selected }) => (selected ? AntdColor.BLUE.BLUE_5 : "#434343")};
 `;
 
 const ZoomButtons = styled.div`

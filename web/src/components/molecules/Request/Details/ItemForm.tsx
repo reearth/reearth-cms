@@ -9,6 +9,7 @@ import {
 import { FIELD_TYPE_COMPONENT_MAP } from "@reearth-cms/components/molecules/Content/Form/fields/FieldTypesMap";
 import { FormItem } from "@reearth-cms/components/molecules/Content/types";
 import { Group, Schema } from "@reearth-cms/components/molecules/Schema/types";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 type Props = {
   schema?: Schema;
@@ -82,6 +83,6 @@ const StyledForm = styled(Form)`
   }
   .ant-input-out-of-range input,
   .ant-input-out-of-range textarea {
-    color: #ff4d4f !important;
+    color: ${AntdColor.RED.RED_4} !important;
   }
 `;

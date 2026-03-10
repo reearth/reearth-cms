@@ -4,6 +4,7 @@ import { Steps } from "antd";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 type Props = {
   requestState: RequestState;
@@ -17,13 +18,13 @@ const RequestStatus: React.FC<Props> = ({ requestState }) => {
     <StyledSteps direction="vertical" current={1}>
       {requestState === "APPROVED" && (
         <Step
-          icon={<StyledIcon icon="checkCircle" color="#52C41A" size={28} />}
+          icon={<StyledIcon icon="checkCircle" color={AntdColor.GREEN.GREEN_5} size={28} />}
           title={<StatusTitle>{t("Approved")}</StatusTitle>}
         />
       )}
       {requestState === "CLOSED" && (
         <Step
-          icon={<StyledIcon icon="closeCircle" color="#BFBFBF" size={28} />}
+          icon={<StyledIcon icon="closeCircle" color={AntdColor.GREY.GREY_0 /* originally #BFBFBF */} size={28} />}
           title={<StatusTitle>{t("Closed")}</StatusTitle>}
         />
       )}

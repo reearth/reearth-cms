@@ -4,6 +4,7 @@ import Status from "@reearth-cms/components/molecules/Content/Status";
 import { Item } from "@reearth-cms/components/molecules/Content/types";
 import { MetadataField } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
@@ -126,7 +127,7 @@ const DataCommon = styled.p`
 `;
 
 const DataText = styled(DataCommon)`
-  color: #8c8c8c;
+  color: ${AntdColor.GREY.GREY_2};
   flex: 1;
   text-align: right;
   overflow: hidden;

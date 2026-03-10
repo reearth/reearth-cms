@@ -8,6 +8,7 @@ import Tag from "@reearth-cms/components/atoms/Tag";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 import ItemFormat from "./ItemFormat";
 
@@ -100,7 +101,7 @@ export const renderField = (
 const StyledButton = styled(Button)`
   align-items: center;
   border-color: #00000008;
-  color: #1890ff;
+  color: ${AntdColor.BLUE.BLUE_5};
   display: flex;
   font-size: 12px;
   gap: 8px;

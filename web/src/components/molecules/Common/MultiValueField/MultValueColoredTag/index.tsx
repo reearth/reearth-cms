@@ -8,6 +8,7 @@ import Input, { InputProps } from "@reearth-cms/components/atoms/Input";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 import { moveItemInArray } from "../moveItemArray";
 
@@ -205,7 +206,7 @@ const StyledInput = styled(Input)`
 
 const StyledTagContainer = styled.div<{ isError?: boolean }>`
   cursor: pointer;
-  border: 1px solid ${({ isError }) => (isError ? "#ff4d4f" : "#d9d9d9")};
+  border: 1px solid ${({ isError }) => (isError ? AntdColor.RED.RED_4 : "#d9d9d9")};
   padding: 4px 11px;
   overflow: auto;
   height: 100%;

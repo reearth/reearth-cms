@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 type Props = {
   name: string;
@@ -23,7 +24,7 @@ const CardWrapper = styled.div<{ isSelected: boolean }>`
   min-height: 88px;
   display: flex;
   align-items: center;
-  background-color: ${({ isSelected }) => (isSelected ? "#E6F7FF" : "#FFF")};
+  background-color: ${({ isSelected }) => (isSelected ? AntdColor.BLUE.BLUE_0 /* originally #E6F7FF */ : "#FFF")};
   margin-bottom: 10px;
 `;
 

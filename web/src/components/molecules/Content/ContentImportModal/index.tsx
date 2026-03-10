@@ -1,4 +1,3 @@
-import { gold, red } from "@ant-design/colors";
 import styled from "@emotion/styled";
 import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
@@ -17,6 +16,7 @@ import { UploaderHookState } from "@reearth-cms/components/molecules/Uploader/pr
 import { ValidateImportResult } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { AntdColor } from "@reearth-cms/utils/color";
 import { Constant } from "@reearth-cms/utils/constant";
 import { FileUtils } from "@reearth-cms/utils/file";
 import {
@@ -371,9 +371,9 @@ const ContentImportModal: React.FC<Props> = ({
   const importErrorIcon = useMemo<string | undefined>(() => {
     switch (validateImportResult?.type) {
       case "error":
-        return red.primary;
+        return AntdColor.RED.RED_5;
       case "warning":
-        return gold.primary;
+        return AntdColor.GOLD.GOLD_5;
       default:
         return undefined;
     }

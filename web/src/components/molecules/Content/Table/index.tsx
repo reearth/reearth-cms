@@ -45,6 +45,7 @@ import {
 } from "@reearth-cms/components/molecules/View/types";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
+import { AntdColor } from "@reearth-cms/utils/color";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { ImportContentUtils } from "@reearth-cms/utils/importContent";
 
@@ -164,7 +165,7 @@ const ContentTable: React.FC<Props> = ({
         title: "",
         hideInSetting: true,
         render: (_, contentField) => (
-          <Icon icon="edit" color={"#1890ff"} onClick={() => onItemEdit(contentField.id)} />
+          <Icon icon="edit" color={AntdColor.BLUE.BLUE_5 /* originally #1890ff */} onClick={() => onItemEdit(contentField.id)} />
         ),
         dataIndex: "editIcon",
         fieldType: "EDIT_ICON",
@@ -185,7 +186,7 @@ const ContentTable: React.FC<Props> = ({
             <StyledButton type="link" onClick={() => onItemSelect(item.id)}>
               <CustomTag
                 value={item.comments?.length || 0}
-                color={item.id === selectedItem?.id ? "#87e8de" : undefined}
+                color={item.id === selectedItem?.id ? AntdColor.CYAN.CYAN_2 : undefined}
               />
             </StyledButton>
           );
@@ -913,7 +914,7 @@ const StyledFilterWrapper = styled.div`
 const IconWrapper = styled.span`
   cursor: pointer;
   &:hover {
-    color: #40a9ff;
+    color: ${AntdColor.BLUE.BLUE_4}; /* originally #40a9ff */
   }
 `;
 

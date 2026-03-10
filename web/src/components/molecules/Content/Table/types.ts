@@ -13,8 +13,12 @@ import {
 } from "@reearth-cms/components/molecules/View/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import { t } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
-export type ColorType = "#BFBFBF" | "#52C41A" | "#FA8C16";
+export type ColorType =
+  | typeof AntdColor.GREY.GREY_0
+  | typeof AntdColor.GREEN.GREEN_5
+  | typeof AntdColor.ORANGE.ORANGE_5;
 export type StateType = "DRAFT" | "PUBLIC" | "REVIEW";
 t("DRAFT");
 t("PUBLIC");
