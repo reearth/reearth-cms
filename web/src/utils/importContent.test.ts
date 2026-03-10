@@ -3378,7 +3378,7 @@ describe("Content import test", () => {
             required: true,
             multiple: false,
             typeProperty: {
-              objectSupportedTypes: ["INVALID_TYPE"],
+              objectSupportedTypes: ["INVALID_TYPE"] as unknown as ObjectSupportedType[],
             },
           },
         ];
@@ -3448,7 +3448,7 @@ describe("Content import test", () => {
             required: true,
             multiple: false,
             typeProperty: {
-              editorSupportedTypes: ["INVALID_TYPE"],
+              editorSupportedTypes: ["INVALID_TYPE"] as unknown as EditorSupportedType[],
             },
           },
         ];
