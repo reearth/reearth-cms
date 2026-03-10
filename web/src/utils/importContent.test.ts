@@ -2327,7 +2327,7 @@ describe("Content import test", () => {
         });
       });
 
-      describe.skip("[Fail case] GeoEditor field with default values type mismatch", () => {
+      describe("[Fail case] GeoEditor field with default values type mismatch", () => {
         const COMMON_SETUP = {
           ...DEFAULT_COMMON_FIELD,
           key: "field-key",
