@@ -374,9 +374,7 @@ export abstract class ImportContentUtils {
               assetField = assetField.default(defaultValueValidation.data);
           }
 
-          validateObj[field.key] = !field.required
-            ? assetField.nullable().optional()
-            : assetField;
+          validateObj[field.key] = !field.required ? assetField.nullable().optional() : assetField;
           classifiers[field.key] = this.typeOnlyClassifier();
 
           break;

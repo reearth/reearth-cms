@@ -194,9 +194,7 @@ export abstract class SchemaHelpers {
       case ExportSchemaFieldType.GeometryEditor:
         return {
           defaultValue: field["x-defaultValue"],
-          editorSupportedTypes: field["x-geoSupportedType"]
-            ? [field["x-geoSupportedType"]]
-            : [],
+          editorSupportedTypes: field["x-geoSupportedType"] ? [field["x-geoSupportedType"]] : [],
         };
       default:
         return {

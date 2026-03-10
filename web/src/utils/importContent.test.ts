@@ -1747,7 +1747,10 @@ describe("Content import test", () => {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.Asset,
-              typeProperty: { ...COMMON_SETUP.typeProperty, assetDefaultValue: 123 as unknown as string },
+              typeProperty: {
+                ...COMMON_SETUP.typeProperty,
+                assetDefaultValue: 123 as unknown as string,
+              },
             },
             expectedResult: EXPECTED_RESULT,
           },
@@ -2241,7 +2244,10 @@ describe("Content import test", () => {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.Asset,
-              typeProperty: { ...COMMON_SETUP.typeProperty, assetDefaultValue: 123 as unknown as string },
+              typeProperty: {
+                ...COMMON_SETUP.typeProperty,
+                assetDefaultValue: 123 as unknown as string,
+              },
             },
             expectedResult: EXPECTED_RESULT,
           },
@@ -2530,7 +2536,10 @@ describe("Content import test", () => {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.Asset,
-              typeProperty: { ...COMMON_SETUP.typeProperty, assetDefaultValue: 123 as unknown as string },
+              typeProperty: {
+                ...COMMON_SETUP.typeProperty,
+                assetDefaultValue: 123 as unknown as string,
+              },
               value: ["id1", "id2"],
             },
           },
