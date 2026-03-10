@@ -104,7 +104,9 @@ export abstract class ImportContentUtils {
               .array()
               .refine(
                 values =>
-                  values.every(value => (maxLength.data ? value.length <= maxLength.data : true)),
+                  values.every(value =>
+                    maxLength.data !== undefined ? value.length <= maxLength.data : true,
+                  ),
                 { error: "too_big" },
               )
               .optional()
@@ -117,7 +119,7 @@ export abstract class ImportContentUtils {
             const defaultValueValidation = z
               .string()
               .min(1)
-              .refine(value => (maxLength.data ? value.length <= maxLength.data : true), {
+              .refine(value => (maxLength.data !== undefined ? value.length <= maxLength.data : true), {
                 error: "too_big",
               })
               .optional()

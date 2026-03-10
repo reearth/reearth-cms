@@ -2816,6 +2816,158 @@ describe("Content import test", () => {
             expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
           });
         });
+
+        describe("[Fail case] Control variables: multiple (false), required (true), maxLength is 0 (falsy-zero edge case)", () => {
+          const COMMON_SETUP = {
+            ...DEFAULT_COMMON_FIELD,
+            key: "field-key",
+            required: true,
+            multiple: false,
+            typeProperty: {},
+          };
+
+          const EXPECTED_RESULT = {
+            exceedLimit: false,
+            typeMismatchFieldKeysCount: 0,
+            outOfRangeFieldKeysCount: 1,
+            isValid: false,
+          };
+
+          test.each([
+            {
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.Text,
+                value: "a",
+                typeProperty: { ...COMMON_SETUP.typeProperty, maxLength: 0 },
+              },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.TextArea,
+                value: "a",
+                typeProperty: { ...COMMON_SETUP.typeProperty, maxLength: 0 },
+              },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.MarkdownText,
+                value: "a",
+                typeProperty: { ...COMMON_SETUP.typeProperty, maxLength: 0 },
+              },
+              expectedResult: EXPECTED_RESULT,
+            },
+          ])(
+            "$setup.type field value exceeds maxLength of 0",
+            async ({ setup, expectedResult }) => {
+              const fields = [setup];
+
+              const contentList = [
+                {
+                  [setup.key]: setup.value,
+                },
+              ];
+
+              const contentValidation = await ImportContentUtils.validateContent(
+                contentList,
+                fields,
+                "JSON",
+                Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+              );
+
+              expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+              if (contentValidation.isValid) return;
+
+              const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+                contentValidation.error;
+
+              expect(exceedLimit).toBe(expectedResult.exceedLimit);
+              expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+              expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+            },
+          );
+        });
+
+        describe("[Fail case] Control variables: multiple (true), required (true), maxLength is 0 (falsy-zero edge case)", () => {
+          const COMMON_SETUP = {
+            ...DEFAULT_COMMON_FIELD,
+            key: "field-key",
+            required: true,
+            multiple: true,
+            typeProperty: {},
+          };
+
+          const EXPECTED_RESULT = {
+            exceedLimit: false,
+            typeMismatchFieldKeysCount: 0,
+            outOfRangeFieldKeysCount: 1,
+            isValid: false,
+          };
+
+          test.each([
+            {
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.Text,
+                value: ["a"],
+                typeProperty: { ...COMMON_SETUP.typeProperty, maxLength: 0 },
+              },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.TextArea,
+                value: ["a"],
+                typeProperty: { ...COMMON_SETUP.typeProperty, maxLength: 0 },
+              },
+              expectedResult: EXPECTED_RESULT,
+            },
+            {
+              setup: {
+                ...COMMON_SETUP,
+                type: SchemaFieldType.MarkdownText,
+                value: ["a"],
+                typeProperty: { ...COMMON_SETUP.typeProperty, maxLength: 0 },
+              },
+              expectedResult: EXPECTED_RESULT,
+            },
+          ])(
+            "$setup.type field multiple values exceed maxLength of 0",
+            async ({ setup, expectedResult }) => {
+              const fields = [setup];
+
+              const contentList = [
+                {
+                  [setup.key]: setup.value,
+                },
+              ];
+
+              const contentValidation = await ImportContentUtils.validateContent(
+                contentList,
+                fields,
+                "JSON",
+                Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+              );
+
+              expect(contentValidation.isValid).toBe(expectedResult.isValid);
+
+              if (contentValidation.isValid) return;
+
+              const { exceedLimit, typeMismatchFieldKeys, outOfRangeFieldKeys } =
+                contentValidation.error;
+
+              expect(exceedLimit).toBe(expectedResult.exceedLimit);
+              expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
+              expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
+            },
+          );
+        });
       });
 
       describe("Select field", () => {
