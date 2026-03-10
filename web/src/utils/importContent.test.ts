@@ -939,8 +939,7 @@ describe("Content import test", () => {
         });
       });
 
-      // FIXME: fix common error with field key mismatch
-      describe.skip("[Fail case] Select field value type mismatch", () => {
+      describe("[Fail case] Select field value type mismatch", () => {
         const COMMON_SETUP = {
           key: "field-key",
           required: true,
@@ -953,8 +952,8 @@ describe("Content import test", () => {
 
         const EXPECTED_RESULT = {
           exceedLimit: false,
-          typeMismatchFieldKeysCount: 1,
-          outOfRangeFieldKeysCount: 0,
+          typeMismatchFieldKeysCount: 0,
+          outOfRangeFieldKeysCount: 1,
           isValid: false,
         };
 
