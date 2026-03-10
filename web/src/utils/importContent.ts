@@ -99,6 +99,7 @@ export abstract class ImportContentUtils {
 
             if (defaultValuesValidation.success && defaultValuesValidation.data)
               stringFieldAny = stringFieldAny.array().default(defaultValuesValidation.data);
+            else stringFieldAny = stringFieldAny.array();
           } else {
             const defaultValueValidation = z
               .string()
@@ -140,6 +141,7 @@ export abstract class ImportContentUtils {
 
             if (defaultValuesValidation.success && defaultValuesValidation.data)
               dateField = dateField.array().default(defaultValuesValidation.data);
+            else dateField = dateField.array();
           } else {
             const defaultValueValidation = z.coerce
               .date()
@@ -170,6 +172,7 @@ export abstract class ImportContentUtils {
 
             if (defaultValuesValidation.success && defaultValuesValidation.data)
               booleanField = booleanField.array().default(defaultValuesValidation.data);
+            else booleanField = booleanField.array();
           } else {
             const defaultValueValidation = z
               .boolean()
@@ -219,6 +222,7 @@ export abstract class ImportContentUtils {
 
             if (defaultValuesValidation.success && defaultValuesValidation.data)
               intFieldAny = intFieldAny.array().default(defaultValuesValidation.data);
+            else intFieldAny = intFieldAny.array();
           } else {
             const defaultValueValidation = z
               .int()
@@ -268,6 +272,7 @@ export abstract class ImportContentUtils {
 
             if (defaultValuesValidation.success && defaultValuesValidation.data)
               floatFieldAny = floatFieldAny.array().default(defaultValuesValidation.data);
+            else floatFieldAny = floatFieldAny.array();
           } else {
             const defaultValueValidation = z
               .number()
@@ -323,6 +328,40 @@ export abstract class ImportContentUtils {
           break;
         }
 
+        case "Asset": {
+          let assetField: z.ZodTypeAny = z.string().min(1);
+
+          const multiple = z.boolean().parse(field.multiple);
+
+          if (multiple) {
+            const defaultValuesValidation = z
+              .string()
+              .min(1)
+              .array()
+              .optional()
+              .safeParse(field.typeProperty?.assetDefaultValue);
+
+            if (defaultValuesValidation.success && defaultValuesValidation.data)
+              assetField = assetField.array().default(defaultValuesValidation.data);
+            else assetField = assetField.array();
+          } else {
+            const defaultValueValidation = z
+              .string()
+              .min(1)
+              .optional()
+              .safeParse(field.typeProperty?.assetDefaultValue);
+
+            if (defaultValueValidation.success && defaultValueValidation.data)
+              assetField = assetField.default(defaultValueValidation.data);
+          }
+
+          validateObj[field.key] = !field.required
+            ? assetField.nullable().optional()
+            : assetField;
+
+          break;
+        }
+
         case "URL": {
           let urlField: z.ZodTypeAny = z.url();
 
@@ -339,6 +378,7 @@ export abstract class ImportContentUtils {
 
             if (defaultValuesValidation.success && defaultValuesValidation.data)
               urlField = urlField.array().default(defaultValuesValidation.data);
+            else urlField = urlField.array();
           } else {
             const defaultValueValidation = z
               .url()
@@ -537,13 +577,8 @@ export abstract class ImportContentUtils {
         if (curr.path[1] && curr.code === "invalid_type")
           return { ...acc, typeMismatchFieldKeys: acc.typeMismatchFieldKeys.add(curr.path[1]) };
 
-        // invalid value type (date)
+        // invalid value type (url)
         if (curr.path[1] && curr.code === "invalid_format" && curr.format === "url")
-          return { ...acc, typeMismatchFieldKeys: acc.typeMismatchFieldKeys.add(curr.path[1]) };
-
-        // TODO: need to improve
-        // invalid default value
-        if (curr.path.length === 0 && curr.code === "invalid_type")
           return { ...acc, typeMismatchFieldKeys: acc.typeMismatchFieldKeys.add(curr.path[1]) };
 
         // invalid option (for select) or missing key
@@ -578,7 +613,9 @@ export abstract class ImportContentUtils {
             curr.message === CustomError.SUPPORTED_TYPES_INVALID ||
             curr.message === CustomError.EDITOR_SUPPORTED_TYPES_INVALID
           ) {
-            return { ...acc, typeMismatchFieldKeys: acc.typeMismatchFieldKeys.add(curr.path[1]) };
+            if (typeof curr.path[1] === "string")
+              acc.typeMismatchFieldKeys.add(curr.path[1]);
+            return { ...acc, typeMismatchFieldKeys: acc.typeMismatchFieldKeys };
           }
 
           if (

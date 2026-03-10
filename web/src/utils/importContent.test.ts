@@ -86,11 +86,6 @@ describe("Content import test", () => {
           typeProperty: {},
         },
         {
-          type: SchemaFieldType.Asset,
-          key: "asset-field-key",
-          typeProperty: {},
-        },
-        {
           type: SchemaFieldType.Date,
           key: "date-field-key",
           typeProperty: {},
@@ -238,6 +233,10 @@ describe("Content import test", () => {
               type: SchemaFieldType.URL,
               correctValue: "https://correct.com/",
             },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Asset, correctValue: "asset-id-123" },
             expectedResult: EXPECTED_RESULT,
           },
         ])("$setup.type field key match", async ({ setup, expectedResult }) => {
@@ -458,6 +457,10 @@ describe("Content import test", () => {
           },
           {
             setup: { ...COMMON_SETUP, type: SchemaFieldType.URL },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Asset },
             expectedResult: EXPECTED_RESULT,
           },
         ])("$setup.type field key mismatch", async ({ setup, expectedResult }) => {
@@ -682,6 +685,10 @@ describe("Content import test", () => {
             },
             expectedResult: EXPECTED_RESULT,
           },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Asset, correctValue: "asset-id-123" },
+            expectedResult: EXPECTED_RESULT,
+          },
         ])("$setup.type field value type match", async ({ setup, expectedResult }) => {
           const fields = [
             {
@@ -900,6 +907,10 @@ describe("Content import test", () => {
           },
           {
             setup: { ...COMMON_SETUP, type: SchemaFieldType.URL, wrongValue: 123 },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Asset, wrongValue: 123 },
             expectedResult: EXPECTED_RESULT,
           },
         ])("$setup.type field value type mismatch", async ({ setup, expectedResult }) => {
@@ -1169,6 +1180,10 @@ describe("Content import test", () => {
             expectedResult: EXPECTED_RESULT,
           },
           {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Asset },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
             setup: {
               ...COMMON_SETUP,
               type: SchemaFieldType.Select,
@@ -1249,6 +1264,10 @@ describe("Content import test", () => {
           },
           {
             setup: { ...COMMON_SETUP, type: SchemaFieldType.URL },
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: { ...COMMON_SETUP, type: SchemaFieldType.Asset },
             expectedResult: EXPECTED_RESULT,
           },
         ])(
@@ -1464,6 +1483,14 @@ describe("Content import test", () => {
             },
             expectedResult: EXPECTED_RESULT,
           },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Asset,
+              defaultValue: "default-asset-id",
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
         ])("$setup.type field default value type match", async ({ setup, expectedResult }) => {
           const fields = [
             {
@@ -1472,9 +1499,10 @@ describe("Content import test", () => {
               key: setup.key,
               required: setup.required,
               multiple: setup.multiple,
-              typeProperty: {
-                defaultValue: setup.defaultValue,
-              },
+              typeProperty:
+                setup.type === SchemaFieldType.Asset
+                  ? { assetDefaultValue: setup.defaultValue }
+                  : { defaultValue: setup.defaultValue },
             },
           ];
 
@@ -1715,6 +1743,14 @@ describe("Content import test", () => {
             },
             expectedResult: EXPECTED_RESULT,
           },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Asset,
+              typeProperty: { ...COMMON_SETUP.typeProperty, assetDefaultValue: 123 as unknown as string },
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
         ])("$setup.type field default value type mismatch", async ({ setup, expectedResult }) => {
           const fields = [
             {
@@ -1727,9 +1763,10 @@ describe("Content import test", () => {
             },
           ];
 
+          const tp = setup.typeProperty as Record<string, unknown>;
           const contentList = [
             {
-              [setup.key]: setup.typeProperty.defaultValue,
+              [setup.key]: tp.defaultValue ?? tp.assetDefaultValue,
             },
           ];
 
@@ -1836,12 +1873,24 @@ describe("Content import test", () => {
             },
             expectedResult: EXPECTED_RESULT,
           },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Asset,
+              typeProperty: {
+                ...COMMON_SETUP.typeProperty,
+                assetDefaultValue: ["id1", "id2"],
+              },
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
         ])("$setup.type field default value type match", async ({ setup, expectedResult }) => {
           const fields = [setup];
 
+          const tp = setup.typeProperty as Record<string, unknown>;
           const contentList = [
             {
-              [setup.key]: setup.typeProperty.defaultValue,
+              [setup.key]: tp.defaultValue ?? tp.assetDefaultValue,
             },
           ];
 
@@ -1938,12 +1987,24 @@ describe("Content import test", () => {
             },
             expectedResult: EXPECTED_RESULT,
           },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Asset,
+              typeProperty: {
+                ...COMMON_SETUP.typeProperty,
+                assetDefaultValue: ["id1", "id2"],
+              },
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
         ])("$setup.type field default value type match", async ({ setup, expectedResult }) => {
           const fields = [setup];
 
+          const tp = setup.typeProperty as Record<string, unknown>;
           const contentList = [
             {
-              [setup.key]: setup.typeProperty.defaultValue,
+              [setup.key]: tp.defaultValue ?? tp.assetDefaultValue,
             },
           ];
 
@@ -2176,12 +2237,21 @@ describe("Content import test", () => {
           //   setup: { ...COMMON_SETUP, type: SchemaFieldType.GeometryEditor },
           //   expectedResult: EXPECTED_RESULT,
           // },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Asset,
+              typeProperty: { ...COMMON_SETUP.typeProperty, assetDefaultValue: 123 as unknown as string },
+            },
+            expectedResult: EXPECTED_RESULT,
+          },
         ])("$setup.type field default value type mismatch", async ({ setup, expectedResult }) => {
           const fields = [setup];
 
+          const tp = setup.typeProperty as Record<string, unknown>;
           const contentList = [
             {
-              [setup.key]: setup.typeProperty.defaultValue,
+              [setup.key]: tp.defaultValue ?? tp.assetDefaultValue,
             },
           ];
 
@@ -2378,6 +2448,113 @@ describe("Content import test", () => {
           expect(typeMismatchFieldKeys.size).toEqual(expectedResult.typeMismatchFieldKeysCount);
           expect(outOfRangeFieldKeys.size).toEqual(expectedResult.outOfRangeFieldKeysCount);
         });
+      });
+
+      describe("[Pass case] Field with default value type mismatch but valid array values", () => {
+        const COMMON_SETUP = {
+          ...DEFAULT_COMMON_FIELD,
+          key: "field-key",
+          required: true,
+          multiple: true,
+          typeProperty: {},
+        };
+
+        const EXPECTED_RESULT = true;
+
+        test.each([
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Text,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: 123 },
+              value: ["hello", "world"],
+            },
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.TextArea,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: 123 },
+              value: ["hello", "world"],
+            },
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.MarkdownText,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: 123 },
+              value: ["hello", "world"],
+            },
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Date,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: "hello" },
+              value: ["2024-01-01", "2024-06-15"],
+            },
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Bool,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: "true" },
+              value: [true, false],
+            },
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Integer,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: "1" },
+              value: [1, 2],
+            },
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Number,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: "1.5" },
+              value: [1.5, 2.5],
+            },
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.URL,
+              typeProperty: { ...COMMON_SETUP.typeProperty, defaultValue: "hello" },
+              value: ["https://example.com", "https://test.com"],
+            },
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Asset,
+              typeProperty: { ...COMMON_SETUP.typeProperty, assetDefaultValue: 123 as unknown as string },
+              value: ["id1", "id2"],
+            },
+          },
+        ])(
+          "$setup.type field accepts array values when default value type is mismatched",
+          async ({ setup }) => {
+            const fields = [setup];
+
+            const contentList = [
+              {
+                [setup.key]: setup.value,
+              },
+            ];
+
+            const contentValidation = await ImportContentUtils.validateContent(
+              contentList,
+              fields,
+              "JSON",
+              Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+            );
+
+            expect(contentValidation.isValid).toBe(EXPECTED_RESULT);
+          },
+        );
       });
     });
 
@@ -3023,6 +3200,16 @@ describe("Content import test", () => {
             testSetup: TEST_SETUP,
             expectedResult: EXPECTED_RESULT,
           },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Asset,
+              value: "id1",
+              typeProperty: { ...COMMON_SETUP.typeProperty, assetDefaultValue: "default-id" },
+            },
+            testSetup: TEST_SETUP,
+            expectedResult: EXPECTED_RESULT,
+          },
           // {
           //   setup: {
           //     ...COMMON_SETUP,
@@ -3171,6 +3358,15 @@ describe("Content import test", () => {
               ...COMMON_SETUP,
               type: SchemaFieldType.URL,
               value: "https://hello.com/",
+            },
+            testSetup: TEST_SETUP,
+            expectedResult: EXPECTED_RESULT,
+          },
+          {
+            setup: {
+              ...COMMON_SETUP,
+              type: SchemaFieldType.Asset,
+              value: "id1",
             },
             testSetup: TEST_SETUP,
             expectedResult: EXPECTED_RESULT,
