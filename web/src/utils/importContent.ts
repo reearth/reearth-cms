@@ -393,6 +393,7 @@ export abstract class ImportContentUtils {
 
               if (defaultValuesValidation.success && defaultValuesValidation.data)
                 geoObjectField = geoObjectField.array().default(defaultValuesValidation.data);
+              else geoObjectField = geoObjectField.array();
 
               //  geoObjectField.superRefine((value, context) => {
 
@@ -473,6 +474,7 @@ export abstract class ImportContentUtils {
 
               if (defaultValuesValidation.success && defaultValuesValidation.data)
                 geoEditorField = geoEditorField.array().default(defaultValuesValidation.data);
+              else geoEditorField = geoEditorField.array();
             } else {
               const defaultValueValidation = GeoJSON2DSchema.optional().safeParse(
                 field.typeProperty?.defaultValue,

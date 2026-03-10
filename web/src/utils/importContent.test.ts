@@ -2005,7 +2005,7 @@ describe("Content import test", () => {
           multiple: true,
           typeProperty: {
             objectSupportedTypes: ["POINT"] as ObjectSupportedType[],
-            defaultValue: Test.GEO_JSON_POINT,
+            defaultValue: [Test.GEO_JSON_POINT],
           },
         };
 
@@ -2044,7 +2044,7 @@ describe("Content import test", () => {
           multiple: true,
           typeProperty: {
             editorSupportedTypes: ["POINT"] as EditorSupportedType[],
-            defaultValue: Test.GEO_JSON_POINT,
+            defaultValue: [Test.GEO_JSON_POINT],
           },
         };
 
@@ -2266,8 +2266,7 @@ describe("Content import test", () => {
         });
       });
 
-      // FIXME: fix type error for type mismatch
-      describe.skip("[Fail case] GeoObject field with default values type mismatch", () => {
+      describe("[Fail case] GeoObject field with default values type mismatch", () => {
         const COMMON_SETUP = {
           key: "field-key",
           required: true,
