@@ -53,7 +53,7 @@ export abstract class ImportContentUtils {
       } else {
         resolve({
           isValid: false,
-          error: this.getErrorMeta(validation),
+          error: this.getErrorMeta(validation, importContentList),
         });
       }
 
@@ -522,6 +522,7 @@ export abstract class ImportContentUtils {
 
   private static getErrorMeta(
     schemaValidation: z.ZodSafeParseError<Record<string, unknown>[]>,
+    contentList: Record<string, unknown>[],
   ): ValidationErrorMeta {
     return schemaValidation.error.issues.reduce<ValidationErrorMeta>(
       (acc, curr, _index, _arr) => {
@@ -542,10 +543,23 @@ export abstract class ImportContentUtils {
         if (curr.path.length === 0 && curr.code === "invalid_type")
           return { ...acc, typeMismatchFieldKeys: acc.typeMismatchFieldKeys.add(curr.path[1]) };
 
+        // invalid option (for select) or missing key
+        if (curr.path[1] && curr.code === "invalid_union") {
+          const rowIndex = curr.path[0];
+          const fieldKey = curr.path[1];
+          if (
+            typeof rowIndex === "number" &&
+            typeof fieldKey === "string" &&
+            contentList[rowIndex] &&
+            !(fieldKey in contentList[rowIndex])
+          ) {
+            return { ...acc, typeMismatchFieldKeys: acc.typeMismatchFieldKeys.add(fieldKey) };
+          }
+          if (typeof fieldKey === "string") acc.outOfRangeFieldKeys.add(fieldKey);
+          return { ...acc, outOfRangeFieldKeys: acc.outOfRangeFieldKeys };
+        }
+
         if (
-          (curr.path[1] &&
-            // invalid option (for select)
-            curr.code === "invalid_union") ||
           // number out of range (too big or too small)
           ((curr.code === "too_big" || curr.code === "too_small") && curr.origin === "number") ||
           // string out of range (too big)

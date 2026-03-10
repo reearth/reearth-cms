@@ -497,8 +497,7 @@ describe("Content import test", () => {
         });
       });
 
-      // FIXME: handle common error with select out of range
-      describe.skip("[Fail case] Select field key mismatch", () => {
+      describe("[Fail case] Select field key mismatch", () => {
         const COMMON_SETUP = {
           key: "correct-key",
           wrongKey: "wrong-key",
