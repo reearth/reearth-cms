@@ -159,10 +159,10 @@ describe("ModelFieldList", () => {
     expect(onSchemaImport).toHaveBeenCalled();
   });
 
-  test("hides import link in empty state when hasCreateRight is false", () => {
+  test("disables import button in empty state when hasCreateRight is false", () => {
     render(<ModelFieldList {...defaultProps} fields={[]} hasCreateRight={false} />);
     expect(screen.getByText("Empty Schema design.", { exact: false })).toBeVisible();
-    expect(screen.queryByText("import")).not.toBeInTheDocument();
+    expect(screen.getByTestId(DATA_TEST_ID.ModelFieldList__ImportSchemaButton)).toBeDisabled();
   });
 
   test("renders empty state when fields is undefined", () => {
