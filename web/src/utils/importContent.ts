@@ -453,10 +453,6 @@ export abstract class ImportContentUtils {
               if (defaultValuesValidation.success && defaultValuesValidation.data)
                 geoObjectField = geoObjectField.array().default(defaultValuesValidation.data);
               else geoObjectField = geoObjectField.array();
-
-              //  geoObjectField.superRefine((value, context) => {
-
-              // })
             } else {
               const defaultValueValidation = GeoJSON2DSchema.optional().safeParse(
                 field.typeProperty?.defaultValue,
@@ -466,14 +462,7 @@ export abstract class ImportContentUtils {
                 geoObjectField = geoObjectField.default(defaultValueValidation.data);
 
               geoObjectField = geoObjectField.superRefine((value, context) => {
-                // TODO: refactor this later
-                const valueType =
-                  typeof value === "object" &&
-                  value !== null &&
-                  "type" in value &&
-                  typeof value.type === "string"
-                    ? value.type.toUpperCase()
-                    : null;
+                const valueType = this.extractGeoTypeName(value);
 
                 if (
                   supportedTypes.success &&
@@ -547,14 +536,7 @@ export abstract class ImportContentUtils {
                 geoEditorField = geoEditorField.default(defaultValueValidation.data);
 
               geoEditorField = geoEditorField.superRefine((value, context) => {
-                // TODO: refactor this later
-                const valueType =
-                  typeof value === "object" &&
-                  value !== null &&
-                  "type" in value &&
-                  typeof value.type === "string"
-                    ? value.type.toUpperCase()
-                    : null;
+                const valueType = this.extractGeoTypeName(value);
 
                 if (
                   editorSupportedTypes.success &&
@@ -687,6 +669,18 @@ export abstract class ImportContentUtils {
           : undefined,
       shouldDisable: !hasModelFields || !hasContentCreateRight,
     };
+  }
+
+  private static extractGeoTypeName(value: unknown): string | null {
+    if (
+      typeof value === "object" &&
+      value !== null &&
+      "type" in value &&
+      typeof value.type === "string"
+    ) {
+      return value.type.toUpperCase();
+    }
+    return null;
   }
 
   private static typeOnlyClassifier(): FieldClassifier {
