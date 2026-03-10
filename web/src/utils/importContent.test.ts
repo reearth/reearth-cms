@@ -2205,8 +2205,7 @@ describe("Content import test", () => {
         });
       });
 
-      // FIXME: fix type error for type mismatch
-      describe.skip("[Fail case] Select field with default values type mismatch", () => {
+      describe("[Fail case] Select field with default values type mismatch", () => {
         const COMMON_SETUP = {
           key: "field-key",
           required: true,

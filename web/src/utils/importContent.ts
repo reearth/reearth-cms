@@ -304,6 +304,7 @@ export abstract class ImportContentUtils {
 
               if (defaultValuesValidation.success && defaultValuesValidation.data)
                 optionField = optionField.array().default(defaultValuesValidation.data);
+              else optionField = optionField.array();
             } else {
               const defaultValueValidation = z
                 .union(field.typeProperty.values.map(value => z.literal(value)))
