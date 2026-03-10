@@ -1,3 +1,4 @@
+import { blue } from "@ant-design/colors";
 import styled from "@emotion/styled";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactDragListView from "react-drag-listview";
@@ -16,6 +17,7 @@ import { Field } from "./types";
 
 type Props = {
   isMeta?: boolean;
+  isGroup?: boolean;
   fields?: Field[];
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
@@ -29,6 +31,7 @@ type Props = {
 const ModelFieldList: React.FC<Props> = ({
   fields,
   isMeta,
+  isGroup,
   hasUpdateRight,
   hasDeleteRight,
   hasCreateRight,
@@ -105,13 +108,19 @@ const ModelFieldList: React.FC<Props> = ({
         <EmptyText>
           {t("Empty Schema design.")}
           <br />
-          {!getImportSchemaUIMetadata.shouldDisable && (
+          {!isGroup ? (
             <Trans
               i18nKey="importSchema"
               components={{
                 l: (
                   <ImportButton
+                    title={
+                      typeof getImportSchemaUIMetadata.tooltipMessage === "string"
+                        ? getImportSchemaUIMetadata.tooltipMessage
+                        : ""
+                    }
                     type="link"
+                    disabled={getImportSchemaUIMetadata.shouldDisable}
                     onClick={onSchemaImport}
                     data-testid={DATA_TEST_ID.ModelFieldList__ImportSchemaButton}>
                     import
@@ -119,6 +128,8 @@ const ModelFieldList: React.FC<Props> = ({
                 ),
               }}
             />
+          ) : (
+            t("Please add some field from right panel")
           )}
         </EmptyText>
       ) : (
@@ -212,6 +223,12 @@ const DragIcon = styled(Icon)`
 
 const ImportButton = styled(Button)`
   padding: 0;
+  /* color: ${blue[5]}; */
+  /* text-decoration: underline; */
+
+  /* :hover { */
+  /* color: ${blue[3]}; */
+  /* } */
 `;
 
 const StyledIcon = styled(Icon)`
@@ -302,6 +319,7 @@ const EmptyText = styled.p`
   margin: 25vh auto 0;
   color: #898989;
   text-align: center;
+  line-height: 24px;
 `;
 
 const StyledFieldName = styled.span`

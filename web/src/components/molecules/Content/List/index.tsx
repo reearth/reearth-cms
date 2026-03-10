@@ -10,6 +10,7 @@ import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
+import ExperimentIcon from "@reearth-cms/components/molecules/ExperimentIcon";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
@@ -165,6 +166,7 @@ const ContentListMolecule: React.FC<Props> = ({
                         icon={<Icon icon="import" />}
                         disabled={getImportContentUIMetadata.shouldDisable}>
                         {t("Import content")}
+                        <ExperimentIcon disabled={getImportContentUIMetadata.shouldDisable} />
                       </Button>
                     </Tooltip>
                     <Button

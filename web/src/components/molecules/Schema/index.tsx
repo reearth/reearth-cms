@@ -13,6 +13,7 @@ import { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
+import ExperimentIcon from "@reearth-cms/components/molecules/ExperimentIcon";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import FieldList from "@reearth-cms/components/molecules/Schema/FieldList";
 import ModelFieldList from "@reearth-cms/components/molecules/Schema/ModelFieldList";
@@ -158,8 +159,14 @@ const Schema: React.FC<Props> = ({
     [data],
   );
   const getImportSchemaUIMetadata = useMemo(
-    () => ImportSchemaUtils.getUIMetadata({ hasSchemaCreateRight: hasCreateRight, hasModelFields }),
-    [hasModelFields, hasCreateRight],
+    () =>
+      ImportSchemaUtils.getUIMetadata({
+        hasSchemaCreateRight: hasCreateRight,
+        hasModelFields,
+        isFieldTab: tab === "fields",
+        isModel: selectedSchemaType === "model",
+      }),
+    [hasCreateRight, hasModelFields, tab, selectedSchemaType],
   );
 
   const dropdownItems = useMemo(
@@ -177,7 +184,10 @@ const Schema: React.FC<Props> = ({
           <Tooltip
             title={getImportSchemaUIMetadata.tooltipMessage}
             data-testid={DATA_TEST_ID.Schema__ImportSchemaButton}>
-            {t("Import")}
+            <StyledImportMenuItem>
+              <div>{t("Import")}</div>
+              <ExperimentIcon disabled={getImportSchemaUIMetadata.shouldDisable} />
+            </StyledImportMenuItem>
           </Tooltip>
         ),
         icon: <StyledIcon icon="import" />,
@@ -312,6 +322,7 @@ const Schema: React.FC<Props> = ({
               {selectedSchemaType === "group" && (
                 <GroupFieldsWrapper>
                   <ModelFieldList
+                    isGroup={true}
                     fields={data?.schema?.fields}
                     hasUpdateRight={hasUpdateRight}
                     hasDeleteRight={hasDeleteRight}
@@ -418,4 +429,9 @@ const GroupFieldsWrapper = styled.div`
 
 const StyledIcon = styled(Icon)`
   margin-right: 12px;
+`;
+
+const StyledImportMenuItem = styled.div`
+  display: flex;
+  gap: 8px;
 `;
