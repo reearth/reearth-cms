@@ -116,8 +116,14 @@ func initIntegrationApi(appCtx *ApplicationContext, integrationAPIGroup *echo.Gr
 	if len(integrationOrigins) > 0 {
 		integrationAPIGroup.Use(middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: integrationOrigins}))
 	}
-	integrationAPIGroup.Use(authMiddleware(appCtx), AuthRequiredMiddleware(), usecaseMiddleware, private)
-	integration.RegisterHandlers(integrationAPIGroup, integration.NewStrictHandler(integration.NewServer(), nil))
+
+	// OpenAPI spec endpoint - no auth required
+	integrationAPIGroup.GET("/openapi.json", integration.OpenAPISpecHandler())
+
+	// Protected routes
+	protected := integrationAPIGroup.Group("")
+	protected.Use(authMiddleware(appCtx), AuthRequiredMiddleware(), usecaseMiddleware, private)
+	integration.RegisterHandlers(protected, integration.NewStrictHandler(integration.NewServer(), nil))
 }
 
 func initAssetsApi(appCtx *ApplicationContext, fileServeGroup *echo.Group) {
