@@ -187,6 +187,7 @@ test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPag
 
   await test.step("Verify all three date values in list view tooltip", async () => {
     await contentPage.backButtonLabel.click();
+    await expect(fieldEditorPage.x3Button).toBeVisible();
     await fieldEditorPage.x3Button.click();
     await expect(fieldEditorPage.tooltipTextbox(0)).toHaveValue("2024-01-01");
     await expect(fieldEditorPage.tooltipTextbox(1)).toHaveValue("2024-01-03");

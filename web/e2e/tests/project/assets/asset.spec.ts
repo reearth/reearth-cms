@@ -115,6 +115,7 @@ test.describe("Json file tests", () => {
   });
 
   test("Comment CRUD on Asset page has succeeded", async ({ assetsPage, contentPage }) => {
+    await expect(assetsPage.commentsCountButton(0)).toBeVisible();
     await assetsPage.commentsCountButton(0).click();
     await contentPage.createComment("comment");
     await contentPage.updateComment("comment", "new comment");

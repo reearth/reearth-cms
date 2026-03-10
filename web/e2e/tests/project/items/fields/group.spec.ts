@@ -333,6 +333,7 @@ test("Group field editing has succeeded", async ({
     await contentPage.closeNotification();
     await contentPage.backButton.click();
     await contentPage.editButton.first().click();
+    await expect(contentPage.fieldInput("text1")).toBeVisible();
     await expect(contentPage.fieldInput("text1")).toHaveValue("text1");
     await page.waitForTimeout(300);
   });
@@ -359,6 +360,7 @@ test("Group field editing has succeeded", async ({
     await schemaPage.modelByText("e2e model name").click();
     await contentPage.newItemButton.click();
     await fieldEditorPage.plusNewButton.click();
+    await expect(contentPage.textBoxByIndex(0)).toBeVisible();
     await expect(contentPage.textBoxByIndex(0)).toHaveValue("text1");
     await expect(contentPage.textBoxByIndex(1)).toHaveValue("text2");
     await fieldEditorPage.plusNewButton.nth(1).click();

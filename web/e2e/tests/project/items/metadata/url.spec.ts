@@ -150,6 +150,7 @@ test("Url metadata editing has succeeded", async ({ page, fieldEditorPage, conte
   await fieldEditorPage.plusNewButton.click();
   await fieldEditorPage.lastTextbox.fill("http://default3.com");
   await contentPage.closeNotification();
+  await expect(contentPage.textBoxByIndex(2)).toBeVisible();
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://default1.com");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://new-default2.com");
   await expect(contentPage.textBoxByIndex(2)).toHaveValue("http://default3.com");
