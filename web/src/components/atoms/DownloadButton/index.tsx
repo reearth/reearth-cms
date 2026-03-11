@@ -44,7 +44,7 @@ const IconWrapper = styled.div`
   transition: all 0.3s;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   :hover {
-    color: #000000e0;
+    color: ${AntdColor.NEUTRAL.TEXT_V5};
   }
 `;
 

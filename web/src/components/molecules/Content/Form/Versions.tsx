@@ -10,7 +10,7 @@ import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
-import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 type Props = {
   versions: VersionedItem[];
@@ -94,7 +94,7 @@ const User = styled.p`
   text-overflow: ellipsis;
   white-space: nowrap;
   margin: 0;
-  color: #9a9a9a;
+  color: ${CustomColor.TEXT_MUTED};
 `;
 
 const Requests = styled.div`

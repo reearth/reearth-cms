@@ -41,7 +41,7 @@ const StyledTokenInput = styled(Password)`
   &.ant-input-affix-wrapper-disabled {
     background-color: transparent !important;
     cursor: text;
-    color: #000000e0;
+    color: ${AntdColor.NEUTRAL.TEXT_V5};
 
     input[disabled] {
       cursor: text;
@@ -55,7 +55,7 @@ const StyledTokenInput = styled(Password)`
     transition: all 0.3s;
 
     &:hover {
-      color: #000000e0;
+      color: ${AntdColor.NEUTRAL.TEXT_V5};
     }
   }
 

@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 
 import Sider, { SiderProps } from "@reearth-cms/components/atoms/Sider";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, CustomColor } from "@reearth-cms/utils/style";
 
 const Sidebar: React.FC<SiderProps> = ({ collapsible = true, ...siderProps }) => {
   return <StyledSidebar collapsible={collapsible} {...siderProps} />;
@@ -18,7 +18,7 @@ const StyledSidebar = styled(Sider)`
     background-color: ${AntdColor.NEUTRAL.BG_WHITE};
     border-top: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
     border-right: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
-    color: #002140;
+    color: ${CustomColor.SIDEBAR_TEXT};
     text-align: left;
     padding: 0 20px;
     margin: 0;

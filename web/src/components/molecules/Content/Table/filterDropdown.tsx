@@ -11,7 +11,7 @@ import {
   DropdownFilterType,
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ConditionInput, CurrentView } from "@reearth-cms/components/molecules/View/types";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, CustomColor } from "@reearth-cms/utils/style";
 
 import DropdownRender from "./DropdownRender";
 
@@ -93,7 +93,7 @@ export default FilterDropdown;
 
 const StyledButton = styled(Button)`
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
-  background-color: #f8f8f8;
+  background-color: ${CustomColor.BG_SUBTLE};
 `;
 
 const Title = styled.div`

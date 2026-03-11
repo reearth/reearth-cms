@@ -8,7 +8,7 @@ import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 type Props = {
   selectedKey?: string;
@@ -162,7 +162,7 @@ const StyledIcon = styled(Icon)`
 `;
 
 const StyledMenu = styled(Menu)<{ collapsed?: boolean }>`
-  color: ${({ collapsed }) => (collapsed ? "#C4C4C4" : undefined)};
+  color: ${({ collapsed }) => (collapsed ? CustomColor.TEXT_DISABLED : undefined)};
 
   .ant-menu-item {
     display: flex;

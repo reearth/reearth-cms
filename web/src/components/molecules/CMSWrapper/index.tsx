@@ -5,7 +5,7 @@ import { useRef } from "react";
 import Content from "@reearth-cms/components/atoms/Content";
 import Layout from "@reearth-cms/components/atoms/Layout";
 import Sider from "@reearth-cms/components/atoms/Sider";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, CustomColor } from "@reearth-cms/utils/style";
 
 import ReloadModal from "../ReloadModal";
 import Uploader from "../Uploader";
@@ -83,7 +83,7 @@ const CMSSidebar = styled(Sider)`
   .ant-layout-sider-trigger {
     background-color: ${AntdColor.NEUTRAL.BG_WHITE};
     border-top: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
-    color: #002140;
+    color: ${CustomColor.SIDEBAR_TEXT};
     text-align: left;
     padding: 0 20px;
     margin: 0;

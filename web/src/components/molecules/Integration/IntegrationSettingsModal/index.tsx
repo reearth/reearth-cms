@@ -9,7 +9,7 @@ import Select from "@reearth-cms/components/atoms/Select";
 import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
 import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 type FormValues = {
   role: Role;
@@ -88,7 +88,7 @@ const IntegrationSettingsModal: React.FC<Props> = ({
       <Wrapper>
         <Conetnt>
           <LogoWrapper>
-            <Icon icon="api" size={32} color="#b8b8b8" />
+            <Icon icon="api" size={32} color={CustomColor.ICON_MUTED} />
           </LogoWrapper>
           <Info>
             <Name>{selectedIntegration?.name}</Name>
@@ -153,7 +153,7 @@ const Name = styled.h3`
 const Description = styled.p`
   margin: 0;
   font-size: ${AntdToken.FONT.SIZE_SM}px;
-  color: #9a9a9a;
+  color: ${CustomColor.TEXT_MUTED};
 `;
 
 const StyledForm = styled(Form<FormValues>)`

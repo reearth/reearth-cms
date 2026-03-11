@@ -9,7 +9,7 @@ import Tabs from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { getLicenseContent, license_options } from "@reearth-cms/data/license";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 type Props = {
   needsTemplate?: boolean;
@@ -90,7 +90,7 @@ const StyledTabs = styled(Tabs)`
 
 const StyledContainer = styled.div`
   padding: 1rem;
-  border: 1px solid #ddd;
+  border: 1px solid ${CustomColor.BORDER_LIGHT};
   border-radius: ${AntdToken.RADIUS.SM}px;
   height: 700px;
   overflow-y: auto;

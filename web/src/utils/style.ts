@@ -201,6 +201,8 @@ export abstract class AntdColor {
     BORDER: "#d9d9d9",
     /** theme.useToken(): colorBorderSecondary / colorSplit */
     BORDER_SECONDARY: "#f0f0f0",
+    /** theme.useToken(): colorSplit — rgba(5,5,5,0.06) */
+    BORDER_SPLIT: "rgba(5, 5, 5, 0.06)",
 
     // --- Text (black + alpha) ---
     /** theme.useToken(): colorText — antd v4=rgba(0,0,0,0.85), v5=rgba(0,0,0,0.88) */
@@ -209,6 +211,8 @@ export abstract class AntdColor {
     TEXT_TERTIARY: "#00000073",
     /** theme.useToken(): colorTextQuaternary — rgba(0,0,0,0.25) */
     TEXT_QUATERNARY: "#00000040",
+    /** theme.useToken(): colorText (antd v5) — rgba(0,0,0,0.88) */
+    TEXT_V5: "#000000e0",
 
     // --- Fills / Shadows ---
     /** theme.useToken(): colorFill — rgba(0,0,0,0.15) */
@@ -229,6 +233,30 @@ export abstract class CustomColor {
   public static readonly FOCUS_RING_BLUE = "rgba(5, 145, 255, 0.1)";
   /** Subtle border — rgba(0,0,0,~0.03) */
   public static readonly BORDER_SUBTLE = "rgba(0, 0, 0, 0.03)";
+
+  // --- Dark Header Theme ---
+  /** Header background */
+  public static readonly HEADER_BG = "#1d1d1d";
+  /** Header text / icon color on dark bg */
+  public static readonly HEADER_TEXT = "#dbdbdb";
+  /** Header logo accent color */
+  public static readonly LOGO_COLOR = "#df3013";
+  /** Header dropdown divider on dark bg */
+  public static readonly HEADER_DIVIDER = "#303030";
+  /** Sidebar trigger text color */
+  public static readonly SIDEBAR_TEXT = "#002140";
+
+  // --- Misc UI ---
+  /** Light border (#dddddd) for markdown/license containers */
+  public static readonly BORDER_LIGHT = "#ddd";
+  /** Subtle background tint */
+  public static readonly BG_SUBTLE = "#f8f8f8";
+  /** Muted secondary text */
+  public static readonly TEXT_MUTED = "#9a9a9a";
+  /** Disabled / collapsed menu text */
+  public static readonly TEXT_DISABLED = "#c4c4c4";
+  /** Muted icon color */
+  public static readonly ICON_MUTED = "#b8b8b8";
 }
 
 export abstract class AntdToken {

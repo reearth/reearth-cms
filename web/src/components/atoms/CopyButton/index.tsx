@@ -26,10 +26,10 @@ const StyledCopyButton = styled(CopyButton)<{ color?: string; hoverColor?: strin
       color: ${({ color }) => color || AntdColor.NEUTRAL.TEXT_TERTIARY};
     }
     :active {
-      color: ${({ hoverColor }) => hoverColor || "#000000e0"};
+      color: ${({ hoverColor }) => hoverColor || AntdColor.NEUTRAL.TEXT_V5};
     }
     :hover {
-      color: ${({ hoverColor }) => hoverColor || "#000000e0"};
+      color: ${({ hoverColor }) => hoverColor || AntdColor.NEUTRAL.TEXT_V5};
     }
   }
   svg {

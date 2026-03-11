@@ -223,7 +223,7 @@ const SecondaryText = styled.p`
 `;
 
 const Text = styled.p`
-  color: rgb(0, 0, 0, 0.85);
+  color: ${AntdColor.NEUTRAL.TEXT};
   font-weight: 500;
 `;
 

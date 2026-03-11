@@ -11,7 +11,7 @@ import { Project, Workspace } from "@reearth-cms/components/molecules/Workspace/
 import { ProjectVisibility } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
-import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 import HeaderDropdown from "./Dropdown";
 
@@ -193,16 +193,16 @@ const MainHeader = styled(Header)`
   height: 48px;
   line-height: 41px;
   padding: 0;
-  background-color: #1d1d1d;
+  background-color: ${CustomColor.HEADER_BG};
 
   .ant-space-item {
-    color: #dbdbdb;
+    color: ${CustomColor.HEADER_TEXT};
   }
 `;
 
 const Logo = styled.img`
   display: inline-block;
-  color: #df3013;
+  color: ${CustomColor.LOGO_COLOR};
   font-weight: 500;
   font-size: ${AntdToken.FONT.SIZE}px;
   line-height: 48px;
@@ -218,7 +218,7 @@ const LogoIcon = styled.img`
 
 const StyledIcon = styled(Icon)`
   margin-left: 4px;
-  color: #dbdbdb;
+  color: ${CustomColor.HEADER_TEXT};
 `;
 
 const WorkspaceDropdown = styled(HeaderDropdown)`
@@ -247,7 +247,7 @@ const CurrentProject = styled.div`
   margin: 0;
   display: flex;
   align-items: center;
-  color: #dbdbdb;
+  color: ${CustomColor.HEADER_TEXT};
   flex: 1;
   min-width: 0;
 `;

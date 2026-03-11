@@ -135,7 +135,7 @@ const FieldList: React.FC<Props> = ({
 };
 
 const StyledTitle = styled.h1`
-  font-size: 16px;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
 `;
 
 const FieldCategoryTitle = styled.h2`

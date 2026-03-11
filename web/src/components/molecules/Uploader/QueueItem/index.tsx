@@ -145,7 +145,7 @@ const ItemWrapper = styled.div`
   }
 
   :not(:last-child) {
-    border-bottom: 1px solid rgba(5, 5, 5, 0.06);
+    border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SPLIT};
   }
 `;
 

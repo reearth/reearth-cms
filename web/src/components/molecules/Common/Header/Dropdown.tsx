@@ -4,7 +4,7 @@ import DropdownAtom, { MenuProps } from "@reearth-cms/components/atoms/Dropdown"
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
-import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 type Props = {
   items: MenuProps["items"];
@@ -51,11 +51,11 @@ export default Dropdown;
 const StyledDropdown = styled(DropdownAtom)`
   padding-left: 10px;
   color: ${AntdColor.NEUTRAL.BG_WHITE};
-  background-color: #1d1d1d;
+  background-color: ${CustomColor.HEADER_BG};
 
   .anticon,
   .anticon-caret-down {
-    color: #dbdbdb;
+    color: ${CustomColor.HEADER_TEXT};
   }
 `;
 const StyledDropdownMenu = styled.div`
@@ -66,12 +66,12 @@ const StyledDropdownMenu = styled.div`
     padding: 4px 0;
   }
   .ant-dropdown-menu-item-divider {
-    background-color: #303030;
+    background-color: ${CustomColor.HEADER_DIVIDER};
   }
   .ant-dropdown-menu-item-group-title,
   .ant-dropdown-menu-item,
   .ant-dropdown-menu-submenu-title {
-    color: #000000 !important;
+    color: ${AntdColor.GREY.GREY_8} !important;
   }
   .ant-dropdown-menu-item-group-title {
     font-weight: 400;
@@ -85,7 +85,7 @@ const StyledDropdownMenu = styled.div`
     overflow: hidden auto;
   }
   .ant-dropdown-menu-item-active {
-    background-color: #1d1d1d;
+    background-color: ${CustomColor.HEADER_BG};
   }
 
   svg {

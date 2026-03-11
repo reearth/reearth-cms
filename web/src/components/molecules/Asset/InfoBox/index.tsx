@@ -4,7 +4,7 @@ import { JSONTree } from "react-json-tree";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 type Props = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -24,21 +24,21 @@ const InfoBox: React.FC<Props> = ({
 }) => {
   const theme = {
     base00: AntdColor.NEUTRAL.BG_WHITE,
-    base01: "#1d1d1d",
-    base02: "#1d1d1d",
-    base03: "#1d1d1d",
-    base04: "#1d1d1d",
-    base05: "#1d1d1d",
-    base06: "#1d1d1d",
-    base07: "#1d1d1d",
-    base08: "#1d1d1d",
-    base09: "#1d1d1d",
-    base0A: "#1d1d1d",
-    base0B: "#1d1d1d",
-    base0C: "#1d1d1d",
-    base0D: "#1d1d1d",
-    base0E: "#1d1d1d",
-    base0F: "#1d1d1d",
+    base01: CustomColor.HEADER_BG,
+    base02: CustomColor.HEADER_BG,
+    base03: CustomColor.HEADER_BG,
+    base04: CustomColor.HEADER_BG,
+    base05: CustomColor.HEADER_BG,
+    base06: CustomColor.HEADER_BG,
+    base07: CustomColor.HEADER_BG,
+    base08: CustomColor.HEADER_BG,
+    base09: CustomColor.HEADER_BG,
+    base0A: CustomColor.HEADER_BG,
+    base0B: CustomColor.HEADER_BG,
+    base0C: CustomColor.HEADER_BG,
+    base0D: CustomColor.HEADER_BG,
+    base0E: CustomColor.HEADER_BG,
+    base0F: CustomColor.HEADER_BG,
   };
 
   return (
