@@ -95,7 +95,7 @@ const ViewsMenuMolecule: React.FC<Props> = ({
 };
 
 const Wrapper = styled.div`
-  padding: 0 24px;
+  padding: 0 ${AntdToken.SPACING.LG}px;
 `;
 
 const StyledTabs = styled(Tabs)`

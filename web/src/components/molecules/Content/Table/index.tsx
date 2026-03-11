@@ -923,7 +923,7 @@ const IconWrapper = styled.span`
 `;
 
 const InputWrapper = styled.div`
-  padding: 8px 10px;
+  padding: ${AntdToken.SPACING.XS}px 10px;
 `;
 
 const ImportButton = styled(Button)`

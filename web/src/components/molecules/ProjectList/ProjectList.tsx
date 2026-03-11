@@ -99,7 +99,7 @@ const ProjectCardWrapper = styled.div`
   justify-content: space-between;
   gap: ${AntdToken.SPACING.LG}px;
   max-height: 350px;
-  margin: 0 24px;
+  margin: 0 ${AntdToken.SPACING.LG}px;
 `;
 
 const GridContainer = styled.div`

@@ -176,7 +176,7 @@ const Description = styled.p`
 `;
 
 const HeaderRow = styled(Row)`
-  padding: 0 24px;
+  padding: 0 ${AntdToken.SPACING.LG}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 

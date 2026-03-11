@@ -4,7 +4,9 @@ import ReactMarkdown from "react-markdown";
 import { runes } from "runes2";
 
 import TextArea, { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
+
+const { XXS } = AntdToken.SPACING;
 
 type Props = {
   onChange?: (value: string) => void;
@@ -67,7 +69,7 @@ const MarkdownWrapper = styled.div`
 const StyledMD = styled.div<{ disabled?: boolean; isError: boolean }>`
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
   border: 1px solid ${AntdColor.NEUTRAL.BORDER};
-  padding: 4px 11px;
+  padding: ${XXS}px 11px;
   overflow: auto;
   resize: vertical;
   height: 100%;

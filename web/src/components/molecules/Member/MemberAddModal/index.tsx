@@ -251,7 +251,7 @@ const StyledModal = styled(Modal)`
     border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   }
   .ant-modal-footer {
-    padding: 10px 16px;
+    padding: 10px ${AntdToken.SPACING.BASE}px;
     margin: 0;
   }
 `;

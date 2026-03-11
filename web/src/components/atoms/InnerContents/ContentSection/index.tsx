@@ -49,7 +49,7 @@ const Wrapper = styled.div<{ danger?: boolean }>`
 
 const Header = styled.div`
   border-bottom: 1px solid ${CustomColor.BORDER_SUBTLE};
-  padding: 10px 24px;
+  padding: 10px ${AntdToken.SPACING.LG}px;
 `;
 
 const InnerHeader = styled.div`
@@ -62,7 +62,7 @@ const InnerHeader = styled.div`
 const Title = styled.p`
   font-size: ${AntdToken.FONT.SIZE_LG}px;
   font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
-  margin: 0 8px 0 0;
+  margin: 0 ${AntdToken.SPACING.XS}px 0 0;
 `;
 
 const Description = styled.p`

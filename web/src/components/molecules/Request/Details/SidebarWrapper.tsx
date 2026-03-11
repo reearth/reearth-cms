@@ -155,7 +155,7 @@ const ReviewerContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${AntdToken.SPACING.XXS}px ${AntdToken.SPACING.XS}px;
-  margin: 4px 0;
+  margin: ${AntdToken.SPACING.XXS}px 0;
 `;
 
 const StyledSelect = styled(Select)`

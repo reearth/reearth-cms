@@ -34,6 +34,8 @@ import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import useHooks from "./hooks";
 
+const { XS } = AntdToken.SPACING;
+
 type Props = {
   asset: Asset;
   assetFileExt?: string;
@@ -306,7 +308,7 @@ const InfoKey = styled.p`
 const InfoValue = styled.p`
   font-size: ${AntdToken.FONT.SIZE_SM}px;
   margin: 0;
-  padding: 0px 8px;
+  padding: 0px ${XS}px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

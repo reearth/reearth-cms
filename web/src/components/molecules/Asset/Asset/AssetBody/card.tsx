@@ -28,12 +28,14 @@ const CardWrapper = styled.div`
   margin-bottom: ${AntdToken.SPACING.LG}px;
 `;
 
+const { SM, MD } = AntdToken.SPACING;
+
 const CardHeader = styled.div`
   height: 64px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 12px 0 20px;
+  padding: 0 ${SM}px 0 ${MD}px;
   font-size: ${AntdToken.FONT.SIZE_HEADING_3}px;
 `;
 

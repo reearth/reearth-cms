@@ -627,7 +627,7 @@ const StyledFormItem = styled(Form.Item)`
 `;
 
 const StyledSteps = styled(Steps)<{ numSteps: number }>`
-  padding: ${({ numSteps }) => (numSteps === 1 ? "30px 24px 38px" : "30px 0 38px")};
+  padding: ${({ numSteps }) => (numSteps === 1 ? `30px ${AntdToken.SPACING.LG}px 38px` : "30px 0 38px")};
   .ant-steps-item-title {
     white-space: nowrap;
   }

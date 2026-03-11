@@ -140,7 +140,7 @@ const StyledForm = styled(Form)`
 `;
 
 const Container = styled.div`
-  padding: 9px 12px 0;
+  padding: 9px ${AntdToken.SPACING.SM}px 0;
 `;
 
 const StyledFormItem = styled(Form.Item)`

@@ -93,7 +93,7 @@ const MyIntegrationWrapper = styled.div`
 `;
 
 const MyIntegrationTabs = styled(Tabs)`
-  padding: 0 24px;
+  padding: 0 ${AntdToken.SPACING.LG}px;
 `;
 
 export default MyIntegrationContent;

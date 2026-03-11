@@ -425,7 +425,7 @@ const StyledIcon = styled(Icon)`
 const StyledTitle = styled.p`
   color: ${AntdColor.NEUTRAL.TEXT};
   font-size: ${AntdToken.FONT.SIZE_LG}px;
-  margin: 0 20px 0 ${AntdToken.SPACING.SM}px;
+  margin: 0 ${AntdToken.SPACING.MD}px 0 ${AntdToken.SPACING.SM}px;
   overflow: auto;
 `;
 

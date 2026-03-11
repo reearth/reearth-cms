@@ -110,7 +110,7 @@ const StyledButton = styled(Button)`
 
 const Content = styled.p`
   margin: 0;
-  padding: 4px 8px 20px;
+  padding: ${AntdToken.SPACING.XXS}px ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.MD}px;
   :last-child {
     padding-bottom: 0;
   }

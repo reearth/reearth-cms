@@ -207,7 +207,7 @@ const StyledInput = styled(Input)`
 const StyledTagContainer = styled.div<{ isError?: boolean }>`
   cursor: pointer;
   border: 1px solid ${({ isError }) => (isError ? AntdColor.RED.RED_4 : AntdColor.NEUTRAL.BORDER)};
-  padding: 4px 11px;
+  padding: ${AntdToken.SPACING.XXS}px 11px;
   overflow: auto;
   height: 100%;
   width: 100% !important;

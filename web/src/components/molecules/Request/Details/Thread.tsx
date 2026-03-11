@@ -8,6 +8,8 @@ import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
+const { SM, BASE, LG } = AntdToken.SPACING;
+
 import RequestEditor from "./Editor";
 import RequestStatus from "./RequestStatus";
 
@@ -96,7 +98,7 @@ const CommentWrapper = styled.div`
   .ant-comment-avatar {
     background-color: ${AntdColor.NEUTRAL.BG_LAYOUT};
     margin-right: 0;
-    padding-right: 12px;
+    padding-right: ${SM}px;
   }
   .ant-comment-content {
     padding: ${AntdToken.SPACING.SM}px ${AntdToken.SPACING.LG}px;
@@ -107,22 +109,22 @@ const CommentWrapper = styled.div`
       width: 4px;
       height: 24px;
       background-color: ${AntdColor.NEUTRAL.BORDER};
-      left: 16px;
+      left: ${BASE}px;
       top: -30px;
     }
   }
   .ant-comment-actions {
     position: absolute;
-    top: 12px;
-    right: 24px;
+    top: ${SM}px;
+    right: ${LG}px;
     margin: 0;
   }
 `;
 
 const ThreadDivider = styled.div`
   border-top: 1px solid ${AntdColor.NEUTRAL.BORDER};
-  width: calc(100% - 12px);
-  padding: 0 12px;
+  width: calc(100% - ${SM}px);
+  padding: 0 ${SM}px;
 `;
 
 const StyledAntDComment = styled(AntDComment)`
@@ -133,6 +135,6 @@ const StyledAntDComment = styled(AntDComment)`
   }
   .ant-comment-avatar {
     margin-right: 0;
-    padding-right: 12px;
+    padding-right: ${SM}px;
   }
 `;

@@ -6,6 +6,8 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
+const { MD } = AntdToken.SPACING;
+
 type Props = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   infoBoxProps: any;
@@ -61,8 +63,8 @@ const InfoBox: React.FC<Props> = ({
 
 const InfoBoxWrapper = styled.div`
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: ${MD}px;
+  right: ${MD}px;
   width: 40%;
   height: 90%;
   max-width: 500px;
@@ -94,7 +96,7 @@ const Title = styled.div`
 
 const Box = styled.div`
   height: calc(100% - 50px);
-  padding: 0 12px 0 20px;
+  padding: 0 ${AntdToken.SPACING.SM}px 0 ${MD}px;
   overflow-y: scroll;
 `;
 

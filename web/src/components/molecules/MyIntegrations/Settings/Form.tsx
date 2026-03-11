@@ -189,7 +189,7 @@ const CodeExampleTitle = styled.h2`
 
 const CodeExample = styled.pre`
   border: 1px solid ${AntdColor.NEUTRAL.BORDER};
-  padding: 5px 12px;
+  padding: 5px ${AntdToken.SPACING.SM}px;
   font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   font-size: ${AntdToken.FONT.SIZE}px;
   line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
@@ -229,7 +229,7 @@ const StyledTokenInput = styled(Password)`
 const StyledCopyButton = styled(CopyButton)`
   position: absolute;
   top: 5px;
-  right: 12px;
+  right: ${AntdToken.SPACING.SM}px;
   background: ${AntdColor.NEUTRAL.BG_WHITE};
 `;
 

@@ -125,7 +125,7 @@ const ModelsList: React.FC<Props> = ({
 };
 
 const Header = styled.div`
-  padding: 22px 20px 4px 20px;
+  padding: 22px ${AntdToken.SPACING.MD}px ${AntdToken.SPACING.XXS}px ${AntdToken.SPACING.MD}px;
 `;
 
 const SchemaAction = styled.div<{ collapsed?: boolean }>`

@@ -50,7 +50,7 @@ const StyledSteps = styled(Steps)`
     width: 4px;
     height: 24px;
     background-color: ${AntdColor.NEUTRAL.BORDER};
-    left: 16px;
+    left: ${AntdToken.SPACING.BASE}px;
     top: -30px;
   }
 `;

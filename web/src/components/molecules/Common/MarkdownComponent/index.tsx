@@ -80,7 +80,7 @@ const StyledTabs = styled(Tabs)`
   border-left: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   .ant-tabs-nav {
     margin-bottom: 0;
-    padding: 0 20px;
+    padding: 0 ${AntdToken.SPACING.MD}px;
     background-color: ${AntdColor.NEUTRAL.BG_WHITE};
   }
   .ant-tabs-content-holder {

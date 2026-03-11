@@ -207,12 +207,12 @@ const Logo = styled.img`
   font-size: ${AntdToken.FONT.SIZE}px;
   line-height: 48px;
   cursor: pointer;
-  margin: 0 24px;
+  margin: 0 ${AntdToken.SPACING.LG}px;
 `;
 
 const LogoIcon = styled.img`
   width: 100px;
-  margin: 0 40px 0 20px;
+  margin: 0 40px 0 ${AntdToken.SPACING.MD}px;
   cursor: pointer;
 `;
 
@@ -267,7 +267,7 @@ const LinkWrapper = styled.div`
 const EditorLink = styled.a`
   border: 1px solid;
   color: ${AntdColor.NEUTRAL.BORDER};
-  padding: 5px 16px;
+  padding: 5px ${AntdToken.SPACING.BASE}px;
   :hover {
     color: ${AntdColor.NEUTRAL.BORDER};
   }

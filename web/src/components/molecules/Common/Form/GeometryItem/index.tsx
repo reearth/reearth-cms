@@ -642,7 +642,7 @@ const EditorWrapper = styled.div<{ hasError: boolean; width: number }>`
 
 const EditorButtons = styled.div`
   position: absolute;
-  right: 8px;
+  right: ${AntdToken.SPACING.XS}px;
   color: ${AntdColor.GREY.GREY_2};
   z-index: 1;
   display: flex;
@@ -684,7 +684,7 @@ const MapContainer = styled.div<{ isDrawing: boolean }>`
 const StyledSearch = styled(Search)`
   z-index: 1;
   position: absolute;
-  left: 8px;
+  left: ${AntdToken.SPACING.XS}px;
   top: 15px;
   max-width: 167px;
   .ant-input-outlined {
@@ -702,7 +702,7 @@ const StyledSearch = styled(Search)`
 const ViewerButtons = styled.div`
   z-index: 1;
   position: absolute;
-  right: 8px;
+  right: ${AntdToken.SPACING.XS}px;
   height: calc(100% - 16px);
   display: flex;
   flex-direction: column;
