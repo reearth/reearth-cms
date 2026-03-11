@@ -9,7 +9,7 @@ import {
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 import { moveItemInArray } from "../moveItemArray";
 

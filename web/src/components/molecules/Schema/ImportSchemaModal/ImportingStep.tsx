@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import Progress from "@reearth-cms/components/atoms/Progress";
 import { useT } from "@reearth-cms/i18n";
-import { AntdToken } from "@reearth-cms/utils/token";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   fieldsCreationLoading: boolean;

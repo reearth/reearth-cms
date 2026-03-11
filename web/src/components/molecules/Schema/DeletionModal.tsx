@@ -7,7 +7,7 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { Trans, useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 type Props = {
   open: boolean;

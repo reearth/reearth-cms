@@ -9,7 +9,7 @@ import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetListTab
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 export type UploadType = "local" | "url";
 

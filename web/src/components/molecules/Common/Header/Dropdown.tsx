@@ -4,8 +4,7 @@ import DropdownAtom, { MenuProps } from "@reearth-cms/components/atoms/Dropdown"
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
-import { AntdColor } from "@reearth-cms/utils/color";
-import { AntdToken } from "@reearth-cms/utils/token";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   items: MenuProps["items"];

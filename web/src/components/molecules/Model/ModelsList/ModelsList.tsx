@@ -8,8 +8,7 @@ import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/color";
-import { AntdToken } from "@reearth-cms/utils/token";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   selectedKey?: string;

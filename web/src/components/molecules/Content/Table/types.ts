@@ -13,7 +13,7 @@ import {
 } from "@reearth-cms/components/molecules/View/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
 import { t } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 export type ColorType =
   | typeof AntdColor.GREY.GREY_0

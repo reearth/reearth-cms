@@ -28,7 +28,7 @@ import {
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor } from "@reearth-cms/utils/style";
 import { Constant } from "@reearth-cms/utils/constant";
 import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
 

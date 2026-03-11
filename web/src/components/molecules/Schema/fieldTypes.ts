@@ -1,5 +1,5 @@
 import { t } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 import type { SchemaFieldType } from "./types";
 

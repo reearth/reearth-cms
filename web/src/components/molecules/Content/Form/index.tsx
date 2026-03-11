@@ -38,7 +38,7 @@ import {
 import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor } from "@reearth-cms/utils/style";
 import { transformDayjsToString, dateTimeFormat } from "@reearth-cms/utils/format";
 
 import FieldWrapper from "./FieldWrapper";

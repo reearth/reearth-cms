@@ -45,7 +45,7 @@ import {
 } from "@reearth-cms/components/molecules/View/types";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor } from "@reearth-cms/utils/style";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { ImportContentUtils } from "@reearth-cms/utils/importContent";
 

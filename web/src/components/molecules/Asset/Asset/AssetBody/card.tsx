@@ -1,8 +1,7 @@
 import styled from "@emotion/styled";
 import { CSSProperties, ReactNode } from "react";
 
-import { AntdColor } from "@reearth-cms/utils/color";
-import { AntdToken } from "@reearth-cms/utils/token";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   title: string | JSX.Element;

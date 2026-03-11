@@ -4,8 +4,7 @@ import { JSONTree } from "react-json-tree";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { AntdColor } from "@reearth-cms/utils/color";
-import { AntdToken } from "@reearth-cms/utils/token";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

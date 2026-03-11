@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { ArchiveExtractionStatus } from "@reearth-cms/components/molecules/Asset/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 export default (archiveExtractionStatus: ArchiveExtractionStatus) => {
   const t = useT();

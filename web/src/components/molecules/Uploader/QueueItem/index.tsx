@@ -8,8 +8,7 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
-import { AntdColor } from "@reearth-cms/utils/color";
-import { AntdToken } from "@reearth-cms/utils/token";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { UploaderQueueItem } from "../types";
 import useJobState from "../useJobState";

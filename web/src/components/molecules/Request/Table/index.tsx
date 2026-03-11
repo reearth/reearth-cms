@@ -18,7 +18,7 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { Request, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor } from "@reearth-cms/utils/style";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 type Props = {

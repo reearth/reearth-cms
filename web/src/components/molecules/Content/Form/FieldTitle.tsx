@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 type Props = {
   title: string;

@@ -6,8 +6,7 @@ import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentS
 import { useModal } from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
-import { AntdColor } from "@reearth-cms/utils/color";
-import { AntdToken } from "@reearth-cms/utils/token";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   onIntegrationDelete: () => Promise<void>;

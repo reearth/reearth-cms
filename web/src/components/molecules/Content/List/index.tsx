@@ -20,7 +20,7 @@ import {
 } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor } from "@reearth-cms/utils/style";
 import { ImportContentUtils } from "@reearth-cms/utils/importContent";
 
 import { Field } from "../../Schema/types";

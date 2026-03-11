@@ -7,7 +7,7 @@ import Tabs from "@reearth-cms/components/atoms/Tabs";
 import { View, CurrentView } from "@reearth-cms/components/molecules/View/types";
 import ViewsMenuItem from "@reearth-cms/components/molecules/View/viewMenuItem";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 const { DragColumn } = ReactDragListView;
 

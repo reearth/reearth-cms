@@ -6,8 +6,7 @@ import Badge from "@reearth-cms/components/atoms/Badge";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
-import { AntdColor } from "@reearth-cms/utils/color";
-import { AntdToken } from "@reearth-cms/utils/token";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { ItemStatus } from "../types";
 

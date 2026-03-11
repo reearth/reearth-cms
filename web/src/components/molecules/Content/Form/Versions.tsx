@@ -9,9 +9,8 @@ import { VersionedItem } from "@reearth-cms/components/molecules/Content/types";
 import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
-import { AntdToken } from "@reearth-cms/utils/token";
 
 type Props = {
   versions: VersionedItem[];

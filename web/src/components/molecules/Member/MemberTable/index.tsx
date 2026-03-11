@@ -13,7 +13,7 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { User } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 type Props = {
   workspaceUserMembers?: UserMember[];

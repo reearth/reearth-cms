@@ -4,7 +4,7 @@ import type { CopyConfig } from "antd/lib/typography/Base";
 import { RefAttributes } from "react";
 
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 const { Text } = Typography;
 

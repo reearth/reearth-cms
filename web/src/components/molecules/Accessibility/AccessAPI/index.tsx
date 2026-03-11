@@ -7,7 +7,7 @@ import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentS
 import { FormType } from "@reearth-cms/components/molecules/Accessibility/types";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 import AccessAPITable from "./AccessAPITable";
 

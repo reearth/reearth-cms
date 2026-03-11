@@ -6,7 +6,7 @@ import Comment from "@reearth-cms/components/molecules/Common/CommentsPanel/Comm
 import { RequestDescription } from "@reearth-cms/components/molecules/Request/Details/RequestDescription";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 import RequestEditor from "./Editor";
 import RequestStatus from "./RequestStatus";

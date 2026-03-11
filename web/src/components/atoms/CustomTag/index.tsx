@@ -1,8 +1,7 @@
 import styled from "@emotion/styled";
 import { CSSProperties } from "react";
 
-import { AntdColor } from "@reearth-cms/utils/color";
-import { AntdToken } from "@reearth-cms/utils/token";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type CustomTagProps = {
   value?: number | string;

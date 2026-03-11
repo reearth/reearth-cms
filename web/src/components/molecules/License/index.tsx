@@ -7,7 +7,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { useT } from "@reearth-cms/i18n";
-import { AntdToken } from "@reearth-cms/utils/token";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 import MarkdownComponent from "../Common/MarkdownComponent";
 import { UpdateProjectInput } from "../Workspace/types";

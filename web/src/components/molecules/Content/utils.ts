@@ -1,6 +1,6 @@
 import { ColorType, StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 import { Tag } from "@reearth-cms/components/molecules/Schema/types";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 export const stateColors: Record<StateType, ColorType> = {
   DRAFT: AntdColor.GREY.GREY_0, // originally #BFBFBF

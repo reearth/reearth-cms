@@ -1,4 +1,4 @@
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 import { RequestState } from "./types";
 

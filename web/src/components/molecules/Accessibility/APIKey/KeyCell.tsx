@@ -4,7 +4,7 @@ import { useState } from "react";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Password from "@reearth-cms/components/atoms/Password";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 type Props = {
   apiKey: string;

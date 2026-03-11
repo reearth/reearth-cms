@@ -9,8 +9,7 @@ import Select from "@reearth-cms/components/atoms/Select";
 import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
 import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/color";
-import { AntdToken } from "@reearth-cms/utils/token";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type FormValues = {
   role: Role;

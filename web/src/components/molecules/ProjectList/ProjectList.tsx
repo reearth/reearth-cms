@@ -7,8 +7,7 @@ import ProjectCard from "@reearth-cms/components/molecules/ProjectList/ProjectCa
 import CreateProjectButton from "@reearth-cms/components/molecules/Workspace/CreateProjectButton";
 import { ProjectListItem } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT, Trans } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/color";
-import { AntdToken } from "@reearth-cms/utils/token";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   hasCreateRight: boolean;

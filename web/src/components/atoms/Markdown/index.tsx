@@ -4,7 +4,7 @@ import ReactMarkdown from "react-markdown";
 import { runes } from "runes2";
 
 import TextArea, { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 type Props = {
   onChange?: (value: string) => void;
