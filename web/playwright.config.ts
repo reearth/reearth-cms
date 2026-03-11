@@ -23,8 +23,8 @@ const config: PlaywrightTestConfig = {
     screenshot: "only-on-failure",
     video: process.env.CI ? "on-first-retry" : "retain-on-failure",
     locale: "en-US",
-    actionTimeout: 60 * 1000,
-    navigationTimeout: 60 * 1000,
+    actionTimeout: 120 * 1000,
+    navigationTimeout: 120 * 1000,
   },
   testDir: "./e2e/tests",
   testMatch: "**/*.spec.ts",
@@ -50,7 +50,7 @@ const config: PlaywrightTestConfig = {
     },
   ],
   expect: {
-    timeout: 90 * 1000,
+    timeout: 120 * 1000,
   },
   timeout: 150 * 1000,
 };

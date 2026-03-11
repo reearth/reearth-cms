@@ -87,7 +87,7 @@ test("Group field creating and updating has succeeded", async ({
     await contentPage.fieldInput("text1").fill("new text1");
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
-    await page.waitForTimeout(300);
+    await page.waitForLoadState("networkidle");
   });
 
   await test.step("Update group text field with validations and default value", async () => {
@@ -164,6 +164,7 @@ test("Group field creating and updating has succeeded", async ({
     await expect(contentPage.textBoxByIndex(0)).toHaveValue("text1");
     await expect(contentPage.textBoxByIndex(1)).toHaveValue("text2");
     await fieldEditorPage.arrowDownButton.first().click();
+    await page.waitForTimeout(300);
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
     await contentPage.backButton.click();
@@ -305,6 +306,7 @@ test("Group field editing has succeeded", async ({
       .fill("text1-2");
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
+    await page.waitForLoadState("networkidle");
     await contentPage.backButton.click();
     await page.waitForTimeout(300);
   });
@@ -328,6 +330,7 @@ test("Group field editing has succeeded", async ({
     await contentPage.fieldInput("text1").fill("text1");
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
+    await page.waitForLoadState("networkidle");
     await contentPage.backButton.click();
     await contentPage.editButton.first().click();
     await expect(contentPage.fieldInput("text1")).toHaveValue("text1");
@@ -362,6 +365,7 @@ test("Group field editing has succeeded", async ({
     await expect(contentPage.textBoxByIndex(2)).toHaveValue("text1");
     await expect(contentPage.textBoxByIndex(3)).toHaveValue("text2");
     await fieldEditorPage.arrowDownButton.nth(3).click();
+    await page.waitForTimeout(300);
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
     await contentPage.backButton.click();
