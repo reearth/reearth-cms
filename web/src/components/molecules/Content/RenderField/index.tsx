@@ -100,7 +100,7 @@ export const renderField = (
 
 const StyledButton = styled(Button)`
   align-items: center;
-  border-color: #00000008;
+  border-color: ${AntdColor.NEUTRAL.FILL_QUATERNARY};
   color: ${AntdColor.BLUE.BLUE_5};
   display: flex;
   font-size: 12px;

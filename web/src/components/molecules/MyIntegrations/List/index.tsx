@@ -5,6 +5,7 @@ import MyIntegrationCard from "@reearth-cms/components/molecules/MyIntegrations/
 import IntegrationCreationAction from "@reearth-cms/components/molecules/MyIntegrations/List/CreationAction";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 type Props = {
   integrations: Integration[];
@@ -41,12 +42,12 @@ const MyIntegrationList: React.FC<Props> = ({
 
 const Wrapper = styled.div`
   min-height: calc(100% - 16px);
-  background: #fff;
+  background: ${AntdColor.NEUTRAL.BG_WHITE};
   margin: 16px 16px 0;
 `;
 
 const ListWrapper = styled.div`
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   padding: 12px;
   display: flex;
   flex-wrap: wrap;

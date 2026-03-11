@@ -176,7 +176,7 @@ const IntegrationTable: React.FC<Props> = ({
     <Wrapper>
       <PageHeader
         title={t("Integrations")}
-        style={{ backgroundColor: "#fff" }}
+        style={{ backgroundColor: AntdColor.NEUTRAL.BG_WHITE }}
         extra={<ConnectButton />}
       />
       <ConfigProvider
@@ -239,13 +239,13 @@ const Action = styled.span`
 const Title = styled.h2`
   font-weight: 500;
   font-size: 16px;
-  color: #000;
+  color: ${AntdColor.GREY.GREY_8};
   margin-bottom: 16px;
 `;
 
 const TableWrapper = styled.div`
-  background-color: #fff;
-  border-top: 1px solid #f0f0f0;
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
+  border-top: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   height: calc(100% - 72px);
 `;
 

@@ -6,6 +6,7 @@ import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT, Trans } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 import { SortBy, UpdateProjectInput } from "../Workspace/types";
 
@@ -143,7 +144,7 @@ const Content = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  color: rgba(0, 0, 0, 0.45);
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const Actions = styled.div`

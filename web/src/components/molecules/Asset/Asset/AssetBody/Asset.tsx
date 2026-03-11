@@ -259,7 +259,7 @@ const BodyContainer = styled.div`
   flex-direction: row;
   width: 100%;
   height: calc(100% - 72px);
-  border-top: 1px solid #00000008;
+  border-top: 1px solid ${AntdColor.NEUTRAL.FILL_QUATERNARY};
   .ant-tree-show-line .ant-tree-switcher {
     background-color: transparent;
   }
@@ -276,7 +276,7 @@ const BodyWrapper = styled.div`
 const SideBarWrapper = styled.div`
   padding: 8px;
   width: 272px;
-  background-color: #fafafa;
+  background-color: ${AntdColor.NEUTRAL.BG_ELEVATED};
 `;
 
 const StyledButton = styled(Button)`
@@ -314,8 +314,8 @@ const InfoValue = styled.p`
 `;
 
 const ID = styled(InfoValue)`
-  color: #848484;
-  background-color: #f0f0f0;
+  color: ${AntdColor.GREY.GREY_3}; /* originally #848484 */
+  background-color: ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   border-radius: 4px;
 `;
 

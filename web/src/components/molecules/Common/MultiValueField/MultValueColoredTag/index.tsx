@@ -192,7 +192,7 @@ const FieldWrapper = styled.div`
 `;
 
 const FieldButton = styled(Button)`
-  color: #000000d9;
+  color: ${AntdColor.NEUTRAL.TEXT};
   margin-top: 4px;
 `;
 
@@ -206,7 +206,7 @@ const StyledInput = styled(Input)`
 
 const StyledTagContainer = styled.div<{ isError?: boolean }>`
   cursor: pointer;
-  border: 1px solid ${({ isError }) => (isError ? AntdColor.RED.RED_4 : "#d9d9d9")};
+  border: 1px solid ${({ isError }) => (isError ? AntdColor.RED.RED_4 : AntdColor.NEUTRAL.BORDER)};
   padding: 4px 11px;
   overflow: auto;
   height: 100%;

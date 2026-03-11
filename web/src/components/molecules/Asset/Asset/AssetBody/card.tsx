@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
 import { CSSProperties, ReactNode } from "react";
 
+import { AntdColor } from "@reearth-cms/utils/color";
+
 type Props = {
   title: string | JSX.Element;
   toolbar?: ReactNode;
@@ -22,7 +24,7 @@ const Card: React.FC<Props> = ({ title, toolbar, children, style }) => {
 
 const CardWrapper = styled.div`
   padding: 0;
-  border: 1px solid #f5f5f5;
+  border: 1px solid ${AntdColor.NEUTRAL.BG_LAYOUT};
   margin-bottom: 24px;
 `;
 
@@ -51,7 +53,7 @@ const Toolbar = styled.div`
 
 const CardBody = styled.div`
   padding: 10px;
-  background-color: #f5f5f5;
+  background-color: ${AntdColor.NEUTRAL.BG_LAYOUT};
   text-align: center;
 `;
 

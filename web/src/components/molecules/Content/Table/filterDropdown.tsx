@@ -12,6 +12,8 @@ import {
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ConditionInput, CurrentView } from "@reearth-cms/components/molecules/View/types";
 
+import { AntdColor } from "@reearth-cms/utils/color";
+
 import DropdownRender from "./DropdownRender";
 
 type Props = {
@@ -91,7 +93,7 @@ const FilterDropdown: React.FC<Props> = ({
 export default FilterDropdown;
 
 const StyledButton = styled(Button)`
-  color: rgba(0, 0, 0, 0.45);
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   background-color: #f8f8f8;
 `;
 
@@ -103,8 +105,8 @@ const Title = styled.div`
 `;
 
 const StyledIcon = styled(Icon)`
-  color: rgba(0, 0, 0, 0.45);
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   :hover {
-    color: rgba(0, 0, 0, 0.85);
+    color: ${AntdColor.NEUTRAL.TEXT};
   }
 `;

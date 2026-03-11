@@ -21,7 +21,7 @@ const CustomTagWrapper = styled.div`
   width: 20px;
   height: 16px;
   background-color: ${props => props.color};
-  color: #ffffff;
+  color: ${AntdColor.NEUTRAL.BG_WHITE};
   border-radius: 100px;
   font-family: Roboto Mono;
   font-style: normal;

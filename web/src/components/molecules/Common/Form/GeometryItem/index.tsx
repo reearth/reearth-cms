@@ -31,7 +31,7 @@ import {
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor, CustomColor } from "@reearth-cms/utils/color";
 
 import schema from "./schema";
 
@@ -435,13 +435,13 @@ const GeometryItem: React.FC<Props> = ({
         const vectorLayer = new VectorLayer({
           source,
           style: new Style({
-            image: new IconStyle({ src: mapPinFilled, color: "#000000D9" }),
+            image: new IconStyle({ src: mapPinFilled, color: AntdColor.NEUTRAL.TEXT }),
             stroke: new Stroke({
-              color: "#000000D9",
+              color: AntdColor.NEUTRAL.TEXT,
               width: 2,
             }),
             fill: new Fill({
-              color: "#00000040",
+              color: AntdColor.NEUTRAL.TEXT_QUATERNARY,
             }),
           }),
         });
@@ -614,7 +614,7 @@ const Container = styled.div`
 const GeometryField = styled.div`
   display: flex;
   aspect-ratio: 1.86 / 1;
-  box-shadow: 0px 2px 8px 0px #00000026;
+  box-shadow: 0px 2px 8px 0px ${AntdColor.NEUTRAL.FILL};
 `;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -635,7 +635,7 @@ const EditorWrapper = styled.div<{ hasError: boolean; width: number }>`
   position: relative;
   border: 1px solid ${({ hasError }) => (hasError ? AntdColor.RED.RED_4 : "transparent")};
   .glyphMargin {
-    background: #ecabbb;
+    background: ${CustomColor.EDITOR_ERROR_GLYPH};
     width: 5px !important;
   }
 `;
@@ -689,12 +689,12 @@ const StyledSearch = styled(Search)`
   max-width: 167px;
   .ant-input-outlined {
     height: 24px;
-    border-color: #d9d9d9 !important;
+    border-color: ${AntdColor.NEUTRAL.BORDER} !important;
     :hover {
       border-color: ${AntdColor.BLUE.BLUE_5} !important;
     }
     :focus-within {
-      box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1) !important;
+      box-shadow: 0 0 0 2px ${CustomColor.FOCUS_RING_BLUE} !important;
     }
   }
 `;
@@ -718,7 +718,7 @@ const GeoButtons = styled.div`
 `;
 
 const GeoButton = styled(Button)<{ selected: boolean }>`
-  color: ${({ selected }) => (selected ? AntdColor.BLUE.BLUE_5 : "#434343")};
+  color: ${({ selected }) => (selected ? AntdColor.BLUE.BLUE_5 : AntdColor.GREY.GREY_6 /* originally #434343 */)};
 `;
 
 const ZoomButtons = styled.div`

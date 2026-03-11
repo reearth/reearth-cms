@@ -5,6 +5,7 @@ import { useCallback, useEffect } from "react";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 import { moveItemInArray } from "../moveItemArray";
 
@@ -111,7 +112,7 @@ const FieldWrapper = styled.div`
 `;
 
 const FieldButton = styled(Button)`
-  color: #000000d9;
+  color: ${AntdColor.NEUTRAL.TEXT};
   margin-top: 4px;
 `;
 

@@ -79,14 +79,14 @@ const Metadata: React.FC<Props> = ({ item, fields, disabled }) => {
 const CardTitle = styled.h4`
   font-weight: 400;
   font-size: 13px;
-  color: #898989;
+  color: ${AntdColor.GREY.GREY_2}; /* originally #898989 */
   margin-bottom: 8px;
 `;
 
 const CardValue = styled.div`
   padding: 12px;
-  background: #fff;
-  border: 1px solid #f0f0f0;
+  background: ${AntdColor.NEUTRAL.BG_WHITE};
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   border-radius: 2px;
 `;
 
@@ -136,8 +136,8 @@ const DataText = styled(DataCommon)`
 `;
 
 const ID = styled(DataCommon)`
-  color: #848484;
-  background-color: #f0f0f0;
+  color: ${AntdColor.GREY.GREY_3}; /* originally #848484 */
+  background-color: ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   border-radius: 4px;
   min-width: 0;
 `;

@@ -84,7 +84,7 @@ const PublicContainer = styled.div`
 `;
 
 const Header = styled.h3`
-  color: #262626;
+  color: ${AntdColor.GREY.GREY_7}; /* originally #262626 */
   padding-bottom: 162x;
 `;
 

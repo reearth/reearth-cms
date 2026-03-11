@@ -4,6 +4,7 @@ import { useState } from "react";
 import CopyButton from "@reearth-cms/components/atoms/CopyButton";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Password from "@reearth-cms/components/atoms/Password";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 type Props = {
   apiKey: string;
@@ -50,7 +51,7 @@ const StyledTokenInput = styled(Password)`
   .ant-input-prefix {
     order: 1;
     margin-left: 4px;
-    color: #00000073;
+    color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
     transition: all 0.3s;
 
     &:hover {

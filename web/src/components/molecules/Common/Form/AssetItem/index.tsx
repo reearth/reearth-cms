@@ -234,8 +234,8 @@ const AssetButton = styled(Button)<{ enabled?: boolean }>`
   width: 100px;
   height: 100px;
   border: 1px dashed;
-  border-color: ${({ enabled }) => (enabled ? "#d9d9d9" : "#00000040")};
-  color: ${({ enabled }) => (enabled ? "#000000D9" : "#00000040")};
+  border-color: ${({ enabled }) => (enabled ? AntdColor.NEUTRAL.BORDER : AntdColor.NEUTRAL.TEXT_QUATERNARY)};
+  color: ${({ enabled }) => (enabled ? AntdColor.NEUTRAL.TEXT : AntdColor.NEUTRAL.TEXT_QUATERNARY)};
   padding: 0 5px;
   flex-flow: column;
 `;
@@ -251,7 +251,7 @@ const AssetWrapper = styled.div`
 `;
 
 const AssetLink = styled(Button)`
-  color: #000000d9;
+  color: ${AntdColor.NEUTRAL.TEXT};
   margin-top: 4px;
   top: 3px;
   &:disabled {
@@ -261,7 +261,7 @@ const AssetLink = styled(Button)`
 `;
 
 const AssetLinkedName = styled(Button)<{ disabled?: boolean }>`
-  color: ${({ disabled }) => (disabled ? "#00000040" : AntdColor.BLUE.BLUE_5 /* originally #1890ff */)};
+  color: ${({ disabled }) => (disabled ? AntdColor.NEUTRAL.TEXT_QUATERNARY : AntdColor.BLUE.BLUE_5 /* originally #1890ff */)};
   margin-left: 12px;
   span {
     text-align: start;

@@ -8,6 +8,7 @@ import LinkItemModal from "@reearth-cms/components/molecules/Content/LinkItemMod
 import ReferenceItem from "@reearth-cms/components/molecules/Content/ReferenceItem";
 import { CorrespondingField } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 import { FormItem } from "../../types";
 
@@ -146,7 +147,7 @@ const ReferenceFormItem: React.FC<Props> = ({
 };
 
 const UnreferButton = styled(Button)`
-  color: #000000d9;
+  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const StyledButton = styled(Button)`

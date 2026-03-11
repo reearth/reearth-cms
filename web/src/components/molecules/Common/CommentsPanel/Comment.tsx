@@ -11,6 +11,7 @@ import TextArea from "@reearth-cms/components/atoms/TextArea";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Comment as CommentType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 type Props = {
@@ -131,7 +132,7 @@ const StyledAntDComment = styled(AntDComment)`
     .ant-comment-content-author-name {
       font-weight: 500;
       font-size: 14px;
-      color: #000000;
+      color: ${AntdColor.GREY.GREY_8};
       overflow: hidden;
     }
 

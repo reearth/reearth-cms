@@ -7,6 +7,7 @@ import ProjectCard from "@reearth-cms/components/molecules/ProjectList/ProjectCa
 import CreateProjectButton from "@reearth-cms/components/molecules/Workspace/CreateProjectButton";
 import { ProjectListItem } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT, Trans } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 type Props = {
   hasCreateRight: boolean;
@@ -133,18 +134,18 @@ const Suggestion = styled.p`
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  color: rgba(0, 0, 0, 0.45);
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const Title = styled.h1`
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
-  color: #000;
+  color: ${AntdColor.GREY.GREY_8};
 `;
 
 const ProjectPagination = styled(Pagination)`
-  box-shadow: 0 1px 0 0 #f0f0f0 inset;
+  box-shadow: 0 1px 0 0 ${AntdColor.NEUTRAL.BORDER_SECONDARY} inset;
   padding: 12px;
 `;
 

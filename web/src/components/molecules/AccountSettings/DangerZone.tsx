@@ -5,6 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 type Props = {
   onUserDelete: () => Promise<void>;
@@ -44,7 +45,7 @@ const Title = styled.p`
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
-  color: rgba(0, 0, 0, 0.85);
+  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const Text = styled.p`

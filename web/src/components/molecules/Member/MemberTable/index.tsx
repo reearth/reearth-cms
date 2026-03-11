@@ -13,6 +13,7 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { User } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 type Props = {
   workspaceUserMembers?: UserMember[];
@@ -254,7 +255,7 @@ const MemberTable: React.FC<Props> = ({
     <PaddedContent>
       <PageHeader
         title={t("Members")}
-        style={{ backgroundColor: "#fff" }}
+        style={{ backgroundColor: AntdColor.NEUTRAL.BG_WHITE }}
         extra={
           <Button
             type="primary"
@@ -312,7 +313,7 @@ const UserInfo = styled.p`
 `;
 
 const Email = styled(UserInfo)`
-  color: #00000073;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const PaddedContent = styled(Content)`
@@ -321,8 +322,8 @@ const PaddedContent = styled(Content)`
 `;
 
 const TableWrapper = styled.div`
-  background-color: #fff;
-  border-top: 1px solid #f0f0f0;
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
+  border-top: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   height: calc(100% - 72px);
 `;
 

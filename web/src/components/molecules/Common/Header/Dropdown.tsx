@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 
 import DropdownAtom, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import { AntdColor } from "@reearth-cms/utils/color";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
@@ -49,7 +50,7 @@ export default Dropdown;
 
 const StyledDropdown = styled(DropdownAtom)`
   padding-left: 10px;
-  color: #fff;
+  color: ${AntdColor.NEUTRAL.BG_WHITE};
   background-color: #1d1d1d;
 
   .anticon,
@@ -59,7 +60,7 @@ const StyledDropdown = styled(DropdownAtom)`
 `;
 const StyledDropdownMenu = styled.div`
   .ant-dropdown-menu {
-    background-color: #ffffff !important;
+    background-color: ${AntdColor.NEUTRAL.BG_WHITE} !important;
     min-width: 190px;
     max-width: 205px;
     padding: 4px 0;
@@ -77,7 +78,7 @@ const StyledDropdownMenu = styled.div`
     font-size: 12px;
     line-height: 22px;
     user-select: none;
-    color: #000000;
+    color: ${AntdColor.GREY.GREY_8};
   }
   .ant-dropdown-menu-item-group-list {
     max-height: 50vh;
@@ -94,7 +95,7 @@ const StyledDropdownMenu = styled.div`
 `;
 
 const StyledIcon = styled(Icon)`
-  color: #000000;
+  color: ${AntdColor.GREY.GREY_8};
 `;
 
 const Text = styled.p`

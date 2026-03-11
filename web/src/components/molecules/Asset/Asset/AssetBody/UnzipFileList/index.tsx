@@ -104,7 +104,7 @@ const UnzipFileList: React.FC<Props> = ({
 const UnzipFileListWrapper = styled.div`
   height: 250px;
   overflow-y: scroll;
-  background-color: #f5f5f5;
+  background-color: ${AntdColor.NEUTRAL.BG_LAYOUT};
   .ant-tree-treenode {
     max-width: 100%;
   }
@@ -139,7 +139,7 @@ const ExtractionFailedText = styled.p`
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  color: rgba(0, 0, 0, 0.85);
+  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const TitleWrapper = styled.span`

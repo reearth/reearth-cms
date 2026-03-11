@@ -9,6 +9,7 @@ import {
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 import { moveItemInArray } from "../moveItemArray";
 
@@ -120,6 +121,6 @@ const FieldWrapper = styled.div`
 `;
 
 const FieldButton = styled(Button)`
-  color: #000000d9;
+  color: ${AntdColor.NEUTRAL.TEXT};
   margin-top: 4px;
 `;

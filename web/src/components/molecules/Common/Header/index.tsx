@@ -10,6 +10,7 @@ import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Project, Workspace } from "@reearth-cms/components/molecules/Workspace/types";
 import { ProjectVisibility } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
 
 import HeaderDropdown from "./Dropdown";
@@ -265,10 +266,10 @@ const LinkWrapper = styled.div`
 
 const EditorLink = styled.a`
   border: 1px solid;
-  color: #d9d9d9;
+  color: ${AntdColor.NEUTRAL.BORDER};
   padding: 5px 16px;
   :hover {
-    color: #d9d9d9;
+    color: ${AntdColor.NEUTRAL.BORDER};
   }
 `;
 

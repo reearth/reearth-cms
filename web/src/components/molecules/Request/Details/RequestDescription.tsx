@@ -8,6 +8,7 @@ import AntDComment from "@reearth-cms/components/atoms/Comment";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Request, ItemInRequest } from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
+import { AntdColor } from "@reearth-cms/utils/color";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import RequestItemForm from "./ItemForm";
@@ -95,12 +96,12 @@ const StyledAntDComment = styled(AntDComment)`
   .ant-comment-content-author {
     padding: 16px 24px;
     margin: 0;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
 
     .ant-comment-content-author-name {
       font-weight: 500;
       font-size: 14px;
-      color: #000000;
+      color: ${AntdColor.GREY.GREY_8};
       overflow: hidden;
     }
 
@@ -115,19 +116,19 @@ const StyledAntDComment = styled(AntDComment)`
   }
 
   .ant-comment-content {
-    background-color: #fff;
+    background-color: ${AntdColor.NEUTRAL.BG_WHITE};
   }
 `;
 
 const RequestTitle = styled.h1`
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   padding: 8px 0;
-  color: #000000d9;
+  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const RequestTextWrapper = styled.div`
   padding: 24px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
 `;
 
 const RequestText = styled.p`

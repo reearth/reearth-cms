@@ -28,6 +28,7 @@ import {
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { AntdColor } from "@reearth-cms/utils/color";
 import { Constant } from "@reearth-cms/utils/constant";
 import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
 
@@ -290,7 +291,7 @@ const Schema: React.FC<Props> = ({
               <PageHeader
                 title={data.name}
                 subTitle={`#${data.key}`}
-                style={{ backgroundColor: "#fff" }}
+                style={{ backgroundColor: AntdColor.NEUTRAL.BG_WHITE }}
                 extra={[
                   Constant.IS_DEV && (
                     <Button
@@ -394,7 +395,7 @@ export default Schema;
 const Content = styled.div`
   width: 100%;
   height: 100%;
-  background: #fafafa;
+  background: ${AntdColor.NEUTRAL.BG_ELEVATED};
 `;
 
 const FieldListWrapper = styled.div`
@@ -408,7 +409,7 @@ const StyledTabs = styled(Tabs)`
   .ant-tabs-nav {
     padding: 0 24px;
     margin-bottom: 12px;
-    background: #fff;
+    background: ${AntdColor.NEUTRAL.BG_WHITE};
   }
   .ant-tabs-content-holder {
     overflow-y: auto;

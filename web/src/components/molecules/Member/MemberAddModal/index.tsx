@@ -11,6 +11,7 @@ import Select from "@reearth-cms/components/atoms/Select";
 import { User, Role } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 type Props = {
   open: boolean;
@@ -246,8 +247,8 @@ const StyledModal = styled(Modal)`
   }
   .ant-modal-body {
     padding: 24px;
-    border-top: 1px solid #f0f0f0;
-    border-bottom: 1px solid #f0f0f0;
+    border-top: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
+    border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   }
   .ant-modal-footer {
     padding: 10px 16px;
@@ -288,7 +289,7 @@ const UserName = styled.div`
 
 const Email = styled.div`
   font-family: "Roboto";
-  color: rgba(0, 0, 0, 0.45);
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -299,7 +300,7 @@ const SelectedUser = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 8px 16px;
-  border: 1px solid #d9d9d9;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER};
   box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.016);
   border-radius: 8px;
 `;

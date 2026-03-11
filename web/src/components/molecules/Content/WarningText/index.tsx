@@ -30,7 +30,7 @@ const RequestWarning = styled.div`
   p {
     display: block;
     overflow: hidden;
-    color: #000000d9;
+    color: ${AntdColor.NEUTRAL.TEXT};
     font-weight: 500;
     font-size: 14px;
     line-height: 1.4;

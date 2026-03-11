@@ -17,6 +17,7 @@ import {
   Webhook,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 type Props = {
@@ -226,7 +227,7 @@ const CheckboxLabel = styled.p`
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  color: #000000d9;
+  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const StyledForm = styled(Form<FormType>)`
@@ -237,7 +238,7 @@ const CheckboxTitle = styled.h5`
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
-  color: #000000d9;
+  color: ${AntdColor.NEUTRAL.TEXT};
   margin-bottom: 24px;
 `;
 

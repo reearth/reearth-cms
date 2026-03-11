@@ -180,11 +180,11 @@ const Uploader: React.FC<Props> = props => {
           }
         }}>
         <Badge
-          color="#ffffff"
+          color={AntdColor.NEUTRAL.BG_WHITE}
           size="small"
           style={{ boxShadow: "none" }}
           dot={uploaderState.showBadge}>
-          <Icon icon="upload" size={26} color="#ffffff" />
+          <Icon icon="upload" size={26} color={AntdColor.NEUTRAL.BG_WHITE} />
         </Badge>
       </UploadIcon>
 
@@ -242,7 +242,7 @@ const Card = styled(motion.div)`
   max-height: 90vh;
   position: absolute;
   z-index: 30;
-  background: #ffffff;
+  background: ${AntdColor.NEUTRAL.BG_WHITE};
   border-radius: 6px;
   box-shadow:
     0 1px 2px -2px rgba(0, 0, 0, 0.16),
@@ -282,7 +282,7 @@ const CardHead = styled.div`
   text-overflow: ellipsis;
   position: sticky;
   top: 0;
-  background: #ffffff;
+  background: ${AntdColor.NEUTRAL.BG_WHITE};
   z-index: 10;
 `;
 

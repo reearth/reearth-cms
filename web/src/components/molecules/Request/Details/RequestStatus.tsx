@@ -43,7 +43,7 @@ const StyledSteps = styled(Steps)`
     position: absolute;
     width: 4px;
     height: 24px;
-    background-color: #d9d9d9;
+    background-color: ${AntdColor.NEUTRAL.BORDER};
     left: 16px;
     top: -30px;
   }
@@ -59,7 +59,7 @@ const StatusTitle = styled.p`
   font-weight: 500;
   font-size: 14px;
   line-height: 22px;
-  color: #00000073;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 export default RequestStatus;

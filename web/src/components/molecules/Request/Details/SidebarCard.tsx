@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
 
+import { AntdColor } from "@reearth-cms/utils/color";
+
 type Props = {
   title: string;
   children?: ReactNode;
@@ -21,8 +23,8 @@ const SideBarCardWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  background: #ffffff;
-  border: 1px solid #f0f0f0;
+  background: ${AntdColor.NEUTRAL.BG_WHITE};
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   border-radius: 2px;
 `;
 
@@ -32,7 +34,7 @@ const CardTitle = styled.h2`
   font-weight: 400;
   font-size: 13px;
   line-height: 22px;
-  color: rgba(0, 0, 0, 0.45);
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   margin-bottom: 4px;
   overflow-x: hidden;
 `;
@@ -43,7 +45,7 @@ const CardValue = styled.p`
   font-weight: 400;
   font-size: 16px;
   line-height: 24px;
-  color: rgba(0, 0, 0, 0.85);
+  color: ${AntdColor.NEUTRAL.TEXT};
   overflow-x: hidden;
   margin-bottom: 4px;
 `;

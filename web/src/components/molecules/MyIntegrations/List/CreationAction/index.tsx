@@ -37,12 +37,12 @@ const Card = styled.button`
   flex-direction: column;
   align-items: center;
   padding: 24px;
-  border: 1px solid #f0f0f0;
-  box-shadow: 0px 2px 8px #00000026;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
+  box-shadow: 0px 2px 8px ${AntdColor.NEUTRAL.FILL};
   border-radius: 4px;
-  color: #00000073;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   cursor: pointer;
-  background-color: #fff;
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
   &:hover {
     color: ${AntdColor.BLUE.BLUE_5};
     background-color: ${AntdColor.BLUE.BLUE_0}; /* originally #E6F7FF */

@@ -4,6 +4,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { Webhook } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT, Trans } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 import WebhookCard from "./WebhookCard";
 
@@ -70,7 +71,7 @@ const Suggestion = styled.p`
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  color: #00000073;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const Text = styled.span`
@@ -94,7 +95,7 @@ const Title = styled.p`
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
-  color: #000;
+  color: ${AntdColor.GREY.GREY_8};
   margin-bottom: 24px;
 `;
 

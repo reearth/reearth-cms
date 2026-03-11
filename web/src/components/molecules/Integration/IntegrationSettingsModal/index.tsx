@@ -9,6 +9,7 @@ import Select from "@reearth-cms/components/atoms/Select";
 import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
 import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 type FormValues = {
   role: Role;
@@ -130,7 +131,7 @@ const Conetnt = styled.div`
   align-items: center;
   gap: 12px;
   padding: 12px;
-  border: 1px solid #f0f0f0;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   width: fit-content;
   min-width: 70%;
   max-width: 100%;
@@ -138,7 +139,7 @@ const Conetnt = styled.div`
 
 const LogoWrapper = styled.div`
   border-radius: 4px;
-  border: 1px solid #f0f0f0;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
 `;
 
 const Info = styled.div`

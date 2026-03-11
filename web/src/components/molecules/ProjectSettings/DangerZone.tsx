@@ -8,6 +8,7 @@ import { useModal } from "@reearth-cms/components/atoms/Modal";
 import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 import { ProjectVisibility } from "../Accessibility/types";
 
@@ -135,7 +136,7 @@ const Title = styled.h1`
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
-  color: rgba(0, 0, 0, 0.85);
+  color: ${AntdColor.NEUTRAL.TEXT};
   text-transform: capitalize;
 `;
 

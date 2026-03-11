@@ -19,6 +19,7 @@ import {
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 type Props = {
   integration: IntegrationInfo & Pick<Integration, "config">;
@@ -183,16 +184,16 @@ const CodeExampleTitle = styled.h2`
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  color: rgba(0, 0, 0, 0.85);
+  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const CodeExample = styled.pre`
-  border: 1px solid #d9d9d9;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER};
   padding: 5px 12px;
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  color: rgba(0, 0, 0, 0.85);
+  color: ${AntdColor.NEUTRAL.TEXT};
   position: relative;
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -229,7 +230,7 @@ const StyledCopyButton = styled(CopyButton)`
   position: absolute;
   top: 5px;
   right: 12px;
-  background: #ffffff;
+  background: ${AntdColor.NEUTRAL.BG_WHITE};
 `;
 
 export default MyIntegrationForm;

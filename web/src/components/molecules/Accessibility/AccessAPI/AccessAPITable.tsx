@@ -6,6 +6,7 @@ import Switch from "@reearth-cms/components/atoms/Switch";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 import { ModelDataType } from "../types";
 
@@ -97,7 +98,7 @@ const TableWrapper = styled.div`
 
 const StyledAnchor = styled.a`
   text-decoration: underline;
-  color: #000000d9;
+  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const StyledFormItem = styled(Form.Item)`

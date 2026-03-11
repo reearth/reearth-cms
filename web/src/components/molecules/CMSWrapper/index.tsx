@@ -6,6 +6,8 @@ import Content from "@reearth-cms/components/atoms/Content";
 import Layout from "@reearth-cms/components/atoms/Layout";
 import Sider from "@reearth-cms/components/atoms/Sider";
 
+import { AntdColor } from "@reearth-cms/utils/color";
+
 import ReloadModal from "../ReloadModal";
 import Uploader from "../Uploader";
 import { UploaderState } from "../Uploader/types";
@@ -76,12 +78,12 @@ const ContentWrapper = styled(Content)`
 
 const CMSSidebar = styled(Sider)`
   && {
-    background-color: #fff;
+    background-color: ${AntdColor.NEUTRAL.BG_WHITE};
     padding-bottom: 38px;
   }
   .ant-layout-sider-trigger {
-    background-color: #fff;
-    border-top: 1px solid #f0f0f0;
+    background-color: ${AntdColor.NEUTRAL.BG_WHITE};
+    border-top: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
     color: #002140;
     text-align: left;
     padding: 0 20px;

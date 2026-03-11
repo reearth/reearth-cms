@@ -13,6 +13,7 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 import { ImportFieldInput } from "../types";
 
@@ -165,18 +166,18 @@ const Section = styled.div`
   position: sticky;
   top: 0;
   z-index: 10;
-  background: #ffffff;
+  background: ${AntdColor.NEUTRAL.BG_WHITE};
 `;
 
 const SectionTitle = styled.h3``;
 
 const Description = styled.p`
-  color: rgba(0, 0, 0, 0.45);
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const HeaderRow = styled(Row)`
   padding: 0 24px;
-  color: rgba(0, 0, 0, 0.45);
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const HeaderCol = styled(Col)`
@@ -199,7 +200,7 @@ const FieldStyledList = styled(List)`
     display: none;
   }
   .ant-list-item {
-    background-color: #fff;
+    background-color: ${AntdColor.NEUTRAL.BG_WHITE};
     padding: 12px 24px;
     .ant-list-item-meta {
       .ant-list-item-meta-content {
@@ -230,7 +231,7 @@ const FieldThumbnail = styled.div`
     font-weight: 400;
     font-size: 14px;
     line-height: 22px;
-    color: rgba(0, 0, 0, 0.45);
+    color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   }
 `;
 
@@ -249,7 +250,7 @@ const ItemTitleHeading = styled.span`
 
 const ItemKey = styled.span`
   margin-left: 4px;
-  color: rgba(0, 0, 0, 0.45);
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   font-weight: 400;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -258,14 +259,14 @@ const ItemKey = styled.span`
 
 const ItemUnique = styled.span`
   margin-left: 4px;
-  color: rgba(0, 0, 0, 0.45);
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   font-weight: 400;
 `;
 
 const ItemTitleTag = styled(Tag)`
   margin-left: 4px;
-  color: rgba(0, 0, 0, 0.45);
-  background-color: #fafafa;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+  background-color: ${AntdColor.NEUTRAL.BG_ELEVATED};
 `;
 
 const DragIcon = styled(Icon)`

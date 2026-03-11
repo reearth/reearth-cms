@@ -66,7 +66,7 @@ const MarkdownWrapper = styled.div`
 
 const StyledMD = styled.div<{ disabled?: boolean; isError: boolean }>`
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
-  border: 1px solid #d9d9d9;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER};
   padding: 4px 11px;
   overflow: auto;
   resize: vertical;
@@ -79,9 +79,9 @@ const StyledMD = styled.div<{ disabled?: boolean; isError: boolean }>`
   &:hover,
   &:focus {
     border-color: ${({ disabled, isError }) =>
-      disabled ? "#d9d9d9" : isError ? AntdColor.RED.RED_2 : `${AntdColor.BLUE.BLUE_4}` /* originally #40a9ff */};
+      disabled ? AntdColor.NEUTRAL.BORDER : isError ? AntdColor.RED.RED_2 : `${AntdColor.BLUE.BLUE_4}` /* originally #40a9ff */};
   }
-  background-color: ${({ disabled }) => (disabled ? "#f5f5f5" : "#FFF")};
+  background-color: ${({ disabled }) => (disabled ? AntdColor.NEUTRAL.BG_LAYOUT : AntdColor.NEUTRAL.BG_WHITE)};
   * {
     ${({ isError }) => isError && `color: ${AntdColor.RED.RED_4}`};
   }

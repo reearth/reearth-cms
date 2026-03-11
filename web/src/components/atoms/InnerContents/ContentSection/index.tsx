@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
 
-import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdColor, CustomColor } from "@reearth-cms/utils/color";
 
 type Props = {
   title?: string;
@@ -42,13 +42,13 @@ const Wrapper = styled.div<{ danger?: boolean }>`
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #fff;
-  color: rgba(0, 0, 0, 0.85);
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
+  color: ${AntdColor.NEUTRAL.TEXT};
   ${({ danger }) => danger && `border: 1px solid ${AntdColor.RED.RED_4};`}
 `;
 
 const Header = styled.div`
-  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+  border-bottom: 1px solid ${CustomColor.BORDER_SUBTLE};
   padding: 10px 24px;
 `;
 
@@ -67,7 +67,7 @@ const Title = styled.p`
 
 const Description = styled.p`
   font-size: 14px;
-  color: #00000073;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   margin: 4px 0 0;
 `;
 

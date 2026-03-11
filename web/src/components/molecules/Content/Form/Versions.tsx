@@ -9,6 +9,7 @@ import { VersionedItem } from "@reearth-cms/components/molecules/Content/types";
 import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { AntdColor } from "@reearth-cms/utils/color";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 type Props = {
@@ -62,7 +63,7 @@ const Versions: React.FC<Props> = ({ versions, versionClick, onNavigateToRequest
 };
 
 const HistoryCard = styled.div`
-  background-color: #fff;
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
   padding: 12px;
 `;
 

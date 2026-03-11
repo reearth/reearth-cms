@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import Search from "@reearth-cms/components/atoms/Search";
 import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 import { SortBy, SortOption } from "../Workspace/types";
 
@@ -63,7 +64,7 @@ const Wrapper = styled.div`
 `;
 
 const Label = styled.span`
-  color: rgba(0, 0, 0, 0.45);
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const StyledSelect = styled(Select)`

@@ -224,7 +224,7 @@ const ImportButton = styled(Button)`
 `;
 
 const StyledIcon = styled(Icon)`
-  border: 1px solid #f0f0f0;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   width: 28px;
   height: 28px;
   display: flex;
@@ -241,7 +241,7 @@ const FieldThumbnail = styled.div`
     font-weight: 400;
     font-size: 14px;
     line-height: 22px;
-    color: rgba(0, 0, 0, 0.45);
+    color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   }
 `;
 
@@ -251,12 +251,12 @@ const FieldStyledList = styled(List)`
     display: none;
   }
   .ant-list-item {
-    background-color: #fff;
+    background-color: ${AntdColor.NEUTRAL.BG_WHITE};
     + .ant-list-item {
       margin-top: 12px;
     }
     padding: 24px;
-    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0px 2px 8px ${AntdColor.NEUTRAL.FILL};
     .ant-list-item-meta {
       .ant-list-item-meta-content {
         text-align: center;
@@ -274,7 +274,7 @@ const FieldStyledList = styled(List)`
 `;
 
 const ItemTitle = styled.p`
-  color: rgba(0, 0, 0, 0.85);
+  color: ${AntdColor.NEUTRAL.TEXT};
   margin: 0;
   display: flex;
   justify-content: center;
@@ -288,7 +288,7 @@ const ItemTitleHeading = styled.span`
 
 const ItemKey = styled.span`
   margin-left: 4px;
-  color: rgba(0, 0, 0, 0.45);
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   font-weight: 400;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -297,19 +297,19 @@ const ItemKey = styled.span`
 
 const ItemUnique = styled.span`
   margin-left: 4px;
-  color: rgba(0, 0, 0, 0.45);
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   font-weight: 400;
 `;
 
 const ItemTitleTag = styled(Tag)`
   margin-left: 4px;
-  color: rgba(0, 0, 0, 0.45);
-  background-color: #fafafa;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+  background-color: ${AntdColor.NEUTRAL.BG_ELEVATED};
 `;
 
 const EmptyText = styled.p`
   margin: 25vh auto 0;
-  color: #898989;
+  color: ${AntdColor.GREY.GREY_2}; /* originally #898989 */
   text-align: center;
   line-height: 24px;
 `;

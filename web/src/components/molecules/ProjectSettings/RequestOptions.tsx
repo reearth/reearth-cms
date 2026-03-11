@@ -6,6 +6,7 @@ import Switch from "@reearth-cms/components/atoms/Switch";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 type RequestOptionsData = {
   role: string;
@@ -122,7 +123,7 @@ const RequestOptions: React.FC<Props> = ({
 export default RequestOptions;
 
 const SecondaryText = styled.div`
-  color: #00000073;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const TableWrapper = styled.div`

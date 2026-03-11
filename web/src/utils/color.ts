@@ -184,4 +184,49 @@ export abstract class AntdColor {
     GREY_8: grey[8], // #000000
     GREY_9: grey[9], // #000000
   };
+
+  public static readonly NEUTRAL = {
+    // --- Backgrounds ---
+    /** theme.useToken(): colorBgContainer / colorBgBase */
+    BG_WHITE: "#ffffff",
+    /** theme.useToken(): ~table/card background */
+    BG_ELEVATED: "#fafafa",
+    /** theme.useToken(): colorBgLayout */
+    BG_LAYOUT: "#f5f5f5",
+    /** antd v4 layout background */
+    BG_LAYOUT_V4: "#f0f2f5",
+
+    // --- Borders ---
+    /** theme.useToken(): colorBorder */
+    BORDER: "#d9d9d9",
+    /** theme.useToken(): colorBorderSecondary / colorSplit */
+    BORDER_SECONDARY: "#f0f0f0",
+
+    // --- Text (black + alpha) ---
+    /** theme.useToken(): colorText — antd v4=rgba(0,0,0,0.85), v5=rgba(0,0,0,0.88) */
+    TEXT: "#000000d9",
+    /** theme.useToken(): colorTextTertiary — rgba(0,0,0,0.45) */
+    TEXT_TERTIARY: "#00000073",
+    /** theme.useToken(): colorTextQuaternary — rgba(0,0,0,0.25) */
+    TEXT_QUATERNARY: "#00000040",
+
+    // --- Fills / Shadows ---
+    /** theme.useToken(): colorFill — rgba(0,0,0,0.15) */
+    FILL: "#00000026",
+    /** theme.useToken(): colorFillTertiary — rgba(0,0,0,0.04) */
+    FILL_TERTIARY: "rgba(0, 0, 0, 0.04)",
+    /** theme.useToken(): ~colorFillQuaternary — rgba(0,0,0,~0.03) */
+    FILL_QUATERNARY: "#00000008",
+  };
+}
+
+export abstract class CustomColor {
+  /** Custom avatar background for non-anonymous users */
+  public static readonly AVATAR_BG = "#ececec";
+  /** Editor glyph margin error indicator */
+  public static readonly EDITOR_ERROR_GLYPH = "#ecabbb";
+  /** Blue focus ring with alpha */
+  public static readonly FOCUS_RING_BLUE = "rgba(5, 145, 255, 0.1)";
+  /** Subtle border — rgba(0,0,0,~0.03) */
+  public static readonly BORDER_SUBTLE = "rgba(0, 0, 0, 0.03)";
 }

@@ -411,7 +411,7 @@ const FieldThumbnail = styled.div`
 `;
 
 const StyledIcon = styled(Icon)`
-  border: 1px solid #f0f0f0;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   width: 28px;
   height: 28px;
   display: flex;
@@ -423,7 +423,7 @@ const StyledIcon = styled(Icon)`
 `;
 
 const StyledTitle = styled.p`
-  color: #000000d9;
+  color: ${AntdColor.NEUTRAL.TEXT};
   font-size: 16px;
   margin: 0 20px 0 12px;
   overflow: auto;

@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 const ViewerNotSupported: React.FC = () => {
   const t = useT();
@@ -36,7 +37,7 @@ const ViewerNotSupportedText = styled.span`
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
-  color: rgba(0, 0, 0, 0.85);
+  color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const StyledIcon = styled(Icon)`

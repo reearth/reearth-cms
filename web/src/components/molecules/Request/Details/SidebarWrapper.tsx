@@ -10,6 +10,7 @@ import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules
 import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 const { Option } = Select;
@@ -135,7 +136,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({
 };
 
 const SideBarWrapper = styled.div`
-  background-color: #fafafa;
+  background-color: ${AntdColor.NEUTRAL.BG_ELEVATED};
   padding: 8px;
   width: 272px;
 `;

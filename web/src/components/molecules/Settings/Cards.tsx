@@ -4,6 +4,7 @@ import ReactDragListView from "react-drag-listview";
 import Card from "@reearth-cms/components/atoms/Card";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { Resource } from "@reearth-cms/components/molecules/Workspace/types";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 export type Props = {
   resources: Resource[];
@@ -78,9 +79,9 @@ const StyledCard = styled(Card)<{ hasUpdateRight: boolean }>`
     ${({ hasUpdateRight }) => !hasUpdateRight && "cursor: not-allowed;"}
     > .anticon {
       ${({ hasUpdateRight }) =>
-        !hasUpdateRight && "cursor: not-allowed; color: rgba(0, 0, 0, 0.25);"}
+        !hasUpdateRight && `cursor: not-allowed; color: ${AntdColor.NEUTRAL.TEXT_QUATERNARY};`}
       :hover {
-        ${({ hasUpdateRight }) => !hasUpdateRight && "color: rgba(0, 0, 0, 0.25);"}
+        ${({ hasUpdateRight }) => !hasUpdateRight && `color: ${AntdColor.NEUTRAL.TEXT_QUATERNARY};`}
       }
     }
   }

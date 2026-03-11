@@ -20,6 +20,7 @@ import {
 } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { AntdColor } from "@reearth-cms/utils/color";
 import { ImportContentUtils } from "@reearth-cms/utils/importContent";
 
 import { Field } from "../../Schema/types";
@@ -237,7 +238,7 @@ const ContentListMolecule: React.FC<Props> = ({
 
 const Content = styled.div`
   width: 100%;
-  background-color: #fff;
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
 `;
 
 const StyledPageHeder = styled(PageHeader)`

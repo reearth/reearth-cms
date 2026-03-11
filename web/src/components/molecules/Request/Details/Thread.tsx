@@ -6,6 +6,7 @@ import Comment from "@reearth-cms/components/molecules/Common/CommentsPanel/Comm
 import { RequestDescription } from "@reearth-cms/components/molecules/Request/Details/RequestDescription";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 import RequestEditor from "./Editor";
 import RequestStatus from "./RequestStatus";
@@ -93,7 +94,7 @@ const CommentWrapper = styled.div`
     overflow-wrap: anywhere;
   }
   .ant-comment-avatar {
-    background-color: #f5f5f5;
+    background-color: ${AntdColor.NEUTRAL.BG_LAYOUT};
     margin-right: 0;
     padding-right: 12px;
   }
@@ -105,7 +106,7 @@ const CommentWrapper = styled.div`
       position: absolute;
       width: 4px;
       height: 24px;
-      background-color: #d9d9d9;
+      background-color: ${AntdColor.NEUTRAL.BORDER};
       left: 16px;
       top: -30px;
     }
@@ -119,14 +120,14 @@ const CommentWrapper = styled.div`
 `;
 
 const ThreadDivider = styled.div`
-  border-top: 1px solid #d9d9d9;
+  border-top: 1px solid ${AntdColor.NEUTRAL.BORDER};
   width: calc(100% - 12px);
   padding: 0 12px;
 `;
 
 const StyledAntDComment = styled(AntDComment)`
   margin-top: 16px;
-  background-color: #f5f5f5;
+  background-color: ${AntdColor.NEUTRAL.BG_LAYOUT};
   .ant-comment-inner {
     padding: 0;
   }

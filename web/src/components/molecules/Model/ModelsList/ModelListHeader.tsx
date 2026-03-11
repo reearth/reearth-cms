@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 type Props = {
   title: string;
@@ -29,7 +30,7 @@ const Header = styled.div`
 const SchemaStyledTitle = styled.h2``;
 
 const StyledIcon = styled(Icon)`
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   padding: 12px 20px;
 `;
 

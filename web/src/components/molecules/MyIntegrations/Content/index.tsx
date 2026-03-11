@@ -13,6 +13,7 @@ import {
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import Webhook from "@reearth-cms/components/molecules/MyIntegrations/Webhook";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 const { TabPane } = Tabs;
 
@@ -87,7 +88,7 @@ const MyIntegrationContent: React.FC<Props> = ({
 
 const MyIntegrationWrapper = styled.div`
   min-height: calc(100% - 16px);
-  background-color: #fff;
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
   margin: 16px 16px 0;
 `;
 

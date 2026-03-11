@@ -16,6 +16,7 @@ import {
   TerrainInput,
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 type Props = {
   loading: boolean;
@@ -212,12 +213,12 @@ const Title = styled.h3`
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
-  color: rgba(0, 0, 0, 0.85);
+  color: ${AntdColor.NEUTRAL.TEXT};
   margin-bottom: 4px;
 `;
 
 const SecondaryText = styled.p`
-  color: #00000073;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   margin-bottom: 12px;
 `;
 

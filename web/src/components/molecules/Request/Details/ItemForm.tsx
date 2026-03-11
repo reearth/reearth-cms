@@ -76,7 +76,7 @@ const StyledForm = styled(Form)`
   width: 100%;
   height: 100%;
   overflow-y: auto;
-  background: #fff;
+  background: ${AntdColor.NEUTRAL.BG_WHITE};
   label {
     width: 100%;
     display: flex;

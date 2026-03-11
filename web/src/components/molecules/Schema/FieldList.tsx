@@ -6,6 +6,8 @@ import List from "@reearth-cms/components/atoms/List";
 import { useT } from "@reearth-cms/i18n";
 import { Test } from "@reearth-cms/test/utils";
 
+import { AntdColor } from "@reearth-cms/utils/color";
+
 import { fieldTypes } from "./fieldTypes";
 import { SchemaFieldType, SelectedSchemaType, Tab } from "./types";
 
@@ -143,7 +145,7 @@ const FieldCategoryTitle = styled.h2`
   line-height: 20px;
   margin-bottom: 12px;
   margin-top: 12px;
-  color: rgba(0, 0, 0, 0.45);
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const FieldStyledList = styled(List<FieldListItem>)<{ hasCreateRight: boolean }>`
@@ -151,20 +153,20 @@ const FieldStyledList = styled(List<FieldListItem>)<{ hasCreateRight: boolean }>
   overflow-y: auto;
   padding-bottom: 24px;
   .ant-list-item {
-    background-color: #fff;
+    background-color: ${AntdColor.NEUTRAL.BG_WHITE};
     cursor: ${({ hasCreateRight }) => (hasCreateRight ? "pointer" : "not-allowed")};
     + .ant-list-item {
       margin-top: 12px;
     }
     padding: 4px;
-    box-shadow: 0px 2px 8px #00000026;
+    box-shadow: 0px 2px 8px ${AntdColor.NEUTRAL.FILL};
     .ant-list-item-meta {
       .ant-list-item-meta-title {
         margin: 0;
       }
       align-items: center;
       .ant-list-item-meta-avatar {
-        border: 1px solid #f0f0f0;
+        border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
         width: 28px;
         height: 28px;
         display: flex;

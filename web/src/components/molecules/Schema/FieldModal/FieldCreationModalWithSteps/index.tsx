@@ -604,12 +604,12 @@ const FieldThumbnail = styled.div`
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
-    color: #000000d9;
+    color: ${AntdColor.NEUTRAL.TEXT};
   }
 `;
 
 const StyledIcon = styled(Icon)`
-  border: 1px solid #f0f0f0;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   width: 28px;
   height: 28px;
   display: flex;

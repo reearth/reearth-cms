@@ -3,6 +3,7 @@ import { Children, ReactNode } from "react";
 
 import Content from "@reearth-cms/components/atoms/Content";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 type Props = {
   title?: ReactNode;
@@ -50,7 +51,7 @@ const PaddedContent = styled(Content)<{ isFullHeight: boolean }>`
 `;
 
 const Header = styled(PageHeader)`
-  background-color: #fff !important;
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE} !important;
   padding: 24px;
   margin-bottom: 16px;
 `;

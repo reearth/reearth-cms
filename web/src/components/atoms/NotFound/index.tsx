@@ -31,7 +31,7 @@ const Wrapper = styled.div`
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: #f0f2f5;
+  background: ${AntdColor.NEUTRAL.BG_LAYOUT_V4};
 `;
 
 const CircleWrapper = styled.div`
@@ -45,7 +45,7 @@ const Circle = styled.div`
   font-size: 96px;
   color: ${AntdColor.GREY.GREY_0}; /* originally #BFBFBF */
   font-weight: 700;
-  background-color: #d9d9d9;
+  background-color: ${AntdColor.NEUTRAL.BORDER};
   width: 240px;
   height: 240px;
   padding: 0;
@@ -70,6 +70,6 @@ const StyledText = styled.p`
   font-weight: 500;
   font-size: 16px;
   line-height: 24px;
-  color: #00000073;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   margin-bottom: 24px;
 `;

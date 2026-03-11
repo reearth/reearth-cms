@@ -7,6 +7,7 @@ import Tabs from "@reearth-cms/components/atoms/Tabs";
 import { View, CurrentView } from "@reearth-cms/components/molecules/View/types";
 import ViewsMenuItem from "@reearth-cms/components/molecules/View/viewMenuItem";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 const { DragColumn } = ReactDragListView;
 
@@ -118,7 +119,7 @@ const StyledTabs = styled(Tabs)`
 `;
 
 const NewViewButton = styled(Button)`
-  color: rgba(0, 0, 0, 0.25);
+  color: ${AntdColor.NEUTRAL.TEXT_QUATERNARY};
   margin-left: 5px;
 `;
 

@@ -8,6 +8,7 @@ import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 import RequestSidebarWrapper from "./SidebarWrapper";
 
@@ -69,7 +70,7 @@ const RequestMolecule: React.FC<Props> = ({
       <PageHeader
         title={`${t("Request")} / ${currentRequest.title}`}
         onBack={onBack}
-        style={{ backgroundColor: "#fff" }}
+        style={{ backgroundColor: AntdColor.NEUTRAL.BG_WHITE }}
         extra={
           <>
             <Button

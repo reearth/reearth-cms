@@ -6,6 +6,7 @@ import Comment from "@reearth-cms/components/molecules/Common/CommentsPanel/Comm
 import { Comment as CommentType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 import Editor from "./Editor";
 
@@ -136,7 +137,7 @@ const CommentsContainer = styled.div`
 `;
 
 const EmptyText = styled.p`
-  color: #00000073;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   text-align: center;
   width: 100%;
   position: absolute;
