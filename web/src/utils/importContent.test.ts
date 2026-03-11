@@ -4346,4 +4346,66 @@ describe("Content import test", () => {
       expect(result.tooltipMessage).toBeUndefined();
     });
   });
+
+  describe("[Fail case] Inverted min/max range", () => {
+    test("C1: Integer field with max <= min produces validation error", async () => {
+      const fields = [
+        {
+          ...DEFAULT_COMMON_FIELD,
+          type: SchemaFieldType.Integer,
+          key: "int-field",
+          required: true,
+          multiple: false,
+          typeProperty: { min: 100, max: 50 },
+        },
+      ];
+
+      const contentList = [{ "int-field": 75 }];
+
+      const result = await ImportContentUtils.validateContent(
+        contentList,
+        fields,
+        "JSON",
+        Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+      );
+      expect(result.isValid).toBe(false);
+      if (!result.isValid) {
+        expect(result.error.zodIssues.length).toBeGreaterThan(0);
+      }
+    });
+
+    test("C2: Number field with max <= min produces validation error", async () => {
+      const fields = [
+        {
+          ...DEFAULT_COMMON_FIELD,
+          type: SchemaFieldType.Number,
+          key: "num-field",
+          required: true,
+          multiple: false,
+          typeProperty: { min: 100.5, max: 50.5 },
+        },
+      ];
+
+      const contentList = [{ "num-field": 75.0 }];
+
+      const result = await ImportContentUtils.validateContent(
+        contentList,
+        fields,
+        "JSON",
+        Test.IMPORT.TEST_MAX_CONTENT_RECORDS,
+      );
+      expect(result.isValid).toBe(false);
+      if (!result.isValid) {
+        expect(result.error.zodIssues.length).toBeGreaterThan(0);
+      }
+    });
+
+    test("C3: convertCSVToJSON with empty CSV string returns empty data", async () => {
+      const result = await ImportContentUtils.convertCSVToJSON("");
+      expect(result.isValid).toBe(true);
+      if (result.isValid) {
+        expect(result.data).toEqual([]);
+      }
+    });
+  });
 });

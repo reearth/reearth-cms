@@ -300,7 +300,7 @@ export interface ImportSchema {
 export abstract class ImportSchemaUtils {
   public static validateSchemaFromJSON(
     json: ImportSchema,
-  ): { isValid: true; data: ImportSchema } | { isValid: false; error: string } {
+  ): { isValid: true; data: ImportSchema } | { isValid: false; error: string; zodIssues: z.core.$ZodIssue[] } {
     const timer = new PerformanceTimer("validateSchemaFromJSON");
 
     const validation = this.IMPORT_SCHEMA_VALIDATOR.safeParse(json);
@@ -310,7 +310,7 @@ export abstract class ImportSchemaUtils {
     if (validation.success) {
       return { isValid: true, data: validation.data };
     } else {
-      return { isValid: false, error: validation.error.message };
+      return { isValid: false, error: validation.error.message, zodIssues: validation.error.issues };
     }
   }
 
@@ -758,7 +758,7 @@ export abstract class ImportSchemaUtils {
             if (defaultValue && !valuesSet.has(defaultValue)) {
               context.addIssue({
                 code: "invalid_value",
-                message: "defaultValue should be in one of values",
+                message: "defaultValue should be in one of options",
                 input: value,
                 values: options,
               });
@@ -778,7 +778,7 @@ export abstract class ImportSchemaUtils {
             if (defaultValue && defaultValue.some(_value => !valuesSet.has(_value))) {
               context.addIssue({
                 code: "invalid_value",
-                message: "defaultValue should be in one of values",
+                message: "defaultValue should be in one of options",
                 input: value,
                 values: options,
               });

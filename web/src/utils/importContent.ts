@@ -19,6 +19,7 @@ export interface ValidationErrorMeta {
   exceedLimit: boolean;
   typeMismatchFieldKeys: Set<PropertyKey>;
   outOfRangeFieldKeys: Set<string>;
+  zodIssues: z.core.$ZodIssue[];
 }
 
 export type ContentSourceFormat = "CSV" | "JSON" | "GEOJSON";
@@ -599,7 +600,7 @@ export abstract class ImportContentUtils {
 
         return acc;
       },
-      { exceedLimit: false, typeMismatchFieldKeys: new Set(), outOfRangeFieldKeys: new Set() },
+      { exceedLimit: false, typeMismatchFieldKeys: new Set(), outOfRangeFieldKeys: new Set(), zodIssues: schemaValidation.error.issues },
     );
   }
 

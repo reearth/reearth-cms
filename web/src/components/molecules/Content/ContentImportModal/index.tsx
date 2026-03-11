@@ -19,6 +19,7 @@ import { Trans, useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { Constant } from "@reearth-cms/utils/constant";
 import { FileUtils } from "@reearth-cms/utils/file";
+import { ErrorLogMeta, ImportErrorLogUtils } from "@reearth-cms/utils/importErrorLog";
 import {
   ImportContentItem,
   ImportContentUtils,
@@ -119,9 +120,25 @@ const ContentImportModal: React.FC<Props> = ({
     ]);
   }, [setAlertList, t]);
 
+  const buildErrorLogMeta = useCallback(
+    (errorMeta: ValidationErrorMeta, fileName: string): ErrorLogMeta | undefined => {
+      if (errorMeta.zodIssues.length === 0) return undefined;
+      const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(errorMeta.zodIssues);
+      return {
+        fileName,
+        source: "content",
+        totalErrors: errorMeta.zodIssues.length,
+        entries,
+      };
+    },
+    [],
+  );
+
   const schemaValidationAlert = useCallback(
-    (errorMeta: ValidationErrorMeta) => {
+    (errorMeta: ValidationErrorMeta, fileName: string) => {
       setAlertList([]);
+
+      const errorLogMeta = buildErrorLogMeta(errorMeta, fileName);
 
       if (errorMeta.exceedLimit) {
         // case: above limit + some mismatch (exceedLimit = true, mismatchFields.size > 0)
@@ -141,6 +158,7 @@ const ContentImportModal: React.FC<Props> = ({
               count: errorMeta.typeMismatchFieldKeys.size,
               fields: Array.from(errorMeta.typeMismatchFieldKeys),
             }),
+            errorLogMeta,
           });
         }
         // case: above limit, full match (exceedLimit = true, mismatchFields.size = 0)
@@ -155,6 +173,7 @@ const ContentImportModal: React.FC<Props> = ({
                 maxSizeInMB: Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
               },
             ),
+            errorLogMeta,
           });
         }
       } else {
@@ -175,6 +194,7 @@ const ContentImportModal: React.FC<Props> = ({
               fields: Array.from(errorMeta.typeMismatchFieldKeys),
             }),
             canForwardToImport: true,
+            errorLogMeta,
           });
         }
         // case: below limit, no match (exceedLimit = false, mismatchFields.size = modelFieldCount)
@@ -185,11 +205,12 @@ const ContentImportModal: React.FC<Props> = ({
             description: t(
               "The data file does not match the schema. None of the fields could be recognized. Please update the file or use a different schema to continue.",
             ),
+            errorLogMeta,
           });
         }
       }
     },
-    [modelFields.length, setAlertList, setValidateImportResult, t],
+    [buildErrorLogMeta, modelFields.length, setAlertList, setValidateImportResult, t],
   );
 
   const handleStartLoading = useCallback(() => onSetDataChecking(true), [onSetDataChecking]);
@@ -260,7 +281,7 @@ const ContentImportModal: React.FC<Props> = ({
 
             if (!jsonContentValidation.isValid) {
               pendingImportRef.current = { file, fileName, extension };
-              schemaValidationAlert(jsonContentValidation.error);
+              schemaValidationAlert(jsonContentValidation.error, fileName);
               return;
             }
 
@@ -292,7 +313,7 @@ const ContentImportModal: React.FC<Props> = ({
 
             if (!geoJSONContentValidation.isValid) {
               pendingImportRef.current = { file, fileName, extension };
-              schemaValidationAlert(geoJSONContentValidation.error);
+              schemaValidationAlert(geoJSONContentValidation.error, fileName);
               return;
             }
 
@@ -316,7 +337,7 @@ const ContentImportModal: React.FC<Props> = ({
 
             if (!csvContentValidation.isValid) {
               pendingImportRef.current = { file, fileName, extension };
-              schemaValidationAlert(csvContentValidation.error);
+              schemaValidationAlert(csvContentValidation.error, fileName);
               return;
             }
 
@@ -476,6 +497,14 @@ const ContentImportModal: React.FC<Props> = ({
               }}>
               {t("go back")}
             </StyledActionButton>
+            {validateImportResult.errorLogMeta && (
+              <StyledActionButton
+                type="default"
+                icon={<Icon icon="download" />}
+                onClick={() => ImportErrorLogUtils.downloadErrorLog(validateImportResult.errorLogMeta!)}>
+                {t("Download error log")}
+              </StyledActionButton>
+            )}
             {validateImportResult.canForwardToImport && (
               <StyledActionButton
                 type="primary"

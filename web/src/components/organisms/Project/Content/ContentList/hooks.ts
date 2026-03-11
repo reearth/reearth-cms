@@ -71,6 +71,7 @@ export type ValidateImportResult = {
   description: string;
   canForwardToImport?: boolean;
   hint?: string;
+  errorLogMeta?: import("@reearth-cms/utils/importErrorLog").ErrorLogMeta;
 };
 
 export default () => {
