@@ -12,7 +12,6 @@ import {
   FieldType as ColumnType,
 } from "@reearth-cms/components/molecules/View/types";
 import { Member } from "@reearth-cms/components/molecules/Workspace/types";
-import { t } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/style";
 
 export type ColorType =
@@ -20,9 +19,6 @@ export type ColorType =
   | typeof AntdColor.GREEN.GREEN_5
   | typeof AntdColor.ORANGE.ORANGE_5;
 export type StateType = "DRAFT" | "PUBLIC" | "REVIEW";
-t("DRAFT");
-t("PUBLIC");
-t("REVIEW");
 
 export type DefaultFilterValueType = {
   operatorType: string;

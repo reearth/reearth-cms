@@ -1,10 +1,12 @@
 import styled from "@emotion/styled";
+import { useMemo } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
+import { StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 import { VersionedItem } from "@reearth-cms/components/molecules/Content/types";
 import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
 import { useT } from "@reearth-cms/i18n";
@@ -20,12 +22,20 @@ type Props = {
 
 const Versions: React.FC<Props> = ({ versions, versionClick, onNavigateToRequest }) => {
   const t = useT();
+  const statusTitle: Record<StateType, string> = useMemo(
+    () => ({
+      DRAFT: t("DRAFT"),
+      PUBLIC: t("PUBLIC"),
+      REVIEW: t("REVIEW"),
+    }),
+    [t],
+  );
   return (
     <>
       {versions.map((version, index) => (
         <HistoryCard key={version.version}>
           <HistoryTitle onClick={() => versionClick(version)}>
-            <Tooltip title={t(version.status)}>
+            <Tooltip title={statusTitle[version.status]}>
               <Badge
                 color={stateColors[version.status]}
                 data-testid={DATA_TEST_ID.Versions__RequestStatus}
