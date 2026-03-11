@@ -153,6 +153,19 @@ describe("Style", () => {
       });
     });
 
+    describe("SHADOW", () => {
+      test("BASE matches antd v5 boxShadow", () => {
+        expect(AntdToken.SHADOW.BASE).toContain("rgba(0, 0, 0, 0.16)");
+        expect(AntdToken.SHADOW.BASE).toContain("rgba(0, 0, 0, 0.12)");
+        expect(AntdToken.SHADOW.BASE).toContain("rgba(0, 0, 0, 0.09)");
+      });
+      test("SECONDARY matches antd v5 boxShadowSecondary", () => {
+        expect(AntdToken.SHADOW.SECONDARY).toContain("rgba(0, 0, 0, 0.12)");
+        expect(AntdToken.SHADOW.SECONDARY).toContain("rgba(0, 0, 0, 0.08)");
+        expect(AntdToken.SHADOW.SECONDARY).toContain("rgba(0, 0, 0, 0.05)");
+      });
+    });
+
     describe("SPACING", () => {
       test("XXS matches antd v5 paddingXXS (4px)", () => {
         expect(AntdToken.SPACING.XXS).toBe(4);

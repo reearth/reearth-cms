@@ -296,6 +296,15 @@ export abstract class AntdToken {
     LG: 24,
   };
 
+  // --- Box Shadow (antd v5 defaults) ---
+  public static readonly SHADOW = {
+    /** token.boxShadow — elevation 1 */
+    BASE: "0 1px 2px -2px rgba(0, 0, 0, 0.16), 0 3px 6px 0 rgba(0, 0, 0, 0.12), 0 5px 12px 4px rgba(0, 0, 0, 0.09)",
+    /** token.boxShadowSecondary — elevation 2 */
+    SECONDARY:
+      "0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05)",
+  };
+
   // --- Spacing (antd v5 defaults) ---
   public static readonly SPACING = {
     /** token.paddingXXS / marginXXS — 4px */

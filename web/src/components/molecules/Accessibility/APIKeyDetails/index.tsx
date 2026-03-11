@@ -14,7 +14,7 @@ import { APIKey, KeyFormType } from "@reearth-cms/components/molecules/Accessibi
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdToken } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import AccessAPITable from "../AccessAPI/AccessAPITable";
 
@@ -225,10 +225,10 @@ const StyledTokenInput = styled(Password)`
   .ant-input-prefix {
     order: 1;
     margin-left: ${AntdToken.SPACING.XXS}px;
-    color: rgb(0, 0, 0, 0.45);
+    color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
     transition: all 0.3s;
     :hover {
-      color: rgba(0, 0, 0, 0.88);
+      color: ${AntdColor.NEUTRAL.TEXT_V5};
     }
   }
   .ant-input-suffix {

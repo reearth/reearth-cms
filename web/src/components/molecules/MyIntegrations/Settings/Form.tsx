@@ -215,10 +215,10 @@ const StyledTokenInput = styled(Password)`
   .ant-input-prefix {
     order: 1;
     margin-left: ${AntdToken.SPACING.XXS}px;
-    color: rgb(0, 0, 0, 0.45);
+    color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
     transition: all 0.3s;
     :hover {
-      color: rgba(0, 0, 0, 0.88);
+      color: ${AntdColor.NEUTRAL.TEXT_V5};
     }
   }
   .ant-input-suffix {
