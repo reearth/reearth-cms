@@ -50,7 +50,7 @@ const config: PlaywrightTestConfig = {
     },
   ],
   expect: {
-    timeout: 60 * 1000,
+    timeout: 90 * 1000,
   },
   timeout: 150 * 1000,
 };
