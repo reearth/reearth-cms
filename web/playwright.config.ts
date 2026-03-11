@@ -16,7 +16,7 @@ const config: PlaywrightTestConfig = {
   globalSetup: path.resolve(__dirname, "./e2e/global-setup.ts"),
   workers: process.env.CI ? 1 : undefined,
   retries: 2,
-  maxFailures: process.env.CI ? undefined : 10,
+  maxFailures: process.env.CI ? 30 : 10,
   forbidOnly: !!process.env.CI,
   use: {
     baseURL,
