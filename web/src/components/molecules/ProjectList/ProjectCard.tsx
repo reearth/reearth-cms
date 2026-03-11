@@ -3,6 +3,7 @@ import React from "react";
 
 import Card from "@reearth-cms/components/atoms/Card";
 import Tag from "@reearth-cms/components/atoms/Tag";
+import { AntdToken } from "@reearth-cms/utils/token";
 import { ProjectListItem } from "@reearth-cms/components/molecules/Workspace/types";
 import { ProjectVisibility } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
@@ -47,7 +48,7 @@ const CardWrapper = styled.div`
   cursor: pointer;
   box-shadow: none;
   transition: box-shadow 0.2s;
-  border-radius: 8px;
+  border-radius: ${AntdToken.RADIUS.LG}px;
   &:hover {
     box-shadow:
       0px 3px 6px -4px rgba(0, 0, 0, 0.12),
@@ -84,7 +85,7 @@ const StyledProjectCard = styled(Card)`
     height: 40px;
     > li {
       margin: auto;
-      font-size: 16px;
+      font-size: ${AntdToken.FONT.SIZE_LG}px;
     }
   }
   .ant-card-meta-detail {

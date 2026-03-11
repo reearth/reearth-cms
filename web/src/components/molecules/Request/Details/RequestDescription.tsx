@@ -9,6 +9,7 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Request, ItemInRequest } from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 import RequestItemForm from "./ItemForm";
@@ -100,7 +101,7 @@ const StyledAntDComment = styled(AntDComment)`
 
     .ant-comment-content-author-name {
       font-weight: 500;
-      font-size: 14px;
+      font-size: ${AntdToken.FONT.SIZE}px;
       color: ${AntdColor.GREY.GREY_8};
       overflow: hidden;
     }

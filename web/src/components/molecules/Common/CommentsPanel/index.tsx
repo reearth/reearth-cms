@@ -7,6 +7,7 @@ import { Comment as CommentType } from "@reearth-cms/components/molecules/Common
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 import Editor from "./Editor";
 
@@ -109,7 +110,7 @@ const StyledIcon = styled(Icon)`
 `;
 
 const Title = styled.h3`
-  font-size: 16px;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
   line-height: 1.5;
   cursor: pointer;
 `;

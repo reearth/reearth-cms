@@ -9,6 +9,7 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 type Props = {
   selectedKey?: string;
@@ -141,7 +142,7 @@ const SchemaAddButton = styled(Button)`
 const SchemaStyledMenuTitle = styled.h1`
   margin: 0;
   font-weight: 400;
-  font-size: 14px;
+  font-size: ${AntdToken.FONT.SIZE}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 

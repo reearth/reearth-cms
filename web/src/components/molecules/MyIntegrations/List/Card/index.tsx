@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 type Props = {
   integration: Integration;
@@ -39,7 +40,7 @@ const Card = styled.div`
   padding: 24px;
   border: 1px solid ${AntdColor.NEUTRAL.BORDER};
   box-shadow: 0px 2px 8px ${AntdColor.NEUTRAL.FILL};
-  border-radius: 4px;
+  border-radius: ${AntdToken.RADIUS.SM}px;
   cursor: pointer;
   &:hover {
     background-color: ${AntdColor.NEUTRAL.BG_LAYOUT};
@@ -51,8 +52,8 @@ const CardTitle = styled.h3`
   margin-top: 22px;
   margin-bottom: 4px;
   font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  line-height: ${AntdToken.LINE_HEIGHT.LG}px;
   color: ${AntdColor.NEUTRAL.TEXT};
   overflow: hidden;
   white-space: nowrap;
@@ -63,8 +64,8 @@ const CardSubTitle = styled.h4`
   width: 100%;
   margin: 0;
   font-weight: 400;
-  font-size: 12px;
-  line-height: 20px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
+  line-height: ${AntdToken.LINE_HEIGHT.SM}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   height: 40px;
   overflow: hidden;

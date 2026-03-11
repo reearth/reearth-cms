@@ -6,6 +6,7 @@ import { MetadataField } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/color";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
 
@@ -87,7 +88,7 @@ const CardValue = styled.div`
   padding: 12px;
   background: ${AntdColor.NEUTRAL.BG_WHITE};
   border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
-  border-radius: 2px;
+  border-radius: ${AntdToken.RADIUS.XS}px;
 `;
 
 const ItemInfo = styled(CardValue)`
@@ -116,12 +117,12 @@ const DataRow = styled.div`
 `;
 
 const DataTitle = styled.p`
-  font-size: 14px;
+  font-size: ${AntdToken.FONT.SIZE}px;
   margin: 0;
 `;
 
 const DataCommon = styled.p`
-  font-size: 12px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
   margin: 0;
   padding: 4px 8px;
 `;
@@ -138,7 +139,7 @@ const DataText = styled(DataCommon)`
 const ID = styled(DataCommon)`
   color: ${AntdColor.GREY.GREY_3}; /* originally #848484 */
   background-color: ${AntdColor.NEUTRAL.BORDER_SECONDARY};
-  border-radius: 4px;
+  border-radius: ${AntdToken.RADIUS.SM}px;
   min-width: 0;
 `;
 

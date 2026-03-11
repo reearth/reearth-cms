@@ -6,6 +6,7 @@ import List from "@reearth-cms/components/atoms/List";
 import { useT } from "@reearth-cms/i18n";
 import { Test } from "@reearth-cms/test/utils";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 import { fieldTypes } from "./fieldTypes";
 import { SchemaFieldType, SelectedSchemaType, Tab } from "./types";
@@ -140,8 +141,8 @@ const StyledTitle = styled.h1`
 
 const FieldCategoryTitle = styled.h2`
   font-weight: 400;
-  font-size: 12px;
-  line-height: 20px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
+  line-height: ${AntdToken.LINE_HEIGHT.SM}px;
   margin-bottom: 12px;
   margin-top: 12px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
@@ -178,7 +179,7 @@ const FieldStyledList = styled(List<FieldListItem>)<{ hasCreateRight: boolean }>
 
 const Meta = styled(List.Item.Meta)`
   .ant-list-item-meta-description {
-    font-size: 12px !important;
+    font-size: ${AntdToken.FONT.SIZE_SM}px !important;
   }
 `;
 

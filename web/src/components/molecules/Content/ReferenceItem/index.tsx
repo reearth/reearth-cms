@@ -7,6 +7,7 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 import { ItemStatus } from "../types";
 
@@ -71,7 +72,7 @@ const StyledReferenceItem = styled.div<{ disabled?: boolean }>`
   background-color: ${({ disabled }) =>
     disabled ? AntdColor.NEUTRAL.FILL_TERTIARY : AntdColor.NEUTRAL.BG_ELEVATED};
   border: 1px solid ${AntdColor.NEUTRAL.BORDER};
-  border-radius: 4px;
+  border-radius: ${AntdToken.RADIUS.SM}px;
   justify-content: space-between;
   flex: 1;
 `;

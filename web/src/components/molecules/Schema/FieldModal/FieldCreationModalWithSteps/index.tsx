@@ -24,6 +24,7 @@ import {
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 import { Constant } from "@reearth-cms/utils/constant";
 import { validateKey } from "@reearth-cms/utils/regex";
 
@@ -602,8 +603,8 @@ const FieldThumbnail = styled.div`
     margin: 0;
     margin-left: 12px;
     font-weight: 500;
-    font-size: 16px;
-    line-height: 24px;
+    font-size: ${AntdToken.FONT.SIZE_LG}px;
+    line-height: ${AntdToken.LINE_HEIGHT.LG}px;
     color: ${AntdColor.NEUTRAL.TEXT};
   }
 `;
@@ -644,7 +645,7 @@ const StyledModal = styled(Modal)`
 `;
 
 const StyledModelKey = styled.span`
-  font-size: 12px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
   margin-left: 4px;
 `;
 

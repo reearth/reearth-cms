@@ -5,6 +5,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import { RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 type Props = {
   requestState: RequestState;
@@ -63,8 +64,8 @@ const StyledIcon = styled(Icon)`
 const StatusTitle = styled.p`
   display: inline;
   font-weight: 500;
-  font-size: 14px;
-  line-height: 22px;
+  font-size: ${AntdToken.FONT.SIZE}px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 

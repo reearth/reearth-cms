@@ -3,6 +3,7 @@ import React from "react";
 
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 type Props = {
   username?: string;
@@ -40,7 +41,7 @@ const DashboardCard = styled.div`
 const Title = styled.p`
   color: ${AntdColor.NEUTRAL.TEXT};
   margin-bottom: 0;
-  font-size: 24px;
+  font-size: ${AntdToken.FONT.SIZE_HEADING_3}px;
   font-style: normal;
   font-weight: 600;
 `;

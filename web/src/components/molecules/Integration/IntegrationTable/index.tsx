@@ -16,6 +16,7 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 type Props = {
   workspaceIntegrations?: WorkspaceIntegration[];
@@ -238,7 +239,7 @@ const Action = styled.span`
 
 const Title = styled.h2`
   font-weight: 500;
-  font-size: 16px;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
   color: ${AntdColor.GREY.GREY_8};
   margin-bottom: 16px;
 `;

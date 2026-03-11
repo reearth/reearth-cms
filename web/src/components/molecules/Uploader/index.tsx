@@ -9,6 +9,7 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 import useHooks from "./hooks";
 import QueueItem from "./QueueItem";
@@ -243,7 +244,7 @@ const Card = styled(motion.div)`
   position: absolute;
   z-index: 30;
   background: ${AntdColor.NEUTRAL.BG_WHITE};
-  border-radius: 6px;
+  border-radius: ${AntdToken.RADIUS.BASE}px;
   box-shadow:
     0 1px 2px -2px rgba(0, 0, 0, 0.16),
     0 3px 6px 0 rgba(0, 0, 0, 0.12),
@@ -335,7 +336,7 @@ const UploadIcon = styled(motion.div)`
   cursor: pointer;
   transition-property: background-color;
   transition-duration: 0.5s;
-  border-radius: 6px;
+  border-radius: ${AntdToken.RADIUS.BASE}px;
   box-shadow:
     0 1px 2px -2px rgba(0, 0, 0, 0.16),
     0 3px 6px 0 rgba(0, 0, 0, 0.12),

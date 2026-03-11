@@ -32,6 +32,7 @@ import {
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor, CustomColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 import schema from "./schema";
 
@@ -661,7 +662,7 @@ const Placeholder = styled.div<{ isEmpty: boolean }>`
   white-space: pre-wrap;
   top: 0px;
   left: 52px;
-  font-size: 14px;
+  font-size: ${AntdToken.FONT.SIZE}px;
   color: ${AntdColor.GREY.GREY_0}; /* originally #BFBFBF */
   font-family: Consolas, "Courier New", monospace;
   pointer-events: none;

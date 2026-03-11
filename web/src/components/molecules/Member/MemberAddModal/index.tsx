@@ -12,6 +12,7 @@ import { User, Role } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember, MemberInput } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 type Props = {
   open: boolean;
@@ -302,7 +303,7 @@ const SelectedUser = styled.div`
   padding: 8px 16px;
   border: 1px solid ${AntdColor.NEUTRAL.BORDER};
   box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.016);
-  border-radius: 8px;
+  border-radius: ${AntdToken.RADIUS.LG}px;
 `;
 
 const Actions = styled.div`

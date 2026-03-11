@@ -17,6 +17,7 @@ import {
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 type Props = {
   loading: boolean;
@@ -211,8 +212,8 @@ export default Settings;
 
 const Title = styled.h3`
   font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  line-height: ${AntdToken.LINE_HEIGHT.LG}px;
   color: ${AntdColor.NEUTRAL.TEXT};
   margin-bottom: 4px;
 `;

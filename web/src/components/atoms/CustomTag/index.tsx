@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { CSSProperties } from "react";
 
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 type CustomTagProps = {
   value?: number | string;
@@ -26,8 +27,8 @@ const CustomTagWrapper = styled.div`
   font-family: Roboto Mono;
   font-style: normal;
   font-weight: 400;
-  font-size: 12px;
-  line-height: 20px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
+  line-height: ${AntdToken.LINE_HEIGHT.SM}px;
   display: flex;
   justify-content: center;
   align-items: center;

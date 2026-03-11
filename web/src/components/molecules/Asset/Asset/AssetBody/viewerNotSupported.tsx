@@ -3,6 +3,7 @@ import styled from "@emotion/styled";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 const ViewerNotSupported: React.FC = () => {
   const t = useT();
@@ -35,8 +36,8 @@ const ViewerNotSupportedText = styled.span`
   font-family: Roboto;
   font-style: normal;
   font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
+  font-size: ${AntdToken.FONT.SIZE}px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
   color: ${AntdColor.NEUTRAL.TEXT};
 `;
 

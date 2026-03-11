@@ -11,6 +11,7 @@ import { Project, Workspace } from "@reearth-cms/components/molecules/Workspace/
 import { ProjectVisibility } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
 
 import HeaderDropdown from "./Dropdown";
@@ -204,7 +205,7 @@ const Logo = styled.img`
   display: inline-block;
   color: #df3013;
   font-weight: 500;
-  font-size: 14px;
+  font-size: ${AntdToken.FONT.SIZE}px;
   line-height: 48px;
   cursor: pointer;
   margin: 0 24px;

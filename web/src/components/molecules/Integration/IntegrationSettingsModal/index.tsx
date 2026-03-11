@@ -10,6 +10,7 @@ import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integrat
 import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 type FormValues = {
   role: Role;
@@ -138,7 +139,7 @@ const Conetnt = styled.div`
 `;
 
 const LogoWrapper = styled.div`
-  border-radius: 4px;
+  border-radius: ${AntdToken.RADIUS.SM}px;
   border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
 `;
 
@@ -152,7 +153,7 @@ const Name = styled.h3`
 
 const Description = styled.p`
   margin: 0;
-  font-size: 12px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
   color: #9a9a9a;
 `;
 

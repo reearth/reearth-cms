@@ -3,6 +3,7 @@ import styled from "@emotion/styled";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 export type Props = {
   onIntegrationModalOpen: () => void;
@@ -39,7 +40,7 @@ const Card = styled.button`
   padding: 24px;
   border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   box-shadow: 0px 2px 8px ${AntdColor.NEUTRAL.FILL};
-  border-radius: 4px;
+  border-radius: ${AntdToken.RADIUS.SM}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   cursor: pointer;
   background-color: ${AntdColor.NEUTRAL.BG_WHITE};
@@ -52,8 +53,8 @@ const Card = styled.button`
 const CardTitle = styled.p`
   margin-top: 8px;
   font-weight: 500;
-  font-size: 14px;
-  line-height: 22px;
+  font-size: ${AntdToken.FONT.SIZE}px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
 `;
 
 export default IntegrationCreationAction;

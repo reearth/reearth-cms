@@ -11,6 +11,7 @@ import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { AntdColor } from "@reearth-cms/utils/color";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 type Props = {
   versions: VersionedItem[];
@@ -72,7 +73,7 @@ const HistoryTitle = styled.p`
   align-items: center;
   gap: 8px;
   font-weight: 700;
-  font-size: 12px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
   margin: 0;
   cursor: pointer;
   :hover {
@@ -86,7 +87,7 @@ const HistoryTitle = styled.p`
 const HistoryInfo = styled.div`
   margin-left: 14px;
   line-height: 1.75;
-  font-size: 12px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
 `;
 
 const User = styled.p`

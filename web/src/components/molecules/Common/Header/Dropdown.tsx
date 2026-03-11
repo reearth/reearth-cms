@@ -5,6 +5,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 type Props = {
   items: MenuProps["items"];
@@ -75,8 +76,8 @@ const StyledDropdownMenu = styled.div`
   }
   .ant-dropdown-menu-item-group-title {
     font-weight: 400;
-    font-size: 12px;
-    line-height: 22px;
+    font-size: ${AntdToken.FONT.SIZE_SM}px;
+    line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
     user-select: none;
     color: ${AntdColor.GREY.GREY_8};
   }

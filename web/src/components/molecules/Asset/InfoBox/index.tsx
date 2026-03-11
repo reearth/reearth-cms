@@ -5,6 +5,7 @@ import { JSONTree } from "react-json-tree";
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 type Props = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -69,7 +70,7 @@ const InfoBoxWrapper = styled.div`
   max-height: 800px;
   text-align: left;
   background-color: ${({ color }) => color};
-  border-radius: 6px;
+  border-radius: ${AntdToken.RADIUS.BASE}px;
 `;
 
 const Header = styled.div`
@@ -85,8 +86,8 @@ const Title = styled.div`
   margin-bottom: 0;
   margin-left: 8px;
   color: ${AntdColor.NEUTRAL.TEXT};
-  line-height: 22px;
-  font-size: 16px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;

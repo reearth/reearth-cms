@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 type Props = {
   name: string;
@@ -31,7 +32,7 @@ const CardWrapper = styled.div<{ isSelected: boolean }>`
 
 const CardTitle = styled.h3`
   font-weight: 500;
-  font-size: 16px;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
   margin: 0;
   padding-left: 12px;
   overflow: hidden;

@@ -14,6 +14,7 @@ import Typography from "@reearth-cms/components/atoms/Typography";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 import { ImportFieldInput } from "../types";
 
@@ -229,8 +230,8 @@ const FieldThumbnail = styled.div`
     margin: 0;
     margin-left: 12px;
     font-weight: 400;
-    font-size: 14px;
-    line-height: 22px;
+    font-size: ${AntdToken.FONT.SIZE}px;
+    line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
     color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   }
 `;

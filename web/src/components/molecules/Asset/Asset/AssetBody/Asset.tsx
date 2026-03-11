@@ -30,6 +30,7 @@ import {
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
@@ -298,13 +299,13 @@ const InfoRow = styled.div`
 `;
 
 const InfoKey = styled.p`
-  font-size: 14px;
+  font-size: ${AntdToken.FONT.SIZE}px;
   margin: 0;
   flex-shrink: 0;
 `;
 
 const InfoValue = styled.p`
-  font-size: 12px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
   margin: 0;
   padding: 0px 8px;
   overflow: hidden;
@@ -316,7 +317,7 @@ const InfoValue = styled.p`
 const ID = styled(InfoValue)`
   color: ${AntdColor.GREY.GREY_3}; /* originally #848484 */
   background-color: ${AntdColor.NEUTRAL.BORDER_SECONDARY};
-  border-radius: 4px;
+  border-radius: ${AntdToken.RADIUS.SM}px;
 `;
 
 export default AssetMolecule;

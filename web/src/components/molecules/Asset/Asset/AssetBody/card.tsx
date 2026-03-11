@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { CSSProperties, ReactNode } from "react";
 
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 type Props = {
   title: string | JSX.Element;
@@ -34,12 +35,12 @@ const CardHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0 12px 0 20px;
-  font-size: 24px;
+  font-size: ${AntdToken.FONT.SIZE_HEADING_3}px;
 `;
 
 const Title = styled.p`
   margin: 0;
-  font-size: 16px;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
   font-weight: 500;
   display: flex;
   gap: 16px;

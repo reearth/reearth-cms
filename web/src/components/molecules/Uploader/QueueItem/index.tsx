@@ -9,6 +9,7 @@ import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 import { UploaderQueueItem } from "../types";
 import useJobState from "../useJobState";
@@ -153,7 +154,7 @@ const ItemUpper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  line-height: 22px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
 `;
 
 const ItemLower = styled.div``;
@@ -161,7 +162,7 @@ const ItemLower = styled.div``;
 const UpperLeft = styled.div`
   display: flex;
   gap: 8px;
-  font-size: 14px;
+  font-size: ${AntdToken.FONT.SIZE}px;
 `;
 
 const UpperRight = styled.div`
@@ -192,9 +193,9 @@ const InfoIcon = styled(Icon)`
 
 const ErrorMessage = styled(Tooltip)`
   color: ${AntdColor.RED.RED_5};
-  font-size: 12px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
   padding-left: 22px;
-  line-height: 20px;
+  line-height: ${AntdToken.LINE_HEIGHT.SM}px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -203,9 +204,9 @@ const ErrorMessage = styled(Tooltip)`
 
 const Message = styled.div`
   color: ${AntdColor.GREY.GREY_2};
-  font-size: 12px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
   padding-left: 22px;
-  line-height: 22px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
 `;
 
 const FileName = styled.div`

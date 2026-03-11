@@ -18,6 +18,7 @@ import {
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 import { validateURL } from "@reearth-cms/utils/regex";
 
 type Props = {
@@ -225,8 +226,8 @@ const CheckboxLabel = styled.p`
   margin-top: 24px;
   margin-bottom: 8px;
   font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
+  font-size: ${AntdToken.FONT.SIZE}px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
   color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
@@ -236,8 +237,8 @@ const StyledForm = styled(Form<FormType>)`
 
 const CheckboxTitle = styled.h5`
   font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  line-height: ${AntdToken.LINE_HEIGHT.LG}px;
   color: ${AntdColor.NEUTRAL.TEXT};
   margin-bottom: 24px;
 `;

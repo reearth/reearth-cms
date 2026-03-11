@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import Progress from "@reearth-cms/components/atoms/Progress";
 import { useT } from "@reearth-cms/i18n";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 type Props = {
   fieldsCreationLoading: boolean;
@@ -68,5 +69,5 @@ const Container = styled.div`
 `;
 
 const StatusText = styled.p`
-  font-size: 24px;
+  font-size: ${AntdToken.FONT.SIZE_HEADING_3}px;
 `;

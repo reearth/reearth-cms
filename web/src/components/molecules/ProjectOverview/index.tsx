@@ -7,6 +7,7 @@ import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentS
 import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 import { SortBy, UpdateProjectInput } from "../Workspace/types";
 
@@ -135,7 +136,7 @@ const Placeholder = styled.div`
 `;
 
 const Heading = styled.span`
-  font-size: 16px;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
   font-weight: 500;
 `;
 

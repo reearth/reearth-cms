@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { ReactNode } from "react";
 
 import { AntdColor, CustomColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 type Props = {
   title?: string;
@@ -60,13 +61,13 @@ const InnerHeader = styled.div`
 `;
 
 const Title = styled.p`
-  font-size: 16px;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
   font-weight: 500;
   margin: 0 8px 0 0;
 `;
 
 const Description = styled.p`
-  font-size: 14px;
+  font-size: ${AntdToken.FONT.SIZE}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   margin: 4px 0 0;
 `;

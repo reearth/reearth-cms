@@ -3,6 +3,7 @@ import styled from "@emotion/styled";
 import Button from "@reearth-cms/components/atoms/Button";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 const NotFound: React.FC = () => {
   const t = useT();
@@ -68,8 +69,8 @@ const StyledTitle = styled.h1`
 
 const StyledText = styled.p`
   font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  line-height: ${AntdToken.LINE_HEIGHT.LG}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   margin-bottom: 24px;
 `;

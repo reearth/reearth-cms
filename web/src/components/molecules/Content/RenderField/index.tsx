@@ -9,6 +9,7 @@ import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes"
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 import ItemFormat from "./ItemFormat";
 
@@ -103,7 +104,7 @@ const StyledButton = styled(Button)`
   border-color: ${AntdColor.NEUTRAL.FILL_QUATERNARY};
   color: ${AntdColor.BLUE.BLUE_5};
   display: flex;
-  font-size: 12px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
   gap: 8px;
   padding: 4px;
 `;

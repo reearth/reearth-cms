@@ -6,6 +6,7 @@ import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentS
 import { useModal } from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 type Props = {
   hasDeleteRight: boolean;
@@ -48,15 +49,15 @@ export default DangerZone;
 
 const Title = styled.h1`
   font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  line-height: ${AntdToken.LINE_HEIGHT.LG}px;
   color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const Text = styled.p`
   font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
+  font-size: ${AntdToken.FONT.SIZE}px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
   color: ${AntdColor.NEUTRAL.TEXT};
   margin: 24px 0;
 `;

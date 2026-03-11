@@ -9,6 +9,7 @@ import Tree, { TreeProps } from "@reearth-cms/components/atoms/Tree";
 import { ArchiveExtractionStatus, AssetFile } from "@reearth-cms/components/molecules/Asset/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 import { generateAssetTreeData } from "./generateAssetTreeData";
 import { FileNode } from "./types";
@@ -137,8 +138,8 @@ const ExtractionFailedText = styled.p`
   font-family: Roboto;
   font-style: normal;
   font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
+  font-size: ${AntdToken.FONT.SIZE}px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
   color: ${AntdColor.NEUTRAL.TEXT};
 `;
 

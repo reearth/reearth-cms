@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { ReactNode } from "react";
 
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 type Props = {
   title: string;
@@ -25,20 +26,20 @@ const SideBarCardWrapper = styled.div`
   flex-direction: column;
   gap: 4px;
   border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
-  border-radius: 2px;
+  border-radius: ${AntdToken.RADIUS.XS}px;
   background-color: ${AntdColor.NEUTRAL.BG_WHITE};
 `;
 
 const CardTitle = styled.span`
   font-weight: 400;
   font-size: 13px;
-  line-height: 22px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const CardValue = styled.span`
   font-weight: 400;
-  font-size: 16px;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
 `;
 
 export default SideBarCard;

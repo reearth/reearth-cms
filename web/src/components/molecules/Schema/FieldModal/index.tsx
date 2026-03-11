@@ -29,6 +29,7 @@ import {
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 import { Constant } from "@reearth-cms/utils/constant";
 
 import useHooks from "./hooks";
@@ -424,13 +425,13 @@ const StyledIcon = styled(Icon)`
 
 const StyledTitle = styled.p`
   color: ${AntdColor.NEUTRAL.TEXT};
-  font-size: 16px;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
   margin: 0 20px 0 12px;
   overflow: auto;
 `;
 
 const StyledGroupKey = styled.span`
-  font-size: 12px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
   margin-left: 4px;
 `;
 

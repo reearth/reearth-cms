@@ -5,6 +5,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import { Webhook } from "@reearth-cms/components/molecules/MyIntegrations/types";
 import { useT, Trans } from "@reearth-cms/i18n";
 import { AntdColor } from "@reearth-cms/utils/color";
+import { AntdToken } from "@reearth-cms/utils/token";
 
 import WebhookCard from "./WebhookCard";
 
@@ -69,8 +70,8 @@ const ActionWrapper = styled.div`
 const Suggestion = styled.p`
   margin-bottom: 8px;
   font-weight: 400;
-  font-size: 14px;
-  line-height: 22px;
+  font-size: ${AntdToken.FONT.SIZE}px;
+  line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
@@ -93,8 +94,8 @@ const ListWrapper = styled.div`
 
 const Title = styled.p`
   font-weight: 500;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  line-height: ${AntdToken.LINE_HEIGHT.LG}px;
   color: ${AntdColor.GREY.GREY_8};
   margin-bottom: 24px;
 `;
