@@ -262,8 +262,10 @@ const AssetLink = styled(Button)`
 `;
 
 const AssetLinkedName = styled(Button)<{ disabled?: boolean }>`
-  color: ${({ disabled }) =>
-    disabled ? AntdColor.NEUTRAL.TEXT_QUATERNARY : AntdColor.BLUE.BLUE_5 /* originally #1890ff */};
+  color: ${
+    ({ disabled }) =>
+      disabled ? AntdColor.NEUTRAL.TEXT_QUATERNARY : AntdColor.BLUE.BLUE_5 /* originally #1890ff */
+  };
   margin-left: 12px;
   span {
     text-align: start;

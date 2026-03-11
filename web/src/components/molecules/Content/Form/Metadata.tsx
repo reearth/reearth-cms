@@ -4,8 +4,8 @@ import Status from "@reearth-cms/components/molecules/Content/Status";
 import { Item } from "@reearth-cms/components/molecules/Content/types";
 import { MetadataField } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
 

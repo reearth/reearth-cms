@@ -10,8 +10,8 @@ import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules
 import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/style";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 const { Option } = Select;
 

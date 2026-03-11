@@ -718,8 +718,10 @@ const GeoButtons = styled.div`
 `;
 
 const GeoButton = styled(Button)<{ selected: boolean }>`
-  color: ${({ selected }) =>
-    selected ? AntdColor.BLUE.BLUE_5 : AntdColor.GREY.GREY_6 /* originally #434343 */};
+  color: ${
+    ({ selected }) =>
+      selected ? AntdColor.BLUE.BLUE_5 : AntdColor.GREY.GREY_6 /* originally #434343 */
+  };
 `;
 
 const ZoomButtons = styled.div`
