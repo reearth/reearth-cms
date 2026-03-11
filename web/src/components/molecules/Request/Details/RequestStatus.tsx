@@ -62,7 +62,7 @@ const StyledIcon = styled(Icon)`
 
 const StatusTitle = styled.p`
   display: inline;
-  font-weight: 500;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
   font-size: ${AntdToken.FONT.SIZE}px;
   line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};

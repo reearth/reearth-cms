@@ -30,7 +30,7 @@ const CardWrapper = styled.div<{ isSelected: boolean }>`
 `;
 
 const CardTitle = styled.h3`
-  font-weight: 500;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
   font-size: ${AntdToken.FONT.SIZE_LG}px;
   margin: 0;
   padding-left: ${AntdToken.SPACING.SM}px;

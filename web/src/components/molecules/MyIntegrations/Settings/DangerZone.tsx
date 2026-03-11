@@ -60,7 +60,7 @@ const DangerZone: React.FC<Props> = ({ onIntegrationDelete }) => {
 export default DangerZone;
 
 const Title = styled.h1`
-  font-weight: 500;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
   font-size: ${AntdToken.FONT.SIZE_LG}px;
   line-height: ${AntdToken.LINE_HEIGHT.LG}px;
   color: ${AntdColor.NEUTRAL.TEXT};
@@ -68,7 +68,7 @@ const Title = styled.h1`
 `;
 
 const Text = styled.p`
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   font-size: ${AntdToken.FONT.SIZE}px;
   line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
   color: ${AntdColor.NEUTRAL.TEXT};

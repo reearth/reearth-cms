@@ -139,7 +139,7 @@ const StyledTitle = styled.h1`
 `;
 
 const FieldCategoryTitle = styled.h2`
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   font-size: ${AntdToken.FONT.SIZE_SM}px;
   line-height: ${AntdToken.LINE_HEIGHT.SM}px;
   margin-bottom: ${AntdToken.SPACING.SM}px;

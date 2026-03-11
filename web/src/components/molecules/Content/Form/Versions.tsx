@@ -81,7 +81,7 @@ const HistoryTitle = styled.p`
   display: flex;
   align-items: center;
   gap: ${AntdToken.SPACING.XS}px;
-  font-weight: 700;
+  font-weight: ${AntdToken.FONT_WEIGHT.BOLD};
   font-size: ${AntdToken.FONT.SIZE_SM}px;
   margin: 0;
   cursor: pointer;

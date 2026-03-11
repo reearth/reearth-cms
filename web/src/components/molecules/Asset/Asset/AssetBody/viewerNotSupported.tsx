@@ -34,7 +34,7 @@ const ViewerNotSupportedWrapper = styled.div`
 const ViewerNotSupportedText = styled.span`
   font-family: Roboto;
   font-style: normal;
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   font-size: ${AntdToken.FONT.SIZE}px;
   line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
   color: ${AntdColor.NEUTRAL.TEXT};

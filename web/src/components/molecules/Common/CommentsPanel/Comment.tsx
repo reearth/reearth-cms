@@ -130,7 +130,7 @@ const Comment: React.FC<Props> = ({
 const StyledAntDComment = styled(AntDComment)`
   .ant-comment-content-author {
     .ant-comment-content-author-name {
-      font-weight: 500;
+      font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
       font-size: ${AntdToken.FONT.SIZE}px;
       color: ${AntdColor.GREY.GREY_8};
       overflow: hidden;

@@ -40,7 +40,7 @@ const CardHeader = styled.div`
 const Title = styled.p`
   margin: 0;
   font-size: ${AntdToken.FONT.SIZE_LG}px;
-  font-weight: 500;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
   display: flex;
   gap: ${AntdToken.SPACING.BASE}px;
   overflow: hidden;

@@ -601,7 +601,7 @@ const FieldThumbnail = styled.div`
   h3 {
     margin: 0;
     margin-left: ${AntdToken.SPACING.SM}px;
-    font-weight: 500;
+    font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
     font-size: ${AntdToken.FONT.SIZE_LG}px;
     line-height: ${AntdToken.LINE_HEIGHT.LG}px;
     color: ${AntdColor.NEUTRAL.TEXT};
@@ -632,7 +632,7 @@ const StyledSteps = styled(Steps)<{ numSteps: number }>`
     white-space: nowrap;
   }
   .ant-steps-item-active {
-    font-weight: 600;
+    font-weight: ${AntdToken.FONT_WEIGHT.STRONG};
   }
 `;
 

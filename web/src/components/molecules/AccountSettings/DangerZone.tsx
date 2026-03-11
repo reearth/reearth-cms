@@ -42,14 +42,14 @@ const DangerZone: React.FC<Props> = ({ onUserDelete }) => {
 export default DangerZone;
 
 const Title = styled.p`
-  font-weight: 500;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
   font-size: ${AntdToken.FONT.SIZE_LG}px;
   line-height: ${AntdToken.LINE_HEIGHT.LG}px;
   color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const Text = styled.p`
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   font-size: ${AntdToken.FONT.SIZE}px;
   line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
   margin: ${AntdToken.SPACING.LG}px 0;

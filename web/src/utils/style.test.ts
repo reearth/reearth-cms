@@ -121,6 +121,21 @@ describe("Style", () => {
       });
     });
 
+    describe("FONT_WEIGHT", () => {
+      test("NORMAL is 400", () => {
+        expect(AntdToken.FONT_WEIGHT.NORMAL).toBe(400);
+      });
+      test("MEDIUM is 500", () => {
+        expect(AntdToken.FONT_WEIGHT.MEDIUM).toBe(500);
+      });
+      test("STRONG matches antd v5 fontWeightStrong (600)", () => {
+        expect(AntdToken.FONT_WEIGHT.STRONG).toBe(600);
+      });
+      test("BOLD is 700", () => {
+        expect(AntdToken.FONT_WEIGHT.BOLD).toBe(700);
+      });
+    });
+
     describe("RADIUS", () => {
       test("XS matches antd v5 borderRadiusXS (2px)", () => {
         expect(AntdToken.RADIUS.XS).toBe(2);

@@ -305,6 +305,18 @@ export abstract class AntdToken {
       "0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05)",
   };
 
+  // --- Font Weight ---
+  public static readonly FONT_WEIGHT = {
+    /** CSS normal — 400 */
+    NORMAL: 400,
+    /** Medium weight — 500 */
+    MEDIUM: 500,
+    /** token.fontWeightStrong — 600 */
+    STRONG: 600,
+    /** CSS bold — 700 */
+    BOLD: 700,
+  };
+
   // --- Spacing (antd v5 defaults) ---
   public static readonly SPACING = {
     /** token.paddingXXS / marginXXS — 4px */

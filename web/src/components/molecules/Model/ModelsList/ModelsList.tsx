@@ -140,7 +140,7 @@ const SchemaAddButton = styled(Button)`
 
 const SchemaStyledMenuTitle = styled.h1`
   margin: 0;
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   font-size: ${AntdToken.FONT.SIZE}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;

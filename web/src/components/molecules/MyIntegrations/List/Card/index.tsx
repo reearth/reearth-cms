@@ -50,7 +50,7 @@ const CardTitle = styled.h3`
   width: 100%;
   margin-top: 22px;
   margin-bottom: ${AntdToken.SPACING.XXS}px;
-  font-weight: 500;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
   font-size: ${AntdToken.FONT.SIZE_LG}px;
   line-height: ${AntdToken.LINE_HEIGHT.LG}px;
   color: ${AntdColor.NEUTRAL.TEXT};
@@ -62,7 +62,7 @@ const CardTitle = styled.h3`
 const CardSubTitle = styled.h4`
   width: 100%;
   margin: 0;
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   font-size: ${AntdToken.FONT.SIZE_SM}px;
   line-height: ${AntdToken.LINE_HEIGHT.SM}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};

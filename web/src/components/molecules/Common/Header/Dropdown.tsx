@@ -74,7 +74,7 @@ const StyledDropdownMenu = styled.div`
     color: ${AntdColor.GREY.GREY_8} !important;
   }
   .ant-dropdown-menu-item-group-title {
-    font-weight: 400;
+    font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
     font-size: ${AntdToken.FONT.SIZE_SM}px;
     line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
     user-select: none;
@@ -104,5 +104,5 @@ const Text = styled.p`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-weight: bold;
+  font-weight: ${AntdToken.FONT_WEIGHT.BOLD};
 `;

@@ -203,7 +203,7 @@ const MainHeader = styled(Header)`
 const Logo = styled.img`
   display: inline-block;
   color: ${CustomColor.LOGO_COLOR};
-  font-weight: 500;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
   font-size: ${AntdToken.FONT.SIZE}px;
   line-height: 48px;
   cursor: pointer;
@@ -235,7 +235,7 @@ const ProjectText = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: bold;
+  font-weight: ${AntdToken.FONT_WEIGHT.BOLD};
 `;
 
 const Break = styled.p`

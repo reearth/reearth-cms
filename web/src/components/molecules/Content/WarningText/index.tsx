@@ -31,7 +31,7 @@ const RequestWarning = styled.div`
     display: block;
     overflow: hidden;
     color: ${AntdColor.NEUTRAL.TEXT};
-    font-weight: 500;
+    font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
     font-size: ${AntdToken.FONT.SIZE}px;
     line-height: 1.4;
     margin-top: 2px;

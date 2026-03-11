@@ -228,7 +228,7 @@ const FieldThumbnail = styled.div`
   h3 {
     margin: 0;
     margin-left: ${AntdToken.SPACING.SM}px;
-    font-weight: 400;
+    font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
     font-size: ${AntdToken.FONT.SIZE}px;
     line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
     color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
@@ -251,7 +251,7 @@ const ItemTitleHeading = styled.span`
 const ItemKey = styled.span`
   margin-left: ${AntdToken.SPACING.XXS}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -260,7 +260,7 @@ const ItemKey = styled.span`
 const ItemUnique = styled.span`
   margin-left: ${AntdToken.SPACING.XXS}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
 `;
 
 const ItemTitleTag = styled(Tag)`

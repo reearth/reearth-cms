@@ -31,7 +31,7 @@ const SideBarCardWrapper = styled.div`
 const CardTitle = styled.h2`
   font-family: "Roboto";
   font-style: normal;
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   font-size: 13px;
   line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
@@ -42,7 +42,7 @@ const CardTitle = styled.h2`
 const CardValue = styled.p`
   font-family: "Roboto";
   font-style: normal;
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   font-size: ${AntdToken.FONT.SIZE_LG}px;
   line-height: ${AntdToken.LINE_HEIGHT.LG}px;
   color: ${AntdColor.NEUTRAL.TEXT};

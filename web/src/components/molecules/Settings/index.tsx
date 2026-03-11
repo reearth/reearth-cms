@@ -210,7 +210,7 @@ const Settings: React.FC<Props> = ({
 export default Settings;
 
 const Title = styled.h3`
-  font-weight: 500;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
   font-size: ${AntdToken.FONT.SIZE_LG}px;
   line-height: ${AntdToken.LINE_HEIGHT.LG}px;
   color: ${AntdColor.NEUTRAL.TEXT};
@@ -224,7 +224,7 @@ const SecondaryText = styled.p`
 
 const Text = styled.p`
   color: ${AntdColor.NEUTRAL.TEXT};
-  font-weight: 500;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
 `;
 
 const SwitchWrapper = styled.div`

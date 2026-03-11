@@ -264,5 +264,5 @@ const FieldTypeLabel = styled.div`
   justify-content: start;
   align-items: center;
   gap: ${AntdToken.SPACING.XS}px;
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
 `;

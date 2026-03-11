@@ -61,7 +61,7 @@ const InnerHeader = styled.div`
 
 const Title = styled.p`
   font-size: ${AntdToken.FONT.SIZE_LG}px;
-  font-weight: 500;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
   margin: 0 8px 0 0;
 `;
 

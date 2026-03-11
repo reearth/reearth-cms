@@ -42,7 +42,7 @@ const Title = styled.p`
   margin-bottom: 0;
   font-size: ${AntdToken.FONT.SIZE_HEADING_3}px;
   font-style: normal;
-  font-weight: 600;
+  font-weight: ${AntdToken.FONT_WEIGHT.STRONG};
 `;
 
 const SubTitle = styled.p`
@@ -50,7 +50,7 @@ const SubTitle = styled.p`
   margin-bottom: 0px;
   font-size: 12.8px;
   font-style: normal;
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
 `;
 
 const CoverImage = styled.img`

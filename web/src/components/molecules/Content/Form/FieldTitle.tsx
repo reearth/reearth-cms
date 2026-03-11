@@ -44,7 +44,7 @@ const Wrapper = styled.span`
 const FieldUnique = styled.span`
   margin-left: ${AntdToken.SPACING.XXS}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
 `;
 
 const TagWrapper = styled.span`

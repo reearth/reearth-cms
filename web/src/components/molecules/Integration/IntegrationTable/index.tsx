@@ -237,7 +237,7 @@ const Action = styled.span`
 `;
 
 const Title = styled.h2`
-  font-weight: 500;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
   font-size: ${AntdToken.FONT.SIZE_LG}px;
   color: ${AntdColor.GREY.GREY_8};
   margin-bottom: ${AntdToken.SPACING.BASE}px;

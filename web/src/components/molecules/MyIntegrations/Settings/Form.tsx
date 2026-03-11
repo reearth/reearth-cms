@@ -181,7 +181,7 @@ const MyIntegrationForm: React.FC<Props> = ({
 };
 
 const CodeExampleTitle = styled.h2`
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   font-size: ${AntdToken.FONT.SIZE}px;
   line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
   color: ${AntdColor.NEUTRAL.TEXT};
@@ -190,7 +190,7 @@ const CodeExampleTitle = styled.h2`
 const CodeExample = styled.pre`
   border: 1px solid ${AntdColor.NEUTRAL.BORDER};
   padding: 5px 12px;
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   font-size: ${AntdToken.FONT.SIZE}px;
   line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
   color: ${AntdColor.NEUTRAL.TEXT};

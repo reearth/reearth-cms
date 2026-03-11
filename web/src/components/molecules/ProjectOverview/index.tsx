@@ -136,7 +136,7 @@ const Placeholder = styled.div`
 
 const Heading = styled.span`
   font-size: ${AntdToken.FONT.SIZE_LG}px;
-  font-weight: 500;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
 `;
 
 const Content = styled.div`

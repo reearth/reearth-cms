@@ -77,7 +77,7 @@ const Metadata: React.FC<Props> = ({ item, fields, disabled }) => {
 };
 
 const CardTitle = styled.h4`
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   font-size: 13px;
   color: ${AntdColor.GREY.GREY_2}; /* originally #898989 */
   margin-bottom: ${AntdToken.SPACING.XS}px;

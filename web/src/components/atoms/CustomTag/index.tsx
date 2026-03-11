@@ -25,7 +25,7 @@ const CustomTagWrapper = styled.div`
   border-radius: 100px;
   font-family: Roboto Mono;
   font-style: normal;
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   font-size: ${AntdToken.FONT.SIZE_SM}px;
   line-height: ${AntdToken.LINE_HEIGHT.SM}px;
   display: flex;

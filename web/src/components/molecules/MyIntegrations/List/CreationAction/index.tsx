@@ -51,7 +51,7 @@ const Card = styled.button`
 
 const CardTitle = styled.p`
   margin-top: ${AntdToken.SPACING.XS}px;
-  font-weight: 500;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
   font-size: ${AntdToken.FONT.SIZE}px;
   line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
 `;

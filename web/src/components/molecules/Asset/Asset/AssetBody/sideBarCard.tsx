@@ -30,14 +30,14 @@ const SideBarCardWrapper = styled.div`
 `;
 
 const CardTitle = styled.span`
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   font-size: 13px;
   line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const CardValue = styled.span`
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   font-size: ${AntdToken.FONT.SIZE_LG}px;
 `;
 

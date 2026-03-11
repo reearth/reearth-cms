@@ -39,7 +39,7 @@ const Circle = styled.div`
   justify-content: center;
   font-size: 96px;
   color: ${AntdColor.GREY.GREY_0}; /* originally #BFBFBF */
-  font-weight: 700;
+  font-weight: ${AntdToken.FONT_WEIGHT.BOLD};
   background-color: ${AntdColor.NEUTRAL.BORDER};
   width: 240px;
   height: 240px;
@@ -53,13 +53,13 @@ const Content = styled.div`
 
 const StyledTitle = styled.p`
   color: ${AntdColor.BLUE.BLUE_5}; /* originally #1890ff */
-  font-weight: 500;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
   font-size: 38px;
   margin-bottom: ${AntdToken.SPACING.LG}px;
 `;
 
 const StyledText = styled.p`
-  font-weight: 500;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
   font-size: ${AntdToken.FONT.SIZE_LG}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   margin-bottom: ${AntdToken.SPACING.LG}px;
