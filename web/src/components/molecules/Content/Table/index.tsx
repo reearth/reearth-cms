@@ -165,7 +165,11 @@ const ContentTable: React.FC<Props> = ({
         title: "",
         hideInSetting: true,
         render: (_, contentField) => (
-          <Icon icon="edit" color={AntdColor.BLUE.BLUE_5 /* originally #1890ff */} onClick={() => onItemEdit(contentField.id)} />
+          <Icon
+            icon="edit"
+            color={AntdColor.BLUE.BLUE_5 /* originally #1890ff */}
+            onClick={() => onItemEdit(contentField.id)}
+          />
         ),
         dataIndex: "editIcon",
         fieldType: "EDIT_ICON",

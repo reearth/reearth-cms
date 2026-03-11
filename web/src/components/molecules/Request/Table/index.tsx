@@ -86,7 +86,11 @@ const RequestListTable: React.FC<Props> = ({
         title: "",
         hideInSetting: true,
         render: (_, request) => (
-          <Icon icon="edit" color={AntdColor.BLUE.BLUE_5 /* originally #1890ff */} onClick={() => onEdit(request.id)} />
+          <Icon
+            icon="edit"
+            color={AntdColor.BLUE.BLUE_5 /* originally #1890ff */}
+            onClick={() => onEdit(request.id)}
+          />
         ),
         key: "EDIT_ICON",
         width: 48,

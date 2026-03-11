@@ -5,7 +5,6 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
 import { useT } from "@reearth-cms/i18n";
 import { Test } from "@reearth-cms/test/utils";
-
 import { AntdColor } from "@reearth-cms/utils/color";
 
 import { fieldTypes } from "./fieldTypes";

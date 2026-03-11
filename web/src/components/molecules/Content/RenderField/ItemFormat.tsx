@@ -141,7 +141,13 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
             color={AntdColor.NEUTRAL.BG_WHITE}
             overlayStyle={{ paddingLeft: 0 }}
             overlayInnerStyle={{ transform: "translateX(-40px)" }}
-            title={<Icon color={AntdColor.BLUE.BLUE_5} icon={"edit"} onClick={() => setIsEditable(true)} />}>
+            title={
+              <Icon
+                color={AntdColor.BLUE.BLUE_5}
+                icon={"edit"}
+                onClick={() => setIsEditable(true)}
+              />
+            }>
             <UrlWrapper>
               <a href={itemState} target="_blank" rel="noreferrer">
                 {itemState}

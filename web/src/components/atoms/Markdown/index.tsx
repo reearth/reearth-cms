@@ -78,10 +78,17 @@ const StyledMD = styled.div<{ disabled?: boolean; isError: boolean }>`
   ${({ isError }) => isError && `border-color: ${AntdColor.RED.RED_4}`};
   &:hover,
   &:focus {
-    border-color: ${({ disabled, isError }) =>
-      disabled ? AntdColor.NEUTRAL.BORDER : isError ? AntdColor.RED.RED_2 : `${AntdColor.BLUE.BLUE_4}` /* originally #40a9ff */};
+    border-color: ${
+      ({ disabled, isError }) =>
+        disabled
+          ? AntdColor.NEUTRAL.BORDER
+          : isError
+            ? AntdColor.RED.RED_2
+            : `${AntdColor.BLUE.BLUE_4}` /* originally #40a9ff */
+    };
   }
-  background-color: ${({ disabled }) => (disabled ? AntdColor.NEUTRAL.BG_LAYOUT : AntdColor.NEUTRAL.BG_WHITE)};
+  background-color: ${({ disabled }) =>
+    disabled ? AntdColor.NEUTRAL.BG_LAYOUT : AntdColor.NEUTRAL.BG_WHITE};
   * {
     ${({ isError }) => isError && `color: ${AntdColor.RED.RED_4}`};
   }

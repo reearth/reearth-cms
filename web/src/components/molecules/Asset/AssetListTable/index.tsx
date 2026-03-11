@@ -96,7 +96,11 @@ const AssetListTable: React.FC<Props> = ({
         title: "",
         hideInSetting: true,
         render: (_, asset) => (
-          <Icon icon="edit" color={AntdColor.BLUE.BLUE_5 /* originally #1890ff */} onClick={() => onEdit(asset.id)} />
+          <Icon
+            icon="edit"
+            color={AntdColor.BLUE.BLUE_5 /* originally #1890ff */}
+            onClick={() => onEdit(asset.id)}
+          />
         ),
         key: "EDIT_ICON",
         align: "center",

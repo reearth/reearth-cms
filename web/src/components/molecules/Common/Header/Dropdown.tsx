@@ -1,10 +1,10 @@
 import styled from "@emotion/styled";
 
 import DropdownAtom, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
-import { AntdColor } from "@reearth-cms/utils/color";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Space from "@reearth-cms/components/atoms/Space";
 import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
+import { AntdColor } from "@reearth-cms/utils/color";
 
 type Props = {
   items: MenuProps["items"];

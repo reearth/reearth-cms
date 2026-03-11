@@ -68,7 +68,8 @@ const StyledReferenceItem = styled.div<{ disabled?: boolean }>`
   display: flex;
   align-items: center;
   padding: 8px 16px;
-  background-color: ${({ disabled }) => (disabled ? AntdColor.NEUTRAL.FILL_TERTIARY : AntdColor.NEUTRAL.BG_ELEVATED)};
+  background-color: ${({ disabled }) =>
+    disabled ? AntdColor.NEUTRAL.FILL_TERTIARY : AntdColor.NEUTRAL.BG_ELEVATED};
   border: 1px solid ${AntdColor.NEUTRAL.BORDER};
   border-radius: 4px;
   justify-content: space-between;

@@ -24,8 +24,10 @@ const UserAvatar: React.FC<Props> = ({ username, shadow, profilePictureUrl, ...p
 
 const UserAvatarWrapper = styled(Avatar)<{ shadow?: boolean; anonymous?: boolean }>`
   color: ${AntdColor.GREY.GREY_8};
-  background-color: ${({ anonymous }) => (anonymous ? AntdColor.GREY.GREY_0 /* originally #BFBFBF */ : CustomColor.AVATAR_BG)};
-  box-shadow: ${({ shadow }) => (shadow ? `0px 4px 4px ${AntdColor.NEUTRAL.TEXT_QUATERNARY}` : "none")};
+  background-color: ${({ anonymous }) =>
+    anonymous ? AntdColor.GREY.GREY_0 /* originally #BFBFBF */ : CustomColor.AVATAR_BG};
+  box-shadow: ${({ shadow }) =>
+    shadow ? `0px 4px 4px ${AntdColor.NEUTRAL.TEXT_QUATERNARY}` : "none"};
 `;
 
 export default UserAvatar;
