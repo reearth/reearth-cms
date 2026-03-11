@@ -47,7 +47,7 @@ import { Trans, useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 import { ImportContentUtils } from "@reearth-cms/utils/importContent";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
@@ -891,7 +891,7 @@ const StyledSearchContainer = styled.div`
 `;
 
 const StyledFilterSpace = styled(Space)`
-  gap: 16px;
+  gap: ${AntdToken.SPACING.BASE}px;
   overflow-x: auto;
 `;
 
@@ -909,7 +909,7 @@ const StyledFilterWrapper = styled.div`
     text-align: start;
   }
   overflow: auto;
-  gap: 16px;
+  gap: ${AntdToken.SPACING.BASE}px;
   .ant-pro-form-light-filter-item {
     margin: 0;
   }

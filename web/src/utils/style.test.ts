@@ -152,5 +152,29 @@ describe("Style", () => {
         expect(AntdToken.LINE_HEIGHT.LG).toBe(24);
       });
     });
+
+    describe("SPACING", () => {
+      test("XXS matches antd v5 paddingXXS (4px)", () => {
+        expect(AntdToken.SPACING.XXS).toBe(4);
+      });
+      test("XS matches antd v5 paddingXS (8px)", () => {
+        expect(AntdToken.SPACING.XS).toBe(8);
+      });
+      test("SM matches antd v5 paddingSM (12px)", () => {
+        expect(AntdToken.SPACING.SM).toBe(12);
+      });
+      test("BASE matches antd v5 padding (16px)", () => {
+        expect(AntdToken.SPACING.BASE).toBe(16);
+      });
+      test("MD matches antd v5 paddingMD (20px)", () => {
+        expect(AntdToken.SPACING.MD).toBe(20);
+      });
+      test("LG matches antd v5 paddingLG (24px)", () => {
+        expect(AntdToken.SPACING.LG).toBe(24);
+      });
+      test("XL matches antd v5 paddingXL (32px)", () => {
+        expect(AntdToken.SPACING.XL).toBe(32);
+      });
+    });
   });
 });

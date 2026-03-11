@@ -206,7 +206,7 @@ const ModelFieldList: React.FC<Props> = ({
 };
 
 const DragIcon = styled(Icon)`
-  margin-right: 16px;
+  margin-right: ${AntdToken.SPACING.BASE}px;
   cursor: grab;
   :active {
     cursor: grabbing;
@@ -237,7 +237,7 @@ const FieldThumbnail = styled.div`
   align-items: center;
   h3 {
     margin: 0;
-    margin-left: 12px;
+    margin-left: ${AntdToken.SPACING.SM}px;
     font-weight: 400;
     font-size: ${AntdToken.FONT.SIZE}px;
     line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
@@ -246,16 +246,16 @@ const FieldThumbnail = styled.div`
 `;
 
 const FieldStyledList = styled(List)`
-  padding-top: 12px;
+  padding-top: ${AntdToken.SPACING.SM}px;
   .ant-list-empty-text {
     display: none;
   }
   .ant-list-item {
     background-color: ${AntdColor.NEUTRAL.BG_WHITE};
     + .ant-list-item {
-      margin-top: 12px;
+      margin-top: ${AntdToken.SPACING.SM}px;
     }
-    padding: 24px;
+    padding: ${AntdToken.SPACING.LG}px;
     box-shadow: 0px 2px 8px ${AntdColor.NEUTRAL.FILL};
     .ant-list-item-meta {
       .ant-list-item-meta-content {
@@ -287,7 +287,7 @@ const ItemTitleHeading = styled.span`
 `;
 
 const ItemKey = styled.span`
-  margin-left: 4px;
+  margin-left: ${AntdToken.SPACING.XXS}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   font-weight: 400;
   text-overflow: ellipsis;
@@ -296,13 +296,13 @@ const ItemKey = styled.span`
 `;
 
 const ItemUnique = styled.span`
-  margin-left: 4px;
+  margin-left: ${AntdToken.SPACING.XXS}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   font-weight: 400;
 `;
 
 const ItemTitleTag = styled(Tag)`
-  margin-left: 4px;
+  margin-left: ${AntdToken.SPACING.XXS}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   background-color: ${AntdColor.NEUTRAL.BG_ELEVATED};
 `;

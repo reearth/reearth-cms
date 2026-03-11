@@ -217,17 +217,17 @@ const LogoIcon = styled.img`
 `;
 
 const StyledIcon = styled(Icon)`
-  margin-left: 4px;
+  margin-left: ${AntdToken.SPACING.XXS}px;
   color: ${CustomColor.HEADER_TEXT};
 `;
 
 const WorkspaceDropdown = styled(HeaderDropdown)`
-  margin-left: 20px;
-  padding-left: 20px;
+  margin-left: ${AntdToken.SPACING.MD}px;
+  padding-left: ${AntdToken.SPACING.MD}px;
 `;
 
 const AccountDropdown = styled(HeaderDropdown)`
-  padding-right: 20px;
+  padding-right: ${AntdToken.SPACING.MD}px;
 `;
 
 const ProjectText = styled.p`
@@ -261,7 +261,7 @@ const MenuText = styled.p`
 `;
 
 const LinkWrapper = styled.div`
-  padding-right: 16px;
+  padding-right: ${AntdToken.SPACING.BASE}px;
 `;
 
 const EditorLink = styled.a`

@@ -5,7 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { AssetProps } from "@reearth-cms/components/molecules/Common/Form/AssetItem";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import AssetItem from "../../Form/AssetItem";
 import { moveItemInArray } from "../moveItemArray";
@@ -149,10 +149,10 @@ export default MultiValueAsset;
 const FieldWrapper = styled.div`
   display: flex;
   align-items: center;
-  margin: 8px 0;
+  margin: ${AntdToken.SPACING.XS}px 0;
 `;
 
 const FieldButton = styled(Button)`
   color: ${AntdColor.NEUTRAL.TEXT};
-  margin-top: 4px;
+  margin-top: ${AntdToken.SPACING.XXS}px;
 `;

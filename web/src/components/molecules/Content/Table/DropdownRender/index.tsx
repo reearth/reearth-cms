@@ -16,6 +16,7 @@ import {
 } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ConditionInput, CurrentView } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 import useHooks from "./hooks";
 
@@ -146,7 +147,7 @@ const Container = styled.div`
 `;
 
 const StyledFormItem = styled(Form.Item)`
-  margin-bottom: 8px;
+  margin-bottom: ${AntdToken.SPACING.XS}px;
 `;
 
 const TextWrapper = styled.span`
@@ -164,5 +165,5 @@ const StyledDivider = styled(Divider)`
 
 const ButtonsFormItem = styled(Form.Item)`
   text-align: right;
-  padding: 8px 4px;
+  padding: ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.XXS}px;
 `;

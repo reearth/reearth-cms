@@ -242,11 +242,11 @@ const StyledModal = styled(Modal)`
     padding: 0;
   }
   .ant-modal-header {
-    padding: 16px 24px;
+    padding: ${AntdToken.SPACING.BASE}px ${AntdToken.SPACING.LG}px;
     margin: 0;
   }
   .ant-modal-body {
-    padding: 24px;
+    padding: ${AntdToken.SPACING.LG}px;
     border-top: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
     border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   }
@@ -270,14 +270,14 @@ const StyledFormItem = styled(Form.Item)`
 
 const UserWrapper = styled.div`
   display: flex;
-  gap: 12px;
+  gap: ${AntdToken.SPACING.SM}px;
   align-items: center;
 `;
 
 const UserInfo = styled.div`
   max-width: 65%;
   display: flex;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
 `;
 
 const UserName = styled.div`
@@ -299,7 +299,7 @@ const SelectedUser = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 16px;
+  padding: ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.BASE}px;
   border: 1px solid ${AntdColor.NEUTRAL.BORDER};
   box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.016);
   border-radius: ${AntdToken.RADIUS.LG}px;
@@ -307,7 +307,7 @@ const SelectedUser = styled.div`
 
 const Actions = styled.div`
   display: flex;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
 `;
 
 const FormItemRole = styled(Form.Item)`

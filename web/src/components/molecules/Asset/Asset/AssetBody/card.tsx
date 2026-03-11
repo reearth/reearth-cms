@@ -25,7 +25,7 @@ const Card: React.FC<Props> = ({ title, toolbar, children, style }) => {
 const CardWrapper = styled.div`
   padding: 0;
   border: 1px solid ${AntdColor.NEUTRAL.BG_LAYOUT};
-  margin-bottom: 24px;
+  margin-bottom: ${AntdToken.SPACING.LG}px;
 `;
 
 const CardHeader = styled.div`
@@ -42,7 +42,7 @@ const Title = styled.p`
   font-size: ${AntdToken.FONT.SIZE_LG}px;
   font-weight: 500;
   display: flex;
-  gap: 16px;
+  gap: ${AntdToken.SPACING.BASE}px;
   overflow: hidden;
 `;
 

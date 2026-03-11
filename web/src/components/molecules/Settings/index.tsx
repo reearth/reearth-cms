@@ -214,12 +214,12 @@ const Title = styled.h3`
   font-size: ${AntdToken.FONT.SIZE_LG}px;
   line-height: ${AntdToken.LINE_HEIGHT.LG}px;
   color: ${AntdColor.NEUTRAL.TEXT};
-  margin-bottom: 4px;
+  margin-bottom: ${AntdToken.SPACING.XXS}px;
 `;
 
 const SecondaryText = styled.p`
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
-  margin-bottom: 12px;
+  margin-bottom: ${AntdToken.SPACING.SM}px;
 `;
 
 const Text = styled.p`
@@ -229,9 +229,9 @@ const Text = styled.p`
 
 const SwitchWrapper = styled.div`
   display: flex;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
 `;
 
 const ButtonWrapper = styled.div`
-  padding: 12px 0;
+  padding: ${AntdToken.SPACING.SM}px 0;
 `;

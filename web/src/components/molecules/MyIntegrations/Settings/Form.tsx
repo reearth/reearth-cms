@@ -206,7 +206,7 @@ const StyledDivider = styled(Divider)`
 const StyledFormItem = styled(Form.Item)`
   .ant-form-item-control-input-content {
     display: flex;
-    gap: 4px;
+    gap: ${AntdToken.SPACING.XXS}px;
   }
 `;
 
@@ -214,7 +214,7 @@ const StyledTokenInput = styled(Password)`
   flex: 1;
   .ant-input-prefix {
     order: 1;
-    margin-left: 4px;
+    margin-left: ${AntdToken.SPACING.XXS}px;
     color: rgb(0, 0, 0, 0.45);
     transition: all 0.3s;
     :hover {

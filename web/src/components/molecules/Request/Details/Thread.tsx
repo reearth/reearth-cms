@@ -6,7 +6,7 @@ import Comment from "@reearth-cms/components/molecules/Common/CommentsPanel/Comm
 import { RequestDescription } from "@reearth-cms/components/molecules/Request/Details/RequestDescription";
 import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import RequestEditor from "./Editor";
 import RequestStatus from "./RequestStatus";
@@ -99,7 +99,7 @@ const CommentWrapper = styled.div`
     padding-right: 12px;
   }
   .ant-comment-content {
-    padding: 12px 24px;
+    padding: ${AntdToken.SPACING.SM}px ${AntdToken.SPACING.LG}px;
     &:before {
       content: "";
       display: block;
@@ -126,7 +126,7 @@ const ThreadDivider = styled.div`
 `;
 
 const StyledAntDComment = styled(AntDComment)`
-  margin-top: 16px;
+  margin-top: ${AntdToken.SPACING.BASE}px;
   background-color: ${AntdColor.NEUTRAL.BG_LAYOUT};
   .ant-comment-inner {
     padding: 0;

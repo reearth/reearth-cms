@@ -63,7 +63,7 @@ const StyledDropdownMenu = styled.div`
     background-color: ${AntdColor.NEUTRAL.BG_WHITE} !important;
     min-width: 190px;
     max-width: 205px;
-    padding: 4px 0;
+    padding: ${AntdToken.SPACING.XXS}px 0;
   }
   .ant-dropdown-menu-item-divider {
     background-color: ${CustomColor.HEADER_DIVIDER};

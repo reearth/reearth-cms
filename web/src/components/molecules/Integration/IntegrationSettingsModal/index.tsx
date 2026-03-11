@@ -123,14 +123,14 @@ const IntegrationSettingsModal: React.FC<Props> = ({
 };
 
 const Wrapper = styled.div`
-  padding: 24px 0;
+  padding: ${AntdToken.SPACING.LG}px 0;
 `;
 
 const Conetnt = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
+  gap: ${AntdToken.SPACING.SM}px;
+  padding: ${AntdToken.SPACING.SM}px;
   border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   width: fit-content;
   min-width: 70%;
@@ -157,7 +157,7 @@ const Description = styled.p`
 `;
 
 const StyledForm = styled(Form<FormValues>)`
-  padding-left: 12px;
+  padding-left: ${AntdToken.SPACING.SM}px;
 `;
 
 const StyledSelect = styled(Select<Role>)`

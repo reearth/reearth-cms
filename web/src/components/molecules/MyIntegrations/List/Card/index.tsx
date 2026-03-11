@@ -27,7 +27,7 @@ const MyIntegrationCard: React.FC<Props> = ({ integration, onIntegrationNavigate
 };
 
 const CardWrapper = styled.div`
-  padding: 12px;
+  padding: ${AntdToken.SPACING.SM}px;
 `;
 
 const Card = styled.div`
@@ -36,7 +36,7 @@ const Card = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 24px;
+  padding: ${AntdToken.SPACING.LG}px;
   border: 1px solid ${AntdColor.NEUTRAL.BORDER};
   box-shadow: 0px 2px 8px ${AntdColor.NEUTRAL.FILL};
   border-radius: ${AntdToken.RADIUS.SM}px;
@@ -49,7 +49,7 @@ const Card = styled.div`
 const CardTitle = styled.h3`
   width: 100%;
   margin-top: 22px;
-  margin-bottom: 4px;
+  margin-bottom: ${AntdToken.SPACING.XXS}px;
   font-weight: 500;
   font-size: ${AntdToken.FONT.SIZE_LG}px;
   line-height: ${AntdToken.LINE_HEIGHT.LG}px;

@@ -35,7 +35,7 @@ const Wrapper = styled.div`
 `;
 
 const CircleWrapper = styled.div`
-  padding: 32px;
+  padding: ${AntdToken.SPACING.XL}px;
 `;
 
 const Circle = styled.div`
@@ -53,7 +53,7 @@ const Circle = styled.div`
 `;
 
 const Content = styled.div`
-  padding: 32px;
+  padding: ${AntdToken.SPACING.XL}px;
   text-align: center;
 `;
 
@@ -63,7 +63,7 @@ const StyledTitle = styled.h1`
   font-weight: 500;
   font-size: 38px;
   line-height: 46px;
-  margin-bottom: 24px;
+  margin-bottom: ${AntdToken.SPACING.LG}px;
 `;
 
 const StyledText = styled.p`
@@ -71,5 +71,5 @@ const StyledText = styled.p`
   font-size: ${AntdToken.FONT.SIZE_LG}px;
   line-height: ${AntdToken.LINE_HEIGHT.LG}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
-  margin-bottom: 24px;
+  margin-bottom: ${AntdToken.SPACING.LG}px;
 `;

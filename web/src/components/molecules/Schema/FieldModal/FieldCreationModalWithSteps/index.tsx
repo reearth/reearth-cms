@@ -587,12 +587,12 @@ const FieldCreationModalWithSteps: React.FC<Props> = ({
 
 const Required = styled.span`
   color: ${AntdColor.RED.RED_4};
-  margin-right: 4px;
+  margin-right: ${AntdToken.SPACING.XXS}px;
 `;
 
 const Optional = styled.span`
   color: ${AntdColor.GREY.GREY_2};
-  margin-left: 4px;
+  margin-left: ${AntdToken.SPACING.XXS}px;
 `;
 
 const FieldThumbnail = styled.div`
@@ -600,7 +600,7 @@ const FieldThumbnail = styled.div`
   align-items: center;
   h3 {
     margin: 0;
-    margin-left: 12px;
+    margin-left: ${AntdToken.SPACING.SM}px;
     font-weight: 500;
     font-size: ${AntdToken.FONT.SIZE_LG}px;
     line-height: ${AntdToken.LINE_HEIGHT.LG}px;
@@ -645,7 +645,7 @@ const StyledModal = styled(Modal)`
 
 const StyledModelKey = styled.span`
   font-size: ${AntdToken.FONT.SIZE_SM}px;
-  margin-left: 4px;
+  margin-left: ${AntdToken.SPACING.XXS}px;
 `;
 
 export default FieldCreationModalWithSteps;

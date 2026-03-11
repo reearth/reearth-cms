@@ -39,7 +39,7 @@ import { Group, Field } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
 import { transformDayjsToString, dateTimeFormat } from "@reearth-cms/utils/format";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import FieldWrapper from "./FieldWrapper";
 import Versions from "./Versions";
@@ -932,7 +932,7 @@ const StyledTabs = styled(Tabs)`
   border-left: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   .ant-tabs-nav {
     margin-bottom: 0;
-    padding-left: 20px;
+    padding-left: ${AntdToken.SPACING.MD}px;
     background-color: ${AntdColor.NEUTRAL.BG_WHITE};
   }
   .ant-tabs-content-holder {
@@ -963,8 +963,8 @@ const VersionForm = styled(StyledForm)`
 const TabContent = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
+  padding: ${AntdToken.SPACING.XS}px;
 `;
 
 export default ContentForm;

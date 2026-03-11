@@ -18,12 +18,12 @@ const SideBarCard: React.FC<Props> = ({ title, children }) => {
 };
 
 const SideBarCardWrapper = styled.div`
-  padding: 12px;
-  margin-bottom: 8px;
+  padding: ${AntdToken.SPACING.SM}px;
+  margin-bottom: ${AntdToken.SPACING.XS}px;
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: ${AntdToken.SPACING.XXS}px;
   border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   border-radius: ${AntdToken.RADIUS.XS}px;
   background-color: ${AntdColor.NEUTRAL.BG_WHITE};

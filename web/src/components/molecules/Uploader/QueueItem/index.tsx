@@ -134,14 +134,14 @@ const QueueItem: React.FC<Props> = (props: Props) => {
 };
 
 const ItemWrapper = styled.div`
-  padding: 8px 0;
+  padding: ${AntdToken.SPACING.XS}px 0;
 
   :first-of-type {
-    padding: 0 0 8px 0;
+    padding: 0 0 ${AntdToken.SPACING.XS}px 0;
   }
 
   :last-child {
-    padding: 8px 0 0 0;
+    padding: ${AntdToken.SPACING.XS}px 0 0 0;
   }
 
   :not(:last-child) {
@@ -160,13 +160,13 @@ const ItemLower = styled.div``;
 
 const UpperLeft = styled.div`
   display: flex;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
   font-size: ${AntdToken.FONT.SIZE}px;
 `;
 
 const UpperRight = styled.div`
   display: flex;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
   align-items: center;
 `;
 

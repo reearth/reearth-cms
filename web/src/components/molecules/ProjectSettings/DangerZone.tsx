@@ -129,7 +129,7 @@ const maxWidth = "316px";
 
 const StyledSelect = styled(Select)`
   width: ${maxWidth};
-  margin-bottom: 24px;
+  margin-bottom: ${AntdToken.SPACING.LG}px;
 `;
 
 const Title = styled.h1`

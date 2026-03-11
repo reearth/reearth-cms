@@ -18,8 +18,8 @@ const SidebarCard: React.FC<Props> = ({ title, children }) => {
 };
 
 const SideBarCardWrapper = styled.div`
-  padding: 12px;
-  margin-bottom: 8px;
+  padding: ${AntdToken.SPACING.SM}px;
+  margin-bottom: ${AntdToken.SPACING.XS}px;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -35,7 +35,7 @@ const CardTitle = styled.h2`
   font-size: 13px;
   line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
-  margin-bottom: 4px;
+  margin-bottom: ${AntdToken.SPACING.XXS}px;
   overflow-x: hidden;
 `;
 
@@ -47,7 +47,7 @@ const CardValue = styled.p`
   line-height: ${AntdToken.LINE_HEIGHT.LG}px;
   color: ${AntdColor.NEUTRAL.TEXT};
   overflow-x: hidden;
-  margin-bottom: 4px;
+  margin-bottom: ${AntdToken.SPACING.XXS}px;
 `;
 
 export default SidebarCard;

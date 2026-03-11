@@ -27,7 +27,7 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { useT } from "@reearth-cms/i18n";
 import { FileUtils } from "@reearth-cms/utils/file";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { compressedFileFormats } from "../../Common/Asset";
 
@@ -361,10 +361,10 @@ const CommentsButton = styled(Button)`
 `;
 
 const MoreItemsButton = styled(Button)`
-  padding: 4px;
+  padding: ${AntdToken.SPACING.XXS}px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
   color: ${AntdColor.BLUE.BLUE_5}; /* originally #1890ff */
 `;
 

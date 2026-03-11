@@ -5,7 +5,7 @@ import Search from "@reearth-cms/components/atoms/Search";
 import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { SortBy, SortOption } from "./types";
 
@@ -61,13 +61,13 @@ const Container = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px 24px 0 24px;
+  padding: ${AntdToken.SPACING.LG}px ${AntdToken.SPACING.LG}px 0 ${AntdToken.SPACING.LG}px;
 `;
 
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
 `;
 
 const Label = styled.span`

@@ -301,7 +301,7 @@ const Title = styled.div`
 const TitleSuffix = styled.div`
   display: flex;
   color: ${AntdColor.GREY.GREY_2};
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
 `;
 
 const CloseIcon = styled(Icon)`

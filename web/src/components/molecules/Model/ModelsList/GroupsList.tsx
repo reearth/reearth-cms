@@ -130,7 +130,7 @@ const SchemaAction = styled.div<{ collapsed?: boolean }>`
 `;
 
 const SchemaAddButton = styled(Button)`
-  padding: 4px;
+  padding: ${AntdToken.SPACING.XXS}px;
 `;
 
 const SchemaStyledMenuTitle = styled.h1`
@@ -152,7 +152,7 @@ const MenuWrapper = styled.div`
 
 const StyledIcon = styled(Icon)`
   border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
-  padding: 12px 0;
+  padding: ${AntdToken.SPACING.SM}px 0;
   justify-content: center;
 `;
 

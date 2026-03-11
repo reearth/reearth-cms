@@ -8,7 +8,7 @@ import LinkItemModal from "@reearth-cms/components/molecules/Content/LinkItemMod
 import ReferenceItem from "@reearth-cms/components/molecules/Content/ReferenceItem";
 import { CorrespondingField } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { FormItem } from "../../types";
 
@@ -159,7 +159,7 @@ const ReferenceItemWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: ${AntdToken.SPACING.XS}px;
 `;
 
 export default ReferenceFormItem;

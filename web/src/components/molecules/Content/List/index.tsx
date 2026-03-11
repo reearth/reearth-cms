@@ -21,7 +21,7 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { ImportContentUtils } from "@reearth-cms/utils/importContent";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { Field } from "../../Schema/types";
 
@@ -242,7 +242,7 @@ const Content = styled.div`
 `;
 
 const StyledPageHeder = styled(PageHeader)`
-  padding: 16px 24px 0px 24px !important;
+  padding: ${AntdToken.SPACING.BASE}px ${AntdToken.SPACING.LG}px 0px ${AntdToken.SPACING.LG}px !important;
 `;
 
 export default ContentListMolecule;

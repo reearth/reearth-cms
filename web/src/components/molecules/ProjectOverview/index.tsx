@@ -119,9 +119,9 @@ const ProjectOverview: React.FC<Props> = ({
 export default ProjectOverview;
 
 const GridArea = styled.div`
-  margin-top: 12px;
+  margin-top: ${AntdToken.SPACING.SM}px;
   display: grid;
-  gap: 24px;
+  gap: ${AntdToken.SPACING.LG}px;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   justify-content: space-between;
 `;
@@ -131,7 +131,7 @@ const Placeholder = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: ${AntdToken.SPACING.LG}px;
 `;
 
 const Heading = styled.span`
@@ -143,12 +143,12 @@ const Content = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: ${AntdToken.SPACING.SM}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const Actions = styled.div`
   display: flex;
-  gap: 16px;
+  gap: ${AntdToken.SPACING.BASE}px;
   align-items: center;
 `;

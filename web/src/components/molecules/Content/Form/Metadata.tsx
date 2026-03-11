@@ -80,11 +80,11 @@ const CardTitle = styled.h4`
   font-weight: 400;
   font-size: 13px;
   color: ${AntdColor.GREY.GREY_2}; /* originally #898989 */
-  margin-bottom: 8px;
+  margin-bottom: ${AntdToken.SPACING.XS}px;
 `;
 
 const CardValue = styled.div`
-  padding: 12px;
+  padding: ${AntdToken.SPACING.SM}px;
   background: ${AntdColor.NEUTRAL.BG_WHITE};
   border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   border-radius: ${AntdToken.RADIUS.XS}px;
@@ -93,13 +93,13 @@ const CardValue = styled.div`
 const ItemInfo = styled(CardValue)`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: ${AntdToken.SPACING.XXS}px;
 `;
 
 const MetadataWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
 `;
 
 const MetaFormItemWrapper = styled(CardValue)`
@@ -112,7 +112,7 @@ const DataRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
 `;
 
 const DataTitle = styled.p`
@@ -123,7 +123,7 @@ const DataTitle = styled.p`
 const DataCommon = styled.p`
   font-size: ${AntdToken.FONT.SIZE_SM}px;
   margin: 0;
-  padding: 4px 8px;
+  padding: ${AntdToken.SPACING.XXS}px ${AntdToken.SPACING.XS}px;
 `;
 
 const DataText = styled(DataCommon)`

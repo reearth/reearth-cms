@@ -68,11 +68,11 @@ const Title = styled.p`
 const Description = styled.p`
   font-size: ${AntdToken.FONT.SIZE}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
-  margin: 4px 0 0;
+  margin: ${AntdToken.SPACING.XXS}px 0 0;
 `;
 
 const GridArea = styled.div<{ hasPadding: boolean }>`
-  ${({ hasPadding }) => hasPadding && "padding: 24px;"}
+  ${({ hasPadding }) => hasPadding && `padding: ${AntdToken.SPACING.LG}px;`}
   flex: 1;
   display: flex;
   flex-direction: column;

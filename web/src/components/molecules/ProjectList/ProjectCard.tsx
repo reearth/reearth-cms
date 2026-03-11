@@ -60,7 +60,7 @@ const CardWrapper = styled.div`
 const TitleContainer = styled.div`
   width: 100%;
   display: flex;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
   align-items: center;
   justify-content: space-between;
 `;
@@ -79,7 +79,7 @@ const StyledTag = styled(Tag)`
 const StyledProjectCard = styled(Card)`
   .ant-card-body {
     height: 100px;
-    padding: 24px;
+    padding: ${AntdToken.SPACING.LG}px;
   }
   .ant-card-actions {
     height: 40px;

@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   title: string;
@@ -42,7 +42,7 @@ const Wrapper = styled.span`
 `;
 
 const FieldUnique = styled.span`
-  margin-left: 4px;
+  margin-left: ${AntdToken.SPACING.XXS}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   font-weight: 400;
 `;

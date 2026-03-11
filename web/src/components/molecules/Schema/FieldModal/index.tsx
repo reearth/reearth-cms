@@ -393,16 +393,16 @@ const FieldModal: React.FC<Props> = ({
 
 const Required = styled.span`
   color: ${AntdColor.RED.RED_4};
-  margin-right: 4px;
+  margin-right: ${AntdToken.SPACING.XXS}px;
 `;
 
 const Optional = styled.span`
   color: ${AntdColor.GREY.GREY_2};
-  margin-left: 4px;
+  margin-left: ${AntdToken.SPACING.XXS}px;
 `;
 
 const OptionTitle = styled.p`
-  margin-bottom: 8px;
+  margin-bottom: ${AntdToken.SPACING.XS}px;
 `;
 
 const FieldThumbnail = styled.div`
@@ -425,13 +425,13 @@ const StyledIcon = styled(Icon)`
 const StyledTitle = styled.p`
   color: ${AntdColor.NEUTRAL.TEXT};
   font-size: ${AntdToken.FONT.SIZE_LG}px;
-  margin: 0 20px 0 12px;
+  margin: 0 20px 0 ${AntdToken.SPACING.SM}px;
   overflow: auto;
 `;
 
 const StyledGroupKey = styled.span`
   font-size: ${AntdToken.FONT.SIZE_SM}px;
-  margin-left: 4px;
+  margin-left: ${AntdToken.SPACING.XXS}px;
 `;
 
 const StyledCheckboxGroup = styled(Checkbox.Group)`

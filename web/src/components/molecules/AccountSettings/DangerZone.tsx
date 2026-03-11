@@ -52,7 +52,7 @@ const Text = styled.p`
   font-weight: 400;
   font-size: ${AntdToken.FONT.SIZE}px;
   line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
-  margin: 24px 0;
+  margin: ${AntdToken.SPACING.LG}px 0;
 `;
 
 const StyledButton = styled(Button)`

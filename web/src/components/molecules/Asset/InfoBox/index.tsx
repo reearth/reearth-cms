@@ -77,13 +77,13 @@ const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
+  padding: ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.SM}px;
   box-shadow: inset 0px -1px 0px ${AntdColor.NEUTRAL.BORDER_SECONDARY};
 `;
 
 const Title = styled.div`
   margin-bottom: 0;
-  margin-left: 8px;
+  margin-left: ${AntdToken.SPACING.XS}px;
   color: ${AntdColor.NEUTRAL.TEXT};
   line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
   font-size: ${AntdToken.FONT.SIZE_LG}px;

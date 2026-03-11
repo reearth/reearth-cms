@@ -55,12 +55,12 @@ const StyledTitle = styled.p`
   color: ${AntdColor.BLUE.BLUE_5}; /* originally #1890ff */
   font-weight: 500;
   font-size: 38px;
-  margin-bottom: 24px;
+  margin-bottom: ${AntdToken.SPACING.LG}px;
 `;
 
 const StyledText = styled.p`
   font-weight: 500;
   font-size: ${AntdToken.FONT.SIZE_LG}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
-  margin-bottom: 24px;
+  margin-bottom: ${AntdToken.SPACING.LG}px;
 `;

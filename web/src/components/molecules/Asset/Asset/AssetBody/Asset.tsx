@@ -247,11 +247,11 @@ const AssetName = styled.span`
 
 const Buttons = styled.div`
   display: flex;
-  gap: 12px;
+  gap: ${AntdToken.SPACING.SM}px;
 `;
 
 const UnzipButton = styled(Button)`
-  margin-left: 24px;
+  margin-left: ${AntdToken.SPACING.LG}px;
 `;
 
 const BodyContainer = styled.div`
@@ -266,7 +266,7 @@ const BodyContainer = styled.div`
 `;
 
 const BodyWrapper = styled.div`
-  padding: 16px 24px;
+  padding: ${AntdToken.SPACING.BASE}px ${AntdToken.SPACING.LG}px;
   width: 70%;
   height: 100%;
   overflow-y: auto;
@@ -274,7 +274,7 @@ const BodyWrapper = styled.div`
 `;
 
 const SideBarWrapper = styled.div`
-  padding: 8px;
+  padding: ${AntdToken.SPACING.XS}px;
   width: 272px;
   background-color: ${AntdColor.NEUTRAL.BG_ELEVATED};
 `;
@@ -286,14 +286,14 @@ const StyledButton = styled(Button)`
 const AssetInfo = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: ${AntdToken.SPACING.XXS}px;
 `;
 
 const InfoRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
   line-height: 28px;
 `;
 

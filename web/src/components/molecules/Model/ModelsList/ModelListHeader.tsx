@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   title: string;
@@ -31,7 +31,7 @@ const SchemaStyledTitle = styled.h2``;
 
 const StyledIcon = styled(Icon)`
   border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
-  padding: 12px 20px;
+  padding: ${AntdToken.SPACING.SM}px ${AntdToken.SPACING.MD}px;
 `;
 
 export default ModelListHeader;

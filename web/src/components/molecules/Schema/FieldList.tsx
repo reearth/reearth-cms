@@ -142,22 +142,22 @@ const FieldCategoryTitle = styled.h2`
   font-weight: 400;
   font-size: ${AntdToken.FONT.SIZE_SM}px;
   line-height: ${AntdToken.LINE_HEIGHT.SM}px;
-  margin-bottom: 12px;
-  margin-top: 12px;
+  margin-bottom: ${AntdToken.SPACING.SM}px;
+  margin-top: ${AntdToken.SPACING.SM}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;
 
 const FieldStyledList = styled(List<FieldListItem>)<{ hasCreateRight: boolean }>`
   max-height: calc(100% - 34px);
   overflow-y: auto;
-  padding-bottom: 24px;
+  padding-bottom: ${AntdToken.SPACING.LG}px;
   .ant-list-item {
     background-color: ${AntdColor.NEUTRAL.BG_WHITE};
     cursor: ${({ hasCreateRight }) => (hasCreateRight ? "pointer" : "not-allowed")};
     + .ant-list-item {
-      margin-top: 12px;
+      margin-top: ${AntdToken.SPACING.SM}px;
     }
-    padding: 4px;
+    padding: ${AntdToken.SPACING.XXS}px;
     box-shadow: 0px 2px 8px ${AntdColor.NEUTRAL.FILL};
     .ant-list-item-meta {
       .ant-list-item-meta-title {

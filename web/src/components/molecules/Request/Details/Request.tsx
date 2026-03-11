@@ -8,7 +8,7 @@ import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import RequestSidebarWrapper from "./SidebarWrapper";
 
@@ -132,14 +132,14 @@ const RequestMolecule: React.FC<Props> = ({
 };
 
 const Content = styled.div`
-  padding: 16px;
+  padding: ${AntdToken.SPACING.BASE}px;
   width: 100%;
   height: 100%;
   overflow-y: auto;
 `;
 
 const BodyWrapper = styled.div`
-  padding: 12px 0 0 24px;
+  padding: ${AntdToken.SPACING.SM}px 0 0 ${AntdToken.SPACING.LG}px;
   display: flex;
   gap: 11px;
 `;

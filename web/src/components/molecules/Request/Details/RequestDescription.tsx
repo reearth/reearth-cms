@@ -94,7 +94,7 @@ export const RequestDescription: React.FC<Props> = ({
 
 const StyledAntDComment = styled(AntDComment)`
   .ant-comment-content-author {
-    padding: 16px 24px;
+    padding: ${AntdToken.SPACING.BASE}px ${AntdToken.SPACING.LG}px;
     margin: 0;
     border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
 
@@ -122,24 +122,24 @@ const StyledAntDComment = styled(AntDComment)`
 
 const RequestTitle = styled.h1`
   border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
-  padding: 8px 0;
+  padding: ${AntdToken.SPACING.XS}px 0;
   color: ${AntdColor.NEUTRAL.TEXT};
 `;
 
 const RequestTextWrapper = styled.div`
-  padding: 24px;
+  padding: ${AntdToken.SPACING.LG}px;
   border-bottom: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
 `;
 
 const RequestText = styled.p`
-  padding-top: 8px;
+  padding-top: ${AntdToken.SPACING.XS}px;
 `;
 
 const RequestItemsWrapper = styled.div`
-  padding: 12px;
+  padding: ${AntdToken.SPACING.SM}px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: ${AntdToken.SPACING.SM}px;
   .ant-pro-card-body {
     padding: 0;
   }

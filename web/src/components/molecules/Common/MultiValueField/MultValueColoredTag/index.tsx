@@ -8,7 +8,7 @@ import Input, { InputProps } from "@reearth-cms/components/atoms/Input";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { moveItemInArray } from "../moveItemArray";
 
@@ -188,12 +188,12 @@ export default MultiValueColoredTag;
 
 const FieldWrapper = styled.div`
   display: flex;
-  margin: 8px 0;
+  margin: ${AntdToken.SPACING.XS}px 0;
 `;
 
 const FieldButton = styled(Button)`
   color: ${AntdColor.NEUTRAL.TEXT};
-  margin-top: 4px;
+  margin-top: ${AntdToken.SPACING.XXS}px;
 `;
 
 const StyledDiv = styled.div`
@@ -217,5 +217,5 @@ const StyledTagContainer = styled.div<{ isError?: boolean }>`
 
 const StyledTag = styled(Tag)`
   flex: 1;
-  margin-right: 8px;
+  margin-right: ${AntdToken.SPACING.XS}px;
 `;

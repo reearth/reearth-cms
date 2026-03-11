@@ -9,7 +9,7 @@ import {
   EditorSupportedType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { moveItemInArray } from "../moveItemArray";
 
@@ -117,10 +117,10 @@ export default MultiValueGeometry;
 
 const FieldWrapper = styled.div`
   display: flex;
-  margin-bottom: 24px;
+  margin-bottom: ${AntdToken.SPACING.LG}px;
 `;
 
 const FieldButton = styled(Button)`
   color: ${AntdColor.NEUTRAL.TEXT};
-  margin-top: 4px;
+  margin-top: ${AntdToken.SPACING.XXS}px;
 `;

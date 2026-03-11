@@ -295,4 +295,22 @@ export abstract class AntdToken {
     /** 16px font → 24px line-height (token.lineHeightLG context) */
     LG: 24,
   };
+
+  // --- Spacing (antd v5 defaults) ---
+  public static readonly SPACING = {
+    /** token.paddingXXS / marginXXS — 4px */
+    XXS: 4,
+    /** token.paddingXS / marginXS — 8px */
+    XS: 8,
+    /** token.paddingSM / marginSM — 12px */
+    SM: 12,
+    /** token.padding / margin — 16px */
+    BASE: 16,
+    /** token.paddingMD / marginMD — 20px */
+    MD: 20,
+    /** token.paddingLG / marginLG — 24px */
+    LG: 24,
+    /** token.paddingXL / marginXL — 32px */
+    XL: 32,
+  };
 }

@@ -74,13 +74,13 @@ const Versions: React.FC<Props> = ({ versions, versionClick, onNavigateToRequest
 
 const HistoryCard = styled.div`
   background-color: ${AntdColor.NEUTRAL.BG_WHITE};
-  padding: 12px;
+  padding: ${AntdToken.SPACING.SM}px;
 `;
 
 const HistoryTitle = styled.p`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
   font-weight: 700;
   font-size: ${AntdToken.FONT.SIZE_SM}px;
   margin: 0;
@@ -108,12 +108,12 @@ const User = styled.p`
 `;
 
 const Requests = styled.div`
-  margin-top: 4px;
+  margin-top: ${AntdToken.SPACING.XXS}px;
 `;
 
 const RequestWrapper = styled(Typography.Link)`
   display: flex;
-  gap: 4px;
+  gap: ${AntdToken.SPACING.XXS}px;
   align-items: center;
   overflow: hidden;
   text-overflow: ellipsis;

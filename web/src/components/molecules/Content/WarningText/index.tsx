@@ -23,7 +23,7 @@ const WarningText: React.FC<Props> = ({ text }) => {
 const RequestWarning = styled.div`
   .anticon {
     float: left;
-    margin-right: 8px;
+    margin-right: ${AntdToken.SPACING.XS}px;
     font-size: ${AntdToken.FONT.SIZE_LG}px;
     color: ${AntdColor.GOLD.GOLD_5};
   }

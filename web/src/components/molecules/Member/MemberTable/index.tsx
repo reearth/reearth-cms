@@ -13,7 +13,7 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { User } from "@reearth-cms/components/molecules/Member/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   workspaceUserMembers?: UserMember[];
@@ -289,15 +289,15 @@ const MemberTable: React.FC<Props> = ({
 const RemoveUsers = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-bottom: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
+  padding-bottom: ${AntdToken.SPACING.XS}px;
 `;
 
 const RemoveUser = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 0;
+  gap: ${AntdToken.SPACING.XS}px;
+  padding: ${AntdToken.SPACING.XS}px 0;
 `;
 
 const UserInfoWrapper = styled.div`
@@ -317,7 +317,7 @@ const Email = styled(UserInfo)`
 `;
 
 const PaddedContent = styled(Content)`
-  padding: 16px 16px 0;
+  padding: ${AntdToken.SPACING.BASE}px ${AntdToken.SPACING.BASE}px 0;
   height: 100%;
 `;
 

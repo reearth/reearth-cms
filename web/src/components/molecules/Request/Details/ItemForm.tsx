@@ -9,7 +9,7 @@ import {
 import { FIELD_TYPE_COMPONENT_MAP } from "@reearth-cms/components/molecules/Content/Form/fields/FieldTypesMap";
 import { FormItem } from "@reearth-cms/components/molecules/Content/types";
 import { Group, Schema } from "@reearth-cms/components/molecules/Schema/types";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   schema?: Schema;
@@ -72,7 +72,7 @@ const RequestItemForm: React.FC<Props> = ({
 export default RequestItemForm;
 
 const StyledForm = styled(Form)`
-  padding: 16px;
+  padding: ${AntdToken.SPACING.BASE}px;
   width: 100%;
   height: 100%;
   overflow-y: auto;

@@ -647,8 +647,8 @@ const EditorButtons = styled.div`
   z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding-top: 12px;
+  gap: ${AntdToken.SPACING.XXS}px;
+  padding-top: ${AntdToken.SPACING.SM}px;
 `;
 
 const EditorButton = styled(Button)`
@@ -713,7 +713,7 @@ const ViewerButtons = styled.div`
 const GeoButtons = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: ${AntdToken.SPACING.XXS}px;
   padding: 15px 0;
 `;
 

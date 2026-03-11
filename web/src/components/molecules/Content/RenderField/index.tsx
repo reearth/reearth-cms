@@ -104,8 +104,8 @@ const StyledButton = styled(Button)`
   color: ${AntdColor.BLUE.BLUE_5};
   display: flex;
   font-size: ${AntdToken.FONT.SIZE_SM}px;
-  gap: 8px;
-  padding: 4px;
+  gap: ${AntdToken.SPACING.XS}px;
+  padding: ${AntdToken.SPACING.XXS}px;
 `;
 
 const Content = styled.p`

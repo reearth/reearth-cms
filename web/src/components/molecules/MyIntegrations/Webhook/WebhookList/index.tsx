@@ -67,7 +67,7 @@ const ActionWrapper = styled.div`
 `;
 
 const Suggestion = styled.p`
-  margin-bottom: 8px;
+  margin-bottom: ${AntdToken.SPACING.XS}px;
   font-weight: 400;
   font-size: ${AntdToken.FONT.SIZE}px;
   line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
@@ -75,7 +75,7 @@ const Suggestion = styled.p`
 `;
 
 const Text = styled.span`
-  margin-right: 8px;
+  margin-right: ${AntdToken.SPACING.XS}px;
 `;
 
 const EmptyListWrapper = styled.div`
@@ -88,7 +88,7 @@ const EmptyListWrapper = styled.div`
 `;
 
 const ListWrapper = styled.div`
-  padding: 12px;
+  padding: ${AntdToken.SPACING.SM}px;
 `;
 
 const Title = styled.p`
@@ -96,7 +96,7 @@ const Title = styled.p`
   font-size: ${AntdToken.FONT.SIZE_LG}px;
   line-height: ${AntdToken.LINE_HEIGHT.LG}px;
   color: ${AntdColor.GREY.GREY_8};
-  margin-bottom: 24px;
+  margin-bottom: ${AntdToken.SPACING.LG}px;
 `;
 
 export default WebhookList;

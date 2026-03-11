@@ -161,8 +161,8 @@ const SchemaPreviewStepWrapper = styled.div`
 `;
 
 const Section = styled.div`
-  padding-top: 24px;
-  padding-bottom: 12px;
+  padding-top: ${AntdToken.SPACING.LG}px;
+  padding-bottom: ${AntdToken.SPACING.SM}px;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -201,7 +201,7 @@ const FieldStyledList = styled(List)`
   }
   .ant-list-item {
     background-color: ${AntdColor.NEUTRAL.BG_WHITE};
-    padding: 12px 24px;
+    padding: ${AntdToken.SPACING.SM}px ${AntdToken.SPACING.LG}px;
     .ant-list-item-meta {
       .ant-list-item-meta-content {
         text-align: center;
@@ -227,7 +227,7 @@ const FieldThumbnail = styled.div`
   align-items: center;
   h3 {
     margin: 0;
-    margin-left: 12px;
+    margin-left: ${AntdToken.SPACING.SM}px;
     font-weight: 400;
     font-size: ${AntdToken.FONT.SIZE}px;
     line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
@@ -249,7 +249,7 @@ const ItemTitleHeading = styled.span`
 `;
 
 const ItemKey = styled.span`
-  margin-left: 4px;
+  margin-left: ${AntdToken.SPACING.XXS}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   font-weight: 400;
   text-overflow: ellipsis;
@@ -258,19 +258,19 @@ const ItemKey = styled.span`
 `;
 
 const ItemUnique = styled.span`
-  margin-left: 4px;
+  margin-left: ${AntdToken.SPACING.XXS}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   font-weight: 400;
 `;
 
 const ItemTitleTag = styled(Tag)`
-  margin-left: 4px;
+  margin-left: ${AntdToken.SPACING.XXS}px;
   color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   background-color: ${AntdColor.NEUTRAL.BG_ELEVATED};
 `;
 
 const DragIcon = styled(Icon)`
-  margin-right: 16px;
+  margin-right: ${AntdToken.SPACING.BASE}px;
   cursor: grab;
   :active {
     cursor: grabbing;

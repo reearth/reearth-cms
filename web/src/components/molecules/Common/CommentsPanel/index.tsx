@@ -100,8 +100,8 @@ const ContentWrapper = styled.div`
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
-  padding: 12px;
-  gap: 12px;
+  padding: ${AntdToken.SPACING.SM}px;
+  gap: ${AntdToken.SPACING.SM}px;
 `;
 
 const StyledIcon = styled(Icon)`

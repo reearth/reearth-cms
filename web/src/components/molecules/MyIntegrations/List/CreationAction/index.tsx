@@ -22,7 +22,7 @@ const IntegrationCreationAction: React.FC<Props> = ({ onIntegrationModalOpen }) 
 };
 
 const CardWrapper = styled.div`
-  padding: 12px;
+  padding: ${AntdToken.SPACING.SM}px;
 `;
 
 const StyledIcon = styled(Icon)`
@@ -36,7 +36,7 @@ const Card = styled.button`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px;
+  padding: ${AntdToken.SPACING.LG}px;
   border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   box-shadow: 0px 2px 8px ${AntdColor.NEUTRAL.FILL};
   border-radius: ${AntdToken.RADIUS.SM}px;
@@ -50,7 +50,7 @@ const Card = styled.button`
 `;
 
 const CardTitle = styled.p`
-  margin-top: 8px;
+  margin-top: ${AntdToken.SPACING.XS}px;
   font-weight: 500;
   font-size: ${AntdToken.FONT.SIZE}px;
   line-height: ${AntdToken.LINE_HEIGHT.BASE}px;

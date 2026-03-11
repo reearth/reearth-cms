@@ -24,7 +24,7 @@ import {
   ValidationErrorMeta,
 } from "@reearth-cms/utils/importContent";
 import { ObjectUtils } from "@reearth-cms/utils/object";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 const { Dragger } = Upload;
 
@@ -492,7 +492,7 @@ const LoadingWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 24px;
+  gap: ${AntdToken.SPACING.LG}px;
 `;
 
 const StyledLink = styled(Button)`

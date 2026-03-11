@@ -61,13 +61,13 @@ const ReferenceItem: React.FC<Props> = ({
 };
 
 const StlyedReferenceTitle = styled.div`
-  margin-bottom: 4px;
+  margin-bottom: ${AntdToken.SPACING.XXS}px;
 `;
 
 const StyledReferenceItem = styled.div<{ disabled?: boolean }>`
   display: flex;
   align-items: center;
-  padding: 8px 16px;
+  padding: ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.BASE}px;
   background-color: ${({ disabled }) =>
     disabled ? AntdColor.NEUTRAL.FILL_TERTIARY : AntdColor.NEUTRAL.BG_ELEVATED};
   border: 1px solid ${AntdColor.NEUTRAL.BORDER};
@@ -83,7 +83,7 @@ const ReferenceItemName = styled.p`
 
 const StyledBadge = styled(Badge)`
   + * {
-    margin-left: 4px;
+    margin-left: ${AntdToken.SPACING.XXS}px;
   }
 `;
 

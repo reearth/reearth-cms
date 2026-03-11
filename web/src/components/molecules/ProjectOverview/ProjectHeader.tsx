@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import Search from "@reearth-cms/components/atoms/Search";
 import Select from "@reearth-cms/components/atoms/Select";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { SortBy, SortOption } from "../Workspace/types";
 
@@ -60,7 +60,7 @@ const Container = styled.div`
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
 `;
 
 const Label = styled.span`

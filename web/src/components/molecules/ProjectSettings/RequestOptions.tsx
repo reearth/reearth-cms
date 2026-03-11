@@ -6,7 +6,7 @@ import Switch from "@reearth-cms/components/atoms/Switch";
 import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type RequestOptionsData = {
   role: string;
@@ -127,7 +127,7 @@ const SecondaryText = styled.div`
 `;
 
 const TableWrapper = styled.div`
-  margin: 24px 0;
+  margin: ${AntdToken.SPACING.LG}px 0;
   max-width: 400px;
 `;
 

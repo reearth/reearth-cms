@@ -27,14 +27,14 @@ const Greeting: React.FC<Props> = ({ username, coverImageUrl }) => {
 };
 
 const DashboardCard = styled.div`
-  padding: 24px;
+  padding: ${AntdToken.SPACING.LG}px;
   height: 121px;
   background: ${AntdColor.NEUTRAL.BG_WHITE};
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  gap: 16px;
+  gap: ${AntdToken.SPACING.BASE}px;
 `;
 
 const Title = styled.p`
