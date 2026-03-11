@@ -111,11 +111,12 @@ func (a *Authorizer) CanInWorkspace(
 	}
 
 	// Layer 1: Local operator check
-	if action == rbac.ActionCreate || action == rbac.ActionUpdate || action == rbac.ActionDelete {
+	switch action {
+	case rbac.ActionCreate, rbac.ActionUpdate, rbac.ActionDelete:
 		if !operator.IsWritableWorkspace(workspaceID) {
 			return false, nil
 		}
-	} else if action == rbac.ActionRead || action == rbac.ActionList {
+	case rbac.ActionRead, rbac.ActionList:
 		if !operator.IsReadableWorkspace(workspaceID) {
 			return false, nil
 		}
