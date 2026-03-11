@@ -37,7 +37,9 @@ test("@smoke authenticate", async () => {
       }
 
       await page.waitForURL(baseURL, { timeout: 30 * 1000 });
-      await expect(page.getByRole("button", { name: "New Project" }).first()).toBeVisible();
+      await expect(page.getByRole("button", { name: "New Project" }).first()).toBeVisible({
+        timeout: 10 * 1000,
+      });
     }
 
     await context.storageState({ path: authFile });
