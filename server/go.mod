@@ -5,7 +5,7 @@ go 1.25.6
 require (
 	cloud.google.com/go/pubsub/v2 v2.3.0
 	cloud.google.com/go/storage v1.59.2
-	github.com/99designs/gqlgen v0.17.88
+	github.com/99designs/gqlgen v0.17.86
 	github.com/avast/retry-go/v4 v4.7.0
 	github.com/aws/aws-sdk-go-v2 v1.41.1
 	github.com/aws/aws-sdk-go-v2/config v1.32.7
