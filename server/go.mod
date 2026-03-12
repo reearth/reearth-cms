@@ -123,6 +123,7 @@ require (
 	github.com/hasura/go-graphql-client v0.15.1 // indirect
 	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/imkira/go-interpol v1.1.0 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/jpillora/opts v1.3.2 // indirect
 	github.com/klauspost/compress v1.18.2 // indirect
@@ -150,7 +151,9 @@ require (
 	github.com/sergi/go-diff v1.4.0 // indirect
 	github.com/sosodev/duration v1.4.0 // indirect
 	github.com/speakeasy-api/jsonpath v0.6.2 // indirect
-	github.com/speakeasy-api/openapi-overlay v0.10.3 // indirect
+	github.com/speakeasy-api/openapi-overlay v0.10.2 // indirect
+	github.com/spf13/cobra v1.9.1 // indirect
+	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.6.0 // indirect
 	github.com/uber/jaeger-client-go v2.30.0+incompatible // indirect
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
