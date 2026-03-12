@@ -6,14 +6,6 @@ on:
         description: "Target branch"
         required: false
         default: "main"
-      base_url:
-        description: "Base URL for E2E tests (defaults to vars.REEARTH_CMS_E2E_BASEURL)"
-        required: false
-        default: ""
-      api_url:
-        description: "API URL (defaults to vars.REEARTH_CMS_API)"
-        required: false
-        default: ""
       smoke_only:
         description: "Run smoke tests only"
         type: boolean
