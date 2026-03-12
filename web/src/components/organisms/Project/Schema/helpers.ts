@@ -7,6 +7,11 @@ import {
   ImportFieldInput,
   ExportSchemaFieldType,
 } from "@reearth-cms/components/molecules/Schema/types";
+import {
+  GeometryEditorSupportedType,
+  GeometryObjectSupportedType,
+  SchemaFieldTypePropertyInput,
+} from "@reearth-cms/gql/__generated__/graphql.generated";
 import { Constant } from "@reearth-cms/utils/constant";
 import { ImportSchema, ImportSchemaField } from "@reearth-cms/utils/importSchema";
 
@@ -149,56 +154,73 @@ export abstract class SchemaHelpers {
     }
   }
 
-  private static convertImportSchemaTypeProperty(field: ImportSchemaField): TypeProperty {
+  private static convertImportSchemaTypeProperty(
+    field: ImportSchemaField,
+  ): SchemaFieldTypePropertyInput {
     switch (field["x-fieldType"]) {
       case ExportSchemaFieldType.Text:
+        return {
+          text: { defaultValue: field["x-defaultValue"], maxLength: field.maxLength },
+        };
       case ExportSchemaFieldType.TextArea:
+        return {
+          textArea: { defaultValue: field["x-defaultValue"], maxLength: field.maxLength },
+        };
       case ExportSchemaFieldType.Markdown:
         return {
-          defaultValue: field["x-defaultValue"],
-          maxLength: field.maxLength,
+          markdownText: { defaultValue: field["x-defaultValue"], maxLength: field.maxLength },
         };
       case ExportSchemaFieldType.Asset:
         return {
-          defaultValue: field["x-defaultValue"],
+          asset: { defaultValue: field["x-defaultValue"] },
         };
       case ExportSchemaFieldType.Bool:
         return {
-          defaultValue: field["x-defaultValue"],
+          bool: { defaultValue: field["x-defaultValue"] },
         };
       case ExportSchemaFieldType.Datetime:
         return {
-          defaultValue: field["x-defaultValue"],
+          date: { defaultValue: field["x-defaultValue"] },
         };
       case ExportSchemaFieldType.Number:
+        return {
+          number: { defaultValue: field["x-defaultValue"], min: field.minimum, max: field.maximum },
+        };
       case ExportSchemaFieldType.Integer:
         return {
-          defaultValue: field["x-defaultValue"],
-          min: field.minimum,
-          max: field.maximum,
+          integer: {
+            defaultValue: field["x-defaultValue"],
+            min: field.minimum,
+            max: field.maximum,
+          },
         };
       case ExportSchemaFieldType.Select:
         return {
-          selectDefaultValue: field["x-defaultValue"],
-          values: field["x-options"],
+          select: { defaultValue: field["x-defaultValue"], values: field["x-options"] ?? [] },
         };
       case ExportSchemaFieldType.URL:
         return {
-          defaultValue: field["x-defaultValue"],
+          url: { defaultValue: field["x-defaultValue"] },
         };
       case ExportSchemaFieldType.GeometryObject:
         return {
-          defaultValue: field["x-defaultValue"],
-          objectSupportedTypes: field["x-geoSupportedTypes"],
+          geometryObject: {
+            defaultValue: field["x-defaultValue"],
+            supportedTypes: (field["x-geoSupportedTypes"] ?? []) as GeometryObjectSupportedType[],
+          },
         };
       case ExportSchemaFieldType.GeometryEditor:
         return {
-          defaultValue: field["x-defaultValue"],
-          editorSupportedTypes: field["x-geoSupportedType"] ? [field["x-geoSupportedType"]] : [],
+          geometryEditor: {
+            defaultValue: field["x-defaultValue"],
+            supportedTypes: (field["x-geoSupportedType"]
+              ? [field["x-geoSupportedType"]]
+              : []) as GeometryEditorSupportedType[],
+          },
         };
       default:
         return {
-          defaultValue: undefined,
+          text: { defaultValue: undefined },
         };
     }
   }
@@ -219,7 +241,7 @@ export abstract class SchemaHelpers {
       type: Constant.IMPORT.FIELD_TYPE_MAPPING[schemaField["x-fieldType"]],
       modelId,
       groupId: undefined,
-      typeProperty: this.convertImportSchemaTypeProperty(schemaField),
+      typeProperty: this.convertImportSchemaTypeProperty(schemaField) as TypeProperty,
       hidden: false,
     }));
   }

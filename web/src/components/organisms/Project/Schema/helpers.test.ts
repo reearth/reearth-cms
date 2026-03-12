@@ -35,7 +35,7 @@ describe("convertImportSchemaData", () => {
         type: "Text",
         modelId: "model-1",
         groupId: undefined,
-        typeProperty: { defaultValue: ["hello"], maxLength: 100 },
+        typeProperty: { text: { defaultValue: ["hello"], maxLength: 100 } },
         hidden: false,
       },
     ]);
@@ -136,8 +136,7 @@ describe("convertImportSchemaData", () => {
     const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
 
     expect(result[0].typeProperty).toEqual({
-      defaultValue: "default",
-      maxLength: 50,
+      text: { defaultValue: "default", maxLength: 50 },
     });
   });
 
@@ -154,8 +153,7 @@ describe("convertImportSchemaData", () => {
     const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
 
     expect(result[0].typeProperty).toEqual({
-      defaultValue: "some text",
-      maxLength: 200,
+      textArea: { defaultValue: "some text", maxLength: 200 },
     });
   });
 
@@ -172,8 +170,7 @@ describe("convertImportSchemaData", () => {
     const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
 
     expect(result[0].typeProperty).toEqual({
-      defaultValue: "# Hello",
-      maxLength: 500,
+      markdownText: { defaultValue: "# Hello", maxLength: 500 },
     });
   });
 
@@ -191,9 +188,7 @@ describe("convertImportSchemaData", () => {
     const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
 
     expect(result[0].typeProperty).toEqual({
-      defaultValue: 10,
-      min: 0,
-      max: 100,
+      number: { defaultValue: 10, min: 0, max: 100 },
     });
   });
 
@@ -211,9 +206,7 @@ describe("convertImportSchemaData", () => {
     const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
 
     expect(result[0].typeProperty).toEqual({
-      defaultValue: 5,
-      min: 1,
-      max: 10,
+      integer: { defaultValue: 5, min: 1, max: 10 },
     });
   });
 
@@ -230,8 +223,7 @@ describe("convertImportSchemaData", () => {
     const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
 
     expect(result[0].typeProperty).toEqual({
-      selectDefaultValue: "opt1",
-      values: ["opt1", "opt2", "opt3"],
+      select: { defaultValue: "opt1", values: ["opt1", "opt2", "opt3"] },
     });
   });
 
@@ -249,8 +241,7 @@ describe("convertImportSchemaData", () => {
     const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
 
     expect(result[0].typeProperty).toEqual({
-      selectDefaultValue: ["opt1", "opt2"],
-      values: ["opt1", "opt2", "opt3"],
+      select: { defaultValue: ["opt1", "opt2"], values: ["opt1", "opt2", "opt3"] },
     });
   });
 
@@ -266,8 +257,7 @@ describe("convertImportSchemaData", () => {
     const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
 
     expect(result[0].typeProperty).toEqual({
-      defaultValue: undefined,
-      objectSupportedTypes: ["POINT", "POLYGON"],
+      geometryObject: { defaultValue: undefined, supportedTypes: ["POINT", "POLYGON"] },
     });
   });
 
@@ -283,8 +273,7 @@ describe("convertImportSchemaData", () => {
     const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
 
     expect(result[0].typeProperty).toEqual({
-      defaultValue: undefined,
-      editorSupportedTypes: ["POINT"],
+      geometryEditor: { defaultValue: undefined, supportedTypes: ["POINT"] },
     });
   });
 
@@ -299,8 +288,7 @@ describe("convertImportSchemaData", () => {
     const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
 
     expect(result[0].typeProperty).toEqual({
-      defaultValue: undefined,
-      editorSupportedTypes: [],
+      geometryEditor: { defaultValue: undefined, supportedTypes: [] },
     });
   });
 
@@ -316,7 +304,7 @@ describe("convertImportSchemaData", () => {
     const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
 
     expect(result[0].typeProperty).toEqual({
-      defaultValue: true,
+      bool: { defaultValue: true },
     });
   });
 
@@ -332,7 +320,7 @@ describe("convertImportSchemaData", () => {
     const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
 
     expect(result[0].typeProperty).toEqual({
-      defaultValue: "https://example.com",
+      url: { defaultValue: "https://example.com" },
     });
   });
 
@@ -350,8 +338,7 @@ describe("convertImportSchemaData", () => {
     const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
 
     expect(result[0].typeProperty).toEqual({
-      defaultValue: ["a", "b"],
-      maxLength: 100,
+      text: { defaultValue: ["a", "b"], maxLength: 100 },
     });
   });
 
@@ -370,9 +357,7 @@ describe("convertImportSchemaData", () => {
     const result = SchemaHelpers.convertImportSchemaData(properties, undefined);
 
     expect(result[0].typeProperty).toEqual({
-      defaultValue: [1, 2, 3],
-      min: 0,
-      max: 100,
+      number: { defaultValue: [1, 2, 3], min: 0, max: 100 },
     });
   });
 
