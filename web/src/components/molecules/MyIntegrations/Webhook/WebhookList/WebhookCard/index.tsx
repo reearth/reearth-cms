@@ -65,7 +65,7 @@ const WebhookCard: React.FC<Props> = ({
         </TitleWrapper>
       }
       extra={
-        <Space size={4}>
+        <Space size={AntdToken.SPACING.XXS}>
           <Button
             type="text"
             shape="circle"

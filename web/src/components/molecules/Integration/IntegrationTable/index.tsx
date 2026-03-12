@@ -143,7 +143,7 @@ const IntegrationTable: React.FC<Props> = ({
 
   const alertOptions = useCallback(
     (props: { selectedRowKeys: Key[] }) => (
-      <Space size={4}>
+      <Space size={AntdToken.SPACING.XXS}>
         <Button
           type="link"
           size="small"

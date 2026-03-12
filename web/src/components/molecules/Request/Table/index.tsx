@@ -19,7 +19,7 @@ import { Request, RequestState } from "@reearth-cms/components/molecules/Request
 import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
-import { AntdColor } from "@reearth-cms/utils/style";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   requests: Request[];
@@ -242,7 +242,7 @@ const RequestListTable: React.FC<Props> = ({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
       return (
-        <Space size={4}>
+        <Space size={AntdToken.SPACING.XXS}>
           <Button
             type="link"
             size="small"

@@ -307,7 +307,7 @@ const ContentTable: React.FC<Props> = ({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (props: any) => {
       return (
-        <Space size={4}>
+        <Space size={AntdToken.SPACING.XXS}>
           <Button
             type="link"
             size="small"

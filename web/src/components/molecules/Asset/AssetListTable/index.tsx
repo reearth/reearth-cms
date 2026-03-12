@@ -283,7 +283,7 @@ const AssetListTable: React.FC<Props> = ({
       const selected = props.selectedRows as Asset[];
       const disabled = !selected || selected.length <= 0;
       return (
-        <Space size={4}>
+        <Space size={AntdToken.SPACING.XXS}>
           <DownloadButton
             displayDefaultIcon
             size="small"

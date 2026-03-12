@@ -301,7 +301,7 @@ const SelectedUser = styled.div`
   align-items: center;
   padding: ${AntdToken.SPACING.XS}px ${AntdToken.SPACING.BASE}px;
   border: 1px solid ${AntdColor.NEUTRAL.BORDER};
-  box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.016);
+  box-shadow: 0px 2px 0px ${AntdColor.NEUTRAL.FILL_QUATERNARY};
   border-radius: ${AntdToken.RADIUS.LG}px;
 `;
 
