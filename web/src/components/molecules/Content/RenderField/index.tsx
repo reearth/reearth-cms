@@ -88,7 +88,7 @@ export const renderField = (
         trigger="click"
         placement="bottom">
         <StyledButton data-testid={DATA_TEST_ID.Content__List__ItemFieldPopoverIcon}>
-          <Icon icon={fieldTypes[field.type].icon} size={16} />
+          <Icon icon={fieldTypes[field.type].icon} size={AntdToken.FONT.SIZE_LG} />
           {items.length > 1 && <span>x{items.length}</span>}
         </StyledButton>
       </Popover>

@@ -504,7 +504,7 @@ const GeometryItem: React.FC<Props> = ({
             <EditorButtons>
               <Tooltip title={t("Value copied!!")} trigger={"click"}>
                 <EditorButton
-                  icon={<Icon icon="editorCopy" size={12} />}
+                  icon={<Icon icon="editorCopy" size={AntdToken.FONT.SIZE_SM} />}
                   size="small"
                   onClick={copyButtonClick}
                   disabled={!currentValue}
@@ -512,7 +512,7 @@ const GeometryItem: React.FC<Props> = ({
               </Tooltip>
               {!disabled && (
                 <EditorButton
-                  icon={<Icon icon="trash" size={12} />}
+                  icon={<Icon icon="trash" size={AntdToken.FONT.SIZE_SM} />}
                   size="small"
                   onClick={deleteButtonClick}
                   disabled={!currentValue}

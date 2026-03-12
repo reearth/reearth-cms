@@ -133,7 +133,9 @@ const LinkAssetModal: React.FC<Props> = ({
           return (
             <Button
               type="link"
-              icon={<Icon icon={isLink ? "linkSolid" : "unlinkSolid"} size={16} />}
+              icon={
+                <Icon icon={isLink ? "linkSolid" : "unlinkSolid"} size={AntdToken.FONT.SIZE_LG} />
+              }
               onClick={() => onLinkClick(isLink, asset)}
             />
           );

@@ -71,7 +71,7 @@ const WebhookCard: React.FC<Props> = ({
             shape="circle"
             size="small"
             onClick={() => onWebhookSelect(webhook.id)}
-            icon={<Icon icon="settings" size={16} />}
+            icon={<Icon icon="settings" size={AntdToken.FONT.SIZE_LG} />}
           />
           <Button
             type="text"
@@ -79,7 +79,7 @@ const WebhookCard: React.FC<Props> = ({
             size="small"
             onClick={handleWebhookDelete}
             loading={isLoading}
-            icon={<Icon icon="delete" size={16} />}
+            icon={<Icon icon="delete" size={AntdToken.FONT.SIZE_LG} />}
           />
         </Space>
       }>

@@ -1,13 +1,13 @@
 import styled from "@emotion/styled";
 
 import Content from "@reearth-cms/components/atoms/Content";
-import { AntdToken } from "@reearth-cms/utils/style";
 import DangerZone from "@reearth-cms/components/molecules/MyIntegrations/Settings/DangerZone";
 import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegrations/Settings/Form";
 import {
   Integration,
   IntegrationInfo,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   integration: Integration;

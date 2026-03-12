@@ -58,14 +58,14 @@ const MultiValueBooleanField: React.FC<Props> = ({
                 <FieldButton
                   color="default"
                   variant="link"
-                  icon={<Icon icon="arrowUp" size={16} />}
+                  icon={<Icon icon="arrowUp" size={AntdToken.FONT.SIZE_LG} />}
                   onClick={() => onChange?.(moveItemInArray(checked, key, key - 1))}
                   disabled={key === 0}
                 />
                 <FieldButton
                   color="default"
                   variant="link"
-                  icon={<Icon icon="arrowDown" size={16} />}
+                  icon={<Icon icon="arrowDown" size={AntdToken.FONT.SIZE_LG} />}
                   onClick={() => onChange?.(moveItemInArray(checked, key, key + 1))}
                   disabled={key === checked.length - 1}
                 />
@@ -82,7 +82,7 @@ const MultiValueBooleanField: React.FC<Props> = ({
               <FieldButton
                 color="default"
                 variant="link"
-                icon={<Icon icon="delete" size={16} />}
+                icon={<Icon icon="delete" size={AntdToken.FONT.SIZE_LG} />}
                 onClick={() => handleInputDelete(key)}
               />
             )}

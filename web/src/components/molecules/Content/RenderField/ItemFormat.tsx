@@ -162,7 +162,8 @@ export const ItemFormat: React.FC<Props> = ({ item, field, update, index }) => {
       );
     case "Reference":
       return (
-        <StyledTag icon={<StyledIcon icon={fieldTypes.Reference.icon} size={14} />}>
+        <StyledTag
+          icon={<StyledIcon icon={fieldTypes.Reference.icon} size={AntdToken.FONT.SIZE} />}>
           {item}
         </StyledTag>
       );

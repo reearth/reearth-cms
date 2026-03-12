@@ -153,7 +153,7 @@ const AssetItem: React.FC<Props> = ({
         <>
           <AssetDetailsWrapper>
             <AssetButton enabled={!!asset} disabled={disabled} onClick={handleClick}>
-              <Icon icon="folder" size={24} />
+              <Icon icon="folder" size={AntdToken.FONT.SIZE_HEADING_3} />
               <AssetName>{asset?.fileName ?? value}</AssetName>
             </AssetButton>
             <Tooltip title={asset?.fileName}>
@@ -178,7 +178,7 @@ const AssetItem: React.FC<Props> = ({
               <AssetLink
                 color="default"
                 variant="link"
-                icon={<Icon icon="arrowSquareOut" size={20} />}
+                icon={<Icon icon="arrowSquareOut" size={AntdToken.FONT.SIZE_XL} />}
               />
             </Link>
           )}
@@ -186,14 +186,14 @@ const AssetItem: React.FC<Props> = ({
             <AssetLink
               color="default"
               variant="link"
-              icon={<Icon icon={"unlinkSolid"} size={16} />}
+              icon={<Icon icon={"unlinkSolid"} size={AntdToken.FONT.SIZE_LG} />}
               onClick={onUnlink}
             />
           )}
         </>
       ) : (
         <AssetButton disabled={disabled} onClick={handleClick}>
-          <Icon icon="linkSolid" size={14} />
+          <Icon icon="linkSolid" size={AntdToken.FONT.SIZE} />
           <AssetButtonTitle>{t("Asset")}</AssetButtonTitle>
         </AssetButton>
       )}

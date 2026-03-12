@@ -7,11 +7,11 @@ import Layout from "@reearth-cms/components/atoms/Layout";
 import Sider from "@reearth-cms/components/atoms/Sider";
 import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
-const { MD } = AntdToken.SPACING;
-
 import ReloadModal from "../ReloadModal";
 import Uploader from "../Uploader";
 import { UploaderState } from "../Uploader/types";
+
+const { MD } = AntdToken.SPACING;
 
 export type InnerProps = {
   onWorkspaceModalOpen?: () => void;

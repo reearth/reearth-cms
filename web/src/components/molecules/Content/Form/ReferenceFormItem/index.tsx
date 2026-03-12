@@ -105,7 +105,7 @@ const ReferenceFormItem: React.FC<Props> = ({
             <UnreferButton
               color="default"
               variant="link"
-              icon={<Icon icon={"arrowUpRightSlash"} size={16} />}
+              icon={<Icon icon={"arrowUpRightSlash"} size={AntdToken.FONT.SIZE_LG} />}
               onClick={() => {
                 onChange?.();
               }}
@@ -115,7 +115,8 @@ const ReferenceFormItem: React.FC<Props> = ({
       )}
       {!disabled && (
         <StyledButton onClick={handleClick} type="primary">
-          <Icon icon="arrowUpRight" size={14} /> {value ? t("Replace item") : t("Refer to item")}
+          <Icon icon="arrowUpRight" size={AntdToken.FONT.SIZE} />{" "}
+          {value ? t("Replace item") : t("Refer to item")}
         </StyledButton>
       )}
       {!!onSearchTerm &&

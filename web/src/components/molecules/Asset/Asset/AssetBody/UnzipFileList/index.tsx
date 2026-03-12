@@ -69,7 +69,7 @@ const UnzipFileList: React.FC<Props> = ({
         treeData && (
           <Tree
             switcherIcon={({ expanded }) => (
-              <SwitcherIcon icon={expanded ? "folderOpen" : "folder"} size={14} />
+              <SwitcherIcon icon={expanded ? "folderOpen" : "folder"} size={AntdToken.FONT.SIZE} />
             )}
             defaultExpandedKeys={["0-0"]}
             selectedKeys={selectedKeys}

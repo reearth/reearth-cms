@@ -66,14 +66,14 @@ const MultiValueGeometry: React.FC<Props> = ({
                 <FieldButton
                   color="default"
                   variant="link"
-                  icon={<Icon icon="arrowUp" size={16} />}
+                  icon={<Icon icon="arrowUp" size={AntdToken.FONT.SIZE_LG} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key - 1))}
                   disabled={key === 0}
                 />
                 <FieldButton
                   color="default"
                   variant="link"
-                  icon={<Icon icon="arrowDown" size={16} />}
+                  icon={<Icon icon="arrowDown" size={AntdToken.FONT.SIZE_LG} />}
                   onClick={() => onChange?.(moveItemInArray(value, key, key + 1))}
                   disabled={key === value.length - 1}
                 />
@@ -92,7 +92,7 @@ const MultiValueGeometry: React.FC<Props> = ({
               <FieldButton
                 color="default"
                 variant="link"
-                icon={<Icon icon="delete" size={16} />}
+                icon={<Icon icon="delete" size={AntdToken.FONT.SIZE_LG} />}
                 onClick={() => handleInputDelete(key)}
               />
             )}

@@ -219,7 +219,7 @@ const Schema: React.FC<Props> = ({
   const DropdownMenu = useCallback(
     () => (
       <Dropdown key="more" menu={{ items: dropdownItems }} placement="bottomRight">
-        <Button type="text" icon={<Icon icon="more" size={20} />} />
+        <Button type="text" icon={<Icon icon="more" size={AntdToken.FONT.SIZE_XL} />} />
       </Dropdown>
     ),
     [dropdownItems],

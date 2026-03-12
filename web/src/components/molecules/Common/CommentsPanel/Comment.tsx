@@ -66,7 +66,7 @@ const Comment: React.FC<Props> = ({
           color="default"
           variant="link"
           size="small"
-          icon={<Icon icon="delete" size={12} />}
+          icon={<Icon icon="delete" size={AntdToken.FONT.SIZE_SM} />}
           onClick={() => onCommentDelete(comment.id)}
         />,
       );
@@ -77,7 +77,7 @@ const Comment: React.FC<Props> = ({
           color="default"
           variant="link"
           size="small"
-          icon={<Icon icon={showEditor ? "check" : "edit"} size={12} />}
+          icon={<Icon icon={showEditor ? "check" : "edit"} size={AntdToken.FONT.SIZE_SM} />}
           onClick={showEditor ? handleSubmit : () => setShowEditor(true)}
         />,
       );

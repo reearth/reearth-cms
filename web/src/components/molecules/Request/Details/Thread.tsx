@@ -8,10 +8,10 @@ import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-const { XXS, SM, BASE, LG } = AntdToken.SPACING;
-
 import RequestEditor from "./Editor";
 import RequestStatus from "./RequestStatus";
+
+const { XXS, SM, BASE, LG } = AntdToken.SPACING;
 
 type Props = {
   me?: User;
