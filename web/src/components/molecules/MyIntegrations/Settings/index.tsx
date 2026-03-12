@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 
 import Content from "@reearth-cms/components/atoms/Content";
+import { AntdToken } from "@reearth-cms/utils/style";
 import DangerZone from "@reearth-cms/components/molecules/MyIntegrations/Settings/DangerZone";
 import MyIntegrationForm from "@reearth-cms/components/molecules/MyIntegrations/Settings/Form";
 import {
@@ -44,5 +45,5 @@ export default MyIntegrationSettings;
 const Wrapper = styled(Content)`
   display: flex;
   flex-direction: column;
-  height: calc(100% - 32px);
+  height: calc(100% - ${AntdToken.SPACING.XL}px);
 `;

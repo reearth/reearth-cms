@@ -47,8 +47,8 @@ const StyledSteps = styled(Steps)`
     content: "";
     display: block;
     position: absolute;
-    width: 4px;
-    height: 24px;
+    width: ${AntdToken.SPACING.XXS}px;
+    height: ${AntdToken.SPACING.LG}px;
     background-color: ${AntdColor.NEUTRAL.BORDER};
     left: ${AntdToken.SPACING.BASE}px;
     top: -30px;

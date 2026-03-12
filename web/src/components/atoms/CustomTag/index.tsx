@@ -18,8 +18,8 @@ const CustomTag: React.FC<CustomTagProps> = ({ value, color }) => {
 
 const CustomTagWrapper = styled.div`
   padding: 0px 6px;
-  width: 20px;
-  height: 16px;
+  width: ${AntdToken.SPACING.MD}px;
+  height: ${AntdToken.SPACING.BASE}px;
   background-color: ${props => props.color};
   color: ${AntdColor.NEUTRAL.BG_WHITE};
   border-radius: 100px;

@@ -28,7 +28,7 @@ const PaddedContent = styled.div`
   margin: ${AntdToken.SPACING.BASE}px 0 0 ${AntdToken.SPACING.BASE}px;
   height: 100%;
   min-height: calc(100% - 66px);
-  max-height: calc(100% - 16px);
+  max-height: calc(100% - ${AntdToken.SPACING.BASE}px);
 `;
 
 const Main = styled.div`

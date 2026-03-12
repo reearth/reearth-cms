@@ -87,7 +87,7 @@ const MyIntegrationContent: React.FC<Props> = ({
 };
 
 const MyIntegrationWrapper = styled.div`
-  min-height: calc(100% - 16px);
+  min-height: calc(100% - ${AntdToken.SPACING.BASE}px);
   background-color: ${AntdColor.NEUTRAL.BG_WHITE};
   margin: ${AntdToken.SPACING.BASE}px ${AntdToken.SPACING.BASE}px 0;
 `;

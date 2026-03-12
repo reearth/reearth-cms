@@ -8,7 +8,7 @@ import { Request } from "@reearth-cms/components/molecules/Request/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
-const { SM, BASE, LG } = AntdToken.SPACING;
+const { XXS, SM, BASE, LG } = AntdToken.SPACING;
 
 import RequestEditor from "./Editor";
 import RequestStatus from "./RequestStatus";
@@ -106,8 +106,8 @@ const CommentWrapper = styled.div`
       content: "";
       display: block;
       position: absolute;
-      width: 4px;
-      height: 24px;
+      width: ${XXS}px;
+      height: ${LG}px;
       background-color: ${AntdColor.NEUTRAL.BORDER};
       left: ${BASE}px;
       top: -30px;

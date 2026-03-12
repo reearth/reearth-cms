@@ -101,8 +101,8 @@ const StyledMeta = styled(Meta)`
   .ant-card-meta-avatar {
     padding-right: ${AntdToken.SPACING.XS}px;
     img {
-      width: 20px;
-      height: 20px;
+      width: ${AntdToken.SPACING.MD}px;
+      height: ${AntdToken.SPACING.MD}px;
       object-fit: cover;
     }
   }

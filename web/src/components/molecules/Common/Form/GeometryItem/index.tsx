@@ -688,7 +688,7 @@ const StyledSearch = styled(Search)`
   top: 15px;
   max-width: 167px;
   .ant-input-outlined {
-    height: 24px;
+    height: ${AntdToken.SPACING.LG}px;
     border-color: ${AntdColor.NEUTRAL.BORDER} !important;
     :hover {
       border-color: ${AntdColor.BLUE.BLUE_5} !important;
@@ -703,7 +703,7 @@ const ViewerButtons = styled.div`
   z-index: 1;
   position: absolute;
   right: ${AntdToken.SPACING.XS}px;
-  height: calc(100% - 16px);
+  height: calc(100% - ${AntdToken.SPACING.BASE}px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
