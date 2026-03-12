@@ -268,8 +268,6 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, sp schema.Package
 		})
 }
 
-// removeReferenceFieldsPointingToSchema removes reference fields from sibling schemas
-// that point to the schema of the model being deleted, preventing dangling references.
 func (i Model) removeReferenceFieldsPointingToSchema(ctx context.Context, m *model.Model) error {
 	deletedSchemaID := m.Schema()
 
