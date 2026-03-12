@@ -16,6 +16,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/i18n"
 	"github.com/reearth/reearthx/log"
@@ -237,6 +238,11 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, sp schema.Package
 				return err
 			}
 
+			// remove reference fields in sibling schemas that point to this model's schema
+			if err := i.removeReferenceFieldsPointingToSchema(ctx, m); err != nil {
+				return err
+			}
+
 			// delete the model's schema
 			if err := i.repos.Schema.Remove(ctx, m.Schema()); err != nil {
 				return err
@@ -260,6 +266,61 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, sp schema.Package
 			}
 			return i.repos.Model.SaveAll(ctx, res)
 		})
+}
+
+// removeReferenceFieldsPointingToSchema removes reference fields from sibling schemas
+// that point to the schema of the model being deleted, preventing dangling references.
+func (i Model) removeReferenceFieldsPointingToSchema(ctx context.Context, m *model.Model) error {
+	deletedSchemaID := m.Schema()
+
+	siblings, _, err := i.repos.Model.FindByProject(ctx, m.Project(), usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
+	if err != nil {
+		return err
+	}
+
+	var siblingSchemaIDs id.SchemaIDList
+	for _, sib := range siblings {
+		if sib.ID() == m.ID() {
+			continue
+		}
+		siblingSchemaIDs = append(siblingSchemaIDs, sib.Schema())
+		if sib.Metadata() != nil {
+			siblingSchemaIDs = append(siblingSchemaIDs, *sib.Metadata())
+		}
+	}
+	if len(siblingSchemaIDs) == 0 {
+		return nil
+	}
+
+	schemas, err := i.repos.Schema.FindByIDs(ctx, siblingSchemaIDs)
+	if err != nil {
+		return err
+	}
+
+	for _, s := range schemas {
+		if s == nil {
+			continue
+		}
+		var toRemove id.FieldIDList
+		for _, f := range s.FieldsByType(value.TypeReference) {
+			fr, ok := schema.FieldReferenceFromTypeProperty(f.TypeProperty())
+			if !ok || fr.Schema() != deletedSchemaID {
+				continue
+			}
+			toRemove = append(toRemove, f.ID())
+		}
+		if len(toRemove) == 0 {
+			continue
+		}
+		for _, fid := range toRemove {
+			s.RemoveField(fid)
+		}
+		if err := i.repos.Schema.Save(ctx, s); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (i Model) deleteItemsByModel(ctx context.Context, prj *project.Project, m *model.Model, sp schema.Package, operator *usecase.Operator) error {
