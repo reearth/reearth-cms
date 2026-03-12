@@ -19,12 +19,12 @@ import { Trans, useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { Constant } from "@reearth-cms/utils/constant";
 import { FileUtils } from "@reearth-cms/utils/file";
-import { ErrorLogMeta, ImportErrorLogUtils } from "@reearth-cms/utils/importErrorLog";
 import {
   ImportContentItem,
   ImportContentUtils,
   ValidationErrorMeta,
 } from "@reearth-cms/utils/importContent";
+import { ErrorLogMeta, ImportErrorLogUtils } from "@reearth-cms/utils/importErrorLog";
 import { ObjectUtils } from "@reearth-cms/utils/object";
 
 const { Dragger } = Upload;
@@ -501,7 +501,10 @@ const ContentImportModal: React.FC<Props> = ({
               <StyledActionButton
                 type="default"
                 icon={<Icon icon="download" />}
-                onClick={() => ImportErrorLogUtils.downloadErrorLog(validateImportResult.errorLogMeta!)}>
+                onClick={() =>
+                  validateImportResult.errorLogMeta &&
+                  ImportErrorLogUtils.downloadErrorLog(validateImportResult.errorLogMeta)
+                }>
                 {t("Download error log")}
               </StyledActionButton>
             )}

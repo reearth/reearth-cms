@@ -155,6 +155,7 @@ describe("ContentImportModal", () => {
         exceedLimit: false,
         typeMismatchFieldKeys: new Set(["age"]),
         outOfRangeFieldKeys: new Set(),
+        zodIssues: [],
       },
     });
 
@@ -175,6 +176,7 @@ describe("ContentImportModal", () => {
         exceedLimit: false,
         typeMismatchFieldKeys: new Set(["name", "age"]),
         outOfRangeFieldKeys: new Set(),
+        zodIssues: [],
       },
     });
 
@@ -195,6 +197,7 @@ describe("ContentImportModal", () => {
         exceedLimit: false,
         typeMismatchFieldKeys: new Set(["age"]),
         outOfRangeFieldKeys: new Set(),
+        zodIssues: [],
       },
     });
 
@@ -225,6 +228,7 @@ describe("ContentImportModal", () => {
         exceedLimit: false,
         typeMismatchFieldKeys: new Set(["age"]),
         outOfRangeFieldKeys: new Set(),
+        zodIssues: [],
       },
     });
 
@@ -248,6 +252,7 @@ describe("ContentImportModal", () => {
         exceedLimit: false,
         typeMismatchFieldKeys: new Set(["age"]),
         outOfRangeFieldKeys: new Set(),
+        zodIssues: [],
       },
     });
 

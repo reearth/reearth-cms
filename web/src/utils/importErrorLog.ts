@@ -146,10 +146,7 @@ export abstract class ImportErrorLogUtils {
     return pathSegments.map(String).join(".") || "(root)";
   }
 
-  private static processUnionIssue(
-    issue: z.core.$ZodIssue,
-    source: SourceType,
-  ): ErrorLogEntry[] {
+  private static processUnionIssue(issue: z.core.$ZodIssue, source: SourceType): ErrorLogEntry[] {
     const parentPath = (issue.path ?? []) as (string | number)[];
     const unionErrors = (issue as z.core.$ZodIssue & { errors?: z.core.$ZodIssue[][] }).errors;
     if (!unionErrors || unionErrors.length === 0) {
@@ -261,9 +258,7 @@ export abstract class ImportErrorLogUtils {
     ];
   }
 
-  private static findDiscriminatorSegment(
-    branchErrors: z.core.$ZodIssue[][],
-  ): string | undefined {
+  private static findDiscriminatorSegment(branchErrors: z.core.$ZodIssue[][]): string | undefined {
     const segmentCounts = new Map<string, number>();
     for (const branch of branchErrors) {
       const seenSegments = new Set<string>();
@@ -304,8 +299,7 @@ export abstract class ImportErrorLogUtils {
         const prepended = this.prependPath(branchIssue, parentPath);
         const pathSegments = (prepended.path ?? []) as (string | number)[];
         const description = this.describeZodIssue(prepended);
-        const detail =
-          prepended.message !== description ? prepended.message : undefined;
+        const detail = prepended.message !== description ? prepended.message : undefined;
         entries.push({
           path: this.formatPath(pathSegments, source),
           description,
@@ -387,8 +381,7 @@ export abstract class ImportErrorLogUtils {
     const categories = new Map<string, number>();
     for (const entry of meta.entries) {
       const colonIndex = entry.description.indexOf(":");
-      const category =
-        colonIndex >= 0 ? entry.description.slice(0, colonIndex) : entry.description;
+      const category = colonIndex >= 0 ? entry.description.slice(0, colonIndex) : entry.description;
       categories.set(category, (categories.get(category) ?? 0) + 1);
     }
 

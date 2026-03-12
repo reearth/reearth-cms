@@ -8,9 +8,9 @@ import FormModal from "@reearth-cms/components/molecules/Schema/FormModal";
 import { CreateFieldInput } from "@reearth-cms/components/molecules/Schema/types";
 import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/AssetList/hooks";
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
-import { ImportErrorLogUtils } from "@reearth-cms/utils/importErrorLog";
 import { ContentTypesEnum } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
+import { ImportErrorLogUtils } from "@reearth-cms/utils/importErrorLog";
 
 import useHooks from "./hooks";
 
@@ -112,10 +112,9 @@ const ProjectSchema: React.FC = () => {
           if (result) toSchemaPreviewStep();
         }}
         onFileRemove={importHooks.handleImportSchemaFileRemove}
-        onDownloadErrorLog={
-          importHooks.schemaErrorLogMeta
-            ? () => ImportErrorLogUtils.downloadErrorLog(importHooks.schemaErrorLogMeta!)
-            : undefined
+        onDownloadErrorLog={() =>
+          importHooks.schemaErrorLogMeta &&
+          ImportErrorLogUtils.downloadErrorLog(importHooks.schemaErrorLogMeta)
         }
       />
       <FormModal

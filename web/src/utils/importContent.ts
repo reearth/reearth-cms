@@ -120,9 +120,12 @@ export abstract class ImportContentUtils {
             const defaultValueValidation = z
               .string()
               .min(1)
-              .refine(value => (maxLength.data !== undefined ? value.length <= maxLength.data : true), {
-                error: "too_big",
-              })
+              .refine(
+                value => (maxLength.data !== undefined ? value.length <= maxLength.data : true),
+                {
+                  error: "too_big",
+                },
+              )
               .optional()
               .safeParse(field.typeProperty?.defaultValue);
 
@@ -600,7 +603,12 @@ export abstract class ImportContentUtils {
 
         return acc;
       },
-      { exceedLimit: false, typeMismatchFieldKeys: new Set(), outOfRangeFieldKeys: new Set(), zodIssues: schemaValidation.error.issues },
+      {
+        exceedLimit: false,
+        typeMismatchFieldKeys: new Set(),
+        outOfRangeFieldKeys: new Set(),
+        zodIssues: schemaValidation.error.issues,
+      },
     );
   }
 

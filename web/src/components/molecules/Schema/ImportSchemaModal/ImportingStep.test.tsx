@@ -16,12 +16,7 @@ afterEach(() => {
 describe("ImportingStep", () => {
   test("shows loading message and animates progress while loading", () => {
     const onModalClose = vi.fn();
-    render(
-      <ImportingStep
-        fieldsCreationLoading={true}
-        onModalClose={onModalClose}
-      />,
-    );
+    render(<ImportingStep fieldsCreationLoading={true} onModalClose={onModalClose} />);
 
     expect(screen.getByText(t("Importing..."))).toBeInTheDocument();
 
@@ -39,10 +34,7 @@ describe("ImportingStep", () => {
   test("snaps to 100% and auto-closes on success", () => {
     const onModalClose = vi.fn();
     const { rerender } = render(
-      <ImportingStep
-        fieldsCreationLoading={true}
-        onModalClose={onModalClose}
-      />,
+      <ImportingStep fieldsCreationLoading={true} onModalClose={onModalClose} />,
     );
 
     act(() => {
@@ -50,12 +42,7 @@ describe("ImportingStep", () => {
     });
 
     // Simulate loading complete with no error
-    rerender(
-      <ImportingStep
-        fieldsCreationLoading={false}
-        onModalClose={onModalClose}
-      />,
-    );
+    rerender(<ImportingStep fieldsCreationLoading={false} onModalClose={onModalClose} />);
 
     expect(screen.getByText(t("Import successful!"))).toBeInTheDocument();
 
@@ -70,10 +57,7 @@ describe("ImportingStep", () => {
   test("stops animation and shows error styling on error", () => {
     const onModalClose = vi.fn();
     const { rerender } = render(
-      <ImportingStep
-        fieldsCreationLoading={true}
-        onModalClose={onModalClose}
-      />,
+      <ImportingStep fieldsCreationLoading={true} onModalClose={onModalClose} />,
     );
 
     act(() => {
