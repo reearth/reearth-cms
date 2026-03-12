@@ -7,8 +7,7 @@ import { t } from "@reearth-cms/i18n";
 
 export interface ErrorLogEntry {
   path: string;
-  description: string;
-  detail?: string;
+  detail: string;
 }
 
 export interface ErrorLogMeta {
@@ -31,65 +30,6 @@ export abstract class ImportErrorLogUtils {
     "x-options": () => t("Options"),
     "x-multiple": () => t("Multiple"),
   };
-
-  public static describeZodIssue(issue: z.core.$ZodIssue): string {
-    switch (issue.code) {
-      case "invalid_type": {
-        const expected = "expected" in issue ? String(issue.expected) : "unknown";
-        const received = "received" in issue ? String(issue.received) : "unknown";
-        return t("Type mismatch: expected {{expected}}, got {{received}}", {
-          expected,
-          received,
-        });
-      }
-      case "too_big": {
-        const maximum =
-          "maximum" in issue ? (issue as unknown as { maximum: number }).maximum : undefined;
-        const origin =
-          "origin" in issue ? String((issue as unknown as { origin: string }).origin) : "";
-        if (origin === "string") {
-          return t("Text too long: maximum {{maximum, number}} characters", { maximum });
-        }
-        if (origin === "number" || origin === "int") {
-          return t("Value too large: maximum is {{maximum, number}}", { maximum });
-        }
-        if (origin === "array") {
-          return t("Too many items: maximum {{maximum, number}}", { maximum });
-        }
-        return t("Text too long: maximum {{maximum, number}} characters", { maximum });
-      }
-      case "too_small": {
-        const minimum =
-          "minimum" in issue ? (issue as unknown as { minimum: number }).minimum : undefined;
-        const origin =
-          "origin" in issue ? String((issue as unknown as { origin: string }).origin) : "";
-        if (origin === "string") {
-          return t("Text too short: minimum {{minimum, number}} characters", { minimum });
-        }
-        if (origin === "number" || origin === "int") {
-          return t("Value too small: minimum is {{minimum, number}}", { minimum });
-        }
-        if (origin === "array") {
-          return t("Too few items: minimum {{minimum, number}}", { minimum });
-        }
-        return t("Text too short: minimum {{minimum, number}} characters", { minimum });
-      }
-      case "invalid_value": {
-        const values =
-          "values" in issue ? (issue as unknown as { values: string[] }).values : undefined;
-        return t("Invalid value: expected one of {{values, list}}", { values });
-      }
-      case "invalid_format": {
-        const format =
-          "format" in issue ? String((issue as unknown as { format: string }).format) : "unknown";
-        return t("Invalid format: expected {{format}}", { format });
-      }
-      case "custom":
-        return issue.message;
-      default:
-        return issue.message;
-    }
-  }
 
   private static formatSchemaPath(pathSegments: (string | number)[]): string {
     const parts: string[] = [];
@@ -153,7 +93,7 @@ export abstract class ImportErrorLogUtils {
       return [
         {
           path: this.formatPath(parentPath, source),
-          description: t("No valid field type matched this configuration"),
+          detail: t("No valid field type matched this configuration"),
         },
       ];
     }
@@ -180,15 +120,11 @@ export abstract class ImportErrorLogUtils {
 
       if (allInvalidValue && allValues.length > 0) {
         const unique = [...new Set(allValues)];
-        const description = t("Invalid value: expected one of {{values, list}}", {
-          values: unique,
-        });
-        const detail = unique.map(v => `"${v}"`).join(", ");
+        const detail = t("Invalid input: expected {{values}}", { values: unique });
         return [
           {
             path: this.formatPath(parentPath, source),
-            description,
-            detail: `Invalid input: expected ${detail}`,
+            detail,
           },
         ];
       }
@@ -197,7 +133,7 @@ export abstract class ImportErrorLogUtils {
       return [
         {
           path: this.formatPath(parentPath, source),
-          description: t("No valid field type matched this configuration"),
+          detail: t("No valid field type matched this configuration"),
         },
       ];
     }
@@ -234,16 +170,12 @@ export abstract class ImportErrorLogUtils {
 
       if (allValues.length > 0) {
         const unique = [...new Set(allValues)];
-        const description = t("Invalid value: expected one of {{values, list}}", {
-          values: unique,
-        });
-        const detail = unique.map(v => `"${v}"`).join(", ");
+        const detail = t("Invalid input: expected {{values}}", { values: unique });
         const fullPath = [...parentPath, discriminator];
         return [
           {
             path: this.formatPath(fullPath, source),
-            description,
-            detail: `Invalid input: expected ${detail}`,
+            detail,
           },
         ];
       }
@@ -253,7 +185,7 @@ export abstract class ImportErrorLogUtils {
     return [
       {
         path: this.formatPath(parentPath, source),
-        description: t("No valid field type matched this configuration"),
+        detail: t("No valid field type matched this configuration"),
       },
     ];
   }
@@ -298,12 +230,9 @@ export abstract class ImportErrorLogUtils {
       } else {
         const prepended = this.prependPath(branchIssue, parentPath);
         const pathSegments = (prepended.path ?? []) as (string | number)[];
-        const description = this.describeZodIssue(prepended);
-        const detail = prepended.message !== description ? prepended.message : undefined;
         entries.push({
           path: this.formatPath(pathSegments, source),
-          description,
-          detail,
+          detail: prepended.message,
         });
       }
     }
@@ -350,10 +279,7 @@ export abstract class ImportErrorLogUtils {
       }
       seenPaths.add(pathKey);
 
-      const description = this.describeZodIssue(issue);
-      const detail = issue.message !== description ? issue.message : undefined;
-
-      entries.push({ path, description, detail });
+      entries.push({ path, detail: issue.message });
     }
 
     return entries;
@@ -380,8 +306,8 @@ export abstract class ImportErrorLogUtils {
 
     const categories = new Map<string, number>();
     for (const entry of meta.entries) {
-      const colonIndex = entry.description.indexOf(":");
-      const category = colonIndex >= 0 ? entry.description.slice(0, colonIndex) : entry.description;
+      const colonIndex = entry.detail.indexOf(":");
+      const category = colonIndex >= 0 ? entry.detail.slice(0, colonIndex) : entry.detail;
       categories.set(category, (categories.get(category) ?? 0) + 1);
     }
 
@@ -398,10 +324,7 @@ export abstract class ImportErrorLogUtils {
       const entry = meta.entries[i];
       lines.push(`#${i + 1}`);
       lines.push(`  ${t("Location")}: ${entry.path}`);
-      lines.push(`  ${t("Issue")}: ${entry.description}`);
-      if (entry.detail) {
-        lines.push(`  ${t("Detail")}: ${entry.detail}`);
-      }
+      lines.push(`  ${t("Detail")}: ${entry.detail}`);
       lines.push("");
     }
 

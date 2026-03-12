@@ -8,105 +8,8 @@ vi.mock("js-file-download", () => ({
 }));
 
 describe("ImportErrorLogUtils", () => {
-  describe("describeZodIssue", () => {
-    test("describes invalid_type", () => {
-      const desc = ImportErrorLogUtils.describeZodIssue({
-        code: "invalid_type",
-        expected: "number",
-        received: "string",
-        message: "Expected number, received string",
-        path: [],
-      } as z.core.$ZodIssue);
-      expect(desc).toBe("Type mismatch: expected number, got string");
-    });
-
-    test("describes too_big for string origin", () => {
-      const desc = ImportErrorLogUtils.describeZodIssue({
-        code: "too_big",
-        origin: "string",
-        maximum: 5,
-        message: "Too big",
-        path: [],
-      } as unknown as z.core.$ZodIssue);
-      expect(desc).toBe("Text too long: maximum 5 characters");
-    });
-
-    test("describes too_big for number origin", () => {
-      const desc = ImportErrorLogUtils.describeZodIssue({
-        code: "too_big",
-        origin: "number",
-        maximum: 100,
-        message: "Too big",
-        path: [],
-      } as unknown as z.core.$ZodIssue);
-      expect(desc).toBe("Value too large: maximum is 100");
-    });
-
-    test("describes too_big for array origin", () => {
-      const desc = ImportErrorLogUtils.describeZodIssue({
-        code: "too_big",
-        origin: "array",
-        maximum: 10,
-        message: "Too big",
-        path: [],
-      } as unknown as z.core.$ZodIssue);
-      expect(desc).toBe("Too many items: maximum 10");
-    });
-
-    test("describes too_small for string origin", () => {
-      const desc = ImportErrorLogUtils.describeZodIssue({
-        code: "too_small",
-        origin: "string",
-        minimum: 3,
-        message: "Too small",
-        path: [],
-      } as unknown as z.core.$ZodIssue);
-      expect(desc).toBe("Text too short: minimum 3 characters");
-    });
-
-    test("describes too_small for number origin", () => {
-      const desc = ImportErrorLogUtils.describeZodIssue({
-        code: "too_small",
-        origin: "number",
-        minimum: 1,
-        message: "Too small",
-        path: [],
-      } as unknown as z.core.$ZodIssue);
-      expect(desc).toBe("Value too small: minimum is 1");
-    });
-
-    test("describes too_small for array origin", () => {
-      const desc = ImportErrorLogUtils.describeZodIssue({
-        code: "too_small",
-        origin: "array",
-        minimum: 2,
-        message: "Too small",
-        path: [],
-      } as unknown as z.core.$ZodIssue);
-      expect(desc).toBe("Too few items: minimum 2");
-    });
-
-    test("passes through custom message", () => {
-      const desc = ImportErrorLogUtils.describeZodIssue({
-        code: "custom",
-        message: "My custom error",
-        path: [],
-      } as z.core.$ZodIssue);
-      expect(desc).toBe("My custom error");
-    });
-
-    test("falls back to issue.message for unknown codes", () => {
-      const desc = ImportErrorLogUtils.describeZodIssue({
-        code: "unrecognized_keys" as string,
-        message: "Unrecognized keys",
-        path: [],
-      } as z.core.$ZodIssue);
-      expect(desc).toBe("Unrecognized keys");
-    });
-  });
-
   describe("formatZodIssuesToLogEntries", () => {
-    test("maps basic zod issues to entries with description", () => {
+    test("maps basic zod issues to entries with detail", () => {
       const schema = z.object({
         name: z.string(),
         age: z.number(),
@@ -120,7 +23,7 @@ describe("ImportErrorLogUtils", () => {
       expect(entries.length).toBeGreaterThan(0);
       entries.forEach(entry => {
         expect(entry.path).toBeTruthy();
-        expect(entry.description).toBeTruthy();
+        expect(entry.detail).toBeTruthy();
       });
     });
 
@@ -148,7 +51,7 @@ describe("ImportErrorLogUtils", () => {
 
       const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(result.error.issues);
       expect(entries.length).toBe(1);
-      expect(entries[0].description).toBe("No valid field type matched this configuration");
+      expect(entries[0].detail).toBe("No valid field type matched this configuration");
     });
 
     test("formats schema paths with field name and property labels", () => {
@@ -164,7 +67,7 @@ describe("ImportErrorLogUtils", () => {
       const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(issues);
       expect(entries.length).toBe(1);
       expect(entries[0].path).toBe('Field "age" > Default value');
-      expect(entries[0].description).toBe("Text too long: maximum 5 characters");
+      expect(entries[0].detail).toBe("Too big");
     });
 
     test("formats schema path for field type", () => {
@@ -212,16 +115,12 @@ describe("ImportErrorLogUtils", () => {
     });
 
     test("selects best branch via discriminator and prepends parent path", () => {
-      // Simulate a union issue at ["properties", "myField"] where branches 1 & 3 fail at
-      // discriminator "x-fieldType" and branch 2 passes discriminator but fails elsewhere.
-      // Discriminator appears in 2/3 branches (>50%), so it's detected.
       const issues: z.core.$ZodIssue[] = [
         {
           code: "invalid_union",
           path: ["properties", "myField"],
           message: "Invalid union",
           errors: [
-            // Branch 1: fails at discriminator
             [
               {
                 code: "invalid_value",
@@ -230,7 +129,6 @@ describe("ImportErrorLogUtils", () => {
                 path: ["x-fieldType"],
               },
             ],
-            // Branch 2: discriminator passes, fails at default value
             [
               {
                 code: "too_big",
@@ -240,7 +138,6 @@ describe("ImportErrorLogUtils", () => {
                 path: ["x-defaultValue"],
               },
             ],
-            // Branch 3: fails at discriminator
             [
               {
                 code: "invalid_value",
@@ -255,7 +152,7 @@ describe("ImportErrorLogUtils", () => {
       const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(issues);
       expect(entries.length).toBe(1);
       expect(entries[0].path).toBe('Field "myField" > Default value');
-      expect(entries[0].description).toContain("Text too long");
+      expect(entries[0].detail).toBe("Too big");
     });
 
     test("all branches fail at discriminator — aggregates invalid_value values", () => {
@@ -287,10 +184,9 @@ describe("ImportErrorLogUtils", () => {
       const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(issues);
       expect(entries.length).toBe(1);
       expect(entries[0].path).toBe('Field "badField" > Field type');
-      expect(entries[0].description).toContain("Invalid value: expected one of");
-      expect(entries[0].description).toContain("text");
-      expect(entries[0].description).toContain("number");
       expect(entries[0].detail).toContain("Invalid input: expected");
+      expect(entries[0].detail).toContain("text");
+      expect(entries[0].detail).toContain("number");
     });
 
     test("literal union aggregation — z.union of literals", () => {
@@ -301,10 +197,10 @@ describe("ImportErrorLogUtils", () => {
 
       const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(result.error.issues);
       expect(entries.length).toBe(1);
-      expect(entries[0].description).toContain("Invalid value: expected one of");
-      expect(entries[0].description).toContain("A");
-      expect(entries[0].description).toContain("B");
-      expect(entries[0].description).toContain("C");
+      expect(entries[0].detail).toContain("Invalid input: expected");
+      expect(entries[0].detail).toContain("A");
+      expect(entries[0].detail).toContain("B");
+      expect(entries[0].detail).toContain("C");
     });
 
     test("deduplicates invalid_type entries for the same path", () => {
@@ -330,7 +226,7 @@ describe("ImportErrorLogUtils", () => {
   });
 
   describe("formatErrorLogToText", () => {
-    test("produces formatted text output with Location and Issue", () => {
+    test("produces formatted text output with Location and Detail", () => {
       const meta: ErrorLogMeta = {
         fileName: "test.json",
         source: "schema",
@@ -338,11 +234,11 @@ describe("ImportErrorLogUtils", () => {
         entries: [
           {
             path: 'Field "age" > Default value',
-            description: "Type mismatch: expected number, got string",
+            detail: "Expected number, received string",
           },
           {
             path: 'Field "name" > Field type',
-            description: "Invalid value: expected one of Text, Number",
+            detail: "Invalid input: expected one of Text, Number",
           },
         ],
       };
@@ -353,16 +249,13 @@ describe("ImportErrorLogUtils", () => {
       expect(text).toContain("#1");
       expect(text).toContain("#2");
       expect(text).toContain("Location");
-      expect(text).toContain("Issue");
+      expect(text).toContain("Detail");
       expect(text).toContain('Field "age" > Default value');
-      expect(text).toContain("Type mismatch");
-      // Should NOT contain old format keys
-      expect(text).not.toContain("Code:");
-      expect(text).not.toContain("Expected:");
-      expect(text).not.toContain("Received:");
+      expect(text).toContain("Expected number, received string");
+      expect(text).not.toContain("Issue:");
     });
 
-    test("shows detail when present", () => {
+    test("shows detail in entries", () => {
       const meta: ErrorLogMeta = {
         fileName: "test.json",
         source: "schema",
@@ -370,7 +263,6 @@ describe("ImportErrorLogUtils", () => {
         entries: [
           {
             path: 'Field "age"',
-            description: "Type mismatch: expected number, got string",
             detail: "Expected number, received string",
           },
         ],
@@ -381,15 +273,15 @@ describe("ImportErrorLogUtils", () => {
       expect(text).toContain("Expected number, received string");
     });
 
-    test("groups error categories by description prefix", () => {
+    test("groups error categories by detail prefix", () => {
       const meta: ErrorLogMeta = {
         fileName: "test.json",
         source: "schema",
         totalErrors: 3,
         entries: [
-          { path: "a", description: "Type mismatch: expected number, got string" },
-          { path: "b", description: "Type mismatch: expected string, got number" },
-          { path: "c", description: "Text too long: maximum 5 characters" },
+          { path: "a", detail: "Type mismatch: expected number, got string" },
+          { path: "b", detail: "Type mismatch: expected string, got number" },
+          { path: "c", detail: "Text too long: maximum 5 characters" },
         ],
       };
 
@@ -406,7 +298,7 @@ describe("ImportErrorLogUtils", () => {
         entries: [
           {
             path: "Row 1 > field",
-            description: "Type mismatch: expected string, got number",
+            detail: "Type mismatch: expected string, got number",
           },
         ],
       };
@@ -423,77 +315,13 @@ describe("ImportErrorLogUtils", () => {
         entries: [
           {
             path: "Row 1 > field",
-            description: "Type mismatch: expected string, got number",
+            detail: "Type mismatch: expected string, got number",
           },
         ],
       };
 
       const text = ImportErrorLogUtils.formatErrorLogToText(meta);
       expect(text).toContain("1499");
-    });
-  });
-
-  describe("describeZodIssue — additional error codes", () => {
-    test("E1: invalid_value code", () => {
-      const desc = ImportErrorLogUtils.describeZodIssue({
-        code: "invalid_value",
-        values: ["a", "b"],
-        message: "Invalid",
-        path: [],
-      } as unknown as z.core.$ZodIssue);
-      expect(desc).toBe("Invalid value: expected one of a and b");
-    });
-
-    test("E2: invalid_format code", () => {
-      const desc = ImportErrorLogUtils.describeZodIssue({
-        code: "invalid_format",
-        format: "url",
-        message: "Invalid format",
-        path: [],
-      } as unknown as z.core.$ZodIssue);
-      expect(desc).toBe("Invalid format: expected url");
-    });
-
-    test("E3: too_big with origin int", () => {
-      const desc = ImportErrorLogUtils.describeZodIssue({
-        code: "too_big",
-        origin: "int",
-        maximum: 100,
-        message: "Too big",
-        path: [],
-      } as unknown as z.core.$ZodIssue);
-      expect(desc).toBe("Value too large: maximum is 100");
-    });
-
-    test("E4: too_big with no origin falls back to string message", () => {
-      const desc = ImportErrorLogUtils.describeZodIssue({
-        code: "too_big",
-        maximum: 50,
-        message: "Too big",
-        path: [],
-      } as unknown as z.core.$ZodIssue);
-      expect(desc).toBe("Text too long: maximum 50 characters");
-    });
-
-    test("E5: too_small with origin int", () => {
-      const desc = ImportErrorLogUtils.describeZodIssue({
-        code: "too_small",
-        origin: "int",
-        minimum: 0,
-        message: "Too small",
-        path: [],
-      } as unknown as z.core.$ZodIssue);
-      expect(desc).toBe("Value too small: minimum is 0");
-    });
-
-    test("E6: too_small with no origin falls back to string message", () => {
-      const desc = ImportErrorLogUtils.describeZodIssue({
-        code: "too_small",
-        minimum: 5,
-        message: "Too small",
-        path: [],
-      } as unknown as z.core.$ZodIssue);
-      expect(desc).toBe("Text too short: minimum 5 characters");
     });
   });
 
@@ -508,7 +336,7 @@ describe("ImportErrorLogUtils", () => {
       ];
       const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(issues);
       expect(entries.length).toBe(1);
-      expect(entries[0].description).toBe("Invalid union");
+      expect(entries[0].detail).toBe("Invalid union");
     });
 
     test("E8: invalid_union with all root-level non-invalid_value errors", () => {
@@ -541,7 +369,7 @@ describe("ImportErrorLogUtils", () => {
       ];
       const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(issues);
       expect(entries.length).toBe(1);
-      expect(entries[0].description).toBe("No valid field type matched this configuration");
+      expect(entries[0].detail).toBe("No valid field type matched this configuration");
     });
 
     test("E9: schema paths with x-geoSupportedTypes, x-options, x-multiple labels", () => {
@@ -605,8 +433,8 @@ describe("ImportErrorLogUtils", () => {
         source: "content",
         totalErrors: 105,
         entries: [
-          { path: "Row 1 > field", description: "Type mismatch: expected string, got number" },
-          { path: "Row 2 > field", description: "Type mismatch: expected string, got boolean" },
+          { path: "Row 1 > field", detail: "Type mismatch: expected string, got number" },
+          { path: "Row 2 > field", detail: "Type mismatch: expected string, got boolean" },
         ],
       };
 
@@ -626,9 +454,7 @@ describe("ImportErrorLogUtils", () => {
         fileName: "test.json",
         source: "schema",
         totalErrors: 1,
-        entries: [
-          { path: 'Field "name"', description: "Type mismatch: expected string, got number" },
-        ],
+        entries: [{ path: 'Field "name"', detail: "Expected number, received string" }],
       };
 
       ImportErrorLogUtils.downloadErrorLog(meta);

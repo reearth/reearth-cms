@@ -346,7 +346,7 @@ export abstract class ImportSchemaUtils {
           code: "too_big",
           origin: "string",
           maximum: maxLength,
-          message: "defaultValue should be less than maxLength",
+          message: t("defaultValue should be less than maxLength"),
           input: defaultValue,
         });
       }
@@ -370,7 +370,7 @@ export abstract class ImportSchemaUtils {
           code: "too_big",
           origin: "string",
           maximum: maxLength,
-          message: "each defaultValue item should be less than maxLength",
+          message: t("each defaultValue item should be less than maxLength"),
           input: defaultValue,
         });
       }
@@ -420,7 +420,7 @@ export abstract class ImportSchemaUtils {
           code: "custom",
           expected:
             "Legal support types: POINT, MULTIPOINT, LINESTRING, MULTILINESTRING, POLYGON, MULTIPOLYGON, GEOMETRYCOLLECTION",
-          message: "defaultValue type is invalid",
+          message: t("defaultValue type is invalid"),
         });
       }
     })
@@ -472,7 +472,7 @@ export abstract class ImportSchemaUtils {
           code: "custom",
           expected:
             "Legal support types: POINT, MULTIPOINT, LINESTRING, MULTILINESTRING, POLYGON, MULTIPOLYGON, GEOMETRYCOLLECTION",
-          message: "defaultValue type is invalid",
+          message: t("defaultValue type is invalid"),
         });
       }
     })
@@ -646,7 +646,7 @@ export abstract class ImportSchemaUtils {
                 code: "too_small",
                 origin: "number",
                 minimum,
-                message: "defaultValue should be greater than minimum",
+                message: t("defaultValue should be greater than minimum"),
                 input: defaultValue,
               });
             }
@@ -656,7 +656,7 @@ export abstract class ImportSchemaUtils {
                 code: "too_big",
                 origin: "number",
                 maximum,
-                message: "defaultValue should be less than maximum",
+                message: t("defaultValue should be less than maximum"),
                 input: defaultValue,
               });
             }
@@ -682,7 +682,7 @@ export abstract class ImportSchemaUtils {
                 code: "too_small",
                 origin: "number",
                 minimum,
-                message: "each defaultValue item should be greater than minimum",
+                message: t("each defaultValue item should be greater than minimum"),
                 input: defaultValue,
               });
             }
@@ -696,7 +696,7 @@ export abstract class ImportSchemaUtils {
                 code: "too_big",
                 origin: "number",
                 maximum,
-                message: "each defaultValue item should be less than maximum",
+                message: t("each defaultValue item should be less than maximum"),
                 input: defaultValue,
               });
             }
@@ -718,7 +718,7 @@ export abstract class ImportSchemaUtils {
                 code: "too_small",
                 origin: "int",
                 minimum,
-                message: "defaultValue should be greater than minimum",
+                message: t("defaultValue should be greater than minimum"),
                 input: defaultValue,
               });
             }
@@ -728,7 +728,7 @@ export abstract class ImportSchemaUtils {
                 code: "too_big",
                 origin: "int",
                 maximum,
-                message: "defaultValue should be less than maximum",
+                message: t("defaultValue should be less than maximum"),
                 input: defaultValue,
               });
             }
@@ -754,7 +754,7 @@ export abstract class ImportSchemaUtils {
                 code: "too_small",
                 origin: "int",
                 minimum,
-                message: "each defaultValue item should be greater than minimum",
+                message: t("each defaultValue item should be greater than minimum"),
                 input: defaultValue,
               });
             }
@@ -768,7 +768,7 @@ export abstract class ImportSchemaUtils {
                 code: "too_big",
                 origin: "int",
                 maximum,
-                message: "each defaultValue item should be less than maximum",
+                message: t("each defaultValue item should be less than maximum"),
                 input: defaultValue,
               });
             }
@@ -787,7 +787,7 @@ export abstract class ImportSchemaUtils {
             if (defaultValue && !valuesSet.has(defaultValue)) {
               context.addIssue({
                 code: "invalid_value",
-                message: "defaultValue should be in one of options",
+                message: t("defaultValue should be in one of options"),
                 input: value,
                 values: options,
               });
@@ -807,7 +807,7 @@ export abstract class ImportSchemaUtils {
             if (defaultValue && defaultValue.some(_value => !valuesSet.has(_value))) {
               context.addIssue({
                 code: "invalid_value",
-                message: "defaultValue should be in one of options",
+                message: t("defaultValue should be in one of options"),
                 input: value,
                 values: options,
               });
