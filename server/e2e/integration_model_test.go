@@ -450,6 +450,58 @@ func TestIntegrationModelCreateAPI(t *testing.T) {
 	obj.Value("schemaId").NotNull()
 }
 
+// DELETE /models/{modelId} — cascade deletes items
+func TestIntegrationModelDeleteCascadeAPI(t *testing.T) {
+	e := StartServer(t, &app.Config{}, true, baseSeeder)
+
+	// create a model with an item
+	obj := iAPIModelCreate(e, wId0, pid.String()).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"name":        "cascade-model",
+			"description": "cascade test",
+			"key":         "cascade-model-key",
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+
+	newModelId := id.MustModelID(obj.Value("id").String().Raw())
+
+	newItem := iAPIItemCreate(e, wId0, pid, newModelId).
+		WithHeader("authorization", "Bearer "+secret).
+		WithJSON(map[string]interface{}{
+			"fields": []map[string]interface{}{},
+		}).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object()
+	newItemId := newItem.Value("id").String().Raw()
+
+	// delete the model
+	iAPIModelDelete(e, wId0, pid, newModelId).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusOK).
+		JSON().
+		Object().
+		HasValue("id", newModelId)
+
+	// model should be gone
+	iAPIModelGet(e, wId0, pid, newModelId).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusNotFound)
+
+	// item should be gone
+	iAPIItemGet(e, wId0, pid, newModelId, newItemId).
+		WithHeader("authorization", "Bearer "+secret).
+		Expect().
+		Status(http.StatusNotFound)
+}
+
 func TestIntegrationJSONSchemaExportAPI(t *testing.T) {
 	e := StartServer(t, &app.Config{}, true, baseSeeder)
 
