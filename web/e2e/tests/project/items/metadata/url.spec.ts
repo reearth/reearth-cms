@@ -160,6 +160,7 @@ test("@focus Url metadata editing has succeeded", async ({
   await fieldEditorPage.plusNewButton.click();
   await expect(fieldEditorPage.lastTextbox).toBeVisible();
   await fieldEditorPage.lastTextbox.fill("http://default3.com");
+  await page.waitForTimeout(1000);
   await contentPage.closeNotification();
   await page.waitForTimeout(300);
   await expect(contentPage.textBoxByIndex(2)).toBeVisible();

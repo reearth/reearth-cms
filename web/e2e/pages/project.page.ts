@@ -265,7 +265,9 @@ export class ProjectPage extends BasePage {
 
   async createModelFromOverview(name = "e2e model name", key?: string): Promise<void> {
     await this.getByRole("button", { name: "plus New Model" }).first().click();
+    await expect(this.getByLabel("Model name")).toBeVisible();
     await this.getByLabel("Model name").fill(name);
+    await expect(this.getByLabel("Model name")).toHaveValue(name);
     if (key) {
       await this.getByLabel("Model key").fill(key);
     }
