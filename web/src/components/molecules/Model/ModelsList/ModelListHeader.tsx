@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
 
-import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 import Icon, { type IconName } from "@reearth-cms/components/atoms/Icon";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   title: string;
