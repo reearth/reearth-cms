@@ -340,7 +340,7 @@ test("@focus Group field editing has succeeded", async ({
 
   await test.step("Add multiple default values to group text field", async () => {
     await schemaPage.schemaSpanText.click();
-    await schemaPage.groupMenuItem("e2e group name").locator("span").click();
+    await schemaPage.groupMenuItem(groupName).locator("span").click();
     await schemaPage.fieldEditButton.click();
     await fieldEditorPage.supportMultipleValuesCheckbox.check();
     await fieldEditorPage.defaultValueTab.click();
