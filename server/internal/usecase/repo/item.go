@@ -46,6 +46,7 @@ type Item interface {
 	UpdateRef(context.Context, id.ItemID, version.Ref, *version.VersionOrRef) error
 	Remove(context.Context, id.ItemID) error
 	BatchRemove(context.Context, id.ItemIDList) error
+	RemoveByModel(context.Context, id.ModelID) error
 	Archive(context.Context, id.ItemID, id.ProjectID, bool) error
 	Copy(context.Context, CopyParams) (*string, *string, error)
 }
