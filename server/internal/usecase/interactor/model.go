@@ -10,8 +10,11 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
+	"github.com/reearth/reearth-cms/server/pkg/event"
 	"github.com/reearth/reearth-cms/server/pkg/id"
+	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
+	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/i18n"
@@ -208,7 +211,7 @@ func (i Model) CheckKey(ctx context.Context, pId id.ProjectID, s string) (bool, 
 		})
 }
 
-func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase.Operator) error {
+func (i Model) Delete(ctx context.Context, modelID id.ModelID, sp schema.Package, operator *usecase.Operator) error {
 	return Run0(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) error {
 			m, err := i.repos.Model.FindByID(ctx, modelID)
@@ -219,6 +222,34 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 				return interfaces.ErrOperationDenied
 			}
 
+			// delete all views for this model
+			if err := i.repos.View.RemoveByModel(ctx, modelID); err != nil {
+				return err
+			}
+
+			prj, err := i.repos.Project.FindByID(ctx, m.Project())
+			if err != nil {
+				return err
+			}
+
+			// delete all items for this model
+			if err := i.deleteItemsByModel(ctx, prj, m, sp, operator); err != nil {
+				return err
+			}
+
+			// delete the model's schema
+			if err := i.repos.Schema.Remove(ctx, m.Schema()); err != nil {
+				return err
+			}
+
+			// delete the metadata schema if present
+			if m.Metadata() != nil {
+				if err := i.repos.Schema.Remove(ctx, *m.Metadata()); err != nil {
+					return err
+				}
+			}
+
+			// delete the model and reorder siblings
 			models, _, err := i.repos.Model.FindByProject(ctx, m.Project(), usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
 			if err != nil {
 				return err
@@ -227,11 +258,78 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, operator *usecase
 			if err := i.repos.Model.Remove(ctx, modelID); err != nil {
 				return err
 			}
-			if err := i.repos.Model.SaveAll(ctx, res); err != nil {
+			return i.repos.Model.SaveAll(ctx, res)
+		})
+}
+
+func (i Model) deleteItemsByModel(ctx context.Context, prj *project.Project, m *model.Model, sp schema.Package, operator *usecase.Operator) error {
+	const pageSize = int64(100)
+	var cursor *usecasex.Cursor
+
+	itemInteractor := NewItem(i.repos, i.gateways)
+
+	var allThreadIDs id.ThreadIDList
+	var allEvents []Event
+
+	// collect thread IDs, events, and clean up cross-model references
+	for {
+		vList, pageInfo, err := i.repos.Item.FindByModel(ctx, m.ID(), nil, nil,
+			usecasex.CursorPagination{First: lo.ToPtr(pageSize), After: cursor}.Wrap())
+		if err != nil {
+			return err
+		}
+
+		items := vList.Unwrap()
+		if len(items) > 0 {
+			for idx, itm := range items {
+				if itm.Thread() != nil {
+					allThreadIDs = append(allThreadIDs, *itm.Thread())
+				}
+				allEvents = append(allEvents, Event{
+					Project:   prj,
+					Workspace: sp.Schema().Workspace(),
+					Type:      event.ItemDelete,
+					Object:    vList[idx],
+					WebhookObject: item.ItemModelSchema{
+						Item:   itm,
+						Model:  m,
+						Schema: sp.Schema(),
+					},
+					Operator: operator.Operator(),
+				})
+			}
+
+			if err := itemInteractor.handleRelatedReferenceFields(ctx, items.IDs(), sp); err != nil {
 				return err
 			}
-			return nil
-		})
+		}
+
+		if pageInfo == nil || !pageInfo.HasNextPage {
+			break
+		}
+		cursor = pageInfo.EndCursor
+	}
+
+	// delete all items and metadata items for this model in one query
+	if err := i.repos.Item.RemoveByModel(ctx, m.ID()); err != nil {
+		return err
+	}
+
+	// delete threads that belonged to the deleted items
+	if len(allThreadIDs) > 0 {
+		if err := i.repos.Thread.RemoveByIDs(ctx, allThreadIDs); err != nil {
+			return err
+		}
+	}
+
+	// publish item.delete events
+	if len(allEvents) > 0 {
+		if _, err := createEvents(ctx, i.repos, i.gateways, allEvents); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (i Model) FindOrCreateSchema(ctx context.Context, param interfaces.FindOrCreateSchemaParam, operator *usecase.Operator) (*schema.Schema, error) {
