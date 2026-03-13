@@ -89,6 +89,7 @@ test("@focus Url metadata editing has succeeded", async ({
   await fieldEditorPage.descriptionRequiredInput.fill("url1 description");
   await fieldEditorPage.defaultValueTab.click();
   await fieldEditorPage.setDefaultValueInput.fill("http://default1.com");
+  await expect(fieldEditorPage.okButton).toBeEnabled();
   await fieldEditorPage.okButton.click();
   await contentPage.closeNotification();
 
@@ -157,8 +158,10 @@ test("@focus Url metadata editing has succeeded", async ({
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://default1.com");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://new-default2.com");
   await fieldEditorPage.plusNewButton.click();
+  await expect(fieldEditorPage.lastTextbox).toBeVisible();
   await fieldEditorPage.lastTextbox.fill("http://default3.com");
   await contentPage.closeNotification();
+  await page.waitForTimeout(300);
   await expect(contentPage.textBoxByIndex(2)).toBeVisible();
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://default1.com");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://new-default2.com");
