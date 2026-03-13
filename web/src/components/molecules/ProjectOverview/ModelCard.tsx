@@ -6,6 +6,7 @@ import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
+import ExperimentIcon from "@reearth-cms/components/molecules/ExperimentIcon";
 import { ExportFormat, Model } from "@reearth-cms/components/molecules/Model/types";
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
@@ -232,6 +233,7 @@ const ModelCard: React.FC<Props> = ({
       {
         key: t("Import"),
         label: t("Import"),
+        icon: <ExperimentIcon />,
         children: ImportMenuItems,
         "data-testid": DATA_TEST_ID.ModelCard__UtilDropdownImport,
       },

@@ -1,5 +1,6 @@
 import { useParams } from "react-router";
 
+import type { IconName } from "@reearth-cms/components/atoms/Icon";
 import Groups from "@reearth-cms/components/molecules/Model/ModelsList/Groups";
 import ModelListBody from "@reearth-cms/components/molecules/Model/ModelsList/ModelListBody";
 import ModelListHeader from "@reearth-cms/components/molecules/Model/ModelsList/ModelListHeader";
@@ -13,7 +14,7 @@ type Props = {
   collapsed: boolean;
   selectedSchemaType: SelectedSchemaType;
   displayGroups?: boolean;
-  titleIcon: string;
+  titleIcon: IconName;
   onModelSelect: (modelId: string) => void;
   onGroupSelect?: (groupId: string) => void;
 };

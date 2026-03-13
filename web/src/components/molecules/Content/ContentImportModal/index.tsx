@@ -104,7 +104,7 @@ const ContentImportModal: React.FC<Props> = ({
   const raiseTooLargeFileSizeAlert = useCallback(() => {
     setAlertList([
       {
-        message: t("File size should below {{maxSizeInMB}} MB.", {
+        message: t("File size exceeds the {{maxSizeInMB}} MB limit.", {
           maxSizeInMB: Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
         }),
         type: "error",
@@ -125,10 +125,10 @@ const ContentImportModal: React.FC<Props> = ({
             type: "error",
             title: t("Data file is too large and some fields don't match the schema."),
             description: t(
-              "The data file can contain a maximum of {{maxRecord}} records and below {{maxSize}} MB. Please split the file and re-upload it. And {{count}} fields do not match the schema.",
+              "The data file can contain a maximum of {{maxRecord}} records and below {{maxSizeInMB}} MB. Please split the file and re-upload it. And {{count}} fields do not match the schema.",
               {
                 maxRecords: Constant.IMPORT.MAX_CONTENT_RECORDS,
-                maxSize: Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
+                maxSizeInMB: Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
                 count: errorMeta.typeMismatchFieldKeys.size,
               },
             ),
@@ -144,10 +144,10 @@ const ContentImportModal: React.FC<Props> = ({
             type: "error",
             title: t("Data file is too large."),
             description: t(
-              "The data file can contain a maximum of {{maxRecord}} records and below {{maxSize}} MB. Please split the file and re-upload it",
+              "The data file can contain a maximum of {{maxRecord}} records and below {{maxSizeInMB}} MB. Please split the file and re-upload it",
               {
                 maxRecords: Constant.IMPORT.MAX_CONTENT_RECORDS,
-                maxSize: Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
+                maxSizeInMB: Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
               },
             ),
           });
@@ -402,8 +402,11 @@ const ContentImportModal: React.FC<Props> = ({
               <p className="ant-upload-text">{t("Click or drag files to this area to upload")}</p>
               <p className="ant-upload-hint">
                 {t(
-                  "Upload a data file in CSV, JSON, or GeoJSON formats. File must match the schema with field names and types. File can contain a maximum of {{max}} records.",
-                  { max: Constant.IMPORT.MAX_CONTENT_RECORDS },
+                  "Upload a data file in CSV, JSON, or GeoJSON format. The file must match the required schema, including correct field names and data types. It may contain up to {{maxRecord}} records and must not exceed {{maxSizeInMB}} MB in size.",
+                  {
+                    maxRecord: Constant.IMPORT.MAX_CONTENT_RECORDS,
+                    maxSizeInMB: Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
+                  },
                 )}
               </p>
               <p className="ant-upload-hint">

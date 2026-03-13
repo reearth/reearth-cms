@@ -5,13 +5,13 @@ import { ReactSVG } from "react-svg";
 
 import { Constant } from "@reearth-cms/utils/constant";
 
-import Icons from "./icons";
+import Icons, { type IconName } from "./icons";
 
-type Icons = keyof typeof Icons;
+export type IconProp = IconName | `<svg ${string}`;
 
 type Props = {
   className?: string;
-  icon?: string;
+  icon?: IconProp;
   size?: string | number;
   alt?: string;
   color?: string;
@@ -22,7 +22,7 @@ type Props = {
 const Icon = forwardRef<HTMLElement, Props>(
   ({ className, icon, alt, style, color, size, onClick }, ref) => {
     const src = useMemo(
-      () => (icon?.startsWith("<svg ") ? svgToMiniDataURI(icon) : Icons[icon as Icons]),
+      () => (icon?.startsWith("<svg ") ? svgToMiniDataURI(icon) : Icons[icon as IconName]),
       [icon],
     );
     if (!icon) return null;
@@ -30,16 +30,7 @@ const Icon = forwardRef<HTMLElement, Props>(
     const sizeStr = typeof size === "number" ? `${size}px` : size;
 
     if (!src) {
-      return (
-        <StyledImg
-          ref={ref as React.Ref<HTMLImageElement>}
-          src={icon}
-          alt={alt}
-          style={style}
-          $size={sizeStr}
-          onClick={onClick}
-        />
-      );
+      return <StyledImg src={icon} alt={alt} style={style} $size={sizeStr} onClick={onClick} />;
     }
 
     if (typeof src === "string") {
@@ -88,5 +79,7 @@ const StyledSvg = styled(SVG, Constant.TRANSIENT_OPTIONS)<{ $color?: string; $si
     height: ${({ $size }) => $size};
   }
 `;
+
+export type { IconName };
 
 export default memo(Icon);

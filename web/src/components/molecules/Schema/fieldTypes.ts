@@ -1,3 +1,4 @@
+import type { IconName } from "@reearth-cms/components/atoms/Icon";
 import { t } from "@reearth-cms/i18n";
 
 import type { SchemaFieldType } from "./types";
@@ -5,7 +6,7 @@ import type { SchemaFieldType } from "./types";
 export const fieldTypes: Record<
   SchemaFieldType,
   {
-    icon: string;
+    icon: IconName;
     title: string;
     description: string;
     color: string;
