@@ -187,8 +187,8 @@ test("@focus Group field editing has succeeded", async ({
   schemaPage,
   page,
 }) => {
-  const groupName = "e2e group name";
-  const groupKey = "e2e-group-key";
+  const groupName = `group-${getId()}`;
+  const groupKey = `gkey-${getId()}`;
 
   await test.step("Create group and add text field to group", async () => {
     await expect(schemaPage.textByExact("Reference")).toBeVisible();
