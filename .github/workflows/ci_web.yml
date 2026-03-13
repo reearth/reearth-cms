@@ -73,9 +73,43 @@ jobs:
         with:
           flags: web
 
+  vrt:
+    name: visual-regression
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: yarn
+          cache-dependency-path: '**/yarn.lock'
+      - name: Install
+        run: yarn install --frozen-lockfile --prefer-offline
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ hashFiles('web/yarn.lock') }}
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
+      - name: Run visual regression tests
+        run: yarn test:visual
+      - name: Upload diffs on failure
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: vrt-diffs
+          path: web/src/components/**/__screenshots__/
+          retention-days: 7
+
   build:
     name: build
-    needs: [lint, test, i18n]
+    needs: [lint, test, i18n, vrt]
     runs-on: ubuntu-latest
     defaults:
       run:

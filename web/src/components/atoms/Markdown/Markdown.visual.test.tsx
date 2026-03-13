@@ -1,0 +1,52 @@
+import { expect, test } from "vitest";
+import { page } from "@vitest/browser/context";
+import { render } from "vitest-browser-react";
+
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { VRTWrapper } from "@reearth-cms/test/vrt-utils";
+
+import Markdown from ".";
+
+test("Markdown preview mode with content", async () => {
+  await render(
+    <VRTWrapper>
+      <div data-testid={DATA_TEST_ID.VRT__Root}>
+        <Markdown value="# Hello World\n\nThis is **bold** and *italic* text." />
+      </div>
+    </VRTWrapper>,
+  );
+  await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+});
+
+test("Markdown empty state", async () => {
+  await render(
+    <VRTWrapper>
+      <div data-testid={DATA_TEST_ID.VRT__Root}>
+        <Markdown value="" />
+      </div>
+    </VRTWrapper>,
+  );
+  await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+});
+
+test("Markdown disabled state", async () => {
+  await render(
+    <VRTWrapper>
+      <div data-testid={DATA_TEST_ID.VRT__Root}>
+        <Markdown value="Some content" disabled />
+      </div>
+    </VRTWrapper>,
+  );
+  await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+});
+
+test("Markdown error state", async () => {
+  await render(
+    <VRTWrapper>
+      <div data-testid={DATA_TEST_ID.VRT__Root}>
+        <Markdown value="" required isError />
+      </div>
+    </VRTWrapper>,
+  );
+  await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+});

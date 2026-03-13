@@ -52,6 +52,9 @@ amplifytools.xcconfig
 **.sample
 #amplify-do-not-edit-end
 
+# Vitest browser
+.vitest-attachments/
+
 # Playwright
 /test-results/
 /playwright-report/
