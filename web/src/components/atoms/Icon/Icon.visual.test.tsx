@@ -1,4 +1,4 @@
-import { expect, test } from "vitest";
+import { describe, expect, test } from "vitest";
 import { page } from "@vitest/browser/context";
 import { render } from "vitest-browser-react";
 
@@ -6,34 +6,36 @@ import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import Icon from ".";
 
-test("Icon named icon", async () => {
-  await render(
-    <div data-testid={DATA_TEST_ID.VRT__Root}>
-      <Icon icon="user" size={32} />
-    </div>,
-  );
-  await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
-});
-
-test("Icon with color", async () => {
-  await render(
-    <div data-testid={DATA_TEST_ID.VRT__Root}>
-      <Icon icon="download" size={32} color="#1890ff" />
-    </div>,
-  );
-  await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
-});
-
-test("Icon different sizes", async () => {
-  await render(
-    <div data-testid={DATA_TEST_ID.VRT__Root}>
-      <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-        <Icon icon="user" size={16} />
-        <Icon icon="user" size={24} />
+describe("[Visual] Icon", () => {
+  test("Icon named icon", async () => {
+    await render(
+      <div data-testid={DATA_TEST_ID.VRT__Root}>
         <Icon icon="user" size={32} />
-        <Icon icon="user" size={48} />
-      </div>
-    </div>,
-  );
-  await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+      </div>,
+    );
+    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+  });
+
+  test("Icon with color", async () => {
+    await render(
+      <div data-testid={DATA_TEST_ID.VRT__Root}>
+        <Icon icon="download" size={32} color="#1890ff" />
+      </div>,
+    );
+    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+  });
+
+  test("Icon different sizes", async () => {
+    await render(
+      <div data-testid={DATA_TEST_ID.VRT__Root}>
+        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+          <Icon icon="user" size={16} />
+          <Icon icon="user" size={24} />
+          <Icon icon="user" size={32} />
+          <Icon icon="user" size={48} />
+        </div>
+      </div>,
+    );
+    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+  });
 });

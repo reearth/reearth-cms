@@ -1,4 +1,4 @@
-import { expect, test } from "vitest";
+import { describe, expect, test } from "vitest";
 import { page } from "@vitest/browser/context";
 import { render } from "vitest-browser-react";
 
@@ -7,13 +7,15 @@ import { VRTWrapper } from "@reearth-cms/test/vrt-utils";
 
 import CopyButton from ".";
 
-test("CopyButton default", async () => {
-  await render(
-    <VRTWrapper>
-      <div data-testid={DATA_TEST_ID.VRT__Root}>
-        <CopyButton copyable={{ text: "sample text" }} />
-      </div>
-    </VRTWrapper>,
-  );
-  await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+describe("[Visual] CopyButton", () => {
+  test("CopyButton default", async () => {
+    await render(
+      <VRTWrapper>
+        <div data-testid={DATA_TEST_ID.VRT__Root}>
+          <CopyButton copyable={{ text: "sample text" }} />
+        </div>
+      </VRTWrapper>,
+    );
+    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+  });
 });
