@@ -313,6 +313,7 @@ test("@focus Group field editing has succeeded", async ({
   });
 
   await test.step("Verify multiple group values persisted", async () => {
+    await expect(contentPage.editButton).toBeVisible();
     await contentPage.editButton.click();
     await expect(
       contentPage.divFilterByText(/^5text1 description$/).getByLabel("text1"),
@@ -320,18 +321,24 @@ test("@focus Group field editing has succeeded", async ({
     await expect(
       contentPage.divFilterByText(/^7text1 description$/).getByLabel("text1"),
     ).toHaveValue("text1-2");
+    await expect(contentPage.backButton).toBeVisible();
     await contentPage.backButton.click();
     await page.waitForTimeout(300);
   });
 
   await test.step("Create new item with single group value", async () => {
+    await expect(contentPage.newItemButton).toBeVisible();
     await contentPage.newItemButton.click();
+    await expect(fieldEditorPage.plusNewButton).toBeVisible();
     await fieldEditorPage.plusNewButton.click();
+    await expect(contentPage.fieldInput("text1")).toBeVisible();
     await contentPage.fieldInput("text1").click();
     await contentPage.fieldInput("text1").fill("text1");
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
+    await expect(contentPage.backButton).toBeVisible();
     await contentPage.backButton.click();
+    await expect(contentPage.editButton.first()).toBeVisible();
     await contentPage.editButton.first().click();
     await expect(contentPage.fieldInput("text1")).toBeVisible();
     await expect(contentPage.fieldInput("text1")).toHaveValue("text1");
@@ -356,9 +363,13 @@ test("@focus Group field editing has succeeded", async ({
   });
 
   await test.step("Create item with multiple group instances and test default values with reordering", async () => {
+    await expect(contentPage.contentText).toBeVisible();
     await contentPage.contentText.click();
+    await expect(schemaPage.modelByText("e2e model name")).toBeVisible();
     await schemaPage.modelByText("e2e model name").click();
+    await expect(contentPage.newItemButton).toBeVisible();
     await contentPage.newItemButton.click();
+    await expect(fieldEditorPage.plusNewButton).toBeVisible();
     await fieldEditorPage.plusNewButton.click();
     await expect(contentPage.textBoxByIndex(0)).toBeVisible();
     await expect(contentPage.textBoxByIndex(0)).toHaveValue("text1");
@@ -369,11 +380,13 @@ test("@focus Group field editing has succeeded", async ({
     await fieldEditorPage.arrowDownButton.nth(3).click();
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
+    await expect(contentPage.backButton).toBeVisible();
     await contentPage.backButton.click();
     await page.waitForTimeout(300);
   });
 
   await test.step("Verify reordered group instance values persisted", async () => {
+    await expect(contentPage.editButton.first()).toBeVisible();
     await contentPage.editButton.first().click();
     await expect(contentPage.textBoxByIndex(0)).toBeVisible();
     await expect(contentPage.textBoxByIndex(0)).toHaveValue("text1");
