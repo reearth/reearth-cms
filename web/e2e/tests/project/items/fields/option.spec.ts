@@ -90,7 +90,7 @@ test("@smoke Option field creating and updating has succeeded", async ({
   });
 });
 
-test("@focus Option field editing has succeeded", async ({
+test("Option field editing has succeeded", async ({
   page,
   fieldEditorPage,
   contentPage,

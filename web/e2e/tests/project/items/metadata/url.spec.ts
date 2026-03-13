@@ -77,7 +77,11 @@ test("Url metadata creating and updating has succeeded", async ({
   await expect(contentPage.linkByName("http://test3.com")).toBeVisible();
 });
 
-test("Url metadata editing has succeeded", async ({ page, fieldEditorPage, contentPage }) => {
+test("@focus Url metadata editing has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+}) => {
   await fieldEditorPage.metaDataTab.click();
   await fieldEditorPage.fieldTypeListItem("URL").click();
   await fieldEditorPage.displayNameInput.fill("url1");
