@@ -152,9 +152,9 @@ test("Previewing JSON file from content page into new tab succeeded", async ({
     if (!isViewerReady) {
       // Headless fallback: Cesium cannot create a WebGL canvas.
       // Verify the asset detail page loaded correctly instead.
-      await expect(
-        viewerPage.getByText(uploadFileName_2, { exact: true }),
-      ).toBeVisible({ timeout: 10000 });
+      await expect(viewerPage.getByText(uploadFileName_2, { exact: true })).toBeVisible({
+        timeout: 10000,
+      });
     }
 
     await page.waitForTimeout(300);
