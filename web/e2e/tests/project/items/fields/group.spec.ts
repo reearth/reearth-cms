@@ -331,9 +331,11 @@ test("@focus Group field editing has succeeded", async ({
     await contentPage.newItemButton.click();
     await expect(fieldEditorPage.plusNewButton).toBeVisible();
     await fieldEditorPage.plusNewButton.click();
+    await page.waitForTimeout(500);
     await expect(contentPage.fieldInput("text1")).toBeVisible();
     await contentPage.fieldInput("text1").click();
     await contentPage.fieldInput("text1").fill("text1");
+    await expect(contentPage.saveButton).toBeEnabled();
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
     await expect(contentPage.backButton).toBeVisible();
@@ -367,10 +369,12 @@ test("@focus Group field editing has succeeded", async ({
     await contentPage.contentText.click();
     await expect(schemaPage.modelByText("e2e model name")).toBeVisible();
     await schemaPage.modelByText("e2e model name").click();
+    await expect(contentPage.tableHead).toContainText("new group1");
     await expect(contentPage.newItemButton).toBeVisible();
     await contentPage.newItemButton.click();
     await expect(fieldEditorPage.plusNewButton).toBeVisible();
     await fieldEditorPage.plusNewButton.click();
+    await page.waitForTimeout(500);
     await expect(contentPage.textBoxByIndex(0)).toBeVisible();
     await expect(contentPage.textBoxByIndex(0)).toHaveValue("text1");
     await expect(contentPage.textBoxByIndex(1)).toHaveValue("text2");
@@ -378,6 +382,7 @@ test("@focus Group field editing has succeeded", async ({
     await expect(contentPage.textBoxByIndex(2)).toHaveValue("text1");
     await expect(contentPage.textBoxByIndex(3)).toHaveValue("text2");
     await fieldEditorPage.arrowDownButton.nth(3).click();
+    await expect(contentPage.saveButton).toBeEnabled();
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
     await expect(contentPage.backButton).toBeVisible();
