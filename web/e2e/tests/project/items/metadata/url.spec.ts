@@ -98,8 +98,10 @@ test("@focus Url metadata editing has succeeded", async ({
   await contentPage.newItemButton.click();
   await expect(contentPage.fieldInput("url1")).toHaveValue("http://default1.com");
 
+  await expect(contentPage.saveButton).toBeEnabled();
   await contentPage.saveButton.click();
   await contentPage.closeNotification();
+  await page.waitForTimeout(300);
   await contentPage.backButtonRole.click();
   await fieldEditorPage.menuItemByName("Schema").click();
   await fieldEditorPage.metaDataTab.click();
@@ -130,11 +132,14 @@ test("@focus Url metadata editing has succeeded", async ({
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://default1.com");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://default2.com");
 
+  await expect(contentPage.saveButton).toBeEnabled();
   await contentPage.saveButton.click();
   await contentPage.closeNotification();
+  await page.waitForTimeout(300);
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://default1.com");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://default2.com");
   await contentPage.backButtonRole.click();
+  await expect(contentPage.x2Button).toBeVisible();
   await contentPage.x2Button.click();
   await page.waitForTimeout(300);
   const tooltipLinks = fieldEditorPage.tooltip.getByRole("link");
@@ -160,6 +165,7 @@ test("@focus Url metadata editing has succeeded", async ({
   await expect(contentPage.textBoxByIndex(2)).toHaveValue("http://default3.com");
 
   await contentPage.backButtonRole.click();
+  await expect(fieldEditorPage.x3Button).toBeVisible();
   await fieldEditorPage.x3Button.click();
   const updatedTooltipLinks = fieldEditorPage.tooltip.getByRole("link");
   await expect(updatedTooltipLinks.nth(0)).toContainText("http://default1.com");
