@@ -11,6 +11,9 @@ type Props = {
 };
 
 const AUTO_CLOSE_DELAY = 1000; // milliseconds
+const PROGRESS_INTERVAL = 200;
+const PROGRESS_CAP = 90;
+const DECELERATION_FACTOR = 0.1;
 
 const ImportingStep: React.FC<Props> = ({
   fieldsCreationLoading,
@@ -21,7 +24,20 @@ const ImportingStep: React.FC<Props> = ({
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    setProgress(fieldsCreationLoading || fieldsCreationError ? 0 : 100); // TODO: implement a better mechanism
+    if (!fieldsCreationLoading && !fieldsCreationError) {
+      setProgress(100);
+      return;
+    }
+    if (fieldsCreationError) return;
+
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        const increment = (PROGRESS_CAP - prev) * DECELERATION_FACTOR;
+        return increment < 0.5 ? prev : prev + increment;
+      });
+    }, PROGRESS_INTERVAL);
+
+    return () => clearInterval(interval);
   }, [fieldsCreationLoading, fieldsCreationError]);
 
   const statusMessage = useMemo(() => {
@@ -36,7 +52,7 @@ const ImportingStep: React.FC<Props> = ({
 
   useEffect(() => {
     let timeout: NodeJS.Timeout | null = null;
-    if (!fieldsCreationLoading) {
+    if (!fieldsCreationLoading && !fieldsCreationError) {
       timeout = setTimeout(() => {
         onModalClose();
       }, AUTO_CLOSE_DELAY);
@@ -46,11 +62,15 @@ const ImportingStep: React.FC<Props> = ({
         clearTimeout(timeout);
       }
     };
-  }, [fieldsCreationLoading, onModalClose]);
+  }, [fieldsCreationLoading, fieldsCreationError, onModalClose]);
 
   return (
     <Container>
-      <Progress type="circle" percent={progress} />
+      <Progress
+        type="circle"
+        percent={progress}
+        status={fieldsCreationError ? "exception" : undefined}
+      />
       <StatusText>{statusMessage}</StatusText>
     </Container>
   );

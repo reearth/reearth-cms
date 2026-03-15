@@ -14,7 +14,7 @@ import {
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { ImportFieldInput } from "@reearth-cms/components/molecules/Schema/types";
 import { fromGraphQLAsset } from "@reearth-cms/components/organisms/DataConverters/content";
-import { convertImportSchemaData } from "@reearth-cms/components/organisms/Project/Schema/helpers";
+import { SchemaHelpers } from "@reearth-cms/components/organisms/Project/Schema/helpers";
 import { useAuthHeader } from "@reearth-cms/gql";
 import {
   CreateAssetDocument,
@@ -33,6 +33,7 @@ import {
 import { useT } from "@reearth-cms/i18n";
 import { useUserId, useUserRights } from "@reearth-cms/state";
 import { FileUtils } from "@reearth-cms/utils/file";
+import { ErrorLogMeta, ImportErrorLogUtils } from "@reearth-cms/utils/importErrorLog";
 import { ImportSchema, ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
 import { ObjectUtils } from "@reearth-cms/utils/object";
 
@@ -92,6 +93,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
 
   const [uploading, setUploading] = useState(false);
   const [dataChecking, setDataChecking] = useState(false);
+  const [schemaErrorLogMeta, setSchemaErrorLogMeta] = useState<ErrorLogMeta | null>(null);
   const [createAssetMutation] = useMutation(CreateAssetDocument);
   const [createAssetUploadMutation] = useMutation(CreateAssetUploadDocument);
 
@@ -493,6 +495,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
       }
 
       setAlertList([]);
+      setSchemaErrorLogMeta(null);
 
       const parsedJSON = await ObjectUtils.safeJSONParse<ImportSchema>(content);
       setDataChecking(false);
@@ -505,11 +508,18 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
       const importSchema = ImportSchemaUtils.validateSchemaFromJSON(parsedJSON.data);
 
       if (!importSchema.isValid) {
+        const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(importSchema.zodIssues);
+        setSchemaErrorLogMeta({
+          fileName: file.name,
+          source: "schema",
+          totalErrors: importSchema.zodIssues.length,
+          entries,
+        });
         raiseIllegalFileAlert();
         return false;
       }
 
-      const fields = convertImportSchemaData(importSchema.data.properties, modelId);
+      const fields = SchemaHelpers.convertImportSchemaData(importSchema.data.properties, modelId);
 
       setImportFields(fields);
 
@@ -523,6 +533,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
   const handleImportSchemaFileRemove: UploadProps["onRemove"] = () => {
     setFileList([]);
     setAlertList([]);
+    setSchemaErrorLogMeta(null);
   };
 
   return {
@@ -577,6 +588,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     handleNavigateToAsset,
     handleGetAsset,
     dataChecking,
+    schemaErrorLogMeta,
     handleImportSchemaFileChange,
     handleImportSchemaFileRemove,
   };

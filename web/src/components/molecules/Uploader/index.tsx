@@ -199,8 +199,10 @@ const Uploader: React.FC<Props> = props => {
           <Title data-testid={DATA_TEST_ID.Uploader__CardTitle}>{titleMessage}</Title>
           <TitleSuffix data-testid={DATA_TEST_ID.Uploader__CardTitleSuffix}>
             <Tooltip title={t("Minimize")}>
-              <span>
-                <CloseIcon icon="down" onClick={() => void handleUploaderOpen(false)} />
+              <span
+                data-testid={DATA_TEST_ID.Uploader__MinimizeIcon}
+                onClick={() => void handleUploaderOpen(false)}>
+                <CloseIcon icon="down" />
               </span>
             </Tooltip>
             <Tooltip title={t("Close")}>
@@ -247,7 +249,7 @@ const Card = styled(motion.div)`
     0 1px 2px -2px rgba(0, 0, 0, 0.16),
     0 3px 6px 0 rgba(0, 0, 0, 0.12),
     0 5px 12px 4px rgba(0, 0, 0, 0.09);
-  overflow-y: scroll;
+  overflow-y: auto;
 
   &[data-corner="${Corner.BottomRight}"] {
     bottom: 0;

@@ -19,9 +19,22 @@ export interface ValidationErrorMeta {
   exceedLimit: boolean;
   typeMismatchFieldKeys: Set<PropertyKey>;
   outOfRangeFieldKeys: Set<string>;
+  zodIssues: z.core.$ZodIssue[];
 }
 
 export type ContentSourceFormat = "CSV" | "JSON" | "GEOJSON";
+
+type FieldErrorCategory = "typeMismatch" | "outOfRange";
+
+type FieldClassifier = (
+  issue: z.core.$ZodIssue,
+  contentList: Record<string, unknown>[],
+) => FieldErrorCategory | null;
+
+interface ValidatorWithClassifiers {
+  schema: z.ZodType<ImportContentItem>;
+  classifiers: Record<string, FieldClassifier>;
+}
 
 enum CustomError {
   SUPPORTED_TYPES_INVALID = "invalid supportedTypes",
@@ -44,7 +57,7 @@ export abstract class ImportContentUtils {
     >((resolve, _reject) => {
       const timer = new PerformanceTimer("validateContentFromJSON");
 
-      const validator = this._getValidatorMeta(modelFields, sourceFormat);
+      const { schema: validator, classifiers } = this.getValidatorMeta(modelFields, sourceFormat);
 
       const validation = validator.array().max(maxRecordLimit).safeParse(importContentList);
 
@@ -53,7 +66,7 @@ export abstract class ImportContentUtils {
       } else {
         resolve({
           isValid: false,
-          error: this.getErrorMeta(validation),
+          error: this.getErrorMeta(validation, importContentList, classifiers),
         });
       }
 
@@ -61,28 +74,25 @@ export abstract class ImportContentUtils {
     });
   }
 
-  private static _getValidatorMeta(
+  private static getValidatorMeta(
     fieldData: Model["schema"]["fields"],
     sourceFormat: ContentSourceFormat,
-  ): z.ZodType<ImportContentItem> {
+  ): ValidatorWithClassifiers {
     const validateObj: Record<string, z.ZodTypeAny> = {};
+    const classifiers: Record<string, FieldClassifier> = {};
 
     fieldData.forEach(field => {
       switch (field.type) {
         case "Text":
         case "TextArea":
         case "MarkdownText": {
-          let stringField:
-            | z.ZodString
-            | z.ZodDefault<z.ZodString>
-            | z.ZodOptional<z.ZodString>
-            | z.ZodOptional<z.ZodDefault<z.ZodString>>
-            | z.ZodDefault<z.ZodArray<z.ZodString>>
-            | z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodString>>> = z.string();
+          let stringField: z.ZodString = z.string();
 
           // validate maxLength and add into schema
           const maxLength = z.int().nonnegative().safeParse(field.typeProperty?.maxLength);
           if (maxLength.success) stringField = stringField.max(maxLength.data);
+
+          let stringFieldAny: z.ZodTypeAny = stringField;
 
           // validate multiple and add into schema
           const multiple = z.boolean().parse(field.multiple);
@@ -95,44 +105,48 @@ export abstract class ImportContentUtils {
               .array()
               .refine(
                 values =>
-                  values.every(value => (maxLength.data ? value.length <= maxLength.data : true)),
+                  values.every(value =>
+                    maxLength.data !== undefined ? value.length <= maxLength.data : true,
+                  ),
                 { error: "too_big" },
               )
               .optional()
               .safeParse(field.typeProperty?.defaultValue);
 
             if (defaultValuesValidation.success && defaultValuesValidation.data)
-              stringField = stringField.array().default(defaultValuesValidation.data);
+              stringFieldAny = stringFieldAny.array().default(defaultValuesValidation.data);
+            else stringFieldAny = stringFieldAny.array();
           } else {
             const defaultValueValidation = z
               .string()
               .min(1)
-              .refine(value => (maxLength.data ? value.length <= maxLength.data : true), {
-                error: "too_big",
-              })
+              .refine(
+                value => (maxLength.data !== undefined ? value.length <= maxLength.data : true),
+                {
+                  error: "too_big",
+                },
+              )
               .optional()
               .safeParse(field.typeProperty?.defaultValue);
 
             if (defaultValueValidation.success && defaultValueValidation.data)
-              stringField = stringField.default(defaultValueValidation.data);
+              stringFieldAny = stringFieldAny.default(defaultValueValidation.data);
           }
 
-          if (!field.required) stringField = stringField.optional();
-
-          validateObj[field.key] = stringField;
+          validateObj[field.key] = !field.required
+            ? stringFieldAny.nullable().optional()
+            : stringFieldAny;
+          classifiers[field.key] = this.typeAndRangeClassifier();
 
           break;
         }
         case "Date": {
-          let dateField:
-            | z.ZodCoercedDate
-            | z.ZodDefault<z.ZodCoercedDate>
-            | z.ZodOptional<z.ZodCoercedDate>
-            | z.ZodOptional<z.ZodDefault<z.ZodCoercedDate>>
-            | z.ZodOptional<z.ZodCoercedDate<unknown>>
-            | z.ZodDefault<z.ZodArray<z.ZodCoercedDate<unknown>>>
-            | z.ZodOptional<z.ZodDefault<z.ZodCoercedDate<unknown>>>
-            | z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodCoercedDate<unknown>>>> = z.coerce.date();
+          // Use preprocess to convert input to Date while rejecting null/undefined
+          // (z.coerce.date() alone would coerce null to epoch via new Date(null))
+          let dateField: z.ZodTypeAny = z.preprocess(
+            val => (val === null || val === undefined ? val : new Date(val as string | number)),
+            z.date(),
+          );
 
           // validate multiple and add into schema
           const multiple = z.boolean().parse(field.multiple);
@@ -147,6 +161,7 @@ export abstract class ImportContentUtils {
 
             if (defaultValuesValidation.success && defaultValuesValidation.data)
               dateField = dateField.array().default(defaultValuesValidation.data);
+            else dateField = dateField.array();
           } else {
             const defaultValueValidation = z.coerce
               .date()
@@ -157,23 +172,14 @@ export abstract class ImportContentUtils {
               dateField = dateField.default(defaultValueValidation.data);
           }
 
-          if (!field.required) dateField = dateField.optional();
-
-          validateObj[field.key] = dateField;
+          validateObj[field.key] = !field.required ? dateField.nullable().optional() : dateField;
+          classifiers[field.key] = this.typeOnlyClassifier();
 
           break;
         }
 
         case "Bool": {
-          let booleanField:
-            | z.ZodBoolean
-            | z.ZodDefault<z.ZodBoolean>
-            | z.ZodOptional<z.ZodBoolean>
-            | z.ZodOptional<z.ZodDefault<z.ZodBoolean>>
-            | z.ZodDefault<z.ZodArray<z.ZodBoolean>>
-            | z.ZodOptional<z.ZodBoolean>
-            | z.ZodOptional<z.ZodDefault<z.ZodBoolean>>
-            | z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodBoolean>>> = z.boolean();
+          let booleanField: z.ZodTypeAny = z.boolean();
 
           // validate multiple and add into schema
           const multiple = z.boolean().parse(field.multiple);
@@ -187,6 +193,7 @@ export abstract class ImportContentUtils {
 
             if (defaultValuesValidation.success && defaultValuesValidation.data)
               booleanField = booleanField.array().default(defaultValuesValidation.data);
+            else booleanField = booleanField.array();
           } else {
             const defaultValueValidation = z
               .boolean()
@@ -197,21 +204,16 @@ export abstract class ImportContentUtils {
               booleanField = booleanField.default(defaultValueValidation.data);
           }
 
-          if (!field.required) booleanField = booleanField.optional();
-
-          validateObj[field.key] = booleanField;
+          validateObj[field.key] = !field.required
+            ? booleanField.nullable().optional()
+            : booleanField;
+          classifiers[field.key] = this.typeOnlyClassifier();
 
           break;
         }
 
         case "Integer": {
-          let intField:
-            | z.ZodNumber
-            | z.ZodDefault<z.ZodNumber>
-            | z.ZodOptional<z.ZodNumber>
-            | z.ZodOptional<z.ZodDefault<z.ZodNumber>>
-            | z.ZodDefault<z.ZodArray<z.ZodNumber>>
-            | z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodNumber>>> = z.number().int();
+          let intField: z.ZodNumber = z.number().int();
 
           // validate min and add into schema
           const min = z.int().safeParse(field.typeProperty?.min);
@@ -221,9 +223,11 @@ export abstract class ImportContentUtils {
           const max = z.int().safeParse(field.typeProperty?.max);
           if (max.success) intField = intField.max(max.data);
 
+          let intFieldAny: z.ZodTypeAny = intField;
+
           // max should greater than min
           if (min.success && max.success)
-            intField = intField.refine(_val => max.data > min.data, {
+            intFieldAny = intFieldAny.refine(_val => max.data > min.data, {
               error: "max value should be greater than min value",
             });
 
@@ -239,7 +243,8 @@ export abstract class ImportContentUtils {
               .safeParse(field.typeProperty?.defaultValue);
 
             if (defaultValuesValidation.success && defaultValuesValidation.data)
-              intField = intField.array().default(defaultValuesValidation.data);
+              intFieldAny = intFieldAny.array().default(defaultValuesValidation.data);
+            else intFieldAny = intFieldAny.array();
           } else {
             const defaultValueValidation = z
               .int()
@@ -247,24 +252,19 @@ export abstract class ImportContentUtils {
               .safeParse(field.typeProperty?.defaultValue);
 
             if (defaultValueValidation.success && defaultValueValidation.data)
-              intField = intField.default(defaultValueValidation.data);
+              intFieldAny = intFieldAny.default(defaultValueValidation.data);
           }
 
-          if (!field.required) intField = intField.optional();
-
-          validateObj[field.key] = intField;
+          validateObj[field.key] = !field.required
+            ? intFieldAny.nullable().optional()
+            : intFieldAny;
+          classifiers[field.key] = this.typeAndRangeClassifier();
 
           break;
         }
 
         case "Number": {
-          let floatField:
-            | z.ZodNumber
-            | z.ZodDefault<z.ZodNumber>
-            | z.ZodOptional<z.ZodNumber>
-            | z.ZodOptional<z.ZodDefault<z.ZodNumber>>
-            | z.ZodDefault<z.ZodArray<z.ZodNumber>>
-            | z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodNumber>>> = z.number();
+          let floatField: z.ZodNumber = z.number();
 
           // validate min and add into schema
           const min = z.number().safeParse(field.typeProperty?.min);
@@ -274,9 +274,11 @@ export abstract class ImportContentUtils {
           const max = z.number().safeParse(field.typeProperty?.max);
           if (max.success) floatField = floatField.max(max.data);
 
+          let floatFieldAny: z.ZodTypeAny = floatField;
+
           // max should greater than min
           if (min.success && max.success)
-            floatField = floatField.refine(_val => max.data > min.data, {
+            floatFieldAny = floatFieldAny.refine(_val => max.data > min.data, {
               error: "max value should be greater than min value",
             });
 
@@ -292,7 +294,8 @@ export abstract class ImportContentUtils {
               .safeParse(field.typeProperty?.defaultValue);
 
             if (defaultValuesValidation.success && defaultValuesValidation.data)
-              floatField = floatField.array().default(defaultValuesValidation.data);
+              floatFieldAny = floatFieldAny.array().default(defaultValuesValidation.data);
+            else floatFieldAny = floatFieldAny.array();
           } else {
             const defaultValueValidation = z
               .number()
@@ -300,30 +303,22 @@ export abstract class ImportContentUtils {
               .safeParse(field.typeProperty?.defaultValue);
 
             if (defaultValueValidation.success && defaultValueValidation.data)
-              floatField = floatField.default(defaultValueValidation.data);
+              floatFieldAny = floatFieldAny.default(defaultValueValidation.data);
           }
 
-          if (!field.required) floatField = floatField.optional();
-
-          validateObj[field.key] = floatField;
+          validateObj[field.key] = !field.required
+            ? floatFieldAny.nullable().optional()
+            : floatFieldAny;
+          classifiers[field.key] = this.typeAndRangeClassifier();
 
           break;
         }
 
         case "Select": {
           if (field.typeProperty?.values) {
-            let optionField:
-              | z.ZodUnion<z.ZodLiteral<string>[]>
-              | z.ZodDefault<z.ZodUnion<readonly z.ZodLiteral<string>[]>>
-              | z.ZodOptional<z.ZodUnion<z.ZodLiteral<string>[]>>
-              | z.ZodOptional<z.ZodDefault<z.ZodUnion<readonly z.ZodLiteral<string>[]>>>
-              | z.ZodOptional<z.ZodOptional<z.ZodUnion<z.ZodLiteral<string>[]>>>
-              | z.ZodOptional<
-                  z.ZodOptional<z.ZodDefault<z.ZodUnion<readonly z.ZodLiteral<string>[]>>>
-                >
-              | z.ZodDefault<z.ZodArray<z.ZodUnion<z.ZodLiteral<string>[]>>>
-              | z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodUnion<z.ZodLiteral<string>[]>>>> =
-              z.union(field.typeProperty.values.map(value => z.literal(value)));
+            let optionField: z.ZodTypeAny = z.union(
+              field.typeProperty.values.map(value => z.literal(value)),
+            );
 
             // validate multiple and add into schema
             const multiple = z.boolean().parse(field.multiple);
@@ -338,6 +333,7 @@ export abstract class ImportContentUtils {
 
               if (defaultValuesValidation.success && defaultValuesValidation.data)
                 optionField = optionField.array().default(defaultValuesValidation.data);
+              else optionField = optionField.array();
             } else {
               const defaultValueValidation = z
                 .union(field.typeProperty.values.map(value => z.literal(value)))
@@ -348,22 +344,50 @@ export abstract class ImportContentUtils {
                 optionField = optionField.default(defaultValueValidation.data);
             }
 
-            if (!field.required) optionField = optionField.optional();
-
-            validateObj[field.key] = optionField;
+            validateObj[field.key] = !field.required
+              ? optionField.nullable().optional()
+              : optionField;
+            classifiers[field.key] = this.selectClassifier();
           }
 
           break;
         }
 
+        case "Asset": {
+          let assetField: z.ZodTypeAny = z.string().min(1);
+
+          const multiple = z.boolean().parse(field.multiple);
+
+          if (multiple) {
+            const defaultValuesValidation = z
+              .string()
+              .min(1)
+              .array()
+              .optional()
+              .safeParse(field.typeProperty?.assetDefaultValue);
+
+            if (defaultValuesValidation.success && defaultValuesValidation.data)
+              assetField = assetField.array().default(defaultValuesValidation.data);
+            else assetField = assetField.array();
+          } else {
+            const defaultValueValidation = z
+              .string()
+              .min(1)
+              .optional()
+              .safeParse(field.typeProperty?.assetDefaultValue);
+
+            if (defaultValueValidation.success && defaultValueValidation.data)
+              assetField = assetField.default(defaultValueValidation.data);
+          }
+
+          validateObj[field.key] = !field.required ? assetField.nullable().optional() : assetField;
+          classifiers[field.key] = this.typeOnlyClassifier();
+
+          break;
+        }
+
         case "URL": {
-          let urlField:
-            | z.ZodURL
-            | z.ZodOptional<z.ZodURL>
-            | z.ZodDefault<z.ZodArray<z.ZodURL>>
-            | z.ZodDefault<z.ZodURL>
-            | z.ZodOptional<z.ZodDefault<z.ZodArray<z.ZodURL>>>
-            | z.ZodOptional<z.ZodDefault<z.ZodURL>> = z.url();
+          let urlField: z.ZodTypeAny = z.url();
 
           // validate multiple and add into schema
           const multiple = z.boolean().parse(field.multiple);
@@ -378,6 +402,7 @@ export abstract class ImportContentUtils {
 
             if (defaultValuesValidation.success && defaultValuesValidation.data)
               urlField = urlField.array().default(defaultValuesValidation.data);
+            else urlField = urlField.array();
           } else {
             const defaultValueValidation = z
               .url()
@@ -388,9 +413,8 @@ export abstract class ImportContentUtils {
               urlField = urlField.default(defaultValueValidation.data);
           }
 
-          if (!field.required) urlField = urlField.optional();
-
-          validateObj[field.key] = urlField;
+          validateObj[field.key] = !field.required ? urlField.nullable().optional() : urlField;
+          classifiers[field.key] = this.urlClassifier();
 
           break;
         }
@@ -434,10 +458,7 @@ export abstract class ImportContentUtils {
 
               if (defaultValuesValidation.success && defaultValuesValidation.data)
                 geoObjectField = geoObjectField.array().default(defaultValuesValidation.data);
-
-              //  geoObjectField.superRefine((value, context) => {
-
-              // })
+              else geoObjectField = geoObjectField.array();
             } else {
               const defaultValueValidation = GeoJSON2DSchema.optional().safeParse(
                 field.typeProperty?.defaultValue,
@@ -447,14 +468,7 @@ export abstract class ImportContentUtils {
                 geoObjectField = geoObjectField.default(defaultValueValidation.data);
 
               geoObjectField = geoObjectField.superRefine((value, context) => {
-                // TODO: refactor this later
-                const valueType =
-                  typeof value === "object" &&
-                  value !== null &&
-                  "type" in value &&
-                  typeof value.type === "string"
-                    ? value.type.toUpperCase()
-                    : null;
+                const valueType = this.extractGeoTypeName(value);
 
                 if (
                   supportedTypes.success &&
@@ -471,9 +485,13 @@ export abstract class ImportContentUtils {
               });
             }
 
-            if (!field.required) geoObjectField = geoObjectField.optional();
-
-            validateObj[field.key] = geoObjectField;
+            validateObj[field.key] = !field.required
+              ? geoObjectField.nullable().optional()
+              : geoObjectField;
+            classifiers[field.key] = this.geoClassifier(
+              CustomError.SUPPORTED_TYPES_INVALID,
+              CustomError.SUPPORTED_TYPES_OUT_OF_RANGE,
+            );
           }
 
           break;
@@ -514,6 +532,7 @@ export abstract class ImportContentUtils {
 
               if (defaultValuesValidation.success && defaultValuesValidation.data)
                 geoEditorField = geoEditorField.array().default(defaultValuesValidation.data);
+              else geoEditorField = geoEditorField.array();
             } else {
               const defaultValueValidation = GeoJSON2DSchema.optional().safeParse(
                 field.typeProperty?.defaultValue,
@@ -523,14 +542,7 @@ export abstract class ImportContentUtils {
                 geoEditorField = geoEditorField.default(defaultValueValidation.data);
 
               geoEditorField = geoEditorField.superRefine((value, context) => {
-                // TODO: refactor this later
-                const valueType =
-                  typeof value === "object" &&
-                  value !== null &&
-                  "type" in value &&
-                  typeof value.type === "string"
-                    ? value.type.toUpperCase()
-                    : null;
+                const valueType = this.extractGeoTypeName(value);
 
                 if (
                   editorSupportedTypes.success &&
@@ -547,9 +559,13 @@ export abstract class ImportContentUtils {
               });
             }
 
-            if (!field.required) geoEditorField = geoEditorField.optional();
-
-            validateObj[field.key] = geoEditorField;
+            validateObj[field.key] = !field.required
+              ? geoEditorField.nullable().optional()
+              : geoEditorField;
+            classifiers[field.key] = this.geoClassifier(
+              CustomError.EDITOR_SUPPORTED_TYPES_INVALID,
+              CustomError.EDITOR_SUPPORTED_TYPES_OUT_OF_RANGE,
+            );
           }
 
           break;
@@ -559,61 +575,31 @@ export abstract class ImportContentUtils {
       }
     });
 
-    return z.object(validateObj) as z.ZodType<ImportContentItem>;
+    return { schema: z.object(validateObj) as z.ZodType<ImportContentItem>, classifiers };
   }
 
   private static getErrorMeta(
     schemaValidation: z.ZodSafeParseError<Record<string, unknown>[]>,
+    contentList: Record<string, unknown>[],
+    classifiers: Record<string, FieldClassifier>,
   ): ValidationErrorMeta {
     return schemaValidation.error.issues.reduce<ValidationErrorMeta>(
-      (acc, curr, _index, _arr) => {
-        // exceed limit records
-        if (curr.code === "too_big" && curr.origin === "array" && curr.path.length === 0)
-          return { ...acc, exceedLimit: true };
-
-        // invalid value type
-        if (curr.path[1] && curr.code === "invalid_type")
-          return { ...acc, typeMismatchFieldKeys: acc.typeMismatchFieldKeys.add(curr.path[1]) };
-
-        // invalid value type (date)
-        if (curr.path[1] && curr.code === "invalid_format" && curr.format === "url")
-          return { ...acc, typeMismatchFieldKeys: acc.typeMismatchFieldKeys.add(curr.path[1]) };
-
-        // TODO: need to improve
-        // invalid default value
-        if (curr.path.length === 0 && curr.code === "invalid_type")
-          return { ...acc, typeMismatchFieldKeys: acc.typeMismatchFieldKeys.add(curr.path[1]) };
-
-        if (
-          (curr.path[1] &&
-            // invalid option (for select)
-            curr.code === "invalid_union") ||
-          // number out of range (too big or too small)
-          ((curr.code === "too_big" || curr.code === "too_small") && curr.origin === "number") ||
-          // string out of range (too big)
-          (curr.code === "too_big" && curr.origin === "string")
-        ) {
-          if (typeof curr.path[1] === "string") acc.outOfRangeFieldKeys.add(curr.path[1]);
-          return { ...acc, outOfRangeFieldKeys: acc.outOfRangeFieldKeys };
+      (acc, issue) => {
+        // Top-level: array exceeds record limit
+        if (issue.code === "too_big" && issue.origin === "array" && issue.path.length === 0) {
+          acc.exceedLimit = true;
+          return acc;
         }
 
-        // custom error (GeoObject, GeoEditor)
-        if (curr.code === "custom") {
-          if (
-            curr.message === CustomError.SUPPORTED_TYPES_INVALID ||
-            curr.message === CustomError.EDITOR_SUPPORTED_TYPES_INVALID
-          ) {
-            return { ...acc, typeMismatchFieldKeys: acc.typeMismatchFieldKeys.add(curr.path[1]) };
-          }
+        const fieldKey = issue.path[1];
+        if (typeof fieldKey !== "string") return acc;
 
-          if (
-            curr.message === CustomError.SUPPORTED_TYPES_OUT_OF_RANGE ||
-            curr.message === CustomError.EDITOR_SUPPORTED_TYPES_OUT_OF_RANGE
-          ) {
-            if (typeof curr.path[1] === "string") acc.outOfRangeFieldKeys.add(curr.path[1]);
-            return { ...acc, outOfRangeFieldKeys: acc.outOfRangeFieldKeys };
-          }
-        }
+        const classifier = classifiers[fieldKey];
+        if (!classifier) return acc;
+
+        const category = classifier(issue, contentList);
+        if (category === "typeMismatch") acc.typeMismatchFieldKeys.add(fieldKey);
+        else if (category === "outOfRange") acc.outOfRangeFieldKeys.add(fieldKey);
 
         return acc;
       },
@@ -621,6 +607,7 @@ export abstract class ImportContentUtils {
         exceedLimit: false,
         typeMismatchFieldKeys: new Set(),
         outOfRangeFieldKeys: new Set(),
+        zodIssues: schemaValidation.error.issues,
       },
     );
   }
@@ -692,6 +679,74 @@ export abstract class ImportContentUtils {
           ? t("Please create a schema first")
           : undefined,
       shouldDisable: !hasModelFields || !hasContentCreateRight,
+    };
+  }
+
+  private static extractGeoTypeName(value: unknown): string | null {
+    if (
+      typeof value === "object" &&
+      value !== null &&
+      "type" in value &&
+      typeof value.type === "string"
+    ) {
+      return value.type.toUpperCase();
+    }
+    return null;
+  }
+
+  private static typeOnlyClassifier(): FieldClassifier {
+    return issue => {
+      if (issue.code === "invalid_type") return "typeMismatch";
+      return null;
+    };
+  }
+
+  private static typeAndRangeClassifier(): FieldClassifier {
+    return issue => {
+      if (issue.code === "invalid_type") return "typeMismatch";
+      if (issue.code === "too_big" || issue.code === "too_small") return "outOfRange";
+      return null;
+    };
+  }
+
+  private static urlClassifier(): FieldClassifier {
+    return issue => {
+      if (issue.code === "invalid_type") return "typeMismatch";
+      if (issue.code === "invalid_format" && "format" in issue && issue.format === "url")
+        return "typeMismatch";
+      return null;
+    };
+  }
+
+  private static selectClassifier(): FieldClassifier {
+    return (issue, contentList) => {
+      if (issue.code === "invalid_type") return "typeMismatch";
+      if (issue.code === "invalid_union") {
+        const rowIndex = issue.path[0];
+        const fieldKey = issue.path[1];
+        if (
+          typeof rowIndex === "number" &&
+          typeof fieldKey === "string" &&
+          contentList[rowIndex] &&
+          !(fieldKey in contentList[rowIndex])
+        ) {
+          return "typeMismatch";
+        }
+        return "outOfRange";
+      }
+      return null;
+    };
+  }
+
+  private static geoClassifier(invalidMsg: string, outOfRangeMsg: string): FieldClassifier {
+    return issue => {
+      if (issue.code === "custom") {
+        if (issue.message === invalidMsg) return "typeMismatch";
+        if (issue.message === outOfRangeMsg) return "outOfRange";
+      }
+      // Other errors (from GeoJSON2DSchema validation) are type mismatches
+      if (issue.code === "invalid_type" || issue.code === "invalid_union") return "typeMismatch";
+      return null;
     };
   }
 }

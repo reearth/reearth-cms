@@ -1,6 +1,6 @@
 import { gold, red } from "@ant-design/colors";
 import styled from "@emotion/styled";
-import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
+import { Dispatch, SetStateAction, useCallback, useMemo, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 import Alert, { type AlertProps } from "@reearth-cms/components/atoms/Alert";
@@ -11,7 +11,7 @@ import Loading from "@reearth-cms/components/atoms/Loading";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Space from "@reearth-cms/components/atoms/Space";
 import Typography from "@reearth-cms/components/atoms/Typography";
-import Upload, { UploadProps } from "@reearth-cms/components/atoms/Upload";
+import Upload, { RcFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { UploaderHookState } from "@reearth-cms/components/molecules/Uploader/provider";
 import { ValidateImportResult } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
@@ -24,6 +24,7 @@ import {
   ImportContentUtils,
   ValidationErrorMeta,
 } from "@reearth-cms/utils/importContent";
+import { ErrorLogMeta, ImportErrorLogUtils } from "@reearth-cms/utils/importErrorLog";
 import { ObjectUtils } from "@reearth-cms/utils/object";
 
 const { Dragger } = Upload;
@@ -67,6 +68,11 @@ const ContentImportModal: React.FC<Props> = ({
 }) => {
   const t = useT();
   const location = useLocation();
+  const pendingImportRef = useRef<{
+    file: RcFile;
+    fileName: string;
+    extension: "json" | "csv" | "geojson";
+  } | null>(null);
 
   const raiseIllegalFileAlert = useCallback(() => {
     setAlertList([
@@ -114,9 +120,25 @@ const ContentImportModal: React.FC<Props> = ({
     ]);
   }, [setAlertList, t]);
 
+  const buildErrorLogMeta = useCallback(
+    (errorMeta: ValidationErrorMeta, fileName: string): ErrorLogMeta | undefined => {
+      if (errorMeta.zodIssues.length === 0) return undefined;
+      const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(errorMeta.zodIssues);
+      return {
+        fileName,
+        source: "content",
+        totalErrors: errorMeta.zodIssues.length,
+        entries,
+      };
+    },
+    [],
+  );
+
   const schemaValidationAlert = useCallback(
-    (errorMeta: ValidationErrorMeta) => {
+    (errorMeta: ValidationErrorMeta, fileName: string) => {
       setAlertList([]);
+
+      const errorLogMeta = buildErrorLogMeta(errorMeta, fileName);
 
       if (errorMeta.exceedLimit) {
         // case: above limit + some mismatch (exceedLimit = true, mismatchFields.size > 0)
@@ -136,6 +158,7 @@ const ContentImportModal: React.FC<Props> = ({
               count: errorMeta.typeMismatchFieldKeys.size,
               fields: Array.from(errorMeta.typeMismatchFieldKeys),
             }),
+            errorLogMeta,
           });
         }
         // case: above limit, full match (exceedLimit = true, mismatchFields.size = 0)
@@ -150,6 +173,7 @@ const ContentImportModal: React.FC<Props> = ({
                 maxSizeInMB: Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
               },
             ),
+            errorLogMeta,
           });
         }
       } else {
@@ -170,6 +194,7 @@ const ContentImportModal: React.FC<Props> = ({
               fields: Array.from(errorMeta.typeMismatchFieldKeys),
             }),
             canForwardToImport: true,
+            errorLogMeta,
           });
         }
         // case: below limit, no match (exceedLimit = false, mismatchFields.size = modelFieldCount)
@@ -180,11 +205,12 @@ const ContentImportModal: React.FC<Props> = ({
             description: t(
               "The data file does not match the schema. None of the fields could be recognized. Please update the file or use a different schema to continue.",
             ),
+            errorLogMeta,
           });
         }
       }
     },
-    [modelFields.length, setAlertList, setValidateImportResult, t],
+    [buildErrorLogMeta, modelFields.length, setAlertList, setValidateImportResult, t],
   );
 
   const handleStartLoading = useCallback(() => onSetDataChecking(true), [onSetDataChecking]);
@@ -254,7 +280,8 @@ const ContentImportModal: React.FC<Props> = ({
             );
 
             if (!jsonContentValidation.isValid) {
-              schemaValidationAlert(jsonContentValidation.error);
+              pendingImportRef.current = { file, fileName, extension };
+              schemaValidationAlert(jsonContentValidation.error, fileName);
               return;
             }
 
@@ -285,7 +312,8 @@ const ContentImportModal: React.FC<Props> = ({
             );
 
             if (!geoJSONContentValidation.isValid) {
-              schemaValidationAlert(geoJSONContentValidation.error);
+              pendingImportRef.current = { file, fileName, extension };
+              schemaValidationAlert(geoJSONContentValidation.error, fileName);
               return;
             }
 
@@ -308,7 +336,8 @@ const ContentImportModal: React.FC<Props> = ({
             );
 
             if (!csvContentValidation.isValid) {
-              schemaValidationAlert(csvContentValidation.error);
+              pendingImportRef.current = { file, fileName, extension };
+              schemaValidationAlert(csvContentValidation.error, fileName);
               return;
             }
 
@@ -462,13 +491,43 @@ const ContentImportModal: React.FC<Props> = ({
             <StyledActionButton
               type="default"
               onClick={() => {
+                pendingImportRef.current = null;
                 setAlertList([]);
                 setValidateImportResult(null);
               }}>
               {t("go back")}
             </StyledActionButton>
+            {validateImportResult.errorLogMeta && (
+              <StyledActionButton
+                type="default"
+                icon={<Icon icon="download" />}
+                onClick={() =>
+                  validateImportResult.errorLogMeta &&
+                  ImportErrorLogUtils.downloadErrorLog(validateImportResult.errorLogMeta)
+                }>
+                {t("Download error log")}
+              </StyledActionButton>
+            )}
             {validateImportResult.canForwardToImport && (
-              <StyledActionButton type="primary">{t("import anyway")}</StyledActionButton>
+              <StyledActionButton
+                type="primary"
+                onClick={() => {
+                  if (!pendingImportRef.current) return;
+                  const { file, fileName, extension } = pendingImportRef.current;
+                  if (!workspaceId || !projectId || !modelId) return;
+                  onEnqueueJob({
+                    workspaceId,
+                    projectId,
+                    modelId,
+                    extension,
+                    fileName,
+                    url: location.pathname,
+                    file,
+                  });
+                  onClose();
+                }}>
+                {t("import anyway")}
+              </StyledActionButton>
             )}
           </Space>
           {validateImportResult.hint && (
