@@ -19,6 +19,19 @@ on:
         type: boolean
         required: false
         default: false
+      use_iap:
+        description: "Enable IAP authentication"
+        type: boolean
+        required: false
+        default: false
+      iap_target_audience:
+        description: "IAP OAuth client ID"
+        required: false
+        default: ""
+      token_format:
+        description: "Token format for authentication"
+        required: false
+        default: "id-token"
   schedule:
     - cron: "0 3 * * 1-5"
   workflow_call:
