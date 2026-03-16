@@ -199,6 +199,12 @@ func errorMessage(err error, log func(string, ...interface{})) (int, string) {
 		return code, msg
 	}
 
+	if errors.Is(err, rerror.ErrTooManyRequests) {
+		code = http.StatusTooManyRequests
+		msg = "too many requests"
+		return code, msg
+	}
+
 	var rErr *rerror.E
 	if errors.As(err, &rErr) {
 		code = http.StatusBadRequest

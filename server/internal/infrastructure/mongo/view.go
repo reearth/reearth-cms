@@ -98,6 +98,10 @@ func (r *View) Remove(ctx context.Context, viewID id.ViewID) error {
 	return r.client.RemoveOne(ctx, bson.M{"id": viewID.String()})
 }
 
+func (r *View) RemoveByModel(ctx context.Context, modelID id.ModelID) error {
+	return r.client.RemoveAll(ctx, bson.M{"modelid": modelID.String()})
+}
+
 func (r *View) findOne(ctx context.Context, filter any) (*view.View, error) {
 	c := mongodoc.NewViewConsumer()
 	if err := r.client.FindOne(ctx, filter, c); err != nil {
