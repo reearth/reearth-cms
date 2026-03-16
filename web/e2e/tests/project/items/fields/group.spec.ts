@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("Group field creating and updating has succeeded", async ({
+test("@focus Group field creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,
