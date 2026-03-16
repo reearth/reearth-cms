@@ -1,5 +1,5 @@
 // e2e/pages/schema.page.ts
-import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { expect, type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { BasePage } from "./base.page";
@@ -190,10 +190,12 @@ export class SchemaPage extends BasePage {
 
   // Model CRUD operations
   async createModel(name: string, key?: string): Promise<void> {
+    await expect(this.getByLabel("Model name")).toBeVisible();
     await this.getByLabel("Model name").fill(name);
     if (key) {
       await this.getByLabel("Model key").fill(key);
     }
+    await expect(this.getByRole("button", { name: "OK" })).toBeEnabled({ timeout: 10_000 });
     await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
   }
@@ -208,6 +210,7 @@ export class SchemaPage extends BasePage {
     await this.getByText("Edit", { exact: true }).click();
     await this.getByLabel("Update Model").locator("#name").fill(name);
     await this.getByLabel("Update Model").locator("#key").fill(key);
+    await expect(this.getByRole("button", { name: "OK" })).toBeEnabled({ timeout: 10_000 });
     await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
   }
@@ -222,10 +225,12 @@ export class SchemaPage extends BasePage {
   // Group CRUD operations
   async createGroup(name: string, key?: string): Promise<void> {
     await this.getByRole("button", { name: "plus Add" }).last().click();
+    await expect(this.getByLabel("Group name")).toBeVisible();
     await this.getByLabel("Group name").fill(name);
     if (key) {
       await this.getByLabel("Group key").fill(key);
     }
+    await expect(this.getByRole("button", { name: "OK" })).toBeEnabled({ timeout: 10_000 });
     await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
   }
@@ -237,6 +242,7 @@ export class SchemaPage extends BasePage {
     if (key) {
       await this.getByLabel("Update Group").locator("#key").fill(key);
     }
+    await expect(this.getByRole("button", { name: "OK" })).toBeEnabled({ timeout: 10_000 });
     await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
   }

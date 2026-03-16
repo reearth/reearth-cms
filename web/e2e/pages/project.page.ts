@@ -276,6 +276,7 @@ export class ProjectPage extends BasePage {
     if (key) {
       await this.getByLabel("Model key").fill(key);
     }
+    await expect(this.getByRole("button", { name: "OK" })).toBeEnabled({ timeout: 10_000 });
     await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
   }
