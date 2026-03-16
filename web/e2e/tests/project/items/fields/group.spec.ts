@@ -124,7 +124,6 @@ test("Group field creating and updating has succeeded", async ({
     await contentPage.contentText.click();
     await schemaPage.modelByText("e2e model name").click();
     await contentPage.editButton.click();
-    await expect(contentPage.textBoxes).toBeVisible();
     await expect(contentPage.mainRole).toContainText("new text1(unique)");
     await expect(contentPage.mainRole).toContainText("new text1 description");
     await expect(contentPage.textBoxes).toHaveValue("new text1");
@@ -135,18 +134,18 @@ test("Group field creating and updating has succeeded", async ({
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
     await contentPage.backButton.click();
-    await page.waitForTimeout(300);
+    await expect(contentPage.editButton).toBeVisible();
   });
 
   await test.step("Verify default value appears in existing and new items", async () => {
     await contentPage.editButton.click();
-    await expect(contentPage.textBoxes).toBeVisible();
+    await expect(contentPage.firstLabel).toContainText("group1");
     await expect(contentPage.textBoxes).toHaveValue("text1");
     await contentPage.backButton.click();
+    await expect(contentPage.newItemButton).toBeVisible();
     await contentPage.newItemButton.click();
-    await expect(contentPage.textBoxes).toBeVisible();
+    await expect(contentPage.firstLabel).toContainText("group1");
     await expect(contentPage.textBoxes).toHaveValue("text1");
-    await page.waitForTimeout(300);
   });
 
   await test.step("Add multiple values to group field and test reordering", async () => {
@@ -163,18 +162,21 @@ test("Group field creating and updating has succeeded", async ({
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
     await contentPage.backButton.click();
+    await expect(contentPage.editButton.first()).toBeVisible();
     await contentPage.editButton.first().click();
+    await expect(contentPage.firstLabel).toContainText("group1");
     await expect(contentPage.textBoxByIndex(0)).toHaveValue("text1");
     await expect(contentPage.textBoxByIndex(1)).toHaveValue("text2");
     await fieldEditorPage.arrowDownButton.first().click();
     await contentPage.saveButton.click();
     await contentPage.closeNotification();
     await contentPage.backButton.click();
-    await page.waitForTimeout(300);
+    await expect(contentPage.editButton.first()).toBeVisible();
   });
 
   await test.step("Verify reordered values persisted", async () => {
     await contentPage.editButton.first().click();
+    await expect(contentPage.firstLabel).toContainText("group1");
     await expect(contentPage.textBoxByIndex(0)).toHaveValue("text2");
     await expect(contentPage.textBoxByIndex(1)).toHaveValue("text1");
     await page.waitForTimeout(300);
