@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/workspace"
 	"github.com/reearth/reearthx/rerror"
@@ -19,22 +20,50 @@ import (
 )
 
 type Project struct {
-	repos    *repo.Container
-	gateways *gateway.Container
+	repos      *repo.Container
+	gateways   *gateway.Container
+	authorizer *Authorizer
 }
 
 func NewProject(r *repo.Container, g *gateway.Container) interfaces.Project {
+	var authorizer *Authorizer
+	if g != nil && g.Authorization != nil {
+		authorizer = NewAuthorizer(g.Authorization, r)
+	}
 	return &Project{
-		repos:    r,
-		gateways: g,
+		repos:      r,
+		gateways:   g,
+		authorizer: authorizer,
 	}
 }
 
-func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, _ *usecase.Operator) (project.List, error) {
-	return i.repos.Project.FindByIDs(ctx, ids)
+func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, op *usecase.Operator) (project.List, error) {
+	projects, err := i.repos.Project.FindByIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	// Filter projects by read permission
+	if i.authorizer != nil {
+		filtered := make(project.List, 0, len(projects))
+		for _, p := range projects {
+			if err := i.authorizer.CheckPermission(ctx, op, rbac.ResourceProject, p.ID().String(), rbac.ActionRead); err == nil {
+				filtered = append(filtered, p)
+			} else if err != interfaces.ErrOperationDenied {
+				return nil, err
+			}
+		}
+		return filtered, nil
+	}
+
+	return projects, nil
 }
 
-func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.WorkspaceID, f *interfaces.ProjectFilter, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.WorkspaceID, f *interfaces.ProjectFilter, op *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+	if err := i.authorizer.CheckPermissionInWorkspace(ctx, op, wid, rbac.ResourceProject, rbac.ActionList); err != nil {
+		return nil, nil, err
+	}
+
 	if f == nil {
 		f = &interfaces.ProjectFilter{}
 	}
@@ -45,7 +74,14 @@ func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.Workspa
 	return i.repos.Project.Search(ctx, *f)
 }
 
-func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter, op *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+	// Check list permission for each workspace
+	for _, wid := range wIds {
+		if err := i.authorizer.CheckPermissionInWorkspace(ctx, op, wid, rbac.ResourceProject, rbac.ActionList); err != nil {
+			return nil, nil, err
+		}
+	}
+
 	if f == nil {
 		f = &interfaces.ProjectFilter{}
 	}
@@ -56,14 +92,23 @@ func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.Works
 	return i.repos.Project.Search(ctx, *f)
 }
 
-func (i *Project) Search(ctx context.Context, f interfaces.ProjectFilter, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
-	if f.WorkspaceIds == nil || len(*f.WorkspaceIds) == 0 {
+func (i *Project) Search(ctx context.Context, f interfaces.ProjectFilter, op *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+	// If searching within workspaces, check list permission for each
+	if f.WorkspaceIds != nil && len(*f.WorkspaceIds) > 0 {
+		for _, wid := range *f.WorkspaceIds {
+			if err := i.authorizer.CheckPermissionInWorkspace(ctx, op, wid, rbac.ResourceProject, rbac.ActionList); err != nil {
+				return nil, nil, err
+			}
+		}
+	} else {
+		// No workspace filter = public project search only
 		f.Visibility = lo.ToPtr(project.VisibilityPublic)
 	}
+
 	return i.repos.Project.Search(ctx, f)
 }
 
-func (i *Project) FindByIDOrAlias(ctx context.Context, wsIdOrAlias accountdomain.WorkspaceIDOrAlias, idOrAlias project.IDOrAlias, _ *usecase.Operator) (*project.Project, error) {
+func (i *Project) FindByIDOrAlias(ctx context.Context, wsIdOrAlias accountdomain.WorkspaceIDOrAlias, idOrAlias project.IDOrAlias, op *usecase.Operator) (*project.Project, error) {
 	w, err := i.repos.Workspace.FindByIDOrAlias(ctx, wsIdOrAlias)
 	if err != nil {
 		return nil, err
@@ -72,7 +117,16 @@ func (i *Project) FindByIDOrAlias(ctx context.Context, wsIdOrAlias accountdomain
 		return nil, rerror.ErrNotFound
 	}
 
-	return i.repos.Project.FindByIDOrAlias(ctx, w.ID(), idOrAlias)
+	p, err := i.repos.Project.FindByIDOrAlias(ctx, w.ID(), idOrAlias)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := i.authorizer.CheckPermission(ctx, op, rbac.ResourceProject, p.ID().String(), rbac.ActionRead); err != nil {
+		return nil, err
+	}
+
+	return p, nil
 }
 
 func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectParam, op *usecase.Operator) (_ *project.Project, err error) {
@@ -117,6 +171,11 @@ func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectPara
 		if !policyResp.Allowed {
 			return nil, interfaces.ErrProjectCreationLimitExceeded
 		}
+	}
+
+	// Check permission BEFORE starting transaction
+	if err := i.authorizer.CheckPermissionInWorkspace(ctx, op, param.WorkspaceID, rbac.ResourceProject, rbac.ActionCreate); err != nil {
+		return nil, err
 	}
 
 	return Run1(ctx, op, i.repos, Usecase().WithWritableWorkspaces(param.WorkspaceID).Transaction(),
@@ -217,8 +276,19 @@ func (i *Project) Update(ctx context.Context, param interfaces.UpdateProjectPara
 		}
 	}
 
+	// Check permission BEFORE starting transaction
+	if err := i.authorizer.CheckPermission(ctx, op, rbac.ResourceProject, param.ID.String(), rbac.ActionUpdate); err != nil {
+		return nil, err
+	}
+
 	return Run1(ctx, op, i.repos, Usecase().WithWritableWorkspaces(p.Workspace()).Transaction(),
 		func(ctx context.Context) (_ *project.Project, err error) {
+			// Re-fetch project inside transaction to get latest version
+			p, err := i.repos.Project.FindByID(ctx, param.ID)
+			if err != nil {
+				return nil, err
+			}
+
 			if param.Name != nil {
 				p.UpdateName(*param.Name)
 			}
@@ -339,6 +409,11 @@ func (i *Project) Delete(ctx context.Context, projectID id.ProjectID, op *usecas
 		}
 	}
 
+	// Check permission BEFORE starting transaction
+	if err := i.authorizer.CheckPermission(ctx, op, rbac.ResourceProject, projectID.String(), rbac.ActionDelete); err != nil {
+		return err
+	}
+
 	return Run0(ctx, op, i.repos, Usecase().WithWritableWorkspaces(proj.Workspace()).Transaction(),
 		func(ctx context.Context) error {
 			if !op.IsWritableWorkspace(proj.Workspace()) {
@@ -356,10 +431,22 @@ func (i *Project) CreateAPIKey(ctx context.Context, param interfaces.CreateAPITo
 	if err != nil {
 		return nil, nil, err
 	}
+
+	if !op.IsMaintainingProject(p.ID()) {
+		return nil, nil, interfaces.ErrOperationDenied
+	}
+
+	// Check permission BEFORE starting transaction
+	if err := i.authorizer.CheckPermission(ctx, op, rbac.ResourceProject, param.ProjectID.String(), rbac.ActionManageAPIKeys); err != nil {
+		return nil, nil, err
+	}
+
 	return Run2(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(p.Workspace()).Transaction(),
 		func(ctx context.Context) (*project.Project, *project.APIKeyID, error) {
-			if !op.IsMaintainingProject(p.ID()) {
-				return nil, nil, interfaces.ErrOperationDenied
+			// Re-fetch project inside transaction to get latest version
+			p, err := i.repos.Project.FindByID(ctx, param.ProjectID)
+			if err != nil {
+				return nil, nil, err
 			}
 
 			a := p.Accessibility()
@@ -391,10 +478,22 @@ func (i *Project) UpdateAPIKey(ctx context.Context, param interfaces.UpdateAPITo
 	if err != nil {
 		return nil, err
 	}
+
+	if !op.IsMaintainingProject(p.ID()) {
+		return nil, interfaces.ErrOperationDenied
+	}
+
+	// Check permission BEFORE starting transaction
+	if err := i.authorizer.CheckPermission(ctx, op, rbac.ResourceProject, param.ProjectID.String(), rbac.ActionManageAPIKeys); err != nil {
+		return nil, err
+	}
+
 	return Run1(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(p.Workspace()).Transaction(),
 		func(ctx context.Context) (*project.Project, error) {
-			if !op.IsMaintainingProject(p.ID()) {
-				return nil, interfaces.ErrOperationDenied
+			// Re-fetch project inside transaction to get latest version
+			p, err := i.repos.Project.FindByID(ctx, param.ProjectID)
+			if err != nil {
+				return nil, err
 			}
 
 			a := p.Accessibility()
@@ -433,10 +532,22 @@ func (i *Project) DeleteAPIKey(ctx context.Context, pId id.ProjectID, kId id.API
 	if err != nil {
 		return nil, err
 	}
-	return Run1(context.Background(), nil, i.repos, Usecase().Transaction(),
+
+	if !op.IsMaintainingProject(p.ID()) {
+		return nil, interfaces.ErrOperationDenied
+	}
+
+	// Check permission BEFORE starting transaction
+	if err := i.authorizer.CheckPermission(ctx, op, rbac.ResourceProject, pId.String(), rbac.ActionManageAPIKeys); err != nil {
+		return nil, err
+	}
+
+	return Run1(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(p.Workspace()).Transaction(),
 		func(ctx context.Context) (*project.Project, error) {
-			if !op.IsMaintainingProject(p.ID()) {
-				return nil, interfaces.ErrOperationDenied
+			// Re-fetch project inside transaction to get latest version
+			p, err := i.repos.Project.FindByID(ctx, pId)
+			if err != nil {
+				return nil, err
 			}
 
 			a := p.Accessibility()
@@ -463,16 +574,28 @@ func (i *Project) RegenerateAPIKeyKey(ctx context.Context, param interfaces.Rege
 	if op.AcOperator.User == nil {
 		return nil, interfaces.ErrInvalidOperator
 	}
-	return Run1(ctx, op, i.repos, Usecase().Transaction(),
+
+	p, err := i.repos.Project.FindByID(ctx, param.ProjectId)
+	if err != nil {
+		return nil, err
+	}
+
+	// check if the user is the owner of the project
+	if !op.IsOwningProject(p.ID()) {
+		return nil, interfaces.ErrOperationDenied
+	}
+
+	// Check permission BEFORE starting transaction
+	if err := i.authorizer.CheckPermission(ctx, op, rbac.ResourceProject, param.ProjectId.String(), rbac.ActionManageAPIKeys); err != nil {
+		return nil, err
+	}
+
+	return Run1(ctx, op, i.repos, Usecase().WithMaintainableWorkspaces(p.Workspace()).Transaction(),
 		func(ctx context.Context) (*project.Project, error) {
+			// Re-fetch project inside transaction to get latest version
 			p, err := i.repos.Project.FindByID(ctx, param.ProjectId)
 			if err != nil {
 				return nil, err
-			}
-
-			// check if the user is the owner of the project
-			if !op.IsOwningProject(p.ID()) {
-				return nil, interfaces.ErrOperationDenied
 			}
 
 			if p.Accessibility().Visibility() != project.VisibilityPrivate {

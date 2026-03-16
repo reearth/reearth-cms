@@ -6,6 +6,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
+	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
 	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/rbac"
@@ -144,6 +145,68 @@ func (a *Authorizer) CanInWorkspace(
 	}
 
 	return true, nil
+}
+
+// CheckPermission is a helper that checks if operator can perform action on a resource.
+// Returns nil if allowed, ErrOperationDenied if denied, or error if check failed.
+// This method is nil-safe - it returns nil if the authorizer is not configured (e.g., in tests).
+//
+// Example:
+//
+//	if err := i.authorizer.CheckPermission(ctx, operator, rbac.ResourceModel, modelID.String(), rbac.ActionUpdate); err != nil {
+//	    return err
+//	}
+func (a *Authorizer) CheckPermission(
+	ctx context.Context,
+	operator *usecase.Operator,
+	resourceType string,
+	resourceID string,
+	action string,
+) error {
+	// Nil-safe: skip check if authorizer is not configured (e.g., in tests)
+	if a == nil {
+		return nil
+	}
+
+	allowed, err := a.Can(ctx, operator, resourceType, resourceID, action)
+	if err != nil {
+		return err
+	}
+	if !allowed {
+		return interfaces.ErrOperationDenied
+	}
+	return nil
+}
+
+// CheckPermissionInWorkspace is a helper that checks if operator can perform action on a resource type within a workspace.
+// Returns nil if allowed, ErrOperationDenied if denied, or error if check failed.
+// This method is nil-safe - it returns nil if the authorizer is not configured (e.g., in tests).
+//
+// Example:
+//
+//	if err := i.authorizer.CheckPermissionInWorkspace(ctx, operator, workspaceID, rbac.ResourceModel, rbac.ActionCreate); err != nil {
+//	    return err
+//	}
+func (a *Authorizer) CheckPermissionInWorkspace(
+	ctx context.Context,
+	operator *usecase.Operator,
+	workspaceID accountdomain.WorkspaceID,
+	resourceType string,
+	action string,
+) error {
+	// Nil-safe: skip check if authorizer is not configured (e.g., in tests)
+	if a == nil {
+		return nil
+	}
+
+	allowed, err := a.CanInWorkspace(ctx, operator, workspaceID, resourceType, action)
+	if err != nil {
+		return err
+	}
+	if !allowed {
+		return interfaces.ErrOperationDenied
+	}
+	return nil
 }
 
 // fetchResourceContext fetches workspace and attributes for a resource

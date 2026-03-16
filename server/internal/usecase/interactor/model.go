@@ -15,6 +15,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
+	"github.com/reearth/reearth-cms/server/pkg/rbac"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/task"
 	"github.com/reearth/reearthx/i18n"
@@ -26,30 +27,84 @@ import (
 )
 
 type Model struct {
-	repos    *repo.Container
-	gateways *gateway.Container
+	repos      *repo.Container
+	gateways   *gateway.Container
+	authorizer *Authorizer
 }
 
 func NewModel(r *repo.Container, g *gateway.Container) interfaces.Model {
+	var authorizer *Authorizer
+	if g != nil && g.Authorization != nil {
+		authorizer = NewAuthorizer(g.Authorization, r)
+	}
 	return &Model{
-		repos:    r,
-		gateways: g,
+		repos:      r,
+		gateways:   g,
+		authorizer: authorizer,
 	}
 }
 
-func (i Model) FindByID(ctx context.Context, id id.ModelID, _ *usecase.Operator) (*model.Model, error) {
-	return i.repos.Model.FindByID(ctx, id)
+func (i Model) FindByID(ctx context.Context, id id.ModelID, operator *usecase.Operator) (*model.Model, error) {
+	m, err := i.repos.Model.FindByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := i.authorizer.CheckPermission(ctx, operator, rbac.ResourceModel, id.String(), rbac.ActionRead); err != nil {
+		return nil, err
+	}
+
+	return m, nil
 }
 
-func (i Model) FindBySchema(ctx context.Context, id id.SchemaID, _ *usecase.Operator) (*model.Model, error) {
-	return i.repos.Model.FindBySchema(ctx, id)
+func (i Model) FindBySchema(ctx context.Context, id id.SchemaID, operator *usecase.Operator) (*model.Model, error) {
+	m, err := i.repos.Model.FindBySchema(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := i.authorizer.CheckPermission(ctx, operator, rbac.ResourceModel, m.ID().String(), rbac.ActionRead); err != nil {
+		return nil, err
+	}
+
+	return m, nil
 }
 
-func (i Model) FindByIDs(ctx context.Context, ids []id.ModelID, _ *usecase.Operator) (model.List, error) {
-	return i.repos.Model.FindByIDs(ctx, ids)
+func (i Model) FindByIDs(ctx context.Context, ids []id.ModelID, operator *usecase.Operator) (model.List, error) {
+	models, err := i.repos.Model.FindByIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	// Filter models by read permission
+	if i.authorizer != nil {
+		filtered := make(model.List, 0, len(models))
+		for _, m := range models {
+			if err := i.authorizer.CheckPermission(ctx, operator, rbac.ResourceModel, m.ID().String(), rbac.ActionRead); err == nil {
+				filtered = append(filtered, m)
+			} else if err != interfaces.ErrOperationDenied {
+				return nil, err
+			}
+		}
+		return filtered, nil
+	}
+
+	return models, nil
 }
 
-func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination, _ *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
+func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagination *usecasex.Pagination, operator *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
+	// Check list permission for workspace
+	if i.authorizer != nil {
+		proj, err := i.repos.Project.FindByID(ctx, projectID)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		if err := i.authorizer.CheckPermissionInWorkspace(ctx, operator, proj.Workspace(), rbac.ResourceModel, rbac.ActionList); err != nil {
+			return nil, nil, err
+		}
+	}
+
 	m, p, err := i.repos.Model.FindByProject(ctx, projectID, pagination)
 	if err != nil {
 		return nil, nil, err
@@ -57,7 +112,19 @@ func (i Model) FindByProject(ctx context.Context, projectID id.ProjectID, pagina
 	return m, p, nil
 }
 
-func (i Model) FindByProjectAndKeyword(ctx context.Context, params interfaces.FindByProjectAndKeywordParam, _ *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
+func (i Model) FindByProjectAndKeyword(ctx context.Context, params interfaces.FindByProjectAndKeywordParam, operator *usecase.Operator) (model.List, *usecasex.PageInfo, error) {
+	// Check list permission for workspace
+	if i.authorizer != nil {
+		proj, err := i.repos.Project.FindByID(ctx, params.ProjectID)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		if err := i.authorizer.CheckPermissionInWorkspace(ctx, operator, proj.Workspace(), rbac.ResourceModel, rbac.ActionList); err != nil {
+			return nil, nil, err
+		}
+	}
+
 	m, p, err := i.repos.Model.FindByProjectAndKeyword(ctx, params.ProjectID, params.Keyword, params.Sort, params.Pagination)
 	if err != nil {
 		return nil, nil, err
@@ -65,21 +132,50 @@ func (i Model) FindByProjectAndKeyword(ctx context.Context, params interfaces.Fi
 	return m, p, nil
 }
 
-func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, model string, _ *usecase.Operator) (*model.Model, error) {
-	return i.repos.Model.FindByKey(ctx, pid, model)
+func (i Model) FindByKey(ctx context.Context, pid id.ProjectID, model string, operator *usecase.Operator) (*model.Model, error) {
+	m, err := i.repos.Model.FindByKey(ctx, pid, model)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := i.authorizer.CheckPermission(ctx, operator, rbac.ResourceModel, m.ID().String(), rbac.ActionRead); err != nil {
+		return nil, err
+	}
+
+	return m, nil
 }
 
-func (i Model) FindByIDOrKey(ctx context.Context, p id.ProjectID, q model.IDOrKey, _ *usecase.Operator) (*model.Model, error) {
-	return i.repos.Model.FindByIDOrKey(ctx, p, q)
+func (i Model) FindByIDOrKey(ctx context.Context, p id.ProjectID, q model.IDOrKey, operator *usecase.Operator) (*model.Model, error) {
+	m, err := i.repos.Model.FindByIDOrKey(ctx, p, q)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := i.authorizer.CheckPermission(ctx, operator, rbac.ResourceModel, m.ID().String(), rbac.ActionRead); err != nil {
+		return nil, err
+	}
+
+	return m, nil
 }
 
 func (i Model) Create(ctx context.Context, param interfaces.CreateModelParam, operator *usecase.Operator) (*model.Model, error) {
+	if !operator.IsWritableProject(param.ProjectId) {
+		return nil, interfaces.ErrOperationDenied
+	}
+
+	// Fetch project to get workspace
+	p, err := i.repos.Project.FindByID(ctx, param.ProjectId)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check permission before starting transaction
+	if err := i.authorizer.CheckPermissionInWorkspace(ctx, operator, p.Workspace(), rbac.ResourceModel, rbac.ActionCreate); err != nil {
+		return nil, err
+	}
+
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ *model.Model, err error) {
-			if !operator.IsWritableProject(param.ProjectId) {
-				return nil, interfaces.ErrOperationDenied
-			}
-
 			return i.create(ctx, param)
 		})
 }
@@ -165,15 +261,26 @@ func (i Model) create(ctx context.Context, param interfaces.CreateModelParam) (*
 }
 
 func (i Model) Update(ctx context.Context, param interfaces.UpdateModelParam, operator *usecase.Operator) (*model.Model, error) {
+	m, err := i.repos.Model.FindByID(ctx, param.ModelID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !operator.IsWritableProject(m.Project()) {
+		return nil, interfaces.ErrOperationDenied
+	}
+
+	// Check permission before starting transaction
+	if err := i.authorizer.CheckPermission(ctx, operator, rbac.ResourceModel, param.ModelID.String(), rbac.ActionUpdate); err != nil {
+		return nil, err
+	}
+
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ *model.Model, err error) {
+			// Re-fetch inside transaction to get latest version
 			m, err := i.repos.Model.FindByID(ctx, param.ModelID)
 			if err != nil {
 				return nil, err
-			}
-
-			if !operator.IsWritableProject(m.Project()) {
-				return nil, interfaces.ErrOperationDenied
 			}
 
 			if param.Name != nil {
@@ -220,6 +327,11 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, sp schema.Package
 			}
 			if !operator.IsWritableProject(m.Project()) {
 				return interfaces.ErrOperationDenied
+			}
+
+			// Check permission before deleting
+			if err := i.authorizer.CheckPermission(ctx, operator, rbac.ResourceModel, modelID.String(), rbac.ActionDelete); err != nil {
+				return err
 			}
 
 			// delete all views for this model
@@ -341,6 +453,11 @@ func (i Model) FindOrCreateSchema(ctx context.Context, param interfaces.FindOrCr
 				if err != nil {
 					return nil, err
 				}
+
+				if err := i.authorizer.CheckPermission(ctx, operator, rbac.ResourceModel, param.ModelID.String(), rbac.ActionRead); err != nil {
+					return nil, err
+				}
+
 				sid = m.Schema()
 				// check if the finding a metadata schema
 				if param.Metadata != nil && *param.Metadata {
@@ -355,6 +472,10 @@ func (i Model) FindOrCreateSchema(ctx context.Context, param interfaces.FindOrCr
 						}
 						if !operator.IsWritableProject(p.ID()) {
 							return nil, interfaces.ErrOperationDenied
+						}
+
+						if err := i.authorizer.CheckPermissionInWorkspace(ctx, operator, p.Workspace(), rbac.ResourceModel, rbac.ActionCreate); err != nil {
+							return nil, err
 						}
 
 						s, err := schema.New().NewID().Workspace(p.Workspace()).Project(p.ID()).TitleField(nil).Build()
@@ -392,22 +513,30 @@ func (i Model) FindOrCreateSchema(ctx context.Context, param interfaces.FindOrCr
 }
 
 func (i Model) UpdateOrder(ctx context.Context, ids id.ModelIDList, operator *usecase.Operator) (model.List, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	models, err := i.repos.Model.FindByIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	if len(models) != len(ids) {
+		return nil, rerror.ErrNotFound
+	}
+
+	if !operator.IsWritableProject(models.Projects()...) {
+		return nil, interfaces.ErrOperationDenied
+	}
+
+	// Check update permission for each model before starting transaction
+	for _, m := range models {
+		if err := i.authorizer.CheckPermission(ctx, operator, rbac.ResourceModel, m.ID().String(), rbac.ActionUpdate); err != nil {
+			return nil, err
+		}
+	}
+
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (_ model.List, err error) {
-			if len(ids) == 0 {
-				return nil, nil
-			}
-			models, err := i.repos.Model.FindByIDs(ctx, ids)
-			if err != nil {
-				return nil, err
-			}
-			if len(models) != len(ids) {
-				return nil, rerror.ErrNotFound
-			}
-
-			if !operator.IsWritableProject(models.Projects()...) {
-				return nil, interfaces.ErrOperationDenied
-			}
 			ordered := models.OrderByIDs(ids)
 			if err := i.repos.Model.SaveAll(ctx, ordered); err != nil {
 				return nil, err
@@ -417,16 +546,22 @@ func (i Model) UpdateOrder(ctx context.Context, ids id.ModelIDList, operator *us
 }
 
 func (i Model) Copy(ctx context.Context, params interfaces.CopyModelParam, operator *usecase.Operator) (*model.Model, error) {
+	// Copy the model
+	oldModel, err := i.repos.Model.FindByID(ctx, params.ModelId)
+	if err != nil {
+		return nil, err
+	}
+	if !operator.IsWritableProject(oldModel.Project()) {
+		return nil, interfaces.ErrOperationDenied
+	}
+
+	// Check permission before starting transaction
+	if err := i.authorizer.CheckPermission(ctx, operator, rbac.ResourceModel, params.ModelId.String(), rbac.ActionRead); err != nil {
+		return nil, err
+	}
+
 	return Run1(ctx, operator, i.repos, Usecase().Transaction(),
 		func(ctx context.Context) (*model.Model, error) {
-			// Copy the model
-			oldModel, err := i.repos.Model.FindByID(ctx, params.ModelId)
-			if err != nil {
-				return nil, err
-			}
-			if !operator.IsWritableProject(oldModel.Project()) {
-				return nil, interfaces.ErrOperationDenied
-			}
 
 			name := lo.ToPtr(oldModel.Name() + " Copy")
 			if params.Name != nil {
