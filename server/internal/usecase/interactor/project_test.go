@@ -1490,3 +1490,182 @@ func TestProject_StarProject(t *testing.T) {
 		})
 	}
 }
+
+func TestProject_FindByWorkspace_Visibility(t *testing.T) {
+	t.Parallel()
+
+	wid := accountdomain.NewWorkspaceID()
+	w := workspace.New().ID(wid).MustBuild()
+
+	privateAcc := project.NewPrivateAccessibility(project.PublicationSettings{}, nil)
+	publicAcc := project.NewPublicAccessibility()
+
+	pidPub := id.NewProjectID()
+	pPub := project.New().ID(pidPub).Workspace(wid).Accessibility(publicAcc).MustBuild()
+
+	pidPriv := id.NewProjectID()
+	pPriv := project.New().ID(pidPriv).Workspace(wid).Accessibility(privateAcc).MustBuild()
+
+	u := user.New().Name("u").NewID().Email("u@test.com").Workspace(wid).MustBuild()
+
+	opWithAccess := &usecase.Operator{
+		ReadableProjects: project.IDList{pidPriv},
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(u.ID()),
+			ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
+		},
+	}
+
+	opNoAccess := &usecase.Operator{
+		ReadableProjects: project.IDList{},
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(u.ID()),
+			ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
+		},
+	}
+
+	machineOp := &usecase.Operator{
+		Machine: true,
+		AcOperator: &accountusecase.Operator{
+			ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
+		},
+	}
+
+	tests := []struct {
+		name     string
+		op       *usecase.Operator
+		wantIDs  []id.ProjectID
+		wantNIDs []id.ProjectID
+	}{
+		{
+			name:     "nil operator → public only",
+			op:       nil,
+			wantIDs:  []id.ProjectID{pidPub},
+			wantNIDs: []id.ProjectID{pidPriv},
+		},
+		{
+			name:     "machine operator → all projects",
+			op:       machineOp,
+			wantIDs:  []id.ProjectID{pidPub, pidPriv},
+			wantNIDs: nil,
+		},
+		{
+			name:     "operator with explicit access → sees private project",
+			op:       opWithAccess,
+			wantIDs:  []id.ProjectID{pidPub, pidPriv},
+			wantNIDs: nil,
+		},
+		{
+			name:     "operator without explicit access → private project hidden",
+			op:       opNoAccess,
+			wantIDs:  []id.ProjectID{pidPub},
+			wantNIDs: []id.ProjectID{pidPriv},
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			err := db.Workspace.SaveAll(ctx, workspace.List{w})
+			assert.NoError(t, err)
+			assert.NoError(t, db.Project.Save(ctx, pPub.Clone()))
+			assert.NoError(t, db.Project.Save(ctx, pPriv.Clone()))
+
+			projectUC := NewProject(db, nil)
+			got, _, err := projectUC.FindByWorkspace(ctx, wid, nil, tc.op)
+			assert.NoError(t, err)
+
+			gotIDs := make([]id.ProjectID, 0, len(got))
+			for _, p := range got {
+				gotIDs = append(gotIDs, p.ID())
+			}
+			for _, want := range tc.wantIDs {
+				assert.Contains(t, gotIDs, want)
+			}
+			for _, notWant := range tc.wantNIDs {
+				assert.NotContains(t, gotIDs, notWant)
+			}
+		})
+	}
+}
+
+func TestProject_FindByIDOrAlias_Visibility(t *testing.T) {
+	t.Parallel()
+
+	wid := accountdomain.NewWorkspaceID()
+	w := workspace.New().ID(wid).MustBuild()
+
+	privateAcc := project.NewPrivateAccessibility(project.PublicationSettings{}, nil)
+
+	pidPriv := id.NewProjectID()
+	pPriv := project.New().ID(pidPriv).Workspace(wid).Accessibility(privateAcc).MustBuild()
+
+	u := user.New().Name("u").NewID().Email("u@test.com").Workspace(wid).MustBuild()
+
+	opWithAccess := &usecase.Operator{
+		ReadableProjects: project.IDList{pidPriv},
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(u.ID()),
+			ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
+		},
+	}
+
+	opNoAccess := &usecase.Operator{
+		ReadableProjects: project.IDList{},
+		AcOperator: &accountusecase.Operator{
+			User:               lo.ToPtr(u.ID()),
+			ReadableWorkspaces: []accountdomain.WorkspaceID{wid},
+		},
+	}
+
+	tests := []struct {
+		name    string
+		op      *usecase.Operator
+		wantErr error
+	}{
+		{
+			name:    "nil operator → ErrNotFound for private project",
+			op:      nil,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:    "operator without access → ErrNotFound",
+			op:      opNoAccess,
+			wantErr: rerror.ErrNotFound,
+		},
+		{
+			name:    "operator with access → project returned",
+			op:      opWithAccess,
+			wantErr: nil,
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			db := memory.New()
+			assert.NoError(t, db.Workspace.SaveAll(ctx, workspace.List{w}))
+			assert.NoError(t, db.Project.Save(ctx, pPriv.Clone()))
+
+			projectUC := NewProject(db, nil)
+			wsAlias := workspace.IDOrAlias(wid.String())
+			pAlias := project.IDOrAlias(pidPriv.String())
+			got, err := projectUC.FindByIDOrAlias(ctx, wsAlias, pAlias, tc.op)
+			if tc.wantErr != nil {
+				assert.Equal(t, tc.wantErr, err)
+				assert.Nil(t, got)
+			} else {
+				assert.NoError(t, err)
+				assert.NotNil(t, got)
+				assert.Equal(t, pidPriv, got.ID())
+			}
+		})
+	}
+}

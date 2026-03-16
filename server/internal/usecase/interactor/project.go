@@ -34,7 +34,7 @@ func (i *Project) Fetch(ctx context.Context, ids []id.ProjectID, _ *usecase.Oper
 	return i.repos.Project.FindByIDs(ctx, ids)
 }
 
-func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.WorkspaceID, f *interfaces.ProjectFilter, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.WorkspaceID, f *interfaces.ProjectFilter, op *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
 	if f == nil {
 		f = &interfaces.ProjectFilter{}
 	}
@@ -42,10 +42,11 @@ func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.Workspa
 		f.WorkspaceIds = &accountdomain.WorkspaceIDList{}
 	}
 	f.WorkspaceIds = lo.ToPtr(append(*f.WorkspaceIds, wid))
+	applyVisibilityFilter(f, op)
 	return i.repos.Project.Search(ctx, *f)
 }
 
-func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter, op *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
 	if f == nil {
 		f = &interfaces.ProjectFilter{}
 	}
@@ -53,17 +54,53 @@ func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.Works
 		f.WorkspaceIds = &accountdomain.WorkspaceIDList{}
 	}
 	f.WorkspaceIds = lo.ToPtr(append(*f.WorkspaceIds, wIds...))
+	applyVisibilityFilter(f, op)
 	return i.repos.Project.Search(ctx, *f)
 }
 
-func (i *Project) Search(ctx context.Context, f interfaces.ProjectFilter, _ *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
+func (i *Project) Search(ctx context.Context, f interfaces.ProjectFilter, op *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
 	if f.WorkspaceIds == nil || len(*f.WorkspaceIds) == 0 {
 		f.Visibility = lo.ToPtr(project.VisibilityPublic)
+	} else {
+		applyVisibilityFilter(&f, op)
 	}
 	return i.repos.Project.Search(ctx, f)
 }
 
-func (i *Project) FindByIDOrAlias(ctx context.Context, wsIdOrAlias accountdomain.WorkspaceIDOrAlias, idOrAlias project.IDOrAlias, _ *usecase.Operator) (*project.Project, error) {
+func checkProjectVisibility(p *project.Project, op *usecase.Operator) error {
+	if p == nil {
+		return rerror.ErrNotFound
+	}
+	acc := p.Accessibility()
+	if acc == nil || acc.Visibility() != project.VisibilityPrivate {
+		return nil
+	}
+	// private project — check access
+	if op == nil {
+		return rerror.ErrNotFound
+	}
+	if op.Machine || op.IsReadableProject(p.ID()) {
+		return nil
+	}
+	return rerror.ErrNotFound
+}
+
+func applyVisibilityFilter(f *interfaces.ProjectFilter, op *usecase.Operator) {
+	if op == nil {
+		f.Visibility = lo.ToPtr(project.VisibilityPublic)
+		f.AccessibleProjectIds = nil
+		return
+	}
+	if op.Machine {
+		// machine operators bypass visibility restrictions
+		return
+	}
+	accessible := op.AllReadableProjects()
+	f.Visibility = lo.ToPtr(project.VisibilityPublic)
+	f.AccessibleProjectIds = &accessible
+}
+
+func (i *Project) FindByIDOrAlias(ctx context.Context, wsIdOrAlias accountdomain.WorkspaceIDOrAlias, idOrAlias project.IDOrAlias, op *usecase.Operator) (*project.Project, error) {
 	w, err := i.repos.Workspace.FindByIDOrAlias(ctx, wsIdOrAlias)
 	if err != nil {
 		return nil, err
@@ -72,7 +109,16 @@ func (i *Project) FindByIDOrAlias(ctx context.Context, wsIdOrAlias accountdomain
 		return nil, rerror.ErrNotFound
 	}
 
-	return i.repos.Project.FindByIDOrAlias(ctx, w.ID(), idOrAlias)
+	p, err := i.repos.Project.FindByIDOrAlias(ctx, w.ID(), idOrAlias)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := checkProjectVisibility(p, op); err != nil {
+		return nil, err
+	}
+
+	return p, nil
 }
 
 func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectParam, op *usecase.Operator) (_ *project.Project, err error) {
@@ -585,6 +631,10 @@ func (i *Project) StarProject(ctx context.Context, wsIdOrAlias accountdomain.Wor
 	}
 	if p == nil {
 		return nil, rerror.ErrNotFound
+	}
+
+	if err := checkProjectVisibility(p, op); err != nil {
+		return nil, err
 	}
 
 	return Run1(ctx, op, i.repos, Usecase().Transaction(),

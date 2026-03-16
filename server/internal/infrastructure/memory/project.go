@@ -40,13 +40,18 @@ func (r *Project) Search(_ context.Context, f interfaces.ProjectFilter) (project
 
 	// TODO: implement sort & pagination
 
-	result := project.List(r.data.FindAll(func(_ id.ProjectID, v *project.Project) bool {
+	result := project.List(r.data.FindAll(func(pid id.ProjectID, v *project.Project) bool {
+		if !f.WorkspaceIds.Has(v.Workspace()) || !r.f.CanRead(v.Workspace()) {
+			return false
+		}
 		if f.Visibility != nil {
-			if v.Accessibility().Visibility() != *f.Visibility {
+			visibilityMatch := v.Accessibility().Visibility() == *f.Visibility
+			accessibleMatch := f.AccessibleProjectIds != nil && f.AccessibleProjectIds.Has(pid)
+			if !visibilityMatch && !accessibleMatch {
 				return false
 			}
 		}
-		return f.WorkspaceIds.Has(v.Workspace()) && r.f.CanRead(v.Workspace())
+		return true
 	})).SortByID()
 
 	var startCursor, endCursor *usecasex.Cursor

@@ -91,7 +91,13 @@ func (r *ProjectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) (proj
 func (r *ProjectRepo) Search(ctx context.Context, f interfaces.ProjectFilter) (project.List, *usecasex.PageInfo, error) {
 	filter := bson.M{}
 
-	if f.Visibility != nil {
+	if f.Visibility != nil && f.AccessibleProjectIds != nil && len(*f.AccessibleProjectIds) > 0 {
+		// public projects OR private projects the operator explicitly has access to
+		filter["$or"] = bson.A{
+			bson.M{"accessibility.visibility": f.Visibility.String()},
+			bson.M{"id": bson.M{"$in": f.AccessibleProjectIds.Strings()}},
+		}
+	} else if f.Visibility != nil {
 		filter["accessibility.visibility"] = f.Visibility.String()
 	}
 

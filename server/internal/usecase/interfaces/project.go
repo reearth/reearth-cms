@@ -14,12 +14,13 @@ import (
 )
 
 type ProjectFilter struct {
-	WorkspaceIds *accountdomain.WorkspaceIDList
-	Visibility   *project.Visibility
-	Keyword      *string
-	Topics       []string
-	Sort         *usecasex.Sort
-	Pagination   *usecasex.Pagination
+	WorkspaceIds         *accountdomain.WorkspaceIDList
+	Visibility           *project.Visibility
+	AccessibleProjectIds *project.IDList
+	Keyword              *string
+	Topics               []string
+	Sort                 *usecasex.Sort
+	Pagination           *usecasex.Pagination
 }
 type CreateProjectParam struct {
 	WorkspaceID   accountdomain.WorkspaceID
