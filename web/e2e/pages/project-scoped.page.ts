@@ -141,7 +141,11 @@ export abstract class ProjectScopedPage extends BasePage {
 
     // Navigate to project settings via direct URL (resilient to sidebar state)
     if (this.projectBaseUrl) {
-      await this.gotoProjectSubPage("/settings");
+      try {
+        await this.gotoProjectSubPage("/settings");
+      } catch {
+        await this.page.goto(this.projectBaseUrl + "/settings", { timeout: 90000 });
+      }
     } else {
       await this.settingsMenuItem.click();
     }

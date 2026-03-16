@@ -302,14 +302,8 @@ test(
       await fieldEditorPage.plusNewButton.click();
 
       await expect(contentPage.mainRole).toContainText("new group1 (2)");
-      await contentPage
-        .divFilterByText(/^0text1 description$/)
-        .getByLabel(innerFieldName)
-        .click();
-      await contentPage
-        .divFilterByText(/^0text1 description$/)
-        .getByLabel(innerFieldName)
-        .fill("text1-2");
+      await contentPage.groupFieldInput(2, innerFieldName).click();
+      await contentPage.groupFieldInput(2, innerFieldName).fill("text1-2");
       await contentPage.saveButton.click();
       await contentPage.closeNotification();
       await contentPage.backButton.click();
@@ -317,12 +311,8 @@ test(
 
     await test.step("Verify multiple group values persisted", async () => {
       await contentPage.editButton.click();
-      await expect(
-        contentPage.divFilterByText(/^5text1 description$/).getByLabel(innerFieldName),
-      ).toHaveValue(innerFieldName);
-      await expect(
-        contentPage.divFilterByText(/^7text1 description$/).getByLabel(innerFieldName),
-      ).toHaveValue("text1-2");
+      await expect(contentPage.groupFieldInput(1, innerFieldName)).toHaveValue(innerFieldName);
+      await expect(contentPage.groupFieldInput(2, innerFieldName)).toHaveValue("text1-2");
       await contentPage.backButton.click();
     });
 
@@ -359,11 +349,13 @@ test(
       await schemaPage.modelByText(modelName).click();
       await contentPage.newItemButton.click();
       await fieldEditorPage.plusNewButton.click();
-      await expect(contentPage.textBoxByIndex(0)).toHaveValue(innerFieldName);
-      await expect(contentPage.textBoxByIndex(1)).toHaveValue(testValue2);
+      const panel1 = contentPage.groupPanelByOrder(1);
+      const panel2 = contentPage.groupPanelByOrder(2);
+      await expect(panel1.getByRole("textbox").nth(0)).toHaveValue(innerFieldName);
+      await expect(panel1.getByRole("textbox").nth(1)).toHaveValue(testValue2);
       await fieldEditorPage.plusNewButton.nth(1).click();
-      await expect(contentPage.textBoxByIndex(2)).toHaveValue(innerFieldName);
-      await expect(contentPage.textBoxByIndex(3)).toHaveValue(testValue2);
+      await expect(panel2.getByRole("textbox").nth(0)).toHaveValue(innerFieldName);
+      await expect(panel2.getByRole("textbox").nth(1)).toHaveValue(testValue2);
       await fieldEditorPage.arrowDownButton.nth(2).click();
       await contentPage.saveButton.click();
       await contentPage.closeNotification();
@@ -372,10 +364,12 @@ test(
 
     await test.step("Verify reordered group instance values persisted", async () => {
       await contentPage.editButton.first().click();
-      await expect(contentPage.textBoxByIndex(0)).toHaveValue(innerFieldName);
-      await expect(contentPage.textBoxByIndex(1)).toHaveValue(testValue2);
-      await expect(contentPage.textBoxByIndex(2)).toHaveValue(testValue2);
-      await expect(contentPage.textBoxByIndex(3)).toHaveValue(innerFieldName);
+      const panel1Verify = contentPage.groupPanelByOrder(1);
+      const panel2Verify = contentPage.groupPanelByOrder(2);
+      await expect(panel1Verify.getByRole("textbox").nth(0)).toHaveValue(innerFieldName);
+      await expect(panel1Verify.getByRole("textbox").nth(1)).toHaveValue(testValue2);
+      await expect(panel2Verify.getByRole("textbox").nth(0)).toHaveValue(testValue2);
+      await expect(panel2Verify.getByRole("textbox").nth(1)).toHaveValue(innerFieldName);
     });
   },
 );

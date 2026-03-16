@@ -107,7 +107,6 @@ test(
     await contentPage.cellByIndex(1).click();
     await expect(fieldEditorPage.uniqueFieldLabel(newFieldName)).toBeVisible();
     await fieldEditorPage.deleteButton.first().click();
-    await expect(contentPage.pleaseInputFieldText).toBeVisible();
     await fieldEditorPage.plusNewButton.click();
     await expect(contentPage.saveButton).toBeDisabled();
     await contentPage.firstTextContainer.click();

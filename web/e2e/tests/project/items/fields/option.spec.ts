@@ -79,7 +79,8 @@ test(
 
     await test.step("Edit item and change option to 'second'", async () => {
       await contentPage.editButton.click();
-      await contentPage.closeCircleLabel.locator("svg").click();
+      await contentPage.closeCircleLabelSvg.click();
+      await contentPage.fieldInput(fieldName).waitFor({ state: "visible" });
       await contentPage.fieldInput(fieldName).click();
       await fieldEditorPage.optionDiv(optionSecond).click();
       await expect(contentPage.rootElement.getByText(optionSecond).last()).toBeVisible();

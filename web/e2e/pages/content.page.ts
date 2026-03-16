@@ -1,10 +1,13 @@
 // e2e/pages/content.page.ts
+import z from "zod";
+
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { ProjectScopedPage } from "./project-scoped.page";
 
 export class ContentPage extends ProjectScopedPage {
+  private static readonly positiveIntSchema: z.ZodType<number> = z.int().positive();
   // Navigation
   public get contentText(): Locator {
     return this.getByText("Content");
@@ -209,6 +212,15 @@ export class ContentPage extends ProjectScopedPage {
   }
 
   // Group field related elements
+  public groupPanelByOrder(order: number): Locator {
+    return this.getByTestId(DATA_TEST_ID.GroupItem__Wrapper).nth(
+      ContentPage.positiveIntSchema.parse(order) - 1,
+    );
+  }
+  public groupFieldInput(groupOrder: number, fieldName: string): Locator {
+    return this.groupPanelByOrder(groupOrder).getByLabel(fieldName);
+  }
+
   public get mainRole(): Locator {
     return this.getByRole("main");
   }

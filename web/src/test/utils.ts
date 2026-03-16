@@ -449,6 +449,9 @@ export enum DATA_TEST_ID {
   // IntegrationSettingsModal
   IntegrationSettingsModal__RoleSelect = "IntegrationSettingsModal__RoleSelect",
 
+  // GroupItem
+  GroupItem__Wrapper = "GroupItem__Wrapper",
+
   // ProjectCard
   ProjectCard__Wrapper = "ProjectCard__Wrapper",
 }
