@@ -200,7 +200,9 @@ export class ProjectPage extends BasePage {
   // ========== Action Methods (POM Pattern) ==========
 
   async createProject(name: string): Promise<void> {
-    await this.getByRole("button", { name: "plus New Project" }).first().click();
+    const newProjectButton = this.getByRole("button", { name: "plus New Project" }).first();
+    await expect(newProjectButton).toBeVisible();
+    await newProjectButton.click();
     await this.getByRole("dialog").locator("#name").fill(name);
     await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
@@ -257,6 +259,7 @@ export class ProjectPage extends BasePage {
       }
     }
 
+    await expect(this.getByText("Settings").first()).toBeVisible();
     await this.getByText("Settings").first().click();
     await this.deleteProjectButton.click();
     await this.confirmDeleteProjectButton.click();
