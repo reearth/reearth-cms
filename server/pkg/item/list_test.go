@@ -493,7 +493,7 @@ func TestList_RefItemIDs(t *testing.T) {
 		{
 			name:     "empty list",
 			list:     List{},
-			expected: nil,
+			expected: IDList{},
 		},
 		{
 			name: "items with no reference fields",
@@ -502,7 +502,7 @@ func TestList_RefItemIDs(t *testing.T) {
 					NewField(textFieldID, value.TypeText.Value("test").AsMultiple(), nil),
 				}).MustBuild(),
 			},
-			expected: nil,
+			expected: IDList{},
 		},
 		{
 			name: "single item with single reference",
@@ -656,7 +656,7 @@ func TestList_RefItemIDsByModels(t *testing.T) {
 				}).MustBuild(),
 			},
 			models:   id.ModelIDList{allowedModelID},
-			expected: nil,
+			expected: IDList{},
 		},
 		{
 			name: "multiple items with refs deduplicated",

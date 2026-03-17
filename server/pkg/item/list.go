@@ -3,7 +3,6 @@ package item
 import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/samber/lo"
 )
@@ -69,22 +68,12 @@ func (l List) RefItemIDs(sp schema.Package) IDList {
 	if l == nil {
 		return nil
 	}
-	var refIDs IDList
-	seen := make(map[ID]bool)
 
-	for _, itm := range l {
-		if itm == nil {
-			continue
-		}
-		for _, refID := range itm.RefItemIDsBySchema(sp) {
-			if !seen[refID] {
-				refIDs = append(refIDs, refID)
-				seen[refID] = true
-			}
-		}
-	}
+	refIDs := lo.FlatMap(l, func(i *Item, _ int) []ID {
+		return i.RefItemIDs(sp)
+	})
 
-	return refIDs
+	return lo.Uniq(refIDs)
 }
 
 // RefItemIDsByModels collects unique reference field item IDs from the list,
@@ -94,56 +83,11 @@ func (l List) RefItemIDsByModels(sp schema.Package, models id.ModelIDList) IDLis
 		return nil
 	}
 
-	allowedModels := lo.SliceToMap(models, func(mid id.ModelID) (id.ModelID, bool) {
-		return mid, true
+	refIDs := lo.FlatMap(l, func(i *Item, _ int) []ID {
+		return i.RefItemIDsByModels(sp, models)
 	})
 
-	// Filter reference fields to only those pointing to allowed models
-	allowedFields := lo.Filter(sp.FieldsByType(value.TypeReference), func(f *schema.Field, _ int) bool {
-		var modelID id.ModelID
-		f.TypeProperty().Match(schema.TypePropertyMatch{
-			Reference: func(rf *schema.FieldReference) {
-				modelID = rf.Model()
-			},
-		})
-		return allowedModels[modelID]
-	})
-
-	if len(allowedFields) == 0 {
-		return nil
-	}
-
-	// Collect unique ref item IDs, restricted to the filtered fields
-	var refIDs IDList
-	seen := make(map[ID]bool)
-	for _, itm := range l {
-		if itm == nil {
-			continue
-		}
-		ids := lo.FlatMap(itm.Fields().Filter(allowedFields.IDs()), func(f *Field, _ int) []*value.Value {
-			sf := allowedFields.Find(f.FieldID())
-			if sf == nil {
-				return nil
-			}
-			if sf.Multiple() {
-				return f.Value().Values()
-			}
-			if v := f.Value().First(); v != nil {
-				return []*value.Value{v}
-			}
-			return nil
-		})
-		for _, v := range ids {
-			if refID, ok := v.Value().(ID); ok {
-				if !seen[refID] {
-					refIDs = append(refIDs, refID)
-					seen[refID] = true
-				}
-			}
-		}
-	}
-
-	return refIDs
+	return lo.Uniq(refIDs)
 }
 
 func (l List) ToMap() map[ID]*Item {
