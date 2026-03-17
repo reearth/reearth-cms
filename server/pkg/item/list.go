@@ -113,8 +113,7 @@ func (l List) RefItemIDsByModels(sp schema.Package, models id.ModelIDList) IDLis
 		return nil
 	}
 
-	// Build a temporary package-like schema with only the allowed fields
-	// by reusing RefItemIDsBySchema logic inline
+	// Collect unique ref item IDs, restricted to the filtered fields
 	var refIDs IDList
 	seen := make(map[ID]bool)
 	for _, itm := range l {
