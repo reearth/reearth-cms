@@ -83,7 +83,7 @@ func ItemMigration(ctx context.Context, dbURL, dbName string, wetRun bool) error
 	return nil
 }
 
-func updateItem(item ItemDocument) (ItemDocument, error) {
+func updateItem(item ItemDocument) (*ItemDocument, error) {
 	updatedItem := ItemDocument{}
 	var assets []string
 	for _, f := range item.Fields {
@@ -136,5 +136,5 @@ func updateItem(item ItemDocument) (ItemDocument, error) {
 		updatedItem.Assets = lo.Uniq(assets)
 	}
 
-	return updatedItem, nil
+	return &updatedItem, nil
 }
