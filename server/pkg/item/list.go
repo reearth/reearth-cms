@@ -120,7 +120,7 @@ func (l List) RefItemIDsByModels(sp schema.Package, models id.ModelIDList) IDLis
 		if itm == nil {
 			continue
 		}
-		for _, refID := range itm.RefItemIDsByFields(allowedFields) {
+		for _, refID := range collectRefItemIDs(itm, allowedFields) {
 			if !seen[refID] {
 				refIDs = append(refIDs, refID)
 				seen[refID] = true
@@ -175,10 +175,10 @@ func (l VersionedList) Item(iid ID) Versioned {
 	return nil
 }
 
-func (l VersionedList) AssetIDs() AssetIDList {
+func (l VersionedList) AssetIDs(sp schema.Package) AssetIDList {
 	var ids AssetIDList
 	for _, v := range l {
-		ids = ids.AddUniq(v.Value().AssetIDs()...)
+		ids = ids.AddUniq(v.Value().AssetIDsBySchema(sp)...)
 	}
 	return ids
 }

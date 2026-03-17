@@ -312,7 +312,6 @@ func TestItem_RefItemIDsByFields(t *testing.T) {
 
 	refID1 := id.NewItemID()
 	refID2 := id.NewItemID()
-	refID3 := id.NewItemID()
 
 	wid := accountdomain.NewWorkspaceID()
 	pid := id.NewProjectID()
@@ -325,24 +324,29 @@ func TestItem_RefItemIDsByFields(t *testing.T) {
 		ID(refFieldID).Key(id.RandomKey()).Multiple(true).MustBuild()
 	otherRefField := schema.NewField(schema.NewReference(id.NewModelID(), id.NewSchemaID(), nil, nil).TypeProperty()).
 		ID(otherRefFieldID).Key(id.RandomKey()).MustBuild()
-	_ = schema.New().NewID().Workspace(wid).Project(pid).Fields([]*schema.Field{refField, otherRefField}).MustBuild()
+	textField := schema.NewField(schema.NewText(nil).TypeProperty()).
+		ID(textFieldID).Key(id.RandomKey()).MustBuild()
+
+	pkgRefOnly := *schema.NewPackage(schema.New().NewID().Workspace(wid).Project(pid).Fields([]*schema.Field{refField}).MustBuild(), nil, nil, nil)
+	pkgBothRefs := *schema.NewPackage(schema.New().NewID().Workspace(wid).Project(pid).Fields([]*schema.Field{refField, otherRefField}).MustBuild(), nil, nil, nil)
+	pkgNoRefs := *schema.NewPackage(schema.New().NewID().Workspace(wid).Project(pid).Fields([]*schema.Field{textField}).MustBuild(), nil, nil, nil)
 
 	tests := []struct {
 		name     string
 		item     *Item
-		fields   schema.FieldList
+		pkg      schema.Package
 		expected IDList
 	}{
 		{
-			name:     "empty field list returns nil",
+			name:     "schema with no reference fields returns nil",
 			item:     &Item{fields: []*Field{{field: refFieldID, value: value.TypeReference.Value(refID1).AsMultiple()}}},
-			fields:   schema.FieldList{},
+			pkg:      pkgNoRefs,
 			expected: nil,
 		},
 		{
 			name:     "item has no matching fields",
 			item:     &Item{fields: []*Field{{field: textFieldID, value: value.TypeText.Value("test").AsMultiple()}}},
-			fields:   schema.FieldList{refField},
+			pkg:      pkgRefOnly,
 			expected: IDList{},
 		},
 		{
@@ -350,33 +354,33 @@ func TestItem_RefItemIDsByFields(t *testing.T) {
 			item: &Item{fields: []*Field{
 				{field: refFieldID, value: value.TypeReference.Value(refID1).AsMultiple()},
 			}},
-			fields:   schema.FieldList{refField},
+			pkg:      pkgRefOnly,
 			expected: IDList{refID1},
 		},
 		{
-			name: "multiple reference field multiple values",
+			name: "multiple values in reference field",
 			item: &Item{fields: []*Field{
 				{field: refFieldID, value: value.NewMultiple(value.TypeReference, []any{refID1, refID2})},
 			}},
-			fields:   schema.FieldList{refField},
+			pkg:      pkgRefOnly,
 			expected: IDList{refID1, refID2},
 		},
 		{
-			name: "only fields in provided list are collected",
+			name: "only schema reference fields are collected",
 			item: &Item{fields: []*Field{
 				{field: refFieldID, value: value.TypeReference.Value(refID1).AsMultiple()},
 				{field: otherRefFieldID, value: value.TypeReference.Value(refID2).AsMultiple()},
 			}},
-			fields:   schema.FieldList{refField},
+			pkg:      pkgRefOnly,
 			expected: IDList{refID1},
 		},
 		{
-			name: "both fields collected when both provided",
+			name: "both reference fields collected when both in schema",
 			item: &Item{fields: []*Field{
 				{field: refFieldID, value: value.TypeReference.Value(refID1).AsMultiple()},
 				{field: otherRefFieldID, value: value.TypeReference.Value(refID2).AsMultiple()},
 			}},
-			fields:   schema.FieldList{refField, otherRefField},
+			pkg:      pkgBothRefs,
 			expected: IDList{refID1, refID2},
 		},
 		{
@@ -384,8 +388,8 @@ func TestItem_RefItemIDsByFields(t *testing.T) {
 			item: &Item{fields: []*Field{
 				{field: refFieldID, value: value.TypeText.Value("not-a-ref").AsMultiple()},
 			}},
-			fields:   schema.FieldList{refField},
-			expected: IDList{refID3}[:0],
+			pkg:      pkgRefOnly,
+			expected: IDList{},
 		},
 	}
 
@@ -394,7 +398,7 @@ func TestItem_RefItemIDsByFields(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := tt.item.RefItemIDsByFields(tt.fields)
+			got := tt.item.RefItemIDsByFields(tt.pkg)
 			assert.ElementsMatch(t, tt.expected, got)
 		})
 	}

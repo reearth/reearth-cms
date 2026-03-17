@@ -721,6 +721,11 @@ func TestVersionedList_AssetIDs(t *testing.T) {
 	aid1, aid2, aid3 := id.NewAssetID(), id.NewAssetID(), id.NewAssetID()
 	assetFieldID := id.NewFieldID()
 
+	assetField := schema.NewField(schema.NewAsset().TypeProperty()).ID(assetFieldID).Key(id.RandomKey()).Multiple(true).MustBuild()
+	s := schema.New().NewID().Workspace(accountdomain.NewWorkspaceID()).Project(id.NewProjectID()).
+		Fields([]*schema.Field{assetField}).MustBuild()
+	sp := *schema.NewPackage(s, nil, nil, nil)
+
 	newVersioned := func(i *Item) Versioned {
 		return version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i)
 	}
@@ -792,7 +797,7 @@ func TestVersionedList_AssetIDs(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := tt.list.AssetIDs()
+			got := tt.list.AssetIDs(sp)
 
 			if tt.expected == nil {
 				assert.Nil(t, got)

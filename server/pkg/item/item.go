@@ -244,10 +244,15 @@ func (i *Item) AssetIDsBySchema(sp schema.Package) AssetIDList {
 }
 
 func (i *Item) RefItemIDsBySchema(sp schema.Package) IDList {
-	return i.RefItemIDsByFields(sp.FieldsByType(value.TypeReference))
+	return i.RefItemIDsByFields(sp)
 }
 
-func (i *Item) RefItemIDsByFields(sRefFields schema.FieldList) IDList {
+func (i *Item) RefItemIDsByFields(sp schema.Package) IDList {
+	return collectRefItemIDs(i, sp.FieldsByType(value.TypeReference))
+}
+
+// collectRefItemIDs extracts referenced item IDs from the given reference fields.
+func collectRefItemIDs(i *Item, sRefFields schema.FieldList) IDList {
 	if len(sRefFields) == 0 {
 		return nil
 	}

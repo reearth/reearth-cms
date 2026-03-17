@@ -122,7 +122,16 @@ func getReferencedItems(ctx context.Context, i *item.Item, sp *schema.Package, p
 	// Step 3: Batch load all assets if needed
 	var assetsMap asset.Map
 	if prp {
-		if allAssetIDs := referencedItems.AssetIDs(); len(allAssetIDs) > 0 {
+		var allAssetIDs asset.IDList
+		for _, ii := range referencedItems {
+			refSchema := sp.SchemaByModel(ii.Value().Model())
+			if refSchema == nil {
+				continue
+			}
+			refPkg := schema.NewPackage(refSchema, nil, nil, nil)
+			allAssetIDs = allAssetIDs.AddUniq(ii.Value().AssetIDsBySchema(*refPkg)...)
+		}
+		if len(allAssetIDs) > 0 {
 			assets, err := uc.Asset.FindByIDs(ctx, allAssetIDs, nil)
 			if err == nil {
 				assetsMap = assets.Map()
