@@ -18,16 +18,16 @@ export async function closeNotification(page: Page, isSuccess = true) {
 
     if (result === "error") {
       const message = await errorNotice.textContent().catch(() => "unknown error");
-      // Close the error notification before throwing
-      await errorNotice.locator(".ant-notification-notice-close").click().catch(() => {});
+      // Close the error notification before throwing — use dispatchEvent to bypass viewport/interception checks
+      await errorNotice.locator(".ant-notification-notice-close").dispatchEvent("click").catch(() => {});
       throw new Error(`Expected success notification but got error: ${message}`);
     }
 
-    await successNotice.locator(".ant-notification-notice-close").click();
+    await successNotice.locator(".ant-notification-notice-close").dispatchEvent("click");
     await successNotice.waitFor({ state: "detached", timeout: 10_000 });
   } else {
     await expect(errorNotice).toBeVisible({ timeout: 30_000 });
-    await errorNotice.locator(".ant-notification-notice-close").click();
+    await errorNotice.locator(".ant-notification-notice-close").dispatchEvent("click");
     await errorNotice.waitFor({ state: "detached", timeout: 10_000 });
   }
 }
