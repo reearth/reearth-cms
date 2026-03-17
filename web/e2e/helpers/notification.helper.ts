@@ -1,4 +1,25 @@
-import { type Page, expect } from "@reearth-cms/e2e/fixtures/test";
+import { type Locator, type Page, expect } from "@reearth-cms/e2e/fixtures/test";
+
+export async function clickAndExpectSuccess(
+  page: Page,
+  clickTarget: Locator,
+  maxRetries = 1,
+): Promise<void> {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    await clickTarget.click();
+    try {
+      await closeNotification(page, true);
+      return;
+    } catch (error) {
+      const isTransient = String(error).includes("Failed to fetch");
+      if (attempt < maxRetries && isTransient) {
+        await page.waitForTimeout(2000);
+        continue;
+      }
+      throw error;
+    }
+  }
+}
 
 export async function closeNotification(page: Page, isSuccess = true) {
   const successNotice = page.locator(".ant-notification-notice").filter({

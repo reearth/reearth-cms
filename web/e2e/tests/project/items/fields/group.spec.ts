@@ -40,8 +40,7 @@ test("@focus Group field creating and updating has succeeded", async ({
     await fieldEditorPage.settingsKeyInput.fill("text1");
     await fieldEditorPage.settingsDescriptionInput.click();
     await fieldEditorPage.settingsDescriptionInput.fill("text1 description");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await expect(schemaPage.groupNameByText("text1#text1")).toBeVisible();
     await page.waitForTimeout(300);
   });
@@ -63,8 +62,7 @@ test("@focus Group field creating and updating has succeeded", async ({
     await expect(fieldEditorPage.setFieldAsUniqueLabel.locator("span").nth(1)).toBeDisabled();
     await fieldEditorPage.defaultValueTab.click();
     await expect(fieldEditorPage.setDefaultValueInput).toBeDisabled();
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("group1#group1");
     await page.waitForTimeout(300);
   });
@@ -77,8 +75,7 @@ test("@focus Group field creating and updating has succeeded", async ({
 
     await contentPage.fieldInput("text1").click();
     await contentPage.fieldInput("text1").fill("text1");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await contentPage.backButton.click();
     // TO DO: check if the group field shows correctly
     await page.waitForTimeout(300);
@@ -89,8 +86,7 @@ test("@focus Group field creating and updating has succeeded", async ({
     await expect(contentPage.fieldInput("text1")).toHaveValue("text1");
     await contentPage.fieldInput("text1").click();
     await contentPage.fieldInput("text1").fill("new text1");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await page.waitForTimeout(300);
   });
 
@@ -119,8 +115,7 @@ test("@focus Group field creating and updating has succeeded", async ({
     await expect(fieldEditorPage.okButton).toBeDisabled();
     await fieldEditorPage.setDefaultValueInput.click();
     await fieldEditorPage.setDefaultValueInput.fill("text1");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -135,8 +130,7 @@ test("@focus Group field creating and updating has succeeded", async ({
     await expect(contentPage.saveButton).toBeDisabled();
     await contentPage.textBoxes.click();
     await contentPage.textBoxes.fill("text1");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await contentPage.backButton.click();
     await expect(contentPage.editButton).toBeVisible();
   });
@@ -163,8 +157,7 @@ test("@focus Group field creating and updating has succeeded", async ({
       .getByRole("textbox")
       .fill("text2");
     await fieldEditorPage.plusNewButton.click();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await contentPage.backButton.click();
     await expect(contentPage.editButton.first()).toBeVisible();
     await contentPage.editButton.first().click();
@@ -172,8 +165,7 @@ test("@focus Group field creating and updating has succeeded", async ({
     await expect(contentPage.textBoxByIndex(0)).toHaveValue("text1");
     await expect(contentPage.textBoxByIndex(1)).toHaveValue("text2");
     await fieldEditorPage.arrowDownButton.first().click();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await contentPage.backButton.click();
     await expect(contentPage.editButton.first()).toBeVisible();
   });
@@ -210,8 +202,7 @@ test("@focus Group field editing has succeeded", async ({
     await fieldEditorPage.settingsKeyInput.fill("text1");
     await fieldEditorPage.settingsDescriptionInput.click();
     await fieldEditorPage.settingsDescriptionInput.fill("text1 description");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await expect(schemaPage.groupNameByText("text1#text1")).toBeVisible();
     await page.waitForTimeout(300);
   });
@@ -243,8 +234,7 @@ test("@focus Group field editing has succeeded", async ({
     await fieldEditorPage.defaultValueTab.click();
     await expect(fieldEditorPage.setDefaultValueInput).toBeDisabled();
     await expect(fieldEditorPage.okButton).toBeVisible();
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await expect(schemaPage.fieldsContainer.getByRole("paragraph")).toContainText("group1#group1");
     await expect(contentPage.contentText).toBeVisible();
     await contentPage.contentText.click();
@@ -260,8 +250,7 @@ test("@focus Group field editing has succeeded", async ({
     await contentPage.fieldInput("text1").click();
     await contentPage.fieldInput("text1").fill("text1");
     await expect(contentPage.saveButton).toBeVisible();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await page.waitForTimeout(300);
   });
 
@@ -283,8 +272,7 @@ test("@focus Group field editing has succeeded", async ({
     await fieldEditorPage.supportMultipleValuesCheckbox.check();
     await expect(fieldEditorPage.useAsTitleCheckbox).toBeHidden();
     await expect(fieldEditorPage.okButton).toBeVisible();
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -312,8 +300,7 @@ test("@focus Group field editing has succeeded", async ({
       .divFilterByText(/^0text1 description$/)
       .getByLabel("text1")
       .fill("text1-2");
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await contentPage.backButton.click();
     await page.waitForTimeout(300);
   });
@@ -342,8 +329,7 @@ test("@focus Group field editing has succeeded", async ({
     await contentPage.fieldInput("text1").click();
     await contentPage.fieldInput("text1").fill("text1");
     await expect(contentPage.saveButton).toBeEnabled();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.backButton).toBeVisible();
     await contentPage.backButton.click();
     await expect(contentPage.editButton.first()).toBeVisible();
@@ -365,8 +351,7 @@ test("@focus Group field editing has succeeded", async ({
     await fieldEditorPage.plusNewButton.click();
     await fieldEditorPage.defaultValueInput.nth(1).click();
     await fieldEditorPage.defaultValueInput.nth(1).fill("text2");
-    await fieldEditorPage.okButton.click();
-    await contentPage.closeNotification();
+    await fieldEditorPage.clickAndExpectSuccess(fieldEditorPage.okButton);
     await page.waitForTimeout(300);
   });
 
@@ -389,8 +374,7 @@ test("@focus Group field editing has succeeded", async ({
     await expect(contentPage.textBoxByIndex(3)).toHaveValue("text2");
     await fieldEditorPage.arrowDownButton.nth(3).click();
     await expect(contentPage.saveButton).toBeEnabled();
-    await contentPage.saveButton.click();
-    await contentPage.closeNotification();
+    await contentPage.clickAndExpectSuccess(contentPage.saveButton);
     await expect(contentPage.backButton).toBeVisible();
     await contentPage.backButton.click();
     await page.waitForTimeout(300);
