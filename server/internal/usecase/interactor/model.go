@@ -269,26 +269,23 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, sp schema.Package
 }
 
 func (i Model) removeReferenceFieldsPointingToSchema(ctx context.Context, m *model.Model) error {
-	deletedSchemaID := m.Schema()
-
-	siblings, _, err := i.repos.Model.FindByProject(ctx, m.Project(), usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
+	models, _, err := i.repos.Model.FindByProject(ctx, m.Project(), usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
 	if err != nil {
 		return err
 	}
 
-	// Only collect main schema IDs — metadata schemas never hold reference fields.
-	var siblingSchemaIDs id.SchemaIDList
-	for _, sib := range siblings {
-		if sib.ID() == m.ID() {
+	var schemaIDs id.SchemaIDList
+	for _, mm := range models {
+		if mm.ID() == m.ID() {
 			continue
 		}
-		siblingSchemaIDs = append(siblingSchemaIDs, sib.Schema())
+		schemaIDs = append(schemaIDs, mm.Schema())
 	}
-	if len(siblingSchemaIDs) == 0 {
+	if len(schemaIDs) == 0 {
 		return nil
 	}
 
-	schemas, err := i.repos.Schema.FindByIDs(ctx, siblingSchemaIDs)
+	schemas, err := i.repos.Schema.FindByIDs(ctx, schemaIDs)
 	if err != nil {
 		return err
 	}
@@ -297,19 +294,15 @@ func (i Model) removeReferenceFieldsPointingToSchema(ctx context.Context, m *mod
 		if s == nil {
 			continue
 		}
-		var toRemove id.FieldIDList
+		before := s.Fields().Count()
 		for _, f := range s.FieldsByType(value.TypeReference) {
 			fr, ok := schema.FieldReferenceFromTypeProperty(f.TypeProperty())
-			if !ok || fr.Schema() != deletedSchemaID {
-				continue
+			if ok && fr.Schema() == m.Schema() {
+				s.RemoveField(f.ID())
 			}
-			toRemove = append(toRemove, f.ID())
 		}
-		if len(toRemove) == 0 {
+		if s.Fields().Count() == before {
 			continue
-		}
-		for _, fid := range toRemove {
-			s.RemoveField(fid)
 		}
 		if err := i.repos.Schema.Save(ctx, s); err != nil {
 			return err
