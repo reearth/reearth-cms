@@ -1,7 +1,9 @@
 package item
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/samber/lo"
 )
@@ -85,6 +87,51 @@ func (l List) RefItemIDs(sp schema.Package) IDList {
 	return refIDs
 }
 
+// RefItemIDsByModels collects unique reference field item IDs from the list,
+// filtered to only include references pointing to models in the provided list.
+func (l List) RefItemIDsByModels(sp schema.Package, models id.ModelIDList) IDList {
+	if l == nil || len(models) == 0 {
+		return nil
+	}
+
+	allowedModels := lo.SliceToMap(models, func(mid id.ModelID) (id.ModelID, bool) {
+		return mid, true
+	})
+
+	// Filter reference fields to only those pointing to allowed models
+	allowedFields := lo.Filter(sp.FieldsByType(value.TypeReference), func(f *schema.Field, _ int) bool {
+		var modelID id.ModelID
+		f.TypeProperty().Match(schema.TypePropertyMatch{
+			Reference: func(rf *schema.FieldReference) {
+				modelID = rf.Model()
+			},
+		})
+		return allowedModels[modelID]
+	})
+
+	if len(allowedFields) == 0 {
+		return nil
+	}
+
+	// Build a temporary package-like schema with only the allowed fields
+	// by reusing RefItemIDsBySchema logic inline
+	var refIDs IDList
+	seen := make(map[ID]bool)
+	for _, itm := range l {
+		if itm == nil {
+			continue
+		}
+		for _, refID := range itm.RefItemIDsByFields(allowedFields) {
+			if !seen[refID] {
+				refIDs = append(refIDs, refID)
+				seen[refID] = true
+			}
+		}
+	}
+
+	return refIDs
+}
+
 func (l List) ToMap() map[ID]*Item {
 	m := make(map[ID]*Item, len(l))
 	for _, i := range l {
@@ -127,6 +174,14 @@ func (l VersionedList) Item(iid ID) Versioned {
 		}
 	}
 	return nil
+}
+
+func (l VersionedList) AssetIDs() AssetIDList {
+	var ids AssetIDList
+	for _, v := range l {
+		ids = ids.AddUniq(v.Value().AssetIDs()...)
+	}
+	return ids
 }
 
 func (l VersionedList) ToMap() map[ID]*version.Value[*Item] {

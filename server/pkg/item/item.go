@@ -244,7 +244,10 @@ func (i *Item) AssetIDsBySchema(sp schema.Package) AssetIDList {
 }
 
 func (i *Item) RefItemIDsBySchema(sp schema.Package) IDList {
-	sRefFields := sp.FieldsByType(value.TypeReference)
+	return i.RefItemIDsByFields(sp.FieldsByType(value.TypeReference))
+}
+
+func (i *Item) RefItemIDsByFields(sRefFields schema.FieldList) IDList {
 	if len(sRefFields) == 0 {
 		return nil
 	}

@@ -592,3 +592,213 @@ func TestList_RefItemIDs(t *testing.T) {
 		})
 	}
 }
+
+func TestList_RefItemIDsByModels(t *testing.T) {
+	t.Parallel()
+
+	refID1 := id.NewItemID()
+	refID2 := id.NewItemID()
+	refID3 := id.NewItemID()
+
+	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+	sid := id.NewSchemaID()
+	mid := id.NewModelID()
+
+	// Two reference fields pointing to different models
+	allowedModelID := id.NewModelID()
+	otherModelID := id.NewModelID()
+	allowedRefFieldID := id.NewFieldID()
+	otherRefFieldID := id.NewFieldID()
+
+	allowedRefField := schema.NewField(schema.NewReference(allowedModelID, id.NewSchemaID(), nil, nil).TypeProperty()).
+		ID(allowedRefFieldID).Key(id.RandomKey()).Multiple(true).MustBuild()
+	otherRefField := schema.NewField(schema.NewReference(otherModelID, id.NewSchemaID(), nil, nil).TypeProperty()).
+		ID(otherRefFieldID).Key(id.RandomKey()).Multiple(true).MustBuild()
+
+	s := schema.New().ID(sid).Workspace(wid).Project(pid).Fields([]*schema.Field{allowedRefField, otherRefField}).MustBuild()
+	sp := *schema.NewPackage(s, nil, nil, nil)
+
+	tests := []struct {
+		name     string
+		list     List
+		models   id.ModelIDList
+		expected IDList
+	}{
+		{
+			name:     "nil list",
+			list:     nil,
+			models:   id.ModelIDList{allowedModelID},
+			expected: nil,
+		},
+		{
+			name:     "empty models list",
+			list:     List{New().NewID().Schema(sid).Model(mid).Project(pid).MustBuild()},
+			models:   id.ModelIDList{},
+			expected: nil,
+		},
+		{
+			name: "returns only refs from allowed model",
+			list: List{
+				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
+					NewField(allowedRefFieldID, value.TypeReference.Value(refID1).AsMultiple(), nil),
+					NewField(otherRefFieldID, value.TypeReference.Value(refID2).AsMultiple(), nil),
+				}).MustBuild(),
+			},
+			models:   id.ModelIDList{allowedModelID},
+			expected: IDList{refID1},
+		},
+		{
+			name: "no refs match allowed models",
+			list: List{
+				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
+					NewField(otherRefFieldID, value.TypeReference.Value(refID1).AsMultiple(), nil),
+				}).MustBuild(),
+			},
+			models:   id.ModelIDList{allowedModelID},
+			expected: nil,
+		},
+		{
+			name: "multiple items with refs deduplicated",
+			list: List{
+				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
+					NewField(allowedRefFieldID, value.TypeReference.Value(refID1).AsMultiple(), nil),
+				}).MustBuild(),
+				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
+					NewField(allowedRefFieldID, value.TypeReference.Value(refID1).AsMultiple(), nil),
+				}).MustBuild(),
+				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
+					NewField(allowedRefFieldID, value.TypeReference.Value(refID2).AsMultiple(), nil),
+				}).MustBuild(),
+			},
+			models:   id.ModelIDList{allowedModelID},
+			expected: IDList{refID1, refID2},
+		},
+		{
+			name: "multiple allowed models",
+			list: List{
+				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
+					NewField(allowedRefFieldID, value.TypeReference.Value(refID1).AsMultiple(), nil),
+					NewField(otherRefFieldID, value.TypeReference.Value(refID2).AsMultiple(), nil),
+				}).MustBuild(),
+			},
+			models:   id.ModelIDList{allowedModelID, otherModelID},
+			expected: IDList{refID1, refID2},
+		},
+		{
+			name: "multiple items mixed refs across models",
+			list: List{
+				New().NewID().Schema(sid).Model(mid).Project(pid).Fields([]*Field{
+					NewField(allowedRefFieldID, value.NewMultiple(value.TypeReference, []any{refID1, refID2}), nil),
+					NewField(otherRefFieldID, value.TypeReference.Value(refID3).AsMultiple(), nil),
+				}).MustBuild(),
+			},
+			models:   id.ModelIDList{allowedModelID},
+			expected: IDList{refID1, refID2},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := tt.list.RefItemIDsByModels(sp, tt.models)
+
+			if tt.expected == nil {
+				assert.Nil(t, got)
+			} else {
+				assert.ElementsMatch(t, tt.expected, got)
+			}
+		})
+	}
+}
+
+func TestVersionedList_AssetIDs(t *testing.T) {
+	t.Parallel()
+
+	now := time.Now()
+	aid1, aid2, aid3 := id.NewAssetID(), id.NewAssetID(), id.NewAssetID()
+	assetFieldID := id.NewFieldID()
+
+	newVersioned := func(i *Item) Versioned {
+		return version.MustBeValue(version.New(), nil, version.NewRefs(version.Latest), now, i)
+	}
+	newItem := func(aids ...id.AssetID) *Item {
+		vals := make([]any, len(aids))
+		for i, a := range aids {
+			vals[i] = a
+		}
+		return New().NewID().Schema(id.NewSchemaID()).Model(id.NewModelID()).Project(id.NewProjectID()).
+			Thread(id.NewThreadID().Ref()).
+			Fields([]*Field{NewField(assetFieldID, value.NewMultiple(value.TypeAsset, vals), nil)}).
+			MustBuild()
+	}
+
+	tests := []struct {
+		name     string
+		list     VersionedList
+		expected AssetIDList
+	}{
+		{
+			name:     "nil list",
+			list:     nil,
+			expected: nil,
+		},
+		{
+			name:     "empty list",
+			list:     VersionedList{},
+			expected: nil,
+		},
+		{
+			name:     "single item single asset",
+			list:     VersionedList{newVersioned(newItem(aid1))},
+			expected: AssetIDList{aid1},
+		},
+		{
+			name:     "single item multiple assets",
+			list:     VersionedList{newVersioned(newItem(aid1, aid2))},
+			expected: AssetIDList{aid1, aid2},
+		},
+		{
+			name: "multiple items unique assets",
+			list: VersionedList{
+				newVersioned(newItem(aid1)),
+				newVersioned(newItem(aid2)),
+			},
+			expected: AssetIDList{aid1, aid2},
+		},
+		{
+			name: "multiple items with duplicates deduplicated",
+			list: VersionedList{
+				newVersioned(newItem(aid1)),
+				newVersioned(newItem(aid1)),
+				newVersioned(newItem(aid2)),
+			},
+			expected: AssetIDList{aid1, aid2},
+		},
+		{
+			name: "multiple items all assets",
+			list: VersionedList{
+				newVersioned(newItem(aid1, aid2)),
+				newVersioned(newItem(aid2, aid3)),
+			},
+			expected: AssetIDList{aid1, aid2, aid3},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := tt.list.AssetIDs()
+
+			if tt.expected == nil {
+				assert.Nil(t, got)
+			} else {
+				assert.ElementsMatch(t, tt.expected, got)
+			}
+		})
+	}
+}

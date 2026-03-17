@@ -91,10 +91,14 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 			break
 		}
 
-		// Pre-load all referenced items for this batch
-		// Note: We load ALL referenced items first, then filter by IncloudRefModels
-		// in the ItemLoader to respect privacy settings while avoiding N+1 queries
-		refItemIDs := items.RefItemIDs(params.SchemaPackage)
+		// Pre-load referenced items for this batch.
+		// When IncludeRefModels is set, only fetch ref items from those models.
+		var refItemIDs id.ItemIDList
+		if len(params.Options.IncludeRefModels) > 0 {
+			refItemIDs = items.RefItemIDsByModels(params.SchemaPackage, params.Options.IncludeRefModels)
+		} else {
+			refItemIDs = items.RefItemIDs(params.SchemaPackage)
+		}
 		var referencedItemsMap map[id.ItemID]*item.Item
 		if len(refItemIDs) > 0 {
 			versionedRefs, err := i.repos.Item.FindByIDs(ctx, refItemIDs, ver)
@@ -106,34 +110,15 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 		}
 
 		// Create ItemLoader closure that uses pre-loaded cache
-		// Filter by IncludeRefModels if specified (for public API privacy)
 		req.ItemLoader = func(itemIDs id.ItemIDList) (item.List, error) {
 			if referencedItemsMap == nil {
 				return nil, nil
 			}
 
-			// Build allowed models set if filter is specified
-			var allowedModels map[id.ModelID]bool
-			if len(params.Options.IncludeRefModels) > 0 {
-				allowedModels = make(map[id.ModelID]bool)
-				for _, mid := range params.Options.IncludeRefModels {
-					allowedModels[mid] = true
-				}
-			}
-
 			result := make(item.List, 0, len(itemIDs))
 			for _, iid := range itemIDs {
 				if refItem, ok := referencedItemsMap[iid]; ok {
-					// If filter is set, only include items from allowed models
-					if allowedModels != nil {
-						if allowedModels[refItem.Model()] {
-							result = append(result, refItem)
-						}
-						// If not in allowed models, don't include (will show as ID string)
-					} else {
-						// No filter - include all
-						result = append(result, refItem)
-					}
+					result = append(result, refItem)
 				}
 			}
 			return result, nil

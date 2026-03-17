@@ -12,7 +12,6 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
-	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/rerror"
 	"github.com/reearth/reearthx/usecasex"
 )
@@ -120,34 +119,10 @@ func getReferencedItems(ctx context.Context, i *item.Item, sp *schema.Package, p
 		return nil
 	}
 
-	// Step 3: Build schema map from referenced schemas in the schema package
-	schemaMap := make(map[id.ModelID]*schema.Schema)
-	for _, refSchema := range sp.ReferencedSchemas() {
-		// Get reference fields from main schema to find model ID for this ref schema
-		for _, f := range sp.Schema().FieldsByType(value.TypeReference) {
-			var modelID id.ModelID
-			var schemaID id.SchemaID
-			f.TypeProperty().Match(schema.TypePropertyMatch{
-				Reference: func(rf *schema.FieldReference) {
-					modelID = rf.Model()
-					schemaID = rf.Schema()
-				},
-			})
-			if schemaID == refSchema.ID() {
-				schemaMap[modelID] = refSchema
-				break
-			}
-		}
-	}
-
-	// Step 4: Batch load all assets if needed
+	// Step 3: Batch load all assets if needed
 	var assetsMap asset.Map
 	if prp {
-		var allAssetIDs []id.AssetID
-		for _, ii := range referencedItems {
-			allAssetIDs = append(allAssetIDs, ii.Value().AssetIDs()...)
-		}
-		if len(allAssetIDs) > 0 {
+		if allAssetIDs := referencedItems.AssetIDs(); len(allAssetIDs) > 0 {
 			assets, err := uc.Asset.FindByIDs(ctx, allAssetIDs, nil)
 			if err == nil {
 				assetsMap = assets.Map()
@@ -155,11 +130,11 @@ func getReferencedItems(ctx context.Context, i *item.Item, sp *schema.Package, p
 		}
 	}
 
-	// Step 5: Build result from loaded data
+	// Step 4: Build result from loaded data
 	vi := make([]Item, 0, len(referencedItems))
 	for _, ii := range referencedItems {
-		refSchema, ok := schemaMap[ii.Value().Model()]
-		if !ok {
+		refSchema := sp.SchemaByModel(ii.Value().Model())
+		if refSchema == nil {
 			continue
 		}
 
