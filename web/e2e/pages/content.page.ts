@@ -513,7 +513,9 @@ export class ContentPage extends ProjectScopedPage {
   }
 
   public get restoreButtonAlertFirst(): Locator {
-    return this.getByRole("alert").getByRole("button", { name: t("Restore") }).first();
+    return this.getByRole("alert")
+      .getByRole("button", { name: t("Restore") })
+      .first();
   }
 
   // Dynamic text matching with regex

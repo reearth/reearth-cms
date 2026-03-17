@@ -40,9 +40,7 @@ test("authenticate", { tag: TAG.SMOKE }, async () => {
       }
 
       await page.waitForURL(baseURL, { timeout: 30 * 1000 });
-      await expect(
-        page.getByTestId(DATA_TEST_ID.Workspace__NewProjectButton).first(),
-      ).toBeVisible({
+      await expect(page.getByTestId(DATA_TEST_ID.Workspace__NewProjectButton).first()).toBeVisible({
         timeout: 10 * 1000,
       });
     }

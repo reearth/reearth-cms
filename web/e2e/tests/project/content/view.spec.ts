@@ -230,67 +230,67 @@ test("Save view with custom sorting and filtering", async ({
   });
 });
 
-test("Switch between views preserves individual view settings", { tag: TAG.FOCUS }, async ({
-  fieldEditorPage,
-  projectPage,
-  contentPage,
-}) => {
-  const viewName1 = `view-a-${getId()}`;
-  const viewName2 = `view-b-${getId()}`;
+test(
+  "Switch between views preserves individual view settings",
+  { tag: TAG.FOCUS },
+  async ({ fieldEditorPage, projectPage, contentPage }) => {
+    const viewName1 = `view-a-${getId()}`;
+    const viewName2 = `view-b-${getId()}`;
 
-  await test.step("Setup: Create text field and content items", async () => {
-    await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: textFieldName });
-    await projectPage.contentMenuItem.click();
-    await contentPage.createItemWithField(textFieldName, textValue1);
-    await contentPage.createItemWithField(textFieldName, textValue2);
-    await contentPage.createItemWithField(textFieldName, sampleValue1);
-    await contentPage.createItemWithField(textFieldName, sampleValue2);
-  });
+    await test.step("Setup: Create text field and content items", async () => {
+      await fieldEditorPage.createField({ type: SchemaFieldType.Text, name: textFieldName });
+      await projectPage.contentMenuItem.click();
+      await contentPage.createItemWithField(textFieldName, textValue1);
+      await contentPage.createItemWithField(textFieldName, textValue2);
+      await contentPage.createItemWithField(textFieldName, sampleValue1);
+      await contentPage.createItemWithField(textFieldName, sampleValue2);
+    });
 
-  await test.step("Create first view with no customization", async () => {
-    await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.fill(viewName1);
-    await contentPage.okButton.click();
-    await contentPage.closeNotification();
-  });
+    await test.step("Create first view with no customization", async () => {
+      await contentPage.saveAsNewViewButton.click();
+      await contentPage.viewNameInput.fill(viewName1);
+      await contentPage.okButton.click();
+      await contentPage.closeNotification();
+    });
 
-  await test.step("Apply sorting, filtering, and hide column", async () => {
-    await contentPage.textColumnHeader().click();
-    await contentPage.addFilterButton.click();
-    await contentPage.filterMenuItem(textFieldName).click();
-    await contentPage.isDropdown.click();
-    await contentPage.containsOption.click();
-    await contentPage.filterValueInput.click();
-    await contentPage.filterValueInput.fill(textFieldName);
-    await contentPage.confirmButton.click();
-    await contentPage.settingsButton.click();
-    await contentPage.statusCheckbox.click();
-  });
+    await test.step("Apply sorting, filtering, and hide column", async () => {
+      await contentPage.textColumnHeader().click();
+      await contentPage.addFilterButton.click();
+      await contentPage.filterMenuItem(textFieldName).click();
+      await contentPage.isDropdown.click();
+      await contentPage.containsOption.click();
+      await contentPage.filterValueInput.click();
+      await contentPage.filterValueInput.fill(textFieldName);
+      await contentPage.confirmButton.click();
+      await contentPage.settingsButton.click();
+      await contentPage.statusCheckbox.click();
+    });
 
-  await test.step("Save as second view with customizations", async () => {
-    await contentPage.saveAsNewViewButton.click();
-    await contentPage.viewNameInput.click();
-    await contentPage.viewNameInput.fill(viewName2);
-    await contentPage.okButton.click();
-    await contentPage.closeNotification();
-  });
+    await test.step("Save as second view with customizations", async () => {
+      await contentPage.saveAsNewViewButton.click();
+      await contentPage.viewNameInput.click();
+      await contentPage.viewNameInput.fill(viewName2);
+      await contentPage.okButton.click();
+      await contentPage.closeNotification();
+    });
 
-  await test.step("Verify view2 has customizations", async () => {
-    await expect(contentPage.tab(1)).toHaveAttribute("aria-selected", "true");
-    await expect(contentPage.sortUpIcon).toHaveClass(/active/);
-    await expect(contentPage.tableRow(0)).toContainText(textValue1);
-    await expect(contentPage.statusColumnHeader).toBeHidden();
-  });
+    await test.step("Verify view2 has customizations", async () => {
+      await expect(contentPage.tab(1)).toHaveAttribute("aria-selected", "true");
+      await expect(contentPage.sortUpIcon).toHaveClass(/active/);
+      await expect(contentPage.tableRow(0)).toContainText(textValue1);
+      await expect(contentPage.statusColumnHeader).toBeHidden();
+    });
 
-  await test.step("Switch to view1 and verify it has no customizations", async () => {
-    await contentPage.viewByName(viewName1).click();
-    await expect(contentPage.tab(0)).toHaveAttribute("aria-selected", "true");
-    await expect(contentPage.sortUpIcon).not.toHaveClass(/active/);
-    await expect(contentPage.filterCloseButton(textFieldName)).toBeHidden();
-    await expect(contentPage.tableRow(0)).toContainText(sampleValue2);
-    await expect(contentPage.statusColumnHeader).toBeVisible();
-  });
-});
+    await test.step("Switch to view1 and verify it has no customizations", async () => {
+      await contentPage.viewByName(viewName1).click();
+      await expect(contentPage.tab(0)).toHaveAttribute("aria-selected", "true");
+      await expect(contentPage.sortUpIcon).not.toHaveClass(/active/);
+      await expect(contentPage.filterCloseButton(textFieldName)).toBeHidden();
+      await expect(contentPage.tableRow(0)).toContainText(sampleValue2);
+      await expect(contentPage.statusColumnHeader).toBeVisible();
+    });
+  },
+);
 
 test("Update view settings", async ({ fieldEditorPage, projectPage, contentPage }) => {
   const viewName1 = `view-a-${getId()}`;
