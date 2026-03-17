@@ -1,6 +1,6 @@
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { config } from "@reearth-cms/e2e/config/config";
-import { expect, test } from "@reearth-cms/e2e/fixtures/test";
+import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { parseConfigBoolean } from "@reearth-cms/e2e/helpers/format.helper";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -230,7 +230,7 @@ test("Save view with custom sorting and filtering", async ({
   });
 });
 
-test("Switch between views preserves individual view settings", async ({
+test("Switch between views preserves individual view settings", { tag: TAG.FOCUS }, async ({
   fieldEditorPage,
   projectPage,
   contentPage,

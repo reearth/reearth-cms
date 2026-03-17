@@ -147,7 +147,7 @@ jobs:
           USE_IAP_AUTH: ${{ inputs.use_iap && 'true' || '' }}
           IAP_AUTH_METHOD: ${{ inputs.token_format || 'id-token' }}
           IAP_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
-        run: ${{ inputs.smoke_only && 'yarn e2e-smoke' || 'yarn e2e-fast' }}
+        run: yarn e2e-focus
       - uses: actions/upload-artifact@v6
         if: failure()
         with:

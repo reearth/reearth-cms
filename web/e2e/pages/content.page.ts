@@ -122,10 +122,10 @@ export class ContentPage extends ProjectScopedPage {
 
   // Table sorting and filtering
   public textColumnHeader(): Locator {
-    return this.getByText("text", { exact: true });
+    return this.getByRole("columnheader", { name: "text" });
   }
   private get columnHeaderText(): Locator {
-    return this.getByRole("columnheader", { name: "text" });
+    return this.textColumnHeader();
   }
   public get sortUpIcon(): Locator {
     return this.columnHeaderText.locator("div").locator(".anticon-caret-up");
