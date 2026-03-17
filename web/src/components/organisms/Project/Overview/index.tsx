@@ -15,9 +15,13 @@ const ProjectOverview: React.FC = () => {
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
+    hasSchemaCreateRight,
+    hasContentCreateRight,
     handleProjectUpdate,
     handleHomeNavigation,
     handleSchemaNavigation,
+    handleImportSchemaNavigation,
+    handleImportContentNavigation,
     handleContentNavigation,
     handleModelSearch,
     handleModelSort,
@@ -40,13 +44,17 @@ const ProjectOverview: React.FC = () => {
         hasCreateRight={hasCreateRight}
         hasUpdateRight={hasUpdateRight}
         hasDeleteRight={hasDeleteRight}
+        hasSchemaCreateRight={hasSchemaCreateRight}
+        hasContentCreateRight={hasContentCreateRight}
         exportLoading={exportLoading}
         onProjectUpdate={handleProjectUpdate}
         onModelSearch={handleModelSearch}
         onModelSort={handleModelSort}
         onHomeNavigation={handleHomeNavigation}
         onSchemaNavigate={handleSchemaNavigation}
+        onImportSchemaNavigate={handleImportSchemaNavigation}
         onContentNavigate={handleContentNavigation}
+        onImportContentNavigate={handleImportContentNavigation}
         onModelModalOpen={handleModelModalOpen}
         onModelDeletionModalOpen={handleModelDeletionModalOpen}
         onModelUpdateModalOpen={handleModelUpdateModalOpen}

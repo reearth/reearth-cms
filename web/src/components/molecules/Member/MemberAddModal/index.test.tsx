@@ -71,6 +71,6 @@ describe("Member add modal", () => {
     );
 
     await expect.poll(() => screen.getByRole("button", { name: "loading" })).toBeVisible();
-    expect(screen.getByRole("button", { name: "loading Add to workspace" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "loadingAdd to workspace" })).toBeVisible();
   });
 });

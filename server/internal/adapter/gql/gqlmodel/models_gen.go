@@ -743,6 +743,12 @@ type JobProgress struct {
 	Percentage float64 `json:"percentage"`
 }
 
+type JobState struct {
+	Status   JobStatus    `json:"status"`
+	Progress *JobProgress `json:"progress,omitempty"`
+	Error    *string      `json:"error,omitempty"`
+}
+
 type KeyAvailability struct {
 	Key       string `json:"key"`
 	Available bool   `json:"available"`

@@ -5,7 +5,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
 import { useT } from "@reearth-cms/i18n";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   onIntegrationDelete: () => Promise<void>;
@@ -25,7 +25,11 @@ const DangerZone: React.FC<Props> = ({ onIntegrationDelete }) => {
           {t("Once the integration is removed, it will disappear from all workspaces.")}
         </>
       ),
-      okButtonProps: { danger: true, "data-testid": DATA_TEST_ID.ConfirmRemoveIntegrationButton },
+      okButtonProps: {
+        danger: true,
+        "data-testid":
+          DATA_TEST_ID.MyIntegrations__Settings__DangerZone__ConfirmRemoveIntegrationButton,
+      },
       okText: t("Remove integration"),
       async onOk() {
         await onIntegrationDelete();
@@ -45,7 +49,7 @@ const DangerZone: React.FC<Props> = ({ onIntegrationDelete }) => {
         onClick={handleWorkspaceDeleteConfirmation}
         type="primary"
         danger
-        data-testid={DATA_TEST_ID.RemoveIntegrationButton}>
+        data-testid={DATA_TEST_ID.MyIntegrations__Settings__DangerZone__RemoveIntegrationButton}>
         {t("Remove integration")}
       </StyledDeleteButton>
     </ContentSection>

@@ -33,6 +33,14 @@ export default () => {
   const hasCreateRight = useMemo(() => !!userRights?.model.create, [userRights?.model.create]);
   const hasUpdateRight = useMemo(() => !!userRights?.model.update, [userRights?.model.update]);
   const hasDeleteRight = useMemo(() => !!userRights?.model.delete, [userRights?.model.delete]);
+  const hasSchemaCreateRight = useMemo(
+    () => !!userRights?.schema.create,
+    [userRights?.schema.create],
+  );
+  const hasContentCreateRight = useMemo(
+    () => !!userRights?.content.create,
+    [userRights?.content.create],
+  );
 
   const [selectedModel, setSelectedModel] = useState<Model | undefined>();
   const [modelDeletionModalShown, setModelDeletionModalShown] = useState(false);
@@ -85,6 +93,7 @@ export default () => {
       pagination: { first: 100 },
     },
     skip: !currentProject?.id,
+    fetchPolicy: "cache-and-network",
   });
 
   const models = useMemo(
@@ -257,10 +266,30 @@ export default () => {
     [currentWorkspace?.id, currentProject?.id, navigate],
   );
 
+  const handleImportSchemaNavigation = useCallback(
+    (modelId: string) => {
+      navigate(
+        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/schema/${modelId}`,
+        { state: { isImportModalOpen: true } },
+      );
+    },
+    [currentWorkspace?.id, currentProject?.id, navigate],
+  );
+
   const handleContentNavigation = useCallback(
     (modelId: string) => {
       navigate(
         `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}`,
+      );
+    },
+    [currentWorkspace?.id, currentProject?.id, navigate],
+  );
+
+  const handleImportContentNavigation = useCallback(
+    (modelId: string) => {
+      navigate(
+        `/workspace/${currentWorkspace?.id}/project/${currentProject?.id}/content/${modelId}`,
+        { state: { isImportModalOpen: true } },
       );
     },
     [currentWorkspace?.id, currentProject?.id, navigate],
@@ -290,12 +319,16 @@ export default () => {
     hasCreateRight,
     hasUpdateRight,
     hasDeleteRight,
+    hasSchemaCreateRight,
+    hasContentCreateRight,
     handleProjectUpdate,
     handleModelSearch,
     handleModelSort,
     handleHomeNavigation,
     handleSchemaNavigation,
+    handleImportSchemaNavigation,
     handleContentNavigation,
+    handleImportContentNavigation,
     handleModelKeyCheck,
     handleModelModalOpen,
     handleModelModalReset,

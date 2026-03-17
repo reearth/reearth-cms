@@ -19,8 +19,8 @@ import (
 )
 
 const (
-	MaxImportFileSize    = 10 * 1024 * 1024 // 10 MB
-	MaxImportRecordCount = 2000
+	MaxImportFileSize    = 100 * 1024 * 1024 // 100 MB
+	MaxImportRecordCount = 50_000
 )
 
 var (
@@ -32,8 +32,8 @@ var (
 	ErrItemMissing              = rerror.NewE(i18n.T("one or more items not found"))
 	ErrItemConflicted           = rerror.NewE(i18n.T("item has been changed before you change it"))
 	ErrMetadataMismatch         = rerror.NewE(i18n.T("metadata item and schema mismatch"))
-	ErrImportFileTooLarge       = rerror.NewE(i18n.T("import file is too large (max 10MB)"))
-	ErrImportTooManyRecords     = rerror.NewE(i18n.T("import file contains too many records (max 2000)"))
+	ErrImportFileTooLarge       = rerror.NewE(i18n.T("import file is too large (max 100MB)"))
+	ErrImportTooManyRecords     = rerror.NewE(i18n.T("import file contains too many records (max 50,000)"))
 )
 
 type ItemFieldParam struct {
@@ -63,6 +63,7 @@ type ImportFormatType string
 const (
 	ImportFormatTypeGeoJSON ImportFormatType = "geoJson"
 	ImportFormatTypeJSON    ImportFormatType = "json"
+	ImportFormatTypeCSV     ImportFormatType = "csv"
 )
 
 func ImportFormatTypeFromString(s string) ImportFormatType {
@@ -71,6 +72,8 @@ func ImportFormatTypeFromString(s string) ImportFormatType {
 		return ImportFormatTypeGeoJSON
 	case "json":
 		return ImportFormatTypeJSON
+	case "csv":
+		return ImportFormatTypeCSV
 	default:
 		return ""
 	}

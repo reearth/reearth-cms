@@ -90,6 +90,11 @@ func (i Item) Import(ctx context.Context, param interfaces.ImportItemsParam, ope
 		return res.Into(), err
 	}
 
+	// Handle CSV format separately
+	if param.Format == interfaces.ImportFormatTypeCSV {
+		return i.importCSV(ctx, prj, m, s, param, &res, operator)
+	}
+
 	// guess schema fields from first object
 	if param.MutateSchema {
 		rr := utils.NewReplyReader(param.Reader)
@@ -298,6 +303,11 @@ func (i Item) runImportJob(jobID id.JobID, param interfaces.ImportItemsAsyncPara
 		return
 	}
 
+	// Publish initial IN_PROGRESS state
+	if i.gateways.JobPubSub != nil {
+		_ = i.gateways.JobPubSub.Publish(ctx, jobID, j.State())
+	}
+
 	// Convert async param to sync param
 	syncParam := interfaces.ImportItemsParam(param)
 
@@ -307,6 +317,10 @@ func (i Item) runImportJob(jobID id.JobID, param interfaces.ImportItemsAsyncPara
 		// Check if cancelled
 		j, _ = i.repos.Job.FindByID(ctx, jobID)
 		if j != nil && j.IsCancelled() {
+			// Publish CANCELLED state
+			if i.gateways.JobPubSub != nil {
+				_ = i.gateways.JobPubSub.Publish(ctx, jobID, j.State())
+			}
 			log.Infof("item: import job %s was cancelled", jobID)
 			return
 		}
@@ -316,6 +330,10 @@ func (i Item) runImportJob(jobID id.JobID, param interfaces.ImportItemsAsyncPara
 			j.Fail(err.Error())
 			if saveErr := i.repos.Job.Save(ctx, j); saveErr != nil {
 				log.Errorf("item: import job %s failed to save error: %v", jobID, saveErr)
+			}
+			// Publish FAILED state
+			if i.gateways.JobPubSub != nil {
+				_ = i.gateways.JobPubSub.Publish(ctx, jobID, j.State())
 			}
 		}
 		log.Errorf("item: import job %s failed: %v", jobID, err)
@@ -336,6 +354,10 @@ func (i Item) runImportJob(jobID id.JobID, param interfaces.ImportItemsAsyncPara
 		j.Complete(resultJSON)
 		if err := i.repos.Job.Save(ctx, j); err != nil {
 			log.Errorf("item: import job %s failed to save completion: %v", jobID, err)
+		}
+		// Publish COMPLETED state
+		if i.gateways.JobPubSub != nil {
+			_ = i.gateways.JobPubSub.Publish(ctx, jobID, j.State())
 		}
 	}
 
@@ -361,6 +383,11 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 	m, err := i.repos.Model.FindByID(ctx, param.ModelID)
 	if err != nil {
 		return res.Into(), err
+	}
+
+	// Handle CSV format separately
+	if param.Format == interfaces.ImportFormatTypeCSV {
+		return i.importCSVWithProgress(ctx, j, prj, m, s, param, &res, operator)
 	}
 
 	// guess schema fields from first object
@@ -442,8 +469,11 @@ func (i Item) importWithProgress(ctx context.Context, j *job.Job, param interfac
 
 		// Publish progress
 		progress := job.NewProgress(processed, totalCount)
+		state := job.NewState(job.StatusInProgress, &progress, "")
 		if i.gateways.JobPubSub != nil {
-			_ = i.gateways.JobPubSub.Publish(ctx, j.ID(), progress)
+			if err := i.gateways.JobPubSub.Publish(ctx, j.ID(), state); err != nil {
+				log.Warnf("item: failed to publish job %s progress: %v", j.ID(), err)
+			}
 		}
 
 		// Update job progress
@@ -499,11 +529,11 @@ func (i Item) saveChunk(ctx context.Context, prj *project.Project, m *model.Mode
 				}
 			}
 
-			// strategy: insert. 	item: exists  				=> ignore
-			if param.Strategy == interfaces.ImportStrategyTypeInsert && oldItem != nil {
-				res.ItemSkipped()
-				continue
-			}
+			//// strategy: insert. 	item: exists  				=> ignore
+			//if param.Strategy == interfaces.ImportStrategyTypeInsert && oldItem != nil {
+			//	res.ItemSkipped()
+			//	continue
+			//}
 
 			// strategy: update. 	item: not exists 			=> ignore
 			if param.Strategy == interfaces.ImportStrategyTypeUpdate && oldItem == nil {
@@ -755,7 +785,7 @@ func itemsParamsFrom(chunk []map[string]any, isGeoJson bool, geoField *string, s
 					continue
 				}
 				iId = id.ItemIDFromRef(&idStr)
-				if iId.IsEmpty() || iId.IsNil() {
+				if iId == nil || iId.IsEmpty() || iId.IsNil() {
 					continue
 				}
 				param.ItemId = iId

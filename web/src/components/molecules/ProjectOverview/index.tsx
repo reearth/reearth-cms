@@ -17,6 +17,8 @@ type Props = {
   hasCreateRight: boolean;
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
+  hasSchemaCreateRight: boolean;
+  hasContentCreateRight: boolean;
   exportLoading?: boolean;
   onProjectUpdate: (data: UpdateProjectInput) => Promise<void>;
   onModelSearch: (value: string) => void;
@@ -24,7 +26,9 @@ type Props = {
   onModelModalOpen: () => void;
   onHomeNavigation: () => void;
   onSchemaNavigate: (modelId: string) => void;
+  onImportSchemaNavigate: (modelId: string) => void;
   onContentNavigate: (modelId: string) => void;
+  onImportContentNavigate: (modelId: string) => void;
   onModelDeletionModalOpen: (model: Model) => Promise<void>;
   onModelUpdateModalOpen: (model: Model) => Promise<void>;
   onModelExport: (modelId?: string, format?: ExportFormat) => Promise<void>;
@@ -35,12 +39,16 @@ const ProjectOverview: React.FC<Props> = ({
   hasCreateRight,
   hasUpdateRight,
   hasDeleteRight,
+  hasSchemaCreateRight,
+  hasContentCreateRight,
   exportLoading,
   onModelSearch,
   onModelSort,
   onModelModalOpen,
   onSchemaNavigate,
+  onImportSchemaNavigate,
   onContentNavigate,
+  onImportContentNavigate,
   onModelDeletionModalOpen,
   onModelUpdateModalOpen,
   onModelExport,
@@ -69,9 +77,13 @@ const ProjectOverview: React.FC<Props> = ({
                 model={m}
                 hasUpdateRight={hasUpdateRight}
                 hasDeleteRight={hasDeleteRight}
+                hasSchemaCreateRight={hasSchemaCreateRight}
+                hasContentCreateRight={hasContentCreateRight}
                 exportLoading={exportLoading}
                 onSchemaNavigate={onSchemaNavigate}
+                onImportSchemaNavigate={onImportSchemaNavigate}
                 onContentNavigate={onContentNavigate}
+                onImportContentNavigate={onImportContentNavigate}
                 onModelDeletionModalOpen={onModelDeletionModalOpen}
                 onModelUpdateModalOpen={onModelUpdateModalOpen}
                 onModelExport={onModelExport}

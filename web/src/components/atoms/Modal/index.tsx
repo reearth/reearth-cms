@@ -3,6 +3,7 @@ import { Modal, ModalFuncProps } from "antd";
 import { useT } from "@reearth-cms/i18n";
 
 export default Modal;
+export type { ModalFuncProps };
 
 type CustomConfig = Omit<ModalFuncProps, "icon">;
 

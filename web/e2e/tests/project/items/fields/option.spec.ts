@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -20,7 +21,7 @@ test("@smoke Option field creating and updating has succeeded", async ({
   schemaPage,
 }) => {
   await test.step("Create option field and validate duplicate/empty values", async () => {
-    await fieldEditorPage.fieldTypeButton("Option").click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Select).click();
     await fieldEditorPage.displayNameInput.click();
     await fieldEditorPage.displayNameInput.fill("option1");
     await fieldEditorPage.settingsKeyInput.click();
@@ -123,7 +124,7 @@ test("Option field editing has succeeded", async ({
 
   await test.step("Delete 'second' option and add 'forth' option", async () => {
     await fieldEditorPage.settingsTab.click();
-    await fieldEditorPage.deleteButton.nth(1).click();
+    await fieldEditorPage.deleteButton.nth(2).click();
     await fieldEditorPage.plusNewButton.click();
     await fieldEditorPage.valuesInput.nth(2).click();
     await fieldEditorPage.valuesInput.nth(2).fill("forth");

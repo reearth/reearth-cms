@@ -1,42 +1,42 @@
 import styled from "@emotion/styled";
 import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
 
+import { AlertProps } from "@reearth-cms/components/atoms/Alert";
 import Button from "@reearth-cms/components/atoms/Button";
+import Flex from "@reearth-cms/components/atoms/Flex";
 import Icon from "@reearth-cms/components/atoms/Icon";
-import Modal, { useModal } from "@reearth-cms/components/atoms/Modal";
+import Modal from "@reearth-cms/components/atoms/Modal";
 import Steps from "@reearth-cms/components/atoms/Step";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import {
-  UploadProps,
   UploadFile,
   UploadFile as RawUploadFile,
+  UploadProps,
 } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
-import { defaultTypePropertyGet } from "@reearth-cms/components/organisms/Project/Schema/helpers";
-import { Trans, useT } from "@reearth-cms/i18n";
+import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { fieldTypes } from "../fieldTypes";
-import { CreateFieldInput, SchemaFieldType } from "../types";
+import { CreateFieldInput, ImportFieldInput } from "../types";
 
 import FileSelectionStep from "./FileSelectionStep";
 import ImportingStep from "./ImportingStep";
 import SchemaPreviewStep from "./SchemaPreviewStep";
-import SelectFileModal from "./SelectFileModal";
 
 type Props = {
-  workspaceId?: string;
-  projectId?: string;
   visible: boolean;
   selectFileModalVisibility: boolean;
   currentPage: number;
   assetList: Asset[];
   loading: boolean;
-  guessSchemaFieldsLoading: boolean;
   fieldsCreationLoading: boolean;
   totalCount: number;
   selectedAsset?: ItemAsset;
   fileList: RawUploadFile[];
+  alertList?: AlertProps[];
   uploadType: UploadType;
   uploadUrl: { url: string; autoUnzip: boolean };
   uploading: boolean;
@@ -50,13 +50,12 @@ type Props = {
   onUploadModalCancel: () => void;
   toSchemaPreviewStep: () => void;
   toImportingStep: (fields: CreateFieldInput[]) => Promise<void>;
-  fields: CreateFieldInput[];
-  guessSchemaFieldsError?: boolean;
+  toFileSelectionStep: () => void;
+  fields: ImportFieldInput[];
   fieldsCreationError?: boolean;
-  setFields: Dispatch<SetStateAction<CreateFieldInput[]>>;
+  setFields: Dispatch<SetStateAction<ImportFieldInput[]>>;
   setUploadUrl: (uploadUrl: { url: string; autoUnzip: boolean }) => void;
   setUploadType: (type: UploadType) => void;
-  setFileList: (fileList: UploadFile<File>[]) => void;
   onSearchTerm: (term?: string) => void;
   onAssetsReload: () => void;
   onAssetTableChange: (page: number, pageSize: number, sorter?: SortType) => void;
@@ -66,56 +65,35 @@ type Props = {
   onSelectFile: () => void;
   onSelectFileModalCancel: () => void;
   onModalClose: () => void;
+  dataChecking: boolean;
+  onFileContentChange: UploadProps["beforeUpload"];
+  onFileRemove: UploadProps["onRemove"];
 };
 
 const ImportSchemaModal: React.FC<Props> = ({
-  workspaceId,
-  projectId,
   visible,
-  selectFileModalVisibility,
   currentPage,
-  toSchemaPreviewStep,
   toImportingStep,
-  assetList,
-  loading,
-  guessSchemaFieldsLoading,
+  toFileSelectionStep,
   fieldsCreationLoading,
-  totalCount,
-  selectedAsset,
   fileList,
-  uploadType,
-  uploadUrl,
-  uploading,
+  alertList,
   fields,
-  guessSchemaFieldsError,
   fieldsCreationError,
   setFields,
-  setUploadUrl,
-  setUploadType,
-  setFileList,
-  hasCreateRight,
-  uploadModalVisibility,
-  onUploadModalOpen,
-  onUploadModalCancel,
-  page,
-  pageSize,
-  onSearchTerm,
-  onAssetsReload,
-  onAssetTableChange,
-  onAssetSelect,
-  onAssetsCreate,
-  onAssetCreateFromUrl,
   hasUpdateRight,
   hasDeleteRight,
-  onSelectFile,
-  onSelectFileModalCancel,
   onModalClose,
+  dataChecking,
+  onFileContentChange,
+  onFileRemove,
 }) => {
   const t = useT();
-  const { confirm } = useModal();
+
+  const hasImportFields = useMemo(() => fields.some(field => !field.hidden), [fields]);
 
   const handleFieldReorder = useCallback(
-    (list: CreateFieldInput[], startIndex: number, endIndex: number) => {
+    (list: ImportFieldInput[], startIndex: number, endIndex: number) => {
       const result = Array.from(list);
       const [removed] = result.splice(startIndex, 1);
       result.splice(endIndex, 0, removed);
@@ -132,38 +110,22 @@ const ImportSchemaModal: React.FC<Props> = ({
     [handleFieldReorder, setFields],
   );
 
-  const handleFieldDelete = useCallback(
+  const handleToggleFieldHide = useCallback(
     (key: string) => {
-      setFields(prev => prev.filter(item => item.key !== key));
-    },
-    [setFields],
-  );
-
-  const handleFieldTypeChange = useCallback(
-    (key: string, value: SchemaFieldType) => {
       setFields(prev =>
-        prev.map(field =>
-          field.key === key
-            ? { ...field, type: value, typeProperty: defaultTypePropertyGet(value) }
-            : field,
-        ),
+        prev.map(item => (item.key === key ? { ...item, hidden: !item.hidden } : item)),
       );
     },
     [setFields],
   );
 
-  const confirmFieldDeletion = useCallback(
-    (fieldId: string, name: string) => {
-      confirm({
-        content: <Trans i18nKey="Are you sure you want to delete this field?" values={{ name }} />,
-        maskClosable: true,
-        onOk() {
-          handleFieldDelete(fieldId);
-        },
-      });
-    },
-    [confirm, handleFieldDelete],
-  );
+  const handleToggleAllFieldHide = useCallback(() => {
+    setFields(prev => {
+      const checkedCount = prev.filter(item => !item.hidden).length;
+      const isIndeterminate = checkedCount >= 0 && checkedCount < prev.length;
+      return prev.map(item => ({ ...item, hidden: !isIndeterminate }));
+    });
+  }, [setFields]);
 
   const fieldTypeOptions = useMemo(() => {
     return Object.entries(fieldTypes).map(([key, value]) => ({
@@ -177,51 +139,16 @@ const ImportSchemaModal: React.FC<Props> = ({
     }));
   }, []);
 
-  const uploadProps: UploadProps = {
-    name: "file",
-    multiple: false,
-    maxCount: 1,
-    directory: false,
-    showUploadList: true,
-    accept: ".geojson,.json",
-    listType: "picture",
-    onRemove: () => {
-      setFileList([]);
-    },
-    beforeUpload: file => {
-      setFileList([file]);
-      return false;
-    },
-    fileList,
-  };
-
-  const handleAssetUpload = useCallback(async () => {
-    let result;
-    if (uploadType === "url" && uploadUrl) {
-      result = await onAssetCreateFromUrl?.(uploadUrl.url, uploadUrl.autoUnzip);
-    } else if (fileList && fileList.length > 0) {
-      const assets = await onAssetsCreate?.(fileList);
-      result = assets?.[0];
-    }
-    onUploadModalCancel();
-    return result ?? undefined;
-  }, [uploadType, uploadUrl, fileList, onAssetCreateFromUrl, onAssetsCreate, onUploadModalCancel]);
-
-  const handleUploadAndLink = useCallback(async () => {
-    const asset = await handleAssetUpload();
-    if (asset) onAssetSelect(asset.id);
-    onUploadModalCancel();
-  }, [handleAssetUpload, onUploadModalCancel, onAssetSelect]);
-
   const stepComponents = [
     {
       title: "Select file",
       content: (
         <FileSelectionStep
-          selectedAsset={selectedAsset}
-          onSelectFile={onSelectFile}
-          workspaceId={workspaceId}
-          projectId={projectId}
+          fileList={fileList}
+          alertList={alertList}
+          onFileContentChange={onFileContentChange}
+          onFileRemove={onFileRemove}
+          dataChecking={dataChecking}
         />
       ),
     },
@@ -232,8 +159,8 @@ const ImportSchemaModal: React.FC<Props> = ({
           fields={fields}
           fieldTypeOptions={fieldTypeOptions}
           onDragEnd={handleDragEnd}
-          onFieldTypeChange={handleFieldTypeChange}
-          onFieldDelete={confirmFieldDeletion}
+          onToggleFieldHide={handleToggleFieldHide}
+          onToggleAllFieldsHide={handleToggleAllFieldHide}
           hasUpdateRight={hasUpdateRight}
           hasDeleteRight={hasDeleteRight}
         />
@@ -259,25 +186,42 @@ const ImportSchemaModal: React.FC<Props> = ({
       centered
       open={visible}
       onCancel={onModalClose}
+      maskClosable={false}
       width="70vw"
       footer={
         <>
-          {currentPage === 0 && (
-            <Button
-              type="primary"
-              disabled={!selectedAsset || guessSchemaFieldsError}
-              onClick={toSchemaPreviewStep}>
-              {t("Next")}
-            </Button>
-          )}
           {currentPage === 1 && (
-            <Button
-              type="primary"
-              loading={guessSchemaFieldsLoading}
-              disabled={fields.length === 0}
-              onClick={() => toImportingStep(fields)}>
-              {t("Import Schema")}
-            </Button>
+            <Flex justify="space-between">
+              <Button
+                type="default"
+                onClick={() => {
+                  toFileSelectionStep();
+                }}>
+                {t("Back")}
+              </Button>
+              <Tooltip
+                title={
+                  hasImportFields
+                    ? undefined
+                    : t("Schema must contain at least one field to import")
+                }>
+                <Button
+                  type="primary"
+                  data-testid={DATA_TEST_ID.ImportSchemaModal__ImportButton}
+                  disabled={!hasImportFields}
+                  onClick={() => {
+                    return toImportingStep(
+                      fields.filter(field => {
+                        const shouldImport = !field.hidden;
+                        delete field.hidden;
+                        return shouldImport;
+                      }),
+                    );
+                  }}>
+                  {t("Import")}
+                </Button>
+              </Tooltip>
+            </Flex>
           )}
         </>
       }
@@ -289,32 +233,6 @@ const ImportSchemaModal: React.FC<Props> = ({
       <>
         <HiddenSteps current={currentPage} items={items} />
         <StepsContent>{stepComponents[currentPage].content}</StepsContent>
-        <SelectFileModal
-          visible={selectFileModalVisibility}
-          onModalClose={onSelectFileModalCancel}
-          linkedAsset={selectedAsset}
-          assetList={assetList}
-          loading={loading}
-          uploadProps={uploadProps}
-          uploading={uploading}
-          fileList={fileList}
-          uploadUrl={uploadUrl}
-          uploadType={uploadType}
-          setUploadUrl={setUploadUrl}
-          setUploadType={setUploadType}
-          onUploadModalOpen={onUploadModalOpen}
-          hasCreateRight={hasCreateRight}
-          uploadModalVisibility={uploadModalVisibility}
-          page={page}
-          pageSize={pageSize}
-          totalCount={totalCount}
-          onAssetSelect={onAssetSelect}
-          onSearchTerm={onSearchTerm}
-          onAssetsReload={onAssetsReload}
-          onAssetTableChange={onAssetTableChange}
-          onUploadModalCancel={onUploadModalCancel}
-          onUploadAndLink={handleUploadAndLink}
-        />
       </>
     </StyledModal>
   );
@@ -345,4 +263,5 @@ const FieldTypeLabel = styled.div`
   justify-content: start;
   align-items: center;
   gap: 8px;
+  font-weight: 400;
 `;

@@ -82,8 +82,7 @@ func initApi(appCtx *ApplicationContext, api *echo.Group, usecaseMiddleware echo
 		authMiddleware(appCtx),
 		usecaseMiddleware,
 	}
-	api.POST("/graphql", graphqlHandler, graphqlMiddlewares...)
-	api.GET("/graphql", graphqlHandler, graphqlMiddlewares...) // WebSocket subscriptions
+	api.Any("/graphql", graphqlHandler, graphqlMiddlewares...)
 	api.POST(
 		"/notify", NotifyHandler(),
 		M2MAuthMiddleware(appCtx.Config),
@@ -117,8 +116,14 @@ func initIntegrationApi(appCtx *ApplicationContext, integrationAPIGroup *echo.Gr
 	if len(integrationOrigins) > 0 {
 		integrationAPIGroup.Use(middleware.CORSWithConfig(middleware.CORSConfig{AllowOrigins: integrationOrigins}))
 	}
-	integrationAPIGroup.Use(authMiddleware(appCtx), AuthRequiredMiddleware(), usecaseMiddleware, private)
-	integration.RegisterHandlers(integrationAPIGroup, integration.NewStrictHandler(integration.NewServer(), nil))
+
+	// OpenAPI spec endpoint - no auth required
+	integrationAPIGroup.GET("/openapi.json", integration.OpenAPISpecHandler())
+
+	// Protected routes
+	protected := integrationAPIGroup.Group("")
+	protected.Use(authMiddleware(appCtx), AuthRequiredMiddleware(), usecaseMiddleware, private)
+	integration.RegisterHandlers(protected, integration.NewStrictHandler(integration.NewServer(), nil))
 }
 
 func initAssetsApi(appCtx *ApplicationContext, fileServeGroup *echo.Group) {
@@ -191,6 +196,12 @@ func errorMessage(err error, log func(string, ...interface{})) (int, string) {
 	if errors.Is(err, rerror.ErrNotFound) {
 		code = http.StatusNotFound
 		msg = "not found"
+		return code, msg
+	}
+
+	if errors.Is(err, rerror.ErrTooManyRequests) {
+		code = http.StatusTooManyRequests
+		msg = "too many requests"
 		return code, msg
 	}
 

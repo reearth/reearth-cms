@@ -80,7 +80,7 @@ describe("Integration creation modal", () => {
       />,
     );
 
-    await expect.poll(() => screen.getByRole("button", { name: "loading Create" })).toBeVisible();
+    await expect.poll(() => screen.getByRole("button", { name: "loadingCreate" })).toBeVisible();
     expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
   });
 });

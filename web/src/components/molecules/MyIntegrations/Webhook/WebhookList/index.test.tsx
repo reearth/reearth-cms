@@ -31,7 +31,7 @@ describe("Webhook list", () => {
     );
 
     expect(screen.getByText("No Webhook yet")).toBeVisible();
-    expect(screen.getByRole("link")).toBeVisible();
+    expect(screen.getByText("how to use Re:Earth CMS")).toBeVisible();
   });
 
   test("Create webhook buttons work successfully", async () => {
@@ -47,7 +47,7 @@ describe("Webhook list", () => {
       />,
     );
 
-    const createButtons = screen.getAllByRole("button", { name: "plus New Webhook" });
+    const createButtons = screen.getAllByRole("button", { name: "plusNew Webhook" });
     expect(createButtons.length).toBe(2);
 
     await user.click(createButtons[0]);
@@ -87,7 +87,7 @@ describe("Webhook list", () => {
       />,
     );
 
-    expect(screen.getAllByRole("button", { name: "plus New Webhook" }).length).toBe(1);
+    expect(screen.getAllByRole("button", { name: "plusNew Webhook" }).length).toBe(1);
     expect(screen.getByText(name1)).toBeVisible();
     expect(screen.getByText(name2)).toBeVisible();
   });

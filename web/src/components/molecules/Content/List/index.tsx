@@ -1,22 +1,28 @@
 import styled from "@emotion/styled";
-import { Dispatch, SetStateAction, Key } from "react";
+import { Dispatch, Key, SetStateAction, useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ComplexInnerContents from "@reearth-cms/components/atoms/InnerContents/complex";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
+import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import ContentTable from "@reearth-cms/components/molecules/Content/Table";
 import { ExtendedColumns } from "@reearth-cms/components/molecules/Content/Table/types";
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
+import ExperimentIcon from "@reearth-cms/components/molecules/ExperimentIcon";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
-  ItemSort,
   ConditionInput,
   CurrentView,
+  ItemSort,
 } from "@reearth-cms/components/molecules/View/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { ImportContentUtils } from "@reearth-cms/utils/importContent";
+
+import { Field } from "../../Schema/types";
 
 type Props = {
   commentsPanel: JSX.Element;
@@ -67,6 +73,9 @@ type Props = {
   hasPublishRight: boolean;
   hasRequestUpdateRight: boolean;
   showPublishAction: boolean;
+  onImportModalOpen: () => void;
+  modelFields: Field[];
+  hasModelFields: boolean;
 };
 
 const ContentListMolecule: React.FC<Props> = ({
@@ -118,8 +127,15 @@ const ContentListMolecule: React.FC<Props> = ({
   hasPublishRight,
   hasRequestUpdateRight,
   showPublishAction,
+  onImportModalOpen,
+  hasModelFields,
 }) => {
   const t = useT();
+  const getImportContentUIMetadata = useMemo(
+    () =>
+      ImportContentUtils.getUIMetadata({ hasContentCreateRight: hasCreateRight, hasModelFields }),
+    [hasCreateRight, hasModelFields],
+  );
 
   return (
     <ComplexInnerContents
@@ -141,13 +157,26 @@ const ContentListMolecule: React.FC<Props> = ({
                 title={model?.name}
                 subTitle={model?.key ? `#${model.key}` : null}
                 extra={
-                  <Button
-                    type="primary"
-                    onClick={onItemAdd}
-                    icon={<Icon icon="plus" />}
-                    disabled={!model || !hasCreateRight}>
-                    {t("New Item")}
-                  </Button>
+                  <>
+                    <Tooltip title={getImportContentUIMetadata.tooltipMessage}>
+                      <Button
+                        type="default"
+                        data-testid={DATA_TEST_ID.Content__List__ImportContentButton}
+                        onClick={onImportModalOpen}
+                        icon={<Icon icon="import" />}
+                        disabled={getImportContentUIMetadata.shouldDisable}>
+                        {t("Import content")}
+                        <ExperimentIcon disabled={getImportContentUIMetadata.shouldDisable} />
+                      </Button>
+                    </Tooltip>
+                    <Button
+                      type="primary"
+                      onClick={onItemAdd}
+                      icon={<Icon icon="plus" />}
+                      disabled={!model || !hasCreateRight}>
+                      {t("New Item")}
+                    </Button>
+                  </>
                 }
               />
               {viewsMenu}
@@ -192,7 +221,10 @@ const ContentListMolecule: React.FC<Props> = ({
                 hasDeleteRight={hasDeleteRight}
                 hasPublishRight={hasPublishRight}
                 hasRequestUpdateRight={hasRequestUpdateRight}
+                hasCreateRight={hasCreateRight}
                 showPublishAction={showPublishAction}
+                onImportModalOpen={onImportModalOpen}
+                hasModelFields={hasModelFields}
               />
             </>
           )}

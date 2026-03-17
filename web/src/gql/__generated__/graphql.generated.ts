@@ -691,6 +691,11 @@ export type GuessSchemaFieldsInput = {
   modelId: Scalars["ID"]["input"];
 };
 
+export type ImportItemsAsyncPayload = {
+  __typename?: "ImportItemsAsyncPayload";
+  job: Job;
+};
+
 export type ImportItemsInput = {
   file: Scalars["Upload"]["input"];
   geoField?: InputMaybe<Scalars["String"]["input"]>;
@@ -829,6 +834,46 @@ export enum ItemStatus {
   Review = "REVIEW",
 }
 
+export type Job = Node & {
+  __typename?: "Job";
+  completedAt?: Maybe<Scalars["DateTime"]["output"]>;
+  createdAt: Scalars["DateTime"]["output"];
+  error?: Maybe<Scalars["String"]["output"]>;
+  id: Scalars["ID"]["output"];
+  progress: JobProgress;
+  projectId: Scalars["ID"]["output"];
+  startedAt?: Maybe<Scalars["DateTime"]["output"]>;
+  status: JobStatus;
+  type: JobType;
+  updatedAt: Scalars["DateTime"]["output"];
+};
+
+export type JobProgress = {
+  __typename?: "JobProgress";
+  percentage: Scalars["Float"]["output"];
+  processed: Scalars["Int"]["output"];
+  total: Scalars["Int"]["output"];
+};
+
+export type JobState = {
+  __typename?: "JobState";
+  error?: Maybe<Scalars["String"]["output"]>;
+  progress?: Maybe<JobProgress>;
+  status: JobStatus;
+};
+
+export enum JobStatus {
+  Cancelled = "CANCELLED",
+  Completed = "COMPLETED",
+  Failed = "FAILED",
+  InProgress = "IN_PROGRESS",
+  Pending = "PENDING",
+}
+
+export enum JobType {
+  Import = "IMPORT",
+}
+
 export type KeyAvailability = {
   __typename?: "KeyAvailability";
   available: Scalars["Boolean"]["output"];
@@ -923,6 +968,7 @@ export type Mutation = {
   addIntegrationToWorkspace?: Maybe<AddUsersToWorkspacePayload>;
   addUsersToWorkspace?: Maybe<AddUsersToWorkspacePayload>;
   approveRequest?: Maybe<RequestPayload>;
+  cancelJob?: Maybe<Job>;
   createAPIKey?: Maybe<ApiKeyPayload>;
   createAsset?: Maybe<CreateAssetPayload>;
   createAssetUpload?: Maybe<CreateAssetUploadPayload>;
@@ -959,6 +1005,7 @@ export type Mutation = {
   exportModel?: Maybe<ExportModelPayload>;
   exportModelSchema?: Maybe<ExportModelSchemaPayload>;
   importItems?: Maybe<ImportItemsPayload>;
+  importItemsAsync?: Maybe<ImportItemsAsyncPayload>;
   publishItem?: Maybe<PublishItemPayload>;
   regenerateAPIKey?: Maybe<ApiKeyPayload>;
   regenerateIntegrationToken?: Maybe<IntegrationPayload>;
@@ -1004,6 +1051,10 @@ export type MutationAddUsersToWorkspaceArgs = {
 
 export type MutationApproveRequestArgs = {
   input: ApproveRequestInput;
+};
+
+export type MutationCancelJobArgs = {
+  jobId: Scalars["ID"]["input"];
 };
 
 export type MutationCreateApiKeyArgs = {
@@ -1147,6 +1198,10 @@ export type MutationExportModelSchemaArgs = {
 };
 
 export type MutationImportItemsArgs = {
+  input: ImportItemsInput;
+};
+
+export type MutationImportItemsAsyncArgs = {
   input: ImportItemsInput;
 };
 
@@ -1461,6 +1516,8 @@ export type Query = {
   groups: Array<Maybe<Group>>;
   guessSchemaFields: GuessSchemaFieldResult;
   isItemReferenced: Scalars["Boolean"]["output"];
+  job?: Maybe<Job>;
+  jobs: Array<Job>;
   me?: Maybe<Me>;
   models: ModelConnection;
   modelsByGroup: Array<Maybe<Model>>;
@@ -1514,6 +1571,16 @@ export type QueryGuessSchemaFieldsArgs = {
 export type QueryIsItemReferencedArgs = {
   correspondingFieldId: Scalars["ID"]["input"];
   itemId: Scalars["ID"]["input"];
+};
+
+export type QueryJobArgs = {
+  jobId: Scalars["ID"]["input"];
+};
+
+export type QueryJobsArgs = {
+  projectId: Scalars["ID"]["input"];
+  status?: InputMaybe<JobStatus>;
+  type?: InputMaybe<JobType>;
 };
 
 export type QueryModelsArgs = {
@@ -2060,6 +2127,15 @@ export enum StringOperator {
   NotStartsWith = "NOT_STARTS_WITH",
   StartsWith = "STARTS_WITH",
 }
+
+export type Subscription = {
+  __typename?: "Subscription";
+  jobState: JobState;
+};
+
+export type SubscriptionJobStateArgs = {
+  jobId: Scalars["ID"]["input"];
+};
 
 export type TerrainResource = {
   __typename?: "TerrainResource";

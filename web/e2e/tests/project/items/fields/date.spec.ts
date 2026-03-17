@@ -13,7 +13,10 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Date field creating and updating has succeeded", async ({ fieldEditorPage, contentPage }) => {
+test("@smoke Date field creating and updating has succeeded", async ({
+  fieldEditorPage,
+  contentPage,
+}) => {
   await fieldEditorPage.fieldTypeButton("Date").click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("date1");

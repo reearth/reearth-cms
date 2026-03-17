@@ -138,7 +138,7 @@ describe("Settings", () => {
     expect(saveButton).toBeDisabled();
     expect(screen.queryByText("DEFAULT")).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "plus Add new Tiles option" }));
+    await user.click(screen.getByRole("button", { name: "plusAdd new Tiles option" }));
     await expect.poll(() => screen.getByText("New Tiles")).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: "OK" }));
@@ -166,7 +166,7 @@ describe("Settings", () => {
     expect(saveButton).toBeDisabled();
     expect(screen.queryByText("CESIUM_WORLD_TERRAIN")).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "plus Add new Terrain option" }));
+    await user.click(screen.getByRole("button", { name: "plusAdd new Terrain option" }));
     await expect.poll(() => screen.getByText("New Terrain")).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: "OK" }));

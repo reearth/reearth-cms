@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -18,7 +19,7 @@ test("Markdown field editing has succeeded", async ({
   contentPage,
   schemaPage,
 }) => {
-  await fieldEditorPage.fieldTypeButton("Markdown").click();
+  await fieldEditorPage.fieldTypeButton(SchemaFieldType.MarkdownText).click();
   await fieldEditorPage.displayNameInput.click();
   await fieldEditorPage.displayNameInput.fill("text1");
   await fieldEditorPage.settingsKeyInput.click();

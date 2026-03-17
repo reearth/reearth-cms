@@ -1,5 +1,6 @@
+import { blue } from "@ant-design/colors";
 import styled from "@emotion/styled";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactDragListView from "react-drag-listview";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -8,16 +9,19 @@ import List from "@reearth-cms/components/atoms/List";
 import Popconfirm from "@reearth-cms/components/atoms/PopConfirm";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { Trans, useT } from "@reearth-cms/i18n";
-import { DATA_TEST_ID } from "@reearth-cms/utils/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
 
 import { fieldTypes } from "./fieldTypes";
 import { Field } from "./types";
 
 type Props = {
   isMeta?: boolean;
+  isGroup?: boolean;
   fields?: Field[];
   hasUpdateRight: boolean;
   hasDeleteRight: boolean;
+  hasCreateRight: boolean;
   onFieldReorder: (data: Field[]) => Promise<void>;
   onFieldDelete: (fieldId: string) => Promise<void>;
   handleFieldUpdateModalOpen: (field: Field) => void;
@@ -27,8 +31,10 @@ type Props = {
 const ModelFieldList: React.FC<Props> = ({
   fields,
   isMeta,
+  isGroup,
   hasUpdateRight,
   hasDeleteRight,
+  hasCreateRight,
   onFieldReorder,
   onFieldDelete,
   handleFieldUpdateModalOpen,
@@ -66,6 +72,12 @@ const ModelFieldList: React.FC<Props> = ({
     [data, reorder],
   );
 
+  const hasModelFields = useMemo<boolean>(() => (fields ? fields.length > 0 : false), [fields]);
+  const getImportSchemaUIMetadata = useMemo(
+    () => ImportSchemaUtils.getUIMetadata({ hasSchemaCreateRight: hasCreateRight, hasModelFields }),
+    [hasModelFields, hasCreateRight],
+  );
+
   return (
     <>
       {isMeta && (
@@ -96,16 +108,29 @@ const ModelFieldList: React.FC<Props> = ({
         <EmptyText>
           {t("Empty Schema design.")}
           <br />
-          <Trans
-            i18nKey="importSchema"
-            components={{
-              l: (
-                <ImportButton type="link" onClick={onSchemaImport}>
-                  import
-                </ImportButton>
-              ),
-            }}
-          />
+          {!isGroup ? (
+            <Trans
+              i18nKey="importSchema"
+              components={{
+                l: (
+                  <ImportButton
+                    title={
+                      typeof getImportSchemaUIMetadata.tooltipMessage === "string"
+                        ? getImportSchemaUIMetadata.tooltipMessage
+                        : ""
+                    }
+                    type="link"
+                    disabled={getImportSchemaUIMetadata.shouldDisable}
+                    onClick={onSchemaImport}
+                    data-testid={DATA_TEST_ID.ModelFieldList__ImportSchemaButton}>
+                    import
+                  </ImportButton>
+                ),
+              }}
+            />
+          ) : (
+            t("Please add some field from right panel")
+          )}
         </EmptyText>
       ) : (
         <ReactDragListView
@@ -131,7 +156,7 @@ const ModelFieldList: React.FC<Props> = ({
                     okText={t("Delete field")}
                     okButtonProps={{
                       danger: true,
-                      "data-testid": DATA_TEST_ID.ConfirmDeleteFieldButton,
+                      "data-testid": DATA_TEST_ID.ModelFieldList__ConfirmDeleteFieldButton,
                     }}
                     cancelText={t("Cancel")}>
                     <Button
@@ -190,6 +215,12 @@ const DragIcon = styled(Icon)`
 
 const ImportButton = styled(Button)`
   padding: 0;
+  /* color: ${blue[5]}; */
+  /* text-decoration: underline; */
+
+  /* :hover { */
+  /* color: ${blue[3]}; */
+  /* } */
 `;
 
 const StyledIcon = styled(Icon)`
@@ -280,6 +311,7 @@ const EmptyText = styled.p`
   margin: 25vh auto 0;
   color: #898989;
   text-align: center;
+  line-height: 24px;
 `;
 
 const StyledFieldName = styled.span`

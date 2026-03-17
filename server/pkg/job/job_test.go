@@ -255,6 +255,79 @@ func TestJob_IsFinished(t *testing.T) {
 	}
 }
 
+func TestJob_State(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name         string
+		status       Status
+		progress     Progress
+		errorMsg     string
+		wantProgress bool
+	}{
+		{
+			name:         "pending job returns state without progress",
+			status:       StatusPending,
+			progress:     NewProgress(0, 0),
+			errorMsg:     "",
+			wantProgress: false,
+		},
+		{
+			name:         "in_progress job returns state with progress",
+			status:       StatusInProgress,
+			progress:     NewProgress(50, 100),
+			errorMsg:     "",
+			wantProgress: true,
+		},
+		{
+			name:         "completed job returns state without progress",
+			status:       StatusCompleted,
+			progress:     NewProgress(100, 100),
+			errorMsg:     "",
+			wantProgress: false,
+		},
+		{
+			name:         "failed job returns state with error",
+			status:       StatusFailed,
+			progress:     NewProgress(50, 100),
+			errorMsg:     "import failed",
+			wantProgress: false,
+		},
+		{
+			name:         "cancelled job returns state without progress",
+			status:       StatusCancelled,
+			progress:     NewProgress(50, 100),
+			errorMsg:     "",
+			wantProgress: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			j := &Job{
+				status:   tt.status,
+				progress: tt.progress,
+				errorMsg: tt.errorMsg,
+			}
+
+			state := j.State()
+
+			assert.Equal(t, tt.status, state.Status())
+			assert.Equal(t, tt.errorMsg, state.Error())
+
+			if tt.wantProgress {
+				assert.NotNil(t, state.Progress())
+				assert.Equal(t, tt.progress.Processed(), state.Progress().Processed())
+				assert.Equal(t, tt.progress.Total(), state.Progress().Total())
+			} else {
+				assert.Nil(t, state.Progress())
+			}
+		})
+	}
+}
+
 func TestJob_Clone(t *testing.T) {
 	t.Run("nil job returns nil", func(t *testing.T) {
 		t.Parallel()

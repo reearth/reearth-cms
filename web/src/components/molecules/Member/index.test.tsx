@@ -75,7 +75,7 @@ describe("Member", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "usergroup-add New Member" }));
+    await user.click(screen.getByRole("button", { name: "usergroup-addNew Member" }));
     await expect.poll(() => screen.getByRole("dialog")).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: "Cancel" }));

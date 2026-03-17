@@ -7,6 +7,7 @@ import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { fieldTypes } from "@reearth-cms/components/molecules/Schema/fieldTypes";
 import type { Field } from "@reearth-cms/components/molecules/Schema/types";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import ItemFormat from "./ItemFormat";
 
@@ -78,12 +79,14 @@ export const renderField = (
     );
     return (
       <Popover
-        overlayClassName="contentPopover"
-        content={content}
+        rootClassName="contentPopover"
+        content={
+          <div data-testid={DATA_TEST_ID.Content__List__ItemFieldPopoverContent}>{content}</div>
+        }
         title={field.title}
         trigger="click"
         placement="bottom">
-        <StyledButton>
+        <StyledButton data-testid={DATA_TEST_ID.Content__List__ItemFieldPopoverIcon}>
           <Icon icon={fieldTypes[field.type].icon} size={16} />
           {items.length > 1 && <span>x{items.length}</span>}
         </StyledButton>

@@ -13,6 +13,7 @@ import React, {
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Dropdown, { MenuProps } from "@reearth-cms/components/atoms/Dropdown";
+import Empty from "@reearth-cms/components/atoms/Empty";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
@@ -42,9 +43,10 @@ import {
   CurrentView,
   metaColumn,
 } from "@reearth-cms/components/molecules/View/types";
-import { useT } from "@reearth-cms/i18n";
+import { Trans, useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { ImportContentUtils } from "@reearth-cms/utils/importContent";
 
 import DropdownRender from "./DropdownRender";
 import FilterDropdown from "./filterDropdown";
@@ -89,8 +91,11 @@ export type Props = {
   onRequestTableReload: () => void;
   hasDeleteRight: boolean;
   hasPublishRight: boolean;
+  hasCreateRight: boolean;
   hasRequestUpdateRight: boolean;
   showPublishAction: boolean;
+  onImportModalOpen: () => void;
+  hasModelFields: boolean;
 };
 
 const ContentTable: React.FC<Props> = ({
@@ -134,7 +139,10 @@ const ContentTable: React.FC<Props> = ({
   hasDeleteRight,
   hasPublishRight,
   hasRequestUpdateRight,
+  hasCreateRight,
   showPublishAction,
+  onImportModalOpen,
+  hasModelFields,
 }) => {
   const [currentWorkspace] = useWorkspace();
   const t = useT();
@@ -779,6 +787,12 @@ const ContentTable: React.FC<Props> = ({
     [setCurrentView, tableColumns],
   );
 
+  const getImportContentUIMetadata = useMemo(
+    () =>
+      ImportContentUtils.getUIMetadata({ hasContentCreateRight: hasCreateRight, hasModelFields }),
+    [hasCreateRight, hasModelFields],
+  );
+
   return (
     <>
       {contentTableColumns ? (
@@ -822,6 +836,24 @@ const ContentTable: React.FC<Props> = ({
             );
           }}
           heightOffset={102}
+          locale={{
+            emptyText: (
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t("No Content Data")}>
+                {!getImportContentUIMetadata.shouldDisable && (
+                  <Trans
+                    i18nKey="Please add some items manually or import from JSON/GeoJSON/CSV"
+                    components={{
+                      l: (
+                        <ImportButton type="link" onClick={onImportModalOpen}>
+                          import
+                        </ImportButton>
+                      ),
+                    }}
+                  />
+                )}
+              </Empty>
+            ),
+          }}
         />
       ) : null}
       <LinkItemRequestModal
@@ -887,6 +919,10 @@ const IconWrapper = styled.span`
 
 const InputWrapper = styled.div`
   padding: 8px 10px;
+`;
+
+const ImportButton = styled(Button)`
+  padding: 0;
 `;
 
 const Wrapper = styled.div`

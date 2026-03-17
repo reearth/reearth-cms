@@ -13,7 +13,12 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@smoke Text field editing has succeeded", async ({ page, fieldEditorPage, contentPage, schemaPage }) => {
+test("@smoke Text field editing has succeeded", async ({
+  page,
+  fieldEditorPage,
+  contentPage,
+  schemaPage,
+}) => {
   await test.step("Create text field with settings and default value", async () => {
     await fieldEditorPage.fieldTypeButton("Text").click();
     await fieldEditorPage.displayNameInput.click();

@@ -6,7 +6,7 @@ const GENERATED = "generated";
 // 1. https://www.apollographql.com/docs/react/migrating/apollo-client-4-migration
 // 2. https://www.apollographql.com/docs/react/development-testing/graphql-codegen
 const config: CodegenConfig = {
-  schema: "../server/schemas/*.graphql",
+  schema: "../server/schemas/**/*.graphql",
   // This assumes that all your source files are in a top-level `src/` directory - you might need to adjust this to your file structure
   documents: ["src/gql/fragments/*.ts", "src/gql/queries/*.ts", "src/**/*.graphql"],
   ignoreNoDocuments: true,
