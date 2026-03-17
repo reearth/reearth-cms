@@ -99,7 +99,7 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 		} else {
 			refItemIDs = items.RefItemIDs(params.SchemaPackage)
 		}
-		var referencedItemsMap map[id.ItemID]*item.Item
+		var referencedItemsMap item.Map
 		if len(refItemIDs) > 0 {
 			versionedRefs, err := i.repos.Item.FindByIDs(ctx, refItemIDs, ver)
 			if err != nil {
@@ -114,14 +114,7 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 			if referencedItemsMap == nil {
 				return nil, nil
 			}
-
-			result := make(item.List, 0, len(itemIDs))
-			for _, iid := range itemIDs {
-				if refItem, ok := referencedItemsMap[iid]; ok {
-					result = append(result, refItem)
-				}
-			}
-			return result, nil
+			return referencedItemsMap.ItemsByIDs(itemIDs), nil
 		}
 
 		// Extract and load assets for this batch
@@ -143,13 +136,7 @@ func (i Item) Export(ctx context.Context, params interfaces.ExportItemParams, w 
 			if !params.Options.IncludeAssets || assetsMap == nil {
 				return nil, nil
 			}
-			result := make(asset.List, 0, len(assetIDs))
-			for _, aid := range assetIDs {
-				if a, exists := assetsMap[aid]; exists {
-					result = append(result, a)
-				}
-			}
-			return result, nil
+			return assetsMap.ListFrom(assetIDs), nil
 		}
 
 		// Process this batch
