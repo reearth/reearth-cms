@@ -2,6 +2,7 @@
 import { Download } from "@playwright/test";
 
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { t } from "@reearth-cms/e2e/support/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { ProjectScopedPage } from "./project-scoped.page";
@@ -96,7 +97,7 @@ export class AssetsPage extends ProjectScopedPage {
     return this.getByText(`Asset / ${assetName}`);
   }
   public get assetTypeText(): Locator {
-    return this.getByText("Asset TypePNG/JPEG/TIFF/GIF");
+    return this.getByText(new RegExp(`${t("Asset Type")}.*PNG/JPEG/TIFF/GIF`));
   }
 
   public waitForDownload(): Promise<Download> {

@@ -2,6 +2,7 @@ import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types"
 import { expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
 import { stateColors } from "@reearth-cms/e2e/helpers/format.helper";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
+import { t } from "@reearth-cms/e2e/support/i18n";
 
 const dateReg = /([0-9]{4})\/(0[1-9]|1[0-2])\/([0-2][0-9]|3[01]), ([01][0-9]|2[0-3]):[0-5][0-9]/;
 const requestTitle = `request-${getId()}`;
@@ -41,17 +42,17 @@ test("Read versions successfully", { tag: TAG.SMOKE }, async ({ contentPage }) =
   const requestStatus = contentPage.requestStatusElement;
   await expect(contentPage.textByRegex(dateReg)).toBeVisible();
   await expect(contentPage.currentVersionText).toBeVisible();
-  await expect(contentPage.textByRegex(/Created by .*/)).toBeVisible();
+  await expect(contentPage.textByRegex(new RegExp(`${t("Created by")} .*`))).toBeVisible();
   await expect(requestStatus).toHaveCSS("background-color", getRgb(stateColors.DRAFT));
   await requestStatus.hover();
-  await expect(contentPage.tooltipByName("DRAFT")).toBeVisible();
+  await expect(contentPage.tooltipByName(t("DRAFT"))).toBeVisible();
 
   await contentPage.createRequest(requestTitle);
   const request = contentPage.requestLink(requestTitle);
   await expect(request).toBeVisible();
   await expect(requestStatus).toHaveCSS("background-color", getRgb(stateColors.REVIEW));
   await requestStatus.hover();
-  await expect(contentPage.tooltipByName("REVIEW")).toBeVisible();
+  await expect(contentPage.tooltipByName(t("REVIEW"))).toBeVisible();
   const itemId = contentPage.url().split("/").at(-1) as string;
   await request.click();
   await contentPage.approveButton.click();
@@ -61,14 +62,14 @@ test("Read versions successfully", { tag: TAG.SMOKE }, async ({ contentPage }) =
   await expect(request).toBeHidden();
   await expect(requestStatus).toHaveCSS("background-color", getRgb(stateColors.PUBLIC));
   await requestStatus.hover();
-  await expect(contentPage.tooltipByName("PUBLIC")).toBeVisible();
+  await expect(contentPage.tooltipByName(t("PUBLIC"))).toBeVisible();
 
   await contentPage.fieldInput(fieldName).fill("2");
   await contentPage.saveButton.click();
   await contentPage.closeNotification();
 
   await expect(contentPage.textByRegex(dateReg)).toHaveCount(2);
-  await expect(contentPage.textByRegex(/Updated by .*/)).toBeVisible();
+  await expect(contentPage.textByRegex(new RegExp(`${t("Updated by")} .*`))).toBeVisible();
   await expect(requestStatus.first()).toHaveCSS("background-color", getRgb(stateColors.DRAFT));
   await expect(requestStatus.last()).toHaveCSS("background-color", getRgb(stateColors.PUBLIC));
 });

@@ -2,6 +2,7 @@
 import z from "zod";
 
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { t } from "@reearth-cms/e2e/support/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { ProjectScopedPage } from "./project-scoped.page";
@@ -10,12 +11,12 @@ export class ContentPage extends ProjectScopedPage {
   private static readonly positiveIntSchema: z.ZodType<number> = z.int().positive();
   // Navigation
   public get contentText(): Locator {
-    return this.getByText("Content");
+    return this.getByText(t("Content"));
   }
 
   // Item creation and editing
   public get newItemButton(): Locator {
-    return this.getByRole("button", { name: "plus New Item" });
+    return this.getByRole("button", { name: `plus ${t("New Item")}` });
   }
   // Table actions
   public get selectAllCheckbox(): Locator {
@@ -25,21 +26,21 @@ export class ContentPage extends ProjectScopedPage {
     return this.getByRole("cell").getByLabel("edit").locator("svg");
   }
   public get deleteButton(): Locator {
-    return this.getByText("Delete");
+    return this.getByText(t("Delete"));
   }
 
   // Publishing
   public get publishButton(): Locator {
-    return this.getByRole("button", { name: "Publish" });
+    return this.getByRole("button", { name: t("Publish") });
   }
   public get unpublishButton(): Locator {
-    return this.getByText("Unpublish");
+    return this.getByText(t("Unpublish"));
   }
   public get publishFromTableButton(): Locator {
-    return this.getByText("Publish", { exact: true });
+    return this.getByText(t("Publish"), { exact: true });
   }
   public get yesButton(): Locator {
-    return this.getByRole("button", { name: "Yes" });
+    return this.getByRole("button", { name: t("Yes") });
   }
   public get ellipsisMenuButton(): Locator {
     return this.getByRole("button", { name: "ellipsis" });
@@ -47,10 +48,10 @@ export class ContentPage extends ProjectScopedPage {
 
   // Status indicators
   public get draftStatus(): Locator {
-    return this.getByText("Draft");
+    return this.getByText(t("Draft"));
   }
   public get publishedStatus(): Locator {
-    return this.getByText("Published");
+    return this.getByText(t("Published"));
   }
 
   // Comments
@@ -99,25 +100,25 @@ export class ContentPage extends ProjectScopedPage {
 
   // Views management
   public get saveAsNewViewButton(): Locator {
-    return this.getByRole("button", { name: "Save as new view" });
+    return this.getByRole("button", { name: t("Save as new view") });
   }
   public get viewNameInput(): Locator {
-    return this.getByLabel("View Name");
+    return this.getByLabel(t("View Name"));
   }
   public get moreButton(): Locator {
     return this.getByLabel("more").locator("svg");
   }
   public get renameViewButton(): Locator {
-    return this.getByText("Rename");
+    return this.getByText(t("Rename"));
   }
   public get removeViewButton(): Locator {
-    return this.getByText("Remove View");
+    return this.getByText(t("Remove View"));
   }
   public get removeButton(): Locator {
-    return this.getByRole("button", { name: "Remove" });
+    return this.getByRole("button", { name: t("Remove") });
   }
   public get updateViewButton(): Locator {
-    return this.getByText("Update View");
+    return this.getByText(t("Update View"));
   }
 
   // Table sorting and filtering
@@ -139,12 +140,12 @@ export class ContentPage extends ProjectScopedPage {
       .nth(index);
   }
   public get statusColumnHeader(): Locator {
-    return this.getByRole("columnheader", { name: "Status" });
+    return this.getByRole("columnheader", { name: t("Status") });
   }
 
   // Filtering
   public get addFilterButton(): Locator {
-    return this.getByRole("button", { name: "plus Filter" });
+    return this.getByRole("button", { name: `plus ${t("Filter")}` });
   }
   public filterMenuItem(fieldName: string): Locator {
     return this.getByRole("menuitem", { name: fieldName });
@@ -153,19 +154,19 @@ export class ContentPage extends ProjectScopedPage {
     return this.getByRole("button", { name: `${fieldName} close` });
   }
   public get isDropdown(): Locator {
-    return this.getByText("is", { exact: true }).first();
+    return this.getByText(t("is"), { exact: true }).first();
   }
   public get containsOption(): Locator {
-    return this.getByText("contains", { exact: true });
+    return this.getByText(t("contains"), { exact: true });
   }
   public get endWithOption(): Locator {
-    return this.getByText("end with", { exact: true });
+    return this.getByText(t("end with"), { exact: true });
   }
   public get filterValueInput(): Locator {
-    return this.getByPlaceholder("Enter the value");
+    return this.getByPlaceholder(t("Enter the value"));
   }
   public get confirmButton(): Locator {
-    return this.getByRole("button", { name: "Confirm" });
+    return this.getByRole("button", { name: t("Confirm") });
   }
 
   // Settings
@@ -294,7 +295,7 @@ export class ContentPage extends ProjectScopedPage {
   }
 
   public get itemInformationHeading(): Locator {
-    return this.getByRole("heading", { name: "Item Information" });
+    return this.getByRole("heading", { name: t("Item Information") });
   }
 
   public get tabPanel(): Locator {
@@ -325,7 +326,7 @@ export class ContentPage extends ProjectScopedPage {
 
   // Back button variations
   public get backButtonRole(): Locator {
-    return this.getByRole("button", { name: "Back" });
+    return this.getByRole("button", { name: t("Back") });
   }
   public get backButtonLabel(): Locator {
     return this.getByLabel("Back");
@@ -387,7 +388,7 @@ export class ContentPage extends ProjectScopedPage {
 
   // Required field validation
   public get pleaseInputFieldText(): Locator {
-    return this.getByText("Please input field!");
+    return this.getByText(t("Please input field!"));
   }
 
   // Cell selection with nth
@@ -397,7 +398,7 @@ export class ContentPage extends ProjectScopedPage {
 
   // Navigation helpers
   public get contentTextFirst(): Locator {
-    return this.getByText("Content").first();
+    return this.getByText(t("Content")).first();
   }
 
   // Title helpers
@@ -426,7 +427,7 @@ export class ContentPage extends ProjectScopedPage {
 
   // Date placeholder
   public get selectDatePlaceholder(): Locator {
-    return this.getByPlaceholder("Select date");
+    return this.getByPlaceholder(t("Select date"));
   }
 
   // Label elements
@@ -469,7 +470,7 @@ export class ContentPage extends ProjectScopedPage {
 
   // Version history elements
   public get versionHistoryTab(): Locator {
-    return this.getByRole("tab", { name: "Version History" });
+    return this.getByRole("tab", { name: t("Version History") });
   }
 
   public get requestStatusElement(): Locator {
@@ -477,11 +478,11 @@ export class ContentPage extends ProjectScopedPage {
   }
 
   public get currentVersionText(): Locator {
-    return this.getByText("current");
+    return this.getByText(t("current"));
   }
 
   public get currentVersionTextExact(): Locator {
-    return this.getByText("current", { exact: true });
+    return this.getByText(t("current"), { exact: true });
   }
 
   // Request elements
@@ -490,7 +491,7 @@ export class ContentPage extends ProjectScopedPage {
   }
 
   public get approveButton(): Locator {
-    return this.getByRole("button", { name: "Approve" });
+    return this.getByRole("button", { name: t("Approve") });
   }
 
   // Back button for version details
@@ -500,19 +501,19 @@ export class ContentPage extends ProjectScopedPage {
 
   // Restore button
   public get restoreButton(): Locator {
-    return this.getByRole("button", { name: "Restore" });
+    return this.getByRole("button", { name: t("Restore") });
   }
 
   public get restoreButtonMain(): Locator {
-    return this.getByRole("main").getByRole("button", { name: "Restore" });
+    return this.getByRole("main").getByRole("button", { name: t("Restore") });
   }
 
   public get restoreButtonAlert(): Locator {
-    return this.getByRole("alert").getByRole("button", { name: "Restore" });
+    return this.getByRole("alert").getByRole("button", { name: t("Restore") });
   }
 
   public get restoreButtonAlertFirst(): Locator {
-    return this.getByRole("alert").getByRole("button", { name: "Restore" }).first();
+    return this.getByRole("alert").getByRole("button", { name: t("Restore") }).first();
   }
 
   // Dynamic text matching with regex
@@ -533,19 +534,19 @@ export class ContentPage extends ProjectScopedPage {
   // ========== Action Method Locators (private) ==========
 
   private get newRequestMenuItem(): Locator {
-    return this.getByRole("menuitem", { name: "New Request" });
+    return this.getByRole("menuitem", { name: t("New Request") });
   }
   private get requestTitleInput(): Locator {
-    return this.getByLabel("Title").last();
+    return this.getByLabel(t("Title")).last();
   }
   private get requestDescriptionInput(): Locator {
-    return this.getByLabel("Description");
+    return this.getByLabel(t("Description"));
   }
   private get commentContentInput(): Locator {
     return this.page.locator("#content");
   }
   private get commentSubmitButton(): Locator {
-    return this.getByRole("button", { name: "Comment" });
+    return this.getByRole("button", { name: t("Comment") });
   }
   private get commentEditButton(): Locator {
     return this.getByRole("main").getByRole("complementary").getByLabel("edit").locator("svg");
@@ -731,7 +732,7 @@ export class ContentPage extends ProjectScopedPage {
   }
 
   public get importContentModal(): Locator {
-    return this.getByRole("dialog").filter({ hasText: "Import content" });
+    return this.getByRole("dialog").filter({ hasText: t("Import content") });
   }
 
   private get importContentFileInput(): Locator {
@@ -763,15 +764,15 @@ export class ContentPage extends ProjectScopedPage {
   }
 
   public get importContentGoBackButton(): Locator {
-    return this.getByRole("button", { name: "Go Back" });
+    return this.getByRole("button", { name: t("Go Back") });
   }
 
   public get importContentImportAnywayButton(): Locator {
-    return this.getByRole("button", { name: "Import Anyway" });
+    return this.getByRole("button", { name: t("Import Anyway") });
   }
 
   public get uploadSuccessNotification(): Locator {
-    return this.getByText("Successfully created upload job!");
+    return this.getByText(t("Successfully created upload job!"));
   }
 
   public get tableReloadIcon(): Locator {

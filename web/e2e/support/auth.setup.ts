@@ -1,4 +1,6 @@
 import { chromium, expect, TAG, test } from "@reearth-cms/e2e/fixtures/test";
+import { forceEnglishLocale } from "@reearth-cms/e2e/helpers/locale.helper";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { baseURL, authFile } from "../../playwright.config";
 import { config } from "../config/config";
@@ -16,11 +18,12 @@ test("authenticate", { tag: TAG.SMOKE }, async () => {
   const page = await context.newPage();
 
   try {
+    await forceEnglishLocale(page);
     await page.goto(baseURL, { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("button").first()).toBeVisible();
 
     const isLoggedIn = await page
-      .getByRole("button", { name: "New Project" })
+      .getByTestId(DATA_TEST_ID.Workspace__NewProjectButton)
       .first()
       .isVisible()
       .catch(() => false);
@@ -37,7 +40,9 @@ test("authenticate", { tag: TAG.SMOKE }, async () => {
       }
 
       await page.waitForURL(baseURL, { timeout: 30 * 1000 });
-      await expect(page.getByRole("button", { name: "New Project" }).first()).toBeVisible({
+      await expect(
+        page.getByTestId(DATA_TEST_ID.Workspace__NewProjectButton).first(),
+      ).toBeVisible({
         timeout: 10 * 1000,
       });
     }
@@ -47,6 +52,7 @@ test("authenticate", { tag: TAG.SMOKE }, async () => {
     console.error("Authentication setup failed:", error);
     throw error;
   } finally {
+    await page.unrouteAll({ behavior: "ignoreErrors" });
     await page.close();
     await context.close();
     await browser.close();

@@ -1,5 +1,6 @@
 // e2e/pages/integrations.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { t } from "@reearth-cms/e2e/support/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { SettingsScopedPage } from "./settings-scoped.page";
@@ -7,21 +8,21 @@ import { SettingsScopedPage } from "./settings-scoped.page";
 export class IntegrationsPage extends SettingsScopedPage {
   // Navigation
   public get myIntegrationsMenuItem(): Locator {
-    return this.getByText("My Integrations");
+    return this.getByText(t("My Integrations"));
   }
 
   // Integration management
   public get createIntegrationButton(): Locator {
-    return this.getByRole("button", { name: "plus Create new integration" });
+    return this.getByRole("button", { name: `plus ${t("Create new integration")}` });
   }
   public get integrationNameInput(): Locator {
-    return this.getByLabel("Integration Name");
+    return this.getByLabel(t("Integration Name"));
   }
   public get descriptionInput(): Locator {
-    return this.getByLabel("Description");
+    return this.getByLabel(t("Description"));
   }
   public get createButton(): Locator {
-    return this.getByRole("button", { name: "Create", exact: true });
+    return this.getByRole("button", { name: t("Create"), exact: true });
   }
   public get removeIntegrationButton(): Locator {
     return this.getByTestId(
@@ -36,28 +37,28 @@ export class IntegrationsPage extends SettingsScopedPage {
 
   // Webhook management
   public get webhookTab(): Locator {
-    return this.getByRole("tab", { name: "Webhook" });
+    return this.getByRole("tab", { name: t("Webhook") });
   }
   public get generalTab(): Locator {
-    return this.getByRole("tab", { name: "General" });
+    return this.getByRole("tab", { name: t("General") });
   }
   public get newWebhookButton(): Locator {
-    return this.getByRole("button", { name: "plus new webhook" }).first();
+    return this.getByRole("button", { name: `plus ${t("new webhook")}` }).first();
   }
   public get webhookNameInput(): Locator {
-    return this.getByRole("tabpanel").getByLabel("Name");
+    return this.getByRole("tabpanel").getByLabel(t("Name"));
   }
   public get urlInput(): Locator {
-    return this.getByLabel("Url");
+    return this.getByLabel(t("Url"));
   }
   public get secretInput(): Locator {
-    return this.getByLabel("Secret");
+    return this.getByLabel(t("Secret"));
   }
   public get createCheckbox(): Locator {
-    return this.getByRole("checkbox", { name: "Create" });
+    return this.getByRole("checkbox", { name: t("Create") });
   }
   public get uploadCheckbox(): Locator {
-    return this.getByRole("checkbox", { name: "Upload" });
+    return this.getByRole("checkbox", { name: t("Upload") });
   }
   public get arrowLeftButton(): Locator {
     return this.getByRole("button", { name: "arrow-left" });
@@ -80,7 +81,7 @@ export class IntegrationsPage extends SettingsScopedPage {
     return this.getByRole("tabpanel");
   }
   public get webhookLabel(): Locator {
-    return this.getByLabel("Webhook");
+    return this.getByLabel(t("Webhook"));
   }
 
   // Dynamic text locators
@@ -99,20 +100,20 @@ export class IntegrationsPage extends SettingsScopedPage {
 
   // Input fields in tabpanel
   public get tabpanelNameInput(): Locator {
-    return this.getByRole("tabpanel").getByLabel("Name");
+    return this.getByRole("tabpanel").getByLabel(t("Name"));
   }
 
   // Integration management
   public get connectIntegrationButton(): Locator {
-    return this.getByRole("button", { name: "api Connect Integration" }).first();
+    return this.getByRole("button", { name: `api ${t("Connect Integration")}` }).first();
   }
 
   public get connectButton(): Locator {
-    return this.getByRole("button", { name: "Connect", exact: true });
+    return this.getByRole("button", { name: t("Connect"), exact: true });
   }
 
   public override get cancelButton(): Locator {
-    return this.getByRole("button", { name: "Cancel", exact: true });
+    return this.getByRole("button", { name: t("Cancel"), exact: true });
   }
 
   public get settingSvgButton(): Locator {
@@ -136,7 +137,7 @@ export class IntegrationsPage extends SettingsScopedPage {
   }
 
   public get removeText(): Locator {
-    return this.getByText("Remove");
+    return this.getByText(t("Remove"));
   }
 
   // Dynamic locators for integration-specific content

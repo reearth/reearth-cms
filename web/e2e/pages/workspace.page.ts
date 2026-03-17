@@ -1,6 +1,7 @@
 // e2e/pages/workspace.page.ts
 import { SortBy } from "@reearth-cms/components/molecules/Workspace/types";
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { t } from "@reearth-cms/e2e/support/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { BasePage } from "./base.page";
@@ -8,27 +9,27 @@ import { BasePage } from "./base.page";
 export class WorkspacePage extends BasePage {
   // Workspace creation
   public get createWorkspaceButton(): Locator {
-    return this.getByRole("button", { name: "Create a Workspace" });
+    return this.getByRole("button", { name: t("Create a Workspace") });
   }
   public get workspaceNameInput(): Locator {
-    return this.getByLabel("Workspace name");
+    return this.getByLabel(t("Workspace name"));
   }
   public get createWorkspaceTabButton(): Locator {
-    return this.getByText("Create Workspace");
+    return this.getByText(t("Create Workspace"));
   }
 
   // Workspace settings
   public get workspaceSettingsButton(): Locator {
-    return this.getByText("Workspace Settings", { exact: true });
+    return this.getByText(t("Workspace Settings"), { exact: true });
   }
   public get workspaceNameSettingsInput(): Locator {
-    return this.getByLabel("Workspace Name");
+    return this.getByLabel(t("Workspace Name"));
   }
   public get saveChangesButton(): Locator {
-    return this.getByRole("button", { name: "Save changes" });
+    return this.getByRole("button", { name: t("Save changes") });
   }
   public get removeWorkspaceButton(): Locator {
-    return this.getByRole("button", { name: "Remove Workspace" });
+    return this.getByRole("button", { name: t("Remove Workspace") });
   }
 
   // Header and navigation
@@ -41,16 +42,16 @@ export class WorkspacePage extends BasePage {
 
   // Project management from workspace level
   public get newProjectButtonLast(): Locator {
-    return this.getByRole("button", { name: "plus New Project" }).last();
+    return this.getByRole("button", { name: `plus ${t("New Project")}` }).last();
   }
   public get projectNameInput(): Locator {
-    return this.getByLabel("Project name");
+    return this.getByLabel(t("Project name"));
   }
   public get projectDescriptionInput(): Locator {
-    return this.getByLabel("Project description");
+    return this.getByLabel(t("Project description"));
   }
   public get searchProjectsInput(): Locator {
-    return this.getByPlaceholder("search projects");
+    return this.getByPlaceholder(t("search projects"));
   }
   public get clearSearchButton(): Locator {
     return this.getByRole("button", { name: "close-circle" });
@@ -68,7 +69,7 @@ export class WorkspacePage extends BasePage {
   }
 
   public get projectSelectDefaultSort(): Locator {
-    return this.projectSelectSort.getByTitle("Last Modified");
+    return this.projectSelectSort.getByTitle(t("Last Modified"));
   }
 
   public paginationEl(page: number): Locator {

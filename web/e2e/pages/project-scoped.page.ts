@@ -1,6 +1,7 @@
 // e2e/pages/project-scoped.page.ts
 import { expect, type Locator, type Page } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
+import { t } from "@reearth-cms/e2e/support/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { BasePage } from "./base.page";
@@ -36,15 +37,15 @@ export abstract class ProjectScopedPage extends BasePage {
 
   // Project sidebar navigation
   public get schemaMenuItem(): Locator {
-    return this.getByRole("menuitem", { name: "Schema" });
+    return this.getByRole("menuitem", { name: t("Schema") });
   }
 
   public get contentMenuItem(): Locator {
-    return this.getByRole("menuitem", { name: "Content" });
+    return this.getByRole("menuitem", { name: t("Content") });
   }
 
   public get assetMenuItem(): Locator {
-    return this.getByRole("menuitem", { name: "Asset" });
+    return this.getByRole("menuitem", { name: t("Asset") });
   }
 
   public get settingsMenuItem(): Locator {
@@ -64,13 +65,13 @@ export abstract class ProjectScopedPage extends BasePage {
     return this.getByRole("dialog").locator("#name");
   }
   private get modelFormNameInput(): Locator {
-    return this.getByLabel("Model name");
+    return this.getByLabel(t("Model name"));
   }
   private get modelFormKeyInput(): Locator {
-    return this.getByLabel("Model key");
+    return this.getByLabel(t("Model key"));
   }
   private get modelFormDescriptionInput(): Locator {
-    return this.getByLabel("Model description");
+    return this.getByLabel(t("Model description"));
   }
 
   public async createProject(name: string): Promise<void> {

@@ -1,6 +1,7 @@
 // e2e/pages/schema.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
+import { t } from "@reearth-cms/e2e/support/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { ProjectScopedPage } from "./project-scoped.page";
@@ -17,13 +18,13 @@ export class SchemaPage extends ProjectScopedPage {
     return this.locator("#key");
   }
   public get modelNameLabel(): Locator {
-    return this.getByLabel("Model name");
+    return this.getByLabel(t("Model name"));
   }
   public get modelKeyLabel(): Locator {
-    return this.getByLabel("Model key");
+    return this.getByLabel(t("Model key"));
   }
   public get importSchemaDialog(): Locator {
-    return this.getByRole("dialog", { name: "Import Schema" });
+    return this.getByRole("dialog", { name: t("Import Schema") });
   }
   public get importSchemaOuterButton(): Locator {
     return this.getByTestId(DATA_TEST_ID.ModelFieldList__ImportSchemaButton);
@@ -37,10 +38,10 @@ export class SchemaPage extends ProjectScopedPage {
 
   // Group actions
   public get addGroupButton(): Locator {
-    return this.getByRole("button", { name: "Create Group" });
+    return this.getByRole("button", { name: t("Create Group") });
   }
   public get newGroupDialog(): Locator {
-    return this.getByLabel("New Group");
+    return this.getByLabel(t("New Group"));
   }
   public get groupNameInput(): Locator {
     return this.newGroupDialog.locator("#name");
@@ -71,7 +72,7 @@ export class SchemaPage extends ProjectScopedPage {
 
   // Group field specific
   public get createGroupFieldButton(): Locator {
-    return this.getByText("Create Group Field");
+    return this.getByText(t("Create Group Field"));
   }
   public get groupSelectTrigger(): Locator {
     return this.getByTestId(DATA_TEST_ID.Schema__GroupSelect);
@@ -166,15 +167,15 @@ export class SchemaPage extends ProjectScopedPage {
     return this.getByRole("button", { name: "more" });
   }
   private get editMenuItemText(): Locator {
-    return this.getByText("Edit", { exact: true });
+    return this.getByText(t("Edit"), { exact: true });
   }
   private get deleteMenuItemText(): Locator {
-    return this.getByText("Delete", { exact: true });
+    return this.getByText(t("Delete"), { exact: true });
   }
 
   // Update Model dialog
   private get updateModelDialog(): Locator {
-    return this.getByLabel("Update Model");
+    return this.getByLabel(t("Update Model"));
   }
   private get updateModelNameInput(): Locator {
     return this.updateModelDialog.locator("#name");
@@ -183,7 +184,7 @@ export class SchemaPage extends ProjectScopedPage {
     return this.updateModelDialog.locator("#key");
   }
   private get deleteModelConfirmButton(): Locator {
-    return this.getByRole("button", { name: "Delete Model" });
+    return this.getByRole("button", { name: t("Delete Model") });
   }
 
   // Create Group form
@@ -191,15 +192,15 @@ export class SchemaPage extends ProjectScopedPage {
     return this.getByTestId(DATA_TEST_ID.Schema__GroupAddButton);
   }
   private get groupNameLabel(): Locator {
-    return this.getByLabel("Group name");
+    return this.getByLabel(t("Group name"));
   }
   private get groupKeyLabel(): Locator {
-    return this.getByLabel("Group key");
+    return this.getByLabel(t("Group key"));
   }
 
   // Update Group dialog
   private get updateGroupDialog(): Locator {
-    return this.getByLabel("Update Group");
+    return this.getByLabel(t("Update Group"));
   }
   private get updateGroupNameInput(): Locator {
     return this.updateGroupDialog.locator("#name");
@@ -208,7 +209,7 @@ export class SchemaPage extends ProjectScopedPage {
     return this.updateGroupDialog.locator("#key");
   }
   private get deleteGroupConfirmButton(): Locator {
-    return this.getByRole("button", { name: "Delete Group" });
+    return this.getByRole("button", { name: t("Delete Group") });
   }
 
   // ========== Action Methods (POM Pattern) ==========

@@ -1,6 +1,7 @@
 import { test as base, type Page } from "@playwright/test";
 
 import { config, getAccessToken, type Config } from "../config/config";
+import { forceEnglishLocale } from "../helpers/locale.helper";
 import { AssetsPage } from "../pages/assets.page";
 import { ContentPage } from "../pages/content.page";
 import { FieldEditorPage } from "../pages/field-editor.page";
@@ -42,6 +43,12 @@ export type Reearth = {
 type Fixtures = { reearth: Reearth } & PageObjects;
 
 export const test = base.extend<Fixtures>({
+  page: async ({ page }, use) => {
+    await forceEnglishLocale(page);
+    await use(page);
+    await page.unrouteAll({ behavior: "ignoreErrors" });
+  },
+
   reearth: async ({ page, request }, use) => {
     use({
       ...config,

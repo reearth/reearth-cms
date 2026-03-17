@@ -1,6 +1,7 @@
 import { getAccessToken } from "@reearth-cms/e2e/config/config";
 import { expect, type Page, type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
+import { t } from "@reearth-cms/e2e/support/i18n";
 
 type Role =
   | "alert"
@@ -186,15 +187,15 @@ export abstract class BasePage {
 
   // Common locators shared across POMs
   public get okButton(): Locator {
-    return this.getByRole("button", { name: "OK" });
+    return this.getByRole("button", { name: t("OK") });
   }
 
   public get cancelButton(): Locator {
-    return this.getByRole("button", { name: "Cancel" });
+    return this.getByRole("button", { name: t("Cancel") });
   }
 
   public get saveButton(): Locator {
-    return this.getByRole("button", { name: "Save" });
+    return this.getByRole("button", { name: t("Save") });
   }
 
   public get backButton(): Locator {
@@ -202,7 +203,7 @@ export abstract class BasePage {
   }
 
   public get searchInput(): Locator {
-    return this.getByPlaceholder("input search text");
+    return this.getByPlaceholder(t("input search text"));
   }
 
   public get searchButton(): Locator {

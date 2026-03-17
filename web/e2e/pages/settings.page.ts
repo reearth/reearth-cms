@@ -1,5 +1,6 @@
 // e2e/pages/settings.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { t } from "@reearth-cms/e2e/support/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { SettingsScopedPage } from "./settings-scoped.page";
@@ -7,7 +8,7 @@ import { SettingsScopedPage } from "./settings-scoped.page";
 export class SettingsPage extends SettingsScopedPage {
   // Tiles management
   public get addNewTilesButton(): Locator {
-    return this.getByRole("button", { name: "plus Add new Tiles option" });
+    return this.getByRole("button", { name: `plus ${t("Add new Tiles option")}` });
   }
   public get defaultTileOption(): Locator {
     return this.locator("div")
@@ -26,7 +27,7 @@ export class SettingsPage extends SettingsScopedPage {
     return this.getByRole("switch");
   }
   public get addTerrainButton(): Locator {
-    return this.getByRole("button", { name: "plus Add new Terrain option" });
+    return this.getByRole("button", { name: `plus ${t("Add new Terrain option")}` });
   }
   public get cesiumWorldTerrainDiv(): Locator {
     return this.locator("div")
@@ -47,22 +48,22 @@ export class SettingsPage extends SettingsScopedPage {
 
   // Form inputs
   public get nameInput(): Locator {
-    return this.getByLabel("Name");
+    return this.getByLabel(t("Name"));
   }
   public get urlInput(): Locator {
-    return this.getByLabel("URL").first();
+    return this.getByLabel(t("URL")).first();
   }
   public get imageUrlInput(): Locator {
-    return this.getByLabel("Image URL");
+    return this.getByLabel(t("Image URL"));
   }
   public get terrainAssetIdInput(): Locator {
-    return this.getByLabel("Terrain Cesium Ion asset ID");
+    return this.getByLabel(t("Terrain Cesium Ion asset ID"));
   }
   public get terrainAccessTokenInput(): Locator {
-    return this.getByLabel("Terrain Cesium Ion access");
+    return this.getByLabel(t("Terrain Cesium Ion access"));
   }
   public get terrainUrlInput(): Locator {
-    return this.getByLabel("Terrain URL");
+    return this.getByLabel(t("Terrain URL"));
   }
 
   // Card elements
@@ -110,7 +111,7 @@ export class SettingsPage extends SettingsScopedPage {
 
   // Account and Language settings
   public get accountText(): Locator {
-    return this.getByText(/Account|アカウント/);
+    return this.getByText(t("Account"));
   }
   public get currentLanguageText(): Locator {
     return this.getByText(/Auto|自動|English|日本語/);
@@ -136,16 +137,16 @@ export class SettingsPage extends SettingsScopedPage {
 
   // Account management
   public get accountNameInput(): Locator {
-    return this.getByLabel(/Account Name|アカウント名/);
+    return this.getByLabel(t("Account Name"));
   }
   public get yourEmailInput(): Locator {
-    return this.getByLabel(/Your Email|メールアドレス/);
+    return this.getByLabel(t("Your Email"));
   }
   public get accountNameInputExact(): Locator {
-    return this.getByLabel("Account Name");
+    return this.getByLabel(t("Account Name"));
   }
   public get yourEmailInputExact(): Locator {
-    return this.getByLabel("Your Email");
+    return this.getByLabel(t("Your Email"));
   }
   public get formSubmitButton(): Locator {
     return this.locator("form").getByRole("button").first();

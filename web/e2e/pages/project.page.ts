@@ -1,5 +1,6 @@
 // e2e/pages/project.page.ts
 import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { t } from "@reearth-cms/e2e/support/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { ProjectScopedPage } from "./project-scoped.page";
@@ -7,7 +8,7 @@ import { ProjectScopedPage } from "./project-scoped.page";
 export class ProjectPage extends ProjectScopedPage {
   // Overview page - Model management
   public get noModelsYetText(): Locator {
-    return this.getByText("No Models yet");
+    return this.getByText(t("No Models yet"));
   }
   public get newModelButtonFirst(): Locator {
     return this.getByTestId(DATA_TEST_ID.ProjectOverview__NewModelButton);
@@ -16,16 +17,16 @@ export class ProjectPage extends ProjectScopedPage {
     return this.getByTestId(DATA_TEST_ID.ProjectOverview__NewModelPlaceholderButton);
   }
   public get newModelLabelText(): Locator {
-    return this.getByLabel("New Model").getByText("New Model");
+    return this.getByLabel(t("New Model")).getByText(t("New Model"));
   }
   public get modelDescriptionInput(): Locator {
-    return this.getByLabel("Model description");
+    return this.getByLabel(t("Model description"));
   }
   public get modelNameInput(): Locator {
-    return this.getByLabel("Model name");
+    return this.getByLabel(t("Model name"));
   }
   public get modelKeyInput(): Locator {
-    return this.getByLabel("Model key");
+    return this.getByLabel(t("Model key"));
   }
   public get modelsMenuItem(): Locator {
     return this.getByTestId(DATA_TEST_ID.ProjectMenu__ModelsItem);
@@ -67,41 +68,41 @@ export class ProjectPage extends ProjectScopedPage {
     return this.getByTestId(DATA_TEST_ID.ModelCard__UtilDropdownImportContent);
   }
   public get deleteModelButton(): Locator {
-    return this.getByRole("button", { name: "Delete Model" });
+    return this.getByRole("button", { name: t("Delete Model") });
   }
   public get dialogNewModelText(): Locator {
-    return this.getByRole("dialog").getByText("New Model");
+    return this.getByRole("dialog").getByText(t("New Model"));
   }
 
   // Export modal locators
   public get csvExportWarningText(): Locator {
-    return this.getByText("CSV export only supports simple fields");
+    return this.getByText(t("CSV export only supports simple fields"));
   }
   public get csvExportRelationsWarningText(): Locator {
-    return this.getByText("Relations, arrays, objects, and geometry fields are not included.");
+    return this.getByText(t("Relations, arrays, objects, and geometry fields are not included."));
   }
   public get exportCSVButton(): Locator {
-    return this.getByRole("button", { name: "Export CSV" });
+    return this.getByRole("button", { name: t("Export CSV") });
   }
   public get cannotExportGeoJSONText(): Locator {
-    return this.getByText("Cannot export GeoJSON");
+    return this.getByText(t("Cannot export GeoJSON"));
   }
   public get noGeometryFieldText(): Locator {
     return this.getByText(
-      "No Geometry field was found in this model, so GeoJSON export is not available.",
+      t("No Geometry field was found in this model, so GeoJSON export is not available."),
     );
   }
   public get multipleGeometryFieldsText(): Locator {
-    return this.getByText("Multiple Geometry fields detected");
+    return this.getByText(t("Multiple Geometry fields detected"));
   }
   public get multipleGeometryWarningText(): Locator {
-    return this.getByText("This model has multiple Geometry fields.");
+    return this.getByText(t("This model has multiple Geometry fields."));
   }
   public get geoJSONSingleFieldWarningText(): Locator {
-    return this.getByText("GeoJSON format supports only one geometry field.");
+    return this.getByText(t("GeoJSON format supports only one geometry field."));
   }
   private get exportAnywayButton(): Locator {
-    return this.getByRole("button", { name: "Export Anyway" });
+    return this.getByRole("button", { name: t("Export Anyway") });
   }
 
   // Dynamic locators for model-specific content
@@ -140,7 +141,7 @@ export class ProjectPage extends ProjectScopedPage {
     return this.getByTestId(DATA_TEST_ID.ProjectSettings__RequestOptions__SaveButton);
   }
   public get ownerSwitch(): Locator {
-    return this.getByRole("row", { name: "Owner" }).getByRole("switch");
+    return this.getByRole("row", { name: t("Owner") }).getByRole("switch");
   }
   public get banner(): Locator {
     return this.getByRole("banner");
@@ -153,19 +154,19 @@ export class ProjectPage extends ProjectScopedPage {
 
   // Accessibility page locators
   public get accessibilityHeadingFirst(): Locator {
-    return this.getByText("Accessibility").first();
+    return this.getByText(t("Accessibility")).first();
   }
   public get accessApiText(): Locator {
-    return this.getByText("Access API").first();
+    return this.getByText(t("Access API")).first();
   }
   public get apiKeyText(): Locator {
-    return this.getByText("API Key").first();
+    return this.getByText(t("API Key")).first();
   }
   public get newKeyButton(): Locator {
-    return this.getByRole("button", { name: "New Key" });
+    return this.getByRole("button", { name: t("New Key") });
   }
   public get changeProjectVisibilityButton(): Locator {
-    return this.getByRole("button", { name: "Change project visibility" });
+    return this.getByRole("button", { name: t("Change project visibility") });
   }
 
   private projectCardDescription(description: string): Locator {
