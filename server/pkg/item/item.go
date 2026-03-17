@@ -248,11 +248,7 @@ func (i *Item) RefItemIDsBySchema(sp schema.Package) IDList {
 }
 
 func (i *Item) RefItemIDsByFields(sp schema.Package) IDList {
-	return collectRefItemIDs(i, sp.FieldsByType(value.TypeReference))
-}
-
-// collectRefItemIDs extracts referenced item IDs from the given reference fields.
-func collectRefItemIDs(i *Item, sRefFields schema.FieldList) IDList {
+	sRefFields := sp.FieldsByType(value.TypeReference)
 	if len(sRefFields) == 0 {
 		return nil
 	}

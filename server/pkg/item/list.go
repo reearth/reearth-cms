@@ -120,10 +120,25 @@ func (l List) RefItemIDsByModels(sp schema.Package, models id.ModelIDList) IDLis
 		if itm == nil {
 			continue
 		}
-		for _, refID := range collectRefItemIDs(itm, allowedFields) {
-			if !seen[refID] {
-				refIDs = append(refIDs, refID)
-				seen[refID] = true
+		ids := lo.FlatMap(itm.Fields().Filter(allowedFields.IDs()), func(f *Field, _ int) []*value.Value {
+			sf := allowedFields.Find(f.FieldID())
+			if sf == nil {
+				return nil
+			}
+			if sf.Multiple() {
+				return f.Value().Values()
+			}
+			if v := f.Value().First(); v != nil {
+				return []*value.Value{v}
+			}
+			return nil
+		})
+		for _, v := range ids {
+			if refID, ok := v.Value().(ID); ok {
+				if !seen[refID] {
+					refIDs = append(refIDs, refID)
+					seen[refID] = true
+				}
 			}
 		}
 	}
