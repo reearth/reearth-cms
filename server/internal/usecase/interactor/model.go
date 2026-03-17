@@ -276,15 +276,13 @@ func (i Model) removeReferenceFieldsPointingToSchema(ctx context.Context, m *mod
 		return err
 	}
 
+	// Only collect main schema IDs — metadata schemas never hold reference fields.
 	var siblingSchemaIDs id.SchemaIDList
 	for _, sib := range siblings {
 		if sib.ID() == m.ID() {
 			continue
 		}
 		siblingSchemaIDs = append(siblingSchemaIDs, sib.Schema())
-		if sib.Metadata() != nil {
-			siblingSchemaIDs = append(siblingSchemaIDs, *sib.Metadata())
-		}
 	}
 	if len(siblingSchemaIDs) == 0 {
 		return nil
