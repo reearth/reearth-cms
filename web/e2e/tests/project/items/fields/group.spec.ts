@@ -17,7 +17,7 @@ test.afterEach(async ({ projectPage }) => {
   }
 });
 
-test("@focus Group field creating and updating has succeeded", async ({
+test("Group field creating and updating has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,
@@ -179,7 +179,7 @@ test("@focus Group field creating and updating has succeeded", async ({
   });
 });
 
-test("@focus Group field editing has succeeded", async ({
+test("Group field editing has succeeded", async ({
   fieldEditorPage,
   contentPage,
   schemaPage,
