@@ -40,7 +40,7 @@ func TextNormalizationMigration(ctx context.Context, dbURL, dbName string, wetRu
 }
 
 type AssetDocumentForNormalization struct {
-	ID       primitive.ObjectID `bson:"_id"`
+	ID       primitive.ObjectID `bson:"_id,omitempty"`
 	FileName string             `bson:"filename"`
 }
 
@@ -82,7 +82,7 @@ func normalizeAssetFilenames(ctx context.Context, db *mongo.Database, wetRun boo
 
 	fmt.Printf("Starting asset filename normalization...\n")
 
-	processed, err := BatchUpdateWithFields(ctx, col, filter, 1000, updateAssetFilename)
+	processed, err := BatchUpdate(ctx, col, filter, 1000, updateAssetFilename)
 	if err != nil {
 		return err
 	}
@@ -91,27 +91,31 @@ func normalizeAssetFilenames(ctx context.Context, db *mongo.Database, wetRun boo
 	return nil
 }
 
-func updateAssetFilename(asset AssetDocumentForNormalization) (bson.M, bool, error) {
+func updateAssetFilename(asset AssetDocumentForNormalization) (*AssetDocumentForNormalization, error) {
 	normalizedFileName := utils.NormalizeText(asset.FileName)
 
 	if asset.FileName != normalizedFileName {
 		fmt.Printf("Normalizing asset filename: '%s' -> '%s'\n", asset.FileName, normalizedFileName)
-		return bson.M{"filename": normalizedFileName}, true, nil
+		return &AssetDocumentForNormalization{FileName: normalizedFileName}, nil
 	}
 
-	return nil, false, nil
+	return nil, nil
+}
+
+type ValueForTextNormalization struct {
+	T string `bson:"t"`
+	V []any  `bson:"v"`
+}
+
+type FieldsForTextNormalization struct {
+	F string                    `bson:"f"`
+	V ValueForTextNormalization `bson:"v"`
 }
 
 type ItemDocumentForTextNormalization struct {
-	ID     primitive.ObjectID `bson:"_id"`
-	ItemID string             `bson:"id"`
-	Fields []struct {
-		F string `bson:"f"`
-		V struct {
-			T string `bson:"t"`
-			V []any  `bson:"v"`
-		} `bson:"v"`
-	} `bson:"fields"`
+	ID     primitive.ObjectID           `bson:"_id,omitempty"`
+	ItemID string                       `bson:"id,omitempty"`
+	Fields []FieldsForTextNormalization `bson:"fields"`
 }
 
 func (i ItemDocumentForTextNormalization) GetID() primitive.ObjectID {
@@ -152,7 +156,7 @@ func normalizeItemTextFields(ctx context.Context, db *mongo.Database, wetRun boo
 
 	fmt.Println("Starting item text field normalization...")
 
-	processed, err := BatchUpdateWithFields(ctx, col, filter, 1000, updateItemTextFields)
+	processed, err := BatchUpdate(ctx, col, filter, 1000, updateItemTextFields)
 	if err != nil {
 		return err
 	}
@@ -161,7 +165,7 @@ func normalizeItemTextFields(ctx context.Context, db *mongo.Database, wetRun boo
 	return nil
 }
 
-func updateItemTextFields(item ItemDocumentForTextNormalization) (bson.M, bool, error) {
+func updateItemTextFields(item ItemDocumentForTextNormalization) (*ItemDocumentForTextNormalization, error) {
 	hasChanges := false
 	for _, field := range item.Fields {
 		originalValues := field.V.V
@@ -178,21 +182,21 @@ func updateItemTextFields(item ItemDocumentForTextNormalization) (bson.M, bool, 
 	}
 
 	if !hasChanges {
-		return nil, false, nil
+		return nil, nil
 	}
 
-	normalizedFields := make([]bson.M, len(item.Fields))
+	normalizedFields := make([]FieldsForTextNormalization, len(item.Fields))
 	for i, field := range item.Fields {
 		normalizedValues := utils.NormalizeStringValues(field.V.T, field.V.V)
-		normalizedFields[i] = bson.M{
-			"f": field.F,
-			"v": bson.M{
-				"t": field.V.T,
-				"v": normalizedValues,
+		normalizedFields[i] = FieldsForTextNormalization{
+			F: field.F,
+			V: ValueForTextNormalization{
+				T: field.V.T,
+				V: normalizedValues,
 			},
 		}
 	}
 
 	fmt.Printf("Normalized text fields in item %s\n", item.ItemID)
-	return bson.M{"fields": normalizedFields}, true, nil
+	return &ItemDocumentForTextNormalization{Fields: normalizedFields}, nil
 }

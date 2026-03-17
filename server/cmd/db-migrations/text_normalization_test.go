@@ -128,7 +128,7 @@ func TestNormalizeAssetFilename(t *testing.T) {
 	tests := []struct {
 		name     string
 		asset    AssetDocumentForNormalization
-		want     bson.M
+		want     *AssetDocumentForNormalization
 		shouldUp bool
 	}{
 		{
@@ -137,7 +137,7 @@ func TestNormalizeAssetFilename(t *testing.T) {
 				ID:       primitive.NewObjectID(),
 				FileName: "Tokyo２０２４.jpg",
 			},
-			want:     bson.M{"filename": "Tokyo2024.jpg"},
+			want:     &AssetDocumentForNormalization{FileName: "Tokyo2024.jpg"},
 			shouldUp: true,
 		},
 		{
@@ -155,7 +155,7 @@ func TestNormalizeAssetFilename(t *testing.T) {
 				ID:       primitive.NewObjectID(),
 				FileName: "ｆｉｌｅ．ｔｘｔ",
 			},
-			want:     bson.M{"filename": "file.txt"},
+			want:     &AssetDocumentForNormalization{FileName: "file.txt"},
 			shouldUp: true,
 		},
 		{
@@ -173,7 +173,7 @@ func TestNormalizeAssetFilename(t *testing.T) {
 				ID:       primitive.NewObjectID(),
 				FileName: "\u30db\u309a\u30fc\u30eb.jpg", // ポール decomposed form (visually identical)
 			},
-			want:     bson.M{"filename": "\u30dd\u30fc\u30eb.jpg"}, // Normalized to composed form
+			want:     &AssetDocumentForNormalization{FileName: "\u30dd\u30fc\u30eb.jpg"}, // Normalized to composed form
 			shouldUp: true,
 		},
 	}
@@ -183,9 +183,9 @@ func TestNormalizeAssetFilename(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got, shouldUpdate, err := updateAssetFilename(tt.asset)
+			got, err := updateAssetFilename(tt.asset)
 			assert.NoError(t, err)
-			assert.Equal(t, tt.shouldUp, shouldUpdate)
+			assert.Equal(t, tt.shouldUp, got != nil)
 			assert.Equal(t, tt.want, got)
 		})
 	}
@@ -195,7 +195,7 @@ func TestNormalizeItemTextFields(t *testing.T) {
 	tests := []struct {
 		name     string
 		item     ItemDocumentForTextNormalization
-		want     bson.M
+		want     *ItemDocumentForTextNormalization
 		shouldUp bool
 	}{
 		{
@@ -203,32 +203,23 @@ func TestNormalizeItemTextFields(t *testing.T) {
 			item: ItemDocumentForTextNormalization{
 				ID:     primitive.NewObjectID(),
 				ItemID: "item1",
-				Fields: []struct {
-					F string `bson:"f"`
-					V struct {
-						T string `bson:"t"`
-						V []any  `bson:"v"`
-					} `bson:"v"`
-				}{
+				Fields: []FieldsForTextNormalization{
 					{
 						F: "field1",
-						V: struct {
-							T string `bson:"t"`
-							V []any  `bson:"v"`
-						}{
+						V: ValueForTextNormalization{
 							T: "text",
 							V: []any{"Tokyo２０２４"},
 						},
 					},
 				},
 			},
-			want: bson.M{
-				"fields": []bson.M{
+			want: &ItemDocumentForTextNormalization{
+				Fields: []FieldsForTextNormalization{
 					{
-						"f": "field1",
-						"v": bson.M{
-							"t": "text",
-							"v": []any{"Tokyo2024"},
+						F: "field1",
+						V: ValueForTextNormalization{
+							T: "text",
+							V: []any{"Tokyo2024"},
 						},
 					},
 				},
@@ -240,19 +231,10 @@ func TestNormalizeItemTextFields(t *testing.T) {
 			item: ItemDocumentForTextNormalization{
 				ID:     primitive.NewObjectID(),
 				ItemID: "item_composed",
-				Fields: []struct {
-					F string `bson:"f"`
-					V struct {
-						T string `bson:"t"`
-						V []any  `bson:"v"`
-					} `bson:"v"`
-				}{
+				Fields: []FieldsForTextNormalization{
 					{
 						F: "field1",
-						V: struct {
-							T string `bson:"t"`
-							V []any  `bson:"v"`
-						}{
+						V: ValueForTextNormalization{
 							T: "text",
 							V: []any{"\u30dd\u30fc\u30eb"}, // ポール composed form (already normalized)
 						},
@@ -267,32 +249,23 @@ func TestNormalizeItemTextFields(t *testing.T) {
 			item: ItemDocumentForTextNormalization{
 				ID:     primitive.NewObjectID(),
 				ItemID: "item_decomposed",
-				Fields: []struct {
-					F string `bson:"f"`
-					V struct {
-						T string `bson:"t"`
-						V []any  `bson:"v"`
-					} `bson:"v"`
-				}{
+				Fields: []FieldsForTextNormalization{
 					{
 						F: "field1",
-						V: struct {
-							T string `bson:"t"`
-							V []any  `bson:"v"`
-						}{
+						V: ValueForTextNormalization{
 							T: "text",
 							V: []any{"\u30db\u309a\u30fc\u30eb"}, // ポール decomposed form (visually identical)
 						},
 					},
 				},
 			},
-			want: bson.M{
-				"fields": []bson.M{
+			want: &ItemDocumentForTextNormalization{
+				Fields: []FieldsForTextNormalization{
 					{
-						"f": "field1",
-						"v": bson.M{
-							"t": "text",
-							"v": []any{"\u30dd\u30fc\u30eb"}, // Normalized to composed form
+						F: "field1",
+						V: ValueForTextNormalization{
+							T: "text",
+							V: []any{"\u30dd\u30fc\u30eb"}, // Normalized to composed form
 						},
 					},
 				},
@@ -304,19 +277,10 @@ func TestNormalizeItemTextFields(t *testing.T) {
 			item: ItemDocumentForTextNormalization{
 				ID:     primitive.NewObjectID(),
 				ItemID: "item2",
-				Fields: []struct {
-					F string `bson:"f"`
-					V struct {
-						T string `bson:"t"`
-						V []any  `bson:"v"`
-					} `bson:"v"`
-				}{
+				Fields: []FieldsForTextNormalization{
 					{
 						F: "field1",
-						V: struct {
-							T string `bson:"t"`
-							V []any  `bson:"v"`
-						}{
+						V: ValueForTextNormalization{
 							T: "number",
 							V: []any{123},
 						},
@@ -331,49 +295,37 @@ func TestNormalizeItemTextFields(t *testing.T) {
 			item: ItemDocumentForTextNormalization{
 				ID:     primitive.NewObjectID(),
 				ItemID: "item3",
-				Fields: []struct {
-					F string `bson:"f"`
-					V struct {
-						T string `bson:"t"`
-						V []any  `bson:"v"`
-					} `bson:"v"`
-				}{
+				Fields: []FieldsForTextNormalization{
 					{
 						F: "field1",
-						V: struct {
-							T string `bson:"t"`
-							V []any  `bson:"v"`
-						}{
+						V: ValueForTextNormalization{
 							T: "text",
 							V: []any{"test　file"},
 						},
 					},
 					{
 						F: "field2",
-						V: struct {
-							T string `bson:"t"`
-							V []any  `bson:"v"`
-						}{
+						V: ValueForTextNormalization{
 							T: "number",
 							V: []any{456},
 						},
 					},
 				},
 			},
-			want: bson.M{
-				"fields": []bson.M{
+			want: &ItemDocumentForTextNormalization{
+				Fields: []FieldsForTextNormalization{
 					{
-						"f": "field1",
-						"v": bson.M{
-							"t": "text",
-							"v": []any{"test file"},
+						F: "field1",
+						V: ValueForTextNormalization{
+							T: "text",
+							V: []any{"test file"},
 						},
 					},
 					{
-						"f": "field2",
-						"v": bson.M{
-							"t": "number",
-							"v": []any{456},
+						F: "field2",
+						V: ValueForTextNormalization{
+							T: "number",
+							V: []any{456},
 						},
 					},
 				},
@@ -387,9 +339,9 @@ func TestNormalizeItemTextFields(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got, shouldUpdate, err := updateItemTextFields(tt.item)
+			got, err := updateItemTextFields(tt.item)
 			assert.NoError(t, err)
-			assert.Equal(t, tt.shouldUp, shouldUpdate)
+			assert.Equal(t, tt.shouldUp, got != nil)
 			assert.Equal(t, tt.want, got)
 		})
 	}
