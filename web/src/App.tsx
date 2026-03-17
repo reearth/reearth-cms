@@ -10,6 +10,7 @@ import {
 
 import { AuthProvider } from "@reearth-cms/auth";
 import NotFound from "@reearth-cms/components/atoms/NotFound";
+import { UploaderProvider } from "@reearth-cms/components/molecules/Uploader/provider";
 import AccountSettings from "@reearth-cms/components/organisms/Account";
 import Accessibility from "@reearth-cms/components/organisms/Project/Accessibility/Accessibility";
 import AccessibilityDocs from "@reearth-cms/components/organisms/Project/Accessibility/AccessibilityDocs";
@@ -27,6 +28,7 @@ import Schema from "@reearth-cms/components/organisms/Project/Schema";
 import ProjectSettings from "@reearth-cms/components/organisms/Project/settings";
 import Settings from "@reearth-cms/components/organisms/Settings/General";
 import Integration from "@reearth-cms/components/organisms/Settings/Integration";
+import IntegrationsDocs from "@reearth-cms/components/organisms/Settings/Integration/IntegrationsDocs";
 import Members from "@reearth-cms/components/organisms/Settings/Members";
 import MyIntegrationDetails from "@reearth-cms/components/organisms/Settings/MyIntegrationDetails";
 import MyIntegrations from "@reearth-cms/components/organisms/Settings/MyIntegrations";
@@ -36,9 +38,6 @@ import CMSPageWrapper from "@reearth-cms/components/pages/CMSPage";
 import RootPage from "@reearth-cms/components/pages/RootPage";
 import { Provider as GqlProvider } from "@reearth-cms/gql";
 import { Provider as I18nProvider } from "@reearth-cms/i18n";
-
-import { UploaderProvider } from "./components/molecules/Uploader/provider";
-import IntegrationsDocs from "./components/organisms/Settings/Integration/IntegrationsDocs";
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
