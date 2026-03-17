@@ -168,10 +168,10 @@ func TestNormalizeAssetFilename(t *testing.T) {
 			shouldUp: false, // Already in correct form, no update needed
 		},
 		{
-			name: "decomposed form (NFD) - ポール",
+			name: "decomposed form (NFD) - ポール",
 			asset: AssetDocumentForNormalization{
 				ID:       primitive.NewObjectID(),
-				FileName: "\u30db\u309a\u30fc\u30eb.jpg", // ポール decomposed form (visually identical)
+				FileName: "\u30db\u309a\u30fc\u30eb.jpg", // ポール decomposed form (visually identical)
 			},
 			want:     &AssetDocumentForNormalization{FileName: "\u30dd\u30fc\u30eb.jpg"}, // Normalized to composed form
 			shouldUp: true,
@@ -245,7 +245,7 @@ func TestNormalizeItemTextFields(t *testing.T) {
 			shouldUp: false, // Already in correct form, no update needed
 		},
 		{
-			name: "decomposed form (NFD) - ポール",
+			name: "decomposed form (NFD) - ポール",
 			item: ItemDocumentForTextNormalization{
 				ID:     primitive.NewObjectID(),
 				ItemID: "item_decomposed",
@@ -254,7 +254,7 @@ func TestNormalizeItemTextFields(t *testing.T) {
 						F: "field1",
 						V: ValueForTextNormalization{
 							T: "text",
-							V: []any{"\u30db\u309a\u30fc\u30eb"}, // ポール decomposed form (visually identical)
+							V: []any{"\u30db\u309a\u30fc\u30eb"}, // ポール decomposed form (visually identical)
 						},
 					},
 				},
