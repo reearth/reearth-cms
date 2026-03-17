@@ -77,6 +77,23 @@ func (p *Package) ReferencedSchema(fieldID id.FieldID) *Schema {
 	return p.referencedSchemas.Schema(f.TypeProperty().reference.Schema().Ref())
 }
 
+func (p *Package) SchemaByID(schemaID id.SchemaID) *Schema {
+	if p == nil {
+		return nil
+	}
+
+	if s := p.Schema(); s != nil && s.ID() == schemaID {
+		return s
+	}
+	if ms := p.MetaSchema(); ms != nil && ms.ID() == schemaID {
+		return ms
+	}
+	if gs := p.GroupSchemas().Schema(schemaID.Ref()); gs != nil {
+		return gs
+	}
+	return p.ReferencedSchemas().Schema(schemaID.Ref())
+}
+
 func (p *Package) Field(fieldID id.FieldID) *Field {
 	if p == nil {
 		return nil
@@ -127,8 +144,14 @@ func (p *Package) FieldsByType(t value.Type) FieldList {
 	if p.schema != nil {
 		fl = append(fl, p.schema.FieldsByType(t)...)
 	}
+
 	gf := lo.FlatMap(p.GroupSchemas(), func(s *Schema, _ int) []*Field {
 		return s.FieldsByType(t)
 	})
-	return append(fl, gf...)
+	fl = append(fl, gf...)
+
+	rf := lo.FlatMap(p.ReferencedSchemas(), func(s *Schema, _ int) []*Field {
+		return s.FieldsByType(t)
+	})
+	return append(fl, rf...)
 }

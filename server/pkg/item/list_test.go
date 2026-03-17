@@ -458,3 +458,109 @@ func TestList_AssetIDs(t *testing.T) {
 		})
 	}
 }
+
+func TestList_RefItemsIDs(t *testing.T) {
+	t.Parallel()
+
+	refID1, refID2, refID3 := id.NewItemID(), id.NewItemID(), id.NewItemID()
+	refFieldID := id.NewFieldID()
+	multiRefFieldID := id.NewFieldID()
+	textFieldID := id.NewFieldID()
+
+	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+	refField := schema.NewField(schema.NewReference(id.NewModelID(), id.NewSchemaID(), nil, nil).TypeProperty()).ID(refFieldID).Key(id.RandomKey()).MustBuild()
+	multiRefField := schema.NewField(schema.NewReference(id.NewModelID(), id.NewSchemaID(), nil, nil).TypeProperty()).ID(multiRefFieldID).Key(id.RandomKey()).Multiple(true).MustBuild()
+	textField := schema.NewField(schema.NewText(nil).TypeProperty()).ID(textFieldID).Key(id.RandomKey()).MustBuild()
+	s := schema.New().NewID().Workspace(wid).Project(pid).Fields([]*schema.Field{refField, multiRefField, textField}).MustBuild()
+
+	tests := []struct {
+		name     string
+		list     List
+		pkg      schema.Package
+		expected IDList
+	}{
+		{
+			name:     "nil list",
+			list:     nil,
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: nil,
+		},
+		{
+			name:     "empty list",
+			list:     List{},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: IDList{},
+		},
+		{
+			name: "single item",
+			list: List{
+				&Item{
+					fields: []*Field{
+						{field: refFieldID, value: value.TypeReference.Value(refID1).AsMultiple()},
+					},
+				},
+			},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: IDList{refID1},
+		},
+		{
+			name: "multiple items",
+			list: List{
+				&Item{
+					fields: []*Field{
+						{field: refFieldID, value: value.TypeReference.Value(refID1).AsMultiple()},
+						{field: multiRefFieldID, value: value.NewMultiple(value.TypeReference, []any{refID2})},
+					},
+				},
+				&Item{
+					fields: []*Field{
+						{field: refFieldID, value: value.TypeReference.Value(refID1).AsMultiple()},
+						{field: multiRefFieldID, value: value.NewMultiple(value.TypeReference, []any{refID3})},
+					},
+				},
+			},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: IDList{refID1, refID2, refID3},
+		},
+		{
+			name: "multiple items with dedupe",
+			list: List{
+				&Item{
+					fields: []*Field{
+						{field: refFieldID, value: value.TypeReference.Value(refID1).AsMultiple()},
+						{field: multiRefFieldID, value: value.NewMultiple(value.TypeReference, []any{refID2, refID3})},
+					},
+				},
+				&Item{
+					fields: []*Field{
+						{field: refFieldID, value: value.TypeReference.Value(refID1).AsMultiple()},
+						{field: multiRefFieldID, value: value.NewMultiple(value.TypeReference, []any{refID3})},
+					},
+				},
+			},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: IDList{refID1, refID2, refID3},
+		},
+		{
+			name: "non-multiple field keeps first value only",
+			list: List{
+				&Item{
+					fields: []*Field{
+						{field: refFieldID, value: value.NewMultiple(value.TypeReference, []any{refID1, refID2})},
+					},
+				},
+			},
+			pkg:      *schema.NewPackage(s, nil, nil, nil),
+			expected: IDList{refID1},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tt.expected, tt.list.RefItemsIDs(tt.pkg))
+		})
+	}
+}
