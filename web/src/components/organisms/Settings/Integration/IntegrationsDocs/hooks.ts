@@ -10,11 +10,11 @@ export default () => {
     if (!currentWorkspace?.alias && !currentWorkspace?.id) return "";
     if (!currentProject?.alias && !currentProject?.id) return "";
 
-    const workspaceIdentifier = currentWorkspace?.alias || currentWorkspace?.id;
-    const projectIdentifier = currentProject?.alias || currentProject?.id;
+    // const workspaceIdentifier = currentWorkspace?.alias || currentWorkspace?.id;
+    // const projectIdentifier = currentProject?.alias || currentProject?.id;
 
     // TODO: wait for url of integration playground
-    return `${window.REEARTH_CONFIG?.api}/api/${workspaceIdentifier}/project/${projectIdentifier}`;
+    return `${window.REEARTH_CONFIG?.api}/api/openapi.json`;
   }, [currentProject?.alias, currentProject?.id, currentWorkspace?.alias, currentWorkspace?.id]);
 
   return {
