@@ -10,7 +10,11 @@ test.beforeEach(async ({ reearth, projectPage }) => {
 });
 
 test.afterEach(async ({ projectPage }) => {
-  await projectPage.deleteProject();
+  try {
+    await projectPage.deleteProject();
+  } catch {
+    // Cleanup failure should not cascade to next retry
+  }
 });
 
 test("@focus Group field creating and updating has succeeded", async ({

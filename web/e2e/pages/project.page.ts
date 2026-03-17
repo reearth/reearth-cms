@@ -204,7 +204,9 @@ export class ProjectPage extends BasePage {
     const newProjectButton = this.getByRole("button", { name: "plus New Project" }).first();
     await expect(newProjectButton).toBeVisible();
     await newProjectButton.click();
+    await expect(this.getByRole("dialog")).toBeVisible();
     await this.getByRole("dialog").locator("#name").fill(name);
+    await expect(this.getByRole("button", { name: "OK" })).toBeEnabled({ timeout: 10_000 });
     await this.getByRole("button", { name: "OK" }).click();
     await this.closeNotification();
   }
