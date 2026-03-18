@@ -381,6 +381,7 @@ test("Group field editing has succeeded", async ({
   });
 
   await test.step("Verify reordered group instance values persisted", async () => {
+    await expect(contentPage.tableHead).toBeVisible();
     await expect(contentPage.editButton.first()).toBeVisible();
     await contentPage.editButton.first().click();
     await expect(contentPage.textBoxByIndex(0)).toBeVisible();
