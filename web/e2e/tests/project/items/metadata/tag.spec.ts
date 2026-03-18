@@ -203,6 +203,7 @@ test("Tag metadata editing has succeeded", async ({
     await expect(contentPage.optionTextByName(tag3)).toBeVisible();
     await page.waitForTimeout(300);
   });
+
   await test.step("Update tag from table view", async () => {
     await contentPage.backButton.click();
     await contentPage.cellByTagNames(`${tag2} ${tag3}`).click();

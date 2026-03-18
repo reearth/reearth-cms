@@ -1,5 +1,7 @@
 import styled from "@emotion/styled";
+import { useMemo } from "react";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import Dropdown from "@reearth-cms/components/atoms/Dropdown";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
@@ -26,58 +28,61 @@ const ViewsMenuItem: React.FC<Props> = ({
   const t = useT();
   const { confirm } = useModal();
 
-  const children = [
-    {
-      label: t("Update View"),
-      key: "update",
-      icon: <Icon icon="reload" />,
-      onClick: () => onUpdate(view.id, view.name),
-      disabled: !hasDeleteRight,
-    },
-    {
-      label: t("Rename"),
-      key: "rename",
-      icon: <Icon icon="edit" />,
-      onClick: () => onViewRenameModalOpen(view),
-      disabled: !hasUpdateRight,
-    },
-    {
-      label: t("Remove View"),
-      key: "remove",
-      icon: <Icon icon="delete" />,
-      danger: true,
-      onClick: () => {
-        confirm({
-          title: t("Are you sure you want to delete this view?"),
-          content: (
-            <div>
-              <StyledCautionText>
-                {t(
-                  "Deleting the view is a permanent action. However, the contents will remain unaffected.",
-                )}
-              </StyledCautionText>
-              <StyledCautionText>
-                {t("Please proceed with caution as this action cannot be undone.")}
-              </StyledCautionText>
-            </div>
-          ),
-          okText: t("Remove"),
-          okButtonProps: { danger: true },
-          maskClosable: true,
-          async onOk() {
-            await onDelete(view.id);
-          },
-        });
+  const dropdownItems = useMemo(
+    () => [
+      {
+        label: t("Update View"),
+        key: "update",
+        icon: <Icon icon="reload" />,
+        onClick: () => onUpdate(view.id, view.name),
+        disabled: !hasDeleteRight,
       },
-      disabled: !hasUpdateRight,
-    },
-  ];
+      {
+        label: t("Rename"),
+        key: "rename",
+        icon: <Icon icon="edit" />,
+        onClick: () => onViewRenameModalOpen(view),
+        disabled: !hasUpdateRight,
+      },
+      {
+        label: t("Remove View"),
+        key: "remove",
+        icon: <Icon icon="delete" />,
+        danger: true,
+        onClick: () => {
+          confirm({
+            title: t("Are you sure you want to delete this view?"),
+            content: (
+              <div>
+                <StyledCautionText>
+                  {t(
+                    "Deleting the view is a permanent action. However, the contents will remain unaffected.",
+                  )}
+                </StyledCautionText>
+                <StyledCautionText>
+                  {t("Please proceed with caution as this action cannot be undone.")}
+                </StyledCautionText>
+              </div>
+            ),
+            okText: t("Remove"),
+            okButtonProps: { danger: true },
+            maskClosable: true,
+            async onOk() {
+              await onDelete(view.id);
+            },
+          });
+        },
+        disabled: !hasUpdateRight,
+      },
+    ],
+    [confirm, hasDeleteRight, hasUpdateRight, onDelete, onUpdate, onViewRenameModalOpen, t, view],
+  );
 
   return (
     <Wrapper>
       {view.name}
-      <StyledDropdown trigger={["click"]} menu={{ items: children }}>
-        <Icon icon="more" size={16} />
+      <StyledDropdown key="more" menu={{ items: dropdownItems }} trigger={["click"]}>
+        <Button type="text" icon={<Icon icon="more" size={16} />} />
       </StyledDropdown>
     </Wrapper>
   );

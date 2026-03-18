@@ -174,7 +174,7 @@ const AssetList: React.FC<Props> = ({
           />
         </Wrapper>
       }
-      right={commentsPanel}
+      right={commentsPanel as React.ReactNode}
     />
   );
 };

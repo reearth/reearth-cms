@@ -53,7 +53,7 @@ const MemberAddModal: React.FC<Props> = ({
     setOptions([]);
   }, []);
 
-  const timeout = useRef<ReturnType<typeof setTimeout> | null>();
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleMemberNameChange = useCallback(
     (value: string) => {
