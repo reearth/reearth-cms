@@ -82,6 +82,9 @@ func (r *Schema) SaveAll(ctx context.Context, list schema.List) error {
 		return nil
 	}
 	for _, s := range list {
+		if s == nil {
+			continue
+		}
 		if !r.f.CanWrite(s.Workspace()) {
 			return repo.ErrOperationDenied
 		}

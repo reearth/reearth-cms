@@ -84,6 +84,11 @@ func (r *Schema) SaveAll(_ context.Context, list schema.List) error {
 		if !r.f.CanWrite(s.Workspace()) {
 			return repo.ErrOperationDenied
 		}
+	}
+	for _, s := range list {
+		if s == nil {
+			continue
+		}
 		r.data.Store(s.ID(), s)
 	}
 	return nil
