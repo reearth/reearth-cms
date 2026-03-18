@@ -147,15 +147,11 @@ func (s server) CheckAliasAvailability(ctx context.Context, req *pb.AliasAvailab
 func (s server) GetProject(ctx context.Context, req *pb.ProjectRequest) (*pb.ProjectResponse, error) {
 	op, uc := adapter.Operator(ctx), adapter.Usecases(ctx)
 
-	p, err := uc.Project.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(req.WorkspaceIdOrAlias), project.IDOrAlias(req.ProjectIdOrAlias), nil)
+	p, err := uc.Project.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(req.WorkspaceIdOrAlias), project.IDOrAlias(req.ProjectIdOrAlias), op)
 	if err != nil {
 		return nil, err
 	}
 	if p == nil {
-		return nil, rerror.ErrNotFound
-	}
-
-	if p.Accessibility().Visibility() == project.VisibilityPrivate && (op == nil || !op.IsReadableProject(p.ID())) {
 		return nil, rerror.ErrNotFound
 	}
 
@@ -272,7 +268,7 @@ func (s server) ListAssets(ctx context.Context, req *pb.ListAssetsRequest) (*pb.
 func (s server) GetModel(ctx context.Context, req *pb.ModelRequest) (*pb.ModelResponse, error) {
 	op, uc, ar := adapter.Operator(ctx), adapter.Usecases(ctx), adapter.AcRepos(ctx)
 
-	p, err := uc.Project.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(req.WorkspaceIdOrAlias), project.IDOrAlias(req.ProjectIdOrAlias), nil)
+	p, err := uc.Project.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(req.WorkspaceIdOrAlias), project.IDOrAlias(req.ProjectIdOrAlias), op)
 	if err != nil {
 		return nil, err
 	}
