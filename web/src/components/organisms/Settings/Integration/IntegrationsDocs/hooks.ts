@@ -1,21 +1,21 @@
 import { useMemo } from "react";
 
-import { useProject, useWorkspace } from "@reearth-cms/state";
+import { useWorkspace } from "@reearth-cms/state";
 
 export default () => {
   const [currentWorkspace] = useWorkspace();
-  const [currentProject] = useProject();
 
-  const specUrl = useMemo<string>(() => {
-    if (!currentWorkspace?.alias && !currentWorkspace?.id) return "";
-    if (!currentProject?.alias && !currentProject?.id) return "";
+  const specUrl = useMemo(() => {
+    const base = `${window.REEARTH_CONFIG?.api}/openapi.json`;
+    const params = new URLSearchParams();
 
-    // const workspaceIdentifier = currentWorkspace?.alias || currentWorkspace?.id;
-    // const projectIdentifier = currentProject?.alias || currentProject?.id;
+    const workspaceId = currentWorkspace?.alias || currentWorkspace?.id;
 
-    // TODO: wait for url of integration playground
-    return `${window.REEARTH_CONFIG?.api}/api/openapi.json`;
-  }, [currentProject?.alias, currentProject?.id, currentWorkspace?.alias, currentWorkspace?.id]);
+    if (workspaceId) params.set("workspaceId", workspaceId);
+
+    const qs = params.toString();
+    return qs ? `${base}?${qs}` : base;
+  }, [currentWorkspace?.alias, currentWorkspace?.id]);
 
   return {
     specUrl,

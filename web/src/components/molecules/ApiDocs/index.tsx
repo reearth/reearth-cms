@@ -4,7 +4,7 @@ import "@scalar/api-reference-react/style.css";
 import { FC } from "react";
 
 export type Props = {
-  specUrl: string;
+  specUrl?: string;
   className?: string;
 };
 
@@ -13,9 +13,7 @@ const ApiDocs: FC<Props> = ({ specUrl, className }) => {
     <ApiDocsWrapper className={className} data-testid="ApiDocsWrapper">
       <ApiReferenceReact
         configuration={{
-          spec: {
-            url: specUrl,
-          },
+          spec: { url: specUrl ?? "" },
           customCss: /* css */ `
             [data-v-app] { height: 100%; }
             [data-v-app] > div { height: 100%; }
@@ -43,5 +41,5 @@ export default ApiDocs;
 
 const ApiDocsWrapper = styled.div`
   height: 100%;
-  overflow: hidden;
+  /* overflow: hidden; */
 `;
