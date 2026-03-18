@@ -19,6 +19,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/model"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/reearth/reearthx/account/accountdomain/user"
 	"github.com/reearth/reearthx/account/accountusecase"
@@ -543,6 +544,62 @@ func TestModel_Delete(t *testing.T) {
 		assert.ErrorIs(t, err, rerror.ErrNotFound)
 		_, err = db.Schema.FindByID(ctx, meta.ID())
 		assert.ErrorIs(t, err, rerror.ErrNotFound)
+	})
+
+	t.Run("removes dangling reference field from sibling schema on delete (two-way)", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.Background()
+		db := memory.New()
+
+		p := project.New().NewID().Workspace(wid).MustBuild()
+
+		// model1 (to be deleted)
+		s1 := newSchema(p.ID())
+		m1 := newModel(p.ID(), s1.ID())
+
+		// model2 (sibling)
+		s2 := newSchema(p.ID())
+		m2 := newModel(p.ID(), s2.ID())
+
+		// Two-way reference:
+		f1ID := id.NewFieldID()
+		f2ID := id.NewFieldID()
+
+		f1, err := schema.NewField(schema.NewReference(m2.ID(), s2.ID(), lo.ToPtr(f2ID), nil).TypeProperty()).
+			ID(f1ID).
+			Key(id.RandomKey()).
+			Build()
+		assert.NoError(t, err)
+		s1.AddField(f1)
+
+		f2, err := schema.NewField(schema.NewReference(m1.ID(), s1.ID(), lo.ToPtr(f1ID), nil).TypeProperty()).
+			ID(f2ID).
+			Key(id.RandomKey()).
+			Build()
+		assert.NoError(t, err)
+		s2.AddField(f2)
+
+		ownerOp := &usecase.Operator{
+			OwningProjects: []id.ProjectID{p.ID()},
+			AcOperator:     &accountusecase.Operator{User: accountdomain.NewUserID().Ref()},
+		}
+
+		assert.NoError(t, db.Project.Save(ctx, p.Clone()))
+		assert.NoError(t, db.Model.Save(ctx, m1))
+		assert.NoError(t, db.Schema.Save(ctx, s1.Clone()))
+		assert.NoError(t, db.Model.Save(ctx, m2))
+		assert.NoError(t, db.Schema.Save(ctx, s2.Clone()))
+
+		sp := *schema.NewPackage(s1, nil, nil, nil)
+		u := NewModel(db, nil)
+		assert.NoError(t, u.Delete(ctx, m1.ID(), sp, ownerOp))
+
+		// s2 should still exist
+		s2After, err := db.Schema.FindByID(ctx, s2.ID())
+		assert.NoError(t, err)
+
+		// f2 (back-reference pointing at s1) must be gone; s2 has no reference fields left
+		assert.Empty(t, s2After.FieldsByType(value.TypeReference), "dangling back-reference field should have been removed from sibling schema")
 	})
 }
 
