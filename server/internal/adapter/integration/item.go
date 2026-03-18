@@ -767,22 +767,34 @@ func getReferencedItems(ctx context.Context, i *version.Value[*item.Item]) *[]in
 		return nil
 	}
 
-	var vi []integrationapi.VersionedItem
+	// Step 1: Collect all referenced item IDs
+	var refItemIDs []id.ItemID
 	for _, f := range i.Value().Fields() {
 		if f.Type() != value.TypeReference {
 			continue
 		}
 		for _, v := range f.Value().Values() {
 			iid, ok := v.Value().(id.ItemID)
-			if !ok {
-				continue
+			if ok {
+				refItemIDs = append(refItemIDs, iid)
 			}
-			ii, err := uc.Item.FindByID(ctx, iid, op)
-			if err != nil {
-				continue
-			}
-			vi = append(vi, integrationapi.NewVersionedItem(ii, nil, nil, nil, nil, nil, nil))
 		}
+	}
+
+	if len(refItemIDs) == 0 {
+		return nil
+	}
+
+	// Step 2: Batch load all referenced items
+	referencedItems, err := uc.Item.FindByIDs(ctx, refItemIDs, op)
+	if err != nil || len(referencedItems) == 0 {
+		return nil
+	}
+
+	// Step 3: Build result
+	vi := make([]integrationapi.VersionedItem, 0, len(referencedItems))
+	for _, ii := range referencedItems {
+		vi = append(vi, integrationapi.NewVersionedItem(ii, nil, nil, nil, nil, nil, nil))
 	}
 
 	return &vi
