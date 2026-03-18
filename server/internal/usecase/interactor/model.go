@@ -269,27 +269,34 @@ func (i Model) Delete(ctx context.Context, modelID id.ModelID, sp schema.Package
 }
 
 func (i Model) removeReferenceFieldsPointingToSchema(ctx context.Context, m *model.Model) error {
-	models, _, err := i.repos.Model.FindByProject(ctx, m.Project(), usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap())
-	if err != nil {
-		return err
+	var models model.List
+	p := usecasex.CursorPagination{First: lo.ToPtr(int64(1000))}.Wrap()
+	for {
+		page, pageInfo, err := i.repos.Model.FindByProject(ctx, m.Project(), p)
+		if err != nil {
+			return err
+		}
+		for _, mm := range page {
+			if mm.ID() != m.ID() {
+				models = append(models, mm)
+			}
+		}
+		if pageInfo == nil || !pageInfo.HasNextPage {
+			break
+		}
+		p = usecasex.CursorPagination{First: lo.ToPtr(int64(1000)), After: pageInfo.EndCursor}.Wrap()
 	}
 
-	var schemaIDs id.SchemaIDList
-	for _, mm := range models {
-		if mm.ID() == m.ID() {
-			continue
-		}
-		schemaIDs = append(schemaIDs, mm.Schema())
-	}
+	schemaIDs := models.SchemaIDs()
 	if len(schemaIDs) == 0 {
 		return nil
 	}
-
 	schemas, err := i.repos.Schema.FindByIDs(ctx, schemaIDs)
 	if err != nil {
 		return err
 	}
 
+	var toSave schema.List
 	for _, s := range schemas {
 		if s == nil {
 			continue
@@ -301,15 +308,12 @@ func (i Model) removeReferenceFieldsPointingToSchema(ctx context.Context, m *mod
 				s.RemoveField(f.ID())
 			}
 		}
-		if s.Fields().Count() == before {
-			continue
-		}
-		if err := i.repos.Schema.Save(ctx, s); err != nil {
-			return err
+		if s.Fields().Count() != before {
+			toSave = append(toSave, s)
 		}
 	}
 
-	return nil
+	return i.repos.Schema.SaveAll(ctx, toSave)
 }
 
 func (i Model) deleteItemsByModel(ctx context.Context, prj *project.Project, m *model.Model, sp schema.Package, operator *usecase.Operator) error {

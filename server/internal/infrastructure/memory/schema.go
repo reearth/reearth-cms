@@ -73,6 +73,22 @@ func (r *Schema) Save(_ context.Context, s *schema.Schema) error {
 	return nil
 }
 
+func (r *Schema) SaveAll(_ context.Context, list schema.List) error {
+	if r.err != nil {
+		return r.err
+	}
+	for _, s := range list {
+		if s == nil {
+			continue
+		}
+		if !r.f.CanWrite(s.Workspace()) {
+			return repo.ErrOperationDenied
+		}
+		r.data.Store(s.ID(), s)
+	}
+	return nil
+}
+
 func (r *Schema) Remove(_ context.Context, sId id.SchemaID) error {
 	if r.err != nil {
 		return r.err
