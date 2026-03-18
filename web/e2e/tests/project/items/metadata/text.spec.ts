@@ -13,7 +13,7 @@ test.afterEach(async ({ projectPage }) => {
   await projectPage.deleteProject();
 });
 
-test("@focus Text metadata creating and updating has succeeded", async ({
+test("Text metadata creating and updating has succeeded", async ({
   page,
   fieldEditorPage,
   contentPage,
@@ -87,7 +87,7 @@ test("@focus Text metadata creating and updating has succeeded", async ({
   });
 });
 
-test("@focus Text metadata editing has succeeded", async ({
+test("Text metadata editing has succeeded", async ({
   page,
   fieldEditorPage,
   contentPage,
