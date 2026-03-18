@@ -124,7 +124,7 @@ test("Option field editing has succeeded", async ({
 
   await test.step("Delete 'second' option and add 'forth' option", async () => {
     await fieldEditorPage.settingsTab.click();
-    await fieldEditorPage.deleteButton.nth(1).click();
+    await fieldEditorPage.deleteButton.nth(2).click();
     await fieldEditorPage.plusNewButton.click();
     await fieldEditorPage.valuesInput.nth(2).click();
     await fieldEditorPage.valuesInput.nth(2).fill("forth");
@@ -134,9 +134,7 @@ test("Option field editing has succeeded", async ({
   await test.step("Verify deleted option removed from default and set new default", async () => {
     await fieldEditorPage.defaultValueTab.click();
     await expect(fieldEditorPage.setDefaultValueInput).toBeVisible();
-    await fieldEditorPage.setDefaultValueInput
-      .locator("xpath=ancestor::div[contains(@class,'ant-select-selector')]")
-      .click();
+    await fieldEditorPage.antSelectSelector.click();
     await expect(fieldEditorPage.optionDiv("first")).toBeVisible();
     await expect(fieldEditorPage.optionDiv("second")).toBeHidden();
     await expect(fieldEditorPage.optionDiv("third")).toBeVisible();
