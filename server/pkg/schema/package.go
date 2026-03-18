@@ -77,6 +77,26 @@ func (p *Package) ReferencedSchema(fieldID id.FieldID) *Schema {
 	return p.referencedSchemas.Schema(f.TypeProperty().reference.Schema().Ref())
 }
 
+func (p *Package) SchemaByModel(mID id.ModelID) *Schema {
+	if p == nil {
+		return nil
+	}
+	for _, f := range p.schema.FieldsByType(value.TypeReference) {
+		var modelID id.ModelID
+		var schemaID id.SchemaID
+		f.TypeProperty().Match(TypePropertyMatch{
+			Reference: func(rf *FieldReference) {
+				modelID = rf.Model()
+				schemaID = rf.Schema()
+			},
+		})
+		if modelID == mID {
+			return p.referencedSchemas.Schema(&schemaID)
+		}
+	}
+	return nil
+}
+
 func (p *Package) Field(fieldID id.FieldID) *Field {
 	if p == nil {
 		return nil

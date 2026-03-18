@@ -5,6 +5,7 @@ import (
 
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/value"
+	"github.com/reearth/reearthx/account/accountdomain"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -194,6 +195,80 @@ func TestPackage_FieldsByType(t *testing.T) {
 
 			result := tt.pkg.FieldsByType(tt.typ)
 			assert.Equal(t, len(tt.expected), len(result))
+		})
+	}
+}
+
+func TestPackage_SchemaByModel(t *testing.T) {
+	t.Parallel()
+
+	wid := accountdomain.NewWorkspaceID()
+	pid := id.NewProjectID()
+
+	refModelID := id.NewModelID()
+	refSchemaID := id.NewSchemaID()
+	otherModelID := id.NewModelID()
+	otherSchemaID := id.NewSchemaID()
+
+	refField := NewField(NewReference(refModelID, refSchemaID, nil, nil).TypeProperty()).
+		NewID().Key(id.RandomKey()).MustBuild()
+	otherRefField := NewField(NewReference(otherModelID, otherSchemaID, nil, nil).TypeProperty()).
+		NewID().Key(id.RandomKey()).MustBuild()
+	textField := NewField(NewText(nil).TypeProperty()).NewID().Key(id.RandomKey()).MustBuild()
+
+	s := New().NewID().Workspace(wid).Project(pid).Fields(FieldList{refField, otherRefField, textField}).MustBuild()
+
+	refSchema := New().ID(refSchemaID).Workspace(wid).Project(pid).MustBuild()
+	otherSchema := New().ID(otherSchemaID).Workspace(wid).Project(pid).MustBuild()
+	referencedSchemas := List{refSchema, otherSchema}
+
+	pkg := NewPackage(s, nil, nil, referencedSchemas)
+
+	tests := []struct {
+		name     string
+		pkg      *Package
+		modelID  id.ModelID
+		expected *Schema
+	}{
+		{
+			name:     "nil package",
+			pkg:      nil,
+			modelID:  refModelID,
+			expected: nil,
+		},
+		{
+			name:     "matching model returns referenced schema",
+			pkg:      pkg,
+			modelID:  refModelID,
+			expected: refSchema,
+		},
+		{
+			name:     "other matching model returns its schema",
+			pkg:      pkg,
+			modelID:  otherModelID,
+			expected: otherSchema,
+		},
+		{
+			name:     "unknown model returns nil",
+			pkg:      pkg,
+			modelID:  id.NewModelID(),
+			expected: nil,
+		},
+		{
+			name:     "no reference fields returns nil",
+			pkg:      NewPackage(New().NewID().Workspace(wid).Project(pid).Fields(FieldList{textField}).MustBuild(), nil, nil, referencedSchemas),
+			modelID:  refModelID,
+			expected: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := tt.pkg.SchemaByModel(tt.modelID)
+			assert.Equal(t, tt.expected, got)
 		})
 	}
 }

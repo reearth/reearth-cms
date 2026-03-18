@@ -17,8 +17,7 @@ type JSONExporter struct {
 	isStreaming bool
 	itemCount   int
 	writer      io.Writer
-	schema      *schema.Package
-	il          ItemLoader
+	request     *ExportRequest
 }
 
 // NewJSONExporter creates a new JSON exporter
@@ -54,8 +53,7 @@ func (e *JSONExporter) Export(ctx context.Context, req *ExportRequest, il item.L
 func (e *JSONExporter) StartExport(ctx context.Context, req *ExportRequest) error {
 	e.isStreaming = true
 	e.itemCount = 0
-	e.schema = &req.Schema
-	e.il = req.ItemLoader
+	e.request = req
 
 	// Write opening JSON structure
 	_, err := e.writer.Write([]byte(`{"results":[`))
@@ -80,12 +78,9 @@ func (e *JSONExporter) ProcessBatch(ctx context.Context, items item.List, assets
 			return assets.FilterByIDs(aids), nil
 		}
 
-		//il := func(iids id.ItemIDList) (item.List, error) {
-		//	return items.FilterByIds(iids), nil
-		//}
-
 		// Convert item to map and encode
-		itemData := MapFromItem(itm, e.schema, al, e.il)
+		// Use e.request.ItemLoader directly (updated per batch)
+		itemData := MapFromItem(itm, &e.request.Schema, al, e.request.ItemLoader)
 		if itemData != nil {
 			encoder := json.NewEncoder(e.writer)
 			if err := encoder.Encode(itemData); err != nil {

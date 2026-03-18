@@ -243,6 +243,54 @@ func (i *Item) AssetIDsBySchema(sp schema.Package) AssetIDList {
 	})
 }
 
+func (i *Item) refItemIDs(sp schema.Package, filter func(*schema.Field) bool) IDList {
+	sRefFields := sp.FieldsByType(value.TypeReference)
+	if len(sRefFields) == 0 {
+		return nil
+	}
+	ids := lo.FlatMap(i.Fields().Filter(sRefFields.IDs()), func(f *Field, _ int) []*value.Value {
+		sf := sRefFields.Find(f.FieldID())
+		if sf == nil {
+			return nil
+		}
+		if filter != nil && !filter(sf) {
+			return nil
+		}
+		if sf.Multiple() {
+			return f.Value().Values()
+		}
+		if v := f.Value().First(); v != nil {
+			return []*value.Value{v}
+		}
+		return nil
+	})
+	validIDs := lo.FilterMap(ids, func(v *value.Value, _ int) (ID, bool) {
+		if refID, ok := v.Value().(ID); ok {
+			return refID, true
+		}
+		return ID{}, false
+	})
+	return lo.Uniq(validIDs)
+}
+
+func (i *Item) RefItemIDs(sp schema.Package) IDList {
+	return i.refItemIDs(sp, nil)
+}
+
+func (i *Item) RefItemIDsByModels(sp schema.Package, modelIDs id.ModelIDList) IDList {
+	return i.refItemIDs(sp, func(sf *schema.Field) bool {
+		found := false
+		sf.TypeProperty().Match(schema.TypePropertyMatch{
+			Reference: func(rf *schema.FieldReference) {
+				if modelIDs.Has(rf.Model()) {
+					found = true
+				}
+			},
+		})
+		return found
+	})
+}
+
 func (i *Item) GetTitle(s *schema.Schema) *string {
 	if s == nil || s.TitleField() == nil {
 		return nil
