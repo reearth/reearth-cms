@@ -61,6 +61,34 @@ func TestItem_UpdateFields(t *testing.T) {
 			target: &Item{},
 			want:   &Item{},
 		},
+		func() struct {
+			name   string
+			target *Item
+			input  []*Field
+			want   *Item
+		} {
+			gid1, gid2 := id.NewItemGroupID(), id.NewItemGroupID()
+			groupField := NewField(id.NewFieldID(), value.NewMultiple(value.TypeGroup, []any{gid1, gid2}), nil)
+			fg1old := NewField(fid, value.TypeText.Value("group1_old").AsMultiple(), &gid1)
+			fg1new := NewField(fid, value.TypeText.Value("group1_new").AsMultiple(), &gid1)
+			fg2new := NewField(fid, value.TypeText.Value("group2_new").AsMultiple(), &gid2)
+			return struct {
+				name   string
+				target *Item
+				input  []*Field
+				want   *Item
+			}{
+				name:  "should update fields in different groups with same field ID",
+				input: []*Field{fg1new, fg2new, groupField},
+				target: &Item{
+					fields: []*Field{fg1old, groupField},
+				},
+				want: &Item{
+					fields:    []*Field{fg1new, groupField, fg2new},
+					timestamp: now,
+				},
+			}
+		}(),
 	}
 
 	for _, tt := range tests {
