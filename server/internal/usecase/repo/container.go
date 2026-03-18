@@ -111,8 +111,6 @@ func (f WorkspaceFilter) Merge(g WorkspaceFilter) WorkspaceFilter {
 			w = append(f.Writable, g.Writable...)
 		}
 	}
-	// visibility: if either side requires public-only, honour it
-	visPublicOnly := f.VisibilityPublicOnly || g.VisibilityPublicOnly
 	var accessible project.IDList
 	if f.AccessibleProjectIds != nil || g.AccessibleProjectIds != nil {
 		accessible = append(f.AccessibleProjectIds.Clone(), g.AccessibleProjectIds...)
@@ -120,7 +118,7 @@ func (f WorkspaceFilter) Merge(g WorkspaceFilter) WorkspaceFilter {
 	return WorkspaceFilter{
 		Readable:             r,
 		Writable:             w,
-		VisibilityPublicOnly: visPublicOnly,
+		VisibilityPublicOnly: f.VisibilityPublicOnly || g.VisibilityPublicOnly,
 		AccessibleProjectIds: accessible,
 	}
 }

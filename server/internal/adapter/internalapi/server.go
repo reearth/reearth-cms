@@ -151,9 +151,6 @@ func (s server) GetProject(ctx context.Context, req *pb.ProjectRequest) (*pb.Pro
 	if err != nil {
 		return nil, err
 	}
-	if p == nil {
-		return nil, rerror.ErrNotFound
-	}
 
 	return &pb.ProjectResponse{
 		Project: internalapimodel.ToProject(p),
@@ -271,9 +268,6 @@ func (s server) GetModel(ctx context.Context, req *pb.ModelRequest) (*pb.ModelRe
 	p, err := uc.Project.FindByIDOrAlias(ctx, accountdomain.WorkspaceIDOrAlias(req.WorkspaceIdOrAlias), project.IDOrAlias(req.ProjectIdOrAlias), op)
 	if err != nil {
 		return nil, err
-	}
-	if p == nil {
-		return nil, rerror.ErrNotFound
 	}
 
 	m, err := uc.Model.FindByIDOrKey(ctx, p.ID(), model.IDOrKey(req.ModelIdOrAlias), op)
