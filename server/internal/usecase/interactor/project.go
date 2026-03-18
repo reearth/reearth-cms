@@ -42,8 +42,7 @@ func (i *Project) FindByWorkspace(ctx context.Context, wid accountdomain.Workspa
 		f.WorkspaceIds = &accountdomain.WorkspaceIDList{}
 	}
 	f.WorkspaceIds = lo.ToPtr(append(*f.WorkspaceIds, wid))
-	applyVisibilityFilter(f, op)
-	return i.repos.Project.Search(ctx, *f)
+	return i.repos.Project.Filtered(repo.WorkspaceFilterFromOperator(op)).Search(ctx, *f)
 }
 
 func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.WorkspaceIDList, f *interfaces.ProjectFilter, op *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
@@ -54,50 +53,15 @@ func (i *Project) FindByWorkspaces(ctx context.Context, wIds accountdomain.Works
 		f.WorkspaceIds = &accountdomain.WorkspaceIDList{}
 	}
 	f.WorkspaceIds = lo.ToPtr(append(*f.WorkspaceIds, wIds...))
-	applyVisibilityFilter(f, op)
-	return i.repos.Project.Search(ctx, *f)
+	return i.repos.Project.Filtered(repo.WorkspaceFilterFromOperator(op)).Search(ctx, *f)
 }
 
 func (i *Project) Search(ctx context.Context, f interfaces.ProjectFilter, op *usecase.Operator) (project.List, *usecasex.PageInfo, error) {
 	if f.WorkspaceIds == nil || len(*f.WorkspaceIds) == 0 {
 		f.Visibility = lo.ToPtr(project.VisibilityPublic)
-	} else {
-		applyVisibilityFilter(&f, op)
+		return i.repos.Project.Search(ctx, f)
 	}
-	return i.repos.Project.Search(ctx, f)
-}
-
-func checkProjectVisibility(p *project.Project, op *usecase.Operator) error {
-	if p == nil {
-		return rerror.ErrNotFound
-	}
-	acc := p.Accessibility()
-	if acc == nil || acc.Visibility() != project.VisibilityPrivate {
-		return nil
-	}
-	// private project — check access
-	if op == nil {
-		return rerror.ErrNotFound
-	}
-	if op.Machine || op.IsReadableProject(p.ID()) {
-		return nil
-	}
-	return rerror.ErrNotFound
-}
-
-func applyVisibilityFilter(f *interfaces.ProjectFilter, op *usecase.Operator) {
-	if op == nil {
-		f.Visibility = lo.ToPtr(project.VisibilityPublic)
-		f.AccessibleProjectIds = nil
-		return
-	}
-	if op.Machine {
-		// machine operators bypass visibility restrictions
-		return
-	}
-	accessible := op.AllReadableProjects()
-	f.Visibility = lo.ToPtr(project.VisibilityPublic)
-	f.AccessibleProjectIds = &accessible
+	return i.repos.Project.Filtered(repo.WorkspaceFilterFromOperator(op)).Search(ctx, f)
 }
 
 func (i *Project) FindByIDOrAlias(ctx context.Context, wsIdOrAlias accountdomain.WorkspaceIDOrAlias, idOrAlias project.IDOrAlias, op *usecase.Operator) (*project.Project, error) {
@@ -109,16 +73,7 @@ func (i *Project) FindByIDOrAlias(ctx context.Context, wsIdOrAlias accountdomain
 		return nil, rerror.ErrNotFound
 	}
 
-	p, err := i.repos.Project.FindByIDOrAlias(ctx, w.ID(), idOrAlias)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := checkProjectVisibility(p, op); err != nil {
-		return nil, err
-	}
-
-	return p, nil
+	return i.repos.Project.Filtered(repo.WorkspaceFilterFromOperator(op)).FindByIDOrAlias(ctx, w.ID(), idOrAlias)
 }
 
 func (i *Project) Create(ctx context.Context, param interfaces.CreateProjectParam, op *usecase.Operator) (_ *project.Project, err error) {
@@ -625,16 +580,12 @@ func (i *Project) StarProject(ctx context.Context, wsIdOrAlias accountdomain.Wor
 		return nil, rerror.ErrNotFound
 	}
 
-	p, err := i.repos.Project.FindByIDOrAlias(ctx, w.ID(), idOrAlias)
+	p, err := i.repos.Project.Filtered(repo.WorkspaceFilterFromOperator(op)).FindByIDOrAlias(ctx, w.ID(), idOrAlias)
 	if err != nil {
 		return nil, err
 	}
 	if p == nil {
 		return nil, rerror.ErrNotFound
-	}
-
-	if err := checkProjectVisibility(p, op); err != nil {
-		return nil, err
 	}
 
 	return Run1(ctx, op, i.repos, Usecase().Transaction(),

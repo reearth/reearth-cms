@@ -30,6 +30,7 @@ func (r *Project) Filtered(f repo.WorkspaceFilter) repo.Project {
 	return &Project{
 		data: r.data,
 		f:    r.f.Merge(f),
+		err:  r.err,
 	}
 }
 
@@ -45,9 +46,14 @@ func (r *Project) Search(_ context.Context, f interfaces.ProjectFilter) (project
 			return false
 		}
 		if f.Visibility != nil {
-			visibilityMatch := v.Accessibility().Visibility() == *f.Visibility
-			accessibleMatch := f.AccessibleProjectIds != nil && f.AccessibleProjectIds.Has(pid)
-			if !visibilityMatch && !accessibleMatch {
+			if v.Accessibility().Visibility() != *f.Visibility {
+				return false
+			}
+		}
+		if r.f.VisibilityPublicOnly {
+			isPublic := v.Accessibility().Visibility() == project.VisibilityPublic
+			isAccessible := r.f.AccessibleProjectIds != nil && r.f.AccessibleProjectIds.Has(pid)
+			if !isPublic && !isAccessible {
 				return false
 			}
 		}
@@ -108,10 +114,20 @@ func (r *Project) FindByIDOrAlias(_ context.Context, wId accountdomain.Workspace
 	}
 
 	p := r.data.Find(func(k id.ProjectID, v *project.Project) bool {
-		return r.f.CanRead(v.Workspace()) &&
-			v.Workspace() == wId &&
-			(pid != nil && k == *pid || alias != nil && v.Alias() == *alias)
-
+		if !r.f.CanRead(v.Workspace()) || v.Workspace() != wId {
+			return false
+		}
+		if !(pid != nil && k == *pid || alias != nil && v.Alias() == *alias) {
+			return false
+		}
+		if r.f.VisibilityPublicOnly {
+			isPublic := v.Accessibility().Visibility() == project.VisibilityPublic
+			isAccessible := r.f.AccessibleProjectIds != nil && r.f.AccessibleProjectIds.Has(k)
+			if !isPublic && !isAccessible {
+				return false
+			}
+		}
+		return true
 	})
 
 	if p != nil {

@@ -91,13 +91,7 @@ func (r *ProjectRepo) FindByIDs(ctx context.Context, ids id.ProjectIDList) (proj
 func (r *ProjectRepo) Search(ctx context.Context, f interfaces.ProjectFilter) (project.List, *usecasex.PageInfo, error) {
 	filter := bson.M{}
 
-	if f.Visibility != nil && f.AccessibleProjectIds != nil && len(*f.AccessibleProjectIds) > 0 {
-		// public projects OR private projects the operator explicitly has access to
-		filter["$or"] = bson.A{
-			bson.M{"accessibility.visibility": f.Visibility.String()},
-			bson.M{"id": bson.M{"$in": f.AccessibleProjectIds.Strings()}},
-		}
-	} else if f.Visibility != nil {
+	if f.Visibility != nil {
 		filter["accessibility.visibility"] = f.Visibility.String()
 	}
 
@@ -237,7 +231,20 @@ func filterProjects(ids []id.ProjectID, rows project.List) project.List {
 }
 
 func (r *ProjectRepo) readFilter(filter any) any {
-	return applyWorkspaceFilter(filter, r.f.Readable)
+	filter = applyWorkspaceFilter(filter, r.f.Readable)
+	if r.f.VisibilityPublicOnly {
+		if len(r.f.AccessibleProjectIds) > 0 {
+			// public projects OR private projects the operator explicitly has access to
+			visibilityFilter := bson.M{"$or": bson.A{
+				bson.M{"accessibility.visibility": project.VisibilityPublic.String()},
+				bson.M{"id": bson.M{"$in": r.f.AccessibleProjectIds.Strings()}},
+			}}
+			filter = bson.M{"$and": bson.A{filter, visibilityFilter}}
+		} else {
+			filter = mongox.And(filter, "accessibility.visibility", project.VisibilityPublic.String())
+		}
+	}
+	return filter
 }
 
 func (r *ProjectRepo) writeFilter(filter any) any {

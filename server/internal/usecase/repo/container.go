@@ -65,21 +65,33 @@ func (c *Container) Filtered(workspace WorkspaceFilter, project ProjectFilter) *
 }
 
 type WorkspaceFilter struct {
-	Readable user.WorkspaceIDList
-	Writable user.WorkspaceIDList
+	Readable             user.WorkspaceIDList
+	Writable             user.WorkspaceIDList
+	VisibilityPublicOnly bool
+	AccessibleProjectIds project.IDList
 }
 
 func WorkspaceFilterFromOperator(o *usecase.Operator) WorkspaceFilter {
-	return WorkspaceFilter{
+	if o == nil {
+		return WorkspaceFilter{VisibilityPublicOnly: true}
+	}
+	f := WorkspaceFilter{
 		Readable: o.AllReadableWorkspaces(),
 		Writable: o.AllWritableWorkspaces(),
 	}
+	if !o.Machine {
+		f.VisibilityPublicOnly = true
+		f.AccessibleProjectIds = o.AllReadableProjects()
+	}
+	return f
 }
 
 func (f WorkspaceFilter) Clone() WorkspaceFilter {
 	return WorkspaceFilter{
-		Readable: f.Readable.Clone(),
-		Writable: f.Writable.Clone(),
+		Readable:             f.Readable.Clone(),
+		Writable:             f.Writable.Clone(),
+		VisibilityPublicOnly: f.VisibilityPublicOnly,
+		AccessibleProjectIds: f.AccessibleProjectIds.Clone(),
 	}
 }
 
@@ -99,9 +111,17 @@ func (f WorkspaceFilter) Merge(g WorkspaceFilter) WorkspaceFilter {
 			w = append(f.Writable, g.Writable...)
 		}
 	}
+	// visibility: if either side requires public-only, honour it
+	visPublicOnly := f.VisibilityPublicOnly || g.VisibilityPublicOnly
+	var accessible project.IDList
+	if f.AccessibleProjectIds != nil || g.AccessibleProjectIds != nil {
+		accessible = append(f.AccessibleProjectIds.Clone(), g.AccessibleProjectIds...)
+	}
 	return WorkspaceFilter{
-		Readable: r,
-		Writable: w,
+		Readable:             r,
+		Writable:             w,
+		VisibilityPublicOnly: visPublicOnly,
+		AccessibleProjectIds: accessible,
 	}
 }
 
