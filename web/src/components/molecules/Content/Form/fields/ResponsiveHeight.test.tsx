@@ -1,11 +1,12 @@
 import { render, screen } from "@testing-library/react";
-import { describe, test, expect, vi, beforeEach } from "vitest";
+import { afterEach, describe, test, expect, vi, beforeEach } from "vitest";
 
 import ResponsiveHeight from "./ResponsiveHeight";
 
 let mockObserve: ReturnType<typeof vi.fn>;
 let mockUnobserve: ReturnType<typeof vi.fn>;
 let constructorCallCount: number;
+const OriginalResizeObserver = global.ResizeObserver;
 
 beforeEach(() => {
   mockObserve = vi.fn();
@@ -19,6 +20,10 @@ beforeEach(() => {
       constructorCallCount++;
     }
   } as unknown as typeof ResizeObserver;
+});
+
+afterEach(() => {
+  global.ResizeObserver = OriginalResizeObserver;
 });
 
 describe("ResponsiveHeight", () => {

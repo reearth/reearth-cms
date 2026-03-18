@@ -58,7 +58,6 @@ test(
     const urlLink = contentPage.linkByName("http://test1.com");
     await expect(urlLink).toBeVisible();
     await urlLink.hover();
-    await contentPage.waitForTimeout(300); // tooltip settle
     const editButton = contentPage.tooltipEditButton;
     await editButton.waitFor({ state: "visible" });
     await editButton.click();
@@ -139,7 +138,6 @@ test(
     const urlLink = contentPage.linkByName("http://default2.com");
     await expect(urlLink).toBeVisible();
     await urlLink.hover();
-    await contentPage.waitForTimeout(300); // tooltip settle
     const editButton = contentPage.tooltipEditButton;
     await editButton.waitFor({ state: "visible" });
     await editButton.click();

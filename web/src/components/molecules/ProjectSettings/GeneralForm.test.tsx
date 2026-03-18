@@ -27,11 +27,7 @@ describe("General form", () => {
   };
   const hasUpdateRight = true;
   const onProjectUpdate = () => {
-    return new Promise<void>(resolve => {
-      setTimeout(() => {
-        resolve();
-      }, 100);
-    });
+    return new Promise<void>(resolve => setTimeout(resolve, 10));
   };
   const onProjectAliasCheck = () => {
     return Promise.resolve(true);
@@ -150,11 +146,7 @@ describe("General form", () => {
 
   test("Save button enabled when update fails", async () => {
     const onProjectUpdateFail = () => {
-      return new Promise<void>((_, reject) => {
-        setTimeout(() => {
-          reject();
-        }, 100);
-      });
+      return new Promise<void>((_, reject) => setTimeout(reject, 10));
     };
 
     render(

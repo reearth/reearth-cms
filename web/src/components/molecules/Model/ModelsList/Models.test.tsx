@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { beforeAll, describe, test, expect, vi } from "vitest";
+import { afterAll, beforeAll, describe, test, expect, vi } from "vitest";
 
 import type { Model } from "@reearth-cms/components/molecules/Model/types";
 
@@ -11,6 +11,10 @@ vi.mock("react-drag-listview", () => ({
 
 beforeAll(() => {
   Element.prototype.scrollIntoView = vi.fn();
+});
+
+afterAll(() => {
+  vi.restoreAllMocks();
 });
 
 const makeModel = (id: string, name: string, order = 0): Model => ({

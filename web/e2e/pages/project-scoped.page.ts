@@ -126,7 +126,7 @@ export abstract class ProjectScopedPage extends BasePage {
       await dialog.waitFor({ state: "hidden", timeout: 1000 });
     } catch {
       // Fallback: if Escape didn't work, try Cancel then X close button
-      if (await dialog.isVisible({ timeout: 300 }).catch(() => false)) {
+      if (await dialog.isVisible({ timeout: 1000 }).catch(() => false)) {
         try {
           await this.cancelButton.click({ timeout: 2000 });
         } catch {
