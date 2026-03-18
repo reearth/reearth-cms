@@ -32,3 +32,13 @@ func (m Map) Items() List {
 	}
 	return lo.Values(m)
 }
+
+func (m Map) ItemsByIDs(l IDList) List {
+	if m == nil {
+		return nil
+	}
+	return lo.FilterMap(l, func(iID ID, _ int) (*Item, bool) {
+		i, ok := m[iID]
+		return i, ok
+	})
+}
