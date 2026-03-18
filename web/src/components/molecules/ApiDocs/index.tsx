@@ -1,19 +1,21 @@
 import styled from "@emotion/styled";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { ApiReferenceReact } from "@scalar/api-reference-react";
 import "@scalar/api-reference-react/style.css";
 import { FC } from "react";
 
 export type Props = {
-  specUrl?: string;
+  specUrl: string;
   className?: string;
 };
 
 const ApiDocs: FC<Props> = ({ specUrl, className }) => {
   return (
-    <ApiDocsWrapper className={className} data-testid="ApiDocsWrapper">
+    <ApiDocsWrapper className={className} data-testid={DATA_TEST_ID.ApiDocs__ApiDocsWrapper}>
       <ApiReferenceReact
         configuration={{
-          spec: { url: specUrl ?? "" },
+          agent: { disabled: true },
+          spec: { url: specUrl },
           customCss: /* css */ `
             [data-v-app] { height: 100%; }
             [data-v-app] > div { height: 100%; }
@@ -40,6 +42,7 @@ const ApiDocs: FC<Props> = ({ specUrl, className }) => {
 export default ApiDocs;
 
 const ApiDocsWrapper = styled.div`
-  height: 100%;
+  /* padding: 8px; */
+  /* height: 100%; */
   /* overflow: hidden; */
 `;

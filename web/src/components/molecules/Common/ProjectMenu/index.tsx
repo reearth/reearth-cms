@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import { useT } from "@reearth-cms/i18n";
+import styled from "@emotion/styled";
 
 type Props = {
   inlineCollapsed: boolean;
@@ -62,14 +63,14 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
 
   return (
     <>
-      <Menu
+      <StyledMenu
         onClick={onClick}
         selectedKeys={selected}
         inlineCollapsed={inlineCollapsed}
         mode="inline"
         items={topItems}
       />
-      <Menu
+      <StyledMenu
         onClick={onClick}
         selectedKeys={selected}
         inlineCollapsed={inlineCollapsed}
@@ -81,3 +82,7 @@ const ProjectMenu: React.FC<Props> = ({ inlineCollapsed, defaultSelectedKey, onN
 };
 
 export default ProjectMenu;
+
+const StyledMenu = styled(Menu)`
+  border-right: none !important;
+`;

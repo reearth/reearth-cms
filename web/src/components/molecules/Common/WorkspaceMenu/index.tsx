@@ -116,4 +116,6 @@ const StyledMenu = styled(Menu)`
   li {
     padding-left: 16px !important;
   }
+
+  border-right: none !important;
 `;
