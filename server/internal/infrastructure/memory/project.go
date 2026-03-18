@@ -30,6 +30,7 @@ func (r *Project) Filtered(f repo.WorkspaceFilter) repo.Project {
 	return &Project{
 		data: r.data,
 		f:    r.f.Merge(f),
+		err:  r.err,
 	}
 }
 
@@ -40,13 +41,23 @@ func (r *Project) Search(_ context.Context, f interfaces.ProjectFilter) (project
 
 	// TODO: implement sort & pagination
 
-	result := project.List(r.data.FindAll(func(_ id.ProjectID, v *project.Project) bool {
+	result := project.List(r.data.FindAll(func(pid id.ProjectID, v *project.Project) bool {
+		if !f.WorkspaceIds.Has(v.Workspace()) || !r.f.CanRead(v.Workspace()) {
+			return false
+		}
 		if f.Visibility != nil {
 			if v.Accessibility().Visibility() != *f.Visibility {
 				return false
 			}
 		}
-		return f.WorkspaceIds.Has(v.Workspace()) && r.f.CanRead(v.Workspace())
+		if r.f.VisibilityPublicOnly {
+			isPublic := v.Accessibility().Visibility() == project.VisibilityPublic
+			isAccessible := r.f.AccessibleProjectIds != nil && r.f.AccessibleProjectIds.Has(pid)
+			if !isPublic && !isAccessible {
+				return false
+			}
+		}
+		return true
 	})).SortByID()
 
 	var startCursor, endCursor *usecasex.Cursor
@@ -103,10 +114,20 @@ func (r *Project) FindByIDOrAlias(_ context.Context, wId accountdomain.Workspace
 	}
 
 	p := r.data.Find(func(k id.ProjectID, v *project.Project) bool {
-		return r.f.CanRead(v.Workspace()) &&
-			v.Workspace() == wId &&
-			(pid != nil && k == *pid || alias != nil && v.Alias() == *alias)
-
+		if !r.f.CanRead(v.Workspace()) || v.Workspace() != wId {
+			return false
+		}
+		if (pid == nil || k != *pid) && (alias == nil || v.Alias() != *alias) {
+			return false
+		}
+		if r.f.VisibilityPublicOnly {
+			isPublic := v.Accessibility().Visibility() == project.VisibilityPublic
+			isAccessible := r.f.AccessibleProjectIds != nil && r.f.AccessibleProjectIds.Has(k)
+			if !isPublic && !isAccessible {
+				return false
+			}
+		}
+		return true
 	})
 
 	if p != nil {

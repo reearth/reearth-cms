@@ -231,7 +231,20 @@ func filterProjects(ids []id.ProjectID, rows project.List) project.List {
 }
 
 func (r *ProjectRepo) readFilter(filter any) any {
-	return applyWorkspaceFilter(filter, r.f.Readable)
+	filter = applyWorkspaceFilter(filter, r.f.Readable)
+	if r.f.VisibilityPublicOnly {
+		if len(r.f.AccessibleProjectIds) > 0 {
+			// public projects OR private projects the operator explicitly has access to
+			visibilityFilter := bson.M{"$or": bson.A{
+				bson.M{"accessibility.visibility": project.VisibilityPublic.String()},
+				bson.M{"id": bson.M{"$in": r.f.AccessibleProjectIds.Strings()}},
+			}}
+			filter = bson.M{"$and": bson.A{filter, visibilityFilter}}
+		} else {
+			filter = mongox.And(filter, "accessibility.visibility", project.VisibilityPublic.String())
+		}
+	}
+	return filter
 }
 
 func (r *ProjectRepo) writeFilter(filter any) any {
