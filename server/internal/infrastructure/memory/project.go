@@ -117,7 +117,7 @@ func (r *Project) FindByIDOrAlias(_ context.Context, wId accountdomain.Workspace
 		if !r.f.CanRead(v.Workspace()) || v.Workspace() != wId {
 			return false
 		}
-		if !(pid != nil && k == *pid || alias != nil && v.Alias() == *alias) {
+		if (pid == nil || k != *pid) && (alias == nil || v.Alias() != *alias) {
 			return false
 		}
 		if r.f.VisibilityPublicOnly {
