@@ -23,8 +23,8 @@ const ApiDocs: FC<Props> = ({ specUrl, className }) => {
             .scalar-app .h-dvh { height: 100%; display: flex; }
             .scalar-app .min-h-dvh { min-height: 100%; }
             .scalar-app .t-doc__sidebar { height: 100%; }
-            .scalar-app > aside { flex-shrink: 0; }
-            .scalar-app > main { flex-grow: 1; }
+            .scalar-app > aside { flex-shrink: 0; overflow-y: auto; }
+            .scalar-app > main { flex-grow: 1; overflow-y: auto; }
           `,
           hideModels: false,
           hideDownloadButton: false,
@@ -42,7 +42,6 @@ const ApiDocs: FC<Props> = ({ specUrl, className }) => {
 export default ApiDocs;
 
 const ApiDocsWrapper = styled.div`
-  /* padding: 8px; */
-  /* height: 100%; */
-  /* overflow: hidden; */
+  height: 100%;
+  overflow: hidden;
 `;
