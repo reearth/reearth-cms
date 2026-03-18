@@ -56,7 +56,7 @@ const FilterDropdown: React.FC<Props> = ({
   return (
     <Dropdown
       key={filter.title}
-      dropdownRender={() => (
+      popupRender={() => (
         <DropdownRender
           filter={filter}
           index={index}

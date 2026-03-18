@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 
 import IntegrationWrapper from "@reearth-cms/components/molecules/Integration";
 

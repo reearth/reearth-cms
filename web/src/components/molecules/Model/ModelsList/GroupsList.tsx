@@ -8,6 +8,7 @@ import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { Constant } from "@reearth-cms/utils/constant";
 
 type Props = {
   selectedKey?: string;
@@ -108,7 +109,7 @@ const GroupsList: React.FC<Props> = ({
           <StyledMenu
             selectedKeys={selectedKeys}
             mode={collapsed ? "vertical" : "inline"}
-            collapsed={collapsed}
+            $collapsed={collapsed}
             items={items}
             onClick={handleClick}
           />
@@ -122,9 +123,9 @@ const Header = styled.div`
   padding: 22px 20px 4px 20px;
 `;
 
-const SchemaAction = styled.div<{ collapsed?: boolean }>`
+const SchemaAction = styled("div", Constant.TRANSIENT_OPTIONS)<{ $collapsed?: boolean }>`
   display: flex;
-  justify-content: ${({ collapsed }) => (collapsed ? "space-around" : "space-between")};
+  justify-content: ${({ $collapsed }) => ($collapsed ? "space-around" : "space-between")};
   align-items: center;
 `;
 
@@ -137,6 +138,9 @@ const SchemaStyledMenuTitle = styled.h1`
   font-weight: 400;
   font-size: 14px;
   color: #00000073;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const SchemaStyledMenu = styled.div`
@@ -155,8 +159,8 @@ const StyledIcon = styled(Icon)`
   justify-content: center;
 `;
 
-const StyledMenu = styled(Menu)<{ collapsed?: boolean }>`
-  color: ${({ collapsed }) => (collapsed ? "#C4C4C4" : undefined)};
+const StyledMenu = styled(Menu, Constant.TRANSIENT_OPTIONS)<{ $collapsed?: boolean }>`
+  color: ${({ $collapsed }) => ($collapsed ? "#C4C4C4" : undefined)};
 
   .ant-menu-item {
     display: flex;

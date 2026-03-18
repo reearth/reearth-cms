@@ -10,8 +10,6 @@ import { useT } from "@reearth-cms/i18n";
 import FieldTitle from "../../FieldTitle";
 import { requiredValidator } from "../utils";
 
-const { Option } = Select;
-
 const SelectField: React.FC<FieldProps> = ({
   field,
   itemGroupId,
@@ -38,13 +36,14 @@ const SelectField: React.FC<FieldProps> = ({
           <MultiValueSelect selectedValues={field.typeProperty?.values} disabled={disabled} />
         </ResponsiveHeight>
       ) : (
-        <Select allowClear disabled={disabled}>
-          {field.typeProperty?.values?.map((value: string) => (
-            <Option key={value} value={value}>
-              {value}
-            </Option>
-          ))}
-        </Select>
+        <Select
+          allowClear
+          disabled={disabled}
+          options={field.typeProperty?.values?.map((value: string) => ({
+            value,
+            label: value,
+          }))}
+        />
       )}
     </StyledFormItem>
   );

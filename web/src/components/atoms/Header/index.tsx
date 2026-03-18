@@ -1,3 +1,5 @@
-import { Header } from "antd/lib/layout/layout";
+import { Layout } from "antd";
+
+const Header = Layout.Header;
 
 export default Header;

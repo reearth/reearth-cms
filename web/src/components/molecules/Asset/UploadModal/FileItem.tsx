@@ -1,6 +1,6 @@
-import { Button } from "antd";
 import { useMemo, useState } from "react";
 
+import Button from "@reearth-cms/components/atoms/Button";
 import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";

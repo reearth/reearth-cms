@@ -135,7 +135,10 @@ const MyIntegrationForm: React.FC<Props> = ({
                 />
               }
             />
-            <Button onClick={handleRegenerateToken} loading={regenerateLoading}>
+            <Button
+              onClick={handleRegenerateToken}
+              loading={regenerateLoading}
+              data-testid={DATA_TEST_ID.MyIntegrations__Settings__Form__RegenerateTokenButton}>
               {t("Re-generate")}
             </Button>
           </StyledFormItem>
@@ -144,13 +147,14 @@ const MyIntegrationForm: React.FC<Props> = ({
               type="primary"
               onClick={handleSubmit}
               disabled={isDisabled}
-              loading={updateIntegrationLoading}>
+              loading={updateIntegrationLoading}
+              data-testid={DATA_TEST_ID.MyIntegrations__Settings__Form__SaveButton}>
               {t("Save")}
             </Button>
           </Form.Item>
         </Col>
         <Col>
-          <StyledDivider type="vertical" />
+          <StyledDivider orientation="vertical" />
         </Col>
         <Col span={11}>
           <CodeExampleTitle>{t("Code Example")}</CodeExampleTitle>

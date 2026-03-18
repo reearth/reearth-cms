@@ -1,5 +1,4 @@
-import { Tree } from "antd";
-import type { DataNode, TreeProps } from "antd/lib/tree";
+import { Tree, TreeDataNode, TreeProps } from "antd";
 
 export default Tree;
-export type { DataNode, TreeProps };
+export type { TreeDataNode, TreeProps };

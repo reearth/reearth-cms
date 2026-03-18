@@ -5,6 +5,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import List from "@reearth-cms/components/atoms/List";
 import { useT } from "@reearth-cms/i18n";
 import { Test } from "@reearth-cms/test/utils";
+import { Constant } from "@reearth-cms/utils/constant";
 
 import { fieldTypes } from "./fieldTypes";
 import { SchemaFieldType, SelectedSchemaType, Tab } from "./types";
@@ -29,7 +30,7 @@ const FieldList: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const common: FieldListItem[] = useMemo(
+  const common = useMemo<FieldListItem[]>(
     () => [
       {
         title: t("Text"),
@@ -63,7 +64,7 @@ const FieldList: React.FC<Props> = ({
     [t],
   );
 
-  const geometry: FieldListItem = useMemo(
+  const geometry = useMemo<FieldListItem>(
     () => ({
       title: t("GeoJSON Geometry"),
       fields: ["GeometryObject", "GeometryEditor"],
@@ -71,9 +72,9 @@ const FieldList: React.FC<Props> = ({
     [t],
   );
 
-  const group: FieldListItem[] = useMemo(() => [...common, geometry], [common, geometry]);
+  const group = useMemo<FieldListItem[]>(() => [...common, geometry], [common, geometry]);
 
-  const data: FieldListItem[] = useMemo(
+  const data = useMemo<FieldListItem[]>(
     () => [
       ...common,
       {
@@ -89,7 +90,7 @@ const FieldList: React.FC<Props> = ({
     [common, geometry, t],
   );
 
-  const meta: FieldListItem[] = useMemo(
+  const meta = useMemo<FieldListItem[]>(
     () => [
       {
         title: t("Meta Data"),
@@ -110,7 +111,7 @@ const FieldList: React.FC<Props> = ({
       <FieldStyledList
         itemLayout="horizontal"
         dataSource={dataSource}
-        hasCreateRight={hasCreateRight}
+        $hasCreateRight={hasCreateRight}
         renderItem={item => (
           <>
             <FieldCategoryTitle>{item.title}</FieldCategoryTitle>
@@ -146,13 +147,15 @@ const FieldCategoryTitle = styled.h2`
   color: rgba(0, 0, 0, 0.45);
 `;
 
-const FieldStyledList = styled(List<FieldListItem>)<{ hasCreateRight: boolean }>`
+const FieldStyledList = styled(List<FieldListItem>, Constant.TRANSIENT_OPTIONS)<{
+  $hasCreateRight: boolean;
+}>`
   max-height: calc(100% - 34px);
   overflow-y: auto;
   padding-bottom: 24px;
   .ant-list-item {
     background-color: #fff;
-    cursor: ${({ hasCreateRight }) => (hasCreateRight ? "pointer" : "not-allowed")};
+    cursor: ${({ $hasCreateRight }) => ($hasCreateRight ? "pointer" : "not-allowed")};
     + .ant-list-item {
       margin-top: 12px;
     }

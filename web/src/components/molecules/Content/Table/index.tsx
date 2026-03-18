@@ -1,13 +1,13 @@
 import styled from "@emotion/styled";
 import React, {
+  Dispatch,
   Key,
-  useMemo,
-  useState,
-  useRef,
+  SetStateAction,
   useCallback,
   useEffect,
-  Dispatch,
-  SetStateAction,
+  useMemo,
+  useRef,
+  useState,
 } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -18,9 +18,9 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import { useModal } from "@reearth-cms/components/atoms/Modal";
 import {
-  TableRowSelection,
-  ListToolBarProps,
   ColumnsState,
+  ListToolBarProps,
+  TableRowSelection,
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
@@ -36,12 +36,11 @@ import {
 import { ContentTableField, Item } from "@reearth-cms/components/molecules/Content/types";
 import { Request, RequestItem } from "@reearth-cms/components/molecules/Request/types";
 import {
-  ItemSort,
-  FieldType,
   Column,
   ConditionInput,
   CurrentView,
-  metaColumn,
+  FieldType,
+  ItemSort,
 } from "@reearth-cms/components/molecules/View/types";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { useWorkspace } from "@reearth-cms/state";
@@ -158,7 +157,7 @@ const ContentTable: React.FC<Props> = ({
     [currentView?.sort?.direction, currentView.sort?.field.type],
   );
 
-  const actionsColumns: ExtendedColumns[] = useMemo(
+  const actionsColumns = useMemo<ExtendedColumns[]>(
     () => [
       {
         title: "",
@@ -207,13 +206,13 @@ const ContentTable: React.FC<Props> = ({
     [t, onItemEdit, selectedItem?.id, onItemSelect],
   );
 
-  const systemMetaDataColumns: ExtendedColumns[] = useMemo(
+  const systemMetaDataColumns = useMemo<ExtendedColumns[]>(
     () => [
       {
         title: t("Created At"),
         dataIndex: "createdAt",
         fieldType: "CREATION_DATE",
-        key: "CREATION_DATE",
+        key: "createdAt",
         sortOrder: sortOrderGet("CREATION_DATE"),
         render: (_, item) => dateTimeFormat(item.createdAt),
         sorter: true,
@@ -227,7 +226,7 @@ const ContentTable: React.FC<Props> = ({
         title: t("Created By"),
         dataIndex: "createdBy",
         fieldType: "CREATION_USER",
-        key: "CREATION_USER",
+        key: "createdBy",
         sortOrder: sortOrderGet("CREATION_USER"),
         render: (_, item) => item.createdBy.name,
         sorter: true,
@@ -241,7 +240,7 @@ const ContentTable: React.FC<Props> = ({
         title: t("Updated At"),
         dataIndex: "updatedAt",
         fieldType: "MODIFICATION_DATE",
-        key: "MODIFICATION_DATE",
+        key: "updatedAt",
         sortOrder: sortOrderGet("MODIFICATION_DATE"),
         render: (_, item) => dateTimeFormat(item.updatedAt),
         sorter: true,
@@ -255,7 +254,7 @@ const ContentTable: React.FC<Props> = ({
         title: t("Updated By"),
         dataIndex: "updatedBy",
         fieldType: "MODIFICATION_USER",
-        key: "MODIFICATION_USER",
+        key: "updatedBy",
         sortOrder: sortOrderGet("MODIFICATION_USER"),
         render: (_, item) => (item.updatedBy ? item.updatedBy : "-"),
         sorter: true,
@@ -275,7 +274,7 @@ const ContentTable: React.FC<Props> = ({
       : [...actionsColumns];
   }, [actionsColumns, contentTableColumns, systemMetaDataColumns]);
 
-  const rowSelection: TableRowSelection = useMemo(
+  const rowSelection = useMemo<TableRowSelection<ContentTableField>>(
     () => ({
       selectedRowKeys: selectedItems.selectedRows.map(item => item.itemId),
       onChange: onSelect,
@@ -393,7 +392,9 @@ const ContentTable: React.FC<Props> = ({
           fieldId.type === "FIELD" || fieldId.type === "META_FIELD"
             ? contentTableColumns
             : actionsColumns;
-        const column = columns.find(c => c.key === fieldId.id);
+        const column = columns.find(c =>
+          Array.isArray(c.dataIndex) ? c.dataIndex[1] === fieldId.id : c.key === fieldId.id,
+        );
         if (column) {
           const { dataIndex, title, type, typeProperty, key, required, multiple } = column;
           const members = currentWorkspace?.members;
@@ -413,7 +414,7 @@ const ContentTable: React.FC<Props> = ({
               type,
               typeProperty,
               members,
-              id: key as string,
+              id: Array.isArray(dataIndex) ? String(dataIndex[1]) : (key as string),
               required,
               multiple,
             });
@@ -435,18 +436,12 @@ const ContentTable: React.FC<Props> = ({
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [conditionMenuOpen, setConditionMenuOpen] = useState(false);
 
-  const handleControlMenuOpenChange = useCallback((open: boolean) => {
-    setControlMenuOpen(open);
-  }, []);
-
-  const handleOptionsOpenChange = useCallback((open: boolean) => {
-    if (!open) {
+  const handleDropdownOpenChange = useCallback((open: boolean, info?: { source: string }) => {
+    if (open) {
+      setControlMenuOpen(true);
+    } else if (info?.source !== "menu") {
+      setControlMenuOpen(false);
       setOptionsOpen(false);
-    }
-  }, []);
-
-  const handleConditionMenuOpenChange = useCallback((open: boolean) => {
-    if (!open) {
       setConditionMenuOpen(false);
     }
   }, []);
@@ -476,7 +471,7 @@ const ContentTable: React.FC<Props> = ({
             type,
             typeProperty,
             members,
-            id: key as string,
+            id: Array.isArray(dataIndex) ? String(dataIndex[1]) : (key as string),
             required,
             multiple,
           };
@@ -484,7 +479,7 @@ const ContentTable: React.FC<Props> = ({
             setFilters(prevState => [...prevState, filter]);
           }
           setSelectedFilter(filter);
-          handleOptionsOpenChange(false);
+          setOptionsOpen(false);
           if (isFromMenu) {
             setConditionMenuOpen(true);
             isFilterOpen.current = false;
@@ -519,7 +514,7 @@ const ContentTable: React.FC<Props> = ({
           })) as any),
       ];
     },
-    [contentTableColumns, currentWorkspace?.members, handleOptionsOpenChange],
+    [contentTableColumns, currentWorkspace?.members],
   );
 
   const toolBarItemClick = useCallback(
@@ -555,7 +550,7 @@ const ContentTable: React.FC<Props> = ({
   const sharedProps = useMemo(
     () => ({
       menu: { items },
-      dropdownRender: (menu: React.ReactNode) => (
+      popupRender: (menu: React.ReactNode) => (
         <Wrapper>
           <InputWrapper>
             <Input
@@ -572,7 +567,7 @@ const ContentTable: React.FC<Props> = ({
     [handleChange, inputValue, items],
   );
 
-  const handleToolbarEvents: ListToolBarProps = useMemo(
+  const handleToolbarEvents = useMemo<ListToolBarProps>(
     () => ({
       search: (
         <StyledSearchContainer>
@@ -653,7 +648,7 @@ const ContentTable: React.FC<Props> = ({
     [onItemsReload],
   );
 
-  const toolBarItems: MenuProps["items"] = useMemo(
+  const toolBarItems = useMemo<MenuProps["items"]>(
     () => [
       {
         label: t("Add Filter"),
@@ -670,49 +665,60 @@ const ContentTable: React.FC<Props> = ({
   );
 
   const toolBarRender = useCallback(() => {
+    const isDropdownOpen = controlMenuOpen || optionsOpen || conditionMenuOpen;
     return [
       <Dropdown
-        {...sharedProps}
-        placement="bottom"
+        key="control"
+        open={isDropdownOpen}
+        onOpenChange={handleDropdownOpenChange}
         trigger={["click"]}
-        open={optionsOpen}
-        onOpenChange={handleOptionsOpenChange}
-        key="control">
-        <Dropdown
-          dropdownRender={() =>
-            selectedFilter && (
-              <DropdownRender
-                filter={selectedFilter}
-                close={close}
-                index={filters.length - 1}
-                open={conditionMenuOpen}
-                isFilter={isFilter.current}
-                currentView={currentView}
-                setCurrentView={setCurrentView}
-                onFilterChange={onFilterChange}
-                key={Math.random()}
-              />
-            )
+        placement="bottom"
+        arrow={false}
+        menu={
+          controlMenuOpen
+            ? { items: toolBarItems, onClick: toolBarItemClick }
+            : optionsOpen
+              ? { items }
+              : undefined
+        }
+        popupRender={(menu: React.ReactNode) => {
+          if (conditionMenuOpen) {
+            return (
+              selectedFilter && (
+                <DropdownRender
+                  filter={selectedFilter}
+                  close={close}
+                  index={filters.length - 1}
+                  open={conditionMenuOpen}
+                  isFilter={isFilter.current}
+                  currentView={currentView}
+                  setCurrentView={setCurrentView}
+                  onFilterChange={onFilterChange}
+                  key={Math.random()}
+                />
+              )
+            );
           }
-          trigger={["click"]}
-          placement="bottom"
-          arrow={false}
-          open={conditionMenuOpen}
-          onOpenChange={handleConditionMenuOpenChange}>
-          <Dropdown
-            menu={{ items: toolBarItems, onClick: toolBarItemClick }}
-            placement="bottom"
-            trigger={["click"]}
-            arrow={false}
-            open={controlMenuOpen}
-            onOpenChange={handleControlMenuOpenChange}>
-            <Tooltip title={t("Control")}>
-              <IconWrapper>
-                <Icon icon="control" size={18} />
-              </IconWrapper>
-            </Tooltip>
-          </Dropdown>
-        </Dropdown>
+          return (
+            <Wrapper>
+              {optionsOpen && (
+                <InputWrapper>
+                  <Input
+                    value={inputValue}
+                    placeholder={isFilter.current ? t("Filter by...") : t("Sort by...")}
+                    onChange={handleChange}
+                  />
+                </InputWrapper>
+              )}
+              {menu && React.cloneElement(menu as React.ReactElement)}
+            </Wrapper>
+          );
+        }}>
+        <Tooltip title={t("Control")}>
+          <IconWrapper>
+            <Icon icon="control" size={18} />
+          </IconWrapper>
+        </Tooltip>
       </Dropdown>,
     ];
   }, [
@@ -721,25 +727,36 @@ const ContentTable: React.FC<Props> = ({
     controlMenuOpen,
     currentView,
     filters.length,
-    handleConditionMenuOpenChange,
-    handleControlMenuOpenChange,
-    handleOptionsOpenChange,
+    handleChange,
+    handleDropdownOpenChange,
+    inputValue,
+    items,
     onFilterChange,
     optionsOpen,
     selectedFilter,
     setCurrentView,
-    sharedProps,
     t,
     toolBarItemClick,
     toolBarItems,
   ]);
 
   const settingOptions = useMemo(() => {
+    const systemFieldTypeToKey: Record<string, string> = {
+      CREATION_DATE: "createdAt",
+      CREATION_USER: "createdBy",
+      MODIFICATION_DATE: "updatedAt",
+      MODIFICATION_USER: "updatedBy",
+    };
     const cols: Record<string, ColumnsState> = {};
     currentView.columns?.forEach((col, index) => {
-      const colKey = (metaColumn as readonly string[]).includes(col.field.type)
-        ? col.field.type
-        : (col.field.id ?? "");
+      let colKey: string;
+      if (col.field.type === "FIELD") {
+        colKey = `fields,${col.field.id ?? ""}`;
+      } else if (col.field.type === "META_FIELD") {
+        colKey = `metadata,${col.field.id ?? ""}`;
+      } else {
+        colKey = systemFieldTypeToKey[col.field.type] ?? col.field.type;
+      }
       cols[colKey] = { show: col.visible, order: index, fixed: col.fixed };
     });
     return cols;
@@ -757,17 +774,18 @@ const ContentTable: React.FC<Props> = ({
         .map((col, index) => {
           const colKey = col.key as string;
           const colFieldType = col.fieldType as FieldType;
+          const fieldId =
+            colFieldType === "FIELD" || colFieldType === "META_FIELD"
+              ? colKey.split(",")[1]
+              : undefined;
           return {
             field: {
               type: colFieldType,
-              id: colFieldType === "FIELD" || colFieldType === "META_FIELD" ? colKey : undefined,
+              id: fieldId,
             },
             visible: options[colKey]?.show ?? true,
             order: options[colKey]?.order ?? index,
-            fixed:
-              colFieldType === "FIELD" || colFieldType === "META_FIELD"
-                ? options[colKey]?.fixed
-                : options[colFieldType]?.fixed,
+            fixed: options[colKey]?.fixed,
           };
         })
         .sort((a, b) => a.order - b.order)
@@ -779,12 +797,47 @@ const ContentTable: React.FC<Props> = ({
           };
         });
 
-      setCurrentView(prev => ({
-        ...prev,
-        columns: cols,
-      }));
+      setCurrentView(prev => {
+        if (JSON.stringify(prev.columns) === JSON.stringify(cols)) return prev;
+        return { ...prev, columns: cols };
+      });
     },
     [setCurrentView, tableColumns],
+  );
+
+  const columnsStateConfig = useMemo(
+    () => ({
+      value: settingOptions,
+      onChange: setSettingOptions,
+    }),
+    [settingOptions, setSettingOptions],
+  );
+
+  const handleTableChange = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (pagination: any, _: any, sorter: any) => {
+      onContentTableChange(
+        pagination.current ?? 1,
+        pagination.pageSize ?? 10,
+        Array.isArray(sorter)
+          ? undefined
+          : sorter.order && sorter.column && "fieldType" in sorter.column
+            ? {
+                field: {
+                  id:
+                    sorter.column.fieldType === "FIELD" || sorter.column.fieldType === "META_FIELD"
+                      ? Array.isArray(sorter.field)
+                        ? sorter.field[1]
+                        : undefined
+                      : undefined,
+                  type: sorter.column.fieldType as FieldType,
+                },
+                direction: sorter.order === "ascend" ? "ASC" : "DESC",
+              }
+            : undefined,
+      );
+    },
+    [onContentTableChange],
   );
 
   const getImportContentUIMetadata = useMemo(
@@ -797,6 +850,7 @@ const ContentTable: React.FC<Props> = ({
     <>
       {contentTableColumns ? (
         <ResizableProTable
+          key={currentView.id}
           showSorterTooltip={false}
           options={options}
           loading={loading}
@@ -807,34 +861,8 @@ const ContentTable: React.FC<Props> = ({
           tableAlertOptionRender={alertOptions}
           rowSelection={rowSelection}
           columns={tableColumns}
-          columnsState={{
-            value: settingOptions,
-            onChange: setSettingOptions,
-          }}
-          onChange={(pagination, _, sorter) => {
-            onContentTableChange(
-              pagination.current ?? 1,
-              pagination.pageSize ?? 10,
-              Array.isArray(sorter)
-                ? undefined
-                : sorter.order &&
-                    sorter.column &&
-                    "fieldType" in sorter.column &&
-                    typeof sorter.columnKey === "string"
-                  ? {
-                      field: {
-                        id:
-                          sorter.column.fieldType === "FIELD" ||
-                          sorter.column.fieldType === "META_FIELD"
-                            ? sorter.columnKey
-                            : undefined,
-                        type: sorter.column.fieldType as FieldType,
-                      },
-                      direction: sorter.order === "ascend" ? "ASC" : "DESC",
-                    }
-                  : undefined,
-            );
-          }}
+          columnsState={columnsStateConfig}
+          onChange={handleTableChange}
           heightOffset={102}
           locale={{
             emptyText: (
@@ -897,13 +925,13 @@ const StyledFilterButton = styled(Button)`
 const StyledFilterWrapper = styled.div`
   display: flex;
   text-align: left;
-  ant-space {
+  .ant-space {
     flex: 1;
-    align-self: start;
+    align-self: center;
     justify-self: start;
     text-align: start;
   }
-  overflow: auto;
+  overflow: visible;
   gap: 16px;
   .ant-pro-form-light-filter-item {
     margin: 0;

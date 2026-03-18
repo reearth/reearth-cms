@@ -3,6 +3,7 @@ import { Children, ReactNode } from "react";
 
 import Content from "@reearth-cms/components/atoms/Content";
 import PageHeader from "@reearth-cms/components/atoms/PageHeader";
+import { Constant } from "@reearth-cms/utils/constant";
 
 type Props = {
   title?: ReactNode;
@@ -26,7 +27,7 @@ const BasicInnerContents: React.FC<Props> = ({
   const childrenArray = Children.toArray(children);
 
   return (
-    <PaddedContent isFullHeight={isFullHeight}>
+    <PaddedContent $isFullHeight={isFullHeight}>
       <Header
         title={title && <div role="heading">{title}</div>}
         subTitle={subtitle}
@@ -34,7 +35,7 @@ const BasicInnerContents: React.FC<Props> = ({
         onBack={onBack}
       />
       {childrenArray.map((child, idx) => (
-        <Section key={idx} flex={flexChildren} lastChild={childrenArray.length - 1 === idx}>
+        <Section key={idx} $flex={flexChildren} $lastChild={childrenArray.length - 1 === idx}>
           {child}
         </Section>
       ))}
@@ -42,11 +43,11 @@ const BasicInnerContents: React.FC<Props> = ({
   );
 };
 
-const PaddedContent = styled(Content)<{ isFullHeight: boolean }>`
+const PaddedContent = styled(Content, Constant.TRANSIENT_OPTIONS)<{ $isFullHeight: boolean }>`
   display: flex;
   flex-direction: column;
   padding: 16px;
-  ${props => props.isFullHeight && "height: 100%;"}
+  ${props => props.$isFullHeight && "height: 100%;"}
 `;
 
 const Header = styled(PageHeader)`
@@ -55,9 +56,12 @@ const Header = styled(PageHeader)`
   margin-bottom: 16px;
 `;
 
-const Section = styled.div<{ flex?: boolean; lastChild?: boolean }>`
-  ${({ lastChild }) => !lastChild && "margin-bottom: 16px;"}
-  ${({ flex, lastChild }) => (flex || lastChild) && "flex: 1;"}
+const Section = styled("div", Constant.TRANSIENT_OPTIONS)<{
+  $flex?: boolean;
+  $lastChild?: boolean;
+}>`
+  ${({ $lastChild }) => !$lastChild && "margin-bottom: 16px;"}
+  ${({ $flex, $lastChild }) => ($flex || $lastChild) && "flex: 1;"}
 `;
 
 export default BasicInnerContents;

@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -21,7 +22,7 @@ test("Boolean metadata creating and updating has succeeded", async ({
 }) => {
   await test.step("Create boolean metadata field", async () => {
     await schemaPage.metaDataTab.click();
-    await schemaPage.booleanListItem.click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Bool).click();
     await fieldEditorPage.displayNameInput.fill("boolean1");
     await fieldEditorPage.fieldKeyInput.fill("boolean1");
     await fieldEditorPage.fieldDescriptionInput.fill("boolean1 description");
@@ -91,7 +92,7 @@ test("Boolean metadata editing has succeeded", async ({
 }) => {
   await test.step("Create boolean metadata with default true value", async () => {
     await schemaPage.metaDataTab.click();
-    await schemaPage.booleanListItem.click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Bool).click();
     await fieldEditorPage.displayNameInput.fill("boolean1");
     await fieldEditorPage.fieldKeyInput.fill("boolean1");
     await fieldEditorPage.fieldDescriptionInput.fill("boolean1 description");
@@ -137,7 +138,7 @@ test("Boolean metadata editing has succeeded", async ({
     await expect(contentPage.columnHeaderWithEdit("new boolean1")).toBeVisible();
     await expect(contentPage.checkSwitch).toBeVisible();
     await contentPage.newItemButton.click();
-    await expect(contentPage.getByText("new boolean1", { exact: true })).toBeVisible();
+    await expect(contentPage.fieldTitle).toContainText("new boolean1");
     await expect(contentPage.fieldDescriptionText("new boolean1 description")).toBeVisible();
     await expect(contentPage.switchByIndex(0)).toHaveAttribute("aria-checked", "true");
     await expect(contentPage.switchByIndex(1)).toHaveAttribute("aria-checked", "true");

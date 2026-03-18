@@ -38,13 +38,13 @@ export const renderField = (
           update?.(value);
         }}
         placeholder="-"
-        disabled={!update}>
-        {tags?.map(({ id, name, color }) => (
-          <Select.Option key={id} value={name}>
-            <Tag color={color.toLowerCase()}>{name}</Tag>
-          </Select.Option>
-        ))}
-      </StyledSelect>
+        disabled={!update}
+        options={tags?.map(({ id, name, color }) => ({
+          key: id,
+          value: name,
+          label: <Tag color={color.toLowerCase()}>{name}</Tag>,
+        }))}
+      />
     );
   } else if (value === "-") {
     if ((field.type === "Text" || field.type === "Date" || field.type === "URL") && update) {

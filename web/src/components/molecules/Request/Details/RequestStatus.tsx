@@ -1,7 +1,8 @@
 import styled from "@emotion/styled";
-import { Steps } from "antd";
+import { useMemo } from "react";
 
 import Icon from "@reearth-cms/components/atoms/Icon";
+import Steps, { type StepsProps } from "@reearth-cms/components/atoms/Step";
 import { RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { useT } from "@reearth-cms/i18n";
 
@@ -11,24 +12,27 @@ type Props = {
 
 const RequestStatus: React.FC<Props> = ({ requestState }) => {
   const t = useT();
-  const { Step } = Steps;
+  const items = useMemo<StepsProps["items"]>(() => {
+    if (requestState === "APPROVED") {
+      return [
+        {
+          icon: <StyledIcon icon="checkCircle" color="#52C41A" size={28} />,
+          title: <StatusTitle>{t("Approved")}</StatusTitle>,
+        },
+      ];
+    }
+    if (requestState === "CLOSED") {
+      return [
+        {
+          icon: <StyledIcon icon="closeCircle" color="#BFBFBF" size={28} />,
+          title: <StatusTitle>{t("Closed")}</StatusTitle>,
+        },
+      ];
+    }
+    return [];
+  }, [requestState, t]);
 
-  return (
-    <StyledSteps direction="vertical" current={1}>
-      {requestState === "APPROVED" && (
-        <Step
-          icon={<StyledIcon icon="checkCircle" color="#52C41A" size={28} />}
-          title={<StatusTitle>{t("Approved")}</StatusTitle>}
-        />
-      )}
-      {requestState === "CLOSED" && (
-        <Step
-          icon={<StyledIcon icon="closeCircle" color="#BFBFBF" size={28} />}
-          title={<StatusTitle>{t("Closed")}</StatusTitle>}
-        />
-      )}
-    </StyledSteps>
-  );
+  return <StyledSteps orientation="vertical" current={1} items={items} />;
 };
 
 const StyledSteps = styled(Steps)`

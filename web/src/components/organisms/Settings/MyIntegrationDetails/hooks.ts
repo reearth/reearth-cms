@@ -1,6 +1,6 @@
 import { useMutation } from "@apollo/client/react";
 import { useCallback, useMemo } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import {
@@ -50,9 +50,9 @@ export default () => {
         },
       });
       if (result.error) {
-        Notification.error({ message: t("Failed to update integration.") });
+        Notification.error({ title: t("Failed to update integration.") });
       } else {
-        Notification.success({ message: t("Successfully updated integration!") });
+        Notification.success({ title: t("Successfully updated integration!") });
       }
     },
     [integrationId, t, updateIntegrationMutation],
@@ -66,9 +66,9 @@ export default () => {
     if (!integrationId) return;
     const results = await deleteIntegrationMutation({ variables: { integrationId } });
     if (results.error) {
-      Notification.error({ message: t("Failed to delete integration.") });
+      Notification.error({ title: t("Failed to delete integration.") });
     } else {
-      Notification.success({ message: t("Successfully deleted integration!") });
+      Notification.success({ title: t("Successfully deleted integration!") });
       navigate(`/workspace/${workspaceId}/myIntegrations`);
     }
   }, [integrationId, deleteIntegrationMutation, t, navigate, workspaceId]);
@@ -87,11 +87,11 @@ export default () => {
     });
     if (result.error) {
       Notification.error({
-        message: t("The attempt to re-generate the integration token has failed."),
+        title: t("The attempt to re-generate the integration token has failed."),
       });
     } else {
       Notification.success({
-        message: t("Integration Token has been re-generated!"),
+        title: t("Integration Token has been re-generated!"),
       });
     }
   }, [integrationId, regenerateTokenMutation, t]);
@@ -114,10 +114,10 @@ export default () => {
         },
       });
       if (webhook.error || !webhook.data?.createWebhook) {
-        Notification.error({ message: t("Failed to create webhook.") });
+        Notification.error({ title: t("Failed to create webhook.") });
         return;
       }
-      Notification.success({ message: t("Successfully created webhook!") });
+      Notification.success({ title: t("Successfully created webhook!") });
     },
     [createNewWebhook, integrationId, t],
   );
@@ -136,10 +136,10 @@ export default () => {
         },
       });
       if (webhook.error || !webhook.data?.deleteWebhook) {
-        Notification.error({ message: t("Failed to delete webhook.") });
+        Notification.error({ title: t("Failed to delete webhook.") });
         return;
       }
-      Notification.success({ message: t("Successfully deleted webhook!") });
+      Notification.success({ title: t("Successfully deleted webhook!") });
     },
     [deleteWebhook, integrationId, t],
   );
@@ -163,10 +163,10 @@ export default () => {
         },
       });
       if (webhook.error || !webhook.data?.updateWebhook) {
-        Notification.error({ message: t("Failed to update webhook.") });
+        Notification.error({ title: t("Failed to update webhook.") });
         return;
       }
-      Notification.success({ message: t("Successfully updated webhook!") });
+      Notification.success({ title: t("Successfully updated webhook!") });
     },
     [updateWebhook, integrationId, t],
   );

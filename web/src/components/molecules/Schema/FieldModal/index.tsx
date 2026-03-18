@@ -1,15 +1,15 @@
 import styled from "@emotion/styled";
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import { useMemo } from "react";
 
 import Button from "@reearth-cms/components/atoms/Button";
-import Checkbox from "@reearth-cms/components/atoms/Checkbox";
+import Checkbox, { type CheckboxProps } from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Input from "@reearth-cms/components/atoms/Input";
 import Modal from "@reearth-cms/components/atoms/Modal";
 import Radio from "@reearth-cms/components/atoms/Radio";
 import Select from "@reearth-cms/components/atoms/Select";
-import Tabs from "@reearth-cms/components/atoms/Tabs";
+import Tabs, { type TabsProps } from "@reearth-cms/components/atoms/Tabs";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { UploadFile } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
@@ -31,6 +31,8 @@ import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
 
 import useHooks from "./hooks";
+
+type CheckboxChangeEvent = Parameters<NonNullable<CheckboxProps["onChange"]>>[0];
 
 type Props = {
   groups?: Group[];
@@ -80,8 +82,6 @@ const initialValues: FormValues = {
   type: "Text",
   typeProperty: { text: { defaultValue: "", maxLength: 0 } },
 };
-
-const { TabPane } = Tabs;
 
 const FieldModal: React.FC<Props> = ({
   groups,
@@ -165,42 +165,14 @@ const FieldModal: React.FC<Props> = ({
     </>
   );
 
-  return (
-    <Modal
-      title={
-        <FieldThumbnail>
-          <StyledIcon icon={fieldTypes[selectedType].icon} color={fieldTypes[selectedType].color} />
-          <StyledTitle>
-            {selectedField
-              ? t("Update Field", { field: selectedField.title })
-              : t("Create Field", { field: t(fieldTypes[selectedType].title) })}
-          </StyledTitle>
-        </FieldThumbnail>
-      }
-      width={572}
-      open={open}
-      onCancel={handleModalReset}
-      footer={[
-        <Button key="cancel" onClick={handleModalReset} disabled={fieldLoading}>
-          {t("Cancel")}
-        </Button>,
-        <Button
-          key="ok"
-          type="primary"
-          loading={fieldLoading}
-          onClick={handleSubmit}
-          disabled={buttonDisabled}>
-          {t("OK")}
-        </Button>,
-      ]}>
-      <Form
-        form={form}
-        layout="vertical"
-        initialValues={initialValues}
-        requiredMark={requiredMark}
-        onValuesChange={handleValuesChange}>
-        <Tabs activeKey={activeTab} onChange={handleTabChange}>
-          <TabPane tab={t("Settings")} key="settings" forceRender>
+  const tabItems = useMemo<TabsProps["items"]>(
+    () => [
+      {
+        label: t("Settings"),
+        key: "settings",
+        forceRender: true,
+        children: (
+          <>
             <Form.Item
               name="title"
               label={t("Display name")}
@@ -282,14 +254,19 @@ const FieldModal: React.FC<Props> = ({
                 name="group"
                 label={t("Select Group")}
                 rules={[{ required: true, message: t("Please select the group!") }]}>
-                <Select>
-                  {groups?.map(group => (
-                    <Select.Option key={group.id} value={group.id}>
-                      {group.name}{" "}
-                      <StyledGroupKey className="ant-form-item-extra">#{group.key}</StyledGroupKey>
-                    </Select.Option>
-                  ))}
-                </Select>
+                <Select
+                  options={groups?.map(group => ({
+                    value: group.id,
+                    label: (
+                      <>
+                        {group.name}{" "}
+                        <StyledGroupKey className="ant-form-item-extra">
+                          #{group.key}
+                        </StyledGroupKey>
+                      </>
+                    ),
+                  }))}
+                />
               </Form.Item>
             )}
             {selectedType === "GeometryObject" && (
@@ -334,8 +311,15 @@ const FieldModal: React.FC<Props> = ({
               extra={t("Only one field can be used as the title")}>
               <Checkbox>{t("Use as title")}</Checkbox>
             </Form.Item>
-          </TabPane>
-          <TabPane tab={t("Validation")} key="validation" forceRender>
+          </>
+        ),
+      },
+      {
+        label: t("Validation"),
+        key: "validation",
+        forceRender: true,
+        children: (
+          <>
             <FieldValidationInputs selectedType={selectedType} min={min} max={max} />
             <Form.Item
               name="required"
@@ -349,42 +333,132 @@ const FieldModal: React.FC<Props> = ({
               extra={t("Ensures that multiple entries can't have the same value for this field")}>
               <Checkbox disabled={isUniqueDisabled}>{t("Set field as unique")}</Checkbox>
             </Form.Item>
-          </TabPane>
-          <TabPane tab={t("Default value")} key="defaultValue" forceRender>
-            <FieldDefaultInputs
-              multiple={multipleValue}
-              selectedValues={selectedValues}
-              selectedTags={selectedTags}
-              selectedSupportedTypes={selectedSupportedTypes}
-              maxLength={maxLength}
-              min={min}
-              max={max}
-              selectedType={selectedType}
-              assetList={assetList}
-              fileList={fileList}
-              loadingAssets={loadingAssets}
-              uploading={uploading}
-              uploadModalVisibility={uploadModalVisibility}
-              uploadUrl={uploadUrl}
-              uploadType={uploadType}
-              totalCount={totalCount}
-              page={page}
-              pageSize={pageSize}
-              onAssetTableChange={onAssetTableChange}
-              onUploadModalCancel={onUploadModalCancel}
-              setUploadUrl={setUploadUrl}
-              setUploadType={setUploadType}
-              onAssetsCreate={onAssetsCreate}
-              onAssetCreateFromUrl={onAssetCreateFromUrl}
-              onAssetSearchTerm={onAssetSearchTerm}
-              onAssetsGet={onAssetsGet}
-              onAssetsReload={onAssetsReload}
-              setFileList={setFileList}
-              setUploadModalVisibility={setUploadModalVisibility}
-              onGetAsset={onGetAsset}
-            />
-          </TabPane>
-        </Tabs>
+          </>
+        ),
+      },
+      {
+        label: t("Default value"),
+        key: "defaultValue",
+        forceRender: true,
+        children: (
+          <FieldDefaultInputs
+            multiple={multipleValue}
+            selectedValues={selectedValues}
+            selectedTags={selectedTags}
+            selectedSupportedTypes={selectedSupportedTypes}
+            maxLength={maxLength}
+            min={min}
+            max={max}
+            selectedType={selectedType}
+            assetList={assetList}
+            fileList={fileList}
+            loadingAssets={loadingAssets}
+            uploading={uploading}
+            uploadModalVisibility={uploadModalVisibility}
+            uploadUrl={uploadUrl}
+            uploadType={uploadType}
+            totalCount={totalCount}
+            page={page}
+            pageSize={pageSize}
+            onAssetTableChange={onAssetTableChange}
+            onUploadModalCancel={onUploadModalCancel}
+            setUploadUrl={setUploadUrl}
+            setUploadType={setUploadType}
+            onAssetsCreate={onAssetsCreate}
+            onAssetCreateFromUrl={onAssetCreateFromUrl}
+            onAssetSearchTerm={onAssetSearchTerm}
+            onAssetsGet={onAssetsGet}
+            onAssetsReload={onAssetsReload}
+            setFileList={setFileList}
+            setUploadModalVisibility={setUploadModalVisibility}
+            onGetAsset={onGetAsset}
+          />
+        ),
+      },
+    ],
+    [
+      t,
+      handleNameChange,
+      handleKeyChange,
+      keyValidate,
+      handleMultipleChange,
+      selectedType,
+      groups,
+      ObjectSupportType,
+      EditorSupportType,
+      isTitleDisabled,
+      isRequiredDisabled,
+      isUniqueDisabled,
+      min,
+      max,
+      multipleValue,
+      selectedValues,
+      selectedTags,
+      selectedSupportedTypes,
+      maxLength,
+      errorIndexes,
+      emptyValidator,
+      duplicatedValidator,
+      assetList,
+      fileList,
+      loadingAssets,
+      uploading,
+      uploadModalVisibility,
+      uploadUrl,
+      uploadType,
+      totalCount,
+      page,
+      pageSize,
+      onAssetTableChange,
+      onUploadModalCancel,
+      setUploadUrl,
+      setUploadType,
+      onAssetsCreate,
+      onAssetCreateFromUrl,
+      onAssetSearchTerm,
+      onAssetsGet,
+      onAssetsReload,
+      setFileList,
+      setUploadModalVisibility,
+      onGetAsset,
+    ],
+  );
+
+  return (
+    <Modal
+      title={
+        <FieldThumbnail>
+          <StyledIcon icon={fieldTypes[selectedType].icon} color={fieldTypes[selectedType].color} />
+          <StyledTitle>
+            {selectedField
+              ? t("Update Field", { field: selectedField.title })
+              : t("Create Field", { field: t(fieldTypes[selectedType].title) })}
+          </StyledTitle>
+        </FieldThumbnail>
+      }
+      width={572}
+      open={open}
+      onCancel={handleModalReset}
+      footer={[
+        <Button key="cancel" onClick={handleModalReset} disabled={fieldLoading}>
+          {t("Cancel")}
+        </Button>,
+        <Button
+          key="ok"
+          type="primary"
+          loading={fieldLoading}
+          onClick={handleSubmit}
+          disabled={buttonDisabled}>
+          {t("OK")}
+        </Button>,
+      ]}>
+      <Form
+        form={form}
+        layout="vertical"
+        initialValues={initialValues}
+        requiredMark={requiredMark}
+        onValuesChange={handleValuesChange}>
+        <Tabs activeKey={activeTab} onChange={handleTabChange} items={tabItems} />
       </Form>
     </Modal>
   );

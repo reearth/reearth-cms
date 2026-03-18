@@ -7,6 +7,7 @@ import InfoBox from "@reearth-cms/components/molecules/Asset/InfoBox";
 import { Property } from "@reearth-cms/components/molecules/Asset/Viewers/MvtViewer/Imagery";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { Constant } from "@reearth-cms/utils/constant";
 
 import { imageryGet, terrainGet } from "./provider";
 import { sortProperties } from "./sortProperty";
@@ -150,7 +151,7 @@ const ResiumViewer: React.FC<Props> = ({
         shouldAnimate={true}
         onClick={handleClick}
         infoBox={false}
-        hidden={isLoading}
+        $hidden={isLoading}
         ref={viewerRef}>
         {children}
       </StyledViewer>
@@ -171,8 +172,8 @@ const Container = styled.div`
   position: relative;
 `;
 
-const StyledViewer = styled(Viewer)<{ hidden?: boolean }>`
-  visibility: ${({ hidden }) => (hidden ? "hidden" : "visible")};
+const StyledViewer = styled(Viewer, Constant.TRANSIENT_OPTIONS)<{ $hidden?: boolean }>`
+  visibility: ${({ $hidden }) => ($hidden ? "hidden" : "visible")};
   .cesium-baseLayerPicker-dropDown {
     box-sizing: content-box;
   }

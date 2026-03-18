@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import ReactDragListView from "react-drag-listview";
 
 import Button from "@reearth-cms/components/atoms/Button";
@@ -50,43 +50,52 @@ const ViewsMenuMolecule: React.FC<Props> = ({
     [onUpdateViewsOrder, views],
   );
 
-  const menuItems = views
-    .sort((a, b) => a.order - b.order)
-    .map(view => {
-      return {
-        label: (
-          <ViewsMenuItem
-            view={view}
-            hasUpdateRight={hasUpdateRight}
-            hasDeleteRight={hasDeleteRight}
-            onViewRenameModalOpen={onViewRenameModalOpen}
-            onDelete={onDelete}
-            onUpdate={onUpdate}
-          />
-        ),
-        key: view.id,
-        data: view,
-      };
-    });
+  const menuItems = useMemo(
+    () =>
+      views
+        .sort((a, b) => a.order - b.order)
+        .map(view => ({
+          label: (
+            <ViewsMenuItem
+              view={view}
+              hasUpdateRight={hasUpdateRight}
+              hasDeleteRight={hasDeleteRight}
+              onViewRenameModalOpen={onViewRenameModalOpen}
+              onDelete={onDelete}
+              onUpdate={onUpdate}
+            />
+          ),
+          key: view.id,
+          data: view,
+        })),
+    [views, hasUpdateRight, hasDeleteRight, onViewRenameModalOpen, onDelete, onUpdate],
+  );
+
+  const tabBarExtraContent = useMemo(
+    () => (
+      <NewViewButton type="text" onClick={onViewCreateModalOpen} disabled={!hasCreateRight}>
+        {t("Save as new view")}
+      </NewViewButton>
+    ),
+    [onViewCreateModalOpen, hasCreateRight, t],
+  );
+
+  const moreIcon = useMemo(() => <MoreIcon>All Views</MoreIcon>, []);
 
   return (
     <Wrapper>
       <DragColumn
         nodeSelector={hasUpdateRight ? ".ant-tabs-tab" : undefined}
         lineClassName="dragLineColumn"
-        onDragEnd={(fromIndex, toIndex) => onDragEnd(fromIndex, toIndex)}>
+        onDragEnd={onDragEnd}>
         <StyledTabs
-          tabBarExtraContent={
-            <NewViewButton type="text" onClick={onViewCreateModalOpen} disabled={!hasCreateRight}>
-              {t("Save as new view")}
-            </NewViewButton>
-          }
+          tabBarExtraContent={tabBarExtraContent}
           activeKey={currentView.id}
-          tabPosition="top"
+          tabPlacement="top"
           items={menuItems}
-          popupClassName="hide-icon-button"
+          classNames={{ popup: { root: "hide-icon-button" } }}
           onChange={onViewSelect}
-          moreIcon={<Button>All Views</Button>}
+          moreIcon={moreIcon}
         />
       </DragColumn>
     </Wrapper>
@@ -108,13 +117,18 @@ const StyledTabs = styled(Tabs)`
     height: 46px;
   }
 
-  .ant-tabs-tab:not(:first-child) {
+  .ant-tabs-tab:not(:first-of-type) {
     padding-left: 8px;
   }
 
   .ant-tabs-tab + .ant-tabs-tab {
     margin-left: 8px;
   }
+`;
+
+const MoreIcon = styled.span`
+  padding: 4px 15px;
+  cursor: pointer;
 `;
 
 const NewViewButton = styled(Button)`

@@ -17,7 +17,6 @@ type Props = {
 
 const MultiValueSelect: React.FC<Props> = ({ selectedValues, value = [], onChange, disabled }) => {
   const t = useT();
-  const { Option } = Select;
   const handleInput = useCallback(
     (e: string, id: number) => {
       onChange?.(value?.map((valueItem, index) => (index === id ? e : valueItem)));
@@ -66,13 +65,12 @@ const MultiValueSelect: React.FC<Props> = ({ selectedValues, value = [], onChang
             <StyledSelect
               disabled={disabled}
               value={valueItem}
-              onChange={(e: string) => handleInput(e, key)}>
-              {selectedValues?.map((value: string) => (
-                <Option key={value} value={value}>
-                  {value}
-                </Option>
-              ))}
-            </StyledSelect>
+              onChange={(e: string) => handleInput(e, key)}
+              options={selectedValues?.map((value: string) => ({
+                value,
+                label: value,
+              }))}
+            />
             {!disabled && (
               <FieldButton
                 color="default"

@@ -16,6 +16,7 @@ import {
   TerrainInput,
 } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils.ts";
 
 type Props = {
   loading: boolean;
@@ -50,12 +51,12 @@ const Settings: React.FC<Props> = ({
     setIsDisabled(JSON.stringify(workspaceSettings) === JSON.stringify(settings));
   }, [workspaceSettings, settings]);
 
-  const tiles: TileInput[] = useMemo(() => {
+  const tiles = useMemo<TileInput[]>(() => {
     if (!settings?.tiles?.resources) return [];
     return settings?.tiles?.resources?.map(resource => ({ tile: resource }));
   }, [settings]);
 
-  const terrains: TerrainInput[] = useMemo(() => {
+  const terrains = useMemo<TerrainInput[]>(() => {
     if (!settings?.terrains?.resources) return [];
     return settings?.terrains?.resources?.map(resource => ({ terrain: resource }));
   }, [settings]);
@@ -145,6 +146,7 @@ const Settings: React.FC<Props> = ({
           />
         ) : null}
         <Button
+          data-testid={DATA_TEST_ID.Settings__AddNewTileOptionButton}
           type="link"
           onClick={() => onTileModalOpen()}
           icon={<Icon icon="plus" />}
@@ -175,6 +177,7 @@ const Settings: React.FC<Props> = ({
               />
             ) : null}
             <Button
+              data-testid={DATA_TEST_ID.Settings__AddNewTerrainOptionButton}
               type="link"
               onClick={() => onTerrainModalOpen()}
               icon={<Icon icon="plus" />}

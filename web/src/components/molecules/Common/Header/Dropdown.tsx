@@ -27,7 +27,7 @@ const Dropdown: React.FC<Props> = ({
     <StyledDropdown
       menu={{ items }}
       trigger={["click"]}
-      dropdownRender={menu => <StyledDropdownMenu>{menu}</StyledDropdownMenu>}
+      popupRender={menu => <StyledDropdownMenu>{menu}</StyledDropdownMenu>}
       {...props}>
       <a onClick={e => e.preventDefault()}>
         <Space>
@@ -38,7 +38,7 @@ const Dropdown: React.FC<Props> = ({
             size={"small"}
           />
           {showName && <Text>{name}</Text>}
-          {showArrow && <StyledIcon icon="caretDown" />}
+          {showArrow && <Icon icon="caretDown" />}
         </Space>
       </a>
     </StyledDropdown>
@@ -91,10 +91,6 @@ const StyledDropdownMenu = styled.div`
     width: 16px;
     height: 16px;
   }
-`;
-
-const StyledIcon = styled(Icon)`
-  color: #000000;
 `;
 
 const Text = styled.p`

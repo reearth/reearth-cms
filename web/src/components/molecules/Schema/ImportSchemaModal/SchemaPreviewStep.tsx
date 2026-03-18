@@ -13,6 +13,7 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import Typography from "@reearth-cms/components/atoms/Typography";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { Constant } from "@reearth-cms/utils/constant";
 
 import { ImportFieldInput } from "../types";
 
@@ -86,7 +87,7 @@ const SchemaPreviewStep: React.FC<Props> = ({
           data-testid={DATA_TEST_ID.SchemaPreviewStep__PreviewFieldList}
           itemLayout="horizontal">
           {fields?.map((field, _index) => (
-            <StyledListItem className="draggable-item" key={field.key} noImport={field.hidden}>
+            <StyledListItem className="draggable-item" key={field.key} $noImport={field.hidden}>
               <List.Item.Meta
                 title={
                   <Row>
@@ -217,8 +218,8 @@ const FieldStyledList = styled(List)`
   }
 `;
 
-const StyledListItem = styled(List.Item)<{ noImport?: boolean }>`
-  opacity: ${({ noImport: noImport = false }) => (noImport ? 0.5 : 1)};
+const StyledListItem = styled(List.Item, Constant.TRANSIENT_OPTIONS)<{ $noImport?: boolean }>`
+  opacity: ${({ $noImport = false }) => ($noImport ? 0.5 : 1)};
 `;
 
 const FieldThumbnail = styled.div`

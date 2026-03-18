@@ -1,4 +1,4 @@
-import { PageHeader, PageHeaderProps } from "@ant-design/pro-layout";
+import { PageHeader, PageHeaderProps } from "@ant-design/pro-components";
 import styled from "@emotion/styled";
 
 export type Props = PageHeaderProps;

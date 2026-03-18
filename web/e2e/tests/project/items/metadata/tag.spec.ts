@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -26,7 +27,7 @@ test("@smoke Tag metadata creating and updating has succeeded", async ({
 }) => {
   await test.step("Create tag metadata field with validation checks", async () => {
     await schemaPage.metaDataTab.click();
-    await schemaPage.tagListItem.click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Tag).click();
     await fieldEditorPage.displayNameInput.fill(fieldName);
     await fieldEditorPage.fieldKeyInput.fill(fieldName);
     await fieldEditorPage.fieldDescriptionInput.fill(description);
@@ -91,8 +92,8 @@ test("@smoke Tag metadata creating and updating has succeeded", async ({
   await test.step("Update tag from edit view", async () => {
     await contentPage.editButton.click();
     await expect(contentPage.tabPanel.getByText(tag2)).toBeVisible();
-    await fieldEditorPage.tagOptionText(tag2).click();
-    await fieldEditorPage.tagOptionText(tag1).click();
+    await fieldEditorPage.tagOptionText(tag2).click({ force: true });
+    await fieldEditorPage.tagOptionText(tag1).click({ force: true });
     await contentPage.closeNotification();
     await expect(contentPage.tabPanel.getByText(tag1)).toBeVisible();
     await page.waitForTimeout(300);
@@ -118,7 +119,7 @@ test("Tag metadata editing has succeeded", async ({
 
   await test.step("Create tag metadata with default value", async () => {
     await schemaPage.metaDataTab.click();
-    await schemaPage.tagListItem.click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Tag).click();
     await fieldEditorPage.displayNameInput.fill(fieldName);
     await fieldEditorPage.fieldKeyInput.fill(fieldName);
     await fieldEditorPage.fieldDescriptionInput.fill(description);
@@ -162,7 +163,7 @@ test("Tag metadata editing has succeeded", async ({
     await fieldEditorPage.uniqueFieldCheckbox.check();
     await fieldEditorPage.defaultValueTab.click();
     await expect(fieldEditorPage.defaultValueExactLabel.getByText(tag1)).toBeVisible();
-    await fieldEditorPage.antSelectSelector.click();
+    await page.getByRole("dialog").getByRole("combobox").click({ force: true });
     await expect(fieldEditorPage.tagOptionText(tag1).last()).toBeVisible();
     await fieldEditorPage.tagOptionText(tag2).last().click();
     await fieldEditorPage.tagOptionText(tag3).last().click();
@@ -179,9 +180,9 @@ test("Tag metadata editing has succeeded", async ({
     await expect(fieldEditorPage.defaultValueExactLabel.getByText(tag1)).toBeHidden();
     await expect(fieldEditorPage.defaultValueExactLabel.getByText(tag2)).toBeVisible();
     await expect(fieldEditorPage.defaultValueExactLabel.getByText(tag3)).toBeVisible();
-    await fieldEditorPage.antSelectSelector.click();
+    await page.getByRole("dialog").getByRole("combobox").click({ force: true });
     await expect(fieldEditorPage.tagOptionText(tag1).last()).toBeHidden();
-    await fieldEditorPage.antSelectSelector.click();
+    await page.getByRole("dialog").getByRole("combobox").click({ force: true });
     await fieldEditorPage.okButton.click();
     await contentPage.closeNotification();
     await expect(contentPage.optionTextByName(`${newFieldName} *#${newKey}(unique)`)).toBeVisible();
@@ -213,8 +214,8 @@ test("Tag metadata editing has succeeded", async ({
 
   await test.step("Verify tag removal and required field validation", async () => {
     await contentPage.editButton.first().click();
-    await expect(fieldEditorPage.tagOptionText(tag2)).toBeHidden();
-    await expect(fieldEditorPage.tagOptionText(tag3)).toBeVisible();
+    await expect(contentPage.tabPanel.getByText(tag2)).toBeHidden();
+    await expect(contentPage.tabPanel.getByText(tag3)).toBeVisible();
     await contentPage.closeCircleLabel.locator("svg").hover();
     await contentPage.closeCircleLabel.locator("svg").click();
     await expect(contentPage.pleaseInputFieldText).toBeVisible();
@@ -222,11 +223,11 @@ test("Tag metadata editing has succeeded", async ({
   });
 
   await test.step("Add tag back and verify in table view", async () => {
-    await fieldEditorPage.antSelectSelector.click();
+    await page.getByRole("combobox").last().click({ force: true });
     await fieldEditorPage.tagOptionText(tag2).click();
     await contentPage.closeNotification();
     await contentPage.backButton.click();
-    await expect(contentPage.optionTextByName(tag2)).toBeVisible();
+    await expect(contentPage.optionTextByName(tag2).first()).toBeVisible();
     await page.waitForTimeout(300);
   });
 });

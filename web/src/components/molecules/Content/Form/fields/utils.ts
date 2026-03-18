@@ -6,7 +6,7 @@ export const checkIfEmpty = (value: unknown) =>
 
 export const requiredValidator = (rule: RuleObject, value: unknown) => {
   if (
-    rule.required &&
+    (rule as { required?: boolean }).required &&
     (checkIfEmpty(value) || (Array.isArray(value) && value.every(v => checkIfEmpty(v))))
   ) {
     return Promise.reject();

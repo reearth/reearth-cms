@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
@@ -28,7 +28,7 @@ const ReferenceItem: React.FC<Props> = ({
   workspaceId,
   disabled,
 }) => {
-  const itemStatus: StateType[] = useMemo(() => status?.split("_") as StateType[], [status]);
+  const itemStatus = useMemo<StateType[]>(() => status?.split("_") as StateType[], [status]);
 
   const linkTo = useMemo(
     () =>

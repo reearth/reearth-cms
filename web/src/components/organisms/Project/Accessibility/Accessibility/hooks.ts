@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client/react";
 import { useCallback, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router";
 
 import Notification from "@reearth-cms/components/atoms/Notification";
 import { FormType } from "@reearth-cms/components/molecules/Accessibility/types";
@@ -108,9 +108,9 @@ export default () => {
 
           if (projRes.error) throw new Error();
         }
-        Notification.success({ message: t("Successfully updated publication settings!") });
+        Notification.success({ title: t("Successfully updated publication settings!") });
       } catch (e) {
-        Notification.error({ message: t("Failed to update publication settings.") });
+        Notification.error({ title: t("Failed to update publication settings.") });
         throw e;
       } finally {
         setUpdateLoading(false);
@@ -129,9 +129,9 @@ export default () => {
             id,
           },
         });
-        Notification.success({ message: t("API Key deleted successfully.") });
+        Notification.success({ title: t("API Key deleted successfully.") });
       } catch {
-        Notification.error({ message: t("Failed to delete API Key.") });
+        Notification.error({ title: t("Failed to delete API Key.") });
       }
     },
     [deleteAPIKeyMutation, currentProject?.id, t],

@@ -26,7 +26,11 @@ const Header = styled.div`
   padding: 22px 20px 4px 20px;
 `;
 
-const SchemaStyledTitle = styled.h2``;
+const SchemaStyledTitle = styled.h2`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
 
 const StyledIcon = styled(Icon)`
   border-bottom: 1px solid #f0f0f0;

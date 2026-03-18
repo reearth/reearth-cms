@@ -3,7 +3,7 @@ import { useRef, useState, FocusEvent, useCallback, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import { runes } from "runes2";
 
-import TextArea, { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
+import TextArea, { type TextAreaRef, TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
 
 type Props = {
   onChange?: (value: string) => void;
@@ -12,7 +12,7 @@ type Props = {
 
 const MarkdownInput: React.FC<Props> = ({ value, onChange, ...props }) => {
   const [showMD, setShowMD] = useState(true);
-  const textareaRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<TextAreaRef>(null);
   const isError = useMemo(() => {
     if (props.isError || (props.required && !value)) {
       return true;

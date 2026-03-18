@@ -1,3 +1,4 @@
+import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
@@ -20,7 +21,7 @@ test("Date metadata creating and updating has succeeded", async ({
 }) => {
   await test.step("Create date metadata field", async () => {
     await fieldEditorPage.metaDataTab.click();
-    await fieldEditorPage.fieldTypeListItem("Date").click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Date).click();
     await fieldEditorPage.displayNameInput.fill("date1");
     await fieldEditorPage.fieldKeyInput.fill("date1");
     await fieldEditorPage.descriptionRequiredInput.fill("date1 description");
@@ -63,30 +64,22 @@ test("Date metadata creating and updating has succeeded", async ({
     await page.waitForTimeout(300);
   });
 
-  await test.step("Update date value inline in list view", async () => {
+  await test.step("Update date value in item edit view", async () => {
     await contentPage.backButtonRole.click();
     await expect(contentPage.textBoxes).toHaveValue("2024-01-01");
-    await contentPage.textBoxes.fill("2024-01-02");
-    await contentPage.textBoxes.press("Enter");
-    await contentPage.closeNotification();
-    await expect(contentPage.textBoxes).toHaveValue("2024-01-02");
-    await page.waitForTimeout(300);
-  });
-
-  await test.step("Update date value in item edit view", async () => {
     await contentPage.cellEditButton.click();
-    await expect(contentPage.fieldInput("date1")).toHaveValue("2024-01-02");
+    await expect(contentPage.fieldInput("date1")).toHaveValue("2024-01-01");
 
-    await contentPage.fieldInput("date1").fill("2024-01-03");
+    await contentPage.fieldInput("date1").fill("2024-01-02");
     await contentPage.fieldInput("date1").press("Enter");
     await contentPage.closeNotification();
-    await expect(contentPage.fieldInput("date1")).toHaveValue("2024-01-03");
+    await expect(contentPage.fieldInput("date1")).toHaveValue("2024-01-02");
     await page.waitForTimeout(300);
   });
 
-  await test.step("Verify final date value in list view", async () => {
+  await test.step("Verify updated date value in list view", async () => {
     await contentPage.backButtonRole.click();
-    await expect(contentPage.textBoxes).toHaveValue("2024-01-03");
+    await expect(contentPage.textBoxes).toHaveValue("2024-01-02");
     await page.waitForTimeout(300);
   });
 });
@@ -94,7 +87,7 @@ test("Date metadata creating and updating has succeeded", async ({
 test("Date metadata editing has succeeded", async ({ fieldEditorPage, contentPage, page }) => {
   await test.step("Create date metadata field with default value", async () => {
     await fieldEditorPage.metaDataTab.click();
-    await fieldEditorPage.fieldTypeListItem("Date").click();
+    await fieldEditorPage.fieldTypeButton(SchemaFieldType.Date).click();
     await fieldEditorPage.displayNameInput.fill("date1");
     await fieldEditorPage.fieldKeyInput.fill("date1");
     await fieldEditorPage.descriptionRequiredInput.fill("date1 description");

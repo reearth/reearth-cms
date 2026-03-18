@@ -1,16 +1,16 @@
 import styled from "@emotion/styled";
-import { Key, useMemo, useCallback } from "react";
+import { Key, useCallback, useMemo } from "react";
 
 import Badge from "@reearth-cms/components/atoms/Badge";
 import Button from "@reearth-cms/components/atoms/Button";
 import CustomTag from "@reearth-cms/components/atoms/CustomTag";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import {
-  ListToolBarProps,
-  StretchColumn,
-  OptionConfig,
-  TableRowSelection,
   ColumnsState,
+  ListToolBarProps,
+  OptionConfig,
+  StretchColumn,
+  TableRowSelection,
 } from "@reearth-cms/components/atoms/ProTable";
 import Search from "@reearth-cms/components/atoms/Search";
 import Space from "@reearth-cms/components/atoms/Space";
@@ -79,7 +79,7 @@ const RequestListTable: React.FC<Props> = ({
 }) => {
   const t = useT();
 
-  const columns: StretchColumn<Request>[] = useMemo(
+  const columns = useMemo<StretchColumn<Request>[]>(
     () => [
       {
         title: "",
@@ -190,7 +190,7 @@ const RequestListTable: React.FC<Props> = ({
     [createdByMe, onEdit, onRequestSelect, requestState, reviewedByMe, selectedRequest?.id, t],
   );
 
-  const options: OptionConfig = useMemo(
+  const options = useMemo<OptionConfig>(
     () => ({
       search: true,
       fullScreen: true,
@@ -209,7 +209,7 @@ const RequestListTable: React.FC<Props> = ({
     [page, pageSize, totalCount],
   );
 
-  const rowSelection: TableRowSelection = useMemo(
+  const rowSelection = useMemo<TableRowSelection<Request>>(
     () => ({
       selectedRowKeys: selection.selectedRowKeys,
       onChange: onSelect,
@@ -217,7 +217,7 @@ const RequestListTable: React.FC<Props> = ({
     [onSelect, selection.selectedRowKeys],
   );
 
-  const handleToolbarEvents: ListToolBarProps = useMemo(
+  const handleToolbarEvents = useMemo<ListToolBarProps>(
     () => ({
       search: (
         <Search

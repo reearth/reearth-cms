@@ -33,6 +33,7 @@ const Main = styled.div`
   display: flex;
   margin-right: 10px;
   flex: 1;
+  height: 100%;
 `;
 
 const Center = styled.div`
@@ -40,6 +41,7 @@ const Center = styled.div`
   display: flex;
   flex: 1;
   width: 550px;
+  height: 100%;
 `;
 
 const Right = styled.div`

@@ -97,13 +97,12 @@ const DangerZone: React.FC<Props> = ({
       <StyledSelect
         disabled={!hasPublishRight}
         value={visibility}
-        onChange={handleVisibilityChange}>
-        {publicScopeList.map(({ value, name }) => (
-          <Select.Option key={value} value={value}>
-            {name}
-          </Select.Option>
-        ))}
-      </StyledSelect>
+        onChange={handleVisibilityChange}
+        options={publicScopeList.map(({ value, name }) => ({
+          value,
+          label: name,
+        }))}
+      />
       <Title>{t("Delete project")}</Title>
       <Text>
         {t(
