@@ -12,11 +12,7 @@ describe("Request options", () => {
 
   const hasUpdateRight = true;
   const onProjectRequestRolesUpdate = () => {
-    return new Promise<void>(resolve => {
-      setTimeout(() => {
-        resolve();
-      }, 100);
-    });
+    return new Promise<void>(resolve => setTimeout(resolve, 10));
   };
 
   test("All roles are visible successfully", async () => {
@@ -82,11 +78,7 @@ describe("Request options", () => {
 
   test("Save button enabled when update fails", async () => {
     const onProjectRequestRolesUpdateFail = () => {
-      return new Promise<void>((_, reject) => {
-        setTimeout(() => {
-          reject();
-        }, 100);
-      });
+      return new Promise<void>((_, reject) => setTimeout(reject, 10));
     };
 
     render(

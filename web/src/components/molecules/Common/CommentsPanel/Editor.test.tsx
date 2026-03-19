@@ -9,11 +9,7 @@ describe("Comments panel", () => {
 
   const isInputDisabled = false;
   const onCommentCreate = () => {
-    return new Promise<void>(resolve => {
-      setTimeout(() => {
-        resolve();
-      }, 100);
-    });
+    return new Promise<void>(resolve => setTimeout(resolve, 10));
   };
 
   test("Textbox is toggled successfully", async () => {
@@ -59,11 +55,7 @@ describe("Comments panel", () => {
       <Editor
         isInputDisabled={isInputDisabled}
         onCommentCreate={() => {
-          return new Promise<void>((_, reject) => {
-            setTimeout(() => {
-              reject();
-            }, 100);
-          });
+          return new Promise<void>((_, reject) => setTimeout(reject, 10));
         }}
       />,
     );

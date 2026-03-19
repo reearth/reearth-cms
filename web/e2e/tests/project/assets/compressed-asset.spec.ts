@@ -12,8 +12,8 @@ const localZipPath = path.resolve(__dirname, "./mock-assets/test.zip");
 const zipName = "20214_chino-shi_2022_mvt_1_op_urf_UseDistrict.zip";
 const zipUrl = `https://assets.cms.plateau.reearth.io/assets/ff/5caafa-1c09-46b7-868e-9f4b62f59c68/${zipName}`;
 
-test.beforeEach(async ({ reearth, projectPage }) => {
-  await reearth.goto("/", { waitUntil: "domcontentloaded" });
+test.beforeEach(async ({ projectPage }) => {
+  await projectPage.goto("/");
   const projectName = getId();
   await projectPage.createProject(projectName);
   await projectPage.gotoProject(projectName);
@@ -39,18 +39,14 @@ test.describe("Zip Upload Tests", () => {
   });
 
   test("Uploading and auto-unzipping ZIP file via Local tab succeeds", async ({ assetsPage }) => {
+    // Local uploads auto-unzip by default (skipDecompression=false) — no checkbox needed
     await assetsPage.uploadButton.click();
     await assetsPage.localTab.click();
-    const uploadInput = assetsPage.fileInput;
-    await uploadInput.setInputFiles(localZipPath);
-    const autoUnzipCheckbox = assetsPage.autoUnzipCheckbox;
-    await autoUnzipCheckbox.setChecked(true);
-    await expect(autoUnzipCheckbox).toBeChecked();
+    await assetsPage.fileInput.setInputFiles(localZipPath);
     await assetsPage.submitUploadButton.click();
     await expect(assetsPage.lastNotification).toContainText(
       "Successfully added one or more assets!",
     );
-
     await assetsPage.closeNotification();
   });
 });

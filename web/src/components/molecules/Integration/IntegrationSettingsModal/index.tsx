@@ -9,6 +9,7 @@ import Select from "@reearth-cms/components/atoms/Select";
 import { WorkspaceIntegration } from "@reearth-cms/components/molecules/Integration/types";
 import { Role } from "@reearth-cms/components/molecules/Member/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type FormValues = {
   role: Role;
@@ -109,7 +110,10 @@ const IntegrationSettingsModal: React.FC<Props> = ({
               message: t("Please input the appropriate role for this integration!"),
             },
           ]}>
-          <StyledSelect placeholder={t("select role")} onSelect={handleSelect}>
+          <StyledSelect
+            data-testid={DATA_TEST_ID.IntegrationSettingsModal__RoleSelect}
+            placeholder={t("select role")}
+            onSelect={handleSelect}>
             <Option value="READER">{t("Reader")}</Option>
             <Option value="WRITER">{t("Writer")}</Option>
             <Option value="MAINTAINER">{t("Maintainer")}</Option>

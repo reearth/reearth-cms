@@ -142,6 +142,7 @@ const ModelFieldList: React.FC<Props> = ({
             {data?.map((item, index) => (
               <List.Item
                 className="draggable-item"
+                data-testid={DATA_TEST_ID.Schema__FieldListItem}
                 key={index}
                 actions={[
                   <Popconfirm
@@ -168,6 +169,7 @@ const ModelFieldList: React.FC<Props> = ({
                     />
                   </Popconfirm>,
                   <Button
+                    data-testid={DATA_TEST_ID.Schema__FieldEllipsisButton}
                     type="text"
                     shape="circle"
                     size="small"
@@ -179,7 +181,13 @@ const ModelFieldList: React.FC<Props> = ({
                 <List.Item.Meta
                   avatar={
                     <FieldThumbnail>
-                      {hasUpdateRight && <DragIcon icon="menu" className="grabbable" />}
+                      {hasUpdateRight && (
+                        <span
+                          className="grabbable"
+                          data-testid={DATA_TEST_ID.Schema__FieldDragHandle}>
+                          <DragIcon icon="menu" />
+                        </span>
+                      )}
                       <StyledIcon
                         icon={fieldTypes[item.type].icon}
                         color={fieldTypes[item.type].color}

@@ -395,50 +395,52 @@ const ContentImportModal: React.FC<Props> = ({
               <p>{t("Checking the data file...")}</p>
             </LoadingWrapper>
           ) : (
-            <Dragger {...uploadProps}>
-              <p className="ant-upload-drag-icon">
-                <Icon icon="inbox" />
-              </p>
-              <p className="ant-upload-text">{t("Click or drag files to this area to upload")}</p>
-              <p className="ant-upload-hint">
-                {t(
-                  "Upload a data file in CSV, JSON, or GeoJSON format. The file must match the required schema, including correct field names and data types. It may contain up to {{maxRecord}} records and must not exceed {{maxSizeInMB}} MB in size.",
-                  {
-                    maxRecord: Constant.IMPORT.MAX_CONTENT_RECORDS,
-                    maxSizeInMB: Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
-                  },
-                )}
-              </p>
-              <p className="ant-upload-hint">
-                <Trans
-                  i18nKey="You can also download file templates: CSV | JSON | GeoJSON"
-                  components={{
-                    l1: (
-                      <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_CSV}>
-                        CSV
-                      </TemplateLink>
-                    ),
-                    l2: (
-                      <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_JSON}>
-                        JSON
-                      </TemplateLink>
-                    ),
-                    l3: (
-                      <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_GEO_JSON}>
-                        GeoJSON
-                      </TemplateLink>
-                    ),
-                  }}
-                />
-              </p>
-              {alertList.map((alert, index) => (
-                <Alert
-                  {...alert}
-                  key={alert?.message?.toString() || index}
-                  onClick={e => e.stopPropagation()}
-                />
-              ))}
-            </Dragger>
+            <div data-testid={DATA_TEST_ID.ContentImportModal__Dragger}>
+              <Dragger {...uploadProps}>
+                <p className="ant-upload-drag-icon">
+                  <Icon icon="inbox" />
+                </p>
+                <p className="ant-upload-text">{t("Click or drag files to this area to upload")}</p>
+                <p className="ant-upload-hint">
+                  {t(
+                    "Upload a data file in CSV, JSON, or GeoJSON format. The file must match the required schema, including correct field names and data types. It may contain up to {{maxRecord}} records and must not exceed {{maxSizeInMB}} MB in size.",
+                    {
+                      maxRecord: Constant.IMPORT.MAX_CONTENT_RECORDS,
+                      maxSizeInMB: Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
+                    },
+                  )}
+                </p>
+                <p className="ant-upload-hint">
+                  <Trans
+                    i18nKey="You can also download file templates: CSV | JSON | GeoJSON"
+                    components={{
+                      l1: (
+                        <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_CSV}>
+                          CSV
+                        </TemplateLink>
+                      ),
+                      l2: (
+                        <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_JSON}>
+                          JSON
+                        </TemplateLink>
+                      ),
+                      l3: (
+                        <TemplateLink href={Constant.PUBLIC_FILE.IMPORT_CONTENT_GEO_JSON}>
+                          GeoJSON
+                        </TemplateLink>
+                      ),
+                    }}
+                  />
+                </p>
+                {alertList.map((alert, index) => (
+                  <Alert
+                    {...alert}
+                    key={alert?.message?.toString() || index}
+                    onClick={e => e.stopPropagation()}
+                  />
+                ))}
+              </Dragger>
+            </div>
           )}
         </>
       ) : (

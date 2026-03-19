@@ -20,18 +20,10 @@ describe("Webhook card", () => {
     trigger: {},
   };
   const onWebhookDelete = () => {
-    return new Promise<void>(resolve => {
-      setTimeout(() => {
-        resolve();
-      }, 100);
-    });
+    return new Promise<void>(resolve => setTimeout(resolve, 10));
   };
   const onWebhookUpdate = async () => {
-    return new Promise<void>(resolve => {
-      setTimeout(() => {
-        resolve();
-      }, 100);
-    });
+    return new Promise<void>(resolve => setTimeout(resolve, 10));
   };
   const onWebhookSelect = () => {};
 

@@ -8,6 +8,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import { ReferenceProps } from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
 import { Field, Group, FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { newID } from "@reearth-cms/utils/id";
 
 import { AssetProps } from "../../Form/AssetItem";
@@ -130,7 +131,11 @@ const MultiValueGroup: React.FC<Props> = ({
           );
         })}
       {!disabled && (
-        <Button icon={<Icon icon="plus" />} type="primary" onClick={handleAdd}>
+        <Button
+          icon={<Icon icon="plus" />}
+          type="primary"
+          data-testid={DATA_TEST_ID.FieldModal__PlusNewButton}
+          onClick={handleAdd}>
           {t("New")}
         </Button>
       )}

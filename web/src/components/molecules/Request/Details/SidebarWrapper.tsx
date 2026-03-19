@@ -10,6 +10,7 @@ import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules
 import { badgeColors } from "@reearth-cms/components/molecules/Request/utils";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
 
 const { Option } = Select;
@@ -92,7 +93,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({
       <SidebarCard title={t("Created By")}>
         <StyledSpace>{currentRequest?.createdBy?.name}</StyledSpace>
       </SidebarCard>
-      <SidebarCard title={t("Reviewer")}>
+      <SidebarCard title={t("Reviewer")} data-testid={DATA_TEST_ID.RequestDetail__ReviewerSection}>
         <ReviewerContainer>
           {currentRequest?.reviewers.map((reviewer, index) => (
             <Reviewer title={reviewer.name} key={index}>
@@ -102,6 +103,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({
         </ReviewerContainer>
         {viewReviewers ? (
           <StyledSelect
+            data-testid={DATA_TEST_ID.RequestDetail__ReviewerSelect}
             autoFocus
             defaultValue={defaultValue}
             placeholder={t("Reviewer")}
@@ -121,6 +123,7 @@ const RequestSidebarWrapper: React.FC<Props> = ({
         ) : (
           <ViewReviewers>
             <StyledButton
+              data-testid={DATA_TEST_ID.RequestDetail__AssignToButton}
               type="link"
               onClick={displayViewReviewers}
               disabled={!isAssignActionEnabled}>

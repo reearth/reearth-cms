@@ -4,6 +4,7 @@ import Checkbox from "@reearth-cms/components/atoms/Checkbox";
 import Form from "@reearth-cms/components/atoms/Form";
 import MultiValueBooleanField from "@reearth-cms/components/molecules/Common/MultiValueField/MultiValueBooleanField";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   multiple: boolean;
@@ -14,7 +15,11 @@ const CheckboxField: React.FC<Props> = ({ multiple }) => {
 
   return (
     <Form.Item name="defaultValue" valuePropName="checked" label={t("Set default value")}>
-      {multiple ? <MultiValueBooleanField FieldInput={Checkbox} /> : <Checkbox />}
+      {multiple ? (
+        <MultiValueBooleanField FieldInput={Checkbox} />
+      ) : (
+        <Checkbox data-testid={DATA_TEST_ID.FieldModal__SetDefaultValueInput} />
+      )}
     </Form.Item>
   );
 };

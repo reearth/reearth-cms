@@ -4,6 +4,7 @@ import Icon from "@reearth-cms/components/atoms/Icon";
 import { UploadFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { UploadType } from "@reearth-cms/components/molecules/Asset/AssetList";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import UploadModal from "../UploadModal/UploadModal";
 
@@ -46,6 +47,7 @@ const UploadAsset: React.FC<Props> = ({
   return (
     <>
       <Button
+        data-testid={DATA_TEST_ID.AssetList__UploadButton}
         type="primary"
         icon={<Icon icon="upload" />}
         onClick={displayUploadModal}

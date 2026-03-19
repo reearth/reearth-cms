@@ -37,4 +37,24 @@ export default [
       "react-refresh/only-export-components": "off",
     },
   },
+  {
+    files: ["e2e/tests/**/*.spec.ts"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "Property[key.name='page'][parent.type='ObjectPattern'][parent.parent.type='ArrowFunctionExpression']",
+          message:
+            "Do not destructure raw `page` from test fixtures. Use a Page Object Model (POM) fixture instead.",
+        },
+        {
+          selector:
+            "Property[key.name='reearth'][parent.type='ObjectPattern'][parent.parent.type='ArrowFunctionExpression']",
+          message:
+            "Do not destructure `reearth` from test fixtures. Use the POM's goto() method instead.",
+        },
+      ],
+    },
+  },
 ];

@@ -37,7 +37,7 @@ export async function createIAPContext(
   let useIAPAuth = explicitUseIAP === "true";
 
   // If USE_IAP_AUTH is not explicitly set, auto-detect based on URL
-  if (explicitUseIAP === undefined) {
+  if (!explicitUseIAP) {
     try {
       const parsedUrl = new URL(baseUrl);
       const hostname = parsedUrl.hostname.toLowerCase();

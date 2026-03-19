@@ -5,6 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, expect, test, vi } from "vitest";
 
 import { JobStatus } from "@reearth-cms/gql/__generated__/graphql.generated";
+import { t } from "@reearth-cms/i18n";
 import { DATA_TEST_ID, Test } from "@reearth-cms/test/utils";
 
 import { type UploaderQueueItem } from "../types";
@@ -147,5 +148,60 @@ describe("Test QueueItem component", () => {
 
     const errorIcon = screen.queryByTestId(DATA_TEST_ID.QueueItem__ErrorIcon);
     expect(errorIcon).not.toBeInTheDocument();
+  });
+
+  test("Completed item shows complete icon", () => {
+    renderQueueItem({
+      ...baseQueue,
+      jobState: {
+        status: JobStatus.Completed,
+        progress: { percentage: 100, processed: 100, total: 100 },
+      },
+    });
+
+    const completeIcon = screen.queryByTestId(DATA_TEST_ID.Uploader__CompleteIcon);
+    expect(completeIcon).toBeVisible();
+  });
+
+  test("Non-completed item shows filename as plain text without link", () => {
+    renderQueueItem({
+      ...baseQueue,
+      jobState: { status: JobStatus.Pending, progress: null },
+    });
+
+    const link = screen.queryByTestId(DATA_TEST_ID.QueueItem__FileLink);
+    expect(link).not.toBeInTheDocument();
+
+    expect(screen.getByText(baseQueue.fileName)).toBeInTheDocument();
+  });
+
+  test("InProgress with null progress shows progress bar at 0%", () => {
+    renderQueueItem({
+      ...baseQueue,
+      jobState: { status: JobStatus.InProgress, progress: null },
+    });
+
+    const progressBar = screen.queryByTestId(DATA_TEST_ID.QueueItem__ProgressBar);
+    expect(progressBar).toBeVisible();
+    expect(progressBar).toHaveAttribute("aria-valuenow", "0");
+  });
+
+  test("Failed without error field does not render error message", () => {
+    renderQueueItem({
+      ...baseQueue,
+      jobState: { status: JobStatus.Failed, progress: null },
+    });
+
+    const errorMessage = screen.queryByTestId(DATA_TEST_ID.QueueItem__ErrorMessage);
+    expect(errorMessage).not.toBeInTheDocument();
+  });
+
+  test("Cancelled item shows upload canceled message", () => {
+    renderQueueItem({
+      ...baseQueue,
+      jobState: { status: JobStatus.Cancelled, progress: null },
+    });
+
+    expect(screen.getByText(t("Upload canceled"))).toBeInTheDocument();
   });
 });

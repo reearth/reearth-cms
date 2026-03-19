@@ -170,6 +170,7 @@ const ContentListMolecule: React.FC<Props> = ({
                       </Button>
                     </Tooltip>
                     <Button
+                      data-testid={DATA_TEST_ID.ContentList__NewItemButton}
                       type="primary"
                       onClick={onItemAdd}
                       icon={<Icon icon="plus" />}

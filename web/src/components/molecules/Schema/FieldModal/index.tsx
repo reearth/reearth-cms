@@ -28,6 +28,7 @@ import {
   SelectedSchemaType,
 } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { Constant } from "@reearth-cms/utils/constant";
 
 import useHooks from "./hooks";
@@ -205,7 +206,10 @@ const FieldModal: React.FC<Props> = ({
               name="title"
               label={t("Display name")}
               rules={[{ required: true, message: t("Please input the display name of field!") }]}>
-              <Input onChange={handleNameChange} />
+              <Input
+                data-testid={DATA_TEST_ID.FieldModal__DisplayNameInput}
+                onChange={handleNameChange}
+              />
             </Form.Item>
             <Form.Item
               name="key"
@@ -222,10 +226,20 @@ const FieldModal: React.FC<Props> = ({
                   },
                 },
               ]}>
-              <Input onChange={handleKeyChange} showCount maxLength={Constant.KEY.MAX_LENGTH} />
+              <Input
+                data-testid={DATA_TEST_ID.FieldModal__FieldKeyInput}
+                onChange={handleKeyChange}
+                showCount
+                maxLength={Constant.KEY.MAX_LENGTH}
+              />
             </Form.Item>
             <Form.Item name="description" label={t("Description")}>
-              <TextArea rows={3} showCount maxLength={1000} />
+              <TextArea
+                data-testid={DATA_TEST_ID.FieldModal__DescriptionInput}
+                rows={3}
+                showCount
+                maxLength={1000}
+              />
             </Form.Item>
             {selectedType === "Select" && (
               <Form.Item
@@ -246,7 +260,11 @@ const FieldModal: React.FC<Props> = ({
                     message: t("Option must be unique"),
                   },
                 ]}>
-                <MultiValueField FieldInput={Input} errorIndexes={errorIndexes} />
+                <MultiValueField
+                  FieldInput={Input}
+                  errorIndexes={errorIndexes}
+                  data-testid={DATA_TEST_ID.FieldModal__ValuesInput}
+                />
               </Form.Item>
             )}
             {selectedType === "Tag" && (
@@ -282,7 +300,7 @@ const FieldModal: React.FC<Props> = ({
                 name="group"
                 label={t("Select Group")}
                 rules={[{ required: true, message: t("Please select the group!") }]}>
-                <Select>
+                <Select data-testid={DATA_TEST_ID.Schema__GroupSelect}>
                   {groups?.map(group => (
                     <Select.Option key={group.id} value={group.id}>
                       {group.name}{" "}
@@ -300,7 +318,13 @@ const FieldModal: React.FC<Props> = ({
                 rules={[{ required: true, message: t("Please select the Support Type!") }]}>
                 <StyledCheckboxGroup>
                   {ObjectSupportType.map(item => (
-                    <Checkbox value={item.value}>{item.label}</Checkbox>
+                    <Checkbox
+                      value={item.value}
+                      {...(item.value === "POINT"
+                        ? { "data-testid": DATA_TEST_ID.FieldModal__PointCheckbox }
+                        : {})}>
+                      {item.label}
+                    </Checkbox>
                   ))}
                 </StyledCheckboxGroup>
               </Form.Item>
@@ -323,7 +347,9 @@ const FieldModal: React.FC<Props> = ({
               name="multiple"
               valuePropName="checked"
               extra={t("Stores a list of values instead of a single value")}>
-              <Checkbox onChange={(e: CheckboxChangeEvent) => handleMultipleChange(e)}>
+              <Checkbox
+                data-testid={DATA_TEST_ID.FieldModal__MultipleCheckbox}
+                onChange={(e: CheckboxChangeEvent) => handleMultipleChange(e)}>
                 {t("Support multiple values")}
               </Checkbox>
             </Form.Item>
@@ -332,7 +358,9 @@ const FieldModal: React.FC<Props> = ({
               hidden={isTitleDisabled}
               valuePropName="checked"
               extra={t("Only one field can be used as the title")}>
-              <Checkbox>{t("Use as title")}</Checkbox>
+              <Checkbox data-testid={DATA_TEST_ID.FieldModal__IsTitleCheckbox}>
+                {t("Use as title")}
+              </Checkbox>
             </Form.Item>
           </TabPane>
           <TabPane tab={t("Validation")} key="validation" forceRender>
@@ -341,13 +369,21 @@ const FieldModal: React.FC<Props> = ({
               name="required"
               valuePropName="checked"
               extra={t("Prevents saving an entry if this field is empty")}>
-              <Checkbox disabled={isRequiredDisabled}>{t("Make field required")}</Checkbox>
+              <Checkbox
+                data-testid={DATA_TEST_ID.FieldModal__RequiredCheckbox}
+                disabled={isRequiredDisabled}>
+                {t("Make field required")}
+              </Checkbox>
             </Form.Item>
             <Form.Item
               name="unique"
               valuePropName="checked"
               extra={t("Ensures that multiple entries can't have the same value for this field")}>
-              <Checkbox disabled={isUniqueDisabled}>{t("Set field as unique")}</Checkbox>
+              <Checkbox
+                data-testid={DATA_TEST_ID.FieldModal__UniqueCheckbox}
+                disabled={isUniqueDisabled}>
+                {t("Set field as unique")}
+              </Checkbox>
             </Form.Item>
           </TabPane>
           <TabPane tab={t("Default value")} key="defaultValue" forceRender>

@@ -10,6 +10,7 @@ import UserAvatar from "@reearth-cms/components/atoms/UserAvatar";
 import { Project, Workspace } from "@reearth-cms/components/molecules/Workspace/types";
 import { ProjectVisibility } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
 
 import HeaderDropdown from "./Dropdown";
@@ -160,7 +161,9 @@ const HeaderMolecule: React.FC<Props> = ({
         {currentProject?.name && (
           <>
             <Break>/</Break>
-            <ProjectText>{currentProject.name}</ProjectText>
+            <ProjectText data-testid={DATA_TEST_ID.Header__ProjectName}>
+              {currentProject.name}
+            </ProjectText>
             {currentProject.accessibility?.visibility === ProjectVisibility.Private && (
               <StyledIcon icon="lock" />
             )}

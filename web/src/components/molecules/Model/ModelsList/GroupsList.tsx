@@ -8,6 +8,7 @@ import Menu, { MenuInfo } from "@reearth-cms/components/atoms/Menu";
 import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   selectedKey?: string;
@@ -91,6 +92,7 @@ const GroupsList: React.FC<Props> = ({
           <SchemaAction>
             <SchemaStyledMenuTitle>{t("GROUPS")}</SchemaStyledMenuTitle>
             <SchemaAddButton
+              data-testid={DATA_TEST_ID.Schema__GroupAddButton}
               onClick={onModalOpen}
               icon={<Icon icon="plus" />}
               type="link"

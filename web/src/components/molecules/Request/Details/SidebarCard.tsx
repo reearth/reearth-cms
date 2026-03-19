@@ -4,11 +4,12 @@ import { ReactNode } from "react";
 type Props = {
   title: string;
   children?: ReactNode;
+  "data-testid"?: string;
 };
 
-const SidebarCard: React.FC<Props> = ({ title, children }) => {
+const SidebarCard: React.FC<Props> = ({ title, children, "data-testid": testId }) => {
   return (
-    <SideBarCardWrapper>
+    <SideBarCardWrapper data-testid={testId}>
       <CardTitle>{title}</CardTitle>
       <CardValue>{children}</CardValue>
     </SideBarCardWrapper>

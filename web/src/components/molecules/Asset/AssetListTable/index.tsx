@@ -25,6 +25,7 @@ import {
 } from "@reearth-cms/components/molecules/Asset/types";
 import ResizableProTable from "@reearth-cms/components/molecules/Common/ResizableProTable";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { FileUtils } from "@reearth-cms/utils/file";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
@@ -95,7 +96,9 @@ const AssetListTable: React.FC<Props> = ({
         title: "",
         hideInSetting: true,
         render: (_, asset) => (
-          <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(asset.id)} />
+          <span data-testid={DATA_TEST_ID.AssetList__EditIcon} onClick={() => onEdit(asset.id)}>
+            <Icon icon="edit" color={"#1890ff"} />
+          </span>
         ),
         key: "EDIT_ICON",
         align: "center",
@@ -280,6 +283,7 @@ const AssetListTable: React.FC<Props> = ({
       return (
         <Space size={4}>
           <DownloadButton
+            data-testid={DATA_TEST_ID.AssetList__DownloadButton}
             displayDefaultIcon
             size="small"
             type="link"
@@ -287,6 +291,7 @@ const AssetListTable: React.FC<Props> = ({
             onDownload={() => onAssetDownload(selected)}
           />
           <Button
+            data-testid={DATA_TEST_ID.AssetList__DeleteButton}
             type="link"
             size="small"
             icon={<Icon icon="delete" />}

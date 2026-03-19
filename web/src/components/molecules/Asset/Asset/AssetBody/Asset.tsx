@@ -29,6 +29,7 @@ import {
 } from "@reearth-cms/components/molecules/Asset/Viewers";
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
 
 import useHooks from "./hooks";
@@ -192,6 +193,7 @@ const AssetMolecule: React.FC<Props> = ({
           </Card>
         )}
         <DownloadButton
+          data-testid={DATA_TEST_ID.AssetList__DownloadButton}
           disabled={!asset}
           displayDefaultIcon
           onDownload={() => onAssetDownload(asset)}

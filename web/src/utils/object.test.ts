@@ -158,10 +158,97 @@ describe("ObjectUtils", () => {
       expect(actualOutput.isValid).toBe(true);
       if (actualOutput.isValid) expect(actualOutput.data).toBe(expectedOutput);
     });
+
+    it("recursively parses double-stringified JSON", async () => {
+      const input = JSON.stringify(JSON.stringify({ x: 1 }));
+      const result = await ObjectUtils.safeJSONParse(input);
+
+      expect(result).toEqual({ isValid: true, data: { x: 1 } });
+    });
+
+    it("returns isValid true with raw string when input is malformed JSON", async () => {
+      const input = "{ broken json";
+      const result = await ObjectUtils.safeJSONParse(input);
+
+      expect(result).toEqual({ isValid: true, data: "{ broken json" });
+    });
+  });
+
+  describe("isEmpty", () => {
+    it("returns true for empty object", () => {
+      expect(ObjectUtils.isEmpty({})).toBe(true);
+    });
+
+    it("returns false for object with own properties", () => {
+      expect(ObjectUtils.isEmpty({ a: 1 })).toBe(false);
+    });
+
+    it("ignores inherited properties", () => {
+      const parent = { inherited: true };
+      const child = Object.create(parent) as Record<string, unknown>;
+      expect(ObjectUtils.isEmpty(child)).toBe(true);
+    });
+  });
+
+  describe("isPlainObject", () => {
+    it("returns true for plain objects", () => {
+      expect(ObjectUtils.isPlainObject({})).toBe(true);
+      expect(ObjectUtils.isPlainObject({ a: 1 })).toBe(true);
+    });
+
+    it("returns false for arrays", () => {
+      expect(ObjectUtils.isPlainObject([])).toBe(false);
+      expect(ObjectUtils.isPlainObject([1, 2])).toBe(false);
+    });
+
+    it("returns false for null and undefined", () => {
+      expect(ObjectUtils.isPlainObject(null)).toBe(false);
+      expect(ObjectUtils.isPlainObject(undefined)).toBe(false);
+    });
+
+    it("returns false for primitives", () => {
+      expect(ObjectUtils.isPlainObject(42)).toBe(false);
+      expect(ObjectUtils.isPlainObject("string")).toBe(false);
+      expect(ObjectUtils.isPlainObject(true)).toBe(false);
+    });
+
+    it("returns true for Date and class instances (typeof object)", () => {
+      expect(ObjectUtils.isPlainObject(new Date())).toBe(true);
+    });
+  });
+
+  describe("validateGeoJson", () => {
+    it("resolves for a valid GeoJSON object", async () => {
+      const geojson = {
+        type: "Point",
+        coordinates: [139.6917, 35.6895],
+      };
+      const result = await ObjectUtils.validateGeoJson(geojson);
+      expect(result.isValid).toBe(true);
+      if (result.isValid) {
+        expect(result.data.type).toBe("Point");
+      }
+    });
+
+    it("resolves for a valid GeoJSON string", async () => {
+      const geojsonStr = JSON.stringify({
+        type: "Point",
+        coordinates: [139.6917, 35.6895],
+      });
+      const result = await ObjectUtils.validateGeoJson(geojsonStr);
+      expect(result.isValid).toBe(true);
+    });
+
+    it("rejects for invalid GeoJSON", async () => {
+      const invalid = { type: "InvalidType", coordinates: [] };
+      await expect(ObjectUtils.validateGeoJson(invalid)).rejects.toEqual(
+        expect.objectContaining({ isValid: false }),
+      );
+    });
   });
 
   describe("deepJsonParse", () => {
-    it("test", () => {
+    it("recursively parses stringified object with embedded stringified JSON values", () => {
       const raw =
         '{\n  "geo-object-key": {\n    "title": "geo-object-key",\n    "description": "this is geo obj field",\n    "type": "object",\n    "x-defaultValue": "{\\n   \\"coordinates\\": [\\n          139.6917,\\n          35.6895\\n        ],\\n        \\"type\\": \\"Point\\"\\n}",\n    "x-fieldType": "geometryObject",\n    "x-unique": true,\n    "x-required": true,\n    "x-geoSupportedTypes": [\n      "POINT"\n    ]\n  }\n}';
       const expectResult = {
@@ -181,6 +268,50 @@ describe("ObjectUtils", () => {
       };
 
       expect(expectResult).toEqual(ObjectUtils.deepJsonParse(raw));
+    });
+
+    it("returns number as-is", () => {
+      expect(ObjectUtils.deepJsonParse(42)).toBe(42);
+    });
+
+    it("returns boolean as-is", () => {
+      expect(ObjectUtils.deepJsonParse(true)).toBe(true);
+      expect(ObjectUtils.deepJsonParse(false)).toBe(false);
+    });
+
+    it("returns null as-is", () => {
+      expect(ObjectUtils.deepJsonParse(null)).toBeNull();
+    });
+
+    it("returns undefined as-is", () => {
+      expect(ObjectUtils.deepJsonParse(undefined)).toBeUndefined();
+    });
+
+    it("returns a plain non-JSON string as-is", () => {
+      expect(ObjectUtils.deepJsonParse("hello world")).toBe("hello world");
+    });
+
+    it("handles an empty object", () => {
+      expect(ObjectUtils.deepJsonParse({})).toEqual({});
+    });
+
+    it("handles an empty array", () => {
+      expect(ObjectUtils.deepJsonParse([])).toEqual([]);
+    });
+
+    it("recursively parses each element of an array", () => {
+      const input = [1, "text", '{"a":1}', [2, '{"b":2}']];
+      expect(ObjectUtils.deepJsonParse(input)).toEqual([1, "text", { a: 1 }, [2, { b: 2 }]]);
+    });
+
+    it("recursively parses each value of a plain object", () => {
+      const input = { k1: 42, k2: '{"n":"v"}', k3: [1, 2] };
+      expect(ObjectUtils.deepJsonParse(input)).toEqual({ k1: 42, k2: { n: "v" }, k3: [1, 2] });
+    });
+
+    it("unwraps double-stringified JSON", () => {
+      const input = JSON.stringify(JSON.stringify({ a: 1 }));
+      expect(ObjectUtils.deepJsonParse(input)).toEqual({ a: 1 });
     });
   });
 });

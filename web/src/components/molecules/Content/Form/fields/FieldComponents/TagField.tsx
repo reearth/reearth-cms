@@ -5,6 +5,7 @@ import Select from "@reearth-cms/components/atoms/Select";
 import Tag from "@reearth-cms/components/atoms/Tag";
 import { FieldProps } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import FieldTitle from "../../FieldTitle";
 
@@ -24,6 +25,7 @@ const TagField: React.FC<FieldProps> = ({ field, disabled }) => {
       label={<FieldTitle title={field.title} isUnique={field.unique} isTitle={false} />}>
       {field.multiple ? (
         <StyledMultipleSelect
+          data-testid={DATA_TEST_ID.MetadataField__TagSelect}
           mode="multiple"
           tagRender={props => <>{props.label}</>}
           allowClear
@@ -35,7 +37,7 @@ const TagField: React.FC<FieldProps> = ({ field, disabled }) => {
           ))}
         </StyledMultipleSelect>
       ) : (
-        <Select allowClear disabled={disabled}>
+        <Select data-testid={DATA_TEST_ID.MetadataField__TagSelect} allowClear disabled={disabled}>
           {field.typeProperty?.tags?.map((tag: { id: string; name: string; color: string }) => (
             <Select.Option key={tag.name} value={tag.id}>
               <TagWrapper>

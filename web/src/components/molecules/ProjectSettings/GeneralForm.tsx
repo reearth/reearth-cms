@@ -7,6 +7,7 @@ import Input from "@reearth-cms/components/atoms/Input";
 import TextArea from "@reearth-cms/components/atoms/TextArea";
 import { keyReplace } from "@reearth-cms/components/molecules/Common/Form/utils";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { Constant } from "@reearth-cms/utils/constant";
 
 import { Project } from "../Workspace/types";
@@ -98,28 +99,43 @@ const GeneralForm: React.FC<Props> = ({
         name="name"
         label={t("Name")}
         rules={[{ required: true, message: t("Please input the name of project!") }]}>
-        <Input disabled={!hasUpdateRight} />
-      </Form.Item>
-      <Form.Item
-        name="alias"
-        label={t("Alias")}
-        extra={t("A simpler way to access to the project.")}
-        rules={[{ validator: async (_, value) => await aliasValidate(value) }]}>
         <Input
           disabled={!hasUpdateRight}
-          onChange={handleAliasChange}
-          showCount
-          maxLength={Constant.PROJECT_ALIAS.MAX_LENGTH}
+          data-testid={DATA_TEST_ID.ProjectSettings__GeneralForm__NameInput}
         />
       </Form.Item>
+      <div data-testid={DATA_TEST_ID.ProjectSettings__GeneralForm__AliasField}>
+        <Form.Item
+          name="alias"
+          label={t("Alias")}
+          extra={t("A simpler way to access to the project.")}
+          rules={[{ validator: async (_, value) => await aliasValidate(value) }]}>
+          <Input
+            disabled={!hasUpdateRight}
+            onChange={handleAliasChange}
+            showCount
+            maxLength={Constant.PROJECT_ALIAS.MAX_LENGTH}
+            data-testid={DATA_TEST_ID.ProjectSettings__GeneralForm__AliasInput}
+          />
+        </Form.Item>
+      </div>
       <Form.Item
         name="description"
         label={t("Description")}
         extra={t("Write something here to describe this record.")}>
-        <TextArea rows={4} disabled={!hasUpdateRight} />
+        <TextArea
+          rows={4}
+          disabled={!hasUpdateRight}
+          data-testid={DATA_TEST_ID.ProjectSettings__GeneralForm__DescriptionInput}
+        />
       </Form.Item>
       <Form.Item>
-        <Button type="primary" htmlType="submit" disabled={isDisabled} loading={isLoading}>
+        <Button
+          type="primary"
+          htmlType="submit"
+          disabled={isDisabled}
+          loading={isLoading}
+          data-testid={DATA_TEST_ID.ProjectSettings__GeneralForm__SaveButton}>
           {t("Save changes")}
         </Button>
       </Form.Item>

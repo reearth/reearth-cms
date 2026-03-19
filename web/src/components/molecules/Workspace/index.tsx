@@ -9,6 +9,7 @@ import CreateProjectButton from "@reearth-cms/components/molecules/Workspace/Cre
 import CreateWorkspaceButton from "@reearth-cms/components/molecules/Workspace/CreateWorkspaceButton";
 import Greeting from "@reearth-cms/components/molecules/Workspace/Greeting";
 import { Project, SortBy } from "@reearth-cms/components/molecules/Workspace/types";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
 
 import WorkspaceHeader from "./WorkspaceHeader";
@@ -60,7 +61,7 @@ const WorkspaceWrapper: React.FC<Props> = ({
       <ContentSection
         title="Projects"
         headerActions={
-          <ButtonWrapper>
+          <ButtonWrapper data-testid={DATA_TEST_ID.Workspace__HeaderActions}>
             {!disableWorkspaceUi && <CreateWorkspaceButton onWorkspaceCreate={onWorkspaceCreate} />}
             <CreateProjectButton
               privateProjectsAllowed={privateProjectsAllowed}

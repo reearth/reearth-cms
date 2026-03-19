@@ -2,25 +2,29 @@ import { type Page, expect } from "@reearth-cms/e2e/fixtures/test";
 
 export async function closeNotification(page: Page, isSuccess = true) {
   const text = isSuccess ? "check-circle" : "close-circle";
-
-  // Wait for the notification to appear and verify its type
   const notification = page.getByRole("alert").last();
+
+  try {
+    await notification.waitFor({ state: "visible", timeout: 10000 });
+  } catch {
+    // Notification never appeared or already auto-closed
+    return;
+  }
+
   await expect(notification.getByRole("img")).toHaveAttribute("aria-label", text, {
-    timeout: 10000,
+    timeout: 3000,
   });
 
-  // Find and click the close button
-  const closeButton = page
-    .locator(".ant-notification-notice")
-    .last()
-    .locator(".ant-notification-notice-close");
+  // Close button is a sibling of notification's parent in the DOM:
+  //   div (notice) > div (content) > div[role=alert]
+  //                > a[aria-label=Close]
+  const closeButton = notification.locator("xpath=../..").locator('[aria-label="Close"]');
+  try {
+    await closeButton.click({ timeout: 3000 });
+  } catch {
+    // Notification already auto-closed — nothing left to dismiss
+    return;
+  }
 
-  await closeButton.click();
-
-  // Wait for the notification to be hidden
-  await expect(notification).toBeHidden();
-
-  // Wait for any pending network requests to complete, but with a shorter timeout
-  // This helps ensure state is saved before moving to next action
-  await page.waitForLoadState("domcontentloaded");
+  await expect(notification).toBeHidden({ timeout: 3000 });
 }

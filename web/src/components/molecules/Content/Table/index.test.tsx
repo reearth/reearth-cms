@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 import { ExtendedColumns } from "./types";
 
@@ -52,67 +52,69 @@ const DEFAULT_PROPS: Props = {
   hasModelFields: false,
 };
 
-test("ContentTable renders with default column and order", () => {
-  const fieldList = ["field-1", "field-2"];
-  const metadataList = ["meta-1", "meta-2"];
+describe("ContentTable", () => {
+  test("ContentTable renders with default column and order", () => {
+    const fieldList = ["field-1", "field-2"];
+    const metadataList = ["meta-1", "meta-2"];
 
-  const fieldsColumns: ExtendedColumns[] = fieldList.map(field => ({
-    title: field,
-    dataIndex: ["fields", field],
-    fieldType: "FIELD" as const,
-    key: field,
-    ellipsis: true,
-    type: "Text",
-    typeProperty: undefined,
-    width: 128,
-    minWidth: 128,
-    multiple: false,
-    required: true,
-    sorter: true,
-    sortOrder: null,
-    render: vi.fn(),
-  }));
+    const fieldsColumns: ExtendedColumns[] = fieldList.map(field => ({
+      title: field,
+      dataIndex: ["fields", field],
+      fieldType: "FIELD" as const,
+      key: field,
+      ellipsis: true,
+      type: "Text",
+      typeProperty: undefined,
+      width: 128,
+      minWidth: 128,
+      multiple: false,
+      required: true,
+      sorter: true,
+      sortOrder: null,
+      render: vi.fn(),
+    }));
 
-  const metadataColumns: ExtendedColumns[] = metadataList.map(meta => ({
-    title: <>{meta}</>,
-    dataIndex: ["metadata", meta],
-    fieldType: "META_FIELD" as const,
-    key: meta,
-    ellipsis: true,
-    type: "Text",
-    typeProperty: undefined,
-    width: 128,
-    minWidth: 128,
-    multiple: false,
-    required: true,
-    sorter: true,
-    sortOrder: null,
-    render: vi.fn(),
-  }));
+    const metadataColumns: ExtendedColumns[] = metadataList.map(meta => ({
+      title: <>{meta}</>,
+      dataIndex: ["metadata", meta],
+      fieldType: "META_FIELD" as const,
+      key: meta,
+      ellipsis: true,
+      type: "Text",
+      typeProperty: undefined,
+      width: 128,
+      minWidth: 128,
+      multiple: false,
+      required: true,
+      sorter: true,
+      sortOrder: null,
+      render: vi.fn(),
+    }));
 
-  const overwrittenProps: Props = {
-    ...DEFAULT_PROPS,
-    contentTableColumns: [...fieldsColumns, ...metadataColumns],
-  };
+    const overwrittenProps: Props = {
+      ...DEFAULT_PROPS,
+      contentTableColumns: [...fieldsColumns, ...metadataColumns],
+    };
 
-  render(<ContentTable {...overwrittenProps} />);
+    render(<ContentTable {...overwrittenProps} />);
 
-  const theadEl = screen.getByRole("rowgroup", {
-    name: (_accessibleName, element) => element.classList.contains("ant-table-thead"),
+    const theadEl = screen.getByRole("rowgroup", {
+      name: (_accessibleName, element) => element.classList.contains("ant-table-thead"),
+    });
+    const thEls = theadEl.querySelectorAll(".ant-table-cell");
+    const thColumns = [...thEls].map(el => el.textContent);
+
+    expect(thColumns).toEqual([
+      "",
+      "",
+      "",
+      "Status",
+      ...fieldList,
+      ...metadataList,
+      "Created At",
+      "Created By",
+      "Updated At",
+      "Updated By",
+    ]);
   });
-  const thEls = theadEl.querySelectorAll(".ant-table-cell");
-  const thColumns = [...thEls].map(el => el.textContent);
-
-  expect(thColumns).toEqual([
-    "",
-    "",
-    "",
-    "Status",
-    ...fieldList,
-    ...metadataList,
-    "Created At",
-    "Created By",
-    "Updated At",
-    "Updated By",
-  ]);
 });

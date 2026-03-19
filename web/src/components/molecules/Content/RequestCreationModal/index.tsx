@@ -13,6 +13,7 @@ import WarningText from "@reearth-cms/components/molecules/Content/WarningText";
 import { RequestItem, RequestState } from "@reearth-cms/components/molecules/Request/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import { FormItem } from "../types";
 
@@ -149,6 +150,7 @@ const RequestCreationModal: React.FC<Props> = ({
             },
           ]}>
           <Select
+            data-testid={DATA_TEST_ID.RequestCreationModal__ReviewerSelect}
             filterOption={(input, option) =>
               (option?.label?.toString().toLowerCase() ?? "").includes(input.toLowerCase())
             }

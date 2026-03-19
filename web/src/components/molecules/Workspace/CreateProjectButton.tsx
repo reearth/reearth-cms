@@ -6,6 +6,7 @@ import ProjectCreationModal, {
   FormValues,
 } from "@reearth-cms/components/molecules/Common/ProjectCreationModal";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 type Props = {
   privateProjectsAllowed?: boolean;
@@ -44,6 +45,7 @@ const CreateProjectButton: React.FC<Props> = ({
   return (
     <>
       <Button
+        data-testid={DATA_TEST_ID.Workspace__NewProjectButton}
         onClick={handleProjectModalOpen}
         type="primary"
         icon={<Icon icon="plus" />}

@@ -1,13 +1,17 @@
-# E2E Testing - Page Object Model (POM) Structure
+# E2E Testing Guide
 
-This document describes the structure and patterns used in the E2E testing framework for Reearth CMS.
+This document describes the conventions, architecture, and patterns used in the E2E testing framework for Reearth CMS.
 
-## 📁 Directory Structure
+## Directory Structure
 
-```
+```text
 web/e2e/
 ├── config/              # Configuration files
 │   └── config.ts        # Environment config, API settings, access token management
+├── files/               # Test data files for import testing
+│   ├── test-import-content.csv
+│   ├── test-import-content.geojson
+│   └── test-import-content.json
 ├── fixtures/            # Playwright test fixtures
 │   └── test.ts          # Custom fixtures extending Playwright's test with page objects
 ├── helpers/             # Reusable helper utilities
@@ -16,23 +20,34 @@ web/e2e/
 │   ├── notification.helper.ts    # Notification handling utilities
 │   └── viewer.helper.ts          # Viewer utilities (Cesium ready checks)
 ├── pages/               # Page Object Models (POM)
-│   ├── base.page.ts              # Base page class with common methods
-│   ├── assets.page.ts            # Assets page interactions
-│   ├── login.page.ts             # Login page interactions
-│   ├── content.page.ts           # Content management page interactions
-│   ├── field-editor.page.ts      # Field editor page interactions
-│   ├── integrations.page.ts      # Integrations page interactions
-│   ├── member.page.ts            # Member management page interactions
-│   ├── project.page.ts           # Project page interactions
-│   ├── project-settings.page.ts  # Project settings page interactions
-│   ├── request.page.ts           # Request page interactions
-│   ├── schema.page.ts            # Schema management page interactions
-│   ├── settings.page.ts          # Settings page interactions
-│   └── workspace.page.ts         # Workspace page interactions
+│   ├── base.page.ts              # Abstract base — Layer 1
+│   ├── project-scoped.page.ts    # Abstract project-scoped base — Layer 2
+│   ├── settings-scoped.page.ts   # Abstract settings-scoped base — Layer 2
+│   ├── assets.page.ts            # Assets page (extends ProjectScopedPage)
+│   ├── content.page.ts           # Content management (extends ProjectScopedPage)
+│   ├── field-editor.page.ts      # Field creation/editing (extends ProjectScopedPage)
+│   ├── integrations.page.ts      # Integrations + webhooks (extends SettingsScopedPage)
+│   ├── login.page.ts             # Authentication (standalone)
+│   ├── member.page.ts            # Member management (extends SettingsScopedPage)
+│   ├── project.page.ts           # Project overview (extends ProjectScopedPage)
+│   ├── project-settings.page.ts  # Project settings (extends ProjectScopedPage)
+│   ├── request.page.ts           # Request workflow (extends ProjectScopedPage)
+│   ├── schema.page.ts            # Schema management (extends ProjectScopedPage)
+│   ├── settings.page.ts          # Workspace settings (extends SettingsScopedPage)
+│   └── workspace.page.ts         # Workspace CRUD (extends BasePage)
 ├── support/             # Support files
+│   ├── auth.setup.ts             # Authentication setup (Playwright "setup" project)
+│   ├── i18n.ts                   # Internationalization support (en/ja)
 │   └── .auth/                    # Authentication state storage (gitignored)
 │       └── user.json             # Saved authentication session state
-├── global-setup.ts      # Global authentication setup (runs once before all tests)
+├── utils/               # Utility modules
+│   └── iap/                      # GCP Identity-Aware Proxy authentication
+│       ├── iap-auth.ts           # Main IAP auth factory (method detection & context creation)
+│       ├── iap-auth-adc.ts       # Application Default Credentials auth
+│       ├── iap-auth-common.ts    # Common IAP utilities
+│       ├── iap-auth-id-token.ts  # ID token authentication
+│       └── iap-auth-service-account.ts  # Service account authentication
+├── global-setup.ts      # Global setup (environment variable validation)
 └── tests/               # Test specifications (organized by domain)
     ├── auth/                     # Authentication tests
     │   └── auth.spec.ts
@@ -65,103 +80,295 @@ web/e2e/
         └── workspace.spec.ts
 ```
 
-## 🎯 Page Object Model (POM) Pattern
+## POM Architecture
 
-### What is POM?
+### 3-Layer Hierarchy
 
-The Page Object Model is a design pattern that:
+```
+BasePage (abstract) — Layer 1
+│  Sealed: okButton, cancelButton, saveButton, backButton,
+│          searchInput, searchButton, rootElement
+│  Kept:   goto(), url(), closeNotification(), keypress(), getCurrentItemId()
+│  Kept:   getByRole(), getByText(), getByTestId(), etc. (Playwright wrappers)
+│
+├── ProjectScopedPage (abstract) — Layer 2
+│   Sealed: schemaMenuItem, contentMenuItem, assetMenuItem,
+│           settingsMenuItem, accessibilityMenuItem
+│   Sealed: createProject(), gotoProject(), deleteProject()
+│   Sealed: navigateToContent(), navigateToSchema(), navigateToAsset()
+│   Method: assertProjectContext() — validates URL has project ID
+│   │
+│   ├── SchemaPage              — model/group/field CRUD
+│   │                             Composes: FieldEditorPage, ContentPage
+│   ├── ContentPage             — item CRUD, table, views, filters, publishing
+│   ├── FieldEditorPage         — field creation/editing forms
+│   ├── RequestPage             — request workflow
+│   │                             Composes: ContentPage (for request-from-content flows)
+│   ├── AssetsPage              — asset upload/management
+│   ├── ProjectPage             — model cards, overview
+│   │                             Composes: SchemaPage (for create-model-then-navigate flows)
+│   └── ProjectSettingsPage     — project settings, danger zone, accessibility
+│
+├── SettingsScopedPage (abstract) — Layer 2
+│   Sealed: workspaceSettingsNav, memberNav, integrationsNav
+│   │
+│   ├── SettingsPage            — tiles, terrain, account, language
+│   ├── MemberPage              — member management
+│   └── IntegrationsPage        — integrations + webhooks
+│
+├── WorkspacePage               — project list, workspace CRUD (no Layer 2 needed)
+└── LoginPage                   — authentication (standalone, own base)
+```
 
-- **Separates** test logic from UI interaction code
-- **Encapsulates** page elements and actions in reusable classes
-- **Improves** test maintainability and readability
-- **Reduces** code duplication
+### Override Control Pattern
 
-### POM Structure in This Project
+Follow the pattern with `noImplicitOverride: true` (in `tsconfig.json`):
 
-#### 1. **Base Page** (`base.page.ts`)
+- **`protected readonly` arrow functions**: Non-overridable (sealed) — used for shared locator getters in Layer 1/2
+- **`protected abstract` methods**: Hooks for subclasses to implement
+- **`override` keyword**: Required for all overrides (enforced by compiler)
 
-All page objects extend `BasePage`, which provides:
+### Visibility Rules
 
-- Common locator methods (`getByRole`, `getByText`, `getByLabel`, etc.)
-- Navigation methods (`goto`)
-- Utility methods (`closeNotification`)
+- `private`: Default for members used only within the same class (internal locators consumed by action methods, helper functions)
+- `protected`: Only for `page` property in BasePage (used by all subclasses)
+- `public`: For all members called from spec files or other external callers
+- **All visibility modifiers must be explicit** — never rely on TypeScript's implicit `public`
+
+### Class Organization
+
+Each POM class should be organized into two sections:
 
 ```typescript
-export abstract class BasePage {
-  protected page: Page;
+class SchemaPage extends ProjectScopedPage {
+  // ── Composed POMs (private) ──
+  private fieldEditor: FieldEditorPage;
+  private content: ContentPage;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
+    this.fieldEditor = new FieldEditorPage(page);
+    this.content = new ContentPage(page);
   }
 
-  // Common methods available to all page objects
+  // ── Element Queries (private) ──
+  // Getters (no params) and functions (with params)
+  // Query by data-testid when possible
+  // Params use DATA_TEST_ID enum, not raw strings
+  private get fieldDisplayNameInput(): Locator { ... }
+  private fieldTypeByTestId(id: DATA_TEST_ID): Locator { ... }
+
+  // ── Actions (public) ──
+  // Public methods for spec files
+  // Each action: validate URL → query elements → assert → interact
+  // Can delegate to composed POMs for cross-page workflows
+  public async createModel(name: string, key?: string): Promise<void> { ... }
+  public async createFieldAndVerifyInContent(type: DATA_TEST_ID, name: string): Promise<void> {
+    // Delegates to this.fieldEditor and this.content internally
+  }
 }
 ```
 
-#### 2. **Page Objects** (`pages/*.page.ts`)
+### Composition Pattern
 
-Each page object contains:
-
-**Locator Getters** - For accessing page elements:
+Each spec file uses ONE POM only. The POM internally composes sibling POMs for cross-page workflows.
 
 ```typescript
-get newItemButton(): Locator {
-  return this.getByRole("button", { name: "plus New Item" });
-}
-```
-
-**Action Methods** - For performing operations:
-
-```typescript
-async createItem(): Promise<void> {
-  await this.getByText("Content").click();
-  await this.getByRole("button", { name: "plus New Item" }).click();
-  await this.getByRole("button", { name: "Save" }).click();
-  await this.closeNotification();
-}
-```
-
-#### 3. **Test Specs** (`tests/**/*.spec.ts`)
-
-Tests use page objects to interact with the UI:
-
-```typescript
-test("Item CRUD has succeeded", async ({ contentPage, projectPage }) => {
-  const projectName = getId();
-  await projectPage.createProject(projectName);
-  await projectPage.gotoProject(projectName);
-  await contentPage.createItem();
-  // Test assertions...
+// text.spec.ts — uses only schemaPage
+test.beforeEach(async ({ schemaPage }) => {
+  await schemaPage.goto("/", { waitUntil: "domcontentloaded" });
+  await schemaPage.createProject(projectName); // inherited from Layer 2
+  await schemaPage.gotoProject(projectName); // inherited from Layer 2
+});
+test.afterEach(async ({ schemaPage }) => {
+  await schemaPage.deleteProject(); // inherited from Layer 2
+});
+test("Text field", async ({ schemaPage }) => {
+  await schemaPage.createModelFromSidebar(modelName);
+  await schemaPage.createFieldAndVerifyInContent(DATA_TEST_ID.FieldList__Text, "text1", "hello");
 });
 ```
 
-## 🔧 Key Components
+### Setup/Teardown via Layer 2
 
-### Global Setup (`global-setup.ts`)
-
-**Centralized authentication system** that runs once before all tests:
+`ProjectScopedPage` provides project lifecycle methods so NO separate `projectPage` fixture is needed:
 
 ```typescript
-async function globalSetup(_config: FullConfig) {
-  const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext();
-  const page = await context.newPage();
+// project-scoped.page.ts — Layer 2
+abstract class ProjectScopedPage extends BasePage {
+  // Project lifecycle (inherited by all project-scoped Layer 3 POMs)
+  protected readonly createProject = async (name: string): Promise<void> => {
+    await this.goto("/", { waitUntil: "domcontentloaded" });
+    // ... create project via UI
+  };
 
-  // Perform login using LoginPage
-  const loginPage = new LoginPage(page);
-  await loginPage.login(userName, password);
+  protected readonly gotoProject = async (name: string): Promise<void> => {
+    // ... navigate to project
+  };
 
-  // Save authentication state for reuse
-  await context.storageState({ path: authFile });
-  await browser.close();
+  protected readonly deleteProject = async (): Promise<void> => {
+    // ... navigate to settings, delete project
+  };
+
+  // Shared navigation (sealed, non-overridable)
+  protected readonly schemaMenuItem = (): Locator => { ... };
+  protected readonly contentMenuItem = (): Locator => { ... };
+  protected readonly navigateToContent = async (): Promise<void> => {
+    await this.contentMenuItem().click();
+  };
+  protected readonly navigateToSchema = async (): Promise<void> => {
+    await this.schemaMenuItem().click();
+  };
+
+  // URL validation
+  protected readonly assertProjectContext = (): void => { ... };
 }
 ```
 
-**Benefits:**
+## Selector Strategy
 
-- ⚡ **50-70% faster** - Authentication happens once, not per test suite
-- 🔄 **Consistent** - All tests use identical authentication state
-- 🎯 **Maintainable** - Single place to update authentication logic
+### Decision Rules
+
+| Current Selector                                                   | Action                                  | Why                                                                |
+| ------------------------------------------------------------------ | --------------------------------------- | ------------------------------------------------------------------ |
+| `.ant-*` (e.g. `.ant-modal-wrap`, `.ant-table-row`)                | Replace with `data-testid`              | Breaks on Ant Design upgrades                                      |
+| `.css-*` hash classes (e.g. `.css-7g0azd`)                         | Replace with `data-testid`              | Breaks on any style change                                         |
+| `getByText("Settings")`, `getByText("Content")` for navigation     | Replace with `data-testid`              | Matches multiple elements; breaks on locale change                 |
+| `getByRole("button", { name: "plus New Model" })` with icon prefix | Replace with `data-testid`              | Icon text prefix changes on upgrade                                |
+| `getByRole("button", { name: "OK" })`                              | Replace with `data-testid`              | Multiple buttons may share the name; text may change (e.g. "Save") |
+| `getByLabel("Model name")`                                         | Replace with `data-testid`              | Label text may change or conflict across forms                     |
+| `getByPlaceholder("search")`                                       | Replace with `data-testid`              | Placeholder text may change or conflict                            |
+| `.nth(N)` without scoped parent                                    | Add `data-testid` to parent, then scope | Positional selectors are fragile                                   |
+
+### data-testid Rules
+
+- Attribute injected via `data-testid` on React components
+- Values centralized in `DATA_TEST_ID` enum at `src/test/utils.ts`
+- Naming convention: `Component__Element` (BEM-inspired, PascalCase)
+  - `ModelCard__UtilDropdownIcon`
+  - `Schema__ImportSchemaButton`
+  - `Content__List__ImportContentButton`
+- For nested page context: `Page__Component__Element`
+- For 3rd party components (Ant Design): wrap with a `<div data-testid="...">` if `data-testid` prop is not supported
+- E2E locators use `getByTestId(DATA_TEST_ID.X)`, never raw strings
+
+### Querying i18n Text
+
+- E2E tests should NOT query by visible text (button labels, menu text)
+- If testing i18n text is unavoidable, use `t("i18n-key")` from `e2e/support/i18n.ts`
+- Prefer `data-testid` for element targeting, `toHaveText(t("key"))` for assertions
+
+## Parallel-Safety Rules
+
+### Timing Strategy
+
+| Pattern                                                                               | Action                                  | Why                                                                 |
+| ------------------------------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------- |
+| `waitForTimeout(300)` as last statement before `});`                                  | Remove                                  | No-op; nothing follows that needs the delay                         |
+| `waitForTimeout(300)` after `closeNotification()`                                     | Remove                                  | `closeNotification()` already waits for hidden + `domcontentloaded` |
+| `waitForTimeout(300)` before auto-retry assertion (`toHaveText`, `toBeVisible`, etc.) | Remove                                  | Playwright auto-retries; the wait adds latency with no benefit      |
+| `waitForTimeout(300)` before `.click()` on potentially unstable element               | Replace with `el.waitFor()`             | Event-driven wait is deterministic                                  |
+| `waitForTimeout(*)` after drag-drop with no completion event                          | Keep with `// drag-drop settle` comment | No reliable signal exists                                           |
+| `waitForTimeout(*)` in `viewer.helper.ts` (Cesium poll loop)                          | Keep                                    | Intentional polling interval                                        |
+
+### Test Data Isolation
+
+- `getId()` returns `${Date.now()}-${random}` — collision-safe across parallel workers
+- Every spec file must use `getId()` for project names, model names, workspace names
+- No hardcoded shared names (e.g. `"e2e workspace name"`) — use `getId()`-based variables
+- Each `test.describe` block gets its own unique names via `const xxxName = getId()` at the top
+
+### Notification Helper
+
+- `closeNotification()` must NOT use `.ant-notification-notice` CSS selectors
+- Use ARIA-scoped selectors: `getByRole("alert")` for the notification, `getByRole("button", { name: "Close" })` for the close button
+- Always assert notification type before closing (check-circle / close-circle)
+
+## E2E Test Tags
+
+The TAG enum (`e2e/fixtures/test.ts`) defines these tags:
+
+| Tag             | Purpose                                    | Usage                    |
+| --------------- | ------------------------------------------ | ------------------------ |
+| `@smoke`        | Critical path tests (~27)                  | `yarn e2e-smoke`         |
+| `@toAbandon`    | Tests redundant with component tests (~16) | Excluded from `e2e-fast` |
+| `@fieldVariant` | Repetitive field/metadata type tests (~30) | Excluded from `e2e-fast` |
+
+`@toAbandon` pattern — always include a Playwright `annotation` pointing to the consolidation target:
+
+```typescript
+test("Comment CRUD on edit page", {
+  tag: TAG.TO_ABANDON,
+  annotation: {
+    type: "consolidate",
+    description: '"Comment CRUD on Content page" in content.spec.ts (@smoke)',
+  },
+}, async (...) => {
+```
+
+The annotation is machine-readable (Playwright reporter API) and renders in the HTML test report.
+
+`@fieldVariant` pattern — for identical workflows differing only by field type:
+
+```typescript
+test("Float field editing has succeeded", { tag: TAG.FIELD_VARIANT }, async (...) => {
+```
+
+3-tier CI strategy:
+
+```bash
+yarn e2e-smoke   # ~27 tests — fast CI gate
+yarn e2e-fast    # ~74 tests — default CI (excludes @toAbandon + @fieldVariant)
+yarn e2e         # ~120 tests — nightly/full validation
+```
+
+```bash
+# List tagged tests
+yarn playwright test --list --grep @toAbandon
+yarn playwright test --list --grep @fieldVariant
+```
+
+## E2E vs Component Test Boundary
+
+> All frontend tests are not responsible for testing data correctness (e.g., calculation logic, query filtering, validation rules) — that belongs to backend tests. Frontend tests verify that the UI correctly displays and interacts with whatever data the backend provides.
+
+| Write E2E test when...                                     | Write component test when...                                |
+| ---------------------------------------------------------- | ----------------------------------------------------------- |
+| Testing a multi-page workflow (create → navigate → verify) | Testing rendering logic with different props/states         |
+| Testing data persistence (create, reload, still exists)    | Testing form validation display                             |
+| Testing real API integration (GraphQL mutations/queries)   | Testing component behavior with mocked data                 |
+| Testing cross-component interactions on the same page      | Testing individual component states (loading, error, empty) |
+| Testing authentication/authorization flows                 | Testing i18n text rendering                                 |
+
+**Overlap is OK** when:
+
+- A component test covers rendering correctness and an E2E test covers the same feature's integration with real data
+- Example: Component test verifies ModelCard renders dropdown menu items → E2E test verifies clicking "Delete" actually deletes the model
+
+**Don't duplicate** when:
+
+- A component test already verifies pure UI logic (hover states, disabled states, tooltip content) — no need for E2E
+- An E2E test already covers a simple CRUD flow — no need for a component test that mocks the same API calls
+
+## Known Patterns
+
+- **`:visible` pseudo-selector**: Use on locators that match duplicate elements across Ant Design `forceRender` tabs (e.g. `plusNewButton`). The `:visible` filter ensures only the currently-rendered element is matched.
+- **`editField(options)` pattern**: A single `FieldEditorPage.editField()` method handles conditional tab navigation (General / Validation / Default Value) for all field types. Spec files pass an options object instead of manually clicking tabs.
+- **Auto-tracked project base URL**: `ProjectScopedPage` uses a `WeakMap` + `framenavigated` event listener to automatically capture the project base URL after `createProject()`. Subclasses access it via `this.projectBaseUrl` without manual tracking.
+- **Playwright `{ tag }` option**: Tags like `@smoke`, `@toAbandon`, and `@fieldVariant` use Playwright's native `test("name", { tag: TAG.SMOKE }, ...)` syntax, not title prefixes. `@toAbandon` tests also include an `annotation` with `type: "consolidate"` pointing to the kept test or component test.
+- **URL context validation**: Every public action method calls `this.assertProjectContext()` (or `this.assertWorkspaceContext()` for `WorkspacePage`) as its first line. This produces a clear error ("Expected page to be on a project URL") instead of cryptic element-not-found timeouts when navigation fails silently. **Excluded**: context-establishing/teardown methods (`createProject`, `gotoProject`, `deleteProject` in `ProjectScopedPage`; `createWorkspace`, `deleteWorkspace` in `WorkspacePage`) and `LoginPage`. `WorkspacePage` has its own `private assertWorkspaceContext()` that checks for `/workspace/` without `/project/`.
+
+## Key Components
+
+### Authentication Setup (`support/auth.setup.ts`)
+
+Playwright "setup" project that runs before all test projects. Configured in `playwright.config.ts` as `projects[0]` with the `chromium` project depending on it.
+
+- Supports both custom login and Auth0 login flows (auto-detected)
+- Uses `createIAPContext()` for GCP Identity-Aware Proxy environments
+- Saves storage state to `support/.auth/user.json` for reuse by all tests
+- Tagged `@smoke` so it runs in smoke test suites too
+- Skips login if already authenticated (checks for "New Project" button)
 
 ### Fixtures (`fixtures/test.ts`)
 
@@ -169,37 +376,42 @@ Custom Playwright fixtures that automatically initialize page objects:
 
 ```typescript
 export const test = base.extend<Fixtures>({
+  schemaPage: async ({ page }, use) => {
+    await use(new SchemaPage(page));
+  },
   contentPage: async ({ page }, use) => {
     await use(new ContentPage(page));
   },
-  loginPage: async ({ page }, use) => {
-    await use(new LoginPage(page));
-  },
   // ... other page objects
 });
+
+export const TAG = {
+  SMOKE: "@smoke",
+  TO_ABANDON: "@toAbandon",
+  FIELD_VARIANT: "@fieldVariant",
+} as const;
 ```
 
-This allows tests to receive page objects as parameters without manual instantiation.
+Each spec fixture maps 1:1 with the primary POM.
 
 ### Helpers (`helpers/`)
 
-Utility functions that don't belong to any specific page:
-
 - **format.helper.ts**: Format and parse utilities
-- **mock.helper.ts**: Test data generation
-- **notification.helper.ts**: Notification handling
-- **viewer.helper.ts**: Viewer-specific utilities
+- **mock.helper.ts**: Test data generation (`getId()`)
+- **notification.helper.ts**: Notification handling (ARIA-scoped selectors)
+- **viewer.helper.ts**: Viewer-specific utilities (Cesium ready checks)
+
+### IAP Authentication (`utils/iap/`)
+
+Utilities for authenticating through GCP Identity-Aware Proxy in staging/dev environments. Auto-detected based on the target URL: skipped for `localhost` and production (`reearth.io`), enabled for other environments. Can be explicitly controlled via `USE_IAP_AUTH` env var.
+
+### Internationalization (`support/i18n.ts`)
+
+Configures i18next with English and Japanese translations for tests that verify localized content. Imports from `@reearth-cms/i18n/translations/` (intentional exception to the separation of concerns rule — shares translation resources to validate the same strings displayed to users).
 
 ### Configuration (`config/config.ts`)
 
-Centralized configuration for:
-
-- API endpoints
-- User credentials (from environment variables)
-- Access token management
-- Feature flags
-
-**Required Environment Variables** (in `web/.env`):
+Required environment variables (in `web/.env`):
 
 ```env
 REEARTH_CMS_E2E_USERNAME=your-email@example.com
@@ -207,313 +419,214 @@ REEARTH_CMS_E2E_PASSWORD=your-password
 REEARTH_CMS_E2E_BASEURL=http://localhost:3000/
 ```
 
-### Login Page (`pages/login.page.ts`)
-
-The `LoginPage` class handles all authentication interactions:
-
-```typescript
-export class LoginPage {
-  async login(email: string, password: string) {
-    await this.emailInput.click();
-    await this.emailInput.fill(email);
-    await this.passwordInput.click();
-    await this.passwordInput.fill(password);
-    await this.loginButton.click();
-  }
-}
-```
-
-**Features:**
-
-- 🔐 Handles login form interactions
-- 👤 Manages user menu and logout functionality
-- 🎯 Uses data-testid for reliable element selection
-
-## 📝 Writing Tests
+## Writing Tests
 
 ### Best Practices
 
-1. **Use Page Objects for UI Interactions**
+1. **Use Page Objects** — never interact with `page` directly in spec files
 
    ```typescript
-   // ✅ Good
+   // Good
    await schemaPage.createModel("My Model", "my-model");
 
-   // ❌ Bad
+   // Bad
    await page.getByLabel("Model name").fill("My Model");
    await page.getByRole("button", { name: "OK" }).click();
    ```
 
-2. **Keep Test Logic in Test Files**
-   - Page objects handle "how" to interact with the UI
-   - Test specs define "what" to test
-
-3. **Use Fixtures for Page Objects**
+2. **One POM per spec file** — use the composition pattern
 
    ```typescript
-   test("My test", async ({ schemaPage, contentPage }) => {
-     // Page objects are automatically available
+   test("My test", async ({ schemaPage }) => {
+     // schemaPage internally composes FieldEditorPage + ContentPage
    });
    ```
 
-4. **Generate Unique Test Data**
+3. **Generate unique test data** with `getId()`
 
    ```typescript
-   import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
-
-   const projectName = getId(); // Generates unique ID
-   await projectPage.createProject(projectName);
+   const projectName = getId();
+   await schemaPage.createProject(projectName);
    ```
 
-5. **Follow beforeEach/afterEach Pattern for Setup/Teardown**
+4. **Setup/teardown via Layer 2 inheritance**
 
    ```typescript
-   test.beforeEach(async ({ projectPage }) => {
-       const projectName = getId();
+   test.beforeEach(async ({ schemaPage }) => {
+     await schemaPage.createProject(projectName);
+     await schemaPage.gotoProject(projectName);
+   });
+   test.afterEach(async ({ schemaPage }) => {
+     await schemaPage.deleteProject();
+   });
    ```
 
-await projectPage.createProject(projectName);
-await projectPage.gotoProject(projectName);
-});
-
-test.afterEach(async ({ projectPage }) => {
-await projectPage.deleteProject();
-});
-
-````
-
-## 🏗️ Adding New Tests
+## Adding New Tests
 
 ### 1. Create or Update Page Object
 
-If the page doesn't have a page object, create one:
+New project-scoped pages extend `ProjectScopedPage`; new settings-scoped pages extend `SettingsScopedPage`:
 
 ```typescript
 // pages/my-feature.page.ts
-import { BasePage } from "./base.page";
-import { type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { ProjectScopedPage } from "./project-scoped.page";
+import { type Locator, type Page } from "@playwright/test";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
-export class MyFeaturePage extends BasePage {
-// Locators
-get myButton(): Locator {
- return this.getByRole("button", { name: "My Button" });
-}
+export class MyFeaturePage extends ProjectScopedPage {
+  // ── Element Queries (private) ──
+  private get myButton(): Locator {
+    return this.page.getByTestId(DATA_TEST_ID.MyFeature__Button);
+  }
 
-// Actions
-async doSomething(): Promise<void> {
- await this.myButton.click();
- await this.closeNotification();
+  // ── Actions (public) ──
+  public async doSomething(): Promise<void> {
+    this.assertProjectContext();
+    await this.myButton.click();
+    await this.closeNotification();
+  }
 }
-}
-````
+```
 
-### 2. Register Page Object in Fixtures
+### 2. Register in Fixtures
 
 Add to `fixtures/test.ts`:
 
 ```typescript
 import { MyFeaturePage } from "../pages/my-feature.page";
 
-export type PageObjects = {
-  // ... existing page objects
-  myFeaturePage: MyFeaturePage;
-};
-
-export const test = base.extend<Fixtures>({
-  // ... existing fixtures
-  myFeaturePage: async ({ page }, use) => {
-    await use(new MyFeaturePage(page));
-  },
-});
+myFeaturePage: async ({ page }, use) => {
+  await use(new MyFeaturePage(page));
+},
 ```
 
 ### 3. Write Test Spec
-
-Create test file in appropriate domain folder:
 
 ```typescript
 // tests/my-domain/my-feature.spec.ts
 import { expect, test } from "@reearth-cms/e2e/fixtures/test";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
+const projectName = getId();
+
 test.beforeEach(async ({ myFeaturePage }) => {
-  // Setup
+  await myFeaturePage.createProject(projectName);
+  await myFeaturePage.gotoProject(projectName);
+});
+
+test.afterEach(async ({ myFeaturePage }) => {
+  await myFeaturePage.deleteProject();
 });
 
 test("My feature works correctly", async ({ myFeaturePage }) => {
   await myFeaturePage.doSomething();
-  await expect(myFeaturePage.myButton).toBeVisible();
 });
 ```
 
-## 🚀 Running Tests
-
-### Run All Tests
+## Running Tests
 
 ```bash
-yarn e2e
+yarn e2e-smoke   # ~27 tests — fast CI gate
+yarn e2e-fast    # ~74 tests — default CI (excludes @toAbandon + @fieldVariant)
+yarn e2e         # ~120 tests — nightly/full validation
 ```
-
-### Run Smoke Tests Only
 
 ```bash
-yarn e2e-smoke
+yarn playwright test tests/project/schema.spec.ts   # Run specific file
+yarn playwright test --ui                            # UI mode
+yarn playwright test --debug                         # Debug mode
+yarn playwright test --list                          # List all tests
+yarn playwright test --list --grep @smoke            # List smoke tests
 ```
 
-Smoke tests are a subset of ~25 critical tests that verify core functionality. They run faster than the full suite and are ideal for:
+## Playwright Configuration
 
-- Quick validation during local development
-- CI/CD pipelines
-- Pre-push verification
+The Playwright config (at the `web/` root) uses a two-project setup:
 
-### Run Specific Test File
-
-```bash
-yarn playwright test tests/project/schema.spec.ts
+```typescript
+projects: [
+  {
+    name: "setup",
+    testDir: "./e2e/support",
+    testMatch: "auth.setup.ts",  // Runs authentication first
+  },
+  {
+    name: "chromium",
+    use: { storageState: authFile },  // Reuses saved auth state
+    dependencies: ["setup"],           // Waits for auth to complete
+  },
+],
 ```
 
-### Run Tests in UI Mode
+Key settings:
 
-```bash
-yarn playwright test --ui
-```
+- `globalSetup`: `./e2e/global-setup.ts` (env var validation)
+- `testDir`: `./e2e/tests`
+- `workers`: 1 in CI, default locally
+- `retries`: 2
+- `timeout`: 150 seconds per test
+- `actionTimeout` / `navigationTimeout`: 60 seconds
+- `video`: `on-first-retry` in CI, `retain-on-failure` locally
 
-### Run Tests in Debug Mode
-
-```bash
-yarn playwright test --debug
-```
-
-### List All Tests
-
-```bash
-yarn playwright test --list
-```
-
-### List Smoke Tests Only
-
-```bash
-yarn playwright test --list --grep @smoke
-```
-
-## 📊 Test Statistics
-
-- **Total Tests**: 87
-- **Smoke Tests**: ~25 (marked with `@smoke` tag)
-- **Page Objects**: 12
-- **Helper Files**: 4
-- **Test Spec Files**: 39
-
-## 🔗 Import Paths
+## Import Paths and Separation of Concerns
 
 Always use the `@reearth-cms/e2e/*` alias for imports:
 
 ```typescript
-// ✅ Correct
+// Correct
 import { test } from "@reearth-cms/e2e/fixtures/test";
 import { SchemaPage } from "@reearth-cms/e2e/pages/schema.page";
 import { getId } from "@reearth-cms/e2e/helpers/mock.helper";
 
-// ❌ Incorrect
+// Incorrect
 import { test } from "../fixtures/test";
 import { SchemaPage } from "./pages/schema.page";
 ```
 
-## 🛡️ Separation of Concerns
-
-**Important**: E2E tests should NOT import from the main application code:
+E2E tests should NOT import from the main application code:
 
 ```typescript
-// ❌ Bad - Don't import from main app
+// Bad
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
-import { SomeEnum } from "@reearth-cms/types";
 
-// ✅ Good - Use e2e helpers
+// Good
 import { parseConfigBoolean } from "@reearth-cms/e2e/helpers/format.helper";
 ```
 
-This ensures:
+**Exception:** `support/i18n.ts` imports from `@reearth-cms/i18n/translations/` and `src/test/utils.ts` is shared for `DATA_TEST_ID`.
 
-- E2E tests remain independent of application internals
-- Tests don't break due to application refactoring
-- TypeScript compilation issues are avoided
+## Rules Quick Reference
 
-## 📚 Additional Resources
+- [ ] Each spec file uses ONE POM only (composition pattern)
+- [ ] All new/modified locators use `data-testid` for elements with fragile selectors
+- [ ] `DATA_TEST_ID` enum values follow `Component__Element` naming
+- [ ] POM members are `private` by default; `public` only for spec-facing actions
+- [ ] Common locators live in Layer 1 (BasePage) or Layer 2 (scoped pages), not duplicated
+- [ ] Layer 3 POMs compose sibling POMs as `private` members for cross-page workflows
+- [ ] Setup/teardown uses inherited Layer 2 methods, not separate `projectPage` fixture
+- [ ] No `.ant-*` or `.css-*` selectors in POM classes
+- [ ] No hardcoded locale strings — use `data-testid` for targeting, `t()` for assertions
+- [ ] Each action method validates URL context before querying elements
+- [ ] E2E tests import from `@reearth-cms/e2e/*`, never from `@reearth-cms/*` (except `test/utils` for DATA_TEST_ID)
+- [ ] `override` keyword on all overridden methods (enforced by `noImplicitOverride: true`)
+- [ ] Sealed methods use `protected readonly` arrow function pattern (non-overridable)
+- [ ] No `waitForTimeout(300)` as trailing statements or after `closeNotification()`
+- [ ] All test names use `getId()` — no hardcoded shared names across parallel workers
+- [ ] Notification helper uses ARIA selectors, not `.ant-notification-*` classes
 
-- [Playwright Documentation](https://playwright.dev/)
-- [Page Object Model Pattern](https://playwright.dev/docs/pom)
-- [Best Practices](https://playwright.dev/docs/best-practices)
+## Test Statistics
 
-## 🔄 Recent Refactorings
+- **Total Tests**: ~120 (119 in spec files + 1 auth setup)
+- **Smoke Tests**: ~27 (marked with `@smoke` tag)
+- **Page Objects**: 15 (including 2 abstract Layer 2 classes)
+- **Helper Files**: 4
+- **Test Spec Files**: 39
 
-### Authentication System Refactoring (2025-10-15)
+## Notes
 
-The authentication system was refactored to use a centralized global setup approach:
-
-#### Changes Made
-
-1. ✅ **Added Global Setup**: Created `global-setup.ts` for one-time authentication
-2. ✅ **Created LoginPage**: New page object replacing `auth.page.ts`
-3. ✅ **Removed Duplicates**: Deleted `auth.setup.ts` and `auth.page.ts`
-4. ✅ **Updated Configuration**: Moved from project-based setup to global setup in `playwright.config.ts`
-5. ✅ **Improved Error Handling**: Added console logging and better error messages
-6. ✅ **Enhanced Documentation**: Updated README and improved inline comments
-
-#### Breaking Changes
-
-- **Environment Variable**: `REEARTH_CMS_E2E_EMAIL` → `REEARTH_CMS_E2E_USERNAME`
-- **Fixture Rename**: `authPage` → `loginPage`
-
-#### Migration Guide
-
-Update test files that use authentication:
-
-```typescript
-// Before
-test("my test", async ({ authPage }) => {
-  await authPage.userMenuLink.click();
-});
-
-// After
-test("my test", async ({ loginPage }) => {
-  await loginPage.userMenuLink.click();
-});
-```
-
-Update `.env` file:
-
-```env
-# Before
-REEARTH_CMS_E2E_EMAIL=your-email@example.com
-
-# After
-REEARTH_CMS_E2E_USERNAME=your-email@example.com
-```
-
-#### Performance Improvements
-
-- ⚡ **50-70% faster test runs** - Authentication happens once
-- 🔄 **More reliable** - Consistent auth state across all tests
-- 🎯 **Better maintainability** - Single source of truth for login logic
-
-### POM Structure Refactoring (2025-10-01)
-
-The E2E structure was refactored to follow POM standards:
-
-#### Changes Made
-
-1. ✅ Moved utility functions from `project/utils/` into page object methods
-2. ✅ Reorganized test files into domain-based structure under `tests/`
-3. ✅ Created centralized helpers directory
-4. ✅ Updated all imports to use `@reearth-cms/e2e/*` pattern
-5. ✅ Separated e2e code from main application code
-6. ✅ Fixed TypeScript compilation issues
-7. ✅ Updated Playwright configuration for new structure
-
-#### Migration Guide
-
-- `createProject(page)` → `projectPage.createProject(name)`
-- `createModel(page, name, key)` → `schemaPage.createModelFromSidebar(name, key)`
-- `createWorkspace(page)` → `workspacePage.createWorkspace(name)`
-- `createItem(page)` → `contentPage.createItem()`
-- All utility constants moved to test files as local constants
+1. **`DATA_TEST_ID` stays in `src/test/utils.ts`**: Both E2E and component tests use it. This is the canonical location.
+2. **BasePage getByX wrappers**: Kept for now, deprecate in a later pass (removing would touch every POM).
+3. **LoginPage stays standalone**: It operates on external auth provider pages, no hierarchy needed.
+4. **Fixtures map 1:1 with POMs**: Since Layer 2 provides setup/teardown, fixtures can remove `projectPage` from most tests.
+5. **Notification helper**: `e2e/helpers/notification.helper.ts` uses ARIA-scoped selectors (`getByRole("alert")`, `getByRole("button", { name: "Close" })`).
+6. **Circular composition**: Composition is one-directional. SchemaPage composes ContentPage, but ContentPage does NOT compose SchemaPage. If a content test needs schema setup, it uses inherited Layer 2 methods or its own `beforeEach`.

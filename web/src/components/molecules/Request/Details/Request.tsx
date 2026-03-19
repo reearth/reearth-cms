@@ -8,6 +8,7 @@ import { Request, RequestUpdatePayload } from "@reearth-cms/components/molecules
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { useT } from "@reearth-cms/i18n";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 import RequestSidebarWrapper from "./SidebarWrapper";
 
@@ -73,12 +74,14 @@ const RequestMolecule: React.FC<Props> = ({
         extra={
           <>
             <Button
+              data-testid={DATA_TEST_ID.RequestDetail__CloseButton}
               disabled={!isCloseActionEnabled}
               loading={deleteLoading}
               onClick={() => onRequestDelete([currentRequest.id])}>
               {t("Close")}
             </Button>
             <Button
+              data-testid={DATA_TEST_ID.RequestDetail__ReopenButton}
               hidden={currentRequest.state !== "CLOSED"}
               disabled={!isReopenActionEnabled}
               loading={updateLoading}
@@ -94,6 +97,7 @@ const RequestMolecule: React.FC<Props> = ({
               {t("Reopen")}
             </Button>
             <Button
+              data-testid={DATA_TEST_ID.RequestDetail__ApproveButton}
               disabled={!isApproveActionEnabled}
               loading={approveLoading}
               type="primary"

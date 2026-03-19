@@ -6,6 +6,27 @@ on:
         description: "Target branch"
         required: false
         default: "main"
+      base_url:
+        description: "Base URL for E2E tests (defaults to vars.REEARTH_CMS_E2E_BASEURL)"
+        required: false
+        default: ""
+      api_url:
+        description: "API URL (defaults to vars.REEARTH_CMS_API)"
+        required: false
+        default: ""
+      use_iap:
+        description: "Enable IAP authentication"
+        type: boolean
+        required: false
+        default: false
+      iap_target_audience:
+        description: "IAP OAuth client ID"
+        required: false
+        default: ""
+      token_format:
+        description: "Token format for authentication"
+        required: false
+        default: "id-token"
       smoke_only:
         description: "Run smoke tests only"
         type: boolean
@@ -123,10 +144,10 @@ jobs:
       - name: Run Playwright tests
         timeout-minutes: 120
         env:
-          USE_IAP_AUTH: ${{ inputs.use_iap || false }}
+          USE_IAP_AUTH: ${{ inputs.use_iap && 'true' || '' }}
           IAP_AUTH_METHOD: ${{ inputs.token_format || 'id-token' }}
           IAP_ID_TOKEN: ${{ steps.auth.outputs.id_token }}
-        run: ${{ inputs.smoke_only && 'yarn e2e-smoke' || 'yarn e2e' }}
+        run: yarn e2e-focus
       - uses: actions/upload-artifact@v6
         if: failure()
         with:

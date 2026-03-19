@@ -1,5 +1,7 @@
-import { type Page, type Locator } from "@reearth-cms/e2e/fixtures/test";
+import { getAccessToken } from "@reearth-cms/e2e/config/config";
+import { expect, type Page, type Locator } from "@reearth-cms/e2e/fixtures/test";
 import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
+import { t } from "@reearth-cms/e2e/support/i18n";
 
 type Role =
   | "alert"
@@ -92,35 +94,66 @@ export abstract class BasePage {
     this.page = page;
   }
 
-  async goto(url: string, options?: { waitUntil?: "domcontentloaded" | "load" | "networkidle" }) {
+  public async goto(
+    url: string,
+    options: { waitUntil?: "domcontentloaded" | "load" | "networkidle" } = {
+      waitUntil: "domcontentloaded",
+    },
+  ) {
     await this.page.goto(url, options);
+    const token = getAccessToken();
+    if (token) {
+      await this.page.evaluate(`window.REEARTH_E2E_ACCESS_TOKEN = ${JSON.stringify(token)};`);
+    }
   }
 
-  url() {
+  public async expectURL(urlOrPattern: string | RegExp): Promise<void> {
+    await expect(this.page).toHaveURL(urlOrPattern);
+  }
+
+  public async evaluate<T>(fn: () => T): Promise<T> {
+    return this.page.evaluate(fn);
+  }
+
+  public viewportSize(): { width: number; height: number } | null {
+    return this.page.viewportSize();
+  }
+
+  public async goBack(): Promise<void> {
+    await this.page.goBack();
+  }
+
+  public async waitForLoadState(
+    state?: "load" | "domcontentloaded" | "networkidle",
+  ): Promise<void> {
+    await this.page.waitForLoadState(state);
+  }
+
+  public url() {
     return this.page.url();
   }
 
-  async closeNotification(isSuccess = true) {
+  public async closeNotification(isSuccess = true) {
     await closeNotification(this.page, isSuccess);
   }
 
-  getByText(text: string | RegExp, options?: { exact?: boolean }): Locator {
+  public getByText(text: string | RegExp, options?: { exact?: boolean }): Locator {
     return this.page.getByText(text, options);
   }
 
-  getByTitle(text: string | RegExp, options?: { exact?: boolean }): Locator {
+  public getByTitle(text: string | RegExp, options?: { exact?: boolean }): Locator {
     return this.page.getByTitle(text, options);
   }
 
-  getByRole(role: Role, options?: { name?: string | RegExp; exact?: boolean }): Locator {
+  public getByRole(role: Role, options?: { name?: string | RegExp; exact?: boolean }): Locator {
     return this.page.getByRole(role, options);
   }
 
-  getByTestId(testId: string | RegExp): Locator {
+  public getByTestId(testId: string | RegExp): Locator {
     return this.page.getByTestId(testId);
   }
 
-  getByLabel(
+  public getByLabel(
     text: string | RegExp,
     options?:
       | {
@@ -131,20 +164,53 @@ export abstract class BasePage {
     return this.page.getByLabel(text, options);
   }
 
-  getByPlaceholder(placeholder: string): Locator {
+  public getByPlaceholder(placeholder: string): Locator {
     return this.page.getByPlaceholder(placeholder);
   }
 
-  locator(selector: string): Locator {
+  public locator(selector: string): Locator {
     return this.page.locator(selector);
   }
 
-  getCurrentItemId(): string {
+  public getCurrentItemId(): string {
     const url = this.page.url();
     return url.split("/").at(-1) as string;
   }
 
-  async keypress(key: string, delay?: number): Promise<void> {
+  public async keypress(key: string, delay?: number): Promise<void> {
     await this.page.keyboard.press(key, { delay });
+  }
+
+  public async waitForTimeout(timeout: number): Promise<void> {
+    await this.page.waitForTimeout(timeout);
+  }
+
+  // Common locators shared across POMs
+  public get okButton(): Locator {
+    return this.getByRole("button", { name: t("OK") });
+  }
+
+  public get cancelButton(): Locator {
+    return this.getByRole("button", { name: t("Cancel") });
+  }
+
+  public get saveButton(): Locator {
+    return this.getByRole("button", { name: t("Save") });
+  }
+
+  public get backButton(): Locator {
+    return this.getByLabel("Back");
+  }
+
+  public get searchInput(): Locator {
+    return this.getByPlaceholder(t("input search text"));
+  }
+
+  public get searchButton(): Locator {
+    return this.getByRole("button", { name: "search" });
+  }
+
+  public get rootElement(): Locator {
+    return this.locator("#root");
   }
 }

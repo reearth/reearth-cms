@@ -11,6 +11,7 @@ import {
 import { FIELD_TYPE_COMPONENT_MAP } from "@reearth-cms/components/molecules/Content/Form/fields/FieldTypesMap";
 import { ReferenceProps } from "@reearth-cms/components/molecules/Content/Form/ReferenceFormItem";
 import { Field, Group, GroupField } from "@reearth-cms/components/molecules/Schema/types";
+import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
 const { Panel } = Collapse;
 
@@ -85,7 +86,7 @@ const GroupItem: React.FC<Props> = ({
   );
 
   return (
-    <StyledCollapse defaultActiveKey={["1"]}>
+    <StyledCollapse defaultActiveKey={["1"]} data-testid={DATA_TEST_ID.GroupItem__Wrapper}>
       <Panel
         header={parentField?.title + (order !== undefined ? ` (${order + 1})` : "")}
         key="1"
