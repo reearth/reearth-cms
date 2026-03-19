@@ -1,10 +1,10 @@
+import "@scalar/api-reference-react/style.css";
 import styled from "@emotion/styled";
+import { AnyApiReferenceConfiguration, ApiReferenceReact } from "@scalar/api-reference-react";
+import { FC, useMemo } from "react";
 
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 
-import { AnyApiReferenceConfiguration, ApiReferenceReact } from "@scalar/api-reference-react";
-import "@scalar/api-reference-react/style.css";
-import { FC, useMemo } from "react";
 
 export type Props = {
   specContent?: Record<string, unknown>;
