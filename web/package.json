@@ -110,7 +110,7 @@
     "@emotion/styled": "11.13.0",
     "@monaco-editor/react": "4.6.0",
     "@placemarkio/check-geojson": "0.1.14",
-    "@scalar/api-reference-react": "0.8.5",
+    "@scalar/api-reference-react": "0.8.57",
     "ajv": "8.17.1",
     "antd": "5.24.3",
     "apollo-upload-client": "19.0.0",

@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { expect, test, describe } from "vitest";
 
 import { Integration } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import { t } from "@reearth-cms/i18n";
 
 import MyIntegrationList from ".";
 
@@ -53,6 +54,8 @@ describe("My integrations list", () => {
 
     expect(screen.getByText(name1)).toBeVisible();
     expect(screen.getByText(name2)).toBeVisible();
-    expect(screen.getByRole("button")).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: new RegExp(t("Create new integration")) }),
+    ).toBeVisible();
   });
 });

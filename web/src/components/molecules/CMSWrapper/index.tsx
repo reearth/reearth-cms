@@ -75,6 +75,8 @@ const ContentWrapper = styled(Content)`
 `;
 
 const CMSSidebar = styled(Sider)`
+  border-right: 1px solid rgba(5, 5, 5, 0.06);
+
   && {
     background-color: #fff;
     padding-bottom: 38px;
@@ -88,6 +90,7 @@ const CMSSidebar = styled(Sider)`
     margin: 0;
     height: 38px;
     line-height: 38px;
+    border-right: 1px solid rgba(5, 5, 5, 0.06);
   }
   .ant-layout-sider-children {
     display: flex;
