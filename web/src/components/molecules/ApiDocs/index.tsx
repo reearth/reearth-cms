@@ -1,5 +1,7 @@
 import styled from "@emotion/styled";
+
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+
 import { AnyApiReferenceConfiguration, ApiReferenceReact } from "@scalar/api-reference-react";
 import "@scalar/api-reference-react/style.css";
 import { FC, useMemo } from "react";
@@ -14,7 +16,8 @@ const ApiDocs: FC<Props> = ({ specContent, specUrl, className }) => {
   const configuration = useMemo<AnyApiReferenceConfiguration>(
     () => ({
       agent: { disabled: true },
-      spec: specContent ? { content: specContent } : { url: specUrl },
+      spec: specContent ? { content: specContent } : undefined,
+      url: specContent ? undefined : specUrl,
       customCss: /* css */ `
         [data-v-app] { height: 100%; }
         [data-v-app] > div { height: 100%; }

@@ -16,7 +16,5 @@ export default () => {
     return `${window.REEARTH_CONFIG?.api}/p/${workspaceIdentifier}/${projectIdentifier}`;
   }, [currentWorkspace, currentProject]);
 
-  return {
-    specUrl,
-  };
+  return { specUrl };
 };

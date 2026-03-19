@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useWorkspace } from "@reearth-cms/state";
 
-type OpenApiSpec = Record<string, unknown>;
+import { OpenApiSpec, OpenApiSpecTransformer } from "./utils";
 
 export default () => {
   const [currentWorkspace] = useWorkspace();
@@ -21,39 +21,15 @@ export default () => {
 
     axios
       .get<OpenApiSpec>(specUrl)
-      .then(({ data: spec }) => {
-        const servers = spec?.servers as
-          | { variables?: Record<string, { default?: string }> }[]
-          | undefined;
-        if (servers?.[0]?.variables?.workspaceIdOrAlias) {
-          const updatedSpec = {
-            ...spec,
-            servers: [
-              {
-                ...servers[0],
-                variables: {
-                  ...servers[0].variables,
-                  workspaceIdOrAlias: {
-                    ...servers[0].variables.workspaceIdOrAlias,
-                    default: workspaceId,
-                  },
-                },
-              },
-              ...servers.slice(1),
-            ],
-          };
-          setSpecContent(updatedSpec);
-        } else {
-          setSpecContent(spec);
-        }
+      .then(({ data }) => {
+        setSpecContent(
+          OpenApiSpecTransformer.transformSpec(data, workspaceId, window.REEARTH_CONFIG?.api || ""),
+        );
       })
       .catch(_error => {
         setSpecContent(undefined);
       });
   }, [specUrl, workspaceId]);
 
-  return {
-    specContent,
-    specUrl,
-  };
+  return { specContent, specUrl };
 };

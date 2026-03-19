@@ -1,5 +1,5 @@
-import ApiDocs from "@reearth-cms/components/molecules/ApiDocs";
 import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
+import ApiDocs from "@reearth-cms/components/molecules/ApiDocs";
 
 import useHooks from "./hooks";
 
