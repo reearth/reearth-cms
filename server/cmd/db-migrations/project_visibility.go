@@ -135,8 +135,8 @@ func _pv_loadModels(ctx context.Context, col *mongo.Collection) (map[string][]Ol
 
 const charSet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
-func updateProject(models map[string][]OldModelDocument) func(ProjectDocument) (ProjectDocument, error) {
-	return func(oldP ProjectDocument) (ProjectDocument, error) {
+func updateProject(models map[string][]OldModelDocument) func(ProjectDocument) (*ProjectDocument, error) {
+	return func(oldP ProjectDocument) (*ProjectDocument, error) {
 		p := ProjectDocument{
 			Accessibility: &ProjectAccessibilityDocument{},
 		}
@@ -144,7 +144,7 @@ func updateProject(models map[string][]OldModelDocument) func(ProjectDocument) (
 			p.Accessibility.Visibility = "public"
 			p.Accessibility.Publication = nil
 			p.Accessibility.Keys = nil
-			return p, nil
+			return &p, nil
 		}
 		if oldP.Publication.Scope == "private" {
 			p.Accessibility.Visibility = "private"
@@ -152,7 +152,7 @@ func updateProject(models map[string][]OldModelDocument) func(ProjectDocument) (
 				PublicModels: []string{},
 				PublicAssets: false,
 			}
-			return p, nil
+			return &p, nil
 		}
 
 		// Publication.Scope == "LIMITED"
@@ -180,6 +180,6 @@ func updateProject(models map[string][]OldModelDocument) func(ProjectDocument) (
 
 		p.Accessibility.Keys = []APIKeyDocument{key}
 
-		return p, nil
+		return &p, nil
 	}
 }
