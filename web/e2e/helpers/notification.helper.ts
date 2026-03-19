@@ -24,11 +24,11 @@ export async function clickAndExpectSuccess(
 export async function closeNotification(page: Page, isSuccess = true) {
   const successNotice = page.locator(".ant-notification-notice").filter({
     has: page.locator('[aria-label="check-circle"]'),
-  }).first();
+  }).last();
 
   const errorNotice = page.locator(".ant-notification-notice").filter({
     has: page.locator('[aria-label="close-circle"]'),
-  }).first();
+  }).last();
 
   if (isSuccess) {
     // Race: wait for either success or error notification
