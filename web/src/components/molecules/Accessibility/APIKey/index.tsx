@@ -85,10 +85,10 @@ const PublicContainer = styled.div`
 
 const Header = styled.h3`
   color: ${AntdColor.GREY.GREY_7}; /* originally #262626 */
-  padding-bottom: 162x;
+  padding-bottom: 16px;
 `;
 
 const Paragraph = styled.p`
   color: ${AntdColor.GREY.GREY_2};
-  padding-bottom: 162x;
+  padding-bottom: 16px;
 `;
