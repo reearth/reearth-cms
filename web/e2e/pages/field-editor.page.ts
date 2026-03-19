@@ -124,6 +124,10 @@ export class FieldEditorPage extends BasePage {
     return this.getByRole("button", { name: "delete" });
   }
 
+  deleteOptionByIndex(index: number): Locator {
+    return this.locator("#values").getByRole("button", { name: "delete" }).nth(index);
+  }
+
   get setOptionsLabel(): Locator {
     return this.getByLabel("Set Options");
   }

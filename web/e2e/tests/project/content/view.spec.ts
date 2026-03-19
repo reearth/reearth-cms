@@ -314,6 +314,7 @@ test("Switch between views preserves individual view settings", async ({
     await contentPage.textColumnHeader().click();
     await contentPage.addFilterButton.click();
     await contentPage.filterMenuItem("text").click();
+    await expect(contentPage.isDropdown).toBeVisible();
     await contentPage.isDropdown.click();
     await contentPage.containsOption.click();
     await contentPage.filterValueInput.click();

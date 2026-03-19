@@ -59,10 +59,10 @@ export class ContentPage extends BasePage {
 
   // Status indicators
   get draftStatus(): Locator {
-    return this.getByText("Draft");
+    return this.locator('.ant-badge-status-text').filter({ hasText: 'Draft' });
   }
   get publishedStatus(): Locator {
-    return this.getByText("Published");
+    return this.locator('.ant-badge-status-text').filter({ hasText: 'Published' });
   }
 
   // Comments

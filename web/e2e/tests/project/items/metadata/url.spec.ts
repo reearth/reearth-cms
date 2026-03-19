@@ -14,6 +14,7 @@ test.afterEach(async ({ projectPage }) => {
 });
 
 test("Url metadata creating and updating has succeeded", async ({
+  page,
   fieldEditorPage,
   contentPage,
 }) => {
@@ -56,6 +57,7 @@ test("Url metadata creating and updating has succeeded", async ({
   const urlLink = contentPage.linkByName("http://test1.com");
   await expect(urlLink).toBeVisible();
   await urlLink.hover();
+  await page.waitForTimeout(300);
   const editButton = contentPage.tooltipEditButton;
   await editButton.waitFor({ state: "visible" });
   await editButton.click();
@@ -75,7 +77,7 @@ test("Url metadata creating and updating has succeeded", async ({
   await expect(contentPage.linkByName("http://test3.com")).toBeVisible();
 });
 
-test("Url metadata editing has succeeded", async ({ fieldEditorPage, contentPage }) => {
+test("Url metadata editing has succeeded", async ({ page, fieldEditorPage, contentPage }) => {
   await fieldEditorPage.metaDataTab.click();
   await fieldEditorPage.fieldTypeListItem("URL").click();
   await fieldEditorPage.displayNameInput.fill("url1");
@@ -83,6 +85,7 @@ test("Url metadata editing has succeeded", async ({ fieldEditorPage, contentPage
   await fieldEditorPage.descriptionRequiredInput.fill("url1 description");
   await fieldEditorPage.defaultValueTab.click();
   await fieldEditorPage.setDefaultValueInput.fill("http://default1.com");
+  await expect(fieldEditorPage.okButton).toBeEnabled();
   await fieldEditorPage.okButton.click();
   await contentPage.closeNotification();
 
@@ -92,8 +95,10 @@ test("Url metadata editing has succeeded", async ({ fieldEditorPage, contentPage
   await contentPage.newItemButton.click();
   await expect(contentPage.fieldInput("url1")).toHaveValue("http://default1.com");
 
+  await expect(contentPage.saveButton).toBeEnabled();
   await contentPage.saveButton.click();
   await contentPage.closeNotification();
+  await page.waitForTimeout(300);
   await contentPage.backButtonRole.click();
   await fieldEditorPage.menuItemByName("Schema").click();
   await fieldEditorPage.metaDataTab.click();
@@ -124,12 +129,16 @@ test("Url metadata editing has succeeded", async ({ fieldEditorPage, contentPage
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://default1.com");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://default2.com");
 
+  await expect(contentPage.saveButton).toBeEnabled();
   await contentPage.saveButton.click();
   await contentPage.closeNotification();
+  await page.waitForTimeout(300);
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://default1.com");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://default2.com");
   await contentPage.backButtonRole.click();
+  await expect(contentPage.x2Button).toBeVisible();
   await contentPage.x2Button.click();
+  await page.waitForTimeout(300);
   const tooltipLinks = fieldEditorPage.tooltip.getByRole("link");
   await expect(tooltipLinks.nth(0)).toContainText("http://default1.com");
   await expect(tooltipLinks.nth(1)).toContainText("http://default2.com");
@@ -145,13 +154,18 @@ test("Url metadata editing has succeeded", async ({ fieldEditorPage, contentPage
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://default1.com");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://new-default2.com");
   await fieldEditorPage.plusNewButton.click();
+  await expect(fieldEditorPage.lastTextbox).toBeVisible();
   await fieldEditorPage.lastTextbox.fill("http://default3.com");
+  await page.waitForTimeout(1000);
   await contentPage.closeNotification();
+  await page.waitForTimeout(300);
+  await expect(contentPage.textBoxByIndex(2)).toBeVisible();
   await expect(contentPage.textBoxByIndex(0)).toHaveValue("http://default1.com");
   await expect(contentPage.textBoxByIndex(1)).toHaveValue("http://new-default2.com");
   await expect(contentPage.textBoxByIndex(2)).toHaveValue("http://default3.com");
 
   await contentPage.backButtonRole.click();
+  await expect(fieldEditorPage.x3Button).toBeVisible();
   await fieldEditorPage.x3Button.click();
   const updatedTooltipLinks = fieldEditorPage.tooltip.getByRole("link");
   await expect(updatedTooltipLinks.nth(0)).toContainText("http://default1.com");

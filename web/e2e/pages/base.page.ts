@@ -1,5 +1,5 @@
 import { type Page, type Locator } from "@reearth-cms/e2e/fixtures/test";
-import { closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
+import { clickAndExpectSuccess, closeNotification } from "@reearth-cms/e2e/helpers/notification.helper";
 
 type Role =
   | "alert"
@@ -102,6 +102,10 @@ export abstract class BasePage {
 
   async closeNotification(isSuccess = true) {
     await closeNotification(this.page, isSuccess);
+  }
+
+  async clickAndExpectSuccess(clickTarget: Locator, maxRetries = 1) {
+    await clickAndExpectSuccess(this.page, clickTarget, maxRetries);
   }
 
   getByText(text: string | RegExp, options?: { exact?: boolean }): Locator {
