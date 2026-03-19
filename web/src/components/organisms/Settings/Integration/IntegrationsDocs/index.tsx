@@ -5,11 +5,11 @@ import InnerContent from "@reearth-cms/components/atoms/InnerContents/basic";
 import useHooks from "./hooks";
 
 const IntegrationsDocs: React.FC = () => {
-  const { specUrl } = useHooks();
+  const { specContent, specUrl } = useHooks();
 
   return (
     <InnerContent isFullHeight>
-      <ApiDocs specUrl={specUrl} />
+      <ApiDocs specContent={specContent} specUrl={specUrl} />
     </InnerContent>
   );
 };

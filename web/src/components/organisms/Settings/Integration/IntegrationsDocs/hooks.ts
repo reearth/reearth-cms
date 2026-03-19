@@ -1,23 +1,59 @@
-import { useMemo } from "react";
+import axios from "axios";
+import { useEffect, useMemo, useState } from "react";
 
 import { useWorkspace } from "@reearth-cms/state";
 
+type OpenApiSpec = Record<string, unknown>;
+
 export default () => {
   const [currentWorkspace] = useWorkspace();
+  const [specContent, setSpecContent] = useState<OpenApiSpec>();
 
-  const specUrl = useMemo(() => {
-    const base = `${window.REEARTH_CONFIG?.api}/openapi.json`;
-    const params = new URLSearchParams();
+  const specUrl = `${window.REEARTH_CONFIG?.api}/openapi.json`;
 
-    const workspaceId = currentWorkspace?.alias || currentWorkspace?.id;
+  const workspaceId = useMemo<string>(
+    () => currentWorkspace?.alias || currentWorkspace?.id || "",
+    [currentWorkspace?.alias, currentWorkspace?.id],
+  );
 
-    if (workspaceId) params.set("workspaceId", workspaceId);
+  useEffect(() => {
+    if (!specUrl || !workspaceId) return;
 
-    const qs = params.toString();
-    return qs ? `${base}?${qs}` : base;
-  }, [currentWorkspace?.alias, currentWorkspace?.id]);
+    axios
+      .get<OpenApiSpec>(specUrl)
+      .then(({ data: spec }) => {
+        const servers = spec?.servers as
+          | { variables?: Record<string, { default?: string }> }[]
+          | undefined;
+        if (servers?.[0]?.variables?.workspaceIdOrAlias) {
+          const updatedSpec = {
+            ...spec,
+            servers: [
+              {
+                ...servers[0],
+                variables: {
+                  ...servers[0].variables,
+                  workspaceIdOrAlias: {
+                    ...servers[0].variables.workspaceIdOrAlias,
+                    default: workspaceId,
+                  },
+                },
+              },
+              ...servers.slice(1),
+            ],
+          };
+          setSpecContent(updatedSpec);
+        } else {
+          setSpecContent(spec);
+        }
+      })
+      .catch(_error => {
+        setSpecContent(undefined);
+      });
+  }, [specUrl, workspaceId]);
 
   return {
+    specContent,
     specUrl,
   };
 };
