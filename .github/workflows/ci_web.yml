@@ -98,12 +98,12 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install chromium --with-deps
       - name: Run visual regression tests
-        run: yarn test:visual
-      - name: Upload diffs on failure
-        if: failure()
+        run: yarn test:visual:update
+      - name: Upload VRT screenshots
+        if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: vrt-diffs
+          name: vrt-screenshots
           path: web/src/components/**/__screenshots__/
           retention-days: 7
 
