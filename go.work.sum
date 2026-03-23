@@ -4361,6 +4361,8 @@ github.com/reearth/reearthx v0.0.0-20241023075926-e29bdd6c4ae3 h1:aFm6QNDFs08EKl
 github.com/reearth/reearthx v0.0.0-20241023075926-e29bdd6c4ae3/go.mod h1:d1WXkdCVzSoc8pl3vW9/9yKfk4fdoZQZhX8Ot8jqgnc=
 github.com/reearth/reearthx v0.0.0-20241025125329-f01a05daf443 h1:r3bAWyEVAMX60W70OPeWd0uA+2sLhXgox41rQb2XKDY=
 github.com/reearth/reearthx v0.0.0-20241025125329-f01a05daf443/go.mod h1:d1WXkdCVzSoc8pl3vW9/9yKfk4fdoZQZhX8Ot8jqgnc=
+github.com/reearth/reearthx v0.0.0-20260303053047-71650b1e0cb5 h1:5ARG8AaKVtHZ2QmWzwLIoqdX/5IZ94GFtF/hDv/WuG4=
+github.com/reearth/reearthx v0.0.0-20260303053047-71650b1e0cb5/go.mod h1:z4JjOCy4MZZglLSrJx+btJ1ZLltESDZfSWJCnONwRS4=
 github.com/rivo/uniseg v0.2.0 h1:S1pD9weZBuJdFmowNwbpi7BJ8TNftyUImj/0WQi72jY=
 github.com/rivo/uniseg v0.2.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=
 github.com/rivo/uniseg v0.4.7 h1:WUdvkW8uEhrYfLC4ZzdpI2ztxP1I582+49Oc5Mq64VQ=

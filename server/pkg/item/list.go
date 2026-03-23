@@ -1,6 +1,7 @@
 package item
 
 import (
+	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
 	"github.com/reearth/reearth-cms/server/pkg/version"
 	"github.com/samber/lo"
@@ -62,6 +63,33 @@ func (l List) AssetIDs(sp schema.Package) AssetIDList {
 	return assetIDs
 }
 
+// RefItemIDs collects all unique reference field item IDs from the list
+func (l List) RefItemIDs(sp schema.Package) IDList {
+	if l == nil {
+		return nil
+	}
+
+	refIDs := lo.FlatMap(l, func(i *Item, _ int) []ID {
+		return i.RefItemIDs(sp)
+	})
+
+	return lo.Uniq(refIDs)
+}
+
+// RefItemIDsByModels collects unique reference field item IDs from the list,
+// filtered to only include references pointing to models in the provided list.
+func (l List) RefItemIDsByModels(sp schema.Package, models id.ModelIDList) IDList {
+	if l == nil || len(models) == 0 {
+		return nil
+	}
+
+	refIDs := lo.FlatMap(l, func(i *Item, _ int) []ID {
+		return i.RefItemIDsByModels(sp, models)
+	})
+
+	return lo.Uniq(refIDs)
+}
+
 func (l List) ToMap() map[ID]*Item {
 	m := make(map[ID]*Item, len(l))
 	for _, i := range l {
@@ -104,6 +132,14 @@ func (l VersionedList) Item(iid ID) Versioned {
 		}
 	}
 	return nil
+}
+
+func (l VersionedList) AssetIDs(sp schema.Package) AssetIDList {
+	var ids AssetIDList
+	for _, v := range l {
+		ids = ids.AddUniq(v.Value().AssetIDsBySchema(sp)...)
+	}
+	return ids
 }
 
 func (l VersionedList) ToMap() map[ID]*version.Value[*Item] {

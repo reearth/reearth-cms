@@ -3,13 +3,13 @@ import svgToMiniDataURI from "mini-svg-data-uri";
 import React, { ComponentProps, CSSProperties, memo, useMemo } from "react";
 import { ReactSVG } from "react-svg";
 
-import Icons from "./icons";
+import Icons, { type IconName } from "./icons";
 
-type Icons = keyof typeof Icons;
+export type IconProp = IconName | `<svg ${string}`;
 
 type Props = {
   className?: string;
-  icon?: string;
+  icon?: IconProp;
   size?: string | number;
   alt?: string;
   color?: string;
@@ -19,7 +19,7 @@ type Props = {
 
 const Icon: React.FC<Props> = ({ className, icon, alt, style, color, size, onClick }) => {
   const src = useMemo(
-    () => (icon?.startsWith("<svg ") ? svgToMiniDataURI(icon) : Icons[icon as Icons]),
+    () => (icon?.startsWith("<svg ") ? svgToMiniDataURI(icon) : Icons[icon as IconName]),
     [icon],
   );
   if (!icon) return null;
@@ -72,5 +72,7 @@ const StyledSvg = styled(SVG)<{ color?: string; size?: string }>`
     height: ${({ size }) => size};
   }
 `;
+
+export type { IconName };
 
 export default memo(Icon);

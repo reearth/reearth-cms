@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/pkg/item"
 	"github.com/reearth/reearth-cms/server/pkg/item/view"
 	"github.com/reearth/reearth-cms/server/pkg/schema"
+	"github.com/reearth/reearth-cms/server/pkg/utils"
 	"github.com/reearth/reearth-cms/server/pkg/value"
 	"github.com/reearth/reearthx/idx"
 	"github.com/reearth/reearthx/log"
@@ -270,7 +271,8 @@ func resetTime(dateField string) bson.M {
 }
 
 func textFilterStage(keyword string, sp schema.Package) any {
-	regex := primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(keyword)), Options: "i"}
+	normalizedKeyword := utils.NormalizeText(keyword)
+	regex := primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(normalizedKeyword)), Options: "i"}
 	var f []bson.M
 	for _, k := range textSearchFieldKeys(sp) {
 		f = append(f, bson.M{k: regex})

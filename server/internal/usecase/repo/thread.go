@@ -19,4 +19,6 @@ type Thread interface {
 	Filtered(filter WorkspaceFilter) Thread
 	FindByID(ctx context.Context, id id.ThreadID) (*thread.Thread, error)
 	FindByIDs(context.Context, id.ThreadIDList) ([]*thread.Thread, error)
+	Remove(context.Context, id.ThreadID) error
+	RemoveByIDs(context.Context, id.ThreadIDList) error
 }
