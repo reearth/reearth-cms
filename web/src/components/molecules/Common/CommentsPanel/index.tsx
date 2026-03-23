@@ -6,6 +6,7 @@ import Comment from "@reearth-cms/components/molecules/Common/CommentsPanel/Comm
 import { Comment as CommentType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import Sidebar from "@reearth-cms/components/molecules/Common/Sidebar";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import Editor from "./Editor";
 
@@ -99,8 +100,8 @@ const ContentWrapper = styled.div`
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
-  padding: 12px;
-  gap: 12px;
+  padding: ${AntdToken.SPACING.SM}px;
+  gap: ${AntdToken.SPACING.SM}px;
 `;
 
 const StyledIcon = styled(Icon)`
@@ -108,7 +109,7 @@ const StyledIcon = styled(Icon)`
 `;
 
 const Title = styled.h3`
-  font-size: 16px;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
   line-height: 1.5;
   cursor: pointer;
 `;
@@ -136,7 +137,7 @@ const CommentsContainer = styled.div`
 `;
 
 const EmptyText = styled.p`
-  color: #00000073;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   text-align: center;
   width: 100%;
   position: absolute;
