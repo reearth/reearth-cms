@@ -3,7 +3,7 @@ import { page } from "@vitest/browser/context";
 import { render } from "vitest-browser-react";
 
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
-import { VRTWrapper } from "@reearth-cms/test/vrt-utils";
+import { expectScreenshot, VRTWrapper } from "@reearth-cms/test/vrt-utils";
 
 import CMSWrapper from ".";
 
@@ -41,7 +41,7 @@ describe("[Visual] CMSWrapper", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("collapsed sidebar", async () => {
@@ -61,6 +61,6 @@ describe("[Visual] CMSWrapper", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 });

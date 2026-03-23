@@ -3,6 +3,7 @@ import { page } from "@vitest/browser/context";
 import { render } from "vitest-browser-react";
 
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { expectScreenshot } from "@reearth-cms/test/vrt-utils";
 
 import UserAvatar from ".";
 
@@ -13,7 +14,7 @@ describe("[Visual] UserAvatar", () => {
         <UserAvatar username="John" />
       </div>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("UserAvatar anonymous user", async () => {
@@ -22,7 +23,7 @@ describe("[Visual] UserAvatar", () => {
         <UserAvatar username="Anonymous" />
       </div>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("UserAvatar with shadow", async () => {
@@ -31,6 +32,6 @@ describe("[Visual] UserAvatar", () => {
         <UserAvatar username="Alice" shadow />
       </div>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 });

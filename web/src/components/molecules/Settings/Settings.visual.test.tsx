@@ -4,7 +4,7 @@ import { render } from "vitest-browser-react";
 
 import { WorkspaceSettings } from "@reearth-cms/components/molecules/Workspace/types";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
-import { VRTWrapper } from "@reearth-cms/test/vrt-utils";
+import { expectScreenshot, VRTWrapper } from "@reearth-cms/test/vrt-utils";
 
 import Settings from ".";
 
@@ -76,7 +76,7 @@ describe("[Visual] Settings", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("empty settings", async () => {
@@ -93,7 +93,7 @@ describe("[Visual] Settings", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("with tile resources", async () => {
@@ -110,7 +110,7 @@ describe("[Visual] Settings", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("terrain enabled with resources", async () => {
@@ -127,6 +127,6 @@ describe("[Visual] Settings", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 });

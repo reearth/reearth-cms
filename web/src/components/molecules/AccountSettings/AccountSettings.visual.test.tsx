@@ -4,7 +4,7 @@ import { render } from "vitest-browser-react";
 
 import { User } from "@reearth-cms/components/molecules/AccountSettings/types";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
-import { VRTWrapper } from "@reearth-cms/test/vrt-utils";
+import { expectScreenshot, VRTWrapper } from "@reearth-cms/test/vrt-utils";
 
 import AccountSettings from ".";
 
@@ -31,7 +31,7 @@ describe("[Visual] AccountSettings", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("default with user data", async () => {
@@ -48,6 +48,6 @@ describe("[Visual] AccountSettings", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 });

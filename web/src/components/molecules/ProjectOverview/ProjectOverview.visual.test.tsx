@@ -4,7 +4,7 @@ import { render } from "vitest-browser-react";
 
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
-import { VRTWrapper } from "@reearth-cms/test/vrt-utils";
+import { expectScreenshot, VRTWrapper } from "@reearth-cms/test/vrt-utils";
 
 import ProjectOverview from ".";
 
@@ -69,7 +69,7 @@ describe("[Visual] ProjectOverview", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("with model cards", async () => {
@@ -99,7 +99,7 @@ describe("[Visual] ProjectOverview", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("no create permission", async () => {
@@ -129,6 +129,6 @@ describe("[Visual] ProjectOverview", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 });

@@ -3,7 +3,7 @@ import { page } from "@vitest/browser/context";
 import { render } from "vitest-browser-react";
 
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
-import { VRTWrapper } from "@reearth-cms/test/vrt-utils";
+import { expectScreenshot, VRTWrapper } from "@reearth-cms/test/vrt-utils";
 
 import Status from ".";
 
@@ -16,7 +16,7 @@ describe("[Visual] Status", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("Status PUBLIC", async () => {
@@ -27,7 +27,7 @@ describe("[Visual] Status", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("Status REVIEW", async () => {
@@ -38,6 +38,6 @@ describe("[Visual] Status", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 });

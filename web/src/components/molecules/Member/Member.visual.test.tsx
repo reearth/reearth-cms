@@ -4,7 +4,7 @@ import { render } from "vitest-browser-react";
 
 import { UserMember } from "@reearth-cms/components/molecules/Workspace/types";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
-import { VRTWrapper } from "@reearth-cms/test/vrt-utils";
+import { expectScreenshot, VRTWrapper } from "@reearth-cms/test/vrt-utils";
 
 import Member from ".";
 
@@ -59,7 +59,7 @@ describe("[Visual] Member", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("with members", async () => {
@@ -91,7 +91,7 @@ describe("[Visual] Member", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("no rights", async () => {
@@ -123,6 +123,6 @@ describe("[Visual] Member", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 });

@@ -3,7 +3,7 @@ import { page } from "@vitest/browser/context";
 import { render } from "vitest-browser-react";
 
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
-import { VRTWrapper } from "@reearth-cms/test/vrt-utils";
+import { expectScreenshot, VRTWrapper } from "@reearth-cms/test/vrt-utils";
 
 import TextArea from ".";
 
@@ -16,7 +16,7 @@ describe("[Visual] TextArea", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("with multiline value", async () => {
@@ -27,7 +27,7 @@ describe("[Visual] TextArea", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("error via isError", async () => {
@@ -38,7 +38,7 @@ describe("[Visual] TextArea", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("error via maxLength exceeded", async () => {
@@ -49,7 +49,7 @@ describe("[Visual] TextArea", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("disabled", async () => {
@@ -60,6 +60,6 @@ describe("[Visual] TextArea", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 });

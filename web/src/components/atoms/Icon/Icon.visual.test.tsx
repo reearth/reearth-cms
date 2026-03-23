@@ -3,6 +3,7 @@ import { page } from "@vitest/browser/context";
 import { render } from "vitest-browser-react";
 
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { expectScreenshot } from "@reearth-cms/test/vrt-utils";
 
 import Icon from ".";
 
@@ -13,7 +14,7 @@ describe("[Visual] Icon", () => {
         <Icon icon="user" size={32} />
       </div>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("Icon with color", async () => {
@@ -22,7 +23,7 @@ describe("[Visual] Icon", () => {
         <Icon icon="download" size={32} color="#1890ff" />
       </div>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("Icon different sizes", async () => {
@@ -36,6 +37,6 @@ describe("[Visual] Icon", () => {
         </div>
       </div>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 });

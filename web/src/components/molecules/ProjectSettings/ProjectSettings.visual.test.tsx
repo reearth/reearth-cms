@@ -4,7 +4,7 @@ import { render } from "vitest-browser-react";
 
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
-import { VRTWrapper } from "@reearth-cms/test/vrt-utils";
+import { expectScreenshot, VRTWrapper } from "@reearth-cms/test/vrt-utils";
 
 import ProjectSettings from ".";
 
@@ -43,7 +43,7 @@ describe("[Visual] ProjectSettings", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("default with full rights", async () => {
@@ -64,7 +64,7 @@ describe("[Visual] ProjectSettings", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("read-only no rights", async () => {
@@ -85,6 +85,6 @@ describe("[Visual] ProjectSettings", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 });

@@ -4,7 +4,7 @@ import { render } from "vitest-browser-react";
 
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
-import { VRTWrapper } from "@reearth-cms/test/vrt-utils";
+import { expectScreenshot, VRTWrapper } from "@reearth-cms/test/vrt-utils";
 
 import Workspace from ".";
 
@@ -44,7 +44,7 @@ describe("[Visual] Workspace", () => {
             hasCreateRight={true}
             page={1}
             pageSize={10}
-            projectSort="DATE"
+            projectSort="updatedat"
             totalCount={0}
             onProjectSearch={noop}
             onProjectSort={noop}
@@ -57,7 +57,7 @@ describe("[Visual] Workspace", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("with projects", async () => {
@@ -71,7 +71,7 @@ describe("[Visual] Workspace", () => {
             hasCreateRight={true}
             page={1}
             pageSize={10}
-            projectSort="DATE"
+            projectSort="updatedat"
             totalCount={2}
             onProjectSearch={noop}
             onProjectSort={noop}
@@ -84,7 +84,7 @@ describe("[Visual] Workspace", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 
   test("loading state", async () => {
@@ -98,7 +98,7 @@ describe("[Visual] Workspace", () => {
             hasCreateRight={true}
             page={1}
             pageSize={10}
-            projectSort="DATE"
+            projectSort="updatedat"
             totalCount={0}
             onProjectSearch={noop}
             onProjectSort={noop}
@@ -111,6 +111,6 @@ describe("[Visual] Workspace", () => {
         </div>
       </VRTWrapper>,
     );
-    await expect.element(page.getByTestId(DATA_TEST_ID.VRT__Root)).toMatchScreenshot();
+    await expectScreenshot();
   });
 });
