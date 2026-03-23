@@ -1,7 +1,8 @@
-import { ConfigProvider } from "antd";
-import { expect } from "vitest";
-import { I18nextProvider } from "react-i18next";
 import { page } from "@vitest/browser/context";
+import { ConfigProvider } from "antd";
+import { I18nextProvider } from "react-i18next";
+import { expect } from "vitest";
+
 import i18n from "@reearth-cms/i18n/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 

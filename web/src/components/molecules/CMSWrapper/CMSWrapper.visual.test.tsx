@@ -1,5 +1,4 @@
-import { describe, expect, test } from "vitest";
-import { page } from "@vitest/browser/context";
+import { describe, test } from "vitest";
 import { render } from "vitest-browser-react";
 
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
@@ -10,18 +9,21 @@ import CMSWrapper from ".";
 const noop = () => {};
 
 const headerPlaceholder = (
-  <div style={{ height: 48, background: "#001529", color: "white", lineHeight: "48px", padding: "0 16px" }}>
+  <div
+    style={{
+      height: 48,
+      background: "#001529",
+      color: "white",
+      lineHeight: "48px",
+      padding: "0 16px",
+    }}>
     Header
   </div>
 );
 
-const sidebarPlaceholder = (
-  <div style={{ padding: 16 }}>Sidebar Menu</div>
-);
+const sidebarPlaceholder = <div style={{ padding: 16 }}>Sidebar Menu</div>;
 
-const contentPlaceholder = (
-  <div style={{ padding: 24 }}>Page Content</div>
-);
+const contentPlaceholder = <div style={{ padding: 24 }}>Page Content</div>;
 
 describe("[Visual] CMSWrapper", () => {
   test("expanded sidebar", async () => {

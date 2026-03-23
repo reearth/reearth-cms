@@ -1,5 +1,4 @@
-import { describe, expect, test } from "vitest";
-import { page } from "@vitest/browser/context";
+import { describe, test } from "vitest";
 import { render } from "vitest-browser-react";
 
 import { Project } from "@reearth-cms/components/molecules/Workspace/types";
