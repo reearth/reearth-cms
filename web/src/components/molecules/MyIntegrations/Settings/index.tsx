@@ -7,6 +7,7 @@ import {
   Integration,
   IntegrationInfo,
 } from "@reearth-cms/components/molecules/MyIntegrations/types";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   integration: Integration;
@@ -44,5 +45,5 @@ export default MyIntegrationSettings;
 const Wrapper = styled(Content)`
   display: flex;
   flex-direction: column;
-  height: calc(100% - 32px);
+  height: calc(100% - ${AntdToken.SPACING.XL}px);
 `;

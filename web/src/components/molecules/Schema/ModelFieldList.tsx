@@ -1,4 +1,3 @@
-import { blue } from "@ant-design/colors";
 import styled from "@emotion/styled";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import ReactDragListView from "react-drag-listview";
@@ -11,6 +10,7 @@ import Tag from "@reearth-cms/components/atoms/Tag";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { ImportSchemaUtils } from "@reearth-cms/utils/importSchema";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { fieldTypes } from "./fieldTypes";
 import { Field } from "./types";
@@ -86,7 +86,7 @@ const ModelFieldList: React.FC<Props> = ({
             <List.Item.Meta
               avatar={
                 <FieldThumbnail>
-                  <StyledIcon icon="terminalWindow" color="#40A9FF" />
+                  <StyledIcon icon="terminalWindow" color={AntdColor.BLUE.BLUE_4} />
                 </FieldThumbnail>
               }
               title={<ItemTitle>{t("Item Information")}</ItemTitle>}
@@ -96,7 +96,7 @@ const ModelFieldList: React.FC<Props> = ({
             <List.Item.Meta
               avatar={
                 <FieldThumbnail>
-                  <StyledIcon icon="LineSegments" color="#FF9C6E" />
+                  <StyledIcon icon="LineSegments" color={AntdColor.VOLCANO.VOLCANO_3} />
                 </FieldThumbnail>
               }
               title={<ItemTitle>{t("Publish Status")}</ItemTitle>}
@@ -163,7 +163,7 @@ const ModelFieldList: React.FC<Props> = ({
                       type="text"
                       shape="circle"
                       size="small"
-                      icon={<Icon icon="delete" color="#8c8c8c" />}
+                      icon={<Icon icon="delete" color={AntdColor.GREY.GREY_2} />}
                       disabled={!hasDeleteRight}
                     />
                   </Popconfirm>,
@@ -172,7 +172,7 @@ const ModelFieldList: React.FC<Props> = ({
                     shape="circle"
                     size="small"
                     onClick={() => handleFieldUpdateModalOpen(item)}
-                    icon={<Icon icon="ellipsis" color="#8c8c8c" />}
+                    icon={<Icon icon="ellipsis" color={AntdColor.GREY.GREY_2} />}
                     disabled={!hasUpdateRight}
                   />,
                 ]}>
@@ -206,7 +206,7 @@ const ModelFieldList: React.FC<Props> = ({
 };
 
 const DragIcon = styled(Icon)`
-  margin-right: 16px;
+  margin-right: ${AntdToken.SPACING.BASE}px;
   cursor: grab;
   :active {
     cursor: grabbing;
@@ -215,16 +215,16 @@ const DragIcon = styled(Icon)`
 
 const ImportButton = styled(Button)`
   padding: 0;
-  /* color: ${blue[5]}; */
+  /* color: ${AntdColor.BLUE.BLUE_5}; */
   /* text-decoration: underline; */
 
   /* :hover { */
-  /* color: ${blue[3]}; */
+  /* color: ${AntdColor.BLUE.BLUE_3}; */
   /* } */
 `;
 
 const StyledIcon = styled(Icon)`
-  border: 1px solid #f0f0f0;
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
   width: 28px;
   height: 28px;
   display: flex;
@@ -237,26 +237,26 @@ const FieldThumbnail = styled.div`
   align-items: center;
   h3 {
     margin: 0;
-    margin-left: 12px;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 22px;
-    color: rgba(0, 0, 0, 0.45);
+    margin-left: ${AntdToken.SPACING.SM}px;
+    font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+    font-size: ${AntdToken.FONT.SIZE}px;
+    line-height: ${AntdToken.LINE_HEIGHT.BASE}px;
+    color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   }
 `;
 
 const FieldStyledList = styled(List)`
-  padding-top: 12px;
+  padding-top: ${AntdToken.SPACING.SM}px;
   .ant-list-empty-text {
     display: none;
   }
   .ant-list-item {
-    background-color: #fff;
+    background-color: ${AntdColor.NEUTRAL.BG_WHITE};
     + .ant-list-item {
-      margin-top: 12px;
+      margin-top: ${AntdToken.SPACING.SM}px;
     }
-    padding: 24px;
-    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+    padding: ${AntdToken.SPACING.LG}px;
+    box-shadow: 0px 2px 8px ${AntdColor.NEUTRAL.FILL};
     .ant-list-item-meta {
       .ant-list-item-meta-content {
         text-align: center;
@@ -274,7 +274,7 @@ const FieldStyledList = styled(List)`
 `;
 
 const ItemTitle = styled.p`
-  color: rgba(0, 0, 0, 0.85);
+  color: ${AntdColor.NEUTRAL.TEXT};
   margin: 0;
   display: flex;
   justify-content: center;
@@ -287,31 +287,31 @@ const ItemTitleHeading = styled.span`
 `;
 
 const ItemKey = styled.span`
-  margin-left: 4px;
-  color: rgba(0, 0, 0, 0.45);
-  font-weight: 400;
+  margin-left: ${AntdToken.SPACING.XXS}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
 `;
 
 const ItemUnique = styled.span`
-  margin-left: 4px;
-  color: rgba(0, 0, 0, 0.45);
-  font-weight: 400;
+  margin-left: ${AntdToken.SPACING.XXS}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
 `;
 
 const ItemTitleTag = styled(Tag)`
-  margin-left: 4px;
-  color: rgba(0, 0, 0, 0.45);
-  background-color: #fafafa;
+  margin-left: ${AntdToken.SPACING.XXS}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+  background-color: ${AntdColor.NEUTRAL.BG_ELEVATED};
 `;
 
 const EmptyText = styled.p`
   margin: 25vh auto 0;
-  color: #898989;
+  color: ${AntdColor.GREY.GREY_2}; /* originally #898989 */
   text-align: center;
-  line-height: 24px;
+  line-height: ${AntdToken.LINE_HEIGHT.LG}px;
 `;
 
 const StyledFieldName = styled.span`
