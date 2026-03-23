@@ -125,7 +125,10 @@ export class FieldEditorPage extends BasePage {
   }
 
   deleteOptionByIndex(index: number): Locator {
-    return this.locator("#values").getByRole("button", { name: "delete" }).nth(index);
+    return this.locator(".ant-form-item")
+      .filter({ has: this.page.locator("label", { hasText: "Set Options" }) })
+      .getByRole("button", { name: "delete" })
+      .nth(index);
   }
 
   get setOptionsLabel(): Locator {
