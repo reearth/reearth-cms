@@ -10,6 +10,7 @@ import (
 	"github.com/reearth/reearth-cms/server/internal/usecase"
 	"github.com/reearth/reearth-cms/server/internal/usecase/gateway"
 	"github.com/reearth/reearth-cms/server/internal/usecase/interfaces"
+	"github.com/reearth/reearth-cms/server/internal/usecase/repo"
 	"github.com/reearth/reearth-cms/server/pkg/id"
 	"github.com/reearth/reearth-cms/server/pkg/project"
 	"github.com/reearth/reearthx/account/accountdomain"
@@ -1575,7 +1576,8 @@ func TestProject_FindByWorkspace_Visibility(t *testing.T) {
 			assert.NoError(t, db.Project.Save(ctx, pPub.Clone()))
 			assert.NoError(t, db.Project.Save(ctx, pPriv.Clone()))
 
-			projectUC := NewProject(db, nil)
+			filteredDB := db.Filtered(repo.WorkspaceFilterFromOperator(tc.op), repo.ProjectFilterFromOperator(tc.op))
+			projectUC := NewProject(filteredDB, nil)
 			got, _, err := projectUC.FindByWorkspace(ctx, wid, nil, tc.op)
 			assert.NoError(t, err)
 
@@ -1654,7 +1656,8 @@ func TestProject_FindByIDOrAlias_Visibility(t *testing.T) {
 			assert.NoError(t, db.Workspace.SaveAll(ctx, workspace.List{w}))
 			assert.NoError(t, db.Project.Save(ctx, pPriv.Clone()))
 
-			projectUC := NewProject(db, nil)
+			filteredDB := db.Filtered(repo.WorkspaceFilterFromOperator(tc.op), repo.ProjectFilterFromOperator(tc.op))
+			projectUC := NewProject(filteredDB, nil)
 			wsAlias := workspace.IDOrAlias(wid.String())
 			pAlias := project.IDOrAlias(pidPriv.String())
 			got, err := projectUC.FindByIDOrAlias(ctx, wsAlias, pAlias, tc.op)

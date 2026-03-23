@@ -17,6 +17,7 @@ import (
 type Project struct {
 	data *util.SyncMap[id.ProjectID, *project.Project]
 	f    repo.WorkspaceFilter
+	pf   repo.ProjectFilter
 	err  error
 }
 
@@ -26,10 +27,11 @@ func NewProject() repo.Project {
 	}
 }
 
-func (r *Project) Filtered(f repo.WorkspaceFilter) repo.Project {
+func (r *Project) Filtered(workspace repo.WorkspaceFilter, project repo.ProjectFilter) repo.Project {
 	return &Project{
 		data: r.data,
-		f:    r.f.Merge(f),
+		f:    r.f.Merge(workspace),
+		pf:   r.pf.Merge(project),
 		err:  r.err,
 	}
 }
@@ -50,9 +52,9 @@ func (r *Project) Search(_ context.Context, f interfaces.ProjectFilter) (project
 				return false
 			}
 		}
-		if r.f.VisibilityPublicOnly {
+		if r.pf.Readable != nil {
 			isPublic := v.Accessibility().Visibility() == project.VisibilityPublic
-			isAccessible := r.f.AccessibleProjectIds != nil && r.f.AccessibleProjectIds.Has(pid)
+			isAccessible := r.pf.Readable.Has(pid)
 			if !isPublic && !isAccessible {
 				return false
 			}
@@ -120,9 +122,9 @@ func (r *Project) FindByIDOrAlias(_ context.Context, wId accountdomain.Workspace
 		if (pid == nil || k != *pid) && (alias == nil || v.Alias() != *alias) {
 			return false
 		}
-		if r.f.VisibilityPublicOnly {
+		if r.pf.Readable != nil {
 			isPublic := v.Accessibility().Visibility() == project.VisibilityPublic
-			isAccessible := r.f.AccessibleProjectIds != nil && r.f.AccessibleProjectIds.Has(k)
+			isAccessible := r.pf.Readable.Has(k)
 			if !isPublic && !isAccessible {
 				return false
 			}

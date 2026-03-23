@@ -53,7 +53,7 @@ func (c *Container) Filtered(workspace WorkspaceFilter, project ProjectFilter) *
 		Group:             c.Group.Filtered(project),
 		Item:              c.Item.Filtered(project),
 		View:              c.View.Filtered(project),
-		Project:           c.Project.Filtered(workspace),
+		Project:           c.Project.Filtered(workspace, project),
 		Model:             c.Model.Filtered(project),
 		Schema:            c.Schema.Filtered(workspace),
 		Thread:            c.Thread.Filtered(workspace),
@@ -65,33 +65,24 @@ func (c *Container) Filtered(workspace WorkspaceFilter, project ProjectFilter) *
 }
 
 type WorkspaceFilter struct {
-	Readable             user.WorkspaceIDList
-	Writable             user.WorkspaceIDList
-	VisibilityPublicOnly bool
-	AccessibleProjectIds project.IDList
+	Readable user.WorkspaceIDList
+	Writable user.WorkspaceIDList
 }
 
 func WorkspaceFilterFromOperator(o *usecase.Operator) WorkspaceFilter {
 	if o == nil {
-		return WorkspaceFilter{VisibilityPublicOnly: true}
+		return WorkspaceFilter{}
 	}
-	f := WorkspaceFilter{
+	return WorkspaceFilter{
 		Readable: o.AllReadableWorkspaces(),
 		Writable: o.AllWritableWorkspaces(),
 	}
-	if !o.Machine {
-		f.VisibilityPublicOnly = true
-		f.AccessibleProjectIds = o.AllReadableProjects()
-	}
-	return f
 }
 
 func (f WorkspaceFilter) Clone() WorkspaceFilter {
 	return WorkspaceFilter{
-		Readable:             f.Readable.Clone(),
-		Writable:             f.Writable.Clone(),
-		VisibilityPublicOnly: f.VisibilityPublicOnly,
-		AccessibleProjectIds: f.AccessibleProjectIds.Clone(),
+		Readable: f.Readable.Clone(),
+		Writable: f.Writable.Clone(),
 	}
 }
 
@@ -111,15 +102,9 @@ func (f WorkspaceFilter) Merge(g WorkspaceFilter) WorkspaceFilter {
 			w = append(f.Writable, g.Writable...)
 		}
 	}
-	var accessible project.IDList
-	if f.AccessibleProjectIds != nil || g.AccessibleProjectIds != nil {
-		accessible = append(f.AccessibleProjectIds.Clone(), g.AccessibleProjectIds...)
-	}
 	return WorkspaceFilter{
-		Readable:             r,
-		Writable:             w,
-		VisibilityPublicOnly: f.VisibilityPublicOnly || g.VisibilityPublicOnly,
-		AccessibleProjectIds: accessible,
+		Readable: r,
+		Writable: w,
 	}
 }
 
@@ -137,6 +122,17 @@ type ProjectFilter struct {
 }
 
 func ProjectFilterFromOperator(o *usecase.Operator) ProjectFilter {
+	if o == nil {
+		// unauthenticated: only public projects visible (empty non-nil Readable list)
+		return ProjectFilter{Readable: project.IDList{}}
+	}
+	if o.Machine {
+		// machine operators: no project visibility restriction
+		return ProjectFilter{
+			Readable: nil,
+			Writable: o.AllWritableProjects(),
+		}
+	}
 	return ProjectFilter{
 		Readable: o.AllReadableProjects(),
 		Writable: o.AllWritableProjects(),
