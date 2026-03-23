@@ -11,6 +11,7 @@ import { Project, Workspace } from "@reearth-cms/components/molecules/Workspace/
 import { ProjectVisibility } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { parseConfigBoolean } from "@reearth-cms/utils/format";
+import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
 
 import HeaderDropdown from "./Dropdown";
 
@@ -192,41 +193,41 @@ const MainHeader = styled(Header)`
   height: 48px;
   line-height: 41px;
   padding: 0;
-  background-color: #1d1d1d;
+  background-color: ${CustomColor.HEADER_BG};
 
   .ant-space-item {
-    color: #dbdbdb;
+    color: ${CustomColor.HEADER_TEXT};
   }
 `;
 
 const Logo = styled.img`
   display: inline-block;
-  color: #df3013;
-  font-weight: 500;
-  font-size: 14px;
+  color: ${CustomColor.LOGO_COLOR};
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+  font-size: ${AntdToken.FONT.SIZE}px;
   line-height: 48px;
   cursor: pointer;
-  margin: 0 24px;
+  margin: 0 ${AntdToken.SPACING.LG}px;
 `;
 
 const LogoIcon = styled.img`
   width: 100px;
-  margin: 0 40px 0 20px;
+  margin: 0 40px 0 ${AntdToken.SPACING.MD}px;
   cursor: pointer;
 `;
 
 const StyledIcon = styled(Icon)`
-  margin-left: 4px;
-  color: #dbdbdb;
+  margin-left: ${AntdToken.SPACING.XXS}px;
+  color: ${CustomColor.HEADER_TEXT};
 `;
 
 const WorkspaceDropdown = styled(HeaderDropdown)`
-  margin-left: 20px;
-  padding-left: 20px;
+  margin-left: ${AntdToken.SPACING.MD}px;
+  padding-left: ${AntdToken.SPACING.MD}px;
 `;
 
 const AccountDropdown = styled(HeaderDropdown)`
-  padding-right: 20px;
+  padding-right: ${AntdToken.SPACING.MD}px;
 `;
 
 const ProjectText = styled.p`
@@ -234,7 +235,7 @@ const ProjectText = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: bold;
+  font-weight: ${AntdToken.FONT_WEIGHT.BOLD};
 `;
 
 const Break = styled.p`
@@ -246,7 +247,7 @@ const CurrentProject = styled.div`
   margin: 0;
   display: flex;
   align-items: center;
-  color: #dbdbdb;
+  color: ${CustomColor.HEADER_TEXT};
   flex: 1;
   min-width: 0;
 `;
@@ -260,15 +261,15 @@ const MenuText = styled.p`
 `;
 
 const LinkWrapper = styled.div`
-  padding-right: 16px;
+  padding-right: ${AntdToken.SPACING.BASE}px;
 `;
 
 const EditorLink = styled.a`
   border: 1px solid;
-  color: #d9d9d9;
-  padding: 5px 16px;
+  color: ${AntdColor.NEUTRAL.BORDER};
+  padding: 5px ${AntdToken.SPACING.BASE}px;
   :hover {
-    color: #d9d9d9;
+    color: ${AntdColor.NEUTRAL.BORDER};
   }
 `;
 

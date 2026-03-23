@@ -12,6 +12,7 @@ import Tooltip from "@reearth-cms/components/atoms/Tooltip";
 import { Comment as CommentType } from "@reearth-cms/components/molecules/Common/CommentsPanel/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   userId: string;
@@ -65,7 +66,7 @@ const Comment: React.FC<Props> = ({
           color="default"
           variant="link"
           size="small"
-          icon={<Icon icon="delete" size={12} />}
+          icon={<Icon icon="delete" size={AntdToken.FONT.SIZE_SM} />}
           onClick={() => onCommentDelete(comment.id)}
         />,
       );
@@ -76,7 +77,7 @@ const Comment: React.FC<Props> = ({
           color="default"
           variant="link"
           size="small"
-          icon={<Icon icon={showEditor ? "check" : "edit"} size={12} />}
+          icon={<Icon icon={showEditor ? "check" : "edit"} size={AntdToken.FONT.SIZE_SM} />}
           onClick={showEditor ? handleSubmit : () => setShowEditor(true)}
         />,
       );
@@ -129,9 +130,9 @@ const Comment: React.FC<Props> = ({
 const StyledAntDComment = styled(AntDComment)`
   .ant-comment-content-author {
     .ant-comment-content-author-name {
-      font-weight: 500;
-      font-size: 14px;
-      color: #000000;
+      font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+      font-size: ${AntdToken.FONT.SIZE}px;
+      color: ${AntdColor.GREY.GREY_8};
       overflow: hidden;
     }
 
