@@ -5,6 +5,7 @@ import { Item } from "@reearth-cms/components/molecules/Content/types";
 import { MetadataField } from "@reearth-cms/components/molecules/Schema/types";
 import { useT } from "@reearth-cms/i18n";
 import { dateTimeFormat } from "@reearth-cms/utils/format";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { FIELD_TYPE_COMPONENT_MAP } from "./fields/FieldTypesMap";
 
@@ -76,29 +77,29 @@ const Metadata: React.FC<Props> = ({ item, fields, disabled }) => {
 };
 
 const CardTitle = styled.h4`
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
   font-size: 13px;
-  color: #898989;
-  margin-bottom: 8px;
+  color: ${AntdColor.GREY.GREY_2}; /* originally #898989 */
+  margin-bottom: ${AntdToken.SPACING.XS}px;
 `;
 
 const CardValue = styled.div`
-  padding: 12px;
-  background: #fff;
-  border: 1px solid #f0f0f0;
-  border-radius: 2px;
+  padding: ${AntdToken.SPACING.SM}px;
+  background: ${AntdColor.NEUTRAL.BG_WHITE};
+  border: 1px solid ${AntdColor.NEUTRAL.BORDER_SECONDARY};
+  border-radius: ${AntdToken.RADIUS.XS}px;
 `;
 
 const ItemInfo = styled(CardValue)`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: ${AntdToken.SPACING.XXS}px;
 `;
 
 const MetadataWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
 `;
 
 const MetaFormItemWrapper = styled(CardValue)`
@@ -111,22 +112,22 @@ const DataRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
 `;
 
 const DataTitle = styled.p`
-  font-size: 14px;
+  font-size: ${AntdToken.FONT.SIZE}px;
   margin: 0;
 `;
 
 const DataCommon = styled.p`
-  font-size: 12px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
   margin: 0;
-  padding: 4px 8px;
+  padding: ${AntdToken.SPACING.XXS}px ${AntdToken.SPACING.XS}px;
 `;
 
 const DataText = styled(DataCommon)`
-  color: #8c8c8c;
+  color: ${AntdColor.GREY.GREY_2};
   flex: 1;
   text-align: right;
   overflow: hidden;
@@ -135,9 +136,9 @@ const DataText = styled(DataCommon)`
 `;
 
 const ID = styled(DataCommon)`
-  color: #848484;
-  background-color: #f0f0f0;
-  border-radius: 4px;
+  color: ${AntdColor.GREY.GREY_3}; /* originally #848484 */
+  background-color: ${AntdColor.NEUTRAL.BORDER_SECONDARY};
+  border-radius: ${AntdToken.RADIUS.SM}px;
   min-width: 0;
 `;
 

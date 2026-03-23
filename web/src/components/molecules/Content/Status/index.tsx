@@ -5,6 +5,7 @@ import { StateType } from "@reearth-cms/components/molecules/Content/Table/types
 import { ItemStatus } from "@reearth-cms/components/molecules/Content/types";
 import { stateColors } from "@reearth-cms/components/molecules/Content/utils";
 import { useT } from "@reearth-cms/i18n";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   status: ItemStatus;
@@ -39,7 +40,7 @@ const Status: React.FC<Props> = ({ status }) => {
 const BadgeWrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: ${AntdToken.SPACING.XXS}px;
   white-space: nowrap;
   overflow: hidden;
 `;

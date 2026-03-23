@@ -15,6 +15,7 @@ import { license_options, getLicenseContent } from "@reearth-cms/data/license";
 import { ProjectVisibility } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
 import { Constant } from "@reearth-cms/utils/constant";
+import { AntdToken } from "@reearth-cms/utils/style";
 
 export type FormValues = {
   name: string;
@@ -191,5 +192,5 @@ export default ProjectCreationModal;
 const StyledRadioGroup = styled(Radio.Group)`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: ${AntdToken.SPACING.XS}px;
 `;

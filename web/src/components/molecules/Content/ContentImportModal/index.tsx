@@ -1,4 +1,3 @@
-import { gold, red } from "@ant-design/colors";
 import styled from "@emotion/styled";
 import { Dispatch, SetStateAction, useCallback, useMemo, useRef } from "react";
 import { useLocation } from "react-router-dom";
@@ -26,6 +25,7 @@ import {
 } from "@reearth-cms/utils/importContent";
 import { ErrorLogMeta, ImportErrorLogUtils } from "@reearth-cms/utils/importErrorLog";
 import { ObjectUtils } from "@reearth-cms/utils/object";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 const { Dragger } = Upload;
 
@@ -400,9 +400,9 @@ const ContentImportModal: React.FC<Props> = ({
   const importErrorIcon = useMemo<string | undefined>(() => {
     switch (validateImportResult?.type) {
       case "error":
-        return red.primary;
+        return AntdColor.RED.RED_5;
       case "warning":
-        return gold.primary;
+        return AntdColor.GOLD.GOLD_5;
       default:
         return undefined;
     }
@@ -540,7 +540,7 @@ const LoadingWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 24px;
+  gap: ${AntdToken.SPACING.LG}px;
 `;
 
 const StyledLink = styled(Button)`
