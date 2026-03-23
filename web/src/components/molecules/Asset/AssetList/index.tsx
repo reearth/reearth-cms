@@ -9,6 +9,7 @@ import AssetListTable from "@reearth-cms/components/molecules/Asset/AssetListTab
 import { Asset, AssetItem, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import UploadAsset from "@reearth-cms/components/molecules/Asset/UploadAsset";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 export type UploadType = "local" | "url";
 
@@ -182,11 +183,11 @@ const AssetList: React.FC<Props> = ({
 export default AssetList;
 
 const Wrapper = styled.div`
-  background: #fff;
+  background: ${AntdColor.NEUTRAL.BG_WHITE};
   width: 100%;
   height: 100%;
 `;
 
 const StyledPageHeader = styled(PageHeader)`
-  border-bottom: 1px solid #00000008;
+  border-bottom: 1px solid ${AntdColor.NEUTRAL.FILL_QUATERNARY};
 `;

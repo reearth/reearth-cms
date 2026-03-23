@@ -85,3 +85,15 @@ func (m *Multiple) ValuesString() (vv []String, ok bool) {
 	}
 	return vv, true
 }
+
+func IsString(fieldType string) bool {
+	t := Type(fieldType)
+	return t == TypeText ||
+		t == TypeTextArea ||
+		t == TypeRichText ||
+		t == TypeMarkdown ||
+		t == TypeSelect ||
+		t == TypeTag ||
+		t == TypeGeometryObject ||
+		t == TypeGeometryEditor
+}

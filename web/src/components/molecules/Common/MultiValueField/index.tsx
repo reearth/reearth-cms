@@ -8,6 +8,7 @@ import { InputProps } from "@reearth-cms/components/atoms/Input";
 import { TextAreaProps } from "@reearth-cms/components/atoms/TextArea";
 import { checkIfEmpty } from "@reearth-cms/components/molecules/Content/Form/fields/utils";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { moveItemInArray } from "./moveItemArray";
 
@@ -72,7 +73,7 @@ const MultiValueField: React.FC<Props> = ({
                 <FieldButton
                   color="default"
                   variant="link"
-                  icon={<Icon icon="arrowUp" size={16} />}
+                  icon={<Icon icon="arrowUp" size={AntdToken.FONT.SIZE_LG} />}
                   onClick={() => {
                     onChange?.(moveItemInArray(value, key, key - 1));
                     onBlur?.();
@@ -82,7 +83,7 @@ const MultiValueField: React.FC<Props> = ({
                 <FieldButton
                   color="default"
                   variant="link"
-                  icon={<Icon icon="arrowDown" size={16} />}
+                  icon={<Icon icon="arrowDown" size={AntdToken.FONT.SIZE_LG} />}
                   onClick={() => {
                     onChange?.(moveItemInArray(value, key, key + 1));
                     onBlur?.();
@@ -103,7 +104,7 @@ const MultiValueField: React.FC<Props> = ({
               <FieldButton
                 color="default"
                 variant="link"
-                icon={<Icon icon="delete" size={16} />}
+                icon={<Icon icon="delete" size={AntdToken.FONT.SIZE_LG} />}
                 onClick={() => {
                   handleInputDelete(key);
                   onBlur?.();
@@ -136,10 +137,10 @@ export default MultiValueField;
 
 const FieldWrapper = styled.div`
   display: flex;
-  margin-bottom: 24px;
+  margin-bottom: ${AntdToken.SPACING.LG}px;
 `;
 
 const FieldButton = styled(Button)`
-  color: #000000d9;
-  margin-top: 4px;
+  color: ${AntdColor.NEUTRAL.TEXT};
+  margin-top: ${AntdToken.SPACING.XXS}px;
 `;
