@@ -4,6 +4,7 @@ import Button from "@reearth-cms/components/atoms/Button";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import ContentSection from "@reearth-cms/components/atoms/InnerContents/ContentSection";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 import { APIKey } from "../types";
 
@@ -83,11 +84,11 @@ const PublicContainer = styled.div`
 `;
 
 const Header = styled.h3`
-  color: #262626;
-  padding-bottom: 162x;
+  color: ${AntdColor.GREY.GREY_7}; /* originally #262626 */
+  padding-bottom: 16px;
 `;
 
 const Paragraph = styled.p`
-  color: #8c8c8c;
-  padding-bottom: 162x;
+  color: ${AntdColor.GREY.GREY_2};
+  padding-bottom: 16px;
 `;

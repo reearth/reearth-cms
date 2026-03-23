@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
 import { ReactNode } from "react";
 
+import { AntdColor, AntdToken, CustomColor } from "@reearth-cms/utils/style";
+
 type Props = {
   title?: string;
   danger?: boolean;
@@ -40,14 +42,14 @@ const Wrapper = styled.div<{ danger?: boolean }>`
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: #fff;
-  color: rgba(0, 0, 0, 0.85);
-  ${({ danger }) => danger && "border: 1px solid #FF4D4F;"}
+  background-color: ${AntdColor.NEUTRAL.BG_WHITE};
+  color: ${AntdColor.NEUTRAL.TEXT};
+  ${({ danger }) => danger && `border: 1px solid ${AntdColor.RED.RED_4};`}
 `;
 
 const Header = styled.div`
-  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
-  padding: 10px 24px;
+  border-bottom: 1px solid ${CustomColor.BORDER_SUBTLE};
+  padding: 10px ${AntdToken.SPACING.LG}px;
 `;
 
 const InnerHeader = styled.div`
@@ -58,19 +60,19 @@ const InnerHeader = styled.div`
 `;
 
 const Title = styled.p`
-  font-size: 16px;
-  font-weight: 500;
-  margin: 0 8px 0 0;
+  font-size: ${AntdToken.FONT.SIZE_LG}px;
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+  margin: 0 ${AntdToken.SPACING.XS}px 0 0;
 `;
 
 const Description = styled.p`
-  font-size: 14px;
-  color: #00000073;
-  margin: 4px 0 0;
+  font-size: ${AntdToken.FONT.SIZE}px;
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
+  margin: ${AntdToken.SPACING.XXS}px 0 0;
 `;
 
 const GridArea = styled.div<{ hasPadding: boolean }>`
-  ${({ hasPadding }) => hasPadding && "padding: 24px;"}
+  ${({ hasPadding }) => hasPadding && `padding: ${AntdToken.SPACING.LG}px;`}
   flex: 1;
   display: flex;
   flex-direction: column;

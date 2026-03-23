@@ -27,6 +27,7 @@ import ResizableProTable from "@reearth-cms/components/molecules/Common/Resizabl
 import { useT } from "@reearth-cms/i18n";
 import { FileUtils } from "@reearth-cms/utils/file";
 import { dateTimeFormat, bytesFormat } from "@reearth-cms/utils/format";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import { compressedFileFormats } from "../../Common/Asset";
 
@@ -95,7 +96,11 @@ const AssetListTable: React.FC<Props> = ({
         title: "",
         hideInSetting: true,
         render: (_, asset) => (
-          <Icon icon="edit" color={"#1890ff"} onClick={() => onEdit(asset.id)} />
+          <Icon
+            icon="edit"
+            color={AntdColor.BLUE.BLUE_5 /* originally #1890ff */}
+            onClick={() => onEdit(asset.id)}
+          />
         ),
         key: "EDIT_ICON",
         align: "center",
@@ -112,7 +117,7 @@ const AssetListTable: React.FC<Props> = ({
             <CommentsButton type="link" onClick={() => onAssetSelect(asset.id)}>
               <CustomTag
                 value={asset.comments?.length || 0}
-                color={asset.id === selectedAsset?.id ? "#87e8de" : undefined}
+                color={asset.id === selectedAsset?.id ? AntdColor.CYAN.CYAN_2 : undefined}
               />
             </CommentsButton>
           );
@@ -278,7 +283,7 @@ const AssetListTable: React.FC<Props> = ({
       const selected = props.selectedRows as Asset[];
       const disabled = !selected || selected.length <= 0;
       return (
-        <Space size={4}>
+        <Space size={AntdToken.SPACING.XXS}>
           <DownloadButton
             displayDefaultIcon
             size="small"
@@ -356,11 +361,11 @@ const CommentsButton = styled(Button)`
 `;
 
 const MoreItemsButton = styled(Button)`
-  padding: 4px;
+  padding: ${AntdToken.SPACING.XXS}px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: #1890ff;
+  gap: ${AntdToken.SPACING.XS}px;
+  color: ${AntdColor.BLUE.BLUE_5}; /* originally #1890ff */
 `;
 
 const StyledButton = styled(Button)`

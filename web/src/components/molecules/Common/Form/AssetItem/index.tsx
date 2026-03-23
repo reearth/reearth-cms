@@ -11,6 +11,7 @@ import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import LinkAssetModal from "@reearth-cms/components/molecules/Common/LinkAssetModal/LinkAssetModal";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 import useHooks from "./hooks";
 
@@ -152,7 +153,7 @@ const AssetItem: React.FC<Props> = ({
         <>
           <AssetDetailsWrapper>
             <AssetButton enabled={!!asset} disabled={disabled} onClick={handleClick}>
-              <Icon icon="folder" size={24} />
+              <Icon icon="folder" size={AntdToken.FONT.SIZE_HEADING_3} />
               <AssetName>{asset?.fileName ?? value}</AssetName>
             </AssetButton>
             <Tooltip title={asset?.fileName}>
@@ -177,7 +178,7 @@ const AssetItem: React.FC<Props> = ({
               <AssetLink
                 color="default"
                 variant="link"
-                icon={<Icon icon="arrowSquareOut" size={20} />}
+                icon={<Icon icon="arrowSquareOut" size={AntdToken.FONT.SIZE_XL} />}
               />
             </Link>
           )}
@@ -185,14 +186,14 @@ const AssetItem: React.FC<Props> = ({
             <AssetLink
               color="default"
               variant="link"
-              icon={<Icon icon={"unlinkSolid"} size={16} />}
+              icon={<Icon icon={"unlinkSolid"} size={AntdToken.FONT.SIZE_LG} />}
               onClick={onUnlink}
             />
           )}
         </>
       ) : (
         <AssetButton disabled={disabled} onClick={handleClick}>
-          <Icon icon="linkSolid" size={14} />
+          <Icon icon="linkSolid" size={AntdToken.FONT.SIZE} />
           <AssetButtonTitle>{t("Asset")}</AssetButtonTitle>
         </AssetButton>
       )}
@@ -233,8 +234,9 @@ const AssetButton = styled(Button)<{ enabled?: boolean }>`
   width: 100px;
   height: 100px;
   border: 1px dashed;
-  border-color: ${({ enabled }) => (enabled ? "#d9d9d9" : "#00000040")};
-  color: ${({ enabled }) => (enabled ? "#000000D9" : "#00000040")};
+  border-color: ${({ enabled }) =>
+    enabled ? AntdColor.NEUTRAL.BORDER : AntdColor.NEUTRAL.TEXT_QUATERNARY};
+  color: ${({ enabled }) => (enabled ? AntdColor.NEUTRAL.TEXT : AntdColor.NEUTRAL.TEXT_QUATERNARY)};
   padding: 0 5px;
   flex-flow: column;
 `;
@@ -250,8 +252,8 @@ const AssetWrapper = styled.div`
 `;
 
 const AssetLink = styled(Button)`
-  color: #000000d9;
-  margin-top: 4px;
+  color: ${AntdColor.NEUTRAL.TEXT};
+  margin-top: ${AntdToken.SPACING.XXS}px;
   top: 3px;
   &:disabled {
     cursor: pointer;
@@ -260,8 +262,11 @@ const AssetLink = styled(Button)`
 `;
 
 const AssetLinkedName = styled(Button)<{ disabled?: boolean }>`
-  color: ${({ disabled }) => (disabled ? "#00000040" : "#1890ff")};
-  margin-left: 12px;
+  color: ${
+    ({ disabled }) =>
+      disabled ? AntdColor.NEUTRAL.TEXT_QUATERNARY : AntdColor.BLUE.BLUE_5 /* originally #1890ff */
+  };
+  margin-left: ${AntdToken.SPACING.SM}px;
   span {
     text-align: start;
     white-space: normal;
@@ -286,7 +291,7 @@ const AssetName = styled.div`
 `;
 
 const AssetButtonTitle = styled.div`
-  margin-top: 4px;
+  margin-top: ${AntdToken.SPACING.XXS}px;
 `;
 
 export default AssetItem;
