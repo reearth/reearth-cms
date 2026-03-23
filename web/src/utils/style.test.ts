@@ -18,7 +18,7 @@ const COLOR_GROUPS = [
   "PURPLE",
   "MAGENTA",
   "GREY",
-] as const satisfies ReadonlyArray<keyof typeof AntdColor>;
+] as const satisfies readonly (keyof typeof AntdColor)[];
 
 describe("Style", () => {
   describe("AntdColor", () => {
