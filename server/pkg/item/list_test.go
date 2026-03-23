@@ -582,7 +582,7 @@ func TestList_RefItemIDs(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := tt.list.RefItemIDs(*sp)
+			got := tt.list.RefItemsIDs(*sp)
 
 			if tt.expected == nil {
 				assert.Nil(t, got)
@@ -703,7 +703,7 @@ func TestList_RefItemIDsByModels(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := tt.list.RefItemIDsByModels(sp, tt.models)
+			got := tt.list.RefItemsIDsByModels(sp, tt.models)
 
 			if tt.expected == nil {
 				assert.Nil(t, got)

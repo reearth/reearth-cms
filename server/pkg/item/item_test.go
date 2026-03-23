@@ -416,7 +416,7 @@ func TestItem_RefItemIDsByModels(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := tt.item.RefItemIDsByModels(tt.pkg, tt.models)
+			got := tt.item.RefItemsIDsByModels(tt.pkg, tt.models)
 			assert.ElementsMatch(t, tt.expected, got)
 		})
 	}
@@ -491,7 +491,7 @@ func TestItem_RefItemIDsBySchema(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := tt.item.RefItemIDs(tt.pkg)
+			got := tt.item.RefItemsIDs(tt.pkg)
 			assert.ElementsMatch(t, tt.expected, got)
 		})
 	}
