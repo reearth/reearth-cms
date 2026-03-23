@@ -1,0 +1,44 @@
+name: vrt-update-baselines
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to update baselines on"
+        required: true
+        default: "main"
+jobs:
+  update:
+    name: update-vrt-baselines
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.inputs.branch }}
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: yarn
+          cache-dependency-path: '**/yarn.lock'
+      - name: Install
+        run: yarn install --frozen-lockfile --prefer-offline
+      - name: Cache Playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ hashFiles('web/yarn.lock') }}
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
+      - name: Update VRT baselines
+        run: yarn test:visual:update
+      - name: Commit updated baselines
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "src/components/**/__screenshots__/"
+          git diff --staged --quiet || git commit -m "chore(web): update VRT baselines"
+          git push
