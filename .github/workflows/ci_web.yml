@@ -19,11 +19,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Setup Node
+        id: setup-node
         uses: actions/setup-node@v6
         with:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: '**/yarn.lock'
+      - name: Cache node_modules
+        uses: actions/cache@v5
+        with:
+          path: web/node_modules
+          key: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('web/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-
       - name: Install
         run: yarn install --frozen-lockfile --prefer-offline
       - name: Lint
@@ -39,11 +46,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Setup Node
+        id: setup-node
         uses: actions/setup-node@v6
         with:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: '**/yarn.lock'
+      - name: Cache node_modules
+        uses: actions/cache@v5
+        with:
+          path: web/node_modules
+          key: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('web/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-
       - name: Install
         run: yarn install --frozen-lockfile --prefer-offline
       - name: Check translations
@@ -59,11 +73,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Setup Node
+        id: setup-node
         uses: actions/setup-node@v6
         with:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: '**/yarn.lock'
+      - name: Cache node_modules
+        uses: actions/cache@v5
+        with:
+          path: web/node_modules
+          key: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('web/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-
       - name: Install
         run: yarn install --frozen-lockfile --prefer-offline
       - name: Test
@@ -84,11 +105,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Setup Node
+        id: setup-node
         uses: actions/setup-node@v6
         with:
           node-version: lts/*
           cache: yarn
           cache-dependency-path: '**/yarn.lock'
+      - name: Cache node_modules
+        uses: actions/cache@v5
+        with:
+          path: web/node_modules
+          key: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-${{ hashFiles('web/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-modules-${{ steps.setup-node.outputs.node-version }}-
       - name: Cache TypeScript
         uses: actions/cache@v5
         with:
