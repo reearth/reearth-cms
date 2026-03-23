@@ -68,7 +68,6 @@ type Props = {
   dataChecking: boolean;
   onFileContentChange: UploadProps["beforeUpload"];
   onFileRemove: UploadProps["onRemove"];
-  onDownloadErrorLog?: () => void;
 };
 
 const ImportSchemaModal: React.FC<Props> = ({
@@ -88,7 +87,6 @@ const ImportSchemaModal: React.FC<Props> = ({
   dataChecking,
   onFileContentChange,
   onFileRemove,
-  onDownloadErrorLog,
 }) => {
   const t = useT();
 
@@ -151,7 +149,6 @@ const ImportSchemaModal: React.FC<Props> = ({
           onFileContentChange={onFileContentChange}
           onFileRemove={onFileRemove}
           dataChecking={dataChecking}
-          onDownloadErrorLog={onDownloadErrorLog}
         />
       ),
     },

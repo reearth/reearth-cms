@@ -497,17 +497,6 @@ const ContentImportModal: React.FC<Props> = ({
               }}>
               {t("go back")}
             </StyledActionButton>
-            {validateImportResult.errorLogMeta && (
-              <StyledActionButton
-                type="default"
-                icon={<Icon icon="download" />}
-                onClick={() =>
-                  validateImportResult.errorLogMeta &&
-                  ImportErrorLogUtils.downloadErrorLog(validateImportResult.errorLogMeta)
-                }>
-                {t("Download error log")}
-              </StyledActionButton>
-            )}
             {validateImportResult.canForwardToImport && (
               <StyledActionButton
                 type="primary"

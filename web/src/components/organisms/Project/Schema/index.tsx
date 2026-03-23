@@ -10,7 +10,6 @@ import useAssetHooks from "@reearth-cms/components/organisms/Project/Asset/Asset
 import ModelsMenu from "@reearth-cms/components/organisms/Project/ModelsMenu";
 import { ContentTypesEnum } from "@reearth-cms/gql/__generated__/graphql.generated";
 import { useT } from "@reearth-cms/i18n";
-import { ImportErrorLogUtils } from "@reearth-cms/utils/importErrorLog";
 
 import useHooks from "./hooks";
 
@@ -112,10 +111,6 @@ const ProjectSchema: React.FC = () => {
           if (result) toSchemaPreviewStep();
         }}
         onFileRemove={importHooks.handleImportSchemaFileRemove}
-        onDownloadErrorLog={() =>
-          importHooks.schemaErrorLogMeta &&
-          ImportErrorLogUtils.downloadErrorLog(importHooks.schemaErrorLogMeta)
-        }
       />
       <FormModal
         data={schemaHooks.data}

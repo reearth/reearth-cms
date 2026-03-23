@@ -91,7 +91,6 @@ type Props = {
   dataChecking: boolean;
   onFileContentChange: UploadProps["beforeUpload"];
   onFileRemove: UploadProps["onRemove"];
-  onDownloadErrorLog?: () => void;
 };
 
 const Schema: React.FC<Props> = ({
@@ -150,7 +149,6 @@ const Schema: React.FC<Props> = ({
   dataChecking,
   onFileContentChange,
   onFileRemove,
-  onDownloadErrorLog,
 }) => {
   const t = useT();
 
@@ -374,7 +372,6 @@ const Schema: React.FC<Props> = ({
             dataChecking={dataChecking}
             onFileContentChange={onFileContentChange}
             onFileRemove={onFileRemove}
-            onDownloadErrorLog={onDownloadErrorLog}
           />
         </Content>
       }

@@ -20,7 +20,6 @@ type Props = {
   onFileContentChange: UploadProps["beforeUpload"];
   onFileRemove: UploadProps["onRemove"];
   dataChecking?: boolean;
-  onDownloadErrorLog?: () => void;
 };
 
 const TemplateLink = ({ href, children }: ButtonProps) => (
@@ -35,7 +34,6 @@ const FileSelectionStep: React.FC<Props> = ({
   onFileContentChange,
   onFileRemove,
   dataChecking = false,
-  onDownloadErrorLog,
 }) => {
   const t = useT();
 
@@ -86,17 +84,6 @@ const FileSelectionStep: React.FC<Props> = ({
               onClick={e => e.stopPropagation()}
             />
           ))}
-          {onDownloadErrorLog && (
-            <StyledDownloadButton
-              type="link"
-              icon={<Icon icon="download" />}
-              onClick={e => {
-                e.stopPropagation();
-                onDownloadErrorLog();
-              }}>
-              {t("Download error log")}
-            </StyledDownloadButton>
-          )}
         </Dragger>
       )}
     </>
@@ -113,10 +100,6 @@ const StyledButton = styled(Button)`
 const StyledAlert = styled(Alert)`
   margin: 0 auto;
   width: fit-content;
-`;
-
-const StyledDownloadButton = styled(Button)`
-  margin-top: 8px;
 `;
 
 const LoadingWrapper = styled.div`
