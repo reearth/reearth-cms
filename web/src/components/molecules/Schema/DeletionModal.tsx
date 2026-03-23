@@ -1,4 +1,3 @@
-import { gold } from "@ant-design/colors";
 import styled from "@emotion/styled";
 import { useMemo } from "react";
 
@@ -8,6 +7,7 @@ import Modal from "@reearth-cms/components/atoms/Modal";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { Group } from "@reearth-cms/components/molecules/Schema/types";
 import { Trans, useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   open: boolean;
@@ -52,7 +52,7 @@ const DeletionModal: React.FC<Props> = ({
     <Modal
       title={
         <StyledTitle>
-          <StyledIcon icon="exclamationSolid" color={gold[5]} size={22} />
+          <StyledIcon icon="exclamationSolid" color={AntdColor.GOLD.GOLD_5} size={22} />
           <span>{title}</span>
         </StyledTitle>
       }
@@ -88,5 +88,5 @@ const StyledTitle = styled.div`
 `;
 
 const StyledIcon = styled(Icon)`
-  margin-right: 12px;
+  margin-right: ${AntdToken.SPACING.SM}px;
 `;

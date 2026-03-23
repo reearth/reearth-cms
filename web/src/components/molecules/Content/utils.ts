@@ -1,10 +1,11 @@
 import { ColorType, StateType } from "@reearth-cms/components/molecules/Content/Table/types";
 import { Tag } from "@reearth-cms/components/molecules/Schema/types";
+import { AntdColor } from "@reearth-cms/utils/style";
 
 export const stateColors: Record<StateType, ColorType> = {
-  DRAFT: "#BFBFBF",
-  PUBLIC: "#52C41A",
-  REVIEW: "#FA8C16",
+  DRAFT: AntdColor.GREY.GREY_0, // originally #BFBFBF
+  PUBLIC: AntdColor.GREEN.GREEN_5,
+  REVIEW: AntdColor.ORANGE.ORANGE_5,
 };
 
 export const selectedTagIdsGet = (value: string[], tags: Tag[]) =>
