@@ -18,12 +18,12 @@ const COLOR_GROUPS = [
   "PURPLE",
   "MAGENTA",
   "GREY",
-] as const;
+] as const satisfies readonly (keyof typeof AntdColor)[];
 
 describe("Style", () => {
   describe("AntdColor", () => {
     describe.each(COLOR_GROUPS)("%s", groupName => {
-      const group = AntdColor[groupName];
+      const group = AntdColor[groupName as keyof typeof AntdColor];
 
       test("has exactly 10 color entries", () => {
         expect(Object.keys(group)).toHaveLength(10);
