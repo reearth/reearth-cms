@@ -1,3 +1,5 @@
+import { resolve } from "node:path";
+
 import { playwright } from "@vitest/browser-playwright";
 import { configDefaults, defineConfig } from "vitest/config";
 
@@ -67,6 +69,44 @@ export default defineConfig({
             headless: true,
             viewport: { width: 800, height: 600 },
             screenshotFailures: false,
+            expect: {
+              toMatchScreenshot: {
+                // Exclude platform from screenshot filenames so baselines are
+                // shared across macOS (local) and Linux (CI).
+                resolveScreenshotPath: ({
+                  arg,
+                  ext,
+                  root,
+                  screenshotDirectory,
+                  testFileDirectory,
+                  testFileName,
+                  browserName,
+                }) =>
+                  resolve(
+                    root,
+                    testFileDirectory,
+                    screenshotDirectory,
+                    testFileName,
+                    `${arg}-${browserName}${ext}`,
+                  ),
+                resolveDiffPath: ({
+                  arg,
+                  ext,
+                  root,
+                  attachmentsDir,
+                  testFileDirectory,
+                  testFileName,
+                  browserName,
+                }) =>
+                  resolve(
+                    root,
+                    attachmentsDir,
+                    testFileDirectory,
+                    testFileName,
+                    `${arg}-${browserName}${ext}`,
+                  ),
+              },
+            },
           },
           testTimeout: 30 * 1000,
         },
