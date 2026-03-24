@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import React from "react";
 
 import { useT } from "@reearth-cms/i18n";
+import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
 type Props = {
   username?: string;
@@ -26,30 +27,30 @@ const Greeting: React.FC<Props> = ({ username, coverImageUrl }) => {
 };
 
 const DashboardCard = styled.div`
-  padding: 24px;
+  padding: ${AntdToken.SPACING.LG}px;
   height: 121px;
-  background: #ffffff;
+  background: ${AntdColor.NEUTRAL.BG_WHITE};
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  gap: 16px;
+  gap: ${AntdToken.SPACING.BASE}px;
 `;
 
 const Title = styled.p`
-  color: rgba(0, 0, 0, 0.85);
+  color: ${AntdColor.NEUTRAL.TEXT};
   margin-bottom: 0;
-  font-size: 24px;
+  font-size: ${AntdToken.FONT.SIZE_HEADING_3}px;
   font-style: normal;
-  font-weight: 600;
+  font-weight: ${AntdToken.FONT_WEIGHT.STRONG};
 `;
 
 const SubTitle = styled.p`
-  color: rgba(0, 0, 0, 0.45);
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
   margin-bottom: 0px;
   font-size: 12.8px;
   font-style: normal;
-  font-weight: 400;
+  font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
 `;
 
 const CoverImage = styled.img`

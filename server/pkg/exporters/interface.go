@@ -38,7 +38,7 @@ type ExportOptions struct {
 	IncludeGeometry  bool
 	GeometryField    *schema.FieldID
 	Pagination       *usecasex.Pagination
-	IncloudRefModels id.ModelIDList
+	IncludeRefModels id.ModelIDList
 }
 
 // Exporter defines the interface for all export implementations

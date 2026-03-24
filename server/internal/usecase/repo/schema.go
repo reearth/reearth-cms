@@ -12,5 +12,6 @@ type Schema interface {
 	FindByIDs(context.Context, id.SchemaIDList) (schema.List, error)
 	FindByID(context.Context, id.SchemaID) (*schema.Schema, error)
 	Save(context.Context, *schema.Schema) error
+	SaveAll(context.Context, schema.List) error
 	Remove(context.Context, id.SchemaID) error
 }
