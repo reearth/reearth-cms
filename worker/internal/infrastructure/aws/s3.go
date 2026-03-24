@@ -11,7 +11,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
+	"github.com/aws/aws-sdk-go-v2/feature/s3/transfermanager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/reearth/reearth-cms/worker/internal/usecase/gateway"
 	"github.com/reearth/reearthx/log"
@@ -26,7 +26,7 @@ type fileRepo struct {
 	bucketName   string
 	cacheControl string
 	s3Client     *s3.Client
-	s3Uploader   *manager.Uploader
+	s3Uploader   *transfermanager.Client
 }
 
 func NewFile(ctx context.Context, bucketName, cacheControl string) (gateway.File, error) {
@@ -41,7 +41,7 @@ func NewFile(ctx context.Context, bucketName, cacheControl string) (gateway.File
 	}
 
 	s3Client := s3.NewFromConfig(cfg)
-	s3Uploader := manager.NewUploader(s3Client)
+	s3Uploader := transfermanager.New(s3Client)
 
 	return &fileRepo{
 		bucketName:   bucketName,
@@ -103,7 +103,7 @@ func (f *fileRepo) Upload(_ context.Context, name string) (io.WriteCloser, error
 		uploadCtx := context.Background()
 		key := path.Join(s3AssetBasePath, name)
 
-		params := &s3.PutObjectInput{
+		params := &transfermanager.UploadObjectInput{
 			Bucket:       &f.bucketName,
 			Key:          &key,
 			CacheControl: &f.cacheControl,
@@ -111,7 +111,7 @@ func (f *fileRepo) Upload(_ context.Context, name string) (io.WriteCloser, error
 			Metadata:     make(map[string]string),
 		}
 
-		_, err := f.s3Uploader.Upload(uploadCtx, params)
+		_, err := f.s3Uploader.UploadObject(uploadCtx, params)
 		if err != nil {
 			log.Errorf("aws: upload object err: %v\n", err)
 		}
