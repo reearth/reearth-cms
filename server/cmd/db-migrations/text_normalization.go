@@ -95,7 +95,7 @@ func normalizeAssetFilenames(ctx context.Context, db *mongo.Database, wetRun boo
 func updateAssetFilename(a AssetDocumentForNormalization) (*AssetDocumentForNormalization, error) {
 	normalizedFileName := utils.NormalizeText(a.FileName)
 
-	if a.FileNameNormalized == normalizedFileName {
+	if a.FileNameNormalized == normalizedFileName || (a.FileNameNormalized == "" && a.FileName == normalizedFileName) {
 		return nil, nil
 	}
 
