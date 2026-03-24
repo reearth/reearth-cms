@@ -63,28 +63,28 @@ func (l List) AssetIDs(sp schema.Package) AssetIDList {
 	return assetIDs
 }
 
-// RefItemIDs collects all unique reference field item IDs from the list
-func (l List) RefItemIDs(sp schema.Package) IDList {
+// RefItemsIDs collects all unique reference field item IDs from the list
+func (l List) RefItemsIDs(sp schema.Package) IDList {
 	if l == nil {
 		return nil
 	}
 
 	refIDs := lo.FlatMap(l, func(i *Item, _ int) []ID {
-		return i.RefItemIDs(sp)
+		return i.RefItemsIDs(sp)
 	})
 
 	return lo.Uniq(refIDs)
 }
 
-// RefItemIDsByModels collects unique reference field item IDs from the list,
+// RefItemsIDsByModels collects unique reference field item IDs from the list,
 // filtered to only include references pointing to models in the provided list.
-func (l List) RefItemIDsByModels(sp schema.Package, models id.ModelIDList) IDList {
+func (l List) RefItemsIDsByModels(sp schema.Package, models id.ModelIDList) IDList {
 	if l == nil || len(models) == 0 {
 		return nil
 	}
 
 	refIDs := lo.FlatMap(l, func(i *Item, _ int) []ID {
-		return i.RefItemIDsByModels(sp, models)
+		return i.RefItemsIDsByModels(sp, models)
 	})
 
 	return lo.Uniq(refIDs)
