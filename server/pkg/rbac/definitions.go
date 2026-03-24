@@ -83,37 +83,23 @@ var (
 	// selfAndMaintainers  = []string{roleSelf, roleMaintainer, roleOwner}
 )
 
+// jwtRequired is a shared condition that requires a JWT token to be present in the request.
+var jwtRequired = &generator.Condition{
+	Match: generator.Match{
+		Expr: lo.ToPtr("has(request.auxData.jwt)"),
+	},
+}
+
 // ResourceRules defines all RBAC rules for CMS resources
 var ResourceRules = []generator.ResourceRule{
 	// ========== User ==========
 	{
 		Resource: ResourceUser,
 		Actions: map[string]generator.ActionRule{
-			ActionRead: {
-				Roles: selfOnly,
-				Condition: &generator.Condition{
-					Match: generator.Match{
-						Expr: lo.ToPtr("has(request.auxData.jwt)"),
-					},
-				},
-			},
-			ActionUpdate: {
-				Roles: selfOnly,
-				Condition: &generator.Condition{
-					Match: generator.Match{
-						Expr: lo.ToPtr("has(request.auxData.jwt)"),
-					},
-				},
-			},
-			ActionDelete: {
-				Roles: selfOnly,
-				Condition: &generator.Condition{
-					Match: generator.Match{
-						Expr: lo.ToPtr("has(request.auxData.jwt)"),
-					},
-				},
-			},
-			ActionList: {Roles: allRoles},
+			ActionRead:   {Roles: selfOnly, Condition: jwtRequired},
+			ActionUpdate: {Roles: selfOnly, Condition: jwtRequired},
+			ActionDelete: {Roles: selfOnly, Condition: jwtRequired},
+			ActionList:   {Roles: allRoles},
 		},
 	},
 
@@ -121,14 +107,7 @@ var ResourceRules = []generator.ResourceRule{
 	{
 		Resource: ResourceWorkspace,
 		Actions: map[string]generator.ActionRule{
-			ActionCreate: {
-				Roles: selfOnly,
-				Condition: &generator.Condition{
-					Match: generator.Match{
-						Expr: lo.ToPtr("has(request.auxData.jwt)"),
-					},
-				},
-			},
+			ActionCreate:             {Roles: selfOnly, Condition: jwtRequired},
 			ActionRead:               {Roles: allRoles},
 			ActionUpdate:             {Roles: maintainerAndAbove},
 			ActionDelete:             {Roles: ownerOnly},
