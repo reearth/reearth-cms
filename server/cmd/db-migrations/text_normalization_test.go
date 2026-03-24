@@ -139,7 +139,7 @@ func TestNormalizeAssetFilename(t *testing.T) {
 				ID:       primitive.NewObjectID(),
 				FileName: "Tokyo２０２４.jpg",
 			},
-			want:     &AssetDocumentForNormalization{FileName: "Tokyo２０２４.jpg", FileNameNormalized: "Tokyo2024.jpg"},
+			want:     &AssetDocumentForNormalization{FileNameNormalized: "Tokyo2024.jpg"},
 			shouldUp: true,
 		},
 		{
@@ -157,7 +157,7 @@ func TestNormalizeAssetFilename(t *testing.T) {
 				ID:       primitive.NewObjectID(),
 				FileName: "ｆｉｌｅ．ｔｘｔ",
 			},
-			want:     &AssetDocumentForNormalization{FileName: "ｆｉｌｅ．ｔｘｔ", FileNameNormalized: "file.txt"},
+			want:     &AssetDocumentForNormalization{FileNameNormalized: "file.txt"},
 			shouldUp: true,
 		},
 		{
@@ -175,7 +175,7 @@ func TestNormalizeAssetFilename(t *testing.T) {
 				ID:       primitive.NewObjectID(),
 				FileName: "\u30db\u309a\u30fc\u30eb.jpg", // ポール decomposed form (visually identical)
 			},
-			want:     &AssetDocumentForNormalization{FileName: "\u30db\u309a\u30fc\u30eb.jpg", FileNameNormalized: "\u30dd\u30fc\u30eb.jpg"},
+			want:     &AssetDocumentForNormalization{FileNameNormalized: "\u30dd\u30fc\u30eb.jpg"},
 			shouldUp: true,
 		},
 	}

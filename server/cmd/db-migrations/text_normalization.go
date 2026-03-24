@@ -41,8 +41,8 @@ func TextNormalizationMigration(ctx context.Context, dbURL, dbName string, wetRu
 
 type AssetDocumentForNormalization struct {
 	ID                 primitive.ObjectID `bson:"_id,omitempty"`
-	FileName           string             `bson:"filename"`
-	FileNameNormalized string             `bson:"filenamenormalized"`
+	FileName           string             `bson:"filename,omitempty"`
+	FileNameNormalized string             `bson:"filenamenormalized,omitempty"`
 }
 
 func (a AssetDocumentForNormalization) GetID() primitive.ObjectID {
@@ -101,7 +101,6 @@ func updateAssetFilename(a AssetDocumentForNormalization) (*AssetDocumentForNorm
 
 	fmt.Printf("Setting filenamenormalized for '%s'\n", a.FileName)
 	return &AssetDocumentForNormalization{
-		FileName:           a.FileName,
 		FileNameNormalized: normalizedFileName,
 	}, nil
 }

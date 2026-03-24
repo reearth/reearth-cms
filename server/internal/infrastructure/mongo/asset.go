@@ -97,8 +97,10 @@ func (r *Asset) Search(ctx context.Context, pID id.ProjectID, filter repo.AssetF
 
 	if filter.Keyword != nil && *filter.Keyword != "" {
 		normalizedKeyword := utils.NormalizeText(*filter.Keyword)
-		filters["filenamenormalized"] = bson.M{
-			"$regex": primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(normalizedKeyword)), Options: "i"},
+		regex := primitive.Regex{Pattern: fmt.Sprintf(".*%s.*", regexp.QuoteMeta(normalizedKeyword)), Options: "i"}
+		filters["$or"] = bson.A{
+			bson.M{"filenamenormalized": bson.M{"$regex": regex}},
+			bson.M{"filename": bson.M{"$regex": regex}},
 		}
 	}
 
