@@ -8,12 +8,11 @@ import Flex from "@reearth-cms/components/atoms/Flex";
 import Icon from "@reearth-cms/components/atoms/Icon";
 import Loading from "@reearth-cms/components/atoms/Loading";
 import Modal from "@reearth-cms/components/atoms/Modal";
-import Space from "@reearth-cms/components/atoms/Space";
-import Typography from "@reearth-cms/components/atoms/Typography";
+import Table, { TableColumnsType } from "@reearth-cms/components/atoms/Table";
 import Upload, { RcFile, UploadProps } from "@reearth-cms/components/atoms/Upload";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { UploaderHookState } from "@reearth-cms/components/molecules/Uploader/provider";
-import { ValidateImportResult } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
+import { ImportValidationResult } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import { Trans, useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
 import { Constant } from "@reearth-cms/utils/constant";
@@ -23,7 +22,11 @@ import {
   ImportContentUtils,
   ValidationErrorMeta,
 } from "@reearth-cms/utils/importContent";
-import { ImportErrorLogUtils } from "@reearth-cms/utils/importErrorLog";
+import {
+  ErrorLogEntry,
+  ErrorLogMeta,
+  ImportErrorLogUtils,
+} from "@reearth-cms/utils/importErrorLog";
 import { ObjectUtils } from "@reearth-cms/utils/object";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
@@ -41,8 +44,8 @@ type Props = {
   onEnqueueJob: UploaderHookState["handleEnqueueJob"];
   alertList: AlertProps[];
   setAlertList: Dispatch<SetStateAction<AlertProps[]>>;
-  validateImportResult: ValidateImportResult | null;
-  setValidateImportResult: Dispatch<SetStateAction<ValidateImportResult | null>>;
+  importValidationResult: ImportValidationResult | null;
+  setImportValidationResult: Dispatch<SetStateAction<ImportValidationResult | null>>;
 };
 
 const TemplateLink = ({ href, children }: ButtonProps) => (
@@ -63,8 +66,8 @@ const ContentImportModal: React.FC<Props> = ({
   onEnqueueJob,
   alertList,
   setAlertList,
-  validateImportResult,
-  setValidateImportResult,
+  importValidationResult,
+  setImportValidationResult,
 }) => {
   const t = useT();
   const location = useLocation();
@@ -138,78 +141,14 @@ const ContentImportModal: React.FC<Props> = ({
       setAlertList([]);
 
       const errorLogMeta = ImportErrorLogUtils.buildErrorLogMeta(errorMeta, fileName);
+      const canForwardToImport =
+        !errorMeta.exceedLimit &&
+        errorMeta.typeMismatchFieldKeys.size > 0 &&
+        errorMeta.typeMismatchFieldKeys.size !== modelFields.length;
 
-      if (errorMeta.exceedLimit) {
-        // case: above limit + some mismatch (exceedLimit = true, mismatchFields.size > 0)
-        if (errorMeta.typeMismatchFieldKeys.size > 0) {
-          setValidateImportResult({
-            type: "error",
-            title: t("Data file is too large and some fields don't match the schema."),
-            description: t(
-              "The data file can contain a maximum of {{maxRecord}} records and below {{maxSizeInMB}} MB. Please split the file and re-upload it. And {{count}} fields do not match the schema.",
-              {
-                maxRecords: Constant.IMPORT.MAX_CONTENT_RECORDS,
-                maxSizeInMB: Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
-                count: errorMeta.typeMismatchFieldKeys.size,
-              },
-            ),
-            hint: t("Unmatched field hint", {
-              count: errorMeta.typeMismatchFieldKeys.size,
-              fields: Array.from(errorMeta.typeMismatchFieldKeys),
-            }),
-            errorLogMeta,
-          });
-        }
-        // case: above limit, full match (exceedLimit = true, mismatchFields.size = 0)
-        else {
-          setValidateImportResult({
-            type: "error",
-            title: t("Data file is too large."),
-            description: t(
-              "The data file can contain a maximum of {{maxRecord}} records and below {{maxSizeInMB}} MB. Please split the file and re-upload it",
-              {
-                maxRecords: Constant.IMPORT.MAX_CONTENT_RECORDS,
-                maxSizeInMB: Constant.IMPORT.MAX_FILE_SIZE_IN_MB,
-              },
-            ),
-            errorLogMeta,
-          });
-        }
-      } else {
-        // case: below limit, some mismatch (exceedLimit = false, mismatchFields.size > 0)
-        if (
-          errorMeta.typeMismatchFieldKeys.size > 0 &&
-          errorMeta.typeMismatchFieldKeys.size !== modelFields.length
-        ) {
-          setValidateImportResult({
-            type: "warning",
-            title: t("Some fields don't match the schema"),
-            description: t(
-              "{{count}} fields do not match the schema. You can continue the import, but the unmatched fields will be ignored.",
-              { count: errorMeta.typeMismatchFieldKeys.size },
-            ),
-            hint: t("Unmatched field hint", {
-              count: errorMeta.typeMismatchFieldKeys.size,
-              fields: Array.from(errorMeta.typeMismatchFieldKeys),
-            }),
-            canForwardToImport: true,
-            errorLogMeta,
-          });
-        }
-        // case: below limit, no match (exceedLimit = false, mismatchFields.size = modelFieldCount)
-        else {
-          setValidateImportResult({
-            type: "error",
-            title: t("No matching fields found"),
-            description: t(
-              "The data file does not match the schema. None of the fields could be recognized. Please update the file or use a different schema to continue.",
-            ),
-            errorLogMeta,
-          });
-        }
-      }
+      setImportValidationResult({ canForwardToImport, errorLogMeta });
     },
-    [modelFields.length, setAlertList, setValidateImportResult, t],
+    [modelFields.length, setAlertList, setImportValidationResult],
   );
 
   const handleStartLoading = useCallback(() => onSetDataChecking(true), [onSetDataChecking]);
@@ -237,7 +176,7 @@ const ContentImportModal: React.FC<Props> = ({
 
   const handleBeforeUpload = useCallback<Required<UploadProps>["beforeUpload"]>(
     async (file, fileList) => {
-      setValidateImportResult(null);
+      setImportValidationResult(null);
       setAlertList([]);
 
       const fileName = file.name;
@@ -383,7 +322,7 @@ const ContentImportModal: React.FC<Props> = ({
       return false;
     },
     [
-      setValidateImportResult,
+      setImportValidationResult,
       setAlertList,
       raiseIllegalFileFormatAlert,
       raiseSingleFileAlert,
@@ -412,26 +351,62 @@ const ContentImportModal: React.FC<Props> = ({
     [handleBeforeUpload],
   );
 
-  const importErrorIcon = useMemo<string | undefined>(() => {
-    switch (validateImportResult?.type) {
-      case "error":
-        return AntdColor.RED.RED_5;
-      case "warning":
-        return AntdColor.GOLD.GOLD_5;
-      default:
-        return undefined;
-    }
-  }, [validateImportResult]);
+  const errorLogColumns = useMemo<TableColumnsType<ErrorLogEntry>>(
+    () => [
+      {
+        title: t("Location"),
+        dataIndex: "path",
+        key: "path",
+        render: (path: string[]) => ImportErrorLogUtils.formatPath(path, "content"),
+      },
+      { title: t("Detail"), dataIndex: "detail", key: "detail" },
+    ],
+    [t],
+  );
+
+  const handleGoBack = useCallback(() => {
+    pendingImportRef.current = null;
+    setAlertList([]);
+    setImportValidationResult(null);
+  }, [setAlertList, setImportValidationResult]);
+
+  const errorLogMeta = useMemo<ErrorLogMeta | null>(
+    () => importValidationResult?.errorLogMeta || null,
+    [importValidationResult?.errorLogMeta],
+  );
+
+  const modalFooter = useMemo<JSX.Element | null>(() => {
+    if (!importValidationResult) return null;
+    return (
+      <Flex justify="space-between">
+        {errorLogMeta && (
+          <FooterActionButton
+            icon={<Icon icon="download" />}
+            type="text"
+            onClick={() => ImportErrorLogUtils.downloadErrorLog(errorLogMeta)}>
+            {t("Download error log")}
+          </FooterActionButton>
+        )}
+        <FooterActionButton type="default" onClick={handleGoBack}>
+          {t("go back")}
+        </FooterActionButton>
+      </Flex>
+    );
+  }, [importValidationResult, errorLogMeta, t, handleGoBack]);
 
   return (
     <Modal
-      styles={{ body: { height: "70vh" } }}
       title={t("Import content")}
       open={isOpen}
       onCancel={onClose}
       maskClosable={false}
-      footer={null}>
-      {!validateImportResult ? (
+      footer={modalFooter}
+      centered
+      width="50vw"
+      styles={{
+        body: { height: "70vh" },
+      }}>
+      {!importValidationResult ? (
         <>
           {dataChecking ? (
             <LoadingWrapper data-testid={DATA_TEST_ID.ContentImportModal__LoadingWrapper}>
@@ -486,62 +461,42 @@ const ContentImportModal: React.FC<Props> = ({
           )}
         </>
       ) : (
-        <StyledFlex
-          data-testid={DATA_TEST_ID.ContentImportModal__ErrorWrapper}
-          vertical
-          justify="center"
-          align="center">
-          <Icon
-            data-testid={DATA_TEST_ID.ContentImportModal__ErrorIcon}
-            icon="warningSolid"
-            color={importErrorIcon}
+        <ErrorLogWrapper data-testid={DATA_TEST_ID.ContentImportModal__ErrorWrapper}>
+          <Alert
+            type="error"
+            message={<AlertMessage>{t("Validation errors")}</AlertMessage>}
+            description={
+              <AlertDescription>
+                {t("Download the full error log to see all errors")}
+              </AlertDescription>
+            }
+            showIcon
+            icon={
+              <Icon
+                icon="warningSolid"
+                color={AntdColor.RED.RED_5}
+                size={AntdToken.LINE_HEIGHT.BASE}
+              />
+            }
+            action={
+              errorLogMeta && (
+                <ErrorCountBadge>
+                  {t("{{count}} errors", { count: errorLogMeta.totalErrors })}
+                </ErrorCountBadge>
+              )
+            }
           />
-          <Typography.Title data-testid={DATA_TEST_ID.ContentImportModal__ErrorTitle} level={4}>
-            {validateImportResult.title}
-          </Typography.Title>
-          <Typography.Paragraph data-testid={DATA_TEST_ID.ContentImportModal__ErrorDescription}>
-            {validateImportResult.description}
-          </Typography.Paragraph>
-          <Space>
-            <StyledActionButton
-              type="default"
-              onClick={() => {
-                pendingImportRef.current = null;
-                setAlertList([]);
-                setValidateImportResult(null);
-              }}>
-              {t("go back")}
-            </StyledActionButton>
-            {validateImportResult.canForwardToImport && (
-              <StyledActionButton
-                type="primary"
-                onClick={() => {
-                  if (!pendingImportRef.current) return;
-                  const { file, fileName, extension } = pendingImportRef.current;
-                  if (!workspaceId || !projectId || !modelId) return;
-                  onEnqueueJob({
-                    workspaceId,
-                    projectId,
-                    modelId,
-                    extension,
-                    fileName,
-                    url: location.pathname,
-                    file,
-                  });
-                  onClose();
-                }}>
-                {t("import anyway")}
-              </StyledActionButton>
-            )}
-          </Space>
-          {validateImportResult.hint && (
-            <Typography.Paragraph
-              type="secondary"
-              data-testid={DATA_TEST_ID.ContentImportModal__ErrorHint}>
-              {validateImportResult.hint}
-            </Typography.Paragraph>
+          {errorLogMeta && errorLogMeta.entries.length > 0 && (
+            <Table<ErrorLogEntry>
+              dataSource={errorLogMeta.entries}
+              columns={errorLogColumns}
+              pagination={false}
+              scroll={{ y: "calc(70vh - 200px)" }}
+              size="small"
+              rowKey={(_, index) => index ?? 0}
+            />
           )}
-        </StyledFlex>
+        </ErrorLogWrapper>
       )}
     </Modal>
   );
@@ -563,10 +518,31 @@ const StyledLink = styled(Button)`
   text-decoration: underline;
 `;
 
-const StyledActionButton = styled(Button)`
+const ErrorLogWrapper = styled.div`
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: ${AntdToken.SPACING.MD}px;
+`;
+
+const FooterActionButton = styled(Button)`
   text-transform: capitalize;
 `;
 
-const StyledFlex = styled(Flex)`
-  height: 100%;
+const ErrorCountBadge = styled.span`
+  background: ${AntdColor.RED.RED_5};
+  color: #fff;
+  border-radius: ${AntdToken.SPACING.MD}px;
+  padding: ${AntdToken.SPACING.XXS}px ${AntdToken.SPACING.SM}px;
+  font-size: ${AntdToken.FONT.SIZE_SM}px;
+  white-space: nowrap;
+  font-weight: ${AntdToken.FONT_WEIGHT.BOLD};
+`;
+
+const AlertMessage = styled.span`
+  font-weight: ${AntdToken.FONT_WEIGHT.MEDIUM};
+`;
+
+const AlertDescription = styled.span`
+  color: ${AntdColor.NEUTRAL.TEXT_TERTIARY};
 `;

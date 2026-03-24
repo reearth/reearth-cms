@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { type AlertProps } from "@reearth-cms/components/atoms/Alert";
 import { Model } from "@reearth-cms/components/molecules/Model/types";
 import { SchemaFieldType } from "@reearth-cms/components/molecules/Schema/types";
-import { ValidateImportResult } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
+import { ImportValidationResult } from "@reearth-cms/components/organisms/Project/Content/ContentList/hooks";
 import {
   DATA_TEST_ID,
   fireEvent,
@@ -80,9 +80,8 @@ type WrapperProps = {
 
 const StatefulWrapper: React.FC<WrapperProps> = ({ modelFields = mockModelFields }) => {
   const [alertList, setAlertList] = useState<AlertProps[]>([]);
-  const [validateImportResult, setValidateImportResult] = useState<ValidateImportResult | null>(
-    null,
-  );
+  const [importValidationResult, setImportValidationResult] =
+    useState<ImportValidationResult | null>(null);
   return (
     <MemoryRouter>
       <ContentImportModal
@@ -97,8 +96,8 @@ const StatefulWrapper: React.FC<WrapperProps> = ({ modelFields = mockModelFields
         onEnqueueJob={mockOnEnqueueJob}
         alertList={alertList}
         setAlertList={setAlertList}
-        validateImportResult={validateImportResult}
-        setValidateImportResult={setValidateImportResult}
+        importValidationResult={importValidationResult}
+        setImportValidationResult={setImportValidationResult}
       />
     </MemoryRouter>
   );

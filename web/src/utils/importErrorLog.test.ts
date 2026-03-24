@@ -40,7 +40,7 @@ describe("ImportErrorLogUtils", () => {
 
       const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(result.error.issues);
       expect(entries.length).toBeGreaterThan(0);
-      expect(entries[0].path).toContain("Row 1");
+      expect(entries[0].path).toContain("0");
     });
 
     test("deduplicates invalid_union to single entry when same path", () => {
@@ -66,7 +66,7 @@ describe("ImportErrorLogUtils", () => {
       ];
       const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(issues);
       expect(entries.length).toBe(1);
-      expect(entries[0].path).toBe('Field "age" > Default value');
+      expect(entries[0].path).toEqual(["properties", "age", "x-defaultValue"]);
       expect(entries[0].detail).toBe("Too big");
     });
 
@@ -80,7 +80,7 @@ describe("ImportErrorLogUtils", () => {
         } as unknown as z.core.$ZodIssue,
       ];
       const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(issues);
-      expect(entries[0].path).toBe('Field "name" > Field type');
+      expect(entries[0].path).toEqual(["properties", "name", "x-fieldType"]);
     });
 
     test("caps entries at 1000", () => {
@@ -111,7 +111,7 @@ describe("ImportErrorLogUtils", () => {
       ];
       const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(issues);
       expect(entries.length).toBe(1);
-      expect(entries[0].path).toBe("(root)");
+      expect(entries[0].path).toEqual([]);
     });
 
     test("selects best branch via discriminator and prepends parent path", () => {
@@ -151,7 +151,7 @@ describe("ImportErrorLogUtils", () => {
       ];
       const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(issues);
       expect(entries.length).toBe(1);
-      expect(entries[0].path).toBe('Field "myField" > Default value');
+      expect(entries[0].path).toEqual(["properties", "myField", "x-defaultValue"]);
       expect(entries[0].detail).toBe("Too big");
     });
 
@@ -183,7 +183,7 @@ describe("ImportErrorLogUtils", () => {
       ];
       const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(issues);
       expect(entries.length).toBe(1);
-      expect(entries[0].path).toBe('Field "badField" > Field type');
+      expect(entries[0].path).toEqual(["properties", "badField", "x-fieldType"]);
       expect(entries[0].detail).toContain("Invalid input: expected");
       expect(entries[0].detail).toContain("text");
       expect(entries[0].detail).toContain("number");
@@ -233,11 +233,11 @@ describe("ImportErrorLogUtils", () => {
         totalErrors: 2,
         entries: [
           {
-            path: 'Field "age" > Default value',
+            path: ["Field \"age\"", "Default value"],
             detail: "Expected number, received string",
           },
           {
-            path: 'Field "name" > Field type',
+            path: ["Field \"name\"", "Field type"],
             detail: "Invalid input: expected one of Text, Number",
           },
         ],
@@ -262,7 +262,7 @@ describe("ImportErrorLogUtils", () => {
         totalErrors: 1,
         entries: [
           {
-            path: 'Field "age"',
+            path: ["Field \"age\""],
             detail: "Expected number, received string",
           },
         ],
@@ -279,9 +279,9 @@ describe("ImportErrorLogUtils", () => {
         source: "schema",
         totalErrors: 3,
         entries: [
-          { path: "a", detail: "Type mismatch: expected number, got string" },
-          { path: "b", detail: "Type mismatch: expected string, got number" },
-          { path: "c", detail: "Text too long: maximum 5 characters" },
+          { path: ["a"], detail: "Type mismatch: expected number, got string" },
+          { path: ["b"], detail: "Type mismatch: expected string, got number" },
+          { path: ["c"], detail: "Text too long: maximum 5 characters" },
         ],
       };
 
@@ -297,7 +297,7 @@ describe("ImportErrorLogUtils", () => {
         totalErrors: 1500,
         entries: [
           {
-            path: "Row 1 > field",
+            path: ["Row 1", "field"],
             detail: "Type mismatch: expected string, got number",
           },
         ],
@@ -314,7 +314,7 @@ describe("ImportErrorLogUtils", () => {
         totalErrors: 1500,
         entries: [
           {
-            path: "Row 1 > field",
+            path: ["Row 1", "field"],
             detail: "Type mismatch: expected string, got number",
           },
         ],
@@ -392,9 +392,9 @@ describe("ImportErrorLogUtils", () => {
       ];
       const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(issues);
       expect(entries.length).toBe(3);
-      expect(entries[0].path).toBe('Field "geoField" > Supported types');
-      expect(entries[1].path).toBe('Field "selectField" > Options');
-      expect(entries[2].path).toBe('Field "multiField" > Multiple');
+      expect(entries[0].path).toEqual(["properties", "geoField", "x-geoSupportedTypes"]);
+      expect(entries[1].path).toEqual(["properties", "selectField", "x-options"]);
+      expect(entries[2].path).toEqual(["properties", "multiField", "x-multiple"]);
     });
 
     test("E10: content path with numeric index not at position 0", () => {
@@ -409,7 +409,7 @@ describe("ImportErrorLogUtils", () => {
       ];
       const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(issues);
       expect(entries.length).toBe(1);
-      expect(entries[0].path).toBe("Row 1 > field > [1]");
+      expect(entries[0].path).toEqual(["0", "field", "1"]);
     });
 
     test("E11: schema path with unknown property label passes through", () => {
@@ -422,7 +422,7 @@ describe("ImportErrorLogUtils", () => {
       ];
       const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(issues);
       expect(entries.length).toBe(1);
-      expect(entries[0].path).toBe('Field "myField" > unknownProp');
+      expect(entries[0].path).toEqual(["properties", "myField", "unknownProp"]);
     });
   });
 
@@ -433,8 +433,8 @@ describe("ImportErrorLogUtils", () => {
         source: "content",
         totalErrors: 105,
         entries: [
-          { path: "Row 1 > field", detail: "Type mismatch: expected string, got number" },
-          { path: "Row 2 > field", detail: "Type mismatch: expected string, got boolean" },
+          { path: ["Row 1", "field"], detail: "Type mismatch: expected string, got number" },
+          { path: ["Row 2", "field"], detail: "Type mismatch: expected string, got boolean" },
         ],
       };
 
@@ -454,7 +454,7 @@ describe("ImportErrorLogUtils", () => {
         fileName: "test.json",
         source: "schema",
         totalErrors: 1,
-        entries: [{ path: 'Field "name"', detail: "Expected number, received string" }],
+        entries: [{ path: ["Field \"name\""], detail: "Expected number, received string" }],
       };
 
       ImportErrorLogUtils.downloadErrorLog(meta);

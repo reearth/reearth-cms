@@ -227,9 +227,7 @@ const ImportSchemaModal: React.FC<Props> = ({
         </>
       }
       styles={{
-        body: {
-          height: "70vh",
-        },
+        body: { height: "70vh" },
       }}>
       <>
         <HiddenSteps current={currentPage} items={items} />

@@ -8,7 +8,7 @@ import { t } from "@reearth-cms/i18n";
 import type { ValidationErrorMeta } from "./importContent";
 
 export interface ErrorLogEntry {
-  path: string;
+  path: string[];
   detail: string;
 }
 
@@ -18,8 +18,6 @@ export interface ErrorLogMeta {
   totalErrors: number;
   entries: ErrorLogEntry[];
 }
-
-type SourceType = "schema" | "content" | "unknown";
 
 export abstract class ImportErrorLogUtils {
   private static readonly MAX_ENTRIES = 1000;
@@ -33,68 +31,54 @@ export abstract class ImportErrorLogUtils {
     "x-multiple": () => t("Multiple"),
   };
 
-  private static formatSchemaPath(pathSegments: (string | number)[]): string {
+  public static formatSchemaPath(pathSegments: string[]): string {
     const parts: string[] = [];
     let i = 0;
 
     if (pathSegments[0] === "properties" && pathSegments.length >= 2) {
-      const fieldName = String(pathSegments[1]);
-      parts.push(t('Field "{{name}}"', { name: fieldName }));
+      parts.push(t('Field "{{name}}"', { name: pathSegments[1] }));
       i = 2;
     }
 
     for (; i < pathSegments.length; i++) {
-      const segment = pathSegments[i];
-      const segStr = String(segment);
-      const labelFn = this.SCHEMA_PATH_LABELS[segStr];
-      if (labelFn) {
-        parts.push(labelFn());
-      } else {
-        parts.push(segStr);
-      }
+      const labelFn = this.SCHEMA_PATH_LABELS[pathSegments[i]];
+      parts.push(labelFn ? labelFn() : pathSegments[i]);
     }
 
     return parts.join(" > ") || "(root)";
   }
 
-  private static formatContentPath(pathSegments: (string | number)[]): string {
+  public static formatContentPath(pathSegments: string[]): string {
     const parts = pathSegments.map((segment, index) => {
-      if (typeof segment === "number") {
+      const num = Number(segment);
+      if (!Number.isNaN(num)) {
         if (index === 0) {
-          return t("Row {{number}}", { number: segment + 1 });
+          return t("Row {{number}}", { number: num + 1 });
         }
         return `[${segment}]`;
       }
-      return String(segment);
+      return segment;
     });
 
     return parts.join(" > ") || "(root)";
   }
 
-  private static detectSource(issues: z.core.$ZodIssue[]): SourceType {
-    for (const issue of issues) {
-      const path = issue.path ?? [];
-      if (path.length > 0) {
-        if (path[0] === "properties") return "schema";
-        if (typeof path[0] === "number") return "content";
-      }
-    }
-    return "unknown";
-  }
-
-  private static formatPath(pathSegments: (string | number)[], source: SourceType): string {
+  public static formatPath(
+    pathSegments: string[],
+    source: "schema" | "content" | "unknown",
+  ): string {
     if (source === "schema") return this.formatSchemaPath(pathSegments);
     if (source === "content") return this.formatContentPath(pathSegments);
-    return pathSegments.map(String).join(".") || "(root)";
+    return pathSegments.join(".") || "(root)";
   }
 
-  private static processUnionIssue(issue: z.core.$ZodIssue, source: SourceType): ErrorLogEntry[] {
+  private static processUnionIssue(issue: z.core.$ZodIssue): ErrorLogEntry[] {
     const parentPath = (issue.path ?? []) as (string | number)[];
     const unionErrors = (issue as z.core.$ZodIssue & { errors?: z.core.$ZodIssue[][] }).errors;
     if (!unionErrors || unionErrors.length === 0) {
       return [
         {
-          path: this.formatPath(parentPath, source),
+          path: parentPath.map(String),
           detail: t("No valid field type matched this configuration"),
         },
       ];
@@ -125,7 +109,7 @@ export abstract class ImportErrorLogUtils {
         const detail = t("Invalid input: expected {{values}}", { values: unique });
         return [
           {
-            path: this.formatPath(parentPath, source),
+            path: parentPath.map(String),
             detail,
           },
         ];
@@ -134,7 +118,7 @@ export abstract class ImportErrorLogUtils {
       // Fallback for non-invalid_value root-level errors
       return [
         {
-          path: this.formatPath(parentPath, source),
+          path: parentPath.map(String),
           detail: t("No valid field type matched this configuration"),
         },
       ];
@@ -152,7 +136,7 @@ export abstract class ImportErrorLogUtils {
       if (matchingBranches.length > 0) {
         // Pick the branch with fewest errors (most specific)
         const best = matchingBranches.reduce((a, b) => (a.length <= b.length ? a : b));
-        return this.formatBranchIssues(best, parentPath, source);
+        return this.formatBranchIssues(best, parentPath);
       }
 
       // All branches fail at discriminator — collect invalid_value values
@@ -176,7 +160,7 @@ export abstract class ImportErrorLogUtils {
         const fullPath = [...parentPath, discriminator];
         return [
           {
-            path: this.formatPath(fullPath, source),
+            path: fullPath.map(String),
             detail,
           },
         ];
@@ -186,7 +170,7 @@ export abstract class ImportErrorLogUtils {
     // Fallback: no discriminator or no invalid_value errors
     return [
       {
-        path: this.formatPath(parentPath, source),
+        path: parentPath.map(String),
         detail: t("No valid field type matched this configuration"),
       },
     ];
@@ -222,18 +206,17 @@ export abstract class ImportErrorLogUtils {
   private static formatBranchIssues(
     branch: z.core.$ZodIssue[],
     parentPath: (string | number)[],
-    source: SourceType,
   ): ErrorLogEntry[] {
     const entries: ErrorLogEntry[] = [];
     for (const branchIssue of branch) {
       if (branchIssue.code === "invalid_union" && "errors" in branchIssue) {
         const prepended = this.prependPath(branchIssue, parentPath);
-        entries.push(...this.processUnionIssue(prepended, source));
+        entries.push(...this.processUnionIssue(prepended));
       } else {
         const prepended = this.prependPath(branchIssue, parentPath);
         const pathSegments = (prepended.path ?? []) as (string | number)[];
         entries.push({
-          path: this.formatPath(pathSegments, source),
+          path: pathSegments.map(String),
           detail: prepended.message,
         });
       }
@@ -272,14 +255,13 @@ export abstract class ImportErrorLogUtils {
 
   public static formatZodIssuesToLogEntries(issues: z.core.$ZodIssue[]): ErrorLogEntry[] {
     const entries: ErrorLogEntry[] = [];
-    const source = this.detectSource(issues);
     const seenPaths = new Set<string>();
 
     for (const issue of issues) {
       if (entries.length >= this.MAX_ENTRIES) break;
 
       if (issue.code === "invalid_union" && "errors" in issue) {
-        const unionEntries = this.processUnionIssue(issue, source);
+        const unionEntries = this.processUnionIssue(issue);
         for (const entry of unionEntries) {
           if (entries.length >= this.MAX_ENTRIES) break;
           entries.push(entry);
@@ -289,14 +271,13 @@ export abstract class ImportErrorLogUtils {
 
       const pathSegments = (issue.path ?? []) as (string | number)[];
       const pathKey = pathSegments.map(String).join(".");
-      const path = this.formatPath(pathSegments, source);
 
       if (issue.code === "invalid_type" && seenPaths.has(pathKey)) {
         continue;
       }
       seenPaths.add(pathKey);
 
-      entries.push({ path, detail: issue.message });
+      entries.push({ path: pathSegments.map(String), detail: issue.message });
     }
 
     return entries;
@@ -340,7 +321,7 @@ export abstract class ImportErrorLogUtils {
     for (let i = 0; i < meta.entries.length; i++) {
       const entry = meta.entries[i];
       lines.push(`#${i + 1}`);
-      lines.push(`  ${t("Location")}: ${entry.path}`);
+      lines.push(`  ${t("Location")}: ${this.formatPath(entry.path, meta.source)}`);
       lines.push(`  ${t("Detail")}: ${entry.detail}`);
       lines.push("");
     }
