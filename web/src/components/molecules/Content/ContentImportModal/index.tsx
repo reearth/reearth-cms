@@ -23,7 +23,7 @@ import {
   ImportContentUtils,
   ValidationErrorMeta,
 } from "@reearth-cms/utils/importContent";
-import { ErrorLogMeta, ImportErrorLogUtils } from "@reearth-cms/utils/importErrorLog";
+import { ImportErrorLogUtils } from "@reearth-cms/utils/importErrorLog";
 import { ObjectUtils } from "@reearth-cms/utils/object";
 import { AntdColor, AntdToken } from "@reearth-cms/utils/style";
 
@@ -120,25 +120,11 @@ const ContentImportModal: React.FC<Props> = ({
     ]);
   }, [setAlertList, t]);
 
-  const buildErrorLogMeta = useCallback(
-    (errorMeta: ValidationErrorMeta, fileName: string): ErrorLogMeta | undefined => {
-      if (errorMeta.zodIssues.length === 0) return undefined;
-      const entries = ImportErrorLogUtils.formatZodIssuesToLogEntries(errorMeta.zodIssues);
-      return {
-        fileName,
-        source: "content",
-        totalErrors: errorMeta.zodIssues.length,
-        entries,
-      };
-    },
-    [],
-  );
-
   const schemaValidationAlert = useCallback(
     (errorMeta: ValidationErrorMeta, fileName: string) => {
       setAlertList([]);
 
-      const errorLogMeta = buildErrorLogMeta(errorMeta, fileName);
+      const errorLogMeta = ImportErrorLogUtils.buildErrorLogMeta(errorMeta, fileName);
 
       if (errorMeta.exceedLimit) {
         // case: above limit + some mismatch (exceedLimit = true, mismatchFields.size > 0)
@@ -210,7 +196,7 @@ const ContentImportModal: React.FC<Props> = ({
         }
       }
     },
-    [buildErrorLogMeta, modelFields.length, setAlertList, setValidateImportResult, t],
+    [modelFields.length, setAlertList, setValidateImportResult, t],
   );
 
   const handleStartLoading = useCallback(() => onSetDataChecking(true), [onSetDataChecking]);

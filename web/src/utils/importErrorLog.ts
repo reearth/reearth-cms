@@ -5,6 +5,8 @@ import z from "zod";
 
 import { t } from "@reearth-cms/i18n";
 
+import type { ValidationErrorMeta } from "./importContent";
+
 export interface ErrorLogEntry {
   path: string;
   detail: string;
@@ -251,6 +253,21 @@ export abstract class ImportErrorLogUtils {
     );
     if (alreadyPrepended) return issue;
     return { ...issue, path: [...parentPath, ...issuePath] };
+  }
+
+  public static buildErrorLogMeta(
+    errorMeta: ValidationErrorMeta,
+    fileName: string,
+  ): ErrorLogMeta | undefined {
+    if (errorMeta.zodIssues.length === 0) return undefined;
+    const entries = this.formatZodIssuesToLogEntries(errorMeta.zodIssues);
+
+    return {
+      fileName,
+      source: "content",
+      totalErrors: errorMeta.zodIssues.length,
+      entries,
+    };
   }
 
   public static formatZodIssuesToLogEntries(issues: z.core.$ZodIssue[]): ErrorLogEntry[] {
