@@ -47,27 +47,23 @@ func privateAssetsMiddleware(appCtx *ApplicationContext) echo.MiddlewareFunc {
 
 func handleAssetByUUID(appCtx *ApplicationContext) echo.HandlerFunc {
 	return func(ctx echo.Context) error {
-		reqCtx := ctx.Request().Context()
 		filename := ctx.Param("filename")
 		uuid := ctx.Param("uuid1") + ctx.Param("uuid2")
 		if !appCtx.Config.Asset_Public {
-			a, err := appCtx.Repos.Asset.FindByUUID(reqCtx, uuid)
+			a, err := appCtx.Repos.Asset.FindByUUID(ctx.Request().Context(), uuid)
 			if err != nil {
 				return err
 			}
-			if a != nil {
-				if !a.Public() {
-					op := adapter.Operator(ctx.Request().Context())
-					if op == nil || !op.IsReadableProject(a.Project()) {
-						return rerror.ErrNotFound
-					}
-				}
-				if af, err := appCtx.Repos.AssetFile.FindByID(reqCtx, a.ID()); err == nil && af.Path() != "" {
-					filename = af.Path()
+			if a != nil && !a.Public() {
+				op := adapter.Operator(ctx.Request().Context())
+				if op == nil || !op.IsReadableProject(a.Project()) {
+					return rerror.ErrNotFound
 				}
 			}
 		}
-		r, h, err := appCtx.Gateways.File.ReadAsset(reqCtx, uuid, filename, assetHeaders(ctx.Request().Header))
+		r, h, err := appCtx.Gateways.File.ReadAsset(
+			ctx.Request().Context(), uuid, filename, assetHeaders(ctx.Request().Header),
+		)
 		if err != nil {
 			return err
 		}
