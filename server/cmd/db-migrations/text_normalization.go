@@ -95,12 +95,12 @@ func normalizeAssetFilenames(ctx context.Context, db *mongo.Database, wetRun boo
 func updateAssetFilename(a AssetDocumentForNormalization) (*AssetDocumentForNormalization, error) {
 	normalizedFileName := utils.NormalizeText(a.FileName)
 
-	if a.FileNameNormalized == normalizedFileName || (a.FileNameNormalized == "" && a.FileName == normalizedFileName) {
-		return nil, nil
+	if a.FileNameNormalized != normalizedFileName {
+		fmt.Printf("Setting filenamenormalized for '%s'\n", a.FileName)
+		return &AssetDocumentForNormalization{FileNameNormalized: normalizedFileName}, nil
 	}
 
-	fmt.Printf("Setting filenamenormalized for '%s'\n", a.FileName)
-	return &AssetDocumentForNormalization{FileNameNormalized: normalizedFileName}, nil
+	return nil, nil
 }
 
 type ValueForTextNormalization struct {
