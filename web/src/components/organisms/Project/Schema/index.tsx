@@ -21,20 +21,25 @@ const ProjectSchema: React.FC = () => {
   const schemaHooks = useHooks();
 
   const toSchemaPreviewStep = useCallback(() => {
+    setCurrentImportSchemaModalPage(2);
+  }, []);
+
+  const toSchemaErrorLogStep = useCallback(() => {
     setCurrentImportSchemaModalPage(1);
   }, []);
 
   const toImportingStep = useCallback(
     async (fields: CreateFieldInput[]) => {
       await schemaHooks.handleFieldsCreate(fields);
-      setCurrentImportSchemaModalPage(2);
+      setCurrentImportSchemaModalPage(3);
     },
     [schemaHooks],
   );
 
   const toFileSelectionStep = useCallback(() => {
+    importHooks.setSchemaErrorLogMeta(null);
     setCurrentImportSchemaModalPage(0);
-  }, []);
+  }, [importHooks]);
 
   return (
     <>
@@ -104,11 +109,13 @@ const ProjectSchema: React.FC = () => {
         onFieldDelete={schemaHooks.handleFieldDelete}
         onAllFieldsDelete={schemaHooks.handleAllFieldDelete}
         fieldsCreationLoading={schemaHooks.fieldsCreationLoading}
+        schemaErrorLogMeta={importHooks.schemaErrorLogMeta}
         dataChecking={importHooks.dataChecking}
         onFileContentChange={async (file, fileList) => {
           const result = await importHooks.handleImportSchemaFileChange(file, fileList);
 
-          if (result) toSchemaPreviewStep();
+          if (result === "schema_error") toSchemaErrorLogStep();
+          else if (result) toSchemaPreviewStep();
         }}
         onFileRemove={importHooks.handleImportSchemaFileRemove}
       />

@@ -515,8 +515,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
           totalErrors: importSchema.zodIssues.length,
           entries,
         });
-        raiseIllegalFileAlert();
-        return false;
+        return "schema_error";
       }
 
       const fields = SchemaHelpers.convertImportSchemaData(importSchema.data.properties, modelId);
@@ -589,6 +588,7 @@ export default (isItemsRequired: boolean, contentTypes: ContentTypesEnum[] = [])
     handleGetAsset,
     dataChecking,
     schemaErrorLogMeta,
+    setSchemaErrorLogMeta,
     handleImportSchemaFileChange,
     handleImportSchemaFileRemove,
   };

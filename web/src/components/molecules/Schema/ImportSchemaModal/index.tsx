@@ -18,6 +18,7 @@ import { Asset, SortType } from "@reearth-cms/components/molecules/Asset/types";
 import { ItemAsset } from "@reearth-cms/components/molecules/Content/types";
 import { useT } from "@reearth-cms/i18n";
 import { DATA_TEST_ID } from "@reearth-cms/test/utils";
+import { ErrorLogMeta, ImportErrorLogUtils } from "@reearth-cms/utils/importErrorLog";
 import { AntdToken } from "@reearth-cms/utils/style";
 
 import { fieldTypes } from "../fieldTypes";
@@ -25,6 +26,7 @@ import { CreateFieldInput, ImportFieldInput } from "../types";
 
 import FileSelectionStep from "./FileSelectionStep";
 import ImportingStep from "./ImportingStep";
+import SchemaErrorLogStep from "./SchemaErrorLogStep";
 import SchemaPreviewStep from "./SchemaPreviewStep";
 
 type Props = {
@@ -66,6 +68,7 @@ type Props = {
   onSelectFile: () => void;
   onSelectFileModalCancel: () => void;
   onModalClose: () => void;
+  schemaErrorLogMeta: ErrorLogMeta | null;
   dataChecking: boolean;
   onFileContentChange: UploadProps["beforeUpload"];
   onFileRemove: UploadProps["onRemove"];
@@ -85,6 +88,7 @@ const ImportSchemaModal: React.FC<Props> = ({
   hasUpdateRight,
   hasDeleteRight,
   onModalClose,
+  schemaErrorLogMeta,
   dataChecking,
   onFileContentChange,
   onFileRemove,
@@ -154,6 +158,10 @@ const ImportSchemaModal: React.FC<Props> = ({
       ),
     },
     {
+      title: "Error log",
+      content: <SchemaErrorLogStep errorLogMeta={schemaErrorLogMeta} />,
+    },
+    {
       title: "Schema preview",
       content: (
         <SchemaPreviewStep
@@ -188,10 +196,23 @@ const ImportSchemaModal: React.FC<Props> = ({
       open={visible}
       onCancel={onModalClose}
       maskClosable={false}
-      width="70vw"
+      width="50vw"
       footer={
         <>
-          {currentPage === 1 && (
+          {currentPage === 1 && schemaErrorLogMeta && (
+            <Flex justify="space-between">
+              <FooterActionButton
+                icon={<Icon icon="download" />}
+                type="text"
+                onClick={() => ImportErrorLogUtils.downloadErrorLog(schemaErrorLogMeta)}>
+                {t("Download error log")}
+              </FooterActionButton>
+              <FooterActionButton type="default" onClick={toFileSelectionStep}>
+                {t("go back")}
+              </FooterActionButton>
+            </Flex>
+          )}
+          {currentPage === 2 && (
             <Flex justify="space-between">
               <Button
                 type="default"
@@ -263,4 +284,8 @@ const FieldTypeLabel = styled.div`
   align-items: center;
   gap: ${AntdToken.SPACING.XS}px;
   font-weight: ${AntdToken.FONT_WEIGHT.NORMAL};
+`;
+
+const FooterActionButton = styled(Button)`
+  text-transform: capitalize;
 `;

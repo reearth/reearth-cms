@@ -233,11 +233,11 @@ describe("ImportErrorLogUtils", () => {
         totalErrors: 2,
         entries: [
           {
-            path: ["Field \"age\"", "Default value"],
+            path: ['Field "age"', "Default value"],
             detail: "Expected number, received string",
           },
           {
-            path: ["Field \"name\"", "Field type"],
+            path: ['Field "name"', "Field type"],
             detail: "Invalid input: expected one of Text, Number",
           },
         ],
@@ -262,7 +262,7 @@ describe("ImportErrorLogUtils", () => {
         totalErrors: 1,
         entries: [
           {
-            path: ["Field \"age\""],
+            path: ['Field "age"'],
             detail: "Expected number, received string",
           },
         ],
@@ -454,7 +454,7 @@ describe("ImportErrorLogUtils", () => {
         fileName: "test.json",
         source: "schema",
         totalErrors: 1,
-        entries: [{ path: ["Field \"name\""], detail: "Expected number, received string" }],
+        entries: [{ path: ['Field "name"'], detail: "Expected number, received string" }],
       };
 
       ImportErrorLogUtils.downloadErrorLog(meta);
