@@ -107,7 +107,7 @@ func getReferencedItems(ctx context.Context, i *item.Item, sp *schema.Package, p
 	}
 
 	// Step 1: Collect all referenced item IDs
-	refItemIDs := item.List{i}.RefItemIDs(*sp)
+	refItemIDs := item.List{i}.RefItemsIDs(*sp)
 
 	if len(refItemIDs) == 0 {
 		return nil
