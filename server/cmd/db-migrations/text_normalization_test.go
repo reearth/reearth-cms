@@ -82,16 +82,18 @@ func TestTextNormalizationMigration(t *testing.T) {
 	err = TextNormalizationMigration(ctx, os.Getenv("REEARTH_CMS_DB"), db.Name(), true)
 	assert.NoError(t, err)
 
-	// Verify asset normalization
+	// Verify asset normalization: filename stays original, filenamenormalized is populated
 	var asset1Updated map[string]any
 	err = assetCol.FindOne(ctx, bson.M{"id": asset1["id"]}).Decode(&asset1Updated)
 	assert.NoError(t, err)
-	assert.Equal(t, "Tokyo2024.jpg", asset1Updated["filename"])
+	assert.Equal(t, "Tokyo２０２４.jpg", asset1Updated["filename"])
+	assert.Equal(t, "Tokyo2024.jpg", asset1Updated["filenamenormalized"])
 
 	var asset2Updated map[string]any
 	err = assetCol.FindOne(ctx, bson.M{"id": asset2["id"]}).Decode(&asset2Updated)
 	assert.NoError(t, err)
 	assert.Equal(t, "test.png", asset2Updated["filename"])
+	assert.Equal(t, "test.png", asset2Updated["filenamenormalized"])
 
 	// Verify item text field normalization
 	var item1Updated map[string]any
@@ -137,7 +139,7 @@ func TestNormalizeAssetFilename(t *testing.T) {
 				ID:       primitive.NewObjectID(),
 				FileName: "Tokyo２０２４.jpg",
 			},
-			want:     &AssetDocumentForNormalization{FileName: "Tokyo2024.jpg"},
+			want:     &AssetDocumentForNormalization{FileNameNormalized: "Tokyo2024.jpg"},
 			shouldUp: true,
 		},
 		{
@@ -146,8 +148,8 @@ func TestNormalizeAssetFilename(t *testing.T) {
 				ID:       primitive.NewObjectID(),
 				FileName: "test.png",
 			},
-			want:     nil,
-			shouldUp: false,
+			want:     &AssetDocumentForNormalization{FileNameNormalized: "test.png"},
+			shouldUp: true,
 		},
 		{
 			name: "fullwidth symbols",
@@ -155,7 +157,7 @@ func TestNormalizeAssetFilename(t *testing.T) {
 				ID:       primitive.NewObjectID(),
 				FileName: "ｆｉｌｅ．ｔｘｔ",
 			},
-			want:     &AssetDocumentForNormalization{FileName: "file.txt"},
+			want:     &AssetDocumentForNormalization{FileNameNormalized: "file.txt"},
 			shouldUp: true,
 		},
 		{
@@ -164,8 +166,8 @@ func TestNormalizeAssetFilename(t *testing.T) {
 				ID:       primitive.NewObjectID(),
 				FileName: "\u30dd\u30fc\u30eb.jpg", // ポール composed form (already normalized)
 			},
-			want:     nil,
-			shouldUp: false, // Already in correct form, no update needed
+			want:     &AssetDocumentForNormalization{FileNameNormalized: "\u30dd\u30fc\u30eb.jpg"},
+			shouldUp: true,
 		},
 		{
 			name: "decomposed form (NFD) - ポール",
@@ -173,8 +175,28 @@ func TestNormalizeAssetFilename(t *testing.T) {
 				ID:       primitive.NewObjectID(),
 				FileName: "\u30db\u309a\u30fc\u30eb.jpg", // ポール decomposed form (visually identical)
 			},
-			want:     &AssetDocumentForNormalization{FileName: "\u30dd\u30fc\u30eb.jpg"}, // Normalized to composed form
+			want:     &AssetDocumentForNormalization{FileNameNormalized: "\u30dd\u30fc\u30eb.jpg"},
 			shouldUp: true,
+		},
+		{
+			name: "idempotent: filenamenormalized already correct",
+			asset: AssetDocumentForNormalization{
+				ID:                 primitive.NewObjectID(),
+				FileName:           "Tokyo２０２４.jpg",
+				FileNameNormalized: "Tokyo2024.jpg",
+			},
+			want:     nil,
+			shouldUp: false,
+		},
+		{
+			name: "idempotent: filenamenormalized already correct for NFD",
+			asset: AssetDocumentForNormalization{
+				ID:                 primitive.NewObjectID(),
+				FileName:           "\u30db\u309a\u30fc\u30eb.jpg",
+				FileNameNormalized: "\u30dd\u30fc\u30eb.jpg",
+			},
+			want:     nil,
+			shouldUp: false,
 		},
 	}
 
