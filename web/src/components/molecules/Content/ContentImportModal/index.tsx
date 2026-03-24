@@ -120,6 +120,19 @@ const ContentImportModal: React.FC<Props> = ({
     ]);
   }, [setAlertList, t]);
 
+  const raiseExceedRecordLimitAlert = useCallback(() => {
+    setAlertList([
+      {
+        message: t("File content contains over {{maxRecord}} records.", {
+          maxRecord: Constant.IMPORT.MAX_CONTENT_RECORDS,
+        }),
+        type: "error",
+        closable: true,
+        showIcon: true,
+      },
+    ]);
+  }, [setAlertList, t]);
+
   const schemaValidationAlert = useCallback(
     (errorMeta: ValidationErrorMeta, fileName: string) => {
       setAlertList([]);
@@ -202,6 +215,26 @@ const ContentImportModal: React.FC<Props> = ({
   const handleStartLoading = useCallback(() => onSetDataChecking(true), [onSetDataChecking]);
   const handleEndLoading = useCallback(() => onSetDataChecking(false), [onSetDataChecking]);
 
+  const handleEnqueueJob = useCallback(
+    (extension: "json" | "csv" | "geojson", file: RcFile, fileName: string) => {
+      if (!workspaceId) throw Error("No workspace id");
+      if (!projectId) throw Error("No project id");
+      if (!modelId) throw Error("No model id!");
+
+      onEnqueueJob({
+        workspaceId,
+        projectId,
+        modelId,
+        extension,
+        fileName,
+        url: location.pathname,
+        file,
+      });
+      onClose();
+    },
+    [workspaceId, projectId, modelId, onEnqueueJob, location.pathname, onClose],
+  );
+
   const handleBeforeUpload = useCallback<Required<UploadProps>["beforeUpload"]>(
     async (file, fileList) => {
       setValidateImportResult(null);
@@ -234,28 +267,17 @@ const ContentImportModal: React.FC<Props> = ({
         handleStartLoading();
         const content = await FileUtils.parseTextFile(file);
 
-        const handleEnqueueJob = (extension: "json" | "csv" | "geojson") => {
-          if (!workspaceId) throw Error("No workspace id");
-          if (!projectId) throw Error("No project id");
-          if (!modelId) throw Error("No model id!");
-
-          onEnqueueJob({
-            workspaceId,
-            projectId,
-            modelId,
-            extension,
-            fileName,
-            url: location.pathname,
-            file,
-          });
-          onClose();
-        };
-
         switch (extension) {
           case "json": {
             const jsonValidation = await ObjectUtils.safeJSONParse<ImportContentItem[]>(content);
+
             if (!jsonValidation.isValid) {
               raiseIllegalFileAlert();
+              return;
+            }
+
+            if (jsonValidation.data.length > Constant.IMPORT.MAX_CONTENT_RECORDS) {
+              raiseExceedRecordLimitAlert();
               return;
             }
 
@@ -271,12 +293,13 @@ const ContentImportModal: React.FC<Props> = ({
               return;
             }
 
-            handleEnqueueJob(extension);
+            handleEnqueueJob(extension, file, fileName);
             break;
           }
 
           case "geojson": {
             const geoJSONValidation = await ObjectUtils.validateGeoJson(content);
+
             if (!geoJSONValidation.isValid) {
               raiseIllegalFileAlert();
               return;
@@ -288,6 +311,11 @@ const ContentImportModal: React.FC<Props> = ({
 
             if (!jsonValidation.isValid) {
               raiseIllegalFileAlert();
+              return;
+            }
+
+            if (jsonValidation.data.length > Constant.IMPORT.MAX_CONTENT_RECORDS) {
+              raiseExceedRecordLimitAlert();
               return;
             }
 
@@ -303,7 +331,7 @@ const ContentImportModal: React.FC<Props> = ({
               return;
             }
 
-            handleEnqueueJob(extension);
+            handleEnqueueJob(extension, file, fileName);
             break;
           }
 
@@ -312,6 +340,11 @@ const ContentImportModal: React.FC<Props> = ({
               await ImportContentUtils.convertCSVToJSON<ImportContentItem>(content);
             if (!csvValidation.isValid) {
               raiseIllegalFileAlert();
+              return;
+            }
+
+            if (csvValidation.data.length > Constant.IMPORT.MAX_CONTENT_RECORDS) {
+              raiseExceedRecordLimitAlert();
               return;
             }
 
@@ -327,7 +360,7 @@ const ContentImportModal: React.FC<Props> = ({
               return;
             }
 
-            handleEnqueueJob(extension);
+            handleEnqueueJob(extension, file, fileName);
             break;
           }
 
@@ -357,16 +390,12 @@ const ContentImportModal: React.FC<Props> = ({
       raiseIllegalFileAlert,
       raiseTooLargeFileSizeAlert,
       handleStartLoading,
-      workspaceId,
-      projectId,
-      modelId,
-      onEnqueueJob,
-      location.pathname,
-      onClose,
+      handleEnqueueJob,
       modelFields,
+      raiseExceedRecordLimitAlert,
       schemaValidationAlert,
-      handleEndLoading,
       t,
+      handleEndLoading,
     ],
   );
 

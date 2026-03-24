@@ -276,6 +276,7 @@ export default {
   "Field Type": "",
   "Fields": "",
   "File": "",
+  "File content contains over {{maxRecord}} records.": "File content contains over {{maxRecord, number}} records.",
   "File format is not supported": "File format is not supported",
   "File size exceeds the {{maxSizeInMB}} MB limit.": "File size exceeds the {{maxSizeInMB, number}} MB limit.",
   "Filter": "",

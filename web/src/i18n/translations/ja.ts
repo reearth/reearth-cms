@@ -274,6 +274,7 @@ export default {
   "Field Type": "ファイルタイプ",
   "Fields": "フィールド",
   "File": "ファイル",
+  "File content contains over {{maxRecord}} records.": "ファイルのコンテンツには {{maxRecord, number}} 件を超えています。",
   "File format is not supported": "ファイル形式がサポートされていません",
   "File size exceeds the {{maxSizeInMB}} MB limit.": "ファイルサイズは {{maxSizeInMB, number}} MB 以下である必要があります。",
   "Filter": "フィルター",
