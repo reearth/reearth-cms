@@ -72,14 +72,13 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		iid = a.Integration().StringRef()
 	}
 
-	return &AssetDocument{
+	ad := &AssetDocument{
 		ID:                      aid,
 		Project:                 a.Project().String(),
 		CreatedAt:               a.CreatedAt(),
 		User:                    uid,
 		Integration:             iid,
 		FileName:                a.FileName(),
-		FileNameNormalized:      utils.NormalizeText(a.FileName()),
 		Size:                    a.Size(),
 		PreviewType:             previewType,
 		UUID:                    a.UUID(),
@@ -87,7 +86,11 @@ func NewAsset(a *asset.Asset) (*AssetDocument, string) {
 		ArchiveExtractionStatus: archiveExtractionStatus,
 		FlatFiles:               a.FlatFiles(),
 		Public:                  a.Public(),
-	}, aid
+	}
+	if a.FileName() != utils.NormalizeText(a.FileName()) {
+		ad.FileNameNormalized = utils.NormalizeText(a.FileName())
+	}
+	return ad, aid
 }
 
 func (d *AssetDocument) Model() (*asset.Asset, error) {
